@@ -16,6 +16,7 @@ all data changes go to .nextData for validation on next transition (self-self tr
     { from       : '',
       to         : '',
      ?name       : '',
+     ?action     : '',
      ?valid      : () || [()] => a,r,  // validate this edge's transition; usually about data
      ?likelihood : 0.0 .. 1.0,         // for stoch modelling
      ?usual      : ''                  // most common exit, for graphing; likelihood overrides
@@ -26,7 +27,8 @@ all data changes go to .nextData for validation on next transition (self-self tr
  ?min_exits     : integer,
  ?max_exits     : integer,
  ?allow_islands : false,
- ?allow_force   : false
+ ?allow_force   : false,
+ ?actions       : 'disallow' | 'allow' | 'require' = 'allow'
 
 })
 
