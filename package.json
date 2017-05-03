@@ -1,0 +1,35 @@
+{
+  "name": "jssm",
+  "version": "0.1.0",
+  "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
+  "main": "dist/jssm.es5.browserified.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StoneCypher/jssm.git"
+  },
+  "keywords": [
+    "state",
+    "state-machine",
+    "machine",
+    "finite-state-machine",
+    "fsm",
+    "fsm-library",
+    "js",
+    "javascript",
+    "javascript-library",
+    "mit-license",
+    "tested",
+    "typed",
+    "typed-js",
+    "flowtype"
+  ],
+  "author": "John Haugeland <stonecypher@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/StoneCypher/jssm/issues"
+  },
+  "homepage": "https://github.com/StoneCypher/jssm#readme"
+}
