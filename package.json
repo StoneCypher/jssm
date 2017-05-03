@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {
@@ -10,7 +10,10 @@
     "setver": "node ./set_version.js",
     "rename": "node -e \"require('fs').renameSync('./build/jssm.js', './build/jssm.es5.js');\"",
     "pack": "browserify build/jssm.es5.js > build/jssm.es5.amd.js",
-    "build": "npm run clean && npm run babel && npm run rename && npm run setver && npm run pack && npm run test",
+    "make": "npm run clean && npm run babel && npm run rename && npm run setver && npm run pack",
+    "flow": "flow",
+    "vet": "npm run flow",
+    "build": "npm run vet && npm run make && npm run test",
     "postinstall": "npm run build",
     "prepublish": "npm run build"
   },

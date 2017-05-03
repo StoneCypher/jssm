@@ -1,4 +1,11 @@
+
 import test from 'ava';
+
+const jssm = require('../../build/jssm.es5.amd.js');
+
+
+
+
 
 test('foo', t => {
     t.pass();

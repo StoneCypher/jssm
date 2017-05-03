@@ -1,4 +1,17 @@
 
+// @flow
+
+
+
+
+
 const version = null; // replaced from package.js in build
 
-export { version };
+const create = (options: Object) => false;
+
+
+
+export {
+    create,
+    version
+};
