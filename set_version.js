@@ -5,6 +5,6 @@ const fs  = require('fs'),
 fs.writeFileSync(
   './build/jssm.es5.js',
   (fs.readFileSync('./build/jssm.es5.js') +'').replace(
-    ' version = null;',
-    ' version = \'' + pkg.version + '\';')
+    'var version = null,',
+    'var version = \'' + pkg.version + '\',')
 );
