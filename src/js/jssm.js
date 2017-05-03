@@ -1,6 +1,10 @@
 
 // @flow
 
+const version = null; // replaced from package.js in build
+
+
+
 type JssmEdgePermitter<NT, DT>    = (OldState: NT, NewState: NT, OldData: DT, NewData: DT) => boolean;
 type JssmEdgePermitterDef<NT, DT> = JssmEdgePermitter<NT, DT> | Array< JssmEdgePermitter<NT, DT> >;
 
@@ -21,28 +25,38 @@ type JssmStatePermitter<NT, DT>    = (OldState: NT, NewState: NT, OldData: DT, N
 type JssmStatePermitterDef<NT, DT> = JssmStatePermitter<NT, DT> | Array< JssmStatePermitter<NT, DT> >;
 
 type JssmGenericMachine<NT, DT> = {
-  name?  : string,
-  state  : NT,
-  data?  : DT,
-  nodes? : Array<NT>,
-  edges  : JssmEdges<NT, DT>,
-  valid? : JssmStatePermitterDef<NT, DT> // whargarbl todo this should be a predicate like edgepermitter
+
+  name?          : string,
+  state          : NT,
+  data?          : DT,
+  nodes?         : Array<NT>,
+  edges          : JssmEdges<NT, DT>,
+  valid?         : JssmStatePermitterDef<NT, DT>,
+
+  min_edges?     : number,
+  max_edges?     : number,
+
+  allow_empty?   : boolean,
+  allow_islands? : boolean,
+  allow_force?   : boolean
+
 };
 
 
 
 type JssmMachine = JssmGenericMachine<string, mixed>;
 
+const new_machine = (props:mixed) : JssmMachine => {
+    return {state:'1', edges: []}; // whargarbl this should not work
+};
 
 
-
-
-const version = null, // replaced from package.js in build
-      create  = (options: Object) => false;
 
 
 
 export {
-    create,
-    version
+
+  new_machine,
+  version
+
 };
