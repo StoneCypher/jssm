@@ -1,24 +1,41 @@
+
+self-self transitions are valid
+
+multiple transitions from a->b are not valid
+
+all data changes go to .nextData for validation on next transition (self-self transition if in-place)
+
 ```
 .create({
  ?name  : '',
- ?state : '',
+  state : '',
  ?data  : {},
  ?nodes : [''],
  ?valid : () || [()] => a,r ,
   edges : [
     { from       : '',
       to         : '',
-     ?likelihood : 0.0 .. 1.0,
      ?name       : '',
-     ?valid      : () || [()] => a,r
+     ?valid      : () || [()] => a,r,  // validate this edge's transition; usually about data
+     ?likelihood : 0.0 .. 1.0,         // for stoch modelling
+     ?usual      : ''                  // most common exit, for graphing; likelihood overrides
     }
   ],
 
- ?locked    : bool = false,
- ?min_exits : integer,
- ?max_exits : integer
+//?locked        : bool = true,
+ ?min_exits     : integer,
+ ?max_exits     : integer,
+ ?allow_islands : false,
+ ?allow_force   : false
 
 })
+
+
+
+// .node.add_edge
+// .node.remove_edge
+// .node.remove
+// .node.finalizeChanges
 
 .transitions()                                    -> [{ to: '', ?name: '' }]
 .isTerminal() = () => .transitions().length === 0 -> bool
