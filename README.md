@@ -20,7 +20,7 @@ There are a lot of state machine impls for JS, many quite a bit more mature than
 1. [FSM Workbench](https://github.com/MatthewHepburn/FSM-Workbench)
 1. [SimpleStateMachine](https://github.com/ccnokes/SimpleStateMachine)
 1. shime/[micro-machine](https://github.com/shime/micro-machine)
-  1. soveran/[micromachine](https://github.com/soveran/micromachine) (ruby)
+    1. soveran/[micromachine](https://github.com/soveran/micromachine) (ruby)
 1. fabiospampinato/[FSM](https://github.com/fabiospampinato/FSM)
 1. HQarroum/[FSM](https://github.com/HQarroum/Fsm)
 1. [Finite-State-Automata](https://github.com/RolandR/Finite-State-Automata)
@@ -38,4 +38,4 @@ And some similar stuff:
 1. [DRAKON](https://en.wikipedia.org/wiki/DRAKON)
 1. [Yakindu Statechart Tools](https://github.com/Yakindu/statecharts)
 1. [GraphViz](http://www.graphviz.org/)
-  1. [Viz.js](https://github.com/mdaines/viz.js/), which we use
+    1. [Viz.js](https://github.com/mdaines/viz.js/), which we use
