@@ -17,7 +17,7 @@ const new_machine = (props:mixed) : JssmMachine => {
 
 
 
-class jssm {
+class machine {
 
 
   constructor({ transitions } : JssmConfig) {
@@ -133,6 +133,8 @@ class jssm {
 
 
 export {
+
+  machine,
 
   new_machine,
   version

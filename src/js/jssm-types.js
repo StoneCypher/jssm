@@ -43,7 +43,9 @@ type JssmGenericMachine<NT, DT> = {
 
   allow_empty?     : boolean,
   allow_islands?   : boolean,
-  allow_force?     : boolean
+  allow_force?     : boolean,
+
+  keep_history?    : boolean | number
 
 };
 
