@@ -20,35 +20,51 @@ const new_machine = (props:mixed) : JssmMachine => {
 
 class machine {
 
-  _state  : string;
-  _states : Map<string, mixed>;  // todo whargarbl this really should't be string
-  _edges  : Array<mixed>;
+  _state       : string;
+  _states      : Map<string, mixed>;  // todo whargarbl this really should't be string  // remove mixed todo whargarbl
+  _edges       : Array<mixed>;        // remove mixed todo whargarbl
+  _named_edges : Map<string, mixed>;  // remove mixed todo whargarbl
+  _actions     : Array<mixed>;        // remove mixed todo whargarbl
 
   constructor({ initial_state, transitions } : JssmConfig) {
 
-    this._state  = initial_state;
-    this._states = new Map();
-    this._edges  = [];
+    this._state       = initial_state;
+    this._states      = new Map();
+    this._edges       = [];
+    this._named_edges = new Map();
+    this._actions     = [];
 
-    transitions.map( (tr:any) => { // drive out uses of any todo whargarbl
+    transitions.map( (tr:any) => { // todo whargarbl burn out any
+
       if (tr.from === undefined) { throw `transition must define 'from': ${JSON.stringify(tr)}`; }
       if (tr.to   === undefined) { throw `transition must define 'to': ${  JSON.stringify(tr)}`; }
 
-      const upmap = (origin, target) => {
-        const cursor : any = this._states.get(tr[origin]); // todo whargarbl remove any use of any
-        if (cursor === undefined) {
-          console.log(`this._new_state({name: ${tr[target]}, [origin]: [${tr[origin]}] })`);
-          this._new_state({name: tr[target], [origin]: [tr[origin]] });
-        } else {
-          if (cursor[target].includes(tr[target])) {
-            throw `transition already exists ${tr[origin]} - ${tr[target]} in ${JSON.stringify(tr)}`;
-          }
-          cursor[target].push(tr[target]);
-        }
+      var cursor_from : any = (this._states.get(tr.from): any); // todo whargarbl burn out uses of any
+      if (cursor_from === undefined) {
+        this._new_state({name: tr.from, from: [], to: [] });
+        cursor_from = (this._states.get(tr.from) : any);
       }
 
-      upmap('from', 'to');
-      upmap('to',   'from');
+      var cursor_to : any = (this._states.get(tr.to): any); // todo whargarbl burn out uses of any
+      if (cursor_to === undefined) {
+        this._new_state({name: tr.to, from: [], to: [] });
+        cursor_to = (this._states.get(tr.to) : any);
+      }
+
+      if (cursor_from.to.includes(tr.to)) { throw `already has ${tr.from} to ${tr.to}`; }
+      else                                { cursor_from.to.push(tr.to); }
+
+      if (cursor_to.from.includes(tr.from)) { throw `already has ${tr.to} from ${tr.from}`; }
+      else                                  { cursor_to.from.push(tr.from); }
+
+      this._edges.push(tr);
+      const thisEdgeId = this._edges.length - 1;
+
+      if (tr.name) {
+        if (this._named_edges.has(tr.name)) { throw `name ${tr.name} already created ${tr}`; }
+        else                                { this._named_edges.set(tr.name, thisEdgeId); }
+      }
+      // actions
 
     });
 
@@ -71,9 +87,13 @@ class machine {
     return {}; // todo whargarbl
   }
 
+  load_machine_state() : boolean {
+    return false; // todo whargarbl
+  }
+
 
   states() : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+    return [... this._states.keys()]; // todo whargarbl
   }
 
   transitions() : Array<mixed> { // todo whargarbl
