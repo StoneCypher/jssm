@@ -17,21 +17,54 @@ const new_machine = (props:mixed) : JssmMachine => {
 
 
 
+
 class machine {
 
+  _state  : string;
+  _states : Map<string, mixed>;  // todo whargarbl this really should't be string
+  _edges  : Array<mixed>;
 
-  constructor({ transitions } : JssmConfig) {
+  constructor({ initial_state, transitions } : JssmConfig) {
 
-    transitions.map(tr => {
-      console.log(`hook up ${JSON.stringify(tr)}`);
+    this._state  = initial_state;
+    this._states = new Map();
+    this._edges  = [];
+
+    transitions.map( (tr:any) => { // drive out uses of any todo whargarbl
+      if (tr.from === undefined) { throw `transition must define 'from': ${JSON.stringify(tr)}`; }
+      if (tr.to   === undefined) { throw `transition must define 'to': ${  JSON.stringify(tr)}`; }
+
+      const upmap = (origin, target) => {
+        const cursor : any = this._states.get(tr[origin]); // todo whargarbl remove any use of any
+        if (cursor === undefined) {
+          console.log(`this._new_state({name: ${tr[target]}, [origin]: [${tr[origin]}] })`);
+          this._new_state({name: tr[target], [origin]: [tr[origin]] });
+        } else {
+          if (cursor[target].includes(tr[target])) {
+            throw `transition already exists ${tr[origin]} - ${tr[target]} in ${JSON.stringify(tr)}`;
+          }
+          cursor[target].push(tr[target]);
+        }
+      }
+
+      upmap('from', 'to');
+      upmap('to',   'from');
+
     });
 
   }
 
 
+  _new_state(state_config : any) : string { // todo whargarbl get that state_config under control
+    if (this._states.has(state_config.name)) { throw 'state already exists'; }
+    this._states.set(state_config.name, state_config);
+    return state_config.name;
+  }
+
+
 
   state() : string {
-    return ''; // todo whargarbl
+    return this._state; // todo whargarbl
   }
 
   machine_state() : mixed {
@@ -39,7 +72,7 @@ class machine {
   }
 
 
-  nodes() : Array<mixed> { // todo whargarbl
+  states() : Array<mixed> { // todo whargarbl
     return []; // todo whargarbl
   }
 
@@ -56,47 +89,47 @@ class machine {
   }
 
 
-  transitions_for(whichNode : string) : Array<mixed> { // todo whargarbl
+  transitions_for(whichState : string) : Array<mixed> { // todo whargarbl
     return []; // todo whargarbl
   }
 
-  entrances_for(whichNode : string) : Array<mixed> { // todo whargarbl
+  entrances_for(whichState : string) : Array<mixed> { // todo whargarbl
     return []; // todo whargarbl
   }
 
-  exits_for(whichNode : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
-  }
-
-
-  actions_for(whichNode : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
-  }
-
-  action_entrances_for(whichNode : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
-  }
-
-  action_exits_for(whichNode : string) : Array<mixed> { // todo whargarbl
+  exits_for(whichState : string) : Array<mixed> { // todo whargarbl
     return []; // todo whargarbl
   }
 
 
-  is_unenterable(whichNode : string) : boolean {
-    return this.entrances_for(whichNode).length === 0;
+  actions_for(whichState : string) : Array<mixed> { // todo whargarbl
+    return []; // todo whargarbl
+  }
+
+  action_entrances_for(whichState : string) : Array<mixed> { // todo whargarbl
+    return []; // todo whargarbl
+  }
+
+  action_exits_for(whichState : string) : Array<mixed> { // todo whargarbl
+    return []; // todo whargarbl
+  }
+
+
+  is_unenterable(whichState : string) : boolean {
+    return this.entrances_for(whichState).length === 0;
   }
 
   has_unenterables() : boolean {
-    return this.nodes.some(this.is_unenterable);
+    return this.states.some(this.is_unenterable);
   }
 
 
-  is_terminal(whichNode : string) : boolean {
-    return this.exits_for(whichNode).length === 0;
+  is_terminal(whichState : string) : boolean {
+    return this.exits_for(whichState).length === 0;
   }
 
   has_terminals() : boolean {
-    return this.nodes.some(this.is_terminal);
+    return this.states.some(this.is_terminal);
   }
 
 
@@ -104,11 +137,11 @@ class machine {
     return false; // todo whargarbl
   }
 
-  transition(newNode : string, new_data? : mixed) : boolean {
+  transition(newState : string, new_data? : mixed) : boolean {
     return false; // todo whargarbl
   }
 
-  force_transition(newNode : string, new_data? : mixed) : boolean {
+  force_transition(newState : string, new_data? : mixed) : boolean {
     return false; // todo whargarbl
   }
 
@@ -117,11 +150,11 @@ class machine {
     return false; // todo whargarbl
   }
 
-  valid_transition(newNode : string, new_data : mixed) : boolean {
+  valid_transition(newState : string, new_data : mixed) : boolean {
     return false; // todo whargarbl
   }
 
-  valid_force_transition(newNode : string, new_data : mixed) : boolean {
+  valid_force_transition(newState : string, new_data : mixed) : boolean {
     return false; // todo whargarbl
   }
 
