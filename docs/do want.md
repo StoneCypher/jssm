@@ -14,11 +14,11 @@
     - [ ] whether forcing (making a change outside the edge graph) is permitted (not implementing for now,)
     - [ ] whether names are `allowed|disallowed|optional`,
     - [ ] whether action names are `allowed|disallowed|optional`,
-- [ ] for non-fixed machines, (not implementing for now,)
-    - [ ] to add edges,
-    - [ ] to remove edges,
-    - [ ] to remove nodes (and thus all the related edges,)
-    - [ ] to have a sane way to validate afterwards
+- [ ] ~~for non-fixed machines, (not implementing for now,)~~
+    - [ ] ~~to add edges~~,
+    - [ ] ~~to remove edges~~,
+    - [ ] ~~to remove nodes (and thus all the related edges,)~~
+    - [ ] ~~to have a sane way to validate afterwards~~
 - [ ] attached data,
     - [ ] which is transactionally applied,
     - [ ] which is available to all validation hooks,
@@ -50,6 +50,7 @@
     - [ ] autocreate an api (that is, action "melt" on machine auto-gets api method equiv `.melt()`)
     - [ ] consume `.dfa` files?
     - [ ] compare two state machines?
+    - [ ] check `is_changing`
 - [ ] improved nature of states (all thanks burny who isn't on gh zomg)
     - [ ] states as objects rather than strings
         - [ ] makes inheritance easier
