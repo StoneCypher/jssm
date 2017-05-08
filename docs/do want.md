@@ -1,10 +1,10 @@
 also what do you want in a state machine api besides
 
-1. specifying the initial edges as 1-dir node edges,
-    1. weights,
-    1. names,
-    1. action names (edge names are unique, action names are unique-to-source,)
-    1. the probability of an edge
+1. [ ] specifying the initial edges as 1-dir node edges,
+    1. [ ] weights,
+    1. [ ] names,
+    1. [ ] action names (edge names are unique, action names are unique-to-source,)
+    1. [ ] the probability of an edge
 1. the ability to list
     1. a node's edges (in/out/both,)
     1. whether a node is terminal,
