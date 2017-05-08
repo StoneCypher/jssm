@@ -20,24 +20,24 @@ const new_machine = (props:mixed) : JssmMachine => {
 
 class machine {
 
-  _state       : string;
-  _states      : Map<string, mixed>;  // todo whargarbl this really should't be string  // remove mixed todo whargarbl
-  _edges       : Array<mixed>;        // remove mixed todo whargarbl
-  _named_edges : Map<string, mixed>;  // remove mixed todo whargarbl
-  _actions     : Array<mixed>;        // remove mixed todo whargarbl
+  _state             : string;
+  _states            : Map<string, mixed>;               // todo whargarbl this really should't be string  // remove mixed todo whargarbl
+  _edges             : Array<mixed>;                     // remove mixed todo whargarbl
+  _named_transitions : Map<string, mixed>;               // remove mixed todo whargarbl
+  _actions           : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
 
   constructor({ initial_state, transitions } : JssmConfig) {
 
-    this._state       = initial_state;
-    this._states      = new Map();
-    this._edges       = [];
-    this._named_edges = new Map();
-    this._actions     = [];
+    this._state             = initial_state;
+    this._states            = new Map();
+    this._edges             = [];
+    this._named_transitions = new Map();
+    this._actions           = new Map();
 
     transitions.map( (tr:any) => { // todo whargarbl burn out any
 
-      if (tr.from === undefined) { throw `transition must define 'from': ${JSON.stringify(tr)}`; }
-      if (tr.to   === undefined) { throw `transition must define 'to': ${  JSON.stringify(tr)}`; }
+      if (tr.from === undefined) { throw new Error(`transition must define 'from': ${JSON.stringify(tr)}`); }
+      if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
 
       var cursor_from : any = (this._states.get(tr.from): any); // todo whargarbl burn out uses of any
       if (cursor_from === undefined) {
@@ -51,21 +51,19 @@ class machine {
         cursor_to = (this._states.get(tr.to) : any);
       }
 
-      if (cursor_from.to.includes(tr.to)) { throw `already has ${tr.from} to ${tr.to}`; }
+      if (cursor_from.to.includes(tr.to)) { throw new Error(`already has ${tr.from} to ${tr.to}`); }
       else                                { cursor_from.to.push(tr.to); }
 
-      if (cursor_to.from.includes(tr.from)) { throw `already has ${tr.to} from ${tr.from}`; }
+      if (cursor_to.from.includes(tr.from)) { throw new Error(`already has ${tr.to} from ${tr.from}`); }
       else                                  { cursor_to.from.push(tr.from); }
 
       this._edges.push(tr);
       const thisEdgeId = this._edges.length - 1;
 
       if (tr.name) {
-        if (this._named_edges.has(tr.name)) { throw `name ${tr.name} already created ${tr}`; }
-        else                                { this._named_edges.set(tr.name, thisEdgeId); }
+        if (this._named_transitions.has(tr.name)) { throw new Error(`name ${tr.name} already created ${tr}`); }
+        else                                      { this._named_transitions.set(tr.name, thisEdgeId); }
       }
-
-
 
     });
 
@@ -73,7 +71,7 @@ class machine {
 
 
   _new_state(state_config : any) : string { // todo whargarbl get that state_config under control
-    if (this._states.has(state_config.name)) { throw 'state already exists'; }
+    if (this._states.has(state_config.name)) { throw new Error(`state ${state_config.name} already exists`); }
     this._states.set(state_config.name, state_config);
     return state_config.name;
   }
@@ -101,8 +99,8 @@ class machine {
     return []; // todo whargarbl
   }
 
-  named_transitions() : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+  named_transitions() : Map<string, mixed> { // todo whargarbl
+    return this._named_transitions; // todo whargarbl
   }
 
   actions() : Array<mixed> { // todo whargarbl
