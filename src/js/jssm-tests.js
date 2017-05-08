@@ -15,21 +15,6 @@ const seq = upTo => new Array(upTo).fill(false).map( (_,i) => i );
 
 
 
-function promise_delay(how_long, f) {
-    return new Promise( (resolve, reject) => setTimeout( () => { resolve(f()); }, how_long ) );
-}
-
-// todo whargarbl get rid of this nonsense before 1.0
-seq(3000).map(i =>
-    test(`Delay test ${i}`, t => promise_delay(Math.random() * 1500, () => { t.is(1,1); return 'res'; }))
-);
-
-// p_test('text', 'expected', test());
-
-
-
-
-
 test('Stop light', async t => {
 
     const light = new jssm.machine({
