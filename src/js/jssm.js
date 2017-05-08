@@ -67,13 +67,13 @@ class machine {
         else                                      { this._named_transitions.set(tr.name, thisEdgeId); }
       }
 
-      var from_mapping:any = (this._edge_map.get(tr.from) : any);
+      var from_mapping:any = (this._edge_map.get(tr.from) : any);  // todo whargarbl burn out uses of any
       if (from_mapping === undefined) {
         this._edge_map.set(tr.from, new Map());
-        from_mapping = (this._edge_map.get(tr.from) : any);
+        from_mapping = (this._edge_map.get(tr.from) : any);  // todo whargarbl burn out uses of any
       }
 
-      var to_mapping:any = (from_mapping.get(tr.to) : any);
+      var to_mapping:any = (from_mapping.get(tr.to) : any);  // todo whargarbl burn out uses of any
       if (to_mapping) { throw new Error(`from -> to already exists ${tr.from} ${tr.to}`); }
       else            { from_mapping.set(tr.to, thisEdgeId); }
 
