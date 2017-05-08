@@ -64,7 +64,8 @@ class machine {
         if (this._named_edges.has(tr.name)) { throw `name ${tr.name} already created ${tr}`; }
         else                                { this._named_edges.set(tr.name, thisEdgeId); }
       }
-      // actions
+
+
 
     });
 
