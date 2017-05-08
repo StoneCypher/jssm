@@ -23,6 +23,7 @@ class machine {
   _state             : string;
   _states            : Map<string, mixed>;               // todo whargarbl this really should't be string  // remove mixed todo whargarbl
   _edges             : Array<mixed>;                     // remove mixed todo whargarbl
+  _edge_map          : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
   _named_transitions : Map<string, mixed>;               // remove mixed todo whargarbl
   _actions           : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
 
@@ -31,6 +32,7 @@ class machine {
     this._state             = initial_state;
     this._states            = new Map();
     this._edges             = [];
+    this._edge_map          = new Map();
     this._named_transitions = new Map();
     this._actions           = new Map();
 
@@ -64,6 +66,16 @@ class machine {
         if (this._named_transitions.has(tr.name)) { throw new Error(`named transition "${tr.name}" already created`); }
         else                                      { this._named_transitions.set(tr.name, thisEdgeId); }
       }
+
+      var from_mapping:any = (this._edge_map.get(tr.from) : any);
+      if (from_mapping === undefined) {
+        this._edge_map.set(tr.from, new Map());
+        from_mapping = (this._edge_map.get(tr.from) : any);
+      }
+
+      var to_mapping:any = (from_mapping.get(tr.to) : any);
+      if (to_mapping) { throw new Error(`from -> to already exists ${tr.from} ${tr.to}`); }
+      else            { from_mapping.set(tr.to, thisEdgeId); }
 
     });
 
@@ -105,6 +117,16 @@ class machine {
 
   actions() : Array<mixed> { // todo whargarbl
     return []; // todo whargarbl
+  }
+
+
+  edge_id(from:any, to:any) {
+    return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
+  }
+
+  edge(from:any, to:any) {
+    const id = this.edge_id(from, to);
+    return (id === undefined)? undefined : this._edges[id];
   }
 
 
@@ -175,6 +197,27 @@ class machine {
 
   valid_force_transition(newState : string, new_data : mixed) : boolean {
     return false; // todo whargarbl
+  }
+
+
+  viz() {
+    const l_states = this.states();
+    const node_of = (state) => `n${l_states.indexOf(state)}`;
+
+    const nodes = l_states.map( (s:any) => `${node_of(s)} [label="${s}"];`).join(' ');
+
+    const edges = this.states().map( (s:any) =>
+
+      this.exits_for(s).map( (ex:any) => {
+        const edge  = this.edge(s, ex),
+              label = edge? (edge.name || undefined) : undefined;
+        return `${node_of(s)}->${node_of(ex)} [${label? `label="${(label:any)}"`:''} len=2];`;
+      }).join(' ')
+
+    ).join(' ');
+
+    return `digraph G {\n  fontname="helvetica neue";\n  style=filled;\n  bgcolor=lightgrey;\n  node [shape=box; style=filled; fillcolor=white; fontname="helvetica neue"];\n  edge [len=2; fontname="helvetica neue"];\n\n  ${nodes}\n\n  ${edges}\n}`;
+
   }
 
 
