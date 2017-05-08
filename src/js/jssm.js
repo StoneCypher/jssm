@@ -61,7 +61,7 @@ class machine {
       const thisEdgeId = this._edges.length - 1;
 
       if (tr.name) {
-        if (this._named_transitions.has(tr.name)) { throw new Error(`name ${tr.name} already created ${tr}`); }
+        if (this._named_transitions.has(tr.name)) { throw new Error(`named transition "${tr.name}" already created`); }
         else                                      { this._named_transitions.set(tr.name, thisEdgeId); }
       }
 
@@ -79,7 +79,7 @@ class machine {
 
 
   state() : string {
-    return this._state; // todo whargarbl
+    return this._state;
   }
 
   machine_state() : mixed {
@@ -92,7 +92,7 @@ class machine {
 
 
   states() : Array<mixed> { // todo whargarbl
-    return [... this._states.keys()]; // todo whargarbl
+    return [... this._states.keys()];
   }
 
   transitions() : Array<mixed> { // todo whargarbl
@@ -100,7 +100,7 @@ class machine {
   }
 
   named_transitions() : Map<string, mixed> { // todo whargarbl
-    return this._named_transitions; // todo whargarbl
+    return this._named_transitions;
   }
 
   actions() : Array<mixed> { // todo whargarbl
@@ -108,16 +108,16 @@ class machine {
   }
 
 
-  transitions_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+  transitions_for(whichState : string) : mixed { // todo whargarbl
+    return {entrances: this.entrances_for(whichState), exits: this.exits_for(whichState)};
   }
 
   entrances_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+    return (this._states.get(whichState) : any).from; // todo whargarbl burn out any
   }
 
   exits_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+    return (this._states.get(whichState) : any).to; // todo whargarbl burn out any
   }
 
 

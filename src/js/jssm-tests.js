@@ -39,3 +39,23 @@ describe('Stop light', async it => {
   );
 
 });
+
+
+
+
+
+describe('Illegal machines', async it => {
+
+  it('catch repeated names', t => t.throws(() => {
+
+    const same_name = new jssm.machine({
+      initial_state: 'moot',
+      transitions:[
+        { name:'identical', from:'1', to:'2' },
+        { name:'identical', from:'2', to:'3' }
+      ]
+    });
+
+  }, Error));
+
+});

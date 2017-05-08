@@ -1,10 +1,11 @@
 {
   "name": "jssm",
-  "version": "0.6.3",
+  "version": "0.9.1",
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {
     "test": "ava src/js/jssm-tests.js",
+    "test-verbose": "ava src/js/jssm-tests.js -v",
     "clean": "rimraf build -f && rimraf dist -f",
     "babel": "babel src/js -d build/",
     "setver": "node ./set_version.js",
@@ -14,7 +15,8 @@
     "flow": "flow",
     "eslint": "eslint src/js/jssm.js",
     "vet": "npm run flow && npm run eslint",
-    "build": "npm run vet && npm run make && npm run test",
+    "audit": "echo \\\"any\\\" remaining. . . : `grep any src/js/jssm.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm.js | wc -l`",
+    "build": "npm run vet && npm run make && npm run test-verbose && npm run audit",
     "postinstall": "npm run build",
     "prepublish": "npm run build"
   },
@@ -46,6 +48,7 @@
   "homepage": "https://github.com/StoneCypher/jssm#readme",
   "devDependencies": {
     "ava": "^0.19.1",
+    "ava-spec": "^1.1.0",
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
