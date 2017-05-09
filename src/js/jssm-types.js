@@ -5,11 +5,13 @@
 
 
 
-type JssmSuccess    = { success: true };
-type JssmFailure    = { success: false, error: mixed };
-type JssmIncomplete = { success: 'incomplete' };
-type JssmResult     = JssmSuccess | JssmFailure | JssmIncomplete;
+type JssmSuccess      = { success: true };
+type JssmFailure      = { success: false, error: mixed };
+type JssmIncomplete   = { success: 'incomplete' };
+type JssmResult       = JssmSuccess | JssmFailure | JssmIncomplete;
 
+type JssmPermitted    = 'required' | 'disallowed';
+type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
 
 
 
@@ -36,12 +38,6 @@ type JssmGenericState<NT> = {
   to       : Array< NT > ,
   complete : boolean
 };
-
-
-
-
-type ARD = 'allow' | 'require' | 'disallow';
-
 
 
 
@@ -116,7 +112,7 @@ type JssmGenericConfig<NT, DT> = {
   max_exits?     : number,
   allow_islands? : false,
   allow_force?   : false,
-  actions?       : ARD,
+  actions?       : JssmPermittedOpt,
 
   auto_api?      : boolean | string;  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
@@ -128,26 +124,10 @@ type JssmGenericConfig<NT, DT> = {
 
 export type {
 
-  JssmResult,
-    JssmSuccess,
-    JssmFailure,
-    JssmIncomplete,
-
-  ARD,
-
-  JssmTransitionPermitter,
-    JssmTransitionPermitterMaybeArray,
-
   JssmTransition,
-    JssmTransitions,
+    JssmTransitionList,
 
-  JssmTransitionList,
-
-  JssmStatePermitter,
-    JssmStatePermitterMaybeArray,
-
-  JssmGenericMachine,
-    JssmGenericConfig,
+  JssmGenericConfig,
     JssmGenericState,
 
   JssmMachineInternalState

@@ -29,13 +29,13 @@ describe('Simple stop light', async it => {
   const r_states = light.states();
   it('has the right state count', t => t.is(r_states.length, 3));
   ['red', 'yellow', 'green'].map(c =>
-  	it(`has state "${c}"`, t => t.is(r_states.includes(c), true))
+    it(`has state "${c}"`, t => t.is(r_states.includes(c), true))
   );
 
   const r_names = light.named_transitions();
   it('has the right named transition count', t => t.is(r_names.size, 3));
   ['switch_warn', 'switch_halt', 'switch_go'].map(a =>
-  	it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
+    it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
   );
 
 });
@@ -69,14 +69,46 @@ describe('Complex stop light', async it => {
   const r_states = light2.states();
   it('has the right state count', t => t.is(r_states.length, 4));
   ['red', 'yellow', 'green', 'off'].map(c =>
-  	it(`has state "${c}"`, t => t.is(r_states.includes(c), true))
+    it(`has state "${c}"`, t => t.is(r_states.includes(c), true))
   );
 
   const r_names = light2.named_transitions();
   it('has the right named transition count', t => t.is(r_names.size, 4));
   ['turn_on', 'switch_warn', 'switch_halt', 'switch_go'].map(a =>
-  	it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
+    it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
   );
+
+  it.describe('transition walkthrough', async it2 => {
+
+    it2('machine starts off',    t => t.is("off",    light2.state()));
+    it2('off refuses green',     t => t.is(false,    light2.transition('green')));
+    it2('off refuses yellow',    t => t.is(false,    light2.transition('yellow')));
+
+    it2('off accepts red',       t => t.is(true,     light2.transition('red')));
+    it2('off is now red',        t => t.is("red",    light2.state()));
+    it2('red refuses yellow',    t => t.is(false,    light2.transition('yellow')));
+    it2('red still red',         t => t.is("red",    light2.state()));
+    it2('red refuses red',       t => t.is(false,    light2.transition('red')));
+    it2('red still red',         t => t.is("red",    light2.state()));
+
+    it2('red accepts green',     t => t.is(true,     light2.transition('green')));
+    it2('red now green',         t => t.is("green",  light2.state()));
+    it2('green refuses red',     t => t.is(false,    light2.transition('red')));
+    it2('green still green',     t => t.is("green",  light2.state()));
+    it2('green refuses green',   t => t.is(false,    light2.transition('green')));
+    it2('green still green',     t => t.is("green",  light2.state()));
+
+    it2('green accepts yellow',  t => t.is(true,     light2.transition('yellow')));
+    it2('green now yellow',      t => t.is("yellow", light2.state()));
+    it2('yellow refuses green',  t => t.is(false,    light2.transition('green')));
+    it2('yellow still yellow',   t => t.is("yellow", light2.state()));
+    it2('yellow refuses yellow', t => t.is(false,    light2.transition('yellow')));
+    it2('yellow still yellow',   t => t.is("yellow", light2.state()));
+
+    it2('yellow accepts red',    t => t.is(true,     light2.transition('red')));
+    it2('back to red',           t => t.is("red",    light2.state()));
+
+  });
 
 });
 

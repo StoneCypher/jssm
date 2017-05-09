@@ -3,7 +3,7 @@
 
 import type {
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitions, JssmTransitionList,
+  JssmTransition, JssmTransitionList,
   JssmMachineInternalState
 } from './jssm-types';
 
@@ -291,29 +291,44 @@ todo comeback
 
 
 
-  action(name : mNT, new_data? : mDT) : boolean {
+  action(name : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
   }
 
-  transition(newState : mNT, new_data? : mDT) : boolean {
+  transition(newState : mNT, newData? : mDT) : boolean {
+    // todo whargarbl implement hooks
+    // todo whargarbl implement data stuff
+    if (this.valid_transition(newState, newData)) {
+      this._state = newState;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // can leave machine in inconsistent state.  generally do not use
+  force_transition(newState : mNT, newData? : mDT) : boolean {
+    if (this.valid_force_transition(newState, newData)) {
+      this._state = newState;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
+
+  valid_action(action : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
   }
 
-  force_transition(newState : mNT, new_data? : mDT) : boolean {
-    return false; // major todo whargarbl
+  valid_transition(newState : mNT, newData? : mDT) : boolean {
+    // todo whargarbl implement hooks
+    // todo whargarbl implement data stuff
+    return (this.edge(this.state(), newState) !== undefined);
   }
 
-
-
-  valid_action(action : mNT, new_data : mDT) : boolean {
-    return false; // major todo whargarbl
-  }
-
-  valid_transition(newState : mNT, new_data : mDT) : boolean {
-    return false; // major todo whargarbl
-  }
-
-  valid_force_transition(newState : mNT, new_data : mDT) : boolean {
+  valid_force_transition(newState : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
   }
 

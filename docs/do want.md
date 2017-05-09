@@ -1,30 +1,49 @@
 - [x] specifying the initial edges as 1-dir node edges,
-    - [ ] weights,
     - [x] names,
     - [x] action names (edge names are unique, action names are unique-to-source,)
     - [ ] the probability of an edge,
         - [ ] being the most probable edge,
-    - [ ] minimum transitions from a state,
-    - [ ] maximum transitions from a state,
     - [ ] which states are "complete" (that is, that an input sequence can be considered satisfactorily terminal),
     - [ ] whether a machine is
         - [x] complete,
-        - [ ] in flux,
-        - [ ] final (not in flux, complete, and terminal),
+        - [ ] final (not is_changing, complete, and terminal),
+    - [ ] edges as force-only (eg to "off" in the traffic light)
+    - [ ] actions as force-only (also eg to "off")
 - [ ] the ability to list
     - [x] a node's edges (in/out/both,)
     - [ ] a node's actions (in/out/both,)
     - [x] whether a node is terminal,
         - [x] whether the machine is at a terminal node,
 - [ ] to specify for a graph
-    - [ ] min/max edge count,
+    - [ ] edge count,
+        - [ ] min,
+        - [ ] max,
+    - [ ] whether to selectively allow change by
+        - [ ] action,
+        - [ ] transition,
+        - [ ] forced transition,
     - [ ] whether to tolerate islands,
     - [ ] whether to links should be 1d/2d/either,
-    - [ ] whether the state machine is fixed (not implementing for now,)
-    - [ ] whether forcing (making a change outside the edge graph) is permitted (not implementing for now,)
+    - [ ] ~~whether the state machine is fixed (not implementing for now,)~~
+    - [ ] ~~whether forcing (making a change outside the edge graph) is permitted (not implementing for now,)~~
     - [ ] whether names are `allowed|disallowed|optional`,
     - [ ] whether action names are `allowed|disallowed|optional`,
-    - [ ] whether edges may be in more than one group,
+    - [ ] whether states may be in more than one group,
+- [ ] to enforce for a graph
+    - [ ] edge count,
+        - [ ] min,
+        - [ ] max,
+    - [ ] change allowed by
+        - [ ] action,
+        - [ ] transition,
+        - [ ] forced transition,
+    - [ ] island tolerance,
+    - [ ] link 1d/2d tolerance,
+    - [ ] ~~state machine fixedness (not implementing for now,)~~
+    - [ ] ~~forcing permission (not implementing for now,)~~
+    - [ ] names `allowed|disallowed`ness,
+    - [ ] action names `allowed|disallowed`ness,
+    - [ ] edges multiple group tolerance,
 - [ ] ~~for non-fixed machines, (not implementing for now,)~~
     - [ ] ~~to add edges~~,
     - [ ] ~~to remove edges~~,
@@ -79,6 +98,8 @@
     - [ ] multiple concurrent states (keanu mind blown.gif)
 - [ ] for convenience,
     - [ ] a fluent api for creation
-    - [ ] a DOT-like string api for creation
+    - [ ] a DOT-like string api for creation,
+- [ ] in background,
+    - [ ] transition probability long-term measurement
 
 difference between event and action: if action isn't handled, it's an error; if event, meh
