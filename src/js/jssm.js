@@ -171,8 +171,8 @@ class machine {
     return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
   }
 
-  exits_for(whichState : string) : Array<mixed> { // whargarbl remove mixed
-    return (this._states.get(whichState) : any).to; // whargarbl burn out any
+  exits_for(whichState : string) : Array<string> { // whargarbl remove mixed
+    return (this._states.get(whichState) || {}).to; // whargarbl burn out any
   }
 
 
