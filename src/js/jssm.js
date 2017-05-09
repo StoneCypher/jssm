@@ -1,7 +1,11 @@
 
 // @flow
 
-import type { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
+import type {
+  JssmGenericState, JssmGenericConfig,
+  JssmTransition, JssmTransitions, JssmTransitionList,
+  JssmMachineInternalState
+} from './jssm-types';
 
 const version = null; // replaced from package.js in build
 
@@ -22,6 +26,7 @@ class machine<mNT, mDT> {
 //_reverse_action_targets : Map<string, Map<string, mixed>>;  // todo    // remove mixed todo whargarbl
 
 
+  // whargarbl this badly needs to be broken up, monolith master
   constructor({ initial_state, transitions } : JssmGenericConfig<mNT, mDT>) {
 
     this._state                  = initial_state;
@@ -134,7 +139,6 @@ todo comeback
 
   }
 
-
   _new_state(state_config : JssmGenericState<mNT>) : mNT { // whargarbl get that state_config any under control
     if (this._states.has(state_config.name)) { throw new Error(`state ${(state_config.name:any)} already exists`); }
     this._states.set(state_config.name, state_config);
@@ -147,13 +151,33 @@ todo comeback
     return this._state;
   }
 
-  machine_state() : mixed {
-    return {}; // todo whargarbl
+  in_flux() : boolean {
+    return true; // todo whargarbl
+  }
+
+
+
+  machine_state() : JssmMachineInternalState<mNT, mDT> {
+
+    return {
+      internal_state_impl_version : 1,
+
+      actions                : this._actions,
+      edge_map               : this._edge_map,
+      edges                  : this._edges,
+      named_transitions      : this._named_transitions,
+      reverse_actions        : this._reverse_actions,
+//    reverse_action_targets : this._reverse_action_targets,
+      state                  : this._state,
+      states                 : this._states
+    };
+
   }
 
   load_machine_state() : boolean {
     return false; // todo whargarbl
   }
+
 
 
   states() : Array<mNT> {
@@ -173,6 +197,7 @@ todo comeback
   }
 
 
+
   edge_id(from: mNT, to: mNT) {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
@@ -181,6 +206,7 @@ todo comeback
     const id = this.edge_id(from, to);
     return (id === undefined)? undefined : this._edges[id];
   }
+
 
 
   transitions_for(whichState : mNT) : JssmTransitionList<mNT> {
@@ -194,6 +220,7 @@ todo comeback
   exits_for(whichState : mNT) : Array<mNT> {
     return (this._states.get(whichState) || {}).to;
   }
+
 
 
   actions_for(whichState : mNT) : Array<mNT> {
@@ -223,6 +250,7 @@ todo comeback
   }
 
 
+
   is_unenterable(whichState : mNT) : boolean {
     return this.entrances_for(whichState).length === 0;
   }
@@ -232,7 +260,8 @@ todo comeback
   }
 
 
-  terminal() : boolean {
+
+  is_terminal() : boolean {
     return this.state_is_terminal(this.state());
   }
 
@@ -245,7 +274,8 @@ todo comeback
   }
 
 
-  complete() : boolean {
+
+  is_complete() : boolean {
     return this.state_is_complete(this.state());
   }
 
@@ -258,6 +288,7 @@ todo comeback
   has_completes() : boolean {
     return this.states.some(this.state_is_complete);
   }
+
 
 
   action(name : mNT, new_data? : mDT) : boolean {
@@ -273,6 +304,7 @@ todo comeback
   }
 
 
+
   valid_action(action : mNT, new_data : mDT) : boolean {
     return false; // major todo whargarbl
   }
@@ -284,6 +316,7 @@ todo comeback
   valid_force_transition(newState : mNT, new_data : mDT) : boolean {
     return false; // major todo whargarbl
   }
+
 
 
   viz() {

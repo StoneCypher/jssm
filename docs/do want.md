@@ -7,9 +7,11 @@
     - [ ] minimum transitions from a state,
     - [ ] maximum transitions from a state,
     - [ ] which states are "complete" (that is, that an input sequence can be considered satisfactorily terminal),
-    - [ ] whether a machine is complete,
-    - [x] whether a machine is final (complete and terminal),
-- [x] the ability to list
+    - [ ] whether a machine is
+        - [x] complete,
+        - [ ] in flux,
+        - [ ] final (not in flux, complete, and terminal),
+- [ ] the ability to list
     - [x] a node's edges (in/out/both,)
     - [ ] a node's actions (in/out/both,)
     - [x] whether a node is terminal,
@@ -46,7 +48,7 @@
 - [x] the ability to generate
     - [x] flowchart representations
         - [x] as DOT strings
-        - [ ] prolly using viz.js (graphviz emscriptened to yerbaschmidt)
+        - [ ] prolly using viz.js (graphviz emscriptened to yerbaschmidt)?
     - [ ] uml statechart representations?
     - [ ] sdl representations?
     - [ ] nfa representations? (see comments below, thanks @patater)
@@ -54,7 +56,7 @@
         - [ ] from within gviz/viz.js?
     - [ ] harel statecharts?
 - [ ] the ability to
-    - [ ] save a state machine state,
+    - [x] save a state machine state,
     - [ ] load/create from a state machine state,
     - [ ] validate an abstract state machine state,
     - [ ] keep and rewind a state history (thanks @kz),

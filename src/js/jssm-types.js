@@ -13,6 +13,23 @@ type JssmResult     = JssmSuccess | JssmFailure | JssmIncomplete;
 
 
 
+type JssmMachineInternalState<NT, DT> = {
+
+    internal_state_impl_version : 1,
+
+    state                       : NT,
+    states                      : Map< NT, JssmGenericState<NT> >,
+    named_transitions           : Map< NT, number >,
+    edge_map                    : Map< NT, Map<NT, number> >,
+    actions                     : Map< NT, Map<NT, number> >,
+    reverse_actions             : Map< NT, Map<NT, number> >,
+    edges                       : Array< JssmTransition<NT, DT> >
+
+};
+
+
+
+
 type JssmGenericState<NT> = {
   from     : Array< NT > ,
   name     :        NT   ,
@@ -131,6 +148,8 @@ export type {
 
   JssmGenericMachine,
     JssmGenericConfig,
-    JssmGenericState
+    JssmGenericState,
+
+  JssmMachineInternalState
 
 };
