@@ -13,13 +13,13 @@ class machine<mNT, mDT> {
 
 
   _state                  : mNT;
-  _states                 : Map<string, JssmState>;               // todo whargarbl this really should't be string
-  _edges                  : Array<JssmTransition<string, mixed>>; // remove mixed todo whargarbl
-  _edge_map               : Map<string, Map<string, number>>;
-  _named_transitions      : Map<string, number>;                  // remove mixed todo whargarbl
-  _actions                : Map<string, Map<string, number>>;
-  _reverse_actions        : Map<string, Map<string, number>>;
-  _reverse_action_targets : Map<string, Map<string, mixed>>;      // remove mixed todo whargarbl
+  _states                 : Map<mNT, JssmState>;               // todo whargarbl this really should't be string
+  _edges                  : Array<JssmTransition<mNT, mixed>>; // remove mixed todo whargarbl
+  _edge_map               : Map<mNT, Map<mNT, number>>;
+  _named_transitions      : Map<mNT, number>;                  // remove mixed todo whargarbl
+  _actions                : Map<mNT, Map<mNT, number>>;
+  _reverse_actions        : Map<mNT, Map<mNT, number>>;
+  _reverse_action_targets : Map<mNT, Map<mNT, mixed>>;      // remove mixed todo whargarbl
 
 
   constructor({ initial_state, transitions } : JssmGenericConfig<mNT, mDT>) {
