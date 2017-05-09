@@ -1,7 +1,7 @@
 
 // @flow
 
-import type { JssmMachine, JssmState, JssmConfig, JssmTransitions } from './jssm-types';
+import type { JssmMachine, JssmState, JssmConfig, JssmTransitions, JssmTransitionList } from './jssm-types';
 
 const version = null; // replaced from package.js in build
 
@@ -11,6 +11,7 @@ const version = null; // replaced from package.js in build
 
 class machine {
 
+
   _state             : string;
   _states            : Map<string, JssmState>;           // todo whargarbl this really should't be string  // remove mixed todo whargarbl
   _edges             : Array<mixed>;                     // remove mixed todo whargarbl
@@ -18,6 +19,7 @@ class machine {
   _named_transitions : Map<string, mixed>;               // remove mixed todo whargarbl
   _actions           : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
   _reverse_actions   : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
+
 
   constructor({ initial_state, transitions } : JssmConfig) {
 
@@ -35,13 +37,13 @@ class machine {
       if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      var cursor_from : any = (this._states.get(tr.from): any); // whargarbl burn out uses of any
+      var cursor_from = this._states.get(tr.from);
       if (cursor_from === undefined) {
         this._new_state({name: tr.from, from: [], to: [] });
         cursor_from = (this._states.get(tr.from) : any);
       }
 
-      var cursor_to : any = (this._states.get(tr.to): any); // whargarbl burn out uses of any
+      var cursor_to = this._states.get(tr.to);
       if (cursor_to === undefined) {
         this._new_state({name: tr.to, from: [], to: [] });
         cursor_to = (this._states.get(tr.to) : any);
@@ -65,13 +67,13 @@ class machine {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      var from_mapping:any = (this._edge_map.get(tr.from) : any);  // whargarbl burn out uses of any
+      var from_mapping = this._edge_map.get(tr.from);
       if (from_mapping === undefined) {
         this._edge_map.set(tr.from, new Map());
         from_mapping = (this._edge_map.get(tr.from) : any);  // whargarbl burn out uses of any
       }
 
-      var to_mapping:any = (from_mapping.get(tr.to) : any);  // whargarbl burn out uses of any
+      var to_mapping = from_mapping.get(tr.to);
       if (to_mapping) { throw new Error(`from -> to already exists ${tr.from} ${tr.to}`); }
       else            { from_mapping.set(tr.to, thisEdgeId); }
 
@@ -148,7 +150,7 @@ class machine {
     return this._named_transitions;
   }
 
-  actions() : Array<mixed> {
+  actions() : Array<string> {
     return [... this._actions.keys()];
   }
 
@@ -163,7 +165,7 @@ class machine {
   }
 
 
-  transitions_for(whichState : string) : mixed { // whargarbl remove mixed
+  transitions_for(whichState : string) : JssmTransitionList<string> { // whargarbl remove mixed
     return {entrances: this.entrances_for(whichState), exits: this.exits_for(whichState)};
   }
 
@@ -176,7 +178,7 @@ class machine {
   }
 
 
-  actions_for(whichState : string) : Array<mixed> {
+  actions_for(whichState : string) : Array<string> {
     return [... ((this._reverse_actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
 

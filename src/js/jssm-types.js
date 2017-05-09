@@ -74,6 +74,10 @@ type JssmTransition<NT, DT> = {
 
 type JssmTransitions<NT, DT> = Array< JssmTransition<NT, DT> >;
 
+type JssmTransitionList<NT> = {
+	entrances : Array<NT>,
+	exits     : Array<NT>
+};
 
 
 
@@ -124,6 +128,8 @@ export type {
 
   JssmTransition,
     JssmTransitions,
+
+  JssmTransitionList,
 
   JssmStatePermitter,
     JssmStatePermitterMaybeArray,
