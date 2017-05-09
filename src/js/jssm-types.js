@@ -135,6 +135,7 @@ export type {
     JssmStatePermitterMaybeArray,
 
   JssmGenericMachine,
+    JssmGenericConfig,
 
   JssmMachine,
     JssmState,

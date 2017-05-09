@@ -1,7 +1,7 @@
 
 // @flow
 
-import type { JssmMachine, JssmState, JssmConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
+import type { JssmMachine, JssmState, JssmGenericConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
 
 const version = null; // replaced from package.js in build
 
@@ -12,8 +12,8 @@ const version = null; // replaced from package.js in build
 class machine<mNT, mDT> {
 
 
-  _state                  : string;
-  _states                 : Map<string, JssmState>;               // todo whargarbl this really should't be string  // remove mixed todo whargarbl
+  _state                  : mNT;
+  _states                 : Map<string, JssmState>;               // todo whargarbl this really should't be string
   _edges                  : Array<JssmTransition<string, mixed>>; // remove mixed todo whargarbl
   _edge_map               : Map<string, Map<string, number>>;
   _named_transitions      : Map<string, number>;                  // remove mixed todo whargarbl
@@ -22,7 +22,7 @@ class machine<mNT, mDT> {
   _reverse_action_targets : Map<string, Map<string, mixed>>;      // remove mixed todo whargarbl
 
 
-  constructor({ initial_state, transitions } : JssmConfig) {
+  constructor({ initial_state, transitions } : JssmGenericConfig<mNT, mDT>) {
 
     this._state                  = initial_state;
     this._states                 = new Map();
@@ -143,7 +143,7 @@ todo comeback
 
 
 
-  state() : string {
+  state() : mNT {
     return this._state;
   }
 
