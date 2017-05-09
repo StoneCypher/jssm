@@ -14,9 +14,10 @@ type JssmResult     = JssmSuccess | JssmFailure | JssmIncomplete;
 
 
 type JssmGenericState<NT> = {
-  from : Array< NT > ,
-  name :        NT   ,
-  to   : Array< NT >
+  from     : Array< NT > ,
+  name     :        NT   ,
+  to       : Array< NT > ,
+  complete : boolean
 };
 
 
@@ -45,7 +46,7 @@ type JssmGenericMachine<NT, DT> = {
   data?            : DT,
   nodes?           : Array<NT>,
   transitions      : JssmTransitions<NT, DT>,
-  valid?           : JssmStatePermitterMaybeArray<NT, DT>,
+  check?           : JssmStatePermitterMaybeArray<NT, DT>,
 
   min_transitions? : number,
   max_transitions? : number,
@@ -67,7 +68,7 @@ type JssmTransition<NT, DT> = {
     to          : NT,
     name?       : string,
     action?     : string,
-    valid?      : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
+    check?      : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
     likelihood? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
     usual?      : ''                                          // most common exit, for graphing; likelihood overrides
 };
@@ -91,7 +92,7 @@ type JssmGenericConfig<NT, DT> = {
   name?          : string,
   data?          : mixed,
   nodes?         : Array<NT>,  // uncommon
-  valid?         : JssmStatePermitterMaybeArray<NT, DT>,
+  check?         : JssmStatePermitterMaybeArray<NT, DT>,
 
 //locked?        : bool = true,
   min_exits?     : number,

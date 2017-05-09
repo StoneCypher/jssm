@@ -2,10 +2,18 @@
     - [ ] weights,
     - [x] names,
     - [x] action names (edge names are unique, action names are unique-to-source,)
-    - [ ] the probability of an edge
+    - [ ] the probability of an edge,
+        - [ ] being the most probable edge,
+    - [ ] minimum transitions from a state,
+    - [ ] maximum transitions from a state,
+    - [ ] which states are "complete" (that is, that an input sequence can be considered satisfactorily terminal),
+    - [ ] whether a machine is complete,
+    - [x] whether a machine is final (complete and terminal),
 - [x] the ability to list
     - [x] a node's edges (in/out/both,)
+    - [ ] a node's actions (in/out/both,)
     - [x] whether a node is terminal,
+        - [x] whether the machine is at a terminal node,
 - [ ] to specify for a graph
     - [ ] min/max edge count,
     - [ ] whether to tolerate islands,
@@ -14,6 +22,7 @@
     - [ ] whether forcing (making a change outside the edge graph) is permitted (not implementing for now,)
     - [ ] whether names are `allowed|disallowed|optional`,
     - [ ] whether action names are `allowed|disallowed|optional`,
+    - [ ] whether edges may be in more than one group,
 - [ ] ~~for non-fixed machines, (not implementing for now,)~~
     - [ ] ~~to add edges~~,
     - [ ] ~~to remove edges~~,
@@ -34,13 +43,15 @@
     - [ ] data change,
     - [ ] init,
     - [ ] non-matching event
-- [ ] the ability to generate
-    - [ ] flowchart representations
+- [x] the ability to generate
+    - [x] flowchart representations
+        - [x] as DOT strings
         - [ ] prolly using viz.js (graphviz emscriptened to yerbaschmidt)
     - [ ] uml statechart representations?
     - [ ] sdl representations?
     - [ ] nfa representations? (see comments below, thanks @patater)
     - [ ] drakon representations?
+        - [ ] from within gviz/viz.js?
     - [ ] harel statecharts?
 - [ ] the ability to
     - [ ] save a state machine state,
@@ -48,9 +59,11 @@
     - [ ] validate an abstract state machine state,
     - [ ] keep and rewind a state history (thanks @kz),
     - [ ] autocreate an api (that is, action "melt" on machine auto-gets api method equiv `.melt()`)
+        - [ ] with optional prefixes
     - [ ] consume `.dfa` files?
     - [ ] compare two state machines?
     - [ ] check `is_changing`
+    - [ ] describe edges as members of groups
 - [ ] improved nature of states (all thanks burny who isn't on gh zomg)
     - [ ] states as objects rather than strings
         - [ ] makes inheritance easier
@@ -64,5 +77,6 @@
     - [ ] multiple concurrent states (keanu mind blown.gif)
 - [ ] for convenience,
     - [ ] a fluent api for creation
+    - [ ] a DOT-like string api for creation
 
 difference between event and action: if action isn't handled, it's an error; if event, meh

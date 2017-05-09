@@ -41,13 +41,13 @@ class machine<mNT, mDT> {
       // get the cursors.  what a mess
       var cursor_from = this._states.get(tr.from);
       if (cursor_from === undefined) {
-        this._new_state({name: tr.from, from: [], to: [] });
+        this._new_state({name: tr.from, from: [], to: [], complete: false });
         cursor_from = (this._states.get(tr.from) : any);
       }
 
       var cursor_to = this._states.get(tr.to);
       if (cursor_to === undefined) {
-        this._new_state({name: tr.to, from: [], to: [] });
+        this._new_state({name: tr.to, from: [], to: [], complete: false });
         cursor_to = (this._states.get(tr.to) : any);
       }
 
@@ -197,7 +197,9 @@ todo comeback
 
 
   actions_for(whichState : mNT) : Array<mNT> {
-    return [... ((this._reverse_actions.get(whichState) || new Map()).keys() || [])]; // wasteful
+    const wstate = this._reverse_actions.get(whichState);
+    if (wstate) { return [... (wstate || new Map()).keys()]; }
+    else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
 
   action_found_on_states(whichState : mNT) : Array<mNT> {
@@ -230,12 +232,31 @@ todo comeback
   }
 
 
-  is_terminal(whichState : mNT) : boolean {
+  terminal() : boolean {
+    return this.state_is_terminal(this.state());
+  }
+
+  state_is_terminal(whichState : mNT) : boolean {
     return this.exits_for(whichState).length === 0;
   }
 
   has_terminals() : boolean {
-    return this.states.some(this.is_terminal);
+    return this.states.some(this.state_is_terminal);
+  }
+
+
+  complete() : boolean {
+    return this.state_is_complete(this.state());
+  }
+
+  state_is_complete(whichState : mNT) : boolean {
+    const wstate = this._states.get(whichState);
+    if (wstate) { return wstate.complete; }
+    else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+  }
+
+  has_completes() : boolean {
+    return this.states.some(this.state_is_complete);
   }
 
 
