@@ -13,6 +13,15 @@ type JssmResult     = JssmSuccess | JssmFailure | JssmIncomplete;
 
 
 
+type JssmGenericState<NT> = {
+  from: Array<NT>,
+  name: NT,
+  to: Array<NT>
+};
+
+
+
+
 type ARD = 'allow' | 'require' | 'disallow';
 
 
@@ -93,8 +102,9 @@ type JssmGenericConfig<NT, DT> = {
 
 
 
-type JssmMachine = JssmGenericMachine<string, mixed>;
-type JssmConfig  = JssmGenericConfig<string, mixed>;
+type JssmState   = JssmGenericState<string>;
+type JssmMachine = JssmGenericMachine<string, JssmState>;
+type JssmConfig  = JssmGenericConfig<string, JssmState>;
 
 
 
@@ -121,6 +131,7 @@ export type {
   JssmGenericMachine,
 
   JssmMachine,
+    JssmState,
 
   JssmConfig
 

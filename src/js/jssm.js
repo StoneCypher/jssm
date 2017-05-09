@@ -1,18 +1,9 @@
 
 // @flow
 
-import type { JssmMachine, JssmConfig, JssmTransitions } from './jssm-types';
+import type { JssmMachine, JssmState, JssmConfig, JssmTransitions } from './jssm-types';
 
 const version = null; // replaced from package.js in build
-
-
-
-
-
-const new_machine = (props:mixed) : JssmMachine => {
-    return {state:'1', transitions: []}; // whargarbl this should not work
-};
-
 
 
 
@@ -21,11 +12,12 @@ const new_machine = (props:mixed) : JssmMachine => {
 class machine {
 
   _state             : string;
-  _states            : Map<string, mixed>;               // todo whargarbl this really should't be string  // remove mixed todo whargarbl
+  _states            : Map<string, JssmState>;           // todo whargarbl this really should't be string  // remove mixed todo whargarbl
   _edges             : Array<mixed>;                     // remove mixed todo whargarbl
   _edge_map          : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
   _named_transitions : Map<string, mixed>;               // remove mixed todo whargarbl
   _actions           : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
+  _reverse_actions   : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
 
   constructor({ initial_state, transitions } : JssmConfig) {
 
@@ -35,54 +27,95 @@ class machine {
     this._edge_map          = new Map();
     this._named_transitions = new Map();
     this._actions           = new Map();
+    this._reverse_actions   = new Map();
 
-    transitions.map( (tr:any) => { // todo whargarbl burn out any
+    transitions.map( (tr:any) => { // whargarbl burn out any
 
       if (tr.from === undefined) { throw new Error(`transition must define 'from': ${JSON.stringify(tr)}`); }
       if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
 
-      var cursor_from : any = (this._states.get(tr.from): any); // todo whargarbl burn out uses of any
+      // get the cursors.  what a mess
+      var cursor_from : any = (this._states.get(tr.from): any); // whargarbl burn out uses of any
       if (cursor_from === undefined) {
         this._new_state({name: tr.from, from: [], to: [] });
         cursor_from = (this._states.get(tr.from) : any);
       }
 
-      var cursor_to : any = (this._states.get(tr.to): any); // todo whargarbl burn out uses of any
+      var cursor_to : any = (this._states.get(tr.to): any); // whargarbl burn out uses of any
       if (cursor_to === undefined) {
         this._new_state({name: tr.to, from: [], to: [] });
         cursor_to = (this._states.get(tr.to) : any);
       }
 
+      // guard against existing connections being re-added
       if (cursor_from.to.includes(tr.to)) { throw new Error(`already has ${tr.from} to ${tr.to}`); }
       else                                { cursor_from.to.push(tr.to); }
 
       if (cursor_to.from.includes(tr.from)) { throw new Error(`already has ${tr.to} from ${tr.from}`); }
       else                                  { cursor_to.from.push(tr.from); }
 
+      // add the edge; note its id
       this._edges.push(tr);
       const thisEdgeId = this._edges.length - 1;
 
+      // guard against repeating a transition name
       if (tr.name) {
         if (this._named_transitions.has(tr.name)) { throw new Error(`named transition "${tr.name}" already created`); }
         else                                      { this._named_transitions.set(tr.name, thisEdgeId); }
       }
 
-      var from_mapping:any = (this._edge_map.get(tr.from) : any);  // todo whargarbl burn out uses of any
+      // set up the mapping, so that edges can be looked up by endpoint pairs
+      var from_mapping:any = (this._edge_map.get(tr.from) : any);  // whargarbl burn out uses of any
       if (from_mapping === undefined) {
         this._edge_map.set(tr.from, new Map());
-        from_mapping = (this._edge_map.get(tr.from) : any);  // todo whargarbl burn out uses of any
+        from_mapping = (this._edge_map.get(tr.from) : any);  // whargarbl burn out uses of any
       }
 
-      var to_mapping:any = (from_mapping.get(tr.to) : any);  // todo whargarbl burn out uses of any
+      var to_mapping:any = (from_mapping.get(tr.to) : any);  // whargarbl burn out uses of any
       if (to_mapping) { throw new Error(`from -> to already exists ${tr.from} ${tr.to}`); }
       else            { from_mapping.set(tr.to, thisEdgeId); }
+
+      // set up the action mapping, so that actions can be looked up by origin
+      if (tr.action) {
+
+        // forward mapping first by action name
+        if (!(this._actions.has(tr.action))) {
+          this._actions.set(tr.action, new Map());
+        }
+
+        const actionMap = this._actions.get(tr.action);
+        if (actionMap) {
+          if (actionMap.has(tr.from)) { throw new Error(`action ${tr.action} already attached to origin ${tr.from}`); }
+          else {
+            actionMap.set(tr.from, thisEdgeId);
+          }
+        } else {
+          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?');
+        }
+
+        // reverse mapping first by state name
+        if (!(this._reverse_actions.has(tr.from))) {
+          this._reverse_actions.set(tr.from, new Map());
+        }
+
+        const rActionMap = this._reverse_actions.get(tr.from);
+        if (rActionMap) {
+          if (rActionMap.has(tr.action)) { throw new Error(`raction ${tr.from} already attached to action ${tr.action}`); }
+          else {
+            rActionMap.set(tr.action, thisEdgeId);
+          }
+        } else {
+          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?')
+        }
+
+      }
 
     });
 
   }
 
 
-  _new_state(state_config : any) : string { // todo whargarbl get that state_config under control
+  _new_state(state_config : any) : string { // whargarbl get that state_config any under control
     if (this._states.has(state_config.name)) { throw new Error(`state ${state_config.name} already exists`); }
     this._states.set(state_config.name, state_config);
     return state_config.name;
@@ -103,56 +136,64 @@ class machine {
   }
 
 
-  states() : Array<mixed> { // todo whargarbl
+  states() : Array<string> {
     return [... this._states.keys()];
   }
 
-  transitions() : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+  transitions() : Array<mixed> {
+    return this._edges;
   }
 
-  named_transitions() : Map<string, mixed> { // todo whargarbl
+  named_transitions() : Map<string, mixed> {
     return this._named_transitions;
   }
 
-  actions() : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+  actions() : Array<mixed> {
+    return [... this._actions.keys()];
   }
 
 
-  edge_id(from:any, to:any) {
+  edge_id(from:string, to:string) {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
 
-  edge(from:any, to:any) {
+  edge(from:string, to:string) {
     const id = this.edge_id(from, to);
     return (id === undefined)? undefined : this._edges[id];
   }
 
 
-  transitions_for(whichState : string) : mixed { // todo whargarbl
+  transitions_for(whichState : string) : mixed { // whargarbl remove mixed
     return {entrances: this.entrances_for(whichState), exits: this.exits_for(whichState)};
   }
 
-  entrances_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return (this._states.get(whichState) : any).from; // todo whargarbl burn out any
+  entrances_for(whichState : string) : Array<string> {
+    return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
   }
 
-  exits_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return (this._states.get(whichState) : any).to; // todo whargarbl burn out any
+  exits_for(whichState : string) : Array<mixed> { // whargarbl remove mixed
+    return (this._states.get(whichState) : any).to; // whargarbl burn out any
   }
 
 
-  actions_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+  actions_for(whichState : string) : Array<mixed> {
+    return [... ((this._reverse_actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
 
-  action_entrances_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+  action_on_states(whichState : string) : Array<mixed> {
+    return [... ((this._actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
 
-  action_exits_for(whichState : string) : Array<mixed> { // todo whargarbl
-    return []; // todo whargarbl
+  action_entrances_at(whichState : string) : Array<mixed> { // whargarbl remove mixed
+    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
+           .filter( (o:any) => o.to === whichState) // whargarbl burn out any
+           .map( (edgeId:any) => (this._edges[edgeId] : any).to); // whargarbl burn out any
+  }
+
+  action_exits_at(whichState : string) : Array<mixed> { // whargarbl defeat mixed
+    return [... (this._reverse_actions.get('red') || new Map()).values()] // wasteful
+           .filter( (o:any) => o.from === whichState) // whargarbl burn out any
+           .map( (edgeId:any) => (this._edges[edgeId] : any).to); // whargarbl burn out any
   }
 
 
@@ -175,28 +216,28 @@ class machine {
 
 
   action(name : string, new_data? : mixed) : boolean {
-    return false; // todo whargarbl
+    return false; // major todo whargarbl
   }
 
   transition(newState : string, new_data? : mixed) : boolean {
-    return false; // todo whargarbl
+    return false; // major todo whargarbl
   }
 
   force_transition(newState : string, new_data? : mixed) : boolean {
-    return false; // todo whargarbl
+    return false; // major todo whargarbl
   }
 
 
   valid_action(action : string, new_data : mixed) : boolean {
-    return false; // todo whargarbl
+    return false; // major todo whargarbl
   }
 
   valid_transition(newState : string, new_data : mixed) : boolean {
-    return false; // todo whargarbl
+    return false; // major todo whargarbl
   }
 
   valid_force_transition(newState : string, new_data : mixed) : boolean {
-    return false; // todo whargarbl
+    return false; // major todo whargarbl
   }
 
 
@@ -231,7 +272,6 @@ export {
 
   machine,
 
-  new_machine,
   version
 
 };
