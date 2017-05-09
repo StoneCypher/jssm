@@ -1,7 +1,7 @@
 
 // @flow
 
-import type { JssmMachine, JssmState, JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
+import type { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
 
 const version = null; // replaced from package.js in build
 
@@ -13,13 +13,13 @@ class machine<mNT, mDT> {
 
 
   _state                  : mNT;
-  _states                 : Map<mNT, JssmGenericState<mNT>>;      // todo whargarbl this really should't be string
-  _edges                  : Array<JssmTransition<string, mixed>>; // remove mixed todo whargarbl
-  _edge_map               : Map<string, Map<string, number>>;
-  _named_transitions      : Map<string, number>;                  // remove mixed todo whargarbl
-  _actions                : Map<string, Map<string, number>>;
-  _reverse_actions        : Map<string, Map<string, number>>;
-  _reverse_action_targets : Map<string, Map<string, mixed>>;      // remove mixed todo whargarbl
+  _states                 : Map<mNT, JssmGenericState<mNT>>;
+  _edges                  : Array<JssmTransition<mNT, mDT>>;
+  _edge_map               : Map<mNT, Map<mNT, number>>;
+  _named_transitions      : Map<mNT, number>;
+  _actions                : Map<mNT, Map<mNT, number>>;
+  _reverse_actions        : Map<mNT, Map<mNT, number>>;
+//_reverse_action_targets : Map<string, Map<string, mixed>>;  // todo    // remove mixed todo whargarbl
 
 
   constructor({ initial_state, transitions } : JssmGenericConfig<mNT, mDT>) {
@@ -31,7 +31,7 @@ class machine<mNT, mDT> {
     this._named_transitions      = new Map();
     this._actions                = new Map();
     this._reverse_actions        = new Map();
-    this._reverse_action_targets = new Map();
+//  this._reverse_action_targets = new Map();  // todo
 
     transitions.map( (tr:any) => { // whargarbl burn out any
 
@@ -160,24 +160,24 @@ todo comeback
     return [... this._states.keys()];
   }
 
-  transitions() : Array< JssmTransition<string, mixed> > { // todo burn out mixed
+  transitions() : Array< JssmTransition<mNT, mDT> > {
     return this._edges;
   }
 
-  named_transitions() : Map<string, number> {
+  named_transitions() : Map<mNT, number> {
     return this._named_transitions;
   }
 
-  actions() : Array<string> {
+  actions() : Array<mNT> {
     return [... this._actions.keys()];
   }
 
 
-  edge_id(from:string, to:string) {
+  edge_id(from: mNT, to: mNT) {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
 
-  edge(from:string, to:string) {
+  edge(from: mNT, to: mNT) {
     const id = this.edge_id(from, to);
     return (id === undefined)? undefined : this._edges[id];
   }
@@ -196,11 +196,11 @@ todo comeback
   }
 
 
-  actions_for(whichState : string) : Array<string> {
+  actions_for(whichState : mNT) : Array<mNT> {
     return [... ((this._reverse_actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
 
-  action_found_on_states(whichState : string) : Array<string> {
+  action_found_on_states(whichState : mNT) : Array<mNT> {
     return [... ((this._actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
 /*
@@ -213,10 +213,10 @@ todo comeback
   }
 */
 
-  action_exits_at(whichState : string) : Array<string> {
+  action_exits_at(whichState : mNT) : Array<mNT> {
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
            .map( (edgeId:number) => this._edges[edgeId] ) // whargarbl burn out any
-           .filter( (o:any) => o.from === whichState)
+           .filter( o => o.from === whichState)
            .map( filtered => filtered.to );
   }
 
@@ -239,28 +239,28 @@ todo comeback
   }
 
 
-  action(name : string, new_data? : mixed) : boolean {
+  action(name : mNT, new_data? : mDT) : boolean {
     return false; // major todo whargarbl
   }
 
-  transition(newState : string, new_data? : mixed) : boolean {
+  transition(newState : mNT, new_data? : mDT) : boolean {
     return false; // major todo whargarbl
   }
 
-  force_transition(newState : string, new_data? : mixed) : boolean {
+  force_transition(newState : mNT, new_data? : mDT) : boolean {
     return false; // major todo whargarbl
   }
 
 
-  valid_action(action : string, new_data : mixed) : boolean {
+  valid_action(action : mNT, new_data : mDT) : boolean {
     return false; // major todo whargarbl
   }
 
-  valid_transition(newState : string, new_data : mixed) : boolean {
+  valid_transition(newState : mNT, new_data : mDT) : boolean {
     return false; // major todo whargarbl
   }
 
-  valid_force_transition(newState : string, new_data : mixed) : boolean {
+  valid_force_transition(newState : mNT, new_data : mDT) : boolean {
     return false; // major todo whargarbl
   }
 

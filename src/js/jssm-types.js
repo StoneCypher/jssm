@@ -14,9 +14,9 @@ type JssmResult     = JssmSuccess | JssmFailure | JssmIncomplete;
 
 
 type JssmGenericState<NT> = {
-  from: Array<NT>,
-  name: NT,
-  to: Array<NT>
+  from : Array< NT > ,
+  name :        NT   ,
+  to   : Array< NT >
 };
 
 
@@ -98,17 +98,11 @@ type JssmGenericConfig<NT, DT> = {
   max_exits?     : number,
   allow_islands? : false,
   allow_force?   : false,
-  actions?       : ARD
+  actions?       : ARD,
+
+  auto_api?      : boolean | string;  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
 };
-
-
-
-
-
-type JssmState   = JssmGenericState<string>;
-type JssmMachine = JssmGenericMachine<string, JssmState>;
-type JssmConfig  = JssmGenericConfig<string, JssmState>;
 
 
 
@@ -136,10 +130,6 @@ export type {
 
   JssmGenericMachine,
     JssmGenericConfig,
-    JssmGenericState,
-
-  JssmMachine,
-    JssmConfig,
-    JssmState
+    JssmGenericState
 
 };
