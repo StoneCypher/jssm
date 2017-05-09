@@ -1,7 +1,7 @@
 
 // @flow
 
-import type { JssmMachine, JssmState, JssmConfig, JssmTransitions, JssmTransitionList } from './jssm-types';
+import type { JssmMachine, JssmState, JssmConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
 
 const version = null; // replaced from package.js in build
 
@@ -9,27 +9,29 @@ const version = null; // replaced from package.js in build
 
 
 
-class machine {
+class machine<mNT, mDT> {
 
 
-  _state             : string;
-  _states            : Map<string, JssmState>;           // todo whargarbl this really should't be string  // remove mixed todo whargarbl
-  _edges             : Array<mixed>;                     // remove mixed todo whargarbl
-  _edge_map          : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
-  _named_transitions : Map<string, mixed>;               // remove mixed todo whargarbl
-  _actions           : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
-  _reverse_actions   : Map<string, Map<string, mixed>>;  // remove mixed todo whargarbl
+  _state                  : string;
+  _states                 : Map<string, JssmState>;               // todo whargarbl this really should't be string  // remove mixed todo whargarbl
+  _edges                  : Array<JssmTransition<string, mixed>>; // remove mixed todo whargarbl
+  _edge_map               : Map<string, Map<string, number>>;
+  _named_transitions      : Map<string, number>;                  // remove mixed todo whargarbl
+  _actions                : Map<string, Map<string, number>>;
+  _reverse_actions        : Map<string, Map<string, number>>;
+  _reverse_action_targets : Map<string, Map<string, mixed>>;      // remove mixed todo whargarbl
 
 
   constructor({ initial_state, transitions } : JssmConfig) {
 
-    this._state             = initial_state;
-    this._states            = new Map();
-    this._edges             = [];
-    this._edge_map          = new Map();
-    this._named_transitions = new Map();
-    this._actions           = new Map();
-    this._reverse_actions   = new Map();
+    this._state                  = initial_state;
+    this._states                 = new Map();
+    this._edges                  = [];
+    this._edge_map               = new Map();
+    this._named_transitions      = new Map();
+    this._actions                = new Map();
+    this._reverse_actions        = new Map();
+    this._reverse_action_targets = new Map();
 
     transitions.map( (tr:any) => { // whargarbl burn out any
 
@@ -95,29 +97,45 @@ class machine {
           throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?');
         }
 
-        // reverse mapping first by state name
+        // reverse mapping first by state origin name
         if (!(this._reverse_actions.has(tr.from))) {
           this._reverse_actions.set(tr.from, new Map());
         }
 
         const rActionMap = this._reverse_actions.get(tr.from);
         if (rActionMap) {
-          if (rActionMap.has(tr.action)) { throw new Error(`raction ${tr.from} already attached to action ${tr.action}`); }
+          if (rActionMap.has(tr.action)) { throw new Error(`r-action ${tr.from} already attached to action ${tr.action}`); }
           else {
             rActionMap.set(tr.action, thisEdgeId);
           }
         } else {
           throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?')
         }
+/*
+todo comeback
+        // reverse mapping first by state target name
+        if (!(this._reverse_action_targets.has(tr.to))) {
+          this._reverse_action_targets.set(tr.to, new Map());
+        }
+
+        const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
+        if (roActionMap) {
+          if (roActionMap.has(tr.action)) { throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`); }
+          else {
+            roActionMap.set(tr.action, thisEdgeId);
+          }
+        } else {
+          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get yet again.  severe error?')
+        }
+*/
 
       }
-
     });
 
   }
 
 
-  _new_state(state_config : any) : string { // whargarbl get that state_config any under control
+  _new_state(state_config : JssmState) : string { // whargarbl get that state_config any under control
     if (this._states.has(state_config.name)) { throw new Error(`state ${state_config.name} already exists`); }
     this._states.set(state_config.name, state_config);
     return state_config.name;
@@ -142,11 +160,11 @@ class machine {
     return [... this._states.keys()];
   }
 
-  transitions() : Array<mixed> {
+  transitions() : Array< JssmTransition<string, mixed> > { // todo burn out mixed
     return this._edges;
   }
 
-  named_transitions() : Map<string, mixed> {
+  named_transitions() : Map<string, number> {
     return this._named_transitions;
   }
 
@@ -165,7 +183,7 @@ class machine {
   }
 
 
-  transitions_for(whichState : string) : JssmTransitionList<string> { // whargarbl remove mixed
+  transitions_for(whichState : string) : JssmTransitionList<string> {
     return {entrances: this.entrances_for(whichState), exits: this.exits_for(whichState)};
   }
 
@@ -173,8 +191,8 @@ class machine {
     return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
   }
 
-  exits_for(whichState : string) : Array<string> { // whargarbl remove mixed
-    return (this._states.get(whichState) || {}).to; // whargarbl burn out any
+  exits_for(whichState : string) : Array<string> {
+    return (this._states.get(whichState) || {}).to;
   }
 
 
@@ -182,20 +200,24 @@ class machine {
     return [... ((this._reverse_actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
 
-  action_on_states(whichState : string) : Array<mixed> {
+  action_found_on_states(whichState : string) : Array<string> {
     return [... ((this._actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
-
+/*
+todo comeback
   action_entrances_at(whichState : string) : Array<mixed> { // whargarbl remove mixed
-    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
-           .filter( (o:any) => o.to === whichState) // whargarbl burn out any
-           .map( (edgeId:any) => (this._edges[edgeId] : any).to); // whargarbl burn out any
+    return [... (this._reverse_action_targets.get(whichState) || new Map()).values()] // wasteful
+           .map( (edgeId:any) => (this._edges[edgeId] : any)) // whargarbl burn out any
+           .filter( (o:any) => o.to === whichState)
+           .map( filtered => filtered.from );
   }
+*/
 
-  action_exits_at(whichState : string) : Array<mixed> { // whargarbl defeat mixed
-    return [... (this._reverse_actions.get('red') || new Map()).values()] // wasteful
-           .filter( (o:any) => o.from === whichState) // whargarbl burn out any
-           .map( (edgeId:any) => (this._edges[edgeId] : any).to); // whargarbl burn out any
+  action_exits_at(whichState : string) : Array<string> {
+    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
+           .map( (edgeId:number) => this._edges[edgeId] ) // whargarbl burn out any
+           .filter( (o:any) => o.from === whichState)
+           .map( filtered => filtered.to );
   }
 
 

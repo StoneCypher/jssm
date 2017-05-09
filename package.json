@@ -15,7 +15,7 @@
     "flow": "flow",
     "eslint": "eslint src/js/jssm.js",
     "vet": "npm run flow && npm run eslint",
-    "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm.js | wc -l`",
+    "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm.js | wc -l`",
     "build": "npm run vet && npm run make && npm run test-verbose && npm run audit",
     "postinstall": "npm run build",
     "prepublish": "npm run build"
