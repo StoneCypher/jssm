@@ -136,10 +136,10 @@ export type {
 
   JssmGenericMachine,
     JssmGenericConfig,
+    JssmGenericState,
 
   JssmMachine,
-    JssmState,
-
-  JssmConfig
+    JssmConfig,
+    JssmState
 
 };

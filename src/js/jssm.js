@@ -1,7 +1,7 @@
 
 // @flow
 
-import type { JssmMachine, JssmState, JssmGenericConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
+import type { JssmMachine, JssmState, JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitions, JssmTransitionList } from './jssm-types';
 
 const version = null; // replaced from package.js in build
 
@@ -13,13 +13,13 @@ class machine<mNT, mDT> {
 
 
   _state                  : mNT;
-  _states                 : Map<mNT, JssmState>;               // todo whargarbl this really should't be string
-  _edges                  : Array<JssmTransition<mNT, mixed>>; // remove mixed todo whargarbl
-  _edge_map               : Map<mNT, Map<mNT, number>>;
-  _named_transitions      : Map<mNT, number>;                  // remove mixed todo whargarbl
-  _actions                : Map<mNT, Map<mNT, number>>;
-  _reverse_actions        : Map<mNT, Map<mNT, number>>;
-  _reverse_action_targets : Map<mNT, Map<mNT, mixed>>;      // remove mixed todo whargarbl
+  _states                 : Map<mNT, JssmGenericState<mNT>>;      // todo whargarbl this really should't be string
+  _edges                  : Array<JssmTransition<string, mixed>>; // remove mixed todo whargarbl
+  _edge_map               : Map<string, Map<string, number>>;
+  _named_transitions      : Map<string, number>;                  // remove mixed todo whargarbl
+  _actions                : Map<string, Map<string, number>>;
+  _reverse_actions        : Map<string, Map<string, number>>;
+  _reverse_action_targets : Map<string, Map<string, mixed>>;      // remove mixed todo whargarbl
 
 
   constructor({ initial_state, transitions } : JssmGenericConfig<mNT, mDT>) {
@@ -135,8 +135,8 @@ todo comeback
   }
 
 
-  _new_state(state_config : JssmState) : string { // whargarbl get that state_config any under control
-    if (this._states.has(state_config.name)) { throw new Error(`state ${state_config.name} already exists`); }
+  _new_state(state_config : JssmGenericState<mNT>) : mNT { // whargarbl get that state_config any under control
+    if (this._states.has(state_config.name)) { throw new Error(`state ${(state_config.name:any)} already exists`); }
     this._states.set(state_config.name, state_config);
     return state_config.name;
   }
@@ -156,7 +156,7 @@ todo comeback
   }
 
 
-  states() : Array<string> {
+  states() : Array<mNT> {
     return [... this._states.keys()];
   }
 
@@ -183,15 +183,15 @@ todo comeback
   }
 
 
-  transitions_for(whichState : string) : JssmTransitionList<string> {
+  transitions_for(whichState : mNT) : JssmTransitionList<mNT> {
     return {entrances: this.entrances_for(whichState), exits: this.exits_for(whichState)};
   }
 
-  entrances_for(whichState : string) : Array<string> {
+  entrances_for(whichState : mNT) : Array<mNT> {
     return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
   }
 
-  exits_for(whichState : string) : Array<string> {
+  exits_for(whichState : mNT) : Array<mNT> {
     return (this._states.get(whichState) || {}).to;
   }
 
@@ -221,7 +221,7 @@ todo comeback
   }
 
 
-  is_unenterable(whichState : string) : boolean {
+  is_unenterable(whichState : mNT) : boolean {
     return this.entrances_for(whichState).length === 0;
   }
 
@@ -230,7 +230,7 @@ todo comeback
   }
 
 
-  is_terminal(whichState : string) : boolean {
+  is_terminal(whichState : mNT) : boolean {
     return this.exits_for(whichState).length === 0;
   }
 
