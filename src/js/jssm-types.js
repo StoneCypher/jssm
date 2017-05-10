@@ -80,7 +80,7 @@ type JssmTransition<NT, DT> = {
     from         : NT,
     to           : NT,
     name?        : string,
-    action?      : string,
+    action?      : NT,
     check?       : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
     probability? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
     usual?       : ''                                          // most common exit, for graphing; likelihood overrides

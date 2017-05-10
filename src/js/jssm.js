@@ -265,9 +265,18 @@ todo comeback
 
   action_exits_at(whichState : mNT) : Array<mNT> {
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
-           .map( (edgeId:number) => this._edges[edgeId] ) // whargarbl burn out any
-           .filter( o => o.from === whichState)
-           .map( filtered => filtered.to );
+           .map    ( (edgeId:number)              => this._edges[edgeId]   )
+           .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
+           .map    ( filtered                     => filtered.action       );
+  }
+
+  probable_action_exits_at(whichState : mNT) : Array<mNT> {
+    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
+           .map    ( (edgeId:number)              => this._edges[edgeId]   )
+           .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
+           .map    ( filtered                     => ( { action      : filtered.action,
+                                                         probability : filtered.probability } )
+                                                     );
   }
 
 

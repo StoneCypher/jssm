@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {
@@ -26,9 +26,11 @@
   },
   "keywords": [
     "state",
+    "state machine",
     "state-machine",
     "machine",
     "finite-state-machine",
+    "finite state machine",
     "fsm",
     "fsm-library",
     "js",
