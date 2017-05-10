@@ -3,10 +3,10 @@
     - [x] action names (edge names are unique, action names are unique-to-source,)
     - [ ] the probability of an edge,
         - [ ] being the most probable edge,
-    - [ ] which states are "complete" (that is, that an input sequence can be considered satisfactorily terminal),
-    - [ ] whether a machine is
+    - [x] which states are "complete" (that is, that an input sequence can be considered satisfactorily terminal),
+    - [x] whether a machine is
         - [x] complete,
-        - [ ] final (not is_changing, complete, and terminal),
+        - [x] final (not is_changing, complete, and terminal),
     - [ ] edges as force-only (eg to "off" in the traffic light)
     - [ ] actions as force-only (also eg to "off")
 - [ ] the ability to list
@@ -64,6 +64,12 @@
     - [ ] data change,
     - [ ] init,
     - [ ] non-matching event
+- [ ] timers (todo needs fleshing out)
+- [ ] language support?
+    - [ ] promise support?
+    - [ ] generator support?
+    - [ ] observable support?
+    - [ ] async await support?
 - [x] the ability to generate
     - [x] flowchart representations
         - [x] as DOT strings

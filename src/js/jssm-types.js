@@ -77,13 +77,13 @@ type JssmGenericMachine<NT, DT> = {
 
 
 type JssmTransition<NT, DT> = {
-    from        : NT,
-    to          : NT,
-    name?       : string,
-    action?     : string,
-    check?      : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
-    likelihood? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
-    usual?      : ''                                          // most common exit, for graphing; likelihood overrides
+    from         : NT,
+    to           : NT,
+    name?        : string,
+    action?      : string,
+    check?       : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
+    probability? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
+    usual?       : ''                                          // most common exit, for graphing; likelihood overrides
 };
 
 type JssmTransitions<NT, DT> = Array< JssmTransition<NT, DT> >;
@@ -113,6 +113,8 @@ type JssmGenericConfig<NT, DT> = {
   allow_islands? : false,
   allow_force?   : false,
   actions?       : JssmPermittedOpt,
+
+  simplify_bidi? : boolean,
 
   auto_api?      : boolean | string;  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 

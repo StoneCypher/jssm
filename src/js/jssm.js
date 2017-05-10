@@ -151,8 +151,12 @@ todo comeback
     return this._state;
   }
 
-  in_flux() : boolean {
+  is_changing() : boolean {
     return true; // todo whargarbl
+  }
+
+  is_final() : boolean {
+    return ( (!this.is_changing()) && (this.is_terminal()) && (this.is_complete()) );
   }
 
 
@@ -308,6 +312,8 @@ todo comeback
 
   // can leave machine in inconsistent state.  generally do not use
   force_transition(newState : mNT, newData? : mDT) : boolean {
+    // todo whargarbl implement hooks
+    // todo whargarbl implement data stuff
     if (this.valid_force_transition(newState, newData)) {
       this._state = newState;
       return true;
@@ -340,17 +346,51 @@ todo comeback
 
     const nodes = l_states.map( (s:any) => `${node_of(s)} [label="${s}"];`).join(' ');
 
-    const edges = this.states().map( (s:any) =>
+    const strike = [];
+    const edges  = this.states().map( (s:any) =>
 
       this.exits_for(s).map( (ex:any) => {
-        const edge  = this.edge(s, ex),
-              label = edge? (edge.name || undefined) : undefined;
-        return `${node_of(s)}->${node_of(ex)} [${label? `label="${(label:any)}"`:''} len=2];`;
+
+        if ( strike.find(row => (row[0] === s) && (row[1] == ex) ) ) {
+            return '';  // already did the pair
+        }
+
+        const edge         = this.edge(s, ex),
+              pair         = this.edge(ex, s),
+              double       = pair && (s !== ex),
+
+//            label        = edge  ? ([edge.name?`${(edge.name:any)}`:undefined,`${(edge.probability:any)}`]
+//                                   .filter(not_undef => !!not_undef)
+//                                     .join('\n') || undefined
+//                                    ) : undefined,
+
+              if_obj_field = (obj, field) => obj? obj[field] : undefined,
+
+              label        = edge  ? (`label="${    (edge.name        : any)}";` || '') : '',
+              headlabel    = pair  ? (`headlabel="${(pair.probability : any)}";` || '') : '',
+              taillabel    = edge  ? (`taillabel="${(edge.probability : any)}";` || '') : '',
+
+              labelInline  = [
+                               [edge, 'name',        'label'],
+                               [pair, 'probability', 'headlabel'],
+                               [edge, 'probability', 'taillabel']
+                             ]
+                             .map(    r       => ({ which: r[2], whether: if_obj_field(r[0], r[1]) }) )
+                             .filter( present => present.whether )
+                             .map(    r       => `${r.which}="${(r.whether : any)}"`)
+                             .join(' '),
+
+              edgeInline   = edge  ? (double? 'dir=both;color="#777777:#555555"' : 'color="#555555"') : '';
+
+        if (pair) { strike.push([ex, s]); }
+
+        return `${node_of(s)}->${node_of(ex)} [${labelInline}${edgeInline}];`;
+
       }).join(' ')
 
     ).join(' ');
 
-    return `digraph G {\n  fontname="helvetica neue";\n  style=filled;\n  bgcolor=lightgrey;\n  node [shape=box; style=filled; fillcolor=white; fontname="helvetica neue"];\n  edge [len=2; fontname="helvetica neue"];\n\n  ${nodes}\n\n  ${edges}\n}`;
+    return `digraph G {\n  fontname="helvetica neue";\n  style=filled;\n  bgcolor=lightgrey;\n  node [shape=box; style=filled; fillcolor=white; fontname="helvetica neue"];\n  edge [fontsize=9;fontname="helvetica neue"];\n\n  ${nodes}\n\n  ${edges}\n}`;
 
   }
 

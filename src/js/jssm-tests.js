@@ -44,6 +44,68 @@ describe('Simple stop light', async it => {
 
 
 
+describe('Stochastic weather', async it => {
+
+  const weather = new jssm.machine({
+
+    initial_state: 'breezy',
+
+    transitions:[
+
+      { from: 'breezy',  to: 'breezy',  probability: 0.4  },
+      { from: 'breezy',  to: 'sunny',   probability: 0.3  },
+      { from: 'breezy',  to: 'cloudy',  probability: 0.15 },
+      { from: 'breezy',  to: 'windy',   probability: 0.1  },
+      { from: 'breezy',  to: 'rain',    probability: 0.05 },
+
+      { from: 'sunny',   to: 'sunny',   probability: 0.5  },
+      { from: 'sunny',   to: 'hot',     probability: 0.15 },
+      { from: 'sunny',   to: 'breezy',  probability: 0.15 },
+      { from: 'sunny',   to: 'cloudy',  probability: 0.15 },
+      { from: 'sunny',   to: 'rain',    probability: 0.05 },
+
+      { from: 'hot',     to: 'hot',     probability: 0.75 },
+      { from: 'hot',     to: 'breezy',  probability: 0.05 },
+      { from: 'hot',     to: 'sunny',   probability: 0.2  },
+
+      { from: 'cloudy',  to: 'cloudy',  probability: 0.6  },
+      { from: 'cloudy',  to: 'sunny',   probability: 0.2  },
+      { from: 'cloudy',  to: 'rain',    probability: 0.15 },
+      { from: 'cloudy',  to: 'breezy',  probability: 0.05 },
+
+      { from: 'windy',   to: 'windy',   probability: 0.3  },
+      { from: 'windy',   to: 'gale',    probability: 0.1  },
+      { from: 'windy',   to: 'breezy',  probability: 0.4  },
+      { from: 'windy',   to: 'rain',    probability: 0.15 },
+      { from: 'windy',   to: 'sunny',   probability: 0.05 },
+
+      { from: 'gale',    to: 'gale',    probability: 0.65 },
+      { from: 'gale',    to: 'windy',   probability: 0.25 },
+      { from: 'gale',    to: 'torrent', probability: 0.05 },
+      { from: 'gale',    to: 'hot',     probability: 0.05 },
+
+      { from: 'rain',    to: 'rain',    probability: 0.3  },
+      { from: 'rain',    to: 'torrent', probability: 0.05 },
+      { from: 'rain',    to: 'windy',   probability: 0.1  },
+      { from: 'rain',    to: 'breezy',  probability: 0.15 },
+      { from: 'rain',    to: 'sunny',   probability: 0.1  },
+      { from: 'rain',    to: 'cloudy',  probability: 0.3  },
+
+      { from: 'torrent', to: 'torrent', probability: 0.65 },
+      { from: 'torrent', to: 'rain',    probability: 0.25 },
+      { from: 'torrent', to: 'cloudy',  probability: 0.05 },
+      { from: 'torrent', to: 'gale',    probability: 0.05 }
+
+    ]
+
+  });
+
+});
+
+
+
+
+
 describe('Complex stop light', async it => {
 
   const light2 = new jssm.machine({
