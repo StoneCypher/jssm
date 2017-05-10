@@ -50,7 +50,7 @@ describe('Stochastic weather', async it => {
 
     initial_state: 'breezy',
 
-    transitions:[
+    transitions: [
 
       { from: 'breezy',  to: 'breezy',  probability: 0.4  },
       { from: 'breezy',  to: 'sunny',   probability: 0.3  },

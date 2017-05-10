@@ -100,6 +100,7 @@ type JssmGenericConfig<NT, DT> = {
 
   initial_state  : NT,
 
+  complete?      : Array<NT>,
   transitions    : JssmTransitions<NT, DT>,
 
   name?          : string,

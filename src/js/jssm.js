@@ -25,9 +25,12 @@ class machine<mNT, mDT> {
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
 //_reverse_action_targets : Map<string, Map<string, mixed>>;  // todo    // remove mixed todo whargarbl
 
+  _viz_colors             : mixed;
 
   // whargarbl this badly needs to be broken up, monolith master
-  constructor({ initial_state, transitions } : JssmGenericConfig<mNT, mDT>) {
+  constructor({ initial_state, complete=[], transitions } : JssmGenericConfig<mNT, mDT>) {
+
+    this.set_viz_colors();
 
     this._state                  = initial_state;
     this._states                 = new Map();
@@ -46,13 +49,13 @@ class machine<mNT, mDT> {
       // get the cursors.  what a mess
       var cursor_from = this._states.get(tr.from);
       if (cursor_from === undefined) {
-        this._new_state({name: tr.from, from: [], to: [], complete: false });
+        this._new_state({name: tr.from, from: [], to: [], complete: complete.includes(tr.from) });
         cursor_from = (this._states.get(tr.from) : any);
       }
 
       var cursor_to = this._states.get(tr.to);
       if (cursor_to === undefined) {
-        this._new_state({name: tr.to, from: [], to: [], complete: false });
+        this._new_state({name: tr.to, from: [], to: [], complete: complete.includes(tr.to) });
         cursor_to = (this._states.get(tr.to) : any);
       }
 
@@ -155,8 +158,14 @@ todo comeback
     return true; // todo whargarbl
   }
 
+
+
+  state_is_final(whichState : mNT) : boolean {
+    return ( (this.state_is_terminal(whichState)) && (this.state_is_complete(whichState)) );
+  }
+
   is_final() : boolean {
-    return ( (!this.is_changing()) && (this.is_terminal()) && (this.is_complete()) );
+    return ((!this.is_changing()) && this.state_is_final(this.state()));
   }
 
 
@@ -187,6 +196,14 @@ todo comeback
   states() : Array<mNT> {
     return [... this._states.keys()];
   }
+
+  state_for(whichState : mNT) : JssmGenericState<mNT> {
+    const state = this._states.get(whichState);
+    if (state) { return state; }
+    else       { throw new Error(`no such state ${JSON.stringify(state)}`); }
+  }
+
+
 
   transitions() : Array< JssmTransition<mNT, mDT> > {
     return this._edges;
@@ -340,11 +357,75 @@ todo comeback
 
 
 
-  viz() {
-    const l_states = this.states();
-    const node_of = (state) => `n${l_states.indexOf(state)}`;
+  set_viz_colors() : void {
 
-    const nodes = l_states.map( (s:any) => `${node_of(s)} [label="${s}"];`).join(' ');
+    this._viz_colors = {
+
+      'fill_final'         : '#eeeeff',
+      'fill_terminal'      : '#ffeeee',
+      'fill_complete'      : '#eeffee',
+
+      'normal_line_1'      : '#999999',
+      'normal_line_2'      : '#888888',
+      'normal_line_solo'   : '#888888',
+
+      'line_final_1'       : '#8888bb',
+      'line_final_2'       : '#7777aa',
+      'line_final_solo'    : '#7777aa',
+
+      'line_terminal_1'    : '#bb8888',
+      'line_terminal_2'    : '#aa7777',
+      'line_terminal_solo' : '#aa7777',
+
+      'line_complete_1'    : '#88bb88',
+      'line_complete_2'    : '#77aa77',
+      'line_complete_solo' : '#77aa77',
+
+      'text_final_1'       : '#000088',
+      'text_final_2'       : '#000088',
+      'text_final_solo'    : '#000088',
+
+      'text_terminal_1'    : '#880000',
+      'text_terminal_2'    : '#880000',
+      'text_terminal_solo' : '#880000',
+
+      'text_complete_1'    : '#007700',
+      'text_complete_2'    : '#007700',
+      'text_complete_solo' : '#007700'
+
+    };
+
+  }
+
+
+
+  viz() {
+
+    const l_states = this.states();
+
+    const node_of  = state => `n${l_states.indexOf(state)}`,
+          vc       = col   => (this._viz_colors:any)[col] || '';
+
+    const nodes : string = l_states.map( (s:any) => {
+
+      const this_state = this.state_for(s),
+            terminal   = this.state_is_terminal(s),
+            final      = this.state_is_final(s),
+            complete   = this.state_is_complete(s),
+            features   = [
+                          ['label',       s],
+                          ['peripheries', complete? 2 : 1  ],
+                          ['fillcolor',   final   ? vc('fill_final')    :
+                                         (complete? vc('fill_complete') :
+                                         (terminal? vc('fill_terminal') :
+                                                    '')) ]
+                         ]
+                          .filter(r => r[1])
+                          .map(   r => `${r[0]}="${r[1]}"`)
+                          .join(' ');
+      return `${node_of(s)} [${features}];`;
+
+    }).join(' ');
 
     const strike = [];
     const edges  = this.states().map( (s:any) =>
@@ -359,28 +440,54 @@ todo comeback
               pair         = this.edge(ex, s),
               double       = pair && (s !== ex),
 
+              head_state   = this.state_for(s),
+              tail_state   = this.state_for(ex),
+
 //            label        = edge  ? ([edge.name?`${(edge.name:any)}`:undefined,`${(edge.probability:any)}`]
 //                                   .filter(not_undef => !!not_undef)
 //                                     .join('\n') || undefined
 //                                    ) : undefined,
 
-              if_obj_field = (obj, field) => obj? obj[field] : undefined,
+              if_obj_field = (obj, field, precarry='') => obj? (obj[field]? (precarry + (obj[field]:any)) : '') : '',
 
-              label        = edge  ? (`label="${    (edge.name        : any)}";` || '') : '',
-              headlabel    = pair  ? (`headlabel="${(pair.probability : any)}";` || '') : '',
-              taillabel    = edge  ? (`taillabel="${(edge.probability : any)}";` || '') : '',
+              h_final      = this.state_is_final(s),
+              h_complete   = this.state_is_complete(s),
+              h_terminal   = this.state_is_terminal(s),
+
+              t_final      = this.state_is_final(ex),
+              t_complete   = this.state_is_complete(ex),
+              t_terminal   = this.state_is_terminal(ex),
+
+              lineColor    = (final, complete, terminal, _solo_1_2 = '_solo') =>
+                               final   ? (vc('line_final'    + _solo_1_2)) :
+                              (complete? (vc('line_complete' + _solo_1_2)) :
+                              (terminal? (vc('line_terminal' + _solo_1_2)) :
+                                          vc('normal_line'   + _solo_1_2))),
+
+              textColor    = (final, complete, terminal, _solo_1_2 = '_solo') =>
+                               final   ? (vc('text_final'    + _solo_1_2)) :
+                              (complete? (vc('text_complete' + _solo_1_2)) :
+                              (terminal? (vc('text_terminal' + _solo_1_2)) :
+                                         '')),
+
+              headColor    = textColor(h_final, h_complete, h_terminal, double? '_1' : '_solo'),
+              tailColor    = textColor(t_final, t_complete, t_terminal, double? '_2' : '_solo'),
 
               labelInline  = [
-                               [edge, 'name',        'label'],
-                               [pair, 'probability', 'headlabel'],
-                               [edge, 'probability', 'taillabel']
+//                             [edge, 'name',        'label',     true],
+                               [pair, 'probability', 'headlabel', 'name', double, headColor],
+                               [edge, 'probability', 'taillabel', 'name', true,   tailColor]
                              ]
-                             .map(    r       => ({ which: r[2], whether: if_obj_field(r[0], r[1]) }) )
+                             .map(    r       => ({ which: r[2], whether: (r[4]? ((if_obj_field(r[0], r[1]):any) + ((if_obj_field(r[0], r[3], '<br/>'):any) || '')) : ''), color: r[5] }) )
                              .filter( present => present.whether )
-                             .map(    r       => `${r.which}="${(r.whether : any)}"`)
+                             .map(    r       => `${r.which}=${(r.color)? `<<font color="${(r.color:any)}">${(r.whether : any)}</font>>` : `"${(r.whether : any)}"`};`)
                              .join(' '),
 
-              edgeInline   = edge  ? (double? 'dir=both;color="#777777:#555555"' : 'color="#555555"') : '';
+              tc1          = lineColor(t_final, t_complete, t_terminal, '_1'),
+              tc2          = lineColor(h_final, h_complete, h_terminal, '_2'),
+              tcd          = lineColor(t_final, t_complete, t_terminal, '_solo'),
+
+              edgeInline   = edge  ? (double? `dir=both;color="${tc1}:${tc2}"` : `color="${tcd}"`) : '';
 
         if (pair) { strike.push([ex, s]); }
 
@@ -390,7 +497,7 @@ todo comeback
 
     ).join(' ');
 
-    return `digraph G {\n  fontname="helvetica neue";\n  style=filled;\n  bgcolor=lightgrey;\n  node [shape=box; style=filled; fillcolor=white; fontname="helvetica neue"];\n  edge [fontsize=9;fontname="helvetica neue"];\n\n  ${nodes}\n\n  ${edges}\n}`;
+    return `digraph G {\n  fontname="helvetica neue";\n  style=filled;\n  bgcolor=lightgrey;\n  node [fontsize=14; shape=box; style=filled; fillcolor=white; fontname="helvetica neue"];\n  edge [fontsize=6;fontname="helvetica neue"];\n\n  ${nodes}\n\n  ${edges}\n}`;
 
   }
 
