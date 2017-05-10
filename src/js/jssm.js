@@ -313,12 +313,23 @@ todo comeback
 
 
   action(name : mNT, newData? : mDT) : boolean {
-    return false; // major todo whargarbl
+    // todo whargarbl implement hooks
+    // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
+    if (this.valid_action(name, newData)) {
+      const edge = this.current_action_edge_for(name);
+      if (edge) { this._state = edge.to; }
+      else      { throw new Error(`Should be impossible - valid_action true, no edge in current_action_edge_for, in action(${JSON.stringify(name)}...)`); }
+      return true;
+    } else {
+      return false;
+    }
   }
 
   transition(newState : mNT, newData? : mDT) : boolean {
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
     if (this.valid_transition(newState, newData)) {
       this._state = newState;
       return true;
@@ -331,6 +342,7 @@ todo comeback
   force_transition(newState : mNT, newData? : mDT) : boolean {
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
     if (this.valid_force_transition(newState, newData)) {
       this._state = newState;
       return true;
@@ -341,13 +353,31 @@ todo comeback
 
 
 
+  current_action_for(action : mNT) : number | void {
+    const action_base = this._actions.get(action);
+    if (action_base) {
+      return action_base.get(this.state());
+    } else {
+      return undefined;
+    }
+  }
+
+  current_action_edge_for(action : mNT) : JssmTransition<mNT, mDT> | void {
+    const idx = this.current_action_for(action);
+    return (idx !== undefined)? this._edges[idx] : undefined;
+  }
+
   valid_action(action : mNT, newData? : mDT) : boolean {
-    return false; // major todo whargarbl
+    // todo whargarbl implement hooks
+    // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
+    return this.current_action_for(action) !== undefined;
   }
 
   valid_transition(newState : mNT, newData? : mDT) : boolean {
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
     return (this.edge(this.state(), newState) !== undefined);
   }
 
@@ -448,7 +478,7 @@ todo comeback
 //                                     .join('\n') || undefined
 //                                    ) : undefined,
 
-              if_obj_field = (obj, field, precarry='') => obj? (obj[field]? (precarry + (obj[field]:any)) : '') : '',
+              if_obj_field = (obj:any, field) => obj? (obj[field] || '') : '',
 
               h_final      = this.state_is_final(s),
               h_complete   = this.state_is_complete(s),
@@ -464,7 +494,7 @@ todo comeback
                               (terminal? (vc('line_terminal' + _solo_1_2)) :
                                           vc('normal_line'   + _solo_1_2))),
 
-              textColor    = (final, complete, terminal, _solo_1_2 = '_solo') =>
+              textColor    = (final, complete, terminal, _solo_1_2 = '_solo') : string =>
                                final   ? (vc('text_final'    + _solo_1_2)) :
                               (complete? (vc('text_complete' + _solo_1_2)) :
                               (terminal? (vc('text_terminal' + _solo_1_2)) :
@@ -475,10 +505,10 @@ todo comeback
 
               labelInline  = [
 //                             [edge, 'name',        'label',     true],
-                               [pair, 'probability', 'headlabel', 'name', double, headColor],
-                               [edge, 'probability', 'taillabel', 'name', true,   tailColor]
+                               [pair, 'probability', 'headlabel', 'name', 'action', double, headColor],
+                               [edge, 'probability', 'taillabel', 'name', 'action', true,   tailColor]
                              ]
-                             .map(    r       => ({ which: r[2], whether: (r[4]? ((if_obj_field(r[0], r[1]):any) + ((if_obj_field(r[0], r[3], '<br/>'):any) || '')) : ''), color: r[5] }) )
+                             .map(    r       => ({ which: r[2], whether: (r[5]? ([(if_obj_field(r[0], r[5]):any), (if_obj_field(r[0], r[1]):any), (if_obj_field(r[0], r[3]):any)].filter(q=>q).join('<br/>') || '') : ''), color: r[6] }) )
                              .filter( present => present.whether )
                              .map(    r       => `${r.which}=${(r.color)? `<<font color="${(r.color:any)}">${(r.whether : any)}</font>>` : `"${(r.whether : any)}"`};`)
                              .join(' '),

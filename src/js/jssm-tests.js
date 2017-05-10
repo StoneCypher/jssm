@@ -116,9 +116,9 @@ describe('Complex stop light', async it => {
 
       { name:'turn_on',     action:'power_on',  from:'off',    to:'red'},
 
-      {                     action:'power_off', from:'red',    to:'off', probability: 0.01 },
-      {                     action:'power_off', from:'yellow', to:'off', probability: 0.01 },
-      {                     action:'power_off', from:'green',  to:'off', probability: 0.01 },
+      {                     action:'power_off', from:'red',    to:'off' },
+      {                     action:'power_off', from:'yellow', to:'off' },
+      {                     action:'power_off', from:'green',  to:'off' },
 
       { name:'switch_warn',                     from:'green',  to:'yellow' },
       { name:'switch_halt',                     from:'yellow', to:'red'    },
