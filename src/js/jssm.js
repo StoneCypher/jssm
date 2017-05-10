@@ -219,12 +219,12 @@ todo comeback
 
 
 
-  edge_id(from: mNT, to: mNT) {
+  transition_id(from: mNT, to: mNT) {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
 
-  edge(from: mNT, to: mNT) {
-    const id = this.edge_id(from, to);
+  transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
+    const id = this.transition_id(from, to);
     return (id === undefined)? undefined : this._edges[id];
   }
 
@@ -242,6 +242,65 @@ todo comeback
     return (this._states.get(whichState) || {}).to;
   }
 
+  probable_exits_for(whichState : mNT) : Array< JssmTransition<mNT, mDT> > {
+
+    const wstate_to : Array<mNT> = ((this._states.get(whichState) || {to: []}).to),
+          wtf                    = wstate_to.map(ws => this.transition_for(this.state(), ws)).filter(defined => defined);
+
+    return (wtf:any) || [];  // :any because .transition_for can return `undefined`, which doesn't match this return spec
+
+//  const wstate_a = ((this._states.get(whichState) || {to: []}).to).map(ws => this.transition_for(this.state(), ws));
+//  if (wstate_a) { return wstate_a.map(ex => this.transition_for(this.state(), ex) ); }
+
+  }
+
+  probabilistic_transition() : boolean {
+    const selected = this.rand_select(this.probable_exits_for(this.state()));
+    return this.transition( selected.to );
+  }
+
+  probabilistic_walk(n : number) : Array<mNT> {
+    return this.seq(n-1)
+               .map(i => {
+                 const state_was = this.state();
+                 this.probabilistic_transition();
+                 return state_was;
+               })
+               .concat([this.state()]);
+  }
+
+
+
+  rand_select(options : Array<any>, probability_property : string = 'probability') {
+
+    if (!Array.isArray(options))           { throw new TypeError('options must be a non-empty array of objects'); }
+    if (!(typeof options[0] === 'object')) { throw new TypeError('options must be a non-empty array of objects'); }
+
+    const frand      = cap => Math.random() * cap,
+          prob_sum   = options.reduce( (acc, val:any) => acc + val[probability_property], 0 ),
+          rnd        = frand(prob_sum);
+
+    var   cursor     = 0,
+          cursor_sum = 0;
+
+    while ((cursor_sum += (options:any)[cursor++][probability_property]) <= rnd) { }
+    return options[cursor-1];
+
+  }
+
+  seq(n : number) { return (new Array(n)).fill(true).map( (_,i) => i ); }
+
+  histograph(a : Array<mixed>) {
+    return a.sort().reduce( (a,v) => ( a.set(v, (a.has(v)? a.get(v)+1 : 1)) , a), new Map() );
+  }
+
+  sample_select(n : number, options : Array<mixed>, probability_property : string) {
+    return this.seq(n).map(i => this.rand_select(options, probability_property));
+  }
+
+  histo(n : number, options : Array<mixed>, probability_property : string, extract : string) {
+    return this.histograph(this.sample_select(n, options, probability_property).map( (s:any) => s[extract]));
+  }
 
 
   actions_for(whichState : mNT) : Array<mNT> {
@@ -263,14 +322,14 @@ todo comeback
   }
 */
 
-  action_exits_at(whichState : mNT) : Array<mNT> {
+  action_exits_for(whichState : mNT) : Array<mNT> {
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => filtered.action       );
   }
 
-  probable_action_exits_at(whichState : mNT) : Array<mNT> {
+  probable_action_exits_for(whichState : mNT) : Array<mNT> {
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
@@ -387,7 +446,7 @@ todo comeback
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
-    return (this.edge(this.state(), newState) !== undefined);
+    return (this.transition_for(this.state(), newState) !== undefined);
   }
 
   valid_force_transition(newState : mNT, newData? : mDT) : boolean {
@@ -475,8 +534,8 @@ todo comeback
             return '';  // already did the pair
         }
 
-        const edge         = this.edge(s, ex),
-              pair         = this.edge(ex, s),
+        const edge         = this.transition_for(s, ex),
+              pair         = this.transition_for(ex, s),
               double       = pair && (s !== ex),
 
               head_state   = this.state_for(s),
