@@ -1,8 +1,9 @@
 - [x] specifying the initial edges as 1-dir node edges,
     - [x] names,
     - [x] action names (edge names are unique, action names are unique-to-source,)
-    - [ ] the probability of an edge,
+    - [x] the probability of an edge,
         - [ ] being the most probable edge,
+        - [ ] random walks
     - [x] which states are "complete" (that is, that an input sequence can be considered satisfactorily terminal),
     - [x] whether a machine is
         - [x] complete,
@@ -107,5 +108,8 @@
     - [ ] a DOT-like string api for creation,
 - [ ] in background,
     - [ ] transition probability long-term measurement
+    - [ ] state probability long-term measurement
+- [ ] sanity checks
+    - [ ] `initial_state` must be a valid `state`
 
 difference between event and action: if action isn't handled, it's an error; if event, meh
