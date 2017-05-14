@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {

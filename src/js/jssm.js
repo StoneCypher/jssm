@@ -423,11 +423,7 @@ todo comeback
 
   current_action_for(action : mNT) : number | void {
     const action_base = this._actions.get(action);
-    if (action_base) {
-      return action_base.get(this.state());
-    } else {
-      return undefined;
-    }
+    return action_base? action_base.get(this.state()) : undefined;
   }
 
   current_action_edge_for(action : mNT) : JssmTransition<mNT, mDT> | void {
