@@ -269,6 +269,10 @@ todo comeback
                .concat([this.state()]);
   }
 
+  probabilistic_histo_walk(n : number) : Map<any, number> {
+    return this.histograph(this.probabilistic_walk(n));
+  }
+
 
 
   rand_select(options : Array<any>, probability_property : string = 'probability') {
@@ -290,15 +294,15 @@ todo comeback
 
   seq(n : number) { return (new Array(n)).fill(true).map( (_,i) => i ); }
 
-  histograph(a : Array<mixed>) {
-    return a.sort().reduce( (a,v) => ( a.set(v, (a.has(v)? a.get(v)+1 : 1)) , a), new Map() );
+  histograph(a : Array<any>) {
+    return a.sort().reduce( (m,v) => ( m.set(v, (m.has(v)? m.get(v)+1 : 1)) , m), new Map() );
   }
 
   sample_select(n : number, options : Array<mixed>, probability_property : string) {
     return this.seq(n).map(i => this.rand_select(options, probability_property));
   }
 
-  histo(n : number, options : Array<mixed>, probability_property : string, extract : string) {
+  histo_key(n : number, options : Array<mixed>, probability_property : string, extract : string) {
     return this.histograph(this.sample_select(n, options, probability_property).map( (s:any) => s[extract]));
   }
 
