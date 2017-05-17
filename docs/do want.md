@@ -3,7 +3,8 @@
     - [x] action names (edge names are unique, action names are unique-to-source,)
     - [x] the probability of an edge,
         - [ ] being the most probable edge,
-        - [ ] random walks
+        - [x] following one edge probabilistically,
+        - [x] random walks
     - [x] which states are "complete" (that is, that an input sequence can be considered satisfactorily terminal),
     - [x] whether a machine is
         - [x] complete,
