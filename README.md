@@ -1,6 +1,18 @@
 # jssm
 A Javascript state machine with a simple API.  Well tested, and typed with Flowtype.  MIT license.
 
+[![Dependency status](https://david-dm.org/StoneCypher/jssm/status.svg)](https://david-dm.org/StoneCypher/jssm)
+[![NSP status](https://nodesecurity.io/orgs/johns-oss/projects/f479470f-fc0a-4e7e-a250-d69cb3778601/badge)](https://nodesecurity.io/orgs/johns-oss/projects/f479470f-fc0a-4e7e-a250-d69cb3778601)
+[![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://img.shields.io/travis/StoneCypher/jssm.svg)
+[![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://img.shields.io/coveralls/StoneCypher/jssm.svg)
+[![CodeClimate status](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)
+
+[![CDNjs Version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
+[![Github downloads](https://img.shields.io/github/downloads/StoneCypher/Jssm/total.svg)](https://img.shields.io/github/downloads/StoneCypher/Jssm/total.svg)
+[![NPM downloads](https://img.shields.io/npm/StoneCypher/jssm.svg)](https://img.shields.io/npm/StoneCypher/jssm.svg)
+
+[![Commits since](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)
+
 ## TL;DR
 Specify finite state machines with a brief syntax.  Run them.  Derive charts from them.  Save and load states.  Make factories.  Impress friends and loved ones.  Cure corns and callouses.
 
@@ -18,9 +30,9 @@ const traffic_light = new jssm.machine({
 });
 
 traffic_light.state();            // 'Red'
-traffic_light.action('Proceed'); 
+traffic_light.action('Proceed');
 traffic_light.state();            // 'Yellow'
-traffic_light.action('Proceed'); 
+traffic_light.action('Proceed');
 traffic_light.state();            // 'Green'
 ```
 
