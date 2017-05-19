@@ -2,6 +2,30 @@
 A Javascript state machine with a simple API.  Well tested, and typed with Flowtype.  MIT license.
 
 ## TL;DR
+Specify finite state machines with a brief syntax.  Run them.  Derive charts from them.  Save and load states.  Make factories.  Impress friends and loved ones.  Cure corns and callouses.
+
+```javascript
+const traffic_light = new jssm.machine({
+
+  initial_state : 'Red',
+
+  transitions   : [
+    { action: 'Proceed', from:'Green',  to:'Yellow' },
+    { action: 'Proceed', from:'Yellow', to:'Red'    },
+    { action: 'Proceed', from:'Red',    to:'Green'  }
+  ]
+
+});
+
+traffic_light.state();            // 'Red'
+traffic_light.action('Proceed'); 
+traffic_light.state();            // 'Yellow'
+traffic_light.action('Proceed'); 
+traffic_light.state();            // 'Green'
+```
+
+![](docs/ryg traffic light console screenshot.png)
+
 ## Quick Start
 ## Why
 ## How To
