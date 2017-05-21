@@ -3,4 +3,5 @@ node_js:
   - "7"
   - "6"
 after_success:
+  - pwd
   - npm run travis
