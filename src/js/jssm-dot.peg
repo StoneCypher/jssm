@@ -8,9 +8,6 @@
 Expression
   = Whitespace ExpList Whitespace
 
-Integer "integer"
-  = [0-9]+ { return parseInt(text(), 10); }
-
 ForwardArrow "forward arrow"
   = "->"
 
@@ -21,10 +18,10 @@ Arrow
   = ForwardArrow / TwoWayArrow
 
 Label "label"
-  = [0-9a-zA-Z]+
+  = text:[0-9a-zA-Z]+ { return text.join(''); }
 
 Subexp
-  = Whitespace arrow:Arrow Whitespace label:Label Whitespace tail:Subexp* { return {kind: arrow, to: label, se:(tail === [])? undefined : tail}; }
+  = Whitespace arrow:Arrow Whitespace label:Label Whitespace tail:Subexp? { return {kind: arrow, to: label, se:(tail === [])? undefined : tail}; }
 
 Exp
   = label:Label se:Subexp Whitespace ';' Whitespace {
