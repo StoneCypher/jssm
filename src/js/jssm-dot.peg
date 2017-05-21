@@ -1,0 +1,42 @@
+/*
+ * Simple Arithmetics Grammar
+ * ==========================
+ *
+ * Accepts expressions like "2 * (3 + 4)" and computes their value.
+ */
+
+Expression
+  = Whitespace ExpList Whitespace
+
+Integer "integer"
+  = [0-9]+ { return parseInt(text(), 10); }
+
+ForwardArrow "forward arrow"
+  = "->"
+
+TwoWayArrow "two way arrow"
+  = "<->"
+
+Arrow
+  = ForwardArrow / TwoWayArrow
+
+Label "label"
+  = [0-9a-zA-Z]+
+
+Subexp
+  = Whitespace arrow:Arrow Whitespace label:Label Whitespace tail:Subexp* { return {kind: arrow, to: label, se:(tail === [])? undefined : tail}; }
+
+Exp
+  = label:Label se:Subexp Whitespace ';' Whitespace {
+    const unroll = function(dive) { return true; }
+    return {from: label, se:(se === [])? undefined : se};
+  }
+
+SubexpItem
+  = Subexp
+
+ExpList
+  = exp:Exp*
+
+Whitespace "whitespace"
+  = [ \t\n\r\v]*
