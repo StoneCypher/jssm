@@ -1,7 +1,9 @@
 {
   "name": "jssm",
   "version": "1.0.1",
-  "engines" : { "node" : ">=6.0.0" },
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {
@@ -74,6 +76,7 @@
     "eslint-plugin-flowtype": "^2.32.1",
     "flow-bin": "^0.45.0",
     "gulp-string-replace": "^0.4.0",
+    "nyc": "^10.3.2",
     "rimraf": "^2.6.1",
     "viz.js": "^1.7.1"
   }

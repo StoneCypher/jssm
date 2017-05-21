@@ -1,15 +1,20 @@
 # jssm
 A Javascript state machine with a simple API.  Well tested, and typed with Flowtype.  MIT license.
 
+[![License](https://img.shields.io/npm/l/jssm.svg)](https://img.shields.io/npm/l/jssm.svg)
+[![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://img.shields.io/github/issues/StoneCypher/jssm.svg)
+[![Closed issues](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)
+
 [![Dependency status](https://david-dm.org/StoneCypher/jssm/status.svg)](https://david-dm.org/StoneCypher/jssm)
 [![NSP status](https://nodesecurity.io/orgs/johns-oss/projects/f479470f-fc0a-4e7e-a250-d69cb3778601/badge)](https://nodesecurity.io/orgs/johns-oss/projects/f479470f-fc0a-4e7e-a250-d69cb3778601)
 [![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://img.shields.io/travis/StoneCypher/jssm.svg)
 [![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://img.shields.io/coveralls/StoneCypher/jssm.svg)
 [![CodeClimate status](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)
 
-[![CDNjs Version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
+[![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://img.shields.io/npm/v/jssm.svg)
+[![CDNjs version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
 [![Github downloads](https://img.shields.io/github/downloads/StoneCypher/Jssm/total.svg)](https://img.shields.io/github/downloads/StoneCypher/Jssm/total.svg)
-[![NPM downloads](https://img.shields.io/npm/StoneCypher/jssm.svg)](https://img.shields.io/npm/StoneCypher/jssm.svg)
+[![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://img.shields.io/npm/dt/jssm.svg)
 
 [![Commits since](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)
 
