@@ -2,7 +2,5 @@ language: node_js
 node_js:
   - "7"
   - "6"
-before_install:
-  - pwd
 after_success:
   - npm run travis

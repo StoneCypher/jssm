@@ -11,11 +11,41 @@ TwoWayArrow "two way arrow"
 Arrow
   = ForwardArrow / TwoWayArrow
 
+String "string"
+  = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
+
+HexDigit
+  = [0-9a-fA-F]
+
+Char
+  = Unescaped
+  / Escape Sequence:(
+        '"'
+      / "\\"
+      / "/"
+      / "b" { return "\b"; }
+      / "f" { return "\f"; }
+      / "n" { return "\n"; }
+      / "r" { return "\r"; }
+      / "t" { return "\t"; }
+      / "u" digits:$(HexDigit HexDigit HexDigit HexDigit) {
+          return String.fromCharCode(parseInt(digits, 16));
+        }
+    )
+    { return Sequence; }
+
+Escape    = "\\"
+QuoteMark = '"'
+Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
+
 Label "label"
-  = text:[0-9a-zA-Z.+-_]+ { return text.join(''); }
+  = text:[0-9a-zA-Z\.\+\-\_]+ { return text.join(''); }
+
+DescValue
+  = string:String
 
 DescItem
-  = text:Label ":" value:Label ";"
+  = text:Label ":" value:DescValue ";"
 
 DescItems
   = DescItem+
@@ -29,16 +59,16 @@ Subexp
     Whitespace rdesc:ArrowDesc?
     Whitespace label:Label
     Whitespace tail:Subexp? {
-      return {kind: arrow, to: label, se:(tail === [])? undefined : tail};
+      return {kind: arrow, to: label, se:(tail === [])? undefined: tail};
     }
-
-Exp
-  = label:Label se:Subexp Whitespace ';' Whitespace {
-    return {from: label, se:(se === [])? undefined : se};
-  }
 
 SubexpItem
   = Subexp
+
+Exp
+  = label:Label se:Subexp Whitespace ';' Whitespace {
+    return {from: label, se:(se === [])? undefined: se};
+  }
 
 ExpList
   = exp:Exp*
