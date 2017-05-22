@@ -7,7 +7,8 @@
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {
-    "test": "nyc ava src/js/jssm-tests.js report --reporter=html",
+    "nyc-test": "nyc ava src/js/jssm-tests.js report --reporter=html",
+    "test": "ava src/js/jssm-tests.js",
     "test-verbose": "ava src/js/jssm-tests.js -v",
     "clean": "rimraf build -f && rimraf dist -f",
     "babel": "babel src/js -d build/",
