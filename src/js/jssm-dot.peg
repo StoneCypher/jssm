@@ -1,9 +1,3 @@
-/*
- * Simple Arithmetics Grammar
- * ==========================
- *
- * Accepts expressions like "2 * (3 + 4)" and computes their value.
- */
 
 Expression
   = Whitespace ExpList Whitespace
@@ -18,14 +12,28 @@ Arrow
   = ForwardArrow / TwoWayArrow
 
 Label "label"
-  = text:[0-9a-zA-Z]+ { return text.join(''); }
+  = text:[0-9a-zA-Z.+-_]+ { return text.join(''); }
+
+DescItem
+  = text:Label ":" value:Label ";"
+
+DescItems
+  = DescItem+
+
+ArrowDesc
+  = "{" DescItems? "}"
 
 Subexp
-  = Whitespace arrow:Arrow Whitespace label:Label Whitespace tail:Subexp? { return {kind: arrow, to: label, se:(tail === [])? undefined : tail}; }
+  = Whitespace ldesc:ArrowDesc?
+    Whitespace arrow:Arrow
+    Whitespace rdesc:ArrowDesc?
+    Whitespace label:Label
+    Whitespace tail:Subexp? {
+      return {kind: arrow, to: label, se:(tail === [])? undefined : tail};
+    }
 
 Exp
   = label:Label se:Subexp Whitespace ';' Whitespace {
-    const unroll = function(dive) { return true; }
     return {from: label, se:(se === [])? undefined : se};
   }
 
