@@ -13,7 +13,6 @@ A Javascript state machine with a simple API.  Well tested, and typed with Flowt
 
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://img.shields.io/npm/v/jssm.svg)
 [![CDNjs version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
-[![Github downloads](https://img.shields.io/github/downloads/StoneCypher/Jssm/total.svg)](https://img.shields.io/github/downloads/StoneCypher/Jssm/total.svg)
 [![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://img.shields.io/npm/dt/jssm.svg)
 
 [![Commits since](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)
