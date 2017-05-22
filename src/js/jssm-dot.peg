@@ -1,6 +1,6 @@
 
 Expression
-  = Whitespace ExpList Whitespace
+  = Whitespace e:ExpList Whitespace { return e; }
 
 ForwardArrow "forward arrow"
   = "->"
@@ -28,6 +28,7 @@ Char
       / "n" { return "\n"; }
       / "r" { return "\r"; }
       / "t" { return "\t"; }
+      / "v" { return "\v"; }
       / "u" digits:$(HexDigit HexDigit HexDigit HexDigit) {
           return String.fromCharCode(parseInt(digits, 16));
         }
