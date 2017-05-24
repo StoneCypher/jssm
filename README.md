@@ -33,11 +33,22 @@ const traffic_light = new jssm.machine({
 
 });
 
-traffic_light.state();            // 'Red'
-traffic_light.action('Proceed');
-traffic_light.state();            // 'Yellow'
-traffic_light.action('Proceed');
-traffic_light.state();            // 'Green'
+// use with actions
+traffic_light.state();              // 'Red'
+traffic_light.action('Proceed');    // true
+traffic_light.state();              // 'Green'
+traffic_light.action('Proceed');    // true
+traffic_light.state();              // 'Yellow'
+traffic_light.action('Proceed');    // true
+traffic_light.state();              // 'Red'
+
+// use with transitions
+traffic_light.transition('Yellow'); // false (lights can't go from red to yellow, only to green)
+traffic_light.state();              // 'Red'
+traffic_light.transition('Red');    // false (lights can't go from red to red, either)
+traffic_light.state();              // 'Red'
+traffic_light.transition('Green');  // true
+traffic_light.state();              // 'Green'
 ```
 
 ![](docs/ryg traffic light console screenshot.png)
