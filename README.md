@@ -53,7 +53,7 @@ traffic_light.state();              // 'Green'
 
 Which can also be represented in the following chart:
 
-![](docs/ryg traffic light console screenshot.png)
+![](./docs/ryg traffic light console screenshot.png)
 
 ## Quick Start
 ## Why
