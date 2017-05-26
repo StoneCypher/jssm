@@ -55,6 +55,8 @@ Which can also be represented in the following chart:
 
 ![](./docs/ryg traffic light console screenshot.png)
 
+.
+
 ## Quick Start
 ## Why
 ## How To
