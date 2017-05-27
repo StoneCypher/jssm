@@ -300,7 +300,7 @@ todo comeback
   }
 */
 
-  list_exit_actions_for(whichState : mNT) : Array<mNT> {
+  list_exit_actions(whichState : mNT = this.state() ) : Array<mNT> {
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )

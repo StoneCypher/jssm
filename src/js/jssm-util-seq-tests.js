@@ -14,3 +14,5 @@ describe('seq/1', async it => {
   it('(2) generates [0,1]', t => t.deepEqual([0,1], jssm.seq(2) ));
 
 });
+
+// stochable

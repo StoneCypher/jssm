@@ -183,7 +183,7 @@ describe('Complex stop light', async it => {
     it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
   );
 
-  it('has the right exit actions for red', t => t.deepEqual(['power_off', 'proceed'], light2.list_exit_actions_for('red')));
+  it('has the right exit actions for red', t => t.deepEqual(['power_off', 'proceed'], light2.list_exit_actions('red')));
 
 
   it.describe('- `transition` walkthrough', async it2 => {
