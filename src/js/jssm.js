@@ -13,6 +13,12 @@ const version = null; // replaced from package.js in build
 
 
 
+
+import { seq, rand_select, histograph } from './jssm-util.js';
+
+
+
+
 class machine<mNT, mDT> {
 
 
@@ -205,106 +211,74 @@ todo comeback
 
 
 
-  transitions() : Array< JssmTransition<mNT, mDT> > {
+  list_transitions() : Array< JssmTransition<mNT, mDT> > {
     return this._edges;
   }
 
-  named_transitions() : Map<mNT, number> {
+  list_named_transitions() : Map<mNT, number> {
     return this._named_transitions;
   }
 
-  actions() : Array<mNT> {
+  list_actions() : Array<mNT> {
     return [... this._actions.keys()];
   }
 
 
 
-  transition_id(from: mNT, to: mNT) {
+  get_transition_by_id(from: mNT, to: mNT) {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
 
-  transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
-    const id = this.transition_id(from, to);
+  lookup_transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
+    const id = this.get_transition_by_id(from, to);
     return (id === undefined)? undefined : this._edges[id];
   }
 
 
 
-  transitions_for(whichState : mNT) : JssmTransitionList<mNT> {
-    return {entrances: this.entrances_for(whichState), exits: this.exits_for(whichState)};
+  list_transitions_for(whichState : mNT) : JssmTransitionList<mNT> {
+    return {entrances: this.list_entrances_for(whichState), exits: this.list_exits_for(whichState)};
   }
 
-  entrances_for(whichState : mNT) : Array<mNT> {
+  list_entrances_for(whichState : mNT) : Array<mNT> {
     return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
   }
 
-  exits_for(whichState : mNT) : Array<mNT> {
+  list_exits_for(whichState : mNT) : Array<mNT> {
     return (this._states.get(whichState) || {}).to;
   }
 
   probable_exits_for(whichState : mNT) : Array< JssmTransition<mNT, mDT> > {
 
     const wstate_to : Array<mNT> = ((this._states.get(whichState) || {to: []}).to),
-          wtf                    = wstate_to.map(ws => this.transition_for(this.state(), ws)).filter(defined => defined);
+          wtf                    = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
 
     return (wtf:any) || [];  // :any because .transition_for can return `undefined`, which doesn't match this return spec
 
-//  const wstate_a = ((this._states.get(whichState) || {to: []}).to).map(ws => this.transition_for(this.state(), ws));
-//  if (wstate_a) { return wstate_a.map(ex => this.transition_for(this.state(), ex) ); }
+//  const wstate_a = ((this._states.get(whichState) || {to: []}).to).map(ws => this.lookup_transition_for(this.state(), ws));
+//  if (wstate_a) { return wstate_a.map(ex => this.lookup_transition_for(this.state(), ex) ); }
 
   }
 
   probabilistic_transition() : boolean {
-    const selected = this.rand_select(this.probable_exits_for(this.state()));
+    const selected = rand_select(this.probable_exits_for(this.state()));
     return this.transition( selected.to );
   }
 
   probabilistic_walk(n : number) : Array<mNT> {
-    return this.seq(n-1)
-               .map(i => {
-                 const state_was = this.state();
-                 this.probabilistic_transition();
-                 return state_was;
-               })
-               .concat([this.state()]);
+    return seq(n-1)
+          .map(i => {
+             const state_was = this.state();
+             this.probabilistic_transition();
+             return state_was;
+           })
+          .concat([this.state()]);
   }
 
   probabilistic_histo_walk(n : number) : Map<any, number> {
-    return this.histograph(this.probabilistic_walk(n));
+    return histograph(this.probabilistic_walk(n));
   }
 
-
-
-  rand_select(options : Array<any>, probability_property : string = 'probability') {
-
-    if (!Array.isArray(options))           { throw new TypeError('options must be a non-empty array of objects'); }
-    if (!(typeof options[0] === 'object')) { throw new TypeError('options must be a non-empty array of objects'); }
-
-    const frand      = cap => Math.random() * cap,
-          prob_sum   = options.reduce( (acc, val:any) => acc + val[probability_property], 0 ),
-          rnd        = frand(prob_sum);
-
-    var   cursor     = 0,
-          cursor_sum = 0;
-
-    while ((cursor_sum += (options:any)[cursor++][probability_property]) <= rnd) { }
-    return options[cursor-1];
-
-  }
-
-  seq(n : number) { return (new Array(n)).fill(true).map( (_,i) => i ); }
-
-  histograph(a : Array<any>) {
-    return a.sort().reduce( (m,v) => ( m.set(v, (m.has(v)? m.get(v)+1 : 1)) , m), new Map() );
-  }
-
-  sample_select(n : number, options : Array<mixed>, probability_property : string) {
-    return this.seq(n).map(i => this.rand_select(options, probability_property));
-  }
-
-  histo_key(n : number, options : Array<mixed>, probability_property : string, extract : string) {
-    return this.histograph(this.sample_select(n, options, probability_property).map( (s:any) => s[extract]));
-  }
 
 
   actions_for(whichState : mNT) : Array<mNT> {
@@ -313,7 +287,7 @@ todo comeback
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
 
-  action_found_on_states(whichState : mNT) : Array<mNT> {
+  list_states_having_action(whichState : mNT) : Array<mNT> {
     return [... ((this._actions.get(whichState) || new Map()).keys() || [])]; // wasteful
   }
 /*
@@ -326,7 +300,7 @@ todo comeback
   }
 */
 
-  action_exits_for(whichState : mNT) : Array<mNT> {
+  list_exit_actions_for(whichState : mNT) : Array<mNT> {
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
@@ -345,7 +319,7 @@ todo comeback
 
 
   is_unenterable(whichState : mNT) : boolean {
-    return this.entrances_for(whichState).length === 0;
+    return this.list_entrances_for(whichState).length === 0;
   }
 
   has_unenterables() : boolean {
@@ -359,7 +333,7 @@ todo comeback
   }
 
   state_is_terminal(whichState : mNT) : boolean {
-    return this.exits_for(whichState).length === 0;
+    return this.list_exits_for(whichState).length === 0;
   }
 
   has_terminals() : boolean {
@@ -446,7 +420,7 @@ todo comeback
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
-    return (this.transition_for(this.state(), newState) !== undefined);
+    return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
 
   valid_force_transition(newState : mNT, newData? : mDT) : boolean {
@@ -505,8 +479,10 @@ todo comeback
 
 export {
 
+  version,
+
   machine,
 
-  version
+  seq, rand_select, histograph
 
 };

@@ -1,15 +1,15 @@
 {
   "name": "jssm",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "engines": {
     "node": ">=6.0.0"
   },
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {
-    "nyc-test": "nyc ava src/js/jssm-tests.js",
-    "test": "ava src/js/jssm-tests.js",
-    "test-verbose": "ava src/js/jssm-tests.js -v",
+    "nyc-test": "nyc ava src/js/jssm*-tests.js",
+    "test": "ava src/js/jssm*-tests.js",
+    "test-verbose": "ava src/js/jssm*-tests.js -v",
     "clean": "rimraf build -f && rimraf dist -f",
     "babel": "babel src/js -d build/",
     "setver": "node ./set_version.js",

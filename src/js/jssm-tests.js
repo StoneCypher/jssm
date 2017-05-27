@@ -33,7 +33,7 @@ describe('Simple stop light', async it => {
     it(`has state "${c}"`, t => t.is(r_states.includes(c), true))
   );
 
-  const r_names = light.named_transitions();
+  const r_names = light.list_named_transitions();
   it('has the right named transition count', t => t.is(r_names.size, 3));
   trs.map(t => t.name).map(a =>
     it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
@@ -163,9 +163,9 @@ describe('Complex stop light', async it => {
       {                     action:'power_off', from:'yellow', to:'off' },
       {                     action:'power_off', from:'green',  to:'off' },
 
-      { name:'switch_warn',                     from:'green',  to:'yellow' },
-      { name:'switch_halt',                     from:'yellow', to:'red'    },
-      { name:'switch_go',                       from:'red',    to:'green'  }
+      { name:'switch_warn', action:'proceed',   from:'green',  to:'yellow' },
+      { name:'switch_halt', action:'proceed',   from:'yellow', to:'red'    },
+      { name:'switch_go',   action:'proceed',   from:'red',    to:'green'  }
 
     ]
 
@@ -177,17 +177,22 @@ describe('Complex stop light', async it => {
     it(`has state "${c}"`, t => t.is(r_states.includes(c), true))
   );
 
-  const r_names = light2.named_transitions();
+  const r_names = light2.list_named_transitions();
   it('has the right named transition count', t => t.is(r_names.size, 4));
   ['turn_on', 'switch_warn', 'switch_halt', 'switch_go'].map(a =>
     it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
   );
+
+  it('has the right exit actions for red', t => t.deepEqual(['power_off', 'proceed'], light2.list_exit_actions_for('red')));
+
 
   it.describe('- `transition` walkthrough', async it2 => {
 
     it2('machine starts off',    t => t.is("off",    light2.state()));
     it2('off refuses green',     t => t.is(false,    light2.transition('green')));
     it2('off refuses yellow',    t => t.is(false,    light2.transition('yellow')));
+
+    it2('off refuses proceed',   t => t.is(false,    light2.action('proceed')));
 
     it2('off accepts red',       t => t.is(true,     light2.transition('red')));
     it2('off is now red',        t => t.is("red",    light2.state()));
@@ -212,6 +217,9 @@ describe('Complex stop light', async it => {
 
     it2('yellow accepts red',    t => t.is(true,     light2.transition('red')));
     it2('back to red',           t => t.is("red",    light2.state()));
+
+    it2('proceed is true',       t => t.is(true,     light2.action('proceed')));
+    it2('light is now green',    t => t.is("green",  light2.state()));
 
   });
 
