@@ -1208,7 +1208,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '1.9.5'; // replaced from package.js in build
+var version = '1.9.6'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
