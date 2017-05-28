@@ -53,7 +53,7 @@ traffic_light.state();              // 'Green'
 
 Which you can see being hand-executed in the console here:
 
-![](./docs/ryg%20traffic%20light%20console%20screenshot.png)
+![](./docs/img/ryg%20traffic%20light%20console%20screenshot.png)
 
 
 

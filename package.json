@@ -10,7 +10,7 @@
     "nyc-test": "nyc ava src/js/jssm*-tests.js",
     "test": "ava src/js/jssm*-tests.js",
     "test-verbose": "ava src/js/jssm*-tests.js -v",
-    "clean": "rimraf build -f && rimraf dist -f && rimraf docs -f && rm -f src/js/jssm-dot.js && mkdir build && mkdir dist && mkdir docs",
+    "clean": "rimraf build -f && rimraf dist -f && rimraf docs -f && rm -f src/js/jssm-dot.js && mkdir build && mkdir dist && mkdir docs && mkdir docs/docs",
     "babel": "babel src/js -d build/",
     "setver": "node ./set_version.js",
     "rename": "node -e \"require('fs').renameSync('./build/jssm.js', './build/jssm.es5.js');\"",
@@ -30,7 +30,7 @@
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "docs": "documentation build src/js/** -f html -o docs/lib",
-    "site": "cd src/site && hexo generate && cd ../..",
+    "site": "cd src/site && hexo generate && cd ../.. && cp -R src/assets/* docs/ && cp -R src/assets/* docs/docs/",
     "travis": "rm -f src/js/jssm-dot.js && npm run nyc-test && npm run coverage"
   },
   "repository": {
@@ -71,7 +71,7 @@
   "bugs": {
     "url": "https://github.com/StoneCypher/jssm/issues"
   },
-  "homepage": "https://github.com/StoneCypher/jssm#readme",
+  "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
     "ava": "^0.19.1",
     "ava-spec": "^1.1.0",
