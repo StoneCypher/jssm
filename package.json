@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -10,7 +10,7 @@
     "nyc-test": "nyc ava src/js/jssm*-tests.js",
     "test": "ava src/js/jssm*-tests.js",
     "test-verbose": "ava src/js/jssm*-tests.js -v",
-    "clean": "rimraf build -f && rimraf dist -f && rimraf docs -f && rm -f src/js/jssm-dot.js && mkdir build && mkdir dist",
+    "clean": "rimraf build -f && rimraf dist -f && rimraf docs -f && rm -f src/js/jssm-dot.js && mkdir build && mkdir dist && mkdir docs",
     "babel": "babel src/js -d build/",
     "setver": "node ./set_version.js",
     "rename": "node -e \"require('fs').renameSync('./build/jssm.js', './build/jssm.es5.js');\"",
@@ -29,7 +29,7 @@
     "prepublish": "npm run build",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
-    "docs": "documentation build src/js/** -f html -o docs",
+    "docs": "documentation build src/js/** -f html -o docs/lib",
     "travis": "rm -f src/js/jssm-dot.js && npm run nyc-test && npm run coverage"
   },
   "repository": {
