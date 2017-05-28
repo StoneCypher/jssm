@@ -5,6 +5,8 @@ nothing: nothing
 # jssm
 A Javascript state machine with a simple API.  Well tested, and typed with Flowtype.  MIT license.
 
+<div id="badge_style_hook">
+
 [![License](https://img.shields.io/npm/l/jssm.svg)](https://img.shields.io/npm/l/jssm.svg)
 [![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://img.shields.io/github/issues/StoneCypher/jssm.svg)
 [![Closed issues](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)
@@ -20,6 +22,8 @@ A Javascript state machine with a simple API.  Well tested, and typed with Flowt
 [![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://img.shields.io/npm/dt/jssm.svg)
 
 [![Commits since](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)](https://img.shields.io/github/commits-since/StoneCypher/jssm/0.0.0.svg)
+
+</div>
 
 ## TL;DR
 Specify finite state machines with a brief syntax.  Run them.  Derive charts from them.  Save and load states.  Make factories.  Impress friends and loved ones.  Cure corns and callouses.

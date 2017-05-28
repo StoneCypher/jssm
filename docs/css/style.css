@@ -100,6 +100,15 @@ td {
 a img {
   border: none;
 }
+#badge_style_hook a {
+  margin-right: 0.5em;
+}
+#badge_style_hook br {
+  display: none;
+}
+#badge_style_hook .caption {
+  display: none;
+}
 input,
 button {
   margin: 0;
