@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -89,6 +89,7 @@
     "eslint-plugin-flowtype": "^2.32.1",
     "flow-bin": "^0.45.0",
     "gulp-string-replace": "^0.4.0",
+    "hexo-cli": "^1.0.2",
     "nyc": "^10.3.2",
     "pegjs": "^0.10.0",
     "rimraf": "^2.6.1",
