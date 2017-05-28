@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -30,7 +30,8 @@
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "docs": "documentation build src/js/** -f html -o docs/lib",
-    "site": "cd src/site && hexo generate && cd ../.. && cp -R src/assets/* docs/ && cp -R src/assets/* docs/docs/",
+    "updatesite": "rm -f src/site/source/_posts/index.md && cat src/site/index_header.md README.md > src/site/source/_posts/index.md",
+    "site": "npm run updatesite && cd src/site && hexo generate && cd ../.. && cp -R src/assets/* docs/ && cp -R src/assets/* docs/docs/",
     "travis": "rm -f src/js/jssm-dot.js && npm run nyc-test && npm run coverage"
   },
   "repository": {
