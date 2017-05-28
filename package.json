@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -23,13 +23,14 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "vet": "npm run flow && npm run eslint",
     "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm*.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm*.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm*.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm*.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm*.js | wc -l`\\\\n\\\"nextdo\\\" remaining . : `grep nextdo src/js/jssm*.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm*.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm*.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm*.js | wc -l`\\\\n\\\"stochable\\\" remaining: `grep stochable src/js/jssm*.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm*.js | wc -l`",
-    "build": "npm run make && npm run vet && npm run test-verbose && npm run audit && npm run minify && npm run docs && npm run dist",
+    "build": "npm run make && npm run vet && npm run test-verbose && npm run audit && npm run minify && npm run site && npm run docs && npm run dist",
     "nyc-build": "npm run vet && npm run make && npm run test-verbose && npm run audit && npm run nyc-test",
     "postinstall": "npm run build",
     "prepublish": "npm run build",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "docs": "documentation build src/js/** -f html -o docs/lib",
+    "site": "cd src/site && hexo generate && cd ../..",
     "travis": "rm -f src/js/jssm-dot.js && npm run nyc-test && npm run coverage"
   },
   "repository": {
