@@ -1,4 +1,6 @@
 
+// whargarbl lots of these return arrays could/should be sets
+
 // @flow
 
 import type {
@@ -16,6 +18,7 @@ const version = null; // replaced from package.js in build
 
 import { seq, rand_select, histograph } from './jssm-util.js';
 
+const parse = require('./jssm-dot.js').parse;
 
 
 
@@ -29,7 +32,7 @@ class machine<mNT, mDT> {
   _named_transitions      : Map<mNT, number>;
   _actions                : Map<mNT, Map<mNT, number>>;
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
-//_reverse_action_targets : Map<string, Map<string, mixed>>;  // todo    // remove mixed todo whargarbl
+  _reverse_action_targets : Map<string, Map<string, number>>;
 
   _viz_colors             : mixed;
 
@@ -45,7 +48,7 @@ class machine<mNT, mDT> {
     this._named_transitions      = new Map();
     this._actions                = new Map();
     this._reverse_actions        = new Map();
-//  this._reverse_action_targets = new Map();  // todo
+    this._reverse_action_targets = new Map();  // todo
 
     transitions.map( (tr:any) => { // whargarbl burn out any
 
@@ -125,13 +128,14 @@ class machine<mNT, mDT> {
         } else {
           throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?')
         }
-/*
-todo comeback
+
         // reverse mapping first by state target name
         if (!(this._reverse_action_targets.has(tr.to))) {
           this._reverse_action_targets.set(tr.to, new Map());
         }
 
+/* todo comeback
+   fundamental problem is roActionMap needs to be a multimap
         const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
         if (roActionMap) {
           if (roActionMap.has(tr.action)) { throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`); }
@@ -142,8 +146,8 @@ todo comeback
           throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get yet again.  severe error?')
         }
 */
-
       }
+
     });
 
   }
@@ -236,17 +240,19 @@ todo comeback
 
 
 
-  list_transitions_for(whichState : mNT) : JssmTransitionList<mNT> {
-    return {entrances: this.list_entrances_for(whichState), exits: this.list_exits_for(whichState)};
+  list_transitions(whichState : mNT = this.state()) : JssmTransitionList<mNT> {
+    return {entrances: this.list_entrances(whichState), exits: this.list_exits(whichState)};
   }
 
-  list_entrances_for(whichState : mNT) : Array<mNT> {
+  list_entrances(whichState : mNT = this.state()) : Array<mNT> {
     return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
   }
 
-  list_exits_for(whichState : mNT) : Array<mNT> {
+  list_exits(whichState : mNT = this.state()) : Array<mNT> {
     return (this._states.get(whichState) || {}).to;
   }
+
+
 
   probable_exits_for(whichState : mNT) : Array< JssmTransition<mNT, mDT> > {
 
@@ -254,9 +260,6 @@ todo comeback
           wtf                    = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
 
     return (wtf:any) || [];  // :any because .transition_for can return `undefined`, which doesn't match this return spec
-
-//  const wstate_a = ((this._states.get(whichState) || {to: []}).to).map(ws => this.lookup_transition_for(this.state(), ws));
-//  if (wstate_a) { return wstate_a.map(ex => this.lookup_transition_for(this.state(), ex) ); }
 
   }
 
@@ -281,34 +284,36 @@ todo comeback
 
 
 
-  actions_for(whichState : mNT) : Array<mNT> {
+  actions(whichState : mNT = this.state() ) : Array<mNT> {
     const wstate = this._reverse_actions.get(whichState);
-    if (wstate) { return [... (wstate || new Map()).keys()]; }
+    if (wstate) { return [... wstate.keys()]; }
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
 
   list_states_having_action(whichState : mNT) : Array<mNT> {
-    return [... ((this._actions.get(whichState) || new Map()).keys() || [])]; // wasteful
+    const wstate = this._actions.get(whichState);
+    if (wstate) { return [... wstate.keys()]; }
+    else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
+
+// comeback
 /*
-todo comeback
-  action_entrances_at(whichState : string) : Array<mixed> { // whargarbl remove mixed
+  list_entrance_actions(whichState : mNT = this.state() ) : Array<mNT> {
     return [... (this._reverse_action_targets.get(whichState) || new Map()).values()] // wasteful
            .map( (edgeId:any) => (this._edges[edgeId] : any)) // whargarbl burn out any
            .filter( (o:any) => o.to === whichState)
            .map( filtered => filtered.from );
   }
 */
-
   list_exit_actions(whichState : mNT = this.state() ) : Array<mNT> {
-    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
+    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => filtered.action       );
   }
 
-  probable_action_exits_for(whichState : mNT) : Array<mNT> {
-    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful
+  probable_action_exits(whichState : mNT = this.state() ) : Array<mNT> {
+    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => ( { action      : filtered.action,
@@ -319,7 +324,7 @@ todo comeback
 
 
   is_unenterable(whichState : mNT) : boolean {
-    return this.list_entrances_for(whichState).length === 0;
+    return this.list_entrances(whichState).length === 0;
   }
 
   has_unenterables() : boolean {
@@ -333,7 +338,7 @@ todo comeback
   }
 
   state_is_terminal(whichState : mNT) : boolean {
-    return this.list_exits_for(whichState).length === 0;
+    return this.list_exits(whichState).length === 0;
   }
 
   has_terminals() : boolean {

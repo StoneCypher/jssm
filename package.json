@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "1.5.2",
+  "version": "1.7.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -10,19 +10,21 @@
     "nyc-test": "nyc ava src/js/jssm*-tests.js",
     "test": "ava src/js/jssm*-tests.js",
     "test-verbose": "ava src/js/jssm*-tests.js -v",
-    "clean": "rimraf build -f && rimraf dist -f",
+    "clean": "rimraf build -f && rimraf dist -f && rm -f src/js/jssm-dot.js && mkdir build && mkdir dist",
     "babel": "babel src/js -d build/",
     "setver": "node ./set_version.js",
     "rename": "node -e \"require('fs').renameSync('./build/jssm.js', './build/jssm.es5.js');\"",
     "pack": "browserify -r ./build/jssm.es5.js:jssm -o build/jssm.es5.cjs.js",
-    "make": "npm run clean && npm run babel && npm run rename && npm run setver && npm run pack",
+    "make": "npm run clean && npm run peg && npm run babel && npm run rename && npm run setver && npm run pack",
     "flow": "flow",
+    "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js",
     "nyc-html": "nyc ava report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "vet": "npm run flow && npm run eslint",
     "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm*.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm*.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm*.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm*.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm*.js | wc -l`\\\\n\\\"nextdo\\\" remaining . : `grep nextdo src/js/jssm*.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm*.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm*.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm*.js | wc -l`\\\\n\\\"stochable\\\" remaining: `grep stochable src/js/jssm*.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm*.js | wc -l`",
-    "build": "npm run vet && npm run make && npm run test-verbose && npm run audit",
+    "build": "npm run make && npm run vet && npm run test-verbose && npm run audit",
+    "nyc-build": "npm run vet && npm run make && npm run test-verbose && npm run audit && npm run nyc-test",
     "postinstall": "npm run build",
     "prepublish": "npm run build",
     "travis": "npm run nyc-test && npm run coverage"
@@ -82,6 +84,7 @@
     "flow-bin": "^0.45.0",
     "gulp-string-replace": "^0.4.0",
     "nyc": "^10.3.2",
+    "pegjs": "^0.10.0",
     "rimraf": "^2.6.1",
     "viz.js": "^1.7.1"
   }

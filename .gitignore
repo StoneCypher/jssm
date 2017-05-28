@@ -39,3 +39,5 @@ jspm_packages
 build/
 
 .DS_Store
+
+src/js/jssm-dot.js
