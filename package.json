@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -27,7 +27,7 @@
     "nyc-build": "npm run vet && npm run make && npm run test-verbose && npm run audit && npm run nyc-test",
     "postinstall": "npm run build",
     "prepublish": "npm run build",
-    "travis": "npm run nyc-test && npm run coverage"
+    "travis": "rm -f src/js/jssm-dot.js && npm run nyc-test && npm run coverage"
   },
   "repository": {
     "type": "git",
