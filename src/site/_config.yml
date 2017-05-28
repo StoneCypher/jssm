@@ -3,10 +3,10 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle:
-description:
-author: John Doe
+title: JSSM
+subtitle: Javascript State Machine
+description: A support library for making finite state machines easily and quickly
+author: John Haugeland
 language:
 timezone:
 
