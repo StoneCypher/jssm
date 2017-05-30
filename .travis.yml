@@ -4,5 +4,6 @@ node_js:
   - "6"
 before_install:
   - npm install -g hexo hexo-cli
+  - npm install hexo hexo-cli
 after_success:
   - npm run travis
