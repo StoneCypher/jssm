@@ -2,8 +2,5 @@ language: node_js
 node_js:
   - "7"
   - "6"
-before_install:
-  - npm install -g hexo hexo-cli
-  - npm install hexo hexo-cli
 after_success:
   - npm run travis
