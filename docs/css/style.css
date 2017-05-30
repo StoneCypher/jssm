@@ -101,7 +101,10 @@ a img {
   border: none;
 }
 #badge_style_hook a {
-  margin-right: 0.5em;
+  margin-right: 0.125em;
+}
+#badge_style_hook img {
+  display: inline;
 }
 #badge_style_hook br {
   display: none;
