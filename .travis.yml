@@ -3,6 +3,6 @@ node_js:
   - "7"
   - "6"
 before_install:
-  - npm install -g hexo
+  - npm install -g hexo hexo-cli
 after_success:
   - npm run travis
