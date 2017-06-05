@@ -17,8 +17,11 @@ const version = null; // replaced from package.js in build
 
 
 import { seq, rand_select, histograph } from './jssm-util.js';
+import { viz }                          from './jssm-viz.js';
 
 const parse = require('./jssm-dot.js').parse;
+
+
 
 
 
