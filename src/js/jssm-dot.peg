@@ -11,9 +11,6 @@ TwoWayArrow "two way arrow"
 Arrow
   = ForwardArrow / TwoWayArrow
 
-String "string"
-  = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
-
 HexDigit
   = [0-9a-fA-F]
 
@@ -39,12 +36,18 @@ Escape    = "\\"
 QuoteMark = '"'
 Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
 
+String "string"
+  = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
+
+Atom "atom"
+  = text:[0-9a-zA-Z\.\+\_\&\(\)\%\$\#\@\!\?\,\']+ { return text.join(''); }
+
 Label "label"
-  = text:[0-9a-zA-Z\.\+\_\&\(\)\%\$\#\@\!\?\<\>\,\:\']+ { return text.join(''); }
-  / text:String { return text.join(''); }
+  = atom:Atom
+  / string:String
 
 DescValue
-  = string:String
+  = label:Label
 
 DescItem
   = text:Label ":" value:DescValue ";"
@@ -63,9 +66,6 @@ Subexp
     Whitespace tail:Subexp? {
       return {kind: arrow, to: label, se:(tail === [])? undefined: tail};
     }
-
-SubexpItem
-  = Subexp
 
 Exp
   = label:Label se:Subexp Whitespace ';' Whitespace {
