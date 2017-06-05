@@ -50,7 +50,7 @@ DescValue
   = label:Label
 
 DescItem
-  = text:Label ":" value:DescValue ";"
+  = text:Label ":" value:DescValue ";" { return {text:text, value:value}; }
 
 DescItems
   = DescItem+
@@ -64,7 +64,7 @@ Subexp
     Whitespace rdesc:ArrowDesc?
     Whitespace label:Label
     Whitespace tail:Subexp? {
-      return {kind: arrow, to: label, se:(tail === [])? undefined: tail};
+      return {kind: arrow, ldesc: ldesc, to: label, rdesc: rdesc, se:(tail === [])? undefined: tail};
     }
 
 Exp
