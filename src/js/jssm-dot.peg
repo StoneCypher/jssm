@@ -66,9 +66,9 @@ Subexp
     Whitespace tail:Subexp? {
       const base = {kind: arrow, to: label};
 
-      if (tail !== []) { base.se    = tail; }
-      if (ldesc)       { base.ldesc = ldesc; }
-      if (rdesc)       { base.rdesc = rdesc; }
+      if (tail && (tail !== [])) { base.se    = tail; }
+      if (ldesc)                 { base.ldesc = ldesc; }
+      if (rdesc)                 { base.rdesc = rdesc; }
 
       return base;
     }
@@ -76,7 +76,7 @@ Subexp
 Exp
   = label:Label se:Subexp Whitespace ';' Whitespace {
     const base = {from: label};
-    if (se !== []) { base.se = se; }
+    if (se && (se !== [])) { base.se = se; }
     return base;
   }
 
