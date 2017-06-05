@@ -30,14 +30,14 @@ const viz = jssm => {
   const strike = [];
   const edges  = jssm.states().map( (s:any) =>
 
-    jssm.exits_for(s).map( (ex:any) => {
+    jssm.list_exits(s).map( (ex:any) => {
 
       if ( strike.find(row => (row[0] === s) && (row[1] == ex) ) ) {
           return '';  // already did the pair
       }
 
-      const edge         = jssm.transition_for(s, ex),
-            pair         = jssm.transition_for(ex, s),
+      const edge         = jssm.list_transitions(s, ex),
+            pair         = jssm.list_transitions(ex, s),
             double       = pair && (s !== ex),
 
             head_state   = jssm.state_for(s),

@@ -1226,7 +1226,7 @@ var viz = function viz(jssm) {
 
             var strike = [];
             var edges = jssm.states().map(function (s) {
-                        return jssm.exits_for(s).map(function (ex) {
+                        return jssm.list_exits(s).map(function (ex) {
 
                                     if (strike.find(function (row) {
                                                 return row[0] === s && row[1] == ex;
@@ -1234,8 +1234,8 @@ var viz = function viz(jssm) {
                                                 return ''; // already did the pair
                                     }
 
-                                    var edge = jssm.transition_for(s, ex),
-                                        pair = jssm.transition_for(ex, s),
+                                    var edge = jssm.list_transitions(s, ex),
+                                        pair = jssm.list_transitions(ex, s),
                                         double = pair && s !== ex,
                                         head_state = jssm.state_for(s),
                                         tail_state = jssm.state_for(ex),
@@ -1314,7 +1314,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.1.4'; // replaced from package.js in build
+var version = '2.2.0'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -1804,6 +1804,11 @@ var machine = function () {
     key: 'valid_force_transition',
     value: function valid_force_transition(newState, newData) {
       return false; // major todo whargarbl
+    }
+  }, {
+    key: 'viz',
+    value: function viz() {
+      return (0, _jssmViz.viz)(this);
     }
   }, {
     key: 'set_viz_colors',

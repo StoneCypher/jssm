@@ -437,6 +437,10 @@ class machine<mNT, mDT> {
 
 
 
+  viz() : string {
+    return viz(this);
+  }
+
   set_viz_colors() : void {
 
     this._viz_colors = {
