@@ -56,7 +56,7 @@ DescItems
   = DescItem+
 
 ArrowDesc
-  = "{" DescItems? "}"
+  = "{" descitems:DescItems? "}" { return descitems; }
 
 Subexp
   = Whitespace ldesc:ArrowDesc?
@@ -64,12 +64,20 @@ Subexp
     Whitespace rdesc:ArrowDesc?
     Whitespace label:Label
     Whitespace tail:Subexp? {
-      return {kind: arrow, ldesc: ldesc, to: label, rdesc: rdesc, se:(tail === [])? undefined: tail};
+      const base = {kind: arrow, to: label};
+
+      if (tail !== []) { base.se    = tail; }
+      if (ldesc)       { base.ldesc = ldesc; }
+      if (rdesc)       { base.rdesc = rdesc; }
+
+      return base;
     }
 
 Exp
   = label:Label se:Subexp Whitespace ';' Whitespace {
-    return {from: label, se:(se === [])? undefined: se};
+    const base = {from: label};
+    if (se !== []) { base.se = se; }
+    return base;
   }
 
 ExpList
