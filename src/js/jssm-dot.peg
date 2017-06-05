@@ -40,7 +40,7 @@ QuoteMark = '"'
 Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
 
 Label "label"
-  = text:[0-9a-zA-Z\.\+\-\_\&\(\)\%\$\#\@\!\?\<\>\,\:\;\']+ { return text.join(''); }
+  = text:[0-9a-zA-Z\.\+\_\&\(\)\%\$\#\@\!\?\<\>\,\:\']+ { return text.join(''); }
   / text:String { return text.join(''); }
 
 DescValue

@@ -494,6 +494,7 @@ export {
   version,
 
   machine,
+  parse,
 
   seq, rand_select, histograph
 
