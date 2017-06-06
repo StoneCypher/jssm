@@ -1,6 +1,8 @@
 
-Expression
-  = Whitespace e:ExpList Whitespace { return e; }
+Document
+  = Whitespace e:TermList Whitespace { return e; }
+
+
 
 ForwardArrow "forward arrow"
   = "->"
@@ -10,6 +12,8 @@ TwoWayArrow "two way arrow"
 
 Arrow
   = ForwardArrow / TwoWayArrow
+
+
 
 HexDigit
   = [0-9a-fA-F]
@@ -36,6 +40,11 @@ Escape    = "\\"
 QuoteMark = '"'
 Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
 
+Whitespace "whitespace"
+  = [ \t\n\r\v]*
+
+
+
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
@@ -46,17 +55,21 @@ Label "label"
   = atom:Atom
   / string:String
 
-DescValue
+
+
+Value
   = label:Label
 
-DescItem
-  = text:Label ":" value:DescValue ";" { return {text:text, value:value}; }
+Item
+  = text:Label ":" value:Value ";" { return {text:text, value:value}; }
 
-DescItems
-  = DescItem+
+Items
+  = Item+
 
 ArrowDesc
-  = "{" descitems:DescItems? "}" { return descitems; }
+  = "{" items:Items? "}" { return items; }
+
+
 
 Subexp
   = Whitespace ldesc:ArrowDesc?
@@ -80,8 +93,105 @@ Exp
     return base;
   }
 
-ExpList
-  = exp:Exp*
 
-Whitespace "whitespace"
-  = [ \t\n\r\v]*
+
+ValidationKey
+  = "whargarbl"
+  / "todo"
+
+ValidationItem
+  = validationkey:ValidationKey ":" value:Value ";" { return {key:validationkey, value:value}; }
+
+ValidationItems
+  = ValidationItem+
+
+ConfigValidation
+  = Whitespace "validation" Whitespace ":" Whitespace "{" validation_items:ValidationItems? "};" Whitespace {
+    return { config_kind: "validation", config_items: validation_items || [] };
+  }
+
+
+
+StateKey
+  = "whargarbl"
+  / "todo"
+
+StateItem
+  = statekey:StateKey ":" value:Value ";" { return {key:statekey, value:value}; }
+
+StateItems
+  = StateItem+
+
+ConfigState
+  = Whitespace "state" Whitespace ":" Whitespace "{" state_items:StateItems? "};" Whitespace {
+    return { config_kind: "state", config_items: state_items || [] };
+  }
+
+
+
+ActionKey
+  = "whargarbl"
+  / "todo"
+
+ActionItem
+  = actionkey:ActionKey ":" value:Value ";" { return {key:actionkey, value:value}; }
+
+ActionItems
+  = ActionItem+
+
+ConfigAction
+  = Whitespace "action" Whitespace ":" Whitespace "{" action_items:ActionItems? "};" Whitespace {
+    return { config_kind: "action", config_items: action_items || [] };
+  }
+
+
+
+TransitionKey
+  = "whargarbl"
+  / "todo"
+
+TransitionItem
+  = transitionkey:TransitionKey ":" value:Value ";" { return {key:transitionkey, value:value}; }
+
+TransitionItems
+  = TransitionItem+
+
+ConfigTransition
+  = Whitespace "transition" Whitespace ":" Whitespace "{" transition_items:TransitionItems? "};" Whitespace {
+    return { config_kind: "transition", config_items: transition_items || [] };
+  }
+
+
+
+GraphKey
+  = "in_shape"
+  / "out_shape"
+
+GraphItem
+  = graphkey:GraphKey ":" value:Value ";" { return {key:graphkey, value:value}; }
+
+GraphItems
+  = GraphItem+
+
+ConfigGraph
+  = Whitespace "graph" Whitespace ":" Whitespace "{" graph_items:GraphItems? "};" Whitespace {
+    return { config_kind: "graph", config_items: graph_items || [] };
+  }
+
+
+
+Config
+  = ConfigGraph
+  / ConfigTransition
+  / ConfigAction
+  / ConfigState
+  / ConfigValidation
+
+
+
+Term
+  = Exp
+  / Config
+
+TermList
+  = term:Term*
