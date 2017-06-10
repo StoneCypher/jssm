@@ -1,5 +1,5 @@
 {
-	"exclude": [
+    "exclude": [
       "**/jssm-dot.js"
     ]
 }
