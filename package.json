@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -88,7 +88,7 @@
     "coveralls": "^2.13.1",
     "del-cli": "^0.2.1",
     "documentation": "^4.0.0-rc.1",
-    "eslint": "^3.19.0",
+    "eslint": "^4.1.1",
     "eslint-plugin-flowtype": "^2.32.1",
     "flow-bin": "^0.45.0",
     "gulp-string-replace": "^0.4.0",
