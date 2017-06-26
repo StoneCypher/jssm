@@ -4,6 +4,13 @@ Document
 
 
 
+GvizShape
+  = "square"
+  / "rectangle"
+  / "circle"
+
+
+
 ForwardArrow "forward arrow"
   = "->"
 
@@ -112,12 +119,19 @@ ConfigValidation
 
 
 
-StateKey
-  = "whargarbl"
-  / "todo"
+InShape
+  = Whitespace "in_shape"   Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"in_shape",   value:value}; }
+
+OutShape
+  = Whitespace "out_shape"  Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"out_shape",  value:value}; }
+
+NodeShape
+  = Whitespace "node_shape" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"node_shape", value:value}; }
 
 StateItem
-  = statekey:StateKey ":" value:Value ";" { return {key:statekey, value:value}; }
+  = InShape
+  / OutShape
+  / NodeShape
 
 StateItems
   = StateItem+
@@ -163,24 +177,11 @@ ConfigTransition
 
 
 
-GvizShape
-  = "square"
-  / "rectangle"
-  / "circle"
-
-InShape
-  = Whitespace "in_shape"   Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"in_shape",   value:value}; }
-
-OutShape
-  = Whitespace "out_shape"  Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"out_shape",  value:value}; }
-
-NodeShape
-  = Whitespace "node_shape" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"node_shape", value:value}; }
+GraphBg
+  = Whitespace "graph_bg" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"graph_bg", value:value}; }
 
 GraphItem
-  = InShape
-  / OutShape
-  / NodeShape
+  = GraphBg
 
 GraphItems
   = GraphItem+
