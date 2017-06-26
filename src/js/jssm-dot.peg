@@ -168,16 +168,19 @@ GvizShape
   / "rectangle"
   / "circle"
 
-GraphKey
-  = "in_shape"
-  / "out_shape"
+InShape
+  = Whitespace "in_shape"   Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"in_shape",   value:value}; }
+
+OutShape
+  = Whitespace "out_shape"  Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"out_shape",  value:value}; }
 
 NodeShape
   = Whitespace "node_shape" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"node_shape", value:value}; }
 
 GraphItem
-  = NodeShape
-  / Whitespace graphkey:GraphKey Whitespace ":" Whitespace value:Value Whitespace ";" Whitespace { return {key:graphkey, value:value}; }
+  = InShape
+  / OutShape
+  / NodeShape
 
 GraphItems
   = GraphItem+
