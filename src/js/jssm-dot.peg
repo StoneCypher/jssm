@@ -119,19 +119,27 @@ ConfigValidation
 
 
 
+GvizLayout
+  = "dot"
+  / "circo"
+
 InShape
-  = Whitespace "in_shape"   Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"in_shape",   value:value}; }
+  = Whitespace "in_shape"     Whitespace ":" Whitespace value:GvizShape  Whitespace ";" Whitespace { return {key:"in_shape",     value:value}; }
 
 OutShape
-  = Whitespace "out_shape"  Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"out_shape",  value:value}; }
+  = Whitespace "out_shape"    Whitespace ":" Whitespace value:GvizShape  Whitespace ";" Whitespace { return {key:"out_shape",    value:value}; }
 
 NodeShape
-  = Whitespace "node_shape" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"node_shape", value:value}; }
+  = Whitespace "node_shape"   Whitespace ":" Whitespace value:GvizShape  Whitespace ";" Whitespace { return {key:"node_shape",   value:value}; }
+
+GraphLayout
+  = Whitespace "graph_layout" Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout", value:value}; }
 
 StateItem
   = InShape
   / OutShape
   / NodeShape
+  / GraphLayout
 
 StateItems
   = StateItem+
