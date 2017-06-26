@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -33,8 +33,6 @@
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "docs": "documentation build src/js/** -f html -o docs/lib",
-    "updatesite": "rm -f src/site/source/_posts/index.md && cat src/site/index_header.md README.md > src/site/source/_posts/index.md",
-    "site": "npm run updatesite && cd src/site && hexo generate && cd ../.. && cp -R src/assets/* docs/ && cp -R src/assets/* docs/docs/",
     "travis": "rm -f src/js/jssm-dot.js && npm run nyc-test && npm run coverage"
   },
   "repository": {
@@ -92,8 +90,6 @@
     "eslint-plugin-flowtype": "^2.32.1",
     "flow-bin": "^0.45.0",
     "gulp-string-replace": "^0.4.0",
-    "hexo": "^3.3.7",
-    "hexo-cli": "^1.0.2",
     "nyc": "^10.3.2",
     "pegjs": "^0.10.0",
     "rimraf": "^2.6.1",
