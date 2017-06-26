@@ -163,13 +163,21 @@ ConfigTransition
 
 
 
+GvizShape
+  = "square"
+  / "rectangle"
+  / "circle"
+
 GraphKey
-  = "node_shape"
-  / "in_shape"
+  = "in_shape"
   / "out_shape"
 
+NodeShape
+  = Whitespace "node_shape" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"node_shape", value:value}; }
+
 GraphItem
-  = graphkey:GraphKey ":" value:Value ";" { return {key:graphkey, value:value}; }
+  = NodeShape
+  / Whitespace graphkey:GraphKey Whitespace ":" Whitespace value:Value Whitespace ";" Whitespace { return {key:graphkey, value:value}; }
 
 GraphItems
   = GraphItem+
