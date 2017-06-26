@@ -180,8 +180,16 @@ ConfigTransition
 GraphBg
   = Whitespace "graph_bg" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"graph_bg", value:value}; }
 
+MinTransitionsPerState
+  = Whitespace "min_transitions_per_state" Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:"min_transitions_per_state", value:value}; }
+
+MaxTransitionsPerState
+  = Whitespace "max_transitions_per_state" Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:"max_transitions_per_state", value:value}; }
+
 GraphItem
   = GraphBg
+  / MinTransitionsPerState
+  / MaxTransitionsPerState
 
 GraphItems
   = GraphItem+
