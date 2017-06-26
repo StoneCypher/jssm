@@ -164,7 +164,8 @@ ConfigTransition
 
 
 GraphKey
-  = "in_shape"
+  = "node_shape"
+  / "in_shape"
   / "out_shape"
 
 GraphItem
