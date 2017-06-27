@@ -2837,7 +2837,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var rand_select = function rand_select(options) {
+var weighted_rand_select = function weighted_rand_select(options) {
     var probability_property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'probability';
 
 
@@ -2875,23 +2875,23 @@ var histograph = function histograph(a) {
     }, new Map());
 };
 
-var sample_select = function sample_select(n, options, probability_property) {
+var weighted_sample_select = function weighted_sample_select(n, options, probability_property) {
     return seq(n).map(function (i) {
-        return rand_select(options, probability_property);
+        return weighted_rand_select(options, probability_property);
     });
 };
 
-var histo_key = function histo_key(n, options, probability_property, extract) {
-    return histograph(sample_select(n, options, probability_property).map(function (s) {
+var weighted_histo_key = function weighted_histo_key(n, options, probability_property, extract) {
+    return histograph(weighted_sample_select(n, options, probability_property).map(function (s) {
         return s[extract];
     }));
 };
 
 exports.seq = seq;
 exports.histograph = histograph;
-exports.histo_key = histo_key;
-exports.rand_select = rand_select;
-exports.sample_select = sample_select;
+exports.weighted_histo_key = weighted_histo_key;
+exports.weighted_rand_select = weighted_rand_select;
+exports.weighted_sample_select = weighted_sample_select;
 
 },{}],3:[function(require,module,exports){
 'use strict';
@@ -3003,7 +3003,7 @@ exports.viz = viz;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.histograph = exports.rand_select = exports.seq = exports.parse = exports.machine = exports.version = undefined;
+exports.histograph = exports.weighted_rand_select = exports.seq = exports.parse = exports.machine = exports.version = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -3296,7 +3296,7 @@ var machine = function () {
   }, {
     key: 'probabilistic_transition',
     value: function probabilistic_transition() {
-      var selected = (0, _jssmUtil.rand_select)(this.probable_exits_for(this.state()));
+      var selected = (0, _jssmUtil.weighted_rand_select)(this.probable_exits_for(this.state()));
       return this.transition(selected.to);
     }
   }, {
@@ -3560,7 +3560,7 @@ exports.version = version;
 exports.machine = machine;
 exports.parse = parse;
 exports.seq = _jssmUtil.seq;
-exports.rand_select = _jssmUtil.rand_select;
+exports.weighted_rand_select = _jssmUtil.weighted_rand_select;
 exports.histograph = _jssmUtil.histograph;
 
 },{"./jssm-dot.js":1,"./jssm-util.js":2,"./jssm-viz.js":3}]},{},[]);

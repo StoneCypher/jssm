@@ -16,8 +16,8 @@ const version = null; // replaced from package.js in build
 
 
 
-import { seq, rand_select, histograph } from './jssm-util.js';
-import { viz }                          from './jssm-viz.js';
+import { seq, weighted_rand_select, histograph } from './jssm-util.js';
+import { viz }                                   from './jssm-viz.js';
 
 const parse = require('./jssm-dot.js').parse;
 
@@ -267,7 +267,7 @@ class machine<mNT, mDT> {
   }
 
   probabilistic_transition() : boolean {
-    const selected = rand_select(this.probable_exits_for(this.state()));
+    const selected = weighted_rand_select(this.probable_exits_for(this.state()));
     return this.transition( selected.to );
   }
 
@@ -496,6 +496,6 @@ export {
   machine,
   parse,
 
-  seq, rand_select, histograph
+  seq, weighted_rand_select, histograph
 
 };

@@ -1,5 +1,5 @@
 
-const rand_select = (options : Array<any>, probability_property : string = 'probability') => {
+const weighted_rand_select = (options : Array<any>, probability_property : string = 'probability') => {
 
   if (!Array.isArray(options))           { throw new TypeError('options must be a non-empty array of objects'); }
   if (!(typeof options[0] === 'object')) { throw new TypeError('options must be a non-empty array of objects'); }
@@ -36,20 +36,20 @@ const histograph = (a : Array<any>) =>
 
 
 
-const sample_select = (n : number, options : Array<mixed>, probability_property : string) =>
+const weighted_sample_select = (n : number, options : Array<mixed>, probability_property : string) =>
 
-    seq(n).map(i => rand_select(options, probability_property));
-
-
-
-
-
-const histo_key = (n : number, options : Array<mixed>, probability_property : string, extract : string) =>
-
-    histograph(sample_select(n, options, probability_property).map( (s:any) => s[extract]));
+    seq(n).map(i => weighted_rand_select(options, probability_property));
 
 
 
 
 
-export { seq, histograph, histo_key, rand_select, sample_select };
+const weighted_histo_key = (n : number, options : Array<mixed>, probability_property : string, extract : string) =>
+
+    histograph(weighted_sample_select(n, options, probability_property).map( (s:any) => s[extract]));
+
+
+
+
+
+export { seq, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select };
