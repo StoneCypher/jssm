@@ -2655,7 +2655,7 @@ function peg$parse(input, options) {
   }
 
   function peg$parseConfigGraph() {
-    var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+    var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11;
 
     s0 = peg$currPos;
     s1 = peg$parseWhitespace();
@@ -2694,26 +2694,38 @@ function peg$parse(input, options) {
                 }
               }
               if (s6 !== peg$FAILED) {
-                s7 = peg$parseGraphItems();
-                if (s7 === peg$FAILED) {
-                  s7 = null;
-                }
+                s7 = peg$parseWhitespace();
                 if (s7 !== peg$FAILED) {
-                  if (input.substr(peg$currPos, 2) === peg$c74) {
-                    s8 = peg$c74;
-                    peg$currPos += 2;
-                  } else {
-                    s8 = peg$FAILED;
-                    if (peg$silentFails === 0) {
-                      peg$fail(peg$c75);
-                    }
+                  s8 = peg$parseGraphItems();
+                  if (s8 === peg$FAILED) {
+                    s8 = null;
                   }
                   if (s8 !== peg$FAILED) {
                     s9 = peg$parseWhitespace();
                     if (s9 !== peg$FAILED) {
-                      peg$savedPos = s0;
-                      s1 = peg$c115(s7);
-                      s0 = s1;
+                      if (input.substr(peg$currPos, 2) === peg$c74) {
+                        s10 = peg$c74;
+                        peg$currPos += 2;
+                      } else {
+                        s10 = peg$FAILED;
+                        if (peg$silentFails === 0) {
+                          peg$fail(peg$c75);
+                        }
+                      }
+                      if (s10 !== peg$FAILED) {
+                        s11 = peg$parseWhitespace();
+                        if (s11 !== peg$FAILED) {
+                          peg$savedPos = s0;
+                          s1 = peg$c115(s8);
+                          s0 = s1;
+                        } else {
+                          peg$currPos = s0;
+                          s0 = peg$FAILED;
+                        }
+                      } else {
+                        peg$currPos = s0;
+                        s0 = peg$FAILED;
+                      }
                     } else {
                       peg$currPos = s0;
                       s0 = peg$FAILED;
@@ -3003,7 +3015,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.6.4'; // replaced from package.js in build
+var version = '2.6.6'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets

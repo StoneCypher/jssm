@@ -203,7 +203,7 @@ GraphItems
   = GraphItem+
 
 ConfigGraph
-  = Whitespace "graph" Whitespace ":" Whitespace "{" graph_items:GraphItems? "};" Whitespace {
+  = Whitespace "graph" Whitespace ":" Whitespace "{" Whitespace graph_items:GraphItems? Whitespace "};" Whitespace {
     return { config_kind: "graph", config_items: graph_items || [] };
   }
 
