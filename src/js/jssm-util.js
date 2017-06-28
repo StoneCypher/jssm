@@ -1,8 +1,13 @@
 
 const weighted_rand_select = (options : Array<any>, probability_property : string = 'probability') => {
 
-  if (!Array.isArray(options))           { throw new TypeError('options must be a non-empty array of objects'); }
-  if (!(typeof options[0] === 'object')) { throw new TypeError('options must be a non-empty array of objects'); }
+  if (!Array.isArray(options)) {
+    throw new TypeError('options must be a non-empty array of objects');
+  }
+
+  if (!(typeof options[0] === 'object')) {
+    throw new TypeError('options must be a non-empty array of objects');
+  }
 
   const frand      = cap => Math.random() * cap,
         prob_sum   = options.reduce( (acc, val:any) => acc + val[probability_property], 0 ),

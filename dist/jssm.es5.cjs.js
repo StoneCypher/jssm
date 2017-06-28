@@ -3376,7 +3376,7 @@ exports.viz = viz;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.parse = exports.machine = exports.version = undefined;
+exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.parse = exports.machine = exports.version = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -3936,5 +3936,6 @@ exports.seq = _jssmUtil.seq;
 exports.weighted_rand_select = _jssmUtil.weighted_rand_select;
 exports.histograph = _jssmUtil.histograph;
 exports.weighted_sample_select = _jssmUtil.weighted_sample_select;
+exports.weighted_histo_key = _jssmUtil.weighted_histo_key;
 
 },{"./jssm-dot.js":1,"./jssm-util.js":2,"./jssm-viz.js":3}]},{},[]);
