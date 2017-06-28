@@ -25,27 +25,6 @@ Arrow
 HexDigit
   = [0-9a-fA-F]
 
-ActionLabelChar
-  = ActionLabelUnescaped
-  / Escape Sequence:(
-        '`'
-      / "\\"
-      / "/"
-      / "b" { return "\b"; }
-      / "f" { return "\f"; }
-      / "n" { return "\n"; }
-      / "r" { return "\r"; }
-      / "t" { return "\t"; }
-      / "v" { return "\v"; }
-      / "u" digits:$(HexDigit HexDigit HexDigit HexDigit) {
-          return String.fromCharCode(parseInt(digits, 16));
-        }
-    )
-    { return Sequence; }
-
-ActionLabelQuoteMark = '`'
-ActionLabelUnescaped = [\x20-\x5B\x5D-\x5F\x61-\u10FFFF]
-
 Char
   = Unescaped
   / Escape Sequence:(
@@ -66,15 +45,34 @@ Char
 
 Escape    = "\\"
 QuoteMark = '"'
-Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
+Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]  // explicitly omits "
 
-Whitespace "whitespace"
-  = [ \t\n\r\v]*
+ActionLabelChar
+  = ActionLabelUnescaped
+  / Escape Sequence:(
+        '`'
+      / "\\"
+      / "/"
+      / "b" { return "\b"; }
+      / "f" { return "\f"; }
+      / "n" { return "\n"; }
+      / "r" { return "\r"; }
+      / "t" { return "\t"; }
+      / "v" { return "\v"; }
+      / "u" digits:$(HexDigit HexDigit HexDigit HexDigit) {
+          return String.fromCharCode(parseInt(digits, 16));
+        }
+    )
+    { return Sequence; }
 
-
+ActionLabelQuoteMark = '`'
+ActionLabelUnescaped = [\x20-\x5B\x5D-\x5F\x61-\u10FFFF]  // explicitly omits `
 
 ActionLabel "action label"
   = ActionLabelQuoteMark chars:ActionLabelChar* ActionLabelQuoteMark { return chars.join(""); }
+
+Whitespace "whitespace"
+  = [ \t\n\r\v]*
 
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
@@ -139,7 +137,7 @@ ValidationItems
   = ValidationItem+
 
 ConfigValidation
-  = Whitespace "validation" Whitespace ":" Whitespace "{" validation_items:ValidationItems? "};" Whitespace {
+  = Whitespace "validation" Whitespace ":" Whitespace "{" Whitespace validation_items:ValidationItems? Whitespace "};" Whitespace {
     return { config_kind: "validation", config_items: validation_items || [] };
   }
 
@@ -171,7 +169,7 @@ StateItems
   = StateItem+
 
 ConfigState
-  = Whitespace "state" Whitespace ":" Whitespace "{" state_items:StateItems? "};" Whitespace {
+  = Whitespace "state" Whitespace ":" Whitespace "{" Whitespace state_items:StateItems? Whitespace "};" Whitespace {
     return { config_kind: "state", config_items: state_items || [] };
   }
 
@@ -188,7 +186,7 @@ ActionItems
   = ActionItem+
 
 ConfigAction
-  = Whitespace "action" Whitespace ":" Whitespace "{" action_items:ActionItems? "};" Whitespace {
+  = Whitespace "action" Whitespace ":" Whitespace "{" Whitespace action_items:ActionItems? Whitespace "};" Whitespace {
     return { config_kind: "action", config_items: action_items || [] };
   }
 
@@ -205,7 +203,7 @@ TransitionItems
   = TransitionItem+
 
 ConfigTransition
-  = Whitespace "transition" Whitespace ":" Whitespace "{" transition_items:TransitionItems? "};" Whitespace {
+  = Whitespace "transition" Whitespace ":" Whitespace "{" Whitespace transition_items:TransitionItems? Whitespace "};" Whitespace {
     return { config_kind: "transition", config_items: transition_items || [] };
   }
 
