@@ -16,8 +16,8 @@ const version = null; // replaced from package.js in build
 
 
 
-import { seq, weighted_rand_select, histograph } from './jssm-util.js';
-import { viz }                                   from './jssm-viz.js';
+import { seq, weighted_rand_select, weighted_sample_select, histograph } from './jssm-util.js';
+import { viz }                                                           from './jssm-viz.js';
 
 const parse = require('./jssm-dot.js').parse;
 
@@ -496,6 +496,6 @@ export {
   machine,
   parse,
 
-  seq, weighted_rand_select, histograph
+  seq, weighted_rand_select, histograph, weighted_sample_select
 
 };

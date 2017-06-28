@@ -25,6 +25,27 @@ Arrow
 HexDigit
   = [0-9a-fA-F]
 
+ActionLabelChar
+  = ActionLabelUnescaped
+  / Escape Sequence:(
+        '`'
+      / "\\"
+      / "/"
+      / "b" { return "\b"; }
+      / "f" { return "\f"; }
+      / "n" { return "\n"; }
+      / "r" { return "\r"; }
+      / "t" { return "\t"; }
+      / "v" { return "\v"; }
+      / "u" digits:$(HexDigit HexDigit HexDigit HexDigit) {
+          return String.fromCharCode(parseInt(digits, 16));
+        }
+    )
+    { return Sequence; }
+
+ActionLabelQuoteMark = '`'
+ActionLabelUnescaped = [\x20-\x5B\x5D-\x5F\x61-\u10FFFF]
+
 Char
   = Unescaped
   / Escape Sequence:(
@@ -51,6 +72,9 @@ Whitespace "whitespace"
   = [ \t\n\r\v]*
 
 
+
+ActionLabel "action label"
+  = ActionLabelQuoteMark chars:ActionLabelChar* ActionLabelQuoteMark { return chars.join(""); }
 
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
@@ -79,9 +103,11 @@ ArrowDesc
 
 
 Subexp
-  = Whitespace ldesc:ArrowDesc?
+  = Whitespace lactl:ActionLabel?
+    Whitespace ldesc:ArrowDesc?
     Whitespace arrow:Arrow
     Whitespace rdesc:ArrowDesc?
+    Whitespace ractl:ActionLabel?
     Whitespace label:Label
     Whitespace tail:Subexp? {
       const base = {kind: arrow, to: label};
