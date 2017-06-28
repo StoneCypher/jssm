@@ -12,50 +12,38 @@ describe('parse/1', async it => {
     describe('forward arrow', async it => {
 
       const AtoB = [{"from": "a","se": {"kind": "->","to": "b"}}],
-            AdB  = [{"from": "a","se": {"kind": "->","to": "b","ldesc": [{"text":"c","value":"d"}]}}],
-            ABd  = [{"from": "a","se": {"kind": "->","to": "b","rdesc": [{"text":"c","value":"d"}]}}],
-            AdBd = [{"from": "a","se": {"kind": "->","to": "b","ldesc": [{"text":"c","value":"d"}],"rdesc": [{"text":"e","value":"f"}]}}];
+            AdB  = [{"from": "a","se": {"kind": "->","to": "b","ldesc": [{"key":"arc_label","value":"d"}]}}],
+            ABd  = [{"from": "a","se": {"kind": "->","to": "b","rdesc": [{"key":"arc_label","value":"d"}]}}],
+            AdBd = [{"from": "a","se": {"kind": "->","to": "b","ldesc": [{"key":"arc_label","value":"d"}],"rdesc": [{"key":"arc_label","value":"f"}]}}];
 
-      it('a->b;',   t => t.deepEqual(AtoB, jssm.parse('a->b;')   ));
-      it('a ->b;',  t => t.deepEqual(AtoB, jssm.parse('a ->b;')  ));
-      it('a-> b;',  t => t.deepEqual(AtoB, jssm.parse('a-> b;')  ));
-      it('a -> b;', t => t.deepEqual(AtoB, jssm.parse('a -> b;') ));
+      const echo_equal = (test, validator) => it(test, t => t.deepEqual(validator, jssm.parse(test)));
 
-      it('a{}->b;',   t => t.deepEqual(AtoB, jssm.parse('a{}->b;')   ));
-      it('a->{}b;',   t => t.deepEqual(AtoB, jssm.parse('a->{}b;')   ));
-      it('a{}->{}b;', t => t.deepEqual(AtoB, jssm.parse('a{}->{}b;') ));
+      const ShouldEqualAtoB = ['a->b;', 'a ->b;', 'a-> b;', 'a -> b;', 'a{}->b;', 'a->{}b;', 'a{}->{}b;'];
+      ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
 
-      it('a{c:d}->b;',     t => t.deepEqual(AdB,  jssm.parse('a{c:d;}->b;')       ));
-      it('a{c:"d"}->b;',   t => t.deepEqual(AdB,  jssm.parse('a{c:"d";}->b;')     ));
-      it('a{"c":d}->b;',   t => t.deepEqual(AdB,  jssm.parse('a{"c":d;}->b;')     ));
-      it('a{"c":"d"}->b;', t => t.deepEqual(AdB,  jssm.parse('a{"c":"d";}->b;')   ));
-      it('a{c:d}->b;',     t => t.deepEqual(ABd,  jssm.parse('a->{c:d;}b;')       ));
-      it('a{c:d}->b;',     t => t.deepEqual(AdBd, jssm.parse('a{c:d;}->{e:f;}b;') ));
+      echo_equal('a{arc_label:d;}->b;',               AdB);
+      echo_equal('a{arc_label:"d";}->b;',             AdB);
+      echo_equal('a->{arc_label:d;}b;',               ABd);
+      echo_equal('a{arc_label:d;}->{arc_label:f;}b;', AdBd);
 
     });
 
     describe('double arrow', async it => {
 
       const AtoB = [{"from": "a","se": {"kind": "<->","to": "b"}}],
-            AdB  = [{"from": "a","se": {"kind": "<->","to": "b","ldesc": [{"text":"c","value":"d"}]}}],
-            ABd  = [{"from": "a","se": {"kind": "<->","to": "b","rdesc": [{"text":"c","value":"d"}]}}],
-            AdBd = [{"from": "a","se": {"kind": "<->","to": "b","ldesc": [{"text":"c","value":"d"}],"rdesc": [{"text":"e","value":"f"}]}}];
+            AdB  = [{"from": "a","se": {"kind": "<->","to": "b","ldesc": [{"key":"arc_label","value":"d"}]}}],
+            ABd  = [{"from": "a","se": {"kind": "<->","to": "b","rdesc": [{"key":"arc_label","value":"d"}]}}],
+            AdBd = [{"from": "a","se": {"kind": "<->","to": "b","ldesc": [{"key":"arc_label","value":"d"}],"rdesc": [{"key":"arc_label","value":"f"}]}}];
 
-      it('a<->b;',   t => t.deepEqual(AtoB, jssm.parse('a<->b;')   ));
-      it('a <->b;',  t => t.deepEqual(AtoB, jssm.parse('a <->b;')  ));
-      it('a<-> b;',  t => t.deepEqual(AtoB, jssm.parse('a<-> b;')  ));
-      it('a <-> b;', t => t.deepEqual(AtoB, jssm.parse('a <-> b;') ));
+      const echo_equal = (test, validator) => it(test, t => t.deepEqual(validator, jssm.parse(test)));
 
-      it('a{}<->b;',   t => t.deepEqual(AtoB, jssm.parse('a{}<->b;')   ));
-      it('a<->{}b;',   t => t.deepEqual(AtoB, jssm.parse('a<->{}b;')   ));
-      it('a{}<->{}b;', t => t.deepEqual(AtoB, jssm.parse('a{}<->{}b;') ));
+      const ShouldEqualAtoB = ['a<->b;', 'a <->b;', 'a<-> b;', 'a <-> b;', 'a{}<->b;', 'a<->{}b;', 'a{}<->{}b;'];
+      ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
 
-      it('a{c:d}<->b;',     t => t.deepEqual(AdB,  jssm.parse('a{c:d;}<->b;')       ));
-      it('a{c:"d"}<->b;',   t => t.deepEqual(AdB,  jssm.parse('a{c:"d";}<->b;')     ));
-      it('a{"c":d}<->b;',   t => t.deepEqual(AdB,  jssm.parse('a{"c":d;}<->b;')     ));
-      it('a{"c":"d"}<->b;', t => t.deepEqual(AdB,  jssm.parse('a{"c":"d";}<->b;')   ));
-      it('a{c:d}<->b;',     t => t.deepEqual(ABd,  jssm.parse('a<->{c:d;}b;')       ));
-      it('a{c:d}<->b;',     t => t.deepEqual(AdBd, jssm.parse('a{c:d;}<->{e:f;}b;') ));
+      echo_equal('a{arc_label:d;}<->b;',               AdB);
+      echo_equal('a{arc_label:"d";}<->b;',             AdB);
+      echo_equal('a<->{arc_label:d;}b;',               ABd);
+      echo_equal('a{arc_label:d;}<->{arc_label:f;}b;', AdBd);
 
     });
 

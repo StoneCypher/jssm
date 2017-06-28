@@ -86,17 +86,19 @@ Label "label"
 
 
 
-Value
-  = label:Label
+ArrowItemKey
+  = "arc_label"
+  / "head_label"
+  / "tail_label"
 
-Item
-  = text:Label ":" value:Value ";" { return {text:text, value:value}; }
+ArrowItem
+  = Whitespace key:ArrowItemKey Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:key, value:value}; }
 
-Items
-  = Item+
+ArrowItems
+  = ArrowItem+
 
 ArrowDesc
-  = "{" items:Items? "}" { return items; }
+  = "{" Whitespace items:ArrowItems? Whitespace "}" { return items; }
 
 
 
@@ -131,7 +133,7 @@ ValidationKey
   / "todo"
 
 ValidationItem
-  = validationkey:ValidationKey ":" value:Value ";" { return {key:validationkey, value:value}; }
+  = validationkey:ValidationKey ":" value:Label ";" { return {key:validationkey, value:value}; }
 
 ValidationItems
   = ValidationItem+
@@ -147,23 +149,20 @@ GvizLayout
   = "dot"
   / "circo"
 
-InShape
-  = Whitespace "in_shape"     Whitespace ":" Whitespace value:GvizShape  Whitespace ";" Whitespace { return {key:"in_shape",     value:value}; }
+StateItemShapeKey
+  = "in_shape"
+  / "out_shape"
+  / "node_shape"
 
-OutShape
-  = Whitespace "out_shape"    Whitespace ":" Whitespace value:GvizShape  Whitespace ";" Whitespace { return {key:"out_shape",    value:value}; }
+StateItemShape
+  = Whitespace key:StateItemShapeKey Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:key, value:value}; }
 
-NodeShape
-  = Whitespace "node_shape"   Whitespace ":" Whitespace value:GvizShape  Whitespace ";" Whitespace { return {key:"node_shape",   value:value}; }
-
-GraphLayout
+StateItemGraphLayout
   = Whitespace "graph_layout" Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout", value:value}; }
 
 StateItem
-  = InShape
-  / OutShape
-  / NodeShape
-  / GraphLayout
+  = StateItemShape
+  / StateItemGraphLayout
 
 StateItems
   = StateItem+
@@ -180,7 +179,7 @@ ActionKey
   / "todo"
 
 ActionItem
-  = actionkey:ActionKey ":" value:Value ";" { return {key:actionkey, value:value}; }
+  = actionkey:ActionKey ":" value:Label ";" { return {key:actionkey, value:value}; }
 
 ActionItems
   = ActionItem+
@@ -197,7 +196,7 @@ TransitionKey
   / "todo"
 
 TransitionItem
-  = transitionkey:TransitionKey ":" value:Value ";" { return {key:transitionkey, value:value}; }
+  = transitionkey:TransitionKey ":" value:Label ";" { return {key:transitionkey, value:value}; }
 
 TransitionItems
   = TransitionItem+
