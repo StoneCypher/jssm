@@ -114,7 +114,7 @@ class machine<mNT, mDT> {
             actionMap.set(tr.from, thisEdgeId);
           }
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?');
+          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?'); // LCOV_EXCL_LINE
         }
 
         // reverse mapping first by state origin name
@@ -129,7 +129,7 @@ class machine<mNT, mDT> {
             rActionMap.set(tr.action, thisEdgeId);
           }
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?')
+          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?'); // LCOV_EXCL_LINE
         }
 
         // reverse mapping first by state target name
