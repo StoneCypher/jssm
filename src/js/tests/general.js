@@ -229,6 +229,72 @@ describe('Complex stop light', async it => {
 
 
 
+describe('reports on actions', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('that it has',           t => t.is('number',    typeof machine.current_action_for('power_on')   ) );
+  it('that it doesn\'t have', t => t.is('undefined', typeof machine.current_action_for('power_left') ) );
+
+});
+
+
+
+
+
+describe('reports on action edges', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('that it has',           t => t.is('object',    typeof machine.current_action_edge_for('power_on')   ) );
+  it('that it doesn\'t have', t => t.is('undefined', typeof machine.current_action_edge_for('power_left') ) );
+
+});
+
+
+
+
+
+describe('reports on states', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('that it has', t => t.is('object', typeof machine.state_for('off') ) );
+
+  it('that it doesn\'t have', t => t.throws(() => { machine.state_for('no such state'); }) );
+
+});
+
+
+
+
+
+describe('reports on transitions', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('return type',            t => t.is('object', typeof machine.list_transitions()           ) );
+  it('correct entrance count', t => t.is(0,        machine.list_transitions().entrances.length ) );
+  it('correct exit count',     t => t.is(1,        machine.list_transitions().exits.length     ) );
+
+});
+
+
+
+
+
 describe('Illegal machines', async it => {
 
 
