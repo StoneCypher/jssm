@@ -445,6 +445,7 @@ export {
   machine,
   parse,
 
+  // todo whargarbl these should be exported to a utility library
   seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key
 
 };
