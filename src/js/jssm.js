@@ -17,7 +17,6 @@ const version = null; // replaced from package.js in build
 
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
-import { viz }                                                                               from './jssm-viz.js';
 
 const parse = require('./jssm-dot.js').parse;
 
@@ -37,12 +36,8 @@ class machine<mNT, mDT> {
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
   _reverse_action_targets : Map<string, Map<string, number>>;
 
-  _viz_colors             : mixed;
-
   // whargarbl this badly needs to be broken up, monolith master
   constructor({ initial_state, complete=[], transitions } : JssmGenericConfig<mNT, mDT>) {
-
-    this.set_viz_colors();
 
     this._state                  = initial_state;
     this._states                 = new Map();
@@ -114,7 +109,7 @@ class machine<mNT, mDT> {
             actionMap.set(tr.from, thisEdgeId);
           }
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?'); // LCOV_EXCL_LINE
+          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?');
         }
 
         // reverse mapping first by state origin name
@@ -129,7 +124,7 @@ class machine<mNT, mDT> {
             rActionMap.set(tr.action, thisEdgeId);
           }
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?'); // LCOV_EXCL_LINE
+          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?');
         }
 
         // reverse mapping first by state target name
@@ -433,52 +428,6 @@ class machine<mNT, mDT> {
 
   valid_force_transition(newState : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
-  }
-
-
-
-  viz() : string {
-    return viz(this);
-  }
-
-  set_viz_colors() : void {
-
-    this._viz_colors = {
-
-      'fill_final'         : '#eeeeff',
-      'fill_terminal'      : '#ffeeee',
-      'fill_complete'      : '#eeffee',
-
-      'normal_line_1'      : '#999999',
-      'normal_line_2'      : '#888888',
-      'normal_line_solo'   : '#888888',
-
-      'line_final_1'       : '#8888bb',
-      'line_final_2'       : '#7777aa',
-      'line_final_solo'    : '#7777aa',
-
-      'line_terminal_1'    : '#bb8888',
-      'line_terminal_2'    : '#aa7777',
-      'line_terminal_solo' : '#aa7777',
-
-      'line_complete_1'    : '#88bb88',
-      'line_complete_2'    : '#77aa77',
-      'line_complete_solo' : '#77aa77',
-
-      'text_final_1'       : '#000088',
-      'text_final_2'       : '#000088',
-      'text_final_solo'    : '#000088',
-
-      'text_terminal_1'    : '#880000',
-      'text_terminal_2'    : '#880000',
-      'text_terminal_solo' : '#880000',
-
-      'text_complete_1'    : '#007700',
-      'text_complete_2'    : '#007700',
-      'text_complete_solo' : '#007700'
-
-    };
-
   }
 
 
