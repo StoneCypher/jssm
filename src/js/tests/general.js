@@ -231,6 +231,7 @@ describe('Complex stop light', async it => {
 
 describe('Illegal machines', async it => {
 
+
   it('catch repeated names', t => t.throws(() => {
 
     const same_name = new jssm.machine({
@@ -242,5 +243,43 @@ describe('Illegal machines', async it => {
     });
 
   }, Error));
+
+
+  it('must define from', t => t.throws(() => {
+
+    const same_name = new jssm.machine({
+      initial_state: 'moot',
+      transitions:[
+        { name:'identical', to:'2' }
+      ]
+    });
+
+  }, Error));
+
+
+  it('must define to', t => t.throws(() => {
+
+    const same_name = new jssm.machine({
+      initial_state: 'moot',
+      transitions:[
+        { name:'identical', from:'1' }
+      ]
+    });
+
+  }, Error));
+
+
+  it('must not have two identical edges', t => t.throws(() => {
+
+    const same_name = new jssm.machine({
+      initial_state: 'moot',
+      transitions:[
+        { name:'identical', from:'1', to:'2' },
+        { name:'identical', from:'1', to:'2' }
+      ]
+    });
+
+  }, Error));
+
 
 });
