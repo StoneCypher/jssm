@@ -274,8 +274,21 @@ describe('Illegal machines', async it => {
     const same_name = new jssm.machine({
       initial_state: 'moot',
       transitions:[
-        { name:'identical', from:'1', to:'2' },
-        { name:'identical', from:'1', to:'2' }
+        { name:'id1', from:'1', to:'2' },
+        { name:'id2', from:'1', to:'2' }
+      ]
+    });
+
+  }, Error));
+
+
+  it('must not have two of the same action from the same source', t => t.throws(() => {
+
+    const same_name = new jssm.machine({
+      initial_state: 'moot',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' },
+        { name:'id2', from:'1', to:'3', action:'identical' }
       ]
     });
 
