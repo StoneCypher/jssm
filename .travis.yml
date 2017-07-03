@@ -4,7 +4,6 @@ node_js:
   - "7"
   - "6"
 before_install:
-  - flow --version
   - npm install -g flow-bin
   - flow --version
 after_success:
