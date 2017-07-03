@@ -303,14 +303,14 @@ class machine<mNT, mDT> {
            .map( filtered => filtered.from );
   }
 */
-  list_exit_actions(whichState : mNT = this.state() ) : Array<mNT> {
+  list_exit_actions(whichState : mNT = this.state() ) : Array<any> { // these are mNT
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => filtered.action       );
   }
 
-  probable_action_exits(whichState : mNT = this.state() ) : Array<mNT> {
+  probable_action_exits(whichState : mNT = this.state() ) : Array<any> { // these are mNT
     return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
