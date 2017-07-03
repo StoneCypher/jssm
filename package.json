@@ -75,7 +75,7 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
-    "ava": "^0.19.1",
+    "ava": "^0.20.0",
     "ava-spec": "^1.1.0",
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
