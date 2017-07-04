@@ -342,7 +342,7 @@ class machine<mNT, mDT> {
   }
 
   has_terminals() : boolean {
-    return this.states().some(this.state_is_terminal);
+    return this.states().some(x => this.state_is_terminal(x));
   }
 
 
@@ -358,7 +358,7 @@ class machine<mNT, mDT> {
   }
 
   has_completes() : boolean {
-    return this.states().some(this.state_is_complete);
+    return this.states().some(x => this.state_is_complete(x));
   }
 
 

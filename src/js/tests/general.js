@@ -256,8 +256,52 @@ describe('reports is_terminal', async it => {
   machine.transition('red');
   const second = machine.is_terminal();
 
+  const terms  = machine.has_terminals();
+
   it('terminal false', t => t.is( false, first  ) );
   it('terminal true',  t => t.is( true,  second ) );
+  it('has_terminals',  t => t.is( true,  terms  ) );
+
+});
+
+
+
+
+
+describe('reports state_is_complete', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ],
+    complete:['off'] // huhu
+  });
+
+  it('state_is_complete false', t => t.is( true,  machine.state_is_complete('off') ) );
+  it('state_is_complete true',  t => t.is( false, machine.state_is_complete('red') ) );
+
+});
+
+
+
+
+
+describe('reports is_complete', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ],
+    complete:['off'] // huhu
+  });
+
+  const first  = machine.is_complete();
+  machine.transition('red');
+  const second = machine.is_complete();
+
+  const terms  = machine.has_completes();
+
+  it('is_complete false', t => t.is( true,  first  ) );
+  it('is_complete true',  t => t.is( false, second ) );
+  it('has_completes',     t => t.is( true,  terms  ) );
 
 });
 

@@ -3198,7 +3198,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.9.8'; // replaced from package.js in build
+var version = '2.9.10'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3591,7 +3591,11 @@ var machine = function () {
   }, {
     key: 'has_terminals',
     value: function has_terminals() {
-      return this.states().some(this.state_is_terminal);
+      var _this7 = this;
+
+      return this.states().some(function (x) {
+        return _this7.state_is_terminal(x);
+      });
     }
   }, {
     key: 'is_complete',
@@ -3611,7 +3615,11 @@ var machine = function () {
   }, {
     key: 'has_completes',
     value: function has_completes() {
-      return this.states().some(this.state_is_complete);
+      var _this8 = this;
+
+      return this.states().some(function (x) {
+        return _this8.state_is_complete(x);
+      });
     }
   }, {
     key: 'action',
