@@ -213,7 +213,7 @@ class machine<mNT, mDT> {
 
 
 
-  list_transitions() : Array< JssmTransition<mNT, mDT> > {
+  list_edges() : Array< JssmTransition<mNT, mDT> > {
     return this._edges;
   }
 

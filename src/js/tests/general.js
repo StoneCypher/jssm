@@ -410,13 +410,17 @@ describe('reports on transitions', async it => {
   });
 
 
-  it('unspecified transition return type',            t => t.is('object', typeof machine.list_transitions()                ) );
-  it('unspecified transition correct entrance count', t => t.is(0,        machine.list_transitions().entrances.length      ) );
-  it('unspecified transition correct exit count',     t => t.is(1,        machine.list_transitions().exits.length          ) );
+  it('unspecified transition return type',            t => t.is('object', typeof machine.list_transitions()                 ) );
+  it('unspecified transition correct entrance count', t => t.is(0,        machine.list_transitions().entrances.length       ) );
+  it('unspecified transition correct exit count',     t => t.is(1,        machine.list_transitions().exits.length           ) );
 
-  it('specified transition return type',              t => t.is('object', typeof machine.list_transitions('off')           ) );
-  it('specified transition correct entrance count',   t => t.is(0,        machine.list_transitions('off').entrances.length ) );
-  it('specified transition correct exit count',       t => t.is(1,        machine.list_transitions('off').exits.length     ) );
+  it('specified transition return type',              t => t.is('object', typeof machine.list_transitions('off')            ) );
+  it('specified transition correct entrance count',   t => t.is(0,        machine.list_transitions('off').entrances.length  ) );
+  it('specified transition correct exit count',       t => t.is(1,        machine.list_transitions('off').exits.length      ) );
+
+  it('no such spec trans return type',                t => t.is('object', typeof machine.list_transitions('moot')           ) );
+  it('no such spec trans correct entrance count',     t => t.is(0,        machine.list_transitions('moot').entrances.length ) );
+  it('no such spec trans correct exit count',         t => t.is(0,        machine.list_transitions('moot').exits.length     ) );
 
 
   it('unspecified entrance return type',              t => t.is(true,     Array.isArray( machine.list_entrances() )        ) );
@@ -425,12 +429,22 @@ describe('reports on transitions', async it => {
   it('specified entrance return type',                t => t.is(true,     Array.isArray( machine.list_entrances('off') )   ) );
   it('specified entrance correct count',              t => t.is(0,        machine.list_entrances('off').length             ) );
 
+  it('no such specified entrance return type',        t => t.is(true,     Array.isArray( machine.list_entrances('moot') )  ) ); // todo whargarbl should these throw?
+  it('no such specified entrance correct count',      t => t.is(0,        machine.list_entrances('moot').length            ) );
+
 
   it('unspecified exit return type',                  t => t.is(true,     Array.isArray( machine.list_exits() )            ) );
   it('unspecified exit correct count',                t => t.is(1,        machine.list_exits().length                      ) );
 
   it('specified exit return type',                    t => t.is(true,     Array.isArray( machine.list_exits('off') )       ) );
   it('specified exit correct count',                  t => t.is(1,        machine.list_exits('off').length                 ) );
+
+  it('no such specified exit return type',            t => t.is(true,     Array.isArray( machine.list_exits('moot') )      ) );
+  it('no such specified exit correct count',          t => t.is(0,        machine.list_exits('moot').length                ) );
+
+
+  it('edge list return type',                         t => t.is(true,     Array.isArray( machine.list_edges() )            ) );
+  it('edge list correct count',                       t => t.is(1,        machine.list_edges().length                      ) );
 
 });
 
@@ -447,6 +461,7 @@ describe('transition by state names', async it => {
 
   it('finds off -> red',          t => t.is(0,         machine.get_transition_by_state_names('off', 'red')  ) );
   it('does not find off -> blue', t => t.is(undefined, machine.get_transition_by_state_names('off', 'blue') ) );
+  it('does not find blue -> red', t => t.is(undefined, machine.get_transition_by_state_names('blue', 'red') ) );
 
 });
 
