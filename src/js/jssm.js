@@ -67,11 +67,12 @@ class machine<mNT, mDT> {
       }
 
       // guard against existing connections being re-added
-      if (cursor_from.to.includes(tr.to)) { throw new Error(`already has ${tr.from} to ${tr.to}`); }
-      else                                { cursor_from.to.push(tr.to); }
-
-      if (cursor_to.from.includes(tr.from)) { throw new Error(`already has ${tr.to} from ${tr.from}`); }
-      else                                  { cursor_to.from.push(tr.from); }
+      if (cursor_from.to.includes(tr.to)) {
+        throw new Error(`already has ${tr.from} to ${tr.to}`);
+      } else {
+        cursor_from.to.push(tr.to);
+        cursor_to.from.push(tr.from);
+      }
 
       // add the edge; note its id
       this._edges.push(tr);
@@ -91,8 +92,7 @@ class machine<mNT, mDT> {
       }
 
       var to_mapping = from_mapping.get(tr.to);
-      if (to_mapping) { throw new Error(`from -> to already exists ${tr.from} ${tr.to}`); }
-      else            { from_mapping.set(tr.to, thisEdgeId); }
+      from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
 
       // set up the action mapping, so that actions can be looked up by origin
       if (tr.action) {

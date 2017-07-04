@@ -229,6 +229,29 @@ describe('Complex stop light', async it => {
 
 
 
+describe('reports state_is_final', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[
+      { from:'off', to:'red' },
+      { from:'off', to:'mid' },
+      { from:'mid', to:'fin' }
+    ],
+    complete:['red', 'mid']
+  });
+
+  it('final false for neither',       t => t.is(false, machine.state_is_final('off') ) );
+  it('final false for just terminal', t => t.is(false, machine.state_is_final('mid') ) );
+  it('final false for just complete', t => t.is(false, machine.state_is_final('fin') ) );
+  it('final true',                    t => t.is(true,  machine.state_is_final('red') ) );
+
+});
+
+
+
+
+
 describe('reports state_is_terminal', async it => {
 
   const machine = new jssm.machine({
@@ -316,8 +339,12 @@ describe('reports on actions', async it => {
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
+  const a = machine.list_actions();  // todo comeback
+
   it('that it has',           t => t.is('number',    typeof machine.current_action_for('power_on')   ) );
   it('that it doesn\'t have', t => t.is('undefined', typeof machine.current_action_for('power_left') ) );
+  it('correct list type',     t => t.is(true,        Array.isArray(a)                                ) );
+  it('correct list size',     t => t.is(1,           a.length                                        ) );
 
 });
 
@@ -381,6 +408,8 @@ describe('reports on transitions', async it => {
     initial_state: 'off',
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
+
+  const t = machine.list_transitions();
 
   it('return type',            t => t.is('object', typeof machine.list_transitions()           ) );
   it('correct entrance count', t => t.is(0,        machine.list_transitions().entrances.length ) );
@@ -454,6 +483,20 @@ describe('Illegal machines', async it => {
         { name:'id2', from:'1', to:'3', action:'identical' }
       ]
     });
+
+  }, Error));
+
+
+  it('must not have completion of non-state', t => t.throws(() => {
+
+    const machine = new jssm.machine({
+      initial_state: 'moot',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' }
+      ]
+    });
+
+    machine.is_complete('no such state');
 
   }, Error));
 

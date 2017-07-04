@@ -3198,7 +3198,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.9.10'; // replaced from package.js in build
+var version = '2.9.11'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3255,11 +3255,6 @@ var machine = function () {
         throw new Error('already has ' + tr.from + ' to ' + tr.to);
       } else {
         cursor_from.to.push(tr.to);
-      }
-
-      if (cursor_to.from.includes(tr.from)) {
-        throw new Error('already has ' + tr.to + ' from ' + tr.from);
-      } else {
         cursor_to.from.push(tr.from);
       }
 
@@ -3284,11 +3279,7 @@ var machine = function () {
       }
 
       var to_mapping = from_mapping.get(tr.to);
-      if (to_mapping) {
-        throw new Error('from -> to already exists ' + tr.from + ' ' + tr.to);
-      } else {
-        from_mapping.set(tr.to, thisEdgeId);
-      }
+      from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
 
       // set up the action mapping, so that actions can be looked up by origin
       if (tr.action) {
