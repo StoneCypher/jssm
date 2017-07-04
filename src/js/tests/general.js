@@ -409,11 +409,44 @@ describe('reports on transitions', async it => {
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
-  const t = machine.list_transitions();
 
-  it('return type',            t => t.is('object', typeof machine.list_transitions()           ) );
-  it('correct entrance count', t => t.is(0,        machine.list_transitions().entrances.length ) );
-  it('correct exit count',     t => t.is(1,        machine.list_transitions().exits.length     ) );
+  it('unspecified transition return type',            t => t.is('object', typeof machine.list_transitions()                ) );
+  it('unspecified transition correct entrance count', t => t.is(0,        machine.list_transitions().entrances.length      ) );
+  it('unspecified transition correct exit count',     t => t.is(1,        machine.list_transitions().exits.length          ) );
+
+  it('specified transition return type',              t => t.is('object', typeof machine.list_transitions('off')           ) );
+  it('specified transition correct entrance count',   t => t.is(0,        machine.list_transitions('off').entrances.length ) );
+  it('specified transition correct exit count',       t => t.is(1,        machine.list_transitions('off').exits.length     ) );
+
+
+  it('unspecified entrance return type',              t => t.is(true,     Array.isArray( machine.list_entrances() )        ) );
+  it('unspecified entrance correct count',            t => t.is(0,        machine.list_entrances().length                  ) );
+
+  it('specified entrance return type',                t => t.is(true,     Array.isArray( machine.list_entrances('off') )   ) );
+  it('specified entrance correct count',              t => t.is(0,        machine.list_entrances('off').length             ) );
+
+
+  it('unspecified exit return type',                  t => t.is(true,     Array.isArray( machine.list_exits() )            ) );
+  it('unspecified exit correct count',                t => t.is(1,        machine.list_exits().length                      ) );
+
+  it('specified exit return type',                    t => t.is(true,     Array.isArray( machine.list_exits('off') )       ) );
+  it('specified exit correct count',                  t => t.is(1,        machine.list_exits('off').length                 ) );
+
+});
+
+
+
+
+
+describe('transition by state names', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('finds off -> red',          t => t.is(0,         machine.get_transition_by_state_names('off', 'red')  ) );
+  it('does not find off -> blue', t => t.is(undefined, machine.get_transition_by_state_names('off', 'blue') ) );
 
 });
 

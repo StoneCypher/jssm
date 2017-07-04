@@ -227,12 +227,12 @@ class machine<mNT, mDT> {
 
 
 
-  get_transition_by_id(from: mNT, to: mNT) {
+  get_transition_by_state_names(from: mNT, to: mNT) {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
 
   lookup_transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
-    const id = this.get_transition_by_id(from, to);
+    const id = this.get_transition_by_state_names(from, to);
     return (id === undefined)? undefined : this._edges[id];
   }
 

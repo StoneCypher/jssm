@@ -3420,14 +3420,14 @@ var machine = function () {
       return [].concat(_toConsumableArray(this._actions.keys()));
     }
   }, {
-    key: 'get_transition_by_id',
-    value: function get_transition_by_id(from, to) {
+    key: 'get_transition_by_state_names',
+    value: function get_transition_by_state_names(from, to) {
       return this._edge_map.has(from) ? this._edge_map.get(from).get(to) : undefined;
     }
   }, {
     key: 'lookup_transition_for',
     value: function lookup_transition_for(from, to) {
-      var id = this.get_transition_by_id(from, to);
+      var id = this.get_transition_by_state_names(from, to);
       return id === undefined ? undefined : this._edges[id];
     }
   }, {
