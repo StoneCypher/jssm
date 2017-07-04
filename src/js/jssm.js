@@ -243,11 +243,11 @@ class machine<mNT, mDT> {
   }
 
   list_entrances(whichState : mNT = this.state()) : Array<mNT> {
-    return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
+    return (this._states.get(whichState) || {}).from || [];
   }
 
   list_exits(whichState : mNT = this.state()) : Array<mNT> {
-    return (this._states.get(whichState) || {}).to;
+    return (this._states.get(whichState) || {}).to   || [];
   }
 
 
@@ -322,11 +322,12 @@ class machine<mNT, mDT> {
 
 
   is_unenterable(whichState : mNT) : boolean {
+    // whargarbl should throw on unknown state
     return this.list_entrances(whichState).length === 0;
   }
 
   has_unenterables() : boolean {
-    return this.states.some(this.is_unenterable);
+    return this.states().some(x => this.is_unenterable(x));
   }
 
 
@@ -336,11 +337,12 @@ class machine<mNT, mDT> {
   }
 
   state_is_terminal(whichState : mNT) : boolean {
+    // whargarbl should throw on unknown state
     return this.list_exits(whichState).length === 0;
   }
 
   has_terminals() : boolean {
-    return this.states.some(this.state_is_terminal);
+    return this.states().some(this.state_is_terminal);
   }
 
 
@@ -356,7 +358,7 @@ class machine<mNT, mDT> {
   }
 
   has_completes() : boolean {
-    return this.states.some(this.state_is_complete);
+    return this.states().some(this.state_is_complete);
   }
 
 

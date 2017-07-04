@@ -3198,7 +3198,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.9.6'; // replaced from package.js in build
+var version = '2.9.8'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3451,14 +3451,14 @@ var machine = function () {
     value: function list_entrances() {
       var whichState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.state();
 
-      return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
+      return (this._states.get(whichState) || {}).from || [];
     }
   }, {
     key: 'list_exits',
     value: function list_exits() {
       var whichState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.state();
 
-      return (this._states.get(whichState) || {}).to;
+      return (this._states.get(whichState) || {}).to || [];
     }
   }, {
     key: 'probable_exits_for',
@@ -3565,12 +3565,17 @@ var machine = function () {
   }, {
     key: 'is_unenterable',
     value: function is_unenterable(whichState) {
+      // whargarbl should throw on unknown state
       return this.list_entrances(whichState).length === 0;
     }
   }, {
     key: 'has_unenterables',
     value: function has_unenterables() {
-      return this.states.some(this.is_unenterable);
+      var _this6 = this;
+
+      return this.states().some(function (x) {
+        return _this6.is_unenterable(x);
+      });
     }
   }, {
     key: 'is_terminal',
@@ -3580,12 +3585,13 @@ var machine = function () {
   }, {
     key: 'state_is_terminal',
     value: function state_is_terminal(whichState) {
+      // whargarbl should throw on unknown state
       return this.list_exits(whichState).length === 0;
     }
   }, {
     key: 'has_terminals',
     value: function has_terminals() {
-      return this.states.some(this.state_is_terminal);
+      return this.states().some(this.state_is_terminal);
     }
   }, {
     key: 'is_complete',
@@ -3605,7 +3611,7 @@ var machine = function () {
   }, {
     key: 'has_completes',
     value: function has_completes() {
-      return this.states.some(this.state_is_complete);
+      return this.states().some(this.state_is_complete);
     }
   }, {
     key: 'action',

@@ -229,6 +229,42 @@ describe('Complex stop light', async it => {
 
 
 
+describe('reports state_is_terminal', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('terminal false', t => t.is(false, machine.state_is_terminal('off') ) );
+  it('terminal true',  t => t.is(true,  machine.state_is_terminal('red') ) );
+
+});
+
+
+
+
+
+describe('reports is_terminal', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  const first  = machine.is_terminal();
+  machine.transition('red');
+  const second = machine.is_terminal();
+
+  it('terminal false', t => t.is( false, first  ) );
+  it('terminal true',  t => t.is( true,  second ) );
+
+});
+
+
+
+
+
 describe('reports on actions', async it => {
 
   const machine = new jssm.machine({
@@ -238,6 +274,23 @@ describe('reports on actions', async it => {
 
   it('that it has',           t => t.is('number',    typeof machine.current_action_for('power_on')   ) );
   it('that it doesn\'t have', t => t.is('undefined', typeof machine.current_action_for('power_left') ) );
+
+});
+
+
+
+
+
+describe('unenterables', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('off isn\'t enterable',     t => t.is(true,  machine.is_unenterable('off') ) );
+  it('red is enterable',         t => t.is(false, machine.is_unenterable('red') ) );
+  it('machine has unenterables', t => t.is(true,  machine.has_unenterables()    ) );
 
 });
 
