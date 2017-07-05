@@ -3514,7 +3514,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.1.6'; // replaced from package.js in build
+var version = '3.1.9'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3849,8 +3849,12 @@ var machine = function () {
 
       var whichState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.state();
       // these are mNT
-      return [].concat(_toConsumableArray((this._reverse_actions.get(whichState) || new Map()).values())) // wasteful, should throw instead
-      .map(function (edgeId) {
+      var ra_base = this._reverse_actions.get(whichState);
+      if (!ra_base) {
+        throw new Error('No such state ' + JSON.stringify(whichState));
+      }
+
+      return [].concat(_toConsumableArray(ra_base.values())).map(function (edgeId) {
         return _this4._edges[edgeId];
       }).filter(function (o) {
         return o.from === whichState;
@@ -3865,8 +3869,12 @@ var machine = function () {
 
       var whichState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.state();
       // these are mNT
-      return [].concat(_toConsumableArray((this._reverse_actions.get(whichState) || new Map()).values())) // wasteful, should throw instead
-      .map(function (edgeId) {
+      var ra_base = this._reverse_actions.get(whichState);
+      if (!ra_base) {
+        throw new Error('No such state ' + JSON.stringify(whichState));
+      }
+
+      return [].concat(_toConsumableArray(ra_base.values())).map(function (edgeId) {
         return _this5._edges[edgeId];
       }).filter(function (o) {
         return o.from === whichState;

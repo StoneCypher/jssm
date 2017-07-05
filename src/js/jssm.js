@@ -314,14 +314,20 @@ class machine<mNT, mDT> {
   }
 */
   list_exit_actions(whichState : mNT = this.state() ) : Array<any> { // these are mNT
-    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
+    const ra_base = this._reverse_actions.get(whichState);
+    if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+
+    return [... ra_base.values()]
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => filtered.action       );
   }
 
   probable_action_exits(whichState : mNT = this.state() ) : Array<any> { // these are mNT
-    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
+    const ra_base = this._reverse_actions.get(whichState);
+    if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+
+    return [... ra_base.values()]
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => ( { action      : filtered.action,

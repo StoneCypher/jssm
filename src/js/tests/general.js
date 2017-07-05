@@ -247,6 +247,28 @@ describe('probable exits for', async it => {
 
 
 
+describe('probable action exits', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
+  });
+
+  it('probable action exits are an array', t => t.is(true,  Array.isArray(machine.probable_action_exits())      ) );
+  it('probable action exit 1 is on',       t => t.is('on',  machine.probable_action_exits()[0].action           ) );
+
+  it('probable action exits are an array', t => t.is(true,  Array.isArray(machine.probable_action_exits('off')) ) );
+  it('probable action exit 1 is on',       t => t.is('on',  machine.probable_action_exits('off')[0].action      ) );
+
+  it('probable action exits are an array', t => t.is(true,  Array.isArray(machine.probable_action_exits('red')) ) );
+  it('probable action exit 1 is on',       t => t.is('off', machine.probable_action_exits('red')[0].action      ) );
+
+});
+
+
+
+
+
 describe('probabilistic_transition', async it => {
 
   const machine = new jssm.machine({
@@ -736,7 +758,21 @@ describe('Illegal machines', async it => {
       ]
     });
 
-    machine.actions('no such action');
+    machine.list_states_having_action('no such action');
+
+  }, Error));
+
+
+  it('can\'t list exit states of non-action', t => t.throws(() => {
+
+    const machine = new jssm.machine({
+      initial_state: '1',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' }
+      ]
+    });
+
+    machine.list_exit_actions('no such action');
 
   }, Error));
 
