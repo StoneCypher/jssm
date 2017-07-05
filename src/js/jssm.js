@@ -148,9 +148,14 @@ class machine<mNT, mDT> {
   }
 
   _new_state(state_config : JssmGenericState<mNT>) : mNT { // whargarbl get that state_config any under control
-    if (this._states.has(state_config.name)) { throw new Error(`state ${(state_config.name:any)} already exists`); }
+
+    if (this._states.has(state_config.name)) {
+      throw new Error(`state ${(state_config.name:any)} already exists`);
+    }
+
     this._states.set(state_config.name, state_config);
     return state_config.name;
+
   }
 
 

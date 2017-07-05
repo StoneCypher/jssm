@@ -402,6 +402,21 @@ describe('reports on states', async it => {
 
 
 
+describe('returns states', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+  });
+
+  it('that it has', t => t.is('object', typeof machine.machine_state() ) );
+
+});
+
+
+
+
+
 describe('reports on transitions', async it => {
 
   const machine = new jssm.machine({
@@ -545,6 +560,21 @@ describe('Illegal machines', async it => {
     });
 
     machine.is_complete('no such state');
+
+  }, Error));
+
+
+  it('internal state helper must not accept double states', t => t.throws(() => {
+
+    const machine = new jssm.machine({
+      initial_state: 'moot',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' }
+      ]
+    });
+
+    machine._new_state({from: '1', name:'id1', to:'2', complete:false});
+    machine._new_state({from: '1', name:'id1', to:'2', complete:false});
 
   }, Error));
 
