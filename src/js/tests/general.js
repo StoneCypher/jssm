@@ -470,6 +470,22 @@ describe('actions', async it => {
 
 
 
+describe('states having action', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
+  });
+
+  it('one action has on', t => t.is(1,     machine.list_states_having_action('on').length ) );
+  it('on is had by off',  t => t.is('off', machine.list_states_having_action('on')[0]     ) );
+
+});
+
+
+
+
+
 describe('unenterables', async it => {
 
   const machine = new jssm.machine({
