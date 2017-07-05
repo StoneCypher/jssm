@@ -57,6 +57,9 @@ describe('parse/1', async it => {
       it('a->b;c->d;', t => t.deepEqual(AtoB_CtoD, jssm.parse('a->b;c->d;') ));
     });
 
+    // todo: graph: {inputs: [foo]}
+    // todo: graph: {outputs: [foo]}
+
 });
 
 // stochable

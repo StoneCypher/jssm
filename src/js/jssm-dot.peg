@@ -84,6 +84,12 @@ Label "label"
   = atom:Atom
   / string:String
 
+LabelListItem "label_list_item"
+  = Whitespace item:Label Whitespace { return item; }
+
+LabelList "label_list"
+  = "[" Whitespace lli:LabelListItem* Whitespace "]" { return lli; }
+
 
 
 ArrowItemKey
@@ -217,10 +223,18 @@ MinTransitionsPerState
 MaxTransitionsPerState
   = Whitespace "max_transitions_per_state" Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:"max_transitions_per_state", value:value}; }
 
+GraphInputs
+  = Whitespace "inputs" Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"inputs", value:value}; }
+
+GraphOutputs
+  = Whitespace "outputs" Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"outputs", value:value}; }
+
 GraphItem
   = GraphBg
   / MinTransitionsPerState
   / MaxTransitionsPerState
+  / GraphInputs
+  / GraphOutputs
 
 GraphItems
   = GraphItem+
