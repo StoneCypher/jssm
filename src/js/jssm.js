@@ -164,10 +164,13 @@ class machine<mNT, mDT> {
     return this._state;
   }
 
+/* whargarbl todo major
+   when we reimplement this, reintroduce this change to the is_final call
+
   is_changing() : boolean {
     return true; // todo whargarbl
   }
-
+*/
 
 
   state_is_final(whichState : mNT) : boolean {
@@ -175,7 +178,8 @@ class machine<mNT, mDT> {
   }
 
   is_final() : boolean {
-    return ((!this.is_changing()) && this.state_is_final(this.state()));
+//  return ((!this.is_changing()) && this.state_is_final(this.state()));
+    return this.state_is_final(this.state());
   }
 
 

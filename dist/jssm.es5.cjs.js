@@ -3198,7 +3198,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.9.16'; // replaced from package.js in build
+var version = '2.9.17'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3346,11 +3346,15 @@ var machine = function () {
     value: function state() {
       return this._state;
     }
-  }, {
-    key: 'is_changing',
-    value: function is_changing() {
-      return true; // todo whargarbl
-    }
+
+    /* whargarbl todo major
+       when we reimplement this, reintroduce this change to the is_final call
+    
+      is_changing() : boolean {
+        return true; // todo whargarbl
+      }
+    */
+
   }, {
     key: 'state_is_final',
     value: function state_is_final(whichState) {
@@ -3359,7 +3363,8 @@ var machine = function () {
   }, {
     key: 'is_final',
     value: function is_final() {
-      return !this.is_changing() && this.state_is_final(this.state());
+      //  return ((!this.is_changing()) && this.state_is_final(this.state()));
+      return this.state_is_final(this.state());
     }
   }, {
     key: 'machine_state',

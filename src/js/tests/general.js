@@ -252,6 +252,31 @@ describe('reports state_is_final', async it => {
 
 
 
+describe('reports is_final', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[
+      { from:'off', to:'red' }
+    ],
+    complete:['red']
+  });
+
+  const init_final = machine.is_final();
+  machine.transition('red');
+  const fin_final  = machine.is_final();
+
+  it('final false', t => t.is(false, init_final ) );
+  it('final true',  t => t.is(true,  fin_final  ) );
+
+  /* todo whargarbl needs another two tests for is_changing once reintroduced */
+
+});
+
+
+
+
+
 describe('reports state_is_terminal', async it => {
 
   const machine = new jssm.machine({
