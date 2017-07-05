@@ -229,6 +229,24 @@ describe('Complex stop light', async it => {
 
 
 
+describe('probable exits for', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red' } ]
+  });
+
+  it('probable exits are an array',       t => t.is(true,     Array.isArray(machine.probable_exits_for('off')) ) );
+  it('one probable exit in example',      t => t.is(1,        machine.probable_exits_for('off').length         ) );
+  it('exit is an object',                 t => t.is('object', typeof machine.probable_exits_for('off')[0]      ) );
+  it('exit 0 has a string from property', t => t.is('string', typeof machine.probable_exits_for('off')[0].from ) );
+
+});
+
+
+
+
+
 describe('reports state_is_final', async it => {
 
   const machine = new jssm.machine({
