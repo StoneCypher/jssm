@@ -201,10 +201,11 @@ class machine<mNT, mDT> {
 
   }
 
+/*
   load_machine_state() : boolean {
     return false; // todo whargarbl
   }
-
+*/
 
 
   states() : Array<mNT> {
