@@ -736,7 +736,7 @@ describe('Illegal machines', async it => {
       ]
     });
 
-    machine.actions('no such action');
+    machine.list_states_having_action('no such action');
 
   }, Error));
 
