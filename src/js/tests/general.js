@@ -792,4 +792,18 @@ describe('Illegal machines', async it => {
   }, Error));
 */
 
+
+  it('no probable action exits of non-action', t => t.throws(() => {
+
+    const machine = new jssm.machine({
+      initial_state: '1',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' }
+      ]
+    });
+
+    machine.probable_action_exits('no such action');
+
+  }, Error));
+
 });
