@@ -3198,7 +3198,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.9.12'; // replaced from package.js in build
+var version = '2.9.14'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3304,11 +3304,9 @@ var machine = function () {
           _this._reverse_actions.set(tr.from, rActionMap);
         }
 
-        if (rActionMap.has(tr.action)) {
-          throw new Error('r-action ' + tr.from + ' already attached to action ' + tr.action);
-        } else {
-          rActionMap.set(tr.action, thisEdgeId);
-        }
+        // no need to test for reverse mapping pre-presence;
+        // forward mapping already covers collisions
+        rActionMap.set(tr.action, thisEdgeId);
 
         // reverse mapping first by state target name
         if (!_this._reverse_action_targets.has(tr.to)) {

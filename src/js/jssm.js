@@ -119,11 +119,9 @@ class machine<mNT, mDT> {
           this._reverse_actions.set(tr.from, rActionMap);
         }
 
-        if (rActionMap.has(tr.action)) {
-          throw new Error(`r-action ${tr.from} already attached to action ${tr.action}`);
-        } else {
-          rActionMap.set(tr.action, thisEdgeId);
-        }
+        // no need to test for reverse mapping pre-presence;
+        // forward mapping already covers collisions
+        rActionMap.set(tr.action, thisEdgeId);
 
 
         // reverse mapping first by state target name
