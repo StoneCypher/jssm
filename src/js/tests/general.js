@@ -448,6 +448,28 @@ describe('reports on actions', async it => {
 
 
 
+describe('actions', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
+  });
+
+  it('red has actions().length 1', t => t.is(1,     machine.actions().length      ) );
+  it('red has actions()[0] "on"',  t => t.is('on',  machine.actions()[0]          ) );
+
+  it('red has actions().length 1', t => t.is(1,     machine.actions('off').length ) );
+  it('red has actions()[0] "on"',  t => t.is('on',  machine.actions('off')[0]     ) );
+
+  it('red has actions().length 1', t => t.is(1,     machine.actions('red').length ) );
+  it('red has actions()[0] "off"', t => t.is('off', machine.actions('red')[0]     ) );
+
+});
+
+
+
+
+
 describe('unenterables', async it => {
 
   const machine = new jssm.machine({
