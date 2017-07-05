@@ -3285,35 +3285,29 @@ var machine = function () {
       if (tr.action) {
 
         // forward mapping first by action name
-        if (!_this._actions.has(tr.action)) {
-          _this._actions.set(tr.action, new Map());
+        var actionMap = _this._actions.get(tr.action);
+        if (!actionMap) {
+          actionMap = new Map();
+          _this._actions.set(tr.action, actionMap);
         }
 
-        var actionMap = _this._actions.get(tr.action);
-        if (actionMap) {
-          if (actionMap.has(tr.from)) {
-            throw new Error('action ' + tr.action + ' already attached to origin ' + tr.from);
-          } else {
-            actionMap.set(tr.from, thisEdgeId);
-          }
+        if (actionMap.has(tr.from)) {
+          throw new Error('action ' + tr.action + ' already attached to origin ' + tr.from);
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?');
+          actionMap.set(tr.from, thisEdgeId);
         }
 
         // reverse mapping first by state origin name
-        if (!_this._reverse_actions.has(tr.from)) {
-          _this._reverse_actions.set(tr.from, new Map());
+        var rActionMap = _this._reverse_actions.get(tr.from);
+        if (!rActionMap) {
+          rActionMap = new Map();
+          _this._reverse_actions.set(tr.from, rActionMap);
         }
 
-        var rActionMap = _this._reverse_actions.get(tr.from);
-        if (rActionMap) {
-          if (rActionMap.has(tr.action)) {
-            throw new Error('r-action ' + tr.from + ' already attached to action ' + tr.action);
-          } else {
-            rActionMap.set(tr.action, thisEdgeId);
-          }
+        if (rActionMap.has(tr.action)) {
+          throw new Error('r-action ' + tr.from + ' already attached to action ' + tr.action);
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?');
+          rActionMap.set(tr.action, thisEdgeId);
         }
 
         // reverse mapping first by state target name

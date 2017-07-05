@@ -97,35 +97,34 @@ class machine<mNT, mDT> {
       // set up the action mapping, so that actions can be looked up by origin
       if (tr.action) {
 
+
         // forward mapping first by action name
-        if (!(this._actions.has(tr.action))) {
-          this._actions.set(tr.action, new Map());
+        var actionMap = this._actions.get(tr.action);
+        if (!(actionMap)) {
+          actionMap = new Map();
+          this._actions.set(tr.action, actionMap);
         }
 
-        const actionMap = this._actions.get(tr.action);
-        if (actionMap) {
-          if (actionMap.has(tr.from)) { throw new Error(`action ${tr.action} already attached to origin ${tr.from}`); }
-          else {
-            actionMap.set(tr.from, thisEdgeId);
-          }
+        if (actionMap.has(tr.from)) {
+          throw new Error(`action ${tr.action} already attached to origin ${tr.from}`);
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?');
+          actionMap.set(tr.from, thisEdgeId);
         }
+
 
         // reverse mapping first by state origin name
-        if (!(this._reverse_actions.has(tr.from))) {
-          this._reverse_actions.set(tr.from, new Map());
+        var rActionMap = this._reverse_actions.get(tr.from);
+        if (!(rActionMap)) {
+          rActionMap = new Map();
+          this._reverse_actions.set(tr.from, rActionMap);
         }
 
-        const rActionMap = this._reverse_actions.get(tr.from);
-        if (rActionMap) {
-          if (rActionMap.has(tr.action)) { throw new Error(`r-action ${tr.from} already attached to action ${tr.action}`); }
-          else {
-            rActionMap.set(tr.action, thisEdgeId);
-          }
+        if (rActionMap.has(tr.action)) {
+          throw new Error(`r-action ${tr.from} already attached to action ${tr.action}`);
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?');
+          rActionMap.set(tr.action, thisEdgeId);
         }
+
 
         // reverse mapping first by state target name
         if (!(this._reverse_action_targets.has(tr.to))) {
