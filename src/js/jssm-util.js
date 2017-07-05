@@ -10,7 +10,8 @@ const weighted_rand_select = (options : Array<any>, probability_property : strin
   }
 
   const frand      = cap => Math.random() * cap,
-        prob_sum   = options.reduce( (acc, val:any) => acc + val[probability_property], 0 ),
+        or_one     = item => item === undefined? 1 : item,
+        prob_sum   = options.reduce( (acc, val:any) => acc + or_one(val[probability_property]), 0 ),
         rnd        = frand(prob_sum);
 
   var   cursor     = 0,

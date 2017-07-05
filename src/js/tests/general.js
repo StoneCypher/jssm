@@ -247,6 +247,23 @@ describe('probable exits for', async it => {
 
 
 
+describe('probabilistic_transition', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red' } ]
+  });
+
+  machine.probabilistic_transition();
+
+  it('solo after probabilistic is red', t => t.is('red', machine.state() ) );
+
+});
+
+
+
+
+
 describe('reports state_is_final', async it => {
 
   const machine = new jssm.machine({
@@ -621,5 +638,20 @@ describe('Illegal machines', async it => {
 
   }, Error));
 
+/*
+  it('probable exits for throws on non-state', t => t.throws(() => {
+
+    const machine = new jssm.machine({
+      initial_state: '1',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' }
+      ]
+    });
+
+    // why does this test fail Threw unexpected exception: 'No such state "3" in probable_exits_for' >:(
+    machine.probable_exits_for('3');
+
+  }, Error));
+*/
 
 });

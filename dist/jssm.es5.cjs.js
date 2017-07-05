@@ -3453,8 +3453,11 @@ var weighted_rand_select = function weighted_rand_select(options) {
     var frand = function frand(cap) {
         return Math.random() * cap;
     },
+        or_one = function or_one(item) {
+        return item === undefined ? 1 : item;
+    },
         prob_sum = options.reduce(function (acc, val) {
-        return acc + val[probability_property];
+        return acc + or_one(val[probability_property]);
     }, 0),
         rnd = frand(prob_sum);
 
@@ -3511,7 +3514,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.0.2'; // replaced from package.js in build
+var version = '3.1.1'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3782,7 +3785,7 @@ var machine = function () {
         return defined;
       });
 
-      return wtf || []; // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
+      return wtf; // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
     }
   }, {
     key: 'probabilistic_transition',

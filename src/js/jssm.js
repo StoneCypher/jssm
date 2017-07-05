@@ -267,7 +267,7 @@ class machine<mNT, mDT> {
     const wstate_to = wstate.to,
           wtf       = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
 
-    return (wtf:any) || [];  // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
+    return (wtf:any);  // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
 
   }
 
