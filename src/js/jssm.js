@@ -261,10 +261,13 @@ class machine<mNT, mDT> {
 
   probable_exits_for(whichState : mNT) : Array< JssmTransition<mNT, mDT> > {
 
-    const wstate_to : Array<mNT> = ((this._states.get(whichState) || {to: []}).to),
-          wtf                    = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
+    const wstate = this._states.get(whichState);
+    if (!(wstate)) { throw `No such state ${JSON.stringify(whichState)} in probable_exits_for`; }
 
-    return (wtf:any) || [];  // :any because .transition_for can return `undefined`, which doesn't match this return spec
+    const wstate_to = wstate.to,
+          wtf       = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
+
+    return (wtf:any) || [];  // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
 
   }
 

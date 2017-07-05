@@ -3511,7 +3511,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.0.1'; // replaced from package.js in build
+var version = '3.0.2'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3770,14 +3770,19 @@ var machine = function () {
     value: function probable_exits_for(whichState) {
       var _this2 = this;
 
-      var wstate_to = (this._states.get(whichState) || { to: [] }).to,
+      var wstate = this._states.get(whichState);
+      if (!wstate) {
+        throw 'No such state ' + JSON.stringify(whichState) + ' in probable_exits_for';
+      }
+
+      var wstate_to = wstate.to,
           wtf = wstate_to.map(function (ws) {
         return _this2.lookup_transition_for(_this2.state(), ws);
       }).filter(function (defined) {
         return defined;
       });
 
-      return wtf || []; // :any because .transition_for can return `undefined`, which doesn't match this return spec
+      return wtf || []; // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
     }
   }, {
     key: 'probabilistic_transition',
