@@ -264,6 +264,23 @@ describe('probabilistic_transition', async it => {
 
 
 
+describe('probabilistic_walk', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red' }, { from:'red', to:'off' } ]
+  });
+
+  machine.probabilistic_walk(3);
+
+  it('solo after probabilistic walk 3 is red', t => t.is('red', machine.state() ) );
+
+});
+
+
+
+
+
 describe('reports state_is_final', async it => {
 
   const machine = new jssm.machine({

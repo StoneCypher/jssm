@@ -277,7 +277,7 @@ class machine<mNT, mDT> {
   }
 
   probabilistic_walk(n : number) : Array<mNT> {
-    return seq(n-1)
+    return seq(n)
           .map(i => {
              const state_was = this.state();
              this.probabilistic_transition();

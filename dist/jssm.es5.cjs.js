@@ -3514,7 +3514,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.1.1'; // replaced from package.js in build
+var version = '3.1.2'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3798,7 +3798,7 @@ var machine = function () {
     value: function probabilistic_walk(n) {
       var _this3 = this;
 
-      return (0, _jssmUtil.seq)(n - 1).map(function (i) {
+      return (0, _jssmUtil.seq)(n).map(function (i) {
         var state_was = _this3.state();
         _this3.probabilistic_transition();
         return state_was;
