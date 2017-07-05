@@ -229,6 +229,23 @@ describe('Complex stop light', async it => {
 
 
 
+describe('list exit actions', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
+  });
+
+  it('shows "on" from off as default', t => t.is('on',  machine.list_exit_actions()[0]      ) );
+  it('shows "on" from off',            t => t.is('on',  machine.list_exit_actions('off')[0] ) );
+  it('shows "off" from red',           t => t.is('off', machine.list_exit_actions('red')[0] ) );
+
+});
+
+
+
+
+
 describe('probable exits for', async it => {
 
   const machine = new jssm.machine({
