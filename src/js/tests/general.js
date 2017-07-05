@@ -281,6 +281,25 @@ describe('probabilistic_walk', async it => {
 
 
 
+describe('probabilistic_histo_walk', async it => {
+
+  const machine = new jssm.machine({
+    initial_state: 'off',
+    transitions:[ { from:'off', to:'red' }, { from:'red', to:'off' } ]
+  });
+
+  const histo = machine.probabilistic_histo_walk(3);
+
+  it('histo is a Map', t => t.is(true, histo instanceof Map) );
+  it('histo red is 2', t => t.is(2,    histo.get('red'))     );
+  it('histo off is 2', t => t.is(2,    histo.get('off'))     );
+
+});
+
+
+
+
+
 describe('reports state_is_final', async it => {
 
   const machine = new jssm.machine({
