@@ -395,6 +395,7 @@ class machine<mNT, mDT> {
     }
   }
 
+/* whargarbl reintroduce after valid_force_transition is re-enabled
   // can leave machine in inconsistent state.  generally do not use
   force_transition(newState : mNT, newData? : mDT) : boolean {
     // todo whargarbl implement hooks
@@ -407,6 +408,7 @@ class machine<mNT, mDT> {
       return false;
     }
   }
+*/
 
 
 
@@ -434,10 +436,11 @@ class machine<mNT, mDT> {
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
 
+/* re-enable force_transition/1 after implementing this
   valid_force_transition(newState : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
   }
-
+*/
 
 
 }

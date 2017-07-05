@@ -3198,7 +3198,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '2.9.17'; // replaced from package.js in build
+var version = '2.9.18'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3643,21 +3643,21 @@ var machine = function () {
       }
     }
 
-    // can leave machine in inconsistent state.  generally do not use
-
-  }, {
-    key: 'force_transition',
-    value: function force_transition(newState, newData) {
-      // todo whargarbl implement hooks
-      // todo whargarbl implement data stuff
-      // todo major incomplete whargarbl comeback
-      if (this.valid_force_transition(newState, newData)) {
-        this._state = newState;
-        return true;
-      } else {
-        return false;
+    /* whargarbl reintroduce after valid_force_transition is re-enabled
+      // can leave machine in inconsistent state.  generally do not use
+      force_transition(newState : mNT, newData? : mDT) : boolean {
+        // todo whargarbl implement hooks
+        // todo whargarbl implement data stuff
+        // todo major incomplete whargarbl comeback
+        if (this.valid_force_transition(newState, newData)) {
+          this._state = newState;
+          return true;
+        } else {
+          return false;
+        }
       }
-    }
+    */
+
   }, {
     key: 'current_action_for',
     value: function current_action_for(action) {
@@ -3686,11 +3686,13 @@ var machine = function () {
       // todo major incomplete whargarbl comeback
       return this.lookup_transition_for(this.state(), newState) !== undefined;
     }
-  }, {
-    key: 'valid_force_transition',
-    value: function valid_force_transition(newState, newData) {
-      return false; // major todo whargarbl
-    }
+
+    /* re-enable force_transition/1 after implementing this
+      valid_force_transition(newState : mNT, newData? : mDT) : boolean {
+        return false; // major todo whargarbl
+      }
+    */
+
   }]);
 
   return machine;
