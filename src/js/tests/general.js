@@ -776,7 +776,7 @@ describe('Illegal machines', async it => {
 
   }, Error));
 
-/*
+
   it('probable exits for throws on non-state', t => t.throws(() => {
 
     const machine = new jssm.machine({
@@ -786,11 +786,9 @@ describe('Illegal machines', async it => {
       ]
     });
 
-    // why does this test fail Threw unexpected exception: 'No such state "3" in probable_exits_for' >:(
     machine.probable_exits_for('3');
 
   }, Error));
-*/
 
 
   it('no probable action exits of non-action', t => t.throws(() => {
