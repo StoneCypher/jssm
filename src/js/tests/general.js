@@ -712,6 +712,34 @@ describe('Illegal machines', async it => {
 
   }, Error));
 
+
+  it('can\'t get actions of non-state', t => t.throws(() => {
+
+    const machine = new jssm.machine({
+      initial_state: '1',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' }
+      ]
+    });
+
+    machine.actions('three');
+
+  }, Error));
+
+
+  it('can\'t get states having non-action', t => t.throws(() => {
+
+    const machine = new jssm.machine({
+      initial_state: '1',
+      transitions:[
+        { name:'id1', from:'1', to:'2', action:'identical' }
+      ]
+    });
+
+    machine.actions('no such action');
+
+  }, Error));
+
 /*
   it('probable exits for throws on non-state', t => t.throws(() => {
 
