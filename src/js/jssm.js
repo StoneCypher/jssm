@@ -385,8 +385,7 @@ class machine<mNT, mDT> {
     // todo major incomplete whargarbl comeback
     if (this.valid_action(name, newData)) {
       const edge = this.current_action_edge_for(name);
-      if (edge) { this._state = edge.to; }
-      else      { throw new Error(`Should be impossible - valid_action true, no edge in current_action_edge_for, in action(${JSON.stringify(name)}...)`); }
+      this._state = edge.to;
       return true;
     } else {
       return false;
@@ -427,9 +426,10 @@ class machine<mNT, mDT> {
     return action_base? action_base.get(this.state()) : undefined;
   }
 
-  current_action_edge_for(action : mNT) : JssmTransition<mNT, mDT> | void {
+  current_action_edge_for(action : mNT) : JssmTransition<mNT, mDT> {
     const idx = this.current_action_for(action);
-    return (idx !== undefined)? this._edges[idx] : undefined;
+    if (idx === undefined) { throw new Error(`No such action ${JSON.stringify(action)}`); }
+    return this._edges[idx];
   }
 
   valid_action(action : mNT, newData? : mDT) : boolean {

@@ -549,8 +549,8 @@ describe('reports on action edges', async it => {
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
-  it('that it has',           t => t.is('object',    typeof machine.current_action_edge_for('power_on')   ) );
-  it('that it doesn\'t have', t => t.is('undefined', typeof machine.current_action_edge_for('power_left') ) );
+  it('that it has',           t => t.is('object', typeof machine.current_action_edge_for('power_on')) );
+  it('that it doesn\'t have', t => t.throws(() => { machine.current_action_edge_for('power_west'); }) );
 
 });
 

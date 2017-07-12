@@ -3514,7 +3514,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.1.14'; // replaced from package.js in build
+var version = '3.2.0'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -3950,11 +3950,7 @@ var machine = function () {
       // todo major incomplete whargarbl comeback
       if (this.valid_action(name, newData)) {
         var edge = this.current_action_edge_for(name);
-        if (edge) {
-          this._state = edge.to;
-        } else {
-          throw new Error('Should be impossible - valid_action true, no edge in current_action_edge_for, in action(' + JSON.stringify(name) + '...)');
-        }
+        this._state = edge.to;
         return true;
       } else {
         return false;
@@ -3999,7 +3995,10 @@ var machine = function () {
     key: 'current_action_edge_for',
     value: function current_action_edge_for(action) {
       var idx = this.current_action_for(action);
-      return idx !== undefined ? this._edges[idx] : undefined;
+      if (idx === undefined) {
+        throw new Error('No such action ' + JSON.stringify(action));
+      }
+      return this._edges[idx];
     }
   }, {
     key: 'valid_action',
