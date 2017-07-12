@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "3.1.13",
+  "version": "3.1.14",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -28,7 +28,6 @@
     "qbuild": "npm run make && npm run test-verbose && npm run minify && npm run docs && npm run dist",
     "build": "npm run make && npm run vet && npm run test-verbose && npm run audit && npm run minify && npm run docs && npm run dist",
     "nyc-build": "npm run vet && npm run make && npm run test-verbose && npm run audit && npm run nyc-test",
-    "postinstall": "npm run build",
     "prepublish": "npm run build",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
@@ -75,7 +74,7 @@
     "url": "https://github.com/StoneCypher/jssm/issues"
   },
   "homepage": "https://stonecypher.github.io/jssm/",
-  "dependencies": {
+  "devDependencies": {
     "ava": "^0.20.0",
     "ava-spec": "^1.1.0",
     "babel-cli": "^6.24.1",
