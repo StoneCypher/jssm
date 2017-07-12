@@ -270,8 +270,17 @@ Config
 
 
 
+StateQuality
+  = Whitespace name:Label Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return { key: "state quality", name: name, value: value }; }
+
+StateDef
+  = Whitespace name:Label Whitespace "[" Whitespace sq:StateQuality* Whitespace "]" Whitespace ";" Whitespace { return { key: "State qualities", value: sq }; }
+
+
+
 Term
   = Exp
+  / StateDef
   / Config
 
 TermList
