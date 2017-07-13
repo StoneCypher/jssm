@@ -1,4 +1,8 @@
 {
-  "parser": "babel-eslint",
-  "plugins": [ "flowtype" ]
+
+  "parser"  : "babel-eslint",
+  "plugins" : [ "flowtype" ],
+
+  "extends" : "eslint-config-stonecypher"
+
 }
