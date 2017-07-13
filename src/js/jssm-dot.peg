@@ -244,24 +244,32 @@ GraphInputs
 GraphOutputs
   = Whitespace "outputs"                   Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"outputs", value:value}; }
 
+GraphStartNodes
+  = Whitespace "start_nodes"               Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"start_nodes", value:value}; }
+
+GraphEndNodes
+  = Whitespace "end_nodes"                 Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"end_nodes", value:value}; }
+
 GraphItem
   = GraphBg
   / MinTransitionsPerState
   / MaxTransitionsPerState
+  / GraphStartNodes
+  / GraphEndNodes
   / GraphInputs
   / GraphOutputs
 
 GraphItems
   = GraphItem+
 
-ConfigGraph
+ConfigGraph "graph configuration"
   = Whitespace "graph" Whitespace ":" Whitespace "{" Whitespace graph_items:GraphItems? Whitespace "};" Whitespace {
     return { config_kind: "graph", config_items: graph_items || [] };
   }
 
 
 
-Config
+Config "configuration"
   = ConfigGraph
   / ConfigTransition
   / ConfigAction
@@ -270,10 +278,10 @@ Config
 
 
 
-StateQuality
+StateQuality "state quality"
   = Whitespace name:Label Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return { key: "state quality", name: name, value: value }; }
 
-StateDef
+StateDef "state definition"
   = Whitespace name:Label Whitespace "[" Whitespace sq:StateQuality* Whitespace "]" Whitespace ";" Whitespace { return { key: "State qualities", value: sq }; }
 
 
