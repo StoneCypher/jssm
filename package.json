@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -29,6 +29,7 @@
     "build": "npm run make && npm run vet && npm run test-verbose && npm run audit && npm run minify && npm run docs && npm run site && npm run dist",
     "nyc-build": "npm run vet && npm run make && npm run test-verbose && npm run audit && npm run nyc-test",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
+    "pretest": "npm run build",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib",
