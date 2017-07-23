@@ -11,14 +11,35 @@ GvizShape
 
 
 
-ForwardArrow "forward arrow"
+ForwardLightArrow "forward light arrow"
   = "->"
 
-TwoWayArrow "two way arrow"
+TwoWayLightArrow "two way light arrow"
   = "<->"
 
-Arrow
-  = ForwardArrow / TwoWayArrow
+ForwardFatArrow "forward fat arrow"
+  = "=>"
+
+TwoWayFatArrow "two way fat arrow"
+  = "<=>"
+
+ForwardTildeArrow "forward tilde arrow"
+  = "~>"
+
+TwoWayTildeArrow "two way tilde arrow"
+  = "<~>"
+
+LightArrow "light arrow"
+  = ForwardLightArrow / TwoWayLightArrow
+
+FatArrow "fat arrow"
+  = ForwardFatArrow / TwoWayFatArrow
+
+TildeArrow "tilde arrow"
+  = ForwardTildeArrow / TwoWayTildeArrow
+
+Arrow "arrow"
+  = LightArrow / FatArrow / TildeArrow
 
 
 
@@ -102,13 +123,22 @@ ArrowDesc
 
 
 
+LabelList
+  = "[" Whitespace names:(Label Whitespace)* "]" { return names.map(i => i[0]); }
+
+LabelOrLabelList
+  = LabelList
+  / Label
+
+
+
 Subexp
   = Whitespace lactl:ActionLabel?
     Whitespace ldesc:ArrowDesc?
     Whitespace arrow:Arrow
     Whitespace rdesc:ArrowDesc?
     Whitespace ractl:ActionLabel?
-    Whitespace label:Label
+    Whitespace label:LabelOrLabelList
     Whitespace tail:Subexp? {
       const base = {kind: arrow, to: label};
 
@@ -120,7 +150,7 @@ Subexp
     }
 
 Exp
-  = label:Label se:Subexp Whitespace ';' Whitespace {
+  = label:LabelOrLabelList se:Subexp Whitespace ';' Whitespace {
     const base = {from: label};
     if (se && (se !== [])) { base.se = se; }
     return base;
