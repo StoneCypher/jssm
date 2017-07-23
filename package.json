@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "2.8.1",
+  "version": "3.7.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -25,21 +25,22 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "vet": "npm run flow && npm run eslint",
     "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm*.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm*.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm*.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm*.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm*.js | wc -l`\\\\n\\\"nextdo\\\" remaining . : `grep nextdo src/js/jssm*.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm*.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm*.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm*.js | wc -l`\\\\n\\\"stochable\\\" remaining: `grep stochable src/js/jssm*.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm*.js | wc -l`",
-    "qbuild": "npm run make && npm run test-verbose && npm run minify && npm run docs && npm run dist",
-    "build": "npm run make && npm run vet && npm run test-verbose && npm run audit && npm run minify && npm run docs && npm run dist",
+    "qbuild": "npm run make && npm run test-verbose && npm run minify && npm run docs && npm run site && npm run dist",
+    "build": "npm run make && npm run vet && npm run test-verbose && npm run audit && npm run minify && npm run docs && npm run site && npm run dist",
     "nyc-build": "npm run vet && npm run make && npm run test-verbose && npm run audit && npm run nyc-test",
-    "postinstall": "npm run build",
-    "prepublish": "npm run build",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
+    "pretest": "npm run build",
     "dist": "cp build/jssm.es5.cjs.* dist/",
+    "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib",
-    "travis": "rm -f src/js/jssm-dot.js && npm run nyc-test && npm run coverage"
+    "travis": "rm -f src/js/jssm-dot.js && npm run nyc-build && npm run nyc-test && npm run coverage"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/StoneCypher/jssm.git"
   },
   "keywords": [
+    "finite",
     "state",
     "state machine",
     "state-machine",
@@ -75,7 +76,7 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
-    "ava": "^0.19.1",
+    "ava": "^0.20.0",
     "ava-spec": "^1.1.0",
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
@@ -84,16 +85,17 @@
     "babel-preset-flow": "^6.23.0",
     "browserify": "^14.3.0",
     "coveralls": "^2.13.1",
-    "del-cli": "^0.2.1",
+    "del-cli": "^1.1.0",
     "documentation": "^4.0.0-rc.1",
-    "eslint": "^4.1.1",
-    "eslint-plugin-flowtype": "^2.32.1",
-    "flow-bin": "^0.45.0",
+    "eslint": "^4.2.0",
+    "eslint-config-stonecypher": "^1.4.0",
+    "eslint-plugin-flowtype": "^2.34.1",
+    "flow-bin": "^0.49.1",
     "gulp-string-replace": "^0.4.0",
-    "nyc": "^10.3.2",
+    "nyc": "^11.0.3",
     "pegjs": "^0.10.0",
     "rimraf": "^2.6.1",
-    "uglify-js": "^3.0.12",
+    "uglify-js": "^3.0.23",
     "viz.js": "^1.7.1"
   }
 }

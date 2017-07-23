@@ -17,7 +17,6 @@ const version = null; // replaced from package.js in build
 
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
-import { viz }                                                                               from './jssm-viz.js';
 
 const parse = require('./jssm-dot.js').parse;
 
@@ -37,12 +36,8 @@ class machine<mNT, mDT> {
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
   _reverse_action_targets : Map<string, Map<string, number>>;
 
-  _viz_colors             : mixed;
-
   // whargarbl this badly needs to be broken up, monolith master
   constructor({ initial_state, complete=[], transitions } : JssmGenericConfig<mNT, mDT>) {
-
-    this.set_viz_colors();
 
     this._state                  = initial_state;
     this._states                 = new Map();
@@ -72,11 +67,12 @@ class machine<mNT, mDT> {
       }
 
       // guard against existing connections being re-added
-      if (cursor_from.to.includes(tr.to)) { throw new Error(`already has ${tr.from} to ${tr.to}`); }
-      else                                { cursor_from.to.push(tr.to); }
-
-      if (cursor_to.from.includes(tr.from)) { throw new Error(`already has ${tr.to} from ${tr.from}`); }
-      else                                  { cursor_to.from.push(tr.from); }
+      if (cursor_from.to.includes(tr.to)) {
+        throw new Error(`already has ${tr.from} to ${tr.to}`);
+      } else {
+        cursor_from.to.push(tr.to);
+        cursor_to.from.push(tr.from);
+      }
 
       // add the edge; note its id
       this._edges.push(tr);
@@ -96,41 +92,37 @@ class machine<mNT, mDT> {
       }
 
       var to_mapping = from_mapping.get(tr.to);
-      if (to_mapping) { throw new Error(`from -> to already exists ${tr.from} ${tr.to}`); }
-      else            { from_mapping.set(tr.to, thisEdgeId); }
+      from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
 
       // set up the action mapping, so that actions can be looked up by origin
       if (tr.action) {
 
+
         // forward mapping first by action name
-        if (!(this._actions.has(tr.action))) {
-          this._actions.set(tr.action, new Map());
+        var actionMap = this._actions.get(tr.action);
+        if (!(actionMap)) {
+          actionMap = new Map();
+          this._actions.set(tr.action, actionMap);
         }
 
-        const actionMap = this._actions.get(tr.action);
-        if (actionMap) {
-          if (actionMap.has(tr.from)) { throw new Error(`action ${tr.action} already attached to origin ${tr.from}`); }
-          else {
-            actionMap.set(tr.from, thisEdgeId);
-          }
+        if (actionMap.has(tr.from)) {
+          throw new Error(`action ${tr.action} already attached to origin ${tr.from}`);
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get.  severe error?'); // LCOV_EXCL_LINE
+          actionMap.set(tr.from, thisEdgeId);
         }
+
 
         // reverse mapping first by state origin name
-        if (!(this._reverse_actions.has(tr.from))) {
-          this._reverse_actions.set(tr.from, new Map());
+        var rActionMap = this._reverse_actions.get(tr.from);
+        if (!(rActionMap)) {
+          rActionMap = new Map();
+          this._reverse_actions.set(tr.from, rActionMap);
         }
 
-        const rActionMap = this._reverse_actions.get(tr.from);
-        if (rActionMap) {
-          if (rActionMap.has(tr.action)) { throw new Error(`r-action ${tr.from} already attached to action ${tr.action}`); }
-          else {
-            rActionMap.set(tr.action, thisEdgeId);
-          }
-        } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get again.  severe error?'); // LCOV_EXCL_LINE
-        }
+        // no need to test for reverse mapping pre-presence;
+        // forward mapping already covers collisions
+        rActionMap.set(tr.action, thisEdgeId);
+
 
         // reverse mapping first by state target name
         if (!(this._reverse_action_targets.has(tr.to))) {
@@ -156,9 +148,14 @@ class machine<mNT, mDT> {
   }
 
   _new_state(state_config : JssmGenericState<mNT>) : mNT { // whargarbl get that state_config any under control
-    if (this._states.has(state_config.name)) { throw new Error(`state ${(state_config.name:any)} already exists`); }
+
+    if (this._states.has(state_config.name)) {
+      throw new Error(`state ${(state_config.name:any)} already exists`);
+    }
+
     this._states.set(state_config.name, state_config);
     return state_config.name;
+
   }
 
 
@@ -167,10 +164,13 @@ class machine<mNT, mDT> {
     return this._state;
   }
 
+/* whargarbl todo major
+   when we reimplement this, reintroduce this change to the is_final call
+
   is_changing() : boolean {
     return true; // todo whargarbl
   }
-
+*/
 
 
   state_is_final(whichState : mNT) : boolean {
@@ -178,7 +178,8 @@ class machine<mNT, mDT> {
   }
 
   is_final() : boolean {
-    return ((!this.is_changing()) && this.state_is_final(this.state()));
+//  return ((!this.is_changing()) && this.state_is_final(this.state()));
+    return this.state_is_final(this.state());
   }
 
 
@@ -200,10 +201,11 @@ class machine<mNT, mDT> {
 
   }
 
+/*
   load_machine_state() : boolean {
     return false; // todo whargarbl
   }
-
+*/
 
 
   states() : Array<mNT> {
@@ -218,7 +220,7 @@ class machine<mNT, mDT> {
 
 
 
-  list_transitions() : Array< JssmTransition<mNT, mDT> > {
+  list_edges() : Array< JssmTransition<mNT, mDT> > {
     return this._edges;
   }
 
@@ -232,12 +234,12 @@ class machine<mNT, mDT> {
 
 
 
-  get_transition_by_id(from: mNT, to: mNT) {
+  get_transition_by_state_names(from: mNT, to: mNT) {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
 
   lookup_transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
-    const id = this.get_transition_by_id(from, to);
+    const id = this.get_transition_by_state_names(from, to);
     return (id === undefined)? undefined : this._edges[id];
   }
 
@@ -248,21 +250,24 @@ class machine<mNT, mDT> {
   }
 
   list_entrances(whichState : mNT = this.state()) : Array<mNT> {
-    return (this._states.get(whichState) || {}).from; // return undefined if it doesn't exist by asking for a member of an empty obj
+    return (this._states.get(whichState) || {}).from || [];
   }
 
   list_exits(whichState : mNT = this.state()) : Array<mNT> {
-    return (this._states.get(whichState) || {}).to;
+    return (this._states.get(whichState) || {}).to   || [];
   }
 
 
 
   probable_exits_for(whichState : mNT) : Array< JssmTransition<mNT, mDT> > {
 
-    const wstate_to : Array<mNT> = ((this._states.get(whichState) || {to: []}).to),
-          wtf                    = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
+    const wstate = this._states.get(whichState);
+    if (!(wstate)) { throw new Error(`No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
-    return (wtf:any) || [];  // :any because .transition_for can return `undefined`, which doesn't match this return spec
+    const wstate_to = wstate.to,
+          wtf       = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
+
+    return (wtf:any);  // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
 
   }
 
@@ -272,7 +277,7 @@ class machine<mNT, mDT> {
   }
 
   probabilistic_walk(n : number) : Array<mNT> {
-    return seq(n-1)
+    return seq(n)
           .map(i => {
              const state_was = this.state();
              this.probabilistic_transition();
@@ -308,15 +313,21 @@ class machine<mNT, mDT> {
            .map( filtered => filtered.from );
   }
 */
-  list_exit_actions(whichState : mNT = this.state() ) : Array<mNT> {
-    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
+  list_exit_actions(whichState : mNT = this.state() ) : Array<any> { // these are mNT
+    const ra_base = this._reverse_actions.get(whichState);
+    if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+
+    return [... ra_base.values()]
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => filtered.action       );
   }
 
-  probable_action_exits(whichState : mNT = this.state() ) : Array<mNT> {
-    return [... (this._reverse_actions.get(whichState) || new Map()).values()] // wasteful, should throw instead
+  probable_action_exits(whichState : mNT = this.state() ) : Array<any> { // these are mNT
+    const ra_base = this._reverse_actions.get(whichState);
+    if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+
+    return [... ra_base.values()]
            .map    ( (edgeId:number)              => this._edges[edgeId]   )
            .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
            .map    ( filtered                     => ( { action      : filtered.action,
@@ -327,11 +338,12 @@ class machine<mNT, mDT> {
 
 
   is_unenterable(whichState : mNT) : boolean {
+    // whargarbl should throw on unknown state
     return this.list_entrances(whichState).length === 0;
   }
 
   has_unenterables() : boolean {
-    return this.states.some(this.is_unenterable);
+    return this.states().some(x => this.is_unenterable(x));
   }
 
 
@@ -341,11 +353,12 @@ class machine<mNT, mDT> {
   }
 
   state_is_terminal(whichState : mNT) : boolean {
+    // whargarbl should throw on unknown state
     return this.list_exits(whichState).length === 0;
   }
 
   has_terminals() : boolean {
-    return this.states.some(this.state_is_terminal);
+    return this.states().some(x => this.state_is_terminal(x));
   }
 
 
@@ -361,7 +374,7 @@ class machine<mNT, mDT> {
   }
 
   has_completes() : boolean {
-    return this.states.some(this.state_is_complete);
+    return this.states().some(x => this.state_is_complete(x));
   }
 
 
@@ -372,8 +385,7 @@ class machine<mNT, mDT> {
     // todo major incomplete whargarbl comeback
     if (this.valid_action(name, newData)) {
       const edge = this.current_action_edge_for(name);
-      if (edge) { this._state = edge.to; }
-      else      { throw new Error(`Should be impossible - valid_action true, no edge in current_action_edge_for, in action(${JSON.stringify(name)}...)`); }
+      this._state = edge.to;
       return true;
     } else {
       return false;
@@ -392,6 +404,7 @@ class machine<mNT, mDT> {
     }
   }
 
+/* whargarbl reintroduce after valid_force_transition is re-enabled
   // can leave machine in inconsistent state.  generally do not use
   force_transition(newState : mNT, newData? : mDT) : boolean {
     // todo whargarbl implement hooks
@@ -404,6 +417,7 @@ class machine<mNT, mDT> {
       return false;
     }
   }
+*/
 
 
 
@@ -412,9 +426,10 @@ class machine<mNT, mDT> {
     return action_base? action_base.get(this.state()) : undefined;
   }
 
-  current_action_edge_for(action : mNT) : JssmTransition<mNT, mDT> | void {
+  current_action_edge_for(action : mNT) : JssmTransition<mNT, mDT> {
     const idx = this.current_action_for(action);
-    return (idx !== undefined)? this._edges[idx] : undefined;
+    if (idx === undefined) { throw new Error(`No such action ${JSON.stringify(action)}`); }
+    return this._edges[idx];
   }
 
   valid_action(action : mNT, newData? : mDT) : boolean {
@@ -431,56 +446,11 @@ class machine<mNT, mDT> {
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
 
+/* re-enable force_transition/1 after implementing this
   valid_force_transition(newState : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
   }
-
-
-
-  viz() : string {
-    return viz(this);
-  }
-
-  set_viz_colors() : void {
-
-    this._viz_colors = {
-
-      'fill_final'         : '#eeeeff',
-      'fill_terminal'      : '#ffeeee',
-      'fill_complete'      : '#eeffee',
-
-      'normal_line_1'      : '#999999',
-      'normal_line_2'      : '#888888',
-      'normal_line_solo'   : '#888888',
-
-      'line_final_1'       : '#8888bb',
-      'line_final_2'       : '#7777aa',
-      'line_final_solo'    : '#7777aa',
-
-      'line_terminal_1'    : '#bb8888',
-      'line_terminal_2'    : '#aa7777',
-      'line_terminal_solo' : '#aa7777',
-
-      'line_complete_1'    : '#88bb88',
-      'line_complete_2'    : '#77aa77',
-      'line_complete_solo' : '#77aa77',
-
-      'text_final_1'       : '#000088',
-      'text_final_2'       : '#000088',
-      'text_final_solo'    : '#000088',
-
-      'text_terminal_1'    : '#880000',
-      'text_terminal_2'    : '#880000',
-      'text_terminal_solo' : '#880000',
-
-      'text_complete_1'    : '#007700',
-      'text_complete_2'    : '#007700',
-      'text_complete_solo' : '#007700'
-
-    };
-
-  }
-
+*/
 
 
 }
@@ -496,6 +466,7 @@ export {
   machine,
   parse,
 
+  // todo whargarbl these should be exported to a utility library
   seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key
 
 };

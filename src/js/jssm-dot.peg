@@ -107,6 +107,13 @@ Label "label"
 
 
 
+Color "color"   // hoboy
+  = 'red'
+  / 'green'
+  / 'blue'      // todo
+
+
+
 ArrowItemKey
   = "arc_label"
   / "head_label"
@@ -115,8 +122,12 @@ ArrowItemKey
 ArrowItem
   = Whitespace key:ArrowItemKey Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:key, value:value}; }
 
+SingleEdgeColor "single edge color"
+  = Whitespace "edge_color" Whitespace ":" Whitespace value:Color Whitespace ";" Whitespace { return {key:'single_edge_color', value:value}; }
+
 ArrowItems
-  = ArrowItem+
+  = SingleEdgeColor
+  / ArrowItem+
 
 ArrowDesc
   = "{" Whitespace items:ArrowItems? Whitespace "}" { return items; }
@@ -229,7 +240,11 @@ TransitionItem
   = transitionkey:TransitionKey ":" value:Label ";" { return {key:transitionkey, value:value}; }
 
 TransitionItems
-  = TransitionItem+
+  = GraphDefaultEdgeColor
+  / TransitionItem+
+
+GraphDefaultEdgeColor "graph default edge color"
+  = Whitespace "edge_color" Whitespace ":" Whitespace value:Color Whitespace ";" Whitespace { return {key:'graph_default_edge_color', value:value}; }
 
 ConfigTransition
   = Whitespace "transition" Whitespace ":" Whitespace "{" Whitespace transition_items:TransitionItems? Whitespace "};" Whitespace {
@@ -239,30 +254,46 @@ ConfigTransition
 
 
 GraphBg
-  = Whitespace "graph_bg" Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"graph_bg", value:value}; }
+  = Whitespace "graph_bg"                  Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"graph_bg", value:value}; }
 
 MinTransitionsPerState
-  = Whitespace "min_transitions_per_state" Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:"min_transitions_per_state", value:value}; }
+  = Whitespace "min_transitions_per_state" Whitespace ":" Whitespace value:Label     Whitespace ";" Whitespace { return {key:"min_transitions_per_state", value:value}; }
 
 MaxTransitionsPerState
-  = Whitespace "max_transitions_per_state" Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:"max_transitions_per_state", value:value}; }
+  = Whitespace "max_transitions_per_state" Whitespace ":" Whitespace value:Label     Whitespace ";" Whitespace { return {key:"max_transitions_per_state", value:value}; }
+
+GraphInputs
+  = Whitespace "inputs"                    Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"inputs", value:value}; }
+
+GraphOutputs
+  = Whitespace "outputs"                   Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"outputs", value:value}; }
+
+GraphStartNodes
+  = Whitespace "start_nodes"               Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"start_nodes", value:value}; }
+
+GraphEndNodes
+  = Whitespace "end_nodes"                 Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"end_nodes", value:value}; }
 
 GraphItem
   = GraphBg
   / MinTransitionsPerState
   / MaxTransitionsPerState
+  / GraphStartNodes
+  / GraphEndNodes
+  / GraphInputs
+  / GraphOutputs
 
 GraphItems
   = GraphItem+
 
-ConfigGraph
+ConfigGraph "graph configuration"
   = Whitespace "graph" Whitespace ":" Whitespace "{" Whitespace graph_items:GraphItems? Whitespace "};" Whitespace {
     return { config_kind: "graph", config_items: graph_items || [] };
   }
 
 
 
-Config
+Config "configuration"
   = ConfigGraph
   / ConfigTransition
   / ConfigAction
@@ -271,8 +302,17 @@ Config
 
 
 
+StateQuality "state quality"
+  = Whitespace name:Label Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return { key: "state quality", name: name, value: value }; }
+
+StateDef "state definition"
+  = Whitespace name:Label Whitespace "[" Whitespace sq:StateQuality* Whitespace "]" Whitespace ";" Whitespace { return { key: "State qualities", value: sq }; }
+
+
+
 Term
   = Exp
+  / StateDef
   / Config
 
 TermList
