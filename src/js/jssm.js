@@ -53,13 +53,13 @@ class machine<mNT, mDT> {
       if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      let cursor_from : mNT = this._states.get(tr.from);
+      let cursor_from = this._states.get(tr.from);
       if (cursor_from === undefined) {
         this._new_state({name: tr.from, from: [], to: [], complete: complete.includes(tr.from) });
         cursor_from = (this._states.get(tr.from) : any);
       }
 
-      let cursor_to : mNT = this._states.get(tr.to);
+      let cursor_to = this._states.get(tr.to);
       if (cursor_to === undefined) {
         this._new_state({name: tr.to, from: [], to: [], complete: complete.includes(tr.to) });
         cursor_to = (this._states.get(tr.to) : any);
@@ -280,7 +280,7 @@ class machine<mNT, mDT> {
   probabilistic_walk(n : number) : Array<mNT> {
     return seq(n)
           .map(() : string => {
-             const state_was : string = this.state();
+             const state_was : mNT = this.state();
              this.probabilistic_transition();
              return state_was;
            })
