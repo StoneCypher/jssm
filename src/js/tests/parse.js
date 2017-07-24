@@ -60,6 +60,11 @@ describe('parse/1', async it => {
     // todo: graph: {inputs: [foo]}
     // todo: graph: {outputs: [foo]}
 
+    describe('torture', async it => {
+      const augh = `a->b-> c-> d -> e;`;
+      it('doesn\'t throw', t => t.notThrows(() => { jssm.parse(augh); }) );
+    });
+
 });
 
 // stochable

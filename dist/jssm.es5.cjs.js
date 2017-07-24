@@ -387,12 +387,17 @@ function peg$parse(input, options) {
     return { config_kind: "graph", config_items: graph_items || [] };
   },
       peg$c171 = peg$otherExpectation("configuration"),
-      peg$c172 = peg$otherExpectation("state quality"),
-      peg$c173 = function peg$c173(name, value) {
+      peg$c172 = "color",
+      peg$c173 = peg$literalExpectation("color", false),
+      peg$c174 = function peg$c174(value) {
+    return { key: "state color", value: value };
+  },
+      peg$c175 = peg$otherExpectation("state quality"),
+      peg$c176 = function peg$c176(name, value) {
     return { key: "state quality", name: name, value: value };
   },
-      peg$c174 = peg$otherExpectation("state definition"),
-      peg$c175 = function peg$c175(name, sq) {
+      peg$c177 = peg$otherExpectation("state definition"),
+      peg$c178 = function peg$c178(name, sq) {
     return { key: "State qualities", value: sq };
   },
       peg$currPos = 0,
@@ -4035,7 +4040,96 @@ function peg$parse(input, options) {
     return s0;
   }
 
-  function peg$parseStateQuality() {
+  function peg$parseStateColor() {
+    var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
+
+    s0 = peg$currPos;
+    s1 = peg$parseWhitespace();
+    if (s1 !== peg$FAILED) {
+      if (input.substr(peg$currPos, 5) === peg$c172) {
+        s2 = peg$c172;
+        peg$currPos += 5;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$c173);
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = peg$parseWhitespace();
+        if (s3 !== peg$FAILED) {
+          if (input.charCodeAt(peg$currPos) === 58) {
+            s4 = peg$c89;
+            peg$currPos++;
+          } else {
+            s4 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$c90);
+            }
+          }
+          if (s4 !== peg$FAILED) {
+            s5 = peg$parseWhitespace();
+            if (s5 !== peg$FAILED) {
+              s6 = peg$parseColor();
+              if (s6 !== peg$FAILED) {
+                s7 = peg$parseWhitespace();
+                if (s7 !== peg$FAILED) {
+                  if (input.charCodeAt(peg$currPos) === 59) {
+                    s8 = peg$c91;
+                    peg$currPos++;
+                  } else {
+                    s8 = peg$FAILED;
+                    if (peg$silentFails === 0) {
+                      peg$fail(peg$c92);
+                    }
+                  }
+                  if (s8 !== peg$FAILED) {
+                    s9 = peg$parseWhitespace();
+                    if (s9 !== peg$FAILED) {
+                      peg$savedPos = s0;
+                      s1 = peg$c174(s6);
+                      s0 = s1;
+                    } else {
+                      peg$currPos = s0;
+                      s0 = peg$FAILED;
+                    }
+                  } else {
+                    peg$currPos = s0;
+                    s0 = peg$FAILED;
+                  }
+                } else {
+                  peg$currPos = s0;
+                  s0 = peg$FAILED;
+                }
+              } else {
+                peg$currPos = s0;
+                s0 = peg$FAILED;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$FAILED;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+    } else {
+      peg$currPos = s0;
+      s0 = peg$FAILED;
+    }
+
+    return s0;
+  }
+
+  function peg$parseArbitraryStateQuality() {
     var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
 
     peg$silentFails++;
@@ -4075,7 +4169,7 @@ function peg$parse(input, options) {
                     s9 = peg$parseWhitespace();
                     if (s9 !== peg$FAILED) {
                       peg$savedPos = s0;
-                      s1 = peg$c173(s2, s6);
+                      s1 = peg$c176(s2, s6);
                       s0 = s1;
                     } else {
                       peg$currPos = s0;
@@ -4117,72 +4211,103 @@ function peg$parse(input, options) {
     if (s0 === peg$FAILED) {
       s1 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$c172);
+        peg$fail(peg$c175);
       }
     }
 
     return s0;
   }
 
+  function peg$parseStateQuality() {
+    var s0;
+
+    s0 = peg$parseStateColor();
+    if (s0 === peg$FAILED) {
+      s0 = peg$parseArbitraryStateQuality();
+    }
+
+    return s0;
+  }
+
   function peg$parseStateDef() {
-    var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11;
+    var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13;
 
     peg$silentFails++;
     s0 = peg$currPos;
     s1 = peg$parseWhitespace();
     if (s1 !== peg$FAILED) {
-      s2 = peg$parseLabel();
+      if (input.substr(peg$currPos, 5) === peg$c133) {
+        s2 = peg$c133;
+        peg$currPos += 5;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$c134);
+        }
+      }
       if (s2 !== peg$FAILED) {
         s3 = peg$parseWhitespace();
         if (s3 !== peg$FAILED) {
-          if (input.charCodeAt(peg$currPos) === 91) {
-            s4 = peg$c103;
-            peg$currPos++;
-          } else {
-            s4 = peg$FAILED;
-            if (peg$silentFails === 0) {
-              peg$fail(peg$c104);
-            }
-          }
+          s4 = peg$parseLabel();
           if (s4 !== peg$FAILED) {
             s5 = peg$parseWhitespace();
             if (s5 !== peg$FAILED) {
-              s6 = [];
-              s7 = peg$parseStateQuality();
-              while (s7 !== peg$FAILED) {
-                s6.push(s7);
-                s7 = peg$parseStateQuality();
+              if (input.charCodeAt(peg$currPos) === 91) {
+                s6 = peg$c103;
+                peg$currPos++;
+              } else {
+                s6 = peg$FAILED;
+                if (peg$silentFails === 0) {
+                  peg$fail(peg$c104);
+                }
               }
               if (s6 !== peg$FAILED) {
                 s7 = peg$parseWhitespace();
                 if (s7 !== peg$FAILED) {
-                  if (input.charCodeAt(peg$currPos) === 93) {
-                    s8 = peg$c105;
-                    peg$currPos++;
-                  } else {
-                    s8 = peg$FAILED;
-                    if (peg$silentFails === 0) {
-                      peg$fail(peg$c106);
-                    }
+                  s8 = [];
+                  s9 = peg$parseStateQuality();
+                  while (s9 !== peg$FAILED) {
+                    s8.push(s9);
+                    s9 = peg$parseStateQuality();
                   }
                   if (s8 !== peg$FAILED) {
                     s9 = peg$parseWhitespace();
                     if (s9 !== peg$FAILED) {
-                      if (input.charCodeAt(peg$currPos) === 59) {
-                        s10 = peg$c91;
+                      if (input.charCodeAt(peg$currPos) === 93) {
+                        s10 = peg$c105;
                         peg$currPos++;
                       } else {
                         s10 = peg$FAILED;
                         if (peg$silentFails === 0) {
-                          peg$fail(peg$c92);
+                          peg$fail(peg$c106);
                         }
                       }
                       if (s10 !== peg$FAILED) {
                         s11 = peg$parseWhitespace();
                         if (s11 !== peg$FAILED) {
-                          peg$savedPos = s0;
-                          s1 = peg$c175(s2, s6);
-                          s0 = s1;
+                          if (input.charCodeAt(peg$currPos) === 59) {
+                            s12 = peg$c91;
+                            peg$currPos++;
+                          } else {
+                            s12 = peg$FAILED;
+                            if (peg$silentFails === 0) {
+                              peg$fail(peg$c92);
+                            }
+                          }
+                          if (s12 !== peg$FAILED) {
+                            s13 = peg$parseWhitespace();
+                            if (s13 !== peg$FAILED) {
+                              peg$savedPos = s0;
+                              s1 = peg$c178(s4, s8);
+                              s0 = s1;
+                            } else {
+                              peg$currPos = s0;
+                              s0 = peg$FAILED;
+                            }
+                          } else {
+                            peg$currPos = s0;
+                            s0 = peg$FAILED;
+                          }
                         } else {
                           peg$currPos = s0;
                           s0 = peg$FAILED;
@@ -4231,7 +4356,7 @@ function peg$parse(input, options) {
     if (s0 === peg$FAILED) {
       s1 = peg$FAILED;
       if (peg$silentFails === 0) {
-        peg$fail(peg$c174);
+        peg$fail(peg$c177);
       }
     }
 
@@ -4287,63 +4412,63 @@ module.exports = {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var weighted_rand_select = function weighted_rand_select(options) {
-  var probability_property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'probability';
+    var probability_property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'probability';
 
 
-  if (!Array.isArray(options)) {
-    throw new TypeError('options must be a non-empty array of objects');
-  }
+    if (!Array.isArray(options)) {
+        throw new TypeError('options must be a non-empty array of objects');
+    }
 
-  if (!(_typeof(options[0]) === 'object')) {
-    throw new TypeError('options must be a non-empty array of objects');
-  }
+    if (!(_typeof(options[0]) === 'object')) {
+        throw new TypeError('options must be a non-empty array of objects');
+    }
 
-  var frand = function frand(cap) {
-    return Math.random() * cap;
-  },
-      or_one = function or_one(item) {
-    return item === undefined ? 1 : item;
-  },
-      prob_sum = options.reduce(function (acc, val) {
-    return acc + or_one(val[probability_property]);
-  }, 0),
-      rnd = frand(prob_sum);
+    var frand = function frand(cap) {
+        return Math.random() * cap;
+    },
+        or_one = function or_one(item) {
+        return item === undefined ? 1 : item;
+    },
+        prob_sum = options.reduce(function (acc, val) {
+        return acc + or_one(val[probability_property]);
+    }, 0),
+        rnd = frand(prob_sum);
 
-  var cursor = 0,
-      cursor_sum = 0;
+    var cursor = 0,
+        cursor_sum = 0;
 
-  while ((cursor_sum += options[cursor++][probability_property]) <= rnd) {}
-  return options[cursor - 1];
+    while ((cursor_sum += options[cursor++][probability_property]) <= rnd) {}
+    return options[cursor - 1];
 };
 
 var seq = function seq(n) {
-  return new Array(n).fill(true).map(function (_, i) {
-    return i;
-  });
+    return new Array(n).fill(true).map(function (_, i) {
+        return i;
+    });
 };
 
 var histograph = function histograph(a) {
-  return a.sort().reduce(function (m, v) {
-    return m.set(v, m.has(v) ? m.get(v) + 1 : 1), m;
-  }, new Map());
+    return a.sort().reduce(function (m, v) {
+        return m.set(v, m.has(v) ? m.get(v) + 1 : 1), m;
+    }, new Map());
 };
 
 var weighted_sample_select = function weighted_sample_select(n, options, probability_property) {
-  return seq(n).map(function (i) {
-    return weighted_rand_select(options, probability_property);
-  });
+    return seq(n).map(function (i) {
+        return weighted_rand_select(options, probability_property);
+    });
 };
 
 var weighted_histo_key = function weighted_histo_key(n, options, probability_property, extract) {
-  return histograph(weighted_sample_select(n, options, probability_property).map(function (s) {
-    return s[extract];
-  }));
+    return histograph(weighted_sample_select(n, options, probability_property).map(function (s) {
+        return s[extract];
+    }));
 };
 
 exports.seq = seq;
@@ -4373,7 +4498,8 @@ var version = '3.7.2'; // replaced from package.js in build
 
 // whargarbl lots of these return arrays could/should be sets
 
-var parse = require('./jssm-dot.js').parse;
+var parse = require('./jssm-dot.js').parse; // todo burn out any
+
 
 var machine = function () {
 
@@ -4488,7 +4614,7 @@ var machine = function () {
                 const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
                 if (roActionMap) {
                   if (roActionMap.has(tr.action)) {
-                      throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
+                    throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
                   } else {
                     roActionMap.set(tr.action, thisEdgeId);
                   }
@@ -4858,7 +4984,8 @@ var machine = function () {
     }
   }, {
     key: 'valid_action',
-    value: function valid_action(action, newData) {
+    value: function valid_action(action, _newData) {
+      // todo comeback unignore newData
       // todo whargarbl implement hooks
       // todo whargarbl implement data stuff
       // todo major incomplete whargarbl comeback
@@ -4866,14 +4993,15 @@ var machine = function () {
     }
   }, {
     key: 'valid_transition',
-    value: function valid_transition(newState, newData) {
+    value: function valid_transition(newState, _newData) {
+      // todo comeback unignore newData
       // todo whargarbl implement hooks
       // todo whargarbl implement data stuff
       // todo major incomplete whargarbl comeback
       return this.lookup_transition_for(this.state(), newState) !== undefined;
     }
 
-    /* re-enable force_transition/1 after implementing this
+    /* todo whargarbl re-enable force_transition/1 after implementing this
       valid_force_transition(newState : mNT, newData? : mDT) : boolean {
         return false; // major todo whargarbl
       }

@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "3.7.2",
+  "version": "3.7.3",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -101,5 +101,10 @@
     "rimraf": "^2.6.1",
     "uglify-js": "^3.0.23",
     "viz.js": "^1.7.1"
+  },
+  "dependencies": {
+    "eslint-plugin-fp": "^2.3.0",
+    "eslint-plugin-new-with-error": "^1.1.0",
+    "eslint-plugin-unicorn": "^2.1.2"
   }
 }

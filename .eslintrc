@@ -1,7 +1,7 @@
 {
 
   "parser"  : "babel-eslint",
-  "plugins" : [ "flowtype" ],
+  "plugins" : [ "flowtype", "promise", "new-with-error", "fp", "unicorn" ],
   "env"     : { "es6": true, "commonjs": true },
 
   "extends" : "eslint-config-stonecypher"
