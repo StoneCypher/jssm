@@ -91,7 +91,7 @@ class machine<mNT, mDT> {
         from_mapping = (this._edge_map.get(tr.from) : any);  // whargarbl burn out uses of any
       }
 
-      var to_mapping = from_mapping.get(tr.to);
+//    var to_mapping = from_mapping.get(tr.to);
       from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
 
       // set up the action mapping, so that actions can be looked up by origin
@@ -133,12 +133,13 @@ class machine<mNT, mDT> {
    fundamental problem is roActionMap needs to be a multimap
         const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
         if (roActionMap) {
-          if (roActionMap.has(tr.action)) { throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`); }
-          else {
+          if (roActionMap.has(tr.action)) {
+            throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
+          } else {
             roActionMap.set(tr.action, thisEdgeId);
           }
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get yet again.  severe error?')
+          throw new Error('should be impossible, satisfying flow that doesn\'t know .set precedes .get.  error?');
         }
 */
       }
@@ -267,7 +268,8 @@ class machine<mNT, mDT> {
     const wstate_to = wstate.to,
           wtf       = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
 
-    return (wtf:any);  // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
+    return (wtf:any);  // :any because it can't see that .filter(d => d) removes the undefineds,
+                       // and l_t_f returns ?jt, but this returns jt
 
   }
 
@@ -278,7 +280,7 @@ class machine<mNT, mDT> {
 
   probabilistic_walk(n : number) : Array<mNT> {
     return seq(n)
-          .map(i => {
+          .map(() => {
              const state_was = this.state();
              this.probabilistic_transition();
              return state_was;
@@ -432,21 +434,21 @@ class machine<mNT, mDT> {
     return this._edges[idx];
   }
 
-  valid_action(action : mNT, newData? : mDT) : boolean {
+  valid_action(action : mNT, _newData? : mDT) : boolean {  // todo comeback unignore newData
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     return this.current_action_for(action) !== undefined;
   }
 
-  valid_transition(newState : mNT, newData? : mDT) : boolean {
+  valid_transition(newState : mNT, _newData? : mDT) : boolean {  // todo comeback unignore newData
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
 
-/* re-enable force_transition/1 after implementing this
+/* todo whargarbl re-enable force_transition/1 after implementing this
   valid_force_transition(newState : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
   }
