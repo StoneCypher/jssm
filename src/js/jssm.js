@@ -9,8 +9,7 @@ import type {
   JssmMachineInternalState
 } from './jssm-types';
 
-const version = null; // replaced from package.js in build
-
+const version : null = null; // replaced from package.js in build
 
 
 
@@ -18,7 +17,7 @@ const version = null; // replaced from package.js in build
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
-const parse = require('./jssm-dot.js').parse;
+const parse : (string) => array = require('./jssm-dot.js').parse;
 
 
 
@@ -54,13 +53,13 @@ class machine<mNT, mDT> {
       if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      var cursor_from = this._states.get(tr.from);
+      let cursor_from : mNT = this._states.get(tr.from);
       if (cursor_from === undefined) {
         this._new_state({name: tr.from, from: [], to: [], complete: complete.includes(tr.from) });
         cursor_from = (this._states.get(tr.from) : any);
       }
 
-      var cursor_to = this._states.get(tr.to);
+      let cursor_to : mNT = this._states.get(tr.to);
       if (cursor_to === undefined) {
         this._new_state({name: tr.to, from: [], to: [], complete: complete.includes(tr.to) });
         cursor_to = (this._states.get(tr.to) : any);
@@ -85,13 +84,13 @@ class machine<mNT, mDT> {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      var from_mapping = this._edge_map.get(tr.from);
+      let from_mapping = this._edge_map.get(tr.from);
       if (from_mapping === undefined) {
         this._edge_map.set(tr.from, new Map());
         from_mapping = (this._edge_map.get(tr.from) : any);  // whargarbl burn out uses of any
       }
 
-      var to_mapping = from_mapping.get(tr.to);
+//    const to_mapping = from_mapping.get(tr.to);
       from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
 
       // set up the action mapping, so that actions can be looked up by origin
@@ -99,7 +98,7 @@ class machine<mNT, mDT> {
 
 
         // forward mapping first by action name
-        var actionMap = this._actions.get(tr.action);
+        let actionMap = this._actions.get(tr.action);
         if (!(actionMap)) {
           actionMap = new Map();
           this._actions.set(tr.action, actionMap);
@@ -113,7 +112,7 @@ class machine<mNT, mDT> {
 
 
         // reverse mapping first by state origin name
-        var rActionMap = this._reverse_actions.get(tr.from);
+        let rActionMap = this._reverse_actions.get(tr.from);
         if (!(rActionMap)) {
           rActionMap = new Map();
           this._reverse_actions.set(tr.from, rActionMap);
@@ -133,12 +132,13 @@ class machine<mNT, mDT> {
    fundamental problem is roActionMap needs to be a multimap
         const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
         if (roActionMap) {
-          if (roActionMap.has(tr.action)) { throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`); }
-          else {
+          if (roActionMap.has(tr.action)) {
+              throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
+          } else {
             roActionMap.set(tr.action, thisEdgeId);
           }
         } else {
-          throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get yet again.  severe error?')
+          throw new Error('should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
         }
 */
       }
@@ -267,7 +267,8 @@ class machine<mNT, mDT> {
     const wstate_to = wstate.to,
           wtf       = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
 
-    return (wtf:any);  // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
+    return (wtf:any);  // :any because it can't see that .filter(d => d) removes
+                       // the undefineds, and l_t_f returns ?jt, but this returns jt
 
   }
 
@@ -278,8 +279,8 @@ class machine<mNT, mDT> {
 
   probabilistic_walk(n : number) : Array<mNT> {
     return seq(n)
-          .map(i => {
-             const state_was = this.state();
+          .map(() : string => {
+             const state_was : string = this.state();
              this.probabilistic_transition();
              return state_was;
            })

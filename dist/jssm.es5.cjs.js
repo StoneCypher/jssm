@@ -4368,7 +4368,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.7.1'; // replaced from package.js in build
+var version = '3.7.2'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -4448,7 +4448,7 @@ var machine = function () {
         from_mapping = _this._edge_map.get(tr.from); // whargarbl burn out uses of any
       }
 
-      var to_mapping = from_mapping.get(tr.to);
+      //    const to_mapping = from_mapping.get(tr.to);
       from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
 
       // set up the action mapping, so that actions can be looked up by origin
@@ -4487,12 +4487,13 @@ var machine = function () {
            fundamental problem is roActionMap needs to be a multimap
                 const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
                 if (roActionMap) {
-                  if (roActionMap.has(tr.action)) { throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`); }
-                  else {
+                  if (roActionMap.has(tr.action)) {
+                      throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
+                  } else {
                     roActionMap.set(tr.action, thisEdgeId);
                   }
                 } else {
-                  throw new Error('should be impossible, satisfying type checker that doesn\'t know .set precedes .get yet again.  severe error?')
+                  throw new Error('should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
                 }
         */
       }
@@ -4639,7 +4640,8 @@ var machine = function () {
         return defined;
       });
 
-      return wtf; // :any because it can't see that .filter(d => d) removes the undefineds, and l_t_f returns ?jt, but this returns jt
+      return wtf; // :any because it can't see that .filter(d => d) removes
+      // the undefineds, and l_t_f returns ?jt, but this returns jt
     }
   }, {
     key: 'probabilistic_transition',
@@ -4652,7 +4654,7 @@ var machine = function () {
     value: function probabilistic_walk(n) {
       var _this3 = this;
 
-      return (0, _jssmUtil.seq)(n).map(function (i) {
+      return (0, _jssmUtil.seq)(n).map(function () {
         var state_was = _this3.state();
         _this3.probabilistic_transition();
         return state_was;
