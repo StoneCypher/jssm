@@ -17,7 +17,7 @@ const version : null = null; // replaced from package.js in build
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
-const parse : (string) => array = require('./jssm-dot.js').parse;
+const parse : (string) => Array<any> = require('./jssm-dot.js').parse;  // todo burn out any
 
 
 
@@ -279,7 +279,7 @@ class machine<mNT, mDT> {
 
   probabilistic_walk(n : number) : Array<mNT> {
     return seq(n)
-          .map(() : string => {
+          .map(() : mNT => {
              const state_was : mNT = this.state();
              this.probabilistic_transition();
              return state_was;
