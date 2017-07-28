@@ -807,6 +807,9 @@ describe('Illegal machines', async it => {
 
   }, Error));
 
+test(t => {
+  t.pass();
+});
 
   it('no probable action exits of non-action', t => t.throws(() => {
 
