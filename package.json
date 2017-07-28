@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "3.7.3",
+  "version": "3.7.5",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -86,20 +86,20 @@
     "browserify": "^14.3.0",
     "coveralls": "^2.13.1",
     "del-cli": "^1.1.0",
-    "documentation": "^4.0.0-rc.1",
-    "eslint": "^4.2.0",
+    "documentation": "^4.0.0",
+    "eslint": "^4.3.0",
     "eslint-config-stonecypher": "^1.10.3",
-    "eslint-plugin-flowtype": "^2.34.1",
+    "eslint-plugin-flowtype": "^2.35.0",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-new-with-error": "^1.1.0",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-unicorn": "^2.1.2",
     "flow-bin": "^0.49.1",
     "gulp-string-replace": "^0.4.0",
-    "nyc": "^11.0.3",
+    "nyc": "^11.1.0",
     "pegjs": "^0.10.0",
     "rimraf": "^2.6.1",
-    "uglify-js": "^3.0.23",
+    "uglify-js": "^3.0.26",
     "viz.js": "^1.7.1"
   },
   "dependencies": {
