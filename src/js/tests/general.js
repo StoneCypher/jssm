@@ -90,7 +90,7 @@ describe('Simple stop light', async it => {
 
 describe('Stochastic weather', async _it => {
 
-  const weather = new jssm.machine({
+  new jssm.machine({
 
     initial_state: 'breezy',
 

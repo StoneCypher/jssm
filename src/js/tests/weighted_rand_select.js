@@ -1,5 +1,7 @@
 
-import {test, describe} from 'ava-spec';
+/* eslint-disable fp/no-loops */
+
+import {describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.js');
 
@@ -14,7 +16,7 @@ describe('weighted_rand_select/2', async it => {
                   { label: 'banana', probability: 0.5 } ];
 
   const acc = {};
-  for (var i=0; i<10000; ++i) {
+  for (let i=0; i<10000; ++i) {
       acc[jssm.weighted_rand_select(fruit).label] = (acc[jssm.weighted_rand_select(fruit).label] || 0) + 1;
   }
 

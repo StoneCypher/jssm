@@ -1,4 +1,6 @@
 
+/* eslint-disable max-len */
+
 import {test, describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.js');
@@ -7,7 +9,7 @@ const jssm = require('../../../build/jssm.es5.js');
 
 
 
-describe('parse/1', async parse_it => {
+describe('parse/1', async _parse_it => {
 
     describe('forward arrow', async it => {
 
