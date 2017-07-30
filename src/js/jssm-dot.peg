@@ -302,11 +302,18 @@ Config "configuration"
 
 
 
-StateQuality "state quality"
+StateColor
+  = Whitespace "color" Whitespace ":" Whitespace value:Color Whitespace ";" Whitespace { return { key: "state color", value: value }; }
+
+ArbitraryStateQuality "state quality"
   = Whitespace name:Label Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return { key: "state quality", name: name, value: value }; }
 
+StateQuality
+  = StateColor
+  / ArbitraryStateQuality
+
 StateDef "state definition"
-  = Whitespace name:Label Whitespace "[" Whitespace sq:StateQuality* Whitespace "]" Whitespace ";" Whitespace { return { key: "State qualities", value: sq }; }
+  = Whitespace "state" Whitespace name:Label Whitespace "[" Whitespace sq:StateQuality* Whitespace "]" Whitespace ";" Whitespace { return { key: "State qualities", value: sq }; }
 
 
 

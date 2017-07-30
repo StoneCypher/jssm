@@ -133,7 +133,7 @@ class machine<mNT, mDT> {
         const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
         if (roActionMap) {
           if (roActionMap.has(tr.action)) {
-              throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
+            throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
           } else {
             roActionMap.set(tr.action, thisEdgeId);
           }
@@ -433,21 +433,21 @@ class machine<mNT, mDT> {
     return this._edges[idx];
   }
 
-  valid_action(action : mNT, newData? : mDT) : boolean {
+  valid_action(action : mNT, _newData? : mDT) : boolean {  // todo comeback unignore newData
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     return this.current_action_for(action) !== undefined;
   }
 
-  valid_transition(newState : mNT, newData? : mDT) : boolean {
+  valid_transition(newState : mNT, _newData? : mDT) : boolean {  // todo comeback unignore newData
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
 
-/* re-enable force_transition/1 after implementing this
+/* todo whargarbl re-enable force_transition/1 after implementing this
   valid_force_transition(newState : mNT, newData? : mDT) : boolean {
     return false; // major todo whargarbl
   }

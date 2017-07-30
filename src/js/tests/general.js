@@ -1,4 +1,6 @@
 
+/* eslint-disable max-len */
+
 import {test, describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.js');
@@ -8,8 +10,6 @@ const jssm = require('../../../build/jssm.es5.js');
 
 
 test('build-set version number is present', t => t.is(typeof jssm.version, 'string'));
-
-const seq = upTo => new Array(upTo).fill(false).map( (_,i) => i );
 
 
 
@@ -35,9 +35,10 @@ describe('Simple stop light', async it => {
 
   const r_names = light.list_named_transitions();
   it('has the right named transition count', t => t.is(r_names.size, 3));
-  trs.map(t => t.name).map(a =>
-    it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
-  );
+  trs.map(t => t.name)
+     .map(a =>
+       it(`has named transition "${a}"`, t => t.is(r_names.has(a), true))
+     );
 
   it.describe('- `proceed` walkthrough', async it2 => {
 
@@ -87,9 +88,9 @@ describe('Simple stop light', async it => {
 
 
 
-describe('Stochastic weather', async it => {
+describe('Stochastic weather', async _it => {
 
-  const weather = new jssm.machine({
+  new jssm.machine({
 
     initial_state: 'breezy',
 
@@ -662,7 +663,7 @@ describe('Illegal machines', async it => {
 
   it('catch repeated names', t => t.throws(() => {
 
-    const same_name = new jssm.machine({
+    new jssm.machine({
       initial_state: 'moot',
       transitions:[
         { name:'identical', from:'1', to:'2' },
@@ -675,7 +676,7 @@ describe('Illegal machines', async it => {
 
   it('must define from', t => t.throws(() => {
 
-    const same_name = new jssm.machine({
+    new jssm.machine({
       initial_state: 'moot',
       transitions:[
         { name:'identical', to:'2' }
@@ -687,7 +688,7 @@ describe('Illegal machines', async it => {
 
   it('must define to', t => t.throws(() => {
 
-    const same_name = new jssm.machine({
+    new jssm.machine({
       initial_state: 'moot',
       transitions:[
         { name:'identical', from:'1' }
@@ -699,7 +700,7 @@ describe('Illegal machines', async it => {
 
   it('must not have two identical edges', t => t.throws(() => {
 
-    const same_name = new jssm.machine({
+    new jssm.machine({
       initial_state: 'moot',
       transitions:[
         { name:'id1', from:'1', to:'2' },
@@ -712,7 +713,7 @@ describe('Illegal machines', async it => {
 
   it('must not have two of the same action from the same source', t => t.throws(() => {
 
-    const same_name = new jssm.machine({
+    new jssm.machine({
       initial_state: 'moot',
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' },
@@ -807,6 +808,9 @@ describe('Illegal machines', async it => {
 
   }, Error));
 
+test(t => {
+  t.pass();
+});
 
   it('no probable action exits of non-action', t => t.throws(() => {
 

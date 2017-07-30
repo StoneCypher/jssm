@@ -1,4 +1,6 @@
 
+/* eslint-disable max-len */
+
 import {test, describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.js');
@@ -7,7 +9,7 @@ const jssm = require('../../../build/jssm.es5.js');
 
 
 
-describe('parse/1', async it => {
+describe('parse/1', async _parse_it => {
 
     describe('forward arrow', async it => {
 
@@ -16,7 +18,7 @@ describe('parse/1', async it => {
             ABd  = [{"from": "a","se": {"kind": "->","to": "b","rdesc": [{"key":"arc_label","value":"d"}]}}],
             AdBd = [{"from": "a","se": {"kind": "->","to": "b","ldesc": [{"key":"arc_label","value":"d"}],"rdesc": [{"key":"arc_label","value":"f"}]}}];
 
-      const echo_equal = (test, validator) => it(test, t => t.deepEqual(validator, jssm.parse(test)));
+      const echo_equal = (testt, validator) => it(test, t => t.deepEqual(validator, jssm.parse(testt)));
 
       const ShouldEqualAtoB = ['a->b;', 'a ->b;', 'a-> b;', 'a -> b;', 'a{}->b;', 'a->{}b;', 'a{}->{}b;'];
       ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
@@ -35,7 +37,7 @@ describe('parse/1', async it => {
             ABd  = [{"from": "a","se": {"kind": "<->","to": "b","rdesc": [{"key":"arc_label","value":"d"}]}}],
             AdBd = [{"from": "a","se": {"kind": "<->","to": "b","ldesc": [{"key":"arc_label","value":"d"}],"rdesc": [{"key":"arc_label","value":"f"}]}}];
 
-      const echo_equal = (test, validator) => it(test, t => t.deepEqual(validator, jssm.parse(test)));
+      const echo_equal = (testt, validator) => it(test, t => t.deepEqual(validator, jssm.parse(testt)));
 
       const ShouldEqualAtoB = ['a<->b;', 'a <->b;', 'a<-> b;', 'a <-> b;', 'a{}<->b;', 'a<->{}b;', 'a{}<->{}b;'];
       ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
@@ -59,6 +61,11 @@ describe('parse/1', async it => {
 
     // todo: graph: {inputs: [foo]}
     // todo: graph: {outputs: [foo]}
+
+    describe('torture', async it => {
+      const augh = `a->b-> c-> d -> e;`;
+      it('doesn\'t throw', t => t.notThrows(() => { jssm.parse(augh); }) );
+    });
 
 });
 
