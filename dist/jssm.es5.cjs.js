@@ -208,10 +208,10 @@ function peg$parse(input, options) {
   },
       peg$c59 = /^[ -!#-[\]-\u10FFFF]/,
       peg$c60 = peg$classExpectation([[" ", "!"], ["#", "["], ["]", "\u10FF"], "F", "F"], false, false),
-      peg$c61 = "`",
-      peg$c62 = peg$literalExpectation("`", false),
-      peg$c63 = /^[ -[\]-_a-\u10FFFF]/,
-      peg$c64 = peg$classExpectation([[" ", "["], ["]", "_"], ["a", "\u10FF"], "F", "F"], false, false),
+      peg$c61 = "'",
+      peg$c62 = peg$literalExpectation("'", false),
+      peg$c63 = /^[ -&(-[\]-\u10FFFF]/,
+      peg$c64 = peg$classExpectation([[" ", "&"], ["(", "["], ["]", "\u10FF"], "F", "F"], false, false),
       peg$c65 = peg$otherExpectation("action label"),
       peg$c66 = function peg$c66(chars) {
     return chars.join("");
@@ -1107,7 +1107,7 @@ function peg$parse(input, options) {
       s0 = peg$currPos;
       s1 = peg$parseEscape();
       if (s1 !== peg$FAILED) {
-        if (input.charCodeAt(peg$currPos) === 96) {
+        if (input.charCodeAt(peg$currPos) === 39) {
           s2 = peg$c61;
           peg$currPos++;
         } else {
@@ -1318,7 +1318,7 @@ function peg$parse(input, options) {
   function peg$parseActionLabelQuoteMark() {
     var s0;
 
-    if (input.charCodeAt(peg$currPos) === 96) {
+    if (input.charCodeAt(peg$currPos) === 39) {
       s0 = peg$c61;
       peg$currPos++;
     } else {
@@ -4493,12 +4493,12 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.9.3'; // replaced from package.js in build
+var version = '3.10.0'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
 
-var parse = require('./jssm-dot.js').parse; // todo burn out any
+var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types
 
 
 var machine = function () {
@@ -4524,7 +4524,6 @@ var machine = function () {
     this._reverse_action_targets = new Map(); // todo
 
     transitions.map(function (tr) {
-      // whargarbl burn out any
 
       if (tr.from === undefined) {
         throw new Error('transition must define \'from\': ' + JSON.stringify(tr));
@@ -4548,7 +4547,7 @@ var machine = function () {
 
       // guard against existing connections being re-added
       if (cursor_from.to.includes(tr.to)) {
-        throw new Error('already has ' + tr.from + ' to ' + tr.to);
+        throw new Error('already has ' + JSON.stringify(tr.from) + ' to ' + JSON.stringify(tr.to));
       } else {
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
@@ -4561,7 +4560,7 @@ var machine = function () {
       // guard against repeating a transition name
       if (tr.name) {
         if (_this._named_transitions.has(tr.name)) {
-          throw new Error('named transition "' + tr.name + '" already created');
+          throw new Error('named transition "' + JSON.stringify(tr.name) + '" already created');
         } else {
           _this._named_transitions.set(tr.name, thisEdgeId);
         }
@@ -4588,7 +4587,7 @@ var machine = function () {
         }
 
         if (actionMap.has(tr.from)) {
-          throw new Error('action ' + tr.action + ' already attached to origin ' + tr.from);
+          throw new Error('action ' + JSON.stringify(tr.action) + ' already attached to origin ' + JSON.stringify(tr.from));
         } else {
           actionMap.set(tr.from, thisEdgeId);
         }
@@ -4726,7 +4725,7 @@ var machine = function () {
     key: 'lookup_transition_for',
     value: function lookup_transition_for(from, to) {
       var id = this.get_transition_by_state_names(from, to);
-      return id === undefined ? undefined : this._edges[id];
+      return id === undefined || id === null ? undefined : this._edges[id];
     }
   }, {
     key: 'list_transitions',

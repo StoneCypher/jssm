@@ -128,6 +128,7 @@ type JssmGenericConfig<NT, DT> = {
 export type {
 
   JssmTransition,
+    JssmTransitions,
     JssmTransitionList,
 
   JssmGenericConfig,

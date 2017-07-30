@@ -5,7 +5,7 @@
 
 import type {
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList,
+  JssmTransition, JssmTransitions, JssmTransitionList,
   JssmMachineInternalState
 } from './jssm-types';
 
@@ -17,7 +17,7 @@ const version : null = null; // replaced from package.js in build
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
-const parse : (string) => Array<any> = require('./jssm-dot.js').parse;  // todo burn out any
+const parse : (string) => JssmTransitions<string, any> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types
 
 
 
@@ -33,7 +33,7 @@ class machine<mNT, mDT> {
   _named_transitions      : Map<mNT, number>;
   _actions                : Map<mNT, Map<mNT, number>>;
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
-  _reverse_action_targets : Map<string, Map<string, number>>;
+  _reverse_action_targets : Map<mNT, Map<mNT, number>>;
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({ initial_state, complete=[], transitions } : JssmGenericConfig<mNT, mDT>) {
@@ -47,7 +47,7 @@ class machine<mNT, mDT> {
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();  // todo
 
-    transitions.map( (tr:any) => { // whargarbl burn out any
+    transitions.map( (tr:JssmTransition<mNT, mDT>) => {
 
       if (tr.from === undefined) { throw new Error(`transition must define 'from': ${JSON.stringify(tr)}`); }
       if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
@@ -67,7 +67,7 @@ class machine<mNT, mDT> {
 
       // guard against existing connections being re-added
       if (cursor_from.to.includes(tr.to)) {
-        throw new Error(`already has ${tr.from} to ${tr.to}`);
+        throw new Error(`already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
       } else {
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
@@ -79,7 +79,7 @@ class machine<mNT, mDT> {
 
       // guard against repeating a transition name
       if (tr.name) {
-        if (this._named_transitions.has(tr.name)) { throw new Error(`named transition "${tr.name}" already created`); }
+        if (this._named_transitions.has(tr.name)) { throw new Error(`named transition "${JSON.stringify(tr.name)}" already created`); }
         else                                      { this._named_transitions.set(tr.name, thisEdgeId); }
       }
 
@@ -105,7 +105,7 @@ class machine<mNT, mDT> {
         }
 
         if (actionMap.has(tr.from)) {
-          throw new Error(`action ${tr.action} already attached to origin ${tr.from}`);
+          throw new Error(`action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
         } else {
           actionMap.set(tr.from, thisEdgeId);
         }
@@ -234,13 +234,13 @@ class machine<mNT, mDT> {
 
 
 
-  get_transition_by_state_names(from: mNT, to: mNT) {
+  get_transition_by_state_names(from: mNT, to: mNT) : ?number {
     return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
   }
 
   lookup_transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
     const id = this.get_transition_by_state_names(from, to);
-    return (id === undefined)? undefined : this._edges[id];
+    return ((id === undefined) || (id === null))? undefined : this._edges[id];
   }
 
 
@@ -265,7 +265,8 @@ class machine<mNT, mDT> {
     if (!(wstate)) { throw new Error(`No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
     const wstate_to = wstate.to,
-          wtf       = wstate_to.map(ws => this.lookup_transition_for(this.state(), ws)).filter(defined => defined);
+          wtf       = wstate_to.map((ws) : ?JssmTransition<mNT, mDT> => this.lookup_transition_for(this.state(), ws))
+                               .filter(defined => defined);
 
     return (wtf:any);  // :any because it can't see that .filter(d => d) removes
                        // the undefineds, and l_t_f returns ?jt, but this returns jt
