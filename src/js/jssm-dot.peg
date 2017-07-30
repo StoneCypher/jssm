@@ -317,9 +317,21 @@ StateDef "state definition"
 
 
 
+MachineName
+  = Whitespace "machine name" Whitespace ":" Whitespace name:Label Whitespace ";" Whitespace { return { key: "Machine name", value: name }; }
+
+
+
+StateGroupDef
+  = Whitespace "group" Whitespace name:Label Whitespace ":" Whitespace nl:LabelOrLabelList Whitespace ";" Whitespace { return { key: "group definition", value: { name: name, list: nl } }; }
+
+
+
 Term
   = Exp
   / StateDef
+  / MachineName
+  / StateGroupDef
   / Config
 
 TermList
