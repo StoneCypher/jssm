@@ -66,6 +66,9 @@ Which you can see being hand-executed in the console here:
 ## Quick Start
 ## Why
 ## How To
+## Notation Comparison
+### Their notations, one by one
+### Apples to Apples - Traffic Light
 
 ## Other state machines
 There are a lot of state machine impls for JS, many quite a bit more mature than this one.  Here are some options:
