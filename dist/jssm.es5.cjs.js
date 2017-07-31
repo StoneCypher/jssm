@@ -285,7 +285,7 @@ function peg$parse(input, options) {
     return base;
   },
       peg$c109 = function peg$c109(label, se) {
-    var base = { from: label };
+    var base = { key: 'transition', from: label };
     if (se && se !== []) {
       base.se = se;
     }
@@ -4689,17 +4689,17 @@ exports.weighted_sample_select = weighted_sample_select;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.parse = exports.machine = exports.version = undefined;
+exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.compile = exports.parse = exports.machine = exports.version = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _jssmUtil = require('./jssm-util.js');
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var version = '3.11.0'; // replaced from package.js in build
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var version = '4.0.0'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -4707,16 +4707,52 @@ var version = '3.11.0'; // replaced from package.js in build
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types
 
 
+function compile_rule_handle_transition_step(acc, from, to, se) {
+  // todo flow describe the parser representation of a transition step extension
+
+  var new_acc = acc.concat({ from: from, to: to });
+
+  if (se) {
+    return compile_rule_handle_transition_step(new_acc, to, se.to, se.se);
+  } else {
+    return new_acc;
+  }
+}
+
+function compile_rule_handle_transition(rule) {
+  // todo flow describe the parser representation of a transition
+  return compile_rule_handle_transition_step([], rule.from, rule.se.to, rule.se.se);
+}
+
+function compile_rule_handler(rule) {
+  // : JssmTransition<mNT, mDT> { // todo flow describe the output of the parser
+
+  if (rule.key === 'transition') {
+    return compile_rule_handle_transition(rule);
+  }
+
+  throw new Error('Unknown rule: ' + JSON.stringify(rule));
+}
+
+function compile(tree) {
+  var _ref;
+
+  // todo flow describe the output of the parser
+  return (_ref = []).concat.apply(_ref, _toConsumableArray(tree.map(function (tr) {
+    return compile_rule_handler(tr);
+  })));
+}
+
 var machine = function () {
 
   // whargarbl this badly needs to be broken up, monolith master
-  function machine(_ref) {
+  function machine(_ref2) {
     var _this = this;
 
-    var initial_state = _ref.initial_state,
-        _ref$complete = _ref.complete,
-        complete = _ref$complete === undefined ? [] : _ref$complete,
-        transitions = _ref.transitions;
+    var initial_state = _ref2.initial_state,
+        _ref2$complete = _ref2.complete,
+        complete = _ref2$complete === undefined ? [] : _ref2$complete,
+        transitions = _ref2.transitions;
 
     _classCallCheck(this, machine);
 
@@ -5220,6 +5256,7 @@ var machine = function () {
 exports.version = version;
 exports.machine = machine;
 exports.parse = parse;
+exports.compile = compile;
 exports.seq = _jssmUtil.seq;
 exports.weighted_rand_select = _jssmUtil.weighted_rand_select;
 exports.histograph = _jssmUtil.histograph;

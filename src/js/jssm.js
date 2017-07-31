@@ -21,6 +21,42 @@ const parse : (string) => JssmTransitions<string, any> = require('./jssm-dot.js'
 
 
 
+function compile_rule_handle_transition_step<mNT, mDT>(acc : Array<mixed>, from : mNT, to : mNT, se : any) { // todo flow describe the parser representation of a transition step extension
+
+  const new_acc = acc.concat({ from, to });
+
+  if (se) {
+    return compile_rule_handle_transition_step(new_acc, to, se.to, se.se);
+  } else {
+    return new_acc;
+  }
+
+}
+
+
+
+function compile_rule_handle_transition<mNT, mDT>(rule : any) { // todo flow describe the parser representation of a transition
+  return compile_rule_handle_transition_step([], rule.from, rule.se.to, rule.se.se);
+}
+
+
+
+function compile_rule_handler<mNT, mDT>(rule : any) : any { // : JssmTransition<mNT, mDT> { // todo flow describe the output of the parser
+
+  if (rule.key === 'transition') { return compile_rule_handle_transition(rule); }
+
+  throw new Error(`Unknown rule: ${JSON.stringify(rule)}`);
+
+}
+
+
+
+function compile<mNT, mDT>(tree : any) : JssmTransitions<mNT, mDT> {  // todo flow describe the output of the parser
+  return [].concat(... tree.map( (tr) => compile_rule_handler(tr) ));
+}
+
+
+
 
 
 class machine<mNT, mDT> {
@@ -467,6 +503,7 @@ export {
 
   machine,
   parse,
+  compile,
 
   // todo whargarbl these should be exported to a utility library
   seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key
