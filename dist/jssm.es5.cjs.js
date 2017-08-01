@@ -4699,7 +4699,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var version = '4.1.0'; // replaced from package.js in build
+var version = '4.1.1'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -4728,7 +4728,7 @@ function compile_rule_handler(rule) {
   // : JssmTransition<mNT, mDT> { // todo flow describe the output of the parser
 
   if (rule.key === 'transition') {
-    return compile_rule_handle_transition(rule);
+    return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
   }
 
   throw new Error('Unknown rule: ' + JSON.stringify(rule));
@@ -4738,9 +4738,25 @@ function compile(tree) {
   var _ref;
 
   // todo flow describe the output of the parser
-  return (_ref = []).concat.apply(_ref, _toConsumableArray(tree.map(function (tr) {
-    return compile_rule_handler(tr);
-  })));
+
+  var results = {};
+
+  tree.map(function (tr) {
+    var _compile_rule_handler = compile_rule_handler(tr),
+        agg_as = _compile_rule_handler.agg_as,
+        val = _compile_rule_handler.val;
+
+    results[agg_as] = (results[agg_as] || []).concat(val);
+  });
+
+  var assembled_transitions = (_ref = []).concat.apply(_ref, _toConsumableArray(results['transition']));
+
+  var result_cfg = {
+    initial_state: assembled_transitions[0].from,
+    transitions: assembled_transitions
+  };
+
+  return result_cfg;
 }
 
 var Machine = function () {
@@ -5262,15 +5278,15 @@ function sm(template_strings /* , arguments */) {
   // therefore template_strings will always have one more el than template_args
   // therefore map the smaller container and toss the last one on on the way out
 
-  return compile(parse(template_strings.reduce(function (acc, val, idx) {
-    return '' + acc + (idx ? _arguments[idx] : '') + val;
-  })));
-
   /*
-      return new Machine(compile(parse(template_strings.reduce(
+      return compile(parse(template_strings.reduce(
         (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
-      ))));
+      )));
   */
+
+  return new Machine(compile(parse(template_strings.reduce(function (acc, val, idx) {
+    return '' + acc + (idx ? _arguments[idx] : '') + val;
+  }))));
 }
 
 exports.version = version;

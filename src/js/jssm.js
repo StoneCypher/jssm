@@ -43,7 +43,7 @@ function compile_rule_handle_transition<mNT, mDT>(rule : any) { // todo flow des
 
 function compile_rule_handler<mNT, mDT>(rule : any) : any { // : JssmTransition<mNT, mDT> { // todo flow describe the output of the parser
 
-  if (rule.key === 'transition') { return compile_rule_handle_transition(rule); }
+  if (rule.key === 'transition') { return { agg_as: 'transition', val: compile_rule_handle_transition(rule) }; }
 
   throw new Error(`Unknown rule: ${JSON.stringify(rule)}`);
 
@@ -51,8 +51,24 @@ function compile_rule_handler<mNT, mDT>(rule : any) : any { // : JssmTransition<
 
 
 
-function compile<mNT, mDT>(tree : any) : JssmTransitions<mNT, mDT> {  // todo flow describe the output of the parser
-  return [].concat(... tree.map( (tr) => compile_rule_handler(tr) ));
+function compile<mNT, mDT>(tree : any) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
+
+  const results = {};
+
+  tree.map( (tr) => {
+    const { agg_as, val } = compile_rule_handler(tr);
+    results[agg_as] = (results[agg_as] || []).concat(val);
+  });
+
+  const assembled_transitions = [].concat(... results['transition']);
+
+  const result_cfg : JssmGenericConfig<mNT, mDT> = {
+    initial_state : assembled_transitions[0].from,
+    transitions   : assembled_transitions
+  };
+
+  return result_cfg;
+
 }
 
 
@@ -504,15 +520,15 @@ function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : any 
     // therefore template_strings will always have one more el than template_args
     // therefore map the smaller container and toss the last one on on the way out
 
+/*
     return compile(parse(template_strings.reduce(
       (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
     )));
+*/
 
-/*
     return new Machine(compile(parse(template_strings.reduce(
       (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
     ))));
-*/
 
 }
 
