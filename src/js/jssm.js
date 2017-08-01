@@ -59,7 +59,7 @@ function compile<mNT, mDT>(tree : any) : JssmTransitions<mNT, mDT> {  // todo fl
 
 
 
-class machine<mNT, mDT> {
+class Machine<mNT, mDT> {
 
 
   _state                  : mNT;
@@ -497,13 +497,38 @@ class machine<mNT, mDT> {
 
 
 
+function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : any {
+
+    // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
+    // this includes when a and c are empty strings
+    // therefore template_strings will always have one more el than template_args
+    // therefore map the smaller container and toss the last one on on the way out
+
+    return compile(parse(template_strings.reduce(
+      (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
+    )));
+
+/*
+    return new Machine(compile(parse(template_strings.reduce(
+      (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
+    ))));
+*/
+
+}
+
+
+
+
+
 export {
 
   version,
 
-  machine,
+  Machine,
   parse,
   compile,
+
+  sm,
 
   // todo whargarbl these should be exported to a utility library
   seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key

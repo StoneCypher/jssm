@@ -4689,7 +4689,7 @@ exports.weighted_sample_select = weighted_sample_select;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.compile = exports.parse = exports.machine = exports.version = undefined;
+exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.sm = exports.compile = exports.parse = exports.Machine = exports.version = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -4699,7 +4699,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var version = '4.0.0'; // replaced from package.js in build
+var version = '4.1.0'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -4743,10 +4743,10 @@ function compile(tree) {
   })));
 }
 
-var machine = function () {
+var Machine = function () {
 
   // whargarbl this badly needs to be broken up, monolith master
-  function machine(_ref2) {
+  function Machine(_ref2) {
     var _this = this;
 
     var initial_state = _ref2.initial_state,
@@ -4754,7 +4754,7 @@ var machine = function () {
         complete = _ref2$complete === undefined ? [] : _ref2$complete,
         transitions = _ref2.transitions;
 
-    _classCallCheck(this, machine);
+    _classCallCheck(this, Machine);
 
     this._state = initial_state;
     this._states = new Map();
@@ -4867,7 +4867,7 @@ var machine = function () {
     });
   }
 
-  _createClass(machine, [{
+  _createClass(Machine, [{
     key: '_new_state',
     value: function _new_state(state_config) {
       // whargarbl get that state_config any under control
@@ -5250,13 +5250,34 @@ var machine = function () {
 
   }]);
 
-  return machine;
+  return Machine;
 }();
 
+function sm(template_strings /* , arguments */) {
+  var _arguments = arguments;
+
+
+  // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
+  // this includes when a and c are empty strings
+  // therefore template_strings will always have one more el than template_args
+  // therefore map the smaller container and toss the last one on on the way out
+
+  return compile(parse(template_strings.reduce(function (acc, val, idx) {
+    return '' + acc + (idx ? _arguments[idx] : '') + val;
+  })));
+
+  /*
+      return new Machine(compile(parse(template_strings.reduce(
+        (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
+      ))));
+  */
+}
+
 exports.version = version;
-exports.machine = machine;
+exports.Machine = Machine;
 exports.parse = parse;
 exports.compile = compile;
+exports.sm = sm;
 exports.seq = _jssmUtil.seq;
 exports.weighted_rand_select = _jssmUtil.weighted_rand_select;
 exports.histograph = _jssmUtil.histograph;
