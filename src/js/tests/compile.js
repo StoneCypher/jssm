@@ -21,6 +21,11 @@ describe('compile/1', async _parse_it => {
       it('doesn\'t throw', t => t.notThrows(() => { jssm.compile(jssm.parse(a_to_b_to_c_str)); }) );
     });
 
+    describe('template tokens', async it => {
+      const a_through_e_token_str = `a->${'b'}->c->${'d'}->e;`;
+      it('doesn\'t throw', t => t.notThrows(() => { jssm.compile(jssm.parse(a_through_e_token_str)); }) );
+    });
+
 });
 
 

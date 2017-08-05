@@ -527,7 +527,7 @@ function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : any 
 */
 
     return new Machine(compile(parse(template_strings.reduce(
-      (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
+      (acc, val, idx) => `${acc}${arguments[idx]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
     ))));
 
 }
