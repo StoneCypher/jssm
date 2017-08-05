@@ -1,7 +1,7 @@
 
 /* eslint-disable max-len */
 
-import {test, describe} from 'ava-spec';
+import {describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.js');
 
@@ -35,7 +35,7 @@ describe('compile/1', async _parse_it => {
 describe('error catchery', async _parse_it => {
 
     describe('unknown rule', async it => {
-      it('throws', t => t.throws( () => { jssm.compile( [{"key":"FAKE_RULE","from":"a","se":{"kind":"->","to":"b"}}] ); } ))
+      it('throws', t => t.throws( () => { jssm.compile( [{"key":"FAKE_RULE","from":"a","se":{"kind":"->","to":"b"}}] ); } ));
     });
 
 });

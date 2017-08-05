@@ -23,7 +23,7 @@ const parse : (string) => JssmTransitions<string, any> = require('./jssm-dot.js'
 
 function compile_rule_handle_transition_step<mNT, mDT>(acc : Array<mixed>, from : mNT, to : mNT, se : any) { // todo flow describe the parser representation of a transition step extension
 
-  const new_acc = acc.concat({ from, to });
+  const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
 
   if (se) {
     return compile_rule_handle_transition_step(new_acc, to, se.to, se.se);
@@ -55,9 +55,14 @@ function compile<mNT, mDT>(tree : any) : JssmGenericConfig<mNT, mDT> {  // todo 
 
   const results = {};
 
-  tree.map( (tr) => {
-    const { agg_as, val } = compile_rule_handler(tr);
+  tree.map( tr => {
+
+    const crh_result : mixed = compile_rule_handler(tr),
+          agg_as     : string = crh_result.agg_as,
+          val        : mixed  = crh_result.val;
+
     results[agg_as] = (results[agg_as] || []).concat(val);
+
   });
 
   const assembled_transitions = [].concat(... results['transition']);
@@ -527,7 +532,16 @@ function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : any 
 */
 
     return new Machine(compile(parse(template_strings.reduce(
+
+      // in general avoiding `arguments` is smart.  however with the template
+      // string notation, as designed, it's not really worth the hassle
+
+      /* eslint-disable fp/no-arguments */
+      /* eslint-disable prefer-rest-params */
       (acc, val, idx) => `${acc}${arguments[idx]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
+      /* eslint-enable  prefer-rest-params */
+      /* eslint-enable  fp/no-arguments */
+
     ))));
 
 }

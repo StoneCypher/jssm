@@ -4699,7 +4699,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var version = '4.1.5'; // replaced from package.js in build
+var version = '4.1.6'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -5286,7 +5286,7 @@ function sm(template_strings /* , arguments */) {
 
   return new Machine(compile(parse(template_strings.reduce(function (acc, val, idx) {
     return '' + acc + _arguments[idx] + val;
-  } // arguments[0] is never loaded, so args doesn't need to be gated
+  } // arguments[0] is never loaded, so args doesn't need to be gated /* eslint-disable-line fp/no-arguments prefer-rest-params */
   ))));
 }
 
