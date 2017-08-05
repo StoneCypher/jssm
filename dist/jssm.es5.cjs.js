@@ -4699,7 +4699,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var version = '4.1.3'; // replaced from package.js in build
+var version = '4.1.4'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
