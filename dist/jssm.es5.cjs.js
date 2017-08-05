@@ -4699,7 +4699,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var version = '4.1.6'; // replaced from package.js in build
+var version = '4.1.7'; // replaced from package.js in build
 
 
 // whargarbl lots of these return arrays could/should be sets
@@ -4710,7 +4710,7 @@ var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-w
 function compile_rule_handle_transition_step(acc, from, to, se) {
   // todo flow describe the parser representation of a transition step extension
 
-  var new_acc = acc.concat({ from: from, to: to });
+  var new_acc = acc.concat({ from: from, to: to }); // todo whargarbl can do better than array mixed
 
   if (se) {
     return compile_rule_handle_transition_step(new_acc, to, se.to, se.se);
@@ -5284,9 +5284,19 @@ function sm(template_strings /* , arguments */) {
       )));
   */
 
-  return new Machine(compile(parse(template_strings.reduce(function (acc, val, idx) {
+  return new Machine(compile(parse(template_strings.reduce(
+
+  // in general avoiding `arguments` is smart.  however with the template
+  // string notation, as designed, it's not really worth the hassle
+
+  /* eslint-disable fp/no-arguments */
+  /* eslint-disable prefer-rest-params */
+  function (acc, val, idx) {
     return '' + acc + _arguments[idx] + val;
-  } // arguments[0] is never loaded, so args doesn't need to be gated /* eslint-disable-line fp/no-arguments prefer-rest-params */
+  } // arguments[0] is never loaded, so args doesn't need to be gated
+  /* eslint-enable  prefer-rest-params */
+  /* eslint-enable  fp/no-arguments */
+
   ))));
 }
 

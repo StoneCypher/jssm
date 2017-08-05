@@ -56,13 +56,8 @@ function compile<mNT, mDT>(tree : any) : JssmGenericConfig<mNT, mDT> {  // todo 
   const results = {};
 
   tree.map( tr => {
-
-    const crh_result : mixed = compile_rule_handler(tr),
-          agg_as     : string = crh_result.agg_as,
-          val        : mixed  = crh_result.val;
-
+    const { agg_as, val } = compile_rule_handler(tr);
     results[agg_as] = (results[agg_as] || []).concat(val);
-
   });
 
   const assembled_transitions = [].concat(... results['transition']);
