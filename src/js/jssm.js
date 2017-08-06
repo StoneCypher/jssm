@@ -6,8 +6,13 @@
 import type {
   JssmGenericState, JssmGenericConfig,
   JssmTransition, JssmTransitions, JssmTransitionList,
-  JssmMachineInternalState
+  JssmMachineInternalState,
+  JssmArrow, JssmArrowDirection, JssmArrowKind
 } from './jssm-types';
+
+import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
+
+const parse   : (string) => JssmTransitions<string, any> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types
 
 const version : null = null; // replaced from package.js in build
 
@@ -15,9 +20,83 @@ const version : null = null; // replaced from package.js in build
 
 
 
-import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
+function arrow_direction(arrow : JssmArrow) : JssmArrowDirection {
 
-const parse : (string) => JssmTransitions<string, any> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types
+  switch ( String(arrow) ) {
+
+    case '->' :  case '=>'  :  case '~>'  :
+      return 'right';
+
+    case '<-' :  case '<='  :  case '<~'  :
+      return 'left';
+
+    case '<->':  case '<-=>':  case '<-~>':
+    case '<=>':  case '<=->':  case '<=~>':
+    case '<~>':  case '<~->':  case '<~=>':
+      return 'both';
+
+    default:
+      throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+
+  }
+
+}
+
+
+
+
+
+function arrow_left_kind(arrow : JssmArrow) : JssmArrowKind {
+
+  switch ( String(arrow) ) {
+
+    case '->':  case '=>' :  case '~>':
+      return 'none';
+
+    case '<-':  case '<->':  case '<-=>':  case '<-~>':
+      return 'legal';
+
+    case '<=':  case '<=>':  case '<=->':  case '<=~>':
+      return 'main';
+
+    case '<~':  case '<~>':  case '<~->':  case '<~=>':
+      return 'forced';
+
+    default:
+      throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+
+  }
+
+}
+
+
+
+
+
+function arrow_right_kind(arrow : JssmArrow) : JssmArrowKind {
+
+  switch ( String(arrow) ) {
+
+    case '<-':  case '<=' :  case '<~':
+      return 'none';
+
+    case '->':  case '<->':  case '<=->':  case '<~->':
+      return 'legal';
+
+    case '=>':  case '<=>':  case '<-=>':  case '<~=>':
+      return 'main';
+
+    case '~>':  case '<~>':  case '<-~>':  case '<=~>':
+      return 'forced';
+
+    default:
+      throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+
+  }
+
+}
+
+
 
 
 
@@ -60,7 +139,7 @@ function compile<mNT, mDT>(tree : any) : JssmGenericConfig<mNT, mDT> {  // todo 
     results[agg_as] = (results[agg_as] || []).concat(val);
   });
 
-  const assembled_transitions = [].concat(... results['transition']);
+  const assembled_transitions : Array< JssmTransition<mNT, mDT> > = [].concat(... results['transition']);
 
   const result_cfg : JssmGenericConfig<mNT, mDT> = {
     initial_state : assembled_transitions[0].from,
@@ -127,12 +206,15 @@ class Machine<mNT, mDT> {
 
       // add the edge; note its id
       this._edges.push(tr);
-      const thisEdgeId = this._edges.length - 1;
+      const thisEdgeId : number = this._edges.length - 1;
 
       // guard against repeating a transition name
       if (tr.name) {
-        if (this._named_transitions.has(tr.name)) { throw new Error(`named transition "${JSON.stringify(tr.name)}" already created`); }
-        else                                      { this._named_transitions.set(tr.name, thisEdgeId); }
+        if (this._named_transitions.has(tr.name)) {
+          throw new Error(`named transition "${JSON.stringify(tr.name)}" already created`);
+        } else {
+          this._named_transitions.set(tr.name, thisEdgeId);
+        }
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
@@ -202,7 +284,7 @@ class Machine<mNT, mDT> {
   _new_state(state_config : JssmGenericState<mNT>) : mNT { // whargarbl get that state_config any under control
 
     if (this._states.has(state_config.name)) {
-      throw new Error(`state ${(state_config.name:any)} already exists`);
+      throw new Error(`state ${JSON.stringify(state_config.name)} already exists`);
     }
 
     this._states.set(state_config.name, state_config);
@@ -265,7 +347,7 @@ class Machine<mNT, mDT> {
   }
 
   state_for(whichState : mNT) : JssmGenericState<mNT> {
-    const state = this._states.get(whichState);
+    const state : ?JssmGenericState<mNT> = this._states.get(whichState);
     if (state) { return state; }
     else       { throw new Error(`no such state ${JSON.stringify(state)}`); }
   }
@@ -291,7 +373,7 @@ class Machine<mNT, mDT> {
   }
 
   lookup_transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
-    const id = this.get_transition_by_state_names(from, to);
+    const id : ?number = this.get_transition_by_state_names(from, to);
     return ((id === undefined) || (id === null))? undefined : this._edges[id];
   }
 
@@ -326,7 +408,7 @@ class Machine<mNT, mDT> {
   }
 
   probabilistic_transition() : boolean {
-    const selected = weighted_rand_select(this.probable_exits_for(this.state()));
+    const selected : JssmTransition<mNT, mDT> = weighted_rand_select(this.probable_exits_for(this.state()));
     return this.transition( selected.to );
   }
 
@@ -340,20 +422,20 @@ class Machine<mNT, mDT> {
           .concat([this.state()]);
   }
 
-  probabilistic_histo_walk(n : number) : Map<any, number> {
+  probabilistic_histo_walk(n : number) : Map<mNT, number> {
     return histograph(this.probabilistic_walk(n));
   }
 
 
 
   actions(whichState : mNT = this.state() ) : Array<mNT> {
-    const wstate = this._reverse_actions.get(whichState);
+    const wstate : ?Map<mNT, number> = this._reverse_actions.get(whichState);
     if (wstate) { return [... wstate.keys()]; }
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
 
   list_states_having_action(whichState : mNT) : Array<mNT> {
-    const wstate = this._actions.get(whichState);
+    const wstate : ?Map<mNT, number> = this._actions.get(whichState);
     if (wstate) { return [... wstate.keys()]; }
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
@@ -367,26 +449,26 @@ class Machine<mNT, mDT> {
            .map( filtered => filtered.from );
   }
 */
-  list_exit_actions(whichState : mNT = this.state() ) : Array<any> { // these are mNT
-    const ra_base = this._reverse_actions.get(whichState);
+  list_exit_actions(whichState : mNT = this.state() ) : Array<?mNT> { // these are mNT, not ?mNT
+    const ra_base : ?Map<mNT, number> = this._reverse_actions.get(whichState);
     if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
 
     return [... ra_base.values()]
-           .map    ( (edgeId:number)              => this._edges[edgeId]   )
-           .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
-           .map    ( filtered                     => filtered.action       );
+           .map    ( (edgeId:number)              : JssmTransition<mNT, mDT> => this._edges[edgeId]   )
+           .filter ( (o:JssmTransition<mNT, mDT>) : boolean                  => o.from === whichState )
+           .map    ( (filtered : JssmTransition<mNT, mDT>) : ?mNT            => filtered.action       );
   }
 
-  probable_action_exits(whichState : mNT = this.state() ) : Array<any> { // these are mNT
-    const ra_base = this._reverse_actions.get(whichState);
+  probable_action_exits(whichState : mNT = this.state() ) : Array<mixed> { // these are mNT
+    const ra_base : ?Map<mNT, number> = this._reverse_actions.get(whichState);
     if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
 
     return [... ra_base.values()]
-           .map    ( (edgeId:number)              => this._edges[edgeId]   )
-           .filter ( (o:JssmTransition<mNT, mDT>) => o.from === whichState )
-           .map    ( filtered                     => ( { action      : filtered.action,
-                                                         probability : filtered.probability } )
-                                                     );
+           .map    ( (edgeId:number) : JssmTransition<mNT, mDT> => this._edges[edgeId]   )
+           .filter ( (o:JssmTransition<mNT, mDT>) : boolean     => o.from === whichState )
+           .map    ( (filtered) : mixed                         => ( { action      : filtered.action,
+                                                                       probability : filtered.probability } )
+                                                                   );
   }
 
 
@@ -397,7 +479,7 @@ class Machine<mNT, mDT> {
   }
 
   has_unenterables() : boolean {
-    return this.states().some(x => this.is_unenterable(x));
+    return this.states().some( (x) : boolean => this.is_unenterable(x));
   }
 
 
@@ -412,7 +494,7 @@ class Machine<mNT, mDT> {
   }
 
   has_terminals() : boolean {
-    return this.states().some(x => this.state_is_terminal(x));
+    return this.states().some( (x) : boolean => this.state_is_terminal(x));
   }
 
 
@@ -422,13 +504,13 @@ class Machine<mNT, mDT> {
   }
 
   state_is_complete(whichState : mNT) : boolean {
-    const wstate = this._states.get(whichState);
+    const wstate : ?JssmGenericState<mNT> = this._states.get(whichState);
     if (wstate) { return wstate.complete; }
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
 
   has_completes() : boolean {
-    return this.states().some(x => this.state_is_complete(x));
+    return this.states().some( (x) : boolean => this.state_is_complete(x) );
   }
 
 
@@ -438,7 +520,7 @@ class Machine<mNT, mDT> {
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_action(name, newData)) {
-      const edge = this.current_action_edge_for(name);
+      const edge : JssmTransition<mNT, mDT> = this.current_action_edge_for(name);
       this._state = edge.to;
       return true;
     } else {
@@ -476,13 +558,13 @@ class Machine<mNT, mDT> {
 
 
   current_action_for(action : mNT) : number | void {
-    const action_base = this._actions.get(action);
+    const action_base : ?Map<mNT, number> = this._actions.get(action);
     return action_base? action_base.get(this.state()) : undefined;
   }
 
   current_action_edge_for(action : mNT) : JssmTransition<mNT, mDT> {
-    const idx = this.current_action_for(action);
-    if (idx === undefined) { throw new Error(`No such action ${JSON.stringify(action)}`); }
+    const idx : ?number = this.current_action_for(action);
+    if ((idx === undefined) || (idx === null)) { throw new Error(`No such action ${JSON.stringify(action)}`); }
     return this._edges[idx];
   }
 
@@ -513,18 +595,12 @@ class Machine<mNT, mDT> {
 
 
 
-function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : any {
+function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : Machine<mNT, mDT> {
 
     // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
     // this includes when a and c are empty strings
     // therefore template_strings will always have one more el than template_args
     // therefore map the smaller container and toss the last one on on the way out
-
-/*
-    return compile(parse(template_strings.reduce(
-      (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
-    )));
-*/
 
     return new Machine(compile(parse(template_strings.reduce(
 
@@ -533,7 +609,7 @@ function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : any 
 
       /* eslint-disable fp/no-arguments */
       /* eslint-disable prefer-rest-params */
-      (acc, val, idx) => `${acc}${arguments[idx]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
+      (acc, val, idx) : string => `${acc}${arguments[idx]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
       /* eslint-enable  prefer-rest-params */
       /* eslint-enable  fp/no-arguments */
 
@@ -554,6 +630,10 @@ export {
   compile,
 
   sm,
+
+  arrow_direction,
+  arrow_left_kind,
+  arrow_right_kind,
 
   // todo whargarbl these should be exported to a utility library
   seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key

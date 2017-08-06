@@ -5,13 +5,17 @@
 
 
 
-type JssmSuccess      = { success: true };
-type JssmFailure      = { success: false, error: mixed };
-type JssmIncomplete   = { success: 'incomplete' };
-type JssmResult       = JssmSuccess | JssmFailure | JssmIncomplete;
+type JssmSuccess        = { success: true };
+type JssmFailure        = { success: false, error: mixed };
+type JssmIncomplete     = { success: 'incomplete' };
+type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete;
 
-type JssmPermitted    = 'required' | 'disallowed';
-type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
+type JssmPermitted      = 'required' | 'disallowed';
+type JssmPermittedOpt   = 'required' | 'disallowed' | 'optional';
+
+type JssmArrow          = '->' | '<->' | '<=->' | '<~->' | '=>' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~>' | '<-~>' | '<=~>';
+type JssmArrowDirection = 'left' | 'right' | 'both';
+type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
 
 
@@ -131,6 +135,10 @@ export type {
   JssmTransition,
     JssmTransitions,
     JssmTransitionList,
+
+  JssmArrow,
+    JssmArrowKind,
+    JssmArrowDirection,
 
   JssmGenericConfig,
     JssmGenericState,

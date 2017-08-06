@@ -4689,7 +4689,7 @@ exports.weighted_sample_select = weighted_sample_select;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.sm = exports.compile = exports.parse = exports.Machine = exports.version = undefined;
+exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.arrow_right_kind = exports.arrow_left_kind = exports.arrow_direction = exports.sm = exports.compile = exports.parse = exports.Machine = exports.version = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -4699,13 +4699,77 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var version = '4.1.7'; // replaced from package.js in build
-
-
 // whargarbl lots of these return arrays could/should be sets
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types
 
+var version = '4.1.8'; // replaced from package.js in build
+
+
+function arrow_direction(arrow) {
+
+  switch (String(arrow)) {
+
+    case '->':case '=>':case '~>':
+      return 'right';
+
+    case '<-':case '<=':case '<~':
+      return 'left';
+
+    case '<->':case '<-=>':case '<-~>':
+    case '<=>':case '<=->':case '<=~>':
+    case '<~>':case '<~->':case '<~=>':
+      return 'both';
+
+    default:
+      throw new Error('arrow_direction: unknown arrow type ' + arrow);
+
+  }
+}
+
+function arrow_left_kind(arrow) {
+
+  switch (String(arrow)) {
+
+    case '->':case '=>':case '~>':
+      return 'none';
+
+    case '<-':case '<->':case '<-=>':case '<-~>':
+      return 'legal';
+
+    case '<=':case '<=>':case '<=->':case '<=~>':
+      return 'main';
+
+    case '<~':case '<~>':case '<~->':case '<~=>':
+      return 'forced';
+
+    default:
+      throw new Error('arrow_direction: unknown arrow type ' + arrow);
+
+  }
+}
+
+function arrow_right_kind(arrow) {
+
+  switch (String(arrow)) {
+
+    case '<-':case '<=':case '<~':
+      return 'none';
+
+    case '->':case '<->':case '<=->':case '<~->':
+      return 'legal';
+
+    case '=>':case '<=>':case '<-=>':case '<~=>':
+      return 'main';
+
+    case '~>':case '<~>':case '<-~>':case '<=~>':
+      return 'forced';
+
+    default:
+      throw new Error('arrow_direction: unknown arrow type ' + arrow);
+
+  }
+}
 
 function compile_rule_handle_transition_step(acc, from, to, se) {
   // todo flow describe the parser representation of a transition step extension
@@ -4889,7 +4953,7 @@ var Machine = function () {
       // whargarbl get that state_config any under control
 
       if (this._states.has(state_config.name)) {
-        throw new Error('state ' + state_config.name + ' already exists');
+        throw new Error('state ' + JSON.stringify(state_config.name) + ' already exists');
       }
 
       this._states.set(state_config.name, state_config);
@@ -5087,7 +5151,7 @@ var Machine = function () {
       var _this4 = this;
 
       var whichState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.state();
-      // these are mNT
+      // these are mNT, not ?mNT
       var ra_base = this._reverse_actions.get(whichState);
       if (!ra_base) {
         throw new Error('No such state ' + JSON.stringify(whichState));
@@ -5234,7 +5298,7 @@ var Machine = function () {
     key: 'current_action_edge_for',
     value: function current_action_edge_for(action) {
       var idx = this.current_action_for(action);
-      if (idx === undefined) {
+      if (idx === undefined || idx === null) {
         throw new Error('No such action ' + JSON.stringify(action));
       }
       return this._edges[idx];
@@ -5278,12 +5342,6 @@ function sm(template_strings /* , arguments */) {
   // therefore template_strings will always have one more el than template_args
   // therefore map the smaller container and toss the last one on on the way out
 
-  /*
-      return compile(parse(template_strings.reduce(
-        (acc, val, idx) => `${acc}${idx? arguments[idx] : ''}${val}`
-      )));
-  */
-
   return new Machine(compile(parse(template_strings.reduce(
 
   // in general avoiding `arguments` is smart.  however with the template
@@ -5305,6 +5363,9 @@ exports.Machine = Machine;
 exports.parse = parse;
 exports.compile = compile;
 exports.sm = sm;
+exports.arrow_direction = arrow_direction;
+exports.arrow_left_kind = arrow_left_kind;
+exports.arrow_right_kind = arrow_right_kind;
 exports.seq = _jssmUtil.seq;
 exports.weighted_rand_select = _jssmUtil.weighted_rand_select;
 exports.histograph = _jssmUtil.histograph;
