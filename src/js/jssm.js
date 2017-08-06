@@ -12,7 +12,7 @@ import type {
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
-const parse   : (string) => JssmTransitions<string, any> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types
+const parse   : <NT, DT>(string) => JssmTransitions<NT, DT> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types
 
 const version : null = null; // replaced from package.js in build
 
@@ -100,7 +100,7 @@ function arrow_right_kind(arrow : JssmArrow) : JssmArrowKind {
 
 
 
-function compile_rule_handle_transition_step<mNT, mDT>(acc : Array<mixed>, from : mNT, to : mNT, se : any) { // todo flow describe the parser representation of a transition step extension
+function compile_rule_handle_transition_step<mNT, mDT>(acc : Array<mixed>, from : mNT, to : mNT, se : any) : mixed { // todo flow describe the parser representation of a transition step extension
 
   const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
 
@@ -114,7 +114,7 @@ function compile_rule_handle_transition_step<mNT, mDT>(acc : Array<mixed>, from 
 
 
 
-function compile_rule_handle_transition<mNT, mDT>(rule : any) { // todo flow describe the parser representation of a transition
+function compile_rule_handle_transition(rule : any) : mixed { // todo flow describe the parser representation of a transition
   return compile_rule_handle_transition_step([], rule.from, rule.se.to, rule.se.se);
 }
 
@@ -130,13 +130,18 @@ function compile_rule_handler<mNT, mDT>(rule : any) : any { // : JssmTransition<
 
 
 
-function compile<mNT, mDT>(tree : any) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
+function compile<mNT, mDT>(tree : JssmTransitions<mNT, mDT>) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
 
   const results = {};
 
   tree.map( tr => {
-    const { agg_as, val } = compile_rule_handler(tr);
+
+    const rule            = compile_rule_handler(tr),  // todo better types
+          agg_as : string = rule.agg_as,
+          val    : mixed  = rule.val;                  // todo better types
+
     results[agg_as] = (results[agg_as] || []).concat(val);
+
   });
 
   const assembled_transitions : Array< JssmTransition<mNT, mDT> > = [].concat(... results['transition']);
@@ -232,7 +237,7 @@ class Machine<mNT, mDT> {
 
 
         // forward mapping first by action name
-        let actionMap = this._actions.get(tr.action);
+        let actionMap : ?Map<mNT, number> = this._actions.get(tr.action);
         if (!(actionMap)) {
           actionMap = new Map();
           this._actions.set(tr.action, actionMap);
@@ -246,7 +251,7 @@ class Machine<mNT, mDT> {
 
 
         // reverse mapping first by state origin name
-        let rActionMap = this._reverse_actions.get(tr.from);
+        let rActionMap : ?Map<mNT, number> = this._reverse_actions.get(tr.from);
         if (!(rActionMap)) {
           rActionMap = new Map();
           this._reverse_actions.set(tr.from, rActionMap);
@@ -395,15 +400,17 @@ class Machine<mNT, mDT> {
 
   probable_exits_for(whichState : mNT) : Array< JssmTransition<mNT, mDT> > {
 
-    const wstate = this._states.get(whichState);
+    const wstate : ?JssmGenericState<mNT> = this._states.get(whichState);
     if (!(wstate)) { throw new Error(`No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
-    const wstate_to = wstate.to,
-          wtf       = wstate_to.map((ws) : ?JssmTransition<mNT, mDT> => this.lookup_transition_for(this.state(), ws))
-                               .filter(defined => defined);
+    const wstate_to : Array< mNT > = wstate.to,
 
-    return (wtf:any);  // :any because it can't see that .filter(d => d) removes
-                       // the undefineds, and l_t_f returns ?jt, but this returns jt
+          wtf       : Array< JssmTransition<mNT, mDT> >
+                    = wstate_to
+                        .map( (ws) : ?JssmTransition<mNT, mDT> => this.lookup_transition_for(this.state(), ws))
+                        .filter(Boolean);
+
+    return wtf;
 
   }
 

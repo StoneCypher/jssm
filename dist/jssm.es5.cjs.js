@@ -4703,7 +4703,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types
 
-var version = '4.1.8'; // replaced from package.js in build
+var version = '4.1.9'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -4806,9 +4806,11 @@ function compile(tree) {
   var results = {};
 
   tree.map(function (tr) {
-    var _compile_rule_handler = compile_rule_handler(tr),
-        agg_as = _compile_rule_handler.agg_as,
-        val = _compile_rule_handler.val;
+
+    var rule = compile_rule_handler(tr),
+        // todo better types
+    agg_as = rule.agg_as,
+        val = rule.val; // todo better types
 
     results[agg_as] = (results[agg_as] || []).concat(val);
   });
@@ -5083,12 +5085,9 @@ var Machine = function () {
       var wstate_to = wstate.to,
           wtf = wstate_to.map(function (ws) {
         return _this2.lookup_transition_for(_this2.state(), ws);
-      }).filter(function (defined) {
-        return defined;
-      });
+      }).filter(Boolean);
 
-      return wtf; // :any because it can't see that .filter(d => d) removes
-      // the undefineds, and l_t_f returns ?jt, but this returns jt
+      return wtf;
     }
   }, {
     key: 'probabilistic_transition',
