@@ -94,8 +94,8 @@ type JssmTransition<NT, DT> = {
 type JssmTransitions<NT, DT> = Array< JssmTransition<NT, DT> >;
 
 type JssmTransitionList<NT> = {
-	entrances : Array<NT>,
-	exits     : Array<NT>
+  entrances : Array<NT>,
+  exits     : Array<NT>
 };
 
 
@@ -122,9 +122,48 @@ type JssmGenericConfig<NT, DT> = {
 
   simplify_bidi? : boolean,
 
-  auto_api?      : boolean | string;  // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  auto_api?      : boolean | string  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
 };
+
+
+
+
+
+type JssmCompileRule = {
+
+  agg_as : string,
+  val    : mixed
+
+};
+
+
+
+
+
+type JssmCompileSe<NT> = {
+
+  to : NT,
+  se : JssmCompileSe<NT>
+
+};
+
+
+
+
+
+type JssmCompileSeStart<NT> = {
+
+  from : NT,
+  se   : JssmCompileSe<NT>
+
+};
+
+
+
+
+
+type JssmParseTree<NT> = Array< JssmCompileSeStart<NT> >;
 
 
 
@@ -142,6 +181,11 @@ export type {
 
   JssmGenericConfig,
     JssmGenericState,
+
+  JssmParseTree,
+    JssmCompileSe,
+    JssmCompileSeStart,
+    JssmCompileRule,
 
   JssmMachineInternalState
 

@@ -5,14 +5,16 @@
 
 import type {
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitions, JssmTransitionList,
+  JssmTransition, JssmTransitionList,
   JssmMachineInternalState,
+  JssmParseTree,
+  JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind
 } from './jssm-types';
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
-const parse   : <NT, DT>(string) => JssmTransitions<NT, DT> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types
+const parse : <NT, DT>(string) => JssmParseTree<NT> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
 const version : null = null; // replaced from package.js in build
 
@@ -100,12 +102,12 @@ function arrow_right_kind(arrow : JssmArrow) : JssmArrowKind {
 
 
 
-function compile_rule_handle_transition_step<mNT, mDT>(acc : Array<mixed>, from : mNT, to : mNT, se : any) : mixed { // todo flow describe the parser representation of a transition step extension
+function compile_rule_transition_step<mNT>(acc : Array<mixed>, from : mNT, to : mNT, se : JssmCompileSe<mNT>) : mixed { // todo flow describe the parser representation of a transition step extension
 
   const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
 
   if (se) {
-    return compile_rule_handle_transition_step(new_acc, to, se.to, se.se);
+    return compile_rule_transition_step(new_acc, to, se.to, se.se);
   } else {
     return new_acc;
   }
@@ -114,33 +116,35 @@ function compile_rule_handle_transition_step<mNT, mDT>(acc : Array<mixed>, from 
 
 
 
-function compile_rule_handle_transition(rule : any) : mixed { // todo flow describe the parser representation of a transition
-  return compile_rule_handle_transition_step([], rule.from, rule.se.to, rule.se.se);
+function compile_rule_handle_transition<mNT>(rule : JssmCompileSeStart<mNT>) : mixed { // todo flow describe the parser representation of a transition
+  return compile_rule_transition_step([], rule.from, rule.se.to, rule.se.se);
 }
 
 
 
-function compile_rule_handler<mNT, mDT>(rule : any) : any { // : JssmTransition<mNT, mDT> { // todo flow describe the output of the parser
+function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompileRule { // todo flow describe the output of the parser
 
   if (rule.key === 'transition') { return { agg_as: 'transition', val: compile_rule_handle_transition(rule) }; }
 
-  throw new Error(`Unknown rule: ${JSON.stringify(rule)}`);
+  throw new Error(`compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
 
 }
 
 
 
-function compile<mNT, mDT>(tree : JssmTransitions<mNT, mDT>) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
+function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
 
-  const results = {};
+  const results : {transition:Array< JssmTransition<mNT, mDT> >} = {
+    transition: []
+  };
 
-  tree.map( tr => {
+  tree.map( (tr : JssmCompileSeStart<mNT>) => {
 
-    const rule            = compile_rule_handler(tr),  // todo better types
-          agg_as : string = rule.agg_as,
-          val    : mixed  = rule.val;                  // todo better types
+    const rule   : JssmCompileRule = compile_rule_handler(tr),
+          agg_as : string          = rule.agg_as,
+          val    : mixed           = rule.val;                  // todo better types
 
-    results[agg_as] = (results[agg_as] || []).concat(val);
+    results[agg_as] = results[agg_as].concat(val);
 
   });
 
@@ -189,17 +193,19 @@ class Machine<mNT, mDT> {
       if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      let cursor_from = this._states.get(tr.from);
+      let cursor_from : ?JssmGenericState<mNT> = this._states.get(tr.from);
       if (cursor_from === undefined) {
         this._new_state({name: tr.from, from: [], to: [], complete: complete.includes(tr.from) });
-        cursor_from = (this._states.get(tr.from) : any);
+        cursor_from = this._states.get(tr.from);
       }
+      if (!cursor_from) { throw new Error('cursor_from should have been created.  rly silencing flow.'); }
 
-      let cursor_to = this._states.get(tr.to);
+      let cursor_to : ?JssmGenericState<mNT> = this._states.get(tr.to);
       if (cursor_to === undefined) {
         this._new_state({name: tr.to, from: [], to: [], complete: complete.includes(tr.to) });
-        cursor_to = (this._states.get(tr.to) : any);
+        cursor_to = this._states.get(tr.to);
       }
+      if (!cursor_to) { throw new Error('cursor_to should have been created.  rly silencing flow.'); }
 
       // guard against existing connections being re-added
       if (cursor_from.to.includes(tr.to)) {
@@ -223,11 +229,12 @@ class Machine<mNT, mDT> {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      let from_mapping = this._edge_map.get(tr.from);
+      let from_mapping : ?Map<mNT, number> = this._edge_map.get(tr.from);
       if (from_mapping === undefined) {
         this._edge_map.set(tr.from, new Map());
-        from_mapping = (this._edge_map.get(tr.from) : any);  // whargarbl burn out uses of any
+        from_mapping = this._edge_map.get(tr.from);  // whargarbl burn out uses of any
       }
+      if (!from_mapping) { throw new Error('from_mapping should have been created.  rly silencing flow.'); }
 
 //    const to_mapping = from_mapping.get(tr.to);
       from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
@@ -374,8 +381,18 @@ class Machine<mNT, mDT> {
 
 
   get_transition_by_state_names(from: mNT, to: mNT) : ?number {
-    return this._edge_map.has(from)? (this._edge_map.get(from) : any).get(to) : undefined;
+
+    const emg : ?Map<mNT, number> = this._edge_map.get(from);
+
+    if (emg) {
+      return emg.get(to);
+    } else {
+      return undefined;
+    }
+
   }
+
+
 
   lookup_transition_for(from: mNT, to: mNT) : ?JssmTransition<mNT, mDT> {
     const id : ?number = this.get_transition_by_state_names(from, to);

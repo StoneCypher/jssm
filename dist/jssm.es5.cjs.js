@@ -4701,9 +4701,9 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 // whargarbl lots of these return arrays could/should be sets
 
-var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types
+var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.1.9'; // replaced from package.js in build
+var version = '4.1.10'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -4771,13 +4771,13 @@ function arrow_right_kind(arrow) {
   }
 }
 
-function compile_rule_handle_transition_step(acc, from, to, se) {
+function compile_rule_transition_step(acc, from, to, se) {
   // todo flow describe the parser representation of a transition step extension
 
   var new_acc = acc.concat({ from: from, to: to }); // todo whargarbl can do better than array mixed
 
   if (se) {
-    return compile_rule_handle_transition_step(new_acc, to, se.to, se.se);
+    return compile_rule_transition_step(new_acc, to, se.to, se.se);
   } else {
     return new_acc;
   }
@@ -4785,17 +4785,17 @@ function compile_rule_handle_transition_step(acc, from, to, se) {
 
 function compile_rule_handle_transition(rule) {
   // todo flow describe the parser representation of a transition
-  return compile_rule_handle_transition_step([], rule.from, rule.se.to, rule.se.se);
+  return compile_rule_transition_step([], rule.from, rule.se.to, rule.se.se);
 }
 
 function compile_rule_handler(rule) {
-  // : JssmTransition<mNT, mDT> { // todo flow describe the output of the parser
+  // todo flow describe the output of the parser
 
   if (rule.key === 'transition') {
     return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
   }
 
-  throw new Error('Unknown rule: ' + JSON.stringify(rule));
+  throw new Error('compile_rule_handler: Unknown rule: ' + JSON.stringify(rule));
 }
 
 function compile(tree) {
@@ -4803,16 +4803,17 @@ function compile(tree) {
 
   // todo flow describe the output of the parser
 
-  var results = {};
+  var results = {
+    transition: []
+  };
 
   tree.map(function (tr) {
 
     var rule = compile_rule_handler(tr),
-        // todo better types
-    agg_as = rule.agg_as,
+        agg_as = rule.agg_as,
         val = rule.val; // todo better types
 
-    results[agg_as] = (results[agg_as] || []).concat(val);
+    results[agg_as] = results[agg_as].concat(val);
   });
 
   var assembled_transitions = (_ref = []).concat.apply(_ref, _toConsumableArray(results['transition']));
@@ -4862,11 +4863,17 @@ var Machine = function () {
         _this._new_state({ name: tr.from, from: [], to: [], complete: complete.includes(tr.from) });
         cursor_from = _this._states.get(tr.from);
       }
+      if (!cursor_from) {
+        throw new Error('cursor_from should have been created.  rly silencing flow.');
+      }
 
       var cursor_to = _this._states.get(tr.to);
       if (cursor_to === undefined) {
         _this._new_state({ name: tr.to, from: [], to: [], complete: complete.includes(tr.to) });
         cursor_to = _this._states.get(tr.to);
+      }
+      if (!cursor_to) {
+        throw new Error('cursor_to should have been created.  rly silencing flow.');
       }
 
       // guard against existing connections being re-added
@@ -4895,6 +4902,9 @@ var Machine = function () {
       if (from_mapping === undefined) {
         _this._edge_map.set(tr.from, new Map());
         from_mapping = _this._edge_map.get(tr.from); // whargarbl burn out uses of any
+      }
+      if (!from_mapping) {
+        throw new Error('from_mapping should have been created.  rly silencing flow.');
       }
 
       //    const to_mapping = from_mapping.get(tr.to);
@@ -5043,7 +5053,14 @@ var Machine = function () {
   }, {
     key: 'get_transition_by_state_names',
     value: function get_transition_by_state_names(from, to) {
-      return this._edge_map.has(from) ? this._edge_map.get(from).get(to) : undefined;
+
+      var emg = this._edge_map.get(from);
+
+      if (emg) {
+        return emg.get(to);
+      } else {
+        return undefined;
+      }
     }
   }, {
     key: 'lookup_transition_for',
