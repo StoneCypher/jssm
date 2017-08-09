@@ -64,6 +64,7 @@ Which you can see being hand-executed in the console here:
 ## Quick Start
 ## Why
 ## How To
+## Example Machines
 ## Notation Comparison
 ### Their notations, one by one
 ### Apples to Apples - Traffic Light
