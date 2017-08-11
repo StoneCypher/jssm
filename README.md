@@ -65,6 +65,11 @@ Which you can see being hand-executed in the console here:
 ## Why
 ## How To
 ## Example Machines
+### Simple syntax
+### Traffic lights
+### Coin-op vending machine
+### Roguelike monster
+### Candy crush clone game flow
 ## Notation Comparison
 ### Their notations, one by one
 ### Apples to Apples - Traffic Light
