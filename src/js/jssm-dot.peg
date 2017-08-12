@@ -11,35 +11,70 @@ GvizShape
 
 
 
-ForwardLightArrow "forward light arrow"
+ForwardLightArrow "forward light arrow ->"
   = "->"
 
-TwoWayLightArrow "two way light arrow"
+TwoWayLightArrow "two way light arrow <->"
   = "<->"
 
-ForwardFatArrow "forward fat arrow"
+BackLightArrow "back light arrow <-"
+  = "<-"
+
+
+ForwardFatArrow "forward fat arrow =>"
   = "=>"
 
-TwoWayFatArrow "two way fat arrow"
+TwoWayFatArrow "two way fat arrow <=>"
   = "<=>"
 
-ForwardTildeArrow "forward tilde arrow"
+BackFatArrow "back fat arrow <="
+  = "<="
+
+
+ForwardTildeArrow "forward tilde arrow ~>"
   = "~>"
 
-TwoWayTildeArrow "two way tilde arrow"
+TwoWayTildeArrow "two way tilde arrow <~>"
   = "<~>"
 
+BackTildeArrow "back tilde arrow <~"
+  = "<~"
+
+
+LightFatArrow "light fat arrow <-=>"
+  = "<-=>"
+
+LightTildeArrow "light tilde arrow <-~>"
+  = "<-~>"
+
+FatLightArrow "fat light arrow <=->"
+  = "<=->"
+
+FatTildeArrow "fat tilde arrow <=~>"
+  = "<=~>"
+
+TildeLightArrow "tilde light arrow <~->"
+  = "<~->"
+
+TildeFatArrow "tilde fat arrow <~=>"
+  = "<~=>"
+
+
 LightArrow "light arrow"
-  = ForwardLightArrow / TwoWayLightArrow
+  = ForwardLightArrow / TwoWayLightArrow / BackLightArrow
 
 FatArrow "fat arrow"
-  = ForwardFatArrow / TwoWayFatArrow
+  = ForwardFatArrow / TwoWayFatArrow / BackFatArrow
 
 TildeArrow "tilde arrow"
-  = ForwardTildeArrow / TwoWayTildeArrow
+  = ForwardTildeArrow / TwoWayTildeArrow / BackTildeArrow
+
+MixedArrow "mixed arrow"
+  = LightFatArrow / LightTildeArrow / FatLightArrow / FatTildeArrow / TildeLightArrow / TildeFatArrow
+
 
 Arrow "arrow"
-  = LightArrow / FatArrow / TildeArrow
+  = MixedArrow / LightArrow / FatArrow / TildeArrow
 
 
 

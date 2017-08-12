@@ -93,7 +93,8 @@ type JssmTransition<NT, DT> = {
     check?       : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
     probability? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
     common       : boolean,
-    forced_only  : boolean
+    forced_only  : boolean,
+    main_path    : boolean
 };
 
 type JssmTransitions<NT, DT> = Array< JssmTransition<NT, DT> >;

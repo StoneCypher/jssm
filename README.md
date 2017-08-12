@@ -61,15 +61,39 @@ Which you can see being hand-executed in the console here:
 
 <br/><br/>
 
-## Quick Start
 ## Why
-## How To
+
+## Quick Start
+### Terminology
+
+## Features
+### DSL
+### States
+### Transitions
+#### Legal, main, and forced
+### Validators
+### State history
+### Automatic visualization
+
+## How to think in state machines
+
 ## Example Machines
-### Simple syntax
+### Door lock
 ### Traffic lights
-### Coin-op vending machine
-### Roguelike monster
-### Candy crush clone game flow
+#### Basic three-state
+#### RYG, Off, Flash-red, Flash-yellow
+#### RYG, Off, Flash-red, Flash-yellow, Green-left, Yellow-left
+#### Heirarchal intersection
+### Coin-op vending machine (data)
+### Video games
+#### Pac-man Ghost (sensors)
+#### Weather (probabilistics)
+#### Roguelike monster (interface satisfaction)
+### Candy crush clone game flow (practical large use)
+### React SPA website (practical large use)
+
+## How to debug
+
 ## Notation Comparison
 ### Their notations, one by one
 ### Apples to Apples - Traffic Light

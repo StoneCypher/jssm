@@ -108,7 +108,7 @@ function compile_rule_transition_step<mNT>(
              to      : mNT,
              this_se : JssmCompileSe<mNT>,
              next_se : JssmCompileSe<mNT>
-         ) : mixed { // todo flow describe the parser representation of a transition step extension
+         ) : Array<mixed> { // todo flow describe the parser representation of a transition step extension
 
   const right : any = {
     from,
