@@ -102,12 +102,38 @@ function arrow_right_kind(arrow : JssmArrow) : JssmArrowKind {
 
 
 
-function compile_rule_transition_step<mNT>(acc : Array<mixed>, from : mNT, to : mNT, se : JssmCompileSe<mNT>) : mixed { // todo flow describe the parser representation of a transition step extension
+function compile_rule_transition_step<mNT>(
+             acc     : Array<mixed>,
+             from    : mNT,
+             to      : mNT,
+             this_se : JssmCompileSe<mNT>,
+             next_se : JssmCompileSe<mNT>
+         ) : mixed { // todo flow describe the parser representation of a transition step extension
 
-  const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
+  const right : any = {
+    from,
+    to,
+    kind: arrow_right_kind(this_se.kind)
+  };
 
-  if (se) {
-    return compile_rule_transition_step(new_acc, to, se.to, se.se);
+  const left : any = {
+    from : to,
+    to   : from,
+    kind : arrow_left_kind(this_se.kind)
+  };
+
+  const new_acc : Array<mixed> = acc.concat(          // todo whargarbl can do better than array mixed
+    (left.kind === 'none')?    right : (
+      (right.kind === 'none')? left : (
+                               [left, right]
+      )
+    )
+  );
+
+//  const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
+
+  if (next_se) {
+    return compile_rule_transition_step(new_acc, to, next_se.to, next_se, next_se.se);
   } else {
     return new_acc;
   }
@@ -117,7 +143,7 @@ function compile_rule_transition_step<mNT>(acc : Array<mixed>, from : mNT, to : 
 
 
 function compile_rule_handle_transition<mNT>(rule : JssmCompileSeStart<mNT>) : mixed { // todo flow describe the parser representation of a transition
-  return compile_rule_transition_step([], rule.from, rule.se.to, rule.se.se);
+  return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
 }
 
 

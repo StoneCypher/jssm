@@ -148,8 +148,9 @@ type JssmCompileRule = {
 
 type JssmCompileSe<NT> = {
 
-  to : NT,
-  se : JssmCompileSe<NT>
+  to   : NT,
+  se   : JssmCompileSe<NT>,
+  kind : JssmArrow
 
 };
 
