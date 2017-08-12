@@ -13,7 +13,10 @@ type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete;
 type JssmPermitted      = 'required' | 'disallowed';
 type JssmPermittedOpt   = 'required' | 'disallowed' | 'optional';
 
-type JssmArrow          = '->' | '<->' | '<=->' | '<~->' | '=>' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~>' | '<-~>' | '<=~>';
+type JssmArrow          = '->' | '<->' | '<=->' | '<~->'
+                        | '=>' | '<=>' | '<-=>' | '<~=>'
+                        | '~>' | '<~>' | '<-~>' | '<=~>';
+
 type JssmArrowDirection = 'left' | 'right' | 'both';
 type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
@@ -47,7 +50,9 @@ type JssmGenericState<NT> = {
 
 
 type JssmTransitionPermitter<NT, DT>           = (OldState: NT, NewState: NT, OldData: DT, NewData: DT) => boolean;
-type JssmTransitionPermitterMaybeArray<NT, DT> = JssmTransitionPermitter<NT, DT> | Array< JssmTransitionPermitter<NT, DT> >;
+
+type JssmTransitionPermitterMaybeArray<NT, DT> =        JssmTransitionPermitter<NT, DT>
+                                               | Array< JssmTransitionPermitter<NT, DT> >;
 
 
 
@@ -181,11 +186,15 @@ export type {
 
   JssmGenericConfig,
     JssmGenericState,
+    JssmGenericMachine,
 
   JssmParseTree,
     JssmCompileSe,
     JssmCompileSeStart,
     JssmCompileRule,
+
+  JssmPermitted,
+    JssmResult,
 
   JssmMachineInternalState
 

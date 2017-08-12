@@ -4703,7 +4703,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.1.10'; // replaced from package.js in build
+var version = '4.1.14'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -4858,22 +4858,16 @@ var Machine = function () {
       }
 
       // get the cursors.  what a mess
-      var cursor_from = _this._states.get(tr.from);
-      if (cursor_from === undefined) {
-        _this._new_state({ name: tr.from, from: [], to: [], complete: complete.includes(tr.from) });
-        cursor_from = _this._states.get(tr.from);
-      }
-      if (!cursor_from) {
-        throw new Error('cursor_from should have been created.  rly silencing flow.');
+      var cursor_from = _this._states.get(tr.from) || { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
+
+      if (!_this._states.has(tr.from)) {
+        _this._new_state(cursor_from);
       }
 
-      var cursor_to = _this._states.get(tr.to);
-      if (cursor_to === undefined) {
-        _this._new_state({ name: tr.to, from: [], to: [], complete: complete.includes(tr.to) });
-        cursor_to = _this._states.get(tr.to);
-      }
-      if (!cursor_to) {
-        throw new Error('cursor_to should have been created.  rly silencing flow.');
+      var cursor_to = _this._states.get(tr.to) || { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
+
+      if (!_this._states.has(tr.to)) {
+        _this._new_state(cursor_to);
       }
 
       // guard against existing connections being re-added
@@ -4898,13 +4892,9 @@ var Machine = function () {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      var from_mapping = _this._edge_map.get(tr.from);
-      if (from_mapping === undefined) {
-        _this._edge_map.set(tr.from, new Map());
-        from_mapping = _this._edge_map.get(tr.from); // whargarbl burn out uses of any
-      }
-      if (!from_mapping) {
-        throw new Error('from_mapping should have been created.  rly silencing flow.');
+      var from_mapping = _this._edge_map.get(tr.from) || new Map();
+      if (!_this._edge_map.has(tr.from)) {
+        _this._edge_map.set(tr.from, from_mapping);
       }
 
       //    const to_mapping = from_mapping.get(tr.to);

@@ -193,19 +193,21 @@ class Machine<mNT, mDT> {
       if (tr.to   === undefined) { throw new Error(`transition must define 'to': ${  JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      let cursor_from : ?JssmGenericState<mNT> = this._states.get(tr.from);
-      if (cursor_from === undefined) {
-        this._new_state({name: tr.from, from: [], to: [], complete: complete.includes(tr.from) });
-        cursor_from = this._states.get(tr.from);
-      }
-      if (!cursor_from) { throw new Error('cursor_from should have been created.  rly silencing flow.'); }
+      const cursor_from : JssmGenericState<mNT>
+          = this._states.get(tr.from)
+         || { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
 
-      let cursor_to : ?JssmGenericState<mNT> = this._states.get(tr.to);
-      if (cursor_to === undefined) {
-        this._new_state({name: tr.to, from: [], to: [], complete: complete.includes(tr.to) });
-        cursor_to = this._states.get(tr.to);
+      if (!(this._states.has(tr.from))) {
+        this._new_state(cursor_from);
       }
-      if (!cursor_to) { throw new Error('cursor_to should have been created.  rly silencing flow.'); }
+
+      const cursor_to : JssmGenericState<mNT>
+          = this._states.get(tr.to)
+         || {name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
+
+      if (!(this._states.has(tr.to))) {
+        this._new_state(cursor_to);
+      }
 
       // guard against existing connections being re-added
       if (cursor_from.to.includes(tr.to)) {
@@ -229,12 +231,10 @@ class Machine<mNT, mDT> {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      let from_mapping : ?Map<mNT, number> = this._edge_map.get(tr.from);
-      if (from_mapping === undefined) {
-        this._edge_map.set(tr.from, new Map());
-        from_mapping = this._edge_map.get(tr.from);  // whargarbl burn out uses of any
+      const from_mapping : Map<mNT, number> = this._edge_map.get(tr.from) || new Map();
+      if (!(this._edge_map.has(tr.from))) {
+        this._edge_map.set(tr.from, from_mapping);
       }
-      if (!from_mapping) { throw new Error('from_mapping should have been created.  rly silencing flow.'); }
 
 //    const to_mapping = from_mapping.get(tr.to);
       from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
