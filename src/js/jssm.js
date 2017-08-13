@@ -116,25 +116,34 @@ function compile_rule_transition_step<mNT, mDT>(
              next_se : JssmCompileSe<mNT>
          ) : Array< JssmTransition<mNT, mDT> > { // todo flow describe the parser representation of a transition step extension
 
-  const right : JssmTransition<mNT, mDT> = {
-    from,
-    to,
-    kind: arrow_right_kind(this_se.kind)
-  };
+  const edges : Array< JssmTransition<mNT, mDT> > = [];
 
-  const left : JssmTransition<mNT, mDT> = {
-    from : to,
-    to   : from,
-    kind : arrow_left_kind(this_se.kind)
-  };
+  const uFrom : Array< mNT > = (Array.isArray(from)? from : [from]),
+        uTo   : Array< mNT > = (Array.isArray(to)?   to   : [to]  );
 
-  const new_acc : Array< JssmTransition<mNT, mDT> > = acc.concat(          // todo whargarbl can do better than array mixed
-    (left.kind === 'none')?    right : (
-      (right.kind === 'none')? left : (
-                               [left, right]
-      )
-    )
-  );
+  uFrom.map( (f:mNT) => {
+    uTo.map( (t:mNT) => {
+
+      const right : JssmTransition<mNT, mDT> = {
+        from : f,
+        to   : t,
+        kind : arrow_right_kind(this_se.kind)
+      };
+
+      if (right.kind !== 'none') { edges.push(right); }
+
+      const left : JssmTransition<mNT, mDT> = {
+        from : t,
+        to   : f,
+        kind : arrow_left_kind(this_se.kind)
+      };
+
+      if (left.kind !== 'none') { edges.push(right); }
+
+    });
+  });
+
+  const new_acc : Array< JssmTransition<mNT, mDT> > = acc.concat(edges);
 
 //  const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
 

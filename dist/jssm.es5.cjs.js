@@ -4990,7 +4990,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.1.17'; // replaced from package.js in build
+var version = '4.1.18'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -5061,20 +5061,37 @@ function arrow_right_kind(arrow) {
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
   // todo flow describe the parser representation of a transition step extension
 
-  var right = {
-    from: from,
-    to: to,
-    kind: arrow_right_kind(this_se.kind)
-  };
+  var edges = [];
 
-  var left = {
-    from: to,
-    to: from,
-    kind: arrow_left_kind(this_se.kind)
-  };
+  var uFrom = Array.isArray(from) ? from : [from],
+      uTo = Array.isArray(to) ? to : [to];
 
-  var new_acc = acc.concat( // todo whargarbl can do better than array mixed
-  left.kind === 'none' ? right : right.kind === 'none' ? left : [left, right]);
+  uFrom.map(function (f) {
+    uTo.map(function (t) {
+
+      var right = {
+        from: f,
+        to: t,
+        kind: arrow_right_kind(this_se.kind)
+      };
+
+      if (right.kind !== 'none') {
+        edges.push(right);
+      }
+
+      var left = {
+        from: t,
+        to: f,
+        kind: arrow_left_kind(this_se.kind)
+      };
+
+      if (left.kind !== 'none') {
+        edges.push(right);
+      }
+    });
+  });
+
+  var new_acc = acc.concat(edges);
 
   //  const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
 
