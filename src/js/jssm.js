@@ -4,13 +4,19 @@
 // @flow
 
 import type {
+
   JssmGenericState, JssmGenericConfig,
   JssmTransition, JssmTransitionList,
   JssmMachineInternalState,
   JssmParseTree,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind
+
 } from './jssm-types';
+
+
+
+
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
@@ -102,27 +108,27 @@ function arrow_right_kind(arrow : JssmArrow) : JssmArrowKind {
 
 
 
-function compile_rule_transition_step<mNT>(
-             acc     : Array<mixed>,
+function compile_rule_transition_step<mNT, mDT>(
+             acc     : Array< JssmTransition<mNT, mDT> >,
              from    : mNT,
              to      : mNT,
              this_se : JssmCompileSe<mNT>,
              next_se : JssmCompileSe<mNT>
-         ) : Array<mixed> { // todo flow describe the parser representation of a transition step extension
+         ) : Array< JssmTransition<mNT, mDT> > { // todo flow describe the parser representation of a transition step extension
 
-  const right : any = {
+  const right : JssmTransition<mNT, mDT> = {
     from,
     to,
     kind: arrow_right_kind(this_se.kind)
   };
 
-  const left : any = {
+  const left : JssmTransition<mNT, mDT> = {
     from : to,
     to   : from,
     kind : arrow_left_kind(this_se.kind)
   };
 
-  const new_acc : Array<mixed> = acc.concat(          // todo whargarbl can do better than array mixed
+  const new_acc : Array< JssmTransition<mNT, mDT> > = acc.concat(          // todo whargarbl can do better than array mixed
     (left.kind === 'none')?    right : (
       (right.kind === 'none')? left : (
                                [left, right]

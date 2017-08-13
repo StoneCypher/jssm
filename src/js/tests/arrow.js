@@ -10,6 +10,7 @@ const jssm = require('../../../build/jssm.es5.js');
 
 
 describe('arrow_direction', async it => {
+
   it('<-',   t => t.is('left',  jssm.arrow_direction('<-')   ) );
   it('<=',   t => t.is('left',  jssm.arrow_direction('<=')   ) );
   it('<~',   t => t.is('left',  jssm.arrow_direction('<~')   ) );
