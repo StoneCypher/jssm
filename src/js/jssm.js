@@ -124,18 +124,25 @@ function compile_rule_transition_step<mNT, mDT>(
   uFrom.map( (f:mNT) => {
     uTo.map( (t:mNT) => {
 
+      const rk : string = arrow_right_kind(this_se.kind),
+            lk : string = arrow_left_kind(this_se.kind);
+
       const right : JssmTransition<mNT, mDT> = {
-        from : f,
-        to   : t,
-        kind : arrow_right_kind(this_se.kind)
+        from        : f,
+        to          : t,
+        kind        : rk,
+        forced_only : rk === 'forced',
+        main_path   : rk === 'main'
       };
 
       if (right.kind !== 'none') { edges.push(right); }
 
       const left : JssmTransition<mNT, mDT> = {
-        from : t,
-        to   : f,
-        kind : arrow_left_kind(this_se.kind)
+        from        : t,
+        to          : f,
+        kind        : lk,
+        forced_only : lk === 'forced',
+        main_path   : lk === 'main'
       };
 
       if (left.kind !== 'none') { edges.push(right); }
@@ -605,7 +612,6 @@ class Machine<mNT, mDT> {
     }
   }
 
-/* whargarbl reintroduce after valid_force_transition is re-enabled
   // can leave machine in inconsistent state.  generally do not use
   force_transition(newState : mNT, newData? : mDT) : boolean {
     // todo whargarbl implement hooks
@@ -618,7 +624,6 @@ class Machine<mNT, mDT> {
       return false;
     }
   }
-*/
 
 
 
@@ -644,14 +649,21 @@ class Machine<mNT, mDT> {
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
-    return (this.lookup_transition_for(this.state(), newState) !== undefined);
+    const transition_for : ?JssmTransition<mNT, mDT> = this.lookup_transition_for(this.state(), newState);
+
+    if (!(transition_for))          { return false; }
+    if (transition_for.forced_only) { return false; }
+
+    return true;
+
   }
 
-/* todo whargarbl re-enable force_transition/1 after implementing this
-  valid_force_transition(newState : mNT, newData? : mDT) : boolean {
-    return false; // major todo whargarbl
+  valid_force_transition(newState : mNT, _newData? : mDT) : boolean {  // todo comeback unignore newData
+    // todo whargarbl implement hooks
+    // todo whargarbl implement data stuff
+    // todo major incomplete whargarbl comeback
+    return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
-*/
 
 
 }

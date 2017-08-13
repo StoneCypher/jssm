@@ -4990,7 +4990,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.1.18'; // replaced from package.js in build
+var version = '4.2.0'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -5069,10 +5069,15 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
   uFrom.map(function (f) {
     uTo.map(function (t) {
 
+      var rk = arrow_right_kind(this_se.kind),
+          lk = arrow_left_kind(this_se.kind);
+
       var right = {
         from: f,
         to: t,
-        kind: arrow_right_kind(this_se.kind)
+        kind: rk,
+        forced_only: rk === 'forced',
+        main_path: rk === 'main'
       };
 
       if (right.kind !== 'none') {
@@ -5082,7 +5087,9 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
       var left = {
         from: t,
         to: f,
-        kind: arrow_left_kind(this_se.kind)
+        kind: lk,
+        forced_only: lk === 'forced',
+        main_path: lk === 'main'
       };
 
       if (left.kind !== 'none') {
@@ -5598,21 +5605,21 @@ var Machine = function () {
       }
     }
 
-    /* whargarbl reintroduce after valid_force_transition is re-enabled
-      // can leave machine in inconsistent state.  generally do not use
-      force_transition(newState : mNT, newData? : mDT) : boolean {
-        // todo whargarbl implement hooks
-        // todo whargarbl implement data stuff
-        // todo major incomplete whargarbl comeback
-        if (this.valid_force_transition(newState, newData)) {
-          this._state = newState;
-          return true;
-        } else {
-          return false;
-        }
-      }
-    */
+    // can leave machine in inconsistent state.  generally do not use
 
+  }, {
+    key: 'force_transition',
+    value: function force_transition(newState, newData) {
+      // todo whargarbl implement hooks
+      // todo whargarbl implement data stuff
+      // todo major incomplete whargarbl comeback
+      if (this.valid_force_transition(newState, newData)) {
+        this._state = newState;
+        return true;
+      } else {
+        return false;
+      }
+    }
   }, {
     key: 'current_action_for',
     value: function current_action_for(action) {
@@ -5643,16 +5650,26 @@ var Machine = function () {
       // todo comeback unignore newData
       // todo whargarbl implement hooks
       // todo whargarbl implement data stuff
+      var transition_for = this.lookup_transition_for(this.state(), newState);
+
+      if (!transition_for) {
+        return false;
+      }
+      if (transition_for.forced_only) {
+        return false;
+      }
+
+      return true;
+    }
+  }, {
+    key: 'valid_force_transition',
+    value: function valid_force_transition(newState, _newData) {
+      // todo comeback unignore newData
+      // todo whargarbl implement hooks
+      // todo whargarbl implement data stuff
       // todo major incomplete whargarbl comeback
       return this.lookup_transition_for(this.state(), newState) !== undefined;
     }
-
-    /* todo whargarbl re-enable force_transition/1 after implementing this
-      valid_force_transition(newState : mNT, newData? : mDT) : boolean {
-        return false; // major todo whargarbl
-      }
-    */
-
   }]);
 
   return Machine;
