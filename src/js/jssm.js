@@ -213,6 +213,12 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
 
 
+function make<mNT, mDT>(plan : string) : JssmGenericConfig<mNT, mDT> {
+  return compile(parse(plan));
+}
+
+
+
 
 
 class Machine<mNT, mDT> {
@@ -683,7 +689,7 @@ function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : Mach
     // therefore template_strings will always have one more el than template_args
     // therefore map the smaller container and toss the last one on on the way out
 
-    return new Machine(compile(parse(template_strings.reduce(
+    return new Machine(make(template_strings.reduce(
 
       // in general avoiding `arguments` is smart.  however with the template
       // string notation, as designed, it's not really worth the hassle
@@ -694,7 +700,7 @@ function sm<mNT, mDT>(template_strings : Array<string> /* , arguments */) : Mach
       /* eslint-enable  prefer-rest-params */
       /* eslint-enable  fp/no-arguments */
 
-    ))));
+    )));
 
 }
 
@@ -707,8 +713,10 @@ export {
   version,
 
   Machine,
-  parse,
-  compile,
+
+  make,
+    parse,
+    compile,
 
   sm,
 

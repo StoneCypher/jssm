@@ -4983,7 +4983,7 @@ exports.weighted_sample_select = weighted_sample_select;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.arrow_right_kind = exports.arrow_left_kind = exports.arrow_direction = exports.sm = exports.compile = exports.parse = exports.Machine = exports.version = undefined;
+exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.arrow_right_kind = exports.arrow_left_kind = exports.arrow_direction = exports.sm = exports.compile = exports.parse = exports.make = exports.Machine = exports.version = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -4997,7 +4997,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.3.1'; // replaced from package.js in build
+var version = '4.3.2'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -5163,6 +5163,10 @@ function compile(tree) {
   };
 
   return result_cfg;
+}
+
+function make(plan) {
+  return compile(parse(plan));
 }
 
 var Machine = function () {
@@ -5697,7 +5701,7 @@ function sm(template_strings /* , arguments */) {
   // therefore template_strings will always have one more el than template_args
   // therefore map the smaller container and toss the last one on on the way out
 
-  return new Machine(compile(parse(template_strings.reduce(
+  return new Machine(make(template_strings.reduce(
 
   // in general avoiding `arguments` is smart.  however with the template
   // string notation, as designed, it's not really worth the hassle
@@ -5710,11 +5714,12 @@ function sm(template_strings /* , arguments */) {
   /* eslint-enable  prefer-rest-params */
   /* eslint-enable  fp/no-arguments */
 
-  ))));
+  )));
 }
 
 exports.version = version;
 exports.Machine = Machine;
+exports.make = make;
 exports.parse = parse;
 exports.compile = compile;
 exports.sm = sm;
