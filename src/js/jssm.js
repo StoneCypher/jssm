@@ -125,8 +125,8 @@ function compile_rule_transition_step<mNT, mDT>(
   uFrom.map( (f:mNT) => {
     uTo.map( (t:mNT) => {
 
-      const rk : string = arrow_right_kind(this_se.kind),
-            lk : string = arrow_left_kind(this_se.kind);
+      const rk : JssmArrowKind = arrow_right_kind(this_se.kind),
+            lk : JssmArrowKind = arrow_left_kind(this_se.kind);
 
 
       const right : JssmTransition<mNT, mDT> = {
