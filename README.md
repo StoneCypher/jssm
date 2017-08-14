@@ -109,6 +109,7 @@ Which you can see being hand-executed in the console here:
 #### Roguelike monster (interface satisfaction)
 ### Candy crush clone game flow (practical large use)
 ### React SPA website (practical large use)
+### [LibGCrypt FIPS mode FSM](https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png)
 
 ## How to debug
 
