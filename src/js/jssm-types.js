@@ -166,8 +166,9 @@ type JssmCompileSe<NT> = {
 
 type JssmCompileSeStart<NT> = {
 
-  from : NT,
-  se   : JssmCompileSe<NT>
+  from   : NT,
+  se     : JssmCompileSe<NT>,
+  value? : string | mixed | number
 
 };
 
@@ -202,6 +203,8 @@ export type {
 
   JssmPermitted,
     JssmResult,
+
+  JssmLayout,
 
   JssmMachineInternalState
 

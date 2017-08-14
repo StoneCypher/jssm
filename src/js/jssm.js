@@ -10,7 +10,8 @@ import type {
   JssmMachineInternalState,
   JssmParseTree,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
-  JssmArrow, JssmArrowDirection, JssmArrowKind
+  JssmArrow, JssmArrowDirection, JssmArrowKind,
+  JssmLayout
 
 } from './jssm-types';
 
@@ -176,7 +177,8 @@ function compile_rule_handle_transition<mNT>(rule : JssmCompileSeStart<mNT>) : m
 
 function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompileRule { // todo flow describe the output of the parser
 
-  if (rule.key === 'transition') { return { agg_as: 'transition', val: compile_rule_handle_transition(rule) }; }
+  if (rule.key === 'transition')   { return { agg_as: 'transition',   val: compile_rule_handle_transition(rule) }; }
+  if (rule.key === 'graph_layout') { return { agg_as: 'graph_layout', val: rule.value };                           }
 
   throw new Error(`compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
 
@@ -186,8 +188,12 @@ function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompile
 
 function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
 
-  const results : {transition:Array< JssmTransition<mNT, mDT> >} = {
-    transition: []
+  const results : {
+    graph_layout : Array< JssmLayout >,
+    transition   : Array< JssmTransition<mNT, mDT> >
+  } = {
+    graph_layout : [],
+    transition   : []
   };
 
   tree.map( (tr : JssmCompileSeStart<mNT>) => {
@@ -200,12 +206,18 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
   });
 
+  if (results.graph_layout.length > 1) {
+    throw new Error(`May only have one graph_layout statement maximum: ${JSON.stringify(results['graph_layout'])}`);
+  }
+
   const assembled_transitions : Array< JssmTransition<mNT, mDT> > = [].concat(... results['transition']);
 
   const result_cfg : JssmGenericConfig<mNT, mDT> = {
     initial_state : assembled_transitions[0].from,
     transitions   : assembled_transitions
   };
+
+  if (results.graph_layout.length) { result_cfg.layout = results.graph_layout[0]; }
 
   return result_cfg;
 
