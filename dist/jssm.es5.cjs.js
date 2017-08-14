@@ -5208,7 +5208,9 @@ var Machine = function () {
     var initial_state = _ref2.initial_state,
         _ref2$complete = _ref2.complete,
         complete = _ref2$complete === undefined ? [] : _ref2$complete,
-        transitions = _ref2.transitions;
+        transitions = _ref2.transitions,
+        _ref2$layout = _ref2.layout,
+        layout = _ref2$layout === undefined ? 'dot' : _ref2$layout;
 
     _classCallCheck(this, Machine);
 
@@ -5220,6 +5222,8 @@ var Machine = function () {
     this._actions = new Map();
     this._reverse_actions = new Map();
     this._reverse_action_targets = new Map(); // todo
+
+    this._layout = layout;
 
     transitions.map(function (tr) {
 
@@ -5358,6 +5362,11 @@ var Machine = function () {
     value: function is_final() {
       //  return ((!this.is_changing()) && this.state_is_final(this.state()));
       return this.state_is_final(this.state());
+    }
+  }, {
+    key: 'layout',
+    value: function layout() {
+      return String(this._layout);
     }
   }, {
     key: 'machine_state',

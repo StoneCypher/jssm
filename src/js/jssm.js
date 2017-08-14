@@ -245,8 +245,10 @@ class Machine<mNT, mDT> {
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
   _reverse_action_targets : Map<mNT, Map<mNT, number>>;
 
+  _layout                 : JssmLayout;
+
   // whargarbl this badly needs to be broken up, monolith master
-  constructor({ initial_state, complete=[], transitions } : JssmGenericConfig<mNT, mDT>) {
+  constructor({ initial_state, complete=[], transitions, layout = 'dot' } : JssmGenericConfig<mNT, mDT>) {
 
     this._state                  = initial_state;
     this._states                 = new Map();
@@ -256,6 +258,8 @@ class Machine<mNT, mDT> {
     this._actions                = new Map();
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();  // todo
+
+    this._layout                 = layout;
 
     transitions.map( (tr:JssmTransition<mNT, mDT>) => {
 
@@ -396,6 +400,10 @@ class Machine<mNT, mDT> {
   is_final() : boolean {
 //  return ((!this.is_changing()) && this.state_is_final(this.state()));
     return this.state_is_final(this.state());
+  }
+
+  layout() : string {
+    return String(this._layout);
   }
 
 
