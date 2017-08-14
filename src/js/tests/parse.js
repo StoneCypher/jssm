@@ -63,8 +63,14 @@ describe('parse/1', async _parse_it => {
     // todo: graph: {outputs: [foo]}
 
     describe('torture', async it => {
-      const augh = `a->b-> c-> d -> e;`;
+
+      const augh = `
+      a->b-> c-> d -> e
+->
+f <- g <= h <-> i <=> j ~> k <~ l <~> m <~-> n <-~> o <=~> p <~=> q <-=> r <=-> s 'A' <= 'B' t;`;
+
       it('doesn\'t throw', t => t.notThrows(() => { jssm.parse(augh); }) );
+
     });
 
 });
