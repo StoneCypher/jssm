@@ -230,6 +230,8 @@ ConfigValidation
 GvizLayout
   = "dot"
   / "circo"
+  / "fdp"
+  / "neato"
 
 StateItemShapeKey
   = "in_shape"
@@ -239,12 +241,8 @@ StateItemShapeKey
 StateItemShape
   = Whitespace key:StateItemShapeKey Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:key, value:value}; }
 
-StateItemGraphLayout
-  = Whitespace "graph_layout" Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout", value:value}; }
-
 StateItem
   = StateItemShape
-  / StateItemGraphLayout
 
 StateItems
   = StateItem+
@@ -332,10 +330,14 @@ ConfigGraph "graph configuration"
     return { config_kind: "graph", config_items: graph_items || [] };
   }
 
+ConfigGraphLayout
+  = Whitespace "graph_layout" Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout", value:value}; }
+
 
 
 Config "configuration"
   = ConfigGraph
+  / ConfigGraphLayout
   / ConfigTransition
   / ConfigAction
   / ConfigState

@@ -20,6 +20,8 @@ type JssmArrow          = '->' | '<->' | '<=->' | '<~->'
 type JssmArrowDirection = 'left' | 'right' | 'both';
 type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
+type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';
+
 
 
 type JssmMachineInternalState<NT, DT> = {
@@ -109,6 +111,8 @@ type JssmTransitionList<NT> = {
 type JssmGenericConfig<NT, DT> = {
 
   initial_state  : NT,
+
+  layout?        : JssmLayout,
 
   complete?      : Array<NT>,
   transitions    : JssmTransitions<NT, DT>,
