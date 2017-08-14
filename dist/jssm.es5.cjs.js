@@ -297,17 +297,24 @@ function peg$parse(input, options) {
       return i[0];
     });
   },
-      peg$c136 = function peg$c136(lactl, ldesc, arrow, rdesc, ractl, label, tail) {
+      peg$c136 = function peg$c136(r_action, l_desc, arrow, r_desc, l_action, label, tail) {
+
     var base = { kind: arrow, to: label };
 
     if (tail && tail !== []) {
       base.se = tail;
     }
-    if (ldesc) {
-      base.ldesc = ldesc;
+    if (l_desc) {
+      base.l_desc = l_desc;
     }
-    if (rdesc) {
-      base.rdesc = rdesc;
+    if (r_desc) {
+      base.r_desc = r_desc;
+    }
+    if (l_action) {
+      base.l_action = l_action;
+    }
+    if (r_action) {
+      base.r_action = r_action;
     }
 
     return base;
@@ -4990,7 +4997,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.2.0'; // replaced from package.js in build
+var version = '4.3.0'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -5080,6 +5087,9 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
         main_path: rk === 'main'
       };
 
+      if (this_se.r_action) {
+        right.action = this_se.r_action;
+      }
       if (right.kind !== 'none') {
         edges.push(right);
       }
@@ -5092,8 +5102,11 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
         main_path: lk === 'main'
       };
 
+      if (this_se.l_action) {
+        left.action = this_se.l_action;
+      }
       if (left.kind !== 'none') {
-        edges.push(right);
+        edges.push(left);
       }
     });
   });

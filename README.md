@@ -23,7 +23,9 @@ A Javascript state machine with a simple API.  Well tested, and typed with Flowt
 Specify finite state machines with a brief syntax.  Run them.  Derive charts from them.  Save and load states.  Make factories.  Impress friends and loved ones.  Cure corns and callouses.
 
 ```javascript
-const traffic_light = sm` Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red; `;
+const traffic_light = sm`
+  Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;
+`;
 ```
 
 You could also write that as a piece of data, for when you're generating.  That's ... a bit more verbose.
@@ -44,7 +46,7 @@ const traffic_light = new jssm.machine({
 
 In either case, you'll build an executable state machine.
 
-```
+```javascript
 // use with actions
 traffic_light.state();              // 'Red'
 traffic_light.action('Proceed');    // true
@@ -72,6 +74,8 @@ Which you can see being hand-executed in the console here:
 <br/><br/>
 
 ## Why
+### Why state machines
+### Why this implementation
 
 ## Quick Start
 ### Terminology

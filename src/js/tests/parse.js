@@ -14,9 +14,9 @@ describe('parse/1', async _parse_it => {
     describe('forward arrow', async it => {
 
       const AtoB = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}],
-            AdB  = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","ldesc": [{"key":"arc_label","value":"d"}]}}],
-            ABd  = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","rdesc": [{"key":"arc_label","value":"d"}]}}],
-            AdBd = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","ldesc": [{"key":"arc_label","value":"d"}],"rdesc": [{"key":"arc_label","value":"f"}]}}];
+            AdB  = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","l_desc": [{"key":"arc_label","value":"d"}]}}],
+            ABd  = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","r_desc": [{"key":"arc_label","value":"d"}]}}],
+            AdBd = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","l_desc": [{"key":"arc_label","value":"d"}],"r_desc": [{"key":"arc_label","value":"f"}]}}];
 
       const echo_equal = (testt, validator) => it(test, t => t.deepEqual(validator, jssm.parse(testt)));
 
@@ -33,9 +33,9 @@ describe('parse/1', async _parse_it => {
     describe('double arrow', async it => {
 
       const AtoB = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b"}}],
-            AdB  = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","ldesc": [{"key":"arc_label","value":"d"}]}}],
-            ABd  = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","rdesc": [{"key":"arc_label","value":"d"}]}}],
-            AdBd = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","ldesc": [{"key":"arc_label","value":"d"}],"rdesc": [{"key":"arc_label","value":"f"}]}}];
+            AdB  = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","l_desc": [{"key":"arc_label","value":"d"}]}}],
+            ABd  = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","r_desc": [{"key":"arc_label","value":"d"}]}}],
+            AdBd = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","l_desc": [{"key":"arc_label","value":"d"}],"r_desc": [{"key":"arc_label","value":"f"}]}}];
 
       const echo_equal = (testt, validator) => it(test, t => t.deepEqual(validator, jssm.parse(testt)));
 

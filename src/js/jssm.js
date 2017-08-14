@@ -127,6 +127,7 @@ function compile_rule_transition_step<mNT, mDT>(
       const rk : string = arrow_right_kind(this_se.kind),
             lk : string = arrow_left_kind(this_se.kind);
 
+
       const right : JssmTransition<mNT, mDT> = {
         from        : f,
         to          : t,
@@ -135,7 +136,9 @@ function compile_rule_transition_step<mNT, mDT>(
         main_path   : rk === 'main'
       };
 
+      if (this_se.r_action)      { right.action = this_se.r_action; }
       if (right.kind !== 'none') { edges.push(right); }
+
 
       const left : JssmTransition<mNT, mDT> = {
         from        : t,
@@ -145,7 +148,8 @@ function compile_rule_transition_step<mNT, mDT>(
         main_path   : lk === 'main'
       };
 
-      if (left.kind !== 'none') { edges.push(right); }
+      if (this_se.l_action)     { left.action = this_se.l_action; }
+      if (left.kind !== 'none') { edges.push(left); }
 
     });
   });

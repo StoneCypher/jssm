@@ -179,21 +179,27 @@ LabelOrLabelList
 
 
 Subexp
-  = Whitespace lactl:ActionLabel?
-    Whitespace ldesc:ArrowDesc?
-    Whitespace arrow:Arrow
-    Whitespace rdesc:ArrowDesc?
-    Whitespace ractl:ActionLabel?
-    Whitespace label:LabelOrLabelList
-    Whitespace tail:Subexp? {
+  = Whitespace r_action : ActionLabel?
+    Whitespace l_desc   : ArrowDesc?
+    Whitespace arrow    : Arrow
+    Whitespace r_desc   : ArrowDesc?
+    Whitespace l_action : ActionLabel?
+    Whitespace label    : LabelOrLabelList
+    Whitespace tail     : Subexp? {
+
       const base = {kind: arrow, to: label};
 
-      if (tail && (tail !== [])) { base.se    = tail; }
-      if (ldesc)                 { base.ldesc = ldesc; }
-      if (rdesc)                 { base.rdesc = rdesc; }
+      if (tail && (tail !== [])) { base.se       = tail;     }
+      if (l_desc)                { base.l_desc   = l_desc;   }
+      if (r_desc)                { base.r_desc   = r_desc;   }
+      if (l_action)              { base.l_action = l_action; }
+      if (r_action)              { base.r_action = r_action; }
 
       return base;
+
     }
+
+
 
 Exp
   = label:LabelOrLabelList se:Subexp Whitespace ';' Whitespace {
