@@ -98,6 +98,9 @@ Which you can see being hand-executed in the console here:
 #### RYG, Off, Flash-red, Flash-yellow
 #### RYG, Off, Flash-red, Flash-yellow, Green-left, Yellow-left
 #### Heirarchal intersection
+### ATM
+### HTTP
+#### Better HTTP
 ### Coin-op vending machine (data)
 ### Video games
 #### Pac-man Ghost (sensors)
