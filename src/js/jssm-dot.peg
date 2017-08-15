@@ -292,44 +292,17 @@ ConfigTransition
 
 
 
-GraphBg
-  = Whitespace "graph_bg"                  Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"graph_bg", value:value}; }
-
-MinTransitionsPerState
-  = Whitespace "min_transitions_per_state" Whitespace ":" Whitespace value:Label     Whitespace ";" Whitespace { return {key:"min_transitions_per_state", value:value}; }
-
-MaxTransitionsPerState
-  = Whitespace "max_transitions_per_state" Whitespace ":" Whitespace value:Label     Whitespace ";" Whitespace { return {key:"max_transitions_per_state", value:value}; }
-
-GraphInputs
-  = Whitespace "inputs"                    Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"inputs", value:value}; }
-
-GraphOutputs
-  = Whitespace "outputs"                   Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"outputs", value:value}; }
-
-GraphItem
-  = GraphBg
-  / MinTransitionsPerState
-  / MaxTransitionsPerState
-  / GraphInputs
-  / GraphOutputs
-
-GraphItems
-  = GraphItem+
-
-ConfigGraph "graph configuration"
-  = Whitespace "graph" Whitespace ":" Whitespace "{" Whitespace graph_items:GraphItems? Whitespace "};" Whitespace {
-    return { config_kind: "graph", config_items: graph_items || [] };
-  }
-
 ConfigGraphLayout
-  = Whitespace "graph_layout" Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout", value:value}; }
+  = Whitespace "graph_layout"   Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout",   value:value}; }
 
 ConfigStartNodes
-  = Whitespace "start_nodes"  Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"start_nodes", value:value}; }
+  = Whitespace "start_nodes"    Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"start_nodes",    value:value}; }
 
 ConfigEndNodes
-  = Whitespace "end_nodes"    Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"end_nodes", value:value}; }
+  = Whitespace "end_nodes"      Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"end_nodes",      value:value}; }
+
+ConfigGraphBgColor
+  = Whitespace "graph_bg_color" Whitespace ":" Whitespace value:Color      Whitespace ";" Whitespace { return {key:"graph_bg_color", value:value}; }
 
 
 
@@ -342,6 +315,7 @@ Config "configuration"
   / ConfigAction
   / ConfigState
   / ConfigValidation
+  / ConfigGraphBgColor
 
 
 
