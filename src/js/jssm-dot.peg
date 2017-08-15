@@ -127,6 +127,9 @@ ActionLabelUnescaped = [\x20-\x26\x28-\x5B\x5D-\u10FFFF]  // explicitly omits ' 
 ActionLabel "action label"
   = ActionLabelQuoteMark chars:ActionLabelChar* ActionLabelQuoteMark { return chars.join(""); }
 
+LineTerminator
+  = [\n\r\u2028\u2029]
+
 Whitespace "whitespace"
   = [ \t\n\r\v]*
 
@@ -307,8 +310,7 @@ ConfigGraphBgColor
 
 
 Config "configuration"
-  = ConfigGraph
-  / ConfigGraphLayout
+  = ConfigGraphLayout
   / ConfigStartNodes
   / ConfigEndNodes
   / ConfigTransition
@@ -344,12 +346,18 @@ StateGroupDef
 
 
 
+Comment
+  = Whitespace "/*" (!"*/" .)* "*/" Whitespace { return { key: 'comment' }; }
+  / Whitespace "//" (!LineTerminator .)* Whitespace
+
+
 Term
   = Exp
   / StateDef
   / MachineName
   / StateGroupDef
   / Config
+  / Comment
 
 TermList
   = term:Term*
