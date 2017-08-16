@@ -157,8 +157,6 @@ function compile_rule_transition_step<mNT, mDT>(
 
   const new_acc : Array< JssmTransition<mNT, mDT> > = acc.concat(edges);
 
-//  const new_acc : Array<mixed> = acc.concat({ from, to });  // todo whargarbl can do better than array mixed
-
   if (next_se) {
     return compile_rule_transition_step(new_acc, to, next_se.to, next_se, next_se.se);
   } else {
@@ -178,7 +176,11 @@ function compile_rule_handle_transition<mNT>(rule : JssmCompileSeStart<mNT>) : m
 function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompileRule { // todo flow describe the output of the parser
 
   if (rule.key === 'transition')   { return { agg_as: 'transition',   val: compile_rule_handle_transition(rule) }; }
-  if (rule.key === 'graph_layout') { return { agg_as: 'graph_layout', val: rule.value };                           }
+
+  const tautologies : Array<string> = ['graph_layout', 'start_nodes', 'end_nodes'];
+  if (tautologies.includes(rule.key)) {
+    return { agg_as: rule.key, val: rule.value };
+  }
 
   throw new Error(`compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
 
@@ -190,10 +192,13 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
   const results : {
     graph_layout : Array< JssmLayout >,
-    transition   : Array< JssmTransition<mNT, mDT> >
+    transition   : Array< JssmTransition<mNT, mDT> >,
+    start_nodes  : Array< mNT >
   } = {
     graph_layout : [],
-    transition   : []
+    transition   : [],
+    start_nodes  : [],
+    end_nodes    : []
   };
 
   tree.map( (tr : JssmCompileSeStart<mNT>) => {
@@ -206,9 +211,11 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
   });
 
-  if (results.graph_layout.length > 1) {
-    throw new Error(`May only have one graph_layout statement maximum: ${JSON.stringify(results['graph_layout'])}`);
-  }
+  ['graph_layout'].map( (oneOnlyKey : string) => {
+    if (results[oneOnlyKey].length > 1) {
+      throw new Error(`May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
+    }
+  });
 
   const assembled_transitions : Array< JssmTransition<mNT, mDT> > = [].concat(... results['transition']);
 
