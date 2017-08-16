@@ -98,6 +98,10 @@ Which you can see being hand-executed in the console here:
 #### RYG, Off, Flash-red, Flash-yellow
 #### RYG, Off, Flash-red, Flash-yellow, Green-left, Yellow-left
 #### Heirarchal intersection
+### [ATM](https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif)
+### [HTTP](https://www.w3.org/Library/User/Architecture/HTTP.gif)
+#### Better HTTP
+### [TCP](http://www.texample.net/media/tikz/examples/PNG/tcp-state-machine.png)
 ### Coin-op vending machine (data)
 ### Video games
 #### Pac-man Ghost (sensors)
@@ -105,6 +109,8 @@ Which you can see being hand-executed in the console here:
 #### Roguelike monster (interface satisfaction)
 ### Candy crush clone game flow (practical large use)
 ### React SPA website (practical large use)
+### [BGP](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/BGP_FSM.svg/549px-BGP_FSM.svg.png)
+### [LibGCrypt FIPS mode FSM](https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png)
 
 ## How to debug
 
