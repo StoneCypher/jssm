@@ -4903,7 +4903,8 @@ function compile(tree) {
     graph_layout: [],
     transition: [],
     start_nodes: [],
-    end_nodes: []
+    end_nodes: [],
+    initial_state: []
   };
 
   tree.map(function (tr) {
@@ -4915,7 +4916,7 @@ function compile(tree) {
     results[agg_as] = results[agg_as].concat(val);
   });
 
-  ['graph_layout'].map(function (oneOnlyKey) {
+  ['graph_layout', 'initial_state'].map(function (oneOnlyKey) {
     if (results[oneOnlyKey].length > 1) {
       throw new Error('May only have one ' + oneOnlyKey + ' statement maximum: ' + JSON.stringify(results[oneOnlyKey]));
     }
@@ -4924,7 +4925,7 @@ function compile(tree) {
   var assembled_transitions = (_ref = []).concat.apply(_ref, _toConsumableArray(results['transition']));
 
   var result_cfg = {
-    initial_state: assembled_transitions[0].from,
+    initial_state: results.start_nodes.length ? results.start_nodes[0] : assembled_transitions[0].from,
     transitions: assembled_transitions
   };
 
