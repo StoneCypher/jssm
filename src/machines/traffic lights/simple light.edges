@@ -1,2 +1,2 @@
-Off -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
-[Red Yellow Green] ~> Off;
+Off 'Start' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+[Red Yellow Green] 'Shut down' ~> Off;

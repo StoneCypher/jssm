@@ -1,0 +1,6 @@
+
+Off -> Rn_Re;
+
+Rn_Re 'Proceed' => Gn_Re 'Proceed' => Yn_Re 'Proceed' => Rn_Re_2 'Proceed' => Rn_Ge 'Proceed' => Rn_Ye 'Proceed' => Rn_Re;
+
+[Gn_Re Yn_Re Rn_Re Rn_Ge Rn_Ye Rn_Re_2] ~> Off;

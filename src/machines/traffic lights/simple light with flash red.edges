@@ -1,0 +1,3 @@
+Off 'Start' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+[Red Yellow Green "Flash red"] 'Shut down' ~> Off;
+[Red Yellow Green] 'Flash red' -> "Flash red" 'Proceed' -> "Flash red" 'Normal' -> Red;
