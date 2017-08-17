@@ -1,0 +1,2 @@
+Off -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+[Red Yellow Green] ~> Off;
