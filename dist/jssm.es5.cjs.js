@@ -4611,17 +4611,17 @@ function peg$parse(input, options) {
   function peg$parseTerm() {
     var s0;
 
-    s0 = peg$parseExp();
+    s0 = peg$parseComment();
     if (s0 === peg$FAILED) {
-      s0 = peg$parseStateDef();
+      s0 = peg$parseExp();
       if (s0 === peg$FAILED) {
-        s0 = peg$parseMachineName();
+        s0 = peg$parseStateDef();
         if (s0 === peg$FAILED) {
-          s0 = peg$parseStateGroupDef();
+          s0 = peg$parseMachineName();
           if (s0 === peg$FAILED) {
-            s0 = peg$parseConfig();
+            s0 = peg$parseStateGroupDef();
             if (s0 === peg$FAILED) {
-              s0 = peg$parseComment();
+              s0 = peg$parseConfig();
             }
           }
         }
@@ -4751,7 +4751,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.4.2'; // replaced from package.js in build
+var version = '4.5.0'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {

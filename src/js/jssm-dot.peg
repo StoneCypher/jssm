@@ -352,12 +352,12 @@ Comment
 
 
 Term
-  = Exp
+  = Comment
+  / Exp
   / StateDef
   / MachineName
   / StateGroupDef
   / Config
-  / Comment
 
 TermList
   = term:Term*
