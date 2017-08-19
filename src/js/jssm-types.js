@@ -153,11 +153,13 @@ type JssmCompileRule = {
 
 type JssmCompileSe<NT> = {
 
-  to        : NT,
-  se        : JssmCompileSe<NT>,
-  kind      : JssmArrow,
-  l_action? : NT,
-  r_action? : NT
+  to            : NT,
+  se            : JssmCompileSe<NT>,
+  kind          : JssmArrow,
+  l_action?     : NT,
+  r_action?     : NT,
+  l_probability : number,
+  r_probability : number
 
 };
 

@@ -137,7 +137,8 @@ function compile_rule_transition_step<mNT, mDT>(
         main_path   : rk === 'main'
       };
 
-      if (this_se.r_action)      { right.action = this_se.r_action; }
+      if (this_se.r_action)      { right.action      = this_se.r_action;      }
+      if (this_se.r_probability) { right.probability = this_se.r_probability; }
       if (right.kind !== 'none') { edges.push(right); }
 
 
@@ -149,8 +150,9 @@ function compile_rule_transition_step<mNT, mDT>(
         main_path   : lk === 'main'
       };
 
-      if (this_se.l_action)     { left.action = this_se.l_action; }
-      if (left.kind !== 'none') { edges.push(left); }
+      if (this_se.l_action)      { left.action      = this_se.l_action;      }
+      if (this_se.l_probability) { left.probability = this_se.l_probability; }
+      if (left.kind !== 'none')  { edges.push(left); }
 
     });
   });
@@ -175,7 +177,7 @@ function compile_rule_handle_transition<mNT>(rule : JssmCompileSeStart<mNT>) : m
 
 function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompileRule { // todo flow describe the output of the parser
 
-  if (rule.key === 'transition')   { return { agg_as: 'transition',   val: compile_rule_handle_transition(rule) }; }
+  if (rule.key === 'transition') { return { agg_as: 'transition', val: compile_rule_handle_transition(rule) }; }
 
   const tautologies : Array<string> = ['graph_layout', 'start_nodes', 'end_nodes'];
   if (tautologies.includes(rule.key)) {

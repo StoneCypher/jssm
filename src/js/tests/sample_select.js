@@ -1,7 +1,8 @@
 
 import {describe} from 'ava-spec';
 
-const jssm = require('../../../build/jssm.es5.js');
+const jssm = require('../../../build/jssm.es5.js'),
+      sm   = jssm.sm;
 
 
 
@@ -85,6 +86,32 @@ describe('weighted_sample_select/1', async it => {
       ]
 
     });
+
+    const res = weighted.probabilistic_histo_walk(2500);
+
+    // statistically each should be around 375, or 1050 for c.  raise alarms if they aren't 250, or 800 for c.
+    uit('a expects 375 requires 250',  t => t.is(true, res.get('a') >= 250));
+    uit('b expects 375 requires 250',  t => t.is(true, res.get('b') >= 250));
+    uit('c expects 1050 requires 800', t => t.is(true, res.get('c') >= 800));
+    uit('d expects 375 requires 250',  t => t.is(true, res.get('c') >= 250));
+    uit('e expects 375 requires 250',  t => t.is(true, res.get('c') >= 250));
+
+  });
+
+
+
+
+
+  describe('has reasonable weighted distribution in DSL', async uit => {
+
+    const weighted = sm`
+      a 0.5% -> [b d e];
+      b 0.5% -> [a d e];
+      c 0.5% -> [a b d e];
+      d 0.5% -> [a b e];
+      [a b d] <- 0.5% e;
+      [a b d e] 4% -> c;
+    `;
 
     const res = weighted.probabilistic_histo_walk(2500);
 
