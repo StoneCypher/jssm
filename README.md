@@ -23,6 +23,14 @@ A Javascript state machine with a simple API.  Well tested, and typed with Flowt
 Specify finite state machines with a brief syntax.  Run them.  Derive charts from them.  Save and load states.  Make factories.  Impress friends and loved ones.  Cure corns and callouses.
 
 ```javascript
+const traffic_light = sm`
+  Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;
+`;
+```
+
+You could also write that as a piece of data, for when you're generating.  That's ... a bit more verbose.
+
+```javascript
 const traffic_light = new jssm.machine({
 
   initial_state : 'Red',
@@ -34,7 +42,11 @@ const traffic_light = new jssm.machine({
   ]
 
 });
+```
 
+In either case, you'll build an executable state machine.
+
+```javascript
 // use with actions
 traffic_light.state();              // 'Red'
 traffic_light.action('Proceed');    // true
@@ -61,9 +73,47 @@ Which you can see being hand-executed in the console here:
 
 <br/><br/>
 
-## Quick Start
 ## Why
-## How To
+### Why state machines
+### Why this implementation
+
+## Quick Start
+### Terminology
+
+## Features
+### DSL
+### States
+### Transitions
+#### Legal, main, and forced
+### Validators
+### State history
+### Automatic visualization
+
+## How to think in state machines
+
+## Example Machines
+### Door lock
+### Traffic lights
+#### Basic three-state
+#### RYG, Off, Flash-red, Flash-yellow
+#### RYG, Off, Flash-red, Flash-yellow, Green-left, Yellow-left
+#### Heirarchal intersection
+### [ATM](https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif)
+### [HTTP](https://www.w3.org/Library/User/Architecture/HTTP.gif)
+#### Better HTTP
+### [TCP](http://www.texample.net/media/tikz/examples/PNG/tcp-state-machine.png)
+### Coin-op vending machine (data)
+### Video games
+#### Pac-man Ghost (sensors)
+#### Weather (probabilistics)
+#### Roguelike monster (interface satisfaction)
+### Candy crush clone game flow (practical large use)
+### React SPA website (practical large use)
+### [BGP](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/BGP_FSM.svg/549px-BGP_FSM.svg.png)
+### [LibGCrypt FIPS mode FSM](https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png)
+
+## How to debug
+
 ## Notation Comparison
 ### Their notations, one by one
 ### Apples to Apples - Traffic Light

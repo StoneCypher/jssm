@@ -11,35 +11,70 @@ GvizShape
 
 
 
-ForwardLightArrow "forward light arrow"
+ForwardLightArrow "forward light arrow ->"
   = "->"
 
-TwoWayLightArrow "two way light arrow"
+TwoWayLightArrow "two way light arrow <->"
   = "<->"
 
-ForwardFatArrow "forward fat arrow"
+BackLightArrow "back light arrow <-"
+  = "<-"
+
+
+ForwardFatArrow "forward fat arrow =>"
   = "=>"
 
-TwoWayFatArrow "two way fat arrow"
+TwoWayFatArrow "two way fat arrow <=>"
   = "<=>"
 
-ForwardTildeArrow "forward tilde arrow"
+BackFatArrow "back fat arrow <="
+  = "<="
+
+
+ForwardTildeArrow "forward tilde arrow ~>"
   = "~>"
 
-TwoWayTildeArrow "two way tilde arrow"
+TwoWayTildeArrow "two way tilde arrow <~>"
   = "<~>"
 
+BackTildeArrow "back tilde arrow <~"
+  = "<~"
+
+
+LightFatArrow "light fat arrow <-=>"
+  = "<-=>"
+
+LightTildeArrow "light tilde arrow <-~>"
+  = "<-~>"
+
+FatLightArrow "fat light arrow <=->"
+  = "<=->"
+
+FatTildeArrow "fat tilde arrow <=~>"
+  = "<=~>"
+
+TildeLightArrow "tilde light arrow <~->"
+  = "<~->"
+
+TildeFatArrow "tilde fat arrow <~=>"
+  = "<~=>"
+
+
 LightArrow "light arrow"
-  = ForwardLightArrow / TwoWayLightArrow
+  = ForwardLightArrow / TwoWayLightArrow / BackLightArrow
 
 FatArrow "fat arrow"
-  = ForwardFatArrow / TwoWayFatArrow
+  = ForwardFatArrow / TwoWayFatArrow / BackFatArrow
 
 TildeArrow "tilde arrow"
-  = ForwardTildeArrow / TwoWayTildeArrow
+  = ForwardTildeArrow / TwoWayTildeArrow / BackTildeArrow
+
+MixedArrow "mixed arrow"
+  = LightFatArrow / LightTildeArrow / FatLightArrow / FatTildeArrow / TildeLightArrow / TildeFatArrow
+
 
 Arrow "arrow"
-  = LightArrow / FatArrow / TildeArrow
+  = MixedArrow / LightArrow / FatArrow / TildeArrow
 
 
 
@@ -71,7 +106,7 @@ Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]  // explicitly omits "
 ActionLabelChar
   = ActionLabelUnescaped
   / Escape Sequence:(
-        '`'
+        "'"
       / "\\"
       / "/"
       / "b" { return "\b"; }
@@ -86,11 +121,14 @@ ActionLabelChar
     )
     { return Sequence; }
 
-ActionLabelQuoteMark = '`'
-ActionLabelUnescaped = [\x20-\x5B\x5D-\x5F\x61-\u10FFFF]  // explicitly omits `
+ActionLabelQuoteMark = "'"
+ActionLabelUnescaped = [\x20-\x26\x28-\x5B\x5D-\u10FFFF]  // explicitly omits ' which is hex 27
 
 ActionLabel "action label"
   = ActionLabelQuoteMark chars:ActionLabelChar* ActionLabelQuoteMark { return chars.join(""); }
+
+LineTerminator
+  = [\n\r\u2028\u2029]
 
 Whitespace "whitespace"
   = [ \t\n\r\v]*
@@ -144,25 +182,31 @@ LabelOrLabelList
 
 
 Subexp
-  = Whitespace lactl:ActionLabel?
-    Whitespace ldesc:ArrowDesc?
-    Whitespace arrow:Arrow
-    Whitespace rdesc:ArrowDesc?
-    Whitespace ractl:ActionLabel?
-    Whitespace label:LabelOrLabelList
-    Whitespace tail:Subexp? {
+  = Whitespace r_action : ActionLabel?
+    Whitespace l_desc   : ArrowDesc?
+    Whitespace arrow    : Arrow
+    Whitespace r_desc   : ArrowDesc?
+    Whitespace l_action : ActionLabel?
+    Whitespace label    : LabelOrLabelList
+    Whitespace tail     : Subexp? {
+
       const base = {kind: arrow, to: label};
 
-      if (tail && (tail !== [])) { base.se    = tail; }
-      if (ldesc)                 { base.ldesc = ldesc; }
-      if (rdesc)                 { base.rdesc = rdesc; }
+      if (tail && (tail !== [])) { base.se       = tail;     }
+      if (l_desc)                { base.l_desc   = l_desc;   }
+      if (r_desc)                { base.r_desc   = r_desc;   }
+      if (l_action)              { base.l_action = l_action; }
+      if (r_action)              { base.r_action = r_action; }
 
       return base;
+
     }
+
+
 
 Exp
   = label:LabelOrLabelList se:Subexp Whitespace ';' Whitespace {
-    const base = {from: label};
+    const base = { key: 'transition', from: label };
     if (se && (se !== [])) { base.se = se; }
     return base;
   }
@@ -189,6 +233,8 @@ ConfigValidation
 GvizLayout
   = "dot"
   / "circo"
+  / "fdp"
+  / "neato"
 
 StateItemShapeKey
   = "in_shape"
@@ -198,12 +244,8 @@ StateItemShapeKey
 StateItemShape
   = Whitespace key:StateItemShapeKey Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:key, value:value}; }
 
-StateItemGraphLayout
-  = Whitespace "graph_layout" Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout", value:value}; }
-
 StateItem
   = StateItemShape
-  / StateItemGraphLayout
 
 StateItems
   = StateItem+
@@ -253,52 +295,29 @@ ConfigTransition
 
 
 
-GraphBg
-  = Whitespace "graph_bg"                  Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:"graph_bg", value:value}; }
+ConfigGraphLayout
+  = Whitespace "graph_layout"   Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout",   value:value}; }
 
-MinTransitionsPerState
-  = Whitespace "min_transitions_per_state" Whitespace ":" Whitespace value:Label     Whitespace ";" Whitespace { return {key:"min_transitions_per_state", value:value}; }
+ConfigStartNodes
+  = Whitespace "start_nodes"    Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"start_nodes",    value:value}; }
 
-MaxTransitionsPerState
-  = Whitespace "max_transitions_per_state" Whitespace ":" Whitespace value:Label     Whitespace ";" Whitespace { return {key:"max_transitions_per_state", value:value}; }
+ConfigEndNodes
+  = Whitespace "end_nodes"      Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"end_nodes",      value:value}; }
 
-GraphInputs
-  = Whitespace "inputs"                    Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"inputs", value:value}; }
-
-GraphOutputs
-  = Whitespace "outputs"                   Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"outputs", value:value}; }
-
-GraphStartNodes
-  = Whitespace "start_nodes"               Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"start_nodes", value:value}; }
-
-GraphEndNodes
-  = Whitespace "end_nodes"                 Whitespace ":" Whitespace value:LabelList Whitespace ";" Whitespace { return {key:"end_nodes", value:value}; }
-
-GraphItem
-  = GraphBg
-  / MinTransitionsPerState
-  / MaxTransitionsPerState
-  / GraphStartNodes
-  / GraphEndNodes
-  / GraphInputs
-  / GraphOutputs
-
-GraphItems
-  = GraphItem+
-
-ConfigGraph "graph configuration"
-  = Whitespace "graph" Whitespace ":" Whitespace "{" Whitespace graph_items:GraphItems? Whitespace "};" Whitespace {
-    return { config_kind: "graph", config_items: graph_items || [] };
-  }
+ConfigGraphBgColor
+  = Whitespace "graph_bg_color" Whitespace ":" Whitespace value:Color      Whitespace ";" Whitespace { return {key:"graph_bg_color", value:value}; }
 
 
 
 Config "configuration"
-  = ConfigGraph
+  = ConfigGraphLayout
+  / ConfigStartNodes
+  / ConfigEndNodes
   / ConfigTransition
   / ConfigAction
   / ConfigState
   / ConfigValidation
+  / ConfigGraphBgColor
 
 
 
@@ -317,10 +336,28 @@ StateDef "state definition"
 
 
 
+MachineName
+  = Whitespace "machine name" Whitespace ":" Whitespace name:Label Whitespace ";" Whitespace { return { key: "Machine name", value: name }; }
+
+
+
+StateGroupDef
+  = Whitespace "group" Whitespace name:Label Whitespace ":" Whitespace nl:LabelOrLabelList Whitespace ";" Whitespace { return { key: "group definition", value: { name: name, list: nl } }; }
+
+
+
+Comment
+  = Whitespace "/*" (!"*/" .)* "*/" Whitespace { return { key: 'comment' }; }
+  / Whitespace "//" (!LineTerminator .)* Whitespace
+
+
 Term
   = Exp
   / StateDef
+  / MachineName
+  / StateGroupDef
   / Config
+  / Comment
 
 TermList
   = term:Term*
