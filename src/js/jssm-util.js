@@ -17,7 +17,7 @@ const weighted_rand_select = (options : Array<any>, probability_property : strin
   var   cursor     = 0,
         cursor_sum = 0;
 
-  while ((cursor_sum += (options:any)[cursor++][probability_property]) <= rnd) { }
+  while ((cursor_sum += or_one((options:any)[cursor++][probability_property])) <= rnd) { }
   return options[cursor-1];
 
 };

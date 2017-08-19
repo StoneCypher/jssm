@@ -4697,7 +4697,7 @@ var weighted_rand_select = function weighted_rand_select(options) {
     var cursor = 0,
         cursor_sum = 0;
 
-    while ((cursor_sum += options[cursor++][probability_property]) <= rnd) {}
+    while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) {}
     return options[cursor - 1];
 };
 
@@ -4751,7 +4751,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.5.0'; // replaced from package.js in build
+var version = '4.5.1'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
