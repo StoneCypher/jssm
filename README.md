@@ -20,7 +20,8 @@ A Javascript state machine with a simple API.  Well tested, and typed with Flowt
 </div>
 
 ## TL;DR
-Specify finite state machines with a brief syntax.  Run them.  Derive charts from them.  Save and load states.  Make factories.  Impress friends and loved ones.  Cure corns and callouses.
+Specify finite state machines with a brief syntax.  Run them; they're fast.  Derive charts.  Save and load states, and
+histories.  Make machine factories to churn out dozens or thousands of instances.  Impress friends and loved ones.  Cure corns and callouses.
 
 ```javascript
 const traffic_light = sm`
@@ -32,44 +33,7 @@ This will produce the following FSM (graphed with [jssm-viz](https://github.com/
 
 ![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png)
 
-You could also write that as a piece of data, for when you're generating.  That's ... a bit more verbose.
-
-```javascript
-const traffic_light = new jssm.machine({
-
-  initial_state : 'Red',
-
-  transitions   : [
-    { action: 'Proceed', from:'Green',  to:'Yellow' },
-    { action: 'Proceed', from:'Yellow', to:'Red'    },
-    { action: 'Proceed', from:'Red',    to:'Green'  }
-  ]
-
-});
-```
-
-In either case, you'll build an executable state machine.
-
-```javascript
-// use with actions
-traffic_light.state();              // 'Red'
-traffic_light.action('Proceed');    // true
-traffic_light.state();              // 'Green'
-traffic_light.action('Proceed');    // true
-traffic_light.state();              // 'Yellow'
-traffic_light.action('Proceed');    // true
-traffic_light.state();              // 'Red'
-
-// use with transitions
-traffic_light.transition('Yellow'); // false (lights can't go from red to yellow, only to green)
-traffic_light.state();              // 'Red'
-traffic_light.transition('Red');    // false (lights can't go from red to red, either)
-traffic_light.state();              // 'Red'
-traffic_light.transition('Green');  // true
-traffic_light.state();              // 'Green'
-```
-
-Which you can see being hand-executed in the Chrome console here:
+You'll build an executable state machine.
 
 ![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20traffic%20light%20console%20screenshot.png)
 
@@ -119,28 +83,125 @@ to produce state machines in otherwise comparatively tiny and easily read code.
 
 ## Quick Start
 
-A state machine in `JSSM` is defined in one of two ways: through the DSL, or through a datastructure.
+> A state machine in `JSSM` is defined in one of two ways: through the DSL, or through a datastructure.
 
-In the quick start, we'll use the DSL.  It looks like this:
+So yeah, let's start by getting some terminology out of the way, and then we can go right back to that impenetrable
+sentence, so that it'll make sense.
 
-```javascript
-const example = sm` FirstState -> SecondState -> ThirdState; `;
-```
+### Quick Terminology
 
-There are two pieces of code there, really.  There's the outside javascript, which invokes the library and sets up the
-state machine's instance variable:
+Finite state machines have been around forever, are used by everyone, and are hugely important.  As a result, the
+terminology is a mess, is in conflict, and is very poorly chosen, in accordince with everything-is-horrible law.
 
-```javascript
-const example = sm` ... `;
-```
+This section describes the terminology *as used by this library*.  The author has done his best to choose a terminology
+that matches common use and will be familiar to most.  Conflicts are explained in the following section, to keep this
+simple.
 
-And there's the domain-specific language, which creates the actual state machine.
+For this quick overview, we'll define six basic concepts:
+
+1. `Finite state machine`s
+1. `Machine`s
+1. `State`s
+1. `Current state`
+1. `Transition`s
+1. `Action`s
+
+There's other stuff, of course, but these five are enough to wrap your head around `finite state machine`s.
+
+#### Basic concepts
+
+This is a trivial traffic light `FSM`, with three states, three transitions, and one action:
 
 ```jssm
-FirstState -> SecondState -> ThirdState;
+Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;
 ```
 
-### Terminology
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg proceed.png)
+
+Let's review its pieces.
+
+* `finite state machine`s
+  * A `finite state machine` (or `FSM`) is a collection of `state`s, and rules about how you can `transition` between
+    the `state`s.
+  * We tend to refer to a design for a machine as "an `FSM`."
+  * In this example, the traffic light's structure is "a traffic light `FSM`."
+
+* `state`s
+  * `FSM`s always have at least one `state`, and nearly always many `state`s
+  * In this example,
+    * the `state`s are *Red*, *Yellow*, and *Green*
+    * Something made from this `FSM` will only ever be one of those colors - not, say, *Blue*
+
+* `machine`s
+  * Single instances of an `FSM` are referred to as a `machine`
+  * We might have a thousand instances of the traffic light designed above
+  * We would say "My intersection has four `machines` of the standard three color light `FSM`."
+
+* `current state`
+  * A `machine` has a `current state`, though an `FSM` does not
+    * "This specific traffic light is currently *Red*"
+  * Traffic lights in general do not have a current color, only specific lights
+  * `FSM`s do not have a current state, only specific `machine`s
+  * A given `machine` will always have exactly one `state` - never multiple, never none
+
+* `transitions`
+  * `FSM`s nearly always have `transition`s
+  * Transitions govern whether a `state` may be reached from another `state`
+    * This restriction is much of the value of `FSM`s
+  * In this example,
+    * the `transition`s are
+      * *Green* &rarr; *Yellow*
+      * *Yellow* &rarr; *Red*
+      * *Red* &rarr; *Green*
+    * a `machine` whose `current state` is *Green* may switch to *Yellow*, because there is an appropriate transition
+    * a `machine` whose `current state` is *Green* may not switch to *Red*, or to *Green* anew, because there is no
+      such transition
+      * A `machine` in *Yellow* which is told to `transition` to *Green* (which isn't legal) will know to refuse
+      * This makes `FSM`s an effective tool for error prevention
+
+* `actions`
+  * Many `FSM`s have `action`s, which represent events from the outside world.
+  * In this example, there is only one action - *Proceed*
+    * The `action` *Proceed* is available from all three colors
+  * At any time we may indicate to this light to go to its next color, without
+    taking the time to know what it is.
+    * This allows `FSM`s like the light to self-manage.
+    * A `machine` in *Yellow* which is told to take the `action` *Proceed* will
+      know on its own to switch its `current state` to *Red*.
+    * This makes `FSM`s an effective tool for complexity reduction
+
+Those six ideas in hand - `FSM`s, `state`s, `machine`s, `current state`, `transition`s, and `action`s - and you're ready
+to move forwards.
+
+One other quick definition - a `DSL`, or `domain specific language`, is when someone makes a language and embeds it into
+a different language, for the purpose of attacking a specific job.  When `React` uses a precompiler to embed stuff that
+looks like HTML in Javascript, that's a DSL.
+
+This library implements a simple language for `defining finite state machine`s inside of strings.  For example, this
+`DSL` defines that `'a -> b;'` actually means "create two states, create a transition between them, assign the first as
+the initial state", et cetera.  That micro-language is the `DSL` that we'll be referring to a lot, coming up.  This
+`DSL`'s formal name is `jssm-dot`, because it's a descendant-in-spirit of an older flowcharting language
+[DOT](http://www.graphviz.org/content/dot-language), from [graphviz](graphviz.org), which is also used to make the
+visualizations in [jssm-viz](https://github.com/StoneCypher/jssm-viz) by way of [viz-js](viz-js.com).
+
+Enough history lesson.  On with the tooling.
+
+### And now, that Quick Start we were talking about
+
+Let's make a `state machine` for ATMs.  In the process, we will use a lot of core concepts of `finite state machine`s
+and of `jssm-dot`, this library's `DSL`.
+
+#### Empty machine
+
+We'll start with an empty machine.
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/1_EmptyWaiting.png)
+
+
 
 ## Features
 ### DSL
