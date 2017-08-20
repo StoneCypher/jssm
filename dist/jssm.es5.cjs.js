@@ -5272,7 +5272,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '4.7.4'; // replaced from package.js in build
+var version = '4.7.5'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {

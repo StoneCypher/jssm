@@ -1,3 +1,5 @@
+* [[`4a9409eadd`](https://github.com/StoneCypher/jssm/commit/4a9409eadd)] - gargantuan change: npm now exposes build tree, postinstall qbuilds (John Haugeland) 
+* [[`35f33d63bb`](https://github.com/StoneCypher/jssm/commit/35f33d63bb)] - minor package error pointing main to wrong file (John Haugeland) 
 * [[`8b3c43fd83`](https://github.com/StoneCypher/jssm/commit/8b3c43fd83)] - oh lol the test script was borqued (John Haugeland) 
 * [[`74d8484e59`](https://github.com/StoneCypher/jssm/commit/74d8484e59)] - formatting changes to tests to see if changelog is working (John Haugeland) 
 * [[`5180b36c64`](https://github.com/StoneCypher/jssm/commit/5180b36c64)] - .npmignore, changelog.md (John Haugeland) 

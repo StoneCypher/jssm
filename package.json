@@ -17,7 +17,7 @@
     "pack": "browserify -r ./build/jssm.es5.js:jssm -o build/jssm.es5.cjs.js",
     "make": "npm run clean && npm run peg && npm run babel && npm run rename && npm run setver && npm run pack",
     "flow": "flow",
-    "postinstall": "qbuild",
+    "postinstall": "npm run qbuild",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc ava report --reporter=html",
