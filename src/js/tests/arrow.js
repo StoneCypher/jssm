@@ -93,15 +93,21 @@ describe('arrow_right_kind', async it => {
 describe('error catchery', async _parse_it => {
 
   describe('unknown arrow direction', async it => {
-    it('throws', t => t.throws( () => { jssm.arrow_direction('boop'); } ));
+    it('throws', t => t.throws( () => {
+      jssm.arrow_direction('boop');
+    } ));
   });
 
   describe('unknown arrow left kind', async it => {
-    it('throws', t => t.throws( () => { jssm.arrow_left_kind('boop'); } ));
+    it('throws', t => t.throws( () => {
+      jssm.arrow_left_kind('boop');
+    } ));
   });
 
   describe('unknown arrow right kind', async it => {
-    it('throws', t => t.throws( () => { jssm.arrow_right_kind('boop'); } ));
+    it('throws', t => t.throws( () => {
+      jssm.arrow_right_kind('boop');
+    } ));
   });
 
 });

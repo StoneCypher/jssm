@@ -1,3 +1,4 @@
+* [[`5180b36c64`](https://github.com/StoneCypher/jssm/commit/5180b36c64)] - .npmignore, changelog.md (John Haugeland) 
 * [[`f32d2feae1`](https://github.com/StoneCypher/jssm/commit/f32d2feae1)] - Support for machine names and machine versions, as well as basic semver (John Haugeland) 
 * [[`c50f83a94d`](https://github.com/StoneCypher/jssm/commit/c50f83a94d)] - push image (John Haugeland) 
 * [[`cc45d91e23`](https://github.com/StoneCypher/jssm/commit/cc45d91e23)] - probabilities in compiler and dsl.  remove percent sign from atoms (John Haugeland) 
