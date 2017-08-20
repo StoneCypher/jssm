@@ -1,13 +1,13 @@
 {
   "name": "jssm",
-  "version": "4.7.2",
+  "version": "4.7.3",
   "engines": {
     "node": ">=6.0.0"
   },
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.browserified.js",
   "scripts": {
-    "nyc-test": "nyc ava src/js/tests/*.js",
+    "test": "nyc ava src/js/tests/*.js",
     "removedir": "rimraf build -f && rimraf dist -f && rimraf docs -f",
     "createdir": "mkdir build && mkdir dist && mkdir docs && cd docs && mkdir docs && cd ..",
     "clean": "npm run removedir && rm -f src/js/jssm-dot.js && npm run createdir",
@@ -23,15 +23,15 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "vet": "npm run flow && npm run eslint",
     "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm*.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm*.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm*.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm*.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm*.js | wc -l`\\\\n\\\"nextdo\\\" remaining . : `grep nextdo src/js/jssm*.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm*.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm*.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm*.js | wc -l`\\\\n\\\"stochable\\\" remaining: `grep stochable src/js/jssm*.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm*.js | wc -l`",
-    "qbuild": "npm run eslint && npm run make && npm run nyc-test && npm run minify && npm run docs && npm run site && npm run dist",
-    "build": "npm run make && npm run vet && npm run nyc-test && npm run audit && npm run minify && npm run docs && npm run site && npm run dist",
+    "qbuild": "npm run eslint && npm run make && npm run minify && npm run docs && npm run site && npm run dist",
+    "build": "npm run make && npm run vet && npm run audit && npm run minify && npm run docs && npm run site && npm run dist",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "pretest": "npm run build",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "rm -f src/js/jssm-dot.js && npm run coverage"
+    "travis": "rm -f src/js/jssm-dot.js && npm run vet && npm run test && npm run coverage"
   },
   "repository": {
     "type": "git",
