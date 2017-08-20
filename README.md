@@ -213,7 +213,7 @@ Off 'TurnOn' -> Red;
 
 So far, our machine is simple:
 
-![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20Red.gif)
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20Red.png)
 
 
 
@@ -237,7 +237,7 @@ Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
 
 Machine's still pretty simple:
 
-![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20RGY.gif)
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20RGY.png)
 
 
 
@@ -273,7 +273,7 @@ Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
 
 Machine's still not too bad:
 
-![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20From%20RGY.gif)
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20From%20RGY.png)
 
 ### Let's actually use the traffic light
 
