@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -31,7 +31,7 @@
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "rm -f src/js/jssm-dot.js && npm run vet && npm run test && npm run coverage"
+    "travis": "npm run vet && npm run test && npm run coverage"
   },
   "repository": {
     "type": "git",
