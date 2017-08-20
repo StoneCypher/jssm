@@ -188,6 +188,111 @@ Enough history lesson.  On with the tooling.
 
 ### And now, that Quick Start we were talking about
 
+So let's put together a trivial four-state traffic light: the three colors, plus **Off**.  This will give us an
+opportunity to go over the basic facilities in the language.
+
+At any time, you can take the code and put it into the
+[graph explorer](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) for an opportunity to mess with the
+code as you see fit.
+
+#### 0: Lights always have an off state
+
+Our light will start in the **Off** `state`, with the ability to switch to the **Red** `state`.
+
+Since that's a normal, not-notable thing, we'll just make it a regular `-> legal transition`.
+
+```jssm
+Off -> Red;
+```
+
+We will give that `transition` an `action`, and call it **TurnOn**.
+
+```jssm
+Off 'TurnOn' -> Red;
+```
+
+So far, our machine is simple:
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off To Red.gif)
+
+
+
+<br/><br/>
+
+#### 1: Traffic lights have a three-color cycle
+
+The main path of a traffic light is cycling from **Green** to **Yellow**, then to **Red**, then back again.  Because
+this is the main path, we'll mark these steps `=> main transition`s.
+
+```jssm
+Off 'TurnOn' -> Red => Green => Yellow => Red;
+```
+
+We will give those all the same action name, **Proceed**, indicating "next color" without needing to know what we're
+currently on.
+
+```jssm
+Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+```
+
+Machine's still pretty simple:
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off To RGY.gif)
+
+
+
+<br/><br/>
+
+#### 2: Traffic lights can be shut down
+
+We'd also like to be able to turn this light back off.  Because that's expected to be a rarity, we'll require that it
+be a `~> forced transition`.
+
+We could write
+
+```jssm
+Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+Red ~> Off;
+Yellow ~> Off;
+Green ~> Off;
+```
+
+But that takes a lot of space even with this short list, so, instead we'll use the array notation
+
+```jssm
+Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+[Red Yellow Green] ~> Off;
+```
+
+And we'd like those all to have the action **TurnOff**, so
+
+```jssm
+Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+[Red Yellow Green] 'TurnOff' ~> Off;
+```
+
+Machine's still not too bad:
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off To Frpm RGY.gif)
+
+### Let's actually use the traffic light
+
+That's actually the bulk of the language.  There are other little add-ons here and there, but, primarily you now know
+how to write a state machine.
+
+Let's load it and use it!  😀
+
+#### loading into node
+#### loading into html
+#### jssm-viz
+#### redistribution on npm
+
+
+
+<br/><br/>
+
+### An introduction to machine design
+
 Let's make a `state machine` for ATMs.  In the process, we will use a lot of core concepts of `finite state machine`s
 and of `jssm-dot`, this library's `DSL`.
 
@@ -196,7 +301,7 @@ found:
 
 ![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/ncsu%20atm%20diagram.gif)
 
-At any time, you can take the code and put it into the
+Remember, at any time, you can take the code and put it into the
 [graph explorer](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) for an opportunity to mess with the
 code as you see fit.
 
@@ -382,11 +487,11 @@ Writing this out in code is not only generally longer than the text form, but al
 ... or there's the `FSM` `DSL`, which is usually as-brief-as the text, and frequently both briefer and more explicit.
 
 * Rules 1-2: `MainMenu 'AcceptDeposit' -> TentativeAcceptMoney 'AcceptFail' -> RejectPhysicalMoney -> MainMenu;`
-* Rules 3-5: `TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;`
-* Rule 6: `BankResponse 'BankNo' -> RejectPhysicalMoney;`
-* Rule 7: `BankResponse 'BankYes' -> ConsumeMoney -> NotifyConsumed -> MainMenu;`
-* Rules 8-9: `BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;`
-* Rule 10: `BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;`
+* Rules 3-6: `TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;`
+* Rule 7: `BankResponse 'BankNo' -> RejectPhysicalMoney;`
+* Rule 8: `BankResponse 'BankYes' -> ConsumeMoney -> NotifyConsumed -> MainMenu;`
+* Rules 9-10: `BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;`
+* Rule 11: `BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;`
 
 Or, as a block,
 
