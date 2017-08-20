@@ -1,0 +1,6 @@
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+
+EjectCardAndReset -> EmptyWaiting;

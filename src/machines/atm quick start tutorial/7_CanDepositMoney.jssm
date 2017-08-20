@@ -1,0 +1,20 @@
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+HasCardNoAuth 'RightPIN' -> MainMenu;
+
+MainMenu 'AcceptDeposit'  -> TentativeAcceptMoney;
+MainMenu 'ExitReturnCard' -> EjectCardAndReset;
+MainMenu 'CheckBalance'   -> PickCheckBalanceAccount -> DisplayBalance -> MainMenu;
+
+TentativeAcceptMoney 'AcceptFail'    -> RejectPhysicalMoney -> MainMenu;
+TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;
+
+BankResponse 'BankNo'    -> RejectPhysicalMoney;
+BankResponse 'BankYes'   -> ConsumeMoney -> NotifyConsumed -> MainMenu;
+BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;
+
+BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
+
+EjectCardAndReset -> EmptyWaiting;

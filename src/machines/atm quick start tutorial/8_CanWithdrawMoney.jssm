@@ -1,0 +1,30 @@
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+HasCardNoAuth 'RightPIN' -> MainMenu;
+
+MainMenu 'AcceptDeposit'  -> TentativeAcceptMoney;
+MainMenu 'ExitReturnCard' -> EjectCardAndReset;
+MainMenu 'CheckBalance'   -> PickCheckBalanceAccount -> DisplayBalance -> MainMenu;
+
+TentativeAcceptMoney 'AcceptFail'    -> RejectPhysicalMoney -> MainMenu;
+TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;
+
+BankResponse 'BankNo'    -> RejectPhysicalMoney;
+BankResponse 'BankYes'   -> ConsumeMoney -> NotifyConsumed -> MainMenu;
+BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;
+
+BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
+
+MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;
+AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;
+MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
+ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;
+BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;
+BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;
+
+PickWithdrawlAccount 'CancelWithdrawl' -> MainMenu;
+PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;
+
+EjectCardAndReset -> EmptyWaiting;

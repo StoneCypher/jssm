@@ -116,7 +116,7 @@ This is a trivial traffic light `FSM`, with three states, three transitions, and
 Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;
 ```
 
-![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg proceed.png)
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png)
 
 Let's review its pieces.
 
@@ -129,8 +129,8 @@ Let's review its pieces.
 * `state`s
   * `FSM`s always have at least one `state`, and nearly always many `state`s
   * In this example,
-    * the `state`s are *Red*, *Yellow*, and *Green*
-    * Something made from this `FSM` will only ever be one of those colors - not, say, *Blue*
+    * the `state`s are **Red**, **Yellow**, and **Green**
+    * Something made from this `FSM` will only ever be one of those colors - not, say, **Blue**
 
 * `machine`s
   * Single instances of an `FSM` are referred to as a `machine`
@@ -139,7 +139,7 @@ Let's review its pieces.
 
 * `current state`
   * A `machine` has a `current state`, though an `FSM` does not
-    * "This specific traffic light is currently *Red*"
+    * "This specific traffic light is currently **Red**"
   * Traffic lights in general do not have a current color, only specific lights
   * `FSM`s do not have a current state, only specific `machine`s
   * A given `machine` will always have exactly one `state` - never multiple, never none
@@ -150,24 +150,24 @@ Let's review its pieces.
     * This restriction is much of the value of `FSM`s
   * In this example,
     * the `transition`s are
-      * *Green* &rarr; *Yellow*
-      * *Yellow* &rarr; *Red*
-      * *Red* &rarr; *Green*
-    * a `machine` whose `current state` is *Green* may switch to *Yellow*, because there is an appropriate transition
-    * a `machine` whose `current state` is *Green* may not switch to *Red*, or to *Green* anew, because there is no
+      * **Green** &rarr; **Yellow**
+      * **Yellow** &rarr; **Red**
+      * **Red** &rarr; **Green**
+    * a `machine` whose `current state` is **Green** may switch to **Yellow**, because there is an appropriate transition
+    * a `machine` whose `current state` is **Green** may not switch to **Red**, or to **Green** anew, because there is no
       such transition
-      * A `machine` in *Yellow* which is told to `transition` to *Green* (which isn't legal) will know to refuse
+      * A `machine` in **Yellow** which is told to `transition` to **Green** (which isn't legal) will know to refuse
       * This makes `FSM`s an effective tool for error prevention
 
 * `actions`
   * Many `FSM`s have `action`s, which represent events from the outside world.
-  * In this example, there is only one action - *Proceed*
-    * The `action` *Proceed* is available from all three colors
+  * In this example, there is only one action - **Proceed**
+    * The `action` **Proceed** is available from all three colors
   * At any time we may indicate to this light to go to its next color, without
     taking the time to know what it is.
     * This allows `FSM`s like the light to self-manage.
-    * A `machine` in *Yellow* which is told to take the `action` *Proceed* will
-      know on its own to switch its `current state` to *Red*.
+    * A `machine` in **Yellow** which is told to take the `action` **Proceed** will
+      know on its own to switch its `current state` to **Red**.
     * This makes `FSM`s an effective tool for complexity reduction
 
 Those six ideas in hand - `FSM`s, `state`s, `machine`s, `current state`, `transition`s, and `action`s - and you're ready
@@ -191,16 +191,332 @@ Enough history lesson.  On with the tooling.
 Let's make a `state machine` for ATMs.  In the process, we will use a lot of core concepts of `finite state machine`s
 and of `jssm-dot`, this library's `DSL`.
 
-#### Empty machine
+We're going to improve on this [NCSU ATM diagram](https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif) that I
+found:
 
-We'll start with an empty machine.
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/ncsu%20atm%20diagram.gif)
+
+At any time, you can take the code and put it into the
+[graph explorer](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) for an opportunity to mess with the
+code as you see fit.
+
+
+<br/><br/>
+
+#### 0: Empty machine
+
+We'll start with an [empty machine](https://github.com/StoneCypher/jssm/blob/master/src/machines/atm%20quick%20start%20tutorial/1_EmptyWaiting.jssm).
 
 ```jssm
 EmptyWaiting 'Wait' -> EmptyWaiting;
 ```
 
-![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/1_EmptyWaiting.png)
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/0_EmptyWaiting.png)
 
+
+
+<br/><br/>
+
+#### 1: Should be able to eject cards
+
+We'll add the ability to physically eject the user's card and reset to the empty and waiting state.  Right now it'll
+dangle around un-used at the top, but later it'll become useful.
+
+This is expressed as the path `EjectCardAndReset -> EmptyWaiting;`
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting;
+EjectCardAndReset -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/1_EjectCard.png)
+
+
+
+<br/><br/>
+
+#### 2: Should be able to insert cards
+
+We'll add the ability to physically insert a card, next.  You know, the, uh, thing ATMs are pretty much for.
+
+To get this, add the path leg `EmptyWaiting 'InsertCard' -> HasCardNoAuth;`
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+EjectCardAndReset -> EmptyWaiting;
+```
+
+Notice that the new `state`, **HasCardNoAuth**, has been rendered red.  This is because it is `terminal` - there is
+no exit from this node currently.  (**EmptyAndWaiting** did not render that way because it had a transition to itself.)
+That will change as we go back to adding more nodes.  `terminal node`s are usually either mistakes or the last single
+`state` of a given `FSM`.
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/2_InsertCard.png)
+
+
+
+<br/><br/>
+
+#### 3: Should be able to cancel and recover the card
+
+Next, we should have a cancel, because the ATM's <key>7</key> key is broken, and we need our card back.  Cancel will
+exit to the main menu, and return our card credential.
+
+To that end, we add the path `HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;`
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+
+EjectCardAndReset -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/3_ReturnCard.png)
+
+
+
+<br/><br/>
+
+#### 4: Can give the wrong PIN
+
+Next, let's give the ability to get the password ... wrong.  😂  Because we all know that one ATM that only has the
+wrong-PIN path, so, apparently that's a product to someone.
+
+When they get the PIN wrong, they're prompted to try again (or to cancel.)
+
+We'll add the path `HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;`
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+
+EjectCardAndReset -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/4_WrongPin.png)
+
+
+
+
+
+<br/><br/>
+
+#### 5: Can give the correct PIN
+
+Next, let's give the ability to get the password right.
+
+We'll add two paths.  The first gets the password right: `HasCardNoAuth 'RightPIN' -> MainMenu;`
+
+The second, from our new `state` **MainMenu**, gives people the ability to leave: `MainMenu 'ExitReturnCard' -> EjectCardAndReset;`
+
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+HasCardNoAuth 'RightPIN' -> MainMenu;
+
+MainMenu 'ExitReturnCard' -> EjectCardAndReset;
+
+EjectCardAndReset -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/5_RightPin.png)
+
+
+
+<br/><br/>
+
+#### 6: Can check balance from main menu
+
+Hooray, now we're getting somewhere.
+
+Let's add the ability to check your balance.  First pick that from the main menu, then pick which account to see the
+balance of, then you're shown a screen with the information you requested; then go back to the main menu.
+
+That's `MainMenu 'CheckBalance' -> PickAccount -> DisplayBalance -> MainMenu;`
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+HasCardNoAuth 'RightPIN' -> MainMenu;
+
+MainMenu 'ExitReturnCard' -> EjectCardAndReset;
+MainMenu 'CheckBalance' -> PickAccount -> DisplayBalance -> MainMenu;
+
+EjectCardAndReset -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/6_CanCheckBalance.png)
+
+
+
+<br/><br/>
+
+#### 7: Can deposit money from main menu
+
+Let's add something difficult.  Their state machine just proceeds assuming everything is okay.
+
+To desposit money:
+
+1) Accept physical money
+2) If accept failed (eg door jammed,) reject physical object, go to main menu
+3) If accept succeeded, ask human expected value
+4) Pick an account this should go into
+5) Contact bank.  Request to credit for theoretical physical money.
+6) Three results: yes, no, offer-after-audit.
+7) If no, reject physical object, go to main menu.
+8) If yes, consume physical object, tell user consumed, go to main menu
+9) If offer-after-audit, ask human what to do
+10) if human-yes, consume physical object, tell user consumed, go to main menu
+11) if human-no, reject physical object, go to main menu
+
+Writing this out in code is not only generally longer than the text form, but also error prone and hard to maintain.
+
+... or there's the `FSM` `DSL`, which is usually as-brief-as the text, and frequently both briefer and more explicit.
+
+Rules 1-2: `MainMenu 'AcceptDeposit' -> TentativeAcceptMoney 'AcceptFail' -> RejectPhysicalMoney -> MainMenu;`
+
+Rules 3-5: `TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;`
+
+Rule 6: `BankResponse 'BankNo' -> RejectPhysicalMoney;`
+
+Rule 7: `BankResponse 'BankYes' -> ConsumeMoney -> NotifyConsumed -> MainMenu;`
+
+Rules 8-9: `BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;`
+
+Rule 10: `BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;`
+
+Or, as a block,
+
+```jssm
+MainMenu 'AcceptDeposit' -> TentativeAcceptMoney;
+
+TentativeAcceptMoney 'AcceptFail' -> RejectPhysicalMoney -> MainMenu;
+TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;
+
+BankResponse 'BankNo'    -> RejectPhysicalMoney;
+BankResponse 'BankYes'   -> ConsumeMoney -> NotifyConsumed -> MainMenu;
+BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;
+
+BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
+```
+
+Which leaves us with the total code
+
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+HasCardNoAuth 'RightPIN' -> MainMenu;
+
+MainMenu 'AcceptDeposit'  -> TentativeAcceptMoney;
+MainMenu 'ExitReturnCard' -> EjectCardAndReset;
+MainMenu 'CheckBalance'   -> PickCheckBalanceAccount -> DisplayBalance -> MainMenu;
+
+TentativeAcceptMoney 'AcceptFail'    -> RejectPhysicalMoney -> MainMenu;
+TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;
+
+BankResponse 'BankNo'    -> RejectPhysicalMoney;
+BankResponse 'BankYes'   -> ConsumeMoney -> NotifyConsumed -> MainMenu;
+BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;
+
+BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
+
+EjectCardAndReset -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/7_CanDepositMoney.png)
+
+
+
+<br/><br/>
+
+#### 8: Can withdraw money from main menu
+
+Let's also be able to take money from the machine.  After this, we'll move on, since our example is pretty squarely made
+by now.
+
+1) Pick a withdrawl account, or cancel to the main menu
+2) Shown a balance, pick a withdrawl amount, or cancel to acct picker
+3) Is the withdrawl account too high?  If so go to 2
+4) Does the machine actually have the money?  If not go to 2
+5) Otherwise confirm intent w/ human
+6) Attempt to post the transaction.
+7) If fail, display reason and go to 1
+8) If succeed, dispense money and go to main menu
+
+Rules 1-3: `MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;`
+Rule 4: `AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;`
+Rule 5: `MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;`
+Rule 6: `ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;`
+Rule 7: `BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;`
+Rule 8: `BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;`
+
+Rule 1 canceller: `PickWithdrawlAccount 'CancelWithdrawl' -> MainMenu;`
+Rule 2 canceller: `PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;`
+
+Or as a whole, we're adding
+
+```jssm
+MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;
+AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;
+MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
+ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;
+BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;
+BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;
+
+PickWithdrawlAccount 'CancelWithdrawl' -> MainMenu;
+PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;
+```
+
+Which leaves us with
+
+```jssm
+EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
+
+HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
+HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;
+HasCardNoAuth 'RightPIN' -> MainMenu;
+
+MainMenu 'AcceptDeposit'  -> TentativeAcceptMoney;
+MainMenu 'ExitReturnCard' -> EjectCardAndReset;
+MainMenu 'CheckBalance'   -> PickCheckBalanceAccount -> DisplayBalance -> MainMenu;
+
+TentativeAcceptMoney 'AcceptFail'    -> RejectPhysicalMoney -> MainMenu;
+TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;
+
+BankResponse 'BankNo'    -> RejectPhysicalMoney;
+BankResponse 'BankYes'   -> ConsumeMoney -> NotifyConsumed -> MainMenu;
+BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;
+
+BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
+
+MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;
+AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;
+MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
+ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;
+BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;
+BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;
+
+PickWithdrawlAccount 'CancelWithdrawl' -> MainMenu;
+PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;
+
+EjectCardAndReset -> EmptyWaiting;
+```
+
+![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/8_CanWithdrawMoney.png)
+
+As you can see, building up even very complex state machines is actually relatively straightforward, in a short
+amount of time.
 
 
 ## Features
