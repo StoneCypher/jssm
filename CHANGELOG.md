@@ -1,3 +1,4 @@
+* [[`0c6083f06a`](https://github.com/StoneCypher/jssm/commit/0c6083f06a)] - obsoleted build step removing generated source was firing early, borking flow (John Haugeland) 
 * [[`096e1b2821`](https://github.com/StoneCypher/jssm/commit/096e1b2821)] - semver rules require a major because i changed the linking in package.json, lol.  fixes #291 fixes #290 (John Haugeland) 
 * [[`5f69be243b`](https://github.com/StoneCypher/jssm/commit/5f69be243b)] - lel bad build script (John Haugeland) 
 * [[`4a9409eadd`](https://github.com/StoneCypher/jssm/commit/4a9409eadd)] - gargantuan change: npm now exposes build tree, postinstall qbuilds (John Haugeland) 
