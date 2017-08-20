@@ -1,3 +1,4 @@
+* [[`8b3c43fd83`](https://github.com/StoneCypher/jssm/commit/8b3c43fd83)] - oh lol the test script was borqued (John Haugeland) 
 * [[`74d8484e59`](https://github.com/StoneCypher/jssm/commit/74d8484e59)] - formatting changes to tests to see if changelog is working (John Haugeland) 
 * [[`5180b36c64`](https://github.com/StoneCypher/jssm/commit/5180b36c64)] - .npmignore, changelog.md (John Haugeland) 
 * [[`f32d2feae1`](https://github.com/StoneCypher/jssm/commit/f32d2feae1)] - Support for machine names and machine versions, as well as basic semver (John Haugeland) 

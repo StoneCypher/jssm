@@ -1,11 +1,11 @@
 {
   "name": "jssm",
-  "version": "4.7.3",
+  "version": "4.7.4",
   "engines": {
     "node": ">=6.0.0"
   },
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
-  "main": "dist/jssm.es5.browserified.js",
+  "main": "dist/jssm.es5.cjs.js",
   "scripts": {
     "test": "nyc ava src/js/tests/*.js",
     "removedir": "rimraf build -f && rimraf dist -f && rimraf docs -f",
