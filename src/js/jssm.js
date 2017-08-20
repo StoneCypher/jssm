@@ -179,7 +179,7 @@ function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompile
 
   if (rule.key === 'transition') { return { agg_as: 'transition', val: compile_rule_handle_transition(rule) }; }
 
-  const tautologies : Array<string> = ['graph_layout', 'start_nodes', 'end_nodes'];
+  const tautologies : Array<string> = ['graph_layout', 'start_nodes', 'end_nodes', 'machine_name', 'machine_version'];
   if (tautologies.includes(rule.key)) {
     return { agg_as: rule.key, val: rule.value };
   }
@@ -193,17 +193,21 @@ function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompile
 function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
 
   const results : {
-    graph_layout  : Array< JssmLayout >,
-    transition    : Array< JssmTransition<mNT, mDT> >,
-    start_nodes   : Array< mNT >,
-    end_nodes     : Array< mNT >,
-    initial_state : Array< mNT >
+    graph_layout    : Array< JssmLayout >,
+    transition      : Array< JssmTransition<mNT, mDT> >,
+    start_nodes     : Array< mNT >,
+    end_nodes       : Array< mNT >,
+    initial_state   : Array< mNT >,
+    machine_name    : Array< string >,
+    machine_version : Array< string > // semver
   } = {
-    graph_layout  : [],
-    transition    : [],
-    start_nodes   : [],
-    end_nodes     : [],
-    initial_state : []
+    graph_layout    : [],
+    transition      : [],
+    start_nodes     : [],
+    end_nodes       : [],
+    initial_state   : [],
+    machine_name    : [],
+    machine_version : []
   };
 
   tree.map( (tr : JssmCompileSeStart<mNT>) => {
@@ -216,7 +220,7 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
   });
 
-  ['graph_layout', 'initial_state'].map( (oneOnlyKey : string) => {
+  ['graph_layout', 'initial_state', 'machine_name', 'machine_version'].map( (oneOnlyKey : string) => {
     if (results[oneOnlyKey].length > 1) {
       throw new Error(`May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
     }
@@ -225,6 +229,7 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
   const assembled_transitions : Array< JssmTransition<mNT, mDT> > = [].concat(... results['transition']);
 
   const result_cfg : JssmGenericConfig<mNT, mDT> = {
+// whargarbl should be    initial_state : results.initial_state[0],
     initial_state : results.start_nodes.length? results.start_nodes[0] : assembled_transitions[0].from,
     transitions   : assembled_transitions
   };

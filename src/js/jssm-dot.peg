@@ -137,7 +137,7 @@ String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
 Atom "atom"
-  = text:[0-9a-zA-Z\.\+\_\&\(\)\$\#\@\!\?\,\']+ { return text.join(''); }
+  = text:[0-9a-zA-Z\.\+\_\&\(\)\$\#\@\!\?\,]+ { return text.join(''); }
 
 Label "label"
   = atom:Atom
@@ -156,6 +156,31 @@ NonZeroDigit
 NonNegNumber "nonneg number"
   = IntegerLiteral "." DecimalDigit* Whitespace { return parseFloat(text()); }
   / IntegerLiteral                   Whitespace { return parseFloat(text()); }
+
+SemVer
+  = major:IntegerLiteral "." minor:IntegerLiteral "." patch:IntegerLiteral
+  { return {
+    major: parseInt(major,10),
+    minor: parseInt(minor,10),
+    patch: parseInt(patch,10),
+    full: text()
+  }; }
+
+SemVerOper
+  = "^"
+  / "~"
+  / ">="
+  / "<="
+  / "<"
+  / ">"
+
+SemVerRule
+  = SemVerOper? SemVer
+
+SemVerRange
+  = SemVerRule SemVerRule?
+
+
 
 Color "color"   // hoboy
   = 'red'
@@ -196,7 +221,7 @@ LabelOrLabelList
 
 
 
-// todo these shouldn't be ordered, this is dumb
+// todo these shouldn't be ordered, this is dumb // whargarbl comeback major
 
 Subexp
   = Whitespace r_action : ActionLabel?
@@ -358,7 +383,12 @@ StateDef "state definition"
 
 
 MachineName
-  = Whitespace "machine name" Whitespace ":" Whitespace name:Label Whitespace ";" Whitespace { return { key: "Machine name", value: name }; }
+  = Whitespace "machine_name" Whitespace ":" Whitespace name:Label Whitespace ";" Whitespace { return { key: "machine_name", value: name }; }
+
+
+
+MachineVersion
+  = Whitespace "machine_version" Whitespace ":" Whitespace version:SemVer Whitespace ";" Whitespace { return { key: "machine_version", value: version }; }
 
 
 
@@ -377,6 +407,7 @@ Term
   / Exp
   / StateDef
   / MachineName
+  / MachineVersion
   / StateGroupDef
   / Config
 
