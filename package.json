@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -20,7 +20,7 @@
     "postinstall": "npm run qbuild",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
-    "nyc-html": "nyc ava report --reporter=html",
+    "nyc-html": "nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "vet": "npm run flow && npm run eslint",
     "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm*.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm*.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm*.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm*.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm*.js | wc -l`\\\\n\\\"nextdo\\\" remaining . : `grep nextdo src/js/jssm*.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm*.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm*.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm*.js | wc -l`\\\\n\\\"stochable\\\" remaining: `grep stochable src/js/jssm*.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm*.js | wc -l`",
@@ -31,7 +31,7 @@
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "npm run vet && npm run test && npm run coverage"
+    "travis": "npm run vet && npm run nyc-html && npm run coverage"
   },
   "repository": {
     "type": "git",
