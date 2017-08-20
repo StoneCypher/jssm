@@ -365,33 +365,28 @@ Let's add something difficult.  Their state machine just proceeds assuming every
 
 To desposit money:
 
-1) Accept physical money
-2) If accept failed (eg door jammed,) reject physical object, go to main menu
-3) If accept succeeded, ask human expected value
-4) Pick an account this should go into
-5) Contact bank.  Request to credit for theoretical physical money.
-6) Three results: yes, no, offer-after-audit.
-7) If no, reject physical object, go to main menu.
-8) If yes, consume physical object, tell user consumed, go to main menu
-9) If offer-after-audit, ask human what to do
-10) if human-yes, consume physical object, tell user consumed, go to main menu
-11) if human-no, reject physical object, go to main menu
+1. Accept physical money
+2. If accept failed (eg door jammed,) reject physical object, go to main menu
+3. If accept succeeded, ask human expected value
+4. Pick an account this should go into
+5. Contact bank.  Request to credit for theoretical physical money.
+6. Three results: yes, no, offer-after-audit.
+7. If no, reject physical object, go to main menu.
+8. If yes, consume physical object, tell user consumed, go to main menu
+9. If offer-after-audit, ask human what to do
+10. if human-yes, consume physical object, tell user consumed, go to main menu
+11. if human-no, reject physical object, go to main menu
 
 Writing this out in code is not only generally longer than the text form, but also error prone and hard to maintain.
 
 ... or there's the `FSM` `DSL`, which is usually as-brief-as the text, and frequently both briefer and more explicit.
 
-Rules 1-2: `MainMenu 'AcceptDeposit' -> TentativeAcceptMoney 'AcceptFail' -> RejectPhysicalMoney -> MainMenu;`
-
-Rules 3-5: `TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;`
-
-Rule 6: `BankResponse 'BankNo' -> RejectPhysicalMoney;`
-
-Rule 7: `BankResponse 'BankYes' -> ConsumeMoney -> NotifyConsumed -> MainMenu;`
-
-Rules 8-9: `BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;`
-
-Rule 10: `BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;`
+* Rules 1-2: `MainMenu 'AcceptDeposit' -> TentativeAcceptMoney 'AcceptFail' -> RejectPhysicalMoney -> MainMenu;`
+* Rules 3-5: `TentativeAcceptMoney 'AcceptSucceed' -> PickDepositAccount -> RequestValue 'TellBank' -> BankResponse;`
+* Rule 6: `BankResponse 'BankNo' -> RejectPhysicalMoney;`
+* Rule 7: `BankResponse 'BankYes' -> ConsumeMoney -> NotifyConsumed -> MainMenu;`
+* Rules 8-9: `BankResponse 'BankAudit' -> BankAuditOffer 'HumanAcceptAudit' -> ConsumeMoney;`
+* Rule 10: `BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;`
 
 Or, as a block,
 
@@ -445,21 +440,21 @@ EjectCardAndReset -> EmptyWaiting;
 Let's also be able to take money from the machine.  After this, we'll move on, since our example is pretty squarely made
 by now.
 
-1) Pick a withdrawl account, or cancel to the main menu
-2) Shown a balance, pick a withdrawl amount, or cancel to acct picker
-3) Is the withdrawl account too high?  If so go to 2
-4) Does the machine actually have the money?  If not go to 2
-5) Otherwise confirm intent w/ human
-6) Attempt to post the transaction.
-7) If fail, display reason and go to 1
-8) If succeed, dispense money and go to main menu
+1. Pick a withdrawl account, or cancel to the main menu
+2. Shown a balance, pick a withdrawl amount, or cancel to acct picker
+3. Is the withdrawl account too high?  If so go to 2
+4. Does the machine actually have the money?  If not go to 2
+5. Otherwise confirm intent w/ human
+6. Attempt to post the transaction.
+7. If fail, display reason and go to 1
+8. If succeed, dispense money and go to main menu
 
-Rules 1-3: `MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;`
-Rule 4: `AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;`
-Rule 5: `MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;`
-Rule 6: `ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;`
-Rule 7: `BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;`
-Rule 8: `BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;`
+* Rules 1-3: `MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;`
+* Rule 4: `AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;`
+* Rule 5: `MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;`
+* Rule 6: `ConfirmWithdrawWithHuman 'PostWithdrawl' -> BankWithdrawlResponse;`
+* Rule 7: `BankWithdrawlResponse 'WithdrawlFailure' -> WithdrawlFailureExplanation -> PickWithdrawlAccount;`
+* Rule 8: `BankWithdrawlResponse 'WithdrawlSuccess' -> DispenseMoney -> MainMenu;`
 
 Rule 1 canceller: `PickWithdrawlAccount 'CancelWithdrawl' -> MainMenu;`
 Rule 2 canceller: `PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;`
