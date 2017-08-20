@@ -1,11 +1,11 @@
 {
   "name": "jssm",
-  "version": "4.7.4",
+  "version": "4.7.5",
   "engines": {
     "node": ">=6.0.0"
   },
   "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
-  "main": "dist/jssm.es5.cjs.js",
+  "main": "build/jssm.es5.js",
   "scripts": {
     "test": "nyc ava src/js/tests/*.js",
     "removedir": "rimraf build -f && rimraf dist -f && rimraf docs -f",
@@ -17,6 +17,7 @@
     "pack": "browserify -r ./build/jssm.es5.js:jssm -o build/jssm.es5.cjs.js",
     "make": "npm run clean && npm run peg && npm run babel && npm run rename && npm run setver && npm run pack",
     "flow": "flow",
+    "postinstall": "qbuild",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc ava report --reporter=html",
