@@ -1,3 +1,4 @@
+* [[`5f69be243b`](https://github.com/StoneCypher/jssm/commit/5f69be243b)] - lel bad build script (John Haugeland) 
 * [[`4a9409eadd`](https://github.com/StoneCypher/jssm/commit/4a9409eadd)] - gargantuan change: npm now exposes build tree, postinstall qbuilds (John Haugeland) 
 * [[`35f33d63bb`](https://github.com/StoneCypher/jssm/commit/35f33d63bb)] - minor package error pointing main to wrong file (John Haugeland) 
 * [[`8b3c43fd83`](https://github.com/StoneCypher/jssm/commit/8b3c43fd83)] - oh lol the test script was borqued (John Haugeland) 
