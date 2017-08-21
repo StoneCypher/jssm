@@ -36,8 +36,6 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-build/
-
 .DS_Store
 
 src/js/jssm-dot.js

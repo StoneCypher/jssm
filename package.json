@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -17,7 +17,6 @@
     "pack": "browserify -r ./build/jssm.es5.js:jssm -o build/jssm.es5.cjs.js",
     "make": "npm run clean && npm run peg && npm run babel && npm run rename && npm run setver && npm run pack",
     "flow": "flow",
-    "postinstall": "npm run qbuild",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html",
@@ -31,7 +30,7 @@
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "npm run vet && npm run nyc-html && npm run coverage"
+    "travis": "npm run build && npm run nyc-html && npm run coverage"
   },
   "repository": {
     "type": "git",
