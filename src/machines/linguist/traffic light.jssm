@@ -1,0 +1,18 @@
+machine_name    : "Traffic light with off";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>"
+machine_license : MIT
+
+jssm_version    : >= 5.0.0;
+graph_layout    : dot;
+
+
+
+// Traffic lights can be turned on
+Off -> Red;
+
+// The color cycle is the main path for this machine
+Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+
+// Shutting off is rare, so, forced-only
+[Red Yellow Green] ~> Off;

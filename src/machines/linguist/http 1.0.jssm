@@ -1,0 +1,20 @@
+machine_name      : "HTTP 1.0";
+machine_reference : "https://www.w3.org/Library/User/Architecture/HTTPFeatures.html";
+machine_version   : 1.0.0;
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+jssm_version      : >= 5.0.0;
+graph_layout      : dot;
+
+
+
+Begin => "Need connection" 'Ok' => "Need request" 'Ok' => "Sent request";
+
+"Sent request" '200, 203' => "Need body" 'Ok' => "GOT DATA";
+"Sent request" '401'      -> "Need auth" 'Ok' -> "Need connection";
+"Sent request" '204, 304' -> "NO DATA";
+"Sent request" '301, 302' -> "REDIRECTION";
+
+["Need connection" "Need request" "Sent request" "Need body" "Need auth"] 'Error' -> "ERROR / FAILURE";

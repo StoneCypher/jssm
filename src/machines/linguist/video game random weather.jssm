@@ -1,0 +1,34 @@
+machine_name    : "4-way simple intersection with flash";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>"
+machine_license : MIT
+
+jssm_version    : >= 5.0.0;
+graph_layout    : dot;
+
+
+
+Sunny   60% -> Sunny;
+Sunny   25% -> TooHot;
+Sunny   10% -> Rainy;
+Sunny    5% -> TooCold;
+
+Rainy   50% -> Rainy;
+Rainy   30% -> TooCold;
+Rainy   20% -> Sunny;
+
+TooHot  20% -> TooHot;
+TooHot  65% -> Sunny;
+TooHot  15% -> Rainy;
+
+TooCold 25% -> TooCold;
+TooCold 55% -> Sunny;
+TooCold 20% -> Rainy;
+
+
+
+// this machine will spend just over half of its time in Sunny
+// a typical 15,000 step random run yielded {Rainy:2909, Sunny:7860, TooCold:1782, TooHot:2450}
+//
+// see how to calculate this here:
+//   https://user-images.githubusercontent.com/77482/29500010-2c762002-85d1-11e7-8a22-90cb98b4f53e.png

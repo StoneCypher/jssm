@@ -1,0 +1,14 @@
+machine_name      : "eMMC Transfer Mode";
+machine_version   : 1.0.0;
+machine_reference : ["https://www.design-reuse.com/news_img/20101001_2.gif",
+                     "https://www.design-reuse.com/articles/24546/functional-fsm-paths-coverage-systemverilog.html"];
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+jssm_version      : >= 5.0.0;
+graph_layout      : dot;
+
+
+
+NotInTransferMode 'CMD3' -> StandByState;

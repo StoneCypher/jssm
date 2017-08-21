@@ -1,0 +1,14 @@
+machine_name    : "States of matter";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>"
+machine_license : MIT
+
+jssm_version    : >= 5.0.0;
+graph_layout    : dot;
+
+// see also `extensive states of matter.jssm`
+
+
+
+// normal four states of matter
+Solid 'Heat' <-> 'Cool' Liquid 'Heat' <-> 'Cool' Gas 'Heat' <-> 'Cool' Plasma;

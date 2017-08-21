@@ -1,3 +1,6 @@
+* [[`0d5cc5283e`](https://github.com/StoneCypher/jssm/commit/0d5cc5283e)] - add all the  machines (John Haugeland) 
+* [[`5a4be411bd`](https://github.com/StoneCypher/jssm/commit/5a4be411bd)] - Add build to repo, remove from postinstall, add to travis, fixes #300 (John Haugeland) 
+* [[`5d672bfee5`](https://github.com/StoneCypher/jssm/commit/5d672bfee5)] - Set up proper colors.  Rename all machines to .jssm.  Significant README improvements.  fixes #292 #293 #294 #295 #296 (John Haugeland) 
 * [[`ae27c896c7`](https://github.com/StoneCypher/jssm/commit/ae27c896c7)] - move *.edges to *.jssm (John Haugeland) 
 * [[`b71c0bb642`](https://github.com/StoneCypher/jssm/commit/b71c0bb642)] - more url fixes (John Haugeland) 
 * [[`e2c91f3f48`](https://github.com/StoneCypher/jssm/commit/e2c91f3f48)] - url fixes (John Haugeland) 

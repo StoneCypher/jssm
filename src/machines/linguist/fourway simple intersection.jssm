@@ -1,0 +1,25 @@
+machine_name    : "4-way simple intersection with flash";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>"
+machine_license : MIT
+
+jssm_version    : >= 5.0.0;
+graph_layout    : dot;
+
+
+
+// Intersections can be turned on
+Off -> Rn_Re_1;
+
+// Main cycle: RR1 to North G/Y/R cycle to RR2 to East G/Y/R cycle to RR1
+Rn_Re_1 'proceed' => Gn_Re 'proceed' => Yn_Re 'proceed' => Rn_Re_2;
+Rn_Re_2 'proceed' => Rn_Ge 'proceed' => Rn_Ye 'proceed' => Rn_Re_1;
+
+// All colors can switch to FlashRed, ostensibly for emergencies
+[Rn_Re_1 Gn_Re Yn_Re Rn_Re_2 Rn_Ge Rn_Ye] -> FlashRed;
+
+// FlashRed only exits to RR1
+FlashRed -> Rn_Re_1;
+
+// All colors and FlashRed can be forced to off
+[Rn_Re_1 Gn_Re Yn_Re Rn_Re_2 Rn_Ge Rn_Ye FlashRed] ~> Off;

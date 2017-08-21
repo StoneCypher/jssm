@@ -1,0 +1,26 @@
+machine_name    : "Extensive states of matter";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>"
+machine_license : MIT
+
+jssm_version    : >= 5.0.0;
+graph_layout    : dot;
+
+// see also `states of matter.jssm`
+
+
+
+// normal four states of matter
+Solid 'Heat' <-> 'Cool' Liquid 'Heat' <-> 'Cool' Gas 'Heat' <-> 'Cool' Plasma;
+
+// solid and gas can go directly to/from one another, eg dry ice
+Solid 'Sublimate' <-> 'Deposit' Gas;
+
+// special states of matter
+Solid 'Supercool' <-> 'Heat' BoseEinsteinCondensate;
+Liquid 'Supercool' <-> 'Heat' Superfluid 'Supercool' <-> 'Heat' FermionicFluid;
+
+// all can get into neutron matter, which only exits to plasma.
+// neutron matter can get into black hole.  nobody gets back out of that
+[BoseEinsteinCondensate Solid Liquid Gas Plasma] 'Compress' -> NeutronMatter 'Compress' ~> BlackHole;
+NeutronMatter 'Heat' -> Plasma;

@@ -1,0 +1,12 @@
+machine_name    : "Coin operated turnstile";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>"
+machine_license : MIT
+
+jssm_version    : >= 5.0.0;
+graph_layout    : dot;
+
+
+
+Locked 'Open' -> Locked;
+Locked 'AddCoin' -> Unlocked 'AddCoin' -> Unlocked 'Open' -> Opened -> Locked;
