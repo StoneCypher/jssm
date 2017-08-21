@@ -182,10 +182,180 @@ SemVerRange
 
 
 
+SvgColorLabel
+  = 'aliceblue'            { return '#f0f8ffff'; }              / 'AliceBlue'            { return '#f0f8ffff'; }
+  / 'antiquewhite'         { return '#faebd7ff'; }              / 'AntiqueWhite'         { return '#faebd7ff'; }
+  / 'aqua'                 { return '#00ffffff'; }              / 'Aqua'                 { return '#00ffffff'; }
+  / 'aquamarine'           { return '#7fffd4ff'; }              / 'Aquamarine'           { return '#7fffd4ff'; }
+  / 'azure'                { return '#f0ffffff'; }              / 'Azure'                { return '#f0ffffff'; }
+  / 'beige'                { return '#f5f5dcff'; }              / 'Beige'                { return '#f5f5dcff'; }
+  / 'bisque'               { return '#ffe4c4ff'; }              / 'Bisque'               { return '#ffe4c4ff'; }
+  / 'black'                { return '#000000ff'; }              / 'Black'                { return '#000000ff'; }
+  / 'blanchedalmond'       { return '#ffebcdff'; }              / 'BlanchedAlmond'       { return '#ffebcdff'; }
+  / 'blue'                 { return '#0000ffff'; }              / 'Blue'                 { return '#0000ffff'; }
+  / 'blueviolet'           { return '#8a2be2ff'; }              / 'BlueViolet'           { return '#8a2be2ff'; }
+  / 'brown'                { return '#a52a2aff'; }              / 'Brown'                { return '#a52a2aff'; }
+  / 'burlywood'            { return '#deb887ff'; }              / 'BurlyWood'            { return '#deb887ff'; }
+  / 'cadetblue'            { return '#5f9ea0ff'; }              / 'CadetBlue'            { return '#5f9ea0ff'; }
+  / 'chartreuse'           { return '#7fff00ff'; }              / 'Chartreuse'           { return '#7fff00ff'; }
+  / 'chocolate'            { return '#d2691eff'; }              / 'Chocolate'            { return '#d2691eff'; }
+  / 'coral'                { return '#ff7f50ff'; }              / 'Coral'                { return '#ff7f50ff'; }
+  / 'cornflowerblue'       { return '#6495edff'; }              / 'CornflowerBlue'       { return '#6495edff'; }
+  / 'cornsilk'             { return '#fff8dcff'; }              / 'Cornsilk'             { return '#fff8dcff'; }
+  / 'crimson'              { return '#dc143cff'; }              / 'Crimson'              { return '#dc143cff'; }
+  / 'cyan'                 { return '#00ffffff'; }              / 'Cyan'                 { return '#00ffffff'; }
+  / 'darkblue'             { return '#00008bff'; }              / 'DarkBlue'             { return '#00008bff'; }
+  / 'darkcyan'             { return '#008b8bff'; }              / 'DarkCyan'             { return '#008b8bff'; }
+  / 'darkgoldenrod'        { return '#b8860bff'; }              / 'DarkGoldenRod'        { return '#b8860bff'; }
+  / 'darkgray'             { return '#a9a9a9ff'; }              / 'DarkGray'             { return '#a9a9a9ff'; }
+  / 'darkgrey'             { return '#a9a9a9ff'; }              / 'DarkGrey'             { return '#a9a9a9ff'; }
+  / 'darkgreen'            { return '#006400ff'; }              / 'DarkGreen'            { return '#006400ff'; }
+  / 'darkkhaki'            { return '#bdb76bff'; }              / 'DarkKhaki'            { return '#bdb76bff'; }
+  / 'darkmagenta'          { return '#8b008bff'; }              / 'DarkMagenta'          { return '#8b008bff'; }
+  / 'darkolivegreen'       { return '#556b2fff'; }              / 'DarkOliveGreen'       { return '#556b2fff'; }
+  / 'darkorange'           { return '#ff8c00ff'; }              / 'Darkorange'           { return '#ff8c00ff'; }
+  / 'darkorchid'           { return '#9932ccff'; }              / 'DarkOrchid'           { return '#9932ccff'; }
+  / 'darkred'              { return '#8b0000ff'; }              / 'DarkRed'              { return '#8b0000ff'; }
+  / 'darksalmon'           { return '#e9967aff'; }              / 'DarkSalmon'           { return '#e9967aff'; }
+  / 'darkseagreen'         { return '#8fbc8fff'; }              / 'DarkSeaGreen'         { return '#8fbc8fff'; }
+  / 'darkslateblue'        { return '#483d8bff'; }              / 'DarkSlateBlue'        { return '#483d8bff'; }
+  / 'darkslategray'        { return '#2f4f4fff'; }              / 'DarkSlateGray'        { return '#2f4f4fff'; }
+  / 'darkslategrey'        { return '#2f4f4fff'; }              / 'DarkSlateGrey'        { return '#2f4f4fff'; }
+  / 'darkturquoise'        { return '#00ced1ff'; }              / 'DarkTurquoise'        { return '#00ced1ff'; }
+  / 'darkviolet'           { return '#9400d3ff'; }              / 'DarkViolet'           { return '#9400d3ff'; }
+  / 'deeppink'             { return '#ff1493ff'; }              / 'DeepPink'             { return '#ff1493ff'; }
+  / 'deepskyblue'          { return '#00bfffff'; }              / 'DeepSkyBlue'          { return '#00bfffff'; }
+  / 'dimgray'              { return '#696969ff'; }              / 'DimGray'              { return '#696969ff'; }
+  / 'dimgrey'              { return '#696969ff'; }              / 'DimGrey'              { return '#696969ff'; }
+  / 'dodgerblue'           { return '#1e90ffff'; }              / 'DodgerBlue'           { return '#1e90ffff'; }
+  / 'firebrick'            { return '#b22222ff'; }              / 'FireBrick'            { return '#b22222ff'; }
+  / 'floralwhite'          { return '#fffaf0ff'; }              / 'FloralWhite'          { return '#fffaf0ff'; }
+  / 'forestgreen'          { return '#228b22ff'; }              / 'ForestGreen'          { return '#228b22ff'; }
+  / 'fuchsia'              { return '#ff00ffff'; }              / 'Fuchsia'              { return '#ff00ffff'; }
+  / 'gainsboro'            { return '#dcdcdcff'; }              / 'Gainsboro'            { return '#dcdcdcff'; }
+  / 'ghostwhite'           { return '#f8f8ffff'; }              / 'GhostWhite'           { return '#f8f8ffff'; }
+  / 'gold'                 { return '#ffd700ff'; }              / 'Gold'                 { return '#ffd700ff'; }
+  / 'goldenrod'            { return '#daa520ff'; }              / 'GoldenRod'            { return '#daa520ff'; }
+  / 'gray'                 { return '#808080ff'; }              / 'Gray'                 { return '#808080ff'; }
+  / 'grey'                 { return '#808080ff'; }              / 'Grey'                 { return '#808080ff'; }
+  / 'green'                { return '#008000ff'; }              / 'Green'                { return '#008000ff'; }
+  / 'greenyellow'          { return '#adff2fff'; }              / 'GreenYellow'          { return '#adff2fff'; }
+  / 'honeydew'             { return '#f0fff0ff'; }              / 'HoneyDew'             { return '#f0fff0ff'; }
+  / 'hotpink'              { return '#ff69b4ff'; }              / 'HotPink'              { return '#ff69b4ff'; }
+  / 'indianred'            { return '#cd5c5cff'; }              / 'IndianRed'            { return '#cd5c5cff'; }
+  / 'indigo'               { return '#4b0082ff'; }              / 'Indigo'               { return '#4b0082ff'; }
+  / 'ivory'                { return '#fffff0ff'; }              / 'Ivory'                { return '#fffff0ff'; }
+  / 'khaki'                { return '#f0e68cff'; }              / 'Khaki'                { return '#f0e68cff'; }
+  / 'lavender'             { return '#e6e6faff'; }              / 'Lavender'             { return '#e6e6faff'; }
+  / 'lavenderblush'        { return '#fff0f5ff'; }              / 'LavenderBlush'        { return '#fff0f5ff'; }
+  / 'lawngreen'            { return '#7cfc00ff'; }              / 'LawnGreen'            { return '#7cfc00ff'; }
+  / 'lemonchiffon'         { return '#fffacdff'; }              / 'LemonChiffon'         { return '#fffacdff'; }
+  / 'lightblue'            { return '#add8e6ff'; }              / 'LightBlue'            { return '#add8e6ff'; }
+  / 'lightcoral'           { return '#f08080ff'; }              / 'LightCoral'           { return '#f08080ff'; }
+  / 'lightcyan'            { return '#e0ffffff'; }              / 'LightCyan'            { return '#e0ffffff'; }
+  / 'lightgoldenrodyellow' { return '#fafad2ff'; }              / 'LightGoldenRodYellow' { return '#fafad2ff'; }
+  / 'lightgray'            { return '#d3d3d3ff'; }              / 'LightGray'            { return '#d3d3d3ff'; }
+  / 'lightgrey'            { return '#d3d3d3ff'; }              / 'LightGrey'            { return '#d3d3d3ff'; }
+  / 'lightgreen'           { return '#90ee90ff'; }              / 'LightGreen'           { return '#90ee90ff'; }
+  / 'lightpink'            { return '#ffb6c1ff'; }              / 'LightPink'            { return '#ffb6c1ff'; }
+  / 'lightsalmon'          { return '#ffa07aff'; }              / 'LightSalmon'          { return '#ffa07aff'; }
+  / 'lightseagreen'        { return '#20b2aaff'; }              / 'LightSeaGreen'        { return '#20b2aaff'; }
+  / 'lightskyblue'         { return '#87cefaff'; }              / 'LightSkyBlue'         { return '#87cefaff'; }
+  / 'lightslategray'       { return '#778899ff'; }              / 'LightSlateGray'       { return '#778899ff'; }
+  / 'lightslategrey'       { return '#778899ff'; }              / 'LightSlateGrey'       { return '#778899ff'; }
+  / 'lightsteelblue'       { return '#b0c4deff'; }              / 'LightSteelBlue'       { return '#b0c4deff'; }
+  / 'lightyellow'          { return '#ffffe0ff'; }              / 'LightYellow'          { return '#ffffe0ff'; }
+  / 'lime'                 { return '#00ff00ff'; }              / 'Lime'                 { return '#00ff00ff'; }
+  / 'limegreen'            { return '#32cd32ff'; }              / 'LimeGreen'            { return '#32cd32ff'; }
+  / 'linen'                { return '#faf0e6ff'; }              / 'Linen'                { return '#faf0e6ff'; }
+  / 'magenta'              { return '#ff00ffff'; }              / 'Magenta'              { return '#ff00ffff'; }
+  / 'maroon'               { return '#800000ff'; }              / 'Maroon'               { return '#800000ff'; }
+  / 'mediumaquamarine'     { return '#66cdaaff'; }              / 'MediumAquaMarine'     { return '#66cdaaff'; }
+  / 'mediumblue'           { return '#0000cdff'; }              / 'MediumBlue'           { return '#0000cdff'; }
+  / 'mediumorchid'         { return '#ba55d3ff'; }              / 'MediumOrchid'         { return '#ba55d3ff'; }
+  / 'mediumpurple'         { return '#9370d8ff'; }              / 'MediumPurple'         { return '#9370d8ff'; }
+  / 'mediumseagreen'       { return '#3cb371ff'; }              / 'MediumSeaGreen'       { return '#3cb371ff'; }
+  / 'mediumslateblue'      { return '#7b68eeff'; }              / 'MediumSlateBlue'      { return '#7b68eeff'; }
+  / 'mediumspringgreen'    { return '#00fa9aff'; }              / 'MediumSpringGreen'    { return '#00fa9aff'; }
+  / 'mediumturquoise'      { return '#48d1ccff'; }              / 'MediumTurquoise'      { return '#48d1ccff'; }
+  / 'mediumvioletred'      { return '#c71585ff'; }              / 'MediumVioletRed'      { return '#c71585ff'; }
+  / 'midnightblue'         { return '#191970ff'; }              / 'MidnightBlue'         { return '#191970ff'; }
+  / 'mintcream'            { return '#f5fffaff'; }              / 'MintCream'            { return '#f5fffaff'; }
+  / 'mistyrose'            { return '#ffe4e1ff'; }              / 'MistyRose'            { return '#ffe4e1ff'; }
+  / 'moccasin'             { return '#ffe4b5ff'; }              / 'Moccasin'             { return '#ffe4b5ff'; }
+  / 'navajowhite'          { return '#ffdeadff'; }              / 'NavajoWhite'          { return '#ffdeadff'; }
+  / 'navy'                 { return '#000080ff'; }              / 'Navy'                 { return '#000080ff'; }
+  / 'oldlace'              { return '#fdf5e6ff'; }              / 'OldLace'              { return '#fdf5e6ff'; }
+  / 'olive'                { return '#808000ff'; }              / 'Olive'                { return '#808000ff'; }
+  / 'olivedrab'            { return '#6b8e23ff'; }              / 'OliveDrab'            { return '#6b8e23ff'; }
+  / 'orange'               { return '#ffa500ff'; }              / 'Orange'               { return '#ffa500ff'; }
+  / 'orangered'            { return '#ff4500ff'; }              / 'OrangeRed'            { return '#ff4500ff'; }
+  / 'orchid'               { return '#da70d6ff'; }              / 'Orchid'               { return '#da70d6ff'; }
+  / 'palegoldenrod'        { return '#eee8aaff'; }              / 'PaleGoldenRod'        { return '#eee8aaff'; }
+  / 'palegreen'            { return '#98fb98ff'; }              / 'PaleGreen'            { return '#98fb98ff'; }
+  / 'paleturquoise'        { return '#afeeeeff'; }              / 'PaleTurquoise'        { return '#afeeeeff'; }
+  / 'palevioletred'        { return '#d87093ff'; }              / 'PaleVioletRed'        { return '#d87093ff'; }
+  / 'papayawhip'           { return '#ffefd5ff'; }              / 'PapayaWhip'           { return '#ffefd5ff'; }
+  / 'peachpuff'            { return '#ffdab9ff'; }              / 'PeachPuff'            { return '#ffdab9ff'; }
+  / 'peru'                 { return '#cd853fff'; }              / 'Peru'                 { return '#cd853fff'; }
+  / 'pink'                 { return '#ffc0cbff'; }              / 'Pink'                 { return '#ffc0cbff'; }
+  / 'plum'                 { return '#dda0ddff'; }              / 'Plum'                 { return '#dda0ddff'; }
+  / 'powderblue'           { return '#b0e0e6ff'; }              / 'PowderBlue'           { return '#b0e0e6ff'; }
+  / 'purple'               { return '#800080ff'; }              / 'Purple'               { return '#800080ff'; }
+  / 'red'                  { return '#ff0000ff'; }              / 'Red'                  { return '#ff0000ff'; }
+  / 'rosybrown'            { return '#bc8f8fff'; }              / 'RosyBrown'            { return '#bc8f8fff'; }
+  / 'royalblue'            { return '#4169e1ff'; }              / 'RoyalBlue'            { return '#4169e1ff'; }
+  / 'saddlebrown'          { return '#8b4513ff'; }              / 'SaddleBrown'          { return '#8b4513ff'; }
+  / 'salmon'               { return '#fa8072ff'; }              / 'Salmon'               { return '#fa8072ff'; }
+  / 'sandybrown'           { return '#f4a460ff'; }              / 'SandyBrown'           { return '#f4a460ff'; }
+  / 'seagreen'             { return '#2e8b57ff'; }              / 'SeaGreen'             { return '#2e8b57ff'; }
+  / 'seashell'             { return '#fff5eeff'; }              / 'SeaShell'             { return '#fff5eeff'; }
+  / 'sienna'               { return '#a0522dff'; }              / 'Sienna'               { return '#a0522dff'; }
+  / 'silver'               { return '#c0c0c0ff'; }              / 'Silver'               { return '#c0c0c0ff'; }
+  / 'skyblue'              { return '#87ceebff'; }              / 'SkyBlue'              { return '#87ceebff'; }
+  / 'slateblue'            { return '#6a5acdff'; }              / 'SlateBlue'            { return '#6a5acdff'; }
+  / 'slategray'            { return '#708090ff'; }              / 'SlateGray'            { return '#708090ff'; }
+  / 'slategrey'            { return '#708090ff'; }              / 'SlateGrey'            { return '#708090ff'; }
+  / 'snow'                 { return '#fffafaff'; }              / 'Snow'                 { return '#fffafaff'; }
+  / 'springgreen'          { return '#00ff7fff'; }              / 'SpringGreen'          { return '#00ff7fff'; }
+  / 'steelblue'            { return '#4682b4ff'; }              / 'SteelBlue'            { return '#4682b4ff'; }
+  / 'tan'                  { return '#d2b48cff'; }              / 'Tan'                  { return '#d2b48cff'; }
+  / 'teal'                 { return '#008080ff'; }              / 'Teal'                 { return '#008080ff'; }
+  / 'thistle'              { return '#d8bfd8ff'; }              / 'Thistle'              { return '#d8bfd8ff'; }
+  / 'tomato'               { return '#ff6347ff'; }              / 'Tomato'               { return '#ff6347ff'; }
+  / 'turquoise'            { return '#40e0d0ff'; }              / 'Turquoise'            { return '#40e0d0ff'; }
+  / 'violet'               { return '#ee82eeff'; }              / 'Violet'               { return '#ee82eeff'; }
+  / 'wheat'                { return '#f5deb3ff'; }              / 'Wheat'                { return '#f5deb3ff'; }
+  / 'white'                { return '#ffffffff'; }              / 'White'                { return '#ffffffff'; }
+  / 'whitesmoke'           { return '#f5f5f5ff'; }              / 'WhiteSmoke'           { return '#f5f5f5ff'; }
+  / 'yellow'               { return '#ffff00ff'; }              / 'Yellow'               { return '#ffff00ff'; }
+  / 'yellowgreen'          { return '#9acd32ff'; }              / 'YellowGreen'          { return '#9acd32ff'; }
+
+SvgColor
+  = SvgColorLabel Whitespace
+
+Rgb3
+  = '#' r:HexDigit g:HexDigit b:HexDigit Whitespace {
+    return `${r}${r}${g}${g}${b}${b}ff`; }
+
+Rgb6
+  = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit Whitespace {
+    return `${r1}${r2}${g1}${g2}${b1}${b2}ff`; }
+
+Rgba4
+  = '#' r:HexDigit g:HexDigit b:HexDigit a:HexDigit Whitespace {
+    return `${r}${r}${g}${g}${b}${b}${a}${a}`; }
+
+Rgba8
+  = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit a1:HexDigit a2:HexDigit Whitespace {
+    return `${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`; }
+
 Color "color"   // hoboy
-  = 'red'
-  / 'green'
-  / 'blue'      // todo
+  = SvgColor
+  / Rgb3
+  / Rgb6
+  / Rgba4
+  / Rgba8
 
 
 
