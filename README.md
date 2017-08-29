@@ -1,6 +1,8 @@
 # jssm
 A Javascript state machine with a simple API.  Well tested, and typed with Flowtype.  MIT license.
 
+[Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
+
 <div id="badge_style_hook">
 
 [![License](https://img.shields.io/npm/l/jssm.svg)](https://img.shields.io/npm/l/jssm.svg)
