@@ -1,0 +1,63 @@
+
+machine_name      : "Excessively detailed three-state traffic light, plus off and flash-red";
+machine_version   : 1.3.1;
+machine_reference : "none";
+
+machine_author    : "John Haugeland <stonecypher@gmail.com>";
+machine_license   : MIT;
+
+fsl_version       : >= 5.0.0;
+graph_layout      : dot;
+
+
+
+// basic machine config
+start_states      : [Off Red Flash];
+end_states        : Off;
+
+
+
+// general handlers
+on_init                      : ${on_init_handler};
+
+on_end                       : ${on_end_handler};
+on_terminate                 : ${on_terminate_handler};
+on_finalize                  : ${on_finalize_handler};
+
+on_transition                : ${on_transition_handler};
+on_action                    : ${on_action_handler};
+on_stochastic_action         : ${on_stochastic_action_handler};
+
+on_legal                     : ${on_legal_handler};
+on_main                      : ${on_main_handler};
+on_forced                    : ${on_forced_handler};
+
+on_validation                : ${on_validation_handler};
+on_validation_failure        : ${on_validation_failure_handler};
+
+on_transition_refused        : ${on_transition_refused_handler};
+on_forced_transition_refused : ${on_forced_transition_refused_handler};
+on_action_refused            : ${on_action_refused_handler};
+
+on_enter                     : ${on_enter_handler};
+on_exit                      : ${on_exit_handler};
+
+
+
+// node characteristics
+Off { enter: ${turned_off_handler}; exit: ${turned_on_handler}; };
+
+
+
+/* turn on */
+Off 'Enable' -> Red;
+
+// main sequence
+Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
+
+// emergency flash red
+[Red Yellow Green] { follow: ${set_to_flash_handler}; } 'Flash' -> Flash;
+Flash 'Proceed' { arc_label: 'no change'; } -> Flash 'Exit' -> Red;
+
+// turn off
+[Red Yellow Green Flash] 'Disable' { follow: ${turned_off}; } ~> Off;
