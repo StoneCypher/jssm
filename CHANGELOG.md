@@ -1,3 +1,5 @@
+* [[`b31b7b3a89`](https://github.com/StoneCypher/jssm/commit/b31b7b3a89)] - fsl version, author contributor comment definition license, license types, urls, filename changes (John Haugeland) 
+* [[`b96cda04cc`](https://github.com/StoneCypher/jssm/commit/b96cda04cc)] - rename fsl files (John Haugeland) 
 * [[`ad162ed3d3`](https://github.com/StoneCypher/jssm/commit/ad162ed3d3)] - put experimentation link at the top of the readme (John Haugeland) 
 * [[`7fdbf0b3f6`](https://github.com/StoneCypher/jssm/commit/7fdbf0b3f6)] - add all the  machines (John Haugeland) 
 * [[`5a4be411bd`](https://github.com/StoneCypher/jssm/commit/5a4be411bd)] - Add build to repo, remove from postinstall, add to travis, fixes #300 (John Haugeland) 

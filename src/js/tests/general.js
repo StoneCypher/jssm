@@ -19,7 +19,7 @@ describe('Stochastic weather', async _it => {
 
   new jssm.Machine({
 
-    initial_state: 'breezy',
+    start_states: ['breezy'],
 
     transitions: [
 
@@ -80,7 +80,7 @@ describe('Stochastic weather', async _it => {
 describe('list exit actions', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
   });
 
@@ -97,7 +97,7 @@ describe('list exit actions', async it => {
 describe('probable exits for', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red' } ]
   });
 
@@ -115,7 +115,7 @@ describe('probable exits for', async it => {
 describe('probable action exits', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
   });
 
@@ -137,7 +137,7 @@ describe('probable action exits', async it => {
 describe('probabilistic_transition', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red' } ]
   });
 
@@ -154,7 +154,7 @@ describe('probabilistic_transition', async it => {
 describe('probabilistic_walk', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red' }, { from:'red', to:'off' } ]
   });
 
@@ -171,7 +171,7 @@ describe('probabilistic_walk', async it => {
 describe('probabilistic_histo_walk', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red' }, { from:'red', to:'off' } ]
   });
 
@@ -190,7 +190,7 @@ describe('probabilistic_histo_walk', async it => {
 describe('reports state_is_final', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[
       { from:'off', to:'red' },
       { from:'off', to:'mid' },
@@ -213,7 +213,7 @@ describe('reports state_is_final', async it => {
 describe('reports is_final', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[
       { from:'off', to:'red' }
     ],
@@ -238,7 +238,7 @@ describe('reports is_final', async it => {
 describe('reports state_is_terminal', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -254,7 +254,7 @@ describe('reports state_is_terminal', async it => {
 describe('reports is_terminal', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -277,7 +277,7 @@ describe('reports is_terminal', async it => {
 describe('reports state_is_complete', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ],
     complete:['off'] // huhu
   });
@@ -294,7 +294,7 @@ describe('reports state_is_complete', async it => {
 describe('reports is_complete', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ],
     complete:['off'] // huhu
   });
@@ -318,7 +318,7 @@ describe('reports is_complete', async it => {
 describe('reports on actions', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -338,7 +338,7 @@ describe('reports on actions', async it => {
 describe('actions', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
   });
 
@@ -360,7 +360,7 @@ describe('actions', async it => {
 describe('states having action', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
   });
 
@@ -376,7 +376,7 @@ describe('states having action', async it => {
 describe('unenterables', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -393,7 +393,7 @@ describe('unenterables', async it => {
 describe('reports on action edges', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -409,7 +409,7 @@ describe('reports on action edges', async it => {
 describe('reports on states', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -426,7 +426,7 @@ describe('reports on states', async it => {
 describe('returns states', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -441,7 +441,7 @@ describe('returns states', async it => {
 describe('reports on transitions', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -491,7 +491,7 @@ describe('reports on transitions', async it => {
 describe('transition by state names', async it => {
 
   const machine = new jssm.Machine({
-    initial_state: 'off',
+    start_states: ['off'],
     transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
@@ -511,7 +511,7 @@ describe('Illegal machines', async it => {
   it('catch repeated names', t => t.throws(() => {
 
     new jssm.Machine({
-      initial_state: 'moot',
+      start_states: ['moot'],
       transitions:[
         { name:'identical', from:'1', to:'2' },
         { name:'identical', from:'2', to:'3' }
@@ -524,7 +524,7 @@ describe('Illegal machines', async it => {
   it('must define from', t => t.throws(() => {
 
     new jssm.Machine({
-      initial_state: 'moot',
+      start_states: ['moot'],
       transitions:[
         { name:'identical', to:'2' }
       ]
@@ -536,7 +536,7 @@ describe('Illegal machines', async it => {
   it('must define to', t => t.throws(() => {
 
     new jssm.Machine({
-      initial_state: 'moot',
+      start_states: ['moot'],
       transitions:[
         { name:'identical', from:'1' }
       ]
@@ -548,7 +548,7 @@ describe('Illegal machines', async it => {
   it('must not have two identical edges', t => t.throws(() => {
 
     new jssm.Machine({
-      initial_state: 'moot',
+      start_states: ['moot'],
       transitions:[
         { name:'id1', from:'1', to:'2' },
         { name:'id2', from:'1', to:'2' }
@@ -561,7 +561,7 @@ describe('Illegal machines', async it => {
   it('must not have two of the same action from the same source', t => t.throws(() => {
 
     new jssm.Machine({
-      initial_state: 'moot',
+      start_states: ['moot'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' },
         { name:'id2', from:'1', to:'3', action:'identical' }
@@ -574,7 +574,7 @@ describe('Illegal machines', async it => {
   it('must not have completion of non-state', t => t.throws(() => {
 
     const machine = new jssm.Machine({
-      initial_state: 'moot',
+      start_states: ['moot'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' }
       ]
@@ -588,7 +588,7 @@ describe('Illegal machines', async it => {
   it('internal state helper must not accept double states', t => t.throws(() => {
 
     const machine = new jssm.Machine({
-      initial_state: 'moot',
+      start_states: ['moot'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' }
       ]
@@ -603,7 +603,7 @@ describe('Illegal machines', async it => {
   it('can\'t get actions of non-state', t => t.throws(() => {
 
     const machine = new jssm.Machine({
-      initial_state: '1',
+      start_states: ['1'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' }
       ]
@@ -617,7 +617,7 @@ describe('Illegal machines', async it => {
   it('can\'t get states having non-action', t => t.throws(() => {
 
     const machine = new jssm.Machine({
-      initial_state: '1',
+      start_states: ['1'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' }
       ]
@@ -631,7 +631,7 @@ describe('Illegal machines', async it => {
   it('can\'t list exit states of non-action', t => t.throws(() => {
 
     const machine = new jssm.Machine({
-      initial_state: '1',
+      start_states: ['1'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' }
       ]
@@ -645,7 +645,7 @@ describe('Illegal machines', async it => {
   it('probable exits for throws on non-state', t => t.throws(() => {
 
     const machine = new jssm.Machine({
-      initial_state: '1',
+      start_states: ['1'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' }
       ]
@@ -662,7 +662,7 @@ test(t => {
   it('no probable action exits of non-action', t => t.throws(() => {
 
     const machine = new jssm.Machine({
-      initial_state: '1',
+      start_states: ['1'],
       transitions:[
         { name:'id1', from:'1', to:'2', action:'identical' }
       ]

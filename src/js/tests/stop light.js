@@ -17,8 +17,8 @@ describe('Simple stop light', async it => {
           { name: 'SwitchToGo',   action: 'Proceed', from:'Red',    to:'Green'  }
         ],
         light = new jssm.Machine({
-          initial_state : 'Red',
-          transitions   : trs
+          start_states : ['Red'],
+          transitions  : trs
         });
 
   const r_states = light.states();
@@ -86,7 +86,7 @@ describe('Complex stop light', async it => {
 
   const light2 = new jssm.Machine({
 
-    initial_state: 'off',
+    start_states: ['off'],
 
     transitions:[
 

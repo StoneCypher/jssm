@@ -22,7 +22,7 @@ describe('weighted_sample_select/1', async it => {
 
     const unweighted = new jssm.Machine({
 
-      initial_state: 'a',
+      start_states: ['a'],
 
       transitions: [
 
@@ -54,7 +54,7 @@ describe('weighted_sample_select/1', async it => {
 
     const weighted = new jssm.Machine({
 
-      initial_state: 'a',
+      start_states: ['a'],
 
       transitions: [
 

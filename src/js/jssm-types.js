@@ -111,8 +111,6 @@ type JssmTransitionList<NT> = {
 
 type JssmGenericConfig<NT, DT> = {
 
-  initial_state  : NT,
-
   layout?        : JssmLayout,
 
   complete?      : Array<NT>,
@@ -131,6 +129,9 @@ type JssmGenericConfig<NT, DT> = {
   actions?       : JssmPermittedOpt,
 
   simplify_bidi? : boolean,
+
+  start_states   : Array<NT>,
+  end_states?    : Array<NT>,
 
   auto_api?      : boolean | string  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 

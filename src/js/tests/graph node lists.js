@@ -12,8 +12,8 @@ const jssm = require('../../../build/jssm.es5.js'),
 
 describe('graph node lists', async it => {
 
-  it('start nodes don\'t throw', t => t.notThrows(() => { const _a = sm`start_nodes: [a b c]; a->b->c->d;`; }) );
-  it('end nodes don\'t throw',   t => t.notThrows(() => { const _a = sm`end_nodes:   [a b c]; a->b->c->d;`; }) );
+  it('start states don\'t throw', t => t.notThrows(() => { const _a = sm`start_states: [a b c]; a->b->c->d;`; }) );
+  it('end states don\'t throw',   t => t.notThrows(() => { const _a = sm`end_states:   [a b c]; a->b->c->d;`; }) );
 
 // comeback whargarbl
 //  const overrider = make(` a->b->c; start_nodes: [c]; `);

@@ -179,7 +179,12 @@ function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompile
 
   if (rule.key === 'transition') { return { agg_as: 'transition', val: compile_rule_handle_transition(rule) }; }
 
-  const tautologies : Array<string> = ['graph_layout', 'start_nodes', 'end_nodes', 'machine_name', 'machine_version'];
+  const tautologies : Array<string> = [
+    'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
+    'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
+    'machine_reference', 'machine_license', 'fsl_version'
+  ];
+
   if (tautologies.includes(rule.key)) {
     return { agg_as: rule.key, val: rule.value };
   }
@@ -195,17 +200,15 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
   const results : {
     graph_layout    : Array< JssmLayout >,
     transition      : Array< JssmTransition<mNT, mDT> >,
-    start_nodes     : Array< mNT >,
-    end_nodes       : Array< mNT >,
-    initial_state   : Array< mNT >,
+    start_states    : Array< mNT >,
+    end_states      : Array< mNT >,
     machine_name    : Array< string >,
     machine_version : Array< string > // semver
   } = {
     graph_layout    : [],
     transition      : [],
-    start_nodes     : [],
-    end_nodes       : [],
-    initial_state   : [],
+    start_states    : [],
+    end_states      : [],
     machine_name    : [],
     machine_version : []
   };
@@ -220,7 +223,7 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
   });
 
-  ['graph_layout', 'initial_state', 'machine_name', 'machine_version'].map( (oneOnlyKey : string) => {
+  ['graph_layout', 'machine_name', 'machine_version'].map( (oneOnlyKey : string) => {
     if (results[oneOnlyKey].length > 1) {
       throw new Error(`May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
     }
@@ -230,8 +233,8 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
   const result_cfg : JssmGenericConfig<mNT, mDT> = {
 // whargarbl should be    initial_state : results.initial_state[0],
-    initial_state : results.start_nodes.length? results.start_nodes[0] : assembled_transitions[0].from,
-    transitions   : assembled_transitions
+    start_states : results.start_states.length? results.start_states : [assembled_transitions[0].from],
+    transitions  : assembled_transitions
   };
 
   if (results.graph_layout.length) { result_cfg.layout = results.graph_layout[0]; }
@@ -265,9 +268,9 @@ class Machine<mNT, mDT> {
   _layout                 : JssmLayout;
 
   // whargarbl this badly needs to be broken up, monolith master
-  constructor({ initial_state, complete=[], transitions, layout = 'dot' } : JssmGenericConfig<mNT, mDT>) {
+  constructor({ start_states, complete=[], transitions, layout = 'dot' } : JssmGenericConfig<mNT, mDT>) {
 
-    this._state                  = initial_state;
+    this._state                  = start_states[0];
     this._states                 = new Map();
     this._edges                  = [];
     this._edge_map               = new Map();

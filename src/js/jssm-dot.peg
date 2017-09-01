@@ -618,6 +618,7 @@ Term
   = Comment
   / Exp
   / StateDef
+  / MachineName
   / MachineAuthor
   / MachineContributor
   / MachineComment
