@@ -180,6 +180,13 @@ SemVerRule
 SemVerRange
   = SemVerRule SemVerRule?
 
+UrlProtocol
+  = 'http://'
+  / 'https://'
+
+URL
+  = protocol:UrlProtocol [a-zA-Z0-9\!\*\'\(\)\:\;\@\&\=\+\$\,\/\?\#\[\]\_\.\~\-]+ { return text(); }
+
 
 
 SvgColorLabel
@@ -515,10 +522,10 @@ ConfigGraphLayout
   = Whitespace "graph_layout"   Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout",   value:value}; }
 
 ConfigStartNodes
-  = Whitespace "start_nodes"    Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"start_nodes",    value:value}; }
+  = Whitespace "start_states"   Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"start_states",   value:value}; }
 
 ConfigEndNodes
-  = Whitespace "end_nodes"      Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"end_nodes",      value:value}; }
+  = Whitespace "end_states"     Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"end_states",     value:value}; }
 
 ConfigGraphBgColor
   = Whitespace "graph_bg_color" Whitespace ":" Whitespace value:Color      Whitespace ";" Whitespace { return {key:"graph_bg_color", value:value}; }
@@ -537,6 +544,22 @@ Config "configuration"
 
 
 
+LicenseOrLabelOrList
+  = 'MIT'
+  / 'BSD 2-clause'
+  / 'BSD 3-clause'
+  / 'Apache 2.0'
+  / 'Mozilla 2.0'
+  / 'Public Domain'
+  / 'GPL v2'
+  / 'GPL v3'
+  / 'LGPL v2.1'
+  / 'LGPL v3.0'
+  / Label
+  / LabelList
+
+
+
 StateColor
   = Whitespace "color" Whitespace ":" Whitespace value:Color Whitespace ";" Whitespace { return { key: "state color", value: value }; }
 
@@ -552,13 +575,32 @@ StateDef "state definition"
 
 
 
+MachineAuthor
+  = Whitespace "machine_author"      Whitespace ":" Whitespace author:LabelOrLabelList      Whitespace ";" Whitespace { return { key: "machine_author", value: author }; }
+
+MachineContributor
+  = Whitespace "machine_contributor" Whitespace ":" Whitespace contributor:LabelOrLabelList Whitespace ";" Whitespace { return { key: "machine_contributor", value: contributor }; }
+
+MachineComment
+  = Whitespace "machine_comment"     Whitespace ":" Whitespace comment:LabelOrLabelList     Whitespace ";" Whitespace { return { key: "machine_comment", value: comment }; }
+
+MachineDefinition
+  = Whitespace "machine_definition"  Whitespace ":" Whitespace definition:URL               Whitespace ";" Whitespace { return { key: "machine_definition", value: definition }; }
+
 MachineName
-  = Whitespace "machine_name" Whitespace ":" Whitespace name:Label Whitespace ";" Whitespace { return { key: "machine_name", value: name }; }
+  = Whitespace "machine_name"        Whitespace ":" Whitespace name:Label                   Whitespace ";" Whitespace { return { key: "machine_name", value: name }; }
 
-
+MachineReference
+  = Whitespace "machine_reference"   Whitespace ":" Whitespace reference:LabelOrLabelList   Whitespace ";" Whitespace { return { key: "machine_reference", value: reference }; }
 
 MachineVersion
-  = Whitespace "machine_version" Whitespace ":" Whitespace version:SemVer Whitespace ";" Whitespace { return { key: "machine_version", value: version }; }
+  = Whitespace "machine_version"     Whitespace ":" Whitespace version:SemVer               Whitespace ";" Whitespace { return { key: "machine_version", value: version }; }
+
+MachineLicense
+  = Whitespace "machine_license"     Whitespace ":" Whitespace license:LicenseOrLabelOrList Whitespace ";" Whitespace { return { key: "machine_license", value: license }; }
+
+FslVersion
+  = Whitespace "fsl_version"         Whitespace ":" Whitespace fsl_version:SemVer           Whitespace ";" Whitespace { return { key: "fsl_version", value: fsl_version }; }
 
 
 
@@ -576,8 +618,12 @@ Term
   = Comment
   / Exp
   / StateDef
-  / MachineName
+  / MachineAuthor
+  / MachineContributor
+  / MachineComment
+  / MachineDefinition
   / MachineVersion
+  / MachineLicense
   / StateGroupDef
   / Config
 
