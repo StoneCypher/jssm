@@ -1,5 +1,5 @@
 # jssm
-A Javascript state machine with a simple API.  Well tested, and typed with Flowtype.  MIT license.
+A Javascript state machine with a terse DSL and a simple API.  Well tested, and typed with Flowtype.  MIT license.
 
 [Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
 
