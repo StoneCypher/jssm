@@ -1,3 +1,8 @@
+* [[`124c2654c7`](https://github.com/StoneCypher/jssm/commit/124c2654c7)] - Merge pull request #304 from msmorgan/bugfix/comment-grammar (John Haugeland) 
+* [[`8fc29115f5`](https://github.com/StoneCypher/jssm/commit/8fc29115f5)] - **grammar**: Fix whitespace and comment rules (Michael Morgan) 
+* [[`d1cac9b592`](https://github.com/StoneCypher/jssm/commit/d1cac9b592)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland) 
+* [[`e87f48c1a1`](https://github.com/StoneCypher/jssm/commit/e87f48c1a1)] - tooling bumps, example code, eslint stuff (John Haugeland) 
+* [[`406d01dff7`](https://github.com/StoneCypher/jssm/commit/406d01dff7)] - Update README.md (John Haugeland) 
 * [[`3e34c40ce4`](https://github.com/StoneCypher/jssm/commit/3e34c40ce4)] - update tests (John Haugeland) 
 * [[`b31b7b3a89`](https://github.com/StoneCypher/jssm/commit/b31b7b3a89)] - fsl version, author contributor comment definition license, license types, urls, filename changes (John Haugeland) 
 * [[`b96cda04cc`](https://github.com/StoneCypher/jssm/commit/b96cda04cc)] - rename fsl files (John Haugeland) 

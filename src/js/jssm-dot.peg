@@ -152,9 +152,9 @@ LineComment
   = "//" LineCommentTail
 
 WS
-  = Whitespace
-  / BlockComment
-  / LineComment
+  = BlockComment WS?
+  / LineComment  WS?
+  / [ \t\r\n\v]+ WS?
 
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
