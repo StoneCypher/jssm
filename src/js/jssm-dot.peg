@@ -1,6 +1,6 @@
 
 Document
-  = Whitespace e:TermList Whitespace { return e; }
+  = WS? e:TermList WS? { return e; }
 
 
 
@@ -130,8 +130,31 @@ ActionLabel "action label"
 LineTerminator
   = [\n\r\u2028\u2029]
 
-Whitespace "whitespace"
-  = [ \t\n\r\v]*
+Whitespace
+  = [ \t\n\r\v]+
+
+BlockCommentTail
+  = "*/"
+  / . BlockCommentTail
+
+BlockComment
+  = "/*" BlockCommentTail
+
+EOF
+  = !.
+
+LineCommentTail
+  = LineTerminator
+  / EOF
+  / . LineCommentTail
+
+LineComment
+  = "//" LineCommentTail
+
+WS
+  = Whitespace
+  / BlockComment
+  / LineComment
 
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
@@ -154,8 +177,8 @@ NonZeroDigit
   = [1-9]
 
 NonNegNumber "nonneg number"
-  = IntegerLiteral "." DecimalDigit* Whitespace { return parseFloat(text()); }
-  / IntegerLiteral                   Whitespace { return parseFloat(text()); }
+  = IntegerLiteral "." DecimalDigit* WS? { return parseFloat(text()); }
+  / IntegerLiteral                   WS? { return parseFloat(text()); }
 
 SemVer
   = major:IntegerLiteral "." minor:IntegerLiteral "." patch:IntegerLiteral
@@ -339,22 +362,22 @@ SvgColorLabel
   / 'yellowgreen'          { return '#9acd32ff'; }              / 'YellowGreen'          { return '#9acd32ff'; }
 
 SvgColor
-  = SvgColorLabel Whitespace
+  = SvgColorLabel WS?
 
 Rgb3
-  = '#' r:HexDigit g:HexDigit b:HexDigit Whitespace {
+  = '#' r:HexDigit g:HexDigit b:HexDigit WS? {
     return `${r}${r}${g}${g}${b}${b}ff`; }
 
 Rgb6
-  = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit Whitespace {
+  = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit WS? {
     return `${r1}${r2}${g1}${g2}${b1}${b2}ff`; }
 
 Rgba4
-  = '#' r:HexDigit g:HexDigit b:HexDigit a:HexDigit Whitespace {
+  = '#' r:HexDigit g:HexDigit b:HexDigit a:HexDigit WS? {
     return `${r}${r}${g}${g}${b}${b}${a}${a}`; }
 
 Rgba8
-  = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit a1:HexDigit a2:HexDigit Whitespace {
+  = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit a1:HexDigit a2:HexDigit WS? {
     return `${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`; }
 
 Color "color"   // hoboy
@@ -372,17 +395,17 @@ ArrowItemKey
   / "tail_label"
 
 ArrowItem
-  = Whitespace key:ArrowItemKey Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return {key:key, value:value}; }
+  = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? { return {key:key, value:value}; }
 
 SingleEdgeColor "single edge color"
-  = Whitespace "edge_color" Whitespace ":" Whitespace value:Color Whitespace ";" Whitespace { return {key:'single_edge_color', value:value}; }
+  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
 
 ArrowItems
   = SingleEdgeColor
   / ArrowItem+
 
 ArrowDesc
-  = "{" Whitespace items:ArrowItems? Whitespace "}" { return items; }
+  = "{" WS? items:ArrowItems? WS? "}" { return items; }
 
 ArrowProbability
   = value:NonNegNumber "%" { return { key: 'arrow probability', value: value }; }
@@ -390,7 +413,7 @@ ArrowProbability
 
 
 LabelList
-  = "[" Whitespace names:(Label Whitespace)* "]" { return names.map(i => i[0]); }
+  = "[" WS? names:(Label WS?)* "]" { return names.map(i => i[0]); }
 
 LabelOrLabelList
   = LabelList
@@ -401,15 +424,15 @@ LabelOrLabelList
 // todo these shouldn't be ordered, this is dumb // whargarbl comeback major
 
 Subexp
-  = Whitespace r_action : ActionLabel?
-    Whitespace r_prob   : ArrowProbability?
-    Whitespace l_desc   : ArrowDesc?
-    Whitespace arrow    : Arrow
-    Whitespace r_desc   : ArrowDesc?
-    Whitespace l_prob   : ArrowProbability?
-    Whitespace l_action : ActionLabel?
-    Whitespace label    : LabelOrLabelList
-    Whitespace tail     : Subexp? {
+  = WS? r_action : ActionLabel?
+    WS? r_prob   : ArrowProbability?
+    WS? l_desc   : ArrowDesc?
+    WS? arrow    : Arrow
+    WS? r_desc   : ArrowDesc?
+    WS? l_prob   : ArrowProbability?
+    WS? l_action : ActionLabel?
+    WS? label    : LabelOrLabelList
+    WS? tail     : Subexp? {
 
       const base = {kind: arrow, to: label};
 
@@ -428,7 +451,7 @@ Subexp
 
 
 Exp
-  = label:LabelOrLabelList se:Subexp Whitespace ';' Whitespace {
+  = label:LabelOrLabelList se:Subexp WS? ';' WS? {
     const base = { key: 'transition', from: label };
     if (se && (se !== [])) { base.se = se; }
     return base;
@@ -447,7 +470,7 @@ ValidationItems
   = ValidationItem+
 
 ConfigValidation
-  = Whitespace "validation" Whitespace ":" Whitespace "{" Whitespace validation_items:ValidationItems? Whitespace "};" Whitespace {
+  = WS? "validation" WS? ":" WS? "{" WS? validation_items:ValidationItems? WS? "};" WS? {
     return { config_kind: "validation", config_items: validation_items || [] };
   }
 
@@ -465,7 +488,7 @@ StateItemShapeKey
   / "node_shape"
 
 StateItemShape
-  = Whitespace key:StateItemShapeKey Whitespace ":" Whitespace value:GvizShape Whitespace ";" Whitespace { return {key:key, value:value}; }
+  = WS? key:StateItemShapeKey WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:key, value:value}; }
 
 StateItem
   = StateItemShape
@@ -474,7 +497,7 @@ StateItems
   = StateItem+
 
 ConfigState
-  = Whitespace "state" Whitespace ":" Whitespace "{" Whitespace state_items:StateItems? Whitespace "};" Whitespace {
+  = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
     return { config_kind: "state", config_items: state_items || [] };
   }
 
@@ -491,7 +514,7 @@ ActionItems
   = ActionItem+
 
 ConfigAction
-  = Whitespace "action" Whitespace ":" Whitespace "{" Whitespace action_items:ActionItems? Whitespace "};" Whitespace {
+  = WS? "action" WS? ":" WS? "{" WS? action_items:ActionItems? WS? "};" WS? {
     return { config_kind: "action", config_items: action_items || [] };
   }
 
@@ -509,26 +532,26 @@ TransitionItems
   / TransitionItem+
 
 GraphDefaultEdgeColor "graph default edge color"
-  = Whitespace "edge_color" Whitespace ":" Whitespace value:Color Whitespace ";" Whitespace { return {key:'graph_default_edge_color', value:value}; }
+  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'graph_default_edge_color', value:value}; }
 
 ConfigTransition
-  = Whitespace "transition" Whitespace ":" Whitespace "{" Whitespace transition_items:TransitionItems? Whitespace "};" Whitespace {
+  = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
     return { config_kind: "transition", config_items: transition_items || [] };
   }
 
 
 
 ConfigGraphLayout
-  = Whitespace "graph_layout"   Whitespace ":" Whitespace value:GvizLayout Whitespace ";" Whitespace { return {key:"graph_layout",   value:value}; }
+  = WS? "graph_layout"   WS? ":" WS? value:GvizLayout WS? ";" WS? { return {key:"graph_layout",   value:value}; }
 
 ConfigStartNodes
-  = Whitespace "start_states"   Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"start_states",   value:value}; }
+  = WS? "start_states"   WS? ":" WS? value:LabelList  WS? ";" WS? { return {key:"start_states",   value:value}; }
 
 ConfigEndNodes
-  = Whitespace "end_states"     Whitespace ":" Whitespace value:LabelList  Whitespace ";" Whitespace { return {key:"end_states",     value:value}; }
+  = WS? "end_states"     WS? ":" WS? value:LabelList  WS? ";" WS? { return {key:"end_states",     value:value}; }
 
 ConfigGraphBgColor
-  = Whitespace "graph_bg_color" Whitespace ":" Whitespace value:Color      Whitespace ";" Whitespace { return {key:"graph_bg_color", value:value}; }
+  = WS? "graph_bg_color" WS? ":" WS? value:Color      WS? ";" WS? { return {key:"graph_bg_color", value:value}; }
 
 
 
@@ -561,62 +584,55 @@ LicenseOrLabelOrList
 
 
 StateColor
-  = Whitespace "color" Whitespace ":" Whitespace value:Color Whitespace ";" Whitespace { return { key: "state color", value: value }; }
+  = WS? "color" WS? ":" WS? value:Color WS? ";" WS? { return { key: "state color", value: value }; }
 
 ArbitraryStateQuality "state quality"
-  = Whitespace name:Label Whitespace ":" Whitespace value:Label Whitespace ";" Whitespace { return { key: "state quality", name: name, value: value }; }
+  = WS? name:Label WS? ":" WS? value:Label WS? ";" WS? { return { key: "state quality", name: name, value: value }; }
 
 StateQuality
   = StateColor
   / ArbitraryStateQuality
 
 StateDef "state definition"
-  = Whitespace "state" Whitespace name:Label Whitespace "[" Whitespace sq:StateQuality* Whitespace "]" Whitespace ";" Whitespace { return { key: "State qualities", value: sq }; }
+  = WS? "state" WS? name:Label WS? "[" WS? sq:StateQuality* WS? "]" WS? ";" WS? { return { key: "State qualities", value: sq }; }
 
 
 
 MachineAuthor
-  = Whitespace "machine_author"      Whitespace ":" Whitespace author:LabelOrLabelList      Whitespace ";" Whitespace { return { key: "machine_author", value: author }; }
+  = WS? "machine_author"      WS? ":" WS? author:LabelOrLabelList      WS? ";" WS? { return { key: "machine_author", value: author }; }
 
 MachineContributor
-  = Whitespace "machine_contributor" Whitespace ":" Whitespace contributor:LabelOrLabelList Whitespace ";" Whitespace { return { key: "machine_contributor", value: contributor }; }
+  = WS? "machine_contributor" WS? ":" WS? contributor:LabelOrLabelList WS? ";" WS? { return { key: "machine_contributor", value: contributor }; }
 
 MachineComment
-  = Whitespace "machine_comment"     Whitespace ":" Whitespace comment:LabelOrLabelList     Whitespace ";" Whitespace { return { key: "machine_comment", value: comment }; }
+  = WS? "machine_comment"     WS? ":" WS? comment:LabelOrLabelList     WS? ";" WS? { return { key: "machine_comment", value: comment }; }
 
 MachineDefinition
-  = Whitespace "machine_definition"  Whitespace ":" Whitespace definition:URL               Whitespace ";" Whitespace { return { key: "machine_definition", value: definition }; }
+  = WS? "machine_definition"  WS? ":" WS? definition:URL               WS? ";" WS? { return { key: "machine_definition", value: definition }; }
 
 MachineName
-  = Whitespace "machine_name"        Whitespace ":" Whitespace name:Label                   Whitespace ";" Whitespace { return { key: "machine_name", value: name }; }
+  = WS? "machine_name"        WS? ":" WS? name:Label                   WS? ";" WS? { return { key: "machine_name", value: name }; }
 
 MachineReference
-  = Whitespace "machine_reference"   Whitespace ":" Whitespace reference:LabelOrLabelList   Whitespace ";" Whitespace { return { key: "machine_reference", value: reference }; }
+  = WS? "machine_reference"   WS? ":" WS? reference:LabelOrLabelList   WS? ";" WS? { return { key: "machine_reference", value: reference }; }
 
 MachineVersion
-  = Whitespace "machine_version"     Whitespace ":" Whitespace version:SemVer               Whitespace ";" Whitespace { return { key: "machine_version", value: version }; }
+  = WS? "machine_version"     WS? ":" WS? version:SemVer               WS? ";" WS? { return { key: "machine_version", value: version }; }
 
 MachineLicense
-  = Whitespace "machine_license"     Whitespace ":" Whitespace license:LicenseOrLabelOrList Whitespace ";" Whitespace { return { key: "machine_license", value: license }; }
+  = WS? "machine_license"     WS? ":" WS? license:LicenseOrLabelOrList WS? ";" WS? { return { key: "machine_license", value: license }; }
 
 FslVersion
-  = Whitespace "fsl_version"         Whitespace ":" Whitespace fsl_version:SemVer           Whitespace ";" Whitespace { return { key: "fsl_version", value: fsl_version }; }
+  = WS? "fsl_version"         WS? ":" WS? fsl_version:SemVer           WS? ";" WS? { return { key: "fsl_version", value: fsl_version }; }
 
 
 
 StateGroupDef
-  = Whitespace "group" Whitespace name:Label Whitespace ":" Whitespace nl:LabelOrLabelList Whitespace ";" Whitespace { return { key: "group definition", value: { name: name, list: nl } }; }
-
-
-
-Comment
-  = Whitespace "/*" (!"*/" .)* "*/" Whitespace { return { key: 'comment' }; }
-  / Whitespace "//" (!LineTerminator .)* Whitespace
+  = WS? "group" WS? name:Label WS? ":" WS? nl:LabelOrLabelList WS? ";" WS? { return { key: "group definition", value: { name: name, list: nl } }; }
 
 
 Term
-  = Comment
-  / Exp
+  = Exp
   / StateDef
   / MachineName
   / MachineAuthor
