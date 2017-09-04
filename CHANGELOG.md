@@ -1,3 +1,4 @@
+* [[`631c5c6e6c`](https://github.com/StoneCypher/jssm/commit/631c5c6e6c)] - 5.5.0 comment fixes and minor trash (John Haugeland) 
 * [[`25a9bb8391`](https://github.com/StoneCypher/jssm/commit/25a9bb8391)] - comment testing (John Haugeland) 
 * [[`124c2654c7`](https://github.com/StoneCypher/jssm/commit/124c2654c7)] - Merge pull request #304 from msmorgan/bugfix/comment-grammar (John Haugeland) 
 * [[`8fc29115f5`](https://github.com/StoneCypher/jssm/commit/8fc29115f5)] - **grammar**: Fix whitespace and comment rules (Michael Morgan) 

@@ -573,7 +573,7 @@ LicenseOrLabelOrList
   / 'BSD 3-clause'
   / 'Apache 2.0'
   / 'Mozilla 2.0'
-  / 'Public Domain'
+  / 'Public domain'
   / 'GPL v2'
   / 'GPL v3'
   / 'LGPL v2.1'
@@ -634,6 +634,7 @@ StateGroupDef
 Term
   = Exp
   / StateDef
+  / FslVersion
   / MachineName
   / MachineAuthor
   / MachineContributor

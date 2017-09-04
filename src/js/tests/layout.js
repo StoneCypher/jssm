@@ -12,7 +12,7 @@ const jssm = require('../../../build/jssm.es5.js'),
 
 describe('graph attributes don\'t throw', async it => {
   const machine = sm`graph_layout: circo; a->b->c->d->e->f->a;`;
-  it('layout is circo', t => t.is('circo', machine.layout() ));
+  it('layout is circo', t => t.is('circo', machine.graph_layout() ));
 });
 
 

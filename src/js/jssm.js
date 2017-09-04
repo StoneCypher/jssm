@@ -198,19 +198,31 @@ function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompile
 function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
 
   const results : {
-    graph_layout    : Array< JssmLayout >,
-    transition      : Array< JssmTransition<mNT, mDT> >,
-    start_states    : Array< mNT >,
-    end_states      : Array< mNT >,
-    machine_name    : Array< string >,
-    machine_version : Array< string > // semver
+    graph_layout        : Array< JssmLayout >,
+    transition          : Array< JssmTransition<mNT, mDT> >,
+    start_states        : Array< mNT >,
+    end_states          : Array< mNT >,
+    fsl_version         : Array< string >,
+    machine_author      : Array< string >,
+    machine_comment     : Array< string >,
+    machine_contributor : Array< string >,
+    machine_definition  : Array< string >,
+    machine_license     : Array< string >,
+    machine_name        : Array< string >,
+    machine_version     : Array< string > // semver
   } = {
-    graph_layout    : [],
-    transition      : [],
-    start_states    : [],
-    end_states      : [],
-    machine_name    : [],
-    machine_version : []
+    graph_layout        : [],
+    transition          : [],
+    start_states        : [],
+    end_states          : [],
+    fsl_version         : [],
+    machine_author      : [],
+    machine_comment     : [],
+    machine_contributor : [],
+    machine_definition  : [],
+    machine_license     : [],
+    machine_name        : [],
+    machine_version     : []
   };
 
   tree.map( (tr : JssmCompileSeStart<mNT>) => {
@@ -223,21 +235,32 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
 
   });
 
-  ['graph_layout', 'machine_name', 'machine_version'].map( (oneOnlyKey : string) => {
-    if (results[oneOnlyKey].length > 1) {
-      throw new Error(`May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
-    }
-  });
-
   const assembled_transitions : Array< JssmTransition<mNT, mDT> > = [].concat(... results['transition']);
 
   const result_cfg : JssmGenericConfig<mNT, mDT> = {
-// whargarbl should be    initial_state : results.initial_state[0],
     start_states : results.start_states.length? results.start_states : [assembled_transitions[0].from],
     transitions  : assembled_transitions
   };
 
-  if (results.graph_layout.length) { result_cfg.layout = results.graph_layout[0]; }
+  const oneOnlyKeys : Array<string> = [
+    'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license'
+  ];
+
+  oneOnlyKeys.map( (oneOnlyKey : string) => {
+    if (results[oneOnlyKey].length > 1) {
+      throw new Error(`May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
+    } else {
+      if (results[oneOnlyKey].length) {
+        result_cfg[oneOnlyKey] = results[oneOnlyKey][0];
+      }
+    }
+  });
+
+  ['machine_author'].map( (multiKey : string) => {
+    if (results[multiKey].length) {
+      result_cfg[multiKey] = results[multiKey];
+    }
+  });
 
   return result_cfg;
 
@@ -265,10 +288,10 @@ class Machine<mNT, mDT> {
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
   _reverse_action_targets : Map<mNT, Map<mNT, number>>;
 
-  _layout                 : JssmLayout;
+  _graph_layout           : JssmLayout;
 
   // whargarbl this badly needs to be broken up, monolith master
-  constructor({ start_states, complete=[], transitions, layout = 'dot' } : JssmGenericConfig<mNT, mDT>) {
+  constructor({ start_states, complete=[], transitions, graph_layout = 'dot' } : JssmGenericConfig<mNT, mDT>) {
 
     this._state                  = start_states[0];
     this._states                 = new Map();
@@ -277,9 +300,9 @@ class Machine<mNT, mDT> {
     this._named_transitions      = new Map();
     this._actions                = new Map();
     this._reverse_actions        = new Map();
-    this._reverse_action_targets = new Map();  // todo
+    this._reverse_action_targets = new Map();   // todo
 
-    this._layout                 = layout;
+    this._graph_layout           = graph_layout;
 
     transitions.map( (tr:JssmTransition<mNT, mDT>) => {
 
@@ -422,8 +445,8 @@ class Machine<mNT, mDT> {
     return this.state_is_final(this.state());
   }
 
-  layout() : string {
-    return String(this._layout);
+  graph_layout() : string {
+    return String(this._graph_layout);
   }
 
 

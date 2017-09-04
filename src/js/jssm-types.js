@@ -111,7 +111,7 @@ type JssmTransitionList<NT> = {
 
 type JssmGenericConfig<NT, DT> = {
 
-  layout?        : JssmLayout,
+  graph_layout?  : JssmLayout,
 
   complete?      : Array<NT>,
   transitions    : JssmTransitions<NT, DT>,

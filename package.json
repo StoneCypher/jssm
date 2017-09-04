@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.5.0",
+  "version": "5.6.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -86,7 +86,7 @@
     "del-cli": "^1.1.0",
     "documentation": "^4.0.0",
     "eslint": "^4.3.0",
-    "eslint-config-stonecypher": "^1.14.4",
+    "eslint-config-stonecypher": "^1.14.5",
     "eslint-plugin-ava": "^4.2.1",
     "eslint-plugin-flowtype": "^2.35.0",
     "eslint-plugin-fp": "^2.3.0",
