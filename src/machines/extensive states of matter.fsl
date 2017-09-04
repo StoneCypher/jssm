@@ -1,0 +1,48 @@
+machine_name    : "Extensive states of matter";
+machine_version : 1.0.0;
+machine_author  : "John Haugeland <stonecypher@gmail.com>"
+machine_license : MIT
+
+jssm_version    : >= 5.0.0;
+graph_layout    : dot;
+
+// see also `extensive states of matter.jssm`
+
+
+
+// normal states of matter
+&BasicStates: ["Bose-Einstein condensate" Solid Liquid Gas Plasma "Quark gluon plasma"];
+(|-1|) <= 'Cool' &BasicStates 'Heat' => (|+1|);
+
+Solid 'Sublimate' <-> 'Deposit' Gas;
+
+Solid 'Zero-field cooling'  <-~> 'Heat' "Type I superconductor";
+Solid 'Mixed-state cooling' <-~> 'Heat' "Type II superconductor";
+
+Solid 'Magnetic exposure'      -> "Magnetic material" 'Negative potential'  -> Ferromagnet     'Heat' -> Solid;
+                                  "Magnetic material" 'Positive potential'  -> Paramagnet      'Heat' -> Solid;
+                                  "Magnetic material" 'Opposed potential'   -> Antiferromagnet 'Heat' -> Solid;
+                                  "Magnetic material" 'Composite potential' -> Ferrimagnet     'Heat' -> Solid;
+
+Solid 'Magnetic application'  <->  'Heat' Metamagnetism;
+Solid 'Geometric frustration' <-~> 'Heat' "Quantum spin liquid";
+
+Liquid 'Pressure cool'   <-~> 'Heat' Superfluid 'Spin' <-> 'Agitation' "Quantized Vortex" 'Heat' -> Liquid;
+Liquid 'Pressure heat'   <-~> 'Cool' "Supercritical fluid";
+Liquid 'Fast quench'     <->  'Heat' Glass;
+Liquid 'Magnetic quench' <->  'Heat' "Magnetic spin glass";
+Liquid 'Rotary order'    <->  'Heat' "Plastic crystal" 'Fast quench' -> "Orientational glass" 'Heat' -> Liquid;
+Liquid 'Charge'          <->  'Heat' "Liquid crystal";
+
+[Solid Liquid] 'Covalent arrangement' <-> 'Heat' Copolymer;
+
+&BasicStates 'Pressure' <-~> 'Release' "Degenerate matter" 'Pressure' ~> Singularity;
+"Quark gluon plasma" 'Pressure' <-~> 'Release' "Quark liquid" 'Heat' -> Liquid;
+
+&BasicStates 'Accelerate' <-~> 'Slow' "Color-glass condensate";
+
+"Quark gluon plasma" 'Chiral condensation' -> "Fermionic condensate" 'Time' -> "Superfluid";
+
+Plasma 'Wire' <-> 'Expansion' "Tomonaga-Luttinger liquid";
+
+[Solid "Bose-Einstein condensate"] 'Low-energy ordering' <-~> 'Heat' "Time crystal";
