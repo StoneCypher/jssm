@@ -1,3 +1,4 @@
+* [[`25a9bb8391`](https://github.com/StoneCypher/jssm/commit/25a9bb8391)] - comment testing (John Haugeland) 
 * [[`124c2654c7`](https://github.com/StoneCypher/jssm/commit/124c2654c7)] - Merge pull request #304 from msmorgan/bugfix/comment-grammar (John Haugeland) 
 * [[`8fc29115f5`](https://github.com/StoneCypher/jssm/commit/8fc29115f5)] - **grammar**: Fix whitespace and comment rules (Michael Morgan) 
 * [[`d1cac9b592`](https://github.com/StoneCypher/jssm/commit/d1cac9b592)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland) 
