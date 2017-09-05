@@ -287,6 +287,8 @@ class Machine<mNT, mDT> {
   _actions                : Map<mNT, Map<mNT, number>>;
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
   _reverse_action_targets : Map<mNT, Map<mNT, number>>;
+  _author                 : Array<string>;
+  _contributor            : Array<string>;
 
   _graph_layout           : JssmLayout;
 
@@ -543,7 +545,7 @@ class Machine<mNT, mDT> {
 
     const wstate_to : Array< mNT > = wstate.to,
 
-          wtf       : Array< JssmTransition<mNT, mDT> >
+          wtf       : Array< JssmTransition<mNT, mDT> > // wstate_to_filtered -> wtf
                     = wstate_to
                         .map( (ws) : ?JssmTransition<mNT, mDT> => this.lookup_transition_for(this.state(), ws))
                         .filter(Boolean);

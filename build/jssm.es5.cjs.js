@@ -578,7 +578,8 @@ var Machine = function () {
       }
 
       var wstate_to = wstate.to,
-          wtf = wstate_to.map(function (ws) {
+          wtf // wstate_to_filtered -> wtf
+      = wstate_to.map(function (ws) {
         return _this2.lookup_transition_for(_this2.state(), ws);
       }).filter(Boolean);
 

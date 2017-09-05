@@ -1,3 +1,4 @@
+* [[`f5c9f6a363`](https://github.com/StoneCypher/jssm/commit/f5c9f6a363)] - all the attributes are now parsed (John Haugeland) 
 * [[`631c5c6e6c`](https://github.com/StoneCypher/jssm/commit/631c5c6e6c)] - 5.5.0 comment fixes and minor trash (John Haugeland) 
 * [[`25a9bb8391`](https://github.com/StoneCypher/jssm/commit/25a9bb8391)] - comment testing (John Haugeland) 
 * [[`124c2654c7`](https://github.com/StoneCypher/jssm/commit/124c2654c7)] - Merge pull request #304 from msmorgan/bugfix/comment-grammar (John Haugeland) 
