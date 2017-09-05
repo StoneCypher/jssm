@@ -19,3 +19,4 @@ exclude_paths:
 - dist/
 - docs/
 - src/js/tests/
+- build/
