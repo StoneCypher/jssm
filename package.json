@@ -1,10 +1,10 @@
 {
   "name": "jssm",
-  "version": "5.6.1",
+  "version": "5.6.2",
   "engines": {
     "node": ">=6.0.0"
   },
-  "description": "A Javascript state machine with a simple API. Well tested, and typed with Flowtype. MIT License.",
+  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "build/jssm.es5.js",
   "scripts": {
     "test": "nyc ava src/js/tests/*.js",
