@@ -111,29 +111,39 @@ type JssmTransitionList<NT> = {
 
 type JssmGenericConfig<NT, DT> = {
 
-  graph_layout?  : JssmLayout,
+  graph_layout?        : JssmLayout,
 
-  complete?      : Array<NT>,
-  transitions    : JssmTransitions<NT, DT>,
+  complete?            : Array<NT>,
+  transitions          : JssmTransitions<NT, DT>,
 
-  name?          : string,
-  data?          : mixed,
-  nodes?         : Array<NT>,  // uncommon
-  check?         : JssmStatePermitterMaybeArray<NT, DT>,
+  name?                : string,
+  data?                : mixed,
+  nodes?               : Array<NT>,  // uncommon
+  check?               : JssmStatePermitterMaybeArray<NT, DT>,
 
-//locked?        : bool = true,
-  min_exits?     : number,
-  max_exits?     : number,
-  allow_islands? : false,
-  allow_force?   : false,
-  actions?       : JssmPermittedOpt,
+//locked?              : bool = true,
+  min_exits?           : number,
+  max_exits?           : number,
+  allow_islands?       : false,
+  allow_force?         : false,
+  actions?             : JssmPermittedOpt,
 
-  simplify_bidi? : boolean,
+  simplify_bidi?       : boolean,
 
-  start_states   : Array<NT>,
-  end_states?    : Array<NT>,
+  start_states         : Array<NT>,
+  end_states?          : Array<NT>,
 
-  auto_api?      : boolean | string  // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  machine_author?      : Array<string>,
+  machine_comment?     : string,
+  machine_contributor? : Array<string>,
+  machine_definition?  : string,
+  machine_license?     : string,
+  machine_name?        : string,
+  machine_version?     : string,
+
+  fsl_version?         : string,
+
+  auto_api?            : boolean | string  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
 };
 

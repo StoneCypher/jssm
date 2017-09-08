@@ -1,3 +1,6 @@
+* [[`c2d7f1e5a2`](https://github.com/StoneCypher/jssm/commit/c2d7f1e5a2)] - description change to see if my gh setup is borked (John Haugeland) 
+* [[`aa43171c64`](https://github.com/StoneCypher/jssm/commit/aa43171c64)] - Code climate was looking at build/ (John Haugeland) 
+* [[`4305f36339`](https://github.com/StoneCypher/jssm/commit/4305f36339)] - small notes, stuff for auth/contrib (John Haugeland) 
 * [[`f5c9f6a363`](https://github.com/StoneCypher/jssm/commit/f5c9f6a363)] - all the attributes are now parsed (John Haugeland) 
 * [[`631c5c6e6c`](https://github.com/StoneCypher/jssm/commit/631c5c6e6c)] - 5.5.0 comment fixes and minor trash (John Haugeland) 
 * [[`25a9bb8391`](https://github.com/StoneCypher/jssm/commit/25a9bb8391)] - comment testing (John Haugeland) 

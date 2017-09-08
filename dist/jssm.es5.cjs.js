@@ -94,7 +94,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '5.6.0'; // replaced from package.js in build
+var version = '5.7.0'; // replaced from package.js in build
 
 
 function arrow_direction(arrow) {
@@ -261,6 +261,7 @@ function compile(tree) {
     machine_definition: [],
     machine_license: [],
     machine_name: [],
+    machine_reference: [],
     machine_version: []
   };
 
@@ -280,7 +281,7 @@ function compile(tree) {
     transitions: assembled_transitions
   };
 
-  var oneOnlyKeys = ['graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license'];
+  var oneOnlyKeys = ['graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license', 'machine_definition'];
 
   oneOnlyKeys.map(function (oneOnlyKey) {
     if (results[oneOnlyKey].length > 1) {
@@ -292,7 +293,7 @@ function compile(tree) {
     }
   });
 
-  ['machine_author'].map(function (multiKey) {
+  ['machine_author', 'machine_contributor', 'machine_reference'].map(function (multiKey) {
     if (results[multiKey].length) {
       result_cfg[multiKey] = results[multiKey];
     }
@@ -315,6 +316,14 @@ var Machine = function () {
         _ref2$complete = _ref2.complete,
         complete = _ref2$complete === undefined ? [] : _ref2$complete,
         transitions = _ref2.transitions,
+        machine_author = _ref2.machine_author,
+        machine_comment = _ref2.machine_comment,
+        machine_contributor = _ref2.machine_contributor,
+        machine_definition = _ref2.machine_definition,
+        machine_license = _ref2.machine_license,
+        machine_name = _ref2.machine_name,
+        machine_version = _ref2.machine_version,
+        fsl_version = _ref2.fsl_version,
         _ref2$graph_layout = _ref2.graph_layout,
         graph_layout = _ref2$graph_layout === undefined ? 'dot' : _ref2$graph_layout;
 
@@ -328,6 +337,15 @@ var Machine = function () {
     this._actions = new Map();
     this._reverse_actions = new Map();
     this._reverse_action_targets = new Map(); // todo
+
+    this._machine_author = machine_author;
+    this._machine_comment = machine_comment;
+    this._machine_contributor = machine_contributor;
+    this._machine_definition = machine_definition;
+    this._machine_license = machine_license;
+    this._machine_name = machine_name;
+    this._machine_version = machine_version;
+    this._fsl_version = fsl_version;
 
     this._graph_layout = graph_layout;
 
@@ -472,7 +490,47 @@ var Machine = function () {
   }, {
     key: 'graph_layout',
     value: function graph_layout() {
-      return String(this._graph_layout);
+      return this._graph_layout;
+    }
+  }, {
+    key: 'machine_author',
+    value: function machine_author() {
+      return this._machine_author;
+    }
+  }, {
+    key: 'machine_comment',
+    value: function machine_comment() {
+      return this._machine_comment;
+    }
+  }, {
+    key: 'machine_contributor',
+    value: function machine_contributor() {
+      return this._machine_contributor;
+    }
+  }, {
+    key: 'machine_definition',
+    value: function machine_definition() {
+      return this._machine_definition;
+    }
+  }, {
+    key: 'machine_license',
+    value: function machine_license() {
+      return this._machine_license;
+    }
+  }, {
+    key: 'machine_name',
+    value: function machine_name() {
+      return this._machine_name;
+    }
+  }, {
+    key: 'machine_version',
+    value: function machine_version() {
+      return this._machine_version;
+    }
+  }, {
+    key: 'fsl_version',
+    value: function fsl_version() {
+      return this._fsl_version;
     }
   }, {
     key: 'machine_state',

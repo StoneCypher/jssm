@@ -195,6 +195,8 @@ function compile_rule_handler<mNT>(rule : JssmCompileSeStart<mNT>) : JssmCompile
 
 
 
+
+
 function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, mDT> {  // todo flow describe the output of the parser
 
   const results : {
@@ -209,6 +211,7 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
     machine_definition  : Array< string >,
     machine_license     : Array< string >,
     machine_name        : Array< string >,
+    machine_reference   : Array< string >,
     machine_version     : Array< string > // semver
   } = {
     graph_layout        : [],
@@ -222,6 +225,7 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
     machine_definition  : [],
     machine_license     : [],
     machine_name        : [],
+    machine_reference   : [],
     machine_version     : []
   };
 
@@ -243,7 +247,8 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
   };
 
   const oneOnlyKeys : Array<string> = [
-    'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license'
+    'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license',
+    'machine_definition'
   ];
 
   oneOnlyKeys.map( (oneOnlyKey : string) => {
@@ -256,7 +261,7 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
     }
   });
 
-  ['machine_author'].map( (multiKey : string) => {
+  ['machine_author', 'machine_contributor', 'machine_reference'].map( (multiKey : string) => {
     if (results[multiKey].length) {
       result_cfg[multiKey] = results[multiKey];
     }
@@ -265,6 +270,8 @@ function compile<mNT, mDT>(tree : JssmParseTree<mNT>) : JssmGenericConfig<mNT, m
   return result_cfg;
 
 }
+
+
 
 
 
@@ -287,13 +294,34 @@ class Machine<mNT, mDT> {
   _actions                : Map<mNT, Map<mNT, number>>;
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
   _reverse_action_targets : Map<mNT, Map<mNT, number>>;
-  _author                 : Array<string>;
-  _contributor            : Array<string>;
+
+  _machine_author         : ?Array<string>;
+  _machine_comment        : ?string;
+  _machine_contributor    : ?Array<string>;
+  _machine_definition     : ?string;
+  _machine_license        : ?string;
+  _machine_name           : ?string;
+  _machine_version        : ?string;
+  _fsl_version            : ?string;
 
   _graph_layout           : JssmLayout;
 
+
   // whargarbl this badly needs to be broken up, monolith master
-  constructor({ start_states, complete=[], transitions, graph_layout = 'dot' } : JssmGenericConfig<mNT, mDT>) {
+  constructor({
+    start_states,
+    complete        = [],
+    transitions,
+    machine_author,
+    machine_comment,
+    machine_contributor,
+    machine_definition,
+    machine_license,
+    machine_name,
+    machine_version,
+    fsl_version,
+    graph_layout = 'dot'
+  } : JssmGenericConfig<mNT, mDT>) {
 
     this._state                  = start_states[0];
     this._states                 = new Map();
@@ -303,6 +331,15 @@ class Machine<mNT, mDT> {
     this._actions                = new Map();
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();   // todo
+
+    this._machine_author         = machine_author;
+    this._machine_comment        = machine_comment;
+    this._machine_contributor    = machine_contributor;
+    this._machine_definition     = machine_definition;
+    this._machine_license        = machine_license;
+    this._machine_name           = machine_name;
+    this._machine_version        = machine_version;
+    this._fsl_version            = fsl_version;
 
     this._graph_layout           = graph_layout;
 
@@ -448,7 +485,41 @@ class Machine<mNT, mDT> {
   }
 
   graph_layout() : string {
-    return String(this._graph_layout);
+    return this._graph_layout;
+  }
+
+
+
+  machine_author() : ?Array<string> {
+    return this._machine_author;
+  }
+
+  machine_comment() : ?string {
+    return this._machine_comment;
+  }
+
+  machine_contributor() : ?Array<string> {
+    return this._machine_contributor;
+  }
+
+  machine_definition() : ?string {
+    return this._machine_definition;
+  }
+
+  machine_license() : ?string {
+    return this._machine_license;
+  }
+
+  machine_name() : ?string {
+    return this._machine_name;
+  }
+
+  machine_version() : ?string {
+    return this._machine_version;
+  }
+
+  fsl_version() : ?string {
+    return this._fsl_version;
   }
 
 
