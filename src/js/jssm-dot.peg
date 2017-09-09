@@ -160,7 +160,9 @@ String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
 Atom "atom"
-  = text:[0-9a-zA-Z\.\+\_\&\(\)\$\#\@\!\?\,]+ { return text.join(''); }
+  = firstletter:[0-9a-zA-Z\.\+\_\(\)\$\#\@\!\?\,] text:[0-9a-zA-Z\.\+\_\(\)\&\$\#\@\!\?\,]* {
+      return firstletter + ((text || []).join(''));
+    }
 
 Label "label"
   = atom:Atom
