@@ -1,0 +1,17 @@
+{
+
+  "native_name"  : "English",
+  "english_name" : "English",
+
+  "cases" : [
+    "ends_with_number_10",
+    "middle_10_number",
+    "10_starts_with_number",
+
+    "all_letters_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "all_digits_0123456789",
+    "accents_éÉëïöËÏÖæÆœŒß",
+    "common_symbols_!@#$^&*()?.,=+#"
+  ]
+
+}

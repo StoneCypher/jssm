@@ -159,8 +159,33 @@ WS "whitespace"
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
+AtomFirstLetter
+  = [0-9a-zA-Z\.\+\_\!\$\^\*\!\?\,\x80-\uFFFF]
+
+AtomLetter
+  = [0-9a-zA-Z\.\+\=\_\^\(\)\*\&\$\#\@\!\?\,\x80-\uFFFF]
+
+/*
+
+ControlCharacters
+  = [\x00-\x1F\x7F]
+
+NotAtom
+  = [ -=~<>:{}%\\\[\]]
+
+LeadingSigils
+  = [@~#&(]
+
+AtomFirstLetter
+  = !(ControlCharacters / Sigils / NotAtom) ch:. { return ch; }
+
+AtomLetter
+  = !(ControlCharacters / NotAtom) ch:. { return ch; }
+
+*/
+
 Atom "atom"
-  = firstletter:[0-9a-zA-Z\.\+\_\(\)\$\!\?\,] text:[0-9a-zA-Z\.\+\_\(\)\&\$\#\@\!\?\,]* {
+  = firstletter:AtomFirstLetter text:AtomLetter* {
       return firstletter + ((text || []).join(''));
     }
 
