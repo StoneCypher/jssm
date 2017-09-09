@@ -1,13 +1,13 @@
 {
   "name": "jssm",
-  "version": "5.7.2",
+  "version": "5.8.0",
   "engines": {
     "node": ">=6.0.0"
   },
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "build/jssm.es5.js",
   "scripts": {
-    "test": "nyc ava src/js/tests/*.js",
+    "test": "nyc ava src/js/tests/**/*.js",
     "removedir": "rimraf build -f && rimraf dist -f && rimraf docs -f",
     "createdir": "mkdir build && mkdir dist && mkdir docs && cd docs && mkdir docs && cd ..",
     "clean": "npm run removedir && rm -f src/js/jssm-dot.js && npm run createdir",

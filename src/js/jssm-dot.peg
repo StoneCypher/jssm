@@ -137,7 +137,7 @@ BlockCommentTail
   = "*/"
   / . BlockCommentTail
 
-BlockComment
+BlockComment "block comment"
   = "/*" BlockCommentTail
 
 EOF
@@ -148,10 +148,10 @@ LineCommentTail
   / EOF
   / . LineCommentTail
 
-LineComment
+LineComment "line comment"
   = "//" LineCommentTail
 
-WS
+WS "whitespace"
   = BlockComment WS?
   / LineComment  WS?
   / [ \t\r\n\v]+ WS?
@@ -160,7 +160,7 @@ String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
 Atom "atom"
-  = firstletter:[0-9a-zA-Z\.\+\_\(\)\$\#\@\!\?\,] text:[0-9a-zA-Z\.\+\_\(\)\&\$\#\@\!\?\,]* {
+  = firstletter:[0-9a-zA-Z\.\+\_\(\)\$\!\?\,] text:[0-9a-zA-Z\.\+\_\(\)\&\$\#\@\!\?\,]* {
       return firstletter + ((text || []).join(''));
     }
 
@@ -612,10 +612,8 @@ MachineLicense
 FslVersion
   = WS? "fsl_version"         WS? ":" WS? fsl_version:SemVer           WS? ";" WS? { return { key: "fsl_version", value: fsl_version }; }
 
-
-Term
-  = Exp
-  / FslVersion
+MachineAttribute "machine attribute"
+  = FslVersion
   / MachineName
   / MachineAuthor
   / MachineContributor
@@ -623,6 +621,12 @@ Term
   / MachineDefinition
   / MachineVersion
   / MachineLicense
+
+
+
+Term
+  = Exp
+  / MachineAttribute
   / Config
 
 TermList
