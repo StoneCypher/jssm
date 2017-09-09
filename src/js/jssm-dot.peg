@@ -583,21 +583,6 @@ LicenseOrLabelOrList
 
 
 
-StateColor
-  = WS? "color" WS? ":" WS? value:Color WS? ";" WS? { return { key: "state color", value: value }; }
-
-ArbitraryStateQuality "state quality"
-  = WS? name:Label WS? ":" WS? value:Label WS? ";" WS? { return { key: "state quality", name: name, value: value }; }
-
-StateQuality
-  = StateColor
-  / ArbitraryStateQuality
-
-StateDef "state definition"
-  = WS? "state" WS? name:Label WS? "[" WS? sq:StateQuality* WS? "]" WS? ";" WS? { return { key: "State qualities", value: sq }; }
-
-
-
 MachineAuthor
   = WS? "machine_author"      WS? ":" WS? author:LabelOrLabelList      WS? ";" WS? { return { key: "machine_author", value: author }; }
 
@@ -626,14 +611,8 @@ FslVersion
   = WS? "fsl_version"         WS? ":" WS? fsl_version:SemVer           WS? ";" WS? { return { key: "fsl_version", value: fsl_version }; }
 
 
-
-StateGroupDef
-  = WS? "group" WS? name:Label WS? ":" WS? nl:LabelOrLabelList WS? ";" WS? { return { key: "group definition", value: { name: name, list: nl } }; }
-
-
 Term
   = Exp
-  / StateDef
   / FslVersion
   / MachineName
   / MachineAuthor
@@ -642,7 +621,6 @@ Term
   / MachineDefinition
   / MachineVersion
   / MachineLicense
-  / StateGroupDef
   / Config
 
 TermList

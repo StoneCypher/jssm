@@ -1,3 +1,4 @@
+* [[`15bfb56849`](https://github.com/StoneCypher/jssm/commit/15bfb56849)] - eight machine attributes now fully passed through and exposed - author(s), contributor(s), comment, definition, version, license, name, reference, and fsl version (John Haugeland) 
 * [[`c2d7f1e5a2`](https://github.com/StoneCypher/jssm/commit/c2d7f1e5a2)] - description change to see if my gh setup is borked (John Haugeland) 
 * [[`aa43171c64`](https://github.com/StoneCypher/jssm/commit/aa43171c64)] - Code climate was looking at build/ (John Haugeland) 
 * [[`4305f36339`](https://github.com/StoneCypher/jssm/commit/4305f36339)] - small notes, stuff for auth/contrib (John Haugeland) 
