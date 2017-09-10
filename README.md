@@ -1,7 +1,9 @@
 # jssm
 A Javascript state machine with a terse DSL and a simple API.  Well tested, and typed with Flowtype.  MIT license.
 
-[Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
+<big>[Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)</big>
+
+Language test cases for English, German, Hebrew, Russian, Spanish, Ukrainian, and Emoji.  Please help make sure your language is well handled!.
 
 <div id="badge_style_hook">
 

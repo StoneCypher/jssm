@@ -1,0 +1,19 @@
+{
+
+  "native_name"  : "Українська",
+  "english_name" : "Ukrainian",
+
+
+  "cases" : [
+    "ends_with_number_10",
+    "middle_10_number",
+    "10_starts_with_number",
+
+    "all_letters_абгґдеєжзиіїйклмнопрстуфхцчшщьюяАБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ",
+    "all_digits_0123456789",
+    "accents_’",
+
+    "common_symbols_!«»№,.?+=_*#"
+  ]
+
+}
