@@ -1,0 +1,17 @@
+{
+
+  "native_name"  : "Français",
+  "english_name" : "French",
+
+  "cases" : [
+    "termine_par_un_nombre_10",
+    "nombre_10_milieu",
+    "10_commence_par_un_nombre",
+
+    "toutes_les_lettres_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "tous_les_chiffres_0123456789",
+    "accents_àâäçéèêëîïôöùûüÿÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸ",
+    "symboles_communs_!@#$^&*()?.,=+#"
+  ]
+  
+}
