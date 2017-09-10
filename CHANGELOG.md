@@ -1,3 +1,4 @@
+* [[`387da4f427`](https://github.com/StoneCypher/jssm/commit/387da4f427)] - basic internationalization prep complete.  unicode arrows (John Haugeland) 
 * [[`51f594446a`](https://github.com/StoneCypher/jssm/commit/51f594446a)] - prepping for internationalization and unicode operators (John Haugeland) 
 * [[`fea6f7b909`](https://github.com/StoneCypher/jssm/commit/fea6f7b909)] - lol whet see https://github.com/istanbuljs/nyc/issues/673 (John Haugeland) 
 * [[`f2890e4793`](https://github.com/StoneCypher/jssm/commit/f2890e4793)] - modifications to atoms in preparation for sigils - fixes #320 fixes #321 fixes #322 fixes #323 fixes #324 (John Haugeland) 

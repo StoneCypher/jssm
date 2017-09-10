@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.9.0",
+  "version": "5.9.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -96,6 +96,7 @@
     "eslint-plugin-react": "^7.3.0",
     "eslint-plugin-unicorn": "^2.1.2",
     "flow-bin": "^0.49.1",
+    "glob": "^7.1.2",
     "gulp-string-replace": "^0.4.0",
     "nyc": "^11.1.0",
     "pegjs": "^0.10.0",
