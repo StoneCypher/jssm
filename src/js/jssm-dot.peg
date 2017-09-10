@@ -13,51 +13,66 @@ GvizShape
 
 ForwardLightArrow "forward light arrow ->"
   = "->"
+  / "→" { return "->"; }
 
 TwoWayLightArrow "two way light arrow <->"
   = "<->"
+  / "↔" { return "<->"; }
 
 BackLightArrow "back light arrow <-"
   = "<-"
+  / "←" { return "<-"; }
 
 
 ForwardFatArrow "forward fat arrow =>"
   = "=>"
+  / "⇒" { return "=>"; }
 
 TwoWayFatArrow "two way fat arrow <=>"
   = "<=>"
+  / "⇔" { return "<=>"; }
 
 BackFatArrow "back fat arrow <="
   = "<="
+  / "⇐" { return "<="; }
 
 
 ForwardTildeArrow "forward tilde arrow ~>"
   = "~>"
+  / "↛" { return "~>"; }
 
 TwoWayTildeArrow "two way tilde arrow <~>"
   = "<~>"
+  / "↮" { return "<~>"; }
 
 BackTildeArrow "back tilde arrow <~"
   = "<~"
+  / "↚" { return "<~"; }
 
 
 LightFatArrow "light fat arrow <-=>"
   = "<-=>"
+  / "←⇒" { return "<-=>"; }
 
 LightTildeArrow "light tilde arrow <-~>"
   = "<-~>"
+  / "←↛" { return "<-~>"; }
 
 FatLightArrow "fat light arrow <=->"
   = "<=->"
+  / "⇐→" { return "<=->"; }
 
 FatTildeArrow "fat tilde arrow <=~>"
   = "<=~>"
+  / "⇐↛" { return "<=~>"; }
 
 TildeLightArrow "tilde light arrow <~->"
   = "<~->"
+  / "↚→" { return "<~->"; }
 
 TildeFatArrow "tilde fat arrow <~=>"
   = "<~=>"
+  / "↚⇒" { return "<~=>"; }
 
 
 LightArrow "light arrow"

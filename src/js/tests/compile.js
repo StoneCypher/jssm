@@ -39,6 +39,13 @@ describe('compile/1', async _parse_it => {
     }) );
   });
 
+  describe('all unicode arrows', async it => {
+    const all_arrows = `a ← b ⇐ c ↚ d → e ⇒ f ↛ g ↔ h ⇔ i ↮ j ←⇒ k ⇐→ l ←↛ m ↚→ n ⇐↛ o ↚⇒ p;`;
+    it('doesn\'t throw', t => t.notThrows(() => {
+      jssm.compile(jssm.parse(all_arrows));
+    }) );
+  });
+
 });
 
 

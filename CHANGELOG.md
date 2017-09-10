@@ -1,3 +1,4 @@
+* [[`51f594446a`](https://github.com/StoneCypher/jssm/commit/51f594446a)] - prepping for internationalization and unicode operators (John Haugeland) 
 * [[`fea6f7b909`](https://github.com/StoneCypher/jssm/commit/fea6f7b909)] - lol whet see https://github.com/istanbuljs/nyc/issues/673 (John Haugeland) 
 * [[`f2890e4793`](https://github.com/StoneCypher/jssm/commit/f2890e4793)] - modifications to atoms in preparation for sigils - fixes #320 fixes #321 fixes #322 fixes #323 fixes #324 (John Haugeland) 
 * [[`e85442bcf2`](https://github.com/StoneCypher/jssm/commit/e85442bcf2)] - removing essentially unused rules from PEG in preparation for redoing them, fixes #314 fixes #315 fixes #316 fixes #317 fixes #318 (John Haugeland) 

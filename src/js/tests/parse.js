@@ -67,7 +67,11 @@ describe('parse/1', async _parse_it => {
       const augh = `
       a->b-> c-> d -> e
 ->
-f <- g <= h <-> i <=> j ~> k <~ l <~> m <~-> n <-~> o <=~> p <~=> q <-=> r <=-> s 'A' <= 'B' t;`;
+f <- g <= h <-> i <=> j ~> k <~ l <~> m <~-> n <-~> o <=~> p <~=> q <-=> r <=-> s 'A' <= 'B' t;
+
+a ← b2 ⇐ c2 ↚ d2 → e2 ⇒ f2 ↛ g2 ↔ h2 ⇔ i2 ↮ j2 ←⇒ k2 ⇐→ l2 ←↛ m2 ↚→ n2 ⇐↛ o2 ↚⇒ p2;
+
+`;
 
       it('doesn\'t throw', t => t.notThrows(() => { jssm.parse(augh); }) );
 
