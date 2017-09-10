@@ -1,0 +1,17 @@
+{
+
+  "native_name"  : "Español",
+  "english_name" : "Spanish",
+
+  "cases" : [
+    "termina_con_número_10",
+    "medio_10_número",
+    "10_empieza_con_número",
+
+    "todas_las_letras_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "todos_los_dígitos_0123456789",
+    "acentos_ñáéíóúÑÁÉÍÓÚ",
+    "símbolos_comunes_!¡@#$^&*()?¿.,=+#"
+  ]
+
+}
