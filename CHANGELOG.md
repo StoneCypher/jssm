@@ -1,3 +1,4 @@
+* [[`c5ebbc2714`](https://github.com/StoneCypher/jssm/commit/c5ebbc2714)] - Added Russian and Ukrainian by Mikhail Les (John Haugeland) 
 * [[`46353c1a9d`](https://github.com/StoneCypher/jssm/commit/46353c1a9d)] - Merge pull request #326 from technophile77/master (John Haugeland) 
 * [[`7bb8aa96aa`](https://github.com/StoneCypher/jssm/commit/7bb8aa96aa)] - commas (Alex Cresswell) 
 * [[`ddc1fc6c7a`](https://github.com/StoneCypher/jssm/commit/ddc1fc6c7a)] - spanish (Alex Cresswell) 
