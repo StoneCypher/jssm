@@ -29,6 +29,8 @@ const version : null = null; // replaced from package.js in build
 
 
 
+/* eslint-disable complexity */
+
 function arrow_direction(arrow : JssmArrow) : JssmArrowDirection {
 
   switch ( String(arrow) ) {
@@ -62,6 +64,8 @@ function arrow_direction(arrow : JssmArrow) : JssmArrowDirection {
   }
 
 }
+
+/* eslint-enable complexity */
 
 
 

@@ -40,9 +40,10 @@ var weighted_rand_select = function weighted_rand_select(options) {
     var cursor = 0,
         cursor_sum = 0;
 
-    while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) {}
+    while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) {} // eslint-disable-line no-empty,fp/no-loops
     return options[cursor - 1];
 };
+/* eslint-enable flowtype/no-weak-types */
 
 var seq = function seq(n) {
     return new Array(n).fill(true).map(function (_, i) {
@@ -50,23 +51,32 @@ var seq = function seq(n) {
     });
 };
 
-var histograph = function histograph(a) {
+var histograph = function histograph(a // eslint-disable-line flowtype/no-weak-types
+
+) {
     return a.sort().reduce(function (m, v) {
         return m.set(v, m.has(v) ? m.get(v) + 1 : 1), m;
     }, new Map());
-};
+}; // eslint-disable-line flowtype/no-weak-types,no-sequences
 
-var weighted_sample_select = function weighted_sample_select(n, options, probability_property) {
-    return seq(n).map(function (i) {
+
+var weighted_sample_select = function weighted_sample_select(n, options, probability_property // eslint-disable-line flowtype/no-weak-types
+
+) {
+    return seq(n).map(function (_i) {
         return weighted_rand_select(options, probability_property);
     });
-};
+}; // eslint-disable-line flowtype/no-weak-types
 
-var weighted_histo_key = function weighted_histo_key(n, options, probability_property, extract) {
-    return histograph(weighted_sample_select(n, options, probability_property).map(function (s) {
+
+var weighted_histo_key = function weighted_histo_key(n, opts, prob_prop, extract // eslint-disable-line flowtype/no-weak-types
+
+) {
+    return histograph(weighted_sample_select(n, opts, prob_prop).map(function (s) {
         return s[extract];
     }));
-};
+}; // eslint-disable-line flowtype/no-weak-types
+
 
 exports.seq = seq;
 exports.histograph = histograph;
@@ -94,8 +104,10 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '5.9.5'; // replaced from package.js in build
+var version = '5.9.6'; // replaced from package.js in build
 
+
+/* eslint-disable complexity */
 
 function arrow_direction(arrow) {
 
@@ -129,6 +141,8 @@ function arrow_direction(arrow) {
 
   }
 }
+
+/* eslint-enable complexity */
 
 /* eslint-disable complexity */
 

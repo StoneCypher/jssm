@@ -1,3 +1,4 @@
+* [[`8c592ae448`](https://github.com/StoneCypher/jssm/commit/8c592ae448)] - More translations woooo (John Haugeland) 
 * [[`7113970c70`](https://github.com/StoneCypher/jssm/commit/7113970c70)] - Merge pull request #328 from tanvirrb/master (John Haugeland) 
 * [[`7f4f13a1d3`](https://github.com/StoneCypher/jssm/commit/7f4f13a1d3)] - added Bengali by Tanvir Islam (tanvirrb) 
 * [[`b026e0071a`](https://github.com/StoneCypher/jssm/commit/b026e0071a)] - Merge pull request #327 from daviddelapena/master (John Haugeland) 

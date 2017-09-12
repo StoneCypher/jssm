@@ -694,3 +694,34 @@ And some similar stuff:
 1. [Yakindu Statechart Tools](https://github.com/Yakindu/statecharts)
 1. [GraphViz](http://www.graphviz.org/)
     1. [Viz.js](https://github.com/mdaines/viz.js/), which we use
+
+# Thanks
+
+JSSM and FSL have had a lot of help.
+
+## Internationalization
+
+* [Mykhaylo Les](https://github.com/miles91) provided three translation test cases ([Ukrainian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/ukrainian.json), [Belarussian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/belarussian.json), and [Russian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/russian.json),) and the corresponding Traffic Light translations (also [Ukrainian](https://github.com/StoneCypher/fsl_traffic_light_ukrainian/blob/master/traffic%20light.fsl), [Belarussian](https://github.com/StoneCypher/fsl_traffic_light_belarussian/blob/master/traffic_light.fsl), and [Russian](https://github.com/StoneCypher/fsl_traffic_light_russian/blob/master/traffic%20light.fsl).)
+* [Tanvir Islam](https://github.com/tanvirrb) provided the [Bengali test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/bengali.json), translated the [Traffic Light](https://github.com/tanvirrb/fsl-traffic-light-bengali/blob/master/traffic_light.fsl) to Bengali, and published the first non-English `FSL` machine, in Bengali.
+* [Francisco Junior](https://github.com/fcojr) provided the [Portuguese test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/portuguese.json) and translated the [Traffic Light](https://github.com/StoneCypher/fsl_traffic_light_portuguese/blob/master/traffic_light.fsl) to Portuguese
+* [Jeff Katz](https://github.com/cohendvir) provided the [German test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/german.json).
+* [Alex Cresswell](https://github.com/technophile77) provdied the [Spanish test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/spanish.json)
+* [Dvir Cohen](https://github.com/cohendvir) provided the [Hebrew test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/hebrew.json).
+* [David de la Peña](https://github.com/daviddelapena) provided the [French test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/french.json)
+
+If I've overlooked you, please let me know.
+
+If you'd like to help, it's straightforward.
+
+1. Easy mode: open a PR with [this file](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/english.json) translated into your language
+1. Extra mile: create a new repo containing [this file](https://github.com/StoneCypher/fsl_traffic_light/blob/master/traffic_light.fsl) translated
+
+## Code and Language
+
+[Forest Belton](https://github.com/forestbelton) has provided guidance, bugfixes, parser and language commentary.
+
+[Jordan Harbrand](https://github.com/ljharb) suggested two interesting features and provided strong feedback on the initial tutorial draft.
+
+The biggest thanks must go to [Michael Morgan](https://github.com/msmorgan/), who has debated significant sections of
+the notation, invented several concepts and operators, helped with the parser, with system nomenclature, for having published
+the first not-by-me `FSL` machine, for encouragement, and generally just for having been as interested as he has been.
