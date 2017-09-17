@@ -447,7 +447,7 @@ Hooray, now we're getting somewhere.
 Let's add the ability to check your balance.  First pick that from the main menu, then pick which account to see the
 balance of, then you're shown a screen with the information you requested; then go back to the main menu.
 
-That's `MainMenu 'CheckBalance' -> PickAccount -> DisplayBalance -> MainMenu;`
+That's `MainMenu 'CheckBalance' -> PickAccount -> DisplayBalance -> MainMenu;`.
 
 ```jssm
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
