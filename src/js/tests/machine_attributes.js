@@ -2,7 +2,9 @@
 import {describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.js'),
-      sm   = jssm.sm;
+      sm   = jssm.sm,
+      r639 = require('reduce-to-639-1').reduce;
+
 
 
 
@@ -14,6 +16,29 @@ describe('machine_name', async it => {
   it('quoted string',  t => t.notThrows(() => { const _foo = sm`machine_name: "bo b"; a->b;`; }) );
 
   it('retval correct', t => t.is("testval", sm`machine_name: testval; a->b;`.machine_name() ) );
+
+});
+
+
+
+
+
+describe('machine_language', async it => {
+
+  const eachTest = (name, lang) => {
+
+    it(`${name} doesn't throw`, t =>
+       t.notThrows(() => { const _foo = sm`machine_language: ${lang}; a->b;`; }) );
+
+    it(`${name} correct`, t =>
+       t.is(r639(lang), sm`machine_language: ${lang}; a->b;`.machine_language() ) );
+
+  };
+
+  eachTest('atom correct case', 'English');
+  eachTest('atom lowercase',    'english');
+  eachTest('atom mixedcase',    'eNGliSH');
+  eachTest('amharic',           'አማርኛ');
 
 });
 

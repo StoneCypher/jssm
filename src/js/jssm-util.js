@@ -1,6 +1,11 @@
 
 // @flow
 
+
+
+
+
+// this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
 const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability'): any => {
 
@@ -39,7 +44,7 @@ const seq: Function = (n: number): Array<number> =>
 
 
 
-const histograph: Function = (a : Array<any>) => // eslint-disable-line flowtype/no-weak-types
+const histograph: Function = (a : Array<any>): Map<any, number> => // eslint-disable-line flowtype/no-weak-types
 
     a.sort().reduce( (m,v): Map<any, any> => ( m.set(v, (m.has(v)? m.get(v)+1 : 1)) , m), new Map() );  // eslint-disable-line flowtype/no-weak-types,no-sequences
 

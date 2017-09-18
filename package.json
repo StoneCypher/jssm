@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.9.6",
+  "version": "5.10.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -100,6 +100,7 @@
     "gulp-string-replace": "^0.4.0",
     "nyc": "^11.1.0",
     "pegjs": "^0.10.0",
+    "reduce-to-639-1": "^1.0.1",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
     "uglify-js": "^3.0.26",

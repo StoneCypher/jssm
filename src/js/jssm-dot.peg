@@ -649,6 +649,9 @@ MachineVersion
 MachineLicense
   = WS? "machine_license"     WS? ":" WS? license:LicenseOrLabelOrList WS? ";" WS? { return { key: "machine_license", value: license }; }
 
+MachineLanguage
+  = WS? "machine_language"    WS? ":" WS? language:Label               WS? ";" WS? { return { key: "machine_language", value: language }; }
+
 FslVersion
   = WS? "fsl_version"         WS? ":" WS? fsl_version:SemVer           WS? ";" WS? { return { key: "fsl_version", value: fsl_version }; }
 
@@ -661,6 +664,7 @@ MachineAttribute "machine attribute"
   / MachineDefinition
   / MachineVersion
   / MachineLicense
+  / MachineLanguage
 
 
 

@@ -137,6 +137,7 @@ type JssmGenericConfig<NT, DT> = {
   machine_comment?     : string,
   machine_contributor? : Array<string>,
   machine_definition?  : string,
+  machine_language?    : string,
   machine_license?     : string,
   machine_name?        : string,
   machine_version?     : string,
