@@ -100,13 +100,13 @@
     "gulp-string-replace": "^0.4.0",
     "nyc": "^11.1.0",
     "pegjs": "^0.10.0",
-    "reduce-to-639-1": "^1.0.1",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
     "uglify-js": "^3.0.26",
     "viz.js": "^1.7.1"
   },
   "dependencies": {
-    "eslint-config-stonecypher": "^1.15.6"
+    "eslint-config-stonecypher": "^1.15.7",
+    "reduce-to-639-1": "^1.0.1"
   }
 }

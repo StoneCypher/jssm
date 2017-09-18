@@ -1,3 +1,4 @@
+* [[`a6a0748357`](https://github.com/StoneCypher/jssm/commit/a6a0748357)] - machine_language (John Haugeland) 
 * [[`b20fc79410`](https://github.com/StoneCypher/jssm/commit/b20fc79410)] - Update README.md (John Haugeland) 
 * [[`cf7fccd062`](https://github.com/StoneCypher/jssm/commit/cf7fccd062)] - readme improvements (John Haugeland) 
 * [[`8c592ae448`](https://github.com/StoneCypher/jssm/commit/8c592ae448)] - More translations woooo (John Haugeland) 
