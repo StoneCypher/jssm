@@ -175,7 +175,7 @@ String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
 AtomFirstLetter
-  = [0-9a-zA-Z\.\+\_\!\$\^\*\!\?\,\x80-\uFFFF]
+  = [0-9a-zA-Z\.\_\!\$\^\*\!\?\,\x80-\uFFFF]
 
 AtomLetter
   = [0-9a-zA-Z\.\+\=\_\^\(\)\*\&\$\#\@\!\?\,\x80-\uFFFF]
@@ -461,6 +461,21 @@ LabelOrLabelList
   = LabelList
   / Label
 
+Stripe
+  = '+|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value:      parseInt(`${nzd}${dd}`, 10) }; }
+  / '-|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
+
+Cycle
+  = '+' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value:      parseInt(`${nzd}${dd}`, 10) }; }
+  / '-' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
+  / '+0'
+
+ArrowTarget
+  = Stripe
+  / Cycle
+  / LabelList
+  / Label
+
 
 
 // todo these shouldn't be ordered, this is dumb // whargarbl comeback major
@@ -473,7 +488,7 @@ Subexp
     WS? r_desc   : ArrowDesc?
     WS? l_prob   : ArrowProbability?
     WS? l_action : ActionLabel?
-    WS? label    : LabelOrLabelList
+    WS? label    : ArrowTarget
     WS? tail     : Subexp? {
 
       const base = {kind: arrow, to: label};
