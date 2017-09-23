@@ -468,7 +468,7 @@ Stripe
 Cycle
   = '+' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value:      parseInt(`${nzd}${dd}`, 10) }; }
   / '-' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
-  / '+0'                                  { return { key: 'cycle', value: 0,                               }; }
+  / '+0'                                  { return { key: 'cycle', value: 0                                }; }
 
 ArrowTarget
   = Stripe
