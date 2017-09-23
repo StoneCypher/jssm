@@ -1,3 +1,4 @@
+* [[`994bfdf224`](https://github.com/StoneCypher/jssm/commit/994bfdf224)] - underway (John Haugeland) 
 * [[`ed78d312f1`](https://github.com/StoneCypher/jssm/commit/ed78d312f1)] - package bumps (John Haugeland) 
 * [[`a6a0748357`](https://github.com/StoneCypher/jssm/commit/a6a0748357)] - machine_language (John Haugeland) 
 * [[`b20fc79410`](https://github.com/StoneCypher/jssm/commit/b20fc79410)] - Update README.md (John Haugeland) 
