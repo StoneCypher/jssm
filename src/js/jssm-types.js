@@ -198,6 +198,12 @@ type JssmParseTree<NT> = Array< JssmCompileSeStart<NT> >;
 
 
 
+type JssmParseFunctionType<NT> = (string) => JssmParseTree<NT>;
+
+
+
+
+
 export type {
 
   JssmTransition,
@@ -221,6 +227,8 @@ export type {
     JssmResult,
 
   JssmLayout,
+
+  JssmParseFunctionType,
 
   JssmMachineInternalState
 

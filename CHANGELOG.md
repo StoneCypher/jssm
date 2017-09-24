@@ -1,3 +1,6 @@
+* [[`c794f7ba5c`](https://github.com/StoneCypher/jssm/commit/c794f7ba5c)] - oh wow travis marks failing for branches? (John Haugeland) 
+* [[`d1abf9799b`](https://github.com/StoneCypher/jssm/commit/d1abf9799b)] - underway (John Haugeland) 
+* [[`4ba92631ff`](https://github.com/StoneCypher/jssm/commit/4ba92631ff)] - +0 bugfix, parse tests (John Haugeland) 
 * [[`994bfdf224`](https://github.com/StoneCypher/jssm/commit/994bfdf224)] - underway (John Haugeland) 
 * [[`ed78d312f1`](https://github.com/StoneCypher/jssm/commit/ed78d312f1)] - package bumps (John Haugeland) 
 * [[`a6a0748357`](https://github.com/StoneCypher/jssm/commit/a6a0748357)] - machine_language (John Haugeland) 

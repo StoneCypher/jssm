@@ -243,6 +243,30 @@ function arrow_right_kind(arrow) {
 
 /* eslint-enable complexity */
 
+function makeTransition(this_se, from, to, isRight) {
+
+  var kind = isRight ? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
+      edge = {
+    from: from,
+    to: to,
+    kind: kind,
+    forced_only: kind === 'forced',
+    main_path: kind === 'main'
+  };
+
+  var action = isRight ? 'r_action' : 'l_action',
+      probability = isRight ? 'r_probability' : 'l_probability';
+
+  if (this_se[action]) {
+    edge.action = this_se[action];
+  }
+  if (this_se[probability]) {
+    edge.probability = this_se[probability];
+  }
+
+  return edge;
+}
+
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
   // todo flow describe the parser representation of a transition step extension
 
@@ -254,41 +278,12 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
   uFrom.map(function (f) {
     uTo.map(function (t) {
 
-      var rk = arrow_right_kind(this_se.kind),
-          lk = arrow_left_kind(this_se.kind);
-
-      var right = {
-        from: f,
-        to: t,
-        kind: rk,
-        forced_only: rk === 'forced',
-        main_path: rk === 'main'
-      };
-
-      if (this_se.r_action) {
-        right.action = this_se.r_action;
-      }
-      if (this_se.r_probability) {
-        right.probability = this_se.r_probability;
-      }
+      var right = makeTransition(this_se, f, t, true);
       if (right.kind !== 'none') {
         edges.push(right);
       }
 
-      var left = {
-        from: t,
-        to: f,
-        kind: lk,
-        forced_only: lk === 'forced',
-        main_path: lk === 'main'
-      };
-
-      if (this_se.l_action) {
-        left.action = this_se.l_action;
-      }
-      if (this_se.l_probability) {
-        left.probability = this_se.l_probability;
-      }
+      var left = makeTransition(this_se, t, f, false);
       if (left.kind !== 'none') {
         edges.push(left);
       }
