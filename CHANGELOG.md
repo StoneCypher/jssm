@@ -1,3 +1,4 @@
+* [[`9c9d052ee8`](https://github.com/StoneCypher/jssm/commit/9c9d052ee8)] - grammar for named ordered lists and for nominated states (John Haugeland) 
 * [[`ed78d312f1`](https://github.com/StoneCypher/jssm/commit/ed78d312f1)] - package bumps (John Haugeland) 
 * [[`a6a0748357`](https://github.com/StoneCypher/jssm/commit/a6a0748357)] - machine_language (John Haugeland) 
 * [[`b20fc79410`](https://github.com/StoneCypher/jssm/commit/b20fc79410)] - Update README.md (John Haugeland) 

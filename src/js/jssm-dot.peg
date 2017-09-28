@@ -441,7 +441,7 @@ SvgColorLabel
   / 'yellowgreen'          { return '#9acd32ff'; }              / 'YellowGreen'          { return '#9acd32ff'; }
 
 SvgColor
-  = SvgColorLabel WS?
+  = lab:SvgColorLabel WS? { return lab; }
 
 Rgb3
   = '#' r:HexDigit g:HexDigit b:HexDigit WS? {
@@ -706,23 +706,27 @@ MachineAttribute "machine attribute"
 
 
 
-SdSingleEdgeColor "single edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
+SdNodeColor "node color"
+  = WS? "node_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'node_color', value:value}; }
+
+SdNodeShape "node shape"
+  = WS? "node_shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'node_shape', value:value}; }
 
 StateDeclarationItems
-  = SdSingleEdgeColor
+  = SdNodeColor
+  / SdNodeShape
 
 StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems+ WS? "}" { return items; }
 
 StateDeclaration
-  = WS? state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" { return {key:'state_declaration', name: state_name, value:decl_desc}; }
+  = WS? state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
 
 
 
 
 NamedList
-  = WS? "&" WS? list_name:Label WS? ":" WS? contents:LabelOrLabelList WS? ";" {
+  = WS? "&" WS? list_name:Label WS? ":" WS? contents:LabelOrLabelList WS? ";" WS? {
     return { key:'named_list', name:list_name, value:contents };
   }
 

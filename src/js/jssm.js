@@ -240,7 +240,7 @@ function compile_rule_handler<mNT>(rule: JssmCompileSeStart<mNT>): JssmCompileRu
   const tautologies : Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-    'machine_reference', 'machine_license', 'fsl_version'
+    'machine_reference', 'machine_license', 'fsl_version', 'state_declaration'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -262,6 +262,7 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
     transition          : Array< JssmTransition<mNT, mDT> >,
     start_states        : Array< mNT >,
     end_states          : Array< mNT >,
+    state_declaration   : Array< mNT >,
     fsl_version         : Array< string >,
     machine_author      : Array< string >,
     machine_comment     : Array< string >,
@@ -277,6 +278,7 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
     transition          : [],
     start_states        : [],
     end_states          : [],
+    state_declaration   : [],
     fsl_version         : [],
     machine_author      : [],
     machine_comment     : [],
@@ -321,7 +323,7 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
     }
   });
 
-  ['machine_author', 'machine_contributor', 'machine_reference'].map( (multiKey : string) => {
+  ['machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map( (multiKey : string) => {
     if (results[multiKey].length) {
       result_cfg[multiKey] = results[multiKey];
     }
@@ -364,6 +366,8 @@ class Machine<mNT, mDT> {
   _machine_name           : ?string;
   _machine_version        : ?string;
   _fsl_version            : ?string;
+  _raw_state_declaration  : ?Array<Object>;    // eslint-disable-line flowtype/no-weak-types
+  _state_declarations     : Map<mNT, Object>;  // eslint-disable-line flowtype/no-weak-types
 
   _graph_layout           : JssmLayout;
 
@@ -381,12 +385,14 @@ class Machine<mNT, mDT> {
     machine_license,
     machine_name,
     machine_version,
+    state_declaration,
     fsl_version,
     graph_layout = 'dot'
   } : JssmGenericConfig<mNT, mDT>) {
 
     this._state                  = start_states[0];
     this._states                 = new Map();
+    this._state_declarations     = new Map();
     this._edges                  = [];
     this._edge_map               = new Map();
     this._named_transitions      = new Map();
@@ -402,6 +408,7 @@ class Machine<mNT, mDT> {
     this._machine_license        = machine_license;
     this._machine_name           = machine_name;
     this._machine_version        = machine_version;
+    this._raw_state_declaration  = state_declaration || [];
     this._fsl_version            = fsl_version;
 
     this._graph_layout           = graph_layout;
@@ -583,6 +590,18 @@ class Machine<mNT, mDT> {
 
   machine_version(): ?string {
     return this._machine_version;
+  }
+
+  raw_state_declarations(): ?Array<Object> {    // eslint-disable-line flowtype/no-weak-types
+    return this._raw_state_declaration;
+  }
+
+  state_declaration(which: mNT): ?Object {    // eslint-disable-line flowtype/no-weak-types
+    return this._state_declarations.get(which);
+  }
+
+  state_declarations(): Map<mNT, Object> {    // eslint-disable-line flowtype/no-weak-types
+    return this._state_declarations;
   }
 
   fsl_version(): ?string {

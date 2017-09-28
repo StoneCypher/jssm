@@ -133,6 +133,8 @@ type JssmGenericConfig<NT, DT> = {
   start_states         : Array<NT>,
   end_states?          : Array<NT>,
 
+  state_declaration?   : Array<Object>,    // eslint-disable-line flowtype/no-weak-types
+
   machine_author?      : Array<string>,
   machine_comment?     : string,
   machine_contributor? : Array<string>,
