@@ -627,6 +627,19 @@ amount of time.
 ### DSL
 ### States
 ### Transitions
+### Cycles
+### Stripes
+### Named Ordered Lists
+### Atoms
+### Strings
+### Arrow types
+### Unicode representations
+### Node declarations
+### All the styling bullshit
+### Named edges
+### URL callouts
+### The 9 or whatever directives
+### How to publish a machine
 #### Legal, main, and forced
 ### Validators
 ### State history
