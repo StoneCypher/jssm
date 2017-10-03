@@ -664,11 +664,14 @@ amount of time.
 #### Weather (probabilistics)
 #### Roguelike monster (interface satisfaction)
 ### Candy crush clone game flow (practical large use)
+### Vegas locked 21 dealer behavior
 ### React SPA website (practical large use)
 ### [BGP](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/BGP_FSM.svg/549px-BGP_FSM.svg.png)
 ### [LibGCrypt FIPS mode FSM](https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png)
 
 ## How to debug
+
+## How to publish
 
 ## Notation Comparison
 ### Their notations, one by one
