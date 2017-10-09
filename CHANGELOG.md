@@ -1,3 +1,6 @@
+* [[`f0144e00d5`](https://github.com/StoneCypher/jssm/commit/f0144e00d5)] - Update README.md (John Haugeland) 
+* [[`d08392bc34`](https://github.com/StoneCypher/jssm/commit/d08392bc34)] - Update README.md (John Haugeland) 
+* [[`ed78d312f1`](https://github.com/StoneCypher/jssm/commit/ed78d312f1)] - package bumps (John Haugeland) 
 * [[`a6a0748357`](https://github.com/StoneCypher/jssm/commit/a6a0748357)] - machine_language (John Haugeland) 
 * [[`b20fc79410`](https://github.com/StoneCypher/jssm/commit/b20fc79410)] - Update README.md (John Haugeland) 
 * [[`cf7fccd062`](https://github.com/StoneCypher/jssm/commit/cf7fccd062)] - readme improvements (John Haugeland) 

@@ -9,73 +9,73 @@ require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requ
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 // this is explicitly about other peoples' data, so it has to be weakly typed
 var weighted_rand_select = function weighted_rand_select(options) {
-    var probability_property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'probability';
+  var probability_property = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'probability';
 
 
-    if (!Array.isArray(options)) {
-        throw new TypeError('options must be a non-empty array of objects');
-    }
+  if (!Array.isArray(options)) {
+    throw new TypeError('options must be a non-empty array of objects');
+  }
 
-    if (!(_typeof(options[0]) === 'object')) {
-        throw new TypeError('options must be a non-empty array of objects');
-    }
+  if (!(_typeof(options[0]) === 'object')) {
+    throw new TypeError('options must be a non-empty array of objects');
+  }
 
-    var frand = function frand(cap) {
-        return Math.random() * cap;
-    },
-        or_one = function or_one(item) {
-        return item === undefined ? 1 : item;
-    },
-        prob_sum = options.reduce(function (acc, val) {
-        return acc + or_one(val[probability_property]);
-    }, 0),
-        rnd = frand(prob_sum);
+  var frand = function frand(cap) {
+    return Math.random() * cap;
+  },
+      or_one = function or_one(item) {
+    return item === undefined ? 1 : item;
+  },
+      prob_sum = options.reduce(function (acc, val) {
+    return acc + or_one(val[probability_property]);
+  }, 0),
+      rnd = frand(prob_sum);
 
-    var cursor = 0,
-        cursor_sum = 0;
+  var cursor = 0,
+      cursor_sum = 0;
 
-    while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) {} // eslint-disable-line no-empty,fp/no-loops
-    return options[cursor - 1];
+  while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) {} // eslint-disable-line no-empty,fp/no-loops
+  return options[cursor - 1];
 };
 /* eslint-enable flowtype/no-weak-types */
 
 var seq = function seq(n) {
-    return new Array(n).fill(true).map(function (_, i) {
-        return i;
-    });
+  return new Array(n).fill(true).map(function (_, i) {
+    return i;
+  });
 };
 
 var histograph = function histograph(a // eslint-disable-line flowtype/no-weak-types
 
 ) {
-    return a.sort().reduce(function (m, v) {
-        return m.set(v, m.has(v) ? m.get(v) + 1 : 1), m;
-    }, new Map());
+  return a.sort().reduce(function (m, v) {
+    return m.set(v, m.has(v) ? m.get(v) + 1 : 1), m;
+  }, new Map());
 }; // eslint-disable-line flowtype/no-weak-types,no-sequences
 
 
 var weighted_sample_select = function weighted_sample_select(n, options, probability_property // eslint-disable-line flowtype/no-weak-types
 
 ) {
-    return seq(n).map(function (_i) {
-        return weighted_rand_select(options, probability_property);
-    });
+  return seq(n).map(function (_i) {
+    return weighted_rand_select(options, probability_property);
+  });
 }; // eslint-disable-line flowtype/no-weak-types
 
 
 var weighted_histo_key = function weighted_histo_key(n, opts, prob_prop, extract // eslint-disable-line flowtype/no-weak-types
 
 ) {
-    return histograph(weighted_sample_select(n, opts, prob_prop).map(function (s) {
-        return s[extract];
-    }));
+  return histograph(weighted_sample_select(n, opts, prob_prop).map(function (s) {
+    return s[extract];
+  }));
 }; // eslint-disable-line flowtype/no-weak-types
 
 
@@ -129,7 +129,7 @@ var reduce_to_639 = require('reduce-to-639-1').reduce;
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '5.10.0'; // replaced from package.js in build
+var version = '5.11.0'; // replaced from package.js in build
 
 
 /* eslint-disable complexity */
