@@ -1,3 +1,4 @@
+* [[`9277224ca2`](https://github.com/StoneCypher/jssm/commit/9277224ca2)] - notes on testing (John Haugeland) 
 * [[`9c9d052ee8`](https://github.com/StoneCypher/jssm/commit/9c9d052ee8)] - grammar for named ordered lists and for nominated states (John Haugeland) 
 * [[`ed78d312f1`](https://github.com/StoneCypher/jssm/commit/ed78d312f1)] - package bumps (John Haugeland) 
 * [[`a6a0748357`](https://github.com/StoneCypher/jssm/commit/a6a0748357)] - machine_language (John Haugeland) 
