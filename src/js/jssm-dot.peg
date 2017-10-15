@@ -717,7 +717,7 @@ StateDeclarationItems
   / SdNodeShape
 
 StateDeclarationDesc
-  = "{" WS? items:StateDeclarationItems+ WS? "}" { return items; }
+  = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
 
 StateDeclaration
   = WS? state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
