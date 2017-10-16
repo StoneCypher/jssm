@@ -1,3 +1,8 @@
+* [[`12f221b9b6`](https://github.com/StoneCypher/jssm/commit/12f221b9b6)] - let's see if a commit changes things (John Haugeland) 
+* [[`4e2593a3c5`](https://github.com/StoneCypher/jssm/commit/4e2593a3c5)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland) 
+* [[`58c0c19f95`](https://github.com/StoneCypher/jssm/commit/58c0c19f95)] - Set up autoupdate block in prep for CDN (John Haugeland) 
+* [[`2a65fbc841`](https://github.com/StoneCypher/jssm/commit/2a65fbc841)] - Update README.md (John Haugeland) 
+* [[`f8b994b2cb`](https://github.com/StoneCypher/jssm/commit/f8b994b2cb)] - Update README.md (John Haugeland) 
 * [[`881bba05e3`](https://github.com/StoneCypher/jssm/commit/881bba05e3)] - Add explicitly unknown license; fixed all of the badges except cdnjs (John Haugeland) 
 * [[`d0f8c67305`](https://github.com/StoneCypher/jssm/commit/d0f8c67305)] - shield should point to master (John Haugeland) 
 * [[`f529dd05d8`](https://github.com/StoneCypher/jssm/commit/f529dd05d8)] - Update README.md (John Haugeland) 

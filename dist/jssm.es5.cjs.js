@@ -129,7 +129,7 @@ var reduce_to_639 = require('reduce-to-639-1').reduce;
 
 var parse = require('./jssm-dot.js').parse; // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
-var version = '5.11.2'; // replaced from package.js in build
+var version = '5.11.3'; // replaced from package.js in build
 
 
 /* eslint-disable complexity */
