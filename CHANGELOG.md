@@ -1,3 +1,4 @@
+* [[`36cd824acb`](https://github.com/StoneCypher/jssm/commit/36cd824acb)] - cleanup (John Haugeland) 
 * [[`7df77bc142`](https://github.com/StoneCypher/jssm/commit/7df77bc142)] - merge from upstream (John Haugeland) 
 * [[`881bba05e3`](https://github.com/StoneCypher/jssm/commit/881bba05e3)] - Add explicitly unknown license; fixed all of the badges except cdnjs (John Haugeland) 
 * [[`d0f8c67305`](https://github.com/StoneCypher/jssm/commit/d0f8c67305)] - shield should point to master (John Haugeland) 

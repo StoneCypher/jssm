@@ -4,6 +4,19 @@
   "engines": {
     "node": ">=6.0.0"
   },
+  "autoupdate": {
+    "source": "git",
+    "target": "git://github.com/StoneCypher/jssm.git",
+    "fileMap": [
+      {
+        "basePath": "/dist",
+        "files": [
+          "jssm.es5.cjs.js",
+          "jssm.es5.cjs.min.js"
+        ]
+      }
+    ]
+  },
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "build/jssm.es5.js",
   "scripts": {
