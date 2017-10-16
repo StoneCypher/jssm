@@ -1,3 +1,4 @@
+* [[`881bba05e3`](https://github.com/StoneCypher/jssm/commit/881bba05e3)] - Add explicitly unknown license; fixed all of the badges except cdnjs (John Haugeland) 
 * [[`d0f8c67305`](https://github.com/StoneCypher/jssm/commit/d0f8c67305)] - shield should point to master (John Haugeland) 
 * [[`f529dd05d8`](https://github.com/StoneCypher/jssm/commit/f529dd05d8)] - Update README.md (John Haugeland) 
 * [[`17b9d18031`](https://github.com/StoneCypher/jssm/commit/17b9d18031)] - Update README.md (John Haugeland) 
