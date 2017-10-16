@@ -22,7 +22,7 @@
     "nyc-html": "nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "vet": "npm run flow && npm run eslint",
-    "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm*.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm*.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm*.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm*.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm*.js | wc -l`\\\\n\\\"nextdo\\\" remaining . : `grep nextdo src/js/jssm*.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm*.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm*.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm*.js | wc -l`\\\\n\\\"stochable\\\" remaining: `grep stochable src/js/jssm*.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm*.js | wc -l`",
+    "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
     "qbuild": "npm run eslint && npm run make && npm run minify && npm run docs && npm run site && npm run dist",
     "build": "npm run make && npm run vet && npm run audit && npm run minify && npm run docs && npm run site && npm run dist",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
@@ -107,6 +107,7 @@
   },
   "dependencies": {
     "eslint-config-stonecypher": "^1.15.7",
-    "reduce-to-639-1": "^1.0.1"
+    "reduce-to-639-1": "^1.0.1",
+    "text_audit": "^0.9.2"
   }
 }
