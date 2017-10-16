@@ -7,7 +7,11 @@ Language test cases for Belorussian, English, German, Hebrew, Russian, Spanish, 
 
 <div id="badge_style_hook">
 
-[![GitHub forks](https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM)]() – [![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=Stars)]() – [![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]() — [![GitHub followers](https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher)]()
+[![GitHub forks](https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM)]()
+[![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]() 
+[![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars)]() 
+
+[![GitHub followers](https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher)]()
 
 [![License](https://img.shields.io/npm/l/jssm.svg)](https://github.com/StoneCypher/jssm/blob/master/LICENSE.md)
 [![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues)
