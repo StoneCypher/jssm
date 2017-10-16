@@ -238,8 +238,8 @@ function compile_rule_handler<mNT>(rule: JssmCompileSeStart<mNT>): JssmCompileRu
   }
 
   if (rule.key === 'state_declaration') {
-    return { agg_as: 'state_declaration', val: rule.value };
-//  return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.val } };
+    if (!rule.name) { throw 'State declarations must have a name'; }
+    return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
 
   const tautologies : Array<string> = [

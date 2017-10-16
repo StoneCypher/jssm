@@ -186,7 +186,8 @@ type JssmCompileSeStart<NT> = {
   from   : NT,
   se     : JssmCompileSe<NT>,
   key    : string,
-  value? : string | mixed | number
+  value? : string | mixed | number,
+  name?  : string
 
 };
 

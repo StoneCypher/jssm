@@ -321,8 +321,10 @@ function compile_rule_handler(rule) {
   }
 
   if (rule.key === 'state_declaration') {
-    return { agg_as: 'state_declaration', val: rule.value };
-    //  return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.val } };
+    if (!rule.name) {
+      throw 'State declarations must have a name';
+    }
+    return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
 
   var tautologies = ['graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version', 'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition', 'machine_reference', 'machine_license', 'fsl_version'];

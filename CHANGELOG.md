@@ -1,3 +1,4 @@
+* [[`8cc09988f8`](https://github.com/StoneCypher/jssm/commit/8cc09988f8)] - underway (John Haugeland) 
 * [[`de4e409ee8`](https://github.com/StoneCypher/jssm/commit/de4e409ee8)] - basics of a test set (John Haugeland) 
 * [[`6fdf7aa4c2`](https://github.com/StoneCypher/jssm/commit/6fdf7aa4c2)] - intermediate - compiling but tests failing (John Haugeland) 
 * [[`9277224ca2`](https://github.com/StoneCypher/jssm/commit/9277224ca2)] - notes on testing (John Haugeland) 
