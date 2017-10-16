@@ -1,3 +1,7 @@
+* [[`d0f8c67305`](https://github.com/StoneCypher/jssm/commit/d0f8c67305)] - shield should point to master (John Haugeland) 
+* [[`f529dd05d8`](https://github.com/StoneCypher/jssm/commit/f529dd05d8)] - Update README.md (John Haugeland) 
+* [[`17b9d18031`](https://github.com/StoneCypher/jssm/commit/17b9d18031)] - Update README.md (John Haugeland) 
+* [[`90dc197268`](https://github.com/StoneCypher/jssm/commit/90dc197268)] - General housecleaning.  Fix the audit line finally (John Haugeland) 
 * [[`f0144e00d5`](https://github.com/StoneCypher/jssm/commit/f0144e00d5)] - Update README.md (John Haugeland) 
 * [[`d08392bc34`](https://github.com/StoneCypher/jssm/commit/d08392bc34)] - Update README.md (John Haugeland) 
 * [[`ed78d312f1`](https://github.com/StoneCypher/jssm/commit/ed78d312f1)] - package bumps (John Haugeland) 
