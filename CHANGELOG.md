@@ -1,3 +1,5 @@
+* [[`80ed40e7ec`](https://github.com/StoneCypher/jssm/commit/80ed40e7ec)] - Stray punctuation in readme.  Bumping to see what happens to scores (John Haugeland) 
+* [[`4bfe33809c`](https://github.com/StoneCypher/jssm/commit/4bfe33809c)] - let's see if a commit with a published bump changes things (John Haugeland) 
 * [[`12f221b9b6`](https://github.com/StoneCypher/jssm/commit/12f221b9b6)] - let's see if a commit changes things (John Haugeland) 
 * [[`4e2593a3c5`](https://github.com/StoneCypher/jssm/commit/4e2593a3c5)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland) 
 * [[`58c0c19f95`](https://github.com/StoneCypher/jssm/commit/58c0c19f95)] - Set up autoupdate block in prep for CDN (John Haugeland) 
