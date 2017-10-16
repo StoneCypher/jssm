@@ -320,7 +320,12 @@ function compile_rule_handler(rule) {
     return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
   }
 
-  var tautologies = ['graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version', 'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition', 'machine_reference', 'machine_license', 'fsl_version', 'state_declaration'];
+  if (rule.key === 'state_declaration') {
+    return { agg_as: 'state_declaration', val: rule.value };
+    //  return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.val } };
+  }
+
+  var tautologies = ['graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version', 'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition', 'machine_reference', 'machine_license', 'fsl_version'];
 
   if (tautologies.includes(rule.key)) {
     return { agg_as: rule.key, val: rule.value };
