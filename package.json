@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.11.4",
+  "version": "5.11.5",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -34,16 +34,17 @@
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "vet": "npm run flow && npm run eslint",
+    "vet": "npm run flow && npm run eslint && npm run audit",
     "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
     "qbuild": "npm run eslint && npm run make && npm run minify && npm run docs && npm run site && npm run dist",
-    "build": "npm run make && npm run vet && npm run audit && npm run minify && npm run docs && npm run site && npm run dist",
+    "build": "npm run make && npm run vet && npm run minify && npm run docs && npm run site && npm run dist",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "npm run build && npm run nyc-html && npm run coverage"
+    "travis": "npm run build && npm run nyc-html && npm run coverage",
+    "buildtest": "npm run build &&npm run test"
   },
   "repository": {
     "type": "git",

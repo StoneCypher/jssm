@@ -1,3 +1,4 @@
+* [[`f56b0b9f4f`](https://github.com/StoneCypher/jssm/commit/f56b0b9f4f)] - bump again for scoring (John Haugeland) 
 * [[`80ed40e7ec`](https://github.com/StoneCypher/jssm/commit/80ed40e7ec)] - Stray punctuation in readme.  Bumping to see what happens to scores (John Haugeland) 
 * [[`4bfe33809c`](https://github.com/StoneCypher/jssm/commit/4bfe33809c)] - let's see if a commit with a published bump changes things (John Haugeland) 
 * [[`12f221b9b6`](https://github.com/StoneCypher/jssm/commit/12f221b9b6)] - let's see if a commit changes things (John Haugeland) 
