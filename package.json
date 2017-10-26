@@ -1,8 +1,21 @@
 {
   "name": "jssm",
-  "version": "5.10.0",
+  "version": "5.11.5",
   "engines": {
     "node": ">=6.0.0"
+  },
+  "autoupdate": {
+    "source": "git",
+    "target": "git://github.com/StoneCypher/jssm.git",
+    "fileMap": [
+      {
+        "basePath": "/dist",
+        "files": [
+          "jssm.es5.cjs.js",
+          "jssm.es5.cjs.min.js"
+        ]
+      }
+    ]
   },
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "build/jssm.es5.js",
@@ -21,16 +34,17 @@
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "vet": "npm run flow && npm run eslint",
-    "audit": "echo \\\"major\\\" remaining. . : `grep major src/js/jssm*.js | wc -l`\\\\n\\\"wasteful\\\" remaining : `grep wasteful src/js/jssm*.js | wc -l`\\\\n\\\"any\\\" remaining. . . : `grep any src/js/jssm*.js | wc -l`\\\\n\\\"mixed\\\" remaining. . : `grep mixed src/js/jssm*.js | wc -l`\\\\n\\\"todo\\\" remaining . . : `grep todo src/js/jssm*.js | wc -l`\\\\n\\\"nextdo\\\" remaining . : `grep nextdo src/js/jssm*.js | wc -l`\\\\n\\\"whargarbl\\\" remaining: `grep whargarbl src/js/jssm*.js | wc -l`\\\\n\\\"comeback\\\" remaining : `grep comeback src/js/jssm*.js | wc -l`\\\\n\\\"fixme\\\" remaining. . : `grep fixme src/js/jssm*.js | wc -l`\\\\n\\\"stochable\\\" remaining: `grep stochable src/js/jssm*.js | wc -l`\\\\n\\\"checkme\\\" remaining. : `grep checkme src/js/jssm*.js | wc -l`",
+    "vet": "npm run flow && npm run eslint && npm run audit",
+    "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
     "qbuild": "npm run eslint && npm run make && npm run minify && npm run docs && npm run site && npm run dist",
-    "build": "npm run make && npm run vet && npm run audit && npm run minify && npm run docs && npm run site && npm run dist",
+    "build": "npm run make && npm run vet && npm run minify && npm run docs && npm run site && npm run dist",
     "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "npm run build && npm run nyc-html && npm run coverage"
+    "travis": "npm run build && npm run nyc-html && npm run coverage",
+    "buildtest": "npm run build &&npm run test"
   },
   "repository": {
     "type": "git",
@@ -107,6 +121,7 @@
   },
   "dependencies": {
     "eslint-config-stonecypher": "^1.15.7",
-    "reduce-to-639-1": "^1.0.1"
+    "reduce-to-639-1": "^1.0.1",
+    "text_audit": "^0.9.2"
   }
 }
