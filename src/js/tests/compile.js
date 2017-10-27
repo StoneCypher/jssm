@@ -60,6 +60,12 @@ describe('error catchery', async _parse_it => {
     } ));
   });
 
+  describe('unnamed state_declaration', async it => {
+    it('throws', t => t.throws( () => {
+      jssm.compile( [{"key":"state_declaration"}] );
+    } ));
+  });
+
 });
 
 // stochable
