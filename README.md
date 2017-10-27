@@ -1,15 +1,15 @@
 # jssm
-A Javascript state machine with a terse DSL and a simple API.  Well tested, and typed with Flowtype.  MIT licensed.
+A Javascript state machine with a terse DSL and a simple API.  100% test coverage, and typed with Flowtype.  MIT licensed.
 
 [Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
 
-Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, Spanish, Ukrainian, and Emoji.  Please help make sure your language is well handled!
+Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, Spanish, Ukrainian, and Emoji.  Please help to make sure that your language is well handled!
 
 <div id="badge_style_hook">
 
 [![GitHub forks](https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM)]()
-[![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]() 
-[![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars)]() 
+[![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]()
+[![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars)]()
 
 [![GitHub followers](https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher)]()
 
