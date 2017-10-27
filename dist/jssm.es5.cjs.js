@@ -113,7 +113,7 @@ module.exports={"abkhazian":"ab","аҧсуа бызшәа, аҧсшәа":"ab","a
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.arrow_right_kind = exports.arrow_left_kind = exports.arrow_direction = exports.sm = exports.compile = exports.parse = exports.make = exports.Machine = exports.version = undefined;
+exports.weighted_histo_key = exports.weighted_sample_select = exports.histograph = exports.weighted_rand_select = exports.seq = exports.arrow_right_kind = exports.arrow_left_kind = exports.arrow_direction = exports.sm = exports.compile = exports.parse = exports.make = exports.Machine = exports.transfer_state_properties = exports.version = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -400,6 +400,25 @@ function make(plan) {
   return compile(parse(plan));
 }
 
+function transfer_state_properties(state_decl) {
+
+  state_decl.declarations.map(function (d) {
+    switch (d.key) {
+
+      case 'node_shape':
+        state_decl.node_shape = d.value;break;
+      case 'node_color':
+        state_decl.node_color = d.value;break;
+
+      default:
+        throw new Error('Unknown state property: \'' + JSON.stringify(d) + '\'');
+
+    }
+  });
+
+  return state_decl;
+}
+
 var Machine = function () {
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -448,6 +467,18 @@ var Machine = function () {
     this._fsl_version = fsl_version;
 
     this._graph_layout = graph_layout;
+
+    if (state_declaration) {
+      state_declaration.map(function (state_decl) {
+
+        if (_this._state_declarations.has(state_decl.state)) {
+          // no repeats
+          throw new Error('Added the same state declaration twice: ' + JSON.stringify(state_decl.state));
+        }
+
+        _this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
+      });
+    }
 
     transitions.map(function (tr) {
 
@@ -548,7 +579,7 @@ var Machine = function () {
         */
       }
     });
-  } // eslint-disable-line flowtype/no-weak-types
+  }
 
   _createClass(Machine, [{
     key: '_new_state',
@@ -641,7 +672,6 @@ var Machine = function () {
   }, {
     key: 'state_declaration',
     value: function state_declaration(which) {
-      // eslint-disable-line flowtype/no-weak-types
       return this._state_declarations.get(which);
     }
   }, {
@@ -1045,6 +1075,7 @@ function sm(template_strings /* , arguments */) {
 }
 
 exports.version = version;
+exports.transfer_state_properties = transfer_state_properties;
 exports.Machine = Machine;
 exports.make = make;
 exports.parse = parse;

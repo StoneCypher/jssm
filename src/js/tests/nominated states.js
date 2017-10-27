@@ -54,7 +54,7 @@ describe('spacing variants', async it => {
 describe('properties', async it => {
 
   it('node_color', t => t.deepEqual(
-    {key: "node_color", value: "#ffa500ff"},
+    {state:'a', node_color:'#ffa500ff', declarations:[{key: "node_color", value: "#ffa500ff"}]},
     sm`a -> b; a:{node_color:orange;};`.raw_state_declarations()[0]
   ));
 

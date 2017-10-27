@@ -15,6 +15,7 @@ import type {
   JssmTransition, JssmTransitionList,
   JssmMachineInternalState,
   JssmParseTree,
+  JssmStateDeclaration, JssmStateDeclarationRule,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout
@@ -350,6 +351,27 @@ function make<mNT, mDT>(plan: string): JssmGenericConfig<mNT, mDT> {
 
 
 
+function transfer_state_properties<mNT>(state_decl: JssmStateDeclaration<mNT>): JssmStateDeclaration<mNT> {
+
+    state_decl.declarations.map( (d: JssmStateDeclarationRule) => {
+      switch (d.key) {
+
+        case 'node_shape' : state_decl.node_shape = d.value; break;
+        case 'node_color' : state_decl.node_color = d.value; break;
+
+        default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
+
+      }
+    });
+
+    return state_decl;
+
+}
+
+
+
+
+
 class Machine<mNT, mDT> {
 
 
@@ -372,7 +394,7 @@ class Machine<mNT, mDT> {
   _machine_version        : ?string;
   _fsl_version            : ?string;
   _raw_state_declaration  : ?Array<Object>;    // eslint-disable-line flowtype/no-weak-types
-  _state_declarations     : Map<mNT, Object>;  // eslint-disable-line flowtype/no-weak-types
+  _state_declarations     : Map<mNT, JssmStateDeclaration<mNT>>;
 
   _graph_layout           : JssmLayout;
 
@@ -417,6 +439,20 @@ class Machine<mNT, mDT> {
     this._fsl_version            = fsl_version;
 
     this._graph_layout           = graph_layout;
+
+
+    if (state_declaration) {
+      state_declaration.map( (state_decl: JssmStateDeclaration<mNT>) => {
+
+        if (this._state_declarations.has(state_decl.state)) { // no repeats
+          throw new Error(`Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
+        }
+
+        this._state_declarations.set( state_decl.state, transfer_state_properties(state_decl) );
+
+      } );
+    }
+
 
     transitions.map( (tr:JssmTransition<mNT, mDT>) => {
 
@@ -601,7 +637,7 @@ class Machine<mNT, mDT> {
     return this._raw_state_declaration;
   }
 
-  state_declaration(which: mNT): ?Object {    // eslint-disable-line flowtype/no-weak-types
+  state_declaration(which: mNT): ?JssmStateDeclaration<mNT> {
     return this._state_declarations.get(which);
   }
 
@@ -938,6 +974,8 @@ function sm<mNT, mDT>(template_strings: Array<string> /* , arguments */): Machin
 export {
 
   version,
+
+  transfer_state_properties,
 
   Machine,
 
