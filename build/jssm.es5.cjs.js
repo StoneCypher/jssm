@@ -322,7 +322,7 @@ function compile_rule_handler(rule) {
 
   if (rule.key === 'state_declaration') {
     if (!rule.name) {
-      throw 'State declarations must have a name';
+      throw new Error('State declarations must have a name');
     }
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
