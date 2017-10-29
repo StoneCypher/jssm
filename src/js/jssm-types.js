@@ -17,10 +17,22 @@ type JssmArrow          = '->' | '<->' | '<=->' | '<~->'
                         | '=>' | '<=>' | '<-=>' | '<~=>'
                         | '~>' | '<~>' | '<-~>' | '<=~>';
 
+type JssmShape          = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle"
+                        | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon"
+                        | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon"
+                        | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect"
+                        | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab"
+                        | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite"
+                        | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly"
+                        | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab"
+                        | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
+
 type JssmArrowDirection = 'left' | 'right' | 'both';
 type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
 type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';
+
+type JssmColor          = string;  // constrain to #RRGGBBAA later // whargarbl
 
 
 
@@ -118,6 +130,20 @@ type JssmTransitionList<NT> = {|
 
 
 
+type JssmStateDeclarationRule = {
+  key   : string,
+  value : any    // eslint-disable-line flowtype/no-weak-types
+  // todo comeback enumerate types against concrete keys
+};
+
+type JssmStateDeclaration<NT> = {
+  declarations : Array<JssmStateDeclarationRule>,
+  node_shape?  : JssmShape,
+  node_color?  : JssmColor,
+  state        : NT
+};
+
+
 
 type JssmGenericConfig<NT, DT> = {|
 
@@ -142,6 +168,8 @@ type JssmGenericConfig<NT, DT> = {|
 
   start_states         : Array<NT>,
   end_states?          : Array<NT>,
+
+  state_declaration?   : Array<Object>,    // eslint-disable-line flowtype/no-weak-types
 
   machine_author?      : Array<string>,
   machine_comment?     : string,
@@ -194,7 +222,8 @@ type JssmCompileSeStart<NT> = {|
   from   : NT,
   se     : JssmCompileSe<NT>,
   key    : string,
-  value? : string | mixed | number
+  value? : string | mixed | number,
+  name?  : string
 
 |};
 
@@ -236,6 +265,9 @@ export type {
 
   JssmPermitted,
     JssmResult,
+
+  JssmStateDeclaration,
+    JssmStateDeclarationRule,
 
   JssmLayout,
 

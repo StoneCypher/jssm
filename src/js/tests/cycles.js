@@ -29,14 +29,16 @@ describe('cycle strategies', async _it => {
   describe('wide cycle', async it => {
     is_v('[a b c] -> +2;', [{from: ['a','b','c'], key: 'transition', se: {kind: '->', to: {key: 'cycle', value: 2}}}], it);
   });
-/*
+
   describe('full parse of 2-step cycle', async it => {
     it('[a b] -> +1;', t => t.deepEqual(
       sm`[a b] -> +1;`.list_edges(),
-      [{"from":"a","to":"b","kind":"legal","forced_only":false,"main_path":false},{"from":"b","to":"a","kind":"legal","forced_only":false,"main_path":false}]
+      [{"from":"a","to":"b","kind":"legal","forced_only":false,"main_path":false},
+       {"from":"b","to":"a","kind":"legal","forced_only":false,"main_path":false}]
     ));
   });
 
+/*
   describe('full parse of 5-step cycle', async it => {
     it('[a b c d e] -> +1;', t => t.deepEqual(
       sm`[a b] -> +1;`.list_edges(),

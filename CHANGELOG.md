@@ -1,3 +1,4 @@
+* [[`12186d9198`](https://github.com/StoneCypher/jssm/commit/12186d9198)] - Move errthang to exact objects.  Continued juggling around cycles and stripes. (John Haugeland) 
 * [[`d2cc765030`](https://github.com/StoneCypher/jssm/commit/d2cc765030)] - extracted transition creation in prep for cycles/stripes (John Haugeland) 
 * [[`c794f7ba5c`](https://github.com/StoneCypher/jssm/commit/c794f7ba5c)] - oh wow travis marks failing for branches? (John Haugeland) 
 * [[`d1abf9799b`](https://github.com/StoneCypher/jssm/commit/d1abf9799b)] - underway (John Haugeland) 

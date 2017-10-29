@@ -1,25 +1,31 @@
 # jssm
-A Javascript state machine with a terse DSL and a simple API.  Well tested, and typed with Flowtype.  MIT license.
+A Javascript state machine with a terse DSL and a simple API.  100% test coverage, and typed with Flowtype.  MIT licensed.
 
-<big>[Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)</big>
+[Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
 
-Language test cases for Belorussian, English, German, Hebrew, Russian, Spanish, Ukrainian, and Emoji.  Please help make sure your language is well handled!.
+Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, Spanish, Ukrainian, and Emoji.  Please help to make sure that your language is well handled!
 
 <div id="badge_style_hook">
 
-[![License](https://img.shields.io/npm/l/jssm.svg)](https://img.shields.io/npm/l/jssm.svg)
-[![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://img.shields.io/github/issues/StoneCypher/jssm.svg)
-[![Closed issues](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)
+[![GitHub forks](https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM)]()
+[![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]()
+[![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars)]()
+
+[![GitHub followers](https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher)]()
+
+[![License](https://img.shields.io/npm/l/jssm.svg)](https://github.com/StoneCypher/jssm/blob/master/LICENSE.md)
+[![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues)
+[![Closed issues](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues?q=is%3Aissue+is%3Aclosed)
 
 [![Dependency status](https://david-dm.org/StoneCypher/jssm/status.svg)](https://david-dm.org/StoneCypher/jssm)
 [![NSP status](https://nodesecurity.io/orgs/johns-oss/projects/f479470f-fc0a-4e7e-a250-d69cb3778601/badge)](https://nodesecurity.io/orgs/johns-oss/projects/f479470f-fc0a-4e7e-a250-d69cb3778601)
-[![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://img.shields.io/travis/StoneCypher/jssm.svg)
-[![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://img.shields.io/coveralls/StoneCypher/jssm.svg)
-[![CodeClimate status](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)
+[![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://travis-ci.org/StoneCypher/jssm)
+[![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://coveralls.io/github/StoneCypher/jssm)
+[![CodeClimate status](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)](https://codeclimate.com/github/StoneCypher/jssm)
 
-[![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://img.shields.io/npm/v/jssm.svg)
+[![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
 [![CDNjs version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
-[![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://img.shields.io/npm/dt/jssm.svg)
+[![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://www.npmjs.com/package/jssm)
 
 </div>
 
@@ -627,6 +633,19 @@ amount of time.
 ### DSL
 ### States
 ### Transitions
+### Cycles
+### Stripes
+### Named Ordered Lists
+### Atoms
+### Strings
+### Arrow types
+### Unicode representations
+### Node declarations
+### All the styling bullshit
+### Named edges
+### URL callouts
+### The 9 or whatever directives
+### How to publish a machine
 #### Legal, main, and forced
 ### Validators
 ### State history
@@ -651,11 +670,14 @@ amount of time.
 #### Weather (probabilistics)
 #### Roguelike monster (interface satisfaction)
 ### Candy crush clone game flow (practical large use)
+### Vegas locked 21 dealer behavior
 ### React SPA website (practical large use)
 ### [BGP](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/BGP_FSM.svg/549px-BGP_FSM.svg.png)
 ### [LibGCrypt FIPS mode FSM](https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png)
 
 ## How to debug
+
+## How to publish
 
 ## Notation Comparison
 ### Their notations, one by one
