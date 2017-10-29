@@ -11,6 +11,21 @@ const jssm = require('../../../build/jssm.es5.js');
 
 describe('arrow_direction', async it => {
 
+  const lefts  = ['<-', '<=', '<~', '←', '⇐', '↚'],
+        rights = ['->', '=>', '~>', '→', '⇒', '↛'],
+        boths  = ['<->', '<=>', '<~>',
+                  '<-=>', '<-~>', '<=->', '<=~>', '<~->', '<~=>',
+                  '←⇒',   '←↛',   '⇐→',   '⇐↛',   '↚→',   '↚⇒',
+                  '←=>',  '←~>',  '⇐->',  '⇐~>',  '↚->',  '↚=>',
+                  '<-⇒',  '<-↛',  '<=→',  '<=↛',  '<~→',  '<~⇒'  ],
+
+        check  = (lab, dir) => it(lab, t => t.is(dir, jssm.arrow_direction(lab)));
+
+  lefts.map(  e => check(e, 'left')  );
+  rights.map( e => check(e, 'right') );
+  boths.map(  e => check(e, 'both')  );
+
+/*
   it('<-',   t => t.is('left',  jssm.arrow_direction('<-')   ) );
   it('<=',   t => t.is('left',  jssm.arrow_direction('<=')   ) );
   it('<~',   t => t.is('left',  jssm.arrow_direction('<~')   ) );
@@ -29,6 +44,7 @@ describe('arrow_direction', async it => {
   it('<~->', t => t.is('both',  jssm.arrow_direction('<~->') ) );
   it('<=~>', t => t.is('both',  jssm.arrow_direction('<=~>') ) );
   it('<~=>', t => t.is('both',  jssm.arrow_direction('<~=>') ) );
+*/
 
 });
 

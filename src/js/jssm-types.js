@@ -74,12 +74,6 @@ type JssmTransitionPermitterMaybeArray<NT, DT> =        JssmTransitionPermitter<
 
 
 
-type JssmCycleStatement = {| key: string, value: number |};
-
-
-
-
-
 type JssmStatePermitter<NT, DT>           = (OldState: NT, NewState: NT, OldData: DT, NewData: DT) => boolean;
 type JssmStatePermitterMaybeArray<NT, DT> = JssmStatePermitter<NT, DT> | Array< JssmStatePermitter<NT, DT> >;
 
@@ -127,6 +121,17 @@ type JssmTransitionList<NT> = {|
   entrances : Array<NT>,
   exits     : Array<NT>
 |};
+
+type JssmTransitionCycle<NT> = {|
+  key   : 'cycle',
+  value : NT
+|};
+
+type JssmTransitionRule<NT> =
+  NT
+| JssmTransitionCycle<NT>;
+
+
 
 
 
@@ -248,7 +253,7 @@ export type {
   JssmTransition,
     JssmTransitions,
     JssmTransitionList,
-    JssmCycleStatement,
+    JssmTransitionRule,
 
   JssmArrow,
     JssmArrowKind,

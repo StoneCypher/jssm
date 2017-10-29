@@ -12,7 +12,7 @@ const reduce_to_639 : Function = require('reduce-to-639-1').reduce;
 import type {
 
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList,
+  JssmTransition, JssmTransitionList, JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
@@ -42,27 +42,27 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
   switch ( String(arrow) ) {
 
-    case '->' :    case '→' :
-    case '=>' :    case '⇒' :
-    case '~>' :    case '↛' :
+    case '->'   :      case '→'  :
+    case '=>'   :      case '⇒'  :
+    case '~>'   :      case '↛'  :
       return 'right';
 
-    case '<-' :    case '←' :
-    case '<=' :    case '⇐' :
-    case '<~' :    case '↚' :
+    case '<-'   :      case '←'  :
+    case '<='   :      case '⇐'  :
+    case '<~'   :      case '↚'  :
       return 'left';
 
-    case '<->':    case '↔' :
-    case '<-=>':   case '←⇒' :
-    case '<-~>':   case '←↛' :
+    case '<->'  :      case '↔'  :
+    case '<-=>' :      case '←⇒' :      case '←=>' :      case '<-⇒' :
+    case '<-~>' :      case '←↛' :      case '←~>' :      case '<-↛' :
 
-    case '<=>':    case '⇔' :
-    case '<=->':   case '⇐→' :
-    case '<=~>':   case '⇐↛' :
+    case '<=>'  :      case '⇔'  :
+    case '<=->' :      case '⇐→' :      case '⇐->' :      case '<=→' :
+    case '<=~>' :      case '⇐↛' :      case '⇐~>' :      case '<=↛' :
 
-    case '<~>':    case '↮' :
-    case '<~->':   case '↚→' :
-    case '<~=>':   case '↚⇒' :
+    case '<~>'  :      case '↮'  :
+    case '<~->' :      case '↚→' :      case '↚->' :      case '<~→' :
+    case '<~=>' :      case '↚⇒' :      case '↚=>' :      case '<~⇒' :
       return 'both';
 
     default:
