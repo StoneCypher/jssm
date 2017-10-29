@@ -29,14 +29,16 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 
 </div>
 
+
+
+<br/><br/>
+
 ## TL;DR
 Specify finite state machines with a brief syntax.  Run them; they're fast.  Derive charts.  Save and load states, and
 histories.  Make machine factories to churn out dozens or thousands of instances.  Impress friends and loved ones.  Cure corns and callouses.
 
-```javascript
-const traffic_light = sm`
-  Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;
-`;
+```fsl
+Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;
 ```
 
 This will produce the following FSM (graphed with [jssm-viz](https://github.com/StoneCypher/jssm-viz)):
@@ -54,6 +56,10 @@ You'll build an executable state machine.
 ## Why
 
 As usual, a valid question.
+
+
+
+<br/>
 
 ### Why state machines
 
@@ -77,6 +83,10 @@ So, to look at the same traffic light as above, you'll notice some things.
 Along with other common sense things, a good state machine implementation can help eliminate large classes of error in
 software.  State machines are often applied when the stakes on having things correct are high.
 
+
+
+<br/>
+
 ### Why this implementation
 
 Brevity.
@@ -91,12 +101,18 @@ to produce state machines in otherwise comparatively tiny and easily read code.
 
 
 
+<br/><br/>
+
 ## Quick Start
 
 > A state machine in `JSSM` is defined in one of two ways: through the DSL, or through a datastructure.
 
 So yeah, let's start by getting some terminology out of the way, and then we can go right back to that impenetrable
 sentence, so that it'll make sense.
+
+
+
+<br/>
 
 ### Quick Terminology
 
@@ -117,6 +133,10 @@ For this quick overview, we'll define six basic concepts:
 1. `Action`s
 
 There's other stuff, of course, but these five are enough to wrap your head around `finite state machine`s.
+
+
+
+<br/>
 
 #### Basic concepts
 
@@ -196,6 +216,10 @@ visualizations in [jssm-viz](https://github.com/StoneCypher/jssm-viz) by way of 
 
 Enough history lesson.  On with the tooling.
 
+
+
+<br/>
+
 ### And now, that Quick Start we were talking about
 
 So let's put together a trivial four-state traffic light: the three colors, plus **Off**.  This will give us an
@@ -204,6 +228,10 @@ opportunity to go over the basic facilities in the language.
 At any time, you can take the code and put it into the
 [graph explorer](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) for an opportunity to mess with the
 code as you see fit.
+
+
+
+<br/>
 
 #### 0: Lights always have an off state
 
@@ -227,7 +255,7 @@ So far, our machine is simple:
 
 
 
-<br/><br/>
+<br/>
 
 #### 1: Traffic lights have a three-color cycle
 
@@ -251,7 +279,7 @@ Machine's still pretty simple:
 
 
 
-<br/><br/>
+<br/>
 
 #### 2: Traffic lights can be shut down
 
@@ -285,6 +313,10 @@ Machine's still not too bad:
 
 ![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20From%20RGY.png)
 
+
+
+<br/>
+
 ### Let's actually use the traffic light
 
 That's actually the bulk of the language.  There are other little add-ons here and there, but, primarily you now know
@@ -299,7 +331,7 @@ Let's load it and use it!  😀
 
 
 
-<br/><br/>
+<br/>
 
 ### An introduction to machine design
 
@@ -316,7 +348,8 @@ Remember, at any time, you can take the code and put it into the
 code as you see fit.
 
 
-<br/><br/>
+
+<br/>
 
 #### 0: Empty machine
 
@@ -330,7 +363,7 @@ EmptyWaiting 'Wait' -> EmptyWaiting;
 
 
 
-<br/><br/>
+<br/>
 
 #### 1: Should be able to eject cards
 
@@ -348,7 +381,7 @@ EjectCardAndReset -> EmptyWaiting;
 
 
 
-<br/><br/>
+<br/>
 
 #### 2: Should be able to insert cards
 
@@ -370,7 +403,7 @@ That will change as we go back to adding more nodes.  `terminal node`s are usual
 
 
 
-<br/><br/>
+<br/>
 
 #### 3: Should be able to cancel and recover the card
 
@@ -391,7 +424,7 @@ EjectCardAndReset -> EmptyWaiting;
 
 
 
-<br/><br/>
+<br/>
 
 #### 4: Can give the wrong PIN
 
@@ -417,7 +450,7 @@ EjectCardAndReset -> EmptyWaiting;
 
 
 
-<br/><br/>
+<br/>
 
 #### 5: Can give the correct PIN
 
@@ -444,7 +477,7 @@ EjectCardAndReset -> EmptyWaiting;
 
 
 
-<br/><br/>
+<br/>
 
 #### 6: Can check balance from main menu
 
@@ -472,7 +505,7 @@ EjectCardAndReset -> EmptyWaiting;
 
 
 
-<br/><br/>
+<br/>
 
 #### 7: Can deposit money from main menu
 
@@ -548,7 +581,7 @@ EjectCardAndReset -> EmptyWaiting;
 
 
 
-<br/><br/>
+<br/>
 
 #### 8: Can withdraw money from main menu
 
@@ -629,6 +662,9 @@ As you can see, building up even very complex state machines is actually relativ
 amount of time.
 
 
+
+<br/><br/>
+
 ## Features
 ### DSL
 ### States
@@ -651,7 +687,15 @@ amount of time.
 ### State history
 ### Automatic visualization
 
+
+
+<br/><br/>
+
 ## How to think in state machines
+
+
+
+<br/><br/>
 
 ## Example Machines
 ### Door lock
@@ -675,13 +719,29 @@ amount of time.
 ### [BGP](https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/BGP_FSM.svg/549px-BGP_FSM.svg.png)
 ### [LibGCrypt FIPS mode FSM](https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png)
 
+
+
+<br/><br/>
+
 ## How to debug
 
+
+
+<br/><br/>
+
 ## How to publish
+
+
+
+<br/><br/>
 
 ## Notation Comparison
 ### Their notations, one by one
 ### Apples to Apples - Traffic Light
+
+
+
+<br/><br/>
 
 ## Other state machines
 There are a lot of state machine impls for JS, many quite a bit more mature than this one.  Here are some options:
@@ -717,9 +777,17 @@ And some similar stuff:
 1. [GraphViz](http://www.graphviz.org/)
     1. [Viz.js](https://github.com/mdaines/viz.js/), which we use
 
+
+
+<br/><br/><br/>
+
 # Thanks
 
 JSSM and FSL have had a lot of help.
+
+
+
+<br/><br/>
 
 ## Internationalization
 
@@ -737,6 +805,10 @@ If you'd like to help, it's straightforward.
 
 1. Easy mode: open a PR with [this file](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/english.json) translated into your language
 1. Extra mile: create a new repo containing [this file](https://github.com/StoneCypher/fsl_traffic_light/blob/master/traffic_light.fsl) translated
+
+
+
+<br/><br/>
 
 ## Code and Language
 

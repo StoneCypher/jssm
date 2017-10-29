@@ -49,19 +49,23 @@ describe('cycle strategies', async _it => {
 
 
   describe('bidi basic cycle', async it => {
-    is_v('+1 <- [a b c] -> +1;', [{from: ['a','b','c'], key: 'transition', se: {kind: '->', to: {key: 'cycle', value: 1}}}], it);
+    is_v('+1 <- [a b c] -> +1;', [{from: {key: 'cycle', value:  1}, key: 'transition', se: {kind: '<-', se: {kind: '->', to: {key: 'cycle', value:  1}}, to: ['a','b','c']}}], it);
   });
 
   describe('bidi negative cycle', async it => {
-    is_v('-1 <- [a b c] -> -1;', [{from: ['a','b','c'], key: 'transition', se: {kind: '->', to: {key: 'cycle', value: -1}}}], it);
+    is_v('-1 <- [a b c] -> -1;', [{from: {key: 'cycle', value: -1}, key: 'transition', se: {kind: '<-', se: {kind: '->', to: {key: 'cycle', value: -1}}, to: ['a','b','c']}}], it);
+  });
+
+  describe('bidi basic/negative cycle', async it => {
+    is_v('+1 <- [a b c] -> -1;', [{from: {key: 'cycle', value:  1}, key: 'transition', se: {kind: '<-', se: {kind: '->', to: {key: 'cycle', value: -1}}, to: ['a','b','c']}}], it);
   });
 
   describe('bidi nullary cycle', async it => {
-    is_v('+0 <- [a b c] -> +0;', [{from: ['a','b','c'], key: 'transition', se: {kind: '->', to: {key: 'cycle', value: 0}}}], it);
+    is_v('+0 <- [a b c] -> +0;', [{from: {key: 'cycle', value:  0}, key: 'transition', se: {kind: '<-', se: {kind: '->', to: {key: 'cycle', value:  0}}, to: ['a','b','c']}}], it);
   });
 
   describe('bidi wide cycle', async it => {
-    is_v('+2 <- [a b c] -> +2;', [{from: ['a','b','c'], key: 'transition', se: {kind: '->', to: {key: 'cycle', value: 2}}}], it);
+    is_v('+2 <- [a b c] -> -2;', [{from: {key: 'cycle', value:  2}, key: 'transition', se: {kind: '<-', se: {kind: '->', to: {key: 'cycle', value: -2}}, to: ['a','b','c']}}], it);
   });
 
 /*
