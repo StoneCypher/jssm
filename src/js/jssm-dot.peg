@@ -546,7 +546,7 @@ Subexp
 
 Exp
   = label:ArrowTarget se:Subexp WS? ';' WS? {
-    const base = { key: 'transition', from: label };
+    const base = { key: 'transition', from: { key: 'transition', value: label } };
     if (se && (se !== [])) { base.se = se; }
     return base;
   }

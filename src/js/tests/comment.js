@@ -11,11 +11,11 @@ const jssm = require('../../../build/jssm.es5.js');
 
 describe('block strategies', async _it => {
 
-  const AtoB    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}],
+  const AtoB    = [{"key": "transition", "from": {key: "transition", value: "a"}, "se": {"kind": "->","to": "b"}}],
         is_AB   = (str, it) => it(test, t => t.deepEqual(AtoB, jssm.parse(str))),
 
-        ABCD    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}},
-                   {"key": "transition", "from": "c", "se": {"kind": "->","to": "d"}}],
+        ABCD    = [{"key": "transition", "from": {key: "transition", value: "a"}, "se": {"kind": "->","to": "b"}},
+                   {"key": "transition", "from": {key: "transition", value: "c"}, "se": {"kind": "->","to": "d"}}],
 
         is_ABCD = (str, it) => it(test, t => t.deepEqual(ABCD, jssm.parse(str)));
 

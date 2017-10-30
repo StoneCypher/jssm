@@ -164,8 +164,8 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
 function makeTransition<mNT, mDT>(
   this_se   : JssmCompileSe<mNT>,
-  from      : mNT,
-  to        : mNT,
+  from      : JssmTransitionRule<mNT>,
+  to        : JssmTransitionRule<mNT>,
   isRight   : boolean,
   wasList?  : Array<mNT>,
   wasIndex? : number
@@ -173,8 +173,8 @@ function makeTransition<mNT, mDT>(
 
   const kind : JssmArrowKind            = isRight? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
         edge : JssmTransition<mNT, mDT> = {
-          from,
-          to,
+          from        : from.value,
+          to          : to.value,
           kind,
           forced_only : kind === 'forced',
           main_path   : kind === 'main'
@@ -209,19 +209,19 @@ function makeTransition<mNT, mDT>(
 
 function compile_rule_transition_step<mNT, mDT>(
              acc     : Array< JssmTransition<mNT, mDT> >,
-             from    : mNT,
-             to      : mNT,
+             from    : JssmTransitionRule<mNT> | Array< JssmTransitionRule<mNT> >,
+             to      : JssmTransitionRule<mNT> | Array< JssmTransitionRule<mNT> >,
              this_se : JssmCompileSe<mNT>,
              next_se : JssmCompileSe<mNT>
          ) : Array< JssmTransition<mNT, mDT> > { // todo flow describe the parser representation of a transition step extension
 
   const edges : Array< JssmTransition<mNT, mDT> > = [];
 
-  const uFrom : Array< mNT > = (Array.isArray(from)? from : [from]),
-        uTo   : Array< mNT > = (Array.isArray(to)?   to   : [to]  );
+  const uFrom : Array< JssmTransitionRule<mNT> > = (Array.isArray(from)? from : [from]),
+        uTo   : Array< JssmTransitionRule<mNT> > = (Array.isArray(to)?   to   : [to]  );
 
-  uFrom.map( (f: mNT) => {
-    uTo.map( (t: mNT) => {
+  uFrom.map( (f: JssmTransitionRule<mNT>) => {
+    uTo.map( (t: JssmTransitionRule<mNT>) => {
 
       const right: JssmTransition<mNT, mDT> = makeTransition(this_se, f, t, true);
       if (right.kind !== 'none') { edges.push(right); }
@@ -245,7 +245,9 @@ function compile_rule_transition_step<mNT, mDT>(
 
 
 function compile_rule_handle_transition<mNT>(rule: JssmCompileSeStart<mNT>): mixed { // todo flow describe the parser representation of a transition
+
   return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
+
 }
 
 

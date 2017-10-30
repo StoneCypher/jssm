@@ -122,14 +122,19 @@ type JssmTransitionList<NT> = {|
   exits     : Array<NT>
 |};
 
-type JssmTransitionCycle<NT> = {|
+type JssmTransitionNormalRule<NT> = {|
+  key   : 'transition',
+  value : NT
+|};
+
+type JssmTransitionCycleRule<NT> = {|
   key   : 'cycle',
   value : NT
 |};
 
 type JssmTransitionRule<NT> =
-  NT
-| JssmTransitionCycle<NT>;
+  JssmTransitionNormalRule<NT>
+| JssmTransitionCycleRule<NT>;
 
 
 
@@ -208,7 +213,7 @@ type JssmCompileRule = {|
 
 type JssmCompileSe<NT> = {|
 
-  to            : NT,
+  to            : JssmTransitionRule<NT>,
   se            : JssmCompileSe<NT>,
   kind          : JssmArrow,
   l_action?     : NT,
@@ -224,7 +229,7 @@ type JssmCompileSe<NT> = {|
 
 type JssmCompileSeStart<NT> = {|
 
-  from   : NT,
+  from   : JssmTransitionRule<NT>,
   se     : JssmCompileSe<NT>,
   key    : string,
   value? : string | mixed | number,
