@@ -180,8 +180,8 @@ function makeTransition<mNT, mDT>(
           main_path   : kind === 'main'
         };
 
-  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw "Must have an index if transition was in a list"; }
-  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw "Must be in a list if transition has an index";   }
+//  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new TypeError("Must have an index if transition was in a list"); }
+//  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new TypeError("Must be in a list if transition has an index");   }
 /*
   if (typeof edge.to === 'object') {
 

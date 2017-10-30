@@ -1,3 +1,4 @@
+* [[`0f4e6520a0`](https://github.com/StoneCypher/jssm/commit/0f4e6520a0)] - tests passing again (John Haugeland) 
 * [[`1adc251876`](https://github.com/StoneCypher/jssm/commit/1adc251876)] - More towards cycles.  Also started on mixed-unicode arrows (John Haugeland) 
 * [[`04c514f1d1`](https://github.com/StoneCypher/jssm/commit/04c514f1d1)] - Post-merge and mostly done (John Haugeland) 
 * [[`80416ccdd5`](https://github.com/StoneCypher/jssm/commit/80416ccdd5)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland) 
