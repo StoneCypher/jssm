@@ -5,9 +5,9 @@
 
 
 
-type JssmSuccess        = { success: true };
-type JssmFailure        = { success: false, error: mixed };
-type JssmIncomplete     = { success: 'incomplete' };
+type JssmSuccess        = {| success: true |};
+type JssmFailure        = {| success: false, error: mixed |};
+type JssmIncomplete     = {| success: 'incomplete' |};
 type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete;
 
 type JssmPermitted      = 'required' | 'disallowed';
@@ -36,7 +36,7 @@ type JssmColor          = string;  // constrain to #RRGGBBAA later // whargarbl
 
 
 
-type JssmMachineInternalState<NT, DT> = {
+type JssmMachineInternalState<NT, DT> = {|
 
     internal_state_impl_version : 1,
 
@@ -48,17 +48,19 @@ type JssmMachineInternalState<NT, DT> = {
     reverse_actions             : Map< NT, Map<NT, number> >,
     edges                       : Array< JssmTransition<NT, DT> >
 
-};
+|};
 
 
 
 
-type JssmGenericState<NT> = {
+type JssmGenericState<NT> = {|
+
   from     : Array< NT > ,
   name     :        NT   ,
   to       : Array< NT > ,
   complete : boolean
-};
+
+|};
 
 
 
@@ -75,7 +77,7 @@ type JssmTransitionPermitterMaybeArray<NT, DT> =        JssmTransitionPermitter<
 type JssmStatePermitter<NT, DT>           = (OldState: NT, NewState: NT, OldData: DT, NewData: DT) => boolean;
 type JssmStatePermitterMaybeArray<NT, DT> = JssmStatePermitter<NT, DT> | Array< JssmStatePermitter<NT, DT> >;
 
-type JssmGenericMachine<NT, DT> = {
+type JssmGenericMachine<NT, DT> = {|
 
   name?            : string,
   state            : NT,
@@ -93,30 +95,43 @@ type JssmGenericMachine<NT, DT> = {
 
   keep_history?    : boolean | number
 
-};
+|};
 
 
 
 
 
-type JssmTransition<NT, DT> = {
-    from         : NT,
-    to           : NT,
-    name?        : string,
-    action?      : NT,
-    check?       : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
-    probability? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
-    kind         : JssmArrowKind,
-    forced_only  : boolean,
-    main_path    : boolean
-};
+type JssmTransition<NT, DT> = {|
+
+  from         : NT,
+  to           : NT,
+  name?        : string,
+  action?      : NT,
+  check?       : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
+  probability? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
+  kind         : JssmArrowKind,
+  forced_only  : boolean,
+  main_path    : boolean
+
+|};
 
 type JssmTransitions<NT, DT> = Array< JssmTransition<NT, DT> >;
 
-type JssmTransitionList<NT> = {
+type JssmTransitionList<NT> = {|
   entrances : Array<NT>,
   exits     : Array<NT>
-};
+|};
+
+type JssmTransitionCycle<NT> = {|
+  key   : 'cycle',
+  value : NT
+|};
+
+type JssmTransitionRule<NT> =
+  NT
+| JssmTransitionCycle<NT>;
+
+
 
 
 
@@ -135,7 +150,7 @@ type JssmStateDeclaration<NT> = {
 
 
 
-type JssmGenericConfig<NT, DT> = {
+type JssmGenericConfig<NT, DT> = {|
 
   graph_layout?        : JssmLayout,
 
@@ -174,24 +189,24 @@ type JssmGenericConfig<NT, DT> = {
 
   auto_api?            : boolean | string  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
-};
+|};
 
 
 
 
 
-type JssmCompileRule = {
+type JssmCompileRule = {|
 
   agg_as : string,
   val    : mixed
 
-};
+|};
 
 
 
 
 
-type JssmCompileSe<NT> = {
+type JssmCompileSe<NT> = {|
 
   to            : NT,
   se            : JssmCompileSe<NT>,
@@ -201,13 +216,13 @@ type JssmCompileSe<NT> = {
   l_probability : number,
   r_probability : number
 
-};
+|};
 
 
 
 
 
-type JssmCompileSeStart<NT> = {
+type JssmCompileSeStart<NT> = {|
 
   from   : NT,
   se     : JssmCompileSe<NT>,
@@ -215,7 +230,7 @@ type JssmCompileSeStart<NT> = {
   value? : string | mixed | number,
   name?  : string
 
-};
+|};
 
 
 
@@ -227,11 +242,18 @@ type JssmParseTree<NT> = Array< JssmCompileSeStart<NT> >;
 
 
 
+type JssmParseFunctionType<NT> = (string) => JssmParseTree<NT>;
+
+
+
+
+
 export type {
 
   JssmTransition,
     JssmTransitions,
     JssmTransitionList,
+    JssmTransitionRule,
 
   JssmArrow,
     JssmArrowKind,
@@ -253,6 +275,8 @@ export type {
     JssmStateDeclarationRule,
 
   JssmLayout,
+
+  JssmParseFunctionType,
 
   JssmMachineInternalState
 

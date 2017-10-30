@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.12.0",
+  "version": "5.14.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -21,6 +21,7 @@
   "main": "build/jssm.es5.js",
   "scripts": {
     "test": "nyc ava src/js/tests/*.js",
+    "test_verbose": "ava src/js/tests/*.js -v",
     "removedir": "rimraf build -f && rimraf dist -f && rimraf docs -f",
     "createdir": "mkdir build && mkdir dist && mkdir docs && cd docs && mkdir docs && cd ..",
     "clean": "npm run removedir && rm -f src/js/jssm-dot.js && npm run createdir",

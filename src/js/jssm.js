@@ -12,7 +12,7 @@ const reduce_to_639 : Function = require('reduce-to-639-1').reduce;
 import type {
 
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList,
+  JssmTransition, JssmTransitionList, JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
@@ -28,7 +28,7 @@ import type {
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
-const parse: <NT, DT>(string) => JssmParseTree<NT> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
+const parse: Function = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
 const version: null = null; // replaced from package.js in build
 
@@ -42,27 +42,27 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
   switch ( String(arrow) ) {
 
-    case '->' :    case '→' :
-    case '=>' :    case '⇒' :
-    case '~>' :    case '↛' :
+    case '->'   :      case '→'  :
+    case '=>'   :      case '⇒'  :
+    case '~>'   :      case '↛'  :
       return 'right';
 
-    case '<-' :    case '←' :
-    case '<=' :    case '⇐' :
-    case '<~' :    case '↚' :
+    case '<-'   :      case '←'  :
+    case '<='   :      case '⇐'  :
+    case '<~'   :      case '↚'  :
       return 'left';
 
-    case '<->':    case '↔' :
-    case '<-=>':   case '←⇒' :
-    case '<-~>':   case '←↛' :
+    case '<->'  :      case '↔'  :
+    case '<-=>' :      case '←⇒' :      case '←=>' :      case '<-⇒' :
+    case '<-~>' :      case '←↛' :      case '←~>' :      case '<-↛' :
 
-    case '<=>':    case '⇔' :
-    case '<=->':   case '⇐→' :
-    case '<=~>':   case '⇐↛' :
+    case '<=>'  :      case '⇔'  :
+    case '<=->' :      case '⇐→' :      case '⇐->' :      case '<=→' :
+    case '<=~>' :      case '⇐↛' :      case '⇐~>' :      case '<=↛' :
 
-    case '<~>':    case '↮' :
-    case '<~->':   case '↚→' :
-    case '<~=>':   case '↚⇒' :
+    case '<~>'  :      case '↮'  :
+    case '<~->' :      case '↚→' :      case '↚->' :      case '<~→' :
+    case '<~=>' :      case '↚⇒' :      case '↚=>' :      case '<~⇒' :
       return 'both';
 
     default:
@@ -162,6 +162,51 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
 
 
+function makeTransition<mNT, mDT>(
+  this_se   : JssmCompileSe<mNT>,
+  from      : mNT,
+  to        : mNT,
+  isRight   : boolean,
+  wasList?  : Array<mNT>,
+  wasIndex? : number
+) : JssmTransition<mNT, mDT> {
+
+  const kind : JssmArrowKind            = isRight? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
+        edge : JssmTransition<mNT, mDT> = {
+          from,
+          to,
+          kind,
+          forced_only : kind === 'forced',
+          main_path   : kind === 'main'
+        };
+
+//  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new TypeError("Must have an index if transition was in a list"); }
+//  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new TypeError("Must be in a list if transition has an index");   }
+/*
+  if (typeof edge.to === 'object') {
+
+    if (edge.to.key === 'cycle') {
+      if (wasList === undefined) { throw "Must have a waslist if a to is type cycle"; }
+      const nextIndex = wrapBy(wasIndex, edge.to.value, wasList.length);
+      edge.to = wasList[nextIndex];
+    }
+
+  }
+*/
+  const action      : string = isRight? 'r_action'      : 'l_action',
+        probability : string = isRight? 'r_probability' : 'l_probability';
+
+  if (this_se[action])      { edge.action      = this_se[action];      }
+  if (this_se[probability]) { edge.probability = this_se[probability]; }
+
+  return edge;
+
+}
+
+
+
+
+
 function compile_rule_transition_step<mNT, mDT>(
              acc     : Array< JssmTransition<mNT, mDT> >,
              from    : mNT,
@@ -178,34 +223,11 @@ function compile_rule_transition_step<mNT, mDT>(
   uFrom.map( (f: mNT) => {
     uTo.map( (t: mNT) => {
 
-      const rk: JssmArrowKind = arrow_right_kind(this_se.kind),
-            lk: JssmArrowKind = arrow_left_kind(this_se.kind);
-
-
-      const right: JssmTransition<mNT, mDT> = {
-        from        : f,
-        to          : t,
-        kind        : rk,
-        forced_only : rk === 'forced',
-        main_path   : rk === 'main'
-      };
-
-      if (this_se.r_action)      { right.action      = this_se.r_action;      }
-      if (this_se.r_probability) { right.probability = this_se.r_probability; }
+      const right: JssmTransition<mNT, mDT> = makeTransition(this_se, f, t, true);
       if (right.kind !== 'none') { edges.push(right); }
 
-
-      const left: JssmTransition<mNT, mDT> = {
-        from        : t,
-        to          : f,
-        kind        : lk,
-        forced_only : lk === 'forced',
-        main_path   : lk === 'main'
-      };
-
-      if (this_se.l_action)      { left.action      = this_se.l_action;      }
-      if (this_se.l_probability) { left.probability = this_se.l_probability; }
-      if (left.kind !== 'none')  { edges.push(left); }
+      const left: JssmTransition<mNT, mDT> = makeTransition(this_se, t, f, false);
+      if (left.kind !== 'none') { edges.push(left); }
 
     });
   });
