@@ -24,8 +24,9 @@ Language test cases for Belorussian, English, German, Hebrew, Russian, Spanish, 
 </div>
 
 ## TL;DR
-Specify finite state machines with a brief syntax.  Run them; they're fast.  Derive charts.  Save and load states, and
-histories.  Make machine factories to churn out dozens or thousands of instances.  Impress friends and loved ones.  Cure corns and callouses.
+Specify finite state machines with a brief syntax.  Run them; they're fast.  Make mistakes; they're strict.  Derive
+charts.  Save and load states, and histories.  Make machine factories to churn out dozens or thousands of instances.
+Impress friends and loved ones.  Cure corns and callouses.
 
 ```javascript
 const traffic_light = sm`
