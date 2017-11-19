@@ -117,7 +117,7 @@ There's other stuff, of course, but these five are enough to wrap your head arou
 
 This is a trivial traffic light `FSM`, with three states, three transitions, and one action:
 
-```jssm
+```fsl
 Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;
 ```
 
@@ -206,13 +206,13 @@ Our light will start in the **Off** `state`, with the ability to switch to the *
 
 Since that's a normal, not-notable thing, we'll just make it a regular `-> legal transition`.
 
-```jssm
+```fsl
 Off -> Red;
 ```
 
 We will give that `transition` an `action`, and call it **TurnOn**.
 
-```jssm
+```fsl
 Off 'TurnOn' -> Red;
 ```
 
@@ -229,14 +229,14 @@ So far, our machine is simple:
 The main path of a traffic light is cycling from **Green** to **Yellow**, then to **Red**, then back again.  Because
 this is the main path, we'll mark these steps `=> main transition`s.
 
-```jssm
+```fsl
 Off 'TurnOn' -> Red => Green => Yellow => Red;
 ```
 
 We will give those all the same action name, **Proceed**, indicating "next color" without needing to know what we're
 currently on.
 
-```jssm
+```fsl
 Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
 ```
 
@@ -255,7 +255,7 @@ be a `~> forced transition`.
 
 We could write
 
-```jssm
+```fsl
 Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
 Red ~> Off;
 Yellow ~> Off;
@@ -264,14 +264,14 @@ Green ~> Off;
 
 But that takes a lot of space even with this short list, so, instead we'll use the array notation
 
-```jssm
+```fsl
 Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
 [Red Yellow Green] ~> Off;
 ```
 
 And we'd like those all to have the action **TurnOff**, so
 
-```jssm
+```fsl
 Off 'TurnOn' -> Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
 [Red Yellow Green] 'TurnOff' ~> Off;
 ```
@@ -317,7 +317,7 @@ code as you see fit.
 
 We'll start with an [empty machine](https://github.com/StoneCypher/jssm/blob/master/src/machines/atm%20quick%20start%20tutorial/1_EmptyWaiting.jssm).
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting;
 ```
 
@@ -334,7 +334,7 @@ dangle around un-used at the top, but later it'll become useful.
 
 This is expressed as the path `EjectCardAndReset -> EmptyWaiting;`
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting;
 EjectCardAndReset -> EmptyWaiting;
 ```
@@ -351,7 +351,7 @@ We'll add the ability to physically insert a card, next.  You know, the, uh, thi
 
 To get this, add the path leg `EmptyWaiting 'InsertCard' -> HasCardNoAuth;`
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 EjectCardAndReset -> EmptyWaiting;
 ```
@@ -374,7 +374,7 @@ exit to the main menu, and return our card credential.
 
 To that end, we add the path `HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;`
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 
 HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
@@ -397,7 +397,7 @@ When they get the PIN wrong, they're prompted to try again (or to cancel.)
 
 We'll add the path `HasCardNoAuth 'WrongPIN' -> HasCardNoAuth;`
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 
 HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
@@ -423,7 +423,7 @@ We'll add two paths.  The first gets the password right: `HasCardNoAuth 'RightPI
 The second, from our new `state` **MainMenu**, gives people the ability to leave: `MainMenu 'ExitReturnCard' -> EjectCardAndReset;`
 
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 
 HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
@@ -450,7 +450,7 @@ balance of, then you're shown a screen with the information you requested; then 
 
 That's `MainMenu 'CheckBalance' -> PickAccount -> DisplayBalance -> MainMenu;`.
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 
 HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
@@ -500,7 +500,7 @@ Writing this out in code is not only generally longer than the text form, but al
 
 Or, as a block,
 
-```jssm
+```fsl
 MainMenu 'AcceptDeposit' -> TentativeAcceptMoney;
 
 TentativeAcceptMoney 'AcceptFail' -> RejectPhysicalMoney -> MainMenu;
@@ -516,7 +516,7 @@ BankAuditOffer 'HumanRejectAudit' -> RejectPhysicalMoney;
 Which leaves us with the total code
 
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 
 HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
@@ -571,7 +571,7 @@ Rule 2 canceller: `PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;
 
 Or as a whole, we're adding
 
-```jssm
+```fsl
 MainMenu -> PickWithdrawlAccount -> PickAmount -> AcctHasMoney? 'TooHighForAcct' -> PickWithdrawlAccount;
 AcctHasMoney? -> MachineHasMoney? 'MachineLowOnCash' -> PickAmount;
 MachineHasMoney? -> ConfirmWithdrawWithHuman 'MakeChanges' -> PickWithdrawlAmount;
@@ -585,7 +585,7 @@ PickWithdrawlAmount 'SwitchAccounts' -> PickWithdrawlAccount;
 
 Which leaves us with
 
-```jssm
+```fsl
 EmptyWaiting 'Wait' -> EmptyWaiting 'InsertCard' -> HasCardNoAuth;
 
 HasCardNoAuth 'CancelAuthReturnCard' -> EjectCardAndReset;
