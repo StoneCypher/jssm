@@ -673,6 +673,13 @@ amount of time.
 ## How to debug
 
 ## How to publish
+It's really quite simple.
+
+1. Make a github repository.
+1. Put your code in a file inside, with the extension `.fsl`
+1. Make sure your code contains a `machine_name`
+
+Once done, your work should show up [here](https://github.com/search?utf8=%E2%9C%93&q=extension%3Afsl+machine_name&type=Code).
 
 ## Notation Comparison
 ### Their notations, one by one
