@@ -3,7 +3,8 @@
 
 import {describe} from 'ava-spec';
 
-const jssm = require('../../../build/jssm.es5.js');
+const jssm = require('../../../build/jssm.es5.js'),
+      sm   = jssm.sm;
 
 
 
@@ -57,6 +58,18 @@ describe('error catchery', async _parse_it => {
   describe('unknown rule', async it => {
     it('throws', t => t.throws( () => {
       jssm.compile( [{"key":"FAKE_RULE","from":"a","se":{"kind":"->","to":"b"}}] );
+    } ));
+  });
+
+  describe('unnamed state_declaration', async it => {
+    it('throws', t => t.throws( () => {
+      jssm.compile( [{"key":"state_declaration"}] );
+    } ));
+  });
+
+  describe('unknown state property', async it => {
+    it('throws', t => t.throws( () => {
+      sm`a->b; c: { foo: red; };`;
     } ));
   });
 

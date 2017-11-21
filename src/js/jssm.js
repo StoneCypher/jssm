@@ -12,9 +12,10 @@ const reduce_to_639 : Function = require('reduce-to-639-1').reduce;
 import type {
 
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList,
+  JssmTransition, JssmTransitionList, JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
+  JssmStateDeclaration, JssmStateDeclarationRule,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout
@@ -27,7 +28,7 @@ import type {
 
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm-util.js';
 
-const parse: <NT, DT>(string) => JssmParseTree<NT> = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
+const parse: Function = require('./jssm-dot.js').parse;  // eslint-disable-line flowtype/no-weak-types // todo whargarbl remove any
 
 const version: null = null; // replaced from package.js in build
 
@@ -41,27 +42,27 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
   switch ( String(arrow) ) {
 
-    case '->' :    case '→' :
-    case '=>' :    case '⇒' :
-    case '~>' :    case '↛' :
+    case '->'   :      case '→'  :
+    case '=>'   :      case '⇒'  :
+    case '~>'   :      case '↛'  :
       return 'right';
 
-    case '<-' :    case '←' :
-    case '<=' :    case '⇐' :
-    case '<~' :    case '↚' :
+    case '<-'   :      case '←'  :
+    case '<='   :      case '⇐'  :
+    case '<~'   :      case '↚'  :
       return 'left';
 
-    case '<->':    case '↔' :
-    case '<-=>':   case '←⇒' :
-    case '<-~>':   case '←↛' :
+    case '<->'  :      case '↔'  :
+    case '<-=>' :      case '←⇒' :      case '←=>' :      case '<-⇒' :
+    case '<-~>' :      case '←↛' :      case '←~>' :      case '<-↛' :
 
-    case '<=>':    case '⇔' :
-    case '<=->':   case '⇐→' :
-    case '<=~>':   case '⇐↛' :
+    case '<=>'  :      case '⇔'  :
+    case '<=->' :      case '⇐→' :      case '⇐->' :      case '<=→' :
+    case '<=~>' :      case '⇐↛' :      case '⇐~>' :      case '<=↛' :
 
-    case '<~>':    case '↮' :
-    case '<~->':   case '↚→' :
-    case '<~=>':   case '↚⇒' :
+    case '<~>'  :      case '↮'  :
+    case '<~->' :      case '↚→' :      case '↚->' :      case '<~→' :
+    case '<~=>' :      case '↚⇒' :      case '↚=>' :      case '<~⇒' :
       return 'both';
 
     default:
@@ -161,6 +162,51 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
 
 
+function makeTransition<mNT, mDT>(
+  this_se   : JssmCompileSe<mNT>,
+  from      : mNT,
+  to        : mNT,
+  isRight   : boolean,
+  wasList?  : Array<mNT>,
+  wasIndex? : number
+) : JssmTransition<mNT, mDT> {
+
+  const kind : JssmArrowKind            = isRight? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
+        edge : JssmTransition<mNT, mDT> = {
+          from,
+          to,
+          kind,
+          forced_only : kind === 'forced',
+          main_path   : kind === 'main'
+        };
+
+//  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new TypeError("Must have an index if transition was in a list"); }
+//  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new TypeError("Must be in a list if transition has an index");   }
+/*
+  if (typeof edge.to === 'object') {
+
+    if (edge.to.key === 'cycle') {
+      if (wasList === undefined) { throw "Must have a waslist if a to is type cycle"; }
+      const nextIndex = wrapBy(wasIndex, edge.to.value, wasList.length);
+      edge.to = wasList[nextIndex];
+    }
+
+  }
+*/
+  const action      : string = isRight? 'r_action'      : 'l_action',
+        probability : string = isRight? 'r_probability' : 'l_probability';
+
+  if (this_se[action])      { edge.action      = this_se[action];      }
+  if (this_se[probability]) { edge.probability = this_se[probability]; }
+
+  return edge;
+
+}
+
+
+
+
+
 function compile_rule_transition_step<mNT, mDT>(
              acc     : Array< JssmTransition<mNT, mDT> >,
              from    : mNT,
@@ -177,34 +223,11 @@ function compile_rule_transition_step<mNT, mDT>(
   uFrom.map( (f: mNT) => {
     uTo.map( (t: mNT) => {
 
-      const rk: JssmArrowKind = arrow_right_kind(this_se.kind),
-            lk: JssmArrowKind = arrow_left_kind(this_se.kind);
-
-
-      const right: JssmTransition<mNT, mDT> = {
-        from        : f,
-        to          : t,
-        kind        : rk,
-        forced_only : rk === 'forced',
-        main_path   : rk === 'main'
-      };
-
-      if (this_se.r_action)      { right.action      = this_se.r_action;      }
-      if (this_se.r_probability) { right.probability = this_se.r_probability; }
+      const right: JssmTransition<mNT, mDT> = makeTransition(this_se, f, t, true);
       if (right.kind !== 'none') { edges.push(right); }
 
-
-      const left: JssmTransition<mNT, mDT> = {
-        from        : t,
-        to          : f,
-        kind        : lk,
-        forced_only : lk === 'forced',
-        main_path   : lk === 'main'
-      };
-
-      if (this_se.l_action)      { left.action      = this_se.l_action;      }
-      if (this_se.l_probability) { left.probability = this_se.l_probability; }
-      if (left.kind !== 'none')  { edges.push(left); }
+      const left: JssmTransition<mNT, mDT> = makeTransition(this_se, t, f, false);
+      if (left.kind !== 'none') { edges.push(left); }
 
     });
   });
@@ -237,6 +260,11 @@ function compile_rule_handler<mNT>(rule: JssmCompileSeStart<mNT>): JssmCompileRu
     return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
   }
 
+  if (rule.key === 'state_declaration') {
+    if (!rule.name) { throw new Error('State declarations must have a name'); }
+    return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
+  }
+
   const tautologies : Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
@@ -262,6 +290,7 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
     transition          : Array< JssmTransition<mNT, mDT> >,
     start_states        : Array< mNT >,
     end_states          : Array< mNT >,
+    state_declaration   : Array< mNT >,
     fsl_version         : Array< string >,
     machine_author      : Array< string >,
     machine_comment     : Array< string >,
@@ -277,6 +306,7 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
     transition          : [],
     start_states        : [],
     end_states          : [],
+    state_declaration   : [],
     fsl_version         : [],
     machine_author      : [],
     machine_comment     : [],
@@ -321,7 +351,7 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
     }
   });
 
-  ['machine_author', 'machine_contributor', 'machine_reference'].map( (multiKey : string) => {
+  ['machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map( (multiKey : string) => {
     if (results[multiKey].length) {
       result_cfg[multiKey] = results[multiKey];
     }
@@ -337,6 +367,27 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
 
 function make<mNT, mDT>(plan: string): JssmGenericConfig<mNT, mDT> {
   return compile(parse(plan));
+}
+
+
+
+
+
+function transfer_state_properties<mNT>(state_decl: JssmStateDeclaration<mNT>): JssmStateDeclaration<mNT> {
+
+    state_decl.declarations.map( (d: JssmStateDeclarationRule) => {
+      switch (d.key) {
+
+        case 'node_shape' : state_decl.node_shape = d.value; break;
+        case 'node_color' : state_decl.node_color = d.value; break;
+
+        default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
+
+      }
+    });
+
+    return state_decl;
+
 }
 
 
@@ -364,6 +415,8 @@ class Machine<mNT, mDT> {
   _machine_name           : ?string;
   _machine_version        : ?string;
   _fsl_version            : ?string;
+  _raw_state_declaration  : ?Array<Object>;    // eslint-disable-line flowtype/no-weak-types
+  _state_declarations     : Map<mNT, JssmStateDeclaration<mNT>>;
 
   _graph_layout           : JssmLayout;
 
@@ -381,12 +434,14 @@ class Machine<mNT, mDT> {
     machine_license,
     machine_name,
     machine_version,
+    state_declaration,
     fsl_version,
     graph_layout = 'dot'
   } : JssmGenericConfig<mNT, mDT>) {
 
     this._state                  = start_states[0];
     this._states                 = new Map();
+    this._state_declarations     = new Map();
     this._edges                  = [];
     this._edge_map               = new Map();
     this._named_transitions      = new Map();
@@ -402,9 +457,24 @@ class Machine<mNT, mDT> {
     this._machine_license        = machine_license;
     this._machine_name           = machine_name;
     this._machine_version        = machine_version;
+    this._raw_state_declaration  = state_declaration || [];
     this._fsl_version            = fsl_version;
 
     this._graph_layout           = graph_layout;
+
+
+    if (state_declaration) {
+      state_declaration.map( (state_decl: JssmStateDeclaration<mNT>) => {
+
+        if (this._state_declarations.has(state_decl.state)) { // no repeats
+          throw new Error(`Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
+        }
+
+        this._state_declarations.set( state_decl.state, transfer_state_properties(state_decl) );
+
+      } );
+    }
+
 
     transitions.map( (tr:JssmTransition<mNT, mDT>) => {
 
@@ -583,6 +653,18 @@ class Machine<mNT, mDT> {
 
   machine_version(): ?string {
     return this._machine_version;
+  }
+
+  raw_state_declarations(): ?Array<Object> {    // eslint-disable-line flowtype/no-weak-types
+    return this._raw_state_declaration;
+  }
+
+  state_declaration(which: mNT): ?JssmStateDeclaration<mNT> {
+    return this._state_declarations.get(which);
+  }
+
+  state_declarations(): Map<mNT, Object> {    // eslint-disable-line flowtype/no-weak-types
+    return this._state_declarations;
   }
 
   fsl_version(): ?string {
@@ -914,6 +996,8 @@ function sm<mNT, mDT>(template_strings: Array<string> /* , arguments */): Machin
 export {
 
   version,
+
+  transfer_state_properties,
 
   Machine,
 

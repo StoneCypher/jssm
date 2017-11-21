@@ -5,10 +5,66 @@ Document
 
 
 GvizShape
-  = "square"
-  / "rectangle"
-  / "circle"
-
+ = "box"
+ / "polygon"
+ / "ellipse"
+ / "oval"
+ / "circle"
+ / "point"
+ / "egg"
+ / "triangle"
+ / "plaintext"
+ / "plain"
+ / "diamond"
+ / "trapezium"
+ / "parallelogram"
+ / "house"
+ / "pentagon"
+ / "hexagon"
+ / "septagon"
+ / "octagon"
+ / "doublecircle"
+ / "doubleoctagon"
+ / "tripleoctagon"
+ / "invtriangle"
+ / "invtrapezium"
+ / "invhouse"
+ / "Mdiamond"
+ / "Msquare"
+ / "Mcircle"
+ / "rect"
+ / "rectangle"
+ / "square"
+ / "star"
+ / "none"
+ / "underline"
+ / "cylinder"
+ / "note"
+ / "tab"
+ / "folder"
+ / "box3d"
+ / "component"
+ / "promoter"
+ / "cds"
+ / "terminator"
+ / "utr"
+ / "primersite"
+ / "restrictionsite"
+ / "fivepoverhang"
+ / "threepoverhang"
+ / "noverhang"
+ / "assembly"
+ / "signature"
+ / "insulator"
+ / "ribosite"
+ / "rnastab"
+ / "proteasesite"
+ / "proteinstab"
+ / "rpromoter"
+ / "rarrow"
+ / "larrow"
+ / "lpromoter"
+ / "record"
 
 
 ForwardLightArrow "forward light arrow ->"
@@ -175,29 +231,10 @@ String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
 
 AtomFirstLetter
-  = [0-9a-zA-Z\.\+\_\!\$\^\*\!\?\,\x80-\uFFFF]
+  = [0-9a-zA-Z\.\_\!\$\^\*\!\?\,\x80-\uFFFF]
 
 AtomLetter
   = [0-9a-zA-Z\.\+\=\_\^\(\)\*\&\$\#\@\!\?\,\x80-\uFFFF]
-
-/*
-
-ControlCharacters
-  = [\x00-\x1F\x7F]
-
-NotAtom
-  = [ -=~<>:{}%\\\[\]]
-
-LeadingSigils
-  = [@~#&(]
-
-AtomFirstLetter
-  = !(ControlCharacters / Sigils / NotAtom) ch:. { return ch; }
-
-AtomLetter
-  = !(ControlCharacters / NotAtom) ch:. { return ch; }
-
-*/
 
 Atom "atom"
   = firstletter:AtomFirstLetter text:AtomLetter* {
@@ -404,7 +441,7 @@ SvgColorLabel
   / 'yellowgreen'          { return '#9acd32ff'; }              / 'YellowGreen'          { return '#9acd32ff'; }
 
 SvgColor
-  = SvgColorLabel WS?
+  = lab:SvgColorLabel WS? { return lab; }
 
 Rgb3
   = '#' r:HexDigit g:HexDigit b:HexDigit WS? {
@@ -461,6 +498,21 @@ LabelOrLabelList
   = LabelList
   / Label
 
+Stripe
+  = '+|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value:      parseInt(`${nzd}${dd}`, 10) }; }
+  / '-|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
+
+Cycle
+  = '+' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value:      parseInt(`${nzd}${dd}`, 10) }; }
+  / '-' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
+  / '+0'                                  { return { key: 'cycle', value: 0                                }; }
+
+ArrowTarget
+  = Stripe
+  / Cycle
+  / LabelList
+  / Label
+
 
 
 // todo these shouldn't be ordered, this is dumb // whargarbl comeback major
@@ -473,7 +525,7 @@ Subexp
     WS? r_desc   : ArrowDesc?
     WS? l_prob   : ArrowProbability?
     WS? l_action : ActionLabel?
-    WS? label    : LabelOrLabelList
+    WS? label    : ArrowTarget
     WS? tail     : Subexp? {
 
       const base = {kind: arrow, to: label};
@@ -493,7 +545,7 @@ Subexp
 
 
 Exp
-  = label:LabelOrLabelList se:Subexp WS? ';' WS? {
+  = label:ArrowTarget se:Subexp WS? ';' WS? {
     const base = { key: 'transition', from: label };
     if (se && (se !== [])) { base.se = se; }
     return base;
@@ -620,6 +672,7 @@ LicenseOrLabelOrList
   / 'GPL v3'
   / 'LGPL v2.1'
   / 'LGPL v3.0'
+  / 'Unknown'
   / Label
   / LabelList
 
@@ -668,8 +721,38 @@ MachineAttribute "machine attribute"
 
 
 
+
+SdNodeColor "node color"
+  = WS? "node_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'node_color', value:value}; }
+
+SdNodeShape "node shape"
+  = WS? "node_shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'node_shape', value:value}; }
+
+StateDeclarationItems
+  = SdNodeColor
+  / SdNodeShape
+
+StateDeclarationDesc
+  = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
+
+StateDeclaration
+  = WS? state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
+
+
+
+
+NamedList
+  = WS? "&" WS? list_name:Label WS? ":" WS? contents:LabelOrLabelList WS? ";" WS? {
+    return { key:'named_list', name:list_name, value:contents };
+  }
+
+
+
+
 Term
   = Exp
+  / StateDeclaration
+  / NamedList
   / MachineAttribute
   / Config
 
