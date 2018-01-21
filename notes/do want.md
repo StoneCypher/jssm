@@ -106,7 +106,7 @@
     - [ ] multiple concurrent states (keanu mind blown.gif)
 - [ ] for convenience,
     - [ ] a fluent api for creation
-    - [ ] a DOT-like string api for creation,
+    - [x] a DOT-like string api for creation,
 - [ ] in background,
     - [ ] transition probability long-term measurement
     - [ ] state probability long-term measurement
