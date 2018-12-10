@@ -1,5 +1,6 @@
 # jssm
-JSSM is a Javascript state machine, with a terse DSL and a simple API.  100% test coverage; typed with Flowtype.  MIT licensed.
+JSSM is a Javascript state machine implementing [Finite State Language](https://fsl.tools/), with a terse DSL and a simple API.  
+100% test coverage; typed with Flowtype.  MIT licensed.
 
 [Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
 
