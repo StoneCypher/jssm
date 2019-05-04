@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.14.1",
+  "version": "5.14.2",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -30,14 +30,12 @@
     "rename": "node -e \"require('fs').renameSync('./build/jssm.js', './build/jssm.es5.js');\"",
     "pack": "browserify -r ./build/jssm.es5.js:jssm -o build/jssm.es5.cjs.js",
     "make": "npm run clean && npm run peg && npm run babel && npm run rename && npm run setver && npm run pack",
-    "flow": "flow",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "vet": "npm run flow && npm run eslint && npm run audit",
+    "vet": "npm run eslint && npm run audit",
     "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
-    "qbuild": "npm run eslint && npm run make && npm run minify && npm run docs && npm run site && npm run dist",
     "build": "npm run make && npm run vet && npm run minify && npm run docs && npm run site && npm run dist",
     "zminify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "minify": "echo Minify skipped",
