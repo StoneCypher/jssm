@@ -173,57 +173,17 @@ type JssmStateDeclaration<StateType> = {
 
 
 
-export {
-
-  JssmTransition,
-    JssmTransitions,
-    JssmTransitionList,
-    JssmTransitionRule,
-
-  JssmPermitted,
-    JssmPermittedOpt,
-    JssmResult,
-
-  JssmColor,
-
-  JssmArrow,
-    JssmArrowKind,
-    JssmArrowDirection
-
-};
-
-
-
-
-
-/*
-
-type JssmStateDeclarationRule = {
-  key   : string,
-  value : any    // eslint-disable-line flowtype/no-weak-types
-  // todo comeback enumerate types against concrete keys
-};
-
-type JssmStateDeclaration<NT> = {
-  declarations : Array<JssmStateDeclarationRule>,
-  node_shape?  : JssmShape,
-  node_color?  : JssmColor,
-  state        : NT
-};
-
-
-
-type JssmGenericConfig<NT, DT> = {|
+type JssmGenericConfig<StateType, DataType> = {
 
   graph_layout?        : JssmLayout,
 
-  complete?            : Array<NT>,
-  transitions          : JssmTransitions<NT, DT>,
+  complete?            : Array<StateType>,
+  transitions          : JssmTransitions<StateType, DataType>,
 
   name?                : string,
-  data?                : mixed,
-  nodes?               : Array<NT>,  // uncommon
-  check?               : JssmStatePermitterMaybeArray<NT, DT>,
+  data?                : DataType,
+  nodes?               : Array<StateType>,  // uncommon
+  check?               : JssmStatePermitterMaybeArray<StateType, DataType>,
 
 //locked?              : bool = true,
   min_exits?           : number,
@@ -234,84 +194,90 @@ type JssmGenericConfig<NT, DT> = {|
 
   simplify_bidi?       : boolean,
 
-  start_states         : Array<NT>,
-  end_states?          : Array<NT>,
+  start_states         : Array<StateType>,
+  end_states?          : Array<StateType>,
 
-  state_declaration?   : Array<Object>,    // eslint-disable-line flowtype/no-weak-types
+  state_declaration?   : Array<Object>,    // eslint-disable-line flowtype/no-weak-types // TODO FIXME COMEBACK
 
-  machine_author?      : Array<string>,
+  machine_author?      : string | Array<string>,
   machine_comment?     : string,
-  machine_contributor? : Array<string>,
+  machine_contributor? : string | Array<string>,
   machine_definition?  : string,
-  machine_language?    : string,
-  machine_license?     : string,
+  machine_language?    : string,   // TODO FIXME COMEBACK
+  machine_license?     : string,   // TODO FIXME COMEBACK
   machine_name?        : string,
-  machine_version?     : string,
+  machine_version?     : string,   // TODO FIXME COMEBACK
 
-  fsl_version?         : string,
+  fsl_version?         : string,   // TODO FIXME COMEBACK
 
   auto_api?            : boolean | string  // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
-|};
+};
 
 
 
 
 
-type JssmCompileRule = {|
+type JssmCompileRule = {
 
   agg_as : string,
-  val    : mixed
+  val    : any      // TODO COMEBACK FIXME
 
-|};
-
-
+};
 
 
 
-type JssmCompileSe<NT> = {|
 
-  to            : NT,
-  se            : JssmCompileSe<NT>,
+
+type JssmCompileSe<StateType> = {
+
+  to            : StateType,
+  se            : JssmCompileSe<StateType>,
   kind          : JssmArrow,
-  l_action?     : NT,
-  r_action?     : NT,
+  l_action?     : StateType,
+  r_action?     : StateType,
   l_probability : number,
   r_probability : number
 
-|};
+};
 
 
 
 
 
-type JssmCompileSeStart<NT> = {|
+type JssmCompileSeStart<StateType> = {
 
-  from   : NT,
-  se     : JssmCompileSe<NT>,
+  from   : StateType,
+  se     : JssmCompileSe<StateType>,
   key    : string,
-  value? : string | mixed | number,
+  value? : string | number,
   name?  : string
 
-|};
+};
 
 
 
 
 
-type JssmParseTree<NT> = Array< JssmCompileSeStart<NT> >;
+type JssmParseTree<StateType> =
+
+  Array< JssmCompileSeStart<StateType> >;
 
 
 
 
 
-type JssmParseFunctionType<NT> = (string) => JssmParseTree<NT>;
+type JssmParseFunctionType<StateType> =
+
+  (string) => JssmParseTree<StateType>;
 
 
 
 
 
-export type {
+export {
+
+  JssmColor,
 
   JssmTransition,
     JssmTransitions,
@@ -332,6 +298,7 @@ export type {
     JssmCompileRule,
 
   JssmPermitted,
+    JssmPermittedOpt,
     JssmResult,
 
   JssmStateDeclaration,
@@ -344,4 +311,3 @@ export type {
   JssmMachineInternalState
 
 };
-*/
