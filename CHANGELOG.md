@@ -1,3 +1,5 @@
+* [[`20f66d8767`](https://github.com/StoneCypher/jssm/commit/20f66d8767)] - Let's reinstrument Travis (John Haugeland)
+* [[`7b92287e89`](https://github.com/StoneCypher/jssm/commit/7b92287e89)] - Remove flow typechecking step (John Haugeland)
 * [[`4d4538e894`](https://github.com/StoneCypher/jssm/commit/4d4538e894)] - 5.14.1 let's start cleaning up (John Haugeland)
 * [[`3dac8f22fe`](https://github.com/StoneCypher/jssm/commit/3dac8f22fe)] - Update issue templates (John Haugeland)
 * [[`06f3d985b8`](https://github.com/StoneCypher/jssm/commit/06f3d985b8)] - Update issue templates (John Haugeland)
