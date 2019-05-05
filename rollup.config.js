@@ -4,6 +4,8 @@ import commonjs    from 'rollup-plugin-commonjs';
 import typescript  from 'rollup-plugin-typescript2';
 import replace     from 'rollup-plugin-replace';
 
+const pkg = require('./package.json');
+
 
 
 
@@ -33,7 +35,8 @@ const es6config = {
     typescript(),
 
     replace({
-      'process.env.NODE_ENV': JSON.stringify( 'production' )
+      'var version = null'   : 'var version = \'' + pkg.version + '\'',
+      'process.env.NODE_ENV' : JSON.stringify( 'production' )
     })
 
   ]
@@ -49,7 +52,7 @@ const cjsconfig = {
   input     : 'src/js/jssm.ts',
 
   output    : {
-    file      : 'build/jssm.cjs.js',
+    file      : 'build/jssm.es5.cjs.js',
     format    : 'cjs',
     name      : 'jssm',
     sourcemap : true,
@@ -69,6 +72,7 @@ const cjsconfig = {
     typescript(),
 
     replace({
+      'var version = null'   : 'var version = \'' + pkg.version + '\'',
       'process.env.NODE_ENV': JSON.stringify( 'production' )
     })
 
@@ -105,6 +109,7 @@ const iifeconfig = {
     typescript(),
 
     replace({
+      'var version = null'   : 'var version = \'' + pkg.version + '\'',
       'process.env.NODE_ENV': JSON.stringify( 'production' )
     })
 

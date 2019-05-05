@@ -3,13 +3,9 @@
 
 import {describe} from 'ava-spec';
 
-const glob = require('glob');
+const glob           = require('glob');
 
-
-
-
-
-const jssm           = require('../../../build/jssm.es5.js'),
+const jssm           = require('../../../build/jssm.es5.cjs.js'),
       sm             = jssm.sm,
 
       language_files = glob.sync('./src/js/tests/language_data/*.json', {})  // for some reason glob is project-relative

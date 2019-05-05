@@ -1,9 +1,16 @@
 
 import {describe} from 'ava-spec';
 
-const jssm = require('../../../build/jssm.es5.js'),
+const jssm = require('../../../build/jssm.es5.cjs.js'),
       sm   = jssm.sm,
       r639 = require('reduce-to-639-1').reduce;
+
+
+
+
+
+describe(`r639 e`, async it => it('should be en', t => t.is('en', r639('EnglISh'))));
+describe(`r639 a`, async it => it('should be am', t => t.is('am', r639('አማርኛ'))));
 
 
 
@@ -30,7 +37,7 @@ describe('machine_language', async it => {
     it(`${name} doesn't throw`, t =>
        t.notThrows(() => { const _foo = sm`machine_language: ${lang}; a->b;`; }) );
 
-    it(`${name} correct`, t =>
+    it(`${name} machine_language is correct`, t =>
        t.is(r639(lang), sm`machine_language: ${lang}; a->b;`.machine_language() ) );
 
   };
