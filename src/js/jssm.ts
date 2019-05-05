@@ -993,7 +993,7 @@ function sm<mDT>(template_strings: Array<string>, ... remainder /* , arguments *
 
       /* eslint-disable fp/no-arguments */
       /* eslint-disable prefer-rest-params */
-      (acc, val, idx): string => `${acc}${remainder[idx]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
+      (acc, val, idx): string => `${acc}${remainder[idx-1]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
       /* eslint-enable  prefer-rest-params */
       /* eslint-enable  fp/no-arguments */
 

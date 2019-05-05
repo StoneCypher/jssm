@@ -20,7 +20,9 @@
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
   "scripts": {
-    "test": "npm run make && nyc ava src/js/tests/*.js -v",
+    "test": "npm run make && npm run justtest",
+    "justtest": "nyc ava src/js/tests/*.js -v",
+    "justqtest": "nyc ava src/js/tests/*.js",
     "removedir": "rm -rf build && rm -rf dist && rm -rf docs",
     "createdir": "mkdir build && mkdir dist && mkdir docs",
     "clean": "npm run removedir && rm -f src/js/jssm-dot.js && npm run createdir",
