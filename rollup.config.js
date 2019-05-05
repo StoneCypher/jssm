@@ -9,10 +9,10 @@ import replace     from 'rollup-plugin-replace';
 
 const es6config = {
 
-  input     : 'src/js/jssm_types.ts',
+  input     : 'src/js/jssm.ts',
 
   output    : {
-    file      : 'build/jssm_types.es6.js',
+    file      : 'build/jssm.es6.js',
     format    : 'es',
     name      : 'jssm_types',
     sourcemap : true,
@@ -43,10 +43,10 @@ const es6config = {
 
 const cjsconfig = {
 
-  input     : 'src/js/jssm_types.ts',
+  input     : 'src/js/jssm.ts',
 
   output    : {
-    file      : 'build/jssm_types.cjs.js',
+    file      : 'build/jssm.cjs.js',
     format    : 'cjs',
     name      : 'jssm_types',
     sourcemap : true,
@@ -77,10 +77,10 @@ const cjsconfig = {
 
 const iifeconfig = {
 
-  input     : 'src/js/jssm_types.ts',
+  input     : 'src/js/jssm.ts',
 
   output    : {
-    file      : 'build/jssm_types.iife.js',
+    file      : 'build/jssm.iife.js',
     format    : 'iife',
     name      : 'jssm_types',
     sourcemap : true,
