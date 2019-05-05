@@ -23,8 +23,7 @@ const es6config = {
     typescript(),
 
     nodeResolve({
-      module         : true,
-      jsnext         : true,
+      mainFields     : ['module', 'main'],
       browser        : true,
       extensions     : [ '.js', '.json', '.ts', '.tsx' ],
       preferBuiltins : false
@@ -58,8 +57,7 @@ const cjsconfig = {
     typescript(),
 
     nodeResolve({
-      module         : true,
-      jsnext         : true,
+      mainFields     : ['module', 'main'],
       browser        : true,
       extensions     : [ '.js', '.json', '.ts', '.tsx' ],
       preferBuiltins : false
@@ -93,8 +91,7 @@ const iifeconfig = {
     typescript(),
 
     nodeResolve({
-      module         : true,
-      jsnext         : true,
+      mainFields     : ['module', 'main'],
       browser        : true,
       extensions     : [ '.js', '.json', '.ts', '.tsx' ],
       preferBuiltins : false

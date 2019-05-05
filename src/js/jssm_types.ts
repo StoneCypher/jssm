@@ -60,6 +60,7 @@ type JssmTransitionPermitterMaybeArray<StateType, DataType> =
 
 
 
+
 type JssmTransition<StateType, DataType> = {
 
   from         : StateType,
@@ -73,6 +74,23 @@ type JssmTransition<StateType, DataType> = {
   main_path    : boolean
 
 };
+
+type JssmTransitions<StateType, DataType> =
+  Array< JssmTransition<StateType, DataType> >;
+
+type JssmTransitionList<StateType> = {
+  entrances : Array<StateType>,
+  exits     : Array<StateType>
+};
+
+type JssmTransitionCycle<StateType> = {
+  key   : 'cycle',
+  value : StateType
+};
+
+type JssmTransitionRule<StateType> =
+  StateType
+| JssmTransitionCycle<StateType>;
 
 
 
@@ -109,7 +127,58 @@ type JssmMachineInternalState<StateType, DataType> = {
 
 
 
+type JssmStatePermitter<StateType, DataType> =
+  (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
+
+type JssmStatePermitterMaybeArray<StateType, DataType> =
+  JssmStatePermitter<StateType, DataType> | Array< JssmStatePermitter<StateType, DataType> >;
+
+type JssmGenericMachine<StateType, DataType> = {
+
+  name?            : string,
+  state            : StateType,
+  data?            : DataType,
+  nodes?           : Array<StateType>,
+  transitions      : JssmTransitions<StateType, DataType>,
+  check?           : JssmStatePermitterMaybeArray<StateType, DataType>,
+
+  min_transitions? : number,
+  max_transitions? : number,
+
+  allow_empty?     : boolean,
+  allow_islands?   : boolean,
+  allow_force?     : boolean,
+
+  keep_history?    : boolean | number
+
+};
+
+
+
+
+
+type JssmStateDeclarationRule = {
+  key   : string,
+  value : any  // TODO FIXME COMEBACK enumerate types against concrete keys
+};
+
+type JssmStateDeclaration<StateType> = {
+  declarations : Array<JssmStateDeclarationRule>,
+  node_shape?  : JssmShape,
+  node_color?  : JssmColor,
+  state        : StateType
+};
+
+
+
+
+
 export {
+
+  JssmTransition,
+    JssmTransitions,
+    JssmTransitionList,
+    JssmTransitionRule,
 
   JssmPermitted,
     JssmPermittedOpt,
@@ -123,72 +192,11 @@ export {
 
 };
 
+
+
+
+
 /*
-
-
-
-
-
-type JssmStatePermitter<NT, DT>           = (OldState: NT, NewState: NT, OldData: DT, NewData: DT) => boolean;
-type JssmStatePermitterMaybeArray<NT, DT> = JssmStatePermitter<NT, DT> | Array< JssmStatePermitter<NT, DT> >;
-
-type JssmGenericMachine<NT, DT> = {|
-
-  name?            : string,
-  state            : NT,
-  data?            : DT,
-  nodes?           : Array<NT>,
-  transitions      : JssmTransitions<NT, DT>,
-  check?           : JssmStatePermitterMaybeArray<NT, DT>,
-
-  min_transitions? : number,
-  max_transitions? : number,
-
-  allow_empty?     : boolean,
-  allow_islands?   : boolean,
-  allow_force?     : boolean,
-
-  keep_history?    : boolean | number
-
-|};
-
-
-
-
-
-type JssmTransition<NT, DT> = {|
-
-  from         : NT,
-  to           : NT,
-  name?        : string,
-  action?      : NT,
-  check?       : JssmTransitionPermitterMaybeArray<NT, DT>,  // validate this edge's transition; usually about data
-  probability? : number,                                     // for stoch modelling, would like to constrain to [0..1], dunno how
-  kind         : JssmArrowKind,
-  forced_only  : boolean,
-  main_path    : boolean
-
-|};
-
-type JssmTransitions<NT, DT> = Array< JssmTransition<NT, DT> >;
-
-type JssmTransitionList<NT> = {|
-  entrances : Array<NT>,
-  exits     : Array<NT>
-|};
-
-type JssmTransitionCycle<NT> = {|
-  key   : 'cycle',
-  value : NT
-|};
-
-type JssmTransitionRule<NT> =
-  NT
-| JssmTransitionCycle<NT>;
-
-
-
-
 
 type JssmStateDeclarationRule = {
   key   : string,
