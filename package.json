@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.14.0",
+  "version": "5.14.2",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -18,10 +18,9 @@
     ]
   },
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
-  "main": "build/jssm.es5.js",
+  "main": "dist/jssm.es5.cjs.js",
   "scripts": {
-    "test": "nyc ava src/js/tests/*.js",
-    "test_verbose": "ava src/js/tests/*.js -v",
+    "test": "npm run make && nyc ava src/js/tests/*.js -v",
     "removedir": "rimraf build -f && rimraf dist -f && rimraf docs -f",
     "createdir": "mkdir build && mkdir dist && mkdir docs && cd docs && mkdir docs && cd ..",
     "clean": "npm run removedir && rm -f src/js/jssm-dot.js && npm run createdir",
@@ -30,22 +29,21 @@
     "rename": "node -e \"require('fs').renameSync('./build/jssm.js', './build/jssm.es5.js');\"",
     "pack": "browserify -r ./build/jssm.es5.js:jssm -o build/jssm.es5.cjs.js",
     "make": "npm run clean && npm run peg && npm run babel && npm run rename && npm run setver && npm run pack",
-    "flow": "flow",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "vet": "npm run flow && npm run eslint && npm run audit",
+    "vet": "npm run eslint && npm run audit",
     "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
-    "qbuild": "npm run eslint && npm run make && npm run minify && npm run docs && npm run site && npm run dist",
-    "build": "npm run make && npm run vet && npm run minify && npm run docs && npm run site && npm run dist",
-    "minify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
+    "build": "npm run vet && npm run test && npm run minify && npm run docs && npm run site && npm run dist",
+    "zminify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
+    "minify": "echo Minify skipped",
     "dist": "cp build/jssm.es5.cjs.* dist/",
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "npm run build && npm run nyc-html && npm run coverage",
-    "buildtest": "npm run build &&npm run test"
+    "travis": "echo Running Travis Script && npm run build && npm run nyc-html && npm run coverage",
+    "buildtest": "npm run build && npm run test"
   },
   "repository": {
     "type": "git",
@@ -97,7 +95,7 @@
     "babel-preset-flow": "^6.23.0",
     "browserify": "^14.3.0",
     "changelog-maker": "^2.2.6",
-    "coveralls": "^2.13.1",
+    "coveralls": "^3.0.2",
     "del-cli": "^1.1.0",
     "documentation": "^5.3.3",
     "eslint": "^4.3.0",
@@ -115,6 +113,7 @@
     "gulp-string-replace": "^0.4.0",
     "nyc": "^11.1.0",
     "pegjs": "^0.10.0",
+    "reduce-to-639-1": "^1.0.2",
     "rimraf": "^2.6.1",
     "semver": "^5.4.1",
     "uglify-js": "^3.0.26",
@@ -122,7 +121,6 @@
   },
   "dependencies": {
     "eslint-config-stonecypher": "^1.15.7",
-    "reduce-to-639-1": "^1.0.1",
     "text_audit": "^0.9.2"
   }
 }
