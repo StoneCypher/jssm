@@ -23,6 +23,7 @@ describe('GraphViz Shapes', async it => {
       t.notThrows( () => { const _foo = sm`c: { node_shape: ${shape}; }; a -> b;`; }) ) );
 
   // misspelling the last character of restrictionsite gets parser coverage
-  t.throws( () => { const _foo = sm`c: { node_shape: restrictionsitz; }; a -> b;`; });
+  it('handles parse end', t =>
+    t.throws( () => { const _foo = sm`c: { node_shape: restrictionsitz; }; a -> b;`; }) );
 
 });

@@ -1,3 +1,5 @@
+* [[`b55dee6874`](https://github.com/StoneCypher/jssm/commit/b55dee6874)] - Shapes now tracked.  Drove out another order bug (box prevented box3d, rect prevented rectangle) (John Haugeland)
+* [[`0a346f3406`](https://github.com/StoneCypher/jssm/commit/0a346f3406)] - Shapes now tracked.  Drove out another order bug (box prevented box3d, rect prevented rectangle) (John Haugeland)
 * [[`01e9b84229`](https://github.com/StoneCypher/jssm/commit/01e9b84229)] - reorder color rules so that colors that are prefixes of other colors don't snipe each other.  fixes fsl/185 (John Haugeland)
 * [[`f2670db460`](https://github.com/StoneCypher/jssm/commit/f2670db460)] - All green, but with DOT included, coverage has fallen badly (John Haugeland)
 * [[`c537441bc6`](https://github.com/StoneCypher/jssm/commit/c537441bc6)] - Babel and browserify removed.  eslint moved to typescript (John Haugeland)
