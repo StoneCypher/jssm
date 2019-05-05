@@ -3,7 +3,7 @@
 
 type StateType = string;
 
-const reduce_to_639 : Function = require('reduce-to-639-1').reduce;
+import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 
 
 
