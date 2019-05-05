@@ -18,7 +18,7 @@ import {
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout
 
-} from './jssm-types';
+} from './jssm_types';
 
 
 
@@ -27,7 +27,7 @@ import {
 import {
   seq, weighted_rand_select, weighted_sample_select, histograph,
   weighted_histo_key
-} from './jssm-util.js';
+} from './jssm_util';
 
 
 
@@ -249,7 +249,7 @@ function compile_rule_transition_step<mNT, mDT>(
 
 
 
-function compile_rule_handle_transition<mNT>(rule: JssmCompileSeStart<mNT>): mixed { // todo flow describe the parser representation of a transition
+function compile_rule_handle_transition<mNT>(rule: JssmCompileSeStart<mNT>): any { // TODO FIXME no any // todo flow describe the parser representation of a transition
   return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
 }
 
@@ -328,7 +328,7 @@ function compile<mNT, mDT>(tree: JssmParseTree<mNT>): JssmGenericConfig<mNT, mDT
 
     const rule   : JssmCompileRule = compile_rule_handler(tr),
           agg_as : string          = rule.agg_as,
-          val    : mixed           = rule.val;                  // todo better types
+          val    : any           = rule.val;                  // TODO FIXME no any
 
     results[agg_as] = results[agg_as].concat(val);
 
@@ -411,16 +411,16 @@ class Machine<mNT, mDT> {
   _reverse_actions        : Map<mNT, Map<mNT, number>>;
   _reverse_action_targets : Map<mNT, Map<mNT, number>>;
 
-  _machine_author         : ?Array<string>;
-  _machine_comment        : ?string;
-  _machine_contributor    : ?Array<string>;
-  _machine_definition     : ?string;
-  _machine_language       : ?string;
-  _machine_license        : ?string;
-  _machine_name           : ?string;
-  _machine_version        : ?string;
-  _fsl_version            : ?string;
-  _raw_state_declaration  : ?Array<Object>;    // eslint-disable-line flowtype/no-weak-types
+  _machine_author?        : string | Array<string>;
+  _machine_comment?       : string;
+  _machine_contributor?   : string | Array<string>;
+  _machine_definition?    : string;
+  _machine_language?      : string;
+  _machine_license?       : string;
+  _machine_name?          : string;
+  _machine_version?       : string;
+  _fsl_version?           : string;
+  _raw_state_declaration? : Array<Object>;    // eslint-disable-line flowtype/no-weak-types
   _state_declarations     : Map<mNT, JssmStateDeclaration<mNT>>;
 
   _graph_layout           : JssmLayout;
@@ -538,7 +538,7 @@ class Machine<mNT, mDT> {
 
 
         // forward mapping first by action name
-        let actionMap: ?Map<mNT, number> = this._actions.get(tr.action);
+        let actionMap: Map<mNT, number> = this._actions.get(tr.action);  // TODO FIXME ?Map equiv
         if (!(actionMap)) {
           actionMap = new Map();
           this._actions.set(tr.action, actionMap);
@@ -552,7 +552,7 @@ class Machine<mNT, mDT> {
 
 
         // reverse mapping first by state origin name
-        let rActionMap: ?Map<mNT, number> = this._reverse_actions.get(tr.from);
+        let rActionMap: Map<mNT, number> = this._reverse_actions.get(tr.from);  // TODO FIXME ?Map equiv
         if (!(rActionMap)) {
           rActionMap = new Map();
           this._reverse_actions.set(tr.from, rActionMap);
@@ -628,43 +628,43 @@ class Machine<mNT, mDT> {
 
 
 
-  machine_author(): ?Array<string> {
+  machine_author(): Array<string> {
     return this._machine_author;
   }
 
-  machine_comment(): ?string {
+  machine_comment(): string {
     return this._machine_comment;
   }
 
-  machine_contributor(): ?Array<string> {
+  machine_contributor(): Array<string> {
     return this._machine_contributor;
   }
 
-  machine_definition(): ?string {
+  machine_definition(): string {
     return this._machine_definition;
   }
 
-  machine_language(): ?string {
+  machine_language(): string {
     return this._machine_language;
   }
 
-  machine_license(): ?string {
+  machine_license(): string {
     return this._machine_license;
   }
 
-  machine_name(): ?string {
+  machine_name(): string {
     return this._machine_name;
   }
 
-  machine_version(): ?string {
+  machine_version(): string {
     return this._machine_version;
   }
 
-  raw_state_declarations(): ?Array<Object> {    // eslint-disable-line flowtype/no-weak-types
+  raw_state_declarations(): Array<Object> {    // eslint-disable-line flowtype/no-weak-types
     return this._raw_state_declaration;
   }
 
-  state_declaration(which: mNT): ?JssmStateDeclaration<mNT> {
+  state_declaration(which: mNT): JssmStateDeclaration<mNT> {
     return this._state_declarations.get(which);
   }
 
@@ -672,7 +672,7 @@ class Machine<mNT, mDT> {
     return this._state_declarations;
   }
 
-  fsl_version(): ?string {
+  fsl_version(): string {
     return this._fsl_version;
   }
 
@@ -703,11 +703,11 @@ class Machine<mNT, mDT> {
 
 
   states(): Array<mNT> {
-    return [... this._states.keys()];
+    return Array.from(this._states.keys());
   }
 
   state_for(whichState: mNT): JssmGenericState<mNT> {
-    const state: ?JssmGenericState<mNT> = this._states.get(whichState);
+    const state: JssmGenericState<mNT> = this._states.get(whichState);
     if (state) { return state; }
     else       { throw new Error(`no such state ${JSON.stringify(state)}`); }
   }
@@ -723,14 +723,14 @@ class Machine<mNT, mDT> {
   }
 
   list_actions(): Array<mNT> {
-    return [... this._actions.keys()];
+    return Array.from(this._actions.keys());
   }
 
 
 
-  get_transition_by_state_names(from: mNT, to: mNT): ?number {
+  get_transition_by_state_names(from: mNT, to: mNT): number {
 
-    const emg : ?Map<mNT, number> = this._edge_map.get(from);
+    const emg : Map<mNT, number> = this._edge_map.get(from);
 
     if (emg) {
       return emg.get(to);
@@ -742,8 +742,8 @@ class Machine<mNT, mDT> {
 
 
 
-  lookup_transition_for(from: mNT, to: mNT): ?JssmTransition<mNT, mDT> {
-    const id : ?number = this.get_transition_by_state_names(from, to);
+  lookup_transition_for(from: mNT, to: mNT): JssmTransition<mNT, mDT> {
+    const id : number = this.get_transition_by_state_names(from, to);
     return ((id === undefined) || (id === null))? undefined : this._edges[id];
   }
 
@@ -765,14 +765,14 @@ class Machine<mNT, mDT> {
 
   probable_exits_for(whichState: mNT): Array< JssmTransition<mNT, mDT> > {
 
-    const wstate: ?JssmGenericState<mNT> = this._states.get(whichState);
+    const wstate: JssmGenericState<mNT> = this._states.get(whichState);
     if (!(wstate)) { throw new Error(`No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
     const wstate_to : Array< mNT > = wstate.to,
 
           wtf       : Array< JssmTransition<mNT, mDT> > // wstate_to_filtered -> wtf
                     = wstate_to
-                        .map( (ws) : ?JssmTransition<mNT, mDT> => this.lookup_transition_for(this.state(), ws))
+                        .map( (ws) : JssmTransition<mNT, mDT> => this.lookup_transition_for(this.state(), ws))
                         .filter(Boolean);
 
     return wtf;
@@ -801,14 +801,14 @@ class Machine<mNT, mDT> {
 
 
   actions(whichState: mNT = this.state() ): Array<mNT> {
-    const wstate : ?Map<mNT, number> = this._reverse_actions.get(whichState);
-    if (wstate) { return [... wstate.keys()]; }
+    const wstate : Map<mNT, number> = this._reverse_actions.get(whichState);
+    if (wstate) { return Array.from(wstate.keys()); }
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
 
   list_states_having_action(whichState: mNT): Array<mNT> {
-    const wstate : ?Map<mNT, number> = this._actions.get(whichState);
-    if (wstate) { return [... wstate.keys()]; }
+    const wstate : Map<mNT, number> = this._actions.get(whichState);
+    if (wstate) { return Array.from(wstate.keys()); }
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
 
@@ -821,24 +821,24 @@ class Machine<mNT, mDT> {
            .map( filtered => filtered.from );
   }
 */
-  list_exit_actions(whichState: mNT = this.state() ): Array<?mNT> { // these are mNT, not ?mNT
-    const ra_base: ?Map<mNT, number> = this._reverse_actions.get(whichState);
+  list_exit_actions(whichState: mNT = this.state() ): Array<mNT> { // these are mNT, not ?mNT
+    const ra_base: Map<mNT, number> = this._reverse_actions.get(whichState);
     if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
 
-    return [... ra_base.values()]
-           .map    ( (edgeId: number)              : JssmTransition<mNT, mDT> => this._edges[edgeId]   )
-           .filter ( (o: JssmTransition<mNT, mDT>) : boolean                  => o.from === whichState )
-           .map    ( (filtered: JssmTransition<mNT, mDT>) : ?mNT              => filtered.action       );
+    return Array.from(ra_base.values())
+           .map    ( (edgeId: number)                     : JssmTransition<mNT, mDT> => this._edges[edgeId]   )
+           .filter ( (o: JssmTransition<mNT, mDT>)        : boolean                  => o.from === whichState )
+           .map    ( (filtered: JssmTransition<mNT, mDT>) : mNT                      => filtered.action       );
   }
 
-  probable_action_exits(whichState: mNT = this.state() ) : Array<mixed> { // these are mNT
-    const ra_base: ?Map<mNT, number> = this._reverse_actions.get(whichState);
+  probable_action_exits(whichState: mNT = this.state() ) : Array<any> { // these are mNT   // TODO FIXME no any
+    const ra_base: Map<mNT, number> = this._reverse_actions.get(whichState);
     if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
 
-    return [... ra_base.values()]
+    return Array.from(ra_base.values())
            .map    ( (edgeId: number): JssmTransition<mNT, mDT> => this._edges[edgeId]   )
            .filter ( (o: JssmTransition<mNT, mDT>): boolean     => o.from === whichState )
-           .map    ( (filtered): mixed                          => ( { action      : filtered.action,
+           .map    ( (filtered): any                            => ( { action      : filtered.action,          // TODO FIXME no any
                                                                        probability : filtered.probability } )
                                                                    );
   }
@@ -876,7 +876,7 @@ class Machine<mNT, mDT> {
   }
 
   state_is_complete(whichState: mNT) : boolean {
-    const wstate: ?JssmGenericState<mNT> = this._states.get(whichState);
+    const wstate: JssmGenericState<mNT> = this._states.get(whichState);
     if (wstate) { return wstate.complete; }
     else        { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
   }
@@ -927,13 +927,13 @@ class Machine<mNT, mDT> {
 
 
 
-  current_action_for(action: mNT): number | void {
-    const action_base: ?Map<mNT, number> = this._actions.get(action);
+  current_action_for(action: mNT): number {
+    const action_base: Map<mNT, number> = this._actions.get(action);
     return action_base? action_base.get(this.state()): undefined;
   }
 
   current_action_edge_for(action: mNT): JssmTransition<mNT, mDT> {
-    const idx: ?number = this.current_action_for(action);
+    const idx: number = this.current_action_for(action);
     if ((idx === undefined) || (idx === null)) { throw new Error(`No such action ${JSON.stringify(action)}`); }
     return this._edges[idx];
   }
@@ -949,7 +949,7 @@ class Machine<mNT, mDT> {
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
-    const transition_for: ?JssmTransition<mNT, mDT> = this.lookup_transition_for(this.state(), newState);
+    const transition_for: JssmTransition<mNT, mDT> = this.lookup_transition_for(this.state(), newState);
 
     if (!(transition_for))          { return false; }
     if (transition_for.forced_only) { return false; }
@@ -972,7 +972,7 @@ class Machine<mNT, mDT> {
 
 
 
-function sm<mNT, mDT>(template_strings: Array<string> /* , arguments */): Machine<mNT, mDT> {
+function sm<mNT, mDT>(template_strings: Array<string>, ... remainder /* , arguments */): Machine<mNT, mDT> {
 
     // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
     // this includes when a and c are empty strings
@@ -986,7 +986,7 @@ function sm<mNT, mDT>(template_strings: Array<string> /* , arguments */): Machin
 
       /* eslint-disable fp/no-arguments */
       /* eslint-disable prefer-rest-params */
-      (acc, val, idx): string => `${acc}${arguments[idx]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
+      (acc, val, idx): string => `${acc}${remainder[idx]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
       /* eslint-enable  prefer-rest-params */
       /* eslint-enable  fp/no-arguments */
 
