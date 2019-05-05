@@ -1,9 +1,5 @@
 
-// todo remove me, suppressing an empty bundle warning
-function hi() { return 'hiya'; }
-
-// todo remove me, suppressing an empty bundle warning
-export { hi };
+type StateType = string;
 
 
 
@@ -50,53 +46,53 @@ type State = string;
 
 
 
-type JssmTransitionPermitter<StateType, DataType> =
+type JssmTransitionPermitter<DataType> =
   (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 
-type JssmTransitionPermitterMaybeArray<StateType, DataType> =
-    JssmTransitionPermitter<StateType, DataType>
-  | Array< JssmTransitionPermitter<StateType, DataType> >;
+type JssmTransitionPermitterMaybeArray<DataType> =
+    JssmTransitionPermitter<DataType>
+  | Array< JssmTransitionPermitter<DataType> >;
 
 
 
 
 
-type JssmTransition<StateType, DataType> = {
+type JssmTransition<DataType> = {
 
   from         : StateType,
   to           : StateType,
   name?        : string,
   action?      : StateType,
-  check?       : JssmTransitionPermitterMaybeArray<StateType, DataType>,  // validate this edge's transition; usually about data
-  probability? : number,                                                  // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
+  check?       : JssmTransitionPermitterMaybeArray<DataType>,  // validate this edge's transition; usually about data
+  probability? : number,                                       // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
   kind         : JssmArrowKind,
   forced_only  : boolean,
   main_path    : boolean
 
 };
 
-type JssmTransitions<StateType, DataType> =
-  Array< JssmTransition<StateType, DataType> >;
+type JssmTransitions<DataType> =
+  Array< JssmTransition<DataType> >;
 
-type JssmTransitionList<StateType> = {
+type JssmTransitionList = {
   entrances : Array<StateType>,
   exits     : Array<StateType>
 };
 
-type JssmTransitionCycle<StateType> = {
+type JssmTransitionCycle = {
   key   : 'cycle',
   value : StateType
 };
 
-type JssmTransitionRule<StateType> =
+type JssmTransitionRule =
   StateType
-| JssmTransitionCycle<StateType>;
+| JssmTransitionCycle;
 
 
 
 
 
-type JssmGenericState<StateType> = {
+type JssmGenericState = {
 
   from     : Array< StateType > ,
   name     :        StateType   ,
@@ -109,17 +105,17 @@ type JssmGenericState<StateType> = {
 
 
 
-type JssmMachineInternalState<StateType, DataType> = {
+type JssmMachineInternalState<DataType> = {
 
   internal_state_impl_version : 1,
 
   state                       : StateType,
-  states                      : Map< StateType, JssmGenericState<StateType> >,
+  states                      : Map< StateType, JssmGenericState >,
   named_transitions           : Map< StateType, number >,
   edge_map                    : Map< StateType, Map<StateType, number> >,
   actions                     : Map< StateType, Map<StateType, number> >,
   reverse_actions             : Map< StateType, Map<StateType, number> >,
-  edges                       : Array< JssmTransition<StateType, DataType> >
+  edges                       : Array< JssmTransition<DataType> >
 
 };
 
@@ -127,20 +123,20 @@ type JssmMachineInternalState<StateType, DataType> = {
 
 
 
-type JssmStatePermitter<StateType, DataType> =
+type JssmStatePermitter<DataType> =
   (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 
-type JssmStatePermitterMaybeArray<StateType, DataType> =
-  JssmStatePermitter<StateType, DataType> | Array< JssmStatePermitter<StateType, DataType> >;
+type JssmStatePermitterMaybeArray<DataType> =
+  JssmStatePermitter<DataType> | Array< JssmStatePermitter<DataType> >;
 
-type JssmGenericMachine<StateType, DataType> = {
+type JssmGenericMachine<DataType> = {
 
   name?            : string,
   state            : StateType,
   data?            : DataType,
   nodes?           : Array<StateType>,
-  transitions      : JssmTransitions<StateType, DataType>,
-  check?           : JssmStatePermitterMaybeArray<StateType, DataType>,
+  transitions      : JssmTransitions<DataType>,
+  check?           : JssmStatePermitterMaybeArray<DataType>,
 
   min_transitions? : number,
   max_transitions? : number,
@@ -162,7 +158,7 @@ type JssmStateDeclarationRule = {
   value : any  // TODO FIXME COMEBACK enumerate types against concrete keys
 };
 
-type JssmStateDeclaration<StateType> = {
+type JssmStateDeclaration = {
   declarations : Array<JssmStateDeclarationRule>,
   node_shape?  : JssmShape,
   node_color?  : JssmColor,
@@ -173,17 +169,17 @@ type JssmStateDeclaration<StateType> = {
 
 
 
-type JssmGenericConfig<StateType, DataType> = {
+type JssmGenericConfig<DataType> = {
 
   graph_layout?        : JssmLayout,
 
   complete?            : Array<StateType>,
-  transitions          : JssmTransitions<StateType, DataType>,
+  transitions          : JssmTransitions<DataType>,
 
   name?                : string,
   data?                : DataType,
   nodes?               : Array<StateType>,  // uncommon
-  check?               : JssmStatePermitterMaybeArray<StateType, DataType>,
+  check?               : JssmStatePermitterMaybeArray<DataType>,
 
 //locked?              : bool = true,
   min_exits?           : number,
@@ -229,10 +225,10 @@ type JssmCompileRule = {
 
 
 
-type JssmCompileSe<StateType> = {
+type JssmCompileSe = {
 
   to            : StateType,
-  se            : JssmCompileSe<StateType>,
+  se            : JssmCompileSe,
   kind          : JssmArrow,
   l_action?     : StateType,
   r_action?     : StateType,
@@ -245,10 +241,10 @@ type JssmCompileSe<StateType> = {
 
 
 
-type JssmCompileSeStart<StateType> = {
+type JssmCompileSeStart = {
 
   from   : StateType,
-  se     : JssmCompileSe<StateType>,
+  se     : JssmCompileSe,
   key    : string,
   value? : string | number,
   name?  : string
@@ -259,7 +255,7 @@ type JssmCompileSeStart<StateType> = {
 
 
 
-type JssmParseTree<StateType> =
+type JssmParseTree =
 
   Array< JssmCompileSeStart<StateType> >;
 
@@ -267,9 +263,9 @@ type JssmParseTree<StateType> =
 
 
 
-type JssmParseFunctionType<StateType> =
+type JssmParseFunctionType =
 
-  (string) => JssmParseTree<StateType>;
+  (string) => JssmParseTree;
 
 
 

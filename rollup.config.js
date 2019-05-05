@@ -1,5 +1,6 @@
 
 import nodeResolve from 'rollup-plugin-node-resolve';
+import commonjs    from 'rollup-plugin-commonjs';
 import typescript  from 'rollup-plugin-typescript2';
 import replace     from 'rollup-plugin-replace';
 
@@ -14,13 +15,11 @@ const es6config = {
   output    : {
     file      : 'build/jssm.es6.js',
     format    : 'es',
-    name      : 'jssm_types',
+    name      : 'jssm',
     sourcemap : true,
   },
 
   plugins   : [
-
-    typescript(),
 
     nodeResolve({
       mainFields     : ['module', 'main'],
@@ -28,6 +27,10 @@ const es6config = {
       extensions     : [ '.js', '.json', '.ts', '.tsx' ],
       preferBuiltins : false
     }),
+
+    commonjs(),
+
+    typescript(),
 
     replace({
       'process.env.NODE_ENV': JSON.stringify( 'production' )
@@ -48,13 +51,11 @@ const cjsconfig = {
   output    : {
     file      : 'build/jssm.cjs.js',
     format    : 'cjs',
-    name      : 'jssm_types',
+    name      : 'jssm',
     sourcemap : true,
   },
 
   plugins   : [
-
-    typescript(),
 
     nodeResolve({
       mainFields     : ['module', 'main'],
@@ -62,6 +63,10 @@ const cjsconfig = {
       extensions     : [ '.js', '.json', '.ts', '.tsx' ],
       preferBuiltins : false
     }),
+
+    commonjs(),
+
+    typescript(),
 
     replace({
       'process.env.NODE_ENV': JSON.stringify( 'production' )
@@ -82,13 +87,11 @@ const iifeconfig = {
   output    : {
     file      : 'build/jssm.iife.js',
     format    : 'iife',
-    name      : 'jssm_types',
+    name      : 'jssm',
     sourcemap : true,
   },
 
   plugins   : [
-
-    typescript(),
 
     nodeResolve({
       mainFields     : ['module', 'main'],
@@ -96,6 +99,10 @@ const iifeconfig = {
       extensions     : [ '.js', '.json', '.ts', '.tsx' ],
       preferBuiltins : false
     }),
+
+    commonjs(),
+
+    typescript(),
 
     replace({
       'process.env.NODE_ENV': JSON.stringify( 'production' )

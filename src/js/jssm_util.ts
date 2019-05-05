@@ -1,10 +1,4 @@
 
-// @flow
-
-
-
-
-
 // this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
 const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability'): any => {
@@ -25,7 +19,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
   let   cursor     : number   = 0,
         cursor_sum : number   = 0;
 
-  while ((cursor_sum += or_one((options:any)[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
+  while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
   return options[cursor-1];
 
 };
@@ -44,25 +38,38 @@ const seq: Function = (n: number): Array<number> =>
 
 
 
-const histograph: Function = (a : Array<any>): Map<any, number> => // eslint-disable-line flowtype/no-weak-types
+const histograph: Function = (ar : Array<any>): Map<any, number> => // eslint-disable-line flowtype/no-weak-types
 
-    a.sort().reduce( (m,v): Map<any, any> => ( m.set(v, (m.has(v)? m.get(v)+1 : 1)) , m), new Map() );  // eslint-disable-line flowtype/no-weak-types,no-sequences
-
-
-
-
-
-const weighted_sample_select: Function = (n: number, options: Array<mixed>, probability_property: string): Array<any> => // eslint-disable-line flowtype/no-weak-types
-
-    seq(n).map( (_i): any => weighted_rand_select(options, probability_property)); // eslint-disable-line flowtype/no-weak-types
+    ar.sort()
+      .reduce(
+        (m,v): Map<any, any> =>    // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
+          ( m.set(v, (m.has(v)? m.get(v)+1 : 1)) , m),
+          new Map()
+      );
 
 
 
 
 
-const weighted_histo_key: Function = (n: number, opts: Array<mixed>, prob_prop: string, extract: string): Array<any> => // eslint-disable-line flowtype/no-weak-types
+const weighted_sample_select: Function = (n: number, options: Array<any>, probability_property: string): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
 
-    histograph(weighted_sample_select(n, opts, prob_prop).map( (s): any => s[extract])); // eslint-disable-line flowtype/no-weak-types
+    seq(n)
+      .map( (_i): any =>   // TODO FIXME eslint-disable-line flowtype/no-weak-types
+        weighted_rand_select(options, probability_property)
+      );
+
+
+
+
+
+const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: string, extract: string): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+
+    histograph(
+      weighted_sample_select(n, opts, prob_prop)
+        .map(
+          (s): any => s[extract]     // TODO FIXME eslint-disable-line flowtype/no-weak-types
+        )
+    );
 
 
 
