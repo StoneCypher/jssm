@@ -1,14 +1,22 @@
 
-// @flow
+// todo remove me, suppressing an empty bundle warning
+function hi() { return 'hiya'; }
+
+// todo remove me, suppressing an empty bundle warning
+export { hi };
 
 
 
 
 
-type JssmSuccess        = {| success: true |};
-type JssmFailure        = {| success: false, error: mixed |};
-type JssmIncomplete     = {| success: 'incomplete' |};
+type JssmSuccess        = { success: true };
+type JssmFailure        = { success: false, error: any };
+type JssmIncomplete     = { success: 'incomplete' };
 type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete;
+
+type JssmColor          = string;  // TODO FIXME constrain to #RRGGBBAA later // whargarbl
+
+
 
 type JssmPermitted      = 'required' | 'disallowed';
 type JssmPermittedOpt   = 'required' | 'disallowed' | 'optional';
@@ -30,45 +38,92 @@ type JssmShape          = "box" | "polygon" | "ellipse" | "oval" | "circle" | "p
 type JssmArrowDirection = 'left' | 'right' | 'both';
 type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
-type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';
-
-type JssmColor          = string;  // constrain to #RRGGBBAA later // whargarbl
-
-
-
-type JssmMachineInternalState<NT, DT> = {|
-
-    internal_state_impl_version : 1,
-
-    state                       : NT,
-    states                      : Map< NT, JssmGenericState<NT> >,
-    named_transitions           : Map< NT, number >,
-    edge_map                    : Map< NT, Map<NT, number> >,
-    actions                     : Map< NT, Map<NT, number> >,
-    reverse_actions             : Map< NT, Map<NT, number> >,
-    edges                       : Array< JssmTransition<NT, DT> >
-
-|};
+type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';  // todo add the rest
 
 
 
 
-type JssmGenericState<NT> = {|
 
-  from     : Array< NT > ,
-  name     :        NT   ,
-  to       : Array< NT > ,
+type State = string;
+
+
+
+
+
+type JssmTransitionPermitter<StateType, DataType> =
+  (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
+
+type JssmTransitionPermitterMaybeArray<StateType, DataType> =
+    JssmTransitionPermitter<StateType, DataType>
+  | Array< JssmTransitionPermitter<StateType, DataType> >;
+
+
+
+
+type JssmTransition<StateType, DataType> = {
+
+  from         : StateType,
+  to           : StateType,
+  name?        : string,
+  action?      : StateType,
+  check?       : JssmTransitionPermitterMaybeArray<StateType, DataType>,  // validate this edge's transition; usually about data
+  probability? : number,                                                  // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
+  kind         : JssmArrowKind,
+  forced_only  : boolean,
+  main_path    : boolean
+
+};
+
+
+
+
+
+type JssmGenericState<StateType> = {
+
+  from     : Array< StateType > ,
+  name     :        StateType   ,
+  to       : Array< StateType > ,
   complete : boolean
 
-|};
+};
 
 
 
 
-type JssmTransitionPermitter<NT, DT>           = (OldState: NT, NewState: NT, OldData: DT, NewData: DT) => boolean;
 
-type JssmTransitionPermitterMaybeArray<NT, DT> =        JssmTransitionPermitter<NT, DT>
-                                               | Array< JssmTransitionPermitter<NT, DT> >;
+type JssmMachineInternalState<StateType, DataType> = {
+
+  internal_state_impl_version : 1,
+
+  state                       : StateType,
+  states                      : Map< StateType, JssmGenericState<StateType> >,
+  named_transitions           : Map< StateType, number >,
+  edge_map                    : Map< StateType, Map<StateType, number> >,
+  actions                     : Map< StateType, Map<StateType, number> >,
+  reverse_actions             : Map< StateType, Map<StateType, number> >,
+  edges                       : Array< JssmTransition<StateType, DataType> >
+
+};
+
+
+
+
+
+export {
+
+  JssmPermitted,
+    JssmPermittedOpt,
+    JssmResult,
+
+  JssmColor,
+
+  JssmArrow,
+    JssmArrowKind,
+    JssmArrowDirection
+
+};
+
+/*
 
 
 
@@ -281,7 +336,4 @@ export type {
   JssmMachineInternalState
 
 };
-
-function hi() { return 'hiya'; }
-
-export { hi };
+*/
