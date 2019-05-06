@@ -1,5 +1,10 @@
 {
+    "excludes": [
+      "src/js/jssm-dot.js"
+    ],
     "exclude": [
-      "**/jssm-dot.js"
-    ]
+      "src/js/jssm-dot.js"
+    ],
+    "exclude-after-remap": "src/js/jssm-dot.js",
+    "all": false
 }

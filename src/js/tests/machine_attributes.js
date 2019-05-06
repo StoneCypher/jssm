@@ -9,14 +9,6 @@ const jssm = require('../../../build/jssm.es5.cjs.js'),
 
 
 
-describe(`r639 e`, async it => it('should be en', t => t.is('en', r639('EnglISh'))));
-describe(`r639 a`, async it => it('should be am', t => t.is('am', r639('አማርኛ'))));
-
-
-
-
-
-
 describe('machine_name', async it => {
 
   it('atom',           t => t.notThrows(() => { const _foo = sm`machine_name: bob;    a->b;`; }) );

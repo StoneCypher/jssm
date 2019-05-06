@@ -1,3 +1,4 @@
+* [[`226e3f028e`](https://github.com/StoneCypher/jssm/commit/226e3f028e)] - Progress; may exclude DOT from coverage because of those deep dives (John Haugeland)
 * [[`b55dee6874`](https://github.com/StoneCypher/jssm/commit/b55dee6874)] - Shapes now tracked.  Drove out another order bug (box prevented box3d, rect prevented rectangle) (John Haugeland)
 * [[`0a346f3406`](https://github.com/StoneCypher/jssm/commit/0a346f3406)] - Shapes now tracked.  Drove out another order bug (box prevented box3d, rect prevented rectangle) (John Haugeland)
 * [[`01e9b84229`](https://github.com/StoneCypher/jssm/commit/01e9b84229)] - reorder color rules so that colors that are prefixes of other colors don't snipe each other.  fixes fsl/185 (John Haugeland)

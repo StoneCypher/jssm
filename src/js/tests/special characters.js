@@ -2,13 +2,13 @@
 import {describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.cjs.js'),
-      sm   = jssm.sm;
+      _sm  = jssm.sm;
 
 
 
 
 
-const SpecialCharacters = ['\t', '\n', '\r', '\v'];
+const _SpecialCharacters = ['\t', '\n', '\r', '\v'];
 
 
 

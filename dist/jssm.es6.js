@@ -91,7 +91,6 @@ var reductions = {
   "भोजपुरी" : "bh",
   "bh" : "bh",
   "bih" : "bh",
-  "" : "bh",
   "bislama" : "bi",
   "bi" : "bi",
   "bis" : "bi",
@@ -857,7 +856,7 @@ var reductions = {
 
 function reduce(from) {
 
-    return reductions[(from || '').toLowerCase()];
+    return reductions[from.toLowerCase()];
 
 }
 

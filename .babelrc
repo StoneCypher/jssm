@@ -1,5 +1,0 @@
-{
-  "plugins"    : ["transform-flow-strip-types"],
-  "presets"    : ["es2015"],
-  "sourceMaps" : "inline"
-}

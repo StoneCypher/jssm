@@ -94,7 +94,6 @@ var jssm = (function (exports) {
     "भोजपुरी" : "bh",
     "bh" : "bh",
     "bih" : "bh",
-    "" : "bh",
     "bislama" : "bi",
     "bi" : "bi",
     "bis" : "bi",
@@ -860,7 +859,7 @@ var jssm = (function (exports) {
 
   function reduce(from) {
 
-      return reductions[(from || '').toLowerCase()];
+      return reductions[from.toLowerCase()];
 
   }
 

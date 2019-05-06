@@ -1,8 +1,0 @@
-[ignore]
-.*/node_modules/documentation/.*
-
-[include]
-
-[libs]
-
-[options]
