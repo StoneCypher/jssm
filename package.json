@@ -32,7 +32,7 @@
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
     "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html -x \"src/js/jssm-dot.js\"",
-    "coverage": "nyc report --reporter=text-lcov > jssm.lcov && lcov --remove jssm.lcov '/src/js/jssm-dot.js' && cat jssm.lcov | coveralls",
+    "coverage": "nyc report -x \"src/js/jssm-dot.js\" --reporter=text-lcov | coveralls",
     "vet": "npm run eslint && npm run audit",
     "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
     "build": "npm run vet && npm run test && npm run minify && npm run docs && npm run site && npm run dist",
