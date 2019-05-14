@@ -1,3 +1,4 @@
+* [[`8a701c147c`](https://github.com/StoneCypher/jssm/commit/8a701c147c)] - um ok nyc works now? (John Haugeland)
 * [[`be99cf81c1`](https://github.com/StoneCypher/jssm/commit/be99cf81c1)] - okay maybe it's order sensitive (John Haugeland)
 * [[`816a498d1e`](https://github.com/StoneCypher/jssm/commit/816a498d1e)] - attempt to surgery the lcov directly :| (John Haugeland)
 * [[`226e3f028e`](https://github.com/StoneCypher/jssm/commit/226e3f028e)] - Progress; may exclude DOT from coverage because of those deep dives (John Haugeland)
