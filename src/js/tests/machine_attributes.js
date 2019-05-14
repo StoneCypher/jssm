@@ -1,10 +1,9 @@
 
 import {describe} from 'ava-spec';
 
-const jssm = require('../../../build/jssm.es5.js'),
+const jssm = require('../../../build/jssm.es5.cjs.js'),
       sm   = jssm.sm,
       r639 = require('reduce-to-639-1').reduce;
-
 
 
 
@@ -27,13 +26,25 @@ describe('machine_language', async it => {
 
   const eachTest = (name, lang) => {
 
-    it(`${name} doesn't throw`, t =>
-       t.notThrows(() => { const _foo = sm`machine_language: ${lang}; a->b;`; }) );
+    it(`${name} machine_language with transclusion is correct for sm\`machine_language: ${lang}; a->b;\``, t =>
+       t.is(r639(lang), ((sm`machine_language: ${lang}; a->b;`).machine_language()) ) );
 
-    it(`${name} correct`, t =>
-       t.is(r639(lang), sm`machine_language: ${lang}; a->b;`.machine_language() ) );
+    // it(`${name} machine_language with transclusion is correct for sm\`machine_language: "${lang}"; a->b;\``, t =>
+    //    t.is(r639(lang), ((sm`machine_language: "${lang}"; a->b;`).machine_language()) ) );
 
   };
+
+  it(`Eng hand-written is correct without quotes`, t =>
+    t.is('en', ((sm`machine_language: EnGlIsH; a->b;`).machine_language()) ) );
+
+  it(`Eng hand-written is correct with quotes`, t =>
+    t.is('en', ((sm`machine_language: "EnGlIsH"; a->b;`).machine_language()) ) );
+
+  it(`Amharic hand-written is correct without quotes`, t =>
+    t.is('am', ((sm`machine_language: አማርኛ; a->b;`).machine_language()) ) );
+
+  // it(`Amharic hand-written is correct with quotes`, t =>
+  //   t.is('am', ((sm`machine_language: "አማርኛ"; a->b;`).machine_language()) ) );
 
   eachTest('atom correct case', 'English');
   eachTest('atom lowercase',    'english');

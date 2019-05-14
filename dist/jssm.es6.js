@@ -1,7 +1,3 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var reductions = {
   "abkhazian" : "ab",
   "аҧсуа бызшәа, аҧсшәа" : "ab",
@@ -14109,19 +14105,5 @@ function sm(template_strings) {
     )));
 }
 
-exports.Machine = Machine;
-exports.arrow_direction = arrow_direction;
-exports.arrow_left_kind = arrow_left_kind;
-exports.arrow_right_kind = arrow_right_kind;
-exports.compile = compile;
-exports.histograph = histograph;
-exports.make = make;
-exports.parse = jssmDot_1;
-exports.seq = seq;
-exports.sm = sm;
-exports.transfer_state_properties = transfer_state_properties;
-exports.version = version;
-exports.weighted_histo_key = weighted_histo_key;
-exports.weighted_rand_select = weighted_rand_select;
-exports.weighted_sample_select = weighted_sample_select;
-//# sourceMappingURL=jssm.es5.cjs.js.map
+export { Machine, arrow_direction, arrow_left_kind, arrow_right_kind, compile, histograph, make, jssmDot_1 as parse, seq, sm, transfer_state_properties, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+//# sourceMappingURL=jssm.es6.js.map

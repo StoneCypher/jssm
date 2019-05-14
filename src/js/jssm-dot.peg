@@ -5,7 +5,7 @@ Document
 
 
 GvizShape
- = "box"
+ = "box3d"
  / "polygon"
  / "ellipse"
  / "oval"
@@ -32,8 +32,8 @@ GvizShape
  / "Mdiamond"
  / "Msquare"
  / "Mcircle"
- / "rect"
  / "rectangle"
+ / "rect"
  / "square"
  / "star"
  / "none"
@@ -42,7 +42,7 @@ GvizShape
  / "note"
  / "tab"
  / "folder"
- / "box3d"
+ / "box"
  / "component"
  / "promoter"
  / "cds"
@@ -294,15 +294,19 @@ URL
 SvgColorLabel
   = 'aliceblue'            { return '#f0f8ffff'; }              / 'AliceBlue'            { return '#f0f8ffff'; }
   / 'antiquewhite'         { return '#faebd7ff'; }              / 'AntiqueWhite'         { return '#faebd7ff'; }
-  / 'aqua'                 { return '#00ffffff'; }              / 'Aqua'                 { return '#00ffffff'; }
+
+/* out of order because otherwise aqua would pre-run aquamarine */
   / 'aquamarine'           { return '#7fffd4ff'; }              / 'Aquamarine'           { return '#7fffd4ff'; }
+  / 'aqua'                 { return '#00ffffff'; }              / 'Aqua'                 { return '#00ffffff'; }
   / 'azure'                { return '#f0ffffff'; }              / 'Azure'                { return '#f0ffffff'; }
   / 'beige'                { return '#f5f5dcff'; }              / 'Beige'                { return '#f5f5dcff'; }
   / 'bisque'               { return '#ffe4c4ff'; }              / 'Bisque'               { return '#ffe4c4ff'; }
   / 'black'                { return '#000000ff'; }              / 'Black'                { return '#000000ff'; }
   / 'blanchedalmond'       { return '#ffebcdff'; }              / 'BlanchedAlmond'       { return '#ffebcdff'; }
-  / 'blue'                 { return '#0000ffff'; }              / 'Blue'                 { return '#0000ffff'; }
+
+/* out of order because otherwise blue would pre-run blueviolet */
   / 'blueviolet'           { return '#8a2be2ff'; }              / 'BlueViolet'           { return '#8a2be2ff'; }
+  / 'blue'                 { return '#0000ffff'; }              / 'Blue'                 { return '#0000ffff'; }
   / 'brown'                { return '#a52a2aff'; }              / 'Brown'                { return '#a52a2aff'; }
   / 'burlywood'            { return '#deb887ff'; }              / 'BurlyWood'            { return '#deb887ff'; }
   / 'cadetblue'            { return '#5f9ea0ff'; }              / 'CadetBlue'            { return '#5f9ea0ff'; }
@@ -343,20 +347,26 @@ SvgColorLabel
   / 'fuchsia'              { return '#ff00ffff'; }              / 'Fuchsia'              { return '#ff00ffff'; }
   / 'gainsboro'            { return '#dcdcdcff'; }              / 'Gainsboro'            { return '#dcdcdcff'; }
   / 'ghostwhite'           { return '#f8f8ffff'; }              / 'GhostWhite'           { return '#f8f8ffff'; }
-  / 'gold'                 { return '#ffd700ff'; }              / 'Gold'                 { return '#ffd700ff'; }
+
+/* out of order because otherwise gold would pre-run goldenrod */
   / 'goldenrod'            { return '#daa520ff'; }              / 'GoldenRod'            { return '#daa520ff'; }
+  / 'gold'                 { return '#ffd700ff'; }              / 'Gold'                 { return '#ffd700ff'; }
   / 'gray'                 { return '#808080ff'; }              / 'Gray'                 { return '#808080ff'; }
   / 'grey'                 { return '#808080ff'; }              / 'Grey'                 { return '#808080ff'; }
-  / 'green'                { return '#008000ff'; }              / 'Green'                { return '#008000ff'; }
+
+/* out of order because otherwise green would pre-run greenyellow */
   / 'greenyellow'          { return '#adff2fff'; }              / 'GreenYellow'          { return '#adff2fff'; }
+  / 'green'                { return '#008000ff'; }              / 'Green'                { return '#008000ff'; }
   / 'honeydew'             { return '#f0fff0ff'; }              / 'HoneyDew'             { return '#f0fff0ff'; }
   / 'hotpink'              { return '#ff69b4ff'; }              / 'HotPink'              { return '#ff69b4ff'; }
   / 'indianred'            { return '#cd5c5cff'; }              / 'IndianRed'            { return '#cd5c5cff'; }
   / 'indigo'               { return '#4b0082ff'; }              / 'Indigo'               { return '#4b0082ff'; }
   / 'ivory'                { return '#fffff0ff'; }              / 'Ivory'                { return '#fffff0ff'; }
   / 'khaki'                { return '#f0e68cff'; }              / 'Khaki'                { return '#f0e68cff'; }
-  / 'lavender'             { return '#e6e6faff'; }              / 'Lavender'             { return '#e6e6faff'; }
+
+/* out of order because otherwise lavender would pre-run lavenderblush */
   / 'lavenderblush'        { return '#fff0f5ff'; }              / 'LavenderBlush'        { return '#fff0f5ff'; }
+  / 'lavender'             { return '#e6e6faff'; }              / 'Lavender'             { return '#e6e6faff'; }
   / 'lawngreen'            { return '#7cfc00ff'; }              / 'LawnGreen'            { return '#7cfc00ff'; }
   / 'lemonchiffon'         { return '#fffacdff'; }              / 'LemonChiffon'         { return '#fffacdff'; }
   / 'lightblue'            { return '#add8e6ff'; }              / 'LightBlue'            { return '#add8e6ff'; }
@@ -374,8 +384,10 @@ SvgColorLabel
   / 'lightslategrey'       { return '#778899ff'; }              / 'LightSlateGrey'       { return '#778899ff'; }
   / 'lightsteelblue'       { return '#b0c4deff'; }              / 'LightSteelBlue'       { return '#b0c4deff'; }
   / 'lightyellow'          { return '#ffffe0ff'; }              / 'LightYellow'          { return '#ffffe0ff'; }
-  / 'lime'                 { return '#00ff00ff'; }              / 'Lime'                 { return '#00ff00ff'; }
+
+/* out of order because otherwise lime would pre-run limegreen */
   / 'limegreen'            { return '#32cd32ff'; }              / 'LimeGreen'            { return '#32cd32ff'; }
+  / 'lime'                 { return '#00ff00ff'; }              / 'Lime'                 { return '#00ff00ff'; }
   / 'linen'                { return '#faf0e6ff'; }              / 'Linen'                { return '#faf0e6ff'; }
   / 'magenta'              { return '#ff00ffff'; }              / 'Magenta'              { return '#ff00ffff'; }
   / 'maroon'               { return '#800000ff'; }              / 'Maroon'               { return '#800000ff'; }
@@ -395,10 +407,14 @@ SvgColorLabel
   / 'navajowhite'          { return '#ffdeadff'; }              / 'NavajoWhite'          { return '#ffdeadff'; }
   / 'navy'                 { return '#000080ff'; }              / 'Navy'                 { return '#000080ff'; }
   / 'oldlace'              { return '#fdf5e6ff'; }              / 'OldLace'              { return '#fdf5e6ff'; }
-  / 'olive'                { return '#808000ff'; }              / 'Olive'                { return '#808000ff'; }
+
+/* out of order because otherwise olive would pre-run olivedrab */
   / 'olivedrab'            { return '#6b8e23ff'; }              / 'OliveDrab'            { return '#6b8e23ff'; }
-  / 'orange'               { return '#ffa500ff'; }              / 'Orange'               { return '#ffa500ff'; }
+  / 'olive'                { return '#808000ff'; }              / 'Olive'                { return '#808000ff'; }
+
+/* out of order because otherwise orange would pre-run orangered */
   / 'orangered'            { return '#ff4500ff'; }              / 'OrangeRed'            { return '#ff4500ff'; }
+  / 'orange'               { return '#ffa500ff'; }              / 'Orange'               { return '#ffa500ff'; }
   / 'orchid'               { return '#da70d6ff'; }              / 'Orchid'               { return '#da70d6ff'; }
   / 'palegoldenrod'        { return '#eee8aaff'; }              / 'PaleGoldenRod'        { return '#eee8aaff'; }
   / 'palegreen'            { return '#98fb98ff'; }              / 'PaleGreen'            { return '#98fb98ff'; }
@@ -435,10 +451,14 @@ SvgColorLabel
   / 'turquoise'            { return '#40e0d0ff'; }              / 'Turquoise'            { return '#40e0d0ff'; }
   / 'violet'               { return '#ee82eeff'; }              / 'Violet'               { return '#ee82eeff'; }
   / 'wheat'                { return '#f5deb3ff'; }              / 'Wheat'                { return '#f5deb3ff'; }
-  / 'white'                { return '#ffffffff'; }              / 'White'                { return '#ffffffff'; }
+
+/* out of order because otherwise white would pre-run whitesmoke */
   / 'whitesmoke'           { return '#f5f5f5ff'; }              / 'WhiteSmoke'           { return '#f5f5f5ff'; }
-  / 'yellow'               { return '#ffff00ff'; }              / 'Yellow'               { return '#ffff00ff'; }
+  / 'white'                { return '#ffffffff'; }              / 'White'                { return '#ffffffff'; }
+
+/* out of order because otherwise yellow would pre-run yellowgreen */
   / 'yellowgreen'          { return '#9acd32ff'; }              / 'YellowGreen'          { return '#9acd32ff'; }
+  / 'yellow'               { return '#ffff00ff'; }              / 'Yellow'               { return '#ffff00ff'; }
 
 SvgColor
   = lab:SvgColorLabel WS? { return lab; }
