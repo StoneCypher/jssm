@@ -1,3 +1,5 @@
+* [[`be99cf81c1`](https://github.com/StoneCypher/jssm/commit/be99cf81c1)] - okay maybe it's order sensitive (John Haugeland)
+* [[`816a498d1e`](https://github.com/StoneCypher/jssm/commit/816a498d1e)] - attempt to surgery the lcov directly :| (John Haugeland)
 * [[`226e3f028e`](https://github.com/StoneCypher/jssm/commit/226e3f028e)] - Progress; may exclude DOT from coverage because of those deep dives (John Haugeland)
 * [[`b55dee6874`](https://github.com/StoneCypher/jssm/commit/b55dee6874)] - Shapes now tracked.  Drove out another order bug (box prevented box3d, rect prevented rectangle) (John Haugeland)
 * [[`0a346f3406`](https://github.com/StoneCypher/jssm/commit/0a346f3406)] - Shapes now tracked.  Drove out another order bug (box prevented box3d, rect prevented rectangle) (John Haugeland)
