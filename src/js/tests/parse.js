@@ -1,7 +1,7 @@
 
 /* eslint-disable max-len */
 
-import {test, describe} from 'ava-spec';
+import {describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.cjs.js');
 
@@ -18,7 +18,7 @@ describe('parse/1', async _parse_it => {
             ABd  = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","r_desc": [{"key":"arc_label","value":"d"}]}}],
             AdBd = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b","l_desc": [{"key":"arc_label","value":"d"}],"r_desc": [{"key":"arc_label","value":"f"}]}}];
 
-      const echo_equal = (testt, validator) => it(test, t => t.deepEqual(validator, jssm.parse(testt)));
+      const echo_equal = (testt, validator) => it(testt, t => t.deepEqual(validator, jssm.parse(testt)));
 
       const ShouldEqualAtoB = ['a->b;', 'a ->b;', 'a-> b;', 'a -> b;', 'a{}->b;', 'a->{}b;', 'a{}->{}b;'];
       ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
@@ -37,7 +37,7 @@ describe('parse/1', async _parse_it => {
             ABd  = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","r_desc": [{"key":"arc_label","value":"d"}]}}],
             AdBd = [{"key": "transition", "from": "a", "se": {"kind": "<->","to": "b","l_desc": [{"key":"arc_label","value":"d"}],"r_desc": [{"key":"arc_label","value":"f"}]}}];
 
-      const echo_equal = (testt, validator) => it(test, t => t.deepEqual(validator, jssm.parse(testt)));
+      const echo_equal = (testt, validator) => it(testt, t => t.deepEqual(validator, jssm.parse(testt)));
 
       const ShouldEqualAtoB = ['a<->b;', 'a <->b;', 'a<-> b;', 'a <-> b;', 'a{}<->b;', 'a<->{}b;', 'a{}<->{}b;'];
       ShouldEqualAtoB.map(p => echo_equal(p, AtoB));
