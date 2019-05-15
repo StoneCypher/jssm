@@ -39,9 +39,9 @@ describe('Simple stop light', async it => {
     it2('machine starts red',  t => t.is("Red",    light.state()));
     it2('proceed is true',     t => t.is(true,     light.action('Proceed')));
     it2('light is now green',  t => t.is("Green",  light.state()));
-    it2('proceed is true',     t => t.is(true,     light.action('Proceed')));
+    it2('proceed is true 2',   t => t.is(true,     light.action('Proceed')));
     it2('light is now yellow', t => t.is("Yellow", light.state()));
-    it2('proceed is true',     t => t.is(true,     light.action('Proceed')));
+    it2('proceed is true 3',   t => t.is(true,     light.action('Proceed')));
     it2('light is red again',  t => t.is("Red",    light.state()));
 
   });
@@ -55,23 +55,23 @@ describe('Simple stop light', async it => {
     it3('green refuses transition red',    t => t.is(false,    light.transition('Red')));
     it3('green still green',               t => t.is("Green",  light.state()));
     it3('green refuses transition green',  t => t.is(false,    light.transition('Green')));
-    it3('green still green',               t => t.is("Green",  light.state()));
+    it3('green still green 2',             t => t.is("Green",  light.state()));
     it3('green accepts transition yellow', t => t.is(true,     light.transition('Yellow')));
     it3('green now yellow',                t => t.is("Yellow", light.state()));
 
-    it3('proceed is true',                 t => t.is(true,     light.action('Proceed')));
+    it3('proceed is true 2',               t => t.is(true,     light.action('Proceed')));
     it3('light is red again',              t => t.is("Red",    light.state()));
 
     it3('red refuses transition yellow',   t => t.is(false,    light.transition('Yellow')));
     it3('red still red',                   t => t.is("Red",    light.state()));
     it3('red refuses transition red',      t => t.is(false,    light.transition('Red')));
-    it3('red still red',                   t => t.is("Red",    light.state()));
+    it3('red still red 2',                 t => t.is("Red",    light.state()));
     it3('red accepts transition green',    t => t.is(true,     light.transition('Green')));
     it3('red now green',                   t => t.is("Green",  light.state()));
 
-    it3('proceed is true',                 t => t.is(true,     light.action('Proceed')));
+    it3('proceed is true 3',               t => t.is(true,     light.action('Proceed')));
     it3('light is yellow again',           t => t.is("Yellow", light.state()));
-    it3('proceed is true',                 t => t.is(true,     light.action('Proceed')));
+    it3('proceed is true 4',               t => t.is(true,     light.action('Proceed')));
     it3('light is finally red again',      t => t.is("Red",    light.state()));
 
   });
@@ -132,21 +132,21 @@ describe('Complex stop light', async it => {
     it2('red refuses yellow',    t => t.is(false,    light2.transition('yellow')));
     it2('red still red',         t => t.is("red",    light2.state()));
     it2('red refuses red',       t => t.is(false,    light2.transition('red')));
-    it2('red still red',         t => t.is("red",    light2.state()));
+    it2('red still red 2',       t => t.is("red",    light2.state()));
 
     it2('red accepts green',     t => t.is(true,     light2.transition('green')));
     it2('red now green',         t => t.is("green",  light2.state()));
     it2('green refuses red',     t => t.is(false,    light2.transition('red')));
     it2('green still green',     t => t.is("green",  light2.state()));
     it2('green refuses green',   t => t.is(false,    light2.transition('green')));
-    it2('green still green',     t => t.is("green",  light2.state()));
+    it2('green still green 2',   t => t.is("green",  light2.state()));
 
     it2('green accepts yellow',  t => t.is(true,     light2.transition('yellow')));
     it2('green now yellow',      t => t.is("yellow", light2.state()));
     it2('yellow refuses green',  t => t.is(false,    light2.transition('green')));
     it2('yellow still yellow',   t => t.is("yellow", light2.state()));
     it2('yellow refuses yellow', t => t.is(false,    light2.transition('yellow')));
-    it2('yellow still yellow',   t => t.is("yellow", light2.state()));
+    it2('yellow still yellow 2', t => t.is("yellow", light2.state()));
 
     it2('yellow accepts red',    t => t.is(true,     light2.transition('red')));
     it2('back to red',           t => t.is("red",    light2.state()));
