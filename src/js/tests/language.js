@@ -17,14 +17,14 @@ const jssm           = require('../../../build/jssm.es5.cjs.js'),
 
 describe('base data walk/1', async _it => {
 
-  language_files.map(language_file => {
+  language_files.map( (language_file, i) => {
 
     const testData   = require(language_file);
     const testTokens = testData.cases;
 
     const foreignTarget = sm([`${testData.native_name} -> ${testData.english_name} -> ${testTokens.join(' -> ')};`]);
 
-    describe(`language "${testData.english_name}" contains all states`, async it => {
+    describe(`language ${i} "${testData.english_name}" contains all states`, async it => {
 
       testTokens.map(tok =>
         it(tok, t => t.is(true, foreignTarget.states().includes(tok)))
