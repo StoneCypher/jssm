@@ -1,7 +1,7 @@
 
 /* eslint-disable max-len */
 
-import {test, describe} from 'ava-spec';
+import {describe} from 'ava-spec';
 
 const jssm = require('../../../build/jssm.es5.cjs.js');
 
@@ -12,12 +12,12 @@ const jssm = require('../../../build/jssm.es5.cjs.js');
 describe('block strategies', async _it => {
 
   const AtoB    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}],
-        is_AB   = (str, it) => it(test, t => t.deepEqual(AtoB, jssm.parse(str))),
+        is_AB   = (str, it) => it(str, t => t.deepEqual(AtoB, jssm.parse(str))),
 
         ABCD    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}},
                    {"key": "transition", "from": "c", "se": {"kind": "->","to": "d"}}],
 
-        is_ABCD = (str, it) => it(test, t => t.deepEqual(ABCD, jssm.parse(str)));
+        is_ABCD = (str, it) => it(str, t => t.deepEqual(ABCD, jssm.parse(str)));
 
   describe('empty block comments in left middle', async it => {
     is_AB('a/**/->b;',     it);
@@ -83,12 +83,12 @@ describe('block strategies', async _it => {
 describe('line strategies', async _it => {
 
   const AtoB    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}],
-        is_AB   = (it, str) => it(test, t => t.deepEqual(AtoB, jssm.parse(str))),
+        is_AB   = (it, str) => it(str, t => t.deepEqual(AtoB, jssm.parse(str))),
 
         ABCD    = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}},
                    {"key": "transition", "from": "c", "se": {"kind": "->","to": "d"}}],
 
-        is_ABCD = (it, str) => it(test, t => t.deepEqual(ABCD, jssm.parse(str)));
+        is_ABCD = (it, str) => it(str, t => t.deepEqual(ABCD, jssm.parse(str)));
 
   describe('empty line comments at end', async it => {
     is_AB(it, 'a->b;//');

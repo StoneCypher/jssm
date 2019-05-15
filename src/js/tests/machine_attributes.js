@@ -111,9 +111,8 @@ describe('machine_comment', async it4 => {
 
 describe('machine_definition', async it5 => {
 
-  it5('url', t => t.notThrows(() => { const _foo = sm`machine_definition: http://google.com/ ; a->b;`; }) );
-  it5('url', t => t.notThrows(() => { const _foo = sm`machine_definition: http://google.com/ ; a->b;`; }) );
-  it5('url', t => t.throws(   () => { const _foo = sm`machine_definition: "not a url";         a->b;`; }) );
+  it5('url',          t => t.notThrows(() => { const _foo = sm`machine_definition: http://google.com/ ; a->b;`; }) );
+  it5('url botched',  t => t.throws(   () => { const _foo = sm`machine_definition: "not a url";         a->b;`; }) );
 
   it5('retval correct', t =>
     t.is("http://google.com/", sm`machine_definition: http://google.com/ ; a->b;`.machine_definition() ) );

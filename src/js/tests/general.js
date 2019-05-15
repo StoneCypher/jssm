@@ -119,14 +119,14 @@ describe('probable action exits', async it => {
     transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
   });
 
-  it('probable action exits are an array', t => t.is(true,  Array.isArray(machine.probable_action_exits())      ) );
-  it('probable action exit 1 is on',       t => t.is('on',  machine.probable_action_exits()[0].action           ) );
+  it('probable action exits are an array',   t => t.is(true,  Array.isArray(machine.probable_action_exits())      ) );
+  it('probable action exit 1 is on',         t => t.is('on',  machine.probable_action_exits()[0].action           ) );
 
-  it('probable action exits are an array', t => t.is(true,  Array.isArray(machine.probable_action_exits('off')) ) );
-  it('probable action exit 1 is on',       t => t.is('on',  machine.probable_action_exits('off')[0].action      ) );
+  it('probable action exits are an array 2', t => t.is(true,  Array.isArray(machine.probable_action_exits('off')) ) );
+  it('probable action exit 1 is on 2',       t => t.is('on',  machine.probable_action_exits('off')[0].action      ) );
 
-  it('probable action exits are an array', t => t.is(true,  Array.isArray(machine.probable_action_exits('red')) ) );
-  it('probable action exit 1 is on',       t => t.is('off', machine.probable_action_exits('red')[0].action      ) );
+  it('probable action exits are an array 3', t => t.is(true,  Array.isArray(machine.probable_action_exits('red')) ) );
+  it('probable action exit 1 is on 3',       t => t.is('off', machine.probable_action_exits('red')[0].action      ) );
 
 });
 
@@ -342,14 +342,14 @@ describe('actions', async it => {
     transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
   });
 
-  it('red has actions().length 1', t => t.is(1,     machine.actions().length      ) );
-  it('red has actions()[0] "on"',  t => t.is('on',  machine.actions()[0]          ) );
+  it('red has actions().length 1',          t => t.is(1,     machine.actions().length      ) );
+  it('red has actions()[0] "on"',           t => t.is('on',  machine.actions()[0]          ) );
 
-  it('red has actions().length 1', t => t.is(1,     machine.actions('off').length ) );
-  it('red has actions()[0] "on"',  t => t.is('on',  machine.actions('off')[0]     ) );
+  it('red has actions().length 1 again',    t => t.is(1,     machine.actions('off').length ) );
+  it('red has actions()[0] "on" again',     t => t.is('on',  machine.actions('off')[0]     ) );
 
-  it('red has actions().length 1', t => t.is(1,     machine.actions('red').length ) );
-  it('red has actions()[0] "off"', t => t.is('off', machine.actions('red')[0]     ) );
+  it('red has actions().length 1 re-again', t => t.is(1,     machine.actions('red').length ) );
+  it('red has actions()[0] "off" re-again', t => t.is('off', machine.actions('red')[0]     ) );
 
 });
 
@@ -654,10 +654,6 @@ describe('Illegal machines', async it => {
     machine.probable_exits_for('3');
 
   }, Error));
-
-test(t => {
-  t.pass();
-});
 
   it('no probable action exits of non-action', t => t.throws(() => {
 
