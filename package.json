@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.14.3",
+  "version": "5.15.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -89,7 +89,7 @@
   "devDependencies": {
     "@typescript-eslint/parser": "^1.7.0",
     "ava": "^1.4.1",
-    "ava-spec": "^1.1.0",
+    "ava-spec": "^1.1.1",
     "changelog-maker": "^2.2.6",
     "coveralls": "^3.0.2",
     "documentation": "^10.1.0",
