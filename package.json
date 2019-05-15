@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.14.2",
+  "version": "5.14.3",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -88,7 +88,7 @@
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
     "@typescript-eslint/parser": "^1.7.0",
-    "ava": "^0.22.0",
+    "ava": "^1.4.1",
     "ava-spec": "^1.1.0",
     "changelog-maker": "^2.2.6",
     "coveralls": "^3.0.2",
