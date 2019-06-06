@@ -6,11 +6,11 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
 
 jobs:
 - job: Build library
+  pool:
+    vmImage: 'ubuntu-latest'
   displayName: build
   strategy:
     matrix:
@@ -41,6 +41,8 @@ jobs:
     displayName: 'npm install and build'
 
 - job: Build Artifacts
+  pool:
+    vmImage: 'ubuntu-latest'
   dependsOn: build
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   steps:
