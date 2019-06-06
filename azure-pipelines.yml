@@ -9,30 +9,36 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-strategy:
-  matrix:
-    node_6_x:
-      node_version: 6.x
-    node_7_x:
-      node_version: 7.x
-    node_8_x:
-      node_version: 8.x
-    node_9_x:
-      node_version: 9.x
-    node_10_x:
-      node_version: 10.x
-    node_11_x:
-      node_version: 11.x
-    node_12_x:
-      node_version: 12.x
-
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: $(node_version)
-  displayName: 'Install Node.js'
-
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+stages:
+- stage: build
+  displayName: build 6-12
+  strategy:
+    matrix:
+      node_6_x:
+        node_version: 6.x
+      node_7_x:
+        node_version: 7.x
+      node_8_x:
+        node_version: 8.x
+      node_9_x:
+        node_version: 9.x
+      node_10_x:
+        node_version: 10.x
+      node_11_x:
+        node_version: 11.x
+      node_12_x:
+        node_version: 12.x
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(node_version)
+    displayName: 'Install Node.js'
+  - script: |
+      npm install
+      npm run build
+    displayName: 'npm install and build'
+- stage: finalize
+  - job: Build Artifacts
+    dependsOn: build
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    steps: npm run azure-finalize
