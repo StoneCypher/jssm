@@ -6,9 +6,8 @@
 trigger:
 - master
 
-
 jobs:
-- job: Build library
+- job: build-library
   pool:
     vmImage: 'ubuntu-latest'
   displayName: build
@@ -40,10 +39,10 @@ jobs:
       npm run build
     displayName: 'npm install and build'
 
-- job: Build Artifacts
-  pool:
-    vmImage: 'ubuntu-latest'
-  dependsOn: build
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-  steps:
-    -script: npm run azure-finalize
+# - job: build-artifacts
+#   pool:
+#     vmImage: 'ubuntu-latest'
+#   dependsOn: build-library
+#   condition: succeeded()
+#   steps:
+#     -script: npm run azure-finalize
