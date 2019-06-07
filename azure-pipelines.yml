@@ -6,43 +6,40 @@
 trigger:
 - master
 
-jobs:
-- job: build_library
-  pool:
-    vmImage: 'ubuntu-latest'
-  displayName: build
-  strategy:
-    matrix:
-      node_6_x:
-        node_version: 6.x
-      node_7_x:
-        node_version: 7.x
-      node_8_x:
-        node_version: 8.x
-      node_9_x:
-        node_version: 9.x
-      node_10_x:
-        node_version: 10.x
-      node_11_x:
-        node_version: 11.x
-      node_12_x:
-        node_version: 12.x
+pool:
+  vmImage: 'ubuntu-latest'
 
-  steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: $(node_version)
-    displayName: 'Install Node.js'
+strategy:
+  matrix:
+    node_6_x:
+      node_version: 6.x
+      build_cmd: build
+    node_7_x:
+      node_version: 7.x
+      build_cmd: build
+    node_8_x:
+      node_version: 8.x
+      build_cmd: build
+    node_9_x:
+      node_version: 9.x
+      build_cmd: build
+    node_10_x:
+      node_version: 10.x
+      build_cmd: build
+    node_11_x:
+      node_version: 11.x
+      build_cmd: build
+    node_12_x:
+      node_version: 12.x
+      build_cmd: build_extended
 
-  - script: |
-      npm install
-      npm run build
-    displayName: 'npm install and build'
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: $(node_version)
+  displayName: 'Install Node.js'
 
-# - job: build_artifacts
-#   pool:
-#     vmImage: 'ubuntu-latest'
-#   dependsOn: build_library
-#   condition: succeeded()
-#   steps:
-#     -script: npm run azure-finalize
+- script: |
+    npm install
+    npm run $(build_cmd)
+  displayName: 'npm install and build'
