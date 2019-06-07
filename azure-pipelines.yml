@@ -9,6 +9,12 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  CI_NAME: Azure Pipelines Build
+  CI_BRANCH: $(Build.SourceBranch)
+  CI_BUILD_NUMBER: $(Build.BuildNumber)
+  CI_BUILD_URL: $(Build.BuildUri)
+
 strategy:
   matrix:
     node_6_x:
