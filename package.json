@@ -43,6 +43,7 @@
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
     "travis": "echo Running Travis Script && npm run build && npm run nyc-html && npm run coverage",
+    "azure": "npm run nyc-html && npm run coverage",
     "buildtest": "npm run build && npm run test",
     "ts": "npm run peg && rollup -c"
   },

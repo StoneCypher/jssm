@@ -35,6 +35,7 @@ steps:
 - script: |
     npm install
     npm run build
+    npm run azure
   displayName: 'npm install and build'
   env:
     # Pretend to be AppVeyor for now
