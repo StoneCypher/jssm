@@ -12,7 +12,7 @@ pool:
 strategy:
   matrix:
     node_7_x:
-      node_version: 8.x
+      node_version: 7.x
     node_8_x:
       node_version: 8.x
     node_9_x:
@@ -34,3 +34,15 @@ steps:
     npm install
     npm run build
   displayName: 'npm install and build'
+  env:
+    # Pretend to be AppVeyor for now
+    APPVEYOR: true
+    APPVEYOR_BUILD_NUMBER: $(Build.BuildNumber)
+    APPVEYOR_BUILD_ID: $(Agent.OS)_$(node_version)
+    APPVEYOR_REPO_COMMIT: $(Build.SourceVersion)
+    APPVEYOR_REPO_BRANCH: $(Build.SourceBranchName)
+    # Overwrite the AppVeyor Service Name
+    COVERALLS_SERVICE_NAME: Azure Pipelines
+    #COVERALLS_REPO_TOKEN: $(COVERALLS_REPO_TOKEN_SECRET)
+    COVERALLS_PARALLEL: true
+    CI_PULL_REQUEST: $(System.PullRequest.PullRequestNumber)
