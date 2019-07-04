@@ -35,7 +35,7 @@ steps:
 - script: |
     npm install
     npm run build
-    npm run azure
+    COVERALLS_REPO_TOKEN=l2zRuBwywKdRUXAY9HVzhOElH88X4wAVf npm run azure
   displayName: 'npm install and build'
   env:
     # Pretend to be AppVeyor for now
