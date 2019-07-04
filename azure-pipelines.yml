@@ -11,6 +11,8 @@ pool:
 
 strategy:
   matrix:
+    node_6_x:
+      node_version: 6.x
     node_7_x:
       node_version: 7.x
     node_8_x:
