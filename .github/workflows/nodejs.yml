@@ -24,3 +24,5 @@ jobs:
         npm test
       env:
         CI: true
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v1.0.1
