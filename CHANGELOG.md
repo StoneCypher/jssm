@@ -1,3 +1,4 @@
+* [[`71148158e1`](https://github.com/StoneCypher/jssm/commit/71148158e1)] - bump nyc over security issue (John Haugeland)
 * [[`c39ec14c04`](https://github.com/StoneCypher/jssm/commit/c39ec14c04)] - rebuild and bump to .16 prior to publish (John Haugeland)
 * [[`5ba3f22440`](https://github.com/StoneCypher/jssm/commit/5ba3f22440)] - right, coverage is outside build in the ci action, so, make one for gh (John Haugeland)
 * [[`518be0962d`](https://github.com/StoneCypher/jssm/commit/518be0962d)] - node 13 and 14 may not exist (John Haugeland)
