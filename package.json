@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.16.0",
+  "version": "5.17.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -106,7 +106,7 @@
     "eslint-plugin-react": "^7.3.0",
     "eslint-plugin-unicorn": "^2.1.2",
     "glob": "^7.1.2",
-    "nyc": "^14.1.0",
+    "nyc": "^15.0.0",
     "pegjs": "^0.10.0",
     "reduce-to-639-1": "^1.0.4",
     "rollup": "^1.11.2",
