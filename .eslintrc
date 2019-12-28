@@ -5,9 +5,24 @@
     "sourceType" : "module",
   },
 
-  "plugins" : [ ],
+  "plugins" : [ "@typescript-eslint" ],
   "env"     : { "es6": true, "commonjs": true },
 
-  "extends" : "eslint-config-stonecypher"
+  "extends" : [
+    "eslint-config-stonecypher",
+    "plugin:@typescript-eslint/eslint-recommended"
+  ],
+
+  rules: {
+    "no-unused-vars": 0,
+    "@typescript-eslint/no-unused-vars": [
+      1, {
+        argsIgnorePattern : "^_",
+        varsIgnorePattern : "^_",
+        caughtErrors : "all",
+        caughtErrorsIgnorePattern : "^_"
+      }
+    ]
+  }
 
 }

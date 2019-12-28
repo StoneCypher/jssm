@@ -1,3 +1,6 @@
+* [[`7845b0f62c`](https://github.com/StoneCypher/jssm/commit/7845b0f62c)] - roll back opencollective image thing (John Haugeland)
+* [[`afbd96094e`](https://github.com/StoneCypher/jssm/commit/afbd96094e)] - Update README.md (John Haugeland)
+* [[`b45738cea7`](https://github.com/StoneCypher/jssm/commit/b45738cea7)] - support for module field and thus importing from es6 version, should improve tree shaking significantly (John Haugeland)
 * [[`71148158e1`](https://github.com/StoneCypher/jssm/commit/71148158e1)] - bump nyc over security issue (John Haugeland)
 * [[`c39ec14c04`](https://github.com/StoneCypher/jssm/commit/c39ec14c04)] - rebuild and bump to .16 prior to publish (John Haugeland)
 * [[`5ba3f22440`](https://github.com/StoneCypher/jssm/commit/5ba3f22440)] - right, coverage is outside build in the ci action, so, make one for gh (John Haugeland)

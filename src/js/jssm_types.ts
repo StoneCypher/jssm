@@ -193,7 +193,7 @@ type JssmGenericConfig<DataType> = {
   start_states         : Array<StateType>,
   end_states?          : Array<StateType>,
 
-  state_declaration?   : Array<Object>,    // eslint-disable-line flowtype/no-weak-types // TODO FIXME COMEBACK
+  state_declaration?   : Array<Object>,
 
   machine_author?      : string | Array<string>,
   machine_comment?     : string,
