@@ -797,6 +797,12 @@ JSSM and FSL have had a lot of help.
 
 <br/><br/>
 
+<a href="https://github.com/typescript-eslint/typescript-eslint/graphs/contributors"><img src="https://opencollective.com/typescript-eslint/contributors.svg?width=890&button=false" /></a>
+
+
+
+<br/><br/>
+
 ## Internationalization
 
 * [Mykhaylo Les](https://github.com/miles91) provided three translation test cases ([Ukrainian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/ukrainian.json), [Belarussian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/belarussian.json), and [Russian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/russian.json),) and the corresponding Traffic Light translations (also [Ukrainian](https://github.com/StoneCypher/fsl_traffic_light_ukrainian/blob/master/traffic%20light.fsl), [Belarussian](https://github.com/StoneCypher/fsl_traffic_light_belarussian/blob/master/traffic_light.fsl), and [Russian](https://github.com/StoneCypher/fsl_traffic_light_russian/blob/master/traffic%20light.fsl).)
