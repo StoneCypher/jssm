@@ -750,15 +750,15 @@ MachineAttribute "machine attribute"
 
 
 
-SdNodeColor "color"
-  = WS? "color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'node_color', value:value}; }
+SdStateColor "color"
+  = WS? "color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'color', value:value}; }
 
-SdNodeShape "shape"
-  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'node_shape', value:value}; }
+SdStateShape "shape"
+  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'shape', value:value}; }
 
 StateDeclarationItems
-  = SdNodeColor
-  / SdNodeShape
+  = SdStateColor
+  / SdStateShape
 
 StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }

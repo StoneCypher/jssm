@@ -1,3 +1,5 @@
+* [[`134c186389`](https://github.com/StoneCypher/jssm/commit/134c186389)] - extensive repair node shape -\> state shape w/ vat (John Haugeland)
+* [[`c39ec14c04`](https://github.com/StoneCypher/jssm/commit/c39ec14c04)] - rebuild and bump to .16 prior to publish (John Haugeland)
 * [[`5ba3f22440`](https://github.com/StoneCypher/jssm/commit/5ba3f22440)] - right, coverage is outside build in the ci action, so, make one for gh (John Haugeland)
 * [[`518be0962d`](https://github.com/StoneCypher/jssm/commit/518be0962d)] - node 13 and 14 may not exist (John Haugeland)
 * [[`c9601c843c`](https://github.com/StoneCypher/jssm/commit/c9601c843c)] - fix gh credential.  expand gh actions coverage from 8/10/12 to 8-14 (John Haugeland)

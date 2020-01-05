@@ -385,8 +385,8 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
     state_decl.declarations.map( (d: JssmStateDeclarationRule) => {
       switch (d.key) {
 
-        case 'node_shape' : state_decl.node_shape = d.value; break;
-        case 'node_color' : state_decl.node_color = d.value; break;
+        case 'shape' : state_decl.shape = d.value; break;
+        case 'color' : state_decl.color = d.value; break;
 
         default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
 
@@ -589,7 +589,7 @@ class Machine<mDT> {
 
   }
 
-  _new_state(state_config: JssmGenericState): StateType { // whargarbl get that state_config any under control
+  _new_state(state_config: JssmGenericState): StateType {
 
     if (this._states.has(state_config.name)) {
       throw new Error(`state ${JSON.stringify(state_config.name)} already exists`);
