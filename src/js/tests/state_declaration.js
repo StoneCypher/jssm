@@ -14,7 +14,7 @@ describe("doesn't throw", async it => {
 
   it('with no attributes',   t => t.notThrows(() => { const _foo = sm`c: {}; a -> b;`; }) );
   it('with just whitespace', t => t.notThrows(() => { const _foo = sm`c: { }; a -> b;`; }) );
-  it('with just node color', t => t.notThrows(() => { const _foo = sm`c: { node_color: red; }; a -> b;`; }) );
+  it('with just node color', t => t.notThrows(() => { const _foo = sm`c: { color: red; }; a -> b;`; }) );
 
 });
 
@@ -24,14 +24,14 @@ describe("doesn't throw", async it => {
 
 describe('can read declaration', async _it => {
 
-  const mach0 = sm`c: { };                                              a -> b;`;
-  const mach1 = sm`c: { node_color: red; };                             a -> b;`;
-  const mach2 = sm`c: { node_color: red; node_shape: circle; };         a -> b;`;
-//  const machT = sm`c: { node_color: red; }; d: { node_shape: circle; }; a -> b;`;
+  const mach0 = sm`c: { };                                    a -> b;`;
+  const mach1 = sm`c: { color: red; };                        a -> b;`;
+  const mach2 = sm`c: { color: red; shape: circle; };         a -> b;`;
+//  const machT = sm`c: { color: red; }; d: { shape: circle; }; a -> b;`;
 
   // const machP = sm`
-  //   c: { node_shape: circle; node_color: red; };
-  //   d: { node_shape: circle; node_color: red; };
+  //   c: { shape: circle; color: red; };
+  //   d: { shape: circle; color: red; };
   //   a -> b;
   // `;
 
@@ -44,9 +44,9 @@ describe('can read declaration', async _it => {
     });
   });
 
-  describe('of just w/ node_color', async _it1 => {
+  describe('of just w/ color', async _it1 => {
     const decls = mach1.state_declarations();
-    describe('through .state_declarations/0 just node color', async it2 => {
+    describe('through .state_declarations/0 just state color', async it2 => {
       it2('yielding map',          t => t.is(true, decls instanceof Map));
       it2('list having size 1',    t => t.is(1,    decls.size));
       it2('props having length 1', t => t.is(1,    decls.get('c').declarations.length));
@@ -56,20 +56,20 @@ describe('can read declaration', async _it => {
 //  it('through .state_declaration/1',  t => t.is('left', mach1.state_declaration('c') ) );
   });
 
-  describe('of w/ node_color, node_shape', async it => {
+  describe('of w/ color, shape', async it => {
     it('through .state_declaration/1 red hex-8',            t => t.is('#ff0000ff', mach2.state_declaration('c').declarations[0].value ) );
     it('through .state_declaration/1 circle',               t => t.is('circle', mach2.state_declaration('c').declarations[1].value ) );
     it('through .state_declarations/0 size',                t => t.is(1, mach2.state_declarations().size ) );
     it('through .state_declarations/0 declarations length', t => t.is(2, mach2.state_declarations().get('c').declarations.length ) );
   });
 /*
-  describe('of w/ node_color on c, node_shape on d', async it => {
+  describe('of w/ color on c, shape on d', async it => {
     it('through .state_declaration/1',  t => t.is('left', machT.state_declaration('c') ) );
     it('through .state_declaration/1',  t => t.is('left', machT.state_declaration('d') ) );
     it('through .state_declarations/0', t => t.is('left', machT.state_declarations() ) );
   });
 
-  describe('of w/ node_color, node_shape on each c and d', async it => {
+  describe('of w/ color, shape on each c and d', async it => {
     it('through .state_declaration/1',  t => t.is('left', machP.state_declaration('c') ) );
     it('through .state_declaration/1',  t => t.is('left', machP.state_declaration('d') ) );
     it('through .state_declarations/0', t => t.is('left', machP.state_declarations() ) );
@@ -85,7 +85,7 @@ describe('error catchery', async _parse_it => {
 
   describe('repeated declaration', async it => {
     it('throws', t => t.throws( () => {
-      const _mach1 = sm`c: { node_color: red; }; c: { node_color: red; }; a -> b;`; // eslint-disable-line no-unused-vars
+      const _mach1 = sm`c: { color: red; }; c: { color: red; }; a -> b;`; // eslint-disable-line no-unused-vars
     } ));
   });
 
