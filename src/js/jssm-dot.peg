@@ -597,12 +597,10 @@ GvizLayout
   / "neato"
 
 StateItemShapeKey
-  = "in_shape"
-  / "out_shape"
-  / "node_shape"
+  = "shape"
 
 StateItemShape
-  = WS? key:StateItemShapeKey WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:key, value:value}; }
+  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:key, value:value}; }
 
 StateItem
   = StateItemShape
@@ -612,6 +610,16 @@ StateItems
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { config_kind: "state", config_items: state_items || [] };
+  }
+
+ConfigInState
+  = WS? "instate" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { config_kind: "state", config_items: state_items || [] };
+  }
+
+ConfigOutState
+  = WS? "outstate" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
     return { config_kind: "state", config_items: state_items || [] };
   }
 
@@ -742,11 +750,11 @@ MachineAttribute "machine attribute"
 
 
 
-SdNodeColor "node color"
-  = WS? "node_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'node_color', value:value}; }
+SdNodeColor "color"
+  = WS? "color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'node_color', value:value}; }
 
-SdNodeShape "node shape"
-  = WS? "node_shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'node_shape', value:value}; }
+SdNodeShape "shape"
+  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'node_shape', value:value}; }
 
 StateDeclarationItems
   = SdNodeColor
