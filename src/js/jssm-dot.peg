@@ -597,12 +597,10 @@ GvizLayout
   / "neato"
 
 StateItemShapeKey
-  = "in_shape"
-  / "out_shape"
-  / "node_shape"
+  = "shape"
 
 StateItemShape
-  = WS? key:StateItemShapeKey WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:key, value:value}; }
+  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:"shape", value:value}; }
 
 StateItem
   = StateItemShape
@@ -612,8 +610,23 @@ StateItems
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { config_kind: "state", config_items: state_items || [] };
+    return { key: "state_config", value: { config_kind: "state", config_items: state_items || [] } };
   }
+
+ConfigInState
+  = WS? "in_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "state_config", value: { config_kind: "in_state", config_items: state_items || [] } };
+  }
+
+ConfigOutState
+  = WS? "out_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "state_config", value: { config_kind: "out_state", config_items: state_items || [] } };
+  }
+
+ConfigAnyState
+  = ConfigState
+  / ConfigInState
+  / ConfigOutState
 
 
 
@@ -675,7 +688,7 @@ Config "configuration"
   / ConfigEndNodes
   / ConfigTransition
   / ConfigAction
-  / ConfigState
+  / ConfigAnyState
   / ConfigValidation
   / ConfigGraphBgColor
 
@@ -742,21 +755,21 @@ MachineAttribute "machine attribute"
 
 
 
-SdNodeColor "node color"
-  = WS? "node_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'node_color', value:value}; }
+SdStateColor "color"
+  = WS? "color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'color', value:value}; }
 
-SdNodeShape "node shape"
-  = WS? "node_shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'node_shape', value:value}; }
+SdStateShape "shape"
+  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'shape', value:value}; }
 
 StateDeclarationItems
-  = SdNodeColor
-  / SdNodeShape
+  = SdStateColor
+  / SdStateShape
 
 StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
 
 StateDeclaration
-  = WS? state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
+  = WS? "state" WS state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
 
 
 

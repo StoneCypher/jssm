@@ -13,21 +13,21 @@ describe('simple naming', async _it => {
 
   describe('parse', async it => {
 
-    it('trans then node',  t => t.notThrows(() => { jp('a -> b; a: { node_color: orange; };'); }) );
-    it('node then trans',  t => t.notThrows(() => { jp('a: { node_color: orange; }; a -> b;'); }) );
-    it('cycle node named', t => t.notThrows(() => { jp('[a b] -> +1; a: { node_color: red; }; &b: [a c e];'); }) );
+    it('trans then node',  t => t.notThrows(() => { jp('a -> b; state a: { color: orange; };'); }) );
+    it('node then trans',  t => t.notThrows(() => { jp('state a: { color: orange; }; a -> b;'); }) );
+    it('cycle node named', t => t.notThrows(() => { jp('[a b] -> +1; state a: { color: red; }; &b: [a c e];'); }) );
 
-    it('two properties',   t => t.notThrows(() => { jp('a -> b; a: { node_color: orange; node_shape: circle; };'); }) );
+    it('two properties',   t => t.notThrows(() => { jp('a -> b; state a: { color: orange; shape: circle; };'); }) );
 
   });
 
   describe('sm tag', async it => {
 
-    it('trans then node',  t => t.notThrows(() => { sm`a -> b; a: { node_color: orange; };`; }) );
-    it('node then trans',  t => t.notThrows(() => { sm`a: { node_color: orange; }; a -> b;`; }) );
-//  it('cycle node named', t => t.notThrows(() => { sm`[a b] -> +1; a: { node_color: red; }; &b: [a c e];`; }) );
+    it('trans then node',  t => t.notThrows(() => { sm`a -> b; state a: { color: orange; };`; }) );
+    it('node then trans',  t => t.notThrows(() => { sm`state a: { color: orange; }; a -> b;`; }) );
+//  it('cycle node named', t => t.notThrows(() => { sm`[a b] -> +1; state a: { color: red; }; &b: [a c e];`; }) );
 
-    it('two properties',   t => t.notThrows(() => { sm`a -> b; a: { node_color: orange; node_shape: circle; };`; }) );
+    it('two properties',   t => t.notThrows(() => { sm`a -> b; state a: { color: orange; shape: circle; };`; }) );
 
   });
 
@@ -39,11 +39,11 @@ describe('simple naming', async _it => {
 
 describe('spacing variants', async it => {
 
-  it('tight',    t => t.notThrows(() => { jp('a -> b; a:{node_color:orange;};'); }) );
-  it('framed',   t => t.notThrows(() => { jp('a -> b; a:{ node_color:orange; };'); }) );
-  it('sentence', t => t.notThrows(() => { jp('a -> b; a:{ node_color: orange; };'); }) );
-  it('fully',    t => t.notThrows(() => { jp('a -> b; a:{ node_color : orange; };'); }) );
-  it('mars',     t => t.notThrows(() => { jp('a -> b; a:{node_color : orange;};'); }) );
+  it('tight',    t => t.notThrows(() => { jp('a -> b; state a:{color:orange;};'); }) );
+  it('framed',   t => t.notThrows(() => { jp('a -> b; state a:{ color:orange; };'); }) );
+  it('sentence', t => t.notThrows(() => { jp('a -> b; state a:{ color: orange; };'); }) );
+  it('fully',    t => t.notThrows(() => { jp('a -> b; state a:{ color : orange; };'); }) );
+  it('mars',     t => t.notThrows(() => { jp('a -> b; state a:{color : orange;};'); }) );
 
 });
 
@@ -53,9 +53,9 @@ describe('spacing variants', async it => {
 
 describe('properties', async it => {
 
-  it('node_color', t => t.deepEqual(
-    {state:'a', node_color:'#ffa500ff', declarations:[{key: "node_color", value: "#ffa500ff"}]},
-    sm`a -> b; a:{node_color:orange;};`.raw_state_declarations()[0]
+  it('color', t => t.deepEqual(
+    {state:'a', color:'#ffa500ff', declarations:[{key: "color", value: "#ffa500ff"}]},
+    sm`a -> b; state a:{color:orange;};`.raw_state_declarations()[0]
   ));
 
 });

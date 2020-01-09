@@ -275,7 +275,7 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
   const tautologies : Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-    'machine_reference', 'machine_license', 'fsl_version'
+    'machine_reference', 'machine_license', 'fsl_version', 'state_config'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -297,6 +297,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     transition          : Array< JssmTransition<mDT> >,
     start_states        : Array< string >,
     end_states          : Array< string >,
+    state_config        : Array< any >,     // todo comeback no any
     state_declaration   : Array< string >,
     fsl_version         : Array< string >,
     machine_author      : Array< string >,
@@ -313,6 +314,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     transition          : [],
     start_states        : [],
     end_states          : [],
+    state_config        : [],
     state_declaration   : [],
     fsl_version         : [],
     machine_author      : [],
@@ -330,7 +332,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
     const rule   : JssmCompileRule = compile_rule_handler(tr),
           agg_as : string          = rule.agg_as,
-          val    : any           = rule.val;                  // TODO FIXME no any
+          val    : any             = rule.val;                  // TODO FIXME no any
 
     results[agg_as] = results[agg_as].concat(val);
 
@@ -385,8 +387,8 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
     state_decl.declarations.map( (d: JssmStateDeclarationRule) => {
       switch (d.key) {
 
-        case 'node_shape' : state_decl.node_shape = d.value; break;
-        case 'node_color' : state_decl.node_color = d.value; break;
+        case 'shape' : state_decl.shape = d.value; break;
+        case 'color' : state_decl.color = d.value; break;
 
         default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
 
@@ -589,7 +591,7 @@ class Machine<mDT> {
 
   }
 
-  _new_state(state_config: JssmGenericState): StateType { // whargarbl get that state_config any under control
+  _new_state(state_config: JssmGenericState): StateType {
 
     if (this._states.has(state_config.name)) {
       throw new Error(`state ${JSON.stringify(state_config.name)} already exists`);
