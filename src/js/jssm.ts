@@ -275,7 +275,7 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
   const tautologies : Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-    'machine_reference', 'machine_license', 'fsl_version'
+    'machine_reference', 'machine_license', 'fsl_version', 'state_config'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -297,6 +297,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     transition          : Array< JssmTransition<mDT> >,
     start_states        : Array< string >,
     end_states          : Array< string >,
+    state_config        : Array< any >,     // todo comeback no any
     state_declaration   : Array< string >,
     fsl_version         : Array< string >,
     machine_author      : Array< string >,
@@ -313,6 +314,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     transition          : [],
     start_states        : [],
     end_states          : [],
+    state_config        : [],
     state_declaration   : [],
     fsl_version         : [],
     machine_author      : [],
@@ -330,7 +332,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
     const rule   : JssmCompileRule = compile_rule_handler(tr),
           agg_as : string          = rule.agg_as,
-          val    : any           = rule.val;                  // TODO FIXME no any
+          val    : any             = rule.val;                  // TODO FIXME no any
 
     results[agg_as] = results[agg_as].concat(val);
 

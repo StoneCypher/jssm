@@ -600,7 +600,7 @@ StateItemShapeKey
   = "shape"
 
 StateItemShape
-  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:key, value:value}; }
+  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:"shape", value:value}; }
 
 StateItem
   = StateItemShape
@@ -610,18 +610,23 @@ StateItems
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { config_kind: "state", config_items: state_items || [] };
+    return { key: "state_config", value: { config_kind: "state", config_items: state_items || [] } };
   }
 
 ConfigInState
-  = WS? "instate" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { config_kind: "state", config_items: state_items || [] };
+  = WS? "in_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "state_config", value: { config_kind: "in_state", config_items: state_items || [] } };
   }
 
 ConfigOutState
-  = WS? "outstate" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { config_kind: "state", config_items: state_items || [] };
+  = WS? "out_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "state_config", value: { config_kind: "out_state", config_items: state_items || [] } };
   }
+
+ConfigAnyState
+  = ConfigState
+  / ConfigInState
+  / ConfigOutState
 
 
 
@@ -683,7 +688,7 @@ Config "configuration"
   / ConfigEndNodes
   / ConfigTransition
   / ConfigAction
-  / ConfigState
+  / ConfigAnyState
   / ConfigValidation
   / ConfigGraphBgColor
 
@@ -764,7 +769,7 @@ StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
 
 StateDeclaration
-  = WS? state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
+  = WS? "state" WS state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
 
 
 

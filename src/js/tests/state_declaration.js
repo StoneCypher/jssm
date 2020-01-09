@@ -12,9 +12,9 @@ const jssm = require('../../../build/jssm.es5.cjs.js'),
 
 describe("doesn't throw", async it => {
 
-  it('with no attributes',   t => t.notThrows(() => { const _foo = sm`c: {}; a -> b;`; }) );
-  it('with just whitespace', t => t.notThrows(() => { const _foo = sm`c: { }; a -> b;`; }) );
-  it('with just node color', t => t.notThrows(() => { const _foo = sm`c: { color: red; }; a -> b;`; }) );
+  it('with no attributes',   t => t.notThrows(() => { const _foo = sm`state c: {}; a -> b;`; }) );
+  it('with just whitespace', t => t.notThrows(() => { const _foo = sm`state c: { }; a -> b;`; }) );
+  it('with just node color', t => t.notThrows(() => { const _foo = sm`state c: { color: red; }; a -> b;`; }) );
 
 });
 
@@ -24,9 +24,9 @@ describe("doesn't throw", async it => {
 
 describe('can read declaration', async _it => {
 
-  const mach0 = sm`c: { };                                    a -> b;`;
-  const mach1 = sm`c: { color: red; };                        a -> b;`;
-  const mach2 = sm`c: { color: red; shape: circle; };         a -> b;`;
+  const mach0 = sm`state c: { };                                    a -> b;`;
+  const mach1 = sm`state c: { color: red; };                        a -> b;`;
+  const mach2 = sm`state c: { color: red; shape: circle; };         a -> b;`;
 //  const machT = sm`c: { color: red; }; d: { shape: circle; }; a -> b;`;
 
   // const machP = sm`
@@ -85,7 +85,7 @@ describe('error catchery', async _parse_it => {
 
   describe('repeated declaration', async it => {
     it('throws', t => t.throws( () => {
-      const _mach1 = sm`c: { color: red; }; c: { color: red; }; a -> b;`; // eslint-disable-line no-unused-vars
+      const _mach1 = sm`state c: { color: red; }; c: { color: red; }; a -> b;`; // eslint-disable-line no-unused-vars
     } ));
   });
 

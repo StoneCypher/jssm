@@ -20,10 +20,10 @@ describe('GraphViz Shapes', async it => {
 
   Shapes.map(shape =>
     it(`Shape "${shape}" parses as a shape`, t =>
-      t.notThrows( () => { const _foo = sm`c: { shape: ${shape}; }; a -> b;`; }) ) );
+      t.notThrows( () => { const _foo = sm`state c: { shape: ${shape}; }; a -> b;`; }) ) );
 
   // misspelling the last character of restrictionsite gets parser coverage
   it('handles parse end', t =>
-    t.throws( () => { const _foo = sm`c: { shape: restrictionsitz; }; a -> b;`; }) );
+    t.throws( () => { const _foo = sm`state c: { shape: restrictionsitz; }; a -> b;`; }) );
 
 });
