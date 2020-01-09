@@ -1,3 +1,5 @@
+* [[`9f9d02d228`](https://github.com/StoneCypher/jssm/commit/9f9d02d228)] - Added state, in\_state, out\_state top level properties w/ vat; repaired shape w/ vat; tests (John Haugeland)
+* [[`f99017834d`](https://github.com/StoneCypher/jssm/commit/f99017834d)] - Added state, in\_state, out\_state top level properties w/ vat; repaired shape w/ vat; tests (John Haugeland)
 * [[`134c186389`](https://github.com/StoneCypher/jssm/commit/134c186389)] - extensive repair node shape -\> state shape w/ vat (John Haugeland)
 * [[`c39ec14c04`](https://github.com/StoneCypher/jssm/commit/c39ec14c04)] - rebuild and bump to .16 prior to publish (John Haugeland)
 * [[`5ba3f22440`](https://github.com/StoneCypher/jssm/commit/5ba3f22440)] - right, coverage is outside build in the ci action, so, make one for gh (John Haugeland)

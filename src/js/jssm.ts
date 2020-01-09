@@ -12,7 +12,7 @@ import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import {
 
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList, JssmTransitionRule,
+  JssmTransition, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,

@@ -4,6 +4,8 @@ JSSM is a Javascript state machine implementing [Finite State Language](https://
 
 [Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
 
+Visualize with [jssm-viz](https://github.com/StoneCypher/jssm-viz), or at the command line with [jssm-viz-cli](https://github.com/StoneCypher/jssm-viz-cli).
+
 Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, Spanish, Ukrainian, and Emoji.  Please help to make sure that your language is well handled!
 
 <div id="badge_style_hook">

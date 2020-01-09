@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.17.0",
+  "version": "5.18.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -19,6 +19,7 @@
   },
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
+  "module": "dist/jssm.es6.js",
   "scripts": {
     "test-keepdotcoverage": "npm run make && npm run justtest-keep",
     "test": "npm run make && npm run justtest",
@@ -30,7 +31,7 @@
     "clean": "npm run removedir && npm run rmdot && npm run createdir",
     "make": "npm run clean && npm run peg && npm run ts",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
-    "eslint": "eslint src/js/jssm.js src/js/jssm-types.js src/js/tests/*.js",
+    "eslint": "eslint src/js/jssm.ts src/js/jssm_types.ts src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html -x \"src/js/jssm-dot.js\"",
     "coverage": "nyc report -x \"src/js/jssm-dot.js\" --reporter=text-lcov > ./coverage/lcov.info",
     "vet": "npm run eslint && npm run audit",
@@ -89,24 +90,25 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
-    "@typescript-eslint/parser": "^1.7.0",
+    "@typescript-eslint/eslint-plugin": "^2.13.0",
+    "@typescript-eslint/parser": "^2.13.0",
     "ava": "^1.4.1",
     "ava-spec": "^1.1.1",
     "changelog-maker": "^2.2.6",
     "coveralls": "^3.0.2",
     "documentation": "^11.0.1",
-    "eslint": "^4.3.0",
-    "eslint-plugin-ava": "^4.2.1",
+    "eslint": "^6.8.0",
+    "eslint-config-stonecypher": "^1.15.11",
+    "eslint-plugin-ava": "^9.0.0",
     "eslint-plugin-flowtype": "^2.35.0",
     "eslint-plugin-fp": "^2.3.0",
-    "eslint-plugin-jsdoc": "^3.1.2",
-    "eslint-plugin-jsx-a11y": "^6.0.2",
-    "eslint-plugin-new-with-error": "^1.1.0",
+    "eslint-plugin-jsdoc": "^20.0.5",
+    "eslint-plugin-new-with-error": "^2.0.0",
     "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-react": "^7.3.0",
-    "eslint-plugin-unicorn": "^2.1.2",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-unicorn": "^15.0.1",
     "glob": "^7.1.2",
-    "nyc": "^14.1.0",
+    "nyc": "^15.0.0",
     "pegjs": "^0.10.0",
     "reduce-to-639-1": "^1.0.4",
     "rollup": "^1.11.2",
@@ -120,7 +122,6 @@
     "viz.js": "^1.7.1"
   },
   "dependencies": {
-    "eslint-config-stonecypher": "^1.15.7",
     "text_audit": "^0.9.2"
   }
 }
