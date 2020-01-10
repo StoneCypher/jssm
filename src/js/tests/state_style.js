@@ -34,11 +34,11 @@ describe('State style', async it => {
       t.notThrows( () => { const _foo = sm`machine_name: bob; state: { shape: ${shape}; }; a-> b;`; }) ) );
 
   NamedShapes.map(shape =>
-    it(`can set the shape of an input state to ${shape}`, t =>
-      t.notThrows( () => { const _foo = sm`machine_name: bob; in_state: { shape: ${shape}; }; a-> b;`; }) ) );
+    it(`can set the shape of a start state to ${shape}`, t =>
+      t.notThrows( () => { const _foo = sm`machine_name: bob; start_state: { shape: ${shape}; }; a-> b;`; }) ) );
 
   NamedShapes.map(shape =>
-    it(`can set the shape of an output state to ${shape}`, t =>
-      t.notThrows( () => { const _foo = sm`machine_name: bob; out_state: { shape: ${shape}; }; a-> b;`; }) ) );
+    it(`can set the shape of an end state to ${shape}`, t =>
+      t.notThrows( () => { const _foo = sm`machine_name: bob; end_state: { shape: ${shape}; }; a-> b;`; }) ) );
 
 });

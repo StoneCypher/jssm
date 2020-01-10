@@ -60,9 +60,11 @@ describe('properties', async it => {
 
 });
 
-// test state_delarations/0
-// test state_delaration/1 for has
-// test state_delaration/1 for doesn't have
-// test that redeclaring a state throws
 
 
+
+
+// TODO FIXME TESTME test state_delarations/0
+// TODO FIXME TESTME test state_delaration/1 for has
+// TODO FIXME TESTME test state_delaration/1 for doesn't have
+// TODO FIXME TESTME test that redeclaring a state throws

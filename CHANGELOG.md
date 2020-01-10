@@ -1,3 +1,4 @@
+* [[`635e980952`](https://github.com/StoneCypher/jssm/commit/635e980952)] - version bump because published with things not merged (John Haugeland)
 * [[`15d72028c7`](https://github.com/StoneCypher/jssm/commit/15d72028c7)] - Merge pull request #391 from StoneCypher/LetsMakeNodesStyleable (John Haugeland)
 * [[`ae2b2fcfd8`](https://github.com/StoneCypher/jssm/commit/ae2b2fcfd8)] - finalize in\_state:, out\_state:, state: ; add state keyword to state declarations (John Haugeland)
 * [[`6bc16b6cff`](https://github.com/StoneCypher/jssm/commit/6bc16b6cff)] - merge and fix resulting eslint mess (John Haugeland)

@@ -4,67 +4,75 @@ Document
 
 
 
+Theme
+  = "none"
+  / "default"
+  / "modern"
+  / "ocean"
+
+
+
 GvizShape
- = "box3d"
- / "polygon"
- / "ellipse"
- / "oval"
- / "circle"
- / "point"
- / "egg"
- / "triangle"
- / "plaintext"
- / "plain"
- / "diamond"
- / "trapezium"
- / "parallelogram"
- / "house"
- / "pentagon"
- / "hexagon"
- / "septagon"
- / "octagon"
- / "doublecircle"
- / "doubleoctagon"
- / "tripleoctagon"
- / "invtriangle"
- / "invtrapezium"
- / "invhouse"
- / "Mdiamond"
- / "Msquare"
- / "Mcircle"
- / "rectangle"
- / "rect"
- / "square"
- / "star"
- / "none"
- / "underline"
- / "cylinder"
- / "note"
- / "tab"
- / "folder"
- / "box"
- / "component"
- / "promoter"
- / "cds"
- / "terminator"
- / "utr"
- / "primersite"
- / "restrictionsite"
- / "fivepoverhang"
- / "threepoverhang"
- / "noverhang"
- / "assembly"
- / "signature"
- / "insulator"
- / "ribosite"
- / "rnastab"
- / "proteasesite"
- / "proteinstab"
- / "rpromoter"
- / "rarrow"
- / "larrow"
- / "lpromoter"
- / "record"
+  = "box3d"
+  / "polygon"
+  / "ellipse"
+  / "oval"
+  / "circle"
+  / "point"
+  / "egg"
+  / "triangle"
+  / "plaintext"
+  / "plain"
+  / "diamond"
+  / "trapezium"
+  / "parallelogram"
+  / "house"
+  / "pentagon"
+  / "hexagon"
+  / "septagon"
+  / "octagon"
+  / "doublecircle"
+  / "doubleoctagon"
+  / "tripleoctagon"
+  / "invtriangle"
+  / "invtrapezium"
+  / "invhouse"
+  / "Mdiamond"
+  / "Msquare"
+  / "Mcircle"
+  / "rectangle"
+  / "rect"
+  / "square"
+  / "star"
+  / "none"
+  / "underline"
+  / "cylinder"
+  / "note"
+  / "tab"
+  / "folder"
+  / "box"
+  / "component"
+  / "promoter"
+  / "cds"
+  / "terminator"
+  / "utr"
+  / "primersite"
+  / "restrictionsite"
+  / "fivepoverhang"
+  / "threepoverhang"
+  / "noverhang"
+  / "assembly"
+  / "signature"
+  / "insulator"
+  / "ribosite"
+  / "rnastab"
+  / "proteasesite"
+  / "proteinstab"
+  / "rpromoter"
+  / "rarrow"
+  / "larrow"
+  / "lpromoter"
+  / "record"
 
 
 ForwardLightArrow "forward light arrow ->"
@@ -613,20 +621,20 @@ ConfigState
     return { key: "state_config", value: { config_kind: "state", config_items: state_items || [] } };
   }
 
-ConfigInState
-  = WS? "in_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+ConfigStartState
+  = WS? "start_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
     return { key: "state_config", value: { config_kind: "in_state", config_items: state_items || [] } };
   }
 
-ConfigOutState
-  = WS? "out_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+ConfigEndState
+  = WS? "end_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
     return { key: "state_config", value: { config_kind: "out_state", config_items: state_items || [] } };
   }
 
 ConfigAnyState
   = ConfigState
-  / ConfigInState
-  / ConfigOutState
+  / ConfigStartState
+  / ConfigEndState
 
 
 
@@ -741,6 +749,9 @@ MachineLanguage
 FslVersion
   = WS? "fsl_version"         WS? ":" WS? fsl_version:SemVer           WS? ";" WS? { return { key: "fsl_version", value: fsl_version }; }
 
+MachineTheme
+  = WS? "theme"               WS? ":" WS? value:Theme                  WS? ";" WS? { return { key: "theme", value }; }
+
 MachineAttribute "machine attribute"
   = FslVersion
   / MachineName
@@ -751,6 +762,7 @@ MachineAttribute "machine attribute"
   / MachineVersion
   / MachineLicense
   / MachineLanguage
+  / MachineTheme
 
 
 
