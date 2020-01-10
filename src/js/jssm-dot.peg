@@ -720,37 +720,37 @@ LicenseOrLabelOrList
 
 
 MachineAuthor
-  = WS? "machine_author"      WS? ":" WS? author:LabelOrLabelList      WS? ";" WS? { return { key: "machine_author", value: author }; }
+  = WS? "machine_author"      WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_author", value }; }
 
 MachineContributor
-  = WS? "machine_contributor" WS? ":" WS? contributor:LabelOrLabelList WS? ";" WS? { return { key: "machine_contributor", value: contributor }; }
+  = WS? "machine_contributor" WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_contributor", value }; }
 
 MachineComment
-  = WS? "machine_comment"     WS? ":" WS? comment:LabelOrLabelList     WS? ";" WS? { return { key: "machine_comment", value: comment }; }
+  = WS? "machine_comment"     WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_comment", value }; }
 
 MachineDefinition
-  = WS? "machine_definition"  WS? ":" WS? definition:URL               WS? ";" WS? { return { key: "machine_definition", value: definition }; }
+  = WS? "machine_definition"  WS? ":" WS? value:URL                  WS? ";" WS? { return { key: "machine_definition", value }; }
 
 MachineName
-  = WS? "machine_name"        WS? ":" WS? name:Label                   WS? ";" WS? { return { key: "machine_name", value: name }; }
+  = WS? "machine_name"        WS? ":" WS? value:Label                WS? ";" WS? { return { key: "machine_name", value }; }
 
 MachineReference
-  = WS? "machine_reference"   WS? ":" WS? reference:LabelOrLabelList   WS? ";" WS? { return { key: "machine_reference", value: reference }; }
+  = WS? "machine_reference"   WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_reference", value }; }
 
 MachineVersion
-  = WS? "machine_version"     WS? ":" WS? version:SemVer               WS? ";" WS? { return { key: "machine_version", value: version }; }
+  = WS? "machine_version"     WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "machine_version", value }; }
 
 MachineLicense
-  = WS? "machine_license"     WS? ":" WS? license:LicenseOrLabelOrList WS? ";" WS? { return { key: "machine_license", value: license }; }
+  = WS? "machine_license"     WS? ":" WS? value:LicenseOrLabelOrList WS? ";" WS? { return { key: "machine_license", value }; }
 
 MachineLanguage
-  = WS? "machine_language"    WS? ":" WS? language:Label               WS? ";" WS? { return { key: "machine_language", value: language }; }
+  = WS? "machine_language"    WS? ":" WS? value:Label                WS? ";" WS? { return { key: "machine_language", value }; }
 
 FslVersion
-  = WS? "fsl_version"         WS? ":" WS? fsl_version:SemVer           WS? ";" WS? { return { key: "fsl_version", value: fsl_version }; }
+  = WS? "fsl_version"         WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "fsl_version", value }; }
 
 MachineTheme
-  = WS? "theme"               WS? ":" WS? value:Theme                  WS? ";" WS? { return { key: "theme", value }; }
+  = WS? "theme"               WS? ":" WS? value:Theme                WS? ";" WS? { return { key: "theme", value }; }
 
 MachineAttribute "machine attribute"
   = FslVersion
@@ -768,10 +768,10 @@ MachineAttribute "machine attribute"
 
 
 SdStateColor "color"
-  = WS? "color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'color', value:value}; }
+  = WS? "color" WS? ":" WS? value:Color     WS? ";" WS? { return { key:'color', value }; }
 
 SdStateShape "shape"
-  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:'shape', value:value}; }
+  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return { key:'shape', value }; }
 
 StateDeclarationItems
   = SdStateColor
@@ -781,15 +781,12 @@ StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
 
 StateDeclaration
-  = WS? "state" WS state_name:Label WS? ":" WS? decl_desc:StateDeclarationDesc WS? ";" WS? { return {key:'state_declaration', name: state_name, value:decl_desc}; }
-
+  = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
 
 
 
 NamedList
-  = WS? "&" WS? list_name:Label WS? ":" WS? contents:LabelOrLabelList WS? ";" WS? {
-    return { key:'named_list', name:list_name, value:contents };
-  }
+  = WS? "&" WS? name:Label WS? ":" WS? value:LabelOrLabelList WS? ";" WS? { return { key:'named_list', name, value }; }
 
 
 
