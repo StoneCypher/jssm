@@ -14164,7 +14164,7 @@ function compile(tree) {
     };
     var oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license',
-        'machine_definition', 'machine_language'
+        'machine_definition', 'machine_language', 'theme'
     ];
     oneOnlyKeys.map(function (oneOnlyKey) {
         if (results[oneOnlyKey].length > 1) {
@@ -14204,7 +14204,7 @@ var Machine = /** @class */ (function () {
     // whargarbl this badly needs to be broken up, monolith master
     function Machine(_a) {
         var _this = this;
-        var start_states = _a.start_states, _b = _a.complete, complete = _b === void 0 ? [] : _b, transitions = _a.transitions, machine_author = _a.machine_author, machine_comment = _a.machine_comment, machine_contributor = _a.machine_contributor, machine_definition = _a.machine_definition, machine_language = _a.machine_language, machine_license = _a.machine_license, machine_name = _a.machine_name, machine_version = _a.machine_version, state_declaration = _a.state_declaration, fsl_version = _a.fsl_version, _c = _a.graph_layout, graph_layout = _c === void 0 ? 'dot' : _c;
+        var start_states = _a.start_states, _b = _a.complete, complete = _b === void 0 ? [] : _b, transitions = _a.transitions, machine_author = _a.machine_author, machine_comment = _a.machine_comment, machine_contributor = _a.machine_contributor, machine_definition = _a.machine_definition, machine_language = _a.machine_language, machine_license = _a.machine_license, machine_name = _a.machine_name, machine_version = _a.machine_version, state_declaration = _a.state_declaration, fsl_version = _a.fsl_version, _c = _a.theme, theme = _c === void 0 ? 'default' : _c, _d = _a.graph_layout, graph_layout = _d === void 0 ? 'dot' : _d;
         this._state = start_states[0];
         this._states = new Map();
         this._state_declarations = new Map();
@@ -14224,6 +14224,7 @@ var Machine = /** @class */ (function () {
         this._machine_version = machine_version;
         this._raw_state_declaration = state_declaration || [];
         this._fsl_version = fsl_version;
+        this._theme = theme;
         this._graph_layout = graph_layout;
         if (state_declaration) {
             state_declaration.map(function (state_decl) {
@@ -14422,6 +14423,9 @@ var Machine = /** @class */ (function () {
     };
     Machine.prototype.list_actions = function () {
         return Array.from(this._actions.keys());
+    };
+    Machine.prototype.theme = function () {
+        return this._theme;
     };
     Machine.prototype.get_transition_by_state_names = function (from, to) {
         var emg = this._edge_map.get(from);

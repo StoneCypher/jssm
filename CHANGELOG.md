@@ -1,3 +1,4 @@
+* [[`7dce5fe051`](https://github.com/StoneCypher/jssm/commit/7dce5fe051)] - working grammar passthrough (John Haugeland)
 * [[`e18d4913e0`](https://github.com/StoneCypher/jssm/commit/e18d4913e0)] - first steps in theme support - grammar and tests (John Haugeland)
 * [[`aa350a8305`](https://github.com/StoneCypher/jssm/commit/aa350a8305)] - rule cleanup (John Haugeland)
 * [[`d248df76ee`](https://github.com/StoneCypher/jssm/commit/d248df76ee)] - first steps for theme support.  change instate / outstate to startstate / endstate (John Haugeland)

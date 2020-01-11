@@ -40,6 +40,13 @@ type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';  // todo add the re
 
 
 
+type FslDirection       = 'up' | 'right' | 'down' | 'left';
+type FslTheme           = 'default' | 'ocean' | 'modern' | 'none';
+
+
+
+
+
 type State = string;
 
 
@@ -176,6 +183,8 @@ type JssmGenericConfig<DataType> = {
   complete?            : Array<StateType>,
   transitions          : JssmTransitions<DataType>,
 
+  theme?               : FslTheme,
+
   name?                : string,
   data?                : DataType,
   nodes?               : Array<StateType>,  // uncommon
@@ -206,7 +215,7 @@ type JssmGenericConfig<DataType> = {
 
   fsl_version?         : string,   // TODO FIXME COMEBACK
 
-  auto_api?            : boolean | string  // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  auto_api?            : boolean | string  // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
 };
 
@@ -304,6 +313,9 @@ export {
 
   JssmParseFunctionType,
 
-  JssmMachineInternalState
+  JssmMachineInternalState,
+
+  FslDirection,
+    FslTheme
 
 };

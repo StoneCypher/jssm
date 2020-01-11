@@ -18,7 +18,8 @@ import {
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
-  JssmLayout
+  JssmLayout,
+  FslDirection, FslTheme
 
 } from './jssm_types';
 
@@ -349,7 +350,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
   const oneOnlyKeys : Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license',
-    'machine_definition', 'machine_language'
+    'machine_definition', 'machine_language', 'theme'
   ];
 
   oneOnlyKeys.map( (oneOnlyKey : string) => {
@@ -431,6 +432,8 @@ class Machine<mDT> {
 
   _graph_layout           : JssmLayout;
 
+  _theme                  : FslTheme;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
@@ -447,6 +450,7 @@ class Machine<mDT> {
     machine_version,
     state_declaration,
     fsl_version,
+    theme        = 'default',
     graph_layout = 'dot'
   } : JssmGenericConfig<mDT>) {
 
@@ -471,6 +475,7 @@ class Machine<mDT> {
     this._raw_state_declaration  = state_declaration || [];
     this._fsl_version            = fsl_version;
 
+    this._theme                  = theme;
     this._graph_layout           = graph_layout;
 
 
@@ -730,6 +735,12 @@ class Machine<mDT> {
 
   list_actions(): Array<StateType> {
     return Array.from(this._actions.keys());
+  }
+
+
+
+  theme(): FslTheme {
+    return this._theme;
   }
 
 
