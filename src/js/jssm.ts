@@ -174,8 +174,8 @@ function makeTransition<mDT>(
   from      : string,
   to        : string,
   isRight   : boolean,
-  wasList?  : Array<string>,
-  wasIndex? : number
+ _wasList?  : Array<string>,
+ _wasIndex? : number
 ) : JssmTransition<mDT> {
 
   const kind : JssmArrowKind       = isRight? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),

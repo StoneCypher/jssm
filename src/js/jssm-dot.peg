@@ -719,6 +719,14 @@ LicenseOrLabelOrList
 
 
 
+Direction
+  = "up"
+  / "right"
+  / "down"
+  / "left"
+
+
+
 MachineAuthor
   = WS? "machine_author"      WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_author", value }; }
 
@@ -752,6 +760,9 @@ FslVersion
 MachineTheme
   = WS? "theme"               WS? ":" WS? value:Theme                WS? ";" WS? { return { key: "theme", value }; }
 
+MachineFlow
+  = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }
+
 MachineAttribute "machine attribute"
   = FslVersion
   / MachineName
@@ -763,6 +774,7 @@ MachineAttribute "machine attribute"
   / MachineLicense
   / MachineLanguage
   / MachineTheme
+  / MachineFlow
 
 
 
