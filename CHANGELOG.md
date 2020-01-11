@@ -1,3 +1,5 @@
+* [[`920c8622c2`](https://github.com/StoneCypher/jssm/commit/920c8622c2)] - add flow direction to parser; tests (John Haugeland)
+* [[`e6653bd930`](https://github.com/StoneCypher/jssm/commit/e6653bd930)] - better tests for themes, incl checking and negative (John Haugeland)
 * [[`c2c345f2a2`](https://github.com/StoneCypher/jssm/commit/c2c345f2a2)] - theme support achieved in machine (John Haugeland)
 * [[`7dce5fe051`](https://github.com/StoneCypher/jssm/commit/7dce5fe051)] - working grammar passthrough (John Haugeland)
 * [[`e18d4913e0`](https://github.com/StoneCypher/jssm/commit/e18d4913e0)] - first steps in theme support - grammar and tests (John Haugeland)
