@@ -275,7 +275,7 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
   const tautologies : Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-    'machine_reference', 'machine_license', 'fsl_version', 'state_config'
+    'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -308,6 +308,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_license     : Array< string >,
     machine_name        : Array< string >,
     machine_reference   : Array< string >,
+    theme               : Array< string >,
     machine_version     : Array< string > // semver
   } = {
     graph_layout        : [],
@@ -325,6 +326,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_license     : [],
     machine_name        : [],
     machine_reference   : [],
+    theme               : [],
     machine_version     : []
   };
 
