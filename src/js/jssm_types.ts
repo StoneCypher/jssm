@@ -184,6 +184,7 @@ type JssmGenericConfig<DataType> = {
   transitions          : JssmTransitions<DataType>,
 
   theme?               : FslTheme,
+  flow?                : FslDirection,
 
   name?                : string,
   data?                : DataType,

@@ -276,7 +276,8 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
   const tautologies : Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-    'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme'
+    'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
+    'flow'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -310,6 +311,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_name        : Array< string >,
     machine_reference   : Array< string >,
     theme               : Array< string >,
+    flow                : Array< string >,
     machine_version     : Array< string > // semver
   } = {
     graph_layout        : [],
@@ -328,6 +330,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_name        : [],
     machine_reference   : [],
     theme               : [],
+    flow                : [],
     machine_version     : []
   };
 
@@ -350,7 +353,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
   const oneOnlyKeys : Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license',
-    'machine_definition', 'machine_language', 'theme'
+    'machine_definition', 'machine_language', 'theme', 'flow'
   ];
 
   oneOnlyKeys.map( (oneOnlyKey : string) => {
@@ -433,6 +436,7 @@ class Machine<mDT> {
   _graph_layout           : JssmLayout;
 
   _theme                  : FslTheme;
+  _flow                   : FslDirection;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -451,6 +455,7 @@ class Machine<mDT> {
     state_declaration,
     fsl_version,
     theme        = 'default',
+    flow         = 'down',
     graph_layout = 'dot'
   } : JssmGenericConfig<mDT>) {
 
@@ -476,6 +481,7 @@ class Machine<mDT> {
     this._fsl_version            = fsl_version;
 
     this._theme                  = theme;
+    this._flow                   = flow;
     this._graph_layout           = graph_layout;
 
 
@@ -741,6 +747,10 @@ class Machine<mDT> {
 
   theme(): FslTheme {
     return this._theme;
+  }
+
+  flow(): FslDirection {
+    return this._flow;
   }
 
 
