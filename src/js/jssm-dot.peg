@@ -763,6 +763,9 @@ MachineTheme
 MachineFlow
   = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }
 
+DotPrelude
+  = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? { return { key: "dot_preamble", value }; }
+
 MachineAttribute "machine attribute"
   = FslVersion
   / MachineName
@@ -774,6 +777,7 @@ MachineAttribute "machine attribute"
   / MachineLicense
   / MachineLanguage
   / MachineTheme
+  / DotPrelude
   / MachineFlow
 
 
