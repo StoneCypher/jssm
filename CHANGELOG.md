@@ -1,3 +1,4 @@
+* [[`3b73089555`](https://github.com/StoneCypher/jssm/commit/3b73089555)] - constants tie-up (John Haugeland)
 * [[`de88e4d647`](https://github.com/StoneCypher/jssm/commit/de88e4d647)] - last several added flow, closes #278 and thus closes #286 (John Haugeland)
 * [[`920c8622c2`](https://github.com/StoneCypher/jssm/commit/920c8622c2)] - add flow direction to parser; tests (John Haugeland)
 * [[`e6653bd930`](https://github.com/StoneCypher/jssm/commit/e6653bd930)] - better tests for themes, incl checking and negative (John Haugeland)
