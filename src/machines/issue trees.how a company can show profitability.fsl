@@ -1,0 +1,105 @@
+machine_name     : "Issue Tree showing how a compay can incrase profitability";
+machine_author   : "Vat Raghavan <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "https://github.com/StoneCypher/fsl/issues/45";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states     : ["How do we increase our profitability?"];
+end_states       : [];
+       
+       
+//L0
+"How do we increase our profitability?" -> [
+  "Increase Revenues"
+  "Decrease Costs"
+];
+// L1 - Option 1 : increase Revenues
+"Increase Revenues" -> [
+  "Increase Revenues from New clients"
+  "Increase revenues from Returning Clients"
+];
+// L2
+"Increase Revenues from New clients" -> [
+  "Increase # of New clients"
+  "Increase our unitary revenue from each New client"
+];
+
+"Increase revenues from Returning Clients" -> [
+  "Sell them an updated version of our product/service"
+  "Sell a complementary product/service"
+];
+
+//L3
+"Increase the number of New clients" -> [
+  "'Steal' clients from competitors"
+  "Convince people that are not yet buying this kind of product/service to do so"
+];
+
+"Increase our unitary revenue from each New client" -> [
+  "Increase our price"
+  "Bundle our product/service with another"
+];
+
+//L4
+// this needs a box around it, how?
+"'Steal' clients from competitors" -> [
+  "Offer a better price"
+  "Offer a better product"
+  "Offer a better place"
+  "Offer a better promotion"
+];
+//L4
+"Convince people that are not yet buying this kind of product/service to do so" -> [
+  "Talking directly to them"
+  "Talking indirectly to them"
+];
+
+
+
+// this needs a box around it, how?
+"Talking indirectly to them" -> [
+  "Converting current customers to product/service promotors"
+  "Converting the media into promotors"
+  "Converted trusted public figures into customers"
+];
+
+
+// L1 - Option 2: Decrease Costs
+"Decrease Costs"  -> [
+  "Decrease Fixed Costs"
+  "Decrease Variable Costs"
+];
+
+"Decrease Variable Costs" -> [
+  "Decrease raw material costs"
+  "Decrease effort costs"
+  "Decrease energy costs"
+];
+
+"Decrease effort costs"  -> [
+  "Decrease the quantity of effort needed"
+  "Decrease the unitary price of effort (i.e. people) needed"
+];
+
+"Decrease raw material costs"-> [
+  "Decrease the quantity of raw materials"
+  "Decrease the unitary price of raw materials"
+];
+
+"Decrease the unitary price of raw materials" -> [
+  "Use the same raw material"
+  "Use a substitute"
+];
+
+"Decrease the quantity of raw materials" -> [
+  "Improve the design of the product"
+  "Improve the production process to reduce scraps"
+];
+
+"Use the same raw material" -> [
+  "Get a better sourcing agreement with current provider(s)"
+  "Get a better sourcing agreement with NEW provider(s)"
+];
+
