@@ -200,6 +200,8 @@ type JssmGenericConfig<DataType> = {
 
   simplify_bidi?       : boolean,
 
+  dot_preamble?        : string,
+
   start_states         : Array<StateType>,
   end_states?          : Array<StateType>,
 

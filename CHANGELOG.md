@@ -1,3 +1,4 @@
+* [[`eb3669a237`](https://github.com/StoneCypher/jssm/commit/eb3669a237)] - rebuild and bump (John Haugeland)
 * [[`3b73089555`](https://github.com/StoneCypher/jssm/commit/3b73089555)] - constants tie-up (John Haugeland)
 * [[`de88e4d647`](https://github.com/StoneCypher/jssm/commit/de88e4d647)] - last several added flow, closes #278 and thus closes #286 (John Haugeland)
 * [[`920c8622c2`](https://github.com/StoneCypher/jssm/commit/920c8622c2)] - add flow direction to parser; tests (John Haugeland)

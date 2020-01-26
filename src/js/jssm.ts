@@ -277,7 +277,7 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
     'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow'
+    'flow', 'dot_preamble'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -312,6 +312,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_reference   : Array< string >,
     theme               : Array< string >,
     flow                : Array< string >,
+    dot_preamble        : Array< string >,
     machine_version     : Array< string > // semver
   } = {
     graph_layout        : [],
@@ -331,6 +332,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_reference   : [],
     theme               : [],
     flow                : [],
+    dot_preamble        : [],
     machine_version     : []
   };
 
@@ -353,7 +355,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
   const oneOnlyKeys : Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license',
-    'machine_definition', 'machine_language', 'theme', 'flow'
+    'machine_definition', 'machine_language', 'theme', 'flow', 'dot_preamble'
   ];
 
   oneOnlyKeys.map( (oneOnlyKey : string) => {
@@ -434,6 +436,7 @@ class Machine<mDT> {
   _state_declarations     : Map<StateType, JssmStateDeclaration>;
 
   _graph_layout           : JssmLayout;
+  _dot_preamble           : string;
 
   _theme                  : FslTheme;
   _flow                   : FslDirection;
@@ -454,6 +457,7 @@ class Machine<mDT> {
     machine_version,
     state_declaration,
     fsl_version,
+    dot_preamble = undefined,
     theme        = 'default',
     flow         = 'down',
     graph_layout = 'dot'
@@ -480,6 +484,7 @@ class Machine<mDT> {
     this._raw_state_declaration  = state_declaration || [];
     this._fsl_version            = fsl_version;
 
+    this._dot_preamble           = dot_preamble;
     this._theme                  = theme;
     this._flow                   = flow;
     this._graph_layout           = graph_layout;
@@ -641,6 +646,10 @@ class Machine<mDT> {
 
   graph_layout(): string {
     return this._graph_layout;
+  }
+
+  dot_preamble(): string {
+    return this._dot_preamble;
   }
 
 

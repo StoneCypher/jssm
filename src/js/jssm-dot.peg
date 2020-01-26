@@ -763,7 +763,7 @@ MachineTheme
 MachineFlow
   = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }
 
-DotPrelude
+DotPreamble
   = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? { return { key: "dot_preamble", value }; }
 
 MachineAttribute "machine attribute"
@@ -777,7 +777,7 @@ MachineAttribute "machine attribute"
   / MachineLicense
   / MachineLanguage
   / MachineTheme
-  / DotPrelude
+  / DotPreamble
   / MachineFlow
 
 
@@ -798,6 +798,8 @@ StateDeclarationDesc
 
 StateDeclaration
   = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
+
+
 
 
 
