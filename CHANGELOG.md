@@ -1,3 +1,5 @@
+* [[`cf2e912cd2`](https://github.com/StoneCypher/jssm/commit/cf2e912cd2)] - parser support for text-color, background-color, border-color for #339, #340, #341 (John Haugeland)
+* [[`fcaf9b73ba`](https://github.com/StoneCypher/jssm/commit/fcaf9b73ba)] - parser support for text-color, background-color, border-color for #339, #340, #341 (John Haugeland)
 * [[`45ac5ae743`](https://github.com/StoneCypher/jssm/commit/45ac5ae743)] - incomplete commit (John Haugeland)
 * [[`f3e54b9999`](https://github.com/StoneCypher/jssm/commit/f3e54b9999)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland)
 * [[`76422f54e7`](https://github.com/StoneCypher/jssm/commit/76422f54e7)] - dot prelude in compiler, grammar, parser, tests (John Haugeland)
