@@ -719,7 +719,7 @@ LicenseOrLabelOrList
 
 
 
-Direction
+Direction "direction"
   = "up"
   / "right"
   / "down"
