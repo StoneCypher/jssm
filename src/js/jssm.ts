@@ -395,8 +395,12 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
     state_decl.declarations.map( (d: JssmStateDeclarationRule) => {
       switch (d.key) {
 
-        case 'shape' : state_decl.shape = d.value; break;
-        case 'color' : state_decl.color = d.value; break;
+        case 'shape'            : state_decl.shape           = d.value; break;
+        case 'color'            : state_decl.color           = d.value; break;
+
+        case 'text-color'       : state_decl.textColor       = d.value; break;
+        case 'background-color' : state_decl.backgroundColor = d.value; break;
+        case 'border-color'     : state_decl.borderColor     = d.value; break;
 
         default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
 

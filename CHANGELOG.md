@@ -1,3 +1,4 @@
+* [[`45ac5ae743`](https://github.com/StoneCypher/jssm/commit/45ac5ae743)] - incomplete commit (John Haugeland)
 * [[`f3e54b9999`](https://github.com/StoneCypher/jssm/commit/f3e54b9999)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland)
 * [[`76422f54e7`](https://github.com/StoneCypher/jssm/commit/76422f54e7)] - dot prelude in compiler, grammar, parser, tests (John Haugeland)
 * [[`2c9f568be4`](https://github.com/StoneCypher/jssm/commit/2c9f568be4)] - Turn azure pipelines off (John Haugeland)

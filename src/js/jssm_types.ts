@@ -166,10 +166,17 @@ type JssmStateDeclarationRule = {
 };
 
 type JssmStateDeclaration = {
-  declarations : Array<JssmStateDeclarationRule>,
-  shape?       : JssmShape,
-  color?       : JssmColor,
-  state        : StateType
+
+  declarations     : Array<JssmStateDeclarationRule>,
+
+  shape?           : JssmShape,
+  color?           : JssmColor,
+  textColor?       : JssmColor,
+  backgroundColor? : JssmColor,
+  borderColor?     : JssmColor,
+
+  state            : StateType
+
 };
 
 
