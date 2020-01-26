@@ -14023,7 +14023,7 @@ var jssm = (function (exports) {
   var jssmDot_1 = jssmDot.parse;
 
   // whargarbl lots of these return arrays could/should be sets
-  var version = '5.22.0'; // replaced from package.js in build // TODO FIXME currently broken
+  var version = '5.23.0'; // replaced from package.js in build // TODO FIXME currently broken
   /* eslint-disable complexity */
   function arrow_direction(arrow) {
       switch (String(arrow)) {
