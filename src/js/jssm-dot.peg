@@ -166,6 +166,11 @@ Corners
   / "rounded"
   / "lined"
 
+LineStyle
+  = "solid"
+  / "dotted"
+  / "dashed"
+
 HexDigit
   = [0-9a-fA-F]
 
@@ -810,6 +815,9 @@ SdStateShape "shape"
 SdStateCorners "corners"
   = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? { return { key:'corners', value }; }
 
+SdStateLineStyle "linestyle"
+  = WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'linestyle', value }; }
+
 StateDeclarationItems
   = SdStateColor
   / SdStateTextColor
@@ -817,6 +825,7 @@ StateDeclarationItems
   / SdStateBorderColor
   / SdStateShape
   / SdStateCorners
+  / SdStateLineStyle
 
 StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }

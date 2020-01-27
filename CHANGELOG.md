@@ -1,3 +1,4 @@
+* [[`e0a395bb33`](https://github.com/StoneCypher/jssm/commit/e0a395bb33)] - vastly superior implementation of corners (John Haugeland)
 * [[`3aa55887b6`](https://github.com/StoneCypher/jssm/commit/3aa55887b6)] - Merge pull request #396 from StoneCypher/AddArrange (John Haugeland)
 * [[`7345a14e14`](https://github.com/StoneCypher/jssm/commit/7345a14e14)] - Add arrange, fixes StoneCypher/fsl#267 (John Haugeland)
 * [[`7e9d25aea1`](https://github.com/StoneCypher/jssm/commit/7e9d25aea1)] - Merge pull request #395 from StoneCypher/AddRoundingAndDiagonals (John Haugeland)

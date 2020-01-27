@@ -47,3 +47,23 @@ describe('Corners', async it => {
   });
 
 });
+
+
+
+
+
+describe('Line style', async it => {
+
+  it('solid', t => {
+    t.is(sm`state a: { linestyle: solid; }; a->b;`.state_declaration("a").linestyle, "solid");
+  });
+
+  it('dashed', t => {
+    t.is(sm`state a: { linestyle: dashed; }; a->b;`.state_declaration("a").linestyle, "dashed");
+  });
+
+  it('dotted', t => {
+    t.is(sm`state a: { linestyle: dotted; }; a->b;`.state_declaration("a").linestyle, "dotted");
+  });
+
+});
