@@ -1,3 +1,5 @@
+* [[`3aa55887b6`](https://github.com/StoneCypher/jssm/commit/3aa55887b6)] - Merge pull request #396 from StoneCypher/AddArrange (John Haugeland)
+* [[`7345a14e14`](https://github.com/StoneCypher/jssm/commit/7345a14e14)] - Add arrange, fixes StoneCypher/fsl#267 (John Haugeland)
 * [[`7e9d25aea1`](https://github.com/StoneCypher/jssm/commit/7e9d25aea1)] - Merge pull request #395 from StoneCypher/AddRoundingAndDiagonals (John Haugeland)
 * [[`de75a0417d`](https://github.com/StoneCypher/jssm/commit/de75a0417d)] - Adds support for rounding (fixes StoneCypher/fsl#362) and diagonals (fixes StoneCypher/fsl#361) (John Haugeland)
 * [[`4b42bd5493`](https://github.com/StoneCypher/jssm/commit/4b42bd5493)] - Merge pull request #394 from StoneCypher/FixOctothorpeBug (John Haugeland)

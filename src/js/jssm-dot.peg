@@ -161,6 +161,11 @@ Boolean
   = "true"  { return true;  }
   / "false" { return false; }
 
+Corners
+  = "regular"
+  / "rounded"
+  / "lined"
+
 HexDigit
   = [0-9a-fA-F]
 
@@ -802,11 +807,8 @@ SdStateBorderColor "border color"
 SdStateShape "shape"
   = WS? "shape"            WS? ":" WS? value:GvizShape WS? ";" WS? { return { key:'shape', value }; }
 
-SdStateDiagonals "diagonals"
-  = WS? "diagonals"        WS? ":" WS? value:Boolean   WS? ";" WS? { return { key:'diagonals', value }; }
-
-SdStateRounding "shape"
-  = WS? "rounding"         WS? ":" WS? value:Boolean   WS? ";" WS? { return { key:'rounding', value }; }
+SdStateCorners "corners"
+  = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? { return { key:'corners', value }; }
 
 StateDeclarationItems
   = SdStateColor
@@ -814,8 +816,7 @@ StateDeclarationItems
   / SdStateBackgroundColor
   / SdStateBorderColor
   / SdStateShape
-  / SdStateDiagonals
-  / SdStateRounding
+  / SdStateCorners
 
 StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }

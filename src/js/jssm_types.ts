@@ -36,6 +36,8 @@ type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
 type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';  // todo add the rest
 
+type JssmCorner         = 'regular' | 'rounded' | 'lined';
+
 
 
 
@@ -171,8 +173,7 @@ type JssmStateDeclaration = {
 
   shape?           : JssmShape,
   color?           : JssmColor,
-  rounding?        : boolean,
-  diagonals?       : boolean,
+  corners?         : JssmCorner,
 
   textColor?       : JssmColor,
   backgroundColor? : JssmColor,

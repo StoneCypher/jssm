@@ -32,20 +32,18 @@ describe('GraphViz Shapes', async it => {
 
 
 
-describe('Rounding', async it =>
-  it('rounds', t => {
-    t.is(sm`state a: { rounding: true; };  a->b;`.state_declaration("a").rounding, true);
-    t.is(sm`state a: { rounding: false; }; a->b;`.state_declaration("a").rounding, false);
-  })
-);
+describe('Corners', async it => {
 
+  it('rounded', t => {
+    t.is(sm`state a: { corners: rounded; }; a->b;`.state_declaration("a").corners, "rounded");
+  });
 
+  it('lined', t => {
+    t.is(sm`state a: { corners: lined; }; a->b;`.state_declaration("a").corners,   "lined");
+  });
 
+  it('regular', t => {
+    t.is(sm`state a: { corners: regular; }; a->b;`.state_declaration("a").corners, "regular");
+  });
 
-
-describe('Diagonals', async it =>
-  it('cuts', t => {
-    t.is(sm`state a: { diagonals: true;  }; a->b;`.state_declaration("a").diagonals, true);
-    t.is(sm`state a: { diagonals: false; }; a->b;`.state_declaration("a").diagonals, false);
-  })
-);
+});
