@@ -833,9 +833,18 @@ NamedList
 
 
 
+
+ArrangeDeclaration
+  = "arrange" WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_declaration', value }; }
+
+
+
+
+
 Term
   = Exp
   / StateDeclaration
+  / ArrangeDeclaration
   / NamedList
   / MachineAttribute
   / Config

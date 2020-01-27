@@ -2323,6 +2323,9 @@ function peg$parse(input, options) {
       peg$c1246 = "&",
       peg$c1247 = peg$literalExpectation("&", false),
       peg$c1248 = function(name, value) { return { key:'named_list', name, value }; },
+      peg$c1249 = "arrange",
+      peg$c1250 = peg$literalExpectation("arrange", false),
+      peg$c1251 = function(value) { return { key: 'arrange_declaration', value }; },
 
       peg$currPos          = 0,
       peg$savedPos         = 0,
@@ -14562,6 +14565,74 @@ function peg$parse(input, options) {
     return s0;
   }
 
+  function peg$parseArrangeDeclaration() {
+    var s0, s1, s2, s3, s4, s5, s6;
+
+    s0 = peg$currPos;
+    if (input.substr(peg$currPos, 7) === peg$c1249) {
+      s1 = peg$c1249;
+      peg$currPos += 7;
+    } else {
+      s1 = peg$FAILED;
+      if (peg$silentFails === 0) { peg$fail(peg$c1250); }
+    }
+    if (s1 !== peg$FAILED) {
+      s2 = peg$parseWS();
+      if (s2 === peg$FAILED) {
+        s2 = null;
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = peg$parseLabelOrLabelList();
+        if (s3 !== peg$FAILED) {
+          s4 = peg$parseWS();
+          if (s4 === peg$FAILED) {
+            s4 = null;
+          }
+          if (s4 !== peg$FAILED) {
+            if (input.charCodeAt(peg$currPos) === 59) {
+              s5 = peg$c1060;
+              peg$currPos++;
+            } else {
+              s5 = peg$FAILED;
+              if (peg$silentFails === 0) { peg$fail(peg$c1061); }
+            }
+            if (s5 !== peg$FAILED) {
+              s6 = peg$parseWS();
+              if (s6 === peg$FAILED) {
+                s6 = null;
+              }
+              if (s6 !== peg$FAILED) {
+                peg$savedPos = s0;
+                s1 = peg$c1251(s3);
+                s0 = s1;
+              } else {
+                peg$currPos = s0;
+                s0 = peg$FAILED;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$FAILED;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+    } else {
+      peg$currPos = s0;
+      s0 = peg$FAILED;
+    }
+
+    return s0;
+  }
+
   function peg$parseTerm() {
     var s0;
 
@@ -14569,11 +14640,14 @@ function peg$parse(input, options) {
     if (s0 === peg$FAILED) {
       s0 = peg$parseStateDeclaration();
       if (s0 === peg$FAILED) {
-        s0 = peg$parseNamedList();
+        s0 = peg$parseArrangeDeclaration();
         if (s0 === peg$FAILED) {
-          s0 = peg$parseMachineAttribute();
+          s0 = peg$parseNamedList();
           if (s0 === peg$FAILED) {
-            s0 = peg$parseConfig();
+            s0 = peg$parseMachineAttribute();
+            if (s0 === peg$FAILED) {
+              s0 = peg$parseConfig();
+            }
           }
         }
       }
@@ -14621,7 +14695,7 @@ var jssmDot = {
 var jssmDot_1 = jssmDot.parse;
 
 // whargarbl lots of these return arrays could/should be sets
-var version = '5.26.0'; // replaced from package.js in build // TODO FIXME currently broken
+var version = '5.27.0'; // replaced from package.js in build // TODO FIXME currently broken
 /* eslint-disable complexity */
 function arrow_direction(arrow) {
     switch (String(arrow)) {
@@ -14828,6 +14902,9 @@ function compile_rule_handler(rule) {
         }
         return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
     }
+    if (rule.key === 'arrange_declaration') {
+        return { agg_as: 'arrange_declaration', val: [rule.value] };
+    }
     var tautologies = [
         'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
         'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
@@ -14859,6 +14936,7 @@ function compile(tree) {
         theme: [],
         flow: [],
         dot_preamble: [],
+        arrange_declaration: [],
         machine_version: []
     };
     tree.map(function (tr) {
@@ -14871,8 +14949,9 @@ function compile(tree) {
         transitions: assembled_transitions
     };
     var oneOnlyKeys = [
-        'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license',
-        'machine_definition', 'machine_language', 'theme', 'flow', 'dot_preamble'
+        'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
+        'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
+        'theme', 'flow', 'dot_preamble'
     ];
     oneOnlyKeys.map(function (oneOnlyKey) {
         if (results[oneOnlyKey].length > 1) {
@@ -14884,7 +14963,8 @@ function compile(tree) {
             }
         }
     });
-    ['machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map(function (multiKey) {
+    ['arrange_declaration', 'machine_author', 'machine_contributor', 'machine_reference',
+        'state_declaration'].map(function (multiKey) {
         if (results[multiKey].length) {
             result_cfg[multiKey] = results[multiKey];
         }
@@ -14927,7 +15007,7 @@ var Machine = /** @class */ (function () {
     // whargarbl this badly needs to be broken up, monolith master
     function Machine(_a) {
         var _this = this;
-        var start_states = _a.start_states, _b = _a.complete, complete = _b === void 0 ? [] : _b, transitions = _a.transitions, machine_author = _a.machine_author, machine_comment = _a.machine_comment, machine_contributor = _a.machine_contributor, machine_definition = _a.machine_definition, machine_language = _a.machine_language, machine_license = _a.machine_license, machine_name = _a.machine_name, machine_version = _a.machine_version, state_declaration = _a.state_declaration, fsl_version = _a.fsl_version, _c = _a.dot_preamble, dot_preamble = _c === void 0 ? undefined : _c, _d = _a.theme, theme = _d === void 0 ? 'default' : _d, _e = _a.flow, flow = _e === void 0 ? 'down' : _e, _f = _a.graph_layout, graph_layout = _f === void 0 ? 'dot' : _f;
+        var start_states = _a.start_states, _b = _a.complete, complete = _b === void 0 ? [] : _b, transitions = _a.transitions, machine_author = _a.machine_author, machine_comment = _a.machine_comment, machine_contributor = _a.machine_contributor, machine_definition = _a.machine_definition, machine_language = _a.machine_language, machine_license = _a.machine_license, machine_name = _a.machine_name, machine_version = _a.machine_version, state_declaration = _a.state_declaration, fsl_version = _a.fsl_version, _c = _a.dot_preamble, dot_preamble = _c === void 0 ? undefined : _c, _d = _a.arrange_declaration, arrange_declaration = _d === void 0 ? [] : _d, _e = _a.theme, theme = _e === void 0 ? 'default' : _e, _f = _a.flow, flow = _f === void 0 ? 'down' : _f, _g = _a.graph_layout, graph_layout = _g === void 0 ? 'dot' : _g;
         this._state = start_states[0];
         this._states = new Map();
         this._state_declarations = new Map();
@@ -14947,6 +15027,7 @@ var Machine = /** @class */ (function () {
         this._machine_version = machine_version;
         this._raw_state_declaration = state_declaration || [];
         this._fsl_version = fsl_version;
+        this._arrange_declaration = arrange_declaration;
         this._dot_preamble = dot_preamble;
         this._theme = theme;
         this._flow = flow;

@@ -273,6 +273,10 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
 
+  if (rule.key === 'arrange_declaration') {
+    return { agg_as: 'arrange_declaration', val: [rule.value] };
+  }
+
   const tautologies : Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
@@ -299,7 +303,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     transition          : Array< JssmTransition<mDT> >,
     start_states        : Array< string >,
     end_states          : Array< string >,
-    state_config        : Array< any >,     // todo comeback no any
+    state_config        : Array< any >,     // TODO COMEBACK no any
     state_declaration   : Array< string >,
     fsl_version         : Array< string >,
     machine_author      : Array< string >,
@@ -313,7 +317,8 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     theme               : Array< string >,
     flow                : Array< string >,
     dot_preamble        : Array< string >,
-    machine_version     : Array< string > // semver
+    arrange_declaration : Array< Array< string > >, // TODO COMEBACK CHECKME
+    machine_version     : Array< string >           // TODO COMEBACK semver
   } = {
     graph_layout        : [],
     transition          : [],
@@ -333,6 +338,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     theme               : [],
     flow                : [],
     dot_preamble        : [],
+    arrange_declaration : [],
     machine_version     : []
   };
 
@@ -354,13 +360,16 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
   };
 
   const oneOnlyKeys : Array<string> = [
-    'graph_layout', 'machine_name', 'machine_version', 'machine_comment', 'fsl_version', 'machine_license',
-    'machine_definition', 'machine_language', 'theme', 'flow', 'dot_preamble'
+    'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
+    'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
+    'theme', 'flow', 'dot_preamble'
   ];
 
   oneOnlyKeys.map( (oneOnlyKey : string) => {
     if (results[oneOnlyKey].length > 1) {
-      throw new Error(`May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
+      throw new Error(
+        `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`
+      );
     } else {
       if (results[oneOnlyKey].length) {
         result_cfg[oneOnlyKey] = results[oneOnlyKey][0];
@@ -368,11 +377,14 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     }
   });
 
-  ['machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map( (multiKey : string) => {
-    if (results[multiKey].length) {
-      result_cfg[multiKey] = results[multiKey];
-    }
-  });
+  ['arrange_declaration', 'machine_author', 'machine_contributor', 'machine_reference',
+   'state_declaration'].map(
+     (multiKey : string) => {
+       if (results[multiKey].length) {
+         result_cfg[multiKey] = results[multiKey];
+       }
+     }
+  );
 
   return result_cfg;
 
@@ -443,6 +455,7 @@ class Machine<mDT> {
 
   _graph_layout           : JssmLayout;
   _dot_preamble           : string;
+  _arrange_declaration    : Array<Array<StateType>>;
 
   _theme                  : FslTheme;
   _flow                   : FslDirection;
@@ -463,10 +476,11 @@ class Machine<mDT> {
     machine_version,
     state_declaration,
     fsl_version,
-    dot_preamble = undefined,
-    theme        = 'default',
-    flow         = 'down',
-    graph_layout = 'dot'
+    dot_preamble        = undefined,
+    arrange_declaration = [],
+    theme               = 'default',
+    flow                = 'down',
+    graph_layout        = 'dot'
   } : JssmGenericConfig<mDT>) {
 
     this._state                  = start_states[0];
@@ -489,6 +503,8 @@ class Machine<mDT> {
     this._machine_version        = machine_version;
     this._raw_state_declaration  = state_declaration || [];
     this._fsl_version            = fsl_version;
+
+    this._arrange_declaration    = arrange_declaration;
 
     this._dot_preamble           = dot_preamble;
     this._theme                  = theme;
