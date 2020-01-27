@@ -1,6 +1,5 @@
 
-import { describe }       from 'ava-spec';
-import { FlowDirections } from './constants';
+import { describe } from 'ava-spec';
 
 
 

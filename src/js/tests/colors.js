@@ -13,34 +13,37 @@ const jssm = require('../../../build/jssm.es5.cjs.js'),
 
 
 
-describe('Named colors', async it => {
+describe('Colors', async it => {
 
 /* eslint-disable max-nested-callbacks */
 
-  // edge things
-  ['edge_color'].map(prop =>
+  const ColorSets = [
+    { label: "Named colors",  dataset: NamedColors },
+    { label: "Direct colors", dataset: [ '#ABC', '#ABCF', '#AABBCC', '#AABBCCFF' ] }
+  ];
 
-    NamedColors.map(col =>
-      [col, col.toLowerCase()].map(repres =>
-        it(`Color "${repres}" parses as ${prop}`, t =>
-          t.notThrows( () => { const _foo = sm`machine_name: bob; a-> { ${prop}: ${repres}; } b;`; })
+  ColorSets.map( ({label, dataset}) =>
+    dataset.map(col => {
+
+      // edge things
+      ['edge_color'].map(prop =>
+        [col, col.toLowerCase()].map(repres =>
+          it(`${label} - Color "${repres}" parses as ${prop}`, t =>
+            t.notThrows( () => { const _foo = sm`machine_name: bob; a-> { ${prop}: ${repres}; } b;`; })
+          )
         )
-      )
-    )
+      );
 
-  );
-
-  // state things
-  ['color', 'background-color', 'text-color', 'border-color'].map(prop =>
-
-    NamedColors.map(col =>
-      [col, col.toLowerCase()].map(repres =>
-        it(`Color "${repres}" parses as ${prop}`, t =>
-          t.notThrows( () => { const _foo = sm`machine_name: bob; state a: { ${prop}: ${repres}; }; a -> b;`; })
+      // state things
+      ['color', 'background-color', 'text-color', 'border-color'].map(prop =>
+        [col, col.toLowerCase()].map(repres =>
+          it(`${label} - Color "${repres}" parses as ${prop}`, t =>
+            t.notThrows( () => { const _foo = sm`machine_name: bob; state a: { ${prop}: ${repres}; }; a -> b;`; })
+          )
         )
-      )
-    )
+      );
 
+    })
   );
 
 /* eslint-enable max-nested-callbacks */

@@ -397,6 +397,8 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
         case 'shape'            : state_decl.shape           = d.value; break;
         case 'color'            : state_decl.color           = d.value; break;
+        case 'rounding'         : state_decl.rounding        = d.value; break;
+        case 'diagonals'        : state_decl.diagonals       = d.value; break;
 
         case 'text-color'       : state_decl.textColor       = d.value; break;
         case 'background-color' : state_decl.backgroundColor = d.value; break;
