@@ -1,3 +1,4 @@
+* [[`e4e3c25697`](https://github.com/StoneCypher/jssm/commit/e4e3c25697)] - improve error message for directions.  much better testing on named colors (John Haugeland)
 * [[`28d9b1022a`](https://github.com/StoneCypher/jssm/commit/28d9b1022a)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland)
 * [[`0c05c76100`](https://github.com/StoneCypher/jssm/commit/0c05c76100)] - version bump; parser does colors and shapes on node now, fixes #339, fixes #340, fixes #341 (John Haugeland)
 * [[`cf2e912cd2`](https://github.com/StoneCypher/jssm/commit/cf2e912cd2)] - parser support for text-color, background-color, border-color for #339, #340, #341 (John Haugeland)

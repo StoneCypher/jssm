@@ -2088,13 +2088,13 @@ var jssm = (function (exports) {
         peg$c1039 = "#",
         peg$c1040 = peg$literalExpectation("#", false),
         peg$c1041 = function(r, g, b) {
-            return `${r}${r}${g}${g}${b}${b}ff`; },
+            return `#${r}${r}${g}${g}${b}${b}ff`; },
         peg$c1042 = function(r1, r2, g1, g2, b1, b2) {
-            return `${r1}${r2}${g1}${g2}${b1}${b2}ff`; },
+            return `#${r1}${r2}${g1}${g2}${b1}${b2}ff`; },
         peg$c1043 = function(r, g, b, a) {
-            return `${r}${r}${g}${g}${b}${b}${a}${a}`; },
+            return `#${r}${r}${g}${g}${b}${b}${a}${a}`; },
         peg$c1044 = function(r1, r2, g1, g2, b1, b2, a1, a2) {
-            return `${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`; },
+            return `#${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`; },
         peg$c1045 = peg$otherExpectation("color"),
         peg$c1046 = "arc_label",
         peg$c1047 = peg$literalExpectation("arc_label", false),
@@ -9542,13 +9542,13 @@ var jssm = (function (exports) {
       peg$silentFails++;
       s0 = peg$parseSvgColor();
       if (s0 === peg$FAILED) {
-        s0 = peg$parseRgb3();
+        s0 = peg$parseRgba8();
         if (s0 === peg$FAILED) {
-          s0 = peg$parseRgb6();
+          s0 = peg$parseRgba4();
           if (s0 === peg$FAILED) {
-            s0 = peg$parseRgba4();
+            s0 = peg$parseRgb6();
             if (s0 === peg$FAILED) {
-              s0 = peg$parseRgba8();
+              s0 = peg$parseRgb3();
             }
           }
         }
@@ -14362,7 +14362,7 @@ var jssm = (function (exports) {
   var jssmDot_1 = jssmDot.parse;
 
   // whargarbl lots of these return arrays could/should be sets
-  var version = '5.25.0'; // replaced from package.js in build // TODO FIXME currently broken
+  var version = '5.25.1'; // replaced from package.js in build // TODO FIXME currently broken
   /* eslint-disable complexity */
   function arrow_direction(arrow) {
       switch (String(arrow)) {

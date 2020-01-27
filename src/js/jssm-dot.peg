@@ -473,26 +473,26 @@ SvgColor
 
 Rgb3
   = '#' r:HexDigit g:HexDigit b:HexDigit WS? {
-    return `${r}${r}${g}${g}${b}${b}ff`; }
+    return `#${r}${r}${g}${g}${b}${b}ff`; }
 
 Rgb6
   = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit WS? {
-    return `${r1}${r2}${g1}${g2}${b1}${b2}ff`; }
+    return `#${r1}${r2}${g1}${g2}${b1}${b2}ff`; }
 
 Rgba4
   = '#' r:HexDigit g:HexDigit b:HexDigit a:HexDigit WS? {
-    return `${r}${r}${g}${g}${b}${b}${a}${a}`; }
+    return `#${r}${r}${g}${g}${b}${b}${a}${a}`; }
 
 Rgba8
   = '#' r1:HexDigit r2:HexDigit g1:HexDigit g2:HexDigit b1:HexDigit b2:HexDigit a1:HexDigit a2:HexDigit WS? {
-    return `${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`; }
+    return `#${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`; }
 
 Color "color"   // hoboy
   = SvgColor
-  / Rgb3
-  / Rgb6
-  / Rgba4
   / Rgba8
+  / Rgba4
+  / Rgb6
+  / Rgb3
 
 
 

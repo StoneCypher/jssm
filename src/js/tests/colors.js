@@ -15,6 +15,8 @@ const jssm = require('../../../build/jssm.es5.cjs.js'),
 
 describe('Named colors', async it => {
 
+/* eslint-disable max-nested-callbacks */
+
   // edge things
   ['edge_color'].map(prop =>
 
@@ -41,7 +43,11 @@ describe('Named colors', async it => {
 
   );
 
+/* eslint-enable max-nested-callbacks */
+
 });
 
 // TODO FIXME COMEBACK tests for the other color types
 // TODO FIXME COMEBACK check that the named colors are coming out sensibly
+
+// TODO FIXME COMEBACK assert that #f00, #ff0000, #f00f, #ff0000ff, and red all parse as the same color
