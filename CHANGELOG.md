@@ -1,3 +1,5 @@
+* [[`7e9d25aea1`](https://github.com/StoneCypher/jssm/commit/7e9d25aea1)] - Merge pull request #395 from StoneCypher/AddRoundingAndDiagonals (John Haugeland)
+* [[`de75a0417d`](https://github.com/StoneCypher/jssm/commit/de75a0417d)] - Adds support for rounding (fixes StoneCypher/fsl#362) and diagonals (fixes StoneCypher/fsl#361) (John Haugeland)
 * [[`4b42bd5493`](https://github.com/StoneCypher/jssm/commit/4b42bd5493)] - Merge pull request #394 from StoneCypher/FixOctothorpeBug (John Haugeland)
 * [[`c0456fefed`](https://github.com/StoneCypher/jssm/commit/c0456fefed)] - fixes StoneCypher/fsl#354 octothorpe bug on direct colors; fixes StoneCypher/fsl/issues/359 rgb order decl (John Haugeland)
 * [[`e4e3c25697`](https://github.com/StoneCypher/jssm/commit/e4e3c25697)] - improve error message for directions.  much better testing on named colors (John Haugeland)

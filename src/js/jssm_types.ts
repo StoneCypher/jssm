@@ -217,6 +217,8 @@ type JssmGenericConfig<DataType> = {
 
   state_declaration?   : Array<Object>,
 
+  arrange_declaration? : Array<Array<StateType>>,
+
   machine_author?      : string | Array<string>,
   machine_comment?     : string,
   machine_contributor? : string | Array<string>,

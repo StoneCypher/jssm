@@ -44,7 +44,7 @@ describe('Rounding', async it =>
 
 
 describe('Diagonals', async it =>
-  it('cuts', t =>{
+  it('cuts', t => {
     t.is(sm`state a: { diagonals: true;  }; a->b;`.state_declaration("a").diagonals, true);
     t.is(sm`state a: { diagonals: false; }; a->b;`.state_declaration("a").diagonals, false);
   })
