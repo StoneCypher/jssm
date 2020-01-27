@@ -171,6 +171,9 @@ type JssmStateDeclaration = {
 
   shape?           : JssmShape,
   color?           : JssmColor,
+  rounding?        : boolean,
+  diagonals?       : boolean,
+
   textColor?       : JssmColor,
   backgroundColor? : JssmColor,
   borderColor?     : JssmColor,
