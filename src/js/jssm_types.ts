@@ -191,49 +191,51 @@ type JssmStateDeclaration = {
 
 type JssmGenericConfig<DataType> = {
 
-  graph_layout?        : JssmLayout,
+  graph_layout?              : JssmLayout,
 
-  complete?            : Array<StateType>,
-  transitions          : JssmTransitions<DataType>,
+  complete?                  : Array<StateType>,
+  transitions                : JssmTransitions<DataType>,
 
-  theme?               : FslTheme,
-  flow?                : FslDirection,
+  theme?                     : FslTheme,
+  flow?                      : FslDirection,
 
-  name?                : string,
-  data?                : DataType,
-  nodes?               : Array<StateType>,  // uncommon
-  check?               : JssmStatePermitterMaybeArray<DataType>,
+  name?                      : string,
+  data?                      : DataType,
+  nodes?                     : Array<StateType>,  // uncommon
+  check?                     : JssmStatePermitterMaybeArray<DataType>,
 
-//locked?              : bool = true,
-  min_exits?           : number,
-  max_exits?           : number,
-  allow_islands?       : false,
-  allow_force?         : false,
-  actions?             : JssmPermittedOpt,
+//locked?                    : bool = true,
+  min_exits?                 : number,
+  max_exits?                 : number,
+  allow_islands?             : false,
+  allow_force?               : false,
+  actions?                   : JssmPermittedOpt,
 
-  simplify_bidi?       : boolean,
+  simplify_bidi?             : boolean,
 
-  dot_preamble?        : string,
+  dot_preamble?              : string,
 
-  start_states         : Array<StateType>,
-  end_states?          : Array<StateType>,
+  start_states               : Array<StateType>,
+  end_states?                : Array<StateType>,
 
-  state_declaration?   : Array<Object>,
+  state_declaration?         : Array<Object>,
 
-  arrange_declaration? : Array<Array<StateType>>,
+  arrange_declaration?       : Array<Array<StateType>>,
+  arrange_start_declaration? : Array<Array<StateType>>,
+  arrange_end_declaration?   : Array<Array<StateType>>,
 
-  machine_author?      : string | Array<string>,
-  machine_comment?     : string,
-  machine_contributor? : string | Array<string>,
-  machine_definition?  : string,
-  machine_language?    : string,   // TODO FIXME COMEBACK
-  machine_license?     : string,   // TODO FIXME COMEBACK
-  machine_name?        : string,
-  machine_version?     : string,   // TODO FIXME COMEBACK
+  machine_author?            : string | Array<string>,
+  machine_comment?           : string,
+  machine_contributor?       : string | Array<string>,
+  machine_definition?        : string,
+  machine_language?          : string,   // TODO FIXME COMEBACK
+  machine_license?           : string,   // TODO FIXME COMEBACK
+  machine_name?              : string,
+  machine_version?           : string,   // TODO FIXME COMEBACK
 
-  fsl_version?         : string,   // TODO FIXME COMEBACK
+  fsl_version?               : string,   // TODO FIXME COMEBACK
 
-  auto_api?            : boolean | string  // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  auto_api?                  : boolean | string  // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
 
 };
 

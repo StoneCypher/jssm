@@ -1,4 +1,11 @@
 
+const array_box_if_string = n =>
+  typeof n === 'string'? [n] : n;
+
+
+
+
+
 // this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
 const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability'): any => {
@@ -75,4 +82,10 @@ const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: st
 
 
 
-export { seq, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export {
+  seq,
+  histograph, weighted_histo_key,
+  weighted_rand_select, weighted_sample_select,
+  array_box_if_string
+};
+
