@@ -15430,6 +15430,9 @@ var Machine = /** @class */ (function () {
             throw new Error("no such state " + JSON.stringify(state));
         }
     };
+    Machine.prototype.has_state = function (whichState) {
+        return this._states.get(whichState) !== undefined;
+    };
     Machine.prototype.list_edges = function () {
         return this._edges;
     };
@@ -15557,7 +15560,9 @@ var Machine = /** @class */ (function () {
         }); });
     };
     Machine.prototype.is_unenterable = function (whichState) {
-        // whargarbl should throw on unknown state
+        if (!(this.has_state(whichState))) {
+            throw new Error("No such state " + whichState);
+        }
         return this.list_entrances(whichState).length === 0;
     };
     Machine.prototype.has_unenterables = function () {
@@ -15568,7 +15573,9 @@ var Machine = /** @class */ (function () {
         return this.state_is_terminal(this.state());
     };
     Machine.prototype.state_is_terminal = function (whichState) {
-        // whargarbl should throw on unknown state
+        if (!(this.has_state(whichState))) {
+            throw new Error("No such state " + whichState);
+        }
         return this.list_exits(whichState).length === 0;
     };
     Machine.prototype.has_terminals = function () {

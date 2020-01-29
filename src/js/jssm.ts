@@ -771,6 +771,10 @@ class Machine<mDT> {
     else       { throw new Error(`no such state ${JSON.stringify(state)}`); }
   }
 
+  has_state(whichState: StateType): boolean {
+    return this._states.get(whichState) !== undefined;
+  }
+
 
 
   list_edges(): Array< JssmTransition<mDT> > {
@@ -919,8 +923,9 @@ class Machine<mDT> {
 
 
 
+  // TODO FIXME test that is_unenterable on non-state throws
   is_unenterable(whichState: StateType): boolean {
-    // whargarbl should throw on unknown state
+    if (!(this.has_state(whichState))) { throw new Error(`No such state ${whichState}`); }
     return this.list_entrances(whichState).length === 0;
   }
 
@@ -934,8 +939,9 @@ class Machine<mDT> {
     return this.state_is_terminal(this.state());
   }
 
+  // TODO FIXME test that state_is_terminal on non-state throws
   state_is_terminal(whichState: StateType): boolean {
-    // whargarbl should throw on unknown state
+    if (!(this.has_state(whichState))) { throw new Error(`No such state ${whichState}`); }
     return this.list_exits(whichState).length === 0;
   }
 
