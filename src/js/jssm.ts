@@ -29,7 +29,7 @@ import {
 
 import {
   seq, weighted_rand_select, weighted_sample_select, histograph,
-  weighted_histo_key
+  weighted_histo_key, array_box_if_string
 } from './jssm_util';
 
 
@@ -273,8 +273,9 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
 
-  if (rule.key === 'arrange_declaration') {
-    return { agg_as: 'arrange_declaration', val: [rule.value] };
+  if (['arrange_declaration', 'arrange_start_declaration',
+   'arrange_end_declaration'].includes(rule.key)) {
+    return { agg_as: rule.key, val: [rule.value] };
   }
 
   const tautologies : Array<string> = [
@@ -299,47 +300,51 @@ function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // to
 function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo flow describe the output of the parser
 
   const results : {
-    graph_layout        : Array< JssmLayout >,
-    transition          : Array< JssmTransition<mDT> >,
-    start_states        : Array< string >,
-    end_states          : Array< string >,
-    state_config        : Array< any >,     // TODO COMEBACK no any
-    state_declaration   : Array< string >,
-    fsl_version         : Array< string >,
-    machine_author      : Array< string >,
-    machine_comment     : Array< string >,
-    machine_contributor : Array< string >,
-    machine_definition  : Array< string >,
-    machine_language    : Array< string >,
-    machine_license     : Array< string >,
-    machine_name        : Array< string >,
-    machine_reference   : Array< string >,
-    theme               : Array< string >,
-    flow                : Array< string >,
-    dot_preamble        : Array< string >,
-    arrange_declaration : Array< Array< string > >, // TODO COMEBACK CHECKME
-    machine_version     : Array< string >           // TODO COMEBACK semver
+    graph_layout              : Array< JssmLayout >,
+    transition                : Array< JssmTransition<mDT> >,
+    start_states              : Array< string >,
+    end_states                : Array< string >,
+    state_config              : Array< any >,     // TODO COMEBACK no any
+    state_declaration         : Array< string >,
+    fsl_version               : Array< string >,
+    machine_author            : Array< string >,
+    machine_comment           : Array< string >,
+    machine_contributor       : Array< string >,
+    machine_definition        : Array< string >,
+    machine_language          : Array< string >,
+    machine_license           : Array< string >,
+    machine_name              : Array< string >,
+    machine_reference         : Array< string >,
+    theme                     : Array< string >,
+    flow                      : Array< string >,
+    dot_preamble              : Array< string >,
+    arrange_declaration       : Array< Array< string > >, // TODO COMEBACK CHECKME
+    arrange_start_declaration : Array< Array< string > >, // TODO COMEBACK CHECKME
+    arrange_end_declaration   : Array< Array< string > >, // TODO COMEBACK CHECKME
+    machine_version           : Array< string >           // TODO COMEBACK semver
   } = {
-    graph_layout        : [],
-    transition          : [],
-    start_states        : [],
-    end_states          : [],
-    state_config        : [],
-    state_declaration   : [],
-    fsl_version         : [],
-    machine_author      : [],
-    machine_comment     : [],
-    machine_contributor : [],
-    machine_definition  : [],
-    machine_language    : [],
-    machine_license     : [],
-    machine_name        : [],
-    machine_reference   : [],
-    theme               : [],
-    flow                : [],
-    dot_preamble        : [],
-    arrange_declaration : [],
-    machine_version     : []
+    graph_layout              : [],
+    transition                : [],
+    start_states              : [],
+    end_states                : [],
+    state_config              : [],
+    state_declaration         : [],
+    fsl_version               : [],
+    machine_author            : [],
+    machine_comment           : [],
+    machine_contributor       : [],
+    machine_definition        : [],
+    machine_language          : [],
+    machine_license           : [],
+    machine_name              : [],
+    machine_reference         : [],
+    theme                     : [],
+    flow                      : [],
+    dot_preamble              : [],
+    arrange_declaration       : [],
+    arrange_start_declaration : [],
+    arrange_end_declaration   : [],
+    machine_version           : []
   };
 
   tree.map( (tr : JssmCompileSeStart) => {
@@ -377,8 +382,8 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     }
   });
 
-  ['arrange_declaration', 'machine_author', 'machine_contributor', 'machine_reference',
-   'state_declaration'].map(
+  ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
+   'machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map(
      (multiKey : string) => {
        if (results[multiKey].length) {
          result_cfg[multiKey] = results[multiKey];
@@ -432,33 +437,35 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 class Machine<mDT> {
 
 
-  _state                  : StateType;
-  _states                 : Map<StateType, JssmGenericState>;
-  _edges                  : Array<JssmTransition<mDT>>;
-  _edge_map               : Map<StateType, Map<StateType, number>>;
-  _named_transitions      : Map<StateType, number>;
-  _actions                : Map<StateType, Map<StateType, number>>;
-  _reverse_actions        : Map<StateType, Map<StateType, number>>;
-  _reverse_action_targets : Map<StateType, Map<StateType, number>>;
+  _state                     : StateType;
+  _states                    : Map<StateType, JssmGenericState>;
+  _edges                     : Array<JssmTransition<mDT>>;
+  _edge_map                  : Map<StateType, Map<StateType, number>>;
+  _named_transitions         : Map<StateType, number>;
+  _actions                   : Map<StateType, Map<StateType, number>>;
+  _reverse_actions           : Map<StateType, Map<StateType, number>>;
+  _reverse_action_targets    : Map<StateType, Map<StateType, number>>;
 
-  _machine_author?        : Array<string>;
-  _machine_comment?       : string;
-  _machine_contributor?   : Array<string>;
-  _machine_definition?    : string;
-  _machine_language?      : string;
-  _machine_license?       : string;
-  _machine_name?          : string;
-  _machine_version?       : string;
-  _fsl_version?           : string;
-  _raw_state_declaration? : Array<Object>;    // eslint-disable-line flowtype/no-weak-types
-  _state_declarations     : Map<StateType, JssmStateDeclaration>;
+  _machine_author?           : Array<string>;
+  _machine_comment?          : string;
+  _machine_contributor?      : Array<string>;
+  _machine_definition?       : string;
+  _machine_language?         : string;
+  _machine_license?          : string;
+  _machine_name?             : string;
+  _machine_version?          : string;
+  _fsl_version?              : string;
+  _raw_state_declaration?    : Array<Object>;    // eslint-disable-line flowtype/no-weak-types
+  _state_declarations        : Map<StateType, JssmStateDeclaration>;
 
-  _graph_layout           : JssmLayout;
-  _dot_preamble           : string;
-  _arrange_declaration    : Array<Array<StateType>>;
+  _graph_layout              : JssmLayout;
+  _dot_preamble              : string;
+  _arrange_declaration       : Array<Array<StateType>>;
+  _arrange_start_declaration : Array<Array<StateType>>;
+  _arrange_end_declaration   : Array<Array<StateType>>;
 
-  _theme                  : FslTheme;
-  _flow                   : FslDirection;
+  _theme                     : FslTheme;
+  _flow                      : FslDirection;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -476,40 +483,44 @@ class Machine<mDT> {
     machine_version,
     state_declaration,
     fsl_version,
-    dot_preamble        = undefined,
-    arrange_declaration = [],
-    theme               = 'default',
-    flow                = 'down',
-    graph_layout        = 'dot'
+    dot_preamble              = undefined,
+    arrange_declaration       = [],
+    arrange_start_declaration = [],
+    arrange_end_declaration   = [],
+    theme                     = 'default',
+    flow                      = 'down',
+    graph_layout              = 'dot'
   } : JssmGenericConfig<mDT>) {
 
-    this._state                  = start_states[0];
-    this._states                 = new Map();
-    this._state_declarations     = new Map();
-    this._edges                  = [];
-    this._edge_map               = new Map();
-    this._named_transitions      = new Map();
-    this._actions                = new Map();
-    this._reverse_actions        = new Map();
-    this._reverse_action_targets = new Map();   // todo
+    this._state                     = start_states[0];
+    this._states                    = new Map();
+    this._state_declarations        = new Map();
+    this._edges                     = [];
+    this._edge_map                  = new Map();
+    this._named_transitions         = new Map();
+    this._actions                   = new Map();
+    this._reverse_actions           = new Map();
+    this._reverse_action_targets    = new Map();   // todo
 
-    this._machine_author         = typeof machine_author === 'string'? [machine_author] : machine_author;
-    this._machine_comment        = machine_comment;
-    this._machine_contributor    = typeof machine_contributor === 'string'? [machine_contributor] : machine_contributor;
-    this._machine_definition     = machine_definition;
-    this._machine_language       = machine_language;
-    this._machine_license        = machine_license;
-    this._machine_name           = machine_name;
-    this._machine_version        = machine_version;
-    this._raw_state_declaration  = state_declaration || [];
-    this._fsl_version            = fsl_version;
+    this._machine_author            = array_box_if_string(machine_author);
+    this._machine_comment           = machine_comment;
+    this._machine_contributor       = array_box_if_string(machine_contributor);
+    this._machine_definition        = machine_definition;
+    this._machine_language          = machine_language;
+    this._machine_license           = machine_license;
+    this._machine_name              = machine_name;
+    this._machine_version           = machine_version;
+    this._raw_state_declaration     = state_declaration || [];
+    this._fsl_version               = fsl_version;
 
-    this._arrange_declaration    = arrange_declaration;
+    this._arrange_declaration       = arrange_declaration;
+    this._arrange_start_declaration = arrange_start_declaration;
+    this._arrange_end_declaration   = arrange_end_declaration;
 
-    this._dot_preamble           = dot_preamble;
-    this._theme                  = theme;
-    this._flow                   = flow;
-    this._graph_layout           = graph_layout;
+    this._dot_preamble              = dot_preamble;
+    this._theme                     = theme;
+    this._flow                      = flow;
+    this._graph_layout              = graph_layout;
 
 
     if (state_declaration) {

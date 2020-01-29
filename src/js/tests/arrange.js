@@ -30,4 +30,24 @@ describe('Arrange', async it => {
     );
   });
 
+  it('start', t => {
+    t.notThrows( () => {
+      const _foo = sm`arrange-start [a c]; a -> b -> c -> d;`;
+    });
+    t.deepEqual(
+      sm`arrange-start [a c]; a -> b -> c -> d;`._arrange_start_declaration,
+      [['a','c']]
+    );
+  });
+
+  it('end', t => {
+    t.notThrows( () => {
+      const _foo = sm`arrange-end [a c]; a -> b -> c -> d;`;
+    });
+    t.deepEqual(
+      sm`arrange-end [b d]; a -> b -> c -> d;`._arrange_end_declaration,
+      [['b','d']]
+    );
+  });
+
 });

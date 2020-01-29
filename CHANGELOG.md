@@ -1,3 +1,5 @@
+* [[`f96df2623d`](https://github.com/StoneCypher/jssm/commit/f96df2623d)] - arrange-start and arrange-end (John Haugeland)
+* [[`de1fea7329`](https://github.com/StoneCypher/jssm/commit/de1fea7329)] - add support for line styles, fixes StoneCypher/fsl#367 (John Haugeland)
 * [[`e0a395bb33`](https://github.com/StoneCypher/jssm/commit/e0a395bb33)] - vastly superior implementation of corners (John Haugeland)
 * [[`3aa55887b6`](https://github.com/StoneCypher/jssm/commit/3aa55887b6)] - Merge pull request #396 from StoneCypher/AddArrange (John Haugeland)
 * [[`7345a14e14`](https://github.com/StoneCypher/jssm/commit/7345a14e14)] - Add arrange, fixes StoneCypher/fsl#267 (John Haugeland)
