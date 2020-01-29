@@ -844,8 +844,19 @@ NamedList
 
 
 
-ArrangeDeclaration
-  = "arrange" WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_declaration', value }; }
+RegularArrangeDeclaration
+  = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_declaration', value }; }
+
+ArrangeStartDeclaration
+  = "arrange-start" WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_start_declaration', value }; }
+
+ArrangeEndDeclaration
+  = "arrange-end"   WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_end_declaration', value }; }
+
+ArrangeDeclaration "arrange declaration"
+  = ArrangeStartDeclaration
+  / ArrangeEndDeclaration
+  / RegularArrangeDeclaration
 
 
 
