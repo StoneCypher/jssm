@@ -1,3 +1,4 @@
+* [[`7f6f597044`](https://github.com/StoneCypher/jssm/commit/7f6f597044)] - fixing coverage, es6 package.json surgery (John Haugeland)
 * [[`76352f8fc8`](https://github.com/StoneCypher/jssm/commit/76352f8fc8)] - inversion appears to work (John Haugeland)
 * [[`a3ebea3dc6`](https://github.com/StoneCypher/jssm/commit/a3ebea3dc6)] - geohot's bug confirmed.  typescript now building independently on stricter config (John Haugeland)
 * [[`c7335a9e99`](https://github.com/StoneCypher/jssm/commit/c7335a9e99)] - simple guards on non-states for is\_unenterable and state\_is\_terminal (John Haugeland)
