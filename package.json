@@ -19,7 +19,7 @@
   },
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
-  "module": "dist/jssm.es6.js",
+  "module": "dist/es6/jssm.js",
   "scripts": {
     "test": "npm run make && npm run justtest",
     "rmgenerated": "rm -f src/js/jssm-dot.ts && rm -f src/js/version.ts",

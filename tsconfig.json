@@ -8,7 +8,7 @@
     "sourceMap"                      : true,
     "target"                         : "ES2017",
     "lib"                            : [ "es2017", "dom" ],
-    "outDir"                         : "./build/es6",
+    "outDir"                         : "./dist/es6",
     "declaration"                    : true
   },
   "include" : [

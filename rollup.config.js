@@ -10,7 +10,7 @@ const pkg = require('./package.json');
 
 const gen_config = (file, format) => ({
 
-  input: 'build/es6/jssm.js',
+  input: 'dist/es6/jssm.js',
 
   output: {
     file,
