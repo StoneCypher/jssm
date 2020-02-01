@@ -38,7 +38,7 @@ import {
 
 import { parse } from './jssm-dot';  // TODO FIXME WHARGARBL this could be post-typed
 
-const version: null = null; // replaced from package.js in build // TODO FIXME currently broken
+import { version } from './version'; // replaced from package.js in build // TODO FIXME currently broken
 
 
 
@@ -252,13 +252,13 @@ function compile_rule_transition_step<mDT>(
 
 
 
-function compile_rule_handle_transition(rule: JssmCompileSeStart): any { // TODO FIXME no any // todo flow describe the parser representation of a transition
+function compile_rule_handle_transition(rule: JssmCompileSeStart<StateType>): any { // TODO FIXME no any // todo flow describe the parser representation of a transition
   return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
 }
 
 
 
-function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // todo flow describe the output of the parser
+function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileRule { // todo flow describe the output of the parser
 
   if (rule.key === 'transition') {
     return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
@@ -347,7 +347,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_version           : []
   };
 
-  tree.map( (tr : JssmCompileSeStart) => {
+  tree.map( (tr : JssmCompileSeStart<StateType>) => {
 
     const rule   : JssmCompileRule = compile_rule_handler(tr),
           agg_as : string          = rule.agg_as,

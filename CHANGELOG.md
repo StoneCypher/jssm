@@ -1,3 +1,4 @@
+* [[`c7335a9e99`](https://github.com/StoneCypher/jssm/commit/c7335a9e99)] - simple guards on non-states for is\_unenterable and state\_is\_terminal (John Haugeland)
 * [[`cc39df41a5`](https://github.com/StoneCypher/jssm/commit/cc39df41a5)] - Merge pull request #397 from StoneCypher/ArrangeStartAndEnd (John Haugeland)
 * [[`751cde589f`](https://github.com/StoneCypher/jssm/commit/751cde589f)] - arrange-start and arrange-end (John Haugeland)
 * [[`f96df2623d`](https://github.com/StoneCypher/jssm/commit/f96df2623d)] - arrange-start and arrange-end (John Haugeland)
