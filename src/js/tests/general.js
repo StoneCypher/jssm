@@ -9,7 +9,8 @@ const jssm = require('../../../build/jssm.es5.cjs.js');
 
 
 
-test('build-set version number is present', t => t.is(typeof jssm.version, 'string'));
+test('build-set version number is present',
+  t => t.is(typeof jssm.version, 'string'));
 
 
 

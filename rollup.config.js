@@ -1,7 +1,6 @@
 
 import nodeResolve from 'rollup-plugin-node-resolve';
 import commonjs    from 'rollup-plugin-commonjs';
-import typescript  from 'rollup-plugin-typescript2';
 import replace     from 'rollup-plugin-replace';
 
 const pkg = require('./package.json');
@@ -9,19 +8,18 @@ const pkg = require('./package.json');
 
 
 
+const gen_config = (file, format) => ({
 
-const es6config = {
+  input: 'dist/es6/jssm.js',
 
-  input     : 'src/js/jssm.ts',
-
-  output    : {
-    file      : 'build/jssm.es6.js',
-    format    : 'es',
+  output: {
+    file,
+    format,
     name      : 'jssm',
     sourcemap : true,
   },
 
-  plugins   : [
+  plugins : [
 
     nodeResolve({
       mainFields     : ['module', 'main'],
@@ -32,93 +30,23 @@ const es6config = {
 
     commonjs(),
 
-    typescript(),
-
     replace({
-      'var version = null'   : 'var version = \'' + pkg.version + '\'',
       'process.env.NODE_ENV' : JSON.stringify( 'production' )
     })
 
   ]
 
-};
+});
+
+
+
+
+const // es6config  = gen_config('build/jssm.es6.js',     'es'),
+      cjsconfig  = gen_config('build/jssm.es5.cjs.js', 'cjs'),
+      iifeconfig = gen_config('build/jssm.iife.js',    'iife');
 
 
 
 
 
-const cjsconfig = {
-
-  input     : 'src/js/jssm.ts',
-
-  output    : {
-    file      : 'build/jssm.es5.cjs.js',
-    format    : 'cjs',
-    name      : 'jssm',
-    sourcemap : true,
-  },
-
-  plugins   : [
-
-    nodeResolve({
-      mainFields     : ['module', 'main'],
-      browser        : true,
-      extensions     : [ '.js', '.json', '.ts', '.tsx' ],
-      preferBuiltins : false
-    }),
-
-    commonjs(),
-
-    typescript(),
-
-    replace({
-      'var version = null'   : 'var version = \'' + pkg.version + '\'',
-      'process.env.NODE_ENV': JSON.stringify( 'production' )
-    })
-
-  ]
-
-};
-
-
-
-
-
-const iifeconfig = {
-
-  input     : 'src/js/jssm.ts',
-
-  output    : {
-    file      : 'build/jssm.iife.js',
-    format    : 'iife',
-    name      : 'jssm',
-    sourcemap : true,
-  },
-
-  plugins   : [
-
-    nodeResolve({
-      mainFields     : ['module', 'main'],
-      browser        : true,
-      extensions     : [ '.js', '.json', '.ts', '.tsx' ],
-      preferBuiltins : false
-    }),
-
-    commonjs(),
-
-    typescript(),
-
-    replace({
-      'var version = null'   : 'var version = \'' + pkg.version + '\'',
-      'process.env.NODE_ENV': JSON.stringify( 'production' )
-    })
-
-  ]
-
-};
-
-
-
-
-
-export default [ es6config, cjsconfig, iifeconfig ];
+export default [ /* es6config, */ cjsconfig, iifeconfig ];

@@ -38,7 +38,7 @@ import {
 
 import { parse } from './jssm-dot';  // TODO FIXME WHARGARBL this could be post-typed
 
-const version: null = null; // replaced from package.js in build // TODO FIXME currently broken
+import { version } from './version'; // replaced from package.js in build // TODO FIXME currently broken
 
 
 
@@ -252,13 +252,13 @@ function compile_rule_transition_step<mDT>(
 
 
 
-function compile_rule_handle_transition(rule: JssmCompileSeStart): any { // TODO FIXME no any // todo flow describe the parser representation of a transition
+function compile_rule_handle_transition(rule: JssmCompileSeStart<StateType>): any { // TODO FIXME no any // todo flow describe the parser representation of a transition
   return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
 }
 
 
 
-function compile_rule_handler(rule: JssmCompileSeStart): JssmCompileRule { // todo flow describe the output of the parser
+function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileRule { // todo flow describe the output of the parser
 
   if (rule.key === 'transition') {
     return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
@@ -347,7 +347,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
     machine_version           : []
   };
 
-  tree.map( (tr : JssmCompileSeStart) => {
+  tree.map( (tr : JssmCompileSeStart<StateType>) => {
 
     const rule   : JssmCompileRule = compile_rule_handler(tr),
           agg_as : string          = rule.agg_as,
@@ -400,7 +400,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
 
 function make<mDT>(plan: string): JssmGenericConfig<mDT> {
-  return compile(parse(plan));
+  return compile(parse(plan, {}));
 }
 
 
@@ -771,6 +771,10 @@ class Machine<mDT> {
     else       { throw new Error(`no such state ${JSON.stringify(state)}`); }
   }
 
+  has_state(whichState: StateType): boolean {
+    return this._states.get(whichState) !== undefined;
+  }
+
 
 
   list_edges(): Array< JssmTransition<mDT> > {
@@ -919,8 +923,9 @@ class Machine<mDT> {
 
 
 
+  // TODO FIXME test that is_unenterable on non-state throws
   is_unenterable(whichState: StateType): boolean {
-    // whargarbl should throw on unknown state
+    if (!(this.has_state(whichState))) { throw new Error(`No such state ${whichState}`); }
     return this.list_entrances(whichState).length === 0;
   }
 
@@ -934,8 +939,9 @@ class Machine<mDT> {
     return this.state_is_terminal(this.state());
   }
 
+  // TODO FIXME test that state_is_terminal on non-state throws
   state_is_terminal(whichState: StateType): boolean {
-    // whargarbl should throw on unknown state
+    if (!(this.has_state(whichState))) { throw new Error(`No such state ${whichState}`); }
     return this.list_exits(whichState).length === 0;
   }
 
@@ -1038,6 +1044,14 @@ class Machine<mDT> {
     // todo major incomplete whargarbl comeback
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
+
+  /* eslint-disable no-use-before-define */
+  /* eslint-disable class-methods-use-this */
+  sm(template_strings: Array<string>, ... remainder /* , arguments */): Machine<mDT> {
+    return sm(template_strings, ... remainder);
+  }
+  /* eslint-enable class-methods-use-this */
+  /* eslint-enable no-use-before-define */
 
 
 }

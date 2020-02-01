@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.30.0",
+  "version": "5.31.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -19,23 +19,24 @@
   },
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
-  "module": "dist/jssm.es6.js",
+  "module": "dist/es6/jssm.js",
   "scripts": {
-    "test-keepdotcoverage": "npm run make && npm run justtest-keep",
     "test": "npm run make && npm run justtest",
-    "rmdot": "rm -f src/js/jssm-dot.js",
+    "rmgenerated": "rm -f src/js/jssm-dot.ts && rm -f src/js/version.ts",
     "justtest": "nyc ava src/js/tests/*.js -v && npm run nyc-html",
-    "justqtest": "nyc ava src/js/tests/*.js",
     "removedir": "rm -rf build && rm -rf dist && rm -rf docs",
     "createdir": "mkdir build && mkdir dist && mkdir docs",
-    "clean": "npm run removedir && npm run rmdot && npm run createdir",
-    "make": "npm run clean && npm run peg && npm run ts",
-    "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && cp src/js/jssm-dot.js build/",
+    "clean": "npm run removedir && npm run rmgenerated && npm run createdir",
+    "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && node src/buildjs/fixparser.js && rm src/js/jssm-dot.js",
+    "rollup": "rollup -c",
+    "typescript": "tsc --build tsconfig.json",
+    "makever": "node src/buildjs/makever.js",
+    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run rollup",
     "eslint": "eslint src/js/jssm.ts src/js/jssm_types.ts src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html -x \"src/js/jssm-dot.js\"",
     "coverage": "nyc report -x \"src/js/jssm-dot.js\" --reporter=text-lcov > ./coverage/lcov.info",
-    "vet": "npm run eslint && npm run audit",
     "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
+    "vet": "npm run eslint && npm run audit",
     "build": "npm run vet && npm run test && npm run minify && npm run docs && npm run site && npm run dist",
     "zminify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "minify": "echo Minify skipped",
@@ -43,11 +44,7 @@
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "travis": "echo Running Travis Script && npm run build && npm run nyc-html && npm run coverage",
-    "githubaction": "npm run build && npm run coverage",
-    "azure": "npm run nyc-html && npm run coverage",
-    "buildtest": "npm run build && npm run test",
-    "ts": "npm run peg && rollup -c"
+    "githubaction": "npm run build && npm run coverage"
   },
   "repository": {
     "type": "git",

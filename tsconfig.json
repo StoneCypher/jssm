@@ -1,0 +1,17 @@
+{
+  "compilerOptions" : {
+    "module"                         : "es2015",
+    "moduleResolution"               : "node",
+    "suppressImplicitAnyIndexErrors" : true,
+    "noEmitOnError"                  : true,
+    "removeComments"                 : true,
+    "sourceMap"                      : true,
+    "target"                         : "ES2017",
+    "lib"                            : [ "es2017", "dom" ],
+    "outDir"                         : "./dist/es6",
+    "declaration"                    : true
+  },
+  "include" : [
+    "src/js/*"
+  ]
+}

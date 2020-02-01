@@ -570,7 +570,7 @@ Subexp
     WS? label    : ArrowTarget
     WS? tail     : Subexp? {
 
-      const base = {kind: arrow, to: label};
+      const base: any = {kind: arrow, to: label};
 
       if (tail && (tail !== [])) { base.se            = tail;         }
       if (l_desc)                { base.l_desc        = l_desc;       }
@@ -588,7 +588,7 @@ Subexp
 
 Exp
   = label:ArrowTarget se:Subexp WS? ';' WS? {
-    const base = { key: 'transition', from: label };
+    const base: any = { key: 'transition', from: label };
     if (se && (se !== [])) { base.se = se; }
     return base;
   }

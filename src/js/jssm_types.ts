@@ -270,9 +270,9 @@ type JssmCompileSe = {
 
 
 
-type JssmCompileSeStart = {
+type JssmCompileSeStart<DataType> = {
 
-  from   : StateType,
+  from   : DataType,
   se     : JssmCompileSe,
   key    : string,
   value? : string | number,
