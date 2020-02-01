@@ -1,3 +1,3 @@
-const version = "5.31.0";
+const version = "5.31.1";
 export { version };
 //# sourceMappingURL=version.js.map
