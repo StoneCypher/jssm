@@ -1,3 +1,5 @@
+* [[`3047b388b9`](https://github.com/StoneCypher/jssm/commit/3047b388b9)] - Merge pull request #398 from StoneCypher/InvertRollupAndTypescript (John Haugeland)
+* [[`44c69de2cd`](https://github.com/StoneCypher/jssm/commit/44c69de2cd)] - other small cleanup (John Haugeland)
 * [[`f528dafa9f`](https://github.com/StoneCypher/jssm/commit/f528dafa9f)] - save and push the package too, john (John Haugeland)
 * [[`8a535bfc47`](https://github.com/StoneCypher/jssm/commit/8a535bfc47)] - move shell surgery to node to get through mac (John Haugeland)
 * [[`7f6f597044`](https://github.com/StoneCypher/jssm/commit/7f6f597044)] - fixing coverage, es6 package.json surgery (John Haugeland)

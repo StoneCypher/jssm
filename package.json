@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.31.0",
+  "version": "5.31.1",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -22,14 +22,14 @@
   "module": "dist/es6/jssm.js",
   "scripts": {
     "test": "npm run make && npm run justtest",
-    "rmgenerated": "rm -f src/js/jssm-dot.ts && rm -f src/js/version.ts",
+    "rmgenerated": "rm -f src/js/jssm-dot.ts && rm -f src/js/version.ts && rm -f *.d.ts",
     "justtest": "nyc ava src/js/tests/*.js -v && npm run nyc-html",
     "removedir": "rm -rf build && rm -rf dist && rm -rf docs",
     "createdir": "mkdir build && mkdir dist && mkdir docs",
     "clean": "npm run removedir && npm run rmgenerated && npm run createdir",
     "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && node src/buildjs/fixparser.js && rm src/js/jssm-dot.js",
     "rollup": "rollup -c",
-    "typescript": "tsc --build tsconfig.json",
+    "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
     "makever": "node src/buildjs/makever.js",
     "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run rollup",
     "eslint": "eslint src/js/jssm.ts src/js/jssm_types.ts src/js/tests/*.js",
