@@ -27,7 +27,7 @@
     "removedir": "rm -rf build && rm -rf dist && rm -rf docs",
     "createdir": "mkdir build && mkdir dist && mkdir docs",
     "clean": "npm run removedir && npm run rmgenerated && npm run createdir",
-    "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && head -n -5 src/js/jssm-dot.js > src/js/jssm-dot.ts && rm src/js/jssm-dot.js && cat src/buildjs/peg_ts_export_footer.ts >> src/js/jssm-dot.ts",
+    "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && node src/buildjs/fixparser.js && rm src/js/jssm-dot.js",
     "rollup": "rollup -c",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.js",
