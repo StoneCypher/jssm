@@ -400,7 +400,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
 
 function make<mDT>(plan: string): JssmGenericConfig<mDT> {
-  return compile(parse(plan));
+  return compile(parse(plan, {}));
 }
 
 
@@ -1044,6 +1044,14 @@ class Machine<mDT> {
     // todo major incomplete whargarbl comeback
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
   }
+
+  /* eslint-disable no-use-before-define */
+  /* eslint-disable class-methods-use-this */
+  sm(template_strings: Array<string>, ... remainder /* , arguments */): Machine<mDT> {
+    return sm(template_strings, ... remainder);
+  }
+  /* eslint-enable class-methods-use-this */
+  /* eslint-enable no-use-before-define */
 
 
 }
