@@ -10,6 +10,8 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 
 <div id="badge_style_hook">
 
+[![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node.js%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
+
 [![GitHub forks](https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM)]()
 [![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]()
 [![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars)]()
