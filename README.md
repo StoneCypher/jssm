@@ -23,7 +23,6 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 [![Dependency status](https://david-dm.org/StoneCypher/jssm/status.svg)](https://david-dm.org/StoneCypher/jssm)
 [![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://travis-ci.org/StoneCypher/jssm)
 [![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://coveralls.io/github/StoneCypher/jssm)
-[![CodeClimate status](https://img.shields.io/codeclimate/github/StoneCypher/jssm.svg)](https://codeclimate.com/github/StoneCypher/jssm)
 
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
 [![CDNjs version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
