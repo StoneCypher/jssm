@@ -1,3 +1,5 @@
+* [[`2c72b3c2d1`](https://github.com/StoneCypher/jssm/commit/2c72b3c2d1)] - Merge pull request #399 from StoneCypher/AddDTsFiles (John Haugeland)
+* [[`b797c1ec3f`](https://github.com/StoneCypher/jssm/commit/b797c1ec3f)] - looks like we have .d.ts (John Haugeland)
 * [[`3047b388b9`](https://github.com/StoneCypher/jssm/commit/3047b388b9)] - Merge pull request #398 from StoneCypher/InvertRollupAndTypescript (John Haugeland)
 * [[`44c69de2cd`](https://github.com/StoneCypher/jssm/commit/44c69de2cd)] - other small cleanup (John Haugeland)
 * [[`f528dafa9f`](https://github.com/StoneCypher/jssm/commit/f528dafa9f)] - save and push the package too, john (John Haugeland)

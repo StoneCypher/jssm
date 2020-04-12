@@ -1,9 +1,17 @@
 {
   "name": "jssm",
-  "version": "5.31.1",
+  "version": "5.31.2",
   "engines": {
     "node": ">=6.0.0"
   },
+  "files": [
+    "src/**/*",
+    "dist/**/*",
+    "tsconfig.json",
+    "*.ts",
+    "CHANGELOG.md",
+    ".nycrc"
+  ],
   "autoupdate": {
     "source": "git",
     "target": "git://github.com/StoneCypher/jssm.git",

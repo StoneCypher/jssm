@@ -1104,7 +1104,11 @@ export {
   arrow_left_kind,
   arrow_right_kind,
 
-  // todo whargarbl these should be exported to a utility library
-  seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key
+  // WHARGARBL TODO these should be exported to a utility library
+  seq,
+    weighted_rand_select,
+    histograph,
+    weighted_sample_select,
+    weighted_histo_key
 
 };
