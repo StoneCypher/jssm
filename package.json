@@ -104,7 +104,7 @@
     "ava-spec": "^1.1.1",
     "changelog-maker": "^2.2.6",
     "coveralls": "^3.0.2",
-    "documentation": "^11.0.1",
+    "documentation": "^12.3.0",
     "eslint": "^6.8.0",
     "eslint-config-stonecypher": "^1.15.11",
     "eslint-plugin-ava": "^9.0.0",
