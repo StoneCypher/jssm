@@ -1,3 +1,8 @@
+* [[`ed2d21b8a5`](https://github.com/StoneCypher/jssm/commit/ed2d21b8a5)] - missing comma in package (John Haugeland)
+* [[`59a47b5fcc`](https://github.com/StoneCypher/jssm/commit/59a47b5fcc)] - uh, get the file list right, john.  6 isn't bundled (John Haugeland)
+* [[`42f6af2a29`](https://github.com/StoneCypher/jssm/commit/42f6af2a29)] - Let's slim this thing way down.  All that's in the package now are two builds, the .d.ts, and a changelog (John Haugeland)
+* [[`dd529cd78d`](https://github.com/StoneCypher/jssm/commit/dd529cd78d)] - honestly the iife shouldn't be in the npm repo (John Haugeland)
+* [[`fae52c7b8a`](https://github.com/StoneCypher/jssm/commit/fae52c7b8a)] - remove build products.  push only minified to npm, but retain in a local build process.  reintroduce iife (John Haugeland)
 * [[`b946832d13`](https://github.com/StoneCypher/jssm/commit/b946832d13)] - remove es5 prebuild from npm; make it a build product only. (John Haugeland)
 * [[`a27de349c4`](https://github.com/StoneCypher/jssm/commit/a27de349c4)] - Remove the maps (John Haugeland)
 * [[`a45f4f00b3`](https://github.com/StoneCypher/jssm/commit/a45f4f00b3)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland)

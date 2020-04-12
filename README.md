@@ -1,6 +1,8 @@
 # jssm
-JSSM is a Javascript state machine implementing [Finite State Language](https://fsl.tools/), with a terse DSL and a simple API.  
+JSSM is a Javascript state machine implementing [Finite State Language](https://fsl.tools/), with a terse DSL and a simple API.
 100% test coverage; typed with Flowtype.  MIT licensed.
+
+The NPM package includes pure `es6`, a `cjs es5` bundle, and `.d.ts` typings.  The repository includes the original typescript, the bundle, the es6, documentation, tests, tutorials, and so on.
 
 [Try it live!](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html)
 
