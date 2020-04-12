@@ -1,3 +1,4 @@
+* [[`520658963b`](https://github.com/StoneCypher/jssm/commit/520658963b)] - round 1 (John Haugeland)
 * [[`642fd8a9b4`](https://github.com/StoneCypher/jssm/commit/642fd8a9b4)] - update readme a bit (John Haugeland)
 * [[`ed2d21b8a5`](https://github.com/StoneCypher/jssm/commit/ed2d21b8a5)] - missing comma in package (John Haugeland)
 * [[`59a47b5fcc`](https://github.com/StoneCypher/jssm/commit/59a47b5fcc)] - uh, get the file list right, john.  6 isn't bundled (John Haugeland)
