@@ -1,3 +1,5 @@
+* [[`d64fe65ebe`](https://github.com/StoneCypher/jssm/commit/d64fe65ebe)] - Merge pull request #402 from StoneCypher/LetsDoSomeUpgrades (John Haugeland)
+* [[`f22d422dcf`](https://github.com/StoneCypher/jssm/commit/f22d422dcf)] - had to remove and re-add ava and documentation together to get around the last one (John Haugeland)
 * [[`430161f5c6`](https://github.com/StoneCypher/jssm/commit/430161f5c6)] - round 2 (John Haugeland)
 * [[`520658963b`](https://github.com/StoneCypher/jssm/commit/520658963b)] - round 1 (John Haugeland)
 * [[`642fd8a9b4`](https://github.com/StoneCypher/jssm/commit/642fd8a9b4)] - update readme a bit (John Haugeland)
