@@ -15597,7 +15597,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.31.1";
+  const version = "5.31.3";
 
   function arrow_direction(arrow) {
       switch (String(arrow)) {
@@ -16299,4 +16299,3 @@ var jssm = (function (exports) {
   return exports;
 
 }({}));
-//# sourceMappingURL=jssm.iife.js.map

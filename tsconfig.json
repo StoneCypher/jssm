@@ -5,7 +5,6 @@
     "suppressImplicitAnyIndexErrors" : true,
     "noEmitOnError"                  : true,
     "removeComments"                 : true,
-    "sourceMap"                      : true,
     "target"                         : "ES2017",
     "lib"                            : [ "es2017", "dom" ],
     "outDir"                         : "./dist/es6",

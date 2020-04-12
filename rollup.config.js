@@ -15,8 +15,7 @@ const gen_config = (file, format) => ({
   output: {
     file,
     format,
-    name      : 'jssm',
-    sourcemap : true,
+    name : 'jssm'
   },
 
   plugins : [

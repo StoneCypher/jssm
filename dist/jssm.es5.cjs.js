@@ -15598,7 +15598,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.31.1";
+const version = "5.31.3";
 
 function arrow_direction(arrow) {
     switch (String(arrow)) {
@@ -16296,4 +16296,3 @@ exports.version = version;
 exports.weighted_histo_key = weighted_histo_key;
 exports.weighted_rand_select = weighted_rand_select;
 exports.weighted_sample_select = weighted_sample_select;
-//# sourceMappingURL=jssm.es5.cjs.js.map

@@ -20,4 +20,3 @@ const weighted_sample_select = (n, options, probability_property) => seq(n)
 const weighted_histo_key = (n, opts, prob_prop, extract) => histograph(weighted_sample_select(n, opts, prob_prop)
     .map((s) => s[extract]));
 export { seq, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string };
-//# sourceMappingURL=jssm_util.js.map

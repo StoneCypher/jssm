@@ -683,4 +683,3 @@ function sm(template_strings, ...remainder) {
     return new Machine(make(template_strings.reduce((acc, val, idx) => `${acc}${remainder[idx - 1]}${val}`)));
 }
 export { version, transfer_state_properties, Machine, make, parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };
-//# sourceMappingURL=jssm.js.map
