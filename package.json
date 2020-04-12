@@ -9,7 +9,7 @@
     "dist/es6/jssm.js",
     "dist/es6/jssm_util.js",
     "dist/es6/jssm-dot.js",
-    "dist/es6/version.js"
+    "dist/es6/version.js",
     "**/*.d.ts",
     "CHANGELOG.md"
   ],
