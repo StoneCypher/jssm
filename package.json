@@ -1,12 +1,14 @@
 {
   "name": "jssm",
-  "version": "5.32.0",
+  "version": "5.32.2",
   "engines": {
     "node": ">=6.0.0"
   },
   "files": [
     "src/**/*",
-    "dist/es6/*",
+    "dist/jssm.es5.cjs.js",
+    "dist/jssm.es5.iife.js",
+    "dist/es6/version.js",
     "tsconfig.json",
     "*.ts",
     "CHANGELOG.md",
@@ -19,8 +21,7 @@
       {
         "basePath": "/dist",
         "files": [
-          "jssm.es5.cjs.js",
-          "jssm.es5.cjs.min.js"
+          "jssm.es5.cjs.js"
         ]
       }
     ]
@@ -31,7 +32,7 @@
   "scripts": {
     "test": "npm run make && npm run justtest",
     "rmgenerated": "rm -f src/js/jssm-dot.ts && rm -f src/js/version.ts && rm -f *.d.ts",
-    "justtest": "nyc ava src/js/tests/*.js -v && npm run nyc-html",
+    "justtest": "cp dist/jssm.es5.cjs.js build && nyc ava src/js/tests/*.js -v && npm run nyc-html",
     "removedir": "rm -rf build && rm -rf dist && rm -rf docs",
     "createdir": "mkdir build && mkdir dist && mkdir docs",
     "clean": "npm run removedir && npm run rmgenerated && npm run createdir",
@@ -40,15 +41,17 @@
     "make_iife": "rollup -c rollup.config.iife.js",
     "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
     "makever": "node src/buildjs/makever.js",
-    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_cjs",
+    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs",
     "eslint": "eslint src/js/jssm.ts src/js/jssm_types.ts src/js/tests/*.js",
     "nyc-html": "nyc report --reporter=html -x \"src/js/jssm-dot.js\"",
     "coverage": "nyc report -x \"src/js/jssm-dot.js\" --reporter=text-lcov > ./coverage/lcov.info",
     "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
     "vet": "npm run eslint && npm run audit",
-    "build": "npm run vet && npm run test && npm run minify && npm run docs && npm run site && npm run dist",
+    "build": "npm run vet && npm run test && npm run docs && npm run site && npm run dist && rm -f src/js/jssm-dot.ts",
     "zminify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
-    "minify": "echo Minify skipped",
+    "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",
+    "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
+    "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "dist": "cp build/jssm.*.js dist/",
     "site": "cp src/site/* docs/",
     "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
@@ -123,6 +126,7 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-typescript2": "^0.21.0",
     "semver": "^5.4.1",
+    "terser": "^4.6.11",
     "typescript": "^3.4.5",
     "uglify-js": "^3.0.26",
     "viz.js": "^1.7.1"

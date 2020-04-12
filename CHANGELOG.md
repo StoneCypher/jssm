@@ -1,3 +1,4 @@
+* [[`b946832d13`](https://github.com/StoneCypher/jssm/commit/b946832d13)] - remove es5 prebuild from npm; make it a build product only. (John Haugeland)
 * [[`a27de349c4`](https://github.com/StoneCypher/jssm/commit/a27de349c4)] - Remove the maps (John Haugeland)
 * [[`a45f4f00b3`](https://github.com/StoneCypher/jssm/commit/a45f4f00b3)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland)
 * [[`360aff67bb`](https://github.com/StoneCypher/jssm/commit/360aff67bb)] - First attempt to slim the package down (John Haugeland)
