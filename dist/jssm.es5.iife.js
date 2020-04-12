@@ -15597,7 +15597,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.31.3";
+  const version = "5.32.0";
 
   function arrow_direction(arrow) {
       switch (String(arrow)) {

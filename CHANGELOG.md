@@ -1,3 +1,4 @@
+* [[`a27de349c4`](https://github.com/StoneCypher/jssm/commit/a27de349c4)] - Remove the maps (John Haugeland)
 * [[`a45f4f00b3`](https://github.com/StoneCypher/jssm/commit/a45f4f00b3)] - Merge branch 'master' of github.com:StoneCypher/jssm (John Haugeland)
 * [[`360aff67bb`](https://github.com/StoneCypher/jssm/commit/360aff67bb)] - First attempt to slim the package down (John Haugeland)
 * [[`2c1b54182a`](https://github.com/StoneCypher/jssm/commit/2c1b54182a)] - Update README.md (John Haugeland)
