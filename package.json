@@ -1,13 +1,12 @@
 {
   "name": "jssm",
-  "version": "5.32.2",
+  "version": "5.32.3",
   "engines": {
     "node": ">=6.0.0"
   },
   "files": [
     "src/**/*",
     "dist/jssm.es5.cjs.js",
-    "dist/jssm.es5.iife.js",
     "dist/es6/version.js",
     "tsconfig.json",
     "*.ts",
