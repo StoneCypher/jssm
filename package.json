@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.32.14",
+  "version": "5.32.15",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -109,7 +109,6 @@
     "glob": "^7.1.6",
     "nyc": "^15.0.1",
     "pegjs": "^0.10.0",
-    "reduce-to-639-1": "^1.0.4",
     "rollup": "^1.32.1",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-node-resolve": "^4.2.3",
@@ -122,6 +121,7 @@
     "viz.js": "^1.7.1"
   },
   "dependencies": {
+    "reduce-to-639-1": "^1.0.4",
     "text_audit": "^0.9.3"
   }
 }
