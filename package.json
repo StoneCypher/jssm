@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.32.11",
+  "version": "5.32.12",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -11,6 +11,7 @@
     "dist/es6/jssm-dot.js",
     "dist/es6/version.js",
     "src/**/*.ts",
+    ".nyc_output/**/*",
     "src/tests/*.js",
     ".editorconfig",
     ".eslintrc",
