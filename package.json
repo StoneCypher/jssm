@@ -1,9 +1,25 @@
 {
   "name": "jssm",
-  "version": "5.32.10",
+  "version": "5.32.11",
   "engines": {
     "node": ">=6.0.0"
   },
+  "files": [
+    "dist/jssm.es5.cjs.js",
+    "dist/es6/jssm.js",
+    "dist/es6/jssm_util.js",
+    "dist/es6/jssm-dot.js",
+    "dist/es6/version.js",
+    "src/**/*.ts",
+    "src/tests/*.js",
+    ".editorconfig",
+    ".eslintrc",
+    ".nycrc",
+    "tsconfig.json",
+    ".codeclimate.yml",
+    "**/*.d.ts",
+    "CHANGELOG.md"
+  ],
   "autoupdate": {
     "source": "git",
     "target": "git://github.com/StoneCypher/jssm.git",
