@@ -1,31 +1,25 @@
 # jssm
 
-Wouldn't it be nice if your state machines were simple and readable?
+Wouldn't it be nice if your Javascript state machines were simple and readable?
 
-```fsl
-Green => Yellow => Red => Green;
-[Red Yellow Green] ~> Off -> Red;
+```javascript
+import { sm } from 'jssm';
+
+const Machine = sm`
+  Green => Yellow => Red => Green;
+  [Red Yellow Green] ~> Off -> Red;
+`;
+
+console.log( Machine.state() );  // 'Green'
+
+Machine.transition('Yellow'); // true
+console.log( Machine.state() );  // 'Yellow'
+
+Machine.transition('Blue'); // false
+console.log( Machine.state() );  // 'Yellow'
 ```
 
-What if that were easy to render visually?
-
-![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20unstyled.png)
-
-And what if that in turn were easy to style?
-
-```fsl
-arrange [Green Yellow];
-
-state Red    : { background-color: pink;        corners: rounded; };
-state Yellow : { background-color: #ffb;        corners: rounded; };
-state Green  : { background-color: lightgreen;  corners: rounded; };
-
-state Off : {
-  background-color : steelblue;
-  text-color       : white;
-  shape            : octagon;
-};
-```
+What if that were easy to render visually, with styling?
 
 ![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png)
 

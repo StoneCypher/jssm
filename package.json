@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.32.16",
+  "version": "5.32.17",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -19,6 +19,7 @@
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
   "module": "dist/es6/jssm.js",
+  "types": "dist/jssm.d.ts",
   "scripts": {
     "test": "npm run make && npm run justtest",
     "rmgenerated": "rm -f src/js/jssm-dot.ts && rm -f src/js/version.ts && rm -f *.d.ts",
