@@ -15598,7 +15598,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.32.16";
+const version = "5.32.20";
 
 function arrow_direction(arrow) {
     switch (String(arrow)) {

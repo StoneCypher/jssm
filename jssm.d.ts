@@ -93,7 +93,7 @@ declare class Machine<mDT> {
     valid_action(action: StateType, _newData?: mDT): boolean;
     valid_transition(newState: StateType, _newData?: mDT): boolean;
     valid_force_transition(newState: StateType, _newData?: mDT): boolean;
-    sm(template_strings: Array<string>, ...remainder: any[]): Machine<mDT>;
+    sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
-declare function sm<mDT>(template_strings: Array<string>, ...remainder: any[]): Machine<mDT>;
+declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 export { version, transfer_state_properties, Machine, make, parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };

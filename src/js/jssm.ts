@@ -1047,7 +1047,7 @@ class Machine<mDT> {
 
   /* eslint-disable no-use-before-define */
   /* eslint-disable class-methods-use-this */
-  sm(template_strings: Array<string>, ... remainder /* , arguments */): Machine<mDT> {
+  sm(template_strings: TemplateStringsArray, ... remainder /* , arguments */): Machine<mDT> {
     return sm(template_strings, ... remainder);
   }
   /* eslint-enable class-methods-use-this */
@@ -1060,7 +1060,7 @@ class Machine<mDT> {
 
 
 
-function sm<mDT>(template_strings: Array<string>, ... remainder /* , arguments */): Machine<mDT> {
+function sm<mDT>(template_strings: TemplateStringsArray, ... remainder /* , arguments */): Machine<mDT> {
 
     // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
     // this includes when a and c are empty strings
