@@ -11,7 +11,7 @@ const array_box_if_string = n =>
 const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability'): any => {
 
   if (!Array.isArray(options)) {
-    throw new TypeError('options must be a non-empty array of objects');
+    throw new TypeError('options must be a non-empty array of objectsdafddf');
   }
 
   if (!(typeof options[0] === 'object')) {
