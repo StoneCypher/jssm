@@ -23,8 +23,6 @@ What if that were easy to render visually, with styling?
 
 ![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png)
 
-[![Stargazers over time](https://starchart.cc/StoneCypher/jssm.svg)](https://starchart.cc/StoneCypher/jssm)
-
 
 
 <br/><br/>
@@ -62,6 +60,8 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
 [![CDNjs version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
 [![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://www.npmjs.com/package/jssm)
+
+[![Stargazers over time](https://starchart.cc/StoneCypher/jssm.svg)](https://starchart.cc/StoneCypher/jssm)
 
 </div>
 
