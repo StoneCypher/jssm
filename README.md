@@ -23,6 +23,8 @@ What if that were easy to render visually, with styling?
 
 ![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png)
 
+[![Stargazers over time](https://starchart.cc/StoneCypher/jssm.svg)](https://starchart.cc/StoneCypher/jssm)
+
 
 
 <br/><br/>
