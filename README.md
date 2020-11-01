@@ -61,7 +61,7 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 [![CDNjs version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
 [![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://www.npmjs.com/package/jssm)
 
-[![Stargazers over time](https://starchart.cc/StoneCypher/jssm.svg)](https://starchart.cc/StoneCypher/jssm)
+<img src="https://starchart.cc/StoneCypher/jssm.svg" width="50%">
 
 </div>
 
