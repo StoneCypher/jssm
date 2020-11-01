@@ -47,13 +47,11 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 [![GitHub forks](https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM)]()
 [![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]()
 [![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars)]()
-
 [![GitHub followers](https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher)]()
 
 [![License](https://img.shields.io/npm/l/jssm.svg)](https://github.com/StoneCypher/jssm/blob/master/LICENSE.md)
 [![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues)
 [![Closed issues](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues?q=is%3Aissue+is%3Aclosed)
-
 [![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://travis-ci.org/StoneCypher/jssm)
 [![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://coveralls.io/github/StoneCypher/jssm)
 
