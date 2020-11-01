@@ -54,7 +54,6 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 [![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues)
 [![Closed issues](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues?q=is%3Aissue+is%3Aclosed)
 
-[![Dependency status](https://david-dm.org/StoneCypher/jssm/status.svg)](https://david-dm.org/StoneCypher/jssm)
 [![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://travis-ci.org/StoneCypher/jssm)
 [![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://coveralls.io/github/StoneCypher/jssm)
 
