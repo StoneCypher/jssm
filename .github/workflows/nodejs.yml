@@ -7,16 +7,25 @@ jobs:
 
     strategy:
       matrix:
-        cfg:
-          - { node-version: 15.x, os: ubuntu-latest  }
-          - { node-version: 15.x, os: macos-latest   }
-          - { node-version: 15.x, os: windows-latest }
-          - { node-version: 14.x, os: macos-latest   }
-          - { node-version: 14.x, os: windows-latest }
-          - { node-version: 14.x, os: ubuntu-latest  }
-          - { node-version: 8.x,  os: ubuntu-latest  }
-          - { node-version: 10.x, os: ubuntu-latest  }
-          - { node-version: 12.x, os: ubuntu-latest  }
+        include:
+          - node-version: 15.x   # fastest, so run first, to error fast
+            os: ubuntu-latest
+          - node-version: 15.x
+            os: macos-latest     # slowest, so run next. sort by slowest from here to get earliest end through parallelism
+          - node-version: 15.x
+            os: windows-latest
+          - node-version: 14.x
+            os: macos-latest
+          - node-version: 14.x
+            os: windows-latest
+          - node-version: 14.x
+            os: ubuntu-latest
+          - node-version: 8.x
+            os: ubuntu-latest
+          - node-version: 10.x
+            os: ubuntu-latest
+          - node-version: 12.x
+            os: ubuntu-latest
 
     runs-on: ${{matrix.os}}
 
