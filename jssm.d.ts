@@ -1,5 +1,6 @@
 declare type StateType = string;
-import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme } from './jssm_types';
+import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
+JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme } from './jssm_types';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import { parse } from './jssm-dot';
 import { version } from './version';
