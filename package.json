@@ -21,7 +21,9 @@
   "module": "dist/es6/jssm.js",
   "types": "./jssm.d.ts",
   "scripts": {
-    "jest": "jest --color --verbose && jest -c jest-stoch.config.js --color --verbose",
+    "jest-func": "jest --color --verbose",
+    "jest-stoch": "jest -c jest-stoch.config.js --color --verbose",
+    "jest": "npm run jest-func && npm run jest-stoch",
     "test": "npm run make && npm run justtest",
     "rmgenerated": "rm -f src/ts/jssm-dot.ts && rm -f src/ts/version.ts && rm -f *.d.ts",
     "justtest": "cp dist/jssm.es5.cjs.js build && nyc ava src/ts/tests/*.js -v && npm run nyc-html",

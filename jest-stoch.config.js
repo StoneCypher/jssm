@@ -5,13 +5,13 @@ module.exports = {
 
   moduleFileExtensions       : ['js', 'ts'],
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/"],
-  testMatch                  : ['**/*.spec.ts'],
+  testMatch                  : ['**/*.stoch.ts'],
 
   transform                  : { '^.+\\.ts$': 'ts-jest' },
 
   verbose                    : false,
   collectCoverage            : true,
-  coverageDirectory          : "coverage/spec/",
+  coverageDirectory          : "coverage/stoch/",
 
   coverageThreshold : {
     global : {
