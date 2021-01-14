@@ -47,20 +47,19 @@ Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, 
 [![GitHub forks](https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM)]()
 [![GitHub watchers](https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM)]()
 [![GitHub stars](https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars)]()
-
 [![GitHub followers](https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher)]()
 
 [![License](https://img.shields.io/npm/l/jssm.svg)](https://github.com/StoneCypher/jssm/blob/master/LICENSE.md)
 [![Open issues](https://img.shields.io/github/issues/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues)
 [![Closed issues](https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg)](https://github.com/StoneCypher/jssm/issues?q=is%3Aissue+is%3Aclosed)
-
-[![Dependency status](https://david-dm.org/StoneCypher/jssm/status.svg)](https://david-dm.org/StoneCypher/jssm)
 [![Travis status](https://img.shields.io/travis/StoneCypher/jssm.svg)](https://travis-ci.org/StoneCypher/jssm)
 [![Coveralls status](https://img.shields.io/coveralls/StoneCypher/jssm.svg)](https://coveralls.io/github/StoneCypher/jssm)
 
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
 [![CDNjs version](https://img.shields.io/cdnjs/v/jquery.svg)](https://img.shields.io/cdnjs/v/jquery.svg)
 [![NPM downloads](https://img.shields.io/npm/dt/jssm.svg)](https://www.npmjs.com/package/jssm)
+
+<img src="https://starchart.cc/StoneCypher/jssm.svg" width="50%">
 
 </div>
 
@@ -837,7 +836,7 @@ JSSM and FSL have had a lot of help.
 * [Mykhaylo Les](https://github.com/miles91) provided three translation test cases ([Ukrainian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/ukrainian.json), [Belarussian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/belarussian.json), and [Russian](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/russian.json),) and the corresponding Traffic Light translations (also [Ukrainian](https://github.com/StoneCypher/fsl_traffic_light_ukrainian/blob/master/traffic%20light.fsl), [Belarussian](https://github.com/StoneCypher/fsl_traffic_light_belarussian/blob/master/traffic_light.fsl), and [Russian](https://github.com/StoneCypher/fsl_traffic_light_russian/blob/master/traffic%20light.fsl).)
 * [Tanvir Islam](https://github.com/tanvirrb) provided the [Bengali test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/bengali.json), translated the [Traffic Light](https://github.com/tanvirrb/fsl-traffic-light-bengali/blob/master/traffic_light.fsl) to Bengali, and published the first non-English `FSL` machine, in Bengali.
 * [Francisco Junior](https://github.com/fcojr) provided the [Portuguese test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/portuguese.json) and translated the [Traffic Light](https://github.com/StoneCypher/fsl_traffic_light_portuguese/blob/master/traffic_light.fsl) to Portuguese
-* [Jeff Katz](https://github.com/cohendvir) provided the [German test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/german.json).
+* [Jeff Katz](https://github.com/kraln) provided the [German test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/german.json).
 * [Alex Cresswell](https://github.com/technophile77) provdied the [Spanish test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/spanish.json)
 * [Dvir Cohen](https://github.com/cohendvir) provided the [Hebrew test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/hebrew.json).
 * [David de la Peña](https://github.com/daviddelapena) provided the [French test case](https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/french.json)
