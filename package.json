@@ -40,7 +40,6 @@
     "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
     "vet": "npm run eslint && npm run audit",
     "build": "npm run vet && npm run test && npm run docs && npm run site && npm run dist && rm -f src/js/jssm-dot.ts",
-    "zminify": "uglifyjs ./build/jssm.es5.cjs.js -o ./build/jssm.es5.cjs.min.js --compress",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
@@ -121,7 +120,6 @@
     "terser": "^4.6.11",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.3",
-    "uglify-js": "^3.8.1",
     "viz.js": "^1.7.1"
   },
   "dependencies": {
