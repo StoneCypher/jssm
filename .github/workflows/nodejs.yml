@@ -14,7 +14,6 @@ jobs:
           - { node-version: 14.x, os: macos-latest   }
           - { node-version: 14.x, os: windows-latest }
           - { node-version: 14.x, os: ubuntu-latest  }
-          - { node-version: 6.x,  os: ubuntu-latest  }
           - { node-version: 8.x,  os: ubuntu-latest  }
           - { node-version: 10.x, os: ubuntu-latest  }
           - { node-version: 12.x, os: ubuntu-latest  }
