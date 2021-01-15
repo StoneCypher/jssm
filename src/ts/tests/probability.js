@@ -30,8 +30,11 @@ describe('probable exits for', async it => {
 describe('probable action exits', async it => {
 
   const machine = new jssm.Machine({
-    start_states: ['off'],
-    transitions:[ { from:'off', to:'red', action:'on' }, { from:'red', to:'off',action:'off' } ]
+    start_states : ['off'],
+    transitions  : [
+      { from:'off', to:'red', action:'on' },
+      { from:'red', to:'off',action:'off' }
+    ]
   });
 
   it('probable action exits are an array',   t => t.is(true,  Array.isArray(machine.probable_action_exits())      ) );
@@ -52,8 +55,8 @@ describe('probable action exits', async it => {
 describe('probabilistic_transition', async it => {
 
   const machine = new jssm.Machine({
-    start_states: ['off'],
-    transitions:[ { from:'off', to:'red' } ]
+    start_states : ['off'],
+    transitions  : [ { from:'off', to:'red' } ]
   });
 
   machine.probabilistic_transition();
@@ -69,8 +72,8 @@ describe('probabilistic_transition', async it => {
 describe('probabilistic_walk', async it => {
 
   const machine = new jssm.Machine({
-    start_states: ['off'],
-    transitions:[ { from:'off', to:'red' }, { from:'red', to:'off' } ]
+    start_states : ['off'],
+    transitions  : [ { from:'off', to:'red' }, { from:'red', to:'off' } ]
   });
 
   machine.probabilistic_walk(3);
@@ -86,8 +89,8 @@ describe('probabilistic_walk', async it => {
 describe('probabilistic_histo_walk', async it => {
 
   const machine = new jssm.Machine({
-    start_states: ['off'],
-    transitions:[ { from:'off', to:'red' }, { from:'red', to:'off' } ]
+    start_states : ['off'],
+    transitions  : [ { from:'off', to:'red' }, { from:'red', to:'off' } ]
   });
 
   const histo = machine.probabilistic_histo_walk(3);
