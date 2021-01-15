@@ -3,7 +3,8 @@
 
 import {describe} from 'ava-spec';
 
-const jssm = require('../../../build/jssm.es5.cjs.js');
+const jssm = require('../../../build/jssm.es5.cjs.js'),
+      sm   = jssm.sm;
 
 
 

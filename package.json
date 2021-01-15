@@ -21,7 +21,7 @@
   "module": "dist/es6/jssm.js",
   "types": "./jssm.d.ts",
   "scripts": {
-    "jest-func": "jest --color --verbose",
+    "jest-spec": "jest -c jest-spec.config.js --color --verbose",
     "jest-stoch": "jest -c jest-stoch.config.js --color --verbose",
     "jest": "npm run jest-func && npm run jest-stoch",
     "test": "npm run make && npm run justtest",
