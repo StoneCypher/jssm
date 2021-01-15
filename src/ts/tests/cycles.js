@@ -12,7 +12,9 @@ const jssm = require('../../../build/jssm.es5.cjs.js');
 
 describe('cycle strategies', async _it => {
 
+
   const is_v = (str, v, it) => it(test, t => t.deepEqual(v, jssm.parse(str)));
+
 
   describe('basic cycle', async it => {
     is_v('[a b c] -> +1;', [{from: ['a','b','c'], key: 'transition', se: {kind: '->', to: {key: 'cycle', value: 1}}}], it);
@@ -68,6 +70,7 @@ describe('cycle strategies', async _it => {
     is_v('+2 <- [a b c] -> -2;', [{from: {key: 'cycle', value:  2}, key: 'transition', se: {kind: '<-', se: {kind: '->', to: {key: 'cycle', value: -2}}, to: ['a','b','c']}}], it);
   });
 
+
 /*
   describe('full parse of 2-step cycle', async it => {
     it('[a b] -> +1;', t => t.deepEqual(
@@ -110,10 +113,13 @@ describe('cycle strategies', async _it => {
     ));
   });
 */
+
+
   describe('illegal fractional cycle throws', async it => {
     it('throws', t => t.throws( () => {
       jssm.parse('[a b c] -> +2.5;');
     } ));
   });
+
 
 });
