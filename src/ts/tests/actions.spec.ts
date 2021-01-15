@@ -1,7 +1,7 @@
 
 /* eslint-disable max-len */
 
-const jssm = require('../../../build/jssm.es5.cjs.js'),
+const jssm = require('../jssm'),
       sm   = jssm.sm;
 
 
