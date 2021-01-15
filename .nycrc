@@ -1,6 +1,6 @@
 {
     "exclude": [
-      "src/js/jssm-dot.js",
+      "src/ts/jssm-dot.*",
       "build/**/*"
     ]
 }
