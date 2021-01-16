@@ -1,12 +1,7 @@
 
 import { Shapes } from './constants.spec';
 
-
-
-
-
-const jssm = require('../jssm'),
-      sm   = jssm.sm;
+import { sm } from '../jssm';
 
 
 

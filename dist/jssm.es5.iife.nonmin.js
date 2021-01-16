@@ -16393,11 +16393,9 @@ var jssm = (function (exports) {
       return new Machine(make(template_strings.reduce(
       // in general avoiding `arguments` is smart.  however with the template
       // string notation, as designed, it's not really worth the hassle
-      /* eslint-disable fp/no-arguments */
       /* eslint-disable prefer-rest-params */
       (acc, val, idx) => `${acc}${remainder[idx - 1]}${val}` // arguments[0] is never loaded, so args doesn't need to be gated
       /* eslint-enable  prefer-rest-params */
-      /* eslint-enable  fp/no-arguments */
       )));
   }
 

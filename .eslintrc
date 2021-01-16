@@ -9,7 +9,6 @@
   "env"     : { "es6": true, "commonjs": true },
 
   "extends" : [
-    "eslint-config-stonecypher",
     "plugin:@typescript-eslint/eslint-recommended"
   ],
 

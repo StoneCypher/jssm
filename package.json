@@ -93,8 +93,6 @@
     "changelog-maker": "^2.3.2",
     "coveralls": "^3.0.11",
     "eslint": "^6.8.0",
-    "eslint-config-stonecypher": "^1.15.11",
-    "eslint-plugin-flowtype": "^2.35.0",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-jsdoc": "^20.4.0",
     "eslint-plugin-new-with-error": "^2.0.0",

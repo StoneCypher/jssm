@@ -1,5 +1,5 @@
 
-const jssm = require('../jssm');
+import * as jssm from '../jssm';
 
 
 

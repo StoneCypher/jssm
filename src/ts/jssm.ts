@@ -463,7 +463,7 @@ class Machine<mDT> {
   _machine_name?             : string;
   _machine_version?          : string;
   _fsl_version?              : string;
-  _raw_state_declaration?    : Array<Object>;    // eslint-disable-line flowtype/no-weak-types
+  _raw_state_declaration?    : Array<Object>;
   _state_declarations        : Map<StateType, JssmStateDeclaration>;
 
   _graph_layout              : JssmLayout;
@@ -727,7 +727,7 @@ class Machine<mDT> {
     return this._machine_version;
   }
 
-  raw_state_declarations(): Array<Object> {    // eslint-disable-line flowtype/no-weak-types
+  raw_state_declarations(): Array<Object> {
     return this._raw_state_declaration;
   }
 
@@ -735,7 +735,7 @@ class Machine<mDT> {
     return this._state_declarations.get(which);
   }
 
-  state_declarations(): Map<StateType, Object> {    // eslint-disable-line flowtype/no-weak-types
+  state_declarations(): Map<StateType, Object> {
     return this._state_declarations;
   }
 
@@ -1080,11 +1080,9 @@ function sm<mDT>(template_strings: TemplateStringsArray, ... remainder /* , argu
       // in general avoiding `arguments` is smart.  however with the template
       // string notation, as designed, it's not really worth the hassle
 
-      /* eslint-disable fp/no-arguments */
       /* eslint-disable prefer-rest-params */
       (acc, val, idx): string => `${acc}${remainder[idx-1]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
       /* eslint-enable  prefer-rest-params */
-      /* eslint-enable  fp/no-arguments */
 
     )));
 

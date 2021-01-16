@@ -782,11 +782,9 @@ function sm(template_strings, ...remainder /* , arguments */) {
     return new Machine(make(template_strings.reduce(
     // in general avoiding `arguments` is smart.  however with the template
     // string notation, as designed, it's not really worth the hassle
-    /* eslint-disable fp/no-arguments */
     /* eslint-disable prefer-rest-params */
     (acc, val, idx) => `${acc}${remainder[idx - 1]}${val}` // arguments[0] is never loaded, so args doesn't need to be gated
     /* eslint-enable  prefer-rest-params */
-    /* eslint-enable  fp/no-arguments */
     )));
 }
 export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, 
