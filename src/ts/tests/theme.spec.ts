@@ -1,7 +1,7 @@
 
 import { Themes } from './constants.spec';
 
-const jssm = require('../../../build/jssm.es5.cjs.js'),
+const jssm = require('../jssm'),
       sm   = jssm.sm;
 
 

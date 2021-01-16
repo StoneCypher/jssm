@@ -310,8 +310,8 @@ describe('reports is_final', () => {
 describe('reports state_is_terminal', () => {
 
   const machine = new jssm.Machine({
-    start_states: ['off'],
-    transitions:[ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+    start_states : ['off'],
+    transitions  : [ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
   });
 
   test('terminal false', () =>
