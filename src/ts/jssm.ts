@@ -215,6 +215,14 @@ function makeTransition<mDT>(
 
 
 
+function wrap_parse(input: string, options?: Object) {
+  return parse(input, options || {});
+}
+
+
+
+
+
 function compile_rule_transition_step<mDT>(
              acc     : Array< JssmTransition<mDT> >,
              from    : string,
@@ -400,7 +408,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo fl
 
 
 function make<mDT>(plan: string): JssmGenericConfig<mDT> {
-  return compile(parse(plan, {}));
+  return compile(wrap_parse(plan));
 }
 
 
@@ -1095,7 +1103,7 @@ export {
   Machine,
 
   make,
-    parse,
+    wrap_parse as parse,
     compile,
 
   sm,

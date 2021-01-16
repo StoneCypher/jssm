@@ -1,7 +1,7 @@
 
 /* eslint-disable max-len */
 
-const jssm = require('../jssm');
+import * as jssm from '../jssm';
 
 
 
@@ -9,36 +9,27 @@ const jssm = require('../jssm');
 
 describe('Simple stop light', () => {
 
-  const trs = [
-          { name: 'SwitchToWarn', action: 'Proceed', from:'Green',  to:'Yellow' },
-          { name: 'SwitchToHalt', action: 'Proceed', from:'Yellow', to:'Red'    },
-          { name: 'SwitchToGo',   action: 'Proceed', from:'Red',    to:'Green'  }
-        ],
-        light = new jssm.Machine({
-          start_states : ['Red'],
-          transitions  : trs
-        });
+  // const trs = [
+  //         { name: 'SwitchToWarn', action: 'Proceed', from:'Green',  to:'Yellow' },
+  //         { name: 'SwitchToHalt', action: 'Proceed', from:'Yellow', to:'Red'    },
+  //         { name: 'SwitchToGo',   action: 'Proceed', from:'Red',    to:'Green'  }
+  //       ],
+  //       light = new jssm.Machine({
+  //         start_states : ['Red'],
+  //         transitions  : trs
+  //       });
+
+  const light = jssm.sm`Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;`;
 
   const r_states = light.states();
 
   test('has the right state count', () =>
     expect(r_states.length).toBe(3));
 
-  trs.map(t => t.to).map(c =>
+  ['Red', 'Yellow', 'Green'].map(c =>
     test(`has state "${c}"`, () =>
       expect(r_states.includes(c)).toBe(true))
   );
-
-  const r_names = light.list_named_transitions();
-
-  test('has the right named transition count', () =>
-    expect(r_names.size).toBe(3));
-
-  trs.map(t => t.name)
-     .map(a =>
-       test(`has named transition "${a}"`, () =>
-         expect(r_names.has(a)).toBe(true))
-     );
 
   describe('- `proceed` walkthrough', () => {
 
@@ -98,15 +89,15 @@ describe('Complex stop light', () => {
 
     transitions:[
 
-      { name:'turn_on',     action:'power_on',  from:'off',    to:'red'},
+      { name:'turn_on',     kind: 'legal', forced_only: false, main_path: false, action:'power_on',  from:'off',    to:'red'},
 
-      {                     action:'power_off', from:'red',    to:'off' },
-      {                     action:'power_off', from:'yellow', to:'off' },
-      {                     action:'power_off', from:'green',  to:'off' },
+      {                     kind: 'legal', forced_only: false, main_path: false, action:'power_off', from:'red',    to:'off' },
+      {                     kind: 'legal', forced_only: false, main_path: false, action:'power_off', from:'yellow', to:'off' },
+      {                     kind: 'legal', forced_only: false, main_path: false, action:'power_off', from:'green',  to:'off' },
 
-      { name:'switch_warn', action:'proceed',   from:'green',  to:'yellow' },
-      { name:'switch_halt', action:'proceed',   from:'yellow', to:'red'    },
-      { name:'switch_go',   action:'proceed',   from:'red',    to:'green'  }
+      { name:'switch_warn', kind: 'legal', forced_only: false, main_path: false, action:'proceed',   from:'green',  to:'yellow' },
+      { name:'switch_halt', kind: 'legal', forced_only: false, main_path: false, action:'proceed',   from:'yellow', to:'red'    },
+      { name:'switch_go',   kind: 'legal', forced_only: false, main_path: false, action:'proceed',   from:'red',    to:'green'  }
 
     ]
 
