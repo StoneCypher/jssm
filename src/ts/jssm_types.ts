@@ -17,9 +17,14 @@ type JssmColor          = string;  // TODO FIXME constrain to #RRGGBBAA later //
 type JssmPermitted      = 'required' | 'disallowed';
 type JssmPermittedOpt   = 'required' | 'disallowed' | 'optional';
 
-type JssmArrow          = '->' | '<->' | '<=->' | '<~->'
-                        | '=>' | '<=>' | '<-=>' | '<~=>'
-                        | '~>' | '<~>' | '<-~>' | '<=~>';
+type JssmArrow          = '->' | '<-' | '<->' | '<=->' | '<~->'
+                        | '=>' | '<=' | '<=>' | '<-=>' | '<~=>'
+                        | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
+                        // | '⇒'  | '⇐'  | '⇔'  | '⇐→' | '↚→'
+                        // | '→'  | '←'  | '↔'  | '←⇒' | '↚⇒'
+                        // | '↛'  | '↚'  | '↮'  | '←↛' | '⇐↛';
+
+// TODO finish the arrow types - unicode *and* mixed
 
 type JssmShape          = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle"
                         | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon"
