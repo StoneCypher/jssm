@@ -16159,7 +16159,7 @@ class Machine {
         return Array.from(this._actions.keys());
     }
     theme() {
-        return this._theme;
+        return this._theme || "none";
     }
     flow() {
         return this._flow;

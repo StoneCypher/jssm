@@ -1,5 +1,5 @@
 
-const jssm = require('../../../build/jssm.es5.cjs.js'),
+const jssm = require('../jssm'),
       sm   = jssm.sm,
       r639 = require('reduce-to-639-1').reduce;
 

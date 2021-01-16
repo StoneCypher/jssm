@@ -792,7 +792,7 @@ class Machine<mDT> {
 
 
   theme(): FslTheme {
-    return this._theme;
+    return this._theme || "none";
   }
 
   flow(): FslDirection {

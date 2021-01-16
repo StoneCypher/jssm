@@ -12,7 +12,7 @@ describe('Arrange', () => {
 
   test('Single arrange', () => {
 
-    expect( async () => { const _foo = sm`arrange [a b]; a -> b;`; })
+    expect( () => { const _foo = sm`arrange [a b]; a -> b;`; })
       .not.toThrow();
 
     expect(
