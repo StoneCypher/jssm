@@ -1,8 +1,7 @@
 
 /* eslint-disable max-len */
 
-const jssm = require('../jssm');
-//      sm   = jssm.sm;
+import * as jssm from '../jssm';
 
 
 

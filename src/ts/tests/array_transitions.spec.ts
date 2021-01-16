@@ -14,7 +14,7 @@ describe('Array basics', () => {
   describe('array of one', () => {
 
     const aLeft = [
-      {main_path: false,forced_only: false,"from":"a","to":"d","kind":"legal"},
+      {main_path: false,forced_only: false,"from":"a","to":"d","kind":"legal"}
     ];
 
     test('[a]->d;', () => expect( jssm.compile(jssm.parse('[a]->d;')).transitions ).toEqual(aLeft) );
@@ -26,7 +26,7 @@ describe('Array basics', () => {
   describe('array of one', () => {
 
     const aLeft = [
-      {main_path: false,forced_only: false,"from":"a","to":"d","kind":"legal"},
+      {main_path: false,forced_only: false,"from":"a","to":"d","kind":"legal"}
     ];
 
     test('[a]->d;', () => expect( jssm.compile(jssm.parse('[a]->d;')).transitions ).toEqual(aLeft) );

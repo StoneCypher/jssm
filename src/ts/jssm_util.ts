@@ -1,4 +1,12 @@
 
+function arr_uniq_p<T>(el: T, i: number, source: T[]): boolean {
+  return source.indexOf(el) === i;
+}
+
+
+
+
+
 const array_box_if_string = n =>
   typeof n === 'string'? [n] : n;
 
@@ -84,6 +92,7 @@ const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: st
 
 export {
   seq,
+  arr_uniq_p,
   histograph, weighted_histo_key,
   weighted_rand_select, weighted_sample_select,
   array_box_if_string

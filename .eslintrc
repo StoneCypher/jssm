@@ -15,14 +15,7 @@
 
   rules: {
     "no-unused-vars": 0,
-    "@typescript-eslint/no-unused-vars": [
-      1, {
-        argsIgnorePattern : "^_",
-        varsIgnorePattern : "^_",
-        caughtErrors : "all",
-        caughtErrorsIgnorePattern : "^_"
-      }
-    ]
+    "@typescript-eslint/no-unused-vars": 0
   }
 
 }

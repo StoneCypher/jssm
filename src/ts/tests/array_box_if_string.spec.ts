@@ -11,7 +11,7 @@ const testData = [
   [ "a",       ["a"]     ],
   [ ["a"],     ["a"]     ],
   [ [],        []        ],
-  [ undefined, undefined ],
+  [ undefined, undefined ]
 ];
 
 

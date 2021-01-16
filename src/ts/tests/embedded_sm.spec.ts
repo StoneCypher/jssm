@@ -21,10 +21,8 @@ describe('Embedded sm parses the same as regular sm', () => {
 
   testdata.map(code => {
 
-    test('Self-match of `' + code + '`', () => {
-
+    test(`Self-match of \`${code}\``, () => {
       expect( sm`${code}` ).toEqual( host.sm`${code}` );
-
     });
 
   });

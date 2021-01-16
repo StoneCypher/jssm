@@ -170,6 +170,9 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
     }
     return edge;
 }
+function wrap_parse(input, options) {
+    return parse(input, options || {});
+}
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
     const edges = [];
     const uFrom = (Array.isArray(from) ? from : [from]), uTo = (Array.isArray(to) ? to : [to]);
@@ -282,7 +285,7 @@ function compile(tree) {
     return result_cfg;
 }
 function make(plan) {
-    return compile(parse(plan, {}));
+    return compile(wrap_parse(plan));
 }
 function transfer_state_properties(state_decl) {
     state_decl.declarations.map((d) => {
@@ -786,6 +789,6 @@ function sm(template_strings, ...remainder /* , arguments */) {
     /* eslint-enable  fp/no-arguments */
     )));
 }
-export { version, transfer_state_properties, Machine, make, parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, 
+export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
 seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };

@@ -1,9 +1,18 @@
 
+/* In general, this shouldn't import anything, because this is both run and
+   partially imported by other things. */
+
+/* We make an exception for arr_uniq_p() from util */
+
+import { arr_uniq_p } from '../jssm_util';
+
+
+
+
+
 /* constant lists for tests */
 
-
-
-
+test.todo('These constants should be derived from the source and compared');
 
 const Shapes = ["box", "polygon", "ellipse", "oval", "circle", "point", "egg", "triangle", "plaintext", "plain",
   "diamond", "trapezium", "parallelogram", "house", "pentagon", "hexagon", "septagon", "octagon", "doublecircle",
@@ -49,19 +58,36 @@ const FlowDirections = ['up','down','left','right'];
 
 // for coverage, and because ava throws on no-test files in its test directory
 
-describe('Constants', () => {
+describe('Constants test lists', () => {
 
-  test('Test shapes list isn\'t empty', () =>
-    expect( Shapes.length > 1 ).toBe(true) );
+  const testdata: [ string, string[] ][] = [
+    [ 'Shapes',         Shapes         ],
+    [ 'NamedColors',    NamedColors    ],
+    [ 'Themes',         Themes         ],
+    [ 'FlowDirections', FlowDirections ]
+  ];
 
-  test('Test named colors list isn\'t empty', () =>
-    expect( NamedColors.length > 1 ).toBe(true) );
+  testdata.map(datum => {
 
-  test('Test themes list isn\'t empty', () =>
-    expect( Themes.length > 1 ).toBe(true) );
+    test(`List "${datum[0]}" is an array`, () =>
+      expect( Array.isArray(datum[1]) ).toBe(true) );
 
-  test('Test flow directions list isn\'t empty', () =>
-    expect( FlowDirections.length > 1 ).toBe(true) );
+    test(`List "${datum[0]}" isn't empty`, () =>
+      expect( datum[1].length > 1 ).toBe(true) );
+
+    test(`List "${datum[0]}" contains no null, undefined, or holes`, () =>
+      // eslint-disable-next-line no-eq-null, eqeqeq
+      expect( datum[1].length == null ).toBe(false) );  // LEAVE THIS DOUBLE-EQUALS
+
+    test(`List "${datum[0]}" contains no empty strings`, () =>
+      expect( datum[1].every(s => s !== '') ).toBe(true) );
+
+    test(`List "${datum[0]}" contains no repetitions`, () => {
+      const deduped = datum[1].filter(arr_uniq_p);
+      expect( datum[1].length ).toBe(deduped.length);
+    });
+
+  });
 
 });
 

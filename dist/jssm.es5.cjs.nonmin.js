@@ -15782,6 +15782,9 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
     }
     return edge;
 }
+function wrap_parse(input, options) {
+    return peg$parse(input, options || {});
+}
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
     const edges = [];
     const uFrom = (Array.isArray(from) ? from : [from]), uTo = (Array.isArray(to) ? to : [to]);
@@ -15894,7 +15897,7 @@ function compile(tree) {
     return result_cfg;
 }
 function make(plan) {
-    return compile(peg$parse(plan, {}));
+    return compile(wrap_parse(plan));
 }
 function transfer_state_properties(state_decl) {
     state_decl.declarations.map((d) => {
@@ -16406,7 +16409,7 @@ exports.arrow_right_kind = arrow_right_kind;
 exports.compile = compile;
 exports.histograph = histograph;
 exports.make = make;
-exports.parse = peg$parse;
+exports.parse = wrap_parse;
 exports.seq = seq;
 exports.sm = sm;
 exports.transfer_state_properties = transfer_state_properties;
