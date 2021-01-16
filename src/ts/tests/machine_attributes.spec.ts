@@ -1,7 +1,7 @@
 
-const jssm = require('../jssm'),
-      sm   = jssm.sm,
-      r639 = require('reduce-to-639-1').reduce;
+import { sm } from '../jssm';
+
+const r639 = require('reduce-to-639-1').reduce;
 
 
 
