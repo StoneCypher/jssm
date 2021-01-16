@@ -1,6 +1,5 @@
 
-const jssm = require('../jssm'),
-      sm   = jssm.sm;
+import { sm } from '../jssm';
 
 
 
@@ -28,6 +27,10 @@ describe('Embedded sm parses the same as regular sm', () => {
   });
 
 });
+
+
+
+
 
 test.todo('Boy is this embedded sm matching thing ever a candidate for stochastics');
 // stochable
