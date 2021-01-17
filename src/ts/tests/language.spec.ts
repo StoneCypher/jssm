@@ -1,10 +1,9 @@
 
 /* eslint-disable max-len */
 
-const glob           = require('glob');
+import { sm } from '../jssm';
 
-const jssm           = require('../jssm'),
-      sm             = jssm.sm,
+const glob           = require('glob'),
 
       language_files = glob.sync('./src/ts/tests/language_data/*.json', {})  // for some reason glob is project-relative
                            .map(rel => rel.replace('/src/ts/tests', ''));    // instead of execution relative like i'd expect
@@ -20,7 +19,7 @@ describe('base data walk/1', () => {
     const testData   = require(language_file),
           testTokens = testData.cases;
 
-    const foreignTarget = sm([`${testData.native_name} -> ${testData.english_name} -> ${testTokens.join(' -> ')};`]);
+    const foreignTarget = sm`${testData.native_name} -> ${testData.english_name} -> ${testTokens.join(' -> ')};`;
 
     describe(`language ${i} "${testData.english_name}" contains all states`, () => {
 

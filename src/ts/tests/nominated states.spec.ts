@@ -1,6 +1,7 @@
 
-const jssm = require('../jssm'),
-      sm   = jssm.sm,
+import * as jssm from '../jssm';
+
+const sm   = jssm.sm,
       jp   = jssm.parse;
 
 
