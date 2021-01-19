@@ -37,7 +37,7 @@
     "makever": "node src/buildjs/makever.js",
     "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
-    "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
+    "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "build": "npm run vet && npm run test && npm run site && rm -f src/ts/jssm-dot.ts",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",

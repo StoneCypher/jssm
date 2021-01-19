@@ -1,7 +1,7 @@
 
 /* eslint-disable max-len */
 
-const jssm = require('../jssm');
+import * as jssm from '../jssm';
 
 
 
@@ -11,7 +11,9 @@ describe('Reports on actions', () => {
 
   const roa_machine = new jssm.Machine({
     start_states : ['off'],
-    transitions  : [ { name: 'turn_on', action: 'power_on', from: 'off', to: 'red'} ]
+    transitions  : [
+      { name: 'turn_on', action: 'power_on', from: 'off', to: 'red', kind: 'legal', forced_only: false, main_path: false }
+    ]
   });
 
   const roa_la = roa_machine.list_actions();  // todo comeback
@@ -43,8 +45,8 @@ describe('Actions', () => {
   const act_machine = new jssm.Machine({
     start_states : ['off'],
     transitions  : [
-      { from: 'off', to: 'red', action: 'on'  },
-      { from: 'red', to: 'off', action: 'off' }
+      { from: 'off', to: 'red', action: 'on',  kind: 'legal', forced_only: false, main_path: false },
+      { from: 'red', to: 'off', action: 'off', kind: 'legal', forced_only: false, main_path: false }
     ]
   });
 
@@ -83,8 +85,8 @@ describe('States having actions', () => {
   const sha_machine = new jssm.Machine({
     start_states : ['off'],
     transitions  : [
-      { from: 'off', to: 'red', action: 'on'  },
-      { from: 'red', to: 'off', action: 'off' }
+      { from: 'off', to: 'red', action: 'on',  kind: 'legal', forced_only: false, main_path: false },
+      { from: 'red', to: 'off', action: 'off', kind: 'legal', forced_only: false, main_path: false }
     ]
   });
 
@@ -107,8 +109,8 @@ describe('List exit actions', () => {
   const lea_machine = new jssm.Machine({
     start_states : ['off'],
     transitions  : [
-      { from: 'off', to: 'red', action: 'on'  },
-      { from: 'red', to: 'off', action: 'off' }
+      { from: 'off', to: 'red', action: 'on',  kind: 'legal', forced_only: false, main_path: false },
+      { from: 'red', to: 'off', action: 'off', kind: 'legal', forced_only: false, main_path: false }
     ]
   });
 
@@ -134,7 +136,9 @@ describe('Reports on action edges', () => {
 
   const roae_machine = new jssm.Machine({
     start_states : ['off'],
-    transitions  : [ { name:'turn_on', action:'power_on', from:'off', to:'red'} ]
+    transitions  : [
+      { name:'turn_on', action:'power_on', from:'off', to:'red', kind: 'legal', forced_only: false, main_path: false }
+    ]
   });
 
   test('Reports on action edges, that it has', () =>

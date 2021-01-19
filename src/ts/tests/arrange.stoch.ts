@@ -1,5 +1,4 @@
 
-const jssm = require('../jssm'),
-      sm   = jssm.sm;
+// import { sm } from '../jssm';
 
 test('TODO placeholder', () => { expect(1).toBe(1); });
