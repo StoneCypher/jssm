@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.35.0",
+  "version": "5.35.1",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -39,12 +39,12 @@
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
-    "build": "npm run vet && npm run test && npm run site && rm -f src/ts/jssm-dot.ts",
+    "build": "npm run vet && npm run test && npm run site && npm run docs && rm -f src/ts/jssm-dot.ts",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/",
-    "docs": "documentation build src/ts/** -f html -o docs/lib && npm run changelog",
+    "docs": "typedoc src/ts/jssm.ts --out docs/docs",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md"
   },
   "repository": {
