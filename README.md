@@ -117,8 +117,15 @@ const TrafficLightWithOff = sm`
 
 <img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png"/>
 
+<br/>
+
+What if the machine was lighting fast, able to do tens of millions of transitions per second?
+
+<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/home%20pc%20speed.png"/>
+
+<br/>
+
 * What if the machine and language had extensive 100% test coverage with thousands of cases?
-* What if the machine was lighting fast, able to do 100k+ transitions per second?
 * What if the machine gave extensive Typescript introspection support?
 * What if the machine had been around and active since ?
 * What if the machine was MIT end to end?
