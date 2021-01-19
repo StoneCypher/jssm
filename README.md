@@ -1,33 +1,152 @@
 # jssm
 
-Wouldn't it be nice if your Javascript state machines were simple and readable?
+Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
+tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
+share online.  Easy to embed.
+
+Readable, useful state machines as one-liner strings.
+
+> Meet your new state machine library.
+
+<a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a>
+
+<br/><br/>
+
+Wouldn't it be nice if your TypeScript and Javascript state machines were simple and readable one-liners?
 
 ```javascript
 import { sm } from 'jssm';
 
-const Machine = sm`
-  Green => Yellow => Red => Green;
-  [Red Yellow Green] ~> Off -> Red;
-`;
-
-console.log( Machine.state() );  // 'Green'
-
-Machine.transition('Yellow'); // true
-console.log( Machine.state() );  // 'Yellow'
-
-Machine.transition('Blue'); // false
-console.log( Machine.state() );  // 'Yellow'
+const TrafficLight = sm`Red => Green => Yellow => Red;`;
 ```
 
-What if that were easy to render visually, with styling?
+<br/>
 
-![](https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png)
+Wouldn't it be great if they were easy to work with?
+
+```javascript
+const log = s => console.log(s);
+
+log( TrafficLight.state() );  // 'Red'
+
+Machine.transition('Green');  // true
+log( TrafficLight.state() );  // 'Green'
+```
+
+<br/>
+
+What if the notation supported action names easily?
+
+```javascript
+const TrafficLightWithActions = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
+
+log( TrafficLightWithActions.state() );  // 'Red'
+
+TrafficLightWithActions.action('next');  // true
+log( TrafficLightWithActions.state() );  // 'Green'
+
+TrafficLightWithActions.action('next');  // true
+log( TrafficLightWithActions.state() );  // 'Yellow'
+
+TrafficLightWithActions.action('next');  // true
+log( TrafficLightWithActions.state() );  // 'Red'
+```
+
+<br/>
+
+What if the machine followed JS standards, and distinguished refusals as `false` from mistakes as `throw`n?
+
+```javascript
+const AnotherTrafficLight = sm`Red => Green => Yellow => Red;`;
+
+log( AnotherTrafficLight.state() );         // 'Red' - uses 1st state unless told otherwise
+AnotherTrafficLight.transition('Yellow');   // false (Yellow isn't allowed from Red)
+AnotherTrafficLight.transition('Blue');     // throws (Blue isn't a state at all)
+```
+
+<br/>
+
+What if there were easy convenience notations for lists, and for designating main-path `=>` vs available path `->` vs
+only-when-forced `~>` ?
+
+```javascript
+const TrafficLightWithOff = sm`
+  Red => Green => Yellow => Red;
+  [Red Yellow Green] ~> Off -> Red;
+`;
+```
+
+<br/>
+
+What if that were easy to render visually?
+
+```javascript
+const TrafficLightWithOff = sm`
+  Red => Green => Yellow => Red;
+  [Red Yellow Green] ~> Off -> Red;
+`;
+```
+
+<br/>
+
+<img height="500" src="https://user-images.githubusercontent.com/77482/105075349-8291d680-5a3e-11eb-9cad-1c628ef37f5a.png"/>
+
+<br/>
+
+What if that were easy to render visually, with styling, in PNG, JPEG, or SVG?
+
+```javascript
+const TrafficLightWithOff = sm`
+  Red => Green => Yellow => Red;
+  [Red Yellow Green] ~> Off -> Red;
+
+  state Red    : { background-color: pink;        corners: rounded; };
+  state Yellow : { background-color: lightyellow; corners: rounded; };
+  state Green  : { background-color: lightgreen;  corners: rounded; };
+
+  state Off : {
+    background-color : steelblue;
+    text-color       : white;
+    shape            : octagon;
+    linestyle        : dashed;
+  };
+`;
+```
+
+<br/>
+
+<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png"/>
+
+* What if the machine and language had extensive 100% test coverage with thousands of cases?
+* What if the machine was lighting fast, able to do 100k+ transitions per second?
+* What if the machine gave extensive Typescript introspection support?
+* What if the machine had been around and active since ?
+* What if the machine was MIT end to end?
+
+You just learned the basics of [Finite State Language](https://fsl.tools/), and this is a state machine for compiling,
+running, and visually rendering it.
+
+
 
 
 
 <br/><br/>
 
-## Introducing JSSM
+# Introducing JSSM
+
+Meet JSSM: the <b><u>J</u></b>ava<b><u>s</u></b>cript <b><u>S</u></b>tate <b><u>M</u></b>achine.
+
+State machines can make your code cleaner, safer, and more trustworthy.
+
+And, with the right language, state machines can be easy and fun.
+
+<a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a>
+
+
+
+<br/>
+
+## What is JSSM?
 
 JSSM is a Javascript state machine implementing [Finite State Language](https://fsl.tools/), with a terse DSL and a simple API.
 100% test coverage; typed with Flowtype.  MIT licensed.
