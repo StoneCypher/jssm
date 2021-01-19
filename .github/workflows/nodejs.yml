@@ -8,24 +8,22 @@ jobs:
     strategy:
       matrix:
         include:
-#          - node-version: 15.x   # fastest, so run first, to error fast
-#            os: ubuntu-latest
-#          - node-version: 15.x
-#            os: macos-latest     # slowest, so run next. sort by slowest from here to get earliest end through parallelism
-          - node-version: 15.x
+          - node-version: 15.x   # fastest, so run first, to error fast
+            os: ubuntu-latest
+          - node-version: 15.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
+            os: macos-latest
+          - node-version: 15.x   # finish check big-3 on latest current
             os: windows-latest
-#          - node-version: 14.x
-#            os: macos-latest
-#          - node-version: 14.x
-#            os: windows-latest
-#          - node-version: 14.x
-#            os: ubuntu-latest
-#          - node-version: 8.x
-#            os: ubuntu-latest
-#          - node-version: 10.x
-#            os: ubuntu-latest
-#          - node-version: 12.x
-#            os: ubuntu-latest
+          - node-version: 10.x  # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
+            os: ubuntu-latest
+          - node-version: 11.x
+            os: ubuntu-latest
+          - node-version: 12.x
+            os: ubuntu-latest
+          - node-version: 13.x
+            os: ubuntu-latest
+          - node-version: 14.x
+            os: ubuntu-latest
 
     runs-on: ${{matrix.os}}
 
@@ -37,12 +35,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
       run: |
-        npm install
-        npm run githubaction
-        npm test
+        npm install && npm run build && npm test
       env:
         CI: true
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.0.1
       with:
         github-token: ${{ secrets.github_token }}
+        path-to-lcov: ./coverage/spec/lcov.info

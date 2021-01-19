@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 
-const orig  = fs.readFileSync('./src/js/jssm-dot.js'),
+const orig  = fs.readFileSync('./src/ts/jssm-dot.js'),
       lines = `${orig}`.split('\n'),
       tail  = fs.readFileSync('src/buildjs/peg_ts_export_footer.ts');
 
@@ -18,4 +18,4 @@ lines.pop();
 lines.pop();
 lines.pop();
 
-fs.writeFileSync('./src/js/jssm-dot.ts', lines.join('\n') + tail);
+fs.writeFileSync('./src/ts/jssm-dot.ts', lines.join('\n') + tail);

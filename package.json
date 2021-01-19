@@ -1,8 +1,8 @@
 {
   "name": "jssm",
-  "version": "5.33.1",
+  "version": "5.34.0",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "autoupdate": {
     "source": "git",
@@ -21,33 +21,31 @@
   "module": "dist/es6/jssm.js",
   "types": "./jssm.d.ts",
   "scripts": {
-    "jest": "jest",
-    "test": "npm run make && npm run justtest",
-    "rmgenerated": "rm -f src/js/jssm-dot.ts && rm -f src/js/version.ts && rm -f *.d.ts",
-    "justtest": "cp dist/jssm.es5.cjs.js build && nyc ava src/js/tests/*.js -v && npm run nyc-html",
-    "removedir": "rm -rf build && rm -rf dist && rm -rf docs",
-    "createdir": "mkdir build && mkdir dist && mkdir docs",
+    "jest-spec": "jest -c jest-spec.config.js --color --verbose",
+    "jest-stoch": "jest -c jest-stoch.config.js --color --verbose",
+    "jest": "npm run jest-spec",
+    "jjest": "npm run jest-spec && npm run jest-stoch",
+    "test": "npm run make && npm run jest",
+    "rmgenerated": "rm -f src/ts/jssm-dot.ts && rm -f src/ts/version.ts && rm -f *.d.ts",
+    "removedir": "rm -rf dist && rm -rf docs",
+    "createdir": "mkdir dist && mkdir docs",
     "clean": "npm run removedir && npm run rmgenerated && npm run createdir",
-    "peg": "rm -f src/js/jssm-dot.js && pegjs src/js/jssm-dot.peg && node src/buildjs/fixparser.js && rm src/js/jssm-dot.js",
+    "peg": "rm -f src/ts/jssm-dot.js && pegjs src/ts/jssm-dot.peg && node src/buildjs/fixparser.js && rm src/ts/jssm-dot.js",
     "make_cjs": "rollup -c",
     "make_iife": "rollup -c rollup.config.iife.js",
     "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
     "makever": "node src/buildjs/makever.js",
     "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs",
-    "eslint": "eslint src/js/jssm.ts src/js/jssm_types.ts src/js/tests/*.js",
-    "nyc-html": "nyc report --reporter=html -x \"src/js/jssm-dot.js\"",
-    "coverage": "nyc report -x \"src/js/jssm-dot.js\" --reporter=text-lcov > ./coverage/lcov.info",
-    "audit": "text_audit -t major wasteful any mixed fixme checkme testme stochable todo comeback whargarbl",
+    "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
+    "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
-    "build": "npm run vet && npm run test && npm run docs && npm run site && npm run dist && rm -f src/js/jssm-dot.ts",
+    "build": "npm run vet && npm run test && npm run site && rm -f src/ts/jssm-dot.ts",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
-    "dist": "cp build/jssm.*.js dist/",
     "site": "cp src/site/* docs/",
-    "docs": "documentation build src/js/** -f html -o docs/lib && npm run changelog",
-    "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md",
-    "githubaction": "npm run build && npm run coverage"
+    "docs": "documentation build src/ts/** -f html -o docs/lib && npm run changelog",
+    "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md"
   },
   "repository": {
     "type": "git",
@@ -90,17 +88,11 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
-    "ava": "^1.4.1",
-    "ava-spec": "^1.1.1",
+    "@typescript-eslint/eslint-plugin": "^4.13.0",
+    "@typescript-eslint/parser": "^4.13.0",
     "changelog-maker": "^2.3.2",
     "coveralls": "^3.0.11",
-    "documentation": "^12.3.0",
     "eslint": "^6.8.0",
-    "eslint-config-stonecypher": "^1.15.11",
-    "eslint-plugin-ava": "^9.0.0",
-    "eslint-plugin-flowtype": "^2.35.0",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-jsdoc": "^20.4.0",
     "eslint-plugin-new-with-error": "^2.0.0",
@@ -109,7 +101,6 @@
     "eslint-plugin-unicorn": "^15.0.1",
     "glob": "^7.1.6",
     "jest": "^26.6.3",
-    "nyc": "^15.0.1",
     "pegjs": "^0.10.0",
     "rollup": "^1.32.1",
     "rollup-plugin-commonjs": "^9.3.4",
@@ -118,12 +109,12 @@
     "rollup-plugin-typescript2": "^0.27.0",
     "semver": "^5.7.1",
     "terser": "^4.6.11",
+    "text_audit": "^0.9.3",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.3",
     "viz.js": "^1.7.1"
   },
   "dependencies": {
-    "reduce-to-639-1": "^1.0.4",
-    "text_audit": "^0.9.3"
+    "reduce-to-639-1": "^1.0.4"
   }
 }

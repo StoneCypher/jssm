@@ -1,3 +1,6 @@
+function arr_uniq_p(el, i, source) {
+    return source.indexOf(el) === i;
+}
 const array_box_if_string = n => typeof n === 'string' ? [n] : n;
 // this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
@@ -28,4 +31,4 @@ const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any
  histograph(weighted_sample_select(n, opts, prob_prop)
     .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
 ));
-export { seq, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string };
+export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string };

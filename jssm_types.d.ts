@@ -13,7 +13,7 @@ declare type JssmResult = JssmSuccess | JssmFailure | JssmIncomplete;
 declare type JssmColor = string;
 declare type JssmPermitted = 'required' | 'disallowed';
 declare type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
-declare type JssmArrow = '->' | '<->' | '<=->' | '<~->' | '=>' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~>' | '<-~>' | '<=~>';
+declare type JssmArrow = '->' | '<-' | '<->' | '<=->' | '<~->' | '=>' | '<=' | '<=>' | '<-=>' | '<~=>' | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
 declare type JssmShape = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle" | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon" | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon" | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect" | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab" | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite" | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly" | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab" | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
 declare type JssmArrowDirection = 'left' | 'right' | 'both';
 declare type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';

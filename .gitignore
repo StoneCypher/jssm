@@ -40,6 +40,6 @@ jspm_packages
 .DS_Store
 .rpt2_cache
 
-src/js/jssm-dot.js
+src/ts/jssm-dot.ts
 
 build/

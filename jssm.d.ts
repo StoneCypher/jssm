@@ -2,11 +2,11 @@ declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
 JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme } from './jssm_types';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
-import { parse } from './jssm-dot';
 import { version } from './version';
 declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
 declare function arrow_left_kind(arrow: JssmArrow): JssmArrowKind;
 declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
+declare function wrap_parse(input: string, options?: Object): any;
 declare function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT>;
 declare function make<mDT>(plan: string): JssmGenericConfig<mDT>;
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
@@ -97,4 +97,4 @@ declare class Machine<mDT> {
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
-export { version, transfer_state_properties, Machine, make, parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };
+export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };

@@ -15612,7 +15612,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.33.1";
+const version = "5.34.0";
 
 // whargarbl lots of these return arrays could/should be sets
 /* eslint-disable complexity */
@@ -15782,6 +15782,9 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
     }
     return edge;
 }
+function wrap_parse(input, options) {
+    return peg$parse(input, options || {});
+}
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
     const edges = [];
     const uFrom = (Array.isArray(from) ? from : [from]), uTo = (Array.isArray(to) ? to : [to]);
@@ -15894,7 +15897,7 @@ function compile(tree) {
     return result_cfg;
 }
 function make(plan) {
-    return compile(peg$parse(plan, {}));
+    return compile(wrap_parse(plan));
 }
 function transfer_state_properties(state_decl) {
     state_decl.declarations.map((d) => {
@@ -16159,7 +16162,7 @@ class Machine {
         return Array.from(this._actions.keys());
     }
     theme() {
-        return this._theme;
+        return this._theme || "none";
     }
     flow() {
         return this._flow;
@@ -16391,11 +16394,9 @@ function sm(template_strings, ...remainder /* , arguments */) {
     return new Machine(make(template_strings.reduce(
     // in general avoiding `arguments` is smart.  however with the template
     // string notation, as designed, it's not really worth the hassle
-    /* eslint-disable fp/no-arguments */
     /* eslint-disable prefer-rest-params */
     (acc, val, idx) => `${acc}${remainder[idx - 1]}${val}` // arguments[0] is never loaded, so args doesn't need to be gated
     /* eslint-enable  prefer-rest-params */
-    /* eslint-enable  fp/no-arguments */
     )));
 }
 
@@ -16406,7 +16407,7 @@ exports.arrow_right_kind = arrow_right_kind;
 exports.compile = compile;
 exports.histograph = histograph;
 exports.make = make;
-exports.parse = peg$parse;
+exports.parse = wrap_parse;
 exports.seq = seq;
 exports.sm = sm;
 exports.transfer_state_properties = transfer_state_properties;
