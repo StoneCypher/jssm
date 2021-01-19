@@ -1,11 +1,11 @@
 
-import * as jssm from '../jssm';
+import { sm } from '../jssm';
 
 
 
 
 
-const _SpecialCharacters = ['\t', '\n', '\r', '\v'];
+const SpecialCharacters = ['\t', '\n', '\r', '\v'];
 
 
 
@@ -19,16 +19,16 @@ describe('Special characters', () => {
     expect(true).toBe(true)   // todo fixme whargarbl
   );
 
-  // it(`Label "top\nbottom" parses correctly framed`, t =>
-  //   t.notThrows( () => { const _foo = sm`"top\nbottom" -> b;`; }) );
+  // test(`Label "top\nbottom" parses correctly framed`, () =>
+  //   expect( () => { const _foo = sm`"top\nbottom" -> b;`; }).not.toThrow() );
 
   // SpecialCharacters.map(sc =>
-  //   it(`Label "open${sc}shut" parses correctly framed`, t =>
-  //     t.notThrows( () => { const _foo = sm`"open${sc}shut" -> b;`; }) ) );
+  //   test(`Label "open${sc}shut" parses correctly framed`, () =>
+  //     expect( () => { const _foo = sm`"open${sc}shut" -> b;`; }).not.toThrow() ) );
 
   // SpecialCharacters.map(sc =>
-  //   it(`Label "${sc}" parses correctly bare`, t =>
-  //     t.notThrows( () => { const _foo = sm`"${sc}" -> b;`; }) ) );
+  //   test(`Label "${sc}" parses correctly bare`, () =>
+  //     expect( () => { const _foo = sm`"${sc}" -> b;`; }).not.toThrow() ) );
 
 });
 
@@ -36,4 +36,4 @@ describe('Special characters', () => {
 
 
 
-test.todo('Special characters is not implemented at all');
+test.todo('Special characters tests are failing badly!');

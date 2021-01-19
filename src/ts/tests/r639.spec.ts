@@ -17,6 +17,10 @@ test('should be undef when wrong str', () =>
 test('should be undef when empty str', () =>
   expect( r639('') ).toBe(undefined) );
 
+
+
+
+
 test.todo('commented out r639 things');
 
 // describe(`r639 _`, async it => it('should be undef when unnamed',   t => t.throws( async() => r639()      )));

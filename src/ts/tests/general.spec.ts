@@ -331,6 +331,10 @@ describe('reports state_is_terminal', () => {
     expect(machine.state_is_terminal('red') )
       .toBe(true) );
 
+  test('terminal on missing state throws', () =>
+    expect( () => machine.state_is_terminal('notARealState') )
+      .toThrow() );
+
 });
 
 
@@ -384,6 +388,10 @@ describe('reports state_is_complete', () => {
   test('state_is_complete true', () =>
     expect(machine.state_is_complete('red') )
       .toBe(false) );
+
+  test('throws on nonexisting state', () =>
+    expect( () => machine.state_is_complete('thisStateDoesNotExist') )
+      .toThrow() );
 
 });
 
@@ -537,6 +545,10 @@ describe('unenterables', () => {
   test('machine has unenterables', () =>
     expect(machine.has_unenterables() )
       .toBe(true) );
+
+  test('unenterable test on missing state throws', () =>
+    expect( () => machine.is_unenterable('notARealState') )
+      .toThrow() );
 
 });
 
@@ -767,30 +779,28 @@ describe('Illegal machines', () => {
   }).toThrow() );
 
 
-  test.todo('re-enable must-define-from/to once we learn how to lie to TS');
+  test('must define from', () => expect( () => {
 
-  // test('must define from', () => expect( () => {
+    new jssm.Machine({
+      start_states: ['moot'],
+      transitions:[
+        { name:'identical', to:'2', kind: 'legal', forced_only: false, main_path: false }
+      ]
+    } as any);
 
-  //   new jssm.Machine({
-  //     start_states: ['moot'],
-  //     transitions:[
-  //       { name:'identical', to:'2', kind: 'legal', forced_only: false, main_path: false }
-  //     ]
-  //   });
-
-  // }).toThrow() );
+  }).toThrow() );
 
 
-  // test('must define to', () => expect( () => {
+  test('must define to', () => expect( () => {
 
-  //   new jssm.Machine({
-  //     start_states: ['moot'],
-  //     transitions:[
-  //       { name:'identical', from:'1', kind: 'legal', forced_only: false, main_path: false }
-  //     ]
-  //   });
+    new jssm.Machine({
+      start_states: ['moot'],
+      transitions:[
+        { name:'identical', from:'1', kind: 'legal', forced_only: false, main_path: false }
+      ]
+    } as any);
 
-  // }).toThrow() );
+  }).toThrow() );
 
 
   test('must not have two identical edges', () => expect( () => {

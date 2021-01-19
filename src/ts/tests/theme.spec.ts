@@ -35,6 +35,10 @@ describe('Named themes', () => {
     test(`Theme "${thisTheme}" shows correct theme`, () =>
       expect( sm`theme: ${thisTheme}; a-> b;`.theme() ).toBe(thisTheme) ) );
 
+  Themes.map(thisTheme =>
+    test(`Missing theme shows theme "default"`, () =>
+      expect( sm`a-> b;`.theme() ).toBe("default") ) );
+
   test('Fake theme throws', () =>
     expect( () => { const _foo = sm`theme: zeghezgqqqqthirteen; a-> b;`; }).toThrow() );
 

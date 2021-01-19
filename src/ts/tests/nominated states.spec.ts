@@ -50,6 +50,8 @@ describe('simple naming', () => {
         sm`state a: { color: orange; }; a -> b;`;
     }).not.toThrow() );
 
+    test.todo('Uncomment when named nodes work');
+
 //  test('cycle node named', () =>
 //    expect(() => {
 //      sm`[a b] -> +1; state a: { color: red; }; &b: [a c e];`;

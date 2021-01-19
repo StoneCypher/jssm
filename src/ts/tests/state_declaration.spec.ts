@@ -37,7 +37,7 @@ describe('can read declaration', () => {
 
   test.todo('Incomplete test prototypes in state_declaration');
 
-//  const machT = sm`c: { color: red; }; d: { shape: circle; }; a -> b;`;
+  // const machT = sm`c: { color: red; }; d: { shape: circle; }; a -> b;`;
 
   // const machP = sm`
   //   c: { shape: circle; color: red; };
@@ -56,10 +56,8 @@ describe('can read declaration', () => {
       test('list having size 1', () =>
         expect( decls.size ).toBe(1) );
 
-      test.todo('Re-enable once state_declarations/0 exposes type 1');
-
-      // test('props having length 0', () =>
-      //   expect( decls.get('c').declarations.length ).toBe(0) );
+      test('props having length 0', () =>
+        expect( decls.get('c').declarations.length ).toBe(0) );
 
     });
   });
@@ -75,17 +73,16 @@ describe('can read declaration', () => {
       test('list having size 1', () =>
         expect(decls.size).toBe(1) );
 
-      test.todo('Re-enable once state_declarations/0 exposes type 2');
-
-      // test('props having length 1', () =>
-      //   expect(decls.get('c').declarations.length ).toBe(1) );
+      test('props having length 1', () =>
+        expect(decls.get('c').declarations.length ).toBe(1) );
 
       // todo whargarbl check the actual members comeback
     });
 
-//  test('through .state_declaration/1',  () =>
-//    expect(mach1.state_declaration('c') )
-//      .toBe('left') );
+    test('through .state_declaration/1',  () =>
+      expect(mach1.state_declaration('c').declarations[0].value )
+        .toBe('#ff0000ff') );
+
   });
 
 
@@ -105,11 +102,13 @@ describe('can read declaration', () => {
 
     test.todo('Re-enable once state_declarations/0 exposes type 3');
 
-    // test('through .state_declarations/0 declarations length', () =>
-    //   expect(mach2.state_declarations().get('c').declarations.length )
-    //     .toBe(2) );
+    test('through .state_declarations/0 declarations length', () =>
+      expect(mach2.state_declarations().get('c').declarations.length )
+        .toBe(2) );
 
   });
+
+test.todo('Not sure why these were commented out tbh');
 
 /*
   describe('of w/ color on c, shape on d', () => {
@@ -153,35 +152,49 @@ describe('can read declaration', () => {
 
 describe('error catchery', () => {
 
-  describe('repeated declaration', () => {
+  test('repeated declaration throws', () =>
+    expect( () => { const _mach1 = sm`state c: { color: red; }; state c: { color: red; }; a -> b;`; } )  // eslint-disable-line no-unused-vars
+      .toThrow()
+  );
+
+
+  describe('unknown state property', () => {
+
+    const prestate = {
+      "start_states":["b"],
+      "transitions":[{"from":"b","to":"c","kind":"legal","forced_only":false,"main_path":false}],
+      "state_declaration":[{"state":"a","declarations":[{"key":"urgle bergle","value":"circle"}]}]};
+
     test('throws', () =>
-      expect( () => { const _mach1 = sm`state c: { color: red; }; state c: { color: red; }; a -> b;`; } )  // eslint-disable-line no-unused-vars
+      expect( () => { const _m0 = new jssm.Machine(prestate as any); } )
         .toThrow() );
+
   });
 
 
-  test.todo('state_declaration declarations key needs tidied up');
+  test('transfer state properties throws on unknown key', () =>
+    expect( () => { jssm.transfer_state_properties({declarations: [{key: 'agsrhdtjfy', value: 'seven'}]} as any); } )
+      .toThrow()
+  );
 
-  // describe('unknown state property', () => {
+  test('Cannot declare the same state twice', () =>
+    expect( () => { const mach0 = sm`state c: { }; state c: { }; a -> b;`; } )
+      .toThrow()
+  );
 
-  //   const prestate = {
-  //     "start_states":["b"],
-  //     "transitions":[{"from":"b","to":"c","kind":"legal","forced_only":false,"main_path":false}],
-  //     "state_declaration":[{"state":"a","declarations":[{"key":"urgle bergle","value":"circle"}]}]};
+  test.todo('These two catch the uncovered line on 656, but cause missing coverage errors on 803,936-952');
 
-  //   test('throws', () =>
-  //     expect( () => { const _m0 = new jssm.Machine(prestate); } )
-  //       .toThrow() );
+  // test('Cannot generate an existing state', () =>
+  //   expect( () => { sm`a->c;state c:{};`._new_state({name:'c'} as any); } )
+  //     .toThrow()
+  // );
 
-  // });
-
-
-  test.todo('maybe malformed test, need to check');
-
-  // describe('transfer state properties throws on unknown key', () => {
-  //   test('throws', () =>
-  //     expect( () => { jssm.transfer_state_properties({declarations: [{key: 'agsrhdtjfy', value: 'seven'}]}); } )
-  //       .toThrow() );
-  // });
+  test('Cannot generate an existing state', () =>
+    expect( () => {
+      const errM = sm`a->c;state c:{};`;
+      const errR = errM._new_state({name:'c'} as any);
+    } )
+      .toThrow()
+  );
 
 });

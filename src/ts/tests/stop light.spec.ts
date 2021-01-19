@@ -9,16 +9,6 @@ import * as jssm from '../jssm';
 
 describe('Simple stop light', () => {
 
-  // const trs = [
-  //         { name: 'SwitchToWarn', action: 'Proceed', from:'Green',  to:'Yellow' },
-  //         { name: 'SwitchToHalt', action: 'Proceed', from:'Yellow', to:'Red'    },
-  //         { name: 'SwitchToGo',   action: 'Proceed', from:'Red',    to:'Green'  }
-  //       ],
-  //       light = new jssm.Machine({
-  //         start_states : ['Red'],
-  //         transitions  : trs
-  //       });
-
   const light = jssm.sm`Red 'Proceed' -> Green 'Proceed' -> Yellow 'Proceed' -> Red;`;
 
   const r_states = light.states();

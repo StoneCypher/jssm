@@ -54,7 +54,7 @@ declare class Machine<mDT> {
     machine_version(): string;
     raw_state_declarations(): Array<Object>;
     state_declaration(which: StateType): JssmStateDeclaration;
-    state_declarations(): Map<StateType, Object>;
+    state_declarations(): Map<StateType, JssmStateDeclaration>;
     fsl_version(): string;
     machine_state(): JssmMachineInternalState<mDT>;
     states(): Array<StateType>;

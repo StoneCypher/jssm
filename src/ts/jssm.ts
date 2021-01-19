@@ -735,7 +735,7 @@ class Machine<mDT> {
     return this._state_declarations.get(which);
   }
 
-  state_declarations(): Map<StateType, Object> {
+  state_declarations(): Map<StateType, JssmStateDeclaration> {
     return this._state_declarations;
   }
 
@@ -800,7 +800,7 @@ class Machine<mDT> {
 
 
   theme(): FslTheme {
-    return this._theme || "none";
+    return this._theme;  // constructor sets this to "default" otherwise
   }
 
   flow(): FslDirection {

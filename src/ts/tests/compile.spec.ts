@@ -56,17 +56,17 @@ describe('error catchery', () => {
 
   test.todo('uncomment the compile spec tests once they\'re understood');
 
-  // describe('unknown rule', () => {
-  //   test('throws', () => expect( () => {
-  //     jssm.compile( [{"key":"FAKE_RULE","from":"a","se":{"kind":"->","to":"b"}}] );
-  //   } ).toThrow() );
-  // });
+  describe('unknown rule', () => {
+    test('throws', () => expect( () => {
+      jssm.compile( [{"key":"FAKE_RULE","from":"a","se":{"kind":"->","to":"b"}}] as any );
+    } ).toThrow() );
+  });
 
-  // describe('unnamed state_declaration', () => {
-  //   test('throws', () => expect( () => {
-  //     jssm.compile( [{"key":"state_declaration"}] );
-  //   } ).toThrow() );
-  // });
+  describe('unnamed state_declaration', () => {
+    test('throws', () => expect( () => {
+      jssm.compile( [{"key":"state_declaration"}] as any );
+    } ).toThrow() );
+  });
 
   describe('unknown state property', () => {
     test('throws', () => expect( () => {

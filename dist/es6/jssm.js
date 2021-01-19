@@ -550,7 +550,7 @@ class Machine {
         return Array.from(this._actions.keys());
     }
     theme() {
-        return this._theme || "none";
+        return this._theme; // constructor sets this to "default" otherwise
     }
     flow() {
         return this._flow;

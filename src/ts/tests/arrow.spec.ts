@@ -110,16 +110,14 @@ describe('arrow_right_kind', () => {
 
 describe('arrow error catchery', () => {
 
-test.todo('Used to enforce throws on unknown arrow kinds, but now TS catches and blocks.  How to verify safe JS?');
+  test('unknown arrow direction throws', () =>
+    expect( () => jssm.arrow_direction('boop' as any) ).toThrow() );
 
-  // test('unknown arrow direction throws', () =>
-  //   expect( () => jssm.arrow_direction('boop') ).toThrow() );
+  test('unknown arrow left kind throws', () =>
+    expect( () => jssm.arrow_left_kind('boop' as any) ).toThrow() );
 
-  // test('unknown arrow left kind throws', () =>
-  //   expect( () => jssm.arrow_left_kind('boop') ).toThrow() );
-
-  // test('unknown arrow right kind throws', () =>
-  //   expect( () => jssm.arrow_right_kind('boop') ).toThrow() );
+  test('unknown arrow right kind throws', () =>
+    expect( () => jssm.arrow_right_kind('boop' as any) ).toThrow() );
 
 });
 
