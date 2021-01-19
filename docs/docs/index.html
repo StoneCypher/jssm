@@ -61,27 +61,109 @@
 				<a href="#jssm" id="jssm" style="color: inherit; text-decoration: none;">
 					<h1>jssm</h1>
 				</a>
-				<p>Wouldn&#39;t it be nice if your Javascript state machines were simple and readable?</p>
+				<p>Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
+					tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
+				share online.  Easy to embed.</p>
+				<p>Readable, useful state machines as one-liner strings.</p>
+				<blockquote>
+					<p>Meet your new state machine library.</p>
+				</blockquote>
+				<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a></p>
+				<p><br/><br/></p>
+				<p>Wouldn&#39;t it be nice if your TypeScript and Javascript state machines were simple and readable one-liners?</p>
 				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">sm</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;jssm&#039;</span><span style="color: #000000">;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">Machine</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
-<span style="color: #A31515">  Green =&gt; Yellow =&gt; Red =&gt; Green;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red =&gt; Green =&gt; Yellow =&gt; Red;`</span><span style="color: #000000">;</span>
+</code></pre>
+				<br/>
+				<p>Wouldn&#39;t it be great if they were easy to work with?</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">log</span><span style="color: #000000"> = </span><span style="color: #001080">s</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">s</span><span style="color: #000000">);</span>
+
+<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Red&#039;</span>
+
+<span style="color: #001080">Machine</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Green&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
+<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Green&#039;</span>
+</code></pre>
+				<br/>
+				<p>What if the notation supported action names easily?</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithActions</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red &#039;next&#039; =&gt; Green &#039;next&#039; =&gt; Yellow &#039;next&#039; =&gt; Red;`</span><span style="color: #000000">;</span>
+
+<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Red&#039;</span>
+
+<span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">action</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;next&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
+<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Green&#039;</span>
+
+<span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">action</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;next&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
+<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Yellow&#039;</span>
+
+<span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">action</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;next&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
+<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Red&#039;</span>
+</code></pre>
+				<br/>
+				<p>What if the machine followed JS standards, and distinguished refusals as <code>false</code> from mistakes as <code>throw</code>n?</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">AnotherTrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red =&gt; Green =&gt; Yellow =&gt; Red;`</span><span style="color: #000000">;</span>
+
+<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );         </span><span style="color: #008000">// &#039;Red&#039; - uses 1st state unless told otherwise</span>
+<span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Yellow&#039;</span><span style="color: #000000">);   </span><span style="color: #008000">// false (Yellow isn&#039;t allowed from Red)</span>
+<span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Blue&#039;</span><span style="color: #000000">);     </span><span style="color: #008000">// throws (Blue isn&#039;t a state at all)</span>
+</code></pre>
+				<br/>
+				<p>What if there were easy convenience notations for lists, and for designating main-path <code>=&gt;</code> vs available path <code>-&gt;</code> vs
+				only-when-forced <code>~&gt;</code> ?</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithOff</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
+<span style="color: #A31515">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span>
 <span style="color: #A31515">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span>
 <span style="color: #A31515">`</span><span style="color: #000000">;</span>
-
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">Machine</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Green&#039;</span>
-
-<span style="color: #001080">Machine</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Yellow&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// true</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">Machine</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Yellow&#039;</span>
-
-<span style="color: #001080">Machine</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Blue&#039;</span><span style="color: #000000">); </span><span style="color: #008000">// false</span>
-<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">Machine</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Yellow&#039;</span>
 </code></pre>
-				<p>What if that were easy to render visually, with styling?</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png" alt=""></p>
+				<br/>
+				<p>What if that were easy to render visually?</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithOff</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
+<span style="color: #A31515">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span>
+<span style="color: #A31515">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span>
+<span style="color: #A31515">`</span><span style="color: #000000">;</span>
+</code></pre>
+				<br/>
+				<img height="500" src="https://user-images.githubusercontent.com/77482/105075349-8291d680-5a3e-11eb-9cad-1c628ef37f5a.png"/>
+				<br/>
+				<p>What if that were easy to render visually, with styling, in PNG, JPEG, or SVG?</p>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithOff</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
+<span style="color: #A31515">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span>
+<span style="color: #A31515">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span>
+
+<span style="color: #A31515">  state Red    : { background-color: pink;        corners: rounded; };</span>
+<span style="color: #A31515">  state Yellow : { background-color: lightyellow; corners: rounded; };</span>
+<span style="color: #A31515">  state Green  : { background-color: lightgreen;  corners: rounded; };</span>
+
+<span style="color: #A31515">  state Off : {</span>
+<span style="color: #A31515">    background-color : steelblue;</span>
+<span style="color: #A31515">    text-color       : white;</span>
+<span style="color: #A31515">    shape            : octagon;</span>
+<span style="color: #A31515">    linestyle        : dashed;</span>
+<span style="color: #A31515">  };</span>
+<span style="color: #A31515">`</span><span style="color: #000000">;</span>
+</code></pre>
+				<br/>
+				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png"/>
+				<ul>
+					<li>What if the machine and language had extensive 100% test coverage with thousands of cases?</li>
+					<li>What if the machine was lighting fast, able to do 100k+ transitions per second?</li>
+					<li>What if the machine gave extensive Typescript introspection support?</li>
+					<li>What if the machine had been around and active since ?</li>
+					<li>What if the machine was MIT end to end?</li>
+				</ul>
+				<p>You just learned the basics of <a href="https://fsl.tools/">Finite State Language</a>, and this is a state machine for compiling,
+				running, and visually rendering it.</p>
 				<p><br/><br/></p>
 				<a href="#introducing-jssm" id="introducing-jssm" style="color: inherit; text-decoration: none;">
-					<h2>Introducing JSSM</h2>
+					<h1>Introducing JSSM</h1>
+				</a>
+				<p>Meet JSSM: the <b><u>J</u></b>ava<b><u>s</u></b>cript <b><u>S</u></b>tate <b><u>M</u></b>achine.</p>
+				<p>State machines can make your code cleaner, safer, and more trustworthy.</p>
+				<p>And, with the right language, state machines can be easy and fun.</p>
+				<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a></p>
+				<br/>
+				<a href="#what-is-jssm" id="what-is-jssm" style="color: inherit; text-decoration: none;">
+					<h2>What is JSSM?</h2>
 				</a>
 				<p>JSSM is a Javascript state machine implementing <a href="https://fsl.tools/">Finite State Language</a>, with a terse DSL and a simple API.
 				100% test coverage; typed with Flowtype.  MIT licensed.</p>
