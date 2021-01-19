@@ -1,6 +1,7 @@
 
-const jssm = require('../jssm'),
-      sm   = jssm.sm;
+import * as jssm from '../jssm';
+
+const sm = jssm.sm;
 
 
 
@@ -24,14 +25,14 @@ describe('weighted_sample_select/1', () => {
 
       transitions: [
 
-        { from: 'a', to: 'b' },
-        { from: 'a', to: 'c' },
+        { from: 'a', to: 'b', kind: 'legal', forced_only: false, main_path: false },
+        { from: 'a', to: 'c', kind: 'legal', forced_only: false, main_path: false },
 
-        { from: 'b', to: 'a' },
-        { from: 'b', to: 'c' },
+        { from: 'b', to: 'a', kind: 'legal', forced_only: false, main_path: false },
+        { from: 'b', to: 'c', kind: 'legal', forced_only: false, main_path: false },
 
-        { from: 'c', to: 'a' },
-        { from: 'c', to: 'b' }
+        { from: 'c', to: 'a', kind: 'legal', forced_only: false, main_path: false },
+        { from: 'c', to: 'b', kind: 'legal', forced_only: false, main_path: false }
 
       ]
 
@@ -64,30 +65,30 @@ describe('weighted_sample_select/1', () => {
 
       transitions: [
 
-        { from: 'a', to: 'b', probability: 0.5 },
-        { from: 'a', to: 'c', probability: 4 },
-        { from: 'a', to: 'd', probability: 0.5 },
-        { from: 'a', to: 'e', probability: 0.5 },
+        { from: 'a', to: 'b', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'a', to: 'c', probability: 4,   kind: 'legal', forced_only: false, main_path: false },
+        { from: 'a', to: 'd', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'a', to: 'e', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
 
-        { from: 'b', to: 'a', probability: 0.5 },
-        { from: 'b', to: 'c', probability: 4 },
-        { from: 'b', to: 'd', probability: 0.5 },
-        { from: 'b', to: 'e', probability: 0.5 },
+        { from: 'b', to: 'a', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'b', to: 'c', probability: 4,   kind: 'legal', forced_only: false, main_path: false },
+        { from: 'b', to: 'd', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'b', to: 'e', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
 
-        { from: 'c', to: 'a', probability: 0.5 },
-        { from: 'c', to: 'b', probability: 0.5 },
-        { from: 'c', to: 'd', probability: 0.5 },
-        { from: 'c', to: 'e', probability: 0.5 },
+        { from: 'c', to: 'a', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'c', to: 'b', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'c', to: 'd', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'c', to: 'e', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
 
-        { from: 'd', to: 'a', probability: 0.5 },
-        { from: 'd', to: 'b', probability: 0.5 },
-        { from: 'd', to: 'c', probability: 4 },
-        { from: 'd', to: 'e', probability: 0.5 },
+        { from: 'd', to: 'a', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'd', to: 'b', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'd', to: 'c', probability: 4,   kind: 'legal', forced_only: false, main_path: false },
+        { from: 'd', to: 'e', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
 
-        { from: 'e', to: 'a', probability: 0.5 },
-        { from: 'e', to: 'b', probability: 0.5 },
-        { from: 'e', to: 'c', probability: 4 },
-        { from: 'e', to: 'd', probability: 0.5 }
+        { from: 'e', to: 'a', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'e', to: 'b', probability: 0.5, kind: 'legal', forced_only: false, main_path: false },
+        { from: 'e', to: 'c', probability: 4,   kind: 'legal', forced_only: false, main_path: false },
+        { from: 'e', to: 'd', probability: 0.5, kind: 'legal', forced_only: false, main_path: false }
 
       ]
 

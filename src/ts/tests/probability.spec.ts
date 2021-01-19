@@ -1,7 +1,7 @@
 
 /* eslint-disable max-len */
 
-const jssm = require('../jssm');
+import * as jssm from '../jssm';
 
 
 
@@ -11,7 +11,7 @@ describe('probable exits for', () => {
 
   const machine = new jssm.Machine({
     start_states : ['off'],
-    transitions  : [ { from:'off', to:'red' } ]
+    transitions  : [ { from: 'off', to: 'red', kind: 'legal', forced_only: false, main_path: false } ]
   });
 
   test('probable exits are an array', () =>
@@ -41,8 +41,8 @@ describe('probable action exits', () => {
   const machine = new jssm.Machine({
     start_states : ['off'],
     transitions  : [
-      { from:'off', to:'red', action:'on'  },
-      { from:'red', to:'off', action:'off' }
+      { from:'off', to:'red', action:'on',  kind: 'legal', forced_only: false, main_path: false },
+      { from:'red', to:'off', action:'off', kind: 'legal', forced_only: false, main_path: false }
     ]
   });
 
@@ -82,7 +82,7 @@ describe('probabilistic_transition', () => {
 
   const machine = new jssm.Machine({
     start_states : ['off'],
-    transitions  : [ { from:'off', to:'red' } ]
+    transitions  : [ { from: 'off', to: 'red', kind: 'legal', forced_only: false, main_path: false } ]
   });
 
   machine.probabilistic_transition();
@@ -101,7 +101,10 @@ describe('probabilistic_walk', () => {
 
   const machine = new jssm.Machine({
     start_states : ['off'],
-    transitions  : [ { from:'off', to:'red' }, { from:'red', to:'off' } ]
+    transitions  : [
+      { from: 'off', to: 'red', kind: 'legal', forced_only: false, main_path: false },
+      { from: 'red', to: 'off', kind: 'legal', forced_only: false, main_path: false }
+    ]
   });
 
   machine.probabilistic_walk(3);
@@ -120,7 +123,10 @@ describe('probabilistic_histo_walk', () => {
 
   const machine = new jssm.Machine({
     start_states : ['off'],
-    transitions  : [ { from:'off', to:'red' }, { from:'red', to:'off' } ]
+    transitions  : [
+      { from: 'off', to: 'red', kind: 'legal', forced_only: false, main_path: false },
+      { from: 'red', to: 'off', kind: 'legal', forced_only: false, main_path: false }
+    ]
   });
 
   const histo = machine.probabilistic_histo_walk(3);
