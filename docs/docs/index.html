@@ -65,15 +65,13 @@
 					tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
 				share online.  Easy to embed.</p>
 				<p>Readable, useful state machines as one-liner strings.</p>
-				<blockquote>
-					<p>Meet your new state machine library.</p>
-				</blockquote>
+				<p><strong><em>Meet your new state machine library.</em></strong></p>
 				<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a></p>
 				<p><br/><br/></p>
 				<p>Wouldn&#39;t it be nice if your TypeScript and Javascript state machines were simple and readable one-liners?</p>
 				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">sm</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;jssm&#039;</span><span style="color: #000000">;</span>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red =&gt; Green =&gt; Yellow =&gt; Red;`</span><span style="color: #000000">;</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red -&gt; Green -&gt; Yellow -&gt; Red;`</span><span style="color: #000000">;</span>
 </code></pre>
 				<br/>
 				<p>Wouldn&#39;t it be great if they were easy to work with?</p>
@@ -86,7 +84,7 @@
 </code></pre>
 				<br/>
 				<p>What if the notation supported action names easily?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithActions</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red &#039;next&#039; =&gt; Green &#039;next&#039; =&gt; Yellow &#039;next&#039; =&gt; Red;`</span><span style="color: #000000">;</span>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithActions</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red &#039;next&#039; -&gt; Green &#039;next&#039; -&gt; Yellow &#039;next&#039; -&gt; Red;`</span><span style="color: #000000">;</span>
 
 <span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Red&#039;</span>
 
@@ -101,7 +99,7 @@
 </code></pre>
 				<br/>
 				<p>What if the machine followed JS standards, and distinguished refusals as <code>false</code> from mistakes as <code>throw</code>n?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">AnotherTrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red =&gt; Green =&gt; Yellow =&gt; Red;`</span><span style="color: #000000">;</span>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">AnotherTrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red -&gt; Green -&gt; Yellow -&gt; Red;`</span><span style="color: #000000">;</span>
 
 <span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );         </span><span style="color: #008000">// &#039;Red&#039; - uses 1st state unless told otherwise</span>
 <span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Yellow&#039;</span><span style="color: #000000">);   </span><span style="color: #008000">// false (Yellow isn&#039;t allowed from Red)</span>
@@ -123,12 +121,14 @@
 <span style="color: #A31515">`</span><span style="color: #000000">;</span>
 </code></pre>
 				<br/>
-				<img height="500" src="https://user-images.githubusercontent.com/77482/105075349-8291d680-5a3e-11eb-9cad-1c628ef37f5a.png"/>
+				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20unstyled.png"/>
 				<br/>
 				<p>What if that were easy to render visually, with styling, in PNG, JPEG, or SVG?</p>
 				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithOff</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
 <span style="color: #A31515">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span>
 <span style="color: #A31515">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span>
+
+<span style="color: #A31515">  flow: left;</span>
 
 <span style="color: #A31515">  state Red    : { background-color: pink;        corners: rounded; };</span>
 <span style="color: #A31515">  state Yellow : { background-color: lightyellow; corners: rounded; };</span>
@@ -146,7 +146,7 @@
 				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png"/>
 				<br/>
 				<p>What if the machine was lighting fast, able to do tens of millions of transitions per second?</p>
-				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/home%20pc%20speed.png"/>
+				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/speed%20claim.png"/>
 				<br/>
 				<ul>
 					<li>What if the machine and language had extensive 100% test coverage with thousands of cases?</li>

@@ -6,7 +6,7 @@ share online.  Easy to embed.
 
 Readable, useful state machines as one-liner strings.
 
-> Meet your new state machine library.
+***Meet your new state machine library.***
 
 <a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a>
 
@@ -17,7 +17,7 @@ Wouldn't it be nice if your TypeScript and Javascript state machines were simple
 ```javascript
 import { sm } from 'jssm';
 
-const TrafficLight = sm`Red => Green => Yellow => Red;`;
+const TrafficLight = sm`Red -> Green -> Yellow -> Red;`;
 ```
 
 <br/>
@@ -38,7 +38,7 @@ log( TrafficLight.state() );  // 'Green'
 What if the notation supported action names easily?
 
 ```javascript
-const TrafficLightWithActions = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
+const TrafficLightWithActions = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`;
 
 log( TrafficLightWithActions.state() );  // 'Red'
 
@@ -57,7 +57,7 @@ log( TrafficLightWithActions.state() );  // 'Red'
 What if the machine followed JS standards, and distinguished refusals as `false` from mistakes as `throw`n?
 
 ```javascript
-const AnotherTrafficLight = sm`Red => Green => Yellow => Red;`;
+const AnotherTrafficLight = sm`Red -> Green -> Yellow -> Red;`;
 
 log( AnotherTrafficLight.state() );         // 'Red' - uses 1st state unless told otherwise
 AnotherTrafficLight.transition('Yellow');   // false (Yellow isn't allowed from Red)
@@ -89,7 +89,7 @@ const TrafficLightWithOff = sm`
 
 <br/>
 
-<img height="500" src="https://user-images.githubusercontent.com/77482/105075349-8291d680-5a3e-11eb-9cad-1c628ef37f5a.png"/>
+<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20unstyled.png"/>
 
 <br/>
 
@@ -99,6 +99,8 @@ What if that were easy to render visually, with styling, in PNG, JPEG, or SVG?
 const TrafficLightWithOff = sm`
   Red => Green => Yellow => Red;
   [Red Yellow Green] ~> Off -> Red;
+
+  flow: left;
 
   state Red    : { background-color: pink;        corners: rounded; };
   state Yellow : { background-color: lightyellow; corners: rounded; };
@@ -121,7 +123,7 @@ const TrafficLightWithOff = sm`
 
 What if the machine was lighting fast, able to do tens of millions of transitions per second?
 
-<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/home%20pc%20speed.png"/>
+<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/speed%20claim.png"/>
 
 <br/>
 
