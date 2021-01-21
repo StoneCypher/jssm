@@ -127,13 +127,15 @@ What if the machine was lighting fast, able to do tens of millions of transition
 
 <br/>
 
-* What if the machine and language had extensive 100% test coverage with thousands of cases?
+* What if the machine and language had [extensive 100% test coverage](https://coveralls.io/github/StoneCypher/jssm)
+  with [thousands of cases](https://github.com/StoneCypher/jssm/tree/main/src/ts/tests)?
 * What if the machine gave extensive Typescript introspection support?
-* What if the machine had been around and active since ?
-* What if the machine was MIT end to end?
+* What if the machine had been around and active since May 2017?
+* What if the machine was MIT licensed, end to end?
 
-You just learned the basics of [Finite State Language](https://fsl.tools/), and this is a state machine for compiling,
-running, and visually rendering it.
+But, above all else:
+
+`What if it was easy?`
 
 
 

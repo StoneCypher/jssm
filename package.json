@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.35.3",
+  "version": "5.35.4",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -44,7 +44,7 @@
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/",
-    "docs": "typedoc src/ts/jssm.ts --out docs/docs",
+    "docs": "typedoc src/ts/jssm.ts --out docs/docs --theme ./node_modules/typedoc-neo-theme/bin/default",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md"
   },
   "repository": {
@@ -112,6 +112,7 @@
     "text_audit": "^0.9.3",
     "ts-jest": "^26.4.4",
     "typedoc": "^0.20.16",
+    "typedoc-neo-theme": "^1.1.0",
     "typescript": "^4.1.3",
     "viz.js": "^1.7.1"
   },
