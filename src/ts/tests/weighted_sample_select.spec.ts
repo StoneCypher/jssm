@@ -22,5 +22,3 @@ describe('weighted_sample_select/2', () => {
   test('4 returns [any,any,any,any]', () => expect(over.length).toBe(4) );
 
 });
-
-// stochable

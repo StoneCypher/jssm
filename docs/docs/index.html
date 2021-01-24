@@ -4,10 +4,9 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title>jssm</title>
-	<meta name="description" content="Documentation for jssm">
+	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
-	<script async src="assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -22,6 +21,8 @@
 					<ul class="results">
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
+					</ul>
+					<ul class="results-priority" style="display:none">
 					</ul>
 					<a href="index.html" class="title">jssm</a>
 				</div>
@@ -41,6 +42,8 @@
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
 							<input type="checkbox" id="tsd-filter-externals" checked />
 							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -50,13 +53,24 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<h1>Project jssm</h1>
+			<ul class="tsd-breadcrumb">
+			</ul>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
-		<div class="col-8 col-content">
+		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		<div class="col-7 offset-3 col-content">
+			<h1>Project jssm</h1>
 			<div class="tsd-panel tsd-typography">
 				<a href="#jssm" id="jssm" style="color: inherit; text-decoration: none;">
 					<h1>jssm</h1>
@@ -906,60 +920,54 @@ EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
 					the notation, invented several concepts and operators, helped with the parser, with system nomenclature, for having published
 				the first not-by-me <code>FSL</code> machine, for encouragement, and generally just for having been as interested as he has been.</p>
 			</div>
+			<!--{&quot;options&quot;:&quot;C:\\Users\\john\\projects\\jssm&quot;,&quot;tsconfig&quot;:&quot;C:\\Users\\john\\projects\\jssm&quot;,&quot;entryPoints&quot;:[&quot;src/ts/jssm.ts&quot;],&quot;exclude&quot;:[],&quot;externalPattern&quot;:[&quot;**/node_modules/**&quot;],&quot;excludeExternals&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludeInternal&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs/docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;showConfig&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;logLevel&quot;:1,&quot;listInvalidSymbolLinks&quot;:false}-->
 		</div>
-		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class=" ">
-						<a href="modules.html">Exports</a>
-					</li>
-				</ul>
-			</nav>
+		<div class="col-2 col-menu secondary-menu">
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-has-type-parameter">
+					<li class=" tsd-kind-class tsd-has-type-parameter root">
 						<a href="classes/machine.html" class="tsd-kind-icon">Machine</a>
 					</li>
-					<li class=" tsd-kind-variable">
+					<li class=" tsd-kind-variable root">
 						<a href="modules.html#histograph" class="tsd-kind-icon">histograph</a>
 					</li>
-					<li class=" tsd-kind-variable">
+					<li class=" tsd-kind-variable root">
 						<a href="modules.html#seq" class="tsd-kind-icon">seq</a>
 					</li>
-					<li class=" tsd-kind-variable">
+					<li class=" tsd-kind-variable root">
 						<a href="modules.html#version" class="tsd-kind-icon">version</a>
 					</li>
-					<li class=" tsd-kind-variable">
+					<li class=" tsd-kind-variable root">
 						<a href="modules.html#weighted_histo_key" class="tsd-kind-icon">weighted_<wbr>histo_<wbr>key</a>
 					</li>
-					<li class=" tsd-kind-variable">
+					<li class=" tsd-kind-variable root">
 						<a href="modules.html#weighted_rand_select" class="tsd-kind-icon">weighted_<wbr>rand_<wbr>select</a>
 					</li>
-					<li class=" tsd-kind-variable">
+					<li class=" tsd-kind-variable root">
 						<a href="modules.html#weighted_sample_select" class="tsd-kind-icon">weighted_<wbr>sample_<wbr>select</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="modules.html#arrow_direction" class="tsd-kind-icon">arrow_<wbr>direction</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="modules.html#arrow_left_kind" class="tsd-kind-icon">arrow_<wbr>left_<wbr>kind</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="modules.html#arrow_right_kind" class="tsd-kind-icon">arrow_<wbr>right_<wbr>kind</a>
 					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
+					<li class=" tsd-kind-function tsd-has-type-parameter root">
 						<a href="modules.html#compile" class="tsd-kind-icon">compile</a>
 					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
+					<li class=" tsd-kind-function tsd-has-type-parameter root">
 						<a href="modules.html#make" class="tsd-kind-icon">make</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="modules.html#parse" class="tsd-kind-icon">parse</a>
 					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
+					<li class=" tsd-kind-function tsd-has-type-parameter root">
 						<a href="modules.html#sm" class="tsd-kind-icon">sm</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function root">
 						<a href="modules.html#transfer_state_properties" class="tsd-kind-icon">transfer_<wbr>state_<wbr>properties</a>
 					</li>
 				</ul>
@@ -968,18 +976,9 @@ EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
 	</div>
 </div>
 <footer class="with-border-bottom">
-	<div class="container">
-		<h2>Legend</h2>
-		<div class="tsd-legend-group">
-			<ul class="tsd-legend">
-				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
-				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
-			</ul>
-		</div>
-	</div>
 </footer>
 <div class="container tsd-generator">
-	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
 </div>
 <div class="overlay"></div>
 <script src="assets/js/main.js"></script>

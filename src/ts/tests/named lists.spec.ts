@@ -5,6 +5,11 @@ import * as jssm from '../jssm';
 
 
 
+// TODO these tests only assert non-crashing
+// That amn't very good, sah
+
+test.todo('Assert better than non-crashing in named lists.spec.ts');
+
 describe('named lists', () => {
 
   test('alone', () =>
