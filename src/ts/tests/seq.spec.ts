@@ -12,5 +12,3 @@ describe('seq/1', () => {
   test('(2) generates [0,1]', () => expect( jssm.seq(2) ).toEqual( [0,1] ) );
 
 });
-
-// stochable
