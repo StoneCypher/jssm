@@ -1,0 +1,44 @@
+machine_name     : "NSA Job Application Chart";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl, +blackeuler";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+flow: down;
+
+state MgmtMaterial : {
+  background-color : yellow;
+  text-color       : black;
+  shape            : star;
+  linestyle        : dashed;
+};
+state HireAsAgent : {
+  background-color : yellow;
+  text-color       : black;
+  shape            : star;
+  linestyle        : dashed;
+};
+
+
+Start -> FenceBuilding;
+FenceBuilding -> [ Solid Spaces Camera ];
+Camera -> SearchEngine;
+GoogleBing-> Reject;
+SearchEngine -> [ GoogleBing FriendsEmail XKeyStore ];
+XKeyStore -> SuckUp;
+FriendsEmail -> FavoriteMovieVillain;
+DarthVader-> Amateur;
+FavoriteMovieVillain -> [ DarthVader HannibalLecter ErinBrockovich ];
+HannibalLecter -> FBI;
+ErinBrockovich -> FavoriteGOTChar;
+FavoriteGOTChar -> [ NedStark AryaStark TheSpider ];
+Reject <- [ NedStark BlogWaterDMG Spaces Solid ];
+TheSpider -> LeakyPipe;
+LeakyPipe -> [ BlogWaterDMG HirePlumber HireCleanerElimPip];
+HirePlumber -> TooOldSchoolReject;
+HireCleanerElimPip -> BestSurvlMthd;
+BestSurvlMthd -> WatchHouseFrmCar -> TooOldSchoolReject;
+BestSurvlMthd -> GPSTrack -> [ ChildsPlay Facebook YouRNSAGod ];
+YouRNSAGod -> MgmtMaterial;
+Facebook -> HireAsAgent;

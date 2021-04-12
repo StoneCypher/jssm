@@ -1,4 +1,4 @@
-machine_name     : "Sequenttial Function Chart";
+machine_name     : "Sequential Function Chart";
 machine_author   : "MachinShin <machinshin@gmail.com>";
 machine_license  : MIT;
 machine_comment  : "#madewithfsl";
@@ -17,12 +17,12 @@ end_states       : ["End Batch"];
   => "Drain Reactor" 'Drain Reactor Complete' -> "Check Reactor";
 "Charge A (2000 lbs)" 'Charge A complete'
   -> "Charge B (5000 lbs)";
-  
+
 "Charge B (5000 lbs)" 'Charge B1 complete'
   => "Temp Control (100deg C)";
 "Charge B (5000 lbs" 'Charge B2 complete'
   => "Pressure Control (5 psig)";
-  
+
 "Temp Control (100deg C)" 'At temperature'
   => "Wait (120 minutes)";
 "Pressure Control (5 psig)" 'At pressure'
@@ -37,7 +37,7 @@ end_states       : ["End Batch"];
 
 "Discharge" 'Complete'
   => "End Batch";
-  
+
 state "Start Batch": {
   shape: rectangle;
   corners: rounded;
