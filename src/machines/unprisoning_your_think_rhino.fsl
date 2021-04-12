@@ -7,6 +7,9 @@ machine_version  : 1.0.0;
 fsl_version      : 1.0.0;
 flow: down;
 
+arrange [ Activity Choice ];
+arrange [ Time "Extra Time" ];
+
 Delivery -> [ Contestibility Improvulence ];
 
 Contestibility -> [ Bettering UnBettering ] -> Itself;
@@ -14,5 +17,5 @@ Contestibility -> [ Bettering UnBettering ] -> Itself;
 Improvulence -> [ Upsoar YesNess ] -> Itself;
 
 Precision -> Activity -> Time;
-Time -> ExtraTime;
-Precision -> Choice -> ExtraTime;
+Time <-> "Extra Time";
+Precision -> Choice -> "Extra Time";
