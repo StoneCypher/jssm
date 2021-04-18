@@ -1,0 +1,17 @@
+machine_name     : "The Punjabi Name Theory";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states     : [ Aman Kamal Jas Simran Gur Man Sal Nav Sukh ];
+end_states       : [ Singh Kaur ];
+
+flow: right;
+
+[ Aman Kamal Jas Simran Gur Man Sal Nav Sukh ]
+  -> [ Preet Meet Jot Winder Jeet Deep ]
+  -> [ Singh Kaur ];
+
