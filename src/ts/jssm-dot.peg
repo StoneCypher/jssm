@@ -521,8 +521,12 @@ ArrowItem
 SingleEdgeColor "single edge color"
   = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
 
+TransitionLineStyle "transition line style"
+  = WS? "linestyle" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
+
 ArrowItems
   = SingleEdgeColor
+  / TransitionLineStyle
   / ArrowItem+
 
 ArrowDesc
