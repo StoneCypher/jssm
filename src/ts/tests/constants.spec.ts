@@ -48,9 +48,9 @@ const NamedColors = ["AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure",
 
 
 
-const Themes = ["default", "ocean", "none", "modern"];
-
-const FlowDirections = ['up','down','left','right'];
+const Themes         = ['default', 'ocean', 'none', 'modern'],
+      FlowDirections = ['up','down','left','right'],
+      LineStyles     = ['solid', 'dotted', 'dashed'];
 
 
 
@@ -95,4 +95,4 @@ describe('Constants test lists', () => {
 
 
 
-export { NamedColors, Shapes, Themes, FlowDirections };
+export { NamedColors, Shapes, Themes, FlowDirections, LineStyles };
