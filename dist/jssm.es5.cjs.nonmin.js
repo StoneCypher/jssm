@@ -15736,7 +15736,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.36.2";
+const version = "5.37.0";
 
 // whargarbl lots of these return arrays could/should be sets
 /* eslint-disable complexity */

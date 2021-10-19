@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.36.2",
+  "version": "5.38.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -112,7 +112,7 @@
     "terser": "^4.6.11",
     "text_audit": "^0.9.3",
     "ts-jest": "^26.4.4",
-    "typedoc": "^0.20.16",
+    "typedoc": "^0.21.9",
     "typedoc-neo-theme": "^1.1.0",
     "typescript": "^4.1.3",
     "viz.js": "^1.7.1"
