@@ -88,6 +88,7 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "changelog-maker": "^2.3.2",
@@ -101,7 +102,6 @@
     "eslint-plugin-unicorn": "^15.0.1",
     "fast-check": "^2.12.0",
     "glob": "^7.1.6",
-    "jest": "^26.6.3",
     "pegjs": "^0.10.0",
     "rollup": "^1.32.1",
     "rollup-plugin-commonjs": "^9.3.4",
@@ -118,6 +118,7 @@
     "viz.js": "^1.7.1"
   },
   "dependencies": {
+    "jest": "^26.6.3",
     "reduce-to-639-1": "^1.0.4"
   }
 }
