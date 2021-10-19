@@ -8,7 +8,9 @@ Readable, useful state machines as one-liner strings.
 
 ***Meet your new state machine library.***
 
-<a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a>
+# <a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a>
+
+<a href="https://discord.gg/cPmDa4JBGS">Discord community</a>
 
 <br/><br/>
 
