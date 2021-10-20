@@ -39,7 +39,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
       run: |
-        npm install && npm run build && npm test
+        npm install && npm run ci_build
       env:
         CI: true
     - name: Coveralls GitHub Action
