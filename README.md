@@ -10,7 +10,7 @@ Readable, useful state machines as one-liner strings.
 
 # <a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a>
 
-<a href="https://discord.gg/cPmDa4JBGS">Discord community</a>
+<a href="https://discord.gg/cPmDa4JBGS">Discord community</a> - <a href="https://stonecypher.github.io/jssm/docs/">Documentation</a> - <a href="https://github.com/StoneCypher/fsl/issues">Issue tracker</a> - <a href="https://github.com/StoneCypher/jssm/actions">CI build history</a>
 
 <br/><br/>
 

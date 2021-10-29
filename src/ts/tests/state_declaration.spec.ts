@@ -182,13 +182,6 @@ describe('error catchery', () => {
       .toThrow()
   );
 
-  test.todo('These two catch the uncovered line on 656, but cause missing coverage errors on 803,936-952');
-
-  // test('Cannot generate an existing state', () =>
-  //   expect( () => { sm`a->c;state c:{};`._new_state({name:'c'} as any); } )
-  //     .toThrow()
-  // );
-
   test('Cannot generate an existing state', () =>
     expect( () => {
       const errM = sm`a->c;state c:{};`;
@@ -196,5 +189,26 @@ describe('error catchery', () => {
     } )
       .toThrow()
   );
+
+  test('Cannot generate an empty state name as string', () =>
+    expect( () => {
+      const errM = sm`state "":{};`;
+    } )
+      .toThrow()
+  );
+
+  describe('Cannot generate an empty state name as datastructure', () => {
+
+    const prestate = {
+      "start_states":["b"],
+      "transitions":[{"from":"b","to":"c","kind":"legal","forced_only":false,"main_path":false}],
+      "state_declaration":[{"state":""}]
+    };
+
+    test('throws', () =>
+      expect( () => { const _m0 = new jssm.Machine(prestate as any); } )
+        .toThrow() );
+
+  });
 
 });
