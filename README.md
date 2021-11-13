@@ -12,8 +12,6 @@ Readable, useful state machines as one-liner strings.
 
 <a href="https://discord.gg/9P95USqnMK">Discord community</a> - <a href="https://stonecypher.github.io/jssm/docs/">Documentation</a> - <a href="https://github.com/StoneCypher/fsl/issues">Issue tracker</a> - <a href="https://github.com/StoneCypher/jssm/actions">CI build history</a>
 
-![Discord community](https://discordapp.com/api/guilds/899910109642235924/widget.png?style=banner1)
-
 <br/><br/>
 
 Wouldn't it be nice if your TypeScript and Javascript state machines were simple and readable one-liners?
