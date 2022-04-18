@@ -32,7 +32,11 @@ if (semver.valid(public_version)) {
         } catch (e) {
 
           console.log("Error!\n=====\n");
+
           console.log( require('util').inspect(e) );
+          console.log( `${e.output[2]}` );
+
+          console.log("\n-----\n");
 
         }
 
