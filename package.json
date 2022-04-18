@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.40.0",
+  "version": "5.41.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -45,7 +45,7 @@
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/",
-    "docs": "typedoc src/ts/jssm.ts --out docs/docs --theme ./node_modules/typedoc-neo-theme/bin/default",
+    "docs": "typedoc src/ts/jssm.ts --out docs/docs",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md"
   },
   "repository": {
@@ -96,7 +96,6 @@
     "coveralls": "^3.0.11",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",
-    "eslint-plugin-jsdoc": "^36.1.1",
     "eslint-plugin-new-with-error": "^2.0.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.26.1",
@@ -114,8 +113,7 @@
     "terser": "^4.6.11",
     "text_audit": "^0.9.3",
     "ts-jest": "^27.0.7",
-    "typedoc": "^0.21.9",
-    "typedoc-neo-theme": "^1.1.0",
+    "typedoc": "^0.22.15",
     "typescript": "^4.1.3",
     "viz.js": "^1.7.1"
   },
