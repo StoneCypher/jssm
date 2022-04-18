@@ -50,6 +50,7 @@ jobs:
         path-to-lcov: ./coverage/spec/lcov.info
 
   verify-version-bump-then-release:
+    if: (github.event.pusher.name == github.event.repository.owner.name)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -58,7 +59,14 @@ jobs:
       with:
         node-version: 17.x
     - name: Verify the version was bumped
-      run: npm install && npm run ci_build && node ./src/buildjs/verify_version_bump.js
+      run: |
+        npm install
+        npm run ci_build
+        git config --global user.email "stonecypher@gmail.com"
+        git config --global user.name "John Haugeland through Github Actions"
+        node ./src/buildjs/verify_version_bump.js
+        export TAG=$(head -1 CHANGELOG.tmp | cut -d' ' -f2)
+        echo "TAG=$TAG" >> $GITHUB_ENV
     - name: Create the release
       uses: actions/create-release@v1
       env:
