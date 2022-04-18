@@ -19,14 +19,22 @@ if (semver.valid(public_version)) {
     } else {
       if (semver.gt(priv_version, public_version)) {
 
+        try {
 
-        console.log(`Version is updated; passing ☑\n  (public ${public_version}, private ${priv_version}\n\nApplying tags`);
-        execSync(`git tag -a v${priv_version} -m ${JSON.stringify(last_commit_msg)}`);
-        console.log(`  Committing`);
-        execSync(`git commit -m ${JSON.stringify(last_commit_msg)}`);
-        console.log(`  Pushing tags`);
-        execSync(`git push origin --tags`);
-        process.exit(0);
+          console.log(`Version is updated; passing ☑\n  (public ${public_version}, private ${priv_version}\n\nApplying tags`);
+          execSync(`git tag -a v${priv_version} -m ${JSON.stringify(last_commit_msg)}`);
+          console.log(`  Committing`);
+          execSync(`git commit -m ${JSON.stringify(last_commit_msg)}`);
+          console.log(`  Pushing tags`);
+          execSync(`git push origin --tags`);
+          process.exit(0);
+
+        } catch (e) {
+
+          console.log("Error!\n=====\n");
+          console.log( require('util').inspect(e) );
+
+        }
 
 
       } else {
