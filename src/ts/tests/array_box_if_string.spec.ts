@@ -25,7 +25,6 @@ describe('array_box_if_string/1', () => {
       expect( array_box_if_string(src) )
         .toEqual(dest) ) );
 
-
 });
 
 // stochable
