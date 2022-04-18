@@ -61,6 +61,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 17.x
+        registry-url: https://registry.npmjs.org/
 
     - name: Verify the version was bumped
       run: |
@@ -82,8 +83,6 @@ jobs:
 
     - name: Publish to npm
       run: |
-        echo '//registry.npmjs.org/:_authToken=${ NODE_AUTH_TOKEN }' > .npmrc
-        cat .npmrc
         npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
