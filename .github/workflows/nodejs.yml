@@ -3,6 +3,7 @@ name: Node CI
 on: [push]
 
 jobs:
+
   build:
 
     strategy:
@@ -47,3 +48,20 @@ jobs:
       with:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./coverage/spec/lcov.info
+
+  verify-version-bump:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js 17.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 17.x
+    - name: Verify the version was bumped
+      run: node ./src/buildjs/verify_version_bump.js
+
+  github-tag-and-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: TODO
+      run: echo TODO
