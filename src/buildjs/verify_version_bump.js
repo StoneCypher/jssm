@@ -23,7 +23,7 @@ if (semver.valid(public_version)) {
         console.log(`Version is updated; passing ☑\n  (public ${public_version}, private ${priv_version}\n\nApplying tags`);
         execSync(`git tag -a v${priv_version} -m ${JSON.stringify(last_commit_msg)}`);
         console.log(`  Pushing tags`);
-        execSync(`git push origin --tags`);
+        execSync(`git push gh-token --tags`);
         process.exit(0);
 
 
