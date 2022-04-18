@@ -7,7 +7,8 @@ const package          = readFileSync('./package.json'),
       pJson            = JSON.parse(package),
       priv_version     = pJson.version;
 
-const public_version   = `${execSync('npm view jssm version')}`.trim();
+const public_version   = `${execSync('npm view jssm version')}`.trim(),
+      last_commit_msg  = `${execSync('git show -s --format=%s')}`.trim().replace(/[^0-9a-z _\-=]/gi, '');
 
 
 
@@ -19,7 +20,10 @@ if (semver.valid(public_version)) {
       if (semver.gt(priv_version, public_version)) {
 
 
-        console.log(`Version is updated; passing ☑ (public ${public_version}, private ${priv_version}`);
+        console.log(`Version is updated; passing ☑\n  (public ${public_version}, private ${priv_version}\n\nApplying tags`);
+        execSync(`git tag -a v${priv_version} -m ${JSON.stringify(last_commit_msg)}`);
+        console.log(`  Pushing tags`);
+        execSync(`git push origin --tags`);
         process.exit(0);
 
 
