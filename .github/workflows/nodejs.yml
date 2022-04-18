@@ -62,10 +62,8 @@ jobs:
     - name: Verify the version was bumped
       run: |
         npm install
-        git config --global user.email "stonecypher@gmail.com"
+        git config --global user.email "stonecypher@users.noreply.github.com"
         git config --global user.name "John Haugeland through Github Actions"
-        git remote add gh-token "https://${{ secrets.GH_TOKEN }}@github.com/:user/:repo.git"
-        git fetch gh-token
         node ./src/buildjs/verify_version_bump.js
         export TAG=$(head -1 CHANGELOG.tmp | cut -d' ' -f2)
         echo "TAG=$TAG" >> $GITHUB_ENV
