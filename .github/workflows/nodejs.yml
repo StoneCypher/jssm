@@ -51,6 +51,7 @@ jobs:
 
   verify-version-bump-then-release:
     if: (github.event.pusher.name == github.event.repository.owner.name)
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -61,7 +62,6 @@ jobs:
     - name: Verify the version was bumped
       run: |
         npm install
-        npm run ci_build
         git config --global user.email "stonecypher@gmail.com"
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.js
