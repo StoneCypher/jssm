@@ -58,7 +58,7 @@ jobs:
       with:
         node-version: 17.x
     - name: Verify the version was bumped
-      run: node ./src/buildjs/verify_version_bump.js
+      run: npm install && npm run ci_build && node ./src/buildjs/verify_version_bump.js
     - name: Create the release
       uses: actions/create-release@v1
       env:
