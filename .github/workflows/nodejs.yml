@@ -65,7 +65,7 @@ jobs:
         git config --global user.email "stonecypher@users.noreply.github.com"
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.js
-        export TAG=$(head -1 CHANGELOG.tmp | cut -d' ' -f2)
+        export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
         echo "TAG=$TAG" >> $GITHUB_ENV
     - name: Create the release
       uses: actions/create-release@v1
@@ -74,4 +74,4 @@ jobs:
       with:
         tag_name: ${{ env.TAG }}
         release_name: ${{ env.TAG }}
-        body_path: CHANGELOG.tmp
+        body_path: CHANGELOG.md
