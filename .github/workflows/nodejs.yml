@@ -82,6 +82,5 @@ jobs:
 
     - name: Publish to npm
       run: |
+        echo '//registry.npmjs.org/:_authToken=${ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }' > .npmrc
         npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
