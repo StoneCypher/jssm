@@ -92,7 +92,7 @@
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
-    "benny": "^3.6.15",
+    "benny": "^3.7.1",
     "changelog-maker": "^2.3.2",
     "coveralls": "^3.0.11",
     "eslint": "^7.32.0",
