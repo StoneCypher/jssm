@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1650385543249" width="16" height="9"></canvas>
+      <canvas id="chart1650391201657" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1650385543249 = document
-        .getElementById('chart1650385543249')
+      const ctx1650391201657 = document
+        .getElementById('chart1650391201657')
         .getContext('2d')
-      const chart1650385543249 = new Chart(ctx1650385543249, {
+      const chart1650391201657 = new Chart(ctx1650391201657, {
         type: 'bar',
         data: {
           labels: ["Blind cycle a traffic light 500 times by transition","Blind cycle a traffic light 500 times by action"],
           datasets: [
             {
-              data: [11753,9261],
-              backgroundColor: ["hsl(120, 85%, 55%)","hsl(94.55999999999999, 85%, 55%)"],
-              borderColor: ["hsl(120, 85%, 55%)","hsl(94.55999999999999, 85%, 55%)"],
+              data: [9926,8693],
+              backgroundColor: ["hsl(120, 85%, 55%)","hsl(105.096, 85%, 55%)"],
+              borderColor: ["hsl(120, 85%, 55%)","hsl(105.096, 85%, 55%)"],
               borderWidth: 2,
             },
           ],

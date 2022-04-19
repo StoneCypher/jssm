@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.41.15",
+  "version": "5.42.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -39,8 +39,9 @@
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
-    "build": "npm run vet && npm run test && npm run site && npm run docs",
-    "ci_build": "npm run vet && npm run test",
+    "benny": "node ./src/buildjs/benchmark.js",
+    "build": "npm run vet && npm run test && npm run site && npm run docs && npm run benny",
+    "ci_build": "npm run vet && npm run test && npm run benny",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
