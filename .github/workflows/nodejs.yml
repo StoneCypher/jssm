@@ -9,11 +9,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - node-version: 17.x   # fastest, so run first, to error fast
+          - node-version: 18.x   # fastest, so run first, to error fast
             os: ubuntu-latest
-          - node-version: 17.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
+          - node-version: 18.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
             os: macos-latest
-          - node-version: 17.x   # finish check big-3 on latest current
+          - node-version: 18.x   # finish check big-3 on latest current
             os: windows-latest
           - node-version: 10.x  # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
             os: ubuntu-latest
@@ -28,6 +28,8 @@ jobs:
           - node-version: 15.x
             os: ubuntu-latest
           - node-version: 16.x
+            os: ubuntu-latest
+          - node-version: 17.x
             os: ubuntu-latest
 
     runs-on: ${{matrix.os}}
@@ -50,7 +52,7 @@ jobs:
         path-to-lcov: ./coverage/spec/lcov.info
 
   verify-version-bump-then-release:
-    if: (github.event.pusher.name == github.event.repository.owner.name)
+    if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
     needs: build
     runs-on: ubuntu-latest
 
