@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import * as fc     from 'fast-check';
 import * as jssm   from '../jssm';
 
-const rand_cap = 100_000;
+const rand_cap = 10_000;
 
 
 

@@ -1,0 +1,28 @@
+machine_name: "Problem Solving Flowchart";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "Problem Solving Flowchart";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states     : [];
+end_states       : [ "NO PROBLEM!"];
+
+
+
+ "Does the damn thing work?" 'YES' -> "Don't screw with it";
+ "Does the damn thing work?" 'NO' -> "Did you screw with it?" 'NO' -> "Will you catch hell?";
+ 
+ "Did you screw with it?" 'YES' -> "You dumb idiot" -> "Does anyone know?" 'NO' -> "HIDE IT!" -> "NO PROBLEM!";
+ 
+"Does anyone know?" 'YES' -> "You poor fool"  -> "Can you blame someone else?" 'YES, YES!!' -> "NO PROBLEM!";
+
+
+"Don't screw with it" -> "NO PROBLEM!";
+
+"Will you catch hell?" 'NO' -> "SHIT-CAN IT";
+"Will you catch hell?" 'YES' -> "You poor fool";
+"SHIT-CAN IT" -> "NO PROBLEM!";
+"Can you blame someone else?" 'NO' -> "You poor fool";
+

@@ -1,0 +1,49 @@
+machine_name     : "Unit Chains";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+flow: down;
+
+start_states: [ twip ];
+end_states: [ league spindle mile "Roman mile" finger ];
+
+arrange [ digit finger inch stick ];
+arrange [ span link shaftment foot hand ];
+arrange [ "Ramsden's chain" "Gunter's chain" shackle ];
+arrange [ skein furlong cable ];
+arrange [ "Roman mile" mile "nautic mile" ];
+arrange [ spindle league ];
+
+link '25' -> "rod, pole, perch";
+twip '20' -> point;
+
+point '12' -> pica;
+point '6' -> line '1' -> poppyseed '4' -> barleycorn '3' -> inch '2'
+  -> stick '2' -> hand;
+point '63' -> finger;
+pica '6' -> inch;
+inch '7/8' -> finger;
+inch '12' -> foot;
+hand '3' -> foot;
+line '12' -> inch;
+inch '3' -> palm;
+digit '3' -> nail '4' -> span '5' -> ell '96' -> skein '120' -> spindle;
+digit '4' -> palm '3' -> span;
+span '2' -> cubit;
+palm '2' -> shaftment '3' -> cubit;
+shaftment '2' -> foot;
+shaftment '5' -> pace '2' -> "grade, step" '4' -> rope '5'
+  -> "Ramsden's chain" '50' -> "Roman mile";
+
+cubit '2' -> yard '1760' -> mile;
+cubit '11' -> "rod, pole, perch" '4' -> "Gunter's chain" '10'
+  -> furlong '8' -> mile;
+yard '2' -> fathom '11' -> "Gunter's chain";
+fathom '100' -> cable '10' -> "nautic mile";
+fathom '15' -> shackle;
+foot '6080' -> "nautic mile";
+"nautic mile" '3' -> league;
+

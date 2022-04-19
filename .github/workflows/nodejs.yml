@@ -1,18 +1,19 @@
-name: Node CI
+name: Full publish pipeline
 
 on: [push]
 
 jobs:
+
   build:
 
     strategy:
       matrix:
         include:
-          - node-version: 15.x   # fastest, so run first, to error fast
+          - node-version: 17.x   # fastest, so run first, to error fast
             os: ubuntu-latest
-          - node-version: 15.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
+          - node-version: 17.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
             os: macos-latest
-          - node-version: 15.x   # finish check big-3 on latest current
+          - node-version: 17.x   # finish check big-3 on latest current
             os: windows-latest
           - node-version: 10.x  # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
             os: ubuntu-latest
@@ -23,6 +24,10 @@ jobs:
           - node-version: 13.x
             os: ubuntu-latest
           - node-version: 14.x
+            os: ubuntu-latest
+          - node-version: 15.x
+            os: ubuntu-latest
+          - node-version: 16.x
             os: ubuntu-latest
 
     runs-on: ${{matrix.os}}
@@ -35,7 +40,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
       run: |
-        npm install && npm run build && npm test
+        npm install && npm run ci_build
       env:
         CI: true
     - name: Coveralls GitHub Action
@@ -43,3 +48,41 @@ jobs:
       with:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./coverage/spec/lcov.info
+
+  verify-version-bump-then-release:
+    if: (github.event.pusher.name == github.event.repository.owner.name)
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 17.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 17.x
+        registry-url: https://registry.npmjs.org/
+
+    - name: Verify the version was bumped
+      run: |
+        npm install
+        git config --global user.email "stonecypher@users.noreply.github.com"
+        git config --global user.name "John Haugeland through Github Actions"
+        node ./src/buildjs/verify_version_bump.js
+        export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
+        echo "TAG=$TAG" >> $GITHUB_ENV
+
+    - name: Create the release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.TAG }}
+        release_name: ${{ env.TAG }}
+        body_path: CHANGELOG.md
+
+    - name: Publish to npm
+      run: |
+        npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}

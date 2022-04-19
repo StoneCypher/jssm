@@ -1,0 +1,20 @@
+machine_name     : "Why/because analysis, I broke my wrist";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+flow: up;
+
+end_states: [ "I broke my wrist" ];
+
+"I was thinking about\n a blog post I'm writing" -> "I was distracted";
+"I was almost hit\n by a car just prior" -> "I was distracted";
+"I was distracted" -> "I wasn't looking where I was going" -> "I hit a pothole";
+"I hit a pothole" -> "I fell off my bike" -> "I broke my wrist";
+"I haven't had\n time to replace them" -> "My brakes were worn down"
+  -> "I wasn't able to stop in time" -> "I hit a pothole";
+"Tax receipts are down" -> "The city does not \nhave money to repair it"
+  -> "The road is worn out" -> "I hit a pothole";
+

@@ -1,0 +1,54 @@
+machine_name     : "Sequential Function Chart";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+start_states     : ["Start Batch"];
+end_states       : ["End Batch"];
+
+"Start Batch" => "Check Reactor";
+
+"Check Reactor" 'Empty'
+  -> "Charge A (2000 lbs)";
+"Check Reactor" 'Not Empty'
+  => "Drain Reactor" 'Drain Reactor Complete' -> "Check Reactor";
+"Charge A (2000 lbs)" 'Charge A complete'
+  -> "Charge B (5000 lbs)";
+
+"Charge B (5000 lbs)" 'Charge B1 complete'
+  => "Temp Control (100deg C)";
+"Charge B (5000 lbs" 'Charge B2 complete'
+  => "Pressure Control (5 psig)";
+
+"Temp Control (100deg C)" 'At temperature'
+  => "Wait (120 minutes)";
+"Pressure Control (5 psig)" 'At pressure'
+  => "Wait (120 minutes)";
+
+"Wait (120 minutes)" -> "Sample";
+
+"Sample" 'Good'
+  => "Discharge";
+"Sample" 'Bad'
+  -> "Wait (120 minutes)";
+
+"Discharge" 'Complete'
+  => "End Batch";
+
+state "Start Batch": {
+  shape: rectangle;
+  corners: rounded;
+  background-color: limegreen;
+  text-color: white;
+  linestyle: dashed;
+};
+state "End Batch": {
+  shape: rectangle;
+  corners: rounded;
+  background-color: skyblue;
+  text-color: black;
+  linestyle: dashed;
+};

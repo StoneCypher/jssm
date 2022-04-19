@@ -4,11 +4,15 @@ Document
 
 
 
+
+
 Theme
   = "none"
   / "default"
   / "modern"
   / "ocean"
+
+
 
 
 
@@ -281,6 +285,10 @@ NonNegNumber "nonneg number"
   = IntegerLiteral "." DecimalDigit* WS? { return parseFloat(text()); }
   / IntegerLiteral                   WS? { return parseFloat(text()); }
 
+
+
+
+
 SemVer
   = major:IntegerLiteral "." minor:IntegerLiteral "." patch:IntegerLiteral
   { return {
@@ -303,6 +311,10 @@ SemVerRule
 
 SemVerRange
   = SemVerRule SemVerRule?
+
+
+
+
 
 UrlProtocol
   = 'http://'
@@ -521,8 +533,12 @@ ArrowItem
 SingleEdgeColor "single edge color"
   = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
 
+TransitionLineStyle "transition line style"
+  = WS? "linestyle" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
+
 ArrowItems
   = SingleEdgeColor
+  / TransitionLineStyle
   / ArrowItem+
 
 ArrowDesc
@@ -530,6 +546,8 @@ ArrowDesc
 
 ArrowProbability
   = value:NonNegNumber "%" { return { key: 'arrow probability', value: value }; }
+
+
 
 
 
@@ -554,6 +572,8 @@ ArrowTarget
   / Cycle
   / LabelList
   / Label
+
+
 
 
 
@@ -586,12 +606,16 @@ Subexp
 
 
 
+
+
 Exp
   = label:ArrowTarget se:Subexp WS? ';' WS? {
     const base: any = { key: 'transition', from: label };
     if (se && (se !== [])) { base.se = se; }
     return base;
   }
+
+
 
 
 
@@ -609,6 +633,8 @@ ConfigValidation
   = WS? "validation" WS? ":" WS? "{" WS? validation_items:ValidationItems? WS? "};" WS? {
     return { config_kind: "validation", config_items: validation_items || [] };
   }
+
+
 
 
 
@@ -652,6 +678,8 @@ ConfigAnyState
 
 
 
+
+
 ActionKey
   = "whargarbl"
   / "todo"
@@ -666,6 +694,8 @@ ConfigAction
   = WS? "action" WS? ":" WS? "{" WS? action_items:ActionItems? WS? "};" WS? {
     return { config_kind: "action", config_items: action_items || [] };
   }
+
+
 
 
 
@@ -690,6 +720,8 @@ ConfigTransition
 
 
 
+
+
 ConfigGraphLayout
   = WS? "graph_layout"   WS? ":" WS? value:GvizLayout WS? ";" WS? { return {key:"graph_layout",   value:value}; }
 
@@ -704,6 +736,8 @@ ConfigGraphBgColor
 
 
 
+
+
 Config "configuration"
   = ConfigGraphLayout
   / ConfigStartNodes
@@ -713,6 +747,8 @@ Config "configuration"
   / ConfigAnyState
   / ConfigValidation
   / ConfigGraphBgColor
+
+
 
 
 
@@ -729,7 +765,9 @@ LicenseOrLabelOrList
   / 'LGPL v3.0'
   / 'Unknown'
   / Label
-  / LabelList
+  / LabelList;
+
+
 
 
 
@@ -737,7 +775,17 @@ Direction "direction"
   = "up"
   / "right"
   / "down"
-  / "left"
+  / "left";
+
+
+
+
+
+HookDefinition "hook definition (open/closed)"
+  = "open"
+  / "closed";
+
+
 
 
 
@@ -777,8 +825,12 @@ MachineTheme
 MachineFlow
   = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }
 
+MachineHookDefinition
+  = WS? "hooks"               WS? ":" WS? value:HookDefinition       WS? ";" WS? { return { key: "hook_definition", value }; }
+
 DotPreamble
   = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? { return { key: "dot_preamble", value }; }
+
 
 MachineAttribute "machine attribute"
   = FslVersion
@@ -793,6 +845,8 @@ MachineAttribute "machine attribute"
   / MachineTheme
   / DotPreamble
   / MachineFlow
+  / MachineHookDefinition
+
 
 
 

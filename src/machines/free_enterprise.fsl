@@ -1,0 +1,75 @@
+machine_name     : "Why/because analysis - Free Enterprise";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+
+end_states     : ["(1)\nHerald of Free Enterprise capsizes" ];
+//start_states    : [];
+
+flow: up;
+
+[
+ "(14)\nDesign of bow door to open and close horizontally"
+ "(15)\nPosition of Master on the bridge"
+] -> "(11)\nMaster cannot see if bow doors are closed or open";
+
+"(21)\nCost of high capacity pump considered prohibitively high"
+  -> "(20)\nRequest for high capacity pump not fulfilled";
+
+[
+  "(12)\nIt was common practice to assume that the bow doors are closed unless they were reported to be open"
+  "(13)\nThere was no indicator on the bridge to show the state of the bow doors"
+  "(11)\nMaster cannot see if bow doors are closed or open"
+] -> "(10)\nMaster assumes that bow doors are closed";
+
+"(10)\nMaster assumes that bow doors are closed"
+  -> "(9)\nMaster increases speed of ship passing outer mole";
+
+[
+  "(18)\nCapacity of ballast tanks too low"
+  "(20)\nRequest for high capacity pump not fulfilled"
+  "(19)\nTime Pressure"
+] -> "(17)\nNot all water is pumped from the ballast tanks before leaving port";
+
+[
+  "(24)\nOfficer loading car deck did not ensure that bow doors were securely closed on leaving port\n(in violation of an instruction issued in 1984)"
+  "(23)\nAssistant Bosun does not close bow doors"
+] -> "(22)\nBow doors are not closed on the way to the other mole" -> "(6)\nBow doors are open";
+
+"(4)\nWater flows into main car deck" <- [
+  "(6)\nBow doors are open"
+  "(7)\nBow wave rises above bow spade"
+];
+
+[
+  "(4)\nWater flows into main car deck"
+  "5)\nNo subdividing bulk heads on the lower car deck"
+] -> "(3)\nWater enters the lower car deck"
+  -> "(2)\nHerald of Free Enterprise becomes unstable"
+  -> "(1)\nHerald of Free Enterprise capsizes";
+
+[
+  "(17)\nNot all water is pumped from the ballast tanks before leaving port"
+  "(16)\nWater is pumped into ballast tanks for car loading"
+] -> "(18)\nHerald of Free Enterprise is trimmed 'bow low'";
+
+[
+  "(18)\nHerald of Free Enterprise is trimmed 'bow low'"
+  "(9)\nMaster increases speed of ship passing outer mole"
+] -> "(7)\nBow wave rises above bow spade";
+
+[
+  "(27)\nAssistent Bosun is relieved from supervision by Bosun"
+  "(28)\nAssistant Bosun is tired"
+] -> "(20)\nAssistant Bosun is asleep in his cabin";
+
+[
+  "(20)\nAssistant Bosun is asleep in his cabin"
+  "(26)\nAssistant Bosun does not wake on harbor station call"
+] -> "(23)\nAssistant Bosun does not close bow doors";
+
+
+

@@ -1,986 +1,850 @@
-<!doctype html>
-<html class="default no-js">
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>jssm</title>
-	<meta name="description" content="">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="assets/css/main.css">
-</head>
-<body>
-<header>
-	<div class="tsd-page-toolbar">
-		<div class="container">
-			<div class="table-wrap">
-				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
-					<div class="field">
-						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
-						<input id="tsd-search-field" type="text" />
-					</div>
-					<ul class="results">
-						<li class="state loading">Preparing search index...</li>
-						<li class="state failure">The search index is not available</li>
-					</ul>
-					<ul class="results-priority" style="display:none">
-					</ul>
-					<a href="index.html" class="title">jssm</a>
-				</div>
-				<div class="table-cell" id="tsd-widgets">
-					<div id="tsd-filter">
-						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
-						<div class="tsd-filter-group">
-							<div class="tsd-select" id="tsd-filter-visibility">
-								<span class="tsd-select-label">All</span>
-								<ul class="tsd-select-list">
-									<li data-value="public">Public</li>
-									<li data-value="protected">Public/Protected</li>
-									<li data-value="private" class="selected">All</li>
-								</ul>
-							</div>
-							<input type="checkbox" id="tsd-filter-inherited" checked />
-							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-externals" checked />
-							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
-						</div>
-					</div>
-					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="tsd-page-title">
-		<div class="container">
-			<ul class="tsd-breadcrumb">
-			</ul>
-		</div>
-	</div>
-</header>
-<div class="container container-main">
-	<div class="row">
-		<div class="col-3 col-menu menu-sticky-wrap menu-highlight">
-			<nav class="tsd-navigation primary">
-				<ul>
-					<li class=" ">
-						<a href="modules.html">Exports</a>
-					</li>
-				</ul>
-			</nav>
-		</div>
-		<div class="col-7 offset-3 col-content">
-			<h1>Project jssm</h1>
-			<div class="tsd-panel tsd-typography">
-				<a href="#jssm" id="jssm" style="color: inherit; text-decoration: none;">
-					<h1>jssm</h1>
-				</a>
-				<p>Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
-					tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
-				share online.  Easy to embed.</p>
-				<p>Readable, useful state machines as one-liner strings.</p>
-				<p><strong><em>Meet your new state machine library.</em></strong></p>
-				<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a></p>
-				<p><br/><br/></p>
-				<p>Wouldn&#39;t it be nice if your TypeScript and Javascript state machines were simple and readable one-liners?</p>
-				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">sm</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;jssm&#039;</span><span style="color: #000000">;</span>
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>jssm</title><meta name="description" content="Documentation for jssm"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">jssm</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>jssm </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#jssm" id="jssm" style="color: inherit; text-decoration: none;">
+  <h1>jssm</h1>
+</a>
+<p>Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
+tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
+share online.  Easy to embed.</p>
+<p>Readable, useful state machines as one-liner strings.</p>
+<p><em><strong>Meet your new state machine library.</strong></em></p>
 
-<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red -&gt; Green -&gt; Yellow -&gt; Red;`</span><span style="color: #000000">;</span>
+<a href="#try-the-live-editor" id="try-the-live-editor" style="color: inherit; text-decoration: none;">
+  <h1><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a></h1>
+</a>
+<p><a href="https://discord.gg/9P95USqnMK">Discord community</a> - <a href="https://stonecypher.github.io/jssm/docs/">Documentation</a> - <a href="https://github.com/StoneCypher/fsl/issues">Issue tracker</a> - <a href="https://github.com/StoneCypher/jssm/actions">CI build history</a></p>
+<p><a href="https://discord.gg/9P95USqnMK"><img src="https://discordapp.com/api/guilds/899910109642235924/widget.png?style=banner1" alt="Discord community"></a></p>
+<p><br/><br/></p>
+<p>Wouldn&#39;t it be nice if your TypeScript and Javascript state machines were simple and readable one-liners?</p>
+<pre><code class="language-javascript"><span class="hl-0">import</span><span class="hl-1"> { </span><span class="hl-2">sm</span><span class="hl-1"> } </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&#39;jssm&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">TrafficLight</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`Red -&gt; Green -&gt; Yellow -&gt; Red;`</span><span class="hl-1">;</span>
 </code></pre>
-				<br/>
-				<p>Wouldn&#39;t it be great if they were easy to work with?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">log</span><span style="color: #000000"> = </span><span style="color: #001080">s</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">log</span><span style="color: #000000">(</span><span style="color: #001080">s</span><span style="color: #000000">);</span>
+<br/>
 
-<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Red&#039;</span>
-
-<span style="color: #001080">Machine</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Green&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
-<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Green&#039;</span>
+<p>Wouldn&#39;t it be great if they were easy to work with?</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-6">log</span><span class="hl-1"> = </span><span class="hl-2">s</span><span class="hl-1"> </span><span class="hl-4">=&gt;</span><span class="hl-1"> </span><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-6">log</span><span class="hl-1">(</span><span class="hl-2">s</span><span class="hl-1">);</span><br/><br/><span class="hl-6">log</span><span class="hl-1">( </span><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">state</span><span class="hl-1">() );  </span><span class="hl-7">// &#39;Red&#39;</span><br/><br/><span class="hl-2">Machine</span><span class="hl-1">.</span><span class="hl-6">transition</span><span class="hl-1">(</span><span class="hl-3">&#39;Green&#39;</span><span class="hl-1">);  </span><span class="hl-7">// true</span><br/><span class="hl-6">log</span><span class="hl-1">( </span><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">state</span><span class="hl-1">() );  </span><span class="hl-7">// &#39;Green&#39;</span>
 </code></pre>
-				<br/>
-				<p>What if the notation supported action names easily?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithActions</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red &#039;next&#039; -&gt; Green &#039;next&#039; -&gt; Yellow &#039;next&#039; -&gt; Red;`</span><span style="color: #000000">;</span>
+<br/>
 
-<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Red&#039;</span>
-
-<span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">action</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;next&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
-<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Green&#039;</span>
-
-<span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">action</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;next&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
-<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Yellow&#039;</span>
-
-<span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">action</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;next&#039;</span><span style="color: #000000">);  </span><span style="color: #008000">// true</span>
-<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">TrafficLightWithActions</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );  </span><span style="color: #008000">// &#039;Red&#039;</span>
+<p>What if the notation supported action names easily?</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">TrafficLightWithActions</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`Red &#39;next&#39; -&gt; Green &#39;next&#39; -&gt; Yellow &#39;next&#39; -&gt; Red;`</span><span class="hl-1">;</span><br/><br/><span class="hl-6">log</span><span class="hl-1">( </span><span class="hl-2">TrafficLightWithActions</span><span class="hl-1">.</span><span class="hl-6">state</span><span class="hl-1">() );  </span><span class="hl-7">// &#39;Red&#39;</span><br/><br/><span class="hl-2">TrafficLightWithActions</span><span class="hl-1">.</span><span class="hl-6">action</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);  </span><span class="hl-7">// true</span><br/><span class="hl-6">log</span><span class="hl-1">( </span><span class="hl-2">TrafficLightWithActions</span><span class="hl-1">.</span><span class="hl-6">state</span><span class="hl-1">() );  </span><span class="hl-7">// &#39;Green&#39;</span><br/><br/><span class="hl-2">TrafficLightWithActions</span><span class="hl-1">.</span><span class="hl-6">action</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);  </span><span class="hl-7">// true</span><br/><span class="hl-6">log</span><span class="hl-1">( </span><span class="hl-2">TrafficLightWithActions</span><span class="hl-1">.</span><span class="hl-6">state</span><span class="hl-1">() );  </span><span class="hl-7">// &#39;Yellow&#39;</span><br/><br/><span class="hl-2">TrafficLightWithActions</span><span class="hl-1">.</span><span class="hl-6">action</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);  </span><span class="hl-7">// true</span><br/><span class="hl-6">log</span><span class="hl-1">( </span><span class="hl-2">TrafficLightWithActions</span><span class="hl-1">.</span><span class="hl-6">state</span><span class="hl-1">() );  </span><span class="hl-7">// &#39;Red&#39;</span>
 </code></pre>
-				<br/>
-				<p>What if the machine followed JS standards, and distinguished refusals as <code>false</code> from mistakes as <code>throw</code>n?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">AnotherTrafficLight</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`Red -&gt; Green -&gt; Yellow -&gt; Red;`</span><span style="color: #000000">;</span>
+<br/>
 
-<span style="color: #795E26">log</span><span style="color: #000000">( </span><span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">state</span><span style="color: #000000">() );         </span><span style="color: #008000">// &#039;Red&#039; - uses 1st state unless told otherwise</span>
-<span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Yellow&#039;</span><span style="color: #000000">);   </span><span style="color: #008000">// false (Yellow isn&#039;t allowed from Red)</span>
-<span style="color: #001080">AnotherTrafficLight</span><span style="color: #000000">.</span><span style="color: #795E26">transition</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;Blue&#039;</span><span style="color: #000000">);     </span><span style="color: #008000">// throws (Blue isn&#039;t a state at all)</span>
+<p>What if the machine followed JS standards, and distinguished refusals as <code>false</code> from mistakes as <code>throw</code>n?</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">AnotherTrafficLight</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`Red -&gt; Green -&gt; Yellow -&gt; Red;`</span><span class="hl-1">;</span><br/><br/><span class="hl-6">log</span><span class="hl-1">( </span><span class="hl-2">AnotherTrafficLight</span><span class="hl-1">.</span><span class="hl-6">state</span><span class="hl-1">() );         </span><span class="hl-7">// &#39;Red&#39; - uses 1st state unless told otherwise</span><br/><span class="hl-2">AnotherTrafficLight</span><span class="hl-1">.</span><span class="hl-6">transition</span><span class="hl-1">(</span><span class="hl-3">&#39;Yellow&#39;</span><span class="hl-1">);   </span><span class="hl-7">// false (Yellow isn&#39;t allowed from Red)</span><br/><span class="hl-2">AnotherTrafficLight</span><span class="hl-1">.</span><span class="hl-6">transition</span><span class="hl-1">(</span><span class="hl-3">&#39;Blue&#39;</span><span class="hl-1">);     </span><span class="hl-7">// throws (Blue isn&#39;t a state at all)</span>
 </code></pre>
-				<br/>
-				<p>What if there were easy convenience notations for lists, and for designating main-path <code>=&gt;</code> vs available path <code>-&gt;</code> vs
-				only-when-forced <code>~&gt;</code> ?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithOff</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
-<span style="color: #A31515">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span>
-<span style="color: #A31515">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span>
-<span style="color: #A31515">`</span><span style="color: #000000">;</span>
+<br/>
+
+<p>What if there were easy convenience notations for lists, and for designating main-path <code>=&gt;</code> vs available path <code>-&gt;</code> vs
+only-when-forced <code>~&gt;</code> ?</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">TrafficLightWithOff</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`</span><br/><span class="hl-3">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span><br/><span class="hl-3">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span><br/><span class="hl-3">`</span><span class="hl-1">;</span>
 </code></pre>
-				<br/>
-				<p>What if that were easy to render visually?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithOff</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
-<span style="color: #A31515">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span>
-<span style="color: #A31515">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span>
-<span style="color: #A31515">`</span><span style="color: #000000">;</span>
+<br/>
+
+<p>What if that were easy to render visually?</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">TrafficLightWithOff</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`</span><br/><span class="hl-3">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span><br/><span class="hl-3">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span><br/><span class="hl-3">`</span><span class="hl-1">;</span>
 </code></pre>
-				<br/>
-				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20unstyled.png"/>
-				<br/>
-				<p>What if that were easy to render visually, with styling, in PNG, JPEG, or SVG?</p>
-				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">TrafficLightWithOff</span><span style="color: #000000"> = </span><span style="color: #795E26">sm</span><span style="color: #A31515">`</span>
-<span style="color: #A31515">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span>
-<span style="color: #A31515">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span>
+<br/>
 
-<span style="color: #A31515">  flow: left;</span>
+<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20unstyled.png"/>
 
-<span style="color: #A31515">  state Red    : { background-color: pink;        corners: rounded; };</span>
-<span style="color: #A31515">  state Yellow : { background-color: lightyellow; corners: rounded; };</span>
-<span style="color: #A31515">  state Green  : { background-color: lightgreen;  corners: rounded; };</span>
+<br/>
 
-<span style="color: #A31515">  state Off : {</span>
-<span style="color: #A31515">    background-color : steelblue;</span>
-<span style="color: #A31515">    text-color       : white;</span>
-<span style="color: #A31515">    shape            : octagon;</span>
-<span style="color: #A31515">    linestyle        : dashed;</span>
-<span style="color: #A31515">  };</span>
-<span style="color: #A31515">`</span><span style="color: #000000">;</span>
+<p>What if that were easy to render visually, with styling, in PNG, JPEG, or SVG?</p>
+<pre><code class="language-javascript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">TrafficLightWithOff</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`</span><br/><span class="hl-3">  Red =&gt; Green =&gt; Yellow =&gt; Red;</span><br/><span class="hl-3">  [Red Yellow Green] ~&gt; Off -&gt; Red;</span><br/><br/><span class="hl-3">  flow: left;</span><br/><br/><span class="hl-3">  state Red    : { background-color: pink;        corners: rounded; };</span><br/><span class="hl-3">  state Yellow : { background-color: lightyellow; corners: rounded; };</span><br/><span class="hl-3">  state Green  : { background-color: lightgreen;  corners: rounded; };</span><br/><br/><span class="hl-3">  state Off : {</span><br/><span class="hl-3">    background-color : steelblue;</span><br/><span class="hl-3">    text-color       : white;</span><br/><span class="hl-3">    shape            : octagon;</span><br/><span class="hl-3">    linestyle        : dashed;</span><br/><span class="hl-3">  };</span><br/><span class="hl-3">`</span><span class="hl-1">;</span>
 </code></pre>
-				<br/>
-				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png"/>
-				<br/>
-				<p>What if the machine was lighting fast, able to do tens of millions of transitions per second?</p>
-				<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/speed%20claim.png"/>
-				<br/>
-				<ul>
-					<li>What if the machine and language had <a href="https://coveralls.io/github/StoneCypher/jssm">extensive 100% test coverage</a>
-					with <a href="https://github.com/StoneCypher/jssm/tree/main/src/ts/tests">thousands of cases</a>?</li>
-					<li>What if the machine gave extensive Typescript introspection support?</li>
-					<li>What if the machine had been around and active since May 2017?</li>
-					<li>What if the machine was MIT licensed, end to end?</li>
-				</ul>
-				<p>But, above all else:</p>
-				<p><code>What if it was easy?</code></p>
-				<p><br/><br/></p>
-				<a href="#introducing-jssm" id="introducing-jssm" style="color: inherit; text-decoration: none;">
-					<h1>Introducing JSSM</h1>
-				</a>
-				<p>Meet JSSM: the <b><u>J</u></b>ava<b><u>s</u></b>cript <b><u>S</u></b>tate <b><u>M</u></b>achine.</p>
-				<p>State machines can make your code cleaner, safer, and more trustworthy.</p>
-				<p>And, with the right language, state machines can be easy and fun.</p>
-				<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a></p>
-				<br/>
-				<a href="#what-is-jssm" id="what-is-jssm" style="color: inherit; text-decoration: none;">
-					<h2>What is JSSM?</h2>
-				</a>
-				<p>JSSM is a Javascript state machine implementing <a href="https://fsl.tools/">Finite State Language</a>, with a terse DSL and a simple API.
-				100% test coverage; typed with Flowtype.  MIT licensed.</p>
-				<p>The NPM package includes pure <code>es6</code>, a <code>cjs es5</code> bundle, and <code>.d.ts</code> typings.  The repository includes the original typescript, the bundle, the es6, documentation, tests, tutorials, and so on.</p>
-				<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html">Try it live!</a></p>
-				<p>Visualize with <a href="https://github.com/StoneCypher/jssm-viz">jssm-viz</a>, or at the command line with <a href="https://github.com/StoneCypher/jssm-viz-cli">jssm-viz-cli</a>.</p>
-				<p>Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, Spanish, Ukrainian, and Emoji.  Please help to make sure that your language is well handled!</p>
-				<div id="badge_style_hook">
-					<p><a href="https://github.com/StoneCypher/jssm/actions"><img src="https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg" alt="Actions Status"></a></p>
-					<p><a href=""><img src="https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM" alt="GitHub forks"></a>
-						<a href=""><img src="https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM" alt="GitHub watchers"></a>
-						<a href=""><img src="https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars" alt="GitHub stars"></a>
-					<a href=""><img src="https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher" alt="GitHub followers"></a></p>
-					<p><a href="https://github.com/StoneCypher/jssm/blob/master/LICENSE.md"><img src="https://img.shields.io/npm/l/jssm.svg" alt="License"></a>
-						<a href="https://github.com/StoneCypher/jssm/issues"><img src="https://img.shields.io/github/issues/StoneCypher/jssm.svg" alt="Open issues"></a>
-						<a href="https://github.com/StoneCypher/jssm/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg" alt="Closed issues"></a>
-						<a href="https://travis-ci.org/StoneCypher/jssm"><img src="https://img.shields.io/travis/StoneCypher/jssm.svg" alt="Travis status"></a>
-					<a href="https://coveralls.io/github/StoneCypher/jssm"><img src="https://img.shields.io/coveralls/StoneCypher/jssm.svg" alt="Coveralls status"></a></p>
-					<p><a href="https://www.npmjs.com/package/jssm"><img src="https://img.shields.io/npm/v/jssm.svg" alt="NPM version"></a>
-						<a href="https://img.shields.io/cdnjs/v/jquery.svg"><img src="https://img.shields.io/cdnjs/v/jquery.svg" alt="CDNjs version"></a>
-					<a href="https://www.npmjs.com/package/jssm"><img src="https://img.shields.io/npm/dt/jssm.svg" alt="NPM downloads"></a></p>
-					<img src="https://starchart.cc/StoneCypher/jssm.svg" width="50%">
-				</div>
-				<p><br/><br/></p>
-				<a href="#tldr" id="tldr" style="color: inherit; text-decoration: none;">
-					<h2>TL;DR</h2>
-				</a>
-				<p>Specify finite state machines with a brief syntax.  Run them; they&#39;re fast.  Make mistakes; they&#39;re strict.  Derive
-					charts.  Save and load states, and histories.  Make machine factories to churn out dozens or thousands of instances.
-				Impress friends and loved ones.  Cure corns and callouses.</p>
-				<pre><code class="language-fsl">Red &#39;Proceed&#39; -&gt; Green &#39;Proceed&#39; -&gt; Yellow &#39;Proceed&#39; -&gt; Red;</code></pre>
-				<p>This will produce the following FSM (graphed with <a href="https://github.com/StoneCypher/jssm-viz">jssm-viz</a>):</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png" alt=""></p>
-				<p>You&#39;ll build an executable state machine.</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20traffic%20light%20console%20screenshot.png" alt=""></p>
-				<p><br/><br/></p>
-				<a href="#why" id="why" style="color: inherit; text-decoration: none;">
-					<h2>Why</h2>
-				</a>
-				<p>As usual, a valid question.</p>
-				<br/>
-				<a href="#why-state-machines" id="why-state-machines" style="color: inherit; text-decoration: none;">
-					<h3>Why state machines</h3>
-				</a>
-				<p>State machines are a method of making your software better able to prevent illegal states.  Similar to type systems, SQL
-					constraints, and linters, state machines are a way to teach the software to catch mistakes in ways you define, to help
-				lead to better software.</p>
-				<p>The major mechanism of a state machine is to define <code>states</code>, the <code>transitions</code> between them, and sometimes associated
-					<code>data</code> and other niceties.  The minor mechanism of state machines is to attach <code>actions</code> to the transitions, such that
-				the state machine can partially run itself.</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png" alt=""></p>
-				<p>So, to look at the same traffic light as above, you&#39;ll notice some things.</p>
-				<ol>
-					<li>A sufficiently smart implementation will know that it&#39;s okay for <code>Green</code> to switch to <code>Yellow</code>, but not to <code>Red</code></li>
-					<li>A sufficiently smart implementation knows there&#39;s no such thing as <code>Blue</code></li>
-					<li>A sufficiently smart implementation knows that when in <code>Green</code>, to be told to <code>Proceed</code> means to go to <code>Yellow</code>, but
-					when in <code>Yellow</code>, it means to go to <code>Red</code> instead</li>
-				</ol>
-				<p>Along with other common sense things, a good state machine implementation can help eliminate large classes of error in
-				software.  State machines are often applied when the stakes on having things correct are high.</p>
-				<br/>
-				<a href="#why-this-implementation" id="why-this-implementation" style="color: inherit; text-decoration: none;">
-					<h3>Why this implementation</h3>
-				</a>
-				<p>Brevity.</p>
-				<p>High quality testing.  JSSM has 100% coverage, and has partial stochastic test coverage.</p>
-				<p>Feature parity, especially around the DSL and data control.</p>
-				<p>Data integrity.  JSSM allows a much stricter form of state machine than is common, with a relatively low performance
-					and storage overhead.  It also offers an extremely terse domain specific language (though it does not require said DSL)
-				to produce state machines in otherwise comparatively tiny and easily read code.</p>
-				<p><br/><br/></p>
-				<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
-					<h2>Quick Start</h2>
-				</a>
-				<blockquote>
-					<p>A state machine in <code>JSSM</code> is defined in one of two ways: through the DSL, or through a datastructure.</p>
-				</blockquote>
-				<p>So yeah, let&#39;s start by getting some terminology out of the way, and then we can go right back to that impenetrable
-				sentence, so that it&#39;ll make sense.</p>
-				<br/>
-				<a href="#quick-terminology" id="quick-terminology" style="color: inherit; text-decoration: none;">
-					<h3>Quick Terminology</h3>
-				</a>
-				<p>Finite state machines have been around forever, are used by everyone, and are hugely important.  As a result, the
-				terminology is a mess, is in conflict, and is very poorly chosen, in accordince with everything-is-horrible law.</p>
-				<p>This section describes the terminology <em>as used by this library</em>.  The author has done his best to choose a terminology
-					that matches common use and will be familiar to most.  Conflicts are explained in the following section, to keep this
-				simple.</p>
-				<p>For this quick overview, we&#39;ll define six basic concepts:</p>
-				<ol>
-					<li><code>Finite state machine</code>s</li>
-					<li><code>Machine</code>s</li>
-					<li><code>State</code>s</li>
-					<li><code>Current state</code></li>
-					<li><code>Transition</code>s</li>
-					<li><code>Action</code>s</li>
-				</ol>
-				<p>There&#39;s other stuff, of course, but these five are enough to wrap your head around <code>finite state machine</code>s.</p>
-				<br/>
-				<a href="#basic-concepts" id="basic-concepts" style="color: inherit; text-decoration: none;">
-					<h4>Basic concepts</h4>
-				</a>
-				<p>This is a trivial traffic light <code>FSM</code>, with three states, three transitions, and one action:</p>
-				<pre><code class="language-fsl">Red &#39;Proceed&#39; -&gt; Green &#39;Proceed&#39; -&gt; Yellow &#39;Proceed&#39; -&gt; Red;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png" alt=""></p>
-				<p>Let&#39;s review its pieces.</p>
-				<ul>
-					<li><p><code>finite state machine</code>s</p>
-						<ul>
-							<li>A <code>finite state machine</code> (or <code>FSM</code>) is a collection of <code>state</code>s, and rules about how you can <code>transition</code> between
-							the <code>state</code>s.</li>
-							<li>We tend to refer to a design for a machine as &quot;an <code>FSM</code>.&quot;</li>
-							<li>In this example, the traffic light&#39;s structure is &quot;a traffic light <code>FSM</code>.&quot;</li>
-						</ul>
-					</li>
-					<li><p><code>state</code>s</p>
-						<ul>
-							<li><code>FSM</code>s always have at least one <code>state</code>, and nearly always many <code>state</code>s</li>
-							<li>In this example,<ul>
-									<li>the <code>state</code>s are <strong>Red</strong>, <strong>Yellow</strong>, and <strong>Green</strong></li>
-									<li>Something made from this <code>FSM</code> will only ever be one of those colors - not, say, <strong>Blue</strong></li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-					<li><p><code>machine</code>s</p>
-						<ul>
-							<li>Single instances of an <code>FSM</code> are referred to as a <code>machine</code></li>
-							<li>We might have a thousand instances of the traffic light designed above</li>
-							<li>We would say &quot;My intersection has four <code>machines</code> of the standard three color light <code>FSM</code>.&quot;</li>
-						</ul>
-					</li>
-					<li><p><code>current state</code></p>
-						<ul>
-							<li>A <code>machine</code> has a <code>current state</code>, though an <code>FSM</code> does not<ul>
-									<li>&quot;This specific traffic light is currently <strong>Red</strong>&quot;</li>
-								</ul>
-							</li>
-							<li>Traffic lights in general do not have a current color, only specific lights</li>
-							<li><code>FSM</code>s do not have a current state, only specific <code>machine</code>s</li>
-							<li>A given <code>machine</code> will always have exactly one <code>state</code> - never multiple, never none</li>
-						</ul>
-					</li>
-					<li><p><code>transitions</code></p>
-						<ul>
-							<li><code>FSM</code>s nearly always have <code>transition</code>s</li>
-							<li>Transitions govern whether a <code>state</code> may be reached from another <code>state</code><ul>
-									<li>This restriction is much of the value of <code>FSM</code>s</li>
-								</ul>
-							</li>
-							<li>In this example,<ul>
-									<li>the <code>transition</code>s are<ul>
-											<li><strong>Green</strong> &rarr; <strong>Yellow</strong></li>
-											<li><strong>Yellow</strong> &rarr; <strong>Red</strong></li>
-											<li><strong>Red</strong> &rarr; <strong>Green</strong></li>
-										</ul>
-									</li>
-									<li>a <code>machine</code> whose <code>current state</code> is <strong>Green</strong> may switch to <strong>Yellow</strong>, because there is an appropriate transition</li>
-									<li>a <code>machine</code> whose <code>current state</code> is <strong>Green</strong> may not switch to <strong>Red</strong>, or to <strong>Green</strong> anew, because there is no
-										such transition<ul>
-											<li>A <code>machine</code> in <strong>Yellow</strong> which is told to <code>transition</code> to <strong>Green</strong> (which isn&#39;t legal) will know to refuse</li>
-											<li>This makes <code>FSM</code>s an effective tool for error prevention</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-					<li><p><code>actions</code></p>
-						<ul>
-							<li>Many <code>FSM</code>s have <code>action</code>s, which represent events from the outside world.</li>
-							<li>In this example, there is only one action - <strong>Proceed</strong><ul>
-									<li>The <code>action</code> <strong>Proceed</strong> is available from all three colors</li>
-								</ul>
-							</li>
-							<li>At any time we may indicate to this light to go to its next color, without
-								taking the time to know what it is.<ul>
-									<li>This allows <code>FSM</code>s like the light to self-manage.</li>
-									<li>A <code>machine</code> in <strong>Yellow</strong> which is told to take the <code>action</code> <strong>Proceed</strong> will
-									know on its own to switch its <code>current state</code> to <strong>Red</strong>.</li>
-									<li>This makes <code>FSM</code>s an effective tool for complexity reduction</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-				</ul>
-				<p>Those six ideas in hand - <code>FSM</code>s, <code>state</code>s, <code>machine</code>s, <code>current state</code>, <code>transition</code>s, and <code>action</code>s - and you&#39;re ready
-				to move forwards.</p>
-				<p>One other quick definition - a <code>DSL</code>, or <code>domain specific language</code>, is when someone makes a language and embeds it into
-					a different language, for the purpose of attacking a specific job.  When <code>React</code> uses a precompiler to embed stuff that
-				looks like HTML in Javascript, that&#39;s a DSL.</p>
-				<p>This library implements a simple language for <code>defining finite state machine</code>s inside of strings.  For example, this
-					<code>DSL</code> defines that <code>&#39;a -&gt; b;&#39;</code> actually means &quot;create two states, create a transition between them, assign the first as
-					the initial state&quot;, et cetera.  That micro-language is the <code>DSL</code> that we&#39;ll be referring to a lot, coming up.  This
-					<code>DSL</code>&#39;s formal name is <code>jssm-dot</code>, because it&#39;s a descendant-in-spirit of an older flowcharting language
-					<a href="http://www.graphviz.org/content/dot-language">DOT</a>, from <a href="graphviz.org">graphviz</a>, which is also used to make the
-				visualizations in <a href="https://github.com/StoneCypher/jssm-viz">jssm-viz</a> by way of <a href="viz-js.com">viz-js</a>.</p>
-				<p>Enough history lesson.  On with the tooling.</p>
-				<br/>
-				<a href="#and-now-that-quick-start-we-were-talking-about" id="and-now-that-quick-start-we-were-talking-about" style="color: inherit; text-decoration: none;">
-					<h3>And now, that Quick Start we were talking about</h3>
-				</a>
-				<p>So let&#39;s put together a trivial four-state traffic light: the three colors, plus <strong>Off</strong>.  This will give us an
-				opportunity to go over the basic facilities in the language.</p>
-				<p>At any time, you can take the code and put it into the
-					<a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html">graph explorer</a> for an opportunity to mess with the
-				code as you see fit.</p>
-				<br/>
-				<a href="#0-lights-always-have-an-off-state" id="0-lights-always-have-an-off-state" style="color: inherit; text-decoration: none;">
-					<h4>0: Lights always have an off state</h4>
-				</a>
-				<p>Our light will start in the <strong>Off</strong> <code>state</code>, with the ability to switch to the <strong>Red</strong> <code>state</code>.</p>
-				<p>Since that&#39;s a normal, not-notable thing, we&#39;ll just make it a regular <code>-&gt; legal transition</code>.</p>
-				<pre><code class="language-fsl">Off -&gt; Red;</code></pre>
-				<p>We will give that <code>transition</code> an <code>action</code>, and call it <strong>TurnOn</strong>.</p>
-				<pre><code class="language-fsl">Off &#39;TurnOn&#39; -&gt; Red;</code></pre>
-				<p>So far, our machine is simple:</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20Red.png" alt=""></p>
-				<br/>
-				<a href="#1-traffic-lights-have-a-three-color-cycle" id="1-traffic-lights-have-a-three-color-cycle" style="color: inherit; text-decoration: none;">
-					<h4>1: Traffic lights have a three-color cycle</h4>
-				</a>
-				<p>The main path of a traffic light is cycling from <strong>Green</strong> to <strong>Yellow</strong>, then to <strong>Red</strong>, then back again.  Because
-				this is the main path, we&#39;ll mark these steps <code>=&gt; main transition</code>s.</p>
-				<pre><code class="language-fsl">Off &#39;TurnOn&#39; -&gt; Red =&gt; Green =&gt; Yellow =&gt; Red;</code></pre>
-				<p>We will give those all the same action name, <strong>Proceed</strong>, indicating &quot;next color&quot; without needing to know what we&#39;re
-				currently on.</p>
-				<pre><code class="language-fsl">Off &#39;TurnOn&#39; -&gt; Red &#39;Proceed&#39; =&gt; Green &#39;Proceed&#39; =&gt; Yellow &#39;Proceed&#39; =&gt; Red;</code></pre>
-				<p>Machine&#39;s still pretty simple:</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20RGY.png" alt=""></p>
-				<br/>
-				<a href="#2-traffic-lights-can-be-shut-down" id="2-traffic-lights-can-be-shut-down" style="color: inherit; text-decoration: none;">
-					<h4>2: Traffic lights can be shut down</h4>
-				</a>
-				<p>We&#39;d also like to be able to turn this light back off.  Because that&#39;s expected to be a rarity, we&#39;ll require that it
-				be a <code>~&gt; forced transition</code>.</p>
-				<p>We could write</p>
-				<pre><code class="language-fsl">Off &#39;TurnOn&#39; -&gt; Red &#39;Proceed&#39; =&gt; Green &#39;Proceed&#39; =&gt; Yellow &#39;Proceed&#39; =&gt; Red;
-Red ~&gt; Off;
-Yellow ~&gt; Off;
-Green ~&gt; Off;</code></pre>
-				<p>But that takes a lot of space even with this short list, so, instead we&#39;ll use the array notation</p>
-				<pre><code class="language-fsl">Off &#39;TurnOn&#39; -&gt; Red &#39;Proceed&#39; =&gt; Green &#39;Proceed&#39; =&gt; Yellow &#39;Proceed&#39; =&gt; Red;
-[Red Yellow Green] ~&gt; Off;</code></pre>
-				<p>And we&#39;d like those all to have the action <strong>TurnOff</strong>, so</p>
-				<pre><code class="language-fsl">Off &#39;TurnOn&#39; -&gt; Red &#39;Proceed&#39; =&gt; Green &#39;Proceed&#39; =&gt; Yellow &#39;Proceed&#39; =&gt; Red;
-[Red Yellow Green] &#39;TurnOff&#39; ~&gt; Off;</code></pre>
-				<p>Machine&#39;s still not too bad:</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20From%20RGY.png" alt=""></p>
-				<br/>
-				<a href="#let39s-actually-use-the-traffic-light" id="let39s-actually-use-the-traffic-light" style="color: inherit; text-decoration: none;">
-					<h3>Let&#39;s actually use the traffic light</h3>
-				</a>
-				<p>That&#39;s actually the bulk of the language.  There are other little add-ons here and there, but, primarily you now know
-				how to write a state machine.</p>
-				<p>Let&#39;s load it and use it!  😀</p>
-				<a href="#loading-into-node" id="loading-into-node" style="color: inherit; text-decoration: none;">
-					<h4>loading into node</h4>
-				</a>
-				<a href="#loading-into-html" id="loading-into-html" style="color: inherit; text-decoration: none;">
-					<h4>loading into html</h4>
-				</a>
-				<a href="#jssm-viz" id="jssm-viz" style="color: inherit; text-decoration: none;">
-					<h4>jssm-viz</h4>
-				</a>
-				<a href="#redistribution-on-npm" id="redistribution-on-npm" style="color: inherit; text-decoration: none;">
-					<h4>redistribution on npm</h4>
-				</a>
-				<br/>
-				<a href="#an-introduction-to-machine-design" id="an-introduction-to-machine-design" style="color: inherit; text-decoration: none;">
-					<h3>An introduction to machine design</h3>
-				</a>
-				<p>Let&#39;s make a <code>state machine</code> for ATMs.  In the process, we will use a lot of core concepts of <code>finite state machine</code>s
-				and of <code>jssm-dot</code>, this library&#39;s <code>DSL</code>.</p>
-				<p>We&#39;re going to improve on this <a href="https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif">NCSU ATM diagram</a> that I
-				found:</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/ncsu%20atm%20diagram.gif" alt=""></p>
-				<p>Remember, at any time, you can take the code and put it into the
-					<a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html">graph explorer</a> for an opportunity to mess with the
-				code as you see fit.</p>
-				<br/>
-				<a href="#0-empty-machine" id="0-empty-machine" style="color: inherit; text-decoration: none;">
-					<h4>0: Empty machine</h4>
-				</a>
-				<p>We&#39;ll start with an <a href="https://github.com/StoneCypher/jssm/blob/master/src/machines/atm%20quick%20start%20tutorial/1_EmptyWaiting.jssm">empty machine</a>.</p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/0_EmptyWaiting.png" alt=""></p>
-				<br/>
-				<a href="#1-should-be-able-to-eject-cards" id="1-should-be-able-to-eject-cards" style="color: inherit; text-decoration: none;">
-					<h4>1: Should be able to eject cards</h4>
-				</a>
-				<p>We&#39;ll add the ability to physically eject the user&#39;s card and reset to the empty and waiting state.  Right now it&#39;ll
-				dangle around un-used at the top, but later it&#39;ll become useful.</p>
-				<p>This is expressed as the path <code>EjectCardAndReset -&gt; EmptyWaiting;</code></p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting;
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/1_EjectCard.png" alt=""></p>
-				<br/>
-				<a href="#2-should-be-able-to-insert-cards" id="2-should-be-able-to-insert-cards" style="color: inherit; text-decoration: none;">
-					<h4>2: Should be able to insert cards</h4>
-				</a>
-				<p>We&#39;ll add the ability to physically insert a card, next.  You know, the, uh, thing ATMs are pretty much for.</p>
-				<p>To get this, add the path leg <code>EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;</code></p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p>Notice that the new <code>state</code>, <strong>HasCardNoAuth</strong>, has been rendered red.  This is because it is <code>terminal</code> - there is
-					no exit from this node currently.  (<strong>EmptyAndWaiting</strong> did not render that way because it had a transition to itself.)
-					That will change as we go back to adding more nodes.  <code>terminal node</code>s are usually either mistakes or the last single
-				<code>state</code> of a given <code>FSM</code>.</p>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/2_InsertCard.png" alt=""></p>
-				<br/>
-				<a href="#3-should-be-able-to-cancel-and-recover-the-card" id="3-should-be-able-to-cancel-and-recover-the-card" style="color: inherit; text-decoration: none;">
-					<h4>3: Should be able to cancel and recover the card</h4>
-				</a>
-				<p>Next, we should have a cancel, because the ATM&#39;s <key>7</key> key is broken, and we need our card back.  Cancel will
-				exit to the main menu, and return our card credential.</p>
-				<p>To that end, we add the path <code>HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;</code></p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;
+<br/>
 
-HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;
+<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/doc%20light%20styled.png"/>
 
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/3_ReturnCard.png" alt=""></p>
-				<br/>
-				<a href="#4-can-give-the-wrong-pin" id="4-can-give-the-wrong-pin" style="color: inherit; text-decoration: none;">
-					<h4>4: Can give the wrong PIN</h4>
-				</a>
-				<p>Next, let&#39;s give the ability to get the password ... wrong.  😂  Because we all know that one ATM that only has the
-				wrong-PIN path, so, apparently that&#39;s a product to someone.</p>
-				<p>When they get the PIN wrong, they&#39;re prompted to try again (or to cancel.)</p>
-				<p>We&#39;ll add the path <code>HasCardNoAuth &#39;WrongPIN&#39; -&gt; HasCardNoAuth;</code></p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;
+<br/>
 
-HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;
-HasCardNoAuth &#39;WrongPIN&#39; -&gt; HasCardNoAuth;
+<p>What if the machine was lighting fast, able to do tens of millions of transitions per second?</p>
+<img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/speed%20claim.png"/>
 
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/4_WrongPin.png" alt=""></p>
-				<br/>
-				<a href="#5-can-give-the-correct-pin" id="5-can-give-the-correct-pin" style="color: inherit; text-decoration: none;">
-					<h4>5: Can give the correct PIN</h4>
-				</a>
-				<p>Next, let&#39;s give the ability to get the password right.</p>
-				<p>We&#39;ll add two paths.  The first gets the password right: <code>HasCardNoAuth &#39;RightPIN&#39; -&gt; MainMenu;</code></p>
-				<p>The second, from our new <code>state</code> <strong>MainMenu</strong>, gives people the ability to leave: <code>MainMenu &#39;ExitReturnCard&#39; -&gt; EjectCardAndReset;</code></p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;
+<br/>
 
-HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;
-HasCardNoAuth &#39;WrongPIN&#39; -&gt; HasCardNoAuth;
-HasCardNoAuth &#39;RightPIN&#39; -&gt; MainMenu;
+<ul>
+<li>What if the machine and language had <a href="https://coveralls.io/github/StoneCypher/jssm">extensive 100% test coverage</a>
+with <a href="https://github.com/StoneCypher/jssm/tree/main/src/ts/tests">thousands of cases</a>?</li>
+<li>What if the machine gave extensive Typescript introspection support?</li>
+<li>What if the machine had been around and active since May 2017?</li>
+<li>What if the machine was MIT licensed, end to end?</li>
+</ul>
+<p>But, above all else:</p>
+<p><code>What if it was easy?</code></p>
+<p><br/><br/></p>
 
-MainMenu &#39;ExitReturnCard&#39; -&gt; EjectCardAndReset;
+<a href="#introducing-jssm" id="introducing-jssm" style="color: inherit; text-decoration: none;">
+  <h1>Introducing JSSM</h1>
+</a>
+<p>Meet JSSM: the <b><u>J</u></b>ava<b><u>s</u></b>cript <b><u>S</u></b>tate <b><u>M</u></b>achine.</p>
+<p>State machines can make your code cleaner, safer, and more trustworthy.</p>
+<p>And, with the right language, state machines can be easy and fun.</p>
+<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html" target="_blank" rel="noopener noreferrer">TRY THE LIVE EDITOR</a></p>
+<br/>
 
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/5_RightPin.png" alt=""></p>
-				<br/>
-				<a href="#6-can-check-balance-from-main-menu" id="6-can-check-balance-from-main-menu" style="color: inherit; text-decoration: none;">
-					<h4>6: Can check balance from main menu</h4>
-				</a>
-				<p>Hooray, now we&#39;re getting somewhere.</p>
-				<p>Let&#39;s add the ability to check your balance.  First pick that from the main menu, then pick which account to see the
-				balance of, then you&#39;re shown a screen with the information you requested; then go back to the main menu.</p>
-				<p>That&#39;s <code>MainMenu &#39;CheckBalance&#39; -&gt; PickAccount -&gt; DisplayBalance -&gt; MainMenu;</code>.</p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;
 
-HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;
-HasCardNoAuth &#39;WrongPIN&#39; -&gt; HasCardNoAuth;
-HasCardNoAuth &#39;RightPIN&#39; -&gt; MainMenu;
+<a href="#what-is-jssm" id="what-is-jssm" style="color: inherit; text-decoration: none;">
+  <h2>What is JSSM?</h2>
+</a>
+<p>JSSM is a Javascript state machine implementing <a href="https://fsl.tools/">Finite State Language</a>, with a terse DSL and a simple API.
+100% test coverage; typed with Flowtype.  MIT licensed.</p>
+<p>The NPM package includes pure <code>es6</code>, a <code>cjs es5</code> bundle, and <code>.d.ts</code> typings.  The repository includes the original typescript, the bundle, the es6, documentation, tests, tutorials, and so on.</p>
+<p><a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html">Try it live!</a></p>
+<p>Visualize with <a href="https://github.com/StoneCypher/jssm-viz">jssm-viz</a>, or at the command line with <a href="https://github.com/StoneCypher/jssm-viz-cli">jssm-viz-cli</a>.</p>
+<p>Language test cases for Belorussian, English, German, Hebrew, Italian, Russian, Spanish, Ukrainian, and Emoji.  Please help to make sure that your language is well handled!</p>
+<div id="badge_style_hook">
 
-MainMenu &#39;ExitReturnCard&#39; -&gt; EjectCardAndReset;
-MainMenu &#39;CheckBalance&#39; -&gt; PickAccount -&gt; DisplayBalance -&gt; MainMenu;
+<p><a href="https://github.com/StoneCypher/jssm/actions"><img src="https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg" alt="Actions Status"></a></p>
+<p><a href=""><img src="https://img.shields.io/github/forks/StoneCypher/jssm.svg?style=social&label=Fork%20JSSM" alt="GitHub forks"></a>
+<a href=""><img src="https://img.shields.io/github/watchers/StoneCypher/jssm.svg?style=social&label=Watch%20JSSM" alt="GitHub watchers"></a>
+<a href=""><img src="https://img.shields.io/github/stars/StoneCypher/jssm.svg?style=social&label=JSSM%20Stars" alt="GitHub stars"></a>
+<a href=""><img src="https://img.shields.io/github/followers/StoneCypher.svg?style=social&label=Follow%20StoneCypher" alt="GitHub followers"></a></p>
+<p><a href="https://github.com/StoneCypher/jssm/blob/master/LICENSE.md"><img src="https://img.shields.io/npm/l/jssm.svg" alt="License"></a>
+<a href="https://github.com/StoneCypher/jssm/issues"><img src="https://img.shields.io/github/issues/StoneCypher/jssm.svg" alt="Open issues"></a>
+<a href="https://github.com/StoneCypher/jssm/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/StoneCypher/jssm.svg" alt="Closed issues"></a>
+<a href="https://travis-ci.org/StoneCypher/jssm"><img src="https://img.shields.io/travis/StoneCypher/jssm.svg" alt="Travis status"></a>
+<a href="https://coveralls.io/github/StoneCypher/jssm"><img src="https://img.shields.io/coveralls/StoneCypher/jssm.svg" alt="Coveralls status"></a></p>
+<p><a href="https://www.npmjs.com/package/jssm"><img src="https://img.shields.io/npm/v/jssm.svg" alt="NPM version"></a>
+<a href="https://img.shields.io/cdnjs/v/jquery.svg"><img src="https://img.shields.io/cdnjs/v/jquery.svg" alt="CDNjs version"></a>
+<a href="https://www.npmjs.com/package/jssm"><img src="https://img.shields.io/npm/dt/jssm.svg" alt="NPM downloads"></a></p>
+<img src="https://starchart.cc/StoneCypher/jssm.svg" width="50%">
 
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/6_CanCheckBalance.png" alt=""></p>
-				<br/>
-				<a href="#7-can-deposit-money-from-main-menu" id="7-can-deposit-money-from-main-menu" style="color: inherit; text-decoration: none;">
-					<h4>7: Can deposit money from main menu</h4>
-				</a>
-				<p>Let&#39;s add something difficult.  Their state machine just proceeds assuming everything is okay.</p>
-				<p>To desposit money:</p>
-				<ol>
-					<li>Accept physical money</li>
-					<li>If accept failed (eg door jammed,) reject physical object, go to main menu</li>
-					<li>If accept succeeded, ask human expected value</li>
-					<li>Pick an account this should go into</li>
-					<li>Contact bank.  Request to credit for theoretical physical money.</li>
-					<li>Three results: yes, no, offer-after-audit.</li>
-					<li>If no, reject physical object, go to main menu.</li>
-					<li>If yes, consume physical object, tell user consumed, go to main menu</li>
-					<li>If offer-after-audit, ask human what to do</li>
-					<li>if human-yes, consume physical object, tell user consumed, go to main menu</li>
-					<li>if human-no, reject physical object, go to main menu</li>
-				</ol>
-				<p>Writing this out in code is not only generally longer than the text form, but also error prone and hard to maintain.</p>
-				<p>... or there&#39;s the <code>FSM</code> <code>DSL</code>, which is usually as-brief-as the text, and frequently both briefer and more explicit.</p>
-				<ul>
-					<li>Rules 1-2: <code>MainMenu &#39;AcceptDeposit&#39; -&gt; TentativeAcceptMoney &#39;AcceptFail&#39; -&gt; RejectPhysicalMoney -&gt; MainMenu;</code></li>
-					<li>Rules 3-6: <code>TentativeAcceptMoney &#39;AcceptSucceed&#39; -&gt; PickDepositAccount -&gt; RequestValue &#39;TellBank&#39; -&gt; BankResponse;</code></li>
-					<li>Rule 7: <code>BankResponse &#39;BankNo&#39; -&gt; RejectPhysicalMoney;</code></li>
-					<li>Rule 8: <code>BankResponse &#39;BankYes&#39; -&gt; ConsumeMoney -&gt; NotifyConsumed -&gt; MainMenu;</code></li>
-					<li>Rules 9-10: <code>BankResponse &#39;BankAudit&#39; -&gt; BankAuditOffer &#39;HumanAcceptAudit&#39; -&gt; ConsumeMoney;</code></li>
-					<li>Rule 11: <code>BankAuditOffer &#39;HumanRejectAudit&#39; -&gt; RejectPhysicalMoney;</code></li>
-				</ul>
-				<p>Or, as a block,</p>
-				<pre><code class="language-fsl">MainMenu &#39;AcceptDeposit&#39; -&gt; TentativeAcceptMoney;
-
-TentativeAcceptMoney &#39;AcceptFail&#39; -&gt; RejectPhysicalMoney -&gt; MainMenu;
-TentativeAcceptMoney &#39;AcceptSucceed&#39; -&gt; PickDepositAccount -&gt; RequestValue &#39;TellBank&#39; -&gt; BankResponse;
-
-BankResponse &#39;BankNo&#39;    -&gt; RejectPhysicalMoney;
-BankResponse &#39;BankYes&#39;   -&gt; ConsumeMoney -&gt; NotifyConsumed -&gt; MainMenu;
-BankResponse &#39;BankAudit&#39; -&gt; BankAuditOffer &#39;HumanAcceptAudit&#39; -&gt; ConsumeMoney;
-
-BankAuditOffer &#39;HumanRejectAudit&#39; -&gt; RejectPhysicalMoney;</code></pre>
-				<p>Which leaves us with the total code</p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;
-
-HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;
-HasCardNoAuth &#39;WrongPIN&#39; -&gt; HasCardNoAuth;
-HasCardNoAuth &#39;RightPIN&#39; -&gt; MainMenu;
-
-MainMenu &#39;AcceptDeposit&#39;  -&gt; TentativeAcceptMoney;
-MainMenu &#39;ExitReturnCard&#39; -&gt; EjectCardAndReset;
-MainMenu &#39;CheckBalance&#39;   -&gt; PickCheckBalanceAccount -&gt; DisplayBalance -&gt; MainMenu;
-
-TentativeAcceptMoney &#39;AcceptFail&#39;    -&gt; RejectPhysicalMoney -&gt; MainMenu;
-TentativeAcceptMoney &#39;AcceptSucceed&#39; -&gt; PickDepositAccount -&gt; RequestValue &#39;TellBank&#39; -&gt; BankResponse;
-
-BankResponse &#39;BankNo&#39;    -&gt; RejectPhysicalMoney;
-BankResponse &#39;BankYes&#39;   -&gt; ConsumeMoney -&gt; NotifyConsumed -&gt; MainMenu;
-BankResponse &#39;BankAudit&#39; -&gt; BankAuditOffer &#39;HumanAcceptAudit&#39; -&gt; ConsumeMoney;
-
-BankAuditOffer &#39;HumanRejectAudit&#39; -&gt; RejectPhysicalMoney;
-
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/7_CanDepositMoney.png" alt=""></p>
-				<br/>
-				<a href="#8-can-withdraw-money-from-main-menu" id="8-can-withdraw-money-from-main-menu" style="color: inherit; text-decoration: none;">
-					<h4>8: Can withdraw money from main menu</h4>
-				</a>
-				<p>Let&#39;s also be able to take money from the machine.  After this, we&#39;ll move on, since our example is pretty squarely made
-				by now.</p>
-				<ol>
-					<li>Pick a withdrawl account, or cancel to the main menu</li>
-					<li>Shown a balance, pick a withdrawl amount, or cancel to acct picker</li>
-					<li>Is the withdrawl account too high?  If so go to 2</li>
-					<li>Does the machine actually have the money?  If not go to 2</li>
-					<li>Otherwise confirm intent w/ human</li>
-					<li>Attempt to post the transaction.</li>
-					<li>If fail, display reason and go to 1</li>
-					<li>If succeed, dispense money and go to main menu</li>
-				</ol>
-				<ul>
-					<li>Rules 1-3: <code>MainMenu -&gt; PickWithdrawlAccount -&gt; PickAmount -&gt; AcctHasMoney? &#39;TooHighForAcct&#39; -&gt; PickWithdrawlAccount;</code></li>
-					<li>Rule 4: <code>AcctHasMoney? -&gt; MachineHasMoney? &#39;MachineLowOnCash&#39; -&gt; PickAmount;</code></li>
-					<li>Rule 5: <code>MachineHasMoney? -&gt; ConfirmWithdrawWithHuman &#39;MakeChanges&#39; -&gt; PickWithdrawlAmount;</code></li>
-					<li>Rule 6: <code>ConfirmWithdrawWithHuman &#39;PostWithdrawl&#39; -&gt; BankWithdrawlResponse;</code></li>
-					<li>Rule 7: <code>BankWithdrawlResponse &#39;WithdrawlFailure&#39; -&gt; WithdrawlFailureExplanation -&gt; PickWithdrawlAccount;</code></li>
-					<li>Rule 8: <code>BankWithdrawlResponse &#39;WithdrawlSuccess&#39; -&gt; DispenseMoney -&gt; MainMenu;</code></li>
-				</ul>
-				<p>Rule 1 canceller: <code>PickWithdrawlAccount &#39;CancelWithdrawl&#39; -&gt; MainMenu;</code>
-				Rule 2 canceller: <code>PickWithdrawlAmount &#39;SwitchAccounts&#39; -&gt; PickWithdrawlAccount;</code></p>
-				<p>Or as a whole, we&#39;re adding</p>
-				<pre><code class="language-fsl">MainMenu -&gt; PickWithdrawlAccount -&gt; PickAmount -&gt; AcctHasMoney? &#39;TooHighForAcct&#39; -&gt; PickWithdrawlAccount;
-AcctHasMoney? -&gt; MachineHasMoney? &#39;MachineLowOnCash&#39; -&gt; PickAmount;
-MachineHasMoney? -&gt; ConfirmWithdrawWithHuman &#39;MakeChanges&#39; -&gt; PickWithdrawlAmount;
-ConfirmWithdrawWithHuman &#39;PostWithdrawl&#39; -&gt; BankWithdrawlResponse;
-BankWithdrawlResponse &#39;WithdrawlFailure&#39; -&gt; WithdrawlFailureExplanation -&gt; PickWithdrawlAccount;
-BankWithdrawlResponse &#39;WithdrawlSuccess&#39; -&gt; DispenseMoney -&gt; MainMenu;
-
-PickWithdrawlAccount &#39;CancelWithdrawl&#39; -&gt; MainMenu;
-PickWithdrawlAmount &#39;SwitchAccounts&#39; -&gt; PickWithdrawlAccount;</code></pre>
-				<p>Which leaves us with</p>
-				<pre><code class="language-fsl">EmptyWaiting &#39;Wait&#39; -&gt; EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;
-
-HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;
-HasCardNoAuth &#39;WrongPIN&#39; -&gt; HasCardNoAuth;
-HasCardNoAuth &#39;RightPIN&#39; -&gt; MainMenu;
-
-MainMenu &#39;AcceptDeposit&#39;  -&gt; TentativeAcceptMoney;
-MainMenu &#39;ExitReturnCard&#39; -&gt; EjectCardAndReset;
-MainMenu &#39;CheckBalance&#39;   -&gt; PickCheckBalanceAccount -&gt; DisplayBalance -&gt; MainMenu;
-
-TentativeAcceptMoney &#39;AcceptFail&#39;    -&gt; RejectPhysicalMoney -&gt; MainMenu;
-TentativeAcceptMoney &#39;AcceptSucceed&#39; -&gt; PickDepositAccount -&gt; RequestValue &#39;TellBank&#39; -&gt; BankResponse;
-
-BankResponse &#39;BankNo&#39;    -&gt; RejectPhysicalMoney;
-BankResponse &#39;BankYes&#39;   -&gt; ConsumeMoney -&gt; NotifyConsumed -&gt; MainMenu;
-BankResponse &#39;BankAudit&#39; -&gt; BankAuditOffer &#39;HumanAcceptAudit&#39; -&gt; ConsumeMoney;
-
-BankAuditOffer &#39;HumanRejectAudit&#39; -&gt; RejectPhysicalMoney;
-
-MainMenu -&gt; PickWithdrawlAccount -&gt; PickAmount -&gt; AcctHasMoney? &#39;TooHighForAcct&#39; -&gt; PickWithdrawlAccount;
-AcctHasMoney? -&gt; MachineHasMoney? &#39;MachineLowOnCash&#39; -&gt; PickAmount;
-MachineHasMoney? -&gt; ConfirmWithdrawWithHuman &#39;MakeChanges&#39; -&gt; PickWithdrawlAmount;
-ConfirmWithdrawWithHuman &#39;PostWithdrawl&#39; -&gt; BankWithdrawlResponse;
-BankWithdrawlResponse &#39;WithdrawlFailure&#39; -&gt; WithdrawlFailureExplanation -&gt; PickWithdrawlAccount;
-BankWithdrawlResponse &#39;WithdrawlSuccess&#39; -&gt; DispenseMoney -&gt; MainMenu;
-
-PickWithdrawlAccount &#39;CancelWithdrawl&#39; -&gt; MainMenu;
-PickWithdrawlAmount &#39;SwitchAccounts&#39; -&gt; PickWithdrawlAccount;
-
-EjectCardAndReset -&gt; EmptyWaiting;</code></pre>
-				<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/8_CanWithdrawMoney.png" alt=""></p>
-				<p>As you can see, building up even very complex state machines is actually relatively straightforward, in a short
-				amount of time.</p>
-				<p><br/><br/></p>
-				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
-					<h2>Features</h2>
-				</a>
-				<a href="#dsl" id="dsl" style="color: inherit; text-decoration: none;">
-					<h3>DSL</h3>
-				</a>
-				<a href="#states" id="states" style="color: inherit; text-decoration: none;">
-					<h3>States</h3>
-				</a>
-				<a href="#transitions" id="transitions" style="color: inherit; text-decoration: none;">
-					<h3>Transitions</h3>
-				</a>
-				<a href="#cycles" id="cycles" style="color: inherit; text-decoration: none;">
-					<h3>Cycles</h3>
-				</a>
-				<a href="#stripes" id="stripes" style="color: inherit; text-decoration: none;">
-					<h3>Stripes</h3>
-				</a>
-				<a href="#named-ordered-lists" id="named-ordered-lists" style="color: inherit; text-decoration: none;">
-					<h3>Named Ordered Lists</h3>
-				</a>
-				<a href="#atoms" id="atoms" style="color: inherit; text-decoration: none;">
-					<h3>Atoms</h3>
-				</a>
-				<a href="#strings" id="strings" style="color: inherit; text-decoration: none;">
-					<h3>Strings</h3>
-				</a>
-				<a href="#arrow-types" id="arrow-types" style="color: inherit; text-decoration: none;">
-					<h3>Arrow types</h3>
-				</a>
-				<a href="#unicode-representations" id="unicode-representations" style="color: inherit; text-decoration: none;">
-					<h3>Unicode representations</h3>
-				</a>
-				<a href="#node-declarations" id="node-declarations" style="color: inherit; text-decoration: none;">
-					<h3>Node declarations</h3>
-				</a>
-				<a href="#all-the-styling-bullshit" id="all-the-styling-bullshit" style="color: inherit; text-decoration: none;">
-					<h3>All the styling bullshit</h3>
-				</a>
-				<a href="#named-edges" id="named-edges" style="color: inherit; text-decoration: none;">
-					<h3>Named edges</h3>
-				</a>
-				<a href="#url-callouts" id="url-callouts" style="color: inherit; text-decoration: none;">
-					<h3>URL callouts</h3>
-				</a>
-				<a href="#the-9-or-whatever-directives" id="the-9-or-whatever-directives" style="color: inherit; text-decoration: none;">
-					<h3>The 9 or whatever directives</h3>
-				</a>
-				<a href="#how-to-publish-a-machine" id="how-to-publish-a-machine" style="color: inherit; text-decoration: none;">
-					<h3>How to publish a machine</h3>
-				</a>
-				<a href="#legal-main-and-forced" id="legal-main-and-forced" style="color: inherit; text-decoration: none;">
-					<h4>Legal, main, and forced</h4>
-				</a>
-				<a href="#validators" id="validators" style="color: inherit; text-decoration: none;">
-					<h3>Validators</h3>
-				</a>
-				<a href="#state-history" id="state-history" style="color: inherit; text-decoration: none;">
-					<h3>State history</h3>
-				</a>
-				<a href="#automatic-visualization" id="automatic-visualization" style="color: inherit; text-decoration: none;">
-					<h3>Automatic visualization</h3>
-				</a>
-				<p><br/><br/></p>
-				<a href="#how-to-think-in-state-machines" id="how-to-think-in-state-machines" style="color: inherit; text-decoration: none;">
-					<h2>How to think in state machines</h2>
-				</a>
-				<p><br/><br/></p>
-				<a href="#example-machines" id="example-machines" style="color: inherit; text-decoration: none;">
-					<h2>Example Machines</h2>
-				</a>
-				<a href="#door-lock" id="door-lock" style="color: inherit; text-decoration: none;">
-					<h3>Door lock</h3>
-				</a>
-				<a href="#traffic-lights" id="traffic-lights" style="color: inherit; text-decoration: none;">
-					<h3>Traffic lights</h3>
-				</a>
-				<a href="#basic-three-state" id="basic-three-state" style="color: inherit; text-decoration: none;">
-					<h4>Basic three-state</h4>
-				</a>
-				<a href="#ryg-off-flash-red-flash-yellow" id="ryg-off-flash-red-flash-yellow" style="color: inherit; text-decoration: none;">
-					<h4>RYG, Off, Flash-red, Flash-yellow</h4>
-				</a>
-				<a href="#ryg-off-flash-red-flash-yellow-green-left-yellow-left" id="ryg-off-flash-red-flash-yellow-green-left-yellow-left" style="color: inherit; text-decoration: none;">
-					<h4>RYG, Off, Flash-red, Flash-yellow, Green-left, Yellow-left</h4>
-				</a>
-				<a href="#heirarchal-intersection" id="heirarchal-intersection" style="color: inherit; text-decoration: none;">
-					<h4>Heirarchal intersection</h4>
-				</a>
-				<a href="#atm" id="atm" style="color: inherit; text-decoration: none;">
-					<h3><a href="https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif">ATM</a></h3>
-				</a>
-				<a href="#http" id="http" style="color: inherit; text-decoration: none;">
-					<h3><a href="https://www.w3.org/Library/User/Architecture/HTTP.gif">HTTP</a></h3>
-				</a>
-				<a href="#better-http" id="better-http" style="color: inherit; text-decoration: none;">
-					<h4>Better HTTP</h4>
-				</a>
-				<a href="#tcp" id="tcp" style="color: inherit; text-decoration: none;">
-					<h3><a href="http://www.texample.net/media/tikz/examples/PNG/tcp-state-machine.png">TCP</a></h3>
-				</a>
-				<a href="#coin-op-vending-machine-data" id="coin-op-vending-machine-data" style="color: inherit; text-decoration: none;">
-					<h3>Coin-op vending machine (data)</h3>
-				</a>
-				<a href="#video-games" id="video-games" style="color: inherit; text-decoration: none;">
-					<h3>Video games</h3>
-				</a>
-				<a href="#pac-man-ghost-sensors" id="pac-man-ghost-sensors" style="color: inherit; text-decoration: none;">
-					<h4>Pac-man Ghost (sensors)</h4>
-				</a>
-				<a href="#weather-probabilistics" id="weather-probabilistics" style="color: inherit; text-decoration: none;">
-					<h4>Weather (probabilistics)</h4>
-				</a>
-				<a href="#roguelike-monster-interface-satisfaction" id="roguelike-monster-interface-satisfaction" style="color: inherit; text-decoration: none;">
-					<h4>Roguelike monster (interface satisfaction)</h4>
-				</a>
-				<a href="#candy-crush-clone-game-flow-practical-large-use" id="candy-crush-clone-game-flow-practical-large-use" style="color: inherit; text-decoration: none;">
-					<h3>Candy crush clone game flow (practical large use)</h3>
-				</a>
-				<a href="#vegas-locked-21-dealer-behavior" id="vegas-locked-21-dealer-behavior" style="color: inherit; text-decoration: none;">
-					<h3>Vegas locked 21 dealer behavior</h3>
-				</a>
-				<a href="#react-spa-website-practical-large-use" id="react-spa-website-practical-large-use" style="color: inherit; text-decoration: none;">
-					<h3>React SPA website (practical large use)</h3>
-				</a>
-				<a href="#bgp" id="bgp" style="color: inherit; text-decoration: none;">
-					<h3><a href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/BGP_FSM.svg/549px-BGP_FSM.svg.png">BGP</a></h3>
-				</a>
-				<a href="#libgcrypt-fips-mode-fsm" id="libgcrypt-fips-mode-fsm" style="color: inherit; text-decoration: none;">
-					<h3><a href="https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png">LibGCrypt FIPS mode FSM</a></h3>
-				</a>
-				<p><br/><br/></p>
-				<a href="#how-to-debug" id="how-to-debug" style="color: inherit; text-decoration: none;">
-					<h2>How to debug</h2>
-				</a>
-				<p><br/><br/></p>
-				<a href="#how-to-publish" id="how-to-publish" style="color: inherit; text-decoration: none;">
-					<h2>How to publish</h2>
-				</a>
-				<p>It&#39;s really quite simple.</p>
-				<ol>
-					<li>Make a github repository.</li>
-					<li>Put your code in a file inside, with the extension <code>.fsl</code></li>
-					<li>Make sure your code contains a <code>machine_name</code></li>
-				</ol>
-				<p>Once done, your work should show up <a href="https://github.com/search?utf8=%E2%9C%93&amp;q=extension%3Afsl+machine_name&amp;type=Code">here</a>.</p>
-				<p><br/><br/></p>
-				<a href="#notation-comparison" id="notation-comparison" style="color: inherit; text-decoration: none;">
-					<h2>Notation Comparison</h2>
-				</a>
-				<a href="#their-notations-one-by-one" id="their-notations-one-by-one" style="color: inherit; text-decoration: none;">
-					<h3>Their notations, one by one</h3>
-				</a>
-				<a href="#apples-to-apples---traffic-light" id="apples-to-apples---traffic-light" style="color: inherit; text-decoration: none;">
-					<h3>Apples to Apples - Traffic Light</h3>
-				</a>
-				<p><br/><br/></p>
-				<a href="#other-state-machines" id="other-state-machines" style="color: inherit; text-decoration: none;">
-					<h2>Other state machines</h2>
-				</a>
-				<p>There are a lot of state machine impls for JS, many quite a bit more mature than this one.  Here are some options:</p>
-				<ol>
-					<li><a href="https://github.com/nickuraltsev/finity">Finity</a> 😮</li>
-					<li><a href="https://github.com/fschaefer/Stately.js">Stately.js</a></li>
-					<li><a href="https://github.com/ifandelse/machina.js">machina.js</a></li>
-					<li><a href="https://github.com/orbitbot/pastafarian">Pastafarian</a></li>
-					<li><a href="https://github.com/orbitbot/henderson">Henderson</a></li>
-					<li><a href="https://github.com/vstirbu/fsm-as-promised">fsm-as-promised</a></li>
-					<li><a href="https://github.com/DEADB17/state-machine">state-machine</a></li>
-					<li><a href="https://github.com/bredele/mood">mood</a></li>
-					<li><a href="https://github.com/MatthewHepburn/FSM-Workbench">FSM Workbench</a></li>
-					<li><a href="https://github.com/ccnokes/SimpleStateMachine">SimpleStateMachine</a></li>
-					<li>shime/<a href="https://github.com/shime/micro-machine">micro-machine</a><ol>
-							<li>soveran/<a href="https://github.com/soveran/micromachine">micromachine</a> (ruby)</li>
-						</ol>
-					</li>
-					<li>fabiospampinato/<a href="https://github.com/fabiospampinato/FSM">FSM</a></li>
-					<li>HQarroum/<a href="https://github.com/HQarroum/Fsm">FSM</a></li>
-					<li><a href="https://github.com/RolandR/Finite-State-Automata">Finite-State-Automata</a></li>
-					<li><a href="https://github.com/MarkH817/finite-state-machine">finite-state-machine</a></li>
-					<li><a href="https://github.com/ajauhri/nfm">nfm</a></li>
-				</ol>
-				<p>And some similar stuff:</p>
-				<ol>
-					<li><a href="https://github.com/mheiber/redux-machine">redux-machine</a></li>
-					<li><a href="https://github.com/heycarsten/ember-fsm">ember-fsm</a></li>
-					<li><a href="https://github.com/sverweij/state-machine-cat">State machine cat</a></li>
-					<li><a href="https://github.com/AlexLevshin/workty">Workty</a> 😮</li>
-					<li><a href="https://github.com/sladiri/sam-simpler">sam-simpler</a></li>
-					<li><a href="https://github.com/quilin/event_chain">event_chain</a></li>
-					<li><a href="https://en.wikipedia.org/wiki/DRAKON">DRAKON</a></li>
-					<li><a href="https://github.com/Yakindu/statecharts">Yakindu Statechart Tools</a></li>
-					<li><a href="http://www.graphviz.org/">GraphViz</a><ol>
-							<li><a href="https://github.com/mdaines/viz.js/">Viz.js</a>, which we use</li>
-						</ol>
-					</li>
-				</ol>
-				<p><br/><br/><br/></p>
-				<a href="#thanks" id="thanks" style="color: inherit; text-decoration: none;">
-					<h1>Thanks</h1>
-				</a>
-				<p>JSSM and FSL have had a lot of help.</p>
-				<p><br/><br/></p>
-				<a href="#internationalization" id="internationalization" style="color: inherit; text-decoration: none;">
-					<h2>Internationalization</h2>
-				</a>
-				<ul>
-					<li><a href="https://github.com/miles91">Mykhaylo Les</a> provided three translation test cases (<a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/ukrainian.json">Ukrainian</a>, <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/belarussian.json">Belarussian</a>, and <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/russian.json">Russian</a>,) and the corresponding Traffic Light translations (also <a href="https://github.com/StoneCypher/fsl_traffic_light_ukrainian/blob/master/traffic%20light.fsl">Ukrainian</a>, <a href="https://github.com/StoneCypher/fsl_traffic_light_belarussian/blob/master/traffic_light.fsl">Belarussian</a>, and <a href="https://github.com/StoneCypher/fsl_traffic_light_russian/blob/master/traffic%20light.fsl">Russian</a>.)</li>
-					<li><a href="https://github.com/tanvirrb">Tanvir Islam</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/bengali.json">Bengali test case</a>, translated the <a href="https://github.com/tanvirrb/fsl-traffic-light-bengali/blob/master/traffic_light.fsl">Traffic Light</a> to Bengali, and published the first non-English <code>FSL</code> machine, in Bengali.</li>
-					<li><a href="https://github.com/fcojr">Francisco Junior</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/portuguese.json">Portuguese test case</a> and translated the <a href="https://github.com/StoneCypher/fsl_traffic_light_portuguese/blob/master/traffic_light.fsl">Traffic Light</a> to Portuguese</li>
-					<li><a href="https://github.com/kraln">Jeff Katz</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/german.json">German test case</a>.</li>
-					<li><a href="https://github.com/technophile77">Alex Cresswell</a> provdied the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/spanish.json">Spanish test case</a></li>
-					<li><a href="https://github.com/cohendvir">Dvir Cohen</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/hebrew.json">Hebrew test case</a>.</li>
-					<li><a href="https://github.com/daviddelapena">David de la Peña</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/french.json">French test case</a></li>
-				</ul>
-				<p>If I&#39;ve overlooked you, please let me know.</p>
-				<p>If you&#39;d like to help, it&#39;s straightforward.</p>
-				<ol>
-					<li>Easy mode: open a PR with <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/english.json">this file</a> translated into your language</li>
-					<li>Extra mile: create a new repo containing <a href="https://github.com/StoneCypher/fsl_traffic_light/blob/master/traffic_light.fsl">this file</a> translated</li>
-				</ol>
-				<p><br/><br/></p>
-				<a href="#code-and-language" id="code-and-language" style="color: inherit; text-decoration: none;">
-					<h2>Code and Language</h2>
-				</a>
-				<p><a href="https://github.com/forestbelton">Forest Belton</a> has provided guidance, bugfixes, parser and language commentary.</p>
-				<p><a href="https://github.com/ljharb">Jordan Harbrand</a> suggested two interesting features and provided strong feedback on the initial tutorial draft.</p>
-				<p>The biggest thanks must go to <a href="https://github.com/msmorgan/">Michael Morgan</a>, who has debated significant sections of
-					the notation, invented several concepts and operators, helped with the parser, with system nomenclature, for having published
-				the first not-by-me <code>FSL</code> machine, for encouragement, and generally just for having been as interested as he has been.</p>
-			</div>
-			<!--{&quot;options&quot;:&quot;C:\\Users\\john\\projects\\jssm&quot;,&quot;tsconfig&quot;:&quot;C:\\Users\\john\\projects\\jssm&quot;,&quot;entryPoints&quot;:[&quot;src/ts/jssm.ts&quot;],&quot;exclude&quot;:[],&quot;externalPattern&quot;:[&quot;**/node_modules/**&quot;],&quot;excludeExternals&quot;:false,&quot;excludeNotDocumented&quot;:false,&quot;excludeInternal&quot;:false,&quot;excludePrivate&quot;:false,&quot;excludeProtected&quot;:false,&quot;disableSources&quot;:false,&quot;includes&quot;:&quot;&quot;,&quot;media&quot;:&quot;&quot;,&quot;out&quot;:&quot;docs/docs&quot;,&quot;json&quot;:&quot;&quot;,&quot;theme&quot;:&quot;./node_modules/typedoc-neo-theme/bin/default&quot;,&quot;name&quot;:&quot;&quot;,&quot;includeVersion&quot;:false,&quot;excludeTags&quot;:[],&quot;readme&quot;:&quot;&quot;,&quot;defaultCategory&quot;:&quot;Other&quot;,&quot;categoryOrder&quot;:[],&quot;categorizeByGroup&quot;:true,&quot;gitRevision&quot;:&quot;&quot;,&quot;gitRemote&quot;:&quot;origin&quot;,&quot;gaID&quot;:&quot;&quot;,&quot;gaSite&quot;:&quot;auto&quot;,&quot;hideGenerator&quot;:false,&quot;toc&quot;:[],&quot;disableOutputCheck&quot;:false,&quot;help&quot;:false,&quot;version&quot;:false,&quot;showConfig&quot;:false,&quot;plugin&quot;:[],&quot;logger&quot;:&quot;console&quot;,&quot;logLevel&quot;:1,&quot;listInvalidSymbolLinks&quot;:false}-->
-		</div>
-		<div class="col-2 col-menu secondary-menu">
-			<nav class="tsd-navigation secondary menu-sticky">
-				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-has-type-parameter root">
-						<a href="classes/machine.html" class="tsd-kind-icon">Machine</a>
-					</li>
-					<li class=" tsd-kind-variable root">
-						<a href="modules.html#histograph" class="tsd-kind-icon">histograph</a>
-					</li>
-					<li class=" tsd-kind-variable root">
-						<a href="modules.html#seq" class="tsd-kind-icon">seq</a>
-					</li>
-					<li class=" tsd-kind-variable root">
-						<a href="modules.html#version" class="tsd-kind-icon">version</a>
-					</li>
-					<li class=" tsd-kind-variable root">
-						<a href="modules.html#weighted_histo_key" class="tsd-kind-icon">weighted_<wbr>histo_<wbr>key</a>
-					</li>
-					<li class=" tsd-kind-variable root">
-						<a href="modules.html#weighted_rand_select" class="tsd-kind-icon">weighted_<wbr>rand_<wbr>select</a>
-					</li>
-					<li class=" tsd-kind-variable root">
-						<a href="modules.html#weighted_sample_select" class="tsd-kind-icon">weighted_<wbr>sample_<wbr>select</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="modules.html#arrow_direction" class="tsd-kind-icon">arrow_<wbr>direction</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="modules.html#arrow_left_kind" class="tsd-kind-icon">arrow_<wbr>left_<wbr>kind</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="modules.html#arrow_right_kind" class="tsd-kind-icon">arrow_<wbr>right_<wbr>kind</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter root">
-						<a href="modules.html#compile" class="tsd-kind-icon">compile</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter root">
-						<a href="modules.html#make" class="tsd-kind-icon">make</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="modules.html#parse" class="tsd-kind-icon">parse</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter root">
-						<a href="modules.html#sm" class="tsd-kind-icon">sm</a>
-					</li>
-					<li class=" tsd-kind-function root">
-						<a href="modules.html#transfer_state_properties" class="tsd-kind-icon">transfer_<wbr>state_<wbr>properties</a>
-					</li>
-				</ul>
-			</nav>
-		</div>
-	</div>
 </div>
-<footer class="with-border-bottom">
-</footer>
-<div class="container tsd-generator">
-	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
-</div>
-<div class="overlay"></div>
-<script src="assets/js/main.js"></script>
-</body>
-</html>
+
+
+
+<p><br/><br/></p>
+
+<a href="#tldr" id="tldr" style="color: inherit; text-decoration: none;">
+  <h2>TL;DR</h2>
+</a>
+<p>Specify finite state machines with a brief syntax.  Run them; they&#39;re fast.  Make mistakes; they&#39;re strict.  Derive
+charts.  Save and load states, and histories.  Make machine factories to churn out dozens or thousands of instances.
+Impress friends and loved ones.  Cure corns and callouses.</p>
+<pre><code class="language-fsl"><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p>This will produce the following FSM (graphed with <a href="https://github.com/StoneCypher/jssm-viz">jssm-viz</a>):</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png" alt=""></p>
+<p>You&#39;ll build an executable state machine.</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20traffic%20light%20console%20screenshot.png" alt=""></p>
+<p><br/><br/></p>
+
+<a href="#why" id="why" style="color: inherit; text-decoration: none;">
+  <h2>Why</h2>
+</a>
+<p>As usual, a valid question.</p>
+<br/>
+
+
+<a href="#why-state-machines" id="why-state-machines" style="color: inherit; text-decoration: none;">
+  <h3>Why state machines</h3>
+</a>
+<p>State machines are a method of making your software better able to prevent illegal states.  Similar to type systems, SQL
+constraints, and linters, state machines are a way to teach the software to catch mistakes in ways you define, to help
+lead to better software.</p>
+<p>The major mechanism of a state machine is to define <code>states</code>, the <code>transitions</code> between them, and sometimes associated
+<code>data</code> and other niceties.  The minor mechanism of state machines is to attach <code>actions</code> to the transitions, such that
+the state machine can partially run itself.</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png" alt=""></p>
+<p>So, to look at the same traffic light as above, you&#39;ll notice some things.</p>
+<ol>
+<li>A sufficiently smart implementation will know that it&#39;s okay for <code>Green</code> to switch to <code>Yellow</code>, but not to <code>Red</code></li>
+<li>A sufficiently smart implementation knows there&#39;s no such thing as <code>Blue</code></li>
+<li>A sufficiently smart implementation knows that when in <code>Green</code>, to be told to <code>Proceed</code> means to go to <code>Yellow</code>, but
+when in <code>Yellow</code>, it means to go to <code>Red</code> instead</li>
+</ol>
+<p>Along with other common sense things, a good state machine implementation can help eliminate large classes of error in
+software.  State machines are often applied when the stakes on having things correct are high.</p>
+<br/>
+
+
+<a href="#why-this-implementation" id="why-this-implementation" style="color: inherit; text-decoration: none;">
+  <h3>Why this implementation</h3>
+</a>
+<p>Brevity.</p>
+<p>High quality testing.  JSSM has 100% coverage, and has partial stochastic test coverage.</p>
+<p>Feature parity, especially around the DSL and data control.</p>
+<p>Data integrity.  JSSM allows a much stricter form of state machine than is common, with a relatively low performance
+and storage overhead.  It also offers an extremely terse domain specific language (though it does not require said DSL)
+to produce state machines in otherwise comparatively tiny and easily read code.</p>
+<p><br/><br/></p>
+
+<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
+  <h2>Quick Start</h2>
+</a>
+<blockquote>
+<p>A state machine in <code>JSSM</code> is defined in one of two ways: through the DSL, or through a datastructure.</p>
+</blockquote>
+<p>So yeah, let&#39;s start by getting some terminology out of the way, and then we can go right back to that impenetrable
+sentence, so that it&#39;ll make sense.</p>
+<br/>
+
+
+<a href="#quick-terminology" id="quick-terminology" style="color: inherit; text-decoration: none;">
+  <h3>Quick Terminology</h3>
+</a>
+<p>Finite state machines have been around forever, are used by everyone, and are hugely important.  As a result, the
+terminology is a mess, is in conflict, and is very poorly chosen, in accordince with everything-is-horrible law.</p>
+<p>This section describes the terminology <em>as used by this library</em>.  The author has done his best to choose a terminology
+that matches common use and will be familiar to most.  Conflicts are explained in the following section, to keep this
+simple.</p>
+<p>For this quick overview, we&#39;ll define six basic concepts:</p>
+<ol>
+<li><code>Finite state machine</code>s</li>
+<li><code>Machine</code>s</li>
+<li><code>State</code>s</li>
+<li><code>Current state</code></li>
+<li><code>Transition</code>s</li>
+<li><code>Action</code>s</li>
+</ol>
+<p>There&#39;s other stuff, of course, but these five are enough to wrap your head around <code>finite state machine</code>s.</p>
+<br/>
+
+
+<a href="#basic-concepts" id="basic-concepts" style="color: inherit; text-decoration: none;">
+  <h4>Basic concepts</h4>
+</a>
+<p>This is a trivial traffic light <code>FSM</code>, with three states, three transitions, and one action:</p>
+<pre><code class="language-fsl"><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/ryg%20proceed.png" alt=""></p>
+<p>Let&#39;s review its pieces.</p>
+<ul>
+<li><p><code>finite state machine</code>s</p>
+<ul>
+<li>A <code>finite state machine</code> (or <code>FSM</code>) is a collection of <code>state</code>s, and rules about how you can <code>transition</code> between
+the <code>state</code>s.</li>
+<li>We tend to refer to a design for a machine as &quot;an <code>FSM</code>.&quot;</li>
+<li>In this example, the traffic light&#39;s structure is &quot;a traffic light <code>FSM</code>.&quot;</li>
+</ul>
+</li>
+<li><p><code>state</code>s</p>
+<ul>
+<li><code>FSM</code>s always have at least one <code>state</code>, and nearly always many <code>state</code>s</li>
+<li>In this example,<ul>
+<li>the <code>state</code>s are <strong>Red</strong>, <strong>Yellow</strong>, and <strong>Green</strong></li>
+<li>Something made from this <code>FSM</code> will only ever be one of those colors - not, say, <strong>Blue</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>machine</code>s</p>
+<ul>
+<li>Single instances of an <code>FSM</code> are referred to as a <code>machine</code></li>
+<li>We might have a thousand instances of the traffic light designed above</li>
+<li>We would say &quot;My intersection has four <code>machines</code> of the standard three color light <code>FSM</code>.&quot;</li>
+</ul>
+</li>
+<li><p><code>current state</code></p>
+<ul>
+<li>A <code>machine</code> has a <code>current state</code>, though an <code>FSM</code> does not<ul>
+<li>&quot;This specific traffic light is currently <strong>Red</strong>&quot;</li>
+</ul>
+</li>
+<li>Traffic lights in general do not have a current color, only specific lights</li>
+<li><code>FSM</code>s do not have a current state, only specific <code>machine</code>s</li>
+<li>A given <code>machine</code> will always have exactly one <code>state</code> - never multiple, never none</li>
+</ul>
+</li>
+<li><p><code>transitions</code></p>
+<ul>
+<li><code>FSM</code>s nearly always have <code>transition</code>s</li>
+<li>Transitions govern whether a <code>state</code> may be reached from another <code>state</code><ul>
+<li>This restriction is much of the value of <code>FSM</code>s</li>
+</ul>
+</li>
+<li>In this example,<ul>
+<li>the <code>transition</code>s are<ul>
+<li><strong>Green</strong> &rarr; <strong>Yellow</strong></li>
+<li><strong>Yellow</strong> &rarr; <strong>Red</strong></li>
+<li><strong>Red</strong> &rarr; <strong>Green</strong></li>
+</ul>
+</li>
+<li>a <code>machine</code> whose <code>current state</code> is <strong>Green</strong> may switch to <strong>Yellow</strong>, because there is an appropriate transition</li>
+<li>a <code>machine</code> whose <code>current state</code> is <strong>Green</strong> may not switch to <strong>Red</strong>, or to <strong>Green</strong> anew, because there is no
+such transition<ul>
+<li>A <code>machine</code> in <strong>Yellow</strong> which is told to <code>transition</code> to <strong>Green</strong> (which isn&#39;t legal) will know to refuse</li>
+<li>This makes <code>FSM</code>s an effective tool for error prevention</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>actions</code></p>
+<ul>
+<li>Many <code>FSM</code>s have <code>action</code>s, which represent events from the outside world.</li>
+<li>In this example, there is only one action - <strong>Proceed</strong><ul>
+<li>The <code>action</code> <strong>Proceed</strong> is available from all three colors</li>
+</ul>
+</li>
+<li>At any time we may indicate to this light to go to its next color, without
+taking the time to know what it is.<ul>
+<li>This allows <code>FSM</code>s like the light to self-manage.</li>
+<li>A <code>machine</code> in <strong>Yellow</strong> which is told to take the <code>action</code> <strong>Proceed</strong> will
+know on its own to switch its <code>current state</code> to <strong>Red</strong>.</li>
+<li>This makes <code>FSM</code>s an effective tool for complexity reduction</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Those six ideas in hand - <code>FSM</code>s, <code>state</code>s, <code>machine</code>s, <code>current state</code>, <code>transition</code>s, and <code>action</code>s - and you&#39;re ready
+to move forwards.</p>
+<p>One other quick definition - a <code>DSL</code>, or <code>domain specific language</code>, is when someone makes a language and embeds it into
+a different language, for the purpose of attacking a specific job.  When <code>React</code> uses a precompiler to embed stuff that
+looks like HTML in Javascript, that&#39;s a DSL.</p>
+<p>This library implements a simple language for <code>defining finite state machine</code>s inside of strings.  For example, this
+<code>DSL</code> defines that <code>&#39;a -&gt; b;&#39;</code> actually means &quot;create two states, create a transition between them, assign the first as
+the initial state&quot;, et cetera.  That micro-language is the <code>DSL</code> that we&#39;ll be referring to a lot, coming up.  This
+<code>DSL</code>&#39;s formal name is <code>jssm-dot</code>, because it&#39;s a descendant-in-spirit of an older flowcharting language
+<a href="http://www.graphviz.org/content/dot-language">DOT</a>, from <a href="graphviz.org">graphviz</a>, which is also used to make the
+visualizations in <a href="https://github.com/StoneCypher/jssm-viz">jssm-viz</a> by way of <a href="viz-js.com">viz-js</a>.</p>
+<p>Enough history lesson.  On with the tooling.</p>
+<br/>
+
+
+<a href="#and-now-that-quick-start-we-were-talking-about" id="and-now-that-quick-start-we-were-talking-about" style="color: inherit; text-decoration: none;">
+  <h3>And now, that Quick Start we were talking about</h3>
+</a>
+<p>So let&#39;s put together a trivial four-state traffic light: the three colors, plus <strong>Off</strong>.  This will give us an
+opportunity to go over the basic facilities in the language.</p>
+<p>At any time, you can take the code and put it into the
+<a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html">graph explorer</a> for an opportunity to mess with the
+code as you see fit.</p>
+<br/>
+
+
+<a href="#0-lights-always-have-an-off-state" id="0-lights-always-have-an-off-state" style="color: inherit; text-decoration: none;">
+  <h4>0: Lights always have an off state</h4>
+</a>
+<p>Our light will start in the <strong>Off</strong> <code>state</code>, with the ability to switch to the <strong>Red</strong> <code>state</code>.</p>
+<p>Since that&#39;s a normal, not-notable thing, we&#39;ll just make it a regular <code>-&gt; legal transition</code>.</p>
+<pre><code class="language-fsl"><span class="hl-8">Off</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p>We will give that <code>transition</code> an <code>action</code>, and call it <strong>TurnOn</strong>.</p>
+<pre><code class="language-fsl"><span class="hl-8">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;TurnOn&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p>So far, our machine is simple:</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20Red.png" alt=""></p>
+<br/>
+
+
+<a href="#1-traffic-lights-have-a-three-color-cycle" id="1-traffic-lights-have-a-three-color-cycle" style="color: inherit; text-decoration: none;">
+  <h4>1: Traffic lights have a three-color cycle</h4>
+</a>
+<p>The main path of a traffic light is cycling from <strong>Green</strong> to <strong>Yellow</strong>, then to <strong>Red</strong>, then back again.  Because
+this is the main path, we&#39;ll mark these steps <code>=&gt; main transition</code>s.</p>
+<pre><code class="language-fsl"><span class="hl-8">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;TurnOn&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p>We will give those all the same action name, <strong>Proceed</strong>, indicating &quot;next color&quot; without needing to know what we&#39;re
+currently on.</p>
+<pre><code class="language-fsl"><span class="hl-8">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;TurnOn&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p>Machine&#39;s still pretty simple:</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20RGY.png" alt=""></p>
+<br/>
+
+
+<a href="#2-traffic-lights-can-be-shut-down" id="2-traffic-lights-can-be-shut-down" style="color: inherit; text-decoration: none;">
+  <h4>2: Traffic lights can be shut down</h4>
+</a>
+<p>We&#39;d also like to be able to turn this light back off.  Because that&#39;s expected to be a rarity, we&#39;ll require that it
+be a <code>~&gt; forced transition</code>.</p>
+<p>We could write</p>
+<pre><code class="language-fsl"><span class="hl-8">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;TurnOn&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span><br/><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-0">~&gt;</span><span class="hl-1"> </span><span class="hl-8">Off</span><span class="hl-1">;</span><br/><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-0">~&gt;</span><span class="hl-1"> </span><span class="hl-8">Off</span><span class="hl-1">;</span><br/><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-0">~&gt;</span><span class="hl-1"> </span><span class="hl-8">Off</span><span class="hl-1">;</span>
+</code></pre>
+<p>But that takes a lot of space even with this short list, so, instead we&#39;ll use the array notation</p>
+<pre><code class="language-fsl"><span class="hl-8">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;TurnOn&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span><br/><span class="hl-1">[</span><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1">] </span><span class="hl-0">~&gt;</span><span class="hl-1"> </span><span class="hl-8">Off</span><span class="hl-1">;</span>
+</code></pre>
+<p>And we&#39;d like those all to have the action <strong>TurnOff</strong>, so</p>
+<pre><code class="language-fsl"><span class="hl-8">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;TurnOn&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;Proceed&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-8">Red</span><span class="hl-1">;</span><br/><span class="hl-1">[</span><span class="hl-8">Red</span><span class="hl-1"> </span><span class="hl-8">Yellow</span><span class="hl-1"> </span><span class="hl-8">Green</span><span class="hl-1">] </span><span class="hl-4">&#39;TurnOff&#39;</span><span class="hl-1"> </span><span class="hl-0">~&gt;</span><span class="hl-1"> </span><span class="hl-8">Off</span><span class="hl-1">;</span>
+</code></pre>
+<p>Machine&#39;s still not too bad:</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/traffic%20light%20quick%20start%20tutorial/Off%20To%20From%20RGY.png" alt=""></p>
+<br/>
+
+
+<a href="#let39s-actually-use-the-traffic-light" id="let39s-actually-use-the-traffic-light" style="color: inherit; text-decoration: none;">
+  <h3>Let&#39;s actually use the traffic light</h3>
+</a>
+<p>That&#39;s actually the bulk of the language.  There are other little add-ons here and there, but, primarily you now know
+how to write a state machine.</p>
+<p>Let&#39;s load it and use it!  😀</p>
+
+<a href="#loading-into-node" id="loading-into-node" style="color: inherit; text-decoration: none;">
+  <h4>loading into node</h4>
+</a>
+
+<a href="#loading-into-html" id="loading-into-html" style="color: inherit; text-decoration: none;">
+  <h4>loading into html</h4>
+</a>
+
+<a href="#jssm-viz" id="jssm-viz" style="color: inherit; text-decoration: none;">
+  <h4>jssm-viz</h4>
+</a>
+
+<a href="#redistribution-on-npm" id="redistribution-on-npm" style="color: inherit; text-decoration: none;">
+  <h4>redistribution on npm</h4>
+</a>
+<br/>
+
+
+<a href="#an-introduction-to-machine-design" id="an-introduction-to-machine-design" style="color: inherit; text-decoration: none;">
+  <h3>An introduction to machine design</h3>
+</a>
+<p>Let&#39;s make a <code>state machine</code> for ATMs.  In the process, we will use a lot of core concepts of <code>finite state machine</code>s
+and of <code>jssm-dot</code>, this library&#39;s <code>DSL</code>.</p>
+<p>We&#39;re going to improve on this <a href="https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif">NCSU ATM diagram</a> that I
+found:</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/ncsu%20atm%20diagram.gif" alt=""></p>
+<p>Remember, at any time, you can take the code and put it into the
+<a href="https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html">graph explorer</a> for an opportunity to mess with the
+code as you see fit.</p>
+<br/>
+
+
+<a href="#0-empty-machine" id="0-empty-machine" style="color: inherit; text-decoration: none;">
+  <h4>0: Empty machine</h4>
+</a>
+<p>We&#39;ll start with an <a href="https://github.com/StoneCypher/jssm/blob/master/src/machines/atm%20quick%20start%20tutorial/1_EmptyWaiting.jssm">empty machine</a>.</p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/0_EmptyWaiting.png" alt=""></p>
+<br/>
+
+
+<a href="#1-should-be-able-to-eject-cards" id="1-should-be-able-to-eject-cards" style="color: inherit; text-decoration: none;">
+  <h4>1: Should be able to eject cards</h4>
+</a>
+<p>We&#39;ll add the ability to physically eject the user&#39;s card and reset to the empty and waiting state.  Right now it&#39;ll
+dangle around un-used at the top, but later it&#39;ll become useful.</p>
+<p>This is expressed as the path <code>EjectCardAndReset -&gt; EmptyWaiting;</code></p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/1_EjectCard.png" alt=""></p>
+<br/>
+
+
+<a href="#2-should-be-able-to-insert-cards" id="2-should-be-able-to-insert-cards" style="color: inherit; text-decoration: none;">
+  <h4>2: Should be able to insert cards</h4>
+</a>
+<p>We&#39;ll add the ability to physically insert a card, next.  You know, the, uh, thing ATMs are pretty much for.</p>
+<p>To get this, add the path leg <code>EmptyWaiting &#39;InsertCard&#39; -&gt; HasCardNoAuth;</code></p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;InsertCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p>Notice that the new <code>state</code>, <strong>HasCardNoAuth</strong>, has been rendered red.  This is because it is <code>terminal</code> - there is
+no exit from this node currently.  (<strong>EmptyAndWaiting</strong> did not render that way because it had a transition to itself.)
+That will change as we go back to adding more nodes.  <code>terminal node</code>s are usually either mistakes or the last single
+<code>state</code> of a given <code>FSM</code>.</p>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/2_InsertCard.png" alt=""></p>
+<br/>
+
+
+<a href="#3-should-be-able-to-cancel-and-recover-the-card" id="3-should-be-able-to-cancel-and-recover-the-card" style="color: inherit; text-decoration: none;">
+  <h4>3: Should be able to cancel and recover the card</h4>
+</a>
+<p>Next, we should have a cancel, because the ATM&#39;s <key>7</key> key is broken, and we need our card back.  Cancel will
+exit to the main menu, and return our card credential.</p>
+<p>To that end, we add the path <code>HasCardNoAuth &#39;CancelAuthReturnCard&#39; -&gt; EjectCardAndReset;</code></p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;InsertCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelAuthReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/3_ReturnCard.png" alt=""></p>
+<br/>
+
+
+<a href="#4-can-give-the-wrong-pin" id="4-can-give-the-wrong-pin" style="color: inherit; text-decoration: none;">
+  <h4>4: Can give the wrong PIN</h4>
+</a>
+<p>Next, let&#39;s give the ability to get the password ... wrong.  😂  Because we all know that one ATM that only has the
+wrong-PIN path, so, apparently that&#39;s a product to someone.</p>
+<p>When they get the PIN wrong, they&#39;re prompted to try again (or to cancel.)</p>
+<p>We&#39;ll add the path <code>HasCardNoAuth &#39;WrongPIN&#39; -&gt; HasCardNoAuth;</code></p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;InsertCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelAuthReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;WrongPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/4_WrongPin.png" alt=""></p>
+<br/>
+
+
+<a href="#5-can-give-the-correct-pin" id="5-can-give-the-correct-pin" style="color: inherit; text-decoration: none;">
+  <h4>5: Can give the correct PIN</h4>
+</a>
+<p>Next, let&#39;s give the ability to get the password right.</p>
+<p>We&#39;ll add two paths.  The first gets the password right: <code>HasCardNoAuth &#39;RightPIN&#39; -&gt; MainMenu;</code></p>
+<p>The second, from our new <code>state</code> <strong>MainMenu</strong>, gives people the ability to leave: <code>MainMenu &#39;ExitReturnCard&#39; -&gt; EjectCardAndReset;</code></p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;InsertCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelAuthReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;WrongPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;RightPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;ExitReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/5_RightPin.png" alt=""></p>
+<br/>
+
+
+<a href="#6-can-check-balance-from-main-menu" id="6-can-check-balance-from-main-menu" style="color: inherit; text-decoration: none;">
+  <h4>6: Can check balance from main menu</h4>
+</a>
+<p>Hooray, now we&#39;re getting somewhere.</p>
+<p>Let&#39;s add the ability to check your balance.  First pick that from the main menu, then pick which account to see the
+balance of, then you&#39;re shown a screen with the information you requested; then go back to the main menu.</p>
+<p>That&#39;s <code>MainMenu &#39;CheckBalance&#39; -&gt; PickAccount -&gt; DisplayBalance -&gt; MainMenu;</code>.</p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;InsertCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelAuthReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;WrongPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;RightPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;ExitReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;CheckBalance&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">DisplayBalance</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/6_CanCheckBalance.png" alt=""></p>
+<br/>
+
+
+<a href="#7-can-deposit-money-from-main-menu" id="7-can-deposit-money-from-main-menu" style="color: inherit; text-decoration: none;">
+  <h4>7: Can deposit money from main menu</h4>
+</a>
+<p>Let&#39;s add something difficult.  Their state machine just proceeds assuming everything is okay.</p>
+<p>To desposit money:</p>
+<ol>
+<li>Accept physical money</li>
+<li>If accept failed (eg door jammed,) reject physical object, go to main menu</li>
+<li>If accept succeeded, ask human expected value</li>
+<li>Pick an account this should go into</li>
+<li>Contact bank.  Request to credit for theoretical physical money.</li>
+<li>Three results: yes, no, offer-after-audit.</li>
+<li>If no, reject physical object, go to main menu.</li>
+<li>If yes, consume physical object, tell user consumed, go to main menu</li>
+<li>If offer-after-audit, ask human what to do</li>
+<li>if human-yes, consume physical object, tell user consumed, go to main menu</li>
+<li>if human-no, reject physical object, go to main menu</li>
+</ol>
+<p>Writing this out in code is not only generally longer than the text form, but also error prone and hard to maintain.</p>
+<p>... or there&#39;s the <code>FSM</code> <code>DSL</code>, which is usually as-brief-as the text, and frequently both briefer and more explicit.</p>
+<ul>
+<li>Rules 1-2: <code>MainMenu &#39;AcceptDeposit&#39; -&gt; TentativeAcceptMoney &#39;AcceptFail&#39; -&gt; RejectPhysicalMoney -&gt; MainMenu;</code></li>
+<li>Rules 3-6: <code>TentativeAcceptMoney &#39;AcceptSucceed&#39; -&gt; PickDepositAccount -&gt; RequestValue &#39;TellBank&#39; -&gt; BankResponse;</code></li>
+<li>Rule 7: <code>BankResponse &#39;BankNo&#39; -&gt; RejectPhysicalMoney;</code></li>
+<li>Rule 8: <code>BankResponse &#39;BankYes&#39; -&gt; ConsumeMoney -&gt; NotifyConsumed -&gt; MainMenu;</code></li>
+<li>Rules 9-10: <code>BankResponse &#39;BankAudit&#39; -&gt; BankAuditOffer &#39;HumanAcceptAudit&#39; -&gt; ConsumeMoney;</code></li>
+<li>Rule 11: <code>BankAuditOffer &#39;HumanRejectAudit&#39; -&gt; RejectPhysicalMoney;</code></li>
+</ul>
+<p>Or, as a block,</p>
+<pre><code class="language-fsl"><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptDeposit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1">;</span><br/><br/><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptFail&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptSucceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickDepositAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RequestValue</span><span class="hl-1"> </span><span class="hl-4">&#39;TellBank&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankResponse</span><span class="hl-1">;</span><br/><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankNo&#39;</span><span class="hl-1">    </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1">;</span><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankYes&#39;</span><span class="hl-1">   </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConsumeMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">NotifyConsumed</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankAuditOffer</span><span class="hl-1"> </span><span class="hl-4">&#39;HumanAcceptAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConsumeMoney</span><span class="hl-1">;</span><br/><br/><span class="hl-8">BankAuditOffer</span><span class="hl-1"> </span><span class="hl-4">&#39;HumanRejectAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1">;</span>
+</code></pre>
+<p>Which leaves us with the total code</p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;InsertCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelAuthReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;WrongPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;RightPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptDeposit&#39;</span><span class="hl-1">  </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1">;</span><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;ExitReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;CheckBalance&#39;</span><span class="hl-1">   </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickCheckBalanceAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">DisplayBalance</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptFail&#39;</span><span class="hl-1">    </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptSucceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickDepositAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RequestValue</span><span class="hl-1"> </span><span class="hl-4">&#39;TellBank&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankResponse</span><span class="hl-1">;</span><br/><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankNo&#39;</span><span class="hl-1">    </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1">;</span><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankYes&#39;</span><span class="hl-1">   </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConsumeMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">NotifyConsumed</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankAuditOffer</span><span class="hl-1"> </span><span class="hl-4">&#39;HumanAcceptAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConsumeMoney</span><span class="hl-1">;</span><br/><br/><span class="hl-8">BankAuditOffer</span><span class="hl-1"> </span><span class="hl-4">&#39;HumanRejectAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1">;</span><br/><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/7_CanDepositMoney.png" alt=""></p>
+<br/>
+
+
+<a href="#8-can-withdraw-money-from-main-menu" id="8-can-withdraw-money-from-main-menu" style="color: inherit; text-decoration: none;">
+  <h4>8: Can withdraw money from main menu</h4>
+</a>
+<p>Let&#39;s also be able to take money from the machine.  After this, we&#39;ll move on, since our example is pretty squarely made
+by now.</p>
+<ol>
+<li>Pick a withdrawl account, or cancel to the main menu</li>
+<li>Shown a balance, pick a withdrawl amount, or cancel to acct picker</li>
+<li>Is the withdrawl account too high?  If so go to 2</li>
+<li>Does the machine actually have the money?  If not go to 2</li>
+<li>Otherwise confirm intent w/ human</li>
+<li>Attempt to post the transaction.</li>
+<li>If fail, display reason and go to 1</li>
+<li>If succeed, dispense money and go to main menu</li>
+</ol>
+<ul>
+<li>Rules 1-3: <code>MainMenu -&gt; PickWithdrawlAccount -&gt; PickAmount -&gt; AcctHasMoney? &#39;TooHighForAcct&#39; -&gt; PickWithdrawlAccount;</code></li>
+<li>Rule 4: <code>AcctHasMoney? -&gt; MachineHasMoney? &#39;MachineLowOnCash&#39; -&gt; PickAmount;</code></li>
+<li>Rule 5: <code>MachineHasMoney? -&gt; ConfirmWithdrawWithHuman &#39;MakeChanges&#39; -&gt; PickWithdrawlAmount;</code></li>
+<li>Rule 6: <code>ConfirmWithdrawWithHuman &#39;PostWithdrawl&#39; -&gt; BankWithdrawlResponse;</code></li>
+<li>Rule 7: <code>BankWithdrawlResponse &#39;WithdrawlFailure&#39; -&gt; WithdrawlFailureExplanation -&gt; PickWithdrawlAccount;</code></li>
+<li>Rule 8: <code>BankWithdrawlResponse &#39;WithdrawlSuccess&#39; -&gt; DispenseMoney -&gt; MainMenu;</code></li>
+</ul>
+<p>Rule 1 canceller: <code>PickWithdrawlAccount &#39;CancelWithdrawl&#39; -&gt; MainMenu;</code>
+Rule 2 canceller: <code>PickWithdrawlAmount &#39;SwitchAccounts&#39; -&gt; PickWithdrawlAccount;</code></p>
+<p>Or as a whole, we&#39;re adding</p>
+<pre><code class="language-fsl"><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickAmount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">AcctHasMoney?</span><span class="hl-1"> </span><span class="hl-4">&#39;TooHighForAcct&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1">;</span><br/><span class="hl-8">AcctHasMoney?</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MachineHasMoney?</span><span class="hl-1"> </span><span class="hl-4">&#39;MachineLowOnCash&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickAmount</span><span class="hl-1">;</span><br/><span class="hl-8">MachineHasMoney?</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConfirmWithdrawWithHuman</span><span class="hl-1"> </span><span class="hl-4">&#39;MakeChanges&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAmount</span><span class="hl-1">;</span><br/><span class="hl-8">ConfirmWithdrawWithHuman</span><span class="hl-1"> </span><span class="hl-4">&#39;PostWithdrawl&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankWithdrawlResponse</span><span class="hl-1">;</span><br/><span class="hl-8">BankWithdrawlResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;WithdrawlFailure&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">WithdrawlFailureExplanation</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1">;</span><br/><span class="hl-8">BankWithdrawlResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;WithdrawlSuccess&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">DispenseMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelWithdrawl&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">PickWithdrawlAmount</span><span class="hl-1"> </span><span class="hl-4">&#39;SwitchAccounts&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1">;</span>
+</code></pre>
+<p>Which leaves us with</p>
+<pre><code class="language-fsl"><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;Wait&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1"> </span><span class="hl-4">&#39;InsertCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelAuthReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;WrongPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">HasCardNoAuth</span><span class="hl-1">;</span><br/><span class="hl-8">HasCardNoAuth</span><span class="hl-1"> </span><span class="hl-4">&#39;RightPIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptDeposit&#39;</span><span class="hl-1">  </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1">;</span><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;ExitReturnCard&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EjectCardAndReset</span><span class="hl-1">;</span><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-4">&#39;CheckBalance&#39;</span><span class="hl-1">   </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickCheckBalanceAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">DisplayBalance</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptFail&#39;</span><span class="hl-1">    </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">TentativeAcceptMoney</span><span class="hl-1"> </span><span class="hl-4">&#39;AcceptSucceed&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickDepositAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RequestValue</span><span class="hl-1"> </span><span class="hl-4">&#39;TellBank&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankResponse</span><span class="hl-1">;</span><br/><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankNo&#39;</span><span class="hl-1">    </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1">;</span><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankYes&#39;</span><span class="hl-1">   </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConsumeMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">NotifyConsumed</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">BankResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;BankAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankAuditOffer</span><span class="hl-1"> </span><span class="hl-4">&#39;HumanAcceptAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConsumeMoney</span><span class="hl-1">;</span><br/><br/><span class="hl-8">BankAuditOffer</span><span class="hl-1"> </span><span class="hl-4">&#39;HumanRejectAudit&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">RejectPhysicalMoney</span><span class="hl-1">;</span><br/><br/><span class="hl-8">MainMenu</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickAmount</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">AcctHasMoney?</span><span class="hl-1"> </span><span class="hl-4">&#39;TooHighForAcct&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1">;</span><br/><span class="hl-8">AcctHasMoney?</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MachineHasMoney?</span><span class="hl-1"> </span><span class="hl-4">&#39;MachineLowOnCash&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickAmount</span><span class="hl-1">;</span><br/><span class="hl-8">MachineHasMoney?</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">ConfirmWithdrawWithHuman</span><span class="hl-1"> </span><span class="hl-4">&#39;MakeChanges&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAmount</span><span class="hl-1">;</span><br/><span class="hl-8">ConfirmWithdrawWithHuman</span><span class="hl-1"> </span><span class="hl-4">&#39;PostWithdrawl&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">BankWithdrawlResponse</span><span class="hl-1">;</span><br/><span class="hl-8">BankWithdrawlResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;WithdrawlFailure&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">WithdrawlFailureExplanation</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1">;</span><br/><span class="hl-8">BankWithdrawlResponse</span><span class="hl-1"> </span><span class="hl-4">&#39;WithdrawlSuccess&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">DispenseMoney</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><br/><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1"> </span><span class="hl-4">&#39;CancelWithdrawl&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">MainMenu</span><span class="hl-1">;</span><br/><span class="hl-8">PickWithdrawlAmount</span><span class="hl-1"> </span><span class="hl-4">&#39;SwitchAccounts&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">PickWithdrawlAccount</span><span class="hl-1">;</span><br/><br/><span class="hl-8">EjectCardAndReset</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-8">EmptyWaiting</span><span class="hl-1">;</span>
+</code></pre>
+<p><img src="https://raw.githubusercontent.com/StoneCypher/jssm/master/src/assets/atm%20quick%20start%20tutorial/8_CanWithdrawMoney.png" alt=""></p>
+<p>As you can see, building up even very complex state machines is actually relatively straightforward, in a short
+amount of time.</p>
+<p><br/><br/></p>
+
+<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+  <h2>Features</h2>
+</a>
+
+<a href="#dsl" id="dsl" style="color: inherit; text-decoration: none;">
+  <h3>DSL</h3>
+</a>
+
+<a href="#states" id="states" style="color: inherit; text-decoration: none;">
+  <h3>States</h3>
+</a>
+
+<a href="#transitions" id="transitions" style="color: inherit; text-decoration: none;">
+  <h3>Transitions</h3>
+</a>
+
+<a href="#cycles" id="cycles" style="color: inherit; text-decoration: none;">
+  <h3>Cycles</h3>
+</a>
+
+<a href="#stripes" id="stripes" style="color: inherit; text-decoration: none;">
+  <h3>Stripes</h3>
+</a>
+
+<a href="#named-ordered-lists" id="named-ordered-lists" style="color: inherit; text-decoration: none;">
+  <h3>Named Ordered Lists</h3>
+</a>
+
+<a href="#atoms" id="atoms" style="color: inherit; text-decoration: none;">
+  <h3>Atoms</h3>
+</a>
+
+<a href="#strings" id="strings" style="color: inherit; text-decoration: none;">
+  <h3>Strings</h3>
+</a>
+
+<a href="#arrow-types" id="arrow-types" style="color: inherit; text-decoration: none;">
+  <h3>Arrow types</h3>
+</a>
+
+<a href="#unicode-representations" id="unicode-representations" style="color: inherit; text-decoration: none;">
+  <h3>Unicode representations</h3>
+</a>
+
+<a href="#node-declarations" id="node-declarations" style="color: inherit; text-decoration: none;">
+  <h3>Node declarations</h3>
+</a>
+
+<a href="#all-the-styling-bullshit" id="all-the-styling-bullshit" style="color: inherit; text-decoration: none;">
+  <h3>All the styling bullshit</h3>
+</a>
+
+<a href="#named-edges" id="named-edges" style="color: inherit; text-decoration: none;">
+  <h3>Named edges</h3>
+</a>
+
+<a href="#url-callouts" id="url-callouts" style="color: inherit; text-decoration: none;">
+  <h3>URL callouts</h3>
+</a>
+
+<a href="#the-9-or-whatever-directives" id="the-9-or-whatever-directives" style="color: inherit; text-decoration: none;">
+  <h3>The 9 or whatever directives</h3>
+</a>
+
+<a href="#how-to-publish-a-machine" id="how-to-publish-a-machine" style="color: inherit; text-decoration: none;">
+  <h3>How to publish a machine</h3>
+</a>
+
+<a href="#legal-main-and-forced" id="legal-main-and-forced" style="color: inherit; text-decoration: none;">
+  <h4>Legal, main, and forced</h4>
+</a>
+
+<a href="#validators" id="validators" style="color: inherit; text-decoration: none;">
+  <h3>Validators</h3>
+</a>
+
+<a href="#state-history" id="state-history" style="color: inherit; text-decoration: none;">
+  <h3>State history</h3>
+</a>
+
+<a href="#automatic-visualization" id="automatic-visualization" style="color: inherit; text-decoration: none;">
+  <h3>Automatic visualization</h3>
+</a>
+<p><br/><br/></p>
+
+<a href="#how-to-think-in-state-machines" id="how-to-think-in-state-machines" style="color: inherit; text-decoration: none;">
+  <h2>How to think in state machines</h2>
+</a>
+<p><br/><br/></p>
+
+<a href="#example-machines" id="example-machines" style="color: inherit; text-decoration: none;">
+  <h2>Example Machines</h2>
+</a>
+
+<a href="#door-lock" id="door-lock" style="color: inherit; text-decoration: none;">
+  <h3>Door lock</h3>
+</a>
+
+<a href="#traffic-lights" id="traffic-lights" style="color: inherit; text-decoration: none;">
+  <h3>Traffic lights</h3>
+</a>
+
+<a href="#basic-three-state" id="basic-three-state" style="color: inherit; text-decoration: none;">
+  <h4>Basic three-state</h4>
+</a>
+
+<a href="#ryg-off-flash-red-flash-yellow" id="ryg-off-flash-red-flash-yellow" style="color: inherit; text-decoration: none;">
+  <h4>RYG, Off, Flash-red, Flash-yellow</h4>
+</a>
+
+<a href="#ryg-off-flash-red-flash-yellow-green-left-yellow-left" id="ryg-off-flash-red-flash-yellow-green-left-yellow-left" style="color: inherit; text-decoration: none;">
+  <h4>RYG, Off, Flash-red, Flash-yellow, Green-left, Yellow-left</h4>
+</a>
+
+<a href="#heirarchal-intersection" id="heirarchal-intersection" style="color: inherit; text-decoration: none;">
+  <h4>Heirarchal intersection</h4>
+</a>
+
+<a href="#atm" id="atm" style="color: inherit; text-decoration: none;">
+  <h3><a href="https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif">ATM</a></h3>
+</a>
+
+<a href="#http" id="http" style="color: inherit; text-decoration: none;">
+  <h3><a href="https://www.w3.org/Library/User/Architecture/HTTP.gif">HTTP</a></h3>
+</a>
+
+<a href="#better-http" id="better-http" style="color: inherit; text-decoration: none;">
+  <h4>Better HTTP</h4>
+</a>
+
+<a href="#tcp" id="tcp" style="color: inherit; text-decoration: none;">
+  <h3><a href="http://www.texample.net/media/tikz/examples/PNG/tcp-state-machine.png">TCP</a></h3>
+</a>
+
+<a href="#coin-op-vending-machine-data" id="coin-op-vending-machine-data" style="color: inherit; text-decoration: none;">
+  <h3>Coin-op vending machine (data)</h3>
+</a>
+
+<a href="#video-games" id="video-games" style="color: inherit; text-decoration: none;">
+  <h3>Video games</h3>
+</a>
+
+<a href="#pac-man-ghost-sensors" id="pac-man-ghost-sensors" style="color: inherit; text-decoration: none;">
+  <h4>Pac-man Ghost (sensors)</h4>
+</a>
+
+<a href="#weather-probabilistics" id="weather-probabilistics" style="color: inherit; text-decoration: none;">
+  <h4>Weather (probabilistics)</h4>
+</a>
+
+<a href="#roguelike-monster-interface-satisfaction" id="roguelike-monster-interface-satisfaction" style="color: inherit; text-decoration: none;">
+  <h4>Roguelike monster (interface satisfaction)</h4>
+</a>
+
+<a href="#candy-crush-clone-game-flow-practical-large-use" id="candy-crush-clone-game-flow-practical-large-use" style="color: inherit; text-decoration: none;">
+  <h3>Candy crush clone game flow (practical large use)</h3>
+</a>
+
+<a href="#vegas-locked-21-dealer-behavior" id="vegas-locked-21-dealer-behavior" style="color: inherit; text-decoration: none;">
+  <h3>Vegas locked 21 dealer behavior</h3>
+</a>
+
+<a href="#react-spa-website-practical-large-use" id="react-spa-website-practical-large-use" style="color: inherit; text-decoration: none;">
+  <h3>React SPA website (practical large use)</h3>
+</a>
+
+<a href="#bgp" id="bgp" style="color: inherit; text-decoration: none;">
+  <h3><a href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/BGP_FSM.svg/549px-BGP_FSM.svg.png">BGP</a></h3>
+</a>
+
+<a href="#libgcrypt-fips-mode-fsm" id="libgcrypt-fips-mode-fsm" style="color: inherit; text-decoration: none;">
+  <h3><a href="https://www.gnupg.org/documentation/manuals/gcrypt/fips-fsm.png">LibGCrypt FIPS mode FSM</a></h3>
+</a>
+<p><br/><br/></p>
+
+<a href="#how-to-debug" id="how-to-debug" style="color: inherit; text-decoration: none;">
+  <h2>How to debug</h2>
+</a>
+<p><br/><br/></p>
+
+<a href="#how-to-publish" id="how-to-publish" style="color: inherit; text-decoration: none;">
+  <h2>How to publish</h2>
+</a>
+<p>It&#39;s really quite simple.</p>
+<ol>
+<li>Make a github repository.</li>
+<li>Put your code in a file inside, with the extension <code>.fsl</code></li>
+<li>Make sure your code contains a <code>machine_name</code></li>
+</ol>
+<p>Once done, your work should show up <a href="https://github.com/search?utf8=%E2%9C%93&amp;q=extension%3Afsl+machine_name&amp;type=Code">here</a>.</p>
+<p><br/><br/></p>
+
+<a href="#notation-comparison" id="notation-comparison" style="color: inherit; text-decoration: none;">
+  <h2>Notation Comparison</h2>
+</a>
+
+<a href="#their-notations-one-by-one" id="their-notations-one-by-one" style="color: inherit; text-decoration: none;">
+  <h3>Their notations, one by one</h3>
+</a>
+
+<a href="#apples-to-apples---traffic-light" id="apples-to-apples---traffic-light" style="color: inherit; text-decoration: none;">
+  <h3>Apples to Apples - Traffic Light</h3>
+</a>
+<p><br/><br/></p>
+
+<a href="#other-state-machines" id="other-state-machines" style="color: inherit; text-decoration: none;">
+  <h2>Other state machines</h2>
+</a>
+<p>There are a lot of state machine impls for JS, many quite a bit more mature than this one.  Here are some options:</p>
+<ol>
+<li><a href="https://github.com/nickuraltsev/finity">Finity</a> 😮</li>
+<li><a href="https://github.com/fschaefer/Stately.js">Stately.js</a></li>
+<li><a href="https://github.com/ifandelse/machina.js">machina.js</a></li>
+<li><a href="https://github.com/orbitbot/pastafarian">Pastafarian</a></li>
+<li><a href="https://github.com/orbitbot/henderson">Henderson</a></li>
+<li><a href="https://github.com/vstirbu/fsm-as-promised">fsm-as-promised</a></li>
+<li><a href="https://github.com/DEADB17/state-machine">state-machine</a></li>
+<li><a href="https://github.com/bredele/mood">mood</a></li>
+<li><a href="https://github.com/MatthewHepburn/FSM-Workbench">FSM Workbench</a></li>
+<li><a href="https://github.com/ccnokes/SimpleStateMachine">SimpleStateMachine</a></li>
+<li>shime/<a href="https://github.com/shime/micro-machine">micro-machine</a><ol>
+<li>soveran/<a href="https://github.com/soveran/micromachine">micromachine</a> (ruby)</li>
+</ol>
+</li>
+<li>fabiospampinato/<a href="https://github.com/fabiospampinato/FSM">FSM</a></li>
+<li>HQarroum/<a href="https://github.com/HQarroum/Fsm">FSM</a></li>
+<li><a href="https://github.com/RolandR/Finite-State-Automata">Finite-State-Automata</a></li>
+<li><a href="https://github.com/MarkH817/finite-state-machine">finite-state-machine</a></li>
+<li><a href="https://github.com/ajauhri/nfm">nfm</a></li>
+</ol>
+<p>And some similar stuff:</p>
+<ol>
+<li><a href="https://github.com/mheiber/redux-machine">redux-machine</a></li>
+<li><a href="https://github.com/heycarsten/ember-fsm">ember-fsm</a></li>
+<li><a href="https://github.com/sverweij/state-machine-cat">State machine cat</a></li>
+<li><a href="https://github.com/AlexLevshin/workty">Workty</a> 😮</li>
+<li><a href="https://github.com/sladiri/sam-simpler">sam-simpler</a></li>
+<li><a href="https://github.com/quilin/event_chain">event_chain</a></li>
+<li><a href="https://en.wikipedia.org/wiki/DRAKON">DRAKON</a></li>
+<li><a href="https://github.com/Yakindu/statecharts">Yakindu Statechart Tools</a></li>
+<li><a href="http://www.graphviz.org/">GraphViz</a><ol>
+<li><a href="https://github.com/mdaines/viz.js/">Viz.js</a>, which we use</li>
+</ol>
+</li>
+</ol>
+<p><br/><br/><br/></p>
+
+<a href="#thanks" id="thanks" style="color: inherit; text-decoration: none;">
+  <h1>Thanks</h1>
+</a>
+<p>JSSM and FSL have had a lot of help.</p>
+<p><br/><br/></p>
+
+<a href="#internationalization" id="internationalization" style="color: inherit; text-decoration: none;">
+  <h2>Internationalization</h2>
+</a>
+<ul>
+<li><a href="https://github.com/miles91">Mykhaylo Les</a> provided three translation test cases (<a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/ukrainian.json">Ukrainian</a>, <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/belarussian.json">Belarussian</a>, and <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/russian.json">Russian</a>,) and the corresponding Traffic Light translations (also <a href="https://github.com/StoneCypher/fsl_traffic_light_ukrainian/blob/master/traffic%20light.fsl">Ukrainian</a>, <a href="https://github.com/StoneCypher/fsl_traffic_light_belarussian/blob/master/traffic_light.fsl">Belarussian</a>, and <a href="https://github.com/StoneCypher/fsl_traffic_light_russian/blob/master/traffic%20light.fsl">Russian</a>.)</li>
+<li><a href="https://github.com/tanvirrb">Tanvir Islam</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/bengali.json">Bengali test case</a>, translated the <a href="https://github.com/tanvirrb/fsl-traffic-light-bengali/blob/master/traffic_light.fsl">Traffic Light</a> to Bengali, and published the first non-English <code>FSL</code> machine, in Bengali.</li>
+<li><a href="https://github.com/fcojr">Francisco Junior</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/portuguese.json">Portuguese test case</a> and translated the <a href="https://github.com/StoneCypher/fsl_traffic_light_portuguese/blob/master/traffic_light.fsl">Traffic Light</a> to Portuguese</li>
+<li><a href="https://github.com/kraln">Jeff Katz</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/german.json">German test case</a>.</li>
+<li><a href="https://github.com/technophile77">Alex Cresswell</a> provdied the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/spanish.json">Spanish test case</a></li>
+<li><a href="https://github.com/cohendvir">Dvir Cohen</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/hebrew.json">Hebrew test case</a>.</li>
+<li><a href="https://github.com/daviddelapena">David de la Peña</a> provided the <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/french.json">French test case</a></li>
+</ul>
+<p>If I&#39;ve overlooked you, please let me know.</p>
+<p>If you&#39;d like to help, it&#39;s straightforward.</p>
+<ol>
+<li>Easy mode: open a PR with <a href="https://github.com/StoneCypher/jssm/blob/master/src/js/tests/language_data/english.json">this file</a> translated into your language</li>
+<li>Extra mile: create a new repo containing <a href="https://github.com/StoneCypher/fsl_traffic_light/blob/master/traffic_light.fsl">this file</a> translated</li>
+</ol>
+<p><br/><br/></p>
+
+<a href="#code-and-language" id="code-and-language" style="color: inherit; text-decoration: none;">
+  <h2>Code and Language</h2>
+</a>
+<p><a href="https://github.com/forestbelton">Forest Belton</a> has provided guidance, bugfixes, parser and language commentary.</p>
+<p><a href="https://github.com/ljharb">Jordan Harbrand</a> suggested two interesting features and provided strong feedback on the initial tutorial draft.</p>
+<p>The biggest thanks must go to <a href="https://github.com/msmorgan/">Michael Morgan</a>, who has debated significant sections of
+the notation, invented several concepts and operators, helped with the parser, with system nomenclature, for having published
+the first not-by-me <code>FSL</code> machine, for encouragement, and generally just for having been as interested as he has been.</p>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/Machine.html" class="tsd-kind-icon">Machine</a></li><li class="tsd-kind-variable"><a href="modules.html#histograph" class="tsd-kind-icon">histograph</a></li><li class="tsd-kind-variable"><a href="modules.html#seq" class="tsd-kind-icon">seq</a></li><li class="tsd-kind-variable"><a href="modules.html#version" class="tsd-kind-icon">version</a></li><li class="tsd-kind-variable"><a href="modules.html#weighted_histo_key" class="tsd-kind-icon">weighted_<wbr/>histo_<wbr/>key</a></li><li class="tsd-kind-variable"><a href="modules.html#weighted_rand_select" class="tsd-kind-icon">weighted_<wbr/>rand_<wbr/>select</a></li><li class="tsd-kind-variable"><a href="modules.html#weighted_sample_select" class="tsd-kind-icon">weighted_<wbr/>sample_<wbr/>select</a></li><li class="tsd-kind-function"><a href="modules.html#arrow_direction" class="tsd-kind-icon">arrow_<wbr/>direction</a></li><li class="tsd-kind-function"><a href="modules.html#arrow_left_kind" class="tsd-kind-icon">arrow_<wbr/>left_<wbr/>kind</a></li><li class="tsd-kind-function"><a href="modules.html#arrow_right_kind" class="tsd-kind-icon">arrow_<wbr/>right_<wbr/>kind</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#compile" class="tsd-kind-icon">compile</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#make" class="tsd-kind-icon">make</a></li><li class="tsd-kind-function"><a href="modules.html#parse" class="tsd-kind-icon">parse</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#sm" class="tsd-kind-icon">sm</a></li><li class="tsd-kind-function"><a href="modules.html#transfer_state_properties" class="tsd-kind-icon">transfer_<wbr/>state_<wbr/>properties</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>

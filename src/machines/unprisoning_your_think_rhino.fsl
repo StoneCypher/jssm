@@ -1,0 +1,21 @@
+machine_name     : "Unprisoning your Think Rhino";
+machine_author   : "MachinShin <machinshin@gmail.com>";
+machine_license  : MIT;
+machine_comment  : "#madewithfsl";
+machine_language : en;
+machine_version  : 1.0.0;
+fsl_version      : 1.0.0;
+flow: down;
+
+arrange [ Activity Choice ];
+arrange [ Time "Extra Time" ];
+
+Delivery -> [ Contestibility Improvulence ];
+
+Contestibility -> [ Bettering UnBettering ] -> Itself;
+
+Improvulence -> [ Upsoar YesNess ] -> Itself;
+
+Precision -> Activity -> Time;
+Time <-> "Extra Time";
+Precision -> Choice -> "Extra Time";
