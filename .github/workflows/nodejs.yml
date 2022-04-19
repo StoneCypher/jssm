@@ -69,8 +69,6 @@ jobs:
         git config --global user.email "stonecypher@users.noreply.github.com"
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.js
-        export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
-        echo "TAG=$TAG" >> $GITHUB_ENV
 
   release:
     if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
@@ -79,6 +77,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Export tag to envvars
+      run: |
+        export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
+        echo "TAG=$TAG" >> $GITHUB_ENV
 
     - name: Use Node.js 18.x
       uses: actions/setup-node@v1
