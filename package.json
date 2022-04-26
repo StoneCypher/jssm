@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.43.2",
+  "version": "5.44.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -16,7 +16,7 @@
       }
     ]
   },
-  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
+  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with TypeScript. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
   "module": "dist/es6/jssm.js",
   "types": "./jssm.d.ts",
@@ -39,8 +39,9 @@
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
-    "build": "npm run vet && npm run test && npm run site && npm run docs",
-    "ci_build": "npm run vet && npm run test",
+    "benny": "node ./src/buildjs/benchmark.js",
+    "build": "npm run vet && npm run test && npm run site && npm run docs && npm run benny",
+    "ci_build": "npm run vet && npm run test && npm run benny",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
@@ -69,7 +70,6 @@
     "tested",
     "typed",
     "typed-js",
-    "flowtype",
     "mealy",
     "moore",
     "mealy machine",
@@ -80,6 +80,7 @@
     "viz.js",
     "flowchart",
     "visualization",
+    "TypeScript",
     "StoneCypher"
   ],
   "author": "John Haugeland <stonecypher@gmail.com>",
@@ -92,6 +93,7 @@
     "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
+    "benny": "^3.7.1",
     "changelog-maker": "^2.3.2",
     "coveralls": "^3.0.11",
     "eslint": "^7.32.0",

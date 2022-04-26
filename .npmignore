@@ -55,3 +55,5 @@ src/site/
 dist/jssm.es5.iife.nonmin.js
 dist/jssm.es5.cjs.nonmin.js
 dist/es6/jssm-dot.nonmin.js
+
+benchmark/

@@ -1,0 +1,53 @@
+
+const b    = require('benny'),
+      jssm = require('../../dist/jssm.es5.cjs'),
+      sm   = jssm.sm;
+
+
+
+
+
+function TransitionCycleFourPointTrafficLight500Times() {
+
+  const Tl4 = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
+
+  for (let i=0; i<500; ++i) {
+    Tl4.transition('green');
+    Tl4.transition('yellow');
+    Tl4.transition('red');
+  }
+
+}
+
+
+
+
+
+function ActionCycleFourPointTrafficLight500Times() {
+
+  const Tl4WA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+
+  for (let i=0; i<500; ++i) {
+    Tl4WA.action('next');  // to green
+    Tl4WA.action('next');  // to yellow
+    Tl4WA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+b.suite('General performance suite',
+
+  b.add('Blind cycle a traffic light 500 times by transition', TransitionCycleFourPointTrafficLight500Times ),
+  b.add('Blind cycle a traffic light 500 times by action',     ActionCycleFourPointTrafficLight500Times ),
+
+  b.cycle(),
+  b.complete(),
+
+  b.save({ file: 'general', version: '1.0.0' }),
+  b.save({ file: 'general', format: 'chart.html' }),
+
+);
