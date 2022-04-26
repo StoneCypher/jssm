@@ -16,7 +16,7 @@
       }
     ]
   },
-  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with Flowtype. MIT License.",
+  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with TypeScript. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
   "module": "dist/es6/jssm.js",
   "types": "./jssm.d.ts",
@@ -70,7 +70,6 @@
     "tested",
     "typed",
     "typed-js",
-    "flowtype",
     "mealy",
     "moore",
     "mealy machine",
@@ -81,6 +80,7 @@
     "viz.js",
     "flowchart",
     "visualization",
+    "TypeScript",
     "StoneCypher"
   ],
   "author": "John Haugeland <stonecypher@gmail.com>",
