@@ -51,19 +51,17 @@ jobs:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./coverage/spec/lcov.info
 
-  verify-version-bump-then-release:
-    if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
+  verify-version-bump:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Use Node.js 17.x
+    - name: Use Node.js 18.x
       uses: actions/setup-node@v1
       with:
-        node-version: 17.x
-        registry-url: https://registry.npmjs.org/
+        node-version: 18.x
 
     - name: Verify the version was bumped
       run: |
@@ -71,8 +69,28 @@ jobs:
         git config --global user.email "stonecypher@users.noreply.github.com"
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.js
+
+  release:
+    if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
+    needs: verify-version-bump
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Export tag to envvars
+      run: |
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
         echo "TAG=$TAG" >> $GITHUB_ENV
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+        registry-url: https://registry.npmjs.org/
+
+    - name: Push tags
+      run: git push origin --tags
 
     - name: Create the release
       uses: actions/create-release@v1
