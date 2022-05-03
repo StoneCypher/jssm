@@ -19,7 +19,8 @@ import {
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout,
-  FslDirection, FslTheme
+  FslDirection, FslTheme,
+  HookDescription
 
 } from './jssm_types';
 
@@ -209,6 +210,18 @@ function makeTransition<mDT>(
 
   return edge;
 
+}
+
+
+
+
+
+function hook_name(from: string, to: string): string {
+  return JSON.stringify([from, to]);
+}
+
+function named_hook_name(from: string, to: string, action: string): string {
+  return JSON.stringify([from, to, action]);
 }
 
 
@@ -475,11 +488,14 @@ class Machine<mDT> {
   _theme                     : FslTheme;
   _flow                      : FslDirection;
 
+  _hooks                     : Map<string, Function>;
+  _named_hooks               : Map<string, Function>;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
     start_states,
-    complete        = [],
+    complete                  = [],
     transitions,
     machine_author,
     machine_comment,
@@ -529,6 +545,9 @@ class Machine<mDT> {
     this._theme                     = theme;
     this._flow                      = flow;
     this._graph_layout              = graph_layout;
+
+    this._hooks                     = new Map();
+    this._named_hooks               = new Map();
 
 
     if (state_declaration) {
@@ -975,12 +994,53 @@ class Machine<mDT> {
 
 
 
+  // basic toolable hook call.  convenience wrappers will follow, like
+  // hook(from, to, handler) and exit_hook(from, handler) and etc
+  set_hook(HookDesc: HookDescription) {
+
+    switch (HookDesc.kind) {
+
+      case 'hook':
+        this._hooks.set(JSON.stringify([HookDesc.from, HookDesc.to]), HookDesc.handler);
+        break;
+
+      case 'named':
+        this._named_hooks.set(JSON.stringify([HookDesc.from, HookDesc.to, HookDesc.action]), HookDesc.handler);
+        break;
+
+      case 'entry':
+        console.log('TODO: Should add entry hook here');
+        throw 'TODO: Should add entry hook here';
+
+      case 'exit':
+        console.log('TODO: Should add exit hook here');
+        throw 'TODO: Should add exit hook here';
+
+      default:
+        console.log(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+        throw new RangeError(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+
+    }
+  }
+
+  remove_hook(HookDesc: HookDescription) {
+    throw 'TODO: Should remove hook here';
+  }
+
+
+
   action(name: StateType, newData?: mDT): boolean {
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_action(name, newData)) {
-      const edge: JssmTransition<mDT> = this.current_action_edge_for(name);
+      const edge : JssmTransition<mDT> = this.current_action_edge_for(name),
+            nhk  : string              = JSON.stringify([this._state, edge.to, name]);  // named hook key
+
+      let hook_permits : boolean | undefined = undefined;
+
+      if (this._named_hooks.has
+
       this._state = edge.to;
       return true;
     } else {
@@ -1017,7 +1077,9 @@ class Machine<mDT> {
 
   current_action_for(action: StateType): number {
     const action_base: Map<StateType, number> = this._actions.get(action);
-    return action_base? action_base.get(this.state()): undefined;
+    return action_base
+      ? action_base.get(this.state())
+      : undefined;
   }
 
   current_action_edge_for(action: StateType): JssmTransition<mDT> {
@@ -1081,7 +1143,8 @@ function sm<mDT>(template_strings: TemplateStringsArray, ... remainder /* , argu
       // string notation, as designed, it's not really worth the hassle
 
       /* eslint-disable prefer-rest-params */
-      (acc, val, idx): string => `${acc}${remainder[idx-1]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
+      (acc, val, idx): string =>
+        `${acc}${remainder[idx-1]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
       /* eslint-enable  prefer-rest-params */
 
     )));

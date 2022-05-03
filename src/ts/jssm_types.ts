@@ -305,6 +305,43 @@ type JssmParseFunctionType =
 
 
 
+type BasicHookDescription = {
+  kind    : 'hook'
+  from    : string,
+  to      : string,
+  handler : Function
+};
+
+type HookDescriptionWithAction = {
+  kind    : 'named',
+  from    : string,
+  to      : string,
+  action  : string,
+  handler : Function
+};
+
+type EntryHook = {
+  kind    : 'entry',
+  to      : string,
+  handler : Function
+};
+
+type ExitHook = {
+  kind    : 'exit',
+  from    : string,
+  handler : Function
+};
+
+type HookDescription
+  = BasicHookDescription
+  | HookDescriptionWithAction
+  | EntryHook
+  | ExitHook;
+
+
+
+
+
 export {
 
   JssmColor,
@@ -341,6 +378,8 @@ export {
   JssmMachineInternalState,
 
   FslDirection,
-    FslTheme
+    FslTheme,
+
+  HookDescription
 
 };

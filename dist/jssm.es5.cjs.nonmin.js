@@ -15885,7 +15885,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.44.0";
+const version = "5.45.0";
 
 // whargarbl lots of these return arrays could/should be sets
 /* eslint-disable complexity */
@@ -16230,6 +16230,8 @@ class Machine {
         this._theme = theme;
         this._flow = flow;
         this._graph_layout = graph_layout;
+        this._hooks = new Map();
+        this._named_hooks = new Map();
         if (state_declaration) {
             state_declaration.map((state_decl) => {
                 if (this._state_declarations.has(state_decl.state)) { // no repeats
@@ -16578,6 +16580,30 @@ class Machine {
     }
     has_completes() {
         return this.states().some((x) => this.state_is_complete(x));
+    }
+    // basic toolable hook call.  convenience wrappers will follow, like
+    // hook(from, to, handler) and exit_hook(from, handler) and etc
+    set_hook(HookDesc) {
+        switch (HookDesc.kind) {
+            case 'hook':
+                this._hooks.set(JSON.stringify([HookDesc.from, HookDesc.to]), HookDesc.handler);
+                break;
+            case 'named':
+                this._named_hooks.set(JSON.stringify([HookDesc.from, HookDesc.to, HookDesc.action]), HookDesc.handler);
+                break;
+            case 'entry':
+                console.log('TODO: Should add entry hook here');
+                throw 'TODO: Should add entry hook here';
+            case 'exit':
+                console.log('TODO: Should add exit hook here');
+                throw 'TODO: Should add exit hook here';
+            default:
+                console.log(`Unknown hook type ${HookDesc.kind}, should be impossible`);
+                throw new RangeError(`Unknown hook type ${HookDesc.kind}, should be impossible`);
+        }
+    }
+    remove_hook(HookDesc) {
+        throw 'TODO: Should remove hook here';
     }
     action(name, newData) {
         // todo whargarbl implement hooks
