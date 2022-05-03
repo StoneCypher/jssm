@@ -16054,6 +16054,12 @@ var jssm = (function (exports) {
       }
       return edge;
   }
+  function hook_name(from, to) {
+      return JSON.stringify([from, to]);
+  }
+  function named_hook_name(from, to, action) {
+      return JSON.stringify([from, to, action]);
+  }
   function wrap_parse(input, options) {
       return peg$parse(input, options || {});
   }
@@ -16229,6 +16235,7 @@ var jssm = (function (exports) {
           this._theme = theme;
           this._flow = flow;
           this._graph_layout = graph_layout;
+          this._has_hooks = false;
           this._hooks = new Map();
           this._named_hooks = new Map();
           if (state_declaration) {
@@ -16585,10 +16592,10 @@ var jssm = (function (exports) {
       set_hook(HookDesc) {
           switch (HookDesc.kind) {
               case 'hook':
-                  this._hooks.set(JSON.stringify([HookDesc.from, HookDesc.to]), HookDesc.handler);
+                  this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
                   break;
               case 'named':
-                  this._named_hooks.set(JSON.stringify([HookDesc.from, HookDesc.to, HookDesc.action]), HookDesc.handler);
+                  this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                   break;
               case 'entry':
                   console.log('TODO: Should add entry hook here');
@@ -16610,8 +16617,27 @@ var jssm = (function (exports) {
           // todo major incomplete whargarbl comeback
           if (this.valid_action(name, newData)) {
               const edge = this.current_action_edge_for(name);
-              this._state = edge.to;
-              return true;
+              if (this._has_hooks) {
+                  let hook_permits = undefined;
+                  const nhn = named_hook_name(this._state, edge.to, name), maybe_hook = this._named_hooks.get(nhn);
+                  if (maybe_hook === undefined) {
+                      hook_permits = true;
+                  }
+                  else {
+                      hook_permits = maybe_hook('TODO FIXME');
+                  }
+                  if (hook_permits) {
+                      this._state = edge.to;
+                      return true;
+                  }
+                  else {
+                      return false;
+                  }
+              }
+              else {
+                  this._state = edge.to;
+                  return true;
+              }
           }
           else {
               return false;
@@ -16644,7 +16670,9 @@ var jssm = (function (exports) {
       }
       current_action_for(action) {
           const action_base = this._actions.get(action);
-          return action_base ? action_base.get(this.state()) : undefined;
+          return action_base
+              ? action_base.get(this.state())
+              : undefined;
       }
       current_action_edge_for(action) {
           const idx = this.current_action_for(action);

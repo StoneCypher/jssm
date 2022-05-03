@@ -37,6 +37,7 @@ declare class Machine<mDT> {
     _arrange_end_declaration: Array<Array<StateType>>;
     _theme: FslTheme;
     _flow: FslDirection;
+    _has_hooks: boolean;
     _hooks: Map<string, Function>;
     _named_hooks: Map<string, Function>;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout }: JssmGenericConfig<mDT>);

@@ -488,6 +488,7 @@ class Machine<mDT> {
   _theme                     : FslTheme;
   _flow                      : FslDirection;
 
+  _has_hooks                 : boolean;
   _hooks                     : Map<string, Function>;
   _named_hooks               : Map<string, Function>;
 
@@ -546,6 +547,7 @@ class Machine<mDT> {
     this._flow                      = flow;
     this._graph_layout              = graph_layout;
 
+    this._has_hooks                 = false;
     this._hooks                     = new Map();
     this._named_hooks               = new Map();
 
@@ -1001,11 +1003,11 @@ class Machine<mDT> {
     switch (HookDesc.kind) {
 
       case 'hook':
-        this._hooks.set(JSON.stringify([HookDesc.from, HookDesc.to]), HookDesc.handler);
+        this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
         break;
 
       case 'named':
-        this._named_hooks.set(JSON.stringify([HookDesc.from, HookDesc.to, HookDesc.action]), HookDesc.handler);
+        this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
         break;
 
       case 'entry':
@@ -1034,15 +1036,31 @@ class Machine<mDT> {
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_action(name, newData)) {
-      const edge : JssmTransition<mDT> = this.current_action_edge_for(name),
-            nhk  : string              = JSON.stringify([this._state, edge.to, name]);  // named hook key
 
-      let hook_permits : boolean | undefined = undefined;
+      const edge : JssmTransition<mDT> = this.current_action_edge_for(name);
 
-      if (this._named_hooks.has
+      if (this._has_hooks) {
 
-      this._state = edge.to;
-      return true;
+        let hook_permits : boolean | undefined = undefined;
+
+        const nhn        : string               = named_hook_name(this._state, edge.to, name),
+              maybe_hook : Function | undefined = this._named_hooks.get(nhn);
+
+        if (maybe_hook === undefined) { hook_permits = true; }
+        else                          { hook_permits = maybe_hook('TODO FIXME'); }
+
+        if (hook_permits) {
+          this._state = edge.to;
+          return true;
+        } else {
+          return false;
+        }
+
+      } else {
+        this._state = edge.to;
+        return true;
+      }
+
     } else {
       return false;
     }

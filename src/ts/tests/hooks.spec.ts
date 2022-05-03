@@ -5,9 +5,7 @@ import { sm } from '../jssm';
 
 
 
-describe('Hooks', () => {
-
-
+describe('Hooks open and closed in grammar', () => {
 
   test.todo('Hooks open doesn\'t throw' /*, () => {
 
@@ -23,6 +21,22 @@ describe('Hooks', () => {
 
   } */);
 
+});
 
+
+
+
+
+describe('Basic hooks on API callpoint', () => {
+
+  test('Setting a hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a -> b;`;
+      _foo.set_hook({ from: 'a', to: 'b', handler: () => console.log('hi'), kind: 'hook' })
+    })
+      .not.toThrow();
+
+  } );
 
 });
