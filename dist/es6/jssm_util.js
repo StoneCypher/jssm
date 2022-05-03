@@ -31,4 +31,6 @@ const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any
  histograph(weighted_sample_select(n, opts, prob_prop)
     .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
 ));
-export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string };
+const hook_name = (from, to) => JSON.stringify([from, to]);
+const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
+export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name };

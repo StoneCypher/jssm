@@ -30,7 +30,7 @@ import {
 
 import {
   seq, weighted_rand_select, weighted_sample_select, histograph,
-  weighted_histo_key, array_box_if_string
+  weighted_histo_key, array_box_if_string, hook_name, named_hook_name
 } from './jssm_util';
 
 
@@ -210,18 +210,6 @@ function makeTransition<mDT>(
 
   return edge;
 
-}
-
-
-
-
-
-function hook_name(from: string, to: string): string {
-  return JSON.stringify([from, to]);
-}
-
-function named_hook_name(from: string, to: string, action: string): string {
-  return JSON.stringify([from, to, action]);
 }
 
 
@@ -1049,7 +1037,7 @@ class Machine<mDT> {
               maybe_hook : Function | undefined = this._named_hooks.get(nhn);
 
         if (maybe_hook === undefined) { hook_permits = true; }
-        else                          { hook_permits = maybe_hook('TODO FIXME'); }
+        else                          { hook_permits = maybe_hook( { from: this._state, to: edge.to, action: name } ); }
 
         if (hook_permits) {
           this._state = edge.to;
@@ -1073,11 +1061,35 @@ class Machine<mDT> {
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_transition(newState, newData)) {
-      this._state = newState;
-      return true;
+
+      if (this._has_hooks) {
+
+        let hook_permits : boolean | undefined = undefined;
+
+        const hn         : string               = hook_name(this._state, newState),
+              maybe_hook : Function | undefined = this._hooks.get(hn);
+
+        if (maybe_hook === undefined) { hook_permits = true; }
+        else                          { hook_permits = maybe_hook( { from: this._state, to: newState } ); }
+
+        if (hook_permits) {
+          this._state = newState;
+          return true;
+        } else {
+          return false;
+        }
+
+      } else {
+
+        this._state = newState;
+        return true;
+
+      }
+
     } else {
       return false;
     }
+
   }
 
   // can leave machine in inconsistent state.  generally do not use
@@ -1086,11 +1098,35 @@ class Machine<mDT> {
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_force_transition(newState, newData)) {
-      this._state = newState;
-      return true;
+
+      if (this._has_hooks) {
+
+        let hook_permits : boolean | undefined = undefined;
+
+        const hn         : string               = hook_name(this._state, newState),
+              maybe_hook : Function | undefined = this._named_hooks.get(hn);
+
+        if (maybe_hook === undefined) { hook_permits = true; }
+        else                          { hook_permits = maybe_hook({ from: this._state, to: newState }); }
+
+        if (hook_permits) {
+          this._state = newState;
+          return true;
+        } else {
+          return false;
+        }
+
+      } else {
+
+        this._state = newState;
+        return true;
+
+      }
+
     } else {
       return false;
     }
+
   }
 
 

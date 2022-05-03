@@ -1,6 +1,6 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
-import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string } from './jssm_util';
+import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, hook_name, named_hook_name } from './jssm_util';
 import { parse } from './jssm-dot'; // TODO FIXME WHARGARBL this could be post-typed
 import { version } from './version'; // replaced from package.js in build // TODO FIXME currently broken
 /* eslint-disable complexity */
@@ -169,12 +169,6 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
         edge.probability = this_se[probability];
     }
     return edge;
-}
-function hook_name(from, to) {
-    return JSON.stringify([from, to]);
-}
-function named_hook_name(from, to, action) {
-    return JSON.stringify([from, to, action]);
 }
 function wrap_parse(input, options) {
     return parse(input, options || {});
@@ -742,7 +736,7 @@ class Machine {
                     hook_permits = true;
                 }
                 else {
-                    hook_permits = maybe_hook('TODO FIXME');
+                    hook_permits = maybe_hook({ from: this._state, to: edge.to, action: name });
                 }
                 if (hook_permits) {
                     this._state = edge.to;
@@ -766,8 +760,27 @@ class Machine {
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         if (this.valid_transition(newState, newData)) {
-            this._state = newState;
-            return true;
+            if (this._has_hooks) {
+                let hook_permits = undefined;
+                const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
+                if (maybe_hook === undefined) {
+                    hook_permits = true;
+                }
+                else {
+                    hook_permits = maybe_hook({ from: this._state, to: newState });
+                }
+                if (hook_permits) {
+                    this._state = newState;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                this._state = newState;
+                return true;
+            }
         }
         else {
             return false;
@@ -779,8 +792,27 @@ class Machine {
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         if (this.valid_force_transition(newState, newData)) {
-            this._state = newState;
-            return true;
+            if (this._has_hooks) {
+                let hook_permits = undefined;
+                const hn = hook_name(this._state, newState), maybe_hook = this._named_hooks.get(hn);
+                if (maybe_hook === undefined) {
+                    hook_permits = true;
+                }
+                else {
+                    hook_permits = maybe_hook({ from: this._state, to: newState });
+                }
+                if (hook_permits) {
+                    this._state = newState;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                this._state = newState;
+                return true;
+            }
         }
         else {
             return false;

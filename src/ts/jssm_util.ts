@@ -90,11 +90,28 @@ const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: st
 
 
 
+const hook_name = (from: string, to: string): string =>
+
+  JSON.stringify([from, to]);
+
+
+
+
+
+const named_hook_name = (from: string, to: string, action: string): string =>
+
+  JSON.stringify([from, to, action]);
+
+
+
+
+
 export {
   seq,
   arr_uniq_p,
   histograph, weighted_histo_key,
   weighted_rand_select, weighted_sample_select,
-  array_box_if_string
+  array_box_if_string,
+  hook_name, named_hook_name
 };
 
