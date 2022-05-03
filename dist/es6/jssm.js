@@ -709,9 +709,11 @@ class Machine {
         switch (HookDesc.kind) {
             case 'hook':
                 this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+                this._has_hooks = true;
                 break;
             case 'named':
                 this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+                this._has_hooks = true;
                 break;
             case 'entry':
                 console.log('TODO: Should add entry hook here');
