@@ -15886,7 +15886,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.45.1";
+  const version = "5.45.2";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16290,7 +16290,7 @@ var jssm = (function (exports) {
               // set up the action mapping, so that actions can be looked up by origin
               if (tr.action) {
                   // forward mapping first by action name
-                  let actionMap = this._actions.get(tr.action); // TODO FIXME ?Map equiv
+                  let actionMap = this._actions.get(tr.action);
                   if (!(actionMap)) {
                       actionMap = new Map();
                       this._actions.set(tr.action, actionMap);
@@ -16302,7 +16302,7 @@ var jssm = (function (exports) {
                       actionMap.set(tr.from, thisEdgeId);
                   }
                   // reverse mapping first by state origin name
-                  let rActionMap = this._reverse_actions.get(tr.from); // TODO FIXME ?Map equiv
+                  let rActionMap = this._reverse_actions.get(tr.from);
                   if (!(rActionMap)) {
                       rActionMap = new Map();
                       this._reverse_actions.set(tr.from, rActionMap);
@@ -16718,13 +16718,11 @@ var jssm = (function (exports) {
           return this._edges[idx];
       }
       valid_action(action, _newData) {
-          // todo whargarbl implement hooks
           // todo whargarbl implement data stuff
           // todo major incomplete whargarbl comeback
           return this.current_action_for(action) !== undefined;
       }
       valid_transition(newState, _newData) {
-          // todo whargarbl implement hooks
           // todo whargarbl implement data stuff
           // todo major incomplete whargarbl comeback
           const transition_for = this.lookup_transition_for(this.state(), newState);
@@ -16737,7 +16735,6 @@ var jssm = (function (exports) {
           return true;
       }
       valid_force_transition(newState, _newData) {
-          // todo whargarbl implement hooks
           // todo whargarbl implement data stuff
           // todo major incomplete whargarbl comeback
           return (this.lookup_transition_for(this.state(), newState) !== undefined);

@@ -2,7 +2,7 @@
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, hook_name, named_hook_name } from './jssm_util';
 import { parse } from './jssm-dot'; // TODO FIXME WHARGARBL this could be post-typed
-import { version } from './version'; // replaced from package.js in build // TODO FIXME currently broken
+import { version } from './version'; // replaced from package.js in build
 /* eslint-disable complexity */
 function arrow_direction(arrow) {
     switch (String(arrow)) {
@@ -404,7 +404,7 @@ class Machine {
             // set up the action mapping, so that actions can be looked up by origin
             if (tr.action) {
                 // forward mapping first by action name
-                let actionMap = this._actions.get(tr.action); // TODO FIXME ?Map equiv
+                let actionMap = this._actions.get(tr.action);
                 if (!(actionMap)) {
                     actionMap = new Map();
                     this._actions.set(tr.action, actionMap);
@@ -416,7 +416,7 @@ class Machine {
                     actionMap.set(tr.from, thisEdgeId);
                 }
                 // reverse mapping first by state origin name
-                let rActionMap = this._reverse_actions.get(tr.from); // TODO FIXME ?Map equiv
+                let rActionMap = this._reverse_actions.get(tr.from);
                 if (!(rActionMap)) {
                     rActionMap = new Map();
                     this._reverse_actions.set(tr.from, rActionMap);
@@ -832,13 +832,11 @@ class Machine {
         return this._edges[idx];
     }
     valid_action(action, _newData) {
-        // todo whargarbl implement hooks
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         return this.current_action_for(action) !== undefined;
     }
     valid_transition(newState, _newData) {
-        // todo whargarbl implement hooks
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         const transition_for = this.lookup_transition_for(this.state(), newState);
@@ -851,7 +849,6 @@ class Machine {
         return true;
     }
     valid_force_transition(newState, _newData) {
-        // todo whargarbl implement hooks
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         return (this.lookup_transition_for(this.state(), newState) !== undefined);
