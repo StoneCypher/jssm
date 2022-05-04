@@ -1000,13 +1000,13 @@ class Machine<mDT> {
         this._has_hooks = true;
         break;
 
-      case 'entry':
-        console.log('TODO: Should add entry hook here');
-        throw 'TODO: Should add entry hook here';
+      // case 'entry':
+      //   console.log('TODO: Should add entry hook here');
+      //   throw 'TODO: Should add entry hook here';
 
-      case 'exit':
-        console.log('TODO: Should add exit hook here');
-        throw 'TODO: Should add exit hook here';
+      // case 'exit':
+      //   console.log('TODO: Should add exit hook here');
+      //   throw 'TODO: Should add exit hook here';
 
       default:
         console.log(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
@@ -1015,9 +1015,9 @@ class Machine<mDT> {
     }
   }
 
-  remove_hook(HookDesc: HookDescription) {
-    throw 'TODO: Should remove hook here';
-  }
+  // remove_hook(HookDesc: HookDescription) {
+  //   throw 'TODO: Should remove hook here';
+  // }
 
 
 
@@ -1033,13 +1033,13 @@ class Machine<mDT> {
 
         let hook_permits : boolean | undefined = undefined;
 
-        const nhn        : string               = named_hook_name(this._state, edge.to, name),
-              maybe_hook : Function | undefined = this._named_hooks.get(nhn);
+        const nhn : string = named_hook_name(this._state, edge.to, name),
+              maybe_hook   = this._named_hooks.get(nhn);
 
         if (maybe_hook === undefined) { hook_permits = true; }
         else                          { hook_permits = maybe_hook( { from: this._state, to: edge.to, action: name } ); }
 
-        if (hook_permits) {
+        if (hook_permits !== false) {
           this._state = edge.to;
           return true;
         } else {
@@ -1072,7 +1072,7 @@ class Machine<mDT> {
         if (maybe_hook === undefined) { hook_permits = true; }
         else                          { hook_permits = maybe_hook( { from: this._state, to: newState } ); }
 
-        if (hook_permits) {
+        if (hook_permits !== false) {
           this._state = newState;
           return true;
         } else {
@@ -1104,12 +1104,12 @@ class Machine<mDT> {
         let hook_permits : boolean | undefined = undefined;
 
         const hn         : string               = hook_name(this._state, newState),
-              maybe_hook : Function | undefined = this._named_hooks.get(hn);
+              maybe_hook : Function | undefined = this._hooks.get(hn);
 
         if (maybe_hook === undefined) { hook_permits = true; }
-        else                          { hook_permits = maybe_hook({ from: this._state, to: newState }); }
+        else                          { hook_permits = maybe_hook({ from: this._state, to: newState, forced: true }); }
 
-        if (hook_permits) {
+        if (hook_permits !== false) {
           this._state = newState;
           return true;
         } else {

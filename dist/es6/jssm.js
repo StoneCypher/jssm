@@ -709,20 +709,20 @@ class Machine {
                 this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                 this._has_hooks = true;
                 break;
-            case 'entry':
-                console.log('TODO: Should add entry hook here');
-                throw 'TODO: Should add entry hook here';
-            case 'exit':
-                console.log('TODO: Should add exit hook here');
-                throw 'TODO: Should add exit hook here';
+            // case 'entry':
+            //   console.log('TODO: Should add entry hook here');
+            //   throw 'TODO: Should add entry hook here';
+            // case 'exit':
+            //   console.log('TODO: Should add exit hook here');
+            //   throw 'TODO: Should add exit hook here';
             default:
                 console.log(`Unknown hook type ${HookDesc.kind}, should be impossible`);
                 throw new RangeError(`Unknown hook type ${HookDesc.kind}, should be impossible`);
         }
     }
-    remove_hook(HookDesc) {
-        throw 'TODO: Should remove hook here';
-    }
+    // remove_hook(HookDesc: HookDescription) {
+    //   throw 'TODO: Should remove hook here';
+    // }
     action(name, newData) {
         // todo whargarbl implement hooks
         // todo whargarbl implement data stuff
@@ -738,7 +738,7 @@ class Machine {
                 else {
                     hook_permits = maybe_hook({ from: this._state, to: edge.to, action: name });
                 }
-                if (hook_permits) {
+                if (hook_permits !== false) {
                     this._state = edge.to;
                     return true;
                 }
@@ -769,7 +769,7 @@ class Machine {
                 else {
                     hook_permits = maybe_hook({ from: this._state, to: newState });
                 }
-                if (hook_permits) {
+                if (hook_permits !== false) {
                     this._state = newState;
                     return true;
                 }
@@ -794,14 +794,14 @@ class Machine {
         if (this.valid_force_transition(newState, newData)) {
             if (this._has_hooks) {
                 let hook_permits = undefined;
-                const hn = hook_name(this._state, newState), maybe_hook = this._named_hooks.get(hn);
+                const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
                 if (maybe_hook === undefined) {
                     hook_permits = true;
                 }
                 else {
-                    hook_permits = maybe_hook({ from: this._state, to: newState });
+                    hook_permits = maybe_hook({ from: this._state, to: newState, forced: true });
                 }
-                if (hook_permits) {
+                if (hook_permits !== false) {
                     this._state = newState;
                     return true;
                 }

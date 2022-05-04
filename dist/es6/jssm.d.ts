@@ -90,7 +90,6 @@ declare class Machine<mDT> {
     state_is_complete(whichState: StateType): boolean;
     has_completes(): boolean;
     set_hook(HookDesc: HookDescription): void;
-    remove_hook(HookDesc: HookDescription): void;
     action(name: StateType, newData?: mDT): boolean;
     transition(newState: StateType, newData?: mDT): boolean;
     force_transition(newState: StateType, newData?: mDT): boolean;
