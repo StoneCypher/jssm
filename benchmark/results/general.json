@@ -1,31 +1,31 @@
 {
   "name": "General performance suite",
-  "date": "2022-05-04T00:38:52.492Z",
-  "version": "1.0.0",
+  "date": "2022-05-04T03:48:20.388Z",
+  "version": "1.1.0",
   "results": [
     {
       "name": "Blind cycle a traffic light 500 times by transition",
-      "ops": 20799,
-      "margin": 4.1,
+      "ops": 20924,
+      "margin": 2.51,
       "percentSlower": 0
     },
     {
       "name": "Blind cycle a hooked traffic light 500 times by transition",
-      "ops": 1784,
-      "margin": 0.65,
-      "percentSlower": 91.42
+      "ops": 1805,
+      "margin": 0.7,
+      "percentSlower": 91.37
     },
     {
       "name": "Blind cycle a traffic light 500 times by action",
-      "ops": 15032,
-      "margin": 0.94,
-      "percentSlower": 27.73
+      "ops": 14638,
+      "margin": 2.41,
+      "percentSlower": 30.04
     },
     {
       "name": "Blind cycle a hooked traffic light 500 times by action",
-      "ops": 1486,
-      "margin": 3.43,
-      "percentSlower": 92.86
+      "ops": 1565,
+      "margin": 0.72,
+      "percentSlower": 92.52
     }
   ],
   "fastest": {
