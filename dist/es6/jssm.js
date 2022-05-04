@@ -1,6 +1,6 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
-import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string } from './jssm_util';
+import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, hook_name, named_hook_name } from './jssm_util';
 import { parse } from './jssm-dot'; // TODO FIXME WHARGARBL this could be post-typed
 import { version } from './version'; // replaced from package.js in build // TODO FIXME currently broken
 /* eslint-disable complexity */
@@ -345,6 +345,9 @@ class Machine {
         this._theme = theme;
         this._flow = flow;
         this._graph_layout = graph_layout;
+        this._has_hooks = false;
+        this._hooks = new Map();
+        this._named_hooks = new Map();
         if (state_declaration) {
             state_declaration.map((state_decl) => {
                 if (this._state_declarations.has(state_decl.state)) { // no repeats
@@ -694,14 +697,59 @@ class Machine {
     has_completes() {
         return this.states().some((x) => this.state_is_complete(x));
     }
+    // basic toolable hook call.  convenience wrappers will follow, like
+    // hook(from, to, handler) and exit_hook(from, handler) and etc
+    set_hook(HookDesc) {
+        switch (HookDesc.kind) {
+            case 'hook':
+                this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+                this._has_hooks = true;
+                break;
+            case 'named':
+                this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+                this._has_hooks = true;
+                break;
+            // case 'entry':
+            //   console.log('TODO: Should add entry hook here');
+            //   throw 'TODO: Should add entry hook here';
+            // case 'exit':
+            //   console.log('TODO: Should add exit hook here');
+            //   throw 'TODO: Should add exit hook here';
+            default:
+                console.log(`Unknown hook type ${HookDesc.kind}, should be impossible`);
+                throw new RangeError(`Unknown hook type ${HookDesc.kind}, should be impossible`);
+        }
+    }
+    // remove_hook(HookDesc: HookDescription) {
+    //   throw 'TODO: Should remove hook here';
+    // }
     action(name, newData) {
         // todo whargarbl implement hooks
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         if (this.valid_action(name, newData)) {
             const edge = this.current_action_edge_for(name);
-            this._state = edge.to;
-            return true;
+            if (this._has_hooks) {
+                let hook_permits = undefined;
+                const nhn = named_hook_name(this._state, edge.to, name), maybe_hook = this._named_hooks.get(nhn);
+                if (maybe_hook === undefined) {
+                    hook_permits = true;
+                }
+                else {
+                    hook_permits = maybe_hook({ from: this._state, to: edge.to, action: name });
+                }
+                if (hook_permits !== false) {
+                    this._state = edge.to;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                this._state = edge.to;
+                return true;
+            }
         }
         else {
             return false;
@@ -712,8 +760,27 @@ class Machine {
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         if (this.valid_transition(newState, newData)) {
-            this._state = newState;
-            return true;
+            if (this._has_hooks) {
+                let hook_permits = undefined;
+                const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
+                if (maybe_hook === undefined) {
+                    hook_permits = true;
+                }
+                else {
+                    hook_permits = maybe_hook({ from: this._state, to: newState });
+                }
+                if (hook_permits !== false) {
+                    this._state = newState;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                this._state = newState;
+                return true;
+            }
         }
         else {
             return false;
@@ -725,8 +792,27 @@ class Machine {
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
         if (this.valid_force_transition(newState, newData)) {
-            this._state = newState;
-            return true;
+            if (this._has_hooks) {
+                let hook_permits = undefined;
+                const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
+                if (maybe_hook === undefined) {
+                    hook_permits = true;
+                }
+                else {
+                    hook_permits = maybe_hook({ from: this._state, to: newState, forced: true });
+                }
+                if (hook_permits !== false) {
+                    this._state = newState;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                this._state = newState;
+                return true;
+            }
         }
         else {
             return false;
@@ -734,7 +820,9 @@ class Machine {
     }
     current_action_for(action) {
         const action_base = this._actions.get(action);
-        return action_base ? action_base.get(this.state()) : undefined;
+        return action_base
+            ? action_base.get(this.state())
+            : undefined;
     }
     current_action_edge_for(action) {
         const idx = this.current_action_for(action);

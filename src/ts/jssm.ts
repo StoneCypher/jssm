@@ -19,7 +19,8 @@ import {
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout,
-  FslDirection, FslTheme
+  FslDirection, FslTheme,
+  HookDescription
 
 } from './jssm_types';
 
@@ -29,7 +30,7 @@ import {
 
 import {
   seq, weighted_rand_select, weighted_sample_select, histograph,
-  weighted_histo_key, array_box_if_string
+  weighted_histo_key, array_box_if_string, hook_name, named_hook_name
 } from './jssm_util';
 
 
@@ -475,11 +476,15 @@ class Machine<mDT> {
   _theme                     : FslTheme;
   _flow                      : FslDirection;
 
+  _has_hooks                 : boolean;
+  _hooks                     : Map<string, Function>;
+  _named_hooks               : Map<string, Function>;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
     start_states,
-    complete        = [],
+    complete                  = [],
     transitions,
     machine_author,
     machine_comment,
@@ -529,6 +534,10 @@ class Machine<mDT> {
     this._theme                     = theme;
     this._flow                      = flow;
     this._graph_layout              = graph_layout;
+
+    this._has_hooks                 = false;
+    this._hooks                     = new Map();
+    this._named_hooks               = new Map();
 
 
     if (state_declaration) {
@@ -975,14 +984,73 @@ class Machine<mDT> {
 
 
 
+  // basic toolable hook call.  convenience wrappers will follow, like
+  // hook(from, to, handler) and exit_hook(from, handler) and etc
+  set_hook(HookDesc: HookDescription) {
+
+    switch (HookDesc.kind) {
+
+      case 'hook':
+        this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+        this._has_hooks = true;
+        break;
+
+      case 'named':
+        this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+        this._has_hooks = true;
+        break;
+
+      // case 'entry':
+      //   console.log('TODO: Should add entry hook here');
+      //   throw 'TODO: Should add entry hook here';
+
+      // case 'exit':
+      //   console.log('TODO: Should add exit hook here');
+      //   throw 'TODO: Should add exit hook here';
+
+      default:
+        console.log(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+        throw new RangeError(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+
+    }
+  }
+
+  // remove_hook(HookDesc: HookDescription) {
+  //   throw 'TODO: Should remove hook here';
+  // }
+
+
+
   action(name: StateType, newData?: mDT): boolean {
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_action(name, newData)) {
-      const edge: JssmTransition<mDT> = this.current_action_edge_for(name);
-      this._state = edge.to;
-      return true;
+
+      const edge : JssmTransition<mDT> = this.current_action_edge_for(name);
+
+      if (this._has_hooks) {
+
+        let hook_permits : boolean | undefined = undefined;
+
+        const nhn : string = named_hook_name(this._state, edge.to, name),
+              maybe_hook   = this._named_hooks.get(nhn);
+
+        if (maybe_hook === undefined) { hook_permits = true; }
+        else                          { hook_permits = maybe_hook( { from: this._state, to: edge.to, action: name } ); }
+
+        if (hook_permits !== false) {
+          this._state = edge.to;
+          return true;
+        } else {
+          return false;
+        }
+
+      } else {
+        this._state = edge.to;
+        return true;
+      }
+
     } else {
       return false;
     }
@@ -993,11 +1061,35 @@ class Machine<mDT> {
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_transition(newState, newData)) {
-      this._state = newState;
-      return true;
+
+      if (this._has_hooks) {
+
+        let hook_permits : boolean | undefined = undefined;
+
+        const hn         : string               = hook_name(this._state, newState),
+              maybe_hook : Function | undefined = this._hooks.get(hn);
+
+        if (maybe_hook === undefined) { hook_permits = true; }
+        else                          { hook_permits = maybe_hook( { from: this._state, to: newState } ); }
+
+        if (hook_permits !== false) {
+          this._state = newState;
+          return true;
+        } else {
+          return false;
+        }
+
+      } else {
+
+        this._state = newState;
+        return true;
+
+      }
+
     } else {
       return false;
     }
+
   }
 
   // can leave machine in inconsistent state.  generally do not use
@@ -1006,18 +1098,44 @@ class Machine<mDT> {
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     if (this.valid_force_transition(newState, newData)) {
-      this._state = newState;
-      return true;
+
+      if (this._has_hooks) {
+
+        let hook_permits : boolean | undefined = undefined;
+
+        const hn         : string               = hook_name(this._state, newState),
+              maybe_hook : Function | undefined = this._hooks.get(hn);
+
+        if (maybe_hook === undefined) { hook_permits = true; }
+        else                          { hook_permits = maybe_hook({ from: this._state, to: newState, forced: true }); }
+
+        if (hook_permits !== false) {
+          this._state = newState;
+          return true;
+        } else {
+          return false;
+        }
+
+      } else {
+
+        this._state = newState;
+        return true;
+
+      }
+
     } else {
       return false;
     }
+
   }
 
 
 
   current_action_for(action: StateType): number {
     const action_base: Map<StateType, number> = this._actions.get(action);
-    return action_base? action_base.get(this.state()): undefined;
+    return action_base
+      ? action_base.get(this.state())
+      : undefined;
   }
 
   current_action_edge_for(action: StateType): JssmTransition<mDT> {
@@ -1081,7 +1199,8 @@ function sm<mDT>(template_strings: TemplateStringsArray, ... remainder /* , argu
       // string notation, as designed, it's not really worth the hassle
 
       /* eslint-disable prefer-rest-params */
-      (acc, val, idx): string => `${acc}${remainder[idx-1]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
+      (acc, val, idx): string =>
+        `${acc}${remainder[idx-1]}${val}`  // arguments[0] is never loaded, so args doesn't need to be gated
       /* eslint-enable  prefer-rest-params */
 
     )));

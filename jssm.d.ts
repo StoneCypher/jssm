@@ -1,6 +1,6 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme } from './jssm_types';
+JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme, HookDescription } from './jssm_types';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import { version } from './version';
 declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
@@ -37,6 +37,9 @@ declare class Machine<mDT> {
     _arrange_end_declaration: Array<Array<StateType>>;
     _theme: FslTheme;
     _flow: FslDirection;
+    _has_hooks: boolean;
+    _hooks: Map<string, Function>;
+    _named_hooks: Map<string, Function>;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout }: JssmGenericConfig<mDT>);
     _new_state(state_config: JssmGenericState): StateType;
     state(): StateType;
@@ -86,6 +89,7 @@ declare class Machine<mDT> {
     is_complete(): boolean;
     state_is_complete(whichState: StateType): boolean;
     has_completes(): boolean;
+    set_hook(HookDesc: HookDescription): void;
     action(name: StateType, newData?: mDT): boolean;
     transition(newState: StateType, newData?: mDT): boolean;
     force_transition(newState: StateType, newData?: mDT): boolean;
