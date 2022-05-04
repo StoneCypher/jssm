@@ -39,7 +39,7 @@ import {
 
 import { parse } from './jssm-dot';  // TODO FIXME WHARGARBL this could be post-typed
 
-import { version } from './version'; // replaced from package.js in build // TODO FIXME currently broken
+import { version } from './version'; // replaced from package.js in build
 
 
 
@@ -230,7 +230,7 @@ function compile_rule_transition_step<mDT>(
              to      : string,
              this_se : JssmCompileSe,
              next_se : JssmCompileSe
-         ) : Array< JssmTransition<mDT> > { // todo flow describe the parser representation of a transition step extension
+         ) : Array< JssmTransition<mDT> > { // todo typescript describe the parser representation of a transition step extension
 
   const edges : Array< JssmTransition<mDT> > = [];
 
@@ -261,13 +261,13 @@ function compile_rule_transition_step<mDT>(
 
 
 
-function compile_rule_handle_transition(rule: JssmCompileSeStart<StateType>): any { // TODO FIXME no any // todo flow describe the parser representation of a transition
+function compile_rule_handle_transition(rule: JssmCompileSeStart<StateType>): any { // TODO FIXME no any // todo typescript describe the parser representation of a transition
   return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
 }
 
 
 
-function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileRule { // todo flow describe the output of the parser
+function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileRule {
 
   if (rule.key === 'transition') {
     return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
@@ -306,7 +306,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
 
 
 
-function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {  // todo flow describe the output of the parser
+function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   const results : {
     graph_layout              : Array< JssmLayout >,
@@ -610,7 +610,7 @@ class Machine<mDT> {
 
 
         // forward mapping first by action name
-        let actionMap: Map<StateType, number> = this._actions.get(tr.action);  // TODO FIXME ?Map equiv
+        let actionMap: Map<StateType, number> = this._actions.get(tr.action);
         if (!(actionMap)) {
           actionMap = new Map();
           this._actions.set(tr.action, actionMap);
@@ -624,7 +624,7 @@ class Machine<mDT> {
 
 
         // reverse mapping first by state origin name
-        let rActionMap: Map<StateType, number> = this._reverse_actions.get(tr.from);  // TODO FIXME ?Map equiv
+        let rActionMap: Map<StateType, number> = this._reverse_actions.get(tr.from);
         if (!(rActionMap)) {
           rActionMap = new Map();
           this._reverse_actions.set(tr.from, rActionMap);
@@ -1056,7 +1056,10 @@ class Machine<mDT> {
     }
   }
 
+
+
   transition(newState: StateType, newData?: mDT): boolean {
+
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
@@ -1092,8 +1095,12 @@ class Machine<mDT> {
 
   }
 
+
+
   // can leave machine in inconsistent state.  generally do not use
+
   force_transition(newState: StateType, newData?: mDT): boolean {
+
     // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
@@ -1145,14 +1152,12 @@ class Machine<mDT> {
   }
 
   valid_action(action: StateType, _newData?: mDT): boolean {  // todo comeback unignore newData
-    // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     return this.current_action_for(action) !== undefined;
   }
 
   valid_transition(newState: StateType, _newData?: mDT): boolean {  // todo comeback unignore newData
-    // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     const transition_for: JssmTransition<mDT> = this.lookup_transition_for(this.state(), newState);
@@ -1165,7 +1170,6 @@ class Machine<mDT> {
   }
 
   valid_force_transition(newState: StateType, _newData?: mDT): boolean {  // todo comeback unignore newData
-    // todo whargarbl implement hooks
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     return (this.lookup_transition_for(this.state(), newState) !== undefined);

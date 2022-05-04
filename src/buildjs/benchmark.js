@@ -84,7 +84,7 @@ b.suite('General performance suite',
   b.cycle(),
   b.complete(),
 
-  b.save({ file: 'general', version: '1.0.0' }),
+  b.save({ file: 'general', version: '1.1.0' }),
   b.save({ file: 'general', format: 'chart.html' }),
 
 );
