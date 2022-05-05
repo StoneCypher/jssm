@@ -720,6 +720,11 @@ class Machine {
                 throw new RangeError(`Unknown hook type ${HookDesc.kind}, should be impossible`);
         }
     }
+    hook(from, to, handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'hook', from, to, handler });
+        return this;
+    }
     // remove_hook(HookDesc: HookDescription) {
     //   throw 'TODO: Should remove hook here';
     // }

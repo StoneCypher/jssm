@@ -305,11 +305,17 @@ type JssmParseFunctionType =
 
 
 
+type HookHandler = Function;
+
+
+
+
+
 type BasicHookDescription = {
   kind    : 'hook'
   from    : string,
   to      : string,
-  handler : Function
+  handler : HookHandler
 };
 
 type HookDescriptionWithAction = {
@@ -317,19 +323,19 @@ type HookDescriptionWithAction = {
   from    : string,
   to      : string,
   action  : string,
-  handler : Function
+  handler : HookHandler
 };
 
 type EntryHook = {
   kind    : 'entry',
   to      : string,
-  handler : Function
+  handler : HookHandler
 };
 
 type ExitHook = {
   kind    : 'exit',
   from    : string,
-  handler : Function
+  handler : HookHandler
 };
 
 type HookDescription
@@ -380,6 +386,7 @@ export {
   FslDirection,
     FslTheme,
 
-  HookDescription
+  HookDescription,
+    HookHandler
 
 };

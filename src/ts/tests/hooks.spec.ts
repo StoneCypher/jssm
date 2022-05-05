@@ -207,3 +207,125 @@ describe('Basic hooks on API callpoint', () => {
   } );
 
 });
+
+
+
+
+
+describe('Basic hooks on fluent API', () => {
+
+  test('Fluent hooks call their handler called fluently', () => {
+
+    const handler  = jest.fn(x => true),
+          uncalled = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a -> b -> c;`;
+      _foo.hook('a', 'b', handler);
+      _foo.hook('b', 'a', uncalled);
+      _foo.hook('b', 'c', uncalled);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(handler.mock.calls.length).toBe(1);
+    expect(uncalled.mock.calls.length).toBe(0);
+
+  } );
+
+  test('Fluent hooks call their handler called after', () => {
+
+    const handler  = jest.fn(x => true),
+          uncalled = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a -> b -> c;`;
+      _foo.hook('a', 'b', handler);
+      _foo.hook('b', 'a', uncalled);
+      _foo.hook('b', 'c', uncalled);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(handler.mock.calls.length).toBe(1);
+    expect(uncalled.mock.calls.length).toBe(0);
+
+  } );
+
+  test('Chained hooks call their handler, fluent or after', () => {
+
+    const handler1 = jest.fn(x => true),
+          handler2 = jest.fn(x => true),
+          handler3 = jest.fn(x => true);
+
+    let state_ex = undefined;
+
+    expect( () => {
+
+      const _foo = sm`a -> b -> c -> d;`
+        .hook('a', 'b', handler1)
+        .hook('b', 'c', handler2);
+
+      _foo.hook('c', 'd', handler3);
+
+      _foo.transition('b');
+      _foo.transition('c');
+      _foo.transition('d');
+
+      state_ex = _foo.state();
+
+    })
+      .not.toThrow();
+
+    expect( state_ex ).toBe('d');
+
+    expect(handler1.mock.calls.length).toBe(1);
+    expect(handler2.mock.calls.length).toBe(1);
+    expect(handler3.mock.calls.length).toBe(1);
+
+  } );
+
+  // test('Named hooks call their handler', () => {
+
+  //   const handler  = jest.fn(x => true),
+  //         uncalled = jest.fn(x => true);
+
+  //   expect( () => {
+  //     const _foo = sm`a 'next' -> b 'next' -> c;`;
+  //     _foo.hook_action('a', 'b', handler,  'next');
+  //     _foo.hook_action('a', 'b', uncalled, 'borg');
+  //     _foo.hook_action('b', 'a', uncalled, 'next');
+  //     _foo.action('next');
+  //     _foo.action('next');
+  //   })
+  //     .not.toThrow();
+
+  //   // should hook from first, but not from second
+  //   expect(handler.mock.calls.length).toBe(1);
+  //   expect(uncalled.mock.calls.length).toBe(0);
+
+  // } );
+
+  test('Forced hooks call their handler', () => {
+
+    const handler  = jest.fn(x => true),
+          uncalled = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a ~> b ~> c;`;
+      _foo.hook('a', 'b', handler);
+      _foo.hook('b', 'a', uncalled);
+      _foo.hook('b', 'c', uncalled);
+      _foo.force_transition('b');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(handler.mock.calls.length).toBe(1);
+    expect(uncalled.mock.calls.length).toBe(0);
+
+  } );
+
+});

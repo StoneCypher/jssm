@@ -1,6 +1,6 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme, HookDescription } from './jssm_types';
+JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme, HookDescription, HookHandler } from './jssm_types';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import { version } from './version';
 declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
@@ -90,6 +90,7 @@ declare class Machine<mDT> {
     state_is_complete(whichState: StateType): boolean;
     has_completes(): boolean;
     set_hook(HookDesc: HookDescription): void;
+    hook(from: string, to: string, handler: HookHandler): Machine<mDT>;
     action(name: StateType, newData?: mDT): boolean;
     transition(newState: StateType, newData?: mDT): boolean;
     force_transition(newState: StateType, newData?: mDT): boolean;
