@@ -148,28 +148,29 @@ declare type JssmCompileSeStart<DataType> = {
 };
 declare type JssmParseTree = Array<JssmCompileSeStart<StateType>>;
 declare type JssmParseFunctionType = (string: any) => JssmParseTree;
+declare type HookHandler = Function;
 declare type BasicHookDescription = {
     kind: 'hook';
     from: string;
     to: string;
-    handler: Function;
+    handler: HookHandler;
 };
 declare type HookDescriptionWithAction = {
     kind: 'named';
     from: string;
     to: string;
     action: string;
-    handler: Function;
+    handler: HookHandler;
 };
 declare type EntryHook = {
     kind: 'entry';
     to: string;
-    handler: Function;
+    handler: HookHandler;
 };
 declare type ExitHook = {
     kind: 'exit';
     from: string;
-    handler: Function;
+    handler: HookHandler;
 };
 declare type HookDescription = BasicHookDescription | HookDescriptionWithAction | EntryHook | ExitHook;
-export { JssmColor, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, FslDirection, FslTheme, HookDescription };
+export { JssmColor, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, FslDirection, FslTheme, HookDescription, HookHandler };
