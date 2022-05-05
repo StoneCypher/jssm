@@ -145,6 +145,8 @@ test('Named hook rejection doesn\'t block transitions', () => {
 
 describe('Basic hooks on API callpoint', () => {
 
+
+
   test('Basic hooks call their handler', () => {
 
     const handler  = jest.fn(x => true),
@@ -164,6 +166,8 @@ describe('Basic hooks on API callpoint', () => {
     expect(uncalled.mock.calls.length).toBe(0);
 
   } );
+
+
 
   test('Named hooks call their handler', () => {
 
@@ -186,6 +190,8 @@ describe('Basic hooks on API callpoint', () => {
 
   } );
 
+
+
   test('Forced hooks call their handler', () => {
 
     const handler  = jest.fn(x => true),
@@ -206,6 +212,8 @@ describe('Basic hooks on API callpoint', () => {
 
   } );
 
+
+
 });
 
 
@@ -213,6 +221,8 @@ describe('Basic hooks on API callpoint', () => {
 
 
 describe('Basic hooks on fluent API', () => {
+
+
 
   test('Fluent hooks call their handler called fluently', () => {
 
@@ -234,6 +244,8 @@ describe('Basic hooks on fluent API', () => {
 
   } );
 
+
+
   test('Fluent hooks call their handler called after', () => {
 
     const handler  = jest.fn(x => true),
@@ -253,6 +265,8 @@ describe('Basic hooks on fluent API', () => {
     expect(uncalled.mock.calls.length).toBe(0);
 
   } );
+
+
 
   test('Chained hooks call their handler, fluent or after', () => {
 
@@ -287,6 +301,8 @@ describe('Basic hooks on fluent API', () => {
 
   } );
 
+
+
   // test('Named hooks call their handler', () => {
 
   //   const handler  = jest.fn(x => true),
@@ -307,6 +323,8 @@ describe('Basic hooks on fluent API', () => {
   //   expect(uncalled.mock.calls.length).toBe(0);
 
   // } );
+
+
 
   test('Forced hooks call their handler', () => {
 
