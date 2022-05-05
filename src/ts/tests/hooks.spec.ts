@@ -303,26 +303,37 @@ describe('Basic hooks on fluent API', () => {
 
 
 
-  // test('Named hooks call their handler', () => {
+  test('Named hooks call their handler', () => {
 
-  //   const handler  = jest.fn(x => true),
-  //         uncalled = jest.fn(x => true);
+    const handler  = jest.fn(x => true),
+          handler2 = jest.fn(x => true),
+          handler3 = jest.fn(x => true),
+          uncalled = jest.fn(x => true);
 
-  //   expect( () => {
-  //     const _foo = sm`a 'next' -> b 'next' -> c;`;
-  //     _foo.hook_action('a', 'b', handler,  'next');
-  //     _foo.hook_action('a', 'b', uncalled, 'borg');
-  //     _foo.hook_action('b', 'a', uncalled, 'next');
-  //     _foo.action('next');
-  //     _foo.action('next');
-  //   })
-  //     .not.toThrow();
+    expect( () => {
 
-  //   // should hook from first, but not from second
-  //   expect(handler.mock.calls.length).toBe(1);
-  //   expect(uncalled.mock.calls.length).toBe(0);
+      const _foo = sm`a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;`
+        .hook_action('c', 'd', 'next', handler3)
+        .hook_action('d', 'c', 'next', uncalled)
+        .hook_action('d', 'e', 'borg', uncalled);
 
-  // } );
+      _foo.hook_action('a', 'b', 'next', handler);
+      _foo.hook_action('a', 'b', 'borg', uncalled);
+      _foo.hook_action('b', 'a', 'next', uncalled);
+
+      _foo.action('next');
+      _foo.action('next');
+      _foo.action('next');
+      _foo.action('next');
+
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(handler.mock.calls.length).toBe(1);
+    expect(uncalled.mock.calls.length).toBe(0);
+
+  } );
 
 
 

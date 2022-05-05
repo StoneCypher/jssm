@@ -725,6 +725,11 @@ class Machine {
         this.set_hook({ kind: 'hook', from, to, handler });
         return this;
     }
+    hook_action(from, to, action, handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'named', from, to, action, handler });
+        return this;
+    }
     // remove_hook(HookDesc: HookDescription) {
     //   throw 'TODO: Should remove hook here';
     // }

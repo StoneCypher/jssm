@@ -91,6 +91,7 @@ declare class Machine<mDT> {
     has_completes(): boolean;
     set_hook(HookDesc: HookDescription): void;
     hook(from: string, to: string, handler: HookHandler): Machine<mDT>;
+    hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT>;
     action(name: StateType, newData?: mDT): boolean;
     transition(newState: StateType, newData?: mDT): boolean;
     force_transition(newState: StateType, newData?: mDT): boolean;
