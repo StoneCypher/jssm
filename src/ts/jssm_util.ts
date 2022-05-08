@@ -16,6 +16,7 @@ const array_box_if_string = n =>
 
 // this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
+
 const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability'): any => {
 
   if (!Array.isArray(options)) {
@@ -38,6 +39,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
   return options[cursor-1];
 
 };
+
 /* eslint-enable flowtype/no-weak-types */
 
 

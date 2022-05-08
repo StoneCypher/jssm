@@ -1,8 +1,12 @@
 {
   "name": "jssm",
-  "version": "5.53.0",
+  "version": "5.54.0",
   "engines": {
     "node": ">=10.0.0"
+  },
+  "exports": {
+    "require": "./dist/jssm.es5.cjs.js",
+    "import": "./dist/es6/jssm.js"
   },
   "autoupdate": {
     "source": "git",
@@ -16,7 +20,7 @@
       }
     ]
   },
-  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API. Well tested, and typed with TypeScript. MIT License.",
+  "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
   "module": "dist/es6/jssm.js",
   "types": "./jssm.d.ts",
