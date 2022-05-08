@@ -16670,13 +16670,20 @@ var jssm = (function (exports) {
           }
       }
       transition_impl(newState, newData, wasForced, wasAction) {
-          // can't just be direct references because then it loses object context
-          const validator = wasForced
-              ? (newState, newData) => this.valid_force_transition(newState, newData)
-              : (newState, newData) => this.valid_transition(newState, newData);
+          let valid = false;
+          if (wasForced) {
+              if (this.valid_force_transition(newState, newData)) {
+                  valid = true;
+              }
+          }
+          else {
+              if (this.valid_transition(newState, newData)) {
+                  valid = true;
+              }
+          }
           // todo whargarbl implement data stuff
           // todo major incomplete whargarbl comeback
-          if (validator(newState, newData)) {
+          if (valid) {
               if (this._has_hooks) {
                   let hook_permits = undefined;
                   if (this._any_transition_hook !== undefined) {
