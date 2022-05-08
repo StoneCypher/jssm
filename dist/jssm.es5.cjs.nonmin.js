@@ -869,7 +869,6 @@ function reduce(from) {
 
 
 var reduceTo6391 = { reduce: reduce, reductions: reductions };
-var reduceTo6391_1 = reduceTo6391.reduce;
 
 const array_box_if_string = n => typeof n === 'string' ? [n] : n;
 // this is explicitly about other peoples' data, so it has to be weakly typed
@@ -15887,7 +15886,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.54.0";
+const version = "5.55.0";
 
 // whargarbl lots of these return arrays could/should be sets
 /* eslint-disable complexity */
@@ -16091,7 +16090,7 @@ function compile_rule_handler(rule) {
         return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
     }
     if (rule.key === 'machine_language') {
-        return { agg_as: 'machine_language', val: reduceTo6391_1(rule.value) };
+        return { agg_as: 'machine_language', val: reduceTo6391.reduce(rule.value) };
     }
     if (rule.key === 'state_declaration') {
         if (!rule.name) {
