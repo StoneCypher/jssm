@@ -1,3 +1,3 @@
 
-const version: string = "5.51.0";
+const version: string = "5.52.0";
 export { version };
