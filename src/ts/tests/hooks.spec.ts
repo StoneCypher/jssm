@@ -298,6 +298,48 @@ describe('Basic hooks on API callpoint', () => {
 
 
 
+  test('Basic and named hooks on same transition both fire when action is called', () => {
+
+    const basic = jest.fn(x => true),
+          named = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a 'next' -> b;`;
+      _foo.hook('a', 'b', basic);
+      _foo.hook_action('a', 'b', 'next', named);
+      _foo.action('next');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(basic.mock.calls.length).toBe(1);
+    expect(named.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Only basic hook is called with named on same transition when transition is called', () => {
+
+    const basic = jest.fn(x => true),
+          named = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a 'next' -> b;`;
+      _foo.hook('a', 'b', basic);
+      _foo.hook_action('a', 'b', 'next', named);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(basic.mock.calls.length).toBe(1);
+    expect(named.mock.calls.length).toBe(0);
+
+  } );
+
+
+
   test('Forced hooks call their handler', () => {
 
     const handler  = jest.fn(x => true),

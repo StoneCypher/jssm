@@ -96,8 +96,8 @@ declare class Machine<mDT> {
     hook(from: string, to: string, handler: HookHandler): Machine<mDT>;
     hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT>;
     hook_any_transition(handler: HookHandler): Machine<mDT>;
-    action(name: StateType, newData?: mDT): boolean;
-    transition_impl(newState: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    action(actionName: StateType, newData?: mDT): boolean;
     transition(newState: StateType, newData?: mDT): boolean;
     force_transition(newState: StateType, newData?: mDT): boolean;
     current_action_for(action: StateType): number;
