@@ -868,7 +868,6 @@ var jssm = (function (exports) {
 
 
   var reduceTo6391 = { reduce: reduce, reductions: reductions };
-  var reduceTo6391_1 = reduceTo6391.reduce;
 
   const array_box_if_string = n => typeof n === 'string' ? [n] : n;
   // this is explicitly about other peoples' data, so it has to be weakly typed
@@ -15886,7 +15885,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.54.0";
+  const version = "5.55.0";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16090,7 +16089,7 @@ var jssm = (function (exports) {
           return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
       }
       if (rule.key === 'machine_language') {
-          return { agg_as: 'machine_language', val: reduceTo6391_1(rule.value) };
+          return { agg_as: 'machine_language', val: reduceTo6391.reduce(rule.value) };
       }
       if (rule.key === 'state_declaration') {
           if (!rule.name) {
@@ -16780,6 +16779,8 @@ var jssm = (function (exports) {
   exports.weighted_rand_select = weighted_rand_select;
   exports.weighted_sample_select = weighted_sample_select;
 
+  Object.defineProperty(exports, '__esModule', { value: true });
+
   return exports;
 
-}({}));
+})({});
