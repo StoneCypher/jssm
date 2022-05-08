@@ -15886,7 +15886,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.52.0";
+  const version = "5.53.0";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
