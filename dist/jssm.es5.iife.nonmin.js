@@ -15886,7 +15886,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.50.0";
+  const version = "5.51.0";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16632,53 +16632,25 @@ var jssm = (function (exports) {
       // remove_hook(HookDesc: HookDescription) {
       //   throw 'TODO: Should remove hook here';
       // }
-      action(name, newData) {
-          // todo whargarbl implement hooks
-          // todo whargarbl implement data stuff
-          // todo major incomplete whargarbl comeback
-          if (this.valid_action(name, newData)) {
-              const edge = this.current_action_edge_for(name);
-              if (this._has_hooks) {
-                  let hook_permits = undefined;
-                  if (this._any_transition_hook !== undefined) {
-                      if (this._any_transition_hook() === false) {
-                          return false;
-                      }
-                  }
-                  const nhn = named_hook_name(this._state, edge.to, name), maybe_hook = this._named_hooks.get(nhn);
-                  if (maybe_hook === undefined) {
-                      hook_permits = true;
-                  }
-                  else {
-                      hook_permits = maybe_hook({ from: this._state, to: edge.to, action: name });
-                  }
-                  if (hook_permits !== false) {
-                      this._state = edge.to;
-                      return true;
-                  }
-                  else {
-                      return false;
-                  }
-              }
-              else {
-                  this._state = edge.to;
-                  return true;
-              }
-          }
-          else {
-              return false;
-          }
-      }
-      transition_impl(newState, newData, wasForced, wasAction) {
-          let valid = false;
+      transition_impl(newStateOrAction, newData, wasForced, wasAction) {
+          let valid = false, newState;
           if (wasForced) {
-              if (this.valid_force_transition(newState, newData)) {
+              if (this.valid_force_transition(newStateOrAction, newData)) {
                   valid = true;
+                  newState = newStateOrAction;
+              }
+          }
+          else if (wasAction) {
+              if (this.valid_action(newStateOrAction, newData)) {
+                  const edge = this.current_action_edge_for(newStateOrAction);
+                  valid = true;
+                  newState = edge.to;
               }
           }
           else {
-              if (this.valid_transition(newState, newData)) {
+              if (this.valid_transition(newStateOrAction, newData)) {
                   valid = true;
+                  newState = newStateOrAction;
               }
           }
           // todo whargarbl implement data stuff
@@ -16691,12 +16663,24 @@ var jssm = (function (exports) {
                           return false;
                       }
                   }
+                  if (wasAction) {
+                      const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);
+                      if (n_maybe_hook === undefined) {
+                          hook_permits = true;
+                      }
+                      else {
+                          hook_permits = n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction });
+                      }
+                      if (!(hook_permits)) {
+                          return false;
+                      }
+                  }
                   const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
                   if (maybe_hook === undefined) {
                       hook_permits = true;
                   }
                   else {
-                      hook_permits = maybe_hook({ from: this._state, to: newState, forced: wasForced });
+                      hook_permits = maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction ? newStateOrAction : undefined });
                   }
                   if (hook_permits !== false) {
                       this._state = newState;
@@ -16714,6 +16698,9 @@ var jssm = (function (exports) {
           else {
               return false;
           }
+      }
+      action(actionName, newData) {
+          return this.transition_impl(actionName, newData, false, true);
       }
       transition(newState, newData) {
           return this.transition_impl(newState, newData, false, false);

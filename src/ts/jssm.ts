@@ -1067,52 +1067,30 @@ class Machine<mDT> {
 
 
 
-  action(name: StateType, newData?: mDT): boolean {
-    // todo whargarbl implement hooks
-    // todo whargarbl implement data stuff
-    // todo major incomplete whargarbl comeback
-    if (this.valid_action(name, newData)) {
+  transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
 
-      const edge: JssmTransition<mDT> = this.current_action_edge_for(name);
+    let valid    : boolean = false,
+        newState : StateType;
 
-      if (this._has_hooks) {
+    if (wasForced) {
+      if (this.valid_force_transition(newStateOrAction, newData)) {
+        valid    = true;
+        newState = newStateOrAction;
+      }
 
-        let hook_permits: boolean | undefined = undefined;
-
-        if (this._any_transition_hook !== undefined) {
-          if ( this._any_transition_hook() === false ) { return false; }
-        }
-
-        const nhn: string = named_hook_name(this._state, edge.to, name),
-          maybe_hook = this._named_hooks.get(nhn);
-
-        if (maybe_hook === undefined) { hook_permits = true; }
-        else { hook_permits = maybe_hook({ from: this._state, to: edge.to, action: name }); }
-
-        if (hook_permits !== false) {
-          this._state = edge.to;
-          return true;
-        } else {
-          return false;
-        }
-
-      } else {
-        this._state = edge.to;
-        return true;
+    } else if (wasAction) {
+      if (this.valid_action(newStateOrAction, newData)) {
+        const edge: JssmTransition<mDT> = this.current_action_edge_for(newStateOrAction);
+        valid                           = true;
+        newState                        = edge.to;
       }
 
     } else {
-      return false;
+      if (this.valid_transition(newStateOrAction, newData)) {
+        valid    = true;
+        newState = newStateOrAction;
+      }
     }
-  }
-
-
-
-  transition_impl(newState: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
-
-    let valid: boolean = false;
-    if (wasForced) { if (this.valid_force_transition(newState, newData)) { valid = true; } }
-    else           { if (this.valid_transition(      newState, newData)) { valid = true; } }
 
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
@@ -1126,11 +1104,29 @@ class Machine<mDT> {
           if ( this._any_transition_hook() === false ) { return false; }
         }
 
+        if (wasAction) {
+
+          const nhn: string  = named_hook_name(this._state, newState, newStateOrAction),
+                n_maybe_hook = this._named_hooks.get(nhn);
+
+          if (n_maybe_hook === undefined) {
+            hook_permits = true;
+          } else {
+            hook_permits = n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction });
+          }
+
+          if (!(hook_permits)) { return false; }
+
+        }
+
         const hn: string = hook_name(this._state, newState),
           maybe_hook: Function | undefined = this._hooks.get(hn);
 
-        if (maybe_hook === undefined) { hook_permits = true; }
-        else { hook_permits = maybe_hook({ from: this._state, to: newState, forced: wasForced }); }
+        if (maybe_hook === undefined) {
+          hook_permits = true;
+        } else {
+          hook_permits = maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction? newStateOrAction : undefined });
+        }
 
         if (hook_permits !== false) {
           this._state = newState;
@@ -1155,6 +1151,10 @@ class Machine<mDT> {
 
 
 
+
+  action(actionName: StateType, newData?: mDT): boolean {
+    return this.transition_impl(actionName, newData, false, true);
+  }
 
   transition(newState: StateType, newData?: mDT): boolean {
     return this.transition_impl(newState, newData, false, false);
