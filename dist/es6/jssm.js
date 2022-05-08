@@ -783,10 +783,21 @@ class Machine {
             return false;
         }
     }
-    transition(newState, newData) {
+    transition_impl(newState, newData, wasForced, wasAction) {
+        let valid = false;
+        if (wasForced) {
+            if (this.valid_force_transition(newState, newData)) {
+                valid = true;
+            }
+        }
+        else {
+            if (this.valid_transition(newState, newData)) {
+                valid = true;
+            }
+        }
         // todo whargarbl implement data stuff
         // todo major incomplete whargarbl comeback
-        if (this.valid_transition(newState, newData)) {
+        if (valid) {
             if (this._has_hooks) {
                 let hook_permits = undefined;
                 if (this._any_transition_hook !== undefined) {
@@ -799,7 +810,7 @@ class Machine {
                     hook_permits = true;
                 }
                 else {
-                    hook_permits = maybe_hook({ from: this._state, to: newState });
+                    hook_permits = maybe_hook({ from: this._state, to: newState, forced: wasForced });
                 }
                 if (hook_permits !== false) {
                     this._state = newState;
@@ -818,41 +829,12 @@ class Machine {
             return false;
         }
     }
+    transition(newState, newData) {
+        return this.transition_impl(newState, newData, false, false);
+    }
     // can leave machine in inconsistent state.  generally do not use
     force_transition(newState, newData) {
-        // todo whargarbl implement data stuff
-        // todo major incomplete whargarbl comeback
-        if (this.valid_force_transition(newState, newData)) {
-            if (this._has_hooks) {
-                let hook_permits = undefined;
-                if (this._any_transition_hook !== undefined) {
-                    if (this._any_transition_hook() === false) {
-                        return false;
-                    }
-                }
-                const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
-                if (maybe_hook === undefined) {
-                    hook_permits = true;
-                }
-                else {
-                    hook_permits = maybe_hook({ from: this._state, to: newState, forced: true });
-                }
-                if (hook_permits !== false) {
-                    this._state = newState;
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-            else {
-                this._state = newState;
-                return true;
-            }
-        }
-        else {
-            return false;
-        }
+        return this.transition_impl(newState, newData, true, false);
     }
     current_action_for(action) {
         const action_base = this._actions.get(action);
