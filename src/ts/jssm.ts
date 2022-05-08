@@ -1108,11 +1108,16 @@ class Machine<mDT> {
 
 
 
-  transition(newState: StateType, newData?: mDT): boolean {
+  transition_impl(newState: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
+
+    // can't just be direct references because then it loses object context
+    const validator = wasForced
+      ? (newState, newData) => this.valid_force_transition(newState, newData)
+      : (newState, newData) => this.valid_transition(newState, newData);
 
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
-    if (this.valid_transition(newState, newData)) {
+    if (validator(newState, newData)) {
 
       if (this._has_hooks) {
 
@@ -1126,7 +1131,7 @@ class Machine<mDT> {
           maybe_hook: Function | undefined = this._hooks.get(hn);
 
         if (maybe_hook === undefined) { hook_permits = true; }
-        else { hook_permits = maybe_hook({ from: this._state, to: newState }); }
+        else { hook_permits = maybe_hook({ from: this._state, to: newState, forced: wasForced }); }
 
         if (hook_permits !== false) {
           this._state = newState;
@@ -1148,49 +1153,22 @@ class Machine<mDT> {
 
   }
 
+
+
+
+
+  transition(newState: StateType, newData?: mDT): boolean {
+    return this.transition_impl(newState, newData, false, false);
+  }
 
 
   // can leave machine in inconsistent state.  generally do not use
 
   force_transition(newState: StateType, newData?: mDT): boolean {
-
-    // todo whargarbl implement data stuff
-    // todo major incomplete whargarbl comeback
-    if (this.valid_force_transition(newState, newData)) {
-
-      if (this._has_hooks) {
-
-        let hook_permits: boolean | undefined = undefined;
-
-        if (this._any_transition_hook !== undefined) {
-          if ( this._any_transition_hook() === false ) { return false; }
-        }
-
-        const hn: string = hook_name(this._state, newState),
-          maybe_hook: Function | undefined = this._hooks.get(hn);
-
-        if (maybe_hook === undefined) { hook_permits = true; }
-        else { hook_permits = maybe_hook({ from: this._state, to: newState, forced: true }); }
-
-        if (hook_permits !== false) {
-          this._state = newState;
-          return true;
-        } else {
-          return false;
-        }
-
-      } else {
-
-        this._state = newState;
-        return true;
-
-      }
-
-    } else {
-      return false;
-    }
-
+    return this.transition_impl(newState, newData, true, false);
   }
+
+
 
 
 
