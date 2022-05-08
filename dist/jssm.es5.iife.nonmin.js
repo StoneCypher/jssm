@@ -15886,7 +15886,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.48.0";
+  const version = "5.49.0";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16038,13 +16038,13 @@ var jssm = (function (exports) {
       //  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new TypeError("Must be in a list if transition has an index");   }
       /*
         if (typeof edge.to === 'object') {
-      
+    
           if (edge.to.key === 'cycle') {
             if (wasList === undefined) { throw "Must have a waslist if a to is type cycle"; }
             const nextIndex = wrapBy(wasIndex, edge.to.value, wasList.length);
             edge.to = wasList[nextIndex];
           }
-      
+    
         }
       */
       const action = isRight ? 'r_action' : 'l_action', probability = isRight ? 'r_probability' : 'l_probability';
@@ -16232,8 +16232,11 @@ var jssm = (function (exports) {
           this._flow = flow;
           this._graph_layout = graph_layout;
           this._has_hooks = false;
+          this._has_basic_hooks = false;
+          this._has_named_hooks = false;
           this._hooks = new Map();
           this._named_hooks = new Map();
+          this._any_transition_hook = undefined;
           if (state_declaration) {
               state_declaration.map((state_decl) => {
                   if (this._state_declarations.has(state_decl.state)) { // no repeats
@@ -16342,7 +16345,7 @@ var jssm = (function (exports) {
       }
       /* whargarbl todo major
          when we reimplement this, reintroduce this change to the is_final call
-      
+    
         is_changing(): boolean {
           return true; // todo whargarbl
         }
@@ -16541,7 +16544,8 @@ var jssm = (function (exports) {
           return Array.from(ra_base.values())
               .map((edgeId) => this._edges[edgeId])
               .filter((o) => o.from === whichState)
-              .map((filtered) => ({ action: filtered.action,
+              .map((filtered) => ({
+              action: filtered.action,
               probability: filtered.probability
           }));
       }
@@ -16595,6 +16599,10 @@ var jssm = (function (exports) {
                   this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                   this._has_hooks = true;
                   break;
+              case 'any transition':
+                  this._any_transition_hook = HookDesc.handler;
+                  this._has_hooks = true;
+                  break;
               // case 'entry':
               //   console.log('TODO: Should add entry hook here');
               //   throw 'TODO: Should add entry hook here';
@@ -16616,6 +16624,11 @@ var jssm = (function (exports) {
           this.set_hook({ kind: 'named', from, to, action, handler });
           return this;
       }
+      hook_any_transition(handler) {
+          // TODO: should this throw if setting the hook fails, or ignore it and continue?
+          this.set_hook({ kind: 'any transition', handler });
+          return this;
+      }
       // remove_hook(HookDesc: HookDescription) {
       //   throw 'TODO: Should remove hook here';
       // }
@@ -16627,6 +16640,11 @@ var jssm = (function (exports) {
               const edge = this.current_action_edge_for(name);
               if (this._has_hooks) {
                   let hook_permits = undefined;
+                  if (this._any_transition_hook !== undefined) {
+                      if (this._any_transition_hook() === false) {
+                          return false;
+                      }
+                  }
                   const nhn = named_hook_name(this._state, edge.to, name), maybe_hook = this._named_hooks.get(nhn);
                   if (maybe_hook === undefined) {
                       hook_permits = true;
@@ -16652,12 +16670,16 @@ var jssm = (function (exports) {
           }
       }
       transition(newState, newData) {
-          // todo whargarbl implement hooks
           // todo whargarbl implement data stuff
           // todo major incomplete whargarbl comeback
           if (this.valid_transition(newState, newData)) {
               if (this._has_hooks) {
                   let hook_permits = undefined;
+                  if (this._any_transition_hook !== undefined) {
+                      if (this._any_transition_hook() === false) {
+                          return false;
+                      }
+                  }
                   const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
                   if (maybe_hook === undefined) {
                       hook_permits = true;
@@ -16684,12 +16706,16 @@ var jssm = (function (exports) {
       }
       // can leave machine in inconsistent state.  generally do not use
       force_transition(newState, newData) {
-          // todo whargarbl implement hooks
           // todo whargarbl implement data stuff
           // todo major incomplete whargarbl comeback
           if (this.valid_force_transition(newState, newData)) {
               if (this._has_hooks) {
                   let hook_permits = undefined;
+                  if (this._any_transition_hook !== undefined) {
+                      if (this._any_transition_hook() === false) {
+                          return false;
+                      }
+                  }
                   const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
                   if (maybe_hook === undefined) {
                       hook_permits = true;

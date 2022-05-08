@@ -68,4 +68,3 @@ jest-stoch.config.js
 rollup.config.iife.js
 rollup.config.js
 tsconfig.json
-dist/jssm.es5.iife.js

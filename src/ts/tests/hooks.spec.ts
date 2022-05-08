@@ -52,6 +52,17 @@ describe('Basic hooks on API callpoint', () => {
   } );
 
 
+  test('Setting an any-transition hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a 'foo' -> b;`;
+      _foo.set_hook({ handler: () => console.log('hi'), kind: 'any transition' })
+    })
+      .not.toThrow();
+
+  });
+
+
   test('Setting a kind of hook that doesn\'t exist throws', () => {
 
     expect( () => {
@@ -136,6 +147,101 @@ test('Named hook rejection doesn\'t block transitions', () => {
 
   expect(foo.transition('b')).toBe(true);
   expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('All-transition hook rejection works on actions', () => {
+
+  const foo = sm`a 'foo' => b;`;
+
+  foo.set_hook({ kind: 'any transition', handler: () => false });
+  expect(foo.action('foo')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.set_hook({ kind: 'any transition', handler: () => true });
+  expect(foo.action('foo')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('All-transition hook rejection works on transitions', () => {
+
+  const foo = sm`a => b;`;
+
+  foo.set_hook({ kind: 'any transition', handler: () => false });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.set_hook({ kind: 'any transition', handler: () => true });
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('All-transition hook rejection works on forced transitions', () => {
+
+  const foo = sm`a ~> b;`;
+
+  foo.set_hook({ kind: 'any transition', handler: () => false });
+  expect(foo.force_transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.set_hook({ kind: 'any transition', handler: () => true });
+  expect(foo.force_transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('All-transition fluent hook rejection works on transitions', () => {
+
+  const foo = sm`a => b;`
+    .hook_any_transition( () => false );
+
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.hook_any_transition( () => true );
+
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('All-transition hook rejection prevents subsequent hooks', () => {
+
+  const foo = sm`a => b;`,
+        cnt = jest.fn(x => true);
+
+  foo.set_hook({ kind: 'any transition', handler: () => false });
+  foo.set_hook({ kind: 'hook',           handler: cnt,        from: 'a', to: 'b' });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+  expect(cnt.mock.calls.length).toBe(0);
+
+  foo.set_hook({ kind: 'any transition', handler: () => true });
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+  expect(cnt.mock.calls.length).toBe(1);
 
 });
 
