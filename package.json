@@ -118,6 +118,7 @@
     "terser": "^5.13.1",
     "text_audit": "^0.9.3",
     "ts-jest": "^27.0.7",
+    "tscheck": "^0.1.5",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.4"
   },
