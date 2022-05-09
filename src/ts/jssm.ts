@@ -1070,6 +1070,16 @@ class Machine<mDT> {
 
 
 
+  hook_entry(to: string, handler: HookHandler): Machine<mDT> {
+
+    // TODO: should this throw if setting the hook fails, or ignore it and continue?
+    this.set_hook({ kind: 'entry', to, handler });
+    return this;
+
+  }
+
+
+
   // remove_hook(HookDesc: HookDescription) {
   //   throw 'TODO: Should remove hook here';
   // }
