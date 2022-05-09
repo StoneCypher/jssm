@@ -251,21 +251,21 @@ test('Exit hook rejection works', () => {
 
 
 
-// test('Fluent exit hook works', () => {
+test('Fluent exit hook works', () => {
 
-//   const cnt  = jest.fn(x => true),
-//         nope = jest.fn(x => true);
+  const cnt  = jest.fn(x => true),
+        nope = jest.fn(x => true);
 
-//   const foo = sm`a => b => c;`
-//     .hook_exit('a', cnt)
-//     .hook_exit('b', nope);
+  const foo = sm`a => b => c;`
+    .hook_exit('a', cnt)
+    .hook_exit('b', nope);
 
-//   foo.transition('b');
+  foo.transition('b');
 
-//   expect(cnt.mock.calls.length).toBe(1);
-//   expect(nope.mock.calls.length).toBe(0);
+  expect(cnt.mock.calls.length).toBe(1);
+  expect(nope.mock.calls.length).toBe(0);
 
-// });
+});
 
 
 
