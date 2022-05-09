@@ -16234,8 +16234,11 @@ class Machine {
         this._has_hooks = false;
         this._has_basic_hooks = false;
         this._has_named_hooks = false;
+        this._has_entry_hooks = false;
+        // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
         this._hooks = new Map();
         this._named_hooks = new Map();
+        this._entry_hooks = new Map();
         this._any_transition_hook = undefined;
         if (state_declaration) {
             state_declaration.map((state_decl) => {
@@ -16603,9 +16606,10 @@ class Machine {
                 this._any_transition_hook = HookDesc.handler;
                 this._has_hooks = true;
                 break;
-            // case 'entry':
-            //   console.log('TODO: Should add entry hook here');
-            //   throw 'TODO: Should add entry hook here';
+            case 'entry':
+                this._entry_hooks.set(HookDesc.to, HookDesc.handler);
+                this._has_hooks = true;
+                break;
             // case 'exit':
             //   console.log('TODO: Should add exit hook here');
             //   throw 'TODO: Should add exit hook here';
@@ -16657,43 +16661,50 @@ class Machine {
         // todo major incomplete whargarbl comeback
         if (valid) {
             if (this._has_hooks) {
-                let hook_permits = undefined;
+                // 1. any action hook
+                // not yet implemented
+                // 2. any transition hook
                 if (this._any_transition_hook !== undefined) {
                     if (this._any_transition_hook() === false) {
                         return false;
                     }
                 }
+                // 3. exit hook
+                // not yet implemented
+                // 4. named transition / action hook
                 if (wasAction) {
                     const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);
-                    if (n_maybe_hook === undefined) {
-                        hook_permits = true;
+                    if (n_maybe_hook !== undefined) {
+                        if (n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction }) === false) {
+                            return false;
+                        }
                     }
-                    else {
-                        hook_permits = n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction });
-                    }
-                    if (!(hook_permits)) {
+                }
+                // 5. regular hook
+                const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
+                if (maybe_hook !== undefined) {
+                    if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction ? newStateOrAction : undefined }) === false) {
                         return false;
                     }
                 }
-                const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
-                if (maybe_hook === undefined) {
-                    hook_permits = true;
+                // 6. edge type hook
+                // not yet implemented
+                // 7. entry hook
+                const maybe_en_hook = this._entry_hooks.get(newState);
+                if (maybe_en_hook !== undefined) {
+                    if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
+                        return false;
+                    }
                 }
-                else {
-                    hook_permits = maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction ? newStateOrAction : undefined });
-                }
-                if (hook_permits !== false) {
-                    this._state = newState;
-                    return true;
-                }
-                else {
-                    return false;
-                }
+                this._state = newState;
+                return true;
+                // or without hooks
             }
             else {
                 this._state = newState;
                 return true;
             }
+            // not valid
         }
         else {
             return false;

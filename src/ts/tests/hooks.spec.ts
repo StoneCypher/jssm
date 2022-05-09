@@ -63,6 +63,17 @@ describe('Basic hooks on API callpoint', () => {
   });
 
 
+  test('Setting an entry hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a 'foo' -> b;`;
+      _foo.set_hook({ to: 'b', handler: () => console.log('hi'), kind: 'entry' })
+    })
+      .not.toThrow();
+
+  });
+
+
   test('Setting a kind of hook that doesn\'t exist throws', () => {
 
     expect( () => {
@@ -165,6 +176,30 @@ test('All-transition hook rejection works on actions', () => {
   foo.set_hook({ kind: 'any transition', handler: () => true });
   expect(foo.action('foo')).toBe(true);
   expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('Entry hook rejection works on actions', () => {
+
+  const foo = sm`a => b => c;`;
+
+  // test that an unused handler is never hit, for coverage
+  foo.set_hook({ kind: 'entry', to: 'a', handler: () => { throw 'Should never hit, should be unused'; } });
+
+  foo.set_hook({ kind: 'entry', to: 'b', handler: () => false });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.set_hook({ kind: 'entry', to: 'b', handler: () => true });
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+  // test that a third step doesn't inappropriately fire the handler, for coverage
+  expect(foo.transition('c')).toBe(true);
 
 });
 

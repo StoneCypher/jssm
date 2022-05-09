@@ -40,8 +40,10 @@ declare class Machine<mDT> {
     _has_hooks: boolean;
     _has_basic_hooks: boolean;
     _has_named_hooks: boolean;
+    _has_entry_hooks: boolean;
     _hooks: Map<string, Function>;
     _named_hooks: Map<string, Function>;
+    _entry_hooks: Map<string, Function>;
     _any_transition_hook: HookHandler | undefined;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout }: JssmGenericConfig<mDT>);
     _new_state(state_config: JssmGenericState): StateType;
