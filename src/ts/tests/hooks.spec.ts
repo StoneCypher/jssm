@@ -207,6 +207,26 @@ test('Entry hook rejection works on actions', () => {
 
 
 
+test('Fluent entry hook works', () => {
+
+  const cnt  = jest.fn(x => true),
+        nope = jest.fn(x => true);
+
+  const foo = sm`a => b => c;`
+    .hook_entry('b', cnt)
+    .hook_entry('c', nope);
+
+  foo.transition('b');
+
+  expect(cnt.mock.calls.length).toBe(1);
+  expect(nope.mock.calls.length).toBe(0);
+
+});
+
+
+
+
+
 test('All-transition hook rejection works on transitions', () => {
 
   const foo = sm`a => b;`;
