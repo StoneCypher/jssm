@@ -481,11 +481,13 @@ class Machine<mDT> {
   _has_basic_hooks : boolean;
   _has_named_hooks : boolean;
   _has_entry_hooks : boolean;
+  _has_exit_hooks  : boolean;
   // no boolean for _has_any_transition_hook
 
   _hooks               : Map<string, Function>;
   _named_hooks         : Map<string, Function>;
   _entry_hooks         : Map<string, Function>;
+  _exit_hooks          : Map<string, Function>;
   _any_transition_hook : HookHandler | undefined;
 
 
@@ -548,11 +550,13 @@ class Machine<mDT> {
     this._has_basic_hooks = false;
     this._has_named_hooks = false;
     this._has_entry_hooks = false;
+    this._has_exit_hooks  = false;
     // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
 
     this._hooks               = new Map();
     this._named_hooks         = new Map();
     this._entry_hooks         = new Map();
+    this._exit_hooks          = new Map();
     this._any_transition_hook = undefined;
 
 
@@ -1027,9 +1031,10 @@ class Machine<mDT> {
         this._has_hooks = true;
         break;
 
-      // case 'exit':
-      //   console.log('TODO: Should add exit hook here');
-      //   throw 'TODO: Should add exit hook here';
+      case 'exit':
+        this._exit_hooks.set(HookDesc.from, HookDesc.handler);
+        this._has_hooks = true;
+        break;
 
       default:
         console.log(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
@@ -1126,7 +1131,13 @@ class Machine<mDT> {
         }
 
         // 3. exit hook
-        // not yet implemented
+        const maybe_ex_hook: Function | undefined = this._exit_hooks.get(this._state);
+
+        if (maybe_ex_hook !== undefined) {
+          if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
+            return false;
+          }
+        }
 
         // 4. named transition / action hook
         if (wasAction) {

@@ -15886,7 +15886,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.56.2";
+const version = "5.57.0";
 
 // whargarbl lots of these return arrays could/should be sets
 /* eslint-disable complexity */
@@ -16235,10 +16235,12 @@ class Machine {
         this._has_basic_hooks = false;
         this._has_named_hooks = false;
         this._has_entry_hooks = false;
+        this._has_exit_hooks = false;
         // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
         this._hooks = new Map();
         this._named_hooks = new Map();
         this._entry_hooks = new Map();
+        this._exit_hooks = new Map();
         this._any_transition_hook = undefined;
         if (state_declaration) {
             state_declaration.map((state_decl) => {
@@ -16610,9 +16612,10 @@ class Machine {
                 this._entry_hooks.set(HookDesc.to, HookDesc.handler);
                 this._has_hooks = true;
                 break;
-            // case 'exit':
-            //   console.log('TODO: Should add exit hook here');
-            //   throw 'TODO: Should add exit hook here';
+            case 'exit':
+                this._exit_hooks.set(HookDesc.from, HookDesc.handler);
+                this._has_hooks = true;
+                break;
             default:
                 console.log(`Unknown hook type ${HookDesc.kind}, should be impossible`);
                 throw new RangeError(`Unknown hook type ${HookDesc.kind}, should be impossible`);
@@ -16675,7 +16678,12 @@ class Machine {
                     }
                 }
                 // 3. exit hook
-                // not yet implemented
+                const maybe_ex_hook = this._exit_hooks.get(this._state);
+                if (maybe_ex_hook !== undefined) {
+                    if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
+                        return false;
+                    }
+                }
                 // 4. named transition / action hook
                 if (wasAction) {
                     const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);

@@ -183,7 +183,7 @@ test('All-transition hook rejection works on actions', () => {
 
 
 
-test('Entry hook rejection works on actions', () => {
+test('Entry hook rejection works', () => {
 
   const foo = sm`a => b => c;`;
 
@@ -222,6 +222,50 @@ test('Fluent entry hook works', () => {
   expect(nope.mock.calls.length).toBe(0);
 
 });
+
+
+
+
+
+test('Exit hook rejection works', () => {
+
+  const foo = sm`a => b => c;`;
+
+  // test that an unused handler is never hit, for coverage
+  foo.set_hook({ kind: 'exit', from: 'c', handler: () => { throw 'Should never hit, should be unused'; } });
+
+  foo.set_hook({ kind: 'exit', from: 'a', handler: () => false });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.set_hook({ kind: 'exit', from: 'a', handler: () => true });
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+  // test that a third step doesn't inappropriately fire the handler, for coverage
+  expect(foo.transition('c')).toBe(true);
+
+});
+
+
+
+
+
+// test('Fluent exit hook works', () => {
+
+//   const cnt  = jest.fn(x => true),
+//         nope = jest.fn(x => true);
+
+//   const foo = sm`a => b => c;`
+//     .hook_exit('a', cnt)
+//     .hook_exit('b', nope);
+
+//   foo.transition('b');
+
+//   expect(cnt.mock.calls.length).toBe(1);
+//   expect(nope.mock.calls.length).toBe(0);
+
+// });
 
 
 
