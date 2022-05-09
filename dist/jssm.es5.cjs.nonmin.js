@@ -15886,7 +15886,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.56.0";
+const version = "5.56.2";
 
 // whargarbl lots of these return arrays could/should be sets
 /* eslint-disable complexity */
@@ -16631,6 +16631,11 @@ class Machine {
     hook_any_transition(handler) {
         // TODO: should this throw if setting the hook fails, or ignore it and continue?
         this.set_hook({ kind: 'any transition', handler });
+        return this;
+    }
+    hook_entry(to, handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'entry', to, handler });
         return this;
     }
     // remove_hook(HookDesc: HookDescription) {
