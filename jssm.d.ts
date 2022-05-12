@@ -106,6 +106,9 @@ declare class Machine<mDT> {
     hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT>;
     hook_global_action(action: string, handler: HookHandler): Machine<mDT>;
     hook_any_action(handler: HookHandler): Machine<mDT>;
+    hook_standard_transition(handler: HookHandler): Machine<mDT>;
+    hook_main_transition(handler: HookHandler): Machine<mDT>;
+    hook_forced_transition(handler: HookHandler): Machine<mDT>;
     hook_any_transition(handler: HookHandler): Machine<mDT>;
     hook_entry(to: string, handler: HookHandler): Machine<mDT>;
     hook_exit(from: string, handler: HookHandler): Machine<mDT>;

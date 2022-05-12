@@ -156,11 +156,11 @@ test('Standard transition hook rejection works', () => {
 
   const foo = sm`a -> b;`;
 
-  foo.set_hook({ from: 'a', to: 'b', kind: 'standard transition', handler: () => false });
+  foo.set_hook({ kind: 'standard transition', handler: () => false });
   expect(foo.transition('b')).toBe(false);
   expect(foo.state()).toBe('a');
 
-  foo.set_hook({ from: 'a', to: 'b', kind: 'standard transition', handler: () => true });
+  foo.set_hook({ kind: 'standard transition', handler: () => true });
   expect(foo.transition('b')).toBe(true);
   expect(foo.state()).toBe('b');
 
@@ -174,11 +174,11 @@ test('Main transition hook rejection works', () => {
 
   const foo = sm`a => b;`;
 
-  foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => false });
+  foo.set_hook({ kind: 'main transition', handler: () => false });
   expect(foo.transition('b')).toBe(false);
   expect(foo.state()).toBe('a');
 
-  foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => true });
+  foo.set_hook({ kind: 'main transition', handler: () => true });
   expect(foo.transition('b')).toBe(true);
   expect(foo.state()).toBe('b');
 
@@ -192,11 +192,68 @@ test('Forced transition hook rejection works', () => {
 
   const foo = sm`a ~> b;`;
 
-  foo.set_hook({ from: 'a', to: 'b', kind: 'forced transition', handler: () => false });
+  foo.set_hook({ kind: 'forced transition', handler: () => false });
   expect(foo.force_transition('b')).toBe(false);
   expect(foo.state()).toBe('a');
 
-  foo.set_hook({ from: 'a', to: 'b', kind: 'forced transition', handler: () => true });
+  foo.set_hook({ kind: 'forced transition', handler: () => true });
+  expect(foo.force_transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('Standard transition fluent hook rejection works', () => {
+
+  const foo = sm`a -> b;`
+    .hook_standard_transition( () => false );
+
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.hook_standard_transition( () => true );
+
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('Main transition fluent hook rejection works', () => {
+
+  const foo = sm`a => b;`
+    .hook_main_transition( () => false );
+
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.hook_main_transition( () => true );
+
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('Forced transition fluent hook rejection works', () => {
+
+  const foo = sm`a ~> b;`
+    .hook_forced_transition( () => false );
+
+  expect(foo.force_transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.hook_forced_transition( () => true );
+
   expect(foo.force_transition('b')).toBe(true);
   expect(foo.state()).toBe('b');
 
