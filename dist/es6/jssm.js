@@ -781,6 +781,21 @@ class Machine {
         this.set_hook({ kind: 'any action', handler });
         return this;
     }
+    hook_standard_transition(handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'standard transition', handler });
+        return this;
+    }
+    hook_main_transition(handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'main transition', handler });
+        return this;
+    }
+    hook_forced_transition(handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'forced transition', handler });
+        return this;
+    }
     hook_any_transition(handler) {
         // TODO: should this throw if setting the hook fails, or ignore it and continue?
         this.set_hook({ kind: 'any transition', handler });

@@ -15885,7 +15885,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.60.3";
+  const version = "5.60.4";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16664,6 +16664,21 @@ var jssm = (function (exports) {
       hook_any_action(handler) {
           // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'any action', handler });
+          return this;
+      }
+      hook_standard_transition(handler) {
+          // TODO: should this throw if setting the hook fails, or ignore it and continue?
+          this.set_hook({ kind: 'standard transition', handler });
+          return this;
+      }
+      hook_main_transition(handler) {
+          // TODO: should this throw if setting the hook fails, or ignore it and continue?
+          this.set_hook({ kind: 'main transition', handler });
+          return this;
+      }
+      hook_forced_transition(handler) {
+          // TODO: should this throw if setting the hook fails, or ignore it and continue?
+          this.set_hook({ kind: 'forced transition', handler });
           return this;
       }
       hook_any_transition(handler) {
