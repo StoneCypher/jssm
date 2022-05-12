@@ -1079,6 +1079,16 @@ class Machine<mDT> {
 
 
 
+  hook_global_action(action: string, handler: HookHandler): Machine<mDT> {
+
+    // TODO: should this throw if setting the hook fails, or ignore it and continue?
+    this.set_hook({ kind: 'global action', action, handler });
+    return this;
+
+  }
+
+
+
   hook_any_action(handler: HookHandler): Machine<mDT> {
 
     // TODO: should this throw if setting the hook fails, or ignore it and continue?
