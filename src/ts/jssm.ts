@@ -172,12 +172,14 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
 
 function makeTransition<mDT>(
-  this_se: JssmCompileSe,
-  from: string,
-  to: string,
-  isRight: boolean,
-  _wasList?: Array<string>,
-  _wasIndex?: number
+
+  this_se    : JssmCompileSe,
+  from       : string,
+  to         : string,
+  isRight    : boolean,
+  _wasList?  : Array<string>,
+  _wasIndex? : number
+
 ): JssmTransition<mDT> {
 
   const kind: JssmArrowKind = isRight ? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
@@ -225,11 +227,13 @@ function wrap_parse(input: string, options?: Object) {
 
 
 function compile_rule_transition_step<mDT>(
-  acc: Array<JssmTransition<mDT>>,
-  from: string,
-  to: string,
-  this_se: JssmCompileSe,
-  next_se: JssmCompileSe
+
+  acc     : Array<JssmTransition<mDT>>,
+  from    : string,
+  to      : string,
+  this_se : JssmCompileSe,
+  next_se : JssmCompileSe
+
 ): Array<JssmTransition<mDT>> { // todo typescript describe the parser representation of a transition step extension
 
   const edges: Array<JssmTransition<mDT>> = [];
@@ -309,58 +313,58 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
 function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   const results: {
-    graph_layout: Array<JssmLayout>,
-    transition: Array<JssmTransition<mDT>>,
-    start_states: Array<string>,
-    end_states: Array<string>,
-    state_config: Array<any>,     // TODO COMEBACK no any
-    state_declaration: Array<string>,
-    fsl_version: Array<string>,
-    machine_author: Array<string>,
-    machine_comment: Array<string>,
-    machine_contributor: Array<string>,
-    machine_definition: Array<string>,
-    machine_language: Array<string>,
-    machine_license: Array<string>,
-    machine_name: Array<string>,
-    machine_reference: Array<string>,
-    theme: Array<string>,
-    flow: Array<string>,
-    dot_preamble: Array<string>,
-    arrange_declaration: Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_start_declaration: Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_end_declaration: Array<Array<string>>, // TODO COMEBACK CHECKME
-    machine_version: Array<string>           // TODO COMEBACK semver
+    graph_layout              : Array<JssmLayout>,
+    transition                : Array<JssmTransition<mDT>>,
+    start_states              : Array<string>,
+    end_states                : Array<string>,
+    state_config              : Array<any>,           // TODO COMEBACK no any
+    state_declaration         : Array<string>,
+    fsl_version               : Array<string>,
+    machine_author            : Array<string>,
+    machine_comment           : Array<string>,
+    machine_contributor       : Array<string>,
+    machine_definition        : Array<string>,
+    machine_language          : Array<string>,
+    machine_license           : Array<string>,
+    machine_name              : Array<string>,
+    machine_reference         : Array<string>,
+    theme                     : Array<string>,
+    flow                      : Array<string>,
+    dot_preamble              : Array<string>,
+    arrange_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_start_declaration : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_end_declaration   : Array<Array<string>>, // TODO COMEBACK CHECKME
+    machine_version           : Array<string>         // TODO COMEBACK semver
   } = {
-    graph_layout: [],
-    transition: [],
-    start_states: [],
-    end_states: [],
-    state_config: [],
-    state_declaration: [],
-    fsl_version: [],
-    machine_author: [],
-    machine_comment: [],
-    machine_contributor: [],
-    machine_definition: [],
-    machine_language: [],
-    machine_license: [],
-    machine_name: [],
-    machine_reference: [],
-    theme: [],
-    flow: [],
-    dot_preamble: [],
-    arrange_declaration: [],
-    arrange_start_declaration: [],
-    arrange_end_declaration: [],
-    machine_version: []
+    graph_layout              : [],
+    transition                : [],
+    start_states              : [],
+    end_states                : [],
+    state_config              : [],
+    state_declaration         : [],
+    fsl_version               : [],
+    machine_author            : [],
+    machine_comment           : [],
+    machine_contributor       : [],
+    machine_definition        : [],
+    machine_language          : [],
+    machine_license           : [],
+    machine_name              : [],
+    machine_reference         : [],
+    theme                     : [],
+    flow                      : [],
+    dot_preamble              : [],
+    arrange_declaration       : [],
+    arrange_start_declaration : [],
+    arrange_end_declaration   : [],
+    machine_version           : []
   };
 
   tree.map((tr: JssmCompileSeStart<StateType>) => {
 
-    const rule: JssmCompileRule = compile_rule_handler(tr),
-      agg_as: string = rule.agg_as,
-      val: any = rule.val;                  // TODO FIXME no any
+    const rule   : JssmCompileRule = compile_rule_handler(tr),
+          agg_as : string          = rule.agg_as,
+          val    : any             = rule.val;                  // TODO FIXME no any
 
     results[agg_as] = results[agg_as].concat(val);
 
@@ -419,20 +423,22 @@ function make<mDT>(plan: string): JssmGenericConfig<mDT> {
 function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration {
 
   state_decl.declarations.map((d: JssmStateDeclarationRule) => {
+
     switch (d.key) {
 
-      case 'shape': state_decl.shape = d.value; break;
-      case 'color': state_decl.color = d.value; break;
-      case 'corners': state_decl.corners = d.value; break;
-      case 'linestyle': state_decl.linestyle = d.value; break;
+      case 'shape'            : state_decl.shape           = d.value; break;
+      case 'color'            : state_decl.color           = d.value; break;
+      case 'corners'          : state_decl.corners         = d.value; break;
+      case 'linestyle'        : state_decl.linestyle       = d.value; break;
 
-      case 'text-color': state_decl.textColor = d.value; break;
-      case 'background-color': state_decl.backgroundColor = d.value; break;
-      case 'border-color': state_decl.borderColor = d.value; break;
+      case 'text-color'       : state_decl.textColor       = d.value; break;
+      case 'background-color' : state_decl.backgroundColor = d.value; break;
+      case 'border-color'     : state_decl.borderColor     = d.value; break;
 
       default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
 
     }
+
   });
 
   return state_decl;
@@ -484,13 +490,14 @@ class Machine<mDT> {
   _has_exit_hooks  : boolean;
   // no boolean for _has_any_transition_hook
 
-  _hooks               : Map<string, Function>;
-  _named_hooks         : Map<string, Function>;
-  _entry_hooks         : Map<string, Function>;
-  _exit_hooks          : Map<string, Function>;
-  _global_action_hooks : Map<string, Function>;
-  _any_action_hook     : HookHandler | undefined;
-  _any_transition_hook : HookHandler | undefined;
+  _hooks                    : Map<string, Function>;
+  _named_hooks              : Map<string, Function>;
+  _entry_hooks              : Map<string, Function>;
+  _exit_hooks               : Map<string, Function>;
+  _global_action_hooks      : Map<string, Function>;
+  _any_action_hook          : HookHandler | undefined;
+  _standard_transition_hook : HookHandler | undefined;
+  _any_transition_hook      : HookHandler | undefined;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -555,13 +562,15 @@ class Machine<mDT> {
     this._has_exit_hooks  = false;
     // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
 
-    this._hooks               = new Map();
-    this._named_hooks         = new Map();
-    this._entry_hooks         = new Map();
-    this._exit_hooks          = new Map();
-    this._global_action_hooks = new Map();
-    this._any_action_hook     = undefined;
-    this._any_transition_hook = undefined;
+    this._hooks                    = new Map();
+    this._named_hooks              = new Map();
+    this._entry_hooks              = new Map();
+    this._exit_hooks               = new Map();
+    this._global_action_hooks      = new Map();
+    this._any_action_hook          = undefined;
+    this._standard_transition_hook = undefined;
+    this._any_transition_hook      = undefined;
+    this._standard_transition_hook = undefined;
 
 
     if (state_declaration) {
@@ -1035,6 +1044,11 @@ class Machine<mDT> {
         this._has_hooks = true;
         break;
 
+      case 'standard transition':
+        this._standard_transition_hook = HookDesc.handler;
+        this._has_hooks = true;
+        break;
+
       case 'any transition':
         this._any_transition_hook = HookDesc.handler;
         this._has_hooks = true;
@@ -1135,28 +1149,41 @@ class Machine<mDT> {
 
 
 
+  edges_between(from: string, to: string): JssmTransition<mDT>[] {
+    return this._edges.filter( edge => ((edge.from === from) && (edge.to === to)) );
+  }
+
+
+
   transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
 
-    let valid    : boolean = false,
-        newState : StateType;
+    // TODO the forced-ness behavior needs to be cleaned up a lot here
+    // TODO all the callbacks are wrong on forced, action, etc
+
+    let valid      : boolean = false,
+        trans_type : string,
+        newState   : StateType;
 
     if (wasForced) {
       if (this.valid_force_transition(newStateOrAction, newData)) {
-        valid    = true;
-        newState = newStateOrAction;
+        valid      = true;
+        trans_type = 'forced';
+        newState   = newStateOrAction;
       }
 
     } else if (wasAction) {
       if (this.valid_action(newStateOrAction, newData)) {
         const edge: JssmTransition<mDT> = this.current_action_edge_for(newStateOrAction);
         valid                           = true;
+        trans_type                      = edge.kind;
         newState                        = edge.to;
       }
 
     } else {
       if (this.valid_transition(newStateOrAction, newData)) {
-        valid    = true;
-        newState = newStateOrAction;
+        valid      = true;
+        trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
+        newState   = newStateOrAction;
       }
     }
 
@@ -1220,6 +1247,22 @@ class Machine<mDT> {
         }
 
         // 7. edge type hook
+
+        // 7a. standard transition hook
+        if (trans_type === 'legal') {
+          if (this._standard_transition_hook !== undefined) {
+            // todo handle actions
+            // todo handle forced
+            if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
+              return false;
+            }
+          }
+        }
+
+        // 7b. main type hook
+        // not yet implemented
+
+        // 7c. forced transition hook
         // not yet implemented
 
         // 8. entry hook

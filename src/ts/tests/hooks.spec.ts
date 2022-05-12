@@ -152,6 +152,60 @@ test('Basic hook rejection works on forced edges', () => {
 
 
 
+test('Standard transition hook rejection works', () => {
+
+  const foo = sm`a -> b;`;
+
+  foo.set_hook({ from: 'a', to: 'b', kind: 'standard transition', handler: () => false });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.set_hook({ from: 'a', to: 'b', kind: 'standard transition', handler: () => true });
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+// test('Main transition hook rejection works', () => {
+
+//   const foo = sm`a => b;`;
+
+//   foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => false });
+//   expect(foo.transition('b')).toBe(false);
+//   expect(foo.state()).toBe('a');
+
+//   foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => true });
+//   expect(foo.transition('b')).toBe(true);
+//   expect(foo.state()).toBe('b');
+
+// });
+
+
+
+
+
+// test('Standard transition hook rejection works', () => {
+
+//   const foo = sm`a ~> b;`;
+
+//   foo.set_hook({ from: 'a', to: 'b', kind: 'forced transition', handler: () => false });
+//   expect(foo.force_transition('b')).toBe(false);
+//   expect(foo.state()).toBe('a');
+
+//   foo.set_hook({ from: 'a', to: 'b', kind: 'forced transition', handler: () => true });
+//   expect(foo.force_transition('b')).toBe(true);
+//   expect(foo.state()).toBe('b');
+
+// });
+
+
+
+
+
 test('Named hook rejection works', () => {
 
   const foo = sm`a 'foo' => b;`;
