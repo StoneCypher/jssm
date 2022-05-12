@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1652327395025" width="16" height="9"></canvas>
+      <canvas id="chart1652377526069" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1652327395025 = document
-        .getElementById('chart1652327395025')
+      const ctx1652377526069 = document
+        .getElementById('chart1652377526069')
         .getContext('2d')
-      const chart1652327395025 = new Chart(ctx1652327395025, {
+      const chart1652377526069 = new Chart(ctx1652377526069, {
         type: 'bar',
         data: {
           labels: ["Blind cycle a traffic light 500 times by transition","Blind cycle a hooked traffic light 500 times by transition","Blind cycle a traffic light 500 times by action","Blind cycle a hooked traffic light 500 times by action"],
           datasets: [
             {
-              data: [19509,1675,13411,828],
-              backgroundColor: ["hsl(120, 85%, 55%)","hsl(10.308000000000003, 85%, 55%)","hsl(82.48799999999999, 85%, 55%)","hsl(5.087999999999994, 85%, 55%)"],
-              borderColor: ["hsl(120, 85%, 55%)","hsl(10.308000000000003, 85%, 55%)","hsl(82.48799999999999, 85%, 55%)","hsl(5.087999999999994, 85%, 55%)"],
+              data: [16802,1636,13307,818],
+              backgroundColor: ["hsl(120, 85%, 55%)","hsl(11.687999999999994, 85%, 55%)","hsl(95.04, 85%, 55%)","hsl(5.844000000000006, 85%, 55%)"],
+              borderColor: ["hsl(120, 85%, 55%)","hsl(11.687999999999994, 85%, 55%)","hsl(95.04, 85%, 55%)","hsl(5.844000000000006, 85%, 55%)"],
               borderWidth: 2,
             },
           ],

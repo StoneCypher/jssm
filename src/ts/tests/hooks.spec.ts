@@ -52,6 +52,17 @@ describe('Basic hooks on API callpoint', () => {
   } );
 
 
+  test('Setting an global action hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a 'foo' -> b;`;
+      _foo.set_hook({ handler: () => console.log('hi'), action: 'foo', kind: 'global action' })
+    })
+      .not.toThrow();
+
+  });
+
+
   test('Setting an any-action hook doesn\'t throw', () => {
 
     expect( () => {
@@ -168,6 +179,24 @@ test('Named hook rejection doesn\'t block transitions', () => {
   expect(foo.state()).toBe('a');
 
   expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
+test('Global action hook rejection works', () => {
+
+  const foo = sm`a 'foo' => b;`;
+
+  foo.set_hook({ kind: 'global action', action: 'foo', handler: () => false });
+  expect(foo.action('foo')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.set_hook({ kind: 'global action', action: 'foo', handler: () => true });
+  expect(foo.action('foo')).toBe(true);
   expect(foo.state()).toBe('b');
 
 });
