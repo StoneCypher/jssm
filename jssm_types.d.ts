@@ -164,6 +164,8 @@ declare type HookDescriptionWithAction = {
 };
 declare type StandardTransitionHook = {
     kind: 'standard transition';
+    from: string;
+    to: string;
     handler: HookHandler;
 };
 declare type AnyTransitionHook = {

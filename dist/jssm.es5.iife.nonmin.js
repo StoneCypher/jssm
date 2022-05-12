@@ -15885,7 +15885,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.59.1";
+  const version = "5.60.0";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16680,10 +16680,11 @@ var jssm = (function (exports) {
       transition_impl(newStateOrAction, newData, wasForced, wasAction) {
           // TODO the forced-ness behavior needs to be cleaned up a lot here
           // TODO all the callbacks are wrong on forced, action, etc
-          let valid = false, newState;
+          let valid = false, trans_type, newState;
           if (wasForced) {
               if (this.valid_force_transition(newStateOrAction, newData)) {
                   valid = true;
+                  trans_type = 'forced';
                   newState = newStateOrAction;
               }
           }
@@ -16691,13 +16692,14 @@ var jssm = (function (exports) {
               if (this.valid_action(newStateOrAction, newData)) {
                   const edge = this.current_action_edge_for(newStateOrAction);
                   valid = true;
+                  trans_type = edge.kind;
                   newState = edge.to;
               }
           }
           else {
               if (this.valid_transition(newStateOrAction, newData)) {
                   valid = true;
-                  this.edges_between('a', 'b')[0].kind; // TODO this won't do the right thing if various edges have different types
+                  trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
                   newState = newStateOrAction;
               }
           }
@@ -16751,15 +16753,15 @@ var jssm = (function (exports) {
                   }
                   // 7. edge type hook
                   // 7a. standard transition hook
-                  // if (trans_type === 'legal') {
-                  //   if (this._standard_transition_hook !== undefined) {
-                  //     // todo handle actions
-                  //     // todo handle forced
-                  //     if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
-                  //       return false;
-                  //     }
-                  //   }
-                  // }
+                  if (trans_type === 'legal') {
+                      if (this._standard_transition_hook !== undefined) {
+                          // todo handle actions
+                          // todo handle forced
+                          if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
+                              return false;
+                          }
+                      }
+                  }
                   // 7b. main type hook
                   // not yet implemented
                   // 7c. forced transition hook

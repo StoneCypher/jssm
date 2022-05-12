@@ -328,6 +328,8 @@ type HookDescriptionWithAction = {
 
 type StandardTransitionHook = {
   kind    : 'standard transition',
+  from    : string,
+  to      : string,
   handler : HookHandler
 };
 

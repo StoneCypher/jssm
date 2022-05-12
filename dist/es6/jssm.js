@@ -814,7 +814,7 @@ class Machine {
         else {
             if (this.valid_transition(newStateOrAction, newData)) {
                 valid = true;
-                trans_type = this.edges_between('a', 'b')[0].kind; // TODO this won't do the right thing if various edges have different types
+                trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
                 newState = newStateOrAction;
             }
         }
@@ -868,15 +868,15 @@ class Machine {
                 }
                 // 7. edge type hook
                 // 7a. standard transition hook
-                // if (trans_type === 'legal') {
-                //   if (this._standard_transition_hook !== undefined) {
-                //     // todo handle actions
-                //     // todo handle forced
-                //     if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
-                //       return false;
-                //     }
-                //   }
-                // }
+                if (trans_type === 'legal') {
+                    if (this._standard_transition_hook !== undefined) {
+                        // todo handle actions
+                        // todo handle forced
+                        if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
+                            return false;
+                        }
+                    }
+                }
                 // 7b. main type hook
                 // not yet implemented
                 // 7c. forced transition hook

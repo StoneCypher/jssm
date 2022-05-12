@@ -1182,7 +1182,7 @@ class Machine<mDT> {
     } else {
       if (this.valid_transition(newStateOrAction, newData)) {
         valid      = true;
-        trans_type = this.edges_between('a', 'b')[0].kind;  // TODO this won't do the right thing if various edges have different types
+        trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
         newState   = newStateOrAction;
       }
     }
