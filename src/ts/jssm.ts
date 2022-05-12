@@ -497,6 +497,7 @@ class Machine<mDT> {
   _global_action_hooks      : Map<string, Function>;
   _any_action_hook          : HookHandler | undefined;
   _standard_transition_hook : HookHandler | undefined;
+  _main_transition_hook     : HookHandler | undefined;
   _any_transition_hook      : HookHandler | undefined;
 
 
@@ -569,6 +570,7 @@ class Machine<mDT> {
     this._global_action_hooks      = new Map();
     this._any_action_hook          = undefined;
     this._standard_transition_hook = undefined;
+    this._main_transition_hook     = undefined;
     this._any_transition_hook      = undefined;
     this._standard_transition_hook = undefined;
 
@@ -1049,6 +1051,11 @@ class Machine<mDT> {
         this._has_hooks = true;
         break;
 
+      case 'main transition':
+        this._main_transition_hook = HookDesc.handler;
+        this._has_hooks = true;
+        break;
+
       case 'any transition':
         this._any_transition_hook = HookDesc.handler;
         this._has_hooks = true;
@@ -1260,7 +1267,15 @@ class Machine<mDT> {
         }
 
         // 7b. main type hook
-        // not yet implemented
+        if (trans_type === 'main') {
+          if (this._main_transition_hook !== undefined) {
+            // todo handle actions
+            // todo handle forced
+            if (this._main_transition_hook({ from: this._state, to: newState }) === false) {
+              return false;
+            }
+          }
+        }
 
         // 7c. forced transition hook
         // not yet implemented

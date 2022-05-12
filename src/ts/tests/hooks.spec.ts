@@ -170,19 +170,19 @@ test('Standard transition hook rejection works', () => {
 
 
 
-// test('Main transition hook rejection works', () => {
+test('Main transition hook rejection works', () => {
 
-//   const foo = sm`a => b;`;
+  const foo = sm`a => b;`;
 
-//   foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => false });
-//   expect(foo.transition('b')).toBe(false);
-//   expect(foo.state()).toBe('a');
+  foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => false });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
 
-//   foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => true });
-//   expect(foo.transition('b')).toBe(true);
-//   expect(foo.state()).toBe('b');
+  foo.set_hook({ from: 'a', to: 'b', kind: 'main transition', handler: () => true });
+  expect(foo.transition('b')).toBe(true);
+  expect(foo.state()).toBe('b');
 
-// });
+});
 
 
 
