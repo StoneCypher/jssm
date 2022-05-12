@@ -174,6 +174,12 @@ declare type MainTransitionHook = {
     to: string;
     handler: HookHandler;
 };
+declare type ForcedTransitionHook = {
+    kind: 'forced transition';
+    from: string;
+    to: string;
+    handler: HookHandler;
+};
 declare type AnyTransitionHook = {
     kind: 'any transition';
     handler: HookHandler;
@@ -197,5 +203,5 @@ declare type ExitHook = {
     from: string;
     handler: HookHandler;
 };
-declare type HookDescription = BasicHookDescription | HookDescriptionWithAction | GlobalActionHook | AnyActionHook | StandardTransitionHook | MainTransitionHook | AnyTransitionHook | EntryHook | ExitHook;
+declare type HookDescription = BasicHookDescription | HookDescriptionWithAction | GlobalActionHook | AnyActionHook | StandardTransitionHook | MainTransitionHook | ForcedTransitionHook | AnyTransitionHook | EntryHook | ExitHook;
 export { JssmColor, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, FslDirection, FslTheme, HookDescription, HookHandler };

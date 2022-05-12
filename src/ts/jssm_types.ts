@@ -340,6 +340,13 @@ type MainTransitionHook = {
   handler : HookHandler
 };
 
+type ForcedTransitionHook = {
+  kind    : 'forced transition',
+  from    : string,
+  to      : string,
+  handler : HookHandler
+};
+
 type AnyTransitionHook = {
   kind    : 'any transition',
   handler : HookHandler
@@ -375,6 +382,7 @@ type HookDescription
   | AnyActionHook
   | StandardTransitionHook
   | MainTransitionHook
+  | ForcedTransitionHook
   | AnyTransitionHook
   | EntryHook
   | ExitHook;

@@ -498,6 +498,7 @@ class Machine<mDT> {
   _any_action_hook          : HookHandler | undefined;
   _standard_transition_hook : HookHandler | undefined;
   _main_transition_hook     : HookHandler | undefined;
+  _forced_transition_hook   : HookHandler | undefined;
   _any_transition_hook      : HookHandler | undefined;
 
 
@@ -571,6 +572,7 @@ class Machine<mDT> {
     this._any_action_hook          = undefined;
     this._standard_transition_hook = undefined;
     this._main_transition_hook     = undefined;
+    this._forced_transition_hook   = undefined;
     this._any_transition_hook      = undefined;
     this._standard_transition_hook = undefined;
 
@@ -1056,6 +1058,11 @@ class Machine<mDT> {
         this._has_hooks = true;
         break;
 
+      case 'forced transition':
+        this._forced_transition_hook = HookDesc.handler;
+        this._has_hooks = true;
+        break;
+
       case 'any transition':
         this._any_transition_hook = HookDesc.handler;
         this._has_hooks = true;
@@ -1278,7 +1285,15 @@ class Machine<mDT> {
         }
 
         // 7c. forced transition hook
-        // not yet implemented
+        if (trans_type === 'forced') {
+          if (this._forced_transition_hook !== undefined) {
+            // todo handle actions
+            // todo handle forced
+            if (this._forced_transition_hook({ from: this._state, to: newState }) === false) {
+              return false;
+            }
+          }
+        }
 
         // 8. entry hook
         const maybe_en_hook: Function | undefined = this._entry_hooks.get(newState);

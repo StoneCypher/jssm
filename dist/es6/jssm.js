@@ -359,6 +359,7 @@ class Machine {
         this._any_action_hook = undefined;
         this._standard_transition_hook = undefined;
         this._main_transition_hook = undefined;
+        this._forced_transition_hook = undefined;
         this._any_transition_hook = undefined;
         this._standard_transition_hook = undefined;
         if (state_declaration) {
@@ -739,6 +740,10 @@ class Machine {
                 this._main_transition_hook = HookDesc.handler;
                 this._has_hooks = true;
                 break;
+            case 'forced transition':
+                this._forced_transition_hook = HookDesc.handler;
+                this._has_hooks = true;
+                break;
             case 'any transition':
                 this._any_transition_hook = HookDesc.handler;
                 this._has_hooks = true;
@@ -893,7 +898,15 @@ class Machine {
                     }
                 }
                 // 7c. forced transition hook
-                // not yet implemented
+                if (trans_type === 'forced') {
+                    if (this._forced_transition_hook !== undefined) {
+                        // todo handle actions
+                        // todo handle forced
+                        if (this._forced_transition_hook({ from: this._state, to: newState }) === false) {
+                            return false;
+                        }
+                    }
+                }
                 // 8. entry hook
                 const maybe_en_hook = this._entry_hooks.get(newState);
                 if (maybe_en_hook !== undefined) {
