@@ -100,6 +100,7 @@ declare class Machine<mDT> {
     set_hook(HookDesc: HookDescription): void;
     hook(from: string, to: string, handler: HookHandler): Machine<mDT>;
     hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT>;
+    hook_any_action(handler: HookHandler): Machine<mDT>;
     hook_any_transition(handler: HookHandler): Machine<mDT>;
     hook_entry(to: string, handler: HookHandler): Machine<mDT>;
     hook_exit(from: string, handler: HookHandler): Machine<mDT>;

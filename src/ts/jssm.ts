@@ -1072,6 +1072,16 @@ class Machine<mDT> {
 
 
 
+  hook_any_action(handler: HookHandler): Machine<mDT> {
+
+    // TODO: should this throw if setting the hook fails, or ignore it and continue?
+    this.set_hook({ kind: 'any action', handler });
+    return this;
+
+  }
+
+
+
   hook_any_transition(handler: HookHandler): Machine<mDT> {
 
     // TODO: should this throw if setting the hook fails, or ignore it and continue?

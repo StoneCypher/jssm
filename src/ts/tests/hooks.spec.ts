@@ -194,6 +194,25 @@ test('All-action hook rejection works', () => {
 
 
 
+test('Fluent all-action hook rejection works', () => {
+
+  const foo = sm`a 'foo' => b;`
+    .hook_any_action( () => false );
+
+  expect(foo.action('foo')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.hook_any_action( () => true );
+
+  expect(foo.action('foo')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
 test('All-transition hook rejection works on actions', () => {
 
   const foo = sm`a 'foo' => b;`;
