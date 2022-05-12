@@ -488,6 +488,7 @@ class Machine<mDT> {
   _named_hooks         : Map<string, Function>;
   _entry_hooks         : Map<string, Function>;
   _exit_hooks          : Map<string, Function>;
+  _any_action_hook     : HookHandler | undefined;
   _any_transition_hook : HookHandler | undefined;
 
 
@@ -557,6 +558,7 @@ class Machine<mDT> {
     this._named_hooks         = new Map();
     this._entry_hooks         = new Map();
     this._exit_hooks          = new Map();
+    this._any_action_hook     = undefined;
     this._any_transition_hook = undefined;
 
 
@@ -1021,6 +1023,11 @@ class Machine<mDT> {
         this._has_hooks = true;
         break;
 
+      case 'any action':
+        this._any_action_hook = HookDesc.handler;
+        this._has_hooks = true;
+        break;
+
       case 'any transition':
         this._any_transition_hook = HookDesc.handler;
         this._has_hooks = true;
@@ -1133,14 +1140,21 @@ class Machine<mDT> {
       if (this._has_hooks) {
 
         // 1. any action hook
+        if (wasAction) {
+          if (this._any_action_hook !== undefined) {
+            if ( this._any_action_hook() === false ) { return false; }
+          }
+        }
+
+        // 2. global specific action hook
         // not yet implemented
 
-        // 2. any transition hook
+        // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
           if ( this._any_transition_hook() === false ) { return false; }
         }
 
-        // 3. exit hook
+        // 4. exit hook
         const maybe_ex_hook: Function | undefined = this._exit_hooks.get(this._state);
 
         if (maybe_ex_hook !== undefined) {
@@ -1149,7 +1163,7 @@ class Machine<mDT> {
           }
         }
 
-        // 4. named transition / action hook
+        // 5. named transition / action hook
         if (wasAction) {
 
           const nhn: string  = named_hook_name(this._state, newState, newStateOrAction),
@@ -1163,7 +1177,7 @@ class Machine<mDT> {
 
         }
 
-        // 5. regular hook
+        // 6. regular hook
         const hn: string = hook_name(this._state, newState),
           maybe_hook: Function | undefined = this._hooks.get(hn);
 
@@ -1173,10 +1187,10 @@ class Machine<mDT> {
           }
         }
 
-        // 6. edge type hook
+        // 7. edge type hook
         // not yet implemented
 
-        // 7. entry hook
+        // 8. entry hook
         const maybe_en_hook: Function | undefined = this._entry_hooks.get(newState);
 
         if (maybe_en_hook !== undefined) {
