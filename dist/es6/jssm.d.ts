@@ -46,6 +46,7 @@ declare class Machine<mDT> {
     _named_hooks: Map<string, Function>;
     _entry_hooks: Map<string, Function>;
     _exit_hooks: Map<string, Function>;
+    _global_action_hooks: Map<string, Function>;
     _any_action_hook: HookHandler | undefined;
     _any_transition_hook: HookHandler | undefined;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout }: JssmGenericConfig<mDT>);

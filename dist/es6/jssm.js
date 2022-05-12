@@ -355,6 +355,7 @@ class Machine {
         this._named_hooks = new Map();
         this._entry_hooks = new Map();
         this._exit_hooks = new Map();
+        this._global_action_hooks = new Map();
         this._any_action_hook = undefined;
         this._any_transition_hook = undefined;
         if (state_declaration) {
@@ -719,6 +720,10 @@ class Machine {
                 this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                 this._has_hooks = true;
                 break;
+            case 'global action':
+                this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
+                this._has_hooks = true;
+                break;
             case 'any action':
                 this._any_action_hook = HookDesc.handler;
                 this._has_hooks = true;
@@ -798,16 +803,21 @@ class Machine {
         // todo major incomplete whargarbl comeback
         if (valid) {
             if (this._has_hooks) {
-                // 1. any action hook
                 if (wasAction) {
+                    // 1. any action hook
                     if (this._any_action_hook !== undefined) {
                         if (this._any_action_hook() === false) {
                             return false;
                         }
                     }
+                    // 2. global specific action hook
+                    const maybe_ga_hook = this._global_action_hooks.get(newStateOrAction);
+                    if (maybe_ga_hook !== undefined) {
+                        if (maybe_ga_hook({ action: newStateOrAction, forced: wasForced }) === false) {
+                            return false;
+                        }
+                    }
                 }
-                // 2. global specific action hook
-                // not yet implemented
                 // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
                     if (this._any_transition_hook() === false) {

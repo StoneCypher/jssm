@@ -15885,7 +15885,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.58.1";
+  const version = "5.59.0";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16240,6 +16240,7 @@ var jssm = (function (exports) {
           this._named_hooks = new Map();
           this._entry_hooks = new Map();
           this._exit_hooks = new Map();
+          this._global_action_hooks = new Map();
           this._any_action_hook = undefined;
           this._any_transition_hook = undefined;
           if (state_declaration) {
@@ -16604,6 +16605,10 @@ var jssm = (function (exports) {
                   this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                   this._has_hooks = true;
                   break;
+              case 'global action':
+                  this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
+                  this._has_hooks = true;
+                  break;
               case 'any action':
                   this._any_action_hook = HookDesc.handler;
                   this._has_hooks = true;
@@ -16683,16 +16688,21 @@ var jssm = (function (exports) {
           // todo major incomplete whargarbl comeback
           if (valid) {
               if (this._has_hooks) {
-                  // 1. any action hook
                   if (wasAction) {
+                      // 1. any action hook
                       if (this._any_action_hook !== undefined) {
                           if (this._any_action_hook() === false) {
                               return false;
                           }
                       }
+                      // 2. global specific action hook
+                      const maybe_ga_hook = this._global_action_hooks.get(newStateOrAction);
+                      if (maybe_ga_hook !== undefined) {
+                          if (maybe_ga_hook({ action: newStateOrAction, forced: wasForced }) === false) {
+                              return false;
+                          }
+                      }
                   }
-                  // 2. global specific action hook
-                  // not yet implemented
                   // 3. any transition hook
                   if (this._any_transition_hook !== undefined) {
                       if (this._any_transition_hook() === false) {
