@@ -223,6 +223,25 @@ test('All-action hook rejection works', () => {
 
 
 
+test('Fluent global action hook rejection works', () => {
+
+  const foo = sm`a 'foo' => b;`
+    .hook_global_action( 'foo', () => false );
+
+  expect(foo.action('foo')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+  foo.hook_global_action( 'foo', () => true );
+
+  expect(foo.action('foo')).toBe(true);
+  expect(foo.state()).toBe('b');
+
+});
+
+
+
+
+
 test('Fluent all-action hook rejection works', () => {
 
   const foo = sm`a 'foo' => b;`
