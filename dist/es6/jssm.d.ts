@@ -46,6 +46,8 @@ declare class Machine<mDT> {
     _named_hooks: Map<string, Function>;
     _entry_hooks: Map<string, Function>;
     _exit_hooks: Map<string, Function>;
+    _global_action_hooks: Map<string, Function>;
+    _any_action_hook: HookHandler | undefined;
     _any_transition_hook: HookHandler | undefined;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout }: JssmGenericConfig<mDT>);
     _new_state(state_config: JssmGenericState): StateType;
@@ -99,6 +101,8 @@ declare class Machine<mDT> {
     set_hook(HookDesc: HookDescription): void;
     hook(from: string, to: string, handler: HookHandler): Machine<mDT>;
     hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT>;
+    hook_global_action(action: string, handler: HookHandler): Machine<mDT>;
+    hook_any_action(handler: HookHandler): Machine<mDT>;
     hook_any_transition(handler: HookHandler): Machine<mDT>;
     hook_entry(to: string, handler: HookHandler): Machine<mDT>;
     hook_exit(from: string, handler: HookHandler): Machine<mDT>;

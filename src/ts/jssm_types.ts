@@ -331,6 +331,17 @@ type AnyTransitionHook = {
   handler : HookHandler
 };
 
+type GlobalActionHook = {
+  kind    : 'global action',
+  action  : string,
+  handler : HookHandler
+};
+
+type AnyActionHook = {
+  kind    : 'any action',
+  handler : HookHandler
+};
+
 type EntryHook = {
   kind    : 'entry',
   to      : string,
@@ -346,6 +357,8 @@ type ExitHook = {
 type HookDescription
   = BasicHookDescription
   | HookDescriptionWithAction
+  | GlobalActionHook
+  | AnyActionHook
   | AnyTransitionHook
   | EntryHook
   | ExitHook;

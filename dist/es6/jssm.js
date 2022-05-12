@@ -355,6 +355,8 @@ class Machine {
         this._named_hooks = new Map();
         this._entry_hooks = new Map();
         this._exit_hooks = new Map();
+        this._global_action_hooks = new Map();
+        this._any_action_hook = undefined;
         this._any_transition_hook = undefined;
         if (state_declaration) {
             state_declaration.map((state_decl) => {
@@ -718,6 +720,14 @@ class Machine {
                 this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                 this._has_hooks = true;
                 break;
+            case 'global action':
+                this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
+                this._has_hooks = true;
+                break;
+            case 'any action':
+                this._any_action_hook = HookDesc.handler;
+                this._has_hooks = true;
+                break;
             case 'any transition':
                 this._any_transition_hook = HookDesc.handler;
                 this._has_hooks = true;
@@ -743,6 +753,16 @@ class Machine {
     hook_action(from, to, action, handler) {
         // TODO: should this throw if setting the hook fails, or ignore it and continue?
         this.set_hook({ kind: 'named', from, to, action, handler });
+        return this;
+    }
+    hook_global_action(action, handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'global action', action, handler });
+        return this;
+    }
+    hook_any_action(handler) {
+        // TODO: should this throw if setting the hook fails, or ignore it and continue?
+        this.set_hook({ kind: 'any action', handler });
         return this;
     }
     hook_any_transition(handler) {
@@ -788,22 +808,35 @@ class Machine {
         // todo major incomplete whargarbl comeback
         if (valid) {
             if (this._has_hooks) {
-                // 1. any action hook
-                // not yet implemented
-                // 2. any transition hook
+                if (wasAction) {
+                    // 1. any action hook
+                    if (this._any_action_hook !== undefined) {
+                        if (this._any_action_hook() === false) {
+                            return false;
+                        }
+                    }
+                    // 2. global specific action hook
+                    const maybe_ga_hook = this._global_action_hooks.get(newStateOrAction);
+                    if (maybe_ga_hook !== undefined) {
+                        if (maybe_ga_hook({ action: newStateOrAction, forced: wasForced }) === false) {
+                            return false;
+                        }
+                    }
+                }
+                // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
                     if (this._any_transition_hook() === false) {
                         return false;
                     }
                 }
-                // 3. exit hook
+                // 4. exit hook
                 const maybe_ex_hook = this._exit_hooks.get(this._state);
                 if (maybe_ex_hook !== undefined) {
                     if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
                         return false;
                     }
                 }
-                // 4. named transition / action hook
+                // 5. named transition / action hook
                 if (wasAction) {
                     const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);
                     if (n_maybe_hook !== undefined) {
@@ -812,16 +845,16 @@ class Machine {
                         }
                     }
                 }
-                // 5. regular hook
+                // 6. regular hook
                 const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
                 if (maybe_hook !== undefined) {
                     if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction ? newStateOrAction : undefined }) === false) {
                         return false;
                     }
                 }
-                // 6. edge type hook
+                // 7. edge type hook
                 // not yet implemented
-                // 7. entry hook
+                // 8. entry hook
                 const maybe_en_hook = this._entry_hooks.get(newState);
                 if (maybe_en_hook !== undefined) {
                     if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
