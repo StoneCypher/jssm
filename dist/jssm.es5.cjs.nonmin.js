@@ -16243,7 +16243,9 @@ class Machine {
         this._exit_hooks = new Map();
         this._global_action_hooks = new Map();
         this._any_action_hook = undefined;
+        this._standard_transition_hook = undefined;
         this._any_transition_hook = undefined;
+        this._standard_transition_hook = undefined;
         if (state_declaration) {
             state_declaration.map((state_decl) => {
                 if (this._state_declarations.has(state_decl.state)) { // no repeats
@@ -16614,6 +16616,10 @@ class Machine {
                 this._any_action_hook = HookDesc.handler;
                 this._has_hooks = true;
                 break;
+            case 'standard transition':
+                this._standard_transition_hook = HookDesc.handler;
+                this._has_hooks = true;
+                break;
             case 'any transition':
                 this._any_transition_hook = HookDesc.handler;
                 this._has_hooks = true;
@@ -16669,7 +16675,12 @@ class Machine {
     // remove_hook(HookDesc: HookDescription) {
     //   throw 'TODO: Should remove hook here';
     // }
+    edges_between(from, to) {
+        return this._edges.filter(edge => ((edge.from === from) && (edge.to === to)));
+    }
     transition_impl(newStateOrAction, newData, wasForced, wasAction) {
+        // TODO the forced-ness behavior needs to be cleaned up a lot here
+        // TODO all the callbacks are wrong on forced, action, etc
         let valid = false, newState;
         if (wasForced) {
             if (this.valid_force_transition(newStateOrAction, newData)) {
@@ -16687,6 +16698,7 @@ class Machine {
         else {
             if (this.valid_transition(newStateOrAction, newData)) {
                 valid = true;
+                this.edges_between('a', 'b')[0].kind; // TODO this won't do the right thing if various edges have different types
                 newState = newStateOrAction;
             }
         }
@@ -16739,6 +16751,19 @@ class Machine {
                     }
                 }
                 // 7. edge type hook
+                // 7a. standard transition hook
+                // if (trans_type === 'legal') {
+                //   if (this._standard_transition_hook !== undefined) {
+                //     // todo handle actions
+                //     // todo handle forced
+                //     if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
+                //       return false;
+                //     }
+                //   }
+                // }
+                // 7b. main type hook
+                // not yet implemented
+                // 7c. forced transition hook
                 // not yet implemented
                 // 8. entry hook
                 const maybe_en_hook = this._entry_hooks.get(newState);

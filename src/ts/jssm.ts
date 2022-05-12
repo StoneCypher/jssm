@@ -490,13 +490,14 @@ class Machine<mDT> {
   _has_exit_hooks  : boolean;
   // no boolean for _has_any_transition_hook
 
-  _hooks               : Map<string, Function>;
-  _named_hooks         : Map<string, Function>;
-  _entry_hooks         : Map<string, Function>;
-  _exit_hooks          : Map<string, Function>;
-  _global_action_hooks : Map<string, Function>;
-  _any_action_hook     : HookHandler | undefined;
-  _any_transition_hook : HookHandler | undefined;
+  _hooks                    : Map<string, Function>;
+  _named_hooks              : Map<string, Function>;
+  _entry_hooks              : Map<string, Function>;
+  _exit_hooks               : Map<string, Function>;
+  _global_action_hooks      : Map<string, Function>;
+  _any_action_hook          : HookHandler | undefined;
+  _standard_transition_hook : HookHandler | undefined;
+  _any_transition_hook      : HookHandler | undefined;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -561,13 +562,15 @@ class Machine<mDT> {
     this._has_exit_hooks  = false;
     // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
 
-    this._hooks               = new Map();
-    this._named_hooks         = new Map();
-    this._entry_hooks         = new Map();
-    this._exit_hooks          = new Map();
-    this._global_action_hooks = new Map();
-    this._any_action_hook     = undefined;
-    this._any_transition_hook = undefined;
+    this._hooks                    = new Map();
+    this._named_hooks              = new Map();
+    this._entry_hooks              = new Map();
+    this._exit_hooks               = new Map();
+    this._global_action_hooks      = new Map();
+    this._any_action_hook          = undefined;
+    this._standard_transition_hook = undefined;
+    this._any_transition_hook      = undefined;
+    this._standard_transition_hook = undefined;
 
 
     if (state_declaration) {
@@ -1041,6 +1044,11 @@ class Machine<mDT> {
         this._has_hooks = true;
         break;
 
+      case 'standard transition':
+        this._standard_transition_hook = HookDesc.handler;
+        this._has_hooks = true;
+        break;
+
       case 'any transition':
         this._any_transition_hook = HookDesc.handler;
         this._has_hooks = true;
@@ -1141,28 +1149,41 @@ class Machine<mDT> {
 
 
 
+  edges_between(from: string, to: string): JssmTransition<mDT>[] {
+    return this._edges.filter( edge => ((edge.from === from) && (edge.to === to)) );
+  }
+
+
+
   transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
 
-    let valid    : boolean = false,
-        newState : StateType;
+    // TODO the forced-ness behavior needs to be cleaned up a lot here
+    // TODO all the callbacks are wrong on forced, action, etc
+
+    let valid      : boolean = false,
+        trans_type : string,
+        newState   : StateType;
 
     if (wasForced) {
       if (this.valid_force_transition(newStateOrAction, newData)) {
-        valid    = true;
-        newState = newStateOrAction;
+        valid      = true;
+        trans_type = 'forced';
+        newState   = newStateOrAction;
       }
 
     } else if (wasAction) {
       if (this.valid_action(newStateOrAction, newData)) {
         const edge: JssmTransition<mDT> = this.current_action_edge_for(newStateOrAction);
         valid                           = true;
+        trans_type                      = edge.kind;
         newState                        = edge.to;
       }
 
     } else {
       if (this.valid_transition(newStateOrAction, newData)) {
-        valid    = true;
-        newState = newStateOrAction;
+        valid      = true;
+        trans_type = this.edges_between('a', 'b')[0].kind;  // TODO this won't do the right thing if various edges have different types
+        newState   = newStateOrAction;
       }
     }
 
@@ -1226,6 +1247,22 @@ class Machine<mDT> {
         }
 
         // 7. edge type hook
+
+        // 7a. standard transition hook
+        if (trans_type === 'legal') {
+          if (this._standard_transition_hook !== undefined) {
+            // todo handle actions
+            // todo handle forced
+            if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
+              return false;
+            }
+          }
+        }
+
+        // 7b. main type hook
+        // not yet implemented
+
+        // 7c. forced transition hook
         // not yet implemented
 
         // 8. entry hook
