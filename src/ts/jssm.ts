@@ -172,12 +172,14 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
 
 function makeTransition<mDT>(
-  this_se: JssmCompileSe,
-  from: string,
-  to: string,
-  isRight: boolean,
-  _wasList?: Array<string>,
-  _wasIndex?: number
+
+  this_se    : JssmCompileSe,
+  from       : string,
+  to         : string,
+  isRight    : boolean,
+  _wasList?  : Array<string>,
+  _wasIndex? : number
+
 ): JssmTransition<mDT> {
 
   const kind: JssmArrowKind = isRight ? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
@@ -225,11 +227,13 @@ function wrap_parse(input: string, options?: Object) {
 
 
 function compile_rule_transition_step<mDT>(
-  acc: Array<JssmTransition<mDT>>,
-  from: string,
-  to: string,
-  this_se: JssmCompileSe,
-  next_se: JssmCompileSe
+
+  acc     : Array<JssmTransition<mDT>>,
+  from    : string,
+  to      : string,
+  this_se : JssmCompileSe,
+  next_se : JssmCompileSe
+
 ): Array<JssmTransition<mDT>> { // todo typescript describe the parser representation of a transition step extension
 
   const edges: Array<JssmTransition<mDT>> = [];
@@ -309,58 +313,58 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
 function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   const results: {
-    graph_layout: Array<JssmLayout>,
-    transition: Array<JssmTransition<mDT>>,
-    start_states: Array<string>,
-    end_states: Array<string>,
-    state_config: Array<any>,     // TODO COMEBACK no any
-    state_declaration: Array<string>,
-    fsl_version: Array<string>,
-    machine_author: Array<string>,
-    machine_comment: Array<string>,
-    machine_contributor: Array<string>,
-    machine_definition: Array<string>,
-    machine_language: Array<string>,
-    machine_license: Array<string>,
-    machine_name: Array<string>,
-    machine_reference: Array<string>,
-    theme: Array<string>,
-    flow: Array<string>,
-    dot_preamble: Array<string>,
-    arrange_declaration: Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_start_declaration: Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_end_declaration: Array<Array<string>>, // TODO COMEBACK CHECKME
-    machine_version: Array<string>           // TODO COMEBACK semver
+    graph_layout              : Array<JssmLayout>,
+    transition                : Array<JssmTransition<mDT>>,
+    start_states              : Array<string>,
+    end_states                : Array<string>,
+    state_config              : Array<any>,           // TODO COMEBACK no any
+    state_declaration         : Array<string>,
+    fsl_version               : Array<string>,
+    machine_author            : Array<string>,
+    machine_comment           : Array<string>,
+    machine_contributor       : Array<string>,
+    machine_definition        : Array<string>,
+    machine_language          : Array<string>,
+    machine_license           : Array<string>,
+    machine_name              : Array<string>,
+    machine_reference         : Array<string>,
+    theme                     : Array<string>,
+    flow                      : Array<string>,
+    dot_preamble              : Array<string>,
+    arrange_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_start_declaration : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_end_declaration   : Array<Array<string>>, // TODO COMEBACK CHECKME
+    machine_version           : Array<string>         // TODO COMEBACK semver
   } = {
-    graph_layout: [],
-    transition: [],
-    start_states: [],
-    end_states: [],
-    state_config: [],
-    state_declaration: [],
-    fsl_version: [],
-    machine_author: [],
-    machine_comment: [],
-    machine_contributor: [],
-    machine_definition: [],
-    machine_language: [],
-    machine_license: [],
-    machine_name: [],
-    machine_reference: [],
-    theme: [],
-    flow: [],
-    dot_preamble: [],
-    arrange_declaration: [],
-    arrange_start_declaration: [],
-    arrange_end_declaration: [],
-    machine_version: []
+    graph_layout              : [],
+    transition                : [],
+    start_states              : [],
+    end_states                : [],
+    state_config              : [],
+    state_declaration         : [],
+    fsl_version               : [],
+    machine_author            : [],
+    machine_comment           : [],
+    machine_contributor       : [],
+    machine_definition        : [],
+    machine_language          : [],
+    machine_license           : [],
+    machine_name              : [],
+    machine_reference         : [],
+    theme                     : [],
+    flow                      : [],
+    dot_preamble              : [],
+    arrange_declaration       : [],
+    arrange_start_declaration : [],
+    arrange_end_declaration   : [],
+    machine_version           : []
   };
 
   tree.map((tr: JssmCompileSeStart<StateType>) => {
 
-    const rule: JssmCompileRule = compile_rule_handler(tr),
-      agg_as: string = rule.agg_as,
-      val: any = rule.val;                  // TODO FIXME no any
+    const rule   : JssmCompileRule = compile_rule_handler(tr),
+          agg_as : string          = rule.agg_as,
+          val    : any             = rule.val;                  // TODO FIXME no any
 
     results[agg_as] = results[agg_as].concat(val);
 
@@ -419,20 +423,22 @@ function make<mDT>(plan: string): JssmGenericConfig<mDT> {
 function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration {
 
   state_decl.declarations.map((d: JssmStateDeclarationRule) => {
+
     switch (d.key) {
 
-      case 'shape': state_decl.shape = d.value; break;
-      case 'color': state_decl.color = d.value; break;
-      case 'corners': state_decl.corners = d.value; break;
-      case 'linestyle': state_decl.linestyle = d.value; break;
+      case 'shape'            : state_decl.shape           = d.value; break;
+      case 'color'            : state_decl.color           = d.value; break;
+      case 'corners'          : state_decl.corners         = d.value; break;
+      case 'linestyle'        : state_decl.linestyle       = d.value; break;
 
-      case 'text-color': state_decl.textColor = d.value; break;
-      case 'background-color': state_decl.backgroundColor = d.value; break;
-      case 'border-color': state_decl.borderColor = d.value; break;
+      case 'text-color'       : state_decl.textColor       = d.value; break;
+      case 'background-color' : state_decl.backgroundColor = d.value; break;
+      case 'border-color'     : state_decl.borderColor     = d.value; break;
 
       default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
 
     }
+
   });
 
   return state_decl;
