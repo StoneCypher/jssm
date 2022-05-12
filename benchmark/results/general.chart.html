@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1652390472468" width="16" height="9"></canvas>
+      <canvas id="chart1652399505339" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1652390472468 = document
-        .getElementById('chart1652390472468')
+      const ctx1652399505339 = document
+        .getElementById('chart1652399505339')
         .getContext('2d')
-      const chart1652390472468 = new Chart(ctx1652390472468, {
+      const chart1652399505339 = new Chart(ctx1652399505339, {
         type: 'bar',
         data: {
-          labels: ["Blind cycle a traffic light 500 times by transition","Blind cycle a hooked traffic light 500 times by transition","Blind cycle a traffic light 500 times by action","Blind cycle a hooked traffic light 500 times by action"],
+          labels: ["Blind cycle a traffic light 500 times by transition","Blind cycle a traffic light 500 times by action","Blind cycle a basic-hooked traffic light 500 times by transition","Blind cycle a named-hooked traffic light 500 times by transition","Blind cycle an any-transition traffic light 500 times by transition","Blind cycle an exit hooked traffic light 500 times by transition","Blind cycle an enter hooked traffic light 500 times by transition","Blind cycle a standard-transition hooked light by transition","Blind cycle a main-transition hooked light by transition","Blind cycle a force-transition hooked light by transition","Blind cycle a traffic light 500 times by action","Blind cycle a basic-hooked traffic light 500 times by action","Blind cycle a named-hooked traffic light 500 times by action","Blind cycle an any-action traffic light 500 times by action","Blind cycle a global-action traffic light 500 times by action","Blind cycle an exit hooked traffic light 500 times by action","Blind cycle an enter hooked traffic light 500 times by action","Blind cycle a standard transition tl 500 times by action","Blind cycle a main transition tl 500 times by action","Blind cycle a forced transition tl 500 times by action"],
           datasets: [
             {
-              data: [6804,1366,14372,792],
-              backgroundColor: ["hsl(56.80800000000001, 85%, 55%)","hsl(11.4, 85%, 55%)","hsl(120, 85%, 55%)","hsl(6.612000000000006, 85%, 55%)"],
-              borderColor: ["hsl(56.80800000000001, 85%, 55%)","hsl(11.4, 85%, 55%)","hsl(120, 85%, 55%)","hsl(6.612000000000006, 85%, 55%)"],
+              data: [6018,12290,1207,1173,1267,1243,1246,1256,1259,24351,12645,796,750,819,815,822,824,60076,52154,57609],
+              backgroundColor: ["hsl(12.023999999999994, 85%, 55%)","hsl(24.551999999999992, 85%, 55%)","hsl(2.412000000000006, 85%, 55%)","hsl(2.3400000000000034, 85%, 55%)","hsl(2.531999999999999, 85%, 55%)","hsl(2.4839999999999915, 85%, 55%)","hsl(2.4839999999999915, 85%, 55%)","hsl(2.508000000000004, 85%, 55%)","hsl(2.519999999999993, 85%, 55%)","hsl(48.635999999999996, 85%, 55%)","hsl(25.259999999999994, 85%, 55%)","hsl(1.5839999999999919, 85%, 55%)","hsl(1.5, 85%, 55%)","hsl(1.6319999999999992, 85%, 55%)","hsl(1.6319999999999992, 85%, 55%)","hsl(1.6440000000000055, 85%, 55%)","hsl(1.6440000000000055, 85%, 55%)","hsl(120, 85%, 55%)","hsl(104.172, 85%, 55%)","hsl(115.068, 85%, 55%)"],
+              borderColor: ["hsl(12.023999999999994, 85%, 55%)","hsl(24.551999999999992, 85%, 55%)","hsl(2.412000000000006, 85%, 55%)","hsl(2.3400000000000034, 85%, 55%)","hsl(2.531999999999999, 85%, 55%)","hsl(2.4839999999999915, 85%, 55%)","hsl(2.4839999999999915, 85%, 55%)","hsl(2.508000000000004, 85%, 55%)","hsl(2.519999999999993, 85%, 55%)","hsl(48.635999999999996, 85%, 55%)","hsl(25.259999999999994, 85%, 55%)","hsl(1.5839999999999919, 85%, 55%)","hsl(1.5, 85%, 55%)","hsl(1.6319999999999992, 85%, 55%)","hsl(1.6319999999999992, 85%, 55%)","hsl(1.6440000000000055, 85%, 55%)","hsl(1.6440000000000055, 85%, 55%)","hsl(120, 85%, 55%)","hsl(104.172, 85%, 55%)","hsl(115.068, 85%, 55%)"],
               borderWidth: 2,
             },
           ],
