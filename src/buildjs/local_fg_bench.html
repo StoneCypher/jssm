@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+
+  <head>
+    <script type="text/javascript" src="../../dist/jssm.es5.iife.nonmin.js"></script>
+    <script type="text/javascript">
+
+      let sm, Tl4;
+
+      function TransitionCycleTL500Times() {
+
+        for (let i=0; i<500; ++i) {
+          Tl4.transition('green');
+          Tl4.transition('yellow');
+          Tl4.transition('red');
+        }
+
+      }
+
+      function Test100Times() {
+        for (let i=0; i<100; ++i) {
+          TransitionCycleTL500Times();
+        }
+      }
+
+      window.onload = () => {
+        sm  = window.jssm.sm;
+        Tl4 = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
+      };
+
+    </script>
+  </head>
+
+  <body>
+    <button onclick="Test100Times()">Click</button>
+  </body>
+
+</html>
