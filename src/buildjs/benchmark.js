@@ -9,7 +9,7 @@ const b    = require('benny'),
 
 const Tl4 = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
 
-function TransitionCycleFourPointTrafficLight500Times() {
+function TransitionCycleTL500Times() {
 
   for (let i=0; i<500; ++i) {
     Tl4.transition('green');
@@ -23,10 +23,26 @@ function TransitionCycleFourPointTrafficLight500Times() {
 
 
 
+const Tl4A = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+
+function ActionCycleTL500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4A.action('next');
+    Tl4A.action('next');
+    Tl4A.action('next');
+  }
+
+}
+
+
+
+
+
 const Tl4WH = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
 Tl4WH.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
 
-function TransitionCycleFourPointTrafficLightWithHooks500Times() {
+function TransitionCycleTLWithHooks500Times() {
 
   for (let i=0; i<500; ++i) {
     Tl4WH.transition('green');
@@ -40,9 +56,128 @@ function TransitionCycleFourPointTrafficLightWithHooks500Times() {
 
 
 
+const Tl4WAHA = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
+Tl4WAHA.set_hook({ from: 'red', to: 'green', name: 'foo', handler: () => true, kind: 'named' });
+
+function TransitionCycleTLWithNamedHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4WAHA.transition('green');
+    Tl4WAHA.transition('yellow');
+    Tl4WAHA.transition('red');
+  }
+
+}
+
+
+
+
+
+const Tl4AT = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
+Tl4AT.set_hook({ handler: () => true, kind: 'any transition' });
+
+function TransitionCycleTLWithAnyTransitionHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4AT.transition('green');
+    Tl4AT.transition('yellow');
+    Tl4AT.transition('red');
+  }
+
+}
+
+
+
+
+
+const Tl4EX = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
+Tl4EX.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
+
+function TransitionCycleTLWithExitHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4EX.transition('green');
+    Tl4EX.transition('yellow');
+    Tl4EX.transition('red');
+  }
+
+}
+
+
+
+
+
+const Tl4EN = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
+Tl4EN.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
+
+function TransitionCycleTLWithEnterHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4EN.transition('green');
+    Tl4EN.transition('yellow');
+    Tl4EN.transition('red');
+  }
+
+}
+
+
+
+
+
+const Tl4ST = sm`red 'foo' -> green -> yellow -> red; [red yellow green] ~> off -> red;`;
+Tl4ST.set_hook({ handler: () => true, to: 'red', kind: 'standard transition' });
+
+function TransitionCycleTLWithSTHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4ST.transition('green');
+    Tl4ST.transition('yellow');
+    Tl4ST.transition('red');
+  }
+
+}
+
+
+
+
+
+const Tl4MT = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
+Tl4MT.set_hook({ handler: () => true, to: 'red', kind: 'main transition' });
+
+function TransitionCycleTLWithMTHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4MT.transition('green');
+    Tl4MT.transition('yellow');
+    Tl4MT.transition('red');
+  }
+
+}
+
+
+
+
+
+const Tl4FT = sm`red 'foo' ~> green ~> yellow ~> red; [red yellow green] ~> off -> red;`;
+Tl4FT.set_hook({ handler: () => true, to: 'red', kind: 'forced transition' });
+
+function TransitionCycleTLWithFTHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4FT.transition('green');
+    Tl4FT.transition('yellow');
+    Tl4FT.transition('red');
+  }
+
+}
+
+
+
+
+
 const Tl4WA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
 
-function ActionCycleFourPointTrafficLight500Times() {
+function ActionCycleTL500Times() {
 
   for (let i=0; i<500; ++i) {
     Tl4WA.action('next');  // to green
@@ -60,7 +195,7 @@ function ActionCycleFourPointTrafficLight500Times() {
 const Tl4WAWH = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
 Tl4WAWH.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
 
-function ActionCycleFourPointTrafficLightWithHooks500Times() {
+function ActionCycleTLWithHooks500Times() {
 
   for (let i=0; i<500; ++i) {
     Tl4WAWH.action('next');  // to green
@@ -74,17 +209,192 @@ function ActionCycleFourPointTrafficLightWithHooks500Times() {
 
 
 
+
+const Tl4WAWHA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+Tl4WAWHA.set_hook({ from: 'red', to: 'green', name: 'next', handler: () => true, kind: 'named' });
+
+function ActionCycleTLWithNamedHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4WAWHA.action('next');  // to green
+    Tl4WAWHA.action('next');  // to yellow
+    Tl4WAWHA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+
+const Tl4AA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+Tl4AA.set_hook({ handler: () => true, kind: 'any action' });
+
+function AnyActionCycleTLWithNamedHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4AA.action('next');  // to green
+    Tl4AA.action('next');  // to yellow
+    Tl4AA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+
+const Tl4TAA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+Tl4TAA.set_hook({ handler: () => true, kind: 'any transition' });
+
+function ActionCycleTLWithAnyTransitionHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4TAA.action('next');  // to green
+    Tl4TAA.action('next');  // to yellow
+    Tl4TAA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+const Tl4EXA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+Tl4EXA.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
+
+function ActionCycleTLWithExitHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4EXA.action('next');  // to green
+    Tl4EXA.action('next');  // to yellow
+    Tl4EXA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+const Tl4ENA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+Tl4ENA.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
+
+function ActionCycleTLWithEnterHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4ENA.action('next');  // to green
+    Tl4ENA.action('next');  // to yellow
+    Tl4ENA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+const Tl4STA = sm`red -> green -> yellow -> red; [red yellow green] ~> off -> red;`;
+Tl4STA.set_hook({ handler: () => true, kind: 'standard transition' });
+
+function ActionCycleTLWithSTHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4STA.action('next');  // to green
+    Tl4STA.action('next');  // to yellow
+    Tl4STA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+
+const Tl4MTA = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
+Tl4MTA.set_hook({ handler: () => true, kind: 'main transition' });
+
+function ActionCycleTLWithMTHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4MTA.action('next');  // to green
+    Tl4MTA.action('next');  // to yellow
+    Tl4MTA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+
+const Tl4FTA = sm`red ~> green ~> yellow ~> red; [red yellow green] ~> off -> red;`;
+Tl4FTA.set_hook({ handler: () => true, kind: 'forced transition' });
+
+function ActionCycleTLWithFTHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4FTA.action('next');  // to green
+    Tl4FTA.action('next');  // to yellow
+    Tl4FTA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
+
+const Tl4GA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+Tl4GA.set_hook({ handler: () => true, kind: 'global action' });
+
+function GlobalActionCycleTLWithNamedHooks500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4GA.action('next');  // to green
+    Tl4GA.action('next');  // to yellow
+    Tl4GA.action('next');  // to red
+  }
+
+}
+
+
+
+
+
 b.suite('General performance suite',
 
-  b.add('Blind cycle a traffic light 500 times by transition',        TransitionCycleFourPointTrafficLight500Times          ),
-  b.add('Blind cycle a hooked traffic light 500 times by transition', TransitionCycleFourPointTrafficLightWithHooks500Times ),
-  b.add('Blind cycle a traffic light 500 times by action',            ActionCycleFourPointTrafficLight500Times              ),
-  b.add('Blind cycle a hooked traffic light 500 times by action',     ActionCycleFourPointTrafficLightWithHooks500Times     ),
+  b.add('Blind cycle a traffic light 500 times by transition',                 TransitionCycleTL500Times                       ),
+  b.add('Blind cycle a traffic light 500 times by action',                     ActionCycleTL500Times                           ),
+  b.add('Blind cycle a basic-hooked traffic light 500 times by transition',    TransitionCycleTLWithHooks500Times              ),
+  b.add('Blind cycle a named-hooked traffic light 500 times by transition',    TransitionCycleTLWithNamedHooks500Times         ),
+  b.add('Blind cycle an any-transition traffic light 500 times by transition', TransitionCycleTLWithAnyTransitionHooks500Times ),
+  b.add('Blind cycle an exit hooked traffic light 500 times by transition',    TransitionCycleTLWithExitHooks500Times          ),
+  b.add('Blind cycle an enter hooked traffic light 500 times by transition',   TransitionCycleTLWithEnterHooks500Times         ),
+  b.add('Blind cycle a standard-transition hooked light by transition',        TransitionCycleTLWithSTHooks500Times            ),
+  b.add('Blind cycle a main-transition hooked light by transition',            TransitionCycleTLWithMTHooks500Times            ),
+  b.add('Blind cycle a force-transition hooked light by transition',           TransitionCycleTLWithFTHooks500Times            ),
+  b.add('Blind cycle a traffic light 500 times by action',                     ActionCycleTL500Times                           ),
+  b.add('Blind cycle a basic-hooked traffic light 500 times by action',        ActionCycleTLWithHooks500Times                  ),
+  b.add('Blind cycle a named-hooked traffic light 500 times by action',        ActionCycleTLWithNamedHooks500Times             ),
+  b.add('Blind cycle an any-action traffic light 500 times by action',         AnyActionCycleTLWithNamedHooks500Times          ),
+  b.add('Blind cycle a global-action traffic light 500 times by action',       GlobalActionCycleTLWithNamedHooks500Times       ),
+  b.add('Blind cycle an exit hooked traffic light 500 times by action',        ActionCycleTLWithExitHooks500Times              ),
+  b.add('Blind cycle an enter hooked traffic light 500 times by action',       ActionCycleTLWithEnterHooks500Times             ),
+  b.add('Blind cycle a standard transition tl 500 times by action',            ActionCycleTLWithSTHooks500Times                ),
+  b.add('Blind cycle a main transition tl 500 times by action',                ActionCycleTLWithMTHooks500Times                ),
+  b.add('Blind cycle a forced transition tl 500 times by action',              ActionCycleTLWithFTHooks500Times                ),
 
   b.cycle(),
   b.complete(),
 
-  b.save({ file: 'general', version: '1.1.0' }),
+  b.save({ file: 'general', version: '1.2.0' }),
   b.save({ file: 'general', format: 'chart.html' }),
 
 );
