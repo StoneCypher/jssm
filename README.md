@@ -42,18 +42,39 @@ log( TrafficLight.state() );  // 'Green'
 What if the notation supported action names easily?
 
 ```javascript
-const TrafficLightWithActions = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`;
+const TLWA = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`;  // TLWA = Traffic Light With Actions
 
-log( TrafficLightWithActions.state() );  // 'Red'
+log( TLWA.state() );  // 'Red'
 
-TrafficLightWithActions.action('next');  // true
-log( TrafficLightWithActions.state() );  // 'Green'
+TLWA.action('next');  // true
+log( TLWA.state() );  // 'Green'
 
-TrafficLightWithActions.action('next');  // true
-log( TrafficLightWithActions.state() );  // 'Yellow'
+TLWA.action('next');  // true
+log( TLWA.state() );  // 'Yellow'
 
-TrafficLightWithActions.action('next');  // true
-log( TrafficLightWithActions.state() );  // 'Red'
+TLWA.action('next');  // true
+log( TLWA.state() );  // 'Red'
+```
+
+<br/>
+
+What if integration with the outside was straightforward?
+
+```javascript
+const MTL = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`  // MTL = More Traffic Lights
+              .hook('Red', 'Green', () => console.log('GO GO GO'))   // node will jump the gun when you hit return, though
+              .hook_entry('Red', () => console.log('STOP'));         // so put it on one line in node
+
+log( MTL.state() );  // 'Red'
+
+TLWA.action('next');  // true, console logs 'GO GO GO'
+log( TLWA.state() );  // 'Green'
+
+TLWA.action('next');  // true
+log( TLWA.state() );  // 'Yellow'
+
+TLWA.action('next');  // true, console logs 'STOP'
+log( TLWA.state() );  // 'Red'
 ```
 
 <br/>
@@ -61,11 +82,11 @@ log( TrafficLightWithActions.state() );  // 'Red'
 What if the machine followed JS standards, and distinguished refusals as `false` from mistakes as `throw`n?
 
 ```javascript
-const AnotherTrafficLight = sm`Red -> Green -> Yellow -> Red;`;
+const ATL = sm`Red -> Green -> Yellow -> Red;`;  // ATL = Another Traffic Light
 
-log( AnotherTrafficLight.state() );         // 'Red' - uses 1st state unless told otherwise
-AnotherTrafficLight.transition('Yellow');   // false (Yellow isn't allowed from Red)
-AnotherTrafficLight.transition('Blue');     // throws (Blue isn't a state at all)
+log( ATL.state() );         // 'Red' - uses 1st state unless told otherwise
+ATL.transition('Yellow');   // false (Yellow isn't allowed from Red)
+ATL.transition('Blue');     // throws (Blue isn't a state at all)
 ```
 
 <br/>
