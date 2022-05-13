@@ -15885,7 +15885,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.61.1";
+  const version = "5.61.2";
 
   // whargarbl lots of these return arrays could/should be sets
   /* eslint-disable complexity */
@@ -16235,6 +16235,8 @@ var jssm = (function (exports) {
           this._has_named_hooks = false;
           this._has_entry_hooks = false;
           this._has_exit_hooks = false;
+          this._has_global_action_hooks = false;
+          this._has_transition_hooks = true;
           // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
           this._hooks = new Map();
           this._named_hooks = new Map();
@@ -16604,14 +16606,17 @@ var jssm = (function (exports) {
               case 'hook':
                   this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
                   this._has_hooks = true;
+                  this._has_basic_hooks = true;
                   break;
               case 'named':
                   this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                   this._has_hooks = true;
+                  this._has_named_hooks = true;
                   break;
               case 'global action':
                   this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
                   this._has_hooks = true;
+                  this._has_global_action_hooks = true;
                   break;
               case 'any action':
                   this._any_action_hook = HookDesc.handler;
@@ -16619,14 +16624,17 @@ var jssm = (function (exports) {
                   break;
               case 'standard transition':
                   this._standard_transition_hook = HookDesc.handler;
+                  this._has_transition_hooks = true;
                   this._has_hooks = true;
                   break;
               case 'main transition':
                   this._main_transition_hook = HookDesc.handler;
+                  this._has_transition_hooks = true;
                   this._has_hooks = true;
                   break;
               case 'forced transition':
                   this._forced_transition_hook = HookDesc.handler;
+                  this._has_transition_hooks = true;
                   this._has_hooks = true;
                   break;
               case 'any transition':
@@ -16636,10 +16644,12 @@ var jssm = (function (exports) {
               case 'entry':
                   this._entry_hooks.set(HookDesc.to, HookDesc.handler);
                   this._has_hooks = true;
+                  this._has_entry_hooks = true;
                   break;
               case 'exit':
                   this._exit_hooks.set(HookDesc.from, HookDesc.handler);
                   this._has_hooks = true;
+                  this._has_exit_hooks = true;
                   break;
               default:
                   console.log(`Unknown hook type ${HookDesc.kind}, should be impossible`);
@@ -16723,8 +16733,10 @@ var jssm = (function (exports) {
           }
           else {
               if (this.valid_transition(newStateOrAction, newData)) {
+                  if (this._has_transition_hooks) {
+                      trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
+                  }
                   valid = true;
-                  trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
                   newState = newStateOrAction;
               }
           }
@@ -16754,26 +16766,32 @@ var jssm = (function (exports) {
                       }
                   }
                   // 4. exit hook
-                  const maybe_ex_hook = this._exit_hooks.get(this._state);
-                  if (maybe_ex_hook !== undefined) {
-                      if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
-                          return false;
-                      }
-                  }
-                  // 5. named transition / action hook
-                  if (wasAction) {
-                      const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);
-                      if (n_maybe_hook !== undefined) {
-                          if (n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction }) === false) {
+                  if (this._has_exit_hooks) {
+                      const maybe_ex_hook = this._exit_hooks.get(this._state);
+                      if (maybe_ex_hook !== undefined) {
+                          if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
                               return false;
                           }
                       }
                   }
+                  // 5. named transition / action hook
+                  if (this._has_named_hooks) {
+                      if (wasAction) {
+                          const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);
+                          if (n_maybe_hook !== undefined) {
+                              if (n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction }) === false) {
+                                  return false;
+                              }
+                          }
+                      }
+                  }
                   // 6. regular hook
-                  const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
-                  if (maybe_hook !== undefined) {
-                      if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction ? newStateOrAction : undefined }) === false) {
-                          return false;
+                  if (this._has_basic_hooks) {
+                      const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
+                      if (maybe_hook !== undefined) {
+                          if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction ? newStateOrAction : undefined }) === false) {
+                              return false;
+                          }
                       }
                   }
                   // 7. edge type hook
@@ -16808,10 +16826,12 @@ var jssm = (function (exports) {
                       }
                   }
                   // 8. entry hook
-                  const maybe_en_hook = this._entry_hooks.get(newState);
-                  if (maybe_en_hook !== undefined) {
-                      if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
-                          return false;
+                  if (this._has_entry_hooks) {
+                      const maybe_en_hook = this._entry_hooks.get(newState);
+                      if (maybe_en_hook !== undefined) {
+                          if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
+                              return false;
+                          }
                       }
                   }
                   this._state = newState;

@@ -484,10 +484,13 @@ class Machine<mDT> {
 
   _has_hooks       : boolean;
 
-  _has_basic_hooks : boolean;
-  _has_named_hooks : boolean;
-  _has_entry_hooks : boolean;
-  _has_exit_hooks  : boolean;
+  _has_basic_hooks         : boolean;
+  _has_named_hooks         : boolean;
+  _has_entry_hooks         : boolean;
+  _has_exit_hooks          : boolean;
+  _has_global_action_hooks : boolean;
+  _has_transition_hooks    : boolean;
+
   // no boolean for _has_any_transition_hook
 
   _hooks                    : Map<string, Function>;
@@ -547,21 +550,22 @@ class Machine<mDT> {
     this._raw_state_declaration = state_declaration || [];
     this._fsl_version = fsl_version;
 
-    this._arrange_declaration = arrange_declaration;
+    this._arrange_declaration       = arrange_declaration;
     this._arrange_start_declaration = arrange_start_declaration;
-    this._arrange_end_declaration = arrange_end_declaration;
+    this._arrange_end_declaration   = arrange_end_declaration;
 
     this._dot_preamble = dot_preamble;
-    this._theme = theme;
-    this._flow = flow;
+    this._theme        = theme;
+    this._flow         = flow;
     this._graph_layout = graph_layout;
 
-    this._has_hooks       = false;
-
-    this._has_basic_hooks = false;
-    this._has_named_hooks = false;
-    this._has_entry_hooks = false;
-    this._has_exit_hooks  = false;
+    this._has_hooks               = false;
+    this._has_basic_hooks         = false;
+    this._has_named_hooks         = false;
+    this._has_entry_hooks         = false;
+    this._has_exit_hooks          = false;
+    this._has_global_action_hooks = false;
+    this._has_transition_hooks    = true;
     // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
 
     this._hooks                    = new Map();
@@ -1030,17 +1034,20 @@ class Machine<mDT> {
 
       case 'hook':
         this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
-        this._has_hooks = true;
+        this._has_hooks       = true;
+        this._has_basic_hooks = true;
         break;
 
       case 'named':
         this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
-        this._has_hooks = true;
+        this._has_hooks       = true;
+        this._has_named_hooks = true;
         break;
 
       case 'global action':
         this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
-        this._has_hooks = true;
+        this._has_hooks               = true;
+        this._has_global_action_hooks = true;
         break;
 
       case 'any action':
@@ -1050,17 +1057,20 @@ class Machine<mDT> {
 
       case 'standard transition':
         this._standard_transition_hook = HookDesc.handler;
-        this._has_hooks = true;
+        this._has_transition_hooks     = true;
+        this._has_hooks                = true;
         break;
 
       case 'main transition':
         this._main_transition_hook = HookDesc.handler;
-        this._has_hooks = true;
+        this._has_transition_hooks = true;
+        this._has_hooks            = true;
         break;
 
       case 'forced transition':
         this._forced_transition_hook = HookDesc.handler;
-        this._has_hooks = true;
+        this._has_transition_hooks   = true;
+        this._has_hooks              = true;
         break;
 
       case 'any transition':
@@ -1070,12 +1080,14 @@ class Machine<mDT> {
 
       case 'entry':
         this._entry_hooks.set(HookDesc.to, HookDesc.handler);
-        this._has_hooks = true;
+        this._has_hooks       = true;
+        this._has_entry_hooks = true;
         break;
 
       case 'exit':
         this._exit_hooks.set(HookDesc.from, HookDesc.handler);
-        this._has_hooks = true;
+        this._has_hooks      = true;
+        this._has_exit_hooks = true;
         break;
 
       default:
@@ -1225,9 +1237,11 @@ class Machine<mDT> {
 
     } else {
       if (this.valid_transition(newStateOrAction, newData)) {
-        valid      = true;
-        trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
-        newState   = newStateOrAction;
+        if (this._has_transition_hooks) {
+          trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
+        }
+        valid    = true;
+        newState = newStateOrAction;
       }
     }
 
@@ -1258,35 +1272,41 @@ class Machine<mDT> {
         }
 
         // 4. exit hook
-        const maybe_ex_hook: Function | undefined = this._exit_hooks.get(this._state);
+        if (this._has_exit_hooks) {
+          const maybe_ex_hook: Function | undefined = this._exit_hooks.get(this._state);
 
-        if (maybe_ex_hook !== undefined) {
-          if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
-            return false;
+          if (maybe_ex_hook !== undefined) {
+            if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
+              return false;
+            }
           }
         }
 
         // 5. named transition / action hook
-        if (wasAction) {
+        if (this._has_named_hooks) {
+          if (wasAction) {
 
-          const nhn: string  = named_hook_name(this._state, newState, newStateOrAction),
-                n_maybe_hook = this._named_hooks.get(nhn);
+            const nhn: string  = named_hook_name(this._state, newState, newStateOrAction),
+                  n_maybe_hook = this._named_hooks.get(nhn);
 
-          if (n_maybe_hook !== undefined) {
-            if (n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction }) === false) {
-              return false;
+            if (n_maybe_hook !== undefined) {
+              if (n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction }) === false) {
+                return false;
+              }
             }
-          }
 
+          }
         }
 
         // 6. regular hook
-        const hn: string = hook_name(this._state, newState),
-          maybe_hook: Function | undefined = this._hooks.get(hn);
+        if (this._has_basic_hooks) {
+          const hn: string = hook_name(this._state, newState),
+            maybe_hook: Function | undefined = this._hooks.get(hn);
 
-        if (maybe_hook !== undefined) {
-          if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction? newStateOrAction : undefined }) === false) {
-            return false;
+          if (maybe_hook !== undefined) {
+            if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction? newStateOrAction : undefined }) === false) {
+              return false;
+            }
           }
         }
 
@@ -1326,11 +1346,13 @@ class Machine<mDT> {
         }
 
         // 8. entry hook
-        const maybe_en_hook: Function | undefined = this._entry_hooks.get(newState);
+        if (this._has_entry_hooks) {
+          const maybe_en_hook: Function | undefined = this._entry_hooks.get(newState);
 
-        if (maybe_en_hook !== undefined) {
-          if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
-            return false;
+          if (maybe_en_hook !== undefined) {
+            if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
+              return false;
+            }
           }
         }
 
