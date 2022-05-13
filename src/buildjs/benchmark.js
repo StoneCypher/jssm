@@ -368,6 +368,39 @@ function GlobalActionCycleTLWithNamedHooks500Times() {
 
 
 
+
+const Tl4KS = sm`red 'next' => green 'next' -> yellow 'next' ~> red; [red yellow green] ~> off -> red;`;
+
+Tl4KS.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
+Tl4KS.set_hook({ from: 'red', to: 'green', name: 'next', handler: () => true, kind: 'named' });
+Tl4KS.set_hook({ from: 'red', to: 'green', name: 'unused', handler: () => true, kind: 'named' });
+Tl4KS.set_hook({ handler: () => true, kind: 'any transition' });
+Tl4KS.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
+Tl4KS.set_hook({ handler: () => true, kind: 'any action' });
+Tl4KS.set_hook({ handler: () => true, kind: 'any transition' });
+Tl4KS.set_hook({ handler: () => true, kind: 'standard transition' });
+Tl4KS.set_hook({ handler: () => true, kind: 'main transition' });
+Tl4KS.set_hook({ handler: () => true, kind: 'forced transition' });
+Tl4KS.set_hook({ handler: () => true, kind: 'global action' });
+Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
+Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'standard transition' });
+Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'main transition' });
+Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'forced transition' });
+
+function KitchenSink500Times() {
+
+  for (let i=0; i<500; ++i) {
+    Tl4GA.transition('green');
+    Tl4GA.action('next');           // to yellow
+    Tl4GA.force_transition('red');
+  }
+
+}
+
+
+
+
+
 b.suite('General performance suite',
 
   b.add('Blind cycle a traffic light 500 times by transition',                 TransitionCycleTL500Times                       ),
@@ -390,6 +423,7 @@ b.suite('General performance suite',
   b.add('Blind cycle a standard transition tl 500 times by action',            ActionCycleTLWithSTHooks500Times                ),
   b.add('Blind cycle a main transition tl 500 times by action',                ActionCycleTLWithMTHooks500Times                ),
   b.add('Blind cycle a forced transition tl 500 times by action',              ActionCycleTLWithFTHooks500Times                ),
+  b.add('Kitchen Sink 500 times',                                              KitchenSink500Times                             ),
 
   b.cycle(),
   b.complete(),
