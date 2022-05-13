@@ -42,6 +42,8 @@ declare class Machine<mDT> {
     _has_named_hooks: boolean;
     _has_entry_hooks: boolean;
     _has_exit_hooks: boolean;
+    _has_global_action_hooks: boolean;
+    _has_transition_hooks: boolean;
     _hooks: Map<string, Function>;
     _named_hooks: Map<string, Function>;
     _entry_hooks: Map<string, Function>;
