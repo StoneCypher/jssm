@@ -539,7 +539,7 @@ class Machine<mDT> {
     instance_name
   }: JssmGenericConfig<mDT>) {
 
-    this._instance_name = undefined;
+    this._instance_name = instance_name;
 
     this._state = start_states[0];
     this._states = new Map();
@@ -1489,8 +1489,16 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
 
 
 
-function from<mDT>(MachineAsString: string): Machine<mDT> {
-  return new Machine( make( MachineAsString ) );
+function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<mDT> > | undefined): Machine<mDT> {
+
+  const to_decorate = make( MachineAsString );
+
+  if (ExtraConstructorFields !== undefined) {
+    Object.keys(ExtraConstructorFields).map(key => to_decorate[key] = ExtraConstructorFields[key]);
+  }
+
+  return new Machine( to_decorate );
+
 }
 
 

@@ -322,7 +322,7 @@ function transfer_state_properties(state_decl) {
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
     constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name }) {
-        this._instance_name = undefined;
+        this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
         this._state_declarations = new Map();
@@ -1033,8 +1033,12 @@ function sm(template_strings, ...remainder /* , arguments */) {
     /* eslint-enable  prefer-rest-params */
     )));
 }
-function from(MachineAsString) {
-    return new Machine(make(MachineAsString));
+function from(MachineAsString, ExtraConstructorFields) {
+    const to_decorate = make(MachineAsString);
+    if (ExtraConstructorFields !== undefined) {
+        Object.keys(ExtraConstructorFields).map(key => to_decorate[key] = ExtraConstructorFields[key]);
+    }
+    return new Machine(to_decorate);
 }
 export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library

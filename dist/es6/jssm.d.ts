@@ -129,5 +129,5 @@ declare class Machine<mDT> {
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
-declare function from<mDT>(MachineAsString: string): Machine<mDT>;
+declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial<JssmGenericConfig<mDT>> | undefined): Machine<mDT>;
 export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };
