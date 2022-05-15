@@ -45,6 +45,14 @@ import { version } from './version'; // replaced from package.js in build
 
 
 
+function xthrow<mDT>(machine: Machine<mDT>, message): never {
+  throw new Error(`${(machine.instance_name !== undefined)? `[[${machine.instance_name}]]: ` : ''}${message}${machine.state !== undefined? ` (at ${machine.state})` : ''}`);
+}
+
+
+
+
+
 /* eslint-disable complexity */
 
 function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
@@ -75,7 +83,7 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
       return 'both';
 
     default:
-      throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+      xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
 
   }
 
@@ -117,7 +125,7 @@ function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
       return 'forced';
 
     default:
-      throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+      xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
 
   }
 
@@ -159,7 +167,7 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
       return 'forced';
 
     default:
-      throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+      xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
 
   }
 
@@ -191,13 +199,13 @@ function makeTransition<mDT>(
       main_path: kind === 'main'
     };
 
-  //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new TypeError("Must have an index if transition was in a list"); }
-  //  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new TypeError("Must be in a list if transition has an index");   }
+  //  if ((wasList  !== undefined) && (wasIndex === undefined)) { xthrow(this, `Must have an index if transition was in a list"); }
+  //  if ((wasIndex !== undefined) && (wasList  === undefined)) { xthrow(this, `Must be in a list if transition has an index");   }
   /*
     if (typeof edge.to === 'object') {
 
       if (edge.to.key === 'cycle') {
-        if (wasList === undefined) { throw "Must have a waslist if a to is type cycle"; }
+        if (wasList === undefined) { xthrow(this, "Must have a waslist if a to is type cycle"); }
         const nextIndex = wrapBy(wasIndex, edge.to.value, wasList.length);
         edge.to = wasList[nextIndex];
       }
@@ -282,7 +290,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
   }
 
   if (rule.key === 'state_declaration') {
-    if (!rule.name) { throw new Error('State declarations must have a name'); }
+    if (!rule.name) { xthrow(this, 'State declarations must have a name'); }
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
 
@@ -302,7 +310,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     return { agg_as: rule.key, val: rule.value };
   }
 
-  throw new Error(`compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
+  xthrow(this, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
 
 }
 
@@ -385,7 +393,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   oneOnlyKeys.map((oneOnlyKey: string) => {
     if (results[oneOnlyKey].length > 1) {
-      throw new Error(
+      xthrow(this,
         `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`
       );
     } else {
@@ -435,7 +443,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'background-color' : state_decl.backgroundColor = d.value; break;
       case 'border-color'     : state_decl.borderColor     = d.value; break;
 
-      default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
+      default: xthrow(this, `Unknown state property: '${JSON.stringify(d)}'`);
 
     }
 
@@ -473,17 +481,18 @@ class Machine<mDT> {
   _raw_state_declaration?: Array<Object>;
   _state_declarations: Map<StateType, JssmStateDeclaration>;
 
-  _graph_layout: JssmLayout;
-  _dot_preamble: string;
-  _arrange_declaration: Array<Array<StateType>>;
-  _arrange_start_declaration: Array<Array<StateType>>;
-  _arrange_end_declaration: Array<Array<StateType>>;
+  _instance_name : string;
 
-  _theme: FslTheme;
-  _flow: FslDirection;
+  _graph_layout              : JssmLayout;
+  _dot_preamble              : string;
+  _arrange_declaration       : Array<Array<StateType>>;
+  _arrange_start_declaration : Array<Array<StateType>>;
+  _arrange_end_declaration   : Array<Array<StateType>>;
 
-  _has_hooks       : boolean;
+  _theme : FslTheme;
+  _flow  : FslDirection;
 
+  _has_hooks               : boolean;
   _has_basic_hooks         : boolean;
   _has_named_hooks         : boolean;
   _has_entry_hooks         : boolean;
@@ -526,8 +535,11 @@ class Machine<mDT> {
     arrange_end_declaration = [],
     theme = 'default',
     flow = 'down',
-    graph_layout = 'dot'
+    graph_layout = 'dot',
+    instance_name
   }: JssmGenericConfig<mDT>) {
+
+    this._instance_name = instance_name;
 
     this._state = start_states[0];
     this._states = new Map();
@@ -585,7 +597,7 @@ class Machine<mDT> {
       state_declaration.map((state_decl: JssmStateDeclaration) => {
 
         if (this._state_declarations.has(state_decl.state)) { // no repeats
-          throw new Error(`Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
+          xthrow(this, `Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
         }
 
         this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
@@ -596,8 +608,8 @@ class Machine<mDT> {
 
     transitions.map((tr: JssmTransition<mDT>) => {
 
-      if (tr.from === undefined) { throw new Error(`transition must define 'from': ${JSON.stringify(tr)}`); }
-      if (tr.to === undefined) { throw new Error(`transition must define 'to': ${JSON.stringify(tr)}`); }
+      if (tr.from === undefined) { xthrow(this, `transition must define 'from': ${JSON.stringify(tr)}`); }
+      if (tr.to === undefined) { xthrow(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
       const cursor_from: JssmGenericState
@@ -618,7 +630,7 @@ class Machine<mDT> {
 
       // guard against existing connections being re-added
       if (cursor_from.to.includes(tr.to)) {
-        throw new Error(`already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
+        xthrow(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
       } else {
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
@@ -631,7 +643,7 @@ class Machine<mDT> {
       // guard against repeating a transition name
       if (tr.name) {
         if (this._named_transitions.has(tr.name)) {
-          throw new Error(`named transition "${JSON.stringify(tr.name)}" already created`);
+          xthrow(this, `named transition "${JSON.stringify(tr.name)}" already created`);
         } else {
           this._named_transitions.set(tr.name, thisEdgeId);
         }
@@ -658,7 +670,7 @@ class Machine<mDT> {
         }
 
         if (actionMap.has(tr.from)) {
-          throw new Error(`action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
+          xthrow(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
         } else {
           actionMap.set(tr.from, thisEdgeId);
         }
@@ -686,12 +698,12 @@ class Machine<mDT> {
                 const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
                 if (roActionMap) {
                   if (roActionMap.has(tr.action)) {
-                    throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
+                    xthrow(this, `ro-action ${tr.to} already attached to action ${tr.action}`);
                   } else {
                     roActionMap.set(tr.action, thisEdgeId);
                   }
                 } else {
-                  throw new Error('should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
+                  xthrow(this, `should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
                 }
         */
       }
@@ -703,7 +715,7 @@ class Machine<mDT> {
   _new_state(state_config: JssmGenericState): StateType {
 
     if (this._states.has(state_config.name)) {
-      throw new Error(`state ${JSON.stringify(state_config.name)} already exists`);
+      xthrow(this, `state ${JSON.stringify(state_config.name)} already exists`);
     }
 
     this._states.set(state_config.name, state_config);
@@ -826,7 +838,7 @@ class Machine<mDT> {
   state_for(whichState: StateType): JssmGenericState {
     const state: JssmGenericState = this._states.get(whichState);
     if (state) { return state; }
-    else { throw new Error(`no such state ${JSON.stringify(state)}`); }
+    else { xthrow(this, `no such state ${JSON.stringify(state)}`); }
   }
 
   has_state(whichState: StateType): boolean {
@@ -901,7 +913,7 @@ class Machine<mDT> {
   probable_exits_for(whichState: StateType): Array<JssmTransition<mDT>> {
 
     const wstate: JssmGenericState = this._states.get(whichState);
-    if (!(wstate)) { throw new Error(`No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
+    if (!(wstate)) { xthrow(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
     const wstate_to: Array<StateType> = wstate.to,
 
@@ -938,13 +950,13 @@ class Machine<mDT> {
   actions(whichState: StateType = this.state()): Array<StateType> {
     const wstate: Map<StateType, number> = this._reverse_actions.get(whichState);
     if (wstate) { return Array.from(wstate.keys()); }
-    else { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+    else { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
   }
 
   list_states_having_action(whichState: StateType): Array<StateType> {
     const wstate: Map<StateType, number> = this._actions.get(whichState);
     if (wstate) { return Array.from(wstate.keys()); }
-    else { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+    else { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
   }
 
   // comeback
@@ -958,7 +970,7 @@ class Machine<mDT> {
   */
   list_exit_actions(whichState: StateType = this.state()): Array<StateType> { // these are mNT, not ?mNT
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+    if (!(ra_base)) { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
 
     return Array.from(ra_base.values())
       .map((edgeId: number): JssmTransition<mDT> => this._edges[edgeId])
@@ -968,7 +980,7 @@ class Machine<mDT> {
 
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (!(ra_base)) { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+    if (!(ra_base)) { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
 
     return Array.from(ra_base.values())
       .map((edgeId: number): JssmTransition<mDT> => this._edges[edgeId])
@@ -984,7 +996,7 @@ class Machine<mDT> {
 
   // TODO FIXME test that is_unenterable on non-state throws
   is_unenterable(whichState: StateType): boolean {
-    if (!(this.has_state(whichState))) { throw new Error(`No such state ${whichState}`); }
+    if (!(this.has_state(whichState))) { xthrow(this, `No such state ${whichState}`); }
     return this.list_entrances(whichState).length === 0;
   }
 
@@ -1000,7 +1012,7 @@ class Machine<mDT> {
 
   // TODO FIXME test that state_is_terminal on non-state throws
   state_is_terminal(whichState: StateType): boolean {
-    if (!(this.has_state(whichState))) { throw new Error(`No such state ${whichState}`); }
+    if (!(this.has_state(whichState))) { xthrow(this, `No such state ${whichState}`); }
     return this.list_exits(whichState).length === 0;
   }
 
@@ -1017,7 +1029,7 @@ class Machine<mDT> {
   state_is_complete(whichState: StateType): boolean {
     const wstate: JssmGenericState = this._states.get(whichState);
     if (wstate) { return wstate.complete; }
-    else { throw new Error(`No such state ${JSON.stringify(whichState)}`); }
+    else { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
   }
 
   has_completes(): boolean {
@@ -1091,8 +1103,7 @@ class Machine<mDT> {
         break;
 
       default:
-        console.log(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
-        throw new RangeError(`Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+        xthrow(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
 
     }
   }
@@ -1200,7 +1211,7 @@ class Machine<mDT> {
 
 
   // remove_hook(HookDesc: HookDescription) {
-  //   throw 'TODO: Should remove hook here';
+  //   xthrow(this, 'TODO: Should remove hook here');
   // }
 
 
@@ -1406,7 +1417,7 @@ class Machine<mDT> {
 
   current_action_edge_for(action: StateType): JssmTransition<mDT> {
     const idx: number = this.current_action_for(action);
-    if ((idx === undefined) || (idx === null)) { throw new Error(`No such action ${JSON.stringify(action)}`); }
+    if ((idx === undefined) || (idx === null)) { xthrow(this, `No such action ${JSON.stringify(action)}`); }
     return this._edges[idx];
   }
 
@@ -1432,6 +1443,10 @@ class Machine<mDT> {
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
     return (this.lookup_transition_for(this.state(), newState) !== undefined);
+  }
+
+  instance_name(): string | undefined {
+    return this._instance_name;
   }
 
   /* eslint-disable no-use-before-define */
@@ -1474,6 +1489,22 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
 
 
 
+function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<mDT> > | undefined): Machine<mDT> {
+
+  const to_decorate = make( MachineAsString );
+
+  if (ExtraConstructorFields !== undefined) {
+    Object.keys(ExtraConstructorFields).map(key => to_decorate[key] = ExtraConstructorFields[key]);
+  }
+
+  return new Machine( to_decorate );
+
+}
+
+
+
+
+
 export {
 
   version,
@@ -1487,6 +1518,7 @@ export {
   compile,
 
   sm,
+  from,
 
   arrow_direction,
   arrow_left_kind,

@@ -30,6 +30,7 @@ declare class Machine<mDT> {
     _fsl_version?: string;
     _raw_state_declaration?: Array<Object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
+    _instance_name: string;
     _graph_layout: JssmLayout;
     _dot_preamble: string;
     _arrange_declaration: Array<Array<StateType>>;
@@ -54,7 +55,7 @@ declare class Machine<mDT> {
     _main_transition_hook: HookHandler | undefined;
     _forced_transition_hook: HookHandler | undefined;
     _any_transition_hook: HookHandler | undefined;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout }: JssmGenericConfig<mDT>);
+    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name }: JssmGenericConfig<mDT>);
     _new_state(state_config: JssmGenericState): StateType;
     state(): StateType;
     state_is_final(whichState: StateType): boolean;
@@ -124,7 +125,9 @@ declare class Machine<mDT> {
     valid_action(action: StateType, _newData?: mDT): boolean;
     valid_transition(newState: StateType, _newData?: mDT): boolean;
     valid_force_transition(newState: StateType, _newData?: mDT): boolean;
+    instance_name(): string | undefined;
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
-export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };
+declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial<JssmGenericConfig<mDT>> | undefined): Machine<mDT>;
+export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key };

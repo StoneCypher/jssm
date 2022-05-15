@@ -240,7 +240,8 @@ type JssmGenericConfig<DataType> = {
 
   fsl_version?               : string,   // TODO FIXME COMEBACK
 
-  auto_api?                  : boolean | string  // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  auto_api?                  : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  instance_name?             : string | undefined
 
 };
 

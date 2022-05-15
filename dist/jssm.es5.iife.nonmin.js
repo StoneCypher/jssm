@@ -15885,9 +15885,12 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.61.4";
+  const version = "5.62.0";
 
   // whargarbl lots of these return arrays could/should be sets
+  function xthrow(machine, message) {
+      throw new Error(`${(machine.instance_name !== undefined) ? `[[${machine.instance_name}]]: ` : ''}${message}${machine.state !== undefined ? ` (at ${machine.state})` : ''}`);
+  }
   /* eslint-disable complexity */
   function arrow_direction(arrow) {
       switch (String(arrow)) {
@@ -15937,7 +15940,7 @@ var jssm = (function (exports) {
           case '<~⇒':
               return 'both';
           default:
-              throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+              xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
       }
   }
   /* eslint-enable complexity */
@@ -15979,7 +15982,7 @@ var jssm = (function (exports) {
           case '↚⇒':
               return 'forced';
           default:
-              throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+              xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
       }
   }
   /* eslint-enable complexity */
@@ -16021,7 +16024,7 @@ var jssm = (function (exports) {
           case '⇐↛':
               return 'forced';
           default:
-              throw new Error(`arrow_direction: unknown arrow type ${arrow}`);
+              xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
       }
   }
   /* eslint-enable complexity */
@@ -16033,13 +16036,13 @@ var jssm = (function (exports) {
           forced_only: kind === 'forced',
           main_path: kind === 'main'
       };
-      //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new TypeError("Must have an index if transition was in a list"); }
-      //  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new TypeError("Must be in a list if transition has an index");   }
+      //  if ((wasList  !== undefined) && (wasIndex === undefined)) { xthrow(this, `Must have an index if transition was in a list"); }
+      //  if ((wasIndex !== undefined) && (wasList  === undefined)) { xthrow(this, `Must be in a list if transition has an index");   }
       /*
         if (typeof edge.to === 'object') {
     
           if (edge.to.key === 'cycle') {
-            if (wasList === undefined) { throw "Must have a waslist if a to is type cycle"; }
+            if (wasList === undefined) { xthrow(this, "Must have a waslist if a to is type cycle"); }
             const nextIndex = wrapBy(wasIndex, edge.to.value, wasList.length);
             edge.to = wasList[nextIndex];
           }
@@ -16093,7 +16096,7 @@ var jssm = (function (exports) {
       }
       if (rule.key === 'state_declaration') {
           if (!rule.name) {
-              throw new Error('State declarations must have a name');
+              xthrow(this, 'State declarations must have a name');
           }
           return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
       }
@@ -16110,7 +16113,7 @@ var jssm = (function (exports) {
       if (tautologies.includes(rule.key)) {
           return { agg_as: rule.key, val: rule.value };
       }
-      throw new Error(`compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
+      xthrow(this, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
   }
   function compile(tree) {
       const results = {
@@ -16153,7 +16156,7 @@ var jssm = (function (exports) {
       ];
       oneOnlyKeys.map((oneOnlyKey) => {
           if (results[oneOnlyKey].length > 1) {
-              throw new Error(`May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
+              xthrow(this, `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
           }
           else {
               if (results[oneOnlyKey].length) {
@@ -16196,14 +16199,15 @@ var jssm = (function (exports) {
               case 'border-color':
                   state_decl.borderColor = d.value;
                   break;
-              default: throw new Error(`Unknown state property: '${JSON.stringify(d)}'`);
+              default: xthrow(this, `Unknown state property: '${JSON.stringify(d)}'`);
           }
       });
       return state_decl;
   }
   class Machine {
       // whargarbl this badly needs to be broken up, monolith master
-      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot' }) {
+      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name }) {
+          this._instance_name = instance_name;
           this._state = start_states[0];
           this._states = new Map();
           this._state_declarations = new Map();
@@ -16252,17 +16256,17 @@ var jssm = (function (exports) {
           if (state_declaration) {
               state_declaration.map((state_decl) => {
                   if (this._state_declarations.has(state_decl.state)) { // no repeats
-                      throw new Error(`Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
+                      xthrow(this, `Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
                   }
                   this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
               });
           }
           transitions.map((tr) => {
               if (tr.from === undefined) {
-                  throw new Error(`transition must define 'from': ${JSON.stringify(tr)}`);
+                  xthrow(this, `transition must define 'from': ${JSON.stringify(tr)}`);
               }
               if (tr.to === undefined) {
-                  throw new Error(`transition must define 'to': ${JSON.stringify(tr)}`);
+                  xthrow(this, `transition must define 'to': ${JSON.stringify(tr)}`);
               }
               // get the cursors.  what a mess
               const cursor_from = this._states.get(tr.from)
@@ -16277,7 +16281,7 @@ var jssm = (function (exports) {
               }
               // guard against existing connections being re-added
               if (cursor_from.to.includes(tr.to)) {
-                  throw new Error(`already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
+                  xthrow(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
               }
               else {
                   cursor_from.to.push(tr.to);
@@ -16289,7 +16293,7 @@ var jssm = (function (exports) {
               // guard against repeating a transition name
               if (tr.name) {
                   if (this._named_transitions.has(tr.name)) {
-                      throw new Error(`named transition "${JSON.stringify(tr.name)}" already created`);
+                      xthrow(this, `named transition "${JSON.stringify(tr.name)}" already created`);
                   }
                   else {
                       this._named_transitions.set(tr.name, thisEdgeId);
@@ -16311,7 +16315,7 @@ var jssm = (function (exports) {
                       this._actions.set(tr.action, actionMap);
                   }
                   if (actionMap.has(tr.from)) {
-                      throw new Error(`action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
+                      xthrow(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
                   }
                   else {
                       actionMap.set(tr.from, thisEdgeId);
@@ -16334,12 +16338,12 @@ var jssm = (function (exports) {
                           const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
                           if (roActionMap) {
                             if (roActionMap.has(tr.action)) {
-                              throw new Error(`ro-action ${tr.to} already attached to action ${tr.action}`);
+                              xthrow(this, `ro-action ${tr.to} already attached to action ${tr.action}`);
                             } else {
                               roActionMap.set(tr.action, thisEdgeId);
                             }
                           } else {
-                            throw new Error('should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
+                            xthrow(this, `should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
                           }
                   */
               }
@@ -16347,7 +16351,7 @@ var jssm = (function (exports) {
       }
       _new_state(state_config) {
           if (this._states.has(state_config.name)) {
-              throw new Error(`state ${JSON.stringify(state_config.name)} already exists`);
+              xthrow(this, `state ${JSON.stringify(state_config.name)} already exists`);
           }
           this._states.set(state_config.name, state_config);
           return state_config.name;
@@ -16438,7 +16442,7 @@ var jssm = (function (exports) {
               return state;
           }
           else {
-              throw new Error(`no such state ${JSON.stringify(state)}`);
+              xthrow(this, `no such state ${JSON.stringify(state)}`);
           }
       }
       has_state(whichState) {
@@ -16488,7 +16492,7 @@ var jssm = (function (exports) {
       probable_exits_for(whichState) {
           const wstate = this._states.get(whichState);
           if (!(wstate)) {
-              throw new Error(`No such state ${JSON.stringify(whichState)} in probable_exits_for`);
+              xthrow(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
           }
           const wstate_to = wstate.to, wtf = wstate_to
               .map((ws) => this.lookup_transition_for(this.state(), ws))
@@ -16517,7 +16521,7 @@ var jssm = (function (exports) {
               return Array.from(wstate.keys());
           }
           else {
-              throw new Error(`No such state ${JSON.stringify(whichState)}`);
+              xthrow(this, `No such state ${JSON.stringify(whichState)}`);
           }
       }
       list_states_having_action(whichState) {
@@ -16526,7 +16530,7 @@ var jssm = (function (exports) {
               return Array.from(wstate.keys());
           }
           else {
-              throw new Error(`No such state ${JSON.stringify(whichState)}`);
+              xthrow(this, `No such state ${JSON.stringify(whichState)}`);
           }
       }
       // comeback
@@ -16541,7 +16545,7 @@ var jssm = (function (exports) {
       list_exit_actions(whichState = this.state()) {
           const ra_base = this._reverse_actions.get(whichState);
           if (!(ra_base)) {
-              throw new Error(`No such state ${JSON.stringify(whichState)}`);
+              xthrow(this, `No such state ${JSON.stringify(whichState)}`);
           }
           return Array.from(ra_base.values())
               .map((edgeId) => this._edges[edgeId])
@@ -16551,7 +16555,7 @@ var jssm = (function (exports) {
       probable_action_exits(whichState = this.state()) {
           const ra_base = this._reverse_actions.get(whichState);
           if (!(ra_base)) {
-              throw new Error(`No such state ${JSON.stringify(whichState)}`);
+              xthrow(this, `No such state ${JSON.stringify(whichState)}`);
           }
           return Array.from(ra_base.values())
               .map((edgeId) => this._edges[edgeId])
@@ -16564,7 +16568,7 @@ var jssm = (function (exports) {
       // TODO FIXME test that is_unenterable on non-state throws
       is_unenterable(whichState) {
           if (!(this.has_state(whichState))) {
-              throw new Error(`No such state ${whichState}`);
+              xthrow(this, `No such state ${whichState}`);
           }
           return this.list_entrances(whichState).length === 0;
       }
@@ -16577,7 +16581,7 @@ var jssm = (function (exports) {
       // TODO FIXME test that state_is_terminal on non-state throws
       state_is_terminal(whichState) {
           if (!(this.has_state(whichState))) {
-              throw new Error(`No such state ${whichState}`);
+              xthrow(this, `No such state ${whichState}`);
           }
           return this.list_exits(whichState).length === 0;
       }
@@ -16593,7 +16597,7 @@ var jssm = (function (exports) {
               return wstate.complete;
           }
           else {
-              throw new Error(`No such state ${JSON.stringify(whichState)}`);
+              xthrow(this, `No such state ${JSON.stringify(whichState)}`);
           }
       }
       has_completes() {
@@ -16652,8 +16656,7 @@ var jssm = (function (exports) {
                   this._has_exit_hooks = true;
                   break;
               default:
-                  console.log(`Unknown hook type ${HookDesc.kind}, should be impossible`);
-                  throw new RangeError(`Unknown hook type ${HookDesc.kind}, should be impossible`);
+                  xthrow(this, `Unknown hook type ${HookDesc.kind}, should be impossible`);
           }
       }
       hook(from, to, handler) {
@@ -16707,7 +16710,7 @@ var jssm = (function (exports) {
           return this;
       }
       // remove_hook(HookDesc: HookDescription) {
-      //   throw 'TODO: Should remove hook here';
+      //   xthrow(this, 'TODO: Should remove hook here');
       // }
       edges_between(from, to) {
           return this._edges.filter(edge => ((edge.from === from) && (edge.to === to)));
@@ -16867,7 +16870,7 @@ var jssm = (function (exports) {
       current_action_edge_for(action) {
           const idx = this.current_action_for(action);
           if ((idx === undefined) || (idx === null)) {
-              throw new Error(`No such action ${JSON.stringify(action)}`);
+              xthrow(this, `No such action ${JSON.stringify(action)}`);
           }
           return this._edges[idx];
       }
@@ -16893,6 +16896,9 @@ var jssm = (function (exports) {
           // todo major incomplete whargarbl comeback
           return (this.lookup_transition_for(this.state(), newState) !== undefined);
       }
+      instance_name() {
+          return this._instance_name;
+      }
       /* eslint-disable no-use-before-define */
       /* eslint-disable class-methods-use-this */
       sm(template_strings, ...remainder /* , arguments */) {
@@ -16912,12 +16918,20 @@ var jssm = (function (exports) {
       /* eslint-enable  prefer-rest-params */
       )));
   }
+  function from(MachineAsString, ExtraConstructorFields) {
+      const to_decorate = make(MachineAsString);
+      if (ExtraConstructorFields !== undefined) {
+          Object.keys(ExtraConstructorFields).map(key => to_decorate[key] = ExtraConstructorFields[key]);
+      }
+      return new Machine(to_decorate);
+  }
 
   exports.Machine = Machine;
   exports.arrow_direction = arrow_direction;
   exports.arrow_left_kind = arrow_left_kind;
   exports.arrow_right_kind = arrow_right_kind;
   exports.compile = compile;
+  exports.from = from;
   exports.histograph = histograph;
   exports.make = make;
   exports.parse = wrap_parse;
