@@ -125,6 +125,7 @@ declare type JssmGenericConfig<DataType> = {
     machine_version?: string;
     fsl_version?: string;
     auto_api?: boolean | string;
+    instance_name?: string | undefined;
 };
 declare type JssmCompileRule = {
     agg_as: string;

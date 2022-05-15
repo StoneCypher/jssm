@@ -62,8 +62,8 @@ What if integration with the outside was straightforward?
 
 ```javascript
 const MTL = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`  // MTL = More Traffic Lights
-              .hook('Red', 'Green', () => console.log('GO GO GO'))   // node will jump the gun when you hit return, though
-              .hook_entry('Red', () => console.log('STOP'));         // so put it on one line in node
+              .hook('Red', 'Green', () => log('GO GO GO') )          // node will jump the gun when you hit return, though
+              .hook_entry('Red', () => log('STOP') );                // so put it on one line in node
 
 log( MTL.state() );  // 'Red'
 
