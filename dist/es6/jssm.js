@@ -1,10 +1,21 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, hook_name, named_hook_name } from './jssm_util';
-import { parse } from './jssm-dot'; // TODO FIXME WHARGARBL this could be post-typed
+import { parse } from './jssm-dot';
 import { version } from './version'; // replaced from package.js in build
+class JssmError extends Error {
+    constructor(machine, message) {
+        super(message);
+        this.name = 'JssmError';
+    }
+}
+;
 function xthrow(machine, message) {
-    throw new Error(`${(machine.instance_name !== undefined) ? `[[${machine.instance_name}]]: ` : ''}${message}${machine.state !== undefined ? ` (at ${machine.state})` : ''}`);
+    throw new JssmError(this, `${(machine.instance_name !== undefined)
+        ? `[[${machine.instance_name}]]: `
+        : ''}${message}${machine.state !== undefined
+        ? ` (at ${machine.state})`
+        : ''}`);
 }
 /* eslint-disable complexity */
 function arrow_direction(arrow) {

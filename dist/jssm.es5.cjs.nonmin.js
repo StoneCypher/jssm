@@ -15886,11 +15886,21 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.62.0";
+const version = "5.63.0";
 
 // whargarbl lots of these return arrays could/should be sets
+class JssmError extends Error {
+    constructor(machine, message) {
+        super(message);
+        this.name = 'JssmError';
+    }
+}
 function xthrow(machine, message) {
-    throw new Error(`${(machine.instance_name !== undefined) ? `[[${machine.instance_name}]]: ` : ''}${message}${machine.state !== undefined ? ` (at ${machine.state})` : ''}`);
+    throw new JssmError(this, `${(machine.instance_name !== undefined)
+        ? `[[${machine.instance_name}]]: `
+        : ''}${message}${machine.state !== undefined
+        ? ` (at ${machine.state})`
+        : ''}`);
 }
 /* eslint-disable complexity */
 function arrow_direction(arrow) {

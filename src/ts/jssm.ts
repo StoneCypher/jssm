@@ -37,16 +37,43 @@ import {
 
 
 
-import { parse } from './jssm-dot';  // TODO FIXME WHARGARBL this could be post-typed
+import { parse }   from './jssm-dot';
+import { version } from './version';    // replaced from package.js in build
 
-import { version } from './version'; // replaced from package.js in build
+
+
+
+
+class JssmError<mDT> extends Error {
+
+  constructor(machine: Machine<mDT>, message: string) {
+
+    super(message);
+    this.name = 'JssmError';
+
+  }
+
+};
 
 
 
 
 
 function xthrow<mDT>(machine: Machine<mDT>, message): never {
-  throw new Error(`${(machine.instance_name !== undefined)? `[[${machine.instance_name}]]: ` : ''}${message}${machine.state !== undefined? ` (at ${machine.state})` : ''}`);
+
+  throw new JssmError( this,
+    `${
+      (machine.instance_name !== undefined)
+        ? `[[${machine.instance_name}]]: `
+        : ''
+    }${
+      message
+    }${
+      machine.state !== undefined
+        ? ` (at ${machine.state})`
+        : ''
+    }`);
+
 }
 
 
