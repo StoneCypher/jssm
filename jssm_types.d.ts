@@ -199,4 +199,7 @@ declare type ExitHook = {
     handler: HookHandler;
 };
 declare type HookDescription = BasicHookDescription | HookDescriptionWithAction | GlobalActionHook | AnyActionHook | StandardTransitionHook | MainTransitionHook | ForcedTransitionHook | AnyTransitionHook | EntryHook | ExitHook;
-export { JssmColor, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, FslDirection, FslTheme, HookDescription, HookHandler };
+declare type JssmErrorExtendedInfo = {
+    requested_state?: StateType | undefined;
+};
+export { JssmColor, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler };

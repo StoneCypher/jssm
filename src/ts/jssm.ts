@@ -37,44 +37,9 @@ import {
 
 
 
-import { parse }   from './jssm-dot';
-import { version } from './version';    // replaced from package.js in build
-
-
-
-
-
-class JssmError<mDT> extends Error {
-
-  constructor(machine: Machine<mDT>, message: string) {
-
-    super(message);
-    this.name = 'JssmError';
-
-  }
-
-};
-
-
-
-
-
-function xthrow<mDT>(machine: Machine<mDT>, message): never {
-
-  throw new JssmError( this,
-    `${
-      (machine.instance_name !== undefined)
-        ? `[[${machine.instance_name}]]: `
-        : ''
-    }${
-      message
-    }${
-      machine.state !== undefined
-        ? ` (at ${machine.state})`
-        : ''
-    }`);
-
-}
+import { parse }     from './jssm-dot';
+import { version }   from './version';    // replaced from package.js in build
+import { JssmError } from './jssm_error';
 
 
 
@@ -110,7 +75,7 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
       return 'both';
 
     default:
-      xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
+      throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
 
   }
 
@@ -152,7 +117,7 @@ function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
       return 'forced';
 
     default:
-      xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
+      throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
 
   }
 
@@ -194,7 +159,7 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
       return 'forced';
 
     default:
-      xthrow(this, `arrow_direction: unknown arrow type ${arrow}`);
+      throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
 
   }
 
@@ -226,13 +191,13 @@ function makeTransition<mDT>(
       main_path: kind === 'main'
     };
 
-  //  if ((wasList  !== undefined) && (wasIndex === undefined)) { xthrow(this, `Must have an index if transition was in a list"); }
-  //  if ((wasIndex !== undefined) && (wasList  === undefined)) { xthrow(this, `Must be in a list if transition has an index");   }
+  //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new JssmError(undefined, `Must have an index if transition was in a list"); }
+  //  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new JssmError(undefined, `Must be in a list if transition has an index");   }
   /*
     if (typeof edge.to === 'object') {
 
       if (edge.to.key === 'cycle') {
-        if (wasList === undefined) { xthrow(this, "Must have a waslist if a to is type cycle"); }
+        if (wasList === undefined) { throw new JssmError(undefined, "Must have a waslist if a to is type cycle"); }
         const nextIndex = wrapBy(wasIndex, edge.to.value, wasList.length);
         edge.to = wasList[nextIndex];
       }
@@ -317,7 +282,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
   }
 
   if (rule.key === 'state_declaration') {
-    if (!rule.name) { xthrow(this, 'State declarations must have a name'); }
+    if (!rule.name) { throw new JssmError(undefined, 'State declarations must have a name'); }
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
 
@@ -337,7 +302,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     return { agg_as: rule.key, val: rule.value };
   }
 
-  xthrow(this, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
+  throw new JssmError(undefined, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
 
 }
 
@@ -420,7 +385,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   oneOnlyKeys.map((oneOnlyKey: string) => {
     if (results[oneOnlyKey].length > 1) {
-      xthrow(this,
+      throw new JssmError(undefined,
         `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`
       );
     } else {
@@ -470,7 +435,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'background-color' : state_decl.backgroundColor = d.value; break;
       case 'border-color'     : state_decl.borderColor     = d.value; break;
 
-      default: xthrow(this, `Unknown state property: '${JSON.stringify(d)}'`);
+      default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
 
     }
 
@@ -487,26 +452,26 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 class Machine<mDT> {
 
 
-  _state: StateType;
-  _states: Map<StateType, JssmGenericState>;
-  _edges: Array<JssmTransition<mDT>>;
-  _edge_map: Map<StateType, Map<StateType, number>>;
-  _named_transitions: Map<StateType, number>;
-  _actions: Map<StateType, Map<StateType, number>>;
-  _reverse_actions: Map<StateType, Map<StateType, number>>;
-  _reverse_action_targets: Map<StateType, Map<StateType, number>>;
+  _state                  : StateType;
+  _states                 : Map<StateType, JssmGenericState>;
+  _edges                  : Array<JssmTransition<mDT>>;
+  _edge_map               : Map<StateType, Map<StateType, number>>;
+  _named_transitions      : Map<StateType, number>;
+  _actions                : Map<StateType, Map<StateType, number>>;
+  _reverse_actions        : Map<StateType, Map<StateType, number>>;
+  _reverse_action_targets : Map<StateType, Map<StateType, number>>;
 
-  _machine_author?: Array<string>;
-  _machine_comment?: string;
-  _machine_contributor?: Array<string>;
-  _machine_definition?: string;
-  _machine_language?: string;
-  _machine_license?: string;
-  _machine_name?: string;
-  _machine_version?: string;
-  _fsl_version?: string;
-  _raw_state_declaration?: Array<Object>;
-  _state_declarations: Map<StateType, JssmStateDeclaration>;
+  _machine_author?        : Array<string>;
+  _machine_comment?       : string;
+  _machine_contributor?   : Array<string>;
+  _machine_definition?    : string;
+  _machine_language?      : string;
+  _machine_license?       : string;
+  _machine_name?          : string;
+  _machine_version?       : string;
+  _fsl_version?           : string;
+  _raw_state_declaration? : Array<Object>;
+  _state_declarations     : Map<StateType, JssmStateDeclaration>;
 
   _instance_name : string;
 
@@ -556,38 +521,38 @@ class Machine<mDT> {
     machine_version,
     state_declaration,
     fsl_version,
-    dot_preamble = undefined,
-    arrange_declaration = [],
+    dot_preamble              = undefined,
+    arrange_declaration       = [],
     arrange_start_declaration = [],
-    arrange_end_declaration = [],
-    theme = 'default',
-    flow = 'down',
-    graph_layout = 'dot',
+    arrange_end_declaration   = [],
+    theme                     = 'default',
+    flow                      = 'down',
+    graph_layout              = 'dot',
     instance_name
   }: JssmGenericConfig<mDT>) {
 
     this._instance_name = instance_name;
 
-    this._state = start_states[0];
-    this._states = new Map();
-    this._state_declarations = new Map();
-    this._edges = [];
-    this._edge_map = new Map();
-    this._named_transitions = new Map();
-    this._actions = new Map();
-    this._reverse_actions = new Map();
+    this._state                  = start_states[0];
+    this._states                 = new Map();
+    this._state_declarations     = new Map();
+    this._edges                  = [];
+    this._edge_map               = new Map();
+    this._named_transitions      = new Map();
+    this._actions                = new Map();
+    this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();   // todo
 
-    this._machine_author = array_box_if_string(machine_author);
-    this._machine_comment = machine_comment;
-    this._machine_contributor = array_box_if_string(machine_contributor);
-    this._machine_definition = machine_definition;
-    this._machine_language = machine_language;
-    this._machine_license = machine_license;
-    this._machine_name = machine_name;
-    this._machine_version = machine_version;
+    this._machine_author        = array_box_if_string(machine_author);
+    this._machine_comment       = machine_comment;
+    this._machine_contributor   = array_box_if_string(machine_contributor);
+    this._machine_definition    = machine_definition;
+    this._machine_language      = machine_language;
+    this._machine_license       = machine_license;
+    this._machine_name          = machine_name;
+    this._machine_version       = machine_version;
     this._raw_state_declaration = state_declaration || [];
-    this._fsl_version = fsl_version;
+    this._fsl_version           = fsl_version;
 
     this._arrange_declaration       = arrange_declaration;
     this._arrange_start_declaration = arrange_start_declaration;
@@ -624,7 +589,7 @@ class Machine<mDT> {
       state_declaration.map((state_decl: JssmStateDeclaration) => {
 
         if (this._state_declarations.has(state_decl.state)) { // no repeats
-          xthrow(this, `Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
+          throw new JssmError(this, `Added the same state declaration twice: ${JSON.stringify(state_decl.state)}`);
         }
 
         this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
@@ -635,8 +600,8 @@ class Machine<mDT> {
 
     transitions.map((tr: JssmTransition<mDT>) => {
 
-      if (tr.from === undefined) { xthrow(this, `transition must define 'from': ${JSON.stringify(tr)}`); }
-      if (tr.to === undefined) { xthrow(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
+      if ( tr.from === undefined ) { throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`); }
+      if ( tr.to === undefined )   { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
       const cursor_from: JssmGenericState
@@ -657,7 +622,7 @@ class Machine<mDT> {
 
       // guard against existing connections being re-added
       if (cursor_from.to.includes(tr.to)) {
-        xthrow(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
+        throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
       } else {
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
@@ -670,7 +635,7 @@ class Machine<mDT> {
       // guard against repeating a transition name
       if (tr.name) {
         if (this._named_transitions.has(tr.name)) {
-          xthrow(this, `named transition "${JSON.stringify(tr.name)}" already created`);
+          throw new JssmError(this, `named transition "${JSON.stringify(tr.name)}" already created`);
         } else {
           this._named_transitions.set(tr.name, thisEdgeId);
         }
@@ -697,7 +662,7 @@ class Machine<mDT> {
         }
 
         if (actionMap.has(tr.from)) {
-          xthrow(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
+          throw new JssmError(this, `action ${JSON.stringify(tr.action)} already attached to origin ${JSON.stringify(tr.from)}`);
         } else {
           actionMap.set(tr.from, thisEdgeId);
         }
@@ -725,12 +690,12 @@ class Machine<mDT> {
                 const roActionMap = this._reverse_action_targets.get(tr.to);  // wasteful - already did has - refactor
                 if (roActionMap) {
                   if (roActionMap.has(tr.action)) {
-                    xthrow(this, `ro-action ${tr.to} already attached to action ${tr.action}`);
+                    throw new JssmError(this, `ro-action ${tr.to} already attached to action ${tr.action}`);
                   } else {
                     roActionMap.set(tr.action, thisEdgeId);
                   }
                 } else {
-                  xthrow(this, `should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
+                  throw new JssmError(this, `should be impossible - flow doesn\'t know .set precedes .get yet again.  severe error?');
                 }
         */
       }
@@ -742,7 +707,7 @@ class Machine<mDT> {
   _new_state(state_config: JssmGenericState): StateType {
 
     if (this._states.has(state_config.name)) {
-      xthrow(this, `state ${JSON.stringify(state_config.name)} already exists`);
+      throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
     }
 
     this._states.set(state_config.name, state_config);
@@ -837,16 +802,18 @@ class Machine<mDT> {
   machine_state(): JssmMachineInternalState<mDT> {
 
     return {
-      internal_state_impl_version: 1,
 
-      actions: this._actions,
-      edge_map: this._edge_map,
-      edges: this._edges,
-      named_transitions: this._named_transitions,
-      reverse_actions: this._reverse_actions,
-      //    reverse_action_targets : this._reverse_action_targets,
-      state: this._state,
-      states: this._states
+      internal_state_impl_version : 1,
+
+      actions                     : this._actions,
+      edge_map                    : this._edge_map,
+      edges                       : this._edges,
+      named_transitions           : this._named_transitions,
+      reverse_actions             : this._reverse_actions,
+      // reverse_action_targets : this._reverse_action_targets,
+      state                       : this._state,
+      states                      : this._states
+
     };
 
   }
@@ -865,7 +832,7 @@ class Machine<mDT> {
   state_for(whichState: StateType): JssmGenericState {
     const state: JssmGenericState = this._states.get(whichState);
     if (state) { return state; }
-    else { xthrow(this, `no such state ${JSON.stringify(state)}`); }
+    else { throw new JssmError(this, 'No such state', { requested_state: whichState }); }
   }
 
   has_state(whichState: StateType): boolean {
@@ -940,7 +907,7 @@ class Machine<mDT> {
   probable_exits_for(whichState: StateType): Array<JssmTransition<mDT>> {
 
     const wstate: JssmGenericState = this._states.get(whichState);
-    if (!(wstate)) { xthrow(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
+    if (!(wstate)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
     const wstate_to: Array<StateType> = wstate.to,
 
@@ -977,13 +944,13 @@ class Machine<mDT> {
   actions(whichState: StateType = this.state()): Array<StateType> {
     const wstate: Map<StateType, number> = this._reverse_actions.get(whichState);
     if (wstate) { return Array.from(wstate.keys()); }
-    else { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
+    else { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
   }
 
   list_states_having_action(whichState: StateType): Array<StateType> {
     const wstate: Map<StateType, number> = this._actions.get(whichState);
     if (wstate) { return Array.from(wstate.keys()); }
-    else { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
+    else { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
   }
 
   // comeback
@@ -997,7 +964,7 @@ class Machine<mDT> {
   */
   list_exit_actions(whichState: StateType = this.state()): Array<StateType> { // these are mNT, not ?mNT
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (!(ra_base)) { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
+    if (!(ra_base)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
 
     return Array.from(ra_base.values())
       .map((edgeId: number): JssmTransition<mDT> => this._edges[edgeId])
@@ -1007,7 +974,7 @@ class Machine<mDT> {
 
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (!(ra_base)) { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
+    if (!(ra_base)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
 
     return Array.from(ra_base.values())
       .map((edgeId: number): JssmTransition<mDT> => this._edges[edgeId])
@@ -1023,7 +990,7 @@ class Machine<mDT> {
 
   // TODO FIXME test that is_unenterable on non-state throws
   is_unenterable(whichState: StateType): boolean {
-    if (!(this.has_state(whichState))) { xthrow(this, `No such state ${whichState}`); }
+    if (!(this.has_state(whichState))) { throw new JssmError(this, `No such state ${whichState}`); }
     return this.list_entrances(whichState).length === 0;
   }
 
@@ -1039,7 +1006,7 @@ class Machine<mDT> {
 
   // TODO FIXME test that state_is_terminal on non-state throws
   state_is_terminal(whichState: StateType): boolean {
-    if (!(this.has_state(whichState))) { xthrow(this, `No such state ${whichState}`); }
+    if (!(this.has_state(whichState))) { throw new JssmError(this, `No such state ${whichState}`); }
     return this.list_exits(whichState).length === 0;
   }
 
@@ -1056,7 +1023,7 @@ class Machine<mDT> {
   state_is_complete(whichState: StateType): boolean {
     const wstate: JssmGenericState = this._states.get(whichState);
     if (wstate) { return wstate.complete; }
-    else { xthrow(this, `No such state ${JSON.stringify(whichState)}`); }
+    else { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
   }
 
   has_completes(): boolean {
@@ -1130,7 +1097,7 @@ class Machine<mDT> {
         break;
 
       default:
-        xthrow(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+        throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
 
     }
   }
@@ -1238,7 +1205,7 @@ class Machine<mDT> {
 
 
   // remove_hook(HookDesc: HookDescription) {
-  //   xthrow(this, 'TODO: Should remove hook here');
+  //   throw new JssmError(this, 'TODO: Should remove hook here');
   // }
 
 
@@ -1444,7 +1411,7 @@ class Machine<mDT> {
 
   current_action_edge_for(action: StateType): JssmTransition<mDT> {
     const idx: number = this.current_action_for(action);
-    if ((idx === undefined) || (idx === null)) { xthrow(this, `No such action ${JSON.stringify(action)}`); }
+    if ((idx === undefined) || (idx === null)) { throw new JssmError(this, `No such action ${JSON.stringify(action)}`); }
     return this._edges[idx];
   }
 
