@@ -386,6 +386,14 @@ type HookDescription
 
 
 
+type JssmErrorExtendedInfo = {
+  requested_state? : StateType | undefined
+};
+
+
+
+
+
 export {
 
   JssmColor,
@@ -420,6 +428,8 @@ export {
   JssmParseFunctionType,
 
   JssmMachineInternalState,
+
+  JssmErrorExtendedInfo,
 
   FslDirection,
     FslTheme,
