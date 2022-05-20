@@ -51,8 +51,22 @@ jobs:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./coverage/spec/lcov.info
 
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Verify the version was bumped
+      run: |
+        npm install && npm run benny
+
   verify-version-bump:
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -72,7 +86,7 @@ jobs:
 
   release:
     if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
-    needs: verify-version-bump
+    needs: [build, verify-version-bump]
     runs-on: ubuntu-latest
 
     steps:
