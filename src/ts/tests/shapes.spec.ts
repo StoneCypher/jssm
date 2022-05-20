@@ -1,7 +1,17 @@
 
-import { Shapes } from './constants.spec';
+import * as jssm from '../jssm';
+const sm = jssm.sm;
 
-import { sm } from '../jssm';
+
+
+
+
+describe('Shapes list length', () => {
+
+  test('Shapes list is gviz shapes plus nothing in length', () =>
+    expect(jssm.shapes.length).toBe(jssm.gviz_shapes.length) )
+
+});
 
 
 
@@ -9,7 +19,7 @@ import { sm } from '../jssm';
 
 describe('GraphViz Shapes', () => {
 
-  Shapes.map(shape => {
+  jssm.shapes.map(shape => {
 
     let mach = undefined;
 
@@ -25,6 +35,28 @@ describe('GraphViz Shapes', () => {
     expect( () => {
       const _foo = sm`state c: { shape: thisIsNotAShapeSoItShouldThrow; }; a -> b;`;
     }).toThrow() );
+
+});
+
+
+
+
+
+describe('Named colors', () => {
+
+  jssm.named_colors.map(color =>
+
+    test(`Color "${color}" parses as a color`, () =>
+      expect( () => { const mach = sm`state b: { background-color: ${color}; }; a -> b;`; }).not.toThrow() )
+
+  );
+
+  jssm.named_colors.map(color =>
+
+    test(`Color "${color.toLowerCase()}" (${color} lowercased) parses as a color`, () =>
+      expect( () => { const mach = sm`state b: { background-color: ${color.toLowerCase()}; }; a -> b;`; }).not.toThrow() )
+
+  );
 
 });
 
