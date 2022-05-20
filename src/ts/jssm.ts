@@ -37,7 +37,7 @@ import {
 
 
 
-import { shapes, gviz_shapes } from './jssm_constants';
+import { shapes, gviz_shapes, named_colors } from './jssm_constants';
 
 
 
@@ -1534,6 +1534,7 @@ export {
   weighted_histo_key,
 
   shapes,
-  gviz_shapes
+  gviz_shapes,
+  named_colors
 
 };

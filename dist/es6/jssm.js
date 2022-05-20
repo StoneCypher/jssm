@@ -1,7 +1,7 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, hook_name, named_hook_name } from './jssm_util';
-import { shapes, gviz_shapes } from './jssm_constants';
+import { shapes, gviz_shapes, named_colors } from './jssm_constants';
 import { parse } from './jssm-dot';
 import { version } from './version'; // replaced from package.js in build
 import { JssmError } from './jssm_error';
@@ -1041,4 +1041,4 @@ function from(MachineAsString, ExtraConstructorFields) {
 }
 export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
-seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes };
+seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors };
