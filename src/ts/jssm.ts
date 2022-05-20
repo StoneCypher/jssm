@@ -37,6 +37,12 @@ import {
 
 
 
+import { shapes, gviz_shapes } from './jssm_constants';
+
+
+
+
+
 import { parse }     from './jssm-dot';
 import { version }   from './version';    // replaced from package.js in build
 import { JssmError } from './jssm_error';
@@ -422,7 +428,7 @@ function make<mDT>(plan: string): JssmGenericConfig<mDT> {
 
 function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration {
 
-  state_decl.declarations.map((d: JssmStateDeclarationRule) => {
+  state_decl.declarations.map( (d: JssmStateDeclarationRule) => {
 
     switch (d.key) {
 
@@ -439,7 +445,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
     }
 
-  });
+  } );
 
   return state_decl;
 
@@ -508,6 +514,7 @@ class Machine<mDT> {
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
+
     start_states,
     complete = [],
     transitions,
@@ -529,6 +536,7 @@ class Machine<mDT> {
     flow                      = 'down',
     graph_layout              = 'dot',
     instance_name
+
   }: JssmGenericConfig<mDT>) {
 
     this._instance_name = instance_name;
@@ -1523,6 +1531,9 @@ export {
   weighted_rand_select,
   histograph,
   weighted_sample_select,
-  weighted_histo_key
+  weighted_histo_key,
+
+  shapes,
+  gviz_shapes
 
 };

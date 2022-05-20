@@ -4,6 +4,7 @@
 
 /* We make an exception for arr_uniq_p() from util */
 
+import * as jssm      from '../jssm';
 import { arr_uniq_p } from '../jssm_util';
 
 
@@ -14,17 +15,7 @@ import { arr_uniq_p } from '../jssm_util';
 
 test.todo('These constants should be derived from the source and compared');
 
-const Shapes = ["box", "polygon", "ellipse", "oval", "circle", "point", "egg", "triangle", "plaintext", "plain",
-  "diamond", "trapezium", "parallelogram", "house", "pentagon", "hexagon", "septagon", "octagon", "doublecircle",
-  "doubleoctagon", "tripleoctagon", "invtriangle", "invtrapezium", "invhouse", "Mdiamond", "Msquare", "Mcircle", "rect",
-  "rectangle", "square", "star", "none", "underline", "cylinder", "note", "tab", "folder", "box3d", "component",
-  "promoter", "cds", "terminator", "utr", "primersite", "restrictionsite", "fivepoverhang", "threepoverhang",
-  "noverhang", "assembly", "signature", "insulator", "ribosite", "rnastab", "proteasesite", "proteinstab", "rpromoter",
-  "rarrow", "larrow", "lpromoter", "record"];
-
-
-
-
+const Shapes = jssm.shapes;
 
 const NamedColors = ["AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige", "Bisque", "Black",
   "BlanchedAlmond", "Blue", "BlueViolet", "Brown", "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral",
