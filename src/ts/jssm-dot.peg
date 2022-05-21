@@ -1,4 +1,13 @@
 
+// If you're in PegJS Online and see "Missing initializer in const declaration,"
+// go down to the rule Exp and take the typescript type off of the const there
+//
+// Can't take it out permanently because it's necessary for the typescript chain
+
+
+
+
+
 Document
   = WS? e:TermList WS? { return e; }
 
@@ -590,7 +599,9 @@ Subexp
     WS? label    : ArrowTarget
     WS? tail     : Subexp? {
 
-      const base: any = {kind: arrow, to: label};
+      // Reminder: remove this type and the one in Exp if you want to work in pegjs online
+      // TODO: properly type this
+      const base: any = { kind: arrow, to: label };
 
       if (tail && (tail !== [])) { base.se            = tail;         }
       if (l_desc)                { base.l_desc        = l_desc;       }
@@ -610,6 +621,8 @@ Subexp
 
 Exp
   = label:ArrowTarget se:Subexp WS? ';' WS? {
+    // Reminder: remove this type and the one in subexp if you want to work in pegjs online
+    // TODO: properly type this
     const base: any = { key: 'transition', from: label };
     if (se && (se !== [])) { base.se = se; }
     return base;
@@ -898,6 +911,45 @@ NamedList
 
 
 
+MachinePropertyDefaultNull
+  = 'null'
+
+MachinePropertyDefaultUndefined
+  = 'undefined'
+
+MachinePropertyDefaultBoolean
+  = 'true'
+  / 'false'
+
+MachinePropertyDefaultNumber
+  = '-'? IntegerLiteral "." DecimalDigit* WS? { return parseFloat( text() ); }
+  / '-'? IntegerLiteral                   WS? { return parseFloat( text() ); }
+  / 'Infinity'
+  / 'NegInfinity'
+  / 'NaN'
+  / 'MaxSafeInt'
+  / 'MinSafeInt'
+
+// MachinePropertyDefaultString
+//   = '"' '"'
+
+MachinePropertyDefault
+  = MachinePropertyDefaultNull
+  / MachinePropertyDefaultUndefined
+  / MachinePropertyDefaultBoolean
+  / MachinePropertyDefaultNumber
+//   / MachinePropertyDefaultString
+//   / MachinePropertyDefaultArray
+//   / MachinePropertyDefaultObject
+
+MachineProperty
+  = WS? "property" WS? name:Label WS? 'default' WS default_value:MachinePropertyDefault WS? ";" WS? { return { key:'property_definition', name, default_value }; }
+  / WS? "property" WS? name:Label WS?                                                       ";" WS? { return { key:'property_definition', name };          }
+
+
+
+
+
 RegularArrangeDeclaration
   = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_declaration', value }; }
 
@@ -922,6 +974,7 @@ Term
   / ArrangeDeclaration
   / NamedList
   / MachineAttribute
+  / MachineProperty
   / Config
 
 TermList
