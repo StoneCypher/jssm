@@ -6,6 +6,18 @@ import { parse } from './jssm-dot';
 import { version } from './version'; // replaced from package.js in build
 import { JssmError } from './jssm_error';
 /* eslint-disable complexity */
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_direction } from './jssm';
+ *
+ *  arrow_direction('->');    // 'right'
+ *  arrow_direction('<~=>');  // 'both'
+ *  ```
+ *
+ */
 function arrow_direction(arrow) {
     switch (String(arrow)) {
         case '->':
@@ -59,6 +71,21 @@ function arrow_direction(arrow) {
 }
 /* eslint-enable complexity */
 /* eslint-disable complexity */
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from './jssm';
+ *
+ *  arrow_left_kind('<-');    // 'legal'
+ *  arrow_left_kind('<=');    // 'main'
+ *  arrow_left_kind('<~');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('->');    // 'none'
+ *  ```
+ *
+ */
 function arrow_left_kind(arrow) {
     switch (String(arrow)) {
         case '->':
@@ -101,6 +128,21 @@ function arrow_left_kind(arrow) {
 }
 /* eslint-enable complexity */
 /* eslint-disable complexity */
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from './jssm';
+ *
+ *  arrow_left_kind('->');    // 'legal'
+ *  arrow_left_kind('=>');    // 'main'
+ *  arrow_left_kind('~>');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('<-');    // 'none'
+ *  ```
+ *
+ */
 function arrow_right_kind(arrow) {
     switch (String(arrow)) {
         case '<-':
@@ -142,6 +184,12 @@ function arrow_right_kind(arrow) {
     }
 }
 /* eslint-enable complexity */
+/*********
+ *
+ *  Internal method meant to perform factory assembly of an edge.  Not meant for
+ *  external use.
+ *
+ */
 function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
     const kind = isRight ? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind), edge = {
         from,
@@ -172,6 +220,12 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
     }
     return edge;
 }
+/*********
+ *
+ *  Internal convenience method for alting out an object as the options call.
+ *  Not generally meant for external use.
+ *
+ */
 function wrap_parse(input, options) {
     return parse(input, options || {});
 }
