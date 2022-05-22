@@ -213,6 +213,11 @@ declare class Machine<mDT> {
     _forced_transition_hook: HookHandler | undefined;
     _any_transition_hook: HookHandler | undefined;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name }: JssmGenericConfig<mDT>);
+    /********
+     *
+     *  Internal method for fabricating states.  Not meant for external use.
+     *
+     */
     _new_state(state_config: JssmGenericState): StateType;
     /*********
      *
@@ -230,7 +235,38 @@ declare class Machine<mDT> {
      *
      */
     state(): StateType;
+    /********
+     *
+     *  Check whether a given state is final (either has no exits or is marked
+     *  `complete`.)
+     *
+     *  ```typescript
+     *  import { sm, state_is_final } from './jssm';
+     *
+     *  const final_test = sm`first -> second;`;
+     *
+     *  console.log( final_test.state_is_final('first') );   // false
+     *  console.log( final_test.state_is_final('second') );  // true
+     *  ```
+     *
+     */
     state_is_final(whichState: StateType): boolean;
+    /********
+     *
+     *  Check whether the current state is final (either has no exits or is marked
+     *  `complete`.)
+     *
+     *  ```typescript
+     *  import { sm, state_is_final } from './jssm';
+     *
+     *  const final_test = sm`first -> second;`;
+     *
+     *  console.log( final_test.is_final() );   // false
+     *  state.transition('second');
+     *  console.log( final_test.is_final() );   // true
+     *  ```
+     *
+     */
     is_final(): boolean;
     graph_layout(): string;
     dot_preamble(): string;

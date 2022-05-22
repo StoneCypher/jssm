@@ -903,6 +903,16 @@ class Machine<mDT> {
 
   }
 
+
+
+
+
+  /********
+   *
+   *  Internal method for fabricating states.  Not meant for external use.
+   *
+   */
+
   _new_state(state_config: JssmGenericState): StateType {
 
     if (this._states.has(state_config.name)) {
@@ -947,14 +957,57 @@ class Machine<mDT> {
   */
 
 
+
+
+  /********
+   *
+   *  Check whether a given state is final (either has no exits or is marked
+   *  `complete`.)
+   *
+   *  ```typescript
+   *  import { sm, state_is_final } from './jssm';
+   *
+   *  const final_test = sm`first -> second;`;
+   *
+   *  console.log( final_test.state_is_final('first') );   // false
+   *  console.log( final_test.state_is_final('second') );  // true
+   *  ```
+   *
+   */
+
   state_is_final(whichState: StateType): boolean {
     return ((this.state_is_terminal(whichState)) && (this.state_is_complete(whichState)));
   }
+
+
+
+
+
+  /********
+   *
+   *  Check whether the current state is final (either has no exits or is marked
+   *  `complete`.)
+   *
+   *  ```typescript
+   *  import { sm, state_is_final } from './jssm';
+   *
+   *  const final_test = sm`first -> second;`;
+   *
+   *  console.log( final_test.is_final() );   // false
+   *  state.transition('second');
+   *  console.log( final_test.is_final() );   // true
+   *  ```
+   *
+   */
 
   is_final(): boolean {
     //  return ((!this.is_changing()) && this.state_is_final(this.state()));
     return this.state_is_final(this.state());
   }
+
+
+
+
 
   graph_layout(): string {
     return this._graph_layout;
