@@ -318,28 +318,30 @@ declare class Machine<mDT> {
      *  Lists all edges of a machine.
      *
      *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
      *
-     * lswitch.list_edges();
-     * [
-     *   {
-     *     from: 'on',
-     *     to: 'off',
-     *     kind: 'main',
-     *     forced_only: false,
-     *     main_path: true,
-     *     action: 'toggle'
-     *   },
-     *   {
-     *     from: 'off',
-     *     to: 'on',
-     *     kind: 'main',
-     *     forced_only: false,
-     *     main_path: true,
-     *     action: 'toggle'
-     *   }
-     * ]
-     * ```
+     *  lswitch.list_edges();
+     *  [
+     *    {
+     *      from: 'on',
+     *      to: 'off',
+     *      kind: 'main',
+     *      forced_only: false,
+     *      main_path: true,
+     *      action: 'toggle'
+     *    },
+     *    {
+     *      from: 'off',
+     *      to: 'on',
+     *      kind: 'main',
+     *      forced_only: false,
+     *      main_path: true,
+     *      action: 'toggle'
+     *    }
+     *  ]
+     *  ```
      *
      */
     list_edges(): Array<JssmTransition<mDT>>;
@@ -355,11 +357,14 @@ declare class Machine<mDT> {
      *  exit.  The order of each sublist is not defined.  A node could appear in
      *  both lists.
      *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
      *
      *  light.state();               // 'red'
      *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
+     *  ```
      *
      */
     list_transitions(whichState?: StateType): JssmTransitionList;
@@ -368,11 +373,14 @@ declare class Machine<mDT> {
      *  List all entrances attached to the current state.  Please note that the
      *  order of the list is not defined.
      *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
      *
      *  light.state();               // 'red'
      *  light.list_entrances();      // [ 'yellow', 'off' ]
+     *  ```
      *
      */
     list_entrances(whichState?: StateType): Array<StateType>;
@@ -381,11 +389,14 @@ declare class Machine<mDT> {
      *  List all exits attached to the current state.  Please note that the order
      *  of the list is not defined.
      *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
      *
      *  light.state();               // 'red'
      *  light.list_exits();          // [ 'green', 'off' ]
+     *  ```
      *
      */
     list_exits(whichState?: StateType): Array<StateType>;
@@ -466,8 +477,50 @@ declare class Machine<mDT> {
     hook_exit(from: string, handler: HookHandler): Machine<mDT>;
     edges_between(from: string, to: string): JssmTransition<mDT>[];
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    /********
+     *
+     *  Instruct the machine to complete an action.
+     *
+     *  ```typescript
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.action('next');        // true
+     *  light.state();               // 'green'
+     *  ```
+     *
+     */
     action(actionName: StateType, newData?: mDT): boolean;
+    /********
+     *
+     *  Instruct the machine to complete a transition.
+     *
+     *  ```typescript
+     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.transition('green');   // true
+     *  light.state();               // 'green'
+     *  ```
+     *
+     */
     transition(newState: StateType, newData?: mDT): boolean;
+    /********
+     *
+     *  Instruct the machine to complete a forced transition (which will reject if
+     *  called with a normal {@link transition} call.)
+     *
+     *  ```typescript
+     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();                     // 'red'
+     *  light.transition('off');           // false
+     *  light.state();                     // 'red'
+     *  light.force_transition('off');     // true
+     *  light.state();                     // 'off'
+     *  ```
+     *
+     */
     force_transition(newState: StateType, newData?: mDT): boolean;
     current_action_for(action: StateType): number;
     current_action_edge_for(action: StateType): JssmTransition<mDT>;
