@@ -1,3 +1,9 @@
+/*******
+ *
+ *  Predicate for validating an array for uniqueness.  Not generally meant for
+ *  external use.
+ *
+ */
 function arr_uniq_p(el, i, source) {
     return source.indexOf(el) === i;
 }
@@ -17,8 +23,41 @@ const weighted_rand_select = (options, probability_property = 'probability') => 
     return options[cursor - 1];
 };
 /* eslint-enable flowtype/no-weak-types */
-const seq = (n) => (new Array(n)).fill(true)
-    .map((_, i) => i);
+/*******
+ *
+ *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
+ *
+ *  ```typescript
+ *  import { seq } from './jssm';
+ *
+ *  seq(5);  // [0, 1, 2, 3, 4]
+ *  seq(0);  // []
+ *  ```
+ *
+ */
+function seq(n) {
+    if (!(Number.isInteger(n))) {
+        throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+    }
+    if (n < 0) {
+        throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+    }
+    return (new Array(n))
+        .fill(true)
+        .map((_, i) => i);
+}
+/*******
+ *
+ *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
+ *  with deep equality; will fail for complex contents, as such.
+ *
+ *  ```typescript
+ *  import { histograph } from './jssm';
+ *
+ *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
+ *  ```
+ *
+ */
 const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
  ar.sort()
     .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
@@ -31,6 +70,18 @@ const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any
  histograph(weighted_sample_select(n, opts, prob_prop)
     .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
 ));
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 const hook_name = (from, to) => JSON.stringify([from, to]);
+/*******
+ *
+ *  Internal method generating names for actions for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
 export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name };
