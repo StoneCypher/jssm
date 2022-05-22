@@ -1,0 +1,5 @@
+
+:root { --color-background: #def; }
+
+body .tsd-page-title   { background-color: #bdf; }
+body .tsd-page-toolbar { background-color: #acf; border-bottom-color: #9be; }

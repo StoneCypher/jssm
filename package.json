@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.65.7",
+  "version": "5.65.8",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -52,7 +52,7 @@
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/",
-    "docs": "typedoc src/ts/jssm.ts --out docs/docs",
+    "docs": "typedoc src/ts/jssm.ts --out docs/docs --customCss ./src/site/typedoc-addon.css",
     "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md"
   },
   "repository": {
