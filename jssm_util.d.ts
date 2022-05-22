@@ -1,7 +1,31 @@
 declare function arr_uniq_p<T>(el: T, i: number, source: T[]): boolean;
 declare const array_box_if_string: (n: any) => any;
 declare const weighted_rand_select: Function;
-declare const seq: Function;
+/*******
+ *
+ *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
+ *
+ *  ```typescript
+ *  import { seq } from './jssm';
+ *
+ *  seq(5);  // [0, 1, 2, 3, 4]
+ *  seq(0);  // []
+ *  ```
+ *
+ */
+declare function seq(n: number): number[];
+/*******
+ *
+ *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
+ *  with deep equality; will fail for complex contents, as such.
+ *
+ *  ```typescript
+ *  import { histograph } from './jssm';
+ *
+ *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
+ *  ```
+ *
+ */
 declare const histograph: Function;
 declare const weighted_sample_select: Function;
 declare const weighted_histo_key: Function;

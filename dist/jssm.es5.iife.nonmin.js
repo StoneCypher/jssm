@@ -885,8 +885,41 @@ var jssm = (function (exports) {
       return options[cursor - 1];
   };
   /* eslint-enable flowtype/no-weak-types */
-  const seq = (n) => (new Array(n)).fill(true)
-      .map((_, i) => i);
+  /*******
+   *
+   *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
+   *
+   *  ```typescript
+   *  import { seq } from './jssm';
+   *
+   *  seq(5);  // [0, 1, 2, 3, 4]
+   *  seq(0);  // []
+   *  ```
+   *
+   */
+  function seq(n) {
+      if (!(Number.isInteger(n))) {
+          throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+      }
+      if (n < 0) {
+          throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+      }
+      return (new Array(n))
+          .fill(true)
+          .map((_, i) => i);
+  }
+  /*******
+   *
+   *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
+   *  with deep equality; will fail for complex contents, as such.
+   *
+   *  ```typescript
+   *  import { histograph } from './jssm';
+   *
+   *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
+   *  ```
+   *
+   */
   const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
    ar.sort()
       .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences

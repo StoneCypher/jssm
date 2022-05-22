@@ -46,16 +46,53 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
 
 
 
-const seq: Function = (n: number): Array<number> =>
+/*******
+ *
+ *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
+ *
+ *  ```typescript
+ *  import { seq } from './jssm';
+ *
+ *  seq(5);  // [0, 1, 2, 3, 4]
+ *  seq(0);  // []
+ *  ```
+ *
+ */
 
-    (new Array(n)).fill(true)
-                  .map( (_, i): number => i );
+function seq(n: number): number[] {
+
+  if (!(Number.isInteger(n))) {
+    throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+  }
+
+  if (n < 0) {
+    throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+  }
+
+  return (new Array(n))
+           .fill(true)
+           .map( (_, i): number => i );
+
+}
 
 
 
 
 
-const histograph: Function = (ar : Array<any>): Map<any, number> => // eslint-disable-line flowtype/no-weak-types
+/*******
+ *
+ *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
+ *  with deep equality; will fail for complex contents, as such.
+ *
+ *  ```typescript
+ *  import { histograph } from './jssm';
+ *
+ *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
+ *  ```
+ *
+ */
+
+const histograph: Function = (ar : any[]): Map<any, number> => // eslint-disable-line flowtype/no-weak-types
 
     ar.sort()
       .reduce(
