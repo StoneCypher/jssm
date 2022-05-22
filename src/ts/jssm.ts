@@ -58,7 +58,7 @@ import { JssmError } from './jssm_error';
  *  Return the direction of an arrow - `right`, `left`, or `both`.
  *
  *  ```typescript
- *  import { arrow_direction } from './jssm';
+ *  import { arrow_direction } from 'jssm';
  *
  *  arrow_direction('->');    // 'right'
  *  arrow_direction('<~=>');  // 'both'
@@ -113,7 +113,7 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
  *  Return the direction of an arrow - `right`, `left`, or `both`.
  *
  *  ```typescript
- *  import { arrow_left_kind } from './jssm';
+ *  import { arrow_left_kind } from 'jssm';
  *
  *  arrow_left_kind('<-');    // 'legal'
  *  arrow_left_kind('<=');    // 'main'
@@ -171,7 +171,7 @@ function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
  *  Return the direction of an arrow - `right`, `left`, or `both`.
  *
  *  ```typescript
- *  import { arrow_left_kind } from './jssm';
+ *  import { arrow_left_kind } from 'jssm';
  *
  *  arrow_left_kind('->');    // 'legal'
  *  arrow_left_kind('=>');    // 'main'
@@ -287,7 +287,7 @@ function makeTransition<mDT>(
  *  probably also using {@link compile} and {@link Machine.constructor}.
  *
  *  ```typescript
- *  import { parse, compile, Machine } from './jssm';
+ *  import { parse, compile, Machine } from 'jssm';
  *
  *  const intermediate = wrap_parse('a -> b;', {});
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
@@ -312,7 +312,7 @@ function makeTransition<mDT>(
  *  Operator {@link sm}:
  *
  *  ```typescript
- *  import { sm } from './jssm';
+ *  import { sm } from 'jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
@@ -320,7 +320,7 @@ function makeTransition<mDT>(
  *  Method {@link from}:
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const toggle = jssm.from('up <=> down;');
  *  ```
@@ -451,7 +451,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
  *  {@link Machine.construct} to turn the config object into a workable machine.
  *
  *  ```typescript
- *  import { parse, compile, Machine } from './jssm';
+ *  import { parse, compile, Machine } from 'jssm';
  *
  *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
@@ -476,7 +476,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
  *  Operator {@link sm}:
  *
  *  ```typescript
- *  import { sm } from './jssm';
+ *  import { sm } from 'jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
@@ -484,7 +484,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
  *  Method {@link from}:
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const toggle = jssm.from('up <=> down;');
  *  ```
@@ -933,7 +933,7 @@ class Machine<mDT> {
    *  Get the current state of a machine.
    *
    *  ```typescript
-   *  import * as jssm from './jssm';
+   *  import * as jssm from 'jssm';
    *
    *  const switch = jssm.from('on <=> off;');
    *  console.log( switch.state() );             // 'on'
@@ -965,7 +965,7 @@ class Machine<mDT> {
    *  `complete`.)
    *
    *  ```typescript
-   *  import { sm, state_is_final } from './jssm';
+   *  import { sm, state_is_final } from 'jssm';
    *
    *  const final_test = sm`first -> second;`;
    *
@@ -989,7 +989,7 @@ class Machine<mDT> {
    *  `complete`.)
    *
    *  ```typescript
-   *  import { sm, state_is_final } from './jssm';
+   *  import { sm, state_is_final } from 'jssm';
    *
    *  const final_test = sm`first -> second;`;
    *
@@ -1104,7 +1104,7 @@ class Machine<mDT> {
    *  these states is not guaranteed.
    *
    *  ```typescript
-   *  import * as jssm from './jssm';
+   *  import * as jssm from 'jssm';
    *
    *  const switch = jssm.from('on <=> off;');
    *  console.log( switch.states() );             // ['on', 'off']
@@ -1135,10 +1135,10 @@ class Machine<mDT> {
    *  Check whether the machine knows a given state.
    *
    *  ```typescript
-   *  import * as jssm from './jssm';
+   *  import * as jssm from 'jssm';
    *
    *  const switch = jssm.from('on <=> off;');
-
+   *
    *  console.log( switch.has_state('off') );     // true
    *  console.log( switch.has_state('dance') );   // false
    *  ```
@@ -1251,17 +1251,88 @@ class Machine<mDT> {
 
 
 
+
+
+  /********
+   *
+   *  List all actions available from this state.  Please note that the order of
+   *  the actions is not guaranteed.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const machine = sm`
+   *    red 'next' -> green 'next' -> yellow 'next' -> red;
+   *    [red yellow green] 'shutdown' ~> off 'start' -> red;
+   *  `;
+   *
+   *  console.log( machine.state() );    // logs 'red'
+   *  console.log( machine.actions() );  // logs ['next', 'shutdown']
+   *
+   *  machine.action('next');            // true
+   *  console.log( machine.state() );    // logs 'green'
+   *  console.log( machine.actions() );  // logs ['next', 'shutdown']
+   *
+   *  machine.action('shutdown');        // true
+   *  console.log( machine.state() );    // logs 'off'
+   *  console.log( machine.actions() );  // logs ['start']
+   *
+   *  machine.action('start');           // true
+   *  console.log( machine.state() );    // logs 'red'
+   *  console.log( machine.actions() );  // logs ['next', 'shutdown']
+   *  ```
+   *
+   */
+
   actions(whichState: StateType = this.state()): Array<StateType> {
+
     const wstate: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (wstate) { return Array.from(wstate.keys()); }
-    else { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
+
+    if (wstate) {
+      return Array.from(wstate.keys());
+    } else {
+      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+    }
   }
 
+
+
+
+
+  /********
+   *
+   *  List all states that have a specific action attached.  Please note that
+   *  the order of the states is not guaranteed.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const machine = sm`
+   *    red 'next' -> green 'next' -> yellow 'next' -> red;
+   *    [red yellow green] 'shutdown' ~> off 'start' -> red;
+   *  `;
+   *
+   *  console.log( machine.list_states_having_action('next') );    // ['red', 'green', 'yellow']
+   *  console.log( machine.list_states_having_action('start') );   // ['off']
+   *  ```
+   *
+   */
+
   list_states_having_action(whichState: StateType): Array<StateType> {
+
     const wstate: Map<StateType, number> = this._actions.get(whichState);
-    if (wstate) { return Array.from(wstate.keys()); }
-    else { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
+
+    if (wstate) {
+      return Array.from(wstate.keys());
+    } else {
+      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+    }
+
   }
+
+
+
+
 
   // comeback
   /*
@@ -1272,15 +1343,25 @@ class Machine<mDT> {
              .map( filtered => filtered.from );
     }
   */
+
   list_exit_actions(whichState: StateType = this.state()): Array<StateType> { // these are mNT, not ?mNT
+
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (!(ra_base)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
+
+    if (!(ra_base)) {
+      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+    }
 
     return Array.from(ra_base.values())
       .map((edgeId: number): JssmTransition<mDT> => this._edges[edgeId])
       .filter((o: JssmTransition<mDT>): boolean => o.from === whichState)
       .map((filtered: JssmTransition<mDT>): StateType => filtered.action);
+
   }
+
+
+
+
 
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
@@ -1779,7 +1860,7 @@ class Machine<mDT> {
  *
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const switch = jssm.from('on <=> off;');
  *  ```
@@ -1821,7 +1902,7 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
  *  template expression.
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const switch = jssm.from('on <=> off;');
  *  ```

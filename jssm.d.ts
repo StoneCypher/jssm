@@ -9,7 +9,7 @@ import { version } from './version';
  *  Return the direction of an arrow - `right`, `left`, or `both`.
  *
  *  ```typescript
- *  import { arrow_direction } from './jssm';
+ *  import { arrow_direction } from 'jssm';
  *
  *  arrow_direction('->');    // 'right'
  *  arrow_direction('<~=>');  // 'both'
@@ -22,7 +22,7 @@ declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
  *  Return the direction of an arrow - `right`, `left`, or `both`.
  *
  *  ```typescript
- *  import { arrow_left_kind } from './jssm';
+ *  import { arrow_left_kind } from 'jssm';
  *
  *  arrow_left_kind('<-');    // 'legal'
  *  arrow_left_kind('<=');    // 'main'
@@ -38,7 +38,7 @@ declare function arrow_left_kind(arrow: JssmArrow): JssmArrowKind;
  *  Return the direction of an arrow - `right`, `left`, or `both`.
  *
  *  ```typescript
- *  import { arrow_left_kind } from './jssm';
+ *  import { arrow_left_kind } from 'jssm';
  *
  *  arrow_left_kind('->');    // 'legal'
  *  arrow_left_kind('=>');    // 'main'
@@ -60,7 +60,7 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  probably also using {@link compile} and {@link Machine.constructor}.
  *
  *  ```typescript
- *  import { parse, compile, Machine } from './jssm';
+ *  import { parse, compile, Machine } from 'jssm';
  *
  *  const intermediate = wrap_parse('a -> b;', {});
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
@@ -85,7 +85,7 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  Operator {@link sm}:
  *
  *  ```typescript
- *  import { sm } from './jssm';
+ *  import { sm } from 'jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
@@ -93,7 +93,7 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  Method {@link from}:
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const toggle = jssm.from('up <=> down;');
  *  ```
@@ -111,7 +111,7 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  {@link Machine.construct} to turn the config object into a workable machine.
  *
  *  ```typescript
- *  import { parse, compile, Machine } from './jssm';
+ *  import { parse, compile, Machine } from 'jssm';
  *
  *  const intermediate = parse('a -> b;');
  *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
@@ -136,7 +136,7 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  Operator {@link sm}:
  *
  *  ```typescript
- *  import { sm } from './jssm';
+ *  import { sm } from 'jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
@@ -144,7 +144,7 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  Method {@link from}:
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const toggle = jssm.from('up <=> down;');
  *  ```
@@ -224,7 +224,7 @@ declare class Machine<mDT> {
      *  Get the current state of a machine.
      *
      *  ```typescript
-     *  import * as jssm from './jssm';
+     *  import * as jssm from 'jssm';
      *
      *  const switch = jssm.from('on <=> off;');
      *  console.log( switch.state() );             // 'on'
@@ -241,7 +241,7 @@ declare class Machine<mDT> {
      *  `complete`.)
      *
      *  ```typescript
-     *  import { sm, state_is_final } from './jssm';
+     *  import { sm, state_is_final } from 'jssm';
      *
      *  const final_test = sm`first -> second;`;
      *
@@ -257,7 +257,7 @@ declare class Machine<mDT> {
      *  `complete`.)
      *
      *  ```typescript
-     *  import { sm, state_is_final } from './jssm';
+     *  import { sm, state_is_final } from 'jssm';
      *
      *  const final_test = sm`first -> second;`;
      *
@@ -289,7 +289,7 @@ declare class Machine<mDT> {
      *  these states is not guaranteed.
      *
      *  ```typescript
-     *  import * as jssm from './jssm';
+     *  import * as jssm from 'jssm';
      *
      *  const switch = jssm.from('on <=> off;');
      *  console.log( switch.states() );             // ['on', 'off']
@@ -303,10 +303,10 @@ declare class Machine<mDT> {
      *  Check whether the machine knows a given state.
      *
      *  ```typescript
-     *  import * as jssm from './jssm';
+     *  import * as jssm from 'jssm';
      *
      *  const switch = jssm.from('on <=> off;');
-  
+     *
      *  console.log( switch.has_state('off') );     // true
      *  console.log( switch.has_state('dance') );   // false
      *  ```
@@ -327,7 +327,55 @@ declare class Machine<mDT> {
     probabilistic_transition(): boolean;
     probabilistic_walk(n: number): Array<StateType>;
     probabilistic_histo_walk(n: number): Map<StateType, number>;
+    /********
+     *
+     *  List all actions available from this state.  Please note that the order of
+     *  the actions is not guaranteed.
+     *
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
+     *  const machine = sm`
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off 'start' -> red;
+     *  `;
+     *
+     *  console.log( machine.state() );    // logs 'red'
+     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
+     *
+     *  machine.action('next');            // true
+     *  console.log( machine.state() );    // logs 'green'
+     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
+     *
+     *  machine.action('shutdown');        // true
+     *  console.log( machine.state() );    // logs 'off'
+     *  console.log( machine.actions() );  // logs ['start']
+     *
+     *  machine.action('start');           // true
+     *  console.log( machine.state() );    // logs 'red'
+     *  console.log( machine.actions() );  // logs ['next', 'shutdown']
+     *  ```
+     *
+     */
     actions(whichState?: StateType): Array<StateType>;
+    /********
+     *
+     *  List all states that have a specific action attached.  Please note that
+     *  the order of the states is not guaranteed.
+     *
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
+     *  const machine = sm`
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off 'start' -> red;
+     *  `;
+     *
+     *  console.log( machine.list_states_having_action('next') );    // ['red', 'green', 'yellow']
+     *  console.log( machine.list_states_having_action('start') );   // ['off']
+     *  ```
+     *
+     */
     list_states_having_action(whichState: StateType): Array<StateType>;
     list_exit_actions(whichState?: StateType): Array<StateType>;
     probable_action_exits(whichState?: StateType): Array<any>;
@@ -374,7 +422,7 @@ declare class Machine<mDT> {
  *
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const switch = jssm.from('on <=> off;');
  *  ```
@@ -391,7 +439,7 @@ declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: a
  *  template expression.
  *
  *  ```typescript
- *  import * as jssm from './jssm';
+ *  import * as jssm from 'jssm';
  *
  *  const switch = jssm.from('on <=> off;');
  *  ```
