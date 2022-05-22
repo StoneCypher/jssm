@@ -309,13 +309,15 @@ function makeTransition<mDT>(
  *  operator `sm`, and mostly falls back to `.from` when needing to parse
  *  strings dynamically instead of from template literals.
  *
+ *  Operator {@link sm}:
+ *
  *  ```typescript
  *  import { sm } from './jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
  *
- *  &hellip; or &hellip;
+ *  Method {@link from}:
  *
  *  ```typescript
  *  import * as jssm from './jssm';
@@ -471,13 +473,15 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
  *  operator `sm`, and mostly falls back to `.from` when needing to parse
  *  strings dynamically instead of from template literals.
  *
+ *  Operator {@link sm}:
+ *
  *  ```typescript
  *  import { sm } from './jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
  *
- *  &hellip; or &hellip;
+ *  Method {@link from}:
  *
  *  ```typescript
  *  import * as jssm from './jssm';
@@ -1653,6 +1657,24 @@ class Machine<mDT> {
 
 
 
+/*********
+ *
+ *  Create a state machine from a template string.  This is one of the two main
+ *  paths for working with JSSM, alongside {@link from}.
+ *
+ *  Use this method when you want to work directly and conveniently with a
+ *  constant template expression.  Use `.from` when you want to pull from
+ *  dynamic strings.
+ *
+ *
+ *  ```typescript
+ *  import * as jssm from './jssm';
+ *
+ *  const switch = jssm.from('on <=> off;');
+ *  ```
+ *
+ */
+
 function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
 
   // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
@@ -1677,6 +1699,23 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
 
 
 
+
+/*********
+ *
+ *  Create a state machine from an implementation string.  This is one of the
+ *  two main paths for working with JSSM, alongside {@link sm}.
+ *
+ *  Use this method when you want to conveniently pull a state machine from a
+ *  string dynamically.  Use operator `sm` when you just want to work with a
+ *  template expression.
+ *
+ *  ```typescript
+ *  import * as jssm from './jssm';
+ *
+ *  const switch = jssm.from('on <=> off;');
+ *  ```
+ *
+ */
 
 function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<mDT> > | undefined): Machine<mDT> {
 

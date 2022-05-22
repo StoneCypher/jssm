@@ -253,13 +253,15 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
  *  operator `sm`, and mostly falls back to `.from` when needing to parse
  *  strings dynamically instead of from template literals.
  *
+ *  Operator {@link sm}:
+ *
  *  ```typescript
  *  import { sm } from './jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
  *
- *  &hellip; or &hellip;
+ *  Method {@link from}:
  *
  *  ```typescript
  *  import * as jssm from './jssm';
@@ -376,13 +378,15 @@ function compile_rule_handler(rule) {
  *  operator `sm`, and mostly falls back to `.from` when needing to parse
  *  strings dynamically instead of from template literals.
  *
+ *  Operator {@link sm}:
+ *
  *  ```typescript
  *  import { sm } from './jssm';
  *
  *  const switch = sm`on <=> off;`;
  *  ```
  *
- *  &hellip; or &hellip;
+ *  Method {@link from}:
  *
  *  ```typescript
  *  import * as jssm from './jssm';
@@ -1195,6 +1199,23 @@ class Machine {
         return sm(template_strings, ...remainder);
     }
 }
+/*********
+ *
+ *  Create a state machine from a template string.  This is one of the two main
+ *  paths for working with JSSM, alongside {@link from}.
+ *
+ *  Use this method when you want to work directly and conveniently with a
+ *  constant template expression.  Use `.from` when you want to pull from
+ *  dynamic strings.
+ *
+ *
+ *  ```typescript
+ *  import * as jssm from './jssm';
+ *
+ *  const switch = jssm.from('on <=> off;');
+ *  ```
+ *
+ */
 function sm(template_strings, ...remainder /* , arguments */) {
     // foo`a${1}b${2}c` will come in as (['a','b','c'],1,2)
     // this includes when a and c are empty strings
@@ -1208,6 +1229,22 @@ function sm(template_strings, ...remainder /* , arguments */) {
     /* eslint-enable  prefer-rest-params */
     )));
 }
+/*********
+ *
+ *  Create a state machine from an implementation string.  This is one of the
+ *  two main paths for working with JSSM, alongside {@link sm}.
+ *
+ *  Use this method when you want to conveniently pull a state machine from a
+ *  string dynamically.  Use operator `sm` when you just want to work with a
+ *  template expression.
+ *
+ *  ```typescript
+ *  import * as jssm from './jssm';
+ *
+ *  const switch = jssm.from('on <=> off;');
+ *  ```
+ *
+ */
 function from(MachineAsString, ExtraConstructorFields) {
     const to_decorate = make(MachineAsString);
     if (ExtraConstructorFields !== undefined) {
