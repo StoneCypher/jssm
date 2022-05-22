@@ -1151,6 +1151,38 @@ class Machine<mDT> {
 
 
 
+
+
+  /*********
+   *
+   *  Lists all edges of a machine.
+   *
+   *  ```typescript
+   *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+   *
+   * lswitch.list_edges();
+   * [
+   *   {
+   *     from: 'on',
+   *     to: 'off',
+   *     kind: 'main',
+   *     forced_only: false,
+   *     main_path: true,
+   *     action: 'toggle'
+   *   },
+   *   {
+   *     from: 'off',
+   *     to: 'on',
+   *     kind: 'main',
+   *     forced_only: false,
+   *     main_path: true,
+   *     action: 'toggle'
+   *   }
+   * ]
+   * ```
+   *
+   */
+
   list_edges(): Array<JssmTransition<mDT>> {
     return this._edges;
   }
@@ -1196,9 +1228,42 @@ class Machine<mDT> {
 
 
 
+
+
+  /********
+   *
+   *  List all transitions attached to the current state, sorted by entrance and
+   *  exit.  The order of each sublist is not defined.  A node could appear in
+   *  both lists.
+   *
+   *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *
+   *  light.state();               // 'red'
+   *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
+   *
+   */
+
   list_transitions(whichState: StateType = this.state()): JssmTransitionList {
     return { entrances: this.list_entrances(whichState), exits: this.list_exits(whichState) };
   }
+
+
+
+
+
+  /********
+   *
+   *  List all entrances attached to the current state.  Please note that the
+   *  order of the list is not defined.
+   *
+   *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *
+   *  light.state();               // 'red'
+   *  light.list_entrances();      // [ 'yellow', 'off' ]
+   *
+   */
 
   list_entrances(whichState: StateType = this.state()): Array<StateType> {
     return (this._states.get(whichState)
@@ -1206,11 +1271,30 @@ class Machine<mDT> {
       || [];
   }
 
+
+
+
+
+  /********
+   *
+   *  List all exits attached to the current state.  Please note that the order
+   *  of the list is not defined.
+   *
+   *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *
+   *  light.state();               // 'red'
+   *  light.list_exits();          // [ 'green', 'off' ]
+   *
+   */
+
   list_exits(whichState: StateType = this.state()): Array<StateType> {
     return (this._states.get(whichState)
       || { to: undefined }).to
       || [];
   }
+
+
 
 
 
