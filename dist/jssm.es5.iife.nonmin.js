@@ -932,7 +932,19 @@ var jssm = (function (exports) {
    histograph(weighted_sample_select(n, opts, prob_prop)
       .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
   ));
+  /*******
+   *
+   *  Internal method generating names for edges for the hook lookup map.  Not
+   *  meant for external use.
+   *
+   */
   const hook_name = (from, to) => JSON.stringify([from, to]);
+  /*******
+   *
+   *  Internal method generating names for actions for the hook lookup map.  Not
+   *  meant for external use.
+   *
+   */
   const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
 
   const gviz_shapes = [

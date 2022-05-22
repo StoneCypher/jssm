@@ -129,6 +129,13 @@ const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: st
 
 
 
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
+
 const hook_name = (from: string, to: string): string =>
 
   JSON.stringify([from, to]);
@@ -136,6 +143,13 @@ const hook_name = (from: string, to: string): string =>
 
 
 
+
+/*******
+ *
+ *  Internal method generating names for actions for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 
 const named_hook_name = (from: string, to: string, action: string): string =>
 

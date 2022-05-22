@@ -29,6 +29,18 @@ declare function seq(n: number): number[];
 declare const histograph: Function;
 declare const weighted_sample_select: Function;
 declare const weighted_histo_key: Function;
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 declare const hook_name: (from: string, to: string) => string;
+/*******
+ *
+ *  Internal method generating names for actions for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 declare const named_hook_name: (from: string, to: string, action: string) => string;
 export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name };
