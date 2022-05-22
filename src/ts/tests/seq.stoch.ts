@@ -81,3 +81,32 @@ describe('seq/1 over wrong sizes', () => {
   });
 
 });
+
+
+
+
+
+describe('seq/1 over wrong arguments', () => {
+
+  test(`Non-integer sizes must throw`, () => {
+
+     fc.assert(
+       fc.property(fc.nat(), Size => {
+         const useSize = Number.isInteger(Size)? Size + 0.5 : Size;
+         expect( () => jssm.seq(useSize) ).toThrow()
+       } )
+     );
+
+  });
+
+  test(`Negative sizes must throw`, () => {
+
+     fc.assert(
+       fc.property(fc.integer(-1 * rand_cap, -1), Size => {
+         expect( () => jssm.seq(Size) ).toThrow()
+       } )
+     );
+
+  });
+
+});
