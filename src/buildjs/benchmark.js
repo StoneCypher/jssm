@@ -11,7 +11,7 @@ const Tl4 = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`
 
 function TransitionCycleTL500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4.transition('green');
     Tl4.transition('yellow');
     Tl4.transition('red');
@@ -27,7 +27,7 @@ const Tl4A = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow 
 
 function ActionCycleTL500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4A.action('next');
     Tl4A.action('next');
     Tl4A.action('next');
@@ -44,7 +44,7 @@ Tl4WH.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
 
 function TransitionCycleTLWithHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4WH.transition('green');
     Tl4WH.transition('yellow');
     Tl4WH.transition('red');
@@ -61,7 +61,7 @@ Tl4WAHA.set_hook({ from: 'red', to: 'green', name: 'foo', handler: () => true, k
 
 function TransitionCycleTLWithNamedHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4WAHA.transition('green');
     Tl4WAHA.transition('yellow');
     Tl4WAHA.transition('red');
@@ -78,7 +78,7 @@ Tl4AT.set_hook({ handler: () => true, kind: 'any transition' });
 
 function TransitionCycleTLWithAnyTransitionHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4AT.transition('green');
     Tl4AT.transition('yellow');
     Tl4AT.transition('red');
@@ -95,7 +95,7 @@ Tl4EX.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
 
 function TransitionCycleTLWithExitHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4EX.transition('green');
     Tl4EX.transition('yellow');
     Tl4EX.transition('red');
@@ -112,7 +112,7 @@ Tl4EN.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
 
 function TransitionCycleTLWithEnterHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4EN.transition('green');
     Tl4EN.transition('yellow');
     Tl4EN.transition('red');
@@ -129,7 +129,7 @@ Tl4ST.set_hook({ handler: () => true, to: 'red', kind: 'standard transition' });
 
 function TransitionCycleTLWithSTHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4ST.transition('green');
     Tl4ST.transition('yellow');
     Tl4ST.transition('red');
@@ -146,7 +146,7 @@ Tl4MT.set_hook({ handler: () => true, to: 'red', kind: 'main transition' });
 
 function TransitionCycleTLWithMTHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4MT.transition('green');
     Tl4MT.transition('yellow');
     Tl4MT.transition('red');
@@ -163,7 +163,7 @@ Tl4FT.set_hook({ handler: () => true, to: 'red', kind: 'forced transition' });
 
 function TransitionCycleTLWithFTHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4FT.transition('green');
     Tl4FT.transition('yellow');
     Tl4FT.transition('red');
@@ -179,7 +179,7 @@ const Tl4WA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow
 
 function ActionCycleTL500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4WA.action('next');  // to green
     Tl4WA.action('next');  // to yellow
     Tl4WA.action('next');  // to red
@@ -197,7 +197,7 @@ Tl4WAWH.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' }
 
 function ActionCycleTLWithHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4WAWH.action('next');  // to green
     Tl4WAWH.action('next');  // to yellow
     Tl4WAWH.action('next');  // to red
@@ -215,7 +215,7 @@ Tl4WAWHA.set_hook({ from: 'red', to: 'green', name: 'next', handler: () => true,
 
 function ActionCycleTLWithNamedHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4WAWHA.action('next');  // to green
     Tl4WAWHA.action('next');  // to yellow
     Tl4WAWHA.action('next');  // to red
@@ -233,7 +233,7 @@ Tl4AA.set_hook({ handler: () => true, kind: 'any action' });
 
 function AnyActionCycleTLWithNamedHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4AA.action('next');  // to green
     Tl4AA.action('next');  // to yellow
     Tl4AA.action('next');  // to red
@@ -251,7 +251,7 @@ Tl4TAA.set_hook({ handler: () => true, kind: 'any transition' });
 
 function ActionCycleTLWithAnyTransitionHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4TAA.action('next');  // to green
     Tl4TAA.action('next');  // to yellow
     Tl4TAA.action('next');  // to red
@@ -268,7 +268,7 @@ Tl4EXA.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
 
 function ActionCycleTLWithExitHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4EXA.action('next');  // to green
     Tl4EXA.action('next');  // to yellow
     Tl4EXA.action('next');  // to red
@@ -285,7 +285,7 @@ Tl4ENA.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
 
 function ActionCycleTLWithEnterHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4ENA.action('next');  // to green
     Tl4ENA.action('next');  // to yellow
     Tl4ENA.action('next');  // to red
@@ -302,7 +302,7 @@ Tl4STA.set_hook({ handler: () => true, kind: 'standard transition' });
 
 function ActionCycleTLWithSTHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4STA.action('next');  // to green
     Tl4STA.action('next');  // to yellow
     Tl4STA.action('next');  // to red
@@ -320,7 +320,7 @@ Tl4MTA.set_hook({ handler: () => true, kind: 'main transition' });
 
 function ActionCycleTLWithMTHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4MTA.action('next');  // to green
     Tl4MTA.action('next');  // to yellow
     Tl4MTA.action('next');  // to red
@@ -338,7 +338,7 @@ Tl4FTA.set_hook({ handler: () => true, kind: 'forced transition' });
 
 function ActionCycleTLWithFTHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4FTA.action('next');  // to green
     Tl4FTA.action('next');  // to yellow
     Tl4FTA.action('next');  // to red
@@ -356,7 +356,7 @@ Tl4GA.set_hook({ handler: () => true, kind: 'global action' });
 
 function GlobalActionCycleTLWithNamedHooks500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4GA.action('next');  // to green
     Tl4GA.action('next');  // to yellow
     Tl4GA.action('next');  // to red
@@ -389,7 +389,7 @@ Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'forced transition' });
 
 function KitchenSink500Times() {
 
-  for (let i=0; i<500; ++i) {
+  for (let i=0; i<100; ++i) {
     Tl4GA.transition('green');
     Tl4GA.action('next');           // to yellow
     Tl4GA.force_transition('red');

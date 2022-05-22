@@ -16783,7 +16783,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.65.10";
+const version = "5.65.11";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -17628,6 +17628,35 @@ class Machine {
     has_state(whichState) {
         return this._states.get(whichState) !== undefined;
     }
+    /*********
+     *
+     *  Lists all edges of a machine.
+     *
+     *  ```typescript
+     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *
+     * lswitch.list_edges();
+     * [
+     *   {
+     *     from: 'on',
+     *     to: 'off',
+     *     kind: 'main',
+     *     forced_only: false,
+     *     main_path: true,
+     *     action: 'toggle'
+     *   },
+     *   {
+     *     from: 'off',
+     *     to: 'on',
+     *     kind: 'main',
+     *     forced_only: false,
+     *     main_path: true,
+     *     action: 'toggle'
+     *   }
+     * ]
+     * ```
+     *
+     */
     list_edges() {
         return this._edges;
     }
@@ -17656,14 +17685,51 @@ class Machine {
         const id = this.get_transition_by_state_names(from, to);
         return ((id === undefined) || (id === null)) ? undefined : this._edges[id];
     }
+    /********
+     *
+     *  List all transitions attached to the current state, sorted by entrance and
+     *  exit.  The order of each sublist is not defined.  A node could appear in
+     *  both lists.
+     *
+     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
+     *
+     */
     list_transitions(whichState = this.state()) {
         return { entrances: this.list_entrances(whichState), exits: this.list_exits(whichState) };
     }
+    /********
+     *
+     *  List all entrances attached to the current state.  Please note that the
+     *  order of the list is not defined.
+     *
+     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.list_entrances();      // [ 'yellow', 'off' ]
+     *
+     */
     list_entrances(whichState = this.state()) {
         return (this._states.get(whichState)
             || { from: undefined }).from
             || [];
     }
+    /********
+     *
+     *  List all exits attached to the current state.  Please note that the order
+     *  of the list is not defined.
+     *
+     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.list_exits();          // [ 'green', 'off' ]
+     *
+     */
     list_exits(whichState = this.state()) {
         return (this._states.get(whichState)
             || { to: undefined }).to
