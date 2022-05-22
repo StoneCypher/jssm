@@ -79,6 +79,26 @@ describe('Stochastic weather', () => {
 
 
 
+describe('Arrow direction', () => {
+
+  test('arrow_direction reads left correctly', () =>
+    expect(jssm.arrow_direction('<-'))
+      .toBe('left') );
+
+  test('arrow_direction reads right correctly', () =>
+    expect(jssm.arrow_direction('->'))
+      .toBe('right') );
+
+  test('arrow_direction reads both correctly', () =>
+    expect(jssm.arrow_direction('<->'))
+      .toBe('both') );
+
+});
+
+
+
+
+
 describe('list exit actions', () => {
 
   const machine = new jssm.Machine({

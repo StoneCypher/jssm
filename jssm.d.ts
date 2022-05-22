@@ -4,9 +4,57 @@ JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmAr
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import { shapes, gviz_shapes, named_colors } from './jssm_constants';
 import { version } from './version';
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_direction } from './jssm';
+ *
+ *  arrow_direction('->');    // 'right'
+ *  arrow_direction('<~=>');  // 'both'
+ *  ```
+ *
+ */
 declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from './jssm';
+ *
+ *  arrow_left_kind('<-');    // 'legal'
+ *  arrow_left_kind('<=');    // 'main'
+ *  arrow_left_kind('<~');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('->');    // 'none'
+ *  ```
+ *
+ */
 declare function arrow_left_kind(arrow: JssmArrow): JssmArrowKind;
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from './jssm';
+ *
+ *  arrow_left_kind('->');    // 'legal'
+ *  arrow_left_kind('=>');    // 'main'
+ *  arrow_left_kind('~>');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('<-');    // 'none'
+ *  ```
+ *
+ */
 declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
+/*********
+ *
+ *  Internal convenience method for alting out an object as the options call.
+ *  Not generally meant for external use.
+ *
+ */
 declare function wrap_parse(input: string, options?: Object): any;
 declare function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT>;
 declare function make<mDT>(plan: string): JssmGenericConfig<mDT>;

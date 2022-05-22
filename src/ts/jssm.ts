@@ -53,6 +53,19 @@ import { JssmError } from './jssm_error';
 
 /* eslint-disable complexity */
 
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_direction } from './jssm';
+ *
+ *  arrow_direction('->');    // 'right'
+ *  arrow_direction('<~=>');  // 'both'
+ *  ```
+ *
+ */
+
 function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
   switch (String(arrow)) {
@@ -94,6 +107,22 @@ function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
 
 
 /* eslint-disable complexity */
+
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from './jssm';
+ *
+ *  arrow_left_kind('<-');    // 'legal'
+ *  arrow_left_kind('<=');    // 'main'
+ *  arrow_left_kind('<~');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('->');    // 'none'
+ *  ```
+ *
+ */
 
 function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
 
@@ -137,6 +166,22 @@ function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
 
 /* eslint-disable complexity */
 
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from './jssm';
+ *
+ *  arrow_left_kind('->');    // 'legal'
+ *  arrow_left_kind('=>');    // 'main'
+ *  arrow_left_kind('~>');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('<-');    // 'none'
+ *  ```
+ *
+ */
+
 function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
   switch (String(arrow)) {
@@ -176,6 +221,13 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
 
 
+
+/*********
+ *
+ *  Internal method meant to perform factory assembly of an edge.  Not meant for
+ *  external use.
+ *
+ */
 
 function makeTransition<mDT>(
 
@@ -223,6 +275,13 @@ function makeTransition<mDT>(
 
 
 
+
+/*********
+ *
+ *  Internal convenience method for alting out an object as the options call.
+ *  Not generally meant for external use.
+ *
+ */
 
 function wrap_parse(input: string, options?: Object) {
   return parse(input, options || {});
