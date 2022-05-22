@@ -214,6 +214,21 @@ declare class Machine<mDT> {
     _any_transition_hook: HookHandler | undefined;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name }: JssmGenericConfig<mDT>);
     _new_state(state_config: JssmGenericState): StateType;
+    /*********
+     *
+     *  Get the current state of a machine.
+     *
+     *  ```typescript
+     *  import * as jssm from './jssm';
+     *
+     *  const switch = jssm.from('on <=> off;');
+     *  console.log( switch.state() );             // 'on'
+     *
+     *  switch.transition('off');
+     *  console.log( switch.state() );             // 'off'
+     *  ```
+     *
+     */
     state(): StateType;
     state_is_final(whichState: StateType): boolean;
     is_final(): boolean;
@@ -232,8 +247,35 @@ declare class Machine<mDT> {
     state_declarations(): Map<StateType, JssmStateDeclaration>;
     fsl_version(): string;
     machine_state(): JssmMachineInternalState<mDT>;
+    /*********
+     *
+     *  List all the states known by the machine.  Please note that the order of
+     *  these states is not guaranteed.
+     *
+     *  ```typescript
+     *  import * as jssm from './jssm';
+     *
+     *  const switch = jssm.from('on <=> off;');
+     *  console.log( switch.states() );             // ['on', 'off']
+     *  ```
+     *
+     */
     states(): Array<StateType>;
     state_for(whichState: StateType): JssmGenericState;
+    /*********
+     *
+     *  Check whether the machine knows a given state.
+     *
+     *  ```typescript
+     *  import * as jssm from './jssm';
+     *
+     *  const switch = jssm.from('on <=> off;');
+  
+     *  console.log( switch.has_state('off') );     // true
+     *  console.log( switch.has_state('dance') );   // false
+     *  ```
+     *
+     */
     has_state(whichState: StateType): boolean;
     list_edges(): Array<JssmTransition<mDT>>;
     list_named_transitions(): Map<StateType, number>;

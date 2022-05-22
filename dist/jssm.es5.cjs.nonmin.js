@@ -16783,7 +16783,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.65.5";
+const version = "5.65.7";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -17458,6 +17458,21 @@ class Machine {
         this._states.set(state_config.name, state_config);
         return state_config.name;
     }
+    /*********
+     *
+     *  Get the current state of a machine.
+     *
+     *  ```typescript
+     *  import * as jssm from './jssm';
+     *
+     *  const switch = jssm.from('on <=> off;');
+     *  console.log( switch.state() );             // 'on'
+     *
+     *  switch.transition('off');
+     *  console.log( switch.state() );             // 'off'
+     *  ```
+     *
+     */
     state() {
         return this._state;
     }
@@ -17535,6 +17550,19 @@ class Machine {
         return false; // todo whargarbl
       }
     */
+    /*********
+     *
+     *  List all the states known by the machine.  Please note that the order of
+     *  these states is not guaranteed.
+     *
+     *  ```typescript
+     *  import * as jssm from './jssm';
+     *
+     *  const switch = jssm.from('on <=> off;');
+     *  console.log( switch.states() );             // ['on', 'off']
+     *  ```
+     *
+     */
     states() {
         return Array.from(this._states.keys());
     }
@@ -17547,6 +17575,20 @@ class Machine {
             throw new JssmError(this, 'No such state', { requested_state: whichState });
         }
     }
+    /*********
+     *
+     *  Check whether the machine knows a given state.
+     *
+     *  ```typescript
+     *  import * as jssm from './jssm';
+     *
+     *  const switch = jssm.from('on <=> off;');
+  
+     *  console.log( switch.has_state('off') );     // true
+     *  console.log( switch.has_state('dance') );   // false
+     *  ```
+     *
+     */
     has_state(whichState) {
         return this._states.get(whichState) !== undefined;
     }
