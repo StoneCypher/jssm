@@ -643,6 +643,11 @@ class Machine {
             }
         });
     }
+    /********
+     *
+     *  Internal method for fabricating states.  Not meant for external use.
+     *
+     */
     _new_state(state_config) {
         if (this._states.has(state_config.name)) {
             throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
@@ -675,9 +680,40 @@ class Machine {
         return true; // todo whargarbl
       }
     */
+    /********
+     *
+     *  Check whether a given state is final (either has no exits or is marked
+     *  `complete`.)
+     *
+     *  ```typescript
+     *  import { sm, state_is_final } from './jssm';
+     *
+     *  const final_test = sm`first -> second;`;
+     *
+     *  console.log( final_test.state_is_final('first') );   // false
+     *  console.log( final_test.state_is_final('second') );  // true
+     *  ```
+     *
+     */
     state_is_final(whichState) {
         return ((this.state_is_terminal(whichState)) && (this.state_is_complete(whichState)));
     }
+    /********
+     *
+     *  Check whether the current state is final (either has no exits or is marked
+     *  `complete`.)
+     *
+     *  ```typescript
+     *  import { sm, state_is_final } from './jssm';
+     *
+     *  const final_test = sm`first -> second;`;
+     *
+     *  console.log( final_test.is_final() );   // false
+     *  state.transition('second');
+     *  console.log( final_test.is_final() );   // true
+     *  ```
+     *
+     */
     is_final() {
         //  return ((!this.is_changing()) && this.state_is_final(this.state()));
         return this.state_is_final(this.state());
