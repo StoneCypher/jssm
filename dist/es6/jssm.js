@@ -222,13 +222,64 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
 }
 /*********
  *
- *  Internal convenience method for alting out an object as the options call.
- *  Not generally meant for external use.
+ *  This method wraps the parser call that comes from the peg grammar,
+ *  {@link parse}.  Generally neither this nor that should be used directly
+ *  unless you mean to develop plugins or extensions for the machine.
+ *
+ *  Parses the intermediate representation of a compiled string down to a
+ *  machine configuration object.  If you're using this (probably don't,) you're
+ *  probably also using {@link compile} and {@link Machine.constructor}.
+ *
+ *  ```typescript
+ *  import { parse, compile, Machine } from './jssm';
+ *
+ *  const intermediate = wrap_parse('a -> b;', {});
+ *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
+ *
+ *  const cfg = compile(intermediate);
+ *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
+ *
+ *  const machine = new Machine(cfg);
+ *  // Machine { _instance_name: undefined, _state: 'a', ...
+ *  ```
+ *
+ *  This method is mostly for plugin and intermediate tool authors, or people
+ *  who need to work with the machine's intermediate representation.
+ *
+ *  # Hey!
+ *
+ *  Most people looking at this want either the `sm` operator or method `from`,
+ *  which perform all the steps in the chain.  The library's author mostly uses
+ *  operator `sm`, and mostly falls back to `.from` when needing to parse
+ *  strings dynamically instead of from template literals.
+ *
+ *  ```typescript
+ *  import { sm } from './jssm';
+ *
+ *  const switch = sm`on <=> off;`;
+ *  ```
+ *
+ *  &hellip; or &hellip;
+ *
+ *  ```typescript
+ *  import * as jssm from './jssm';
+ *
+ *  const toggle = jssm.from('up <=> down;');
+ *  ```
+ *
+ *  `wrap_parse` itself is an internal convenience method for alting out an
+ *  object as the options call.  Not generally meant for external use.
  *
  */
 function wrap_parse(input, options) {
     return parse(input, options || {});
 }
+/*********
+ *
+ *  Internal method performing one step in compiling rules for transitions.  Not
+ *  generally meant for external use.
+ *
+ */
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
     const edges = [];
     const uFrom = (Array.isArray(from) ? from : [from]), uTo = (Array.isArray(to) ? to : [to]);
@@ -252,9 +303,21 @@ function compile_rule_transition_step(acc, from, to, this_se, next_se) {
         return new_acc;
     }
 }
+/*********
+ *
+ *  Internal method performing one step in compiling rules for transitions.  Not
+ *  generally meant for external use.
+ *
+ */
 function compile_rule_handle_transition(rule) {
     return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
 }
+/*********
+ *
+ *  Internal method performing one step in compiling rules for transitions.  Not
+ *  generally meant for external use.
+ *
+ */
 function compile_rule_handler(rule) {
     if (rule.key === 'transition') {
         return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
@@ -283,6 +346,51 @@ function compile_rule_handler(rule) {
     }
     throw new JssmError(undefined, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
 }
+/*********
+ *
+ *  Compile a machine's JSON intermediate representation to a config object.  If
+ *  you're using this (probably don't,) you're probably also using
+ *  {@link parse} to get the IR, and the object constructor
+ *  {@link Machine.construct} to turn the config object into a workable machine.
+ *
+ *  ```typescript
+ *  import { parse, compile, Machine } from './jssm';
+ *
+ *  const intermediate = parse('a -> b;');
+ *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
+ *
+ *  const cfg = compile(intermediate);
+ *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
+ *
+ *  const machine = new Machine(cfg);
+ *  // Machine { _instance_name: undefined, _state: 'a', ...
+ *  ```
+ *
+ *  This method is mostly for plugin and intermediate tool authors, or people
+ *  who need to work with the machine's intermediate representation.
+ *
+ *  # Hey!
+ *
+ *  Most people looking at this want either the `sm` operator or method `from`,
+ *  which perform all the steps in the chain.  The library's author mostly uses
+ *  operator `sm`, and mostly falls back to `.from` when needing to parse
+ *  strings dynamically instead of from template literals.
+ *
+ *  ```typescript
+ *  import { sm } from './jssm';
+ *
+ *  const switch = sm`on <=> off;`;
+ *  ```
+ *
+ *  &hellip; or &hellip;
+ *
+ *  ```typescript
+ *  import * as jssm from './jssm';
+ *
+ *  const toggle = jssm.from('up <=> down;');
+ *  ```
+ *
+ */
 function compile(tree) {
     const results = {
         graph_layout: [],
@@ -340,9 +448,23 @@ function compile(tree) {
     });
     return result_cfg;
 }
+/*********
+ *
+ *  An internal convenience wrapper for parsing then compiling a machine string.
+ *  Not generally meant for external use.  Please see {@link compile} or
+ *  {@link sm}.
+ *
+ */
 function make(plan) {
     return compile(wrap_parse(plan));
 }
+/*********
+ *
+ *  An internal method meant to take a series of declarations and fold them into
+ *  a single multi-faceted declaration, in the process of building a state.  Not
+ *  generally meant for external use.
+ *
+ */
 function transfer_state_properties(state_decl) {
     state_decl.declarations.map((d) => {
         switch (d.key) {
