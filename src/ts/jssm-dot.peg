@@ -930,15 +930,30 @@ MachinePropertyDefaultNumber
   / 'MaxSafeInt'
   / 'MinSafeInt'
 
-// MachinePropertyDefaultString
-//   = '"' '"'
+MachinePropertyDefaultString
+  = '"' chars:MachinePropertyDefaultStringCharacter* '"' { return chars.join(''); }
+
+MachinePropertyDefaultStringCharacter
+  = !('"' / "\\") char:.                                     { return char;     }
+  / "\\" sequence:MachinePropertyDefaultStringEscapeSequence { return sequence; }
+
+MachinePropertyDefaultStringEscapeSequence
+  = "'"
+  / '"'
+  / "\\"
+  / "b"  { return "\b";   }
+  / "f"  { return "\f";   }
+  / "n"  { return "\n";   }
+  / "r"  { return "\r";   }
+  / "t"  { return "\t";   }
+  / "v"  { return "\x0B"; }
 
 MachinePropertyDefault
   = MachinePropertyDefaultNull
   / MachinePropertyDefaultUndefined
   / MachinePropertyDefaultBoolean
   / MachinePropertyDefaultNumber
-//   / MachinePropertyDefaultString
+  / MachinePropertyDefaultString
 //   / MachinePropertyDefaultArray
 //   / MachinePropertyDefaultObject
 
