@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.65.1",
+  "version": "5.65.2",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -45,6 +45,7 @@
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.js",
     "build": "npm run vet && npm run test && npm run site && npm run docs && npm run benny",
+    "buildnb": "npm run vet && npm run test && npm run site && npm run docs",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",

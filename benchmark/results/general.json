@@ -1,133 +1,133 @@
 {
   "name": "General performance suite",
-  "date": "2022-05-22T13:32:36.119Z",
+  "date": "2022-05-22T13:39:09.814Z",
   "version": "1.2.0",
   "results": [
     {
       "name": "Blind cycle a traffic light 500 times by transition",
-      "ops": 5206,
-      "margin": 2.65,
-      "percentSlower": 92.37
+      "ops": 4737,
+      "margin": 9.49,
+      "percentSlower": 92.98
     },
     {
       "name": "Blind cycle a traffic light 500 times by action",
-      "ops": 11787,
-      "margin": 2.57,
-      "percentSlower": 82.72
+      "ops": 11565,
+      "margin": 6.71,
+      "percentSlower": 82.86
     },
     {
       "name": "Blind cycle a basic-hooked traffic light 500 times by transition",
-      "ops": 1324,
-      "margin": 0.94,
-      "percentSlower": 98.06
+      "ops": 1315,
+      "margin": 4.44,
+      "percentSlower": 98.05
     },
     {
       "name": "Blind cycle a named-hooked traffic light 500 times by transition",
-      "ops": 6257,
-      "margin": 0.89,
-      "percentSlower": 90.83
+      "ops": 6401,
+      "margin": 1.25,
+      "percentSlower": 90.52
     },
     {
       "name": "Blind cycle an any-transition traffic light 500 times by transition",
       "ops": 5912,
-      "margin": 1.67,
-      "percentSlower": 91.33
+      "margin": 2.31,
+      "percentSlower": 91.24
     },
     {
       "name": "Blind cycle an exit hooked traffic light 500 times by transition",
-      "ops": 5822,
-      "margin": 1.88,
-      "percentSlower": 91.47
+      "ops": 5838,
+      "margin": 1.11,
+      "percentSlower": 91.35
     },
     {
       "name": "Blind cycle an enter hooked traffic light 500 times by transition",
-      "ops": 5795,
-      "margin": 1.36,
-      "percentSlower": 91.51
+      "ops": 5810,
+      "margin": 1.33,
+      "percentSlower": 91.39
     },
     {
       "name": "Blind cycle a standard-transition hooked light by transition",
-      "ops": 5330,
-      "margin": 8.25,
-      "percentSlower": 92.19
+      "ops": 6112,
+      "margin": 0.57,
+      "percentSlower": 90.94
     },
     {
       "name": "Blind cycle a main-transition hooked light by transition",
-      "ops": 5864,
-      "margin": 1.51,
-      "percentSlower": 91.41
+      "ops": 5183,
+      "margin": 9.28,
+      "percentSlower": 92.32
     },
     {
       "name": "Blind cycle a force-transition hooked light by transition",
-      "ops": 28846,
-      "margin": 2.52,
-      "percentSlower": 57.72
+      "ops": 21664,
+      "margin": 3.17,
+      "percentSlower": 67.9
     },
     {
       "name": "Blind cycle a traffic light 500 times by action",
-      "ops": 13446,
-      "margin": 2.46,
-      "percentSlower": 80.29
+      "ops": 13037,
+      "margin": 3.54,
+      "percentSlower": 80.68
     },
     {
       "name": "Blind cycle a basic-hooked traffic light 500 times by action",
-      "ops": 1532,
-      "margin": 2.08,
-      "percentSlower": 97.75
+      "ops": 1558,
+      "margin": 1.63,
+      "percentSlower": 97.69
     },
     {
       "name": "Blind cycle a named-hooked traffic light 500 times by action",
-      "ops": 1354,
-      "margin": 2.13,
-      "percentSlower": 98.02
+      "ops": 1357,
+      "margin": 0.97,
+      "percentSlower": 97.99
     },
     {
       "name": "Blind cycle an any-action traffic light 500 times by action",
-      "ops": 10155,
-      "margin": 2.26,
-      "percentSlower": 85.12
+      "ops": 9430,
+      "margin": 10.93,
+      "percentSlower": 86.03
     },
     {
       "name": "Blind cycle a global-action traffic light 500 times by action",
-      "ops": 9629,
-      "margin": 10.51,
-      "percentSlower": 85.89
+      "ops": 10970,
+      "margin": 1.73,
+      "percentSlower": 83.75
     },
     {
       "name": "Blind cycle an exit hooked traffic light 500 times by action",
-      "ops": 8556,
-      "margin": 8.69,
-      "percentSlower": 87.46
+      "ops": 8558,
+      "margin": 8.61,
+      "percentSlower": 87.32
     },
     {
       "name": "Blind cycle an enter hooked traffic light 500 times by action",
-      "ops": 8414,
-      "margin": 3.98,
-      "percentSlower": 87.67
+      "ops": 8697,
+      "margin": 0.68,
+      "percentSlower": 87.11
     },
     {
       "name": "Blind cycle a standard transition tl 500 times by action",
-      "ops": 64509,
-      "margin": 1.28,
-      "percentSlower": 5.45
+      "ops": 66884,
+      "margin": 0.76,
+      "percentSlower": 0.9
     },
     {
       "name": "Blind cycle a main transition tl 500 times by action",
-      "ops": 68228,
-      "margin": 0.69,
+      "ops": 67491,
+      "margin": 0.63,
       "percentSlower": 0
     },
     {
       "name": "Blind cycle a forced transition tl 500 times by action",
-      "ops": 67255,
-      "margin": 0.79,
-      "percentSlower": 1.43
+      "ops": 63318,
+      "margin": 0.68,
+      "percentSlower": 6.18
     },
     {
       "name": "Kitchen Sink 500 times",
-      "ops": 9197,
-      "margin": 1.12,
-      "percentSlower": 86.52
+      "ops": 8427,
+      "margin": 7.56,
+      "percentSlower": 87.51
     }
   ],
   "fastest": {
