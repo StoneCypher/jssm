@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="container">
-      <canvas id="chart1653240886056" width="16" height="9"></canvas>
+      <canvas id="chart1653241143232" width="16" height="9"></canvas>
     </div>
     <script>
       const format = (num) => {
@@ -51,18 +51,18 @@
           chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
         )
       }
-      const ctx1653240886056 = document
-        .getElementById('chart1653240886056')
+      const ctx1653241143232 = document
+        .getElementById('chart1653241143232')
         .getContext('2d')
-      const chart1653240886056 = new Chart(ctx1653240886056, {
+      const chart1653241143232 = new Chart(ctx1653241143232, {
         type: 'bar',
         data: {
           labels: ["Blind cycle a traffic light 500 times by transition","Blind cycle a traffic light 500 times by action","Blind cycle a basic-hooked traffic light 500 times by transition","Blind cycle a named-hooked traffic light 500 times by transition","Blind cycle an any-transition traffic light 500 times by transition","Blind cycle an exit hooked traffic light 500 times by transition","Blind cycle an enter hooked traffic light 500 times by transition","Blind cycle a standard-transition hooked light by transition","Blind cycle a main-transition hooked light by transition","Blind cycle a force-transition hooked light by transition","Blind cycle a traffic light 500 times by action","Blind cycle a basic-hooked traffic light 500 times by action","Blind cycle a named-hooked traffic light 500 times by action","Blind cycle an any-action traffic light 500 times by action","Blind cycle a global-action traffic light 500 times by action","Blind cycle an exit hooked traffic light 500 times by action","Blind cycle an enter hooked traffic light 500 times by action","Blind cycle a standard transition tl 500 times by action","Blind cycle a main transition tl 500 times by action","Blind cycle a forced transition tl 500 times by action","Kitchen Sink 500 times"],
           datasets: [
             {
-              data: [4909.6,11361.2,1253.3,5839.5,5689.5,5463.2,5466.8,5688.7,5164.8,18770.7,12778.1,1556.3,1420.4,10038.6,10312,8044.5,9152.1,67703.9,64669.4,67228.6,8722.8],
-              backgroundColor: ["hsl(8.7, 85%, 55%)","hsl(20.136, 85%, 55%)","hsl(2.219999999999993, 85%, 55%)","hsl(10.355999999999995, 85%, 55%)","hsl(10.080000000000007, 85%, 55%)","hsl(9.683999999999992, 85%, 55%)","hsl(9.683999999999992, 85%, 55%)","hsl(10.080000000000007, 85%, 55%)","hsl(9.155999999999993, 85%, 55%)","hsl(33.264, 85%, 55%)","hsl(22.644000000000005, 85%, 55%)","hsl(2.7599999999999967, 85%, 55%)","hsl(2.519999999999993, 85%, 55%)","hsl(17.796, 85%, 55%)","hsl(18.276000000000007, 85%, 55%)","hsl(14.255999999999995, 85%, 55%)","hsl(16.223999999999997, 85%, 55%)","hsl(120, 85%, 55%)","hsl(114.624, 85%, 55%)","hsl(119.16, 85%, 55%)","hsl(15.455999999999992, 85%, 55%)"],
-              borderColor: ["hsl(8.7, 85%, 55%)","hsl(20.136, 85%, 55%)","hsl(2.219999999999993, 85%, 55%)","hsl(10.355999999999995, 85%, 55%)","hsl(10.080000000000007, 85%, 55%)","hsl(9.683999999999992, 85%, 55%)","hsl(9.683999999999992, 85%, 55%)","hsl(10.080000000000007, 85%, 55%)","hsl(9.155999999999993, 85%, 55%)","hsl(33.264, 85%, 55%)","hsl(22.644000000000005, 85%, 55%)","hsl(2.7599999999999967, 85%, 55%)","hsl(2.519999999999993, 85%, 55%)","hsl(17.796, 85%, 55%)","hsl(18.276000000000007, 85%, 55%)","hsl(14.255999999999995, 85%, 55%)","hsl(16.223999999999997, 85%, 55%)","hsl(120, 85%, 55%)","hsl(114.624, 85%, 55%)","hsl(119.16, 85%, 55%)","hsl(15.455999999999992, 85%, 55%)"],
+              data: [5330,12241,1363,6536,6148,5888,5799,6104,5756,25262,13227,1523,1396,10517,10427,9342,9214,64778,67627,67085,9406],
+              backgroundColor: ["hsl(9.455999999999994, 85%, 55%)","hsl(21.71999999999999, 85%, 55%)","hsl(2.4239999999999955, 85%, 55%)","hsl(11.591999999999995, 85%, 55%)","hsl(10.908000000000005, 85%, 55%)","hsl(10.451999999999993, 85%, 55%)","hsl(10.283999999999992, 85%, 55%)","hsl(10.836, 85%, 55%)","hsl(10.212000000000007, 85%, 55%)","hsl(44.82, 85%, 55%)","hsl(23.472, 85%, 55%)","hsl(2.6999999999999997, 85%, 55%)","hsl(2.4720000000000026, 85%, 55%)","hsl(18.659999999999997, 85%, 55%)","hsl(18.504, 85%, 55%)","hsl(16.572000000000003, 85%, 55%)","hsl(16.344000000000005, 85%, 55%)","hsl(114.94800000000001, 85%, 55%)","hsl(120, 85%, 55%)","hsl(119.03999999999999, 85%, 55%)","hsl(16.691999999999997, 85%, 55%)"],
+              borderColor: ["hsl(9.455999999999994, 85%, 55%)","hsl(21.71999999999999, 85%, 55%)","hsl(2.4239999999999955, 85%, 55%)","hsl(11.591999999999995, 85%, 55%)","hsl(10.908000000000005, 85%, 55%)","hsl(10.451999999999993, 85%, 55%)","hsl(10.283999999999992, 85%, 55%)","hsl(10.836, 85%, 55%)","hsl(10.212000000000007, 85%, 55%)","hsl(44.82, 85%, 55%)","hsl(23.472, 85%, 55%)","hsl(2.6999999999999997, 85%, 55%)","hsl(2.4720000000000026, 85%, 55%)","hsl(18.659999999999997, 85%, 55%)","hsl(18.504, 85%, 55%)","hsl(16.572000000000003, 85%, 55%)","hsl(16.344000000000005, 85%, 55%)","hsl(114.94800000000001, 85%, 55%)","hsl(120, 85%, 55%)","hsl(119.03999999999999, 85%, 55%)","hsl(16.691999999999997, 85%, 55%)"],
               borderWidth: 2,
             },
           ],
