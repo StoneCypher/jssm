@@ -16783,7 +16783,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.65.11";
+const version = "5.65.12";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -17633,28 +17633,30 @@ class Machine {
      *  Lists all edges of a machine.
      *
      *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
      *
-     * lswitch.list_edges();
-     * [
-     *   {
-     *     from: 'on',
-     *     to: 'off',
-     *     kind: 'main',
-     *     forced_only: false,
-     *     main_path: true,
-     *     action: 'toggle'
-     *   },
-     *   {
-     *     from: 'off',
-     *     to: 'on',
-     *     kind: 'main',
-     *     forced_only: false,
-     *     main_path: true,
-     *     action: 'toggle'
-     *   }
-     * ]
-     * ```
+     *  lswitch.list_edges();
+     *  [
+     *    {
+     *      from: 'on',
+     *      to: 'off',
+     *      kind: 'main',
+     *      forced_only: false,
+     *      main_path: true,
+     *      action: 'toggle'
+     *    },
+     *    {
+     *      from: 'off',
+     *      to: 'on',
+     *      kind: 'main',
+     *      forced_only: false,
+     *      main_path: true,
+     *      action: 'toggle'
+     *    }
+     *  ]
+     *  ```
      *
      */
     list_edges() {
@@ -17691,11 +17693,14 @@ class Machine {
      *  exit.  The order of each sublist is not defined.  A node could appear in
      *  both lists.
      *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
      *
      *  light.state();               // 'red'
      *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
+     *  ```
      *
      */
     list_transitions(whichState = this.state()) {
@@ -17706,11 +17711,14 @@ class Machine {
      *  List all entrances attached to the current state.  Please note that the
      *  order of the list is not defined.
      *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
      *
      *  light.state();               // 'red'
      *  light.list_entrances();      // [ 'yellow', 'off' ]
+     *  ```
      *
      */
     list_entrances(whichState = this.state()) {
@@ -17723,11 +17731,14 @@ class Machine {
      *  List all exits attached to the current state.  Please note that the order
      *  of the list is not defined.
      *
-     *  const lswitch = sm`on 'toggle' <=> 'toggle' off;`;
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
      *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
      *
      *  light.state();               // 'red'
      *  light.list_exits();          // [ 'green', 'off' ]
+     *  ```
      *
      */
     list_exits(whichState = this.state()) {
@@ -18145,13 +18156,54 @@ class Machine {
             return false;
         }
     }
+    /********
+     *
+     *  Instruct the machine to complete an action.
+     *
+     *  ```typescript
+     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.action('next');        // true
+     *  light.state();               // 'green'
+     *  ```
+     *
+     */
     action(actionName, newData) {
         return this.transition_impl(actionName, newData, false, true);
     }
+    /********
+     *
+     *  Instruct the machine to complete a transition.
+     *
+     *  ```typescript
+     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();               // 'red'
+     *  light.transition('green');   // true
+     *  light.state();               // 'green'
+     *  ```
+     *
+     */
     transition(newState, newData) {
         return this.transition_impl(newState, newData, false, false);
     }
-    // can leave machine in inconsistent state.  generally do not use
+    /********
+     *
+     *  Instruct the machine to complete a forced transition (which will reject if
+     *  called with a normal {@link transition} call.)
+     *
+     *  ```typescript
+     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *
+     *  light.state();                     // 'red'
+     *  light.transition('off');           // false
+     *  light.state();                     // 'red'
+     *  light.force_transition('off');     // true
+     *  light.state();                     // 'off'
+     *  ```
+     *
+     */
     force_transition(newState, newData) {
         return this.transition_impl(newState, newData, true, false);
     }
