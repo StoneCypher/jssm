@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.65.12",
+  "version": "5.65.14",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -44,16 +44,16 @@
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.js",
-    "build": "npm run vet && npm run test && npm run site && npm run docs && npm run benny",
-    "buildnb": "npm run vet && npm run test && npm run site && npm run docs",
+    "build": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs && npm run benny",
+    "buildnb": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
     "minify": "mv dist/es6/jssm-dot.js dist/es6/jssm-dot.nonmin.js && terser dist/es6/jssm-dot.nonmin.js > dist/es6/jssm-dot.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/",
-    "docs": "typedoc src/ts/jssm.ts --out docs/docs --customCss ./src/site/typedoc-addon.css",
-    "changelog": "rm -f CHANGELOG.md && changelog-maker -a > CHANGELOG.md"
+    "docs": "typedoc src/ts/jssm.ts --options typedoc-options.js",
+    "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog && cp CHANGELOG.md ./src/doc_md/CHANGELOG.md"
   },
   "repository": {
     "type": "git",
@@ -96,6 +96,7 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@knodes/typedoc-plugin-pages": "^0.22.5",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^4.0.0",
@@ -103,7 +104,6 @@
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "benny": "^3.7.1",
-    "changelog-maker": "^2.3.2",
     "coveralls": "^3.0.11",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",
@@ -120,11 +120,11 @@
     "terser": "^5.13.1",
     "text_audit": "^0.9.3",
     "ts-jest": "^27.0.7",
-    "tscheck": "^0.1.5",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.4"
   },
   "dependencies": {
+    "better_git_changelog": "^1.0.0",
     "reduce-to-639-1": "^1.0.4"
   }
 }

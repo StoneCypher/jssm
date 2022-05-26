@@ -15,6 +15,8 @@ import { version } from './version';
  *  arrow_direction('<~=>');  // 'both'
  *  ```
  *
+ *  @param arrow The arrow to be evaluated
+ *
  */
 declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
 /*********
@@ -31,6 +33,8 @@ declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
  *  arrow_left_kind('->');    // 'none'
  *  ```
  *
+ *  @param arrow The arrow to be evaluated
+ *
  */
 declare function arrow_left_kind(arrow: JssmArrow): JssmArrowKind;
 /*********
@@ -46,6 +50,8 @@ declare function arrow_left_kind(arrow: JssmArrow): JssmArrowKind;
  *  arrow_left_kind('<->');   // 'legal'
  *  arrow_left_kind('<-');    // 'none'
  *  ```
+ *
+ *  @param arrow The arrow to be evaluated
  *
  */
 declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
@@ -101,6 +107,10 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  `wrap_parse` itself is an internal convenience method for alting out an
  *  object as the options call.  Not generally meant for external use.
  *
+ *  @param input The FSL code to be evaluated
+ *
+ *  @param options Things to control about the instance
+ *
  */
 declare function wrap_parse(input: string, options?: Object): any;
 /*********
@@ -149,6 +159,10 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  const toggle = jssm.from('up <=> down;');
  *  ```
  *
+ *  @typeparam mDT The type of the machine data member; usually omitted
+ *
+ *  @param tree The parse tree to be boiled down into a machine config
+ *
  */
 declare function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT>;
 /*********
@@ -157,6 +171,10 @@ declare function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT>;
  *  Not generally meant for external use.  Please see {@link compile} or
  *  {@link sm}.
  *
+ *  @typeparam mDT The type of the machine data member; usually omitted
+ *
+ *  @param plan The FSL code to be evaluated and built into a machine config
+ *
  */
 declare function make<mDT>(plan: string): JssmGenericConfig<mDT>;
 /*********
@@ -164,6 +182,8 @@ declare function make<mDT>(plan: string): JssmGenericConfig<mDT>;
  *  An internal method meant to take a series of declarations and fold them into
  *  a single multi-faceted declaration, in the process of building a state.  Not
  *  generally meant for external use.
+ *
+ *  @internal
  *
  */
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
@@ -217,6 +237,8 @@ declare class Machine<mDT> {
      *
      *  Internal method for fabricating states.  Not meant for external use.
      *
+     *  @internal
+     *
      */
     _new_state(state_config: JssmGenericState): StateType;
     /*********
@@ -232,6 +254,8 @@ declare class Machine<mDT> {
      *  switch.transition('off');
      *  console.log( switch.state() );             // 'off'
      *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
      *
      */
     state(): StateType;
@@ -249,6 +273,10 @@ declare class Machine<mDT> {
      *  console.log( final_test.state_is_final('second') );  // true
      *  ```
      *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The name of the state to check for finality
+     *
      */
     state_is_final(whichState: StateType): boolean;
     /********
@@ -265,6 +293,8 @@ declare class Machine<mDT> {
      *  state.transition('second');
      *  console.log( final_test.is_final() );   // true
      *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
      *
      */
     is_final(): boolean;
@@ -295,6 +325,8 @@ declare class Machine<mDT> {
      *  console.log( switch.states() );             // ['on', 'off']
      *  ```
      *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
      */
     states(): Array<StateType>;
     state_for(whichState: StateType): JssmGenericState;
@@ -310,6 +342,10 @@ declare class Machine<mDT> {
      *  console.log( switch.has_state('off') );     // true
      *  console.log( switch.has_state('dance') );   // false
      *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The state to be checked for extance
      *
      */
     has_state(whichState: StateType): boolean;
@@ -343,6 +379,8 @@ declare class Machine<mDT> {
      *  ]
      *  ```
      *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
      */
     list_edges(): Array<JssmTransition<mDT>>;
     list_named_transitions(): Map<StateType, number>;
@@ -366,6 +404,10 @@ declare class Machine<mDT> {
      *  light.list_transitions();    // { entrances: [ 'yellow', 'off' ], exits: [ 'green', 'off' ] }
      *  ```
      *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The state whose transitions to have listed
+     *
      */
     list_transitions(whichState?: StateType): JssmTransitionList;
     /********
@@ -382,6 +424,10 @@ declare class Machine<mDT> {
      *  light.list_entrances();      // [ 'yellow', 'off' ]
      *  ```
      *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The state whose entrances to have listed
+     *
      */
     list_entrances(whichState?: StateType): Array<StateType>;
     /********
@@ -397,6 +443,10 @@ declare class Machine<mDT> {
      *  light.state();               // 'red'
      *  light.list_exits();          // [ 'green', 'off' ]
      *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The state whose exits to have listed
      *
      */
     list_exits(whichState?: StateType): Array<StateType>;
@@ -433,6 +483,10 @@ declare class Machine<mDT> {
      *  console.log( machine.actions() );  // logs ['next', 'shutdown']
      *  ```
      *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The state whose actions to have listed
+     *
      */
     actions(whichState?: StateType): Array<StateType>;
     /********
@@ -451,6 +505,10 @@ declare class Machine<mDT> {
      *  console.log( machine.list_states_having_action('next') );    // ['red', 'green', 'yellow']
      *  console.log( machine.list_states_having_action('start') );   // ['off']
      *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The action to be checked for associated states
      *
      */
     list_states_having_action(whichState: StateType): Array<StateType>;
@@ -489,6 +547,12 @@ declare class Machine<mDT> {
      *  light.state();               // 'green'
      *  ```
      *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param actionName The action to engage
+     *
+     *  @param newData The data change to insert during the action
+     *
      */
     action(actionName: StateType, newData?: mDT): boolean;
     /********
@@ -502,6 +566,12 @@ declare class Machine<mDT> {
      *  light.transition('green');   // true
      *  light.state();               // 'green'
      *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param newState The state to switch to
+     *
+     *  @param newData The data change to insert during the transition
      *
      */
     transition(newState: StateType, newData?: mDT): boolean;
@@ -519,6 +589,12 @@ declare class Machine<mDT> {
      *  light.force_transition('off');     // true
      *  light.state();                     // 'off'
      *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param newState The state to switch to
+     *
+     *  @param newData The data change to insert during the transition
      *
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
@@ -546,6 +622,12 @@ declare class Machine<mDT> {
  *  const switch = jssm.from('on <=> off;');
  *  ```
  *
+ *  @typeparam mDT The type of the machine data member; usually omitted
+ *
+ *  @param template_strings The assembled code
+ *
+ *  @param remainder The mechanic for template argument insertion
+ *
  */
 declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 /*********
@@ -562,6 +644,12 @@ declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: a
  *
  *  const switch = jssm.from('on <=> off;');
  *  ```
+ *
+ *  @typeparam mDT The type of the machine data member; usually omitted
+ *
+ *  @param MachineAsString The FSL code to evaluate
+ *
+ *  @param ExtraConstructorFields Extra non-code configuration to pass at creation time
  *
  */
 declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial<JssmGenericConfig<mDT>> | undefined): Machine<mDT>;
