@@ -1009,6 +1009,8 @@ If you'd like to help, it's straightforward.
 
 ## Code and Language
 
+[Vat Raghavan](https://github.com/MachinShin) has participated extensively in language discussion and implemented several features.
+
 [Forest Belton](https://github.com/forestbelton) has provided guidance, bugfixes, parser and language commentary.
 
 [Jordan Harbrand](https://github.com/ljharb) suggested two interesting features and provided strong feedback on the initial tutorial draft.
