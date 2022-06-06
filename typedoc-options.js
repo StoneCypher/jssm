@@ -22,7 +22,7 @@ module.exports = {
         { title: 'Github Action', source: 'todo.md' }
       ] },
       { title: 'VIRTUAL', childrenDir: './', children: [
-        { title: 'Community', source: 'todo.md' }
+        { title: 'Community', source: 'community.md' }
       ] },
       { title: 'VIRTUAL', childrenDir: './', children: [
         { title: 'Changelog', source: 'CHANGELOG.md' }
