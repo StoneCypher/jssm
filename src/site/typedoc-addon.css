@@ -11,3 +11,16 @@ body .with-border-bottom { background-color: #acf; border-color: #9be; }
 .tsd-panel            { border-radius: 0.35em; }
 
 .tsd-panel > .tsd-signatures .tsd-signature.tsd-kind-icon { background-color: #eee; }
+
+html body .tsd-panel table td,
+html body .tsd-panel table th { border-color: #9be; }
+
+html body .tsd-panel table tr                 { background-color: #def;    }
+html body .tsd-panel table tr:nth-child(even) { background-color: #d0e0f0; }
+html body .tsd-panel table tr th              { background-color: #bdf;    }
+
+#quicktab td    { text-align: right; }
+#quicktab td+td { text-align: center; }
+
+#quicktab th    { text-align: right; }
+#quicktab th+th { text-align: center; }
