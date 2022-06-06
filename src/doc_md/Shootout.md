@@ -1,25 +1,32 @@
-# Language shootout
+# Lines of Code shootout
 
 FSL's biggest benefit is ease of use, from short machines.  However, it's not
 much value to just say that; instead, we should see what the actual difference
 is, by comparisons.
 
-All of these comparisons are taken from the comparison product's documentation,
-and are generally unchanged other than to format with `prettier` for fairness
-(hence all the hanging commas ***shudder***,) and sometimes to add `include` or
-`require` to make runnable code.  Sometimes details like labels or constancy
-will be altered to match for comparison; if so, this will be pointed out.
+When possible, all of these comparisons are taken from the comparison product's
+documentation, and are generally unchanged; when not, by following something
+that was; all are formatted with `prettier` for fairness (hence all the hanging
+commas,) and sometimes to add `include` or `require` to make runnable code.
+Sometimes details like labels or constancy will be altered to match for
+comparison; if so, this will be pointed out.
+
+Numbers in bold represent official code; numbers not in bold are examples I
+wrote, and despite good faith, may not represent ideal notation.  If the text
+is <fail>red and italic</fail>, that state machine library could not implement
+that comparative test correctly due to a missing feature.
 
 <span id="quicktab">
 
 | Library | Tog | Traf | Matt |
 | ---- | ---- | ---- | ---- |
-| jssm | 1 | 2 | 5 |
-| xstate | 16 | | |
-| javascript-state-machine | | | 23 |
+| jssm | **1** | **2** | **5** |
+| xstate | **16** | | |
+| javascript-state-machine | | | **23** |
 | finity | 7 | | 28 |
 | stately | 8 | | 24 |
-| nanostate | | 12 | |
+| nanostate | | **12** | <fail>15</fail> |
+| robot | 17 | 24 | 31 |
 
 </span>
 
@@ -33,6 +40,14 @@ will be altered to match for comparison; if so, this will be pointed out.
 
 In essence, a simple light switch.  Just shows the basics of making states, and
 linking them with actions.
+
+| lib | length |
+| ---- | ---- |
+| jssm | 1 |
+| xstate | 16 |
+| finity | 7 |
+| stately | 8 |
+| robot | 17 |
 
 &nbsp;
 
@@ -66,6 +81,8 @@ export const toggleMachine = createMachine({
   },
 });
 ````
+
+&nbsp;
 
 ### (created) `finity` toggle machine, 7 lines
 
@@ -104,6 +121,33 @@ export const door = Stately.machine({
 
 &nbsp;
 
+### (created) `robot` states of matter, 17 lines
+
+Robot did not have a toggle example.  I made this, following [this unrelated
+machine](https://thisrobot.life/api/action.html) as a style guide.
+
+```javascript
+const matter = createMachine(
+  {
+    inactive: state(
+      transition(
+        "toggle",
+        "active"
+      )
+    ),
+    active: state(
+      transition(
+        "toggle",
+        "inactive"
+      )
+    ),
+  },
+  () => true
+);
+```
+
+&nbsp;
+
 &nbsp;
 
 &nbsp;
@@ -115,6 +159,12 @@ whenever the red state is entered.
 
 Shows the basics, as well as putting a hook on a state (or a node in some
 systems' lingo.)
+
+| lib | length |
+| ---- | ---- |
+| jssm | 2 |
+| nanostate | 12 |
+| robot | 24 |
 
 &nbsp;
 
@@ -154,23 +204,71 @@ trafficLight.on('red', () => console.log('Red light!'));
 
 &nbsp;
 
+### (created) `robot` traffic light, 24 lines
+
+Robot did not have a traffic light example.  I made this, following [this
+unrelated machine](https://thisrobot.life/api/action.html) as a style
+guide.
+
+Robot does not appear to support hooks on nodes, so we've faked it with hooks
+on transitions.
+
+```javascript
+const matter = createMachine(
+  {
+    red: state(
+      transition(
+        "next",
+        "green"
+      )
+    ),
+    green: state(
+      transition(
+        "next",
+        "yellow"
+      )
+    ),
+    yellow: state(
+      transition(
+        "next",
+        "red",
+        action(() => console.log("Red light!"))
+      )
+    ),
+  },
+  () => true
+);
+```
+
+&nbsp;
+
 &nbsp;
 
 &nbsp;
 
 ## States of Matter
 
-Three basic states of matter.  Hook each transition with chatter on entry.
+Three basic states of matter.  Hook each of the four transitions with chatter on
+follow.
 
 In addition to the basics, shows how to put a hook on a transition (or an action
 or an edge, in other machines' terminology.)
+
+| lib | length |
+| ---- | ---- |
+| jssm | 5 |
+| javascript-state-machine | 23 |
+| finity | 28 |
+| stately | 24 |
+| nanostate | <fail>15</fail> ❌ |
+| robot | 31 |
 
 &nbsp;
 
 ### `jssm` states of matter, 5 lines
 
 ```javascript
-export const trafficLight = sm`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas`;
+export const matter = sm`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas`;
 trafficLight.hook_global_action('melt', () => console.log('I melted'));
 trafficLight.hook_global_action('freeze', () => console.log('I froze'));
 trafficLight.hook_global_action('vaporize', () => console.log('I vaporized'));
@@ -184,7 +282,7 @@ trafficLight.hook_global_action('condense', () => console.log('I condensed'));
 Exported and consted.
 
 ```javascript
-export const fsm = new StateMachine({
+export const matter = new StateMachine({
   init: "solid",
   transitions: [
     { name: "melt", from: "solid", to: "liquid" },
@@ -225,7 +323,7 @@ with the chain `.state().on().transitionTo()`; the length doubles and this
 becomes unreadable, and that isn't `finity`'s fault.
 
 ```javascript
-const stateMachine = Finity
+const matter = Finity
   .configure()
     .initialState('solid')
       .on('melt').transitionTo('liquid')
@@ -259,12 +357,12 @@ const stateMachine = Finity
 
 ### (created) `stately` states of matter, 24 lines
 
-Stately did not have a light switch example.  I made this, following [this
+Stately did not have a states of matter example.  I made this, following [this
 unrelated machine](https://github.com/fschaefer/Stately.js#examples) as a style
 guide.
 
 ```javascript
-export const door = Stately.machine({
+export const matter = Stately.machine({
   solid: {
     melt: () => {
       console.log("I melted");
@@ -288,4 +386,82 @@ export const door = Stately.machine({
     },
   },
 });
+```
+
+&nbsp;
+
+### `nanostate` states of matter, 15 lines, ❌ cannot implement
+
+`nanostate` did not have a states of matter example.  I made this, following
+[this unrelated machine](https://github.com/choojs/nanostate/blob/master/README.md)
+as a style guide.
+
+`nanostate` does not appear to support on-action hooks, and does not appear to
+pass the previous state when calling its global enter hook.  Therefore there is
+no way to correctly implement the hooks leading to liquid - condense and melt -
+because you can't tell whether they're coming from solid or gas.  On these
+grounds, `nanostate` cannot implement this machine correctly.
+
+```javascript
+export const trafficLight = nanostate("green", {
+  solid: {
+    melt: "liquid",
+  },
+  liquid: {
+    freeze: "solid",
+    vaporize: "gas",
+  },
+  gas: {
+    condense: "liquid",
+  },
+});
+
+trafficLight.on("solid", () => console.log("I froze"));
+trafficLight.on("gas", () => console.log("I vaporized"));
+
+trafficLight.on("liquid", () =>
+  console.log("❌ FAIL: cannot tell if melt or condense")
+);
+```
+
+&nbsp;
+
+### (created) `robot` states of matter, 31 lines
+
+Robot did not have a states of matter example.  I made this, following [this
+unrelated machine](https://thisrobot.life/api/action.html) as a style
+guide.
+
+```javascript
+const matter = createMachine(
+  {
+    solid: state(
+      transition(
+        "melt",
+        "liquid",
+        action(() => console.log("I melted"))
+      )
+    ),
+    liquid: state(
+      transition(
+        "freeze",
+        "solid",
+        action(() => console.log("I froze"))
+      ),
+      transition(
+        "vaporize",
+        "gas",
+        action(() => console.log("I vaporized"))
+      )
+    ),
+    gas: state(
+      transition(
+        "condense",
+        "liquid",
+        action(() => console.log("I condensed"))
+      )
+    ),
+  },
+  () => true
+);
 ```

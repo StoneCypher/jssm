@@ -20,7 +20,10 @@ module.exports = {
           { title: 'Bundling',     source: 'todo.md' },
           { title: 'Publishing',   source: 'todo.md' }
         ] },
-        { title: 'Shootout',   source: 'Shootout.md' }
+        { title: 'Comparisons', childrenDir: './', children: [
+          { title: 'Feature comparison', source: 'FeatureComparison.md' },
+          { title: 'LOC Shootout',       source: 'Shootout.md' }
+        ] },
       ] },
       { title: 'Tools', childrenDir: './', children: [
         { title: 'Live Editor',   source: 'live_editor.md' },

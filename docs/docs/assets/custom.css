@@ -22,5 +22,7 @@ html body .tsd-panel table tr th              { background-color: #bdf;    }
 #quicktab td    { text-align: right; }
 #quicktab td+td { text-align: center; }
 
-#quicktab th    { text-align: right; }
+#quicktab th    { text-align: right; font-weight: normal; }
 #quicktab th+th { text-align: center; }
+
+fail { font-style: italic; color: #b00; }
