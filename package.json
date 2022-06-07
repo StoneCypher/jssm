@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.67.2",
+  "version": "5.68.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -23,6 +23,7 @@
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
   "main": "dist/jssm.es5.cjs.js",
   "module": "dist/es6/jssm.js",
+  "browser": "dist/jssm.es5.iife.js",
   "types": "./jssm.d.ts",
   "scripts": {
     "jest-spec": "jest -c jest-spec.config.js --color --verbose",
@@ -39,7 +40,7 @@
     "make_iife": "rollup -c rollup.config.iife.js",
     "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
     "makever": "node src/buildjs/makever.js",
-    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs",
+    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs && rm ./dist/es6/*.nonmin.js",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
@@ -84,6 +85,8 @@
     "moore-machine",
     "graphviz",
     "viz.js",
+    "fsl",
+    "finite-state-language",
     "flowchart",
     "visualization",
     "TypeScript",

@@ -11,8 +11,8 @@ module.exports = {
     source: './src/doc_md/',
     pages: [
       { title: 'Tutorials', childrenDir: './', children: [
+        { title: 'What are state machines?', source: 'WhatAreStateMachines.md' },
         { title: '☕ Quick Start', source: 'GettingStarted.md' },
-        { title: 'What are state machines?', source: 'todo.md' },
         { title: 'Language reference', source: 'todo.md' },
         { title: 'API reference',      source: 'todo.md' },
         { title: 'Example machines',   source: 'todo.md' },
@@ -34,7 +34,7 @@ module.exports = {
         { title: 'Community', source: 'community.md' }
       ] },
       { title: 'VIRTUAL', childrenDir: './', children: [
-        { title: 'Changelog', source: 'CHANGELOG.md' }
+        { title: 'Changelog', source: 'CHANGELOG.long.md' }
       ] },
       // { title: '@knodes/typedoc-plugin-code-blocks', source: 'readme-extras.md', children: [
       //   { title: 'Using options', source: 'options.md' },

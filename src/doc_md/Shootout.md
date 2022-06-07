@@ -61,9 +61,9 @@ linking them with actions.
 | finity | 7 |
 | javascript-state-machine | 7 |
 | stately | 8 |
+| <fail>nanostate</fail> | 8 |
 | xstate | 16 |
 | robot | 17 |
-| <fail>nanostate</fail> | 8 |
 | <fail>machina</fail> | 20 |
 
 &nbsp;
@@ -281,13 +281,13 @@ systems' lingo.)
 | jssm | 2 |
 | state-machine | 8 |
 | finity | 10 |
-| stately | 18 |
-| <fail>nanostate</fail> | 12 |
 | javascript-state-machine | 13 |
+| <fail>nanostate</fail> | 12 |
 | faste | 14 |
+| stately | 18 |
 | robot | 24 |
-| <fail>machina</fail> | 26 |
 | xstate | 36 |
+| <fail>machina</fail> | 26 |
 
 &nbsp;
 
@@ -592,7 +592,7 @@ or an edge, in other machines' terminology.)
 | finity | 28 |
 | robot | 31 |
 | xstate | 35 |
-| <fail>machina</fail> | <fail>36</fail> |
+| <fail>machina</fail> | <fail>36</fail> ❌ |
 
 &nbsp;
 
