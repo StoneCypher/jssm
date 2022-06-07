@@ -1,12 +1,14 @@
 {
   "name": "jssm",
-  "version": "5.68.0",
+  "version": "5.69.0",
   "engines": {
     "node": ">=10.0.0"
   },
   "exports": {
     "require": "./dist/jssm.es5.cjs.js",
-    "import": "./dist/es6/jssm.js"
+    "import": "./dist/es6/jssm.js",
+    "default": "./dist/jssm.es5.cjs.js",
+    "browser": "dist/jssm.es5.iife.js"
   },
   "autoupdate": {
     "source": "git",

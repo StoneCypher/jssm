@@ -16783,7 +16783,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.67.2";
+const version = "5.69.0";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
