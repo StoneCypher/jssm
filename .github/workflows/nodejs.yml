@@ -120,3 +120,12 @@ jobs:
         npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
+
+  bump-jssm-viz:
+    if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
+    needs: [release]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: StoneCypher/jssm-viz/.github/workflows/lib_update.yml@main
+      with:
+        libversion: ${{ env.TAG }}
