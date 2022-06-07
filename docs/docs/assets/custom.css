@@ -1,10 +1,4 @@
 
-:root { --color-background: #def; }
-
-body .tsd-page-title     { background-color: #bdf; }
-body .tsd-page-toolbar   { background-color: #acf; border-bottom-color: #9be; }
-body .with-border-bottom { background-color: #acf; border-color: #9be; }
-
 .tsd-panel-group > h1,
 .tsd-panel-group > h2,
 .tsd-panel-group > h3 { padding-left: 0; }
@@ -12,17 +6,44 @@ body .with-border-bottom { background-color: #acf; border-color: #9be; }
 
 .tsd-panel > .tsd-signatures .tsd-signature.tsd-kind-icon { background-color: #eee; }
 
-html body .tsd-panel table td,
-html body .tsd-panel table th { border-color: #9be; }
-
-html body .tsd-panel table tr                 { background-color: #def;    }
-html body .tsd-panel table tr:nth-child(even) { background-color: #d0e0f0; }
-html body .tsd-panel table tr th              { background-color: #bdf;    }
-
 #quicktab td    { text-align: right; }
 #quicktab td+td { text-align: center; }
 
 #quicktab th    { text-align: right; font-weight: normal; }
 #quicktab th+th { text-align: center; }
 
-fail { font-style: italic; color: #b00; }
+pre { border-radius: 0.3em; }
+
+@media (prefers-color-scheme: light) {
+
+  :root                    { --color-background: #def; }
+
+  body .tsd-page-title     { background-color: #bdf; }
+  body .tsd-page-toolbar   { background-color: #acf; border-bottom-color: #9be; }
+  body .with-border-bottom { background-color: #acf; border-color: #9be; }
+
+  html body .tsd-panel table td,
+  html body .tsd-panel table th { border-color: #9be; }
+
+  html body .tsd-panel table tr                 { background-color: #def;    }
+  html body .tsd-panel table tr:nth-child(even) { background-color: #d0e0f0; }
+  html body .tsd-panel table tr th              { background-color: #bdf;    }
+
+  fail { font-style: italic; color: #b00; }
+
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+
+  fail { font-style: italic; color: #f66; }
+
+  html body .tsd-panel table td,
+  html body .tsd-panel table th { border-color: #335; }
+
+  html body .tsd-panel table tr                 { background-color: #445; }
+  html body .tsd-panel table tr:nth-child(even) { background-color: #446; }
+  html body .tsd-panel table tr th              { background-color: #335; }
+
+}
