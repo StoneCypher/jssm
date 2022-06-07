@@ -11,7 +11,8 @@ module.exports = {
     source: './src/doc_md/',
     pages: [
       { title: 'Tutorials', childrenDir: './', children: [
-        { title: '☕ Getting started', source: 'GettingStarted.md' },
+        { title: '☕ Quick Start', source: 'GettingStarted.md' },
+        { title: 'What are state machines?', source: 'todo.md' },
         { title: 'Language reference', source: 'todo.md' },
         { title: 'API reference',      source: 'todo.md' },
         { title: 'Example machines',   source: 'todo.md' },
