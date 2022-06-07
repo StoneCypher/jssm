@@ -70,6 +70,8 @@ LogState();                         // logs "Yellow"
 To make the point, please consider the light switch from our language, as
 compared to the example given by a popular alternative library.
 
+If you'd like more detailed comparisons, please see {@page Shootout.md the line-of-code shootout}.
+
 &nbsp;
 
 ### JSSM
@@ -172,4 +174,4 @@ Correct.  Easy.  Brief.  Powerful.  Fast.
 
 Meet your new state machine.
 
-{@page GettingStarted.md Let's get started}.
+`Next`: {@page GettingStarted.md Let's get started}.
