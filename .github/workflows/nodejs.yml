@@ -124,6 +124,6 @@ jobs:
   bump-jssm-viz:
     if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
     needs: [release]
-    uses: StoneCypher/jssm-viz/.github/workflows/lib_update.yml@main
+    uses: StoneCypher/jssm-viz/.github/workflows/lib_update.js.yml@main
     with:
       libversion: ${{ env.TAG }}
