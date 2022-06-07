@@ -126,4 +126,4 @@ jobs:
     needs: [release]
     uses: StoneCypher/jssm-viz/.github/workflows/lib_update.js.yml@main
     with:
-      libversion: ${{ env.TAG }}
+      libversion: env.TAG
