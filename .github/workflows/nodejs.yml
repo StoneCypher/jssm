@@ -122,8 +122,15 @@ jobs:
         NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
 
   bump-jssm-viz:
-    if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
     needs: [release]
+    name: Update jssm-viz
     uses: StoneCypher/jssm-viz/.github/workflows/lib_update.js.yml@main
     with:
       libversion: env.TAG
+
+  finish:
+    needs: [bump-jssm-viz]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Results page
+      run: echo '### Results!\n\n* Published to NPM\n* Bumped `jssm-viz`\n* Bumped `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY
