@@ -11,7 +11,8 @@ module.exports = {
     source: './src/doc_md/',
     pages: [
       { title: 'Tutorials', childrenDir: './', children: [
-        { title: '☕ Getting started', source: 'GettingStarted.md' },
+        { title: '☕ Quick Start', source: 'GettingStarted.md' },
+        { title: 'What are state machines?', source: 'todo.md' },
         { title: 'Language reference', source: 'todo.md' },
         { title: 'API reference',      source: 'todo.md' },
         { title: 'Example machines',   source: 'todo.md' },
@@ -20,7 +21,10 @@ module.exports = {
           { title: 'Bundling',     source: 'todo.md' },
           { title: 'Publishing',   source: 'todo.md' }
         ] },
-        { title: 'Shootout',   source: 'Shootout.md' }
+        { title: 'Comparisons', childrenDir: './', children: [
+          { title: 'Feature comparison', source: 'FeatureComparison.md' },
+          { title: 'LOC Shootout',       source: 'Shootout.md' }
+        ] },
       ] },
       { title: 'Tools', childrenDir: './', children: [
         { title: 'Live Editor',   source: 'live_editor.md' },
