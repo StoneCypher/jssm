@@ -128,16 +128,28 @@ jobs:
   #   with:
   #     libversion: env.TAG
 
+  # bump-jssm-viz:
+  #   needs: [release]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: CURL RPC to jssm-viz action
+  #     run: |
+  #       curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/actions/workflows/lib_update.js.yml/dispatches" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" -H "Authorization: Bearer ${GITHUB_TOKEN}" --data "{\"inputs\":{\"libversion\":\"${}\"}}"
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       LIBVERSION: foo.bar.baz
+
   bump-jssm-viz:
     needs: [release]
     runs-on: ubuntu-latest
     steps:
     - name: CURL RPC to jssm-viz action
       run: |
-        curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/actions/workflows/lib_update.js.yml/dispatches" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" -H "Authorization: Bearer ${GITHUB_TOKEN}" --data "{\"inputs\":{\"libversion\":\"${}\"}}"
+        curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/dispatches" -H 'Accept: application/vnd.github.everest-preview+json' -u ${{ secrets.GITHUB_TOKEN }} --data '{"event_type": "upgrade_jssm", "client_payload": { "lib_version": "$LIBVERSION" }}'
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         LIBVERSION: foo.bar.baz
+
+
 
   finish:
     needs: [bump-jssm-viz]
