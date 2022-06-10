@@ -47,3 +47,7 @@ The placement of the action on double-sided arrows matches the arrow itself:
 ```fsl
 On 'toggle' <-> 'toggle' Off;
 ```
+
+And were we to graph this, it might look like so:
+
+![](./SimpleLightSwitch.png)
