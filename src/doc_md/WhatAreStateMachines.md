@@ -1,3 +1,49 @@
-# todo
+# What are Finite State Machines?
 
-This help page has not yet been written.
+`Finite State Machine`s are a classic tool from the 1950s, meant to allow a
+system to be better defined.  In formal and high safety systems they are a
+critical tool.  FSL, the `Finite State Language`, exists to make them easier to
+write, debug, and maintain.
+
+Most likely, you're already pretty familiar with a lot of state machines.  On
+those grounds, we teach state machines by example.
+
+
+
+&nbsp;
+
+&nbsp;
+
+## The light switch
+
+An easy starting example is the idealized light switch: it's either turned `On`,
+or turned `Off`.  When the switch is `On`, it can be turned `Off`, but when it's
+`On`, it can't be turned `On` *again*; the rules are similar for `Off`.
+
+In FSL, we write states as just their names, and then connections as arrows
+`->`; as such, we would write a light switch this way:
+
+```fsl
+On -> Off -> On;
+```
+
+Or, to save time, we can use a double-sided arrow `<->`:
+
+```fsl
+On <-> Off;
+```
+
+It might also be reasonable to say that to `toggle` is to switch from either
+state to the other, without needing to know ahead of time.  We call that an
+`action`, and write it in single quotes `'`, inbetween the state and the
+relevant arrow.
+
+```fsl
+On 'toggle' -> Off 'toggle' -> On;
+```
+
+The placement of the action on double-sided arrows matches the arrow itself:
+
+```fsl
+On 'toggle' <-> 'toggle' Off;
+```
