@@ -1,0 +1,88 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Language reference | JSSM, a JavaScript state machine - the FSM for FSL</title><meta name="description" content="Documentation for JSSM, a JavaScript state machine - the FSM for FSL"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><link rel="stylesheet" href="../assets/custom.css"/><script async src="../assets/search.js" id="search-script"></script><link rel="stylesheet" href="../assets/pages.css"/></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base=".."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">JSSM, a JavaScript state machine - the FSM for FSL</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><ul class="tsd-breadcrumb"><li><a href="../modules.html">JSSM, a JavaScript state machine - the FSM for FSL</a></li><li><span>Tutorials</span></li><li><a href="LanguageReference.html">Language reference</a></li></ul><h1> Language reference </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#language-reference" id="language-reference" style="color: inherit; text-decoration: none;">
+  <h1>Language Reference</h1>
+</a>
+<p>This document is still underway.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
+  <h2>Quick start</h2>
+</a>
+<p>If you&#39;re new to state machines, please read <a href="WhatAreStateMachines.html">What
+Are State Machines</a> first.</p>
+<p>A machine often looks like this:</p>
+<pre><code class="language-fsl"><span class="hl-9">Red</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Green</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Yellow</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p>With actions:</p>
+<pre><code class="language-fsl"><span class="hl-9">Red</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Green</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Yellow</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Red</span><span class="hl-1">;</span>
+</code></pre>
+<p>It&#39;s honestly actually <em><strong>that easy</strong></em>.  Let&#39;s get into the details.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#terminology" id="terminology" style="color: inherit; text-decoration: none;">
+  <h2>Terminology</h2>
+</a>
+<p>Finite state machines are a concept from the 1950s, and though they come from
+English, many important devices originated in foreign languages, in math, or in
+programming languages, often overlapping, so many terms have competing phrasings
+in use from progress over the years.  Let&#39;s start by nailing words down.</p>
+<p><code>FSL</code> generally has <code>state</code>s, <code>transition</code>s, <code>action</code>s, <code>data</code>, and <code>hook</code>s.
+There are also a million small concepts, but, that&#39;s the meat of the matter, and
+some subset of that is true of most state machines.</p>
+<p>The idea with a finite state machine is simple - {if you&#39;re new to FSMs, maybe
+read this tutorial first} - but in short, a finite state machine is in exactly
+one <code>state</code> at any time, from amongst a concrete and permanent list of <code>state</code>s,
+and there is a list of which <code>state</code>s are allowed <code>transition</code> to which others.
+They may do so because you explicitly said to, or in response to an <code>action</code>.
+In the process, some <code>data</code> being tracked might change (though usually not, it
+turns out,) and as a result, some <code>hook</code>s might get called, which even might
+prevent the change from happening.</p>
+<p>Using a traffic light as an example, the four colors the light might be in are
+the <code>state</code>s (red, yellow, green, and off;) the <code>action</code>s are <code>next color</code>,
+<code>turn on</code>, and <code>turn off</code>; to <code>transition</code> is to switch to another color.  If
+your light does things when it switches, like yelling &quot;red light&quot; on switching
+to red, it&#39;ll do those in <code>hooks</code>.  (A traffic light doesn&#39;t need <code>data</code>.)</p>
+<p>In the fashion of a type system or a constraint system, a finite state machine
+is a way of giving the computer more context about what&#39;s going on, so that it
+can refuse changes that aren&#39;t correct.  This leads to improved debugging,
+easier to understand software, safer execution, and a long list of subtle
+benefits.</p>
+<p>However, these machines tend to be quite verbose to express, especially if
+they&#39;re written in language-standard datastructures, to the point that reading
+and writing them becomes cumbersome.  <code>FSL</code> and <code>jssm</code> exist to solve this.</p>
+<p><code>FSL</code> is a string-based domain-specific language for finite state machines.</p>
+<p><code>jssm</code> is a parser and executing machine for <code>FSL</code> language machines.</p>
+<p>This document expresses the FSL language in its current state.</p>
+<aside>
+
+
+<a href="#new-users-old-pros" id="new-users-old-pros" style="color: inherit; text-decoration: none;">
+  <h3>New users, old pros</h3>
+</a>
+<p>If you&#39;re used to finite state machines but coming from another machine,</p>
+<ul>
+<li><code>state</code>s are sometimes called <code>node</code>s or <code>mode</code>s;</li>
+<li><code>transition</code>s are sometimes called <code>edge</code>s or <code>connection</code>s;</li>
+<li><code>action</code>s are sometimes called <code>command</code>s or <code>event</code>s;</li>
+<li><code>hook</code>s are sometimes called <code>output</code>s.</li>
+</ul>
+<aside>
+
+
+
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#the-basics" id="the-basics" style="color: inherit; text-decoration: none;">
+  <h1>The basics</h1>
+</a>
+<p>Expressing states is implicit.  An FSL user expresses transitions only.</p>
+<p>Transitions in the simple form are expressed as the name of two or more states,
+with arrows between them, ending in a semicolon.  A traffic light:</p>
+<pre><code class="language-fsl"><span class="hl-9">Red</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Green</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Yellow</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Red</span><span class="hl-1">;</span>
+</code></pre>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class=""><a href="../modules.html">Exports</a></li><li class="current pages-entry pages-entry-menu pages-entry-depth-0"><a>Tutorials</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="WhatAreStateMachines.html">What are state machines?</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="GettingStarted.html">☕ <wbr/>Quick <wbr/>Start</a></li><li class="current pages-entry pages-entry-page pages-entry-depth-1"><a href="LanguageReference.html">Language reference</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="todo.html">API reference</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="ExampleMachines.html">Example machines</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Howtos and <wbr/>Recipes</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Environments</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Bundling</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Publishing</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="Styling.html">Theme, style, color</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Comparisons</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="FeatureComparison.html">Feature comparison</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="Shootout.html">LOC <wbr/>Shootout</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-0"><a>Tools</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="live_editor.html">Live <wbr/>Editor</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="todo.html">Github <wbr/>Action</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="community.html">Community</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="CHANGELOG.long.html">Changelog</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="../assets/main.js"></script></body></html>
