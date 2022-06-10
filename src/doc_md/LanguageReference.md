@@ -10,6 +10,9 @@ This document is still underway.
 
 ## Quick start
 
+If you're new to state machines, please read {@page WhatAreStateMachines.md What
+Are State Machines} first.
+
 A machine often looks like this:
 
 ```fsl
@@ -22,20 +25,20 @@ With actions:
 Red 'next' -> Green 'next' -> Yellow 'next' -> Red;
 ```
 
-It's honestly actually that easy.  Let's get into the details.
+It's honestly actually ***that easy***.  Let's get into the details.
+
+
 
 &nbsp;
 
 &nbsp;
-
-
 
 ## Terminology
 
 Finite state machines are a concept from the 1950s, and though they come from
 English, many important devices originated in foreign languages, in math, or in
 programming languages, often overlapping, so many terms have competing phrasings
-in use.  Let's start by nailing words down.
+in use from progress over the years.  Let's start by nailing words down.
 
 `FSL` generally has `state`s, `transition`s, `action`s, `data`, and `hook`s.
 There are also a million small concepts, but, that's the meat of the matter, and
