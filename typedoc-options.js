@@ -17,9 +17,10 @@ module.exports = {
         { title: 'API reference',      source: 'todo.md' },
         { title: 'Example machines',   source: 'todo.md' },
         { title: 'Howtos and Recipes', childrenDir: './', children: [
-          { title: 'Environments', source: 'todo.md' },
-          { title: 'Bundling',     source: 'todo.md' },
-          { title: 'Publishing',   source: 'todo.md' }
+          { title: 'Environments',        source: 'todo.md' },
+          { title: 'Bundling',            source: 'todo.md' },
+          { title: 'Publishing',          source: 'todo.md' },
+          { title: 'Theme, style, color', source: 'Styling.md' }
         ] },
         { title: 'Comparisons', childrenDir: './', children: [
           { title: 'Feature comparison', source: 'FeatureComparison.md' },
