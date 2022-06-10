@@ -13,9 +13,9 @@ module.exports = {
       { title: 'Tutorials', childrenDir: './', children: [
         { title: 'What are state machines?', source: 'WhatAreStateMachines.md' },
         { title: '☕ Quick Start', source: 'GettingStarted.md' },
-        { title: 'Language reference', source: 'todo.md' },
+        { title: 'Language reference', source: 'LanguageReference.md' },
         { title: 'API reference',      source: 'todo.md' },
-        { title: 'Example machines',   source: 'todo.md' },
+        { title: 'Example machines',   source: 'ExampleMachines.md' },
         { title: 'Howtos and Recipes', childrenDir: './', children: [
           { title: 'Environments',        source: 'todo.md' },
           { title: 'Bundling',            source: 'todo.md' },

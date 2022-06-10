@@ -87,3 +87,22 @@ If you're used to finite state machines but coming from another machine,
 * `hook`s are sometimes called `output`s.
 
 <aside>
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+# The basics
+
+Expressing states is implicit.  An FSL user expresses transitions only.
+
+Transitions in the simple form are expressed as the name of two or more states,
+with arrows between them, ending in a semicolon.  A traffic light:
+
+```fsl
+Red -> Green -> Yellow -> Red;
+```
