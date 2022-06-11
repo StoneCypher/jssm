@@ -111,13 +111,40 @@ const TrafficLight = sm`
 TrafficLight.transition('Red');
 ```
 
-What's important here is that we've taught the machine order.  If it's in
-`Yellow`, it knows that it isn't allowed to go to `Green`, and if you tell it to
-do that, it'll refuse.
+And for purposes of the tutorial, we'll just focus on the language part:
+
+```typescript
+Off -> Red -> Green -> Yellow -> Red;
+[Red Yellow Green] -> Off;
+```
+
+What's important here is that we've taught the machine light color order.  If
+it's in `Yellow`, it knows that it isn't allowed to go to `Green`, and if you
+tell it to do that, it'll refuse.
 
 This is, roughly, the value of type systems, check constraints, proof systems,
 some kinds of constraint programming, and arguably of testing and even linting:
 teaching the machine what wrong is, so that it can support you.
 
-State machines are an extremely powerful tool for machine auditing.  They just
-need to be written in a convenient fashion.
+State machines are an extremely powerful tool for machine auditing and machine
+self-diagnosis.  They can also, however, be supportive and convenient.  By
+example, the previous state machine requires a user to know what color it's
+currently in to proceed.  This seems undesirable.  Let's teach it to accept an
+instruction `next` to proeed to whatever the next correct color is:
+
+
+```typescript
+Off -> Red;
+Red 'next' -> Green 'next' -> Yellow 'next' -> Red;
+[Red Yellow Green] -> Off;
+```
+
+We didn't have to break off the opening `Off -> Red` that way; the author just
+thinks it's cleaner looking (indeed, this machine can be a one-liner if you
+don't much care about readability.)
+
+Now, we can interact with the machine as such:
+
+```typescript
+TrafficLight.action('next');
+```
