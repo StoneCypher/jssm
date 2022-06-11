@@ -4,6 +4,8 @@ on: [push]
 
 jobs:
 
+
+
   build:
 
     strategy:
@@ -51,7 +53,10 @@ jobs:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./coverage/spec/lcov.info
 
+
+
   benchmark:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -66,7 +71,10 @@ jobs:
       run: |
         npm install && npm run benny
 
+
+
   verify-version-bump:
+
     runs-on: ubuntu-latest
 
     steps:
@@ -84,9 +92,14 @@ jobs:
         git config --global user.name "John Haugeland through Github Actions"
         node ./src/buildjs/verify_version_bump.js
 
+
+
   release:
+
     if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
+
     needs: [build, verify-version-bump]
+
     runs-on: ubuntu-latest
 
     steps:
@@ -121,26 +134,12 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
 
-  # bump-jssm-viz:
-  #   needs: [release]
-  #   name: Update jssm-viz
-  #   uses: StoneCypher/jssm-viz/.github/workflows/lib_update.js.yml@main
-  #   with:
-  #     libversion: env.TAG
 
-  # bump-jssm-viz:
-  #   needs: [release]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: CURL RPC to jssm-viz action
-  #     run: |
-  #       curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/actions/workflows/lib_update.js.yml/dispatches" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" -H "Authorization: Bearer ${GITHUB_TOKEN}" --data "{\"inputs\":{\"libversion\":\"${}\"}}"
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       LIBVERSION: foo.bar.baz
 
   bump-jssm-viz:
+
     needs: [release]
+
     runs-on: ubuntu-latest
 
     steps:
@@ -149,6 +148,7 @@ jobs:
       run: |
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
         echo "TAG=$TAG" >> $GITHUB_ENV
+
     - name: CURL RPC to jssm-viz action
       run: |
         curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/dispatches" -H 'Accept: application/vnd.github.everest-preview+json' -u ${{ secrets.JSSM_UPGRADE_PERSONAL_ACCESS_TOKEN }} --data '{"event_type": "upgrade_jssm", "client_payload": { "lib_version": "${{ env.TAG }}" }}'
@@ -156,8 +156,11 @@ jobs:
 
 
   finish:
+
     needs: [bump-jssm-viz]
+
     runs-on: ubuntu-latest
+
     steps:
     - name: Results page
       run: echo '### Results!\n\n* Published to NPM\n* Bumped `jssm-viz`\n* Bumped `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY

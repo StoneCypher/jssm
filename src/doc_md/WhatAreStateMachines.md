@@ -51,3 +51,22 @@ On 'toggle' <-> 'toggle' Off;
 And were we to graph this, it might look like so:
 
 ![](./SimpleLightSwitch.png)
+
+But, a light switch is hardly convincing, or much worth paying attention to.
+
+
+
+&nbsp;
+
+&nbsp;
+
+## The traffic light
+
+The traffic light is maybe the smallest useful state machine.  It's three states
+(or four if you count `Off`,) and there's a good reason for it to be there: it's
+important that a traffic light doesn't "go backwards."
+
+Traffic lights are directional in several ways.  The important one is color: a
+traffic light that's `Yellow` must next go to `Red`.  If the wrong thing
+happens, and the light goes from `Yellow` to `Green` instead, an accident might
+happen.  People could die.
