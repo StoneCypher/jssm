@@ -144,10 +144,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: CURL RPC to jssm-viz action
-      env:
-        LIBVERSION: foo.bar.baz
+#     env:
+#       LIBVERSION: foo.bar.baz
       run: |
-        curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/dispatches" -H 'Accept: application/vnd.github.everest-preview+json' -u ${{ secrets.JSSM_UPGRADE_PERSONAL_ACCESS_TOKEN }} --data '{"event_type": "upgrade_jssm", "client_payload": { "lib_version": "${{ env.LIBVERSION }}" }}'
+        curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/dispatches" -H 'Accept: application/vnd.github.everest-preview+json' -u ${{ secrets.JSSM_UPGRADE_PERSONAL_ACCESS_TOKEN }} --data '{"event_type": "upgrade_jssm", "client_payload": { "lib_version": "${{ env.TAG }}" }}'
 
 
 
