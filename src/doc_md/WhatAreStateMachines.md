@@ -70,3 +70,54 @@ Traffic lights are directional in several ways.  The important one is color: a
 traffic light that's `Yellow` must next go to `Red`.  If the wrong thing
 happens, and the light goes from `Yellow` to `Green` instead, an accident might
 happen.  People could die.
+
+In code, you'd need to do something like this:
+
+```typescript
+const allowed = {
+  'green'  : ['yellow', 'off'],
+  'yellow' : ['red', 'off'],
+  'red'    : ['green', 'off'],
+  'off'    : ['red']
+};
+
+let state = 'off';
+
+function switch_to(next) {
+
+  if (allowed[state].includes(next)) {
+    state = next;
+    return true;
+  } else {
+    return false;
+  }
+
+}
+
+switch_to('red');
+```
+
+And that is a rudimentary state machine.
+
+Of course, we're in a state machine programming language and library whose
+design is meant to make them simple, so, we'd write this, instead:
+
+```typescript
+const TrafficLight = sm`
+  Off -> Red -> Green -> Yellow -> Red;
+  [Red Yellow Green] -> Off;
+`;
+
+TrafficLight.transition('Red');
+```
+
+What's important here is that we've taught the machine order.  If it's in
+`Yellow`, it knows that it isn't allowed to go to `Green`, and if you tell it to
+do that, it'll refuse.
+
+This is, roughly, the value of type systems, check constraints, proof systems,
+some kinds of constraint programming, and arguably of testing and even linting:
+teaching the machine what wrong is, so that it can support you.
+
+State machines are an extremely powerful tool for machine auditing.  They just
+need to be written in a convenient fashion.
