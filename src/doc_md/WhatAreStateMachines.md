@@ -111,9 +111,12 @@ const TrafficLight = sm`
 TrafficLight.transition('Red');
 ```
 
-And for purposes of the tutorial, we'll just focus on the language part:
+It's implied that, unless you say otherwise, the first mentioned state is the
+state the machine starts in, so, this traffic light starts in `Off`.
 
-```typescript
+For purposes of the tutorial, we'll just focus on the language part:
+
+```fsl
 Off -> Red -> Green -> Yellow -> Red;
 [Red Yellow Green] -> Off;
 ```
@@ -133,7 +136,7 @@ currently in to proceed.  This seems undesirable.  Let's teach it to accept an
 instruction `next` to proeed to whatever the next correct color is:
 
 
-```typescript
+```fsl
 Off -> Red;
 Red 'next' -> Green 'next' -> Yellow 'next' -> Red;
 [Red Yellow Green] -> Off;
@@ -148,3 +151,50 @@ Now, we can interact with the machine as such:
 ```typescript
 TrafficLight.action('next');
 ```
+
+
+
+&nbsp;
+
+&nbsp;
+
+## More simple machines
+
+And, already, a bunch of other simple machines are accessable.  Some examples:
+
+&nbsp;
+
+Three brightness lamp is pretty similar to a traffic light, except that `Off` is
+part of the main loop instead of an extra state:
+
+```fsl
+Off 'touch' -> Bright 'touch' -> Medium 'touch' -> Dim 'touch' -> Off;
+```
+
+![](lamp_machine.png)
+
+&nbsp;
+
+A locking door, by contrast, might have a state for `Unlocked` which responds to
+`open` by switching to `Opened`, but a state `Locked` which responds to `open`
+by going to itself (or perhaps just not expressing the action at all.)
+
+```fsl
+Opened 'close' <-> 'open' Closed 'lock' <-> 'unlock' Locked;
+Locked 'open' -> Locked;
+```
+
+![](locked_door_machine.png)
+
+&nbsp;
+
+The basic four states of matter on Earth:
+
+```fsl
+ Solid      'melt' <-> 'freeze'    Liquid;
+Liquid  'vaporize' <-> 'condense'  Gas;
+   Gas    'ionize' <-> 'recombine' Plasma;
+ Solid 'sublimate' <-> 'deposit'   Gas;
+```
+
+![](basic_matter_machine.png)
