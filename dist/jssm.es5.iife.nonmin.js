@@ -16782,7 +16782,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.70.16";
+  const version = "5.70.18";
 
   class JssmError extends Error {
       constructor(machine, message, JEEI) {

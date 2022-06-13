@@ -2,5 +2,224 @@
 <a href="#example-machines" id="example-machines" style="color: inherit; text-decoration: none;">
   <h1>Example Machines</h1>
 </a>
-<p>This help page has not yet been written.</p>
+<p>This is a table of example machines.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<div class="rot_th_tab">
+
+
+<a href="#useful-machines" id="useful-machines" style="color: inherit; text-decoration: none;">
+  <h2>Useful machines</h2>
+</a>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>#</th>
+<th><span class="rot">Edge&nbsp;kinds</span></th>
+<th><span class="rot">Actions</span></th>
+<th><span class="rot">Hooks</span></th>
+<th><span class="rot">Properties</span></th>
+<th><span class="rot">Data</span></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="#lightswitch">Light switch</a></td>
+<td>2</td>
+<td></td>
+<td>&#x2705;</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="#trafficlight">Traffic light</a></td>
+<td>4</td>
+<td>&#x2705;</td>
+<td>&#x2705;</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="#trafficintersection">Traffic intersection</a></td>
+<td>7</td>
+<td>&#x2705;</td>
+<td>&#x2705;</td>
+<td>&#x2705;</td>
+<td>&#x2705;</td>
+<td></td>
+</tr>
+<tr>
+<td><a href="#mealyvendingmachine">Mealy vending machine</a></td>
+<td>-</td>
+<td></td>
+<td>&#x2705;</td>
+<td>&#x2705;</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="#moorevendingmachine">Moore vending machine</a></td>
+<td>-</td>
+<td></td>
+<td>&#x2705;</td>
+<td>&#x2705;</td>
+<td></td>
+<td>&#x2705;</td>
+</tr>
+<tr>
+<td><a href="#tcpip">TCP/IP</a></td>
+<td>12</td>
+<td></td>
+<td>&#x2705;</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+
+
+
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<div class="rot_th_tab">
+
+
+<a href="#documentary-machines" id="documentary-machines" style="color: inherit; text-decoration: none;">
+  <h2>Documentary machines</h2>
+</a>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>#</th>
+<th><span class="rot">Edge&nbsp;kinds</span></th>
+<th><span class="rot">Actions</span></th>
+<th><span class="rot">Hooks</span></th>
+<th><span class="rot">Properties</span></th>
+<th><span class="rot">Data</span></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="#statesofmatter">States of matter</a></td>
+<td>4</td>
+<td></td>
+<td>&#x2705;</td>
+<td></td>
+<td>&#x2705;</td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+
+
+
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<div class="rot_th_tab">
+
+
+<a href="#comedy-machines" id="comedy-machines" style="color: inherit; text-decoration: none;">
+  <h2>Comedy machines</h2>
+</a>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>#</th>
+<th><span class="rot">Edge&nbsp;kinds</span></th>
+<th><span class="rot">Actions</span></th>
+<th><span class="rot">Hooks</span></th>
+<th><span class="rot">Properties</span></th>
+<th><span class="rot">Data</span></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="#punjabinametheory">Punjabi name theory</a></td>
+<td>-</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#useful-machines-1" id="useful-machines-1" style="color: inherit; text-decoration: none;">
+  <h1>Useful Machines</h1>
+</a>
+<p><a name="useful"></a><a href="#top">Back to top</a></p>
+<p>&nbsp;</p>
+
+<a href="#light-switch" id="light-switch" style="color: inherit; text-decoration: none;">
+  <h2>Light switch</h2>
+</a>
+<p><a name="lightswitch"></a></p>
+<p>Pretty obvious two-stater.  Starts in <code>Off</code>; switches back and forth on
+<code>toggle</code>.</p>
+<pre><code class="language-fsl"><span class="hl-9">Off</span><span class="hl-1"> </span><span class="hl-7">&#39;toggle&#39;</span><span class="hl-1"> </span><span class="hl-0">&lt;=&gt;</span><span class="hl-1"> </span><span class="hl-7">&#39;toggle&#39;</span><span class="hl-1"> </span><span class="hl-9">On</span><span class="hl-1">;</span>
+</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#traffic-light" id="traffic-light" style="color: inherit; text-decoration: none;">
+  <h2>Traffic light</h2>
+</a>
+<p><a name="trafficlight"></a></p>
+<p>Pretty obvious two-stater.  Starts in <code>Off</code>; turns on with <code>enable</code>; when on,
+cycles on <code>next</code>, or back to <code>Off</code> with <code>disable</code>.  Does not offer <code>enable</code> or
+<code>disable</code> when not appropriate.</p>
+<pre><code class="language-fsl"><span class="hl-9">Off</span><span class="hl-1"> </span><span class="hl-7">&#39;enable&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Red</span><span class="hl-1">;</span><br/><span class="hl-9">Red</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-9">Green</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-9">Yellow</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-9">Red</span><span class="hl-1">;</span><br/><span class="hl-1">[</span><span class="hl-9">Red</span><span class="hl-1"> </span><span class="hl-9">Yellow</span><span class="hl-1"> </span><span class="hl-9">Green</span><span class="hl-1">] </span><span class="hl-7">&#39;disable&#39;</span><span class="hl-1"> </span><span class="hl-0">~&gt;</span><span class="hl-1"> </span><span class="hl-9">Off</span><span class="hl-1">;</span>
+</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#traffic-intersection" id="traffic-intersection" style="color: inherit; text-decoration: none;">
+  <h2>Traffic intersection</h2>
+</a>
+<p><a name="trafficintersection"></a></p>
+<p>Offers six states - red yellow green for north, and the same for east.  Shows
+red in the unnamed direction.  Guarantees four-light sync at all times.</p>
+<pre><code class="language-fsl"><span class="hl-9">Off</span><span class="hl-1"> </span><span class="hl-7">&#39;enable&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">GreenNorth</span><span class="hl-1">;</span><br/><br/><span class="hl-9">GreenNorth</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-9">YellowNorth</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-9">RedNorth</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><br/><span class="hl-9">GreenEast</span><span class="hl-1"> </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1">  </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-9">YellowEast</span><span class="hl-1">  </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-9">RedEast</span><span class="hl-1">  </span><span class="hl-7">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">=&gt;</span><br/><span class="hl-9">GreenNorth</span><span class="hl-1">;</span><br/><br/><span class="hl-1">[</span><span class="hl-9">GreenNorth</span><span class="hl-1"> </span><span class="hl-9">YellowNorth</span><span class="hl-1"> </span><span class="hl-9">RedNorth</span><span class="hl-1"> </span><span class="hl-9">GreenEast</span><span class="hl-1"> </span><span class="hl-9">YellowEast</span><span class="hl-1"> </span><span class="hl-9">RedEast</span><span class="hl-1">] </span><span class="hl-7">&#39;disable&#39;</span><span class="hl-1"> </span><span class="hl-0">~&gt;</span><span class="hl-1"> </span><span class="hl-9">Off</span><span class="hl-1">;</span>
+</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#tcpip" id="tcpip" style="color: inherit; text-decoration: none;">
+  <h2>TCP/IP</h2>
+</a>
+<p><a name="tcpip"></a></p>
+<p>TCP/IP, essentially the foundation of the internet, is fundamentally defined as
+a state machine and currently codified on
+<a href="https://datatracker.ietf.org/doc/html/rfc793">page 22 of RFC793</a>.</p>
+<p>A TCP/IP socket both starts and ends in <code>Closed</code>.</p>
+<pre><code class="language-fsl"><span class="hl-9">Closed</span><span class="hl-1"> </span><span class="hl-7">&#39;Passive open&#39;</span><span class="hl-1">      </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Listen</span><span class="hl-1">;</span><br/><span class="hl-9">Closed</span><span class="hl-1"> </span><span class="hl-7">&#39;Active Open / SYN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">SynSent</span><span class="hl-1">;</span><br/><br/><span class="hl-9">Listen</span><span class="hl-1"> </span><span class="hl-7">&#39;Close&#39;</span><span class="hl-1">         </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Closed</span><span class="hl-1">;</span><br/><span class="hl-9">Listen</span><span class="hl-1"> </span><span class="hl-7">&#39;Send / SYN&#39;</span><span class="hl-1">    </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">SynSent</span><span class="hl-1">;</span><br/><span class="hl-9">Listen</span><span class="hl-1"> </span><span class="hl-7">&#39;SYN / SYN+ACK&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">SynRcvd</span><span class="hl-1">;</span><br/><br/><span class="hl-9">SynSent</span><span class="hl-1"> </span><span class="hl-7">&#39;Close&#39;</span><span class="hl-1">         </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Closed</span><span class="hl-1">;</span><br/><span class="hl-9">SynSent</span><span class="hl-1"> </span><span class="hl-7">&#39;SYN / SYN+ACK&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">SynRcvd</span><span class="hl-1">;</span><br/><span class="hl-9">SynSent</span><span class="hl-1"> </span><span class="hl-7">&#39;SYN+ACK / ACK&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Established</span><span class="hl-1">;</span><br/><br/><span class="hl-9">SynRcvd</span><span class="hl-1"> </span><span class="hl-7">&#39;Timeout / RST&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Closed</span><span class="hl-1">;</span><br/><span class="hl-9">SynRcvd</span><span class="hl-1"> </span><span class="hl-7">&#39;Close / FIN&#39;</span><span class="hl-1">   </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">FinWait1</span><span class="hl-1">;</span><br/><span class="hl-9">SynRcvd</span><span class="hl-1"> </span><span class="hl-7">&#39;ACK&#39;</span><span class="hl-1">           </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Established</span><span class="hl-1">;</span><br/><br/><span class="hl-9">Established</span><span class="hl-1"> </span><span class="hl-7">&#39;Close / FIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">FinWait1</span><span class="hl-1">;</span><br/><span class="hl-9">Established</span><span class="hl-1"> </span><span class="hl-7">&#39;FIN / ACK&#39;</span><span class="hl-1">   </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">CloseWait</span><span class="hl-1">;</span><br/><br/><span class="hl-9">FinWait1</span><span class="hl-1"> </span><span class="hl-7">&#39;FIN / ACK&#39;</span><span class="hl-1">     </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Closing</span><span class="hl-1">;</span><br/><span class="hl-9">FinWait1</span><span class="hl-1"> </span><span class="hl-7">&#39;FIN+ACK / ACK&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">TimeWait</span><span class="hl-1">;</span><br/><span class="hl-9">FinWait1</span><span class="hl-1"> </span><span class="hl-7">&#39;ACK / Nothing&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">FinWait2</span><span class="hl-1">;</span><br/><br/><span class="hl-9">FinWait2</span><span class="hl-1">  </span><span class="hl-7">&#39;FIN / ACK&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">TimeWait</span><span class="hl-1">;</span><br/><span class="hl-9">Closing</span><span class="hl-1">   </span><span class="hl-7">&#39;ACK&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">TimeWait</span><span class="hl-1">;</span><br/><span class="hl-9">TimeWait</span><span class="hl-1">  </span><span class="hl-7">&#39;Up to 2*MSL&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Closed</span><span class="hl-1">;</span><br/><span class="hl-9">CloseWait</span><span class="hl-1"> </span><span class="hl-7">&#39;Close / FIN&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">LastAck</span><span class="hl-1">;</span><br/><br/><span class="hl-9">LastAck</span><span class="hl-1"> </span><span class="hl-7">&#39;ACK&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-9">Closed</span><span class="hl-1">;</span>
+</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#comedy-machines-1" id="comedy-machines-1" style="color: inherit; text-decoration: none;">
+  <h1>Comedy Machines</h1>
+</a>
+<p><a name="comedy"></a><a href="#top">Back to top</a></p>
+<p>&nbsp;</p>
+
+<a href="#punjabi-name-theory" id="punjabi-name-theory" style="color: inherit; text-decoration: none;">
+  <h2>Punjabi Name Theory</h2>
+</a>
+<p><a name="punjabinametheory"></a></p>
 </div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class=""><a href="../modules.html">Exports</a></li><li class="current pages-entry pages-entry-menu pages-entry-depth-0"><a>Tutorials</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="WhatAreStateMachines.html">What are state machines?</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="GettingStarted.html">☕ <wbr/>Quick <wbr/>Start</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="LanguageReference.html">Language reference</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="todo.html">API reference</a></li><li class="current pages-entry pages-entry-page pages-entry-depth-1"><a href="ExampleMachines.html">Example machines</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Howtos and <wbr/>Recipes</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Environments</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Bundling</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Publishing</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="Styling.html">Theme, style, color</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Comparisons</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="FeatureComparison.html">Feature comparison</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="Shootout.html">LOC <wbr/>Shootout</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-0"><a>Tools</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="live_editor.html">Live <wbr/>Editor</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="todo.html">Github <wbr/>Action</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="community.html">Community</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="CHANGELOG.long.html">Changelog</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="../assets/main.js"></script></body></html>

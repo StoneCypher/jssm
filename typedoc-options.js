@@ -37,6 +37,7 @@ module.exports = {
       { title: 'VIRTUAL', childrenDir: './', children: [
         { title: 'Changelog', source: 'CHANGELOG.long.md' }
       ] },
+      { title: 'VIRTUAL', source: 'ExampleMachines_TrafficLight.md' }
       // { title: '@knodes/typedoc-plugin-code-blocks', source: 'readme-extras.md', children: [
       //   { title: 'Using options', source: 'options.md' },
       // ] },
