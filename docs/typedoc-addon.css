@@ -55,7 +55,8 @@ pre { border-radius: 0.3em; }
 .rot_th_tab                   { vertical-align: bottom; }
 .rot_th_tab th                { position: relative; font-weight: normal; }
 .rot_th_tab th:first-of-type  { height: 7em; vertical-align: bottom; }
-.rot_th_tab th:nth-of-type(2) { vertical-align: bottom; font-weight: normal; }
+.rot_th_tab td:nth-of-type(2),
+.rot_th_tab th:nth-of-type(2) { vertical-align: bottom; font-weight: normal; text-align: center; }
 .rot_th_tab th+th+th,
-.rot_th_tab td+td+td          { padding: 6px 4px; }
+.rot_th_tab td+td+td          { padding: 6px 4px; min-width: 1.3em; }
 .rot                          { transform-origin: 0 0; transform: rotate(-90deg); display: inline-block; position: absolute; left: 0.25em; bottom: -0.75em; font-weight: 400; }

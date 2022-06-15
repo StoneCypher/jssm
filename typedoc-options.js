@@ -17,8 +17,26 @@ module.exports = {
         { title: 'API reference',      source: 'todo.md' },
         { title: 'Example machines',   source: 'ExampleMachines.md' },
         { title: 'Howtos and Recipes', childrenDir: './', children: [
-          { title: 'Environments',        source: 'todo.md' },
-          { title: 'Bundling',            source: 'todo.md' },
+          { title: 'Frameworks', childrenDir: './', children: [
+            { title: 'React',   source: 'todo.md' },
+            { title: 'Vue',     source: 'todo.md' },
+            { title: 'Angular', source: 'todo.md' },
+            { title: 'Node',    source: 'todo.md' },
+          ] },
+          { title: 'Environments', childrenDir: './', children: [
+            { title: 'Node',        source: 'todo.md' },
+            { title: 'Typescript',  source: 'todo.md' },
+            { title: 'The browser', source: 'todo.md' },
+            { title: 'Deno',        source: 'todo.md' },
+            { title: 'AWS Lambda',  source: 'todo.md' },
+            { title: 'SQL',         source: 'todo.md' },
+          ] },
+          { title: 'Bundling', childrenDir: './', children: [
+            { title: 'Rollup',      source: 'todo.md' },
+            { title: 'Webpack',     source: 'todo.md' },
+            { title: 'CDN',         source: 'todo.md' },
+            { title: 'Local files', source: 'todo.md' },
+          ] },
           { title: 'Publishing',          source: 'todo.md' },
           { title: 'Theme, style, color', source: 'Styling.md' }
         ] },

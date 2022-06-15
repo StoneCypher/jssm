@@ -1,6 +1,12 @@
 # Example Machines
 
-This is a table of example machines.
+These are tables of example machines.
+
+If a cell is marked with a star &#11088;, it is considered the preferred machine for that
+specific example.  So, you can see from the star on "edge kinds" that `Traffic
+light` is the preferred machine for that example, in `Useful Machines`.
+
+If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 
 
@@ -14,14 +20,24 @@ This is a table of example machines.
 
 ## Useful machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| <a href="#lightswitch">Light switch</a> | 2 | | &#x2705; | | |
-| <a href="#trafficlight">Traffic light</a> | 4 | &#x2705; | &#x2705; | | | |
-| <a href="#trafficintersection">Traffic intersection</a> | 7 | &#x2705; | &#x2705; | &#x2705; | &#x2705; | | |
-| <a href="#mealyvendingmachine">Mealy vending machine</a> | - | | &#x2705; | &#x2705; | | |
-| <a href="#moorevendingmachine">Moore vending machine</a> | - | | &#x2705; | &#x2705; | | &#x2705; |
-| <a href="#tcpip">TCP/IP</a> | 12 | | &#x2705; | | | |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| <a href="#lightswitch">Light switch</a> | 2 | | &#11088; | | | | | |
+| <a href="#trafficlight">Traffic light</a> | 4 | &#11088; | &#9749; | | | | | | |
+| <a href="#trafficintersection">Traffic intersection</a> | 7 | &#9749; | &#9749; | &#9749; | &#11088; | | | | | |
+| Practical intersection | - | &#9749; | &#9749; | &#9749; | &#9749; | | | &#11088; | |
+| Intersection classifier | - | | | | | | &#11088; | | | |
+| Mealy vending machine | - | | &#9749; | &#11088; | | | | | |
+| Moore vending machine | - | | &#9749; | &#9749; | | &#11088; | | | |
+| <a href="#tcpip">TCP/IP</a> | 12 | | &#9749; | | | | | | |
+| BGP | - | | &#9749; | &#9749; | &#9749; | &#9749; | | | |
+| SIP | - | | | | | | | | |
+| eMMC Transfer Mode | - | | &#9749; | &#9749; | | | | | |
+| HTTP (Color for 0.9/1.0/1.1/2/3) | - | | | | | | | | |
+| SIP | - | | | | | | | | |
+| Locking door | 3 | | &#9749; | | | | | | |
+| Sally trap | 3 | | &#9749; | &#9749; | | | | &#9749; | |
+| Hand counter | - | | | | | | | | |
 
 </div>
 
@@ -37,9 +53,12 @@ This is a table of example machines.
 
 ## Documentary machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| <a href="#statesofmatter">States of matter</a> | 4 | | &#x2705; | | &#x2705; | |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| <a href="#statesofmatter">States of matter</a> | 4 | | &#9749; | | &#9749; | | | | |
+| <a href="#waterphases">Water phases</a> | 4 | | &#9749; | | | | &#9749; | | |
+| Pseudoscience generator | 18 | | | | &#9749; | &#9749; | | &#9749; | &#9749; |
+| Heartbeat (Little John) | - | | | &#9749; | | | | &#9749; | &#9749; |
 
 </div>
 
@@ -53,11 +72,56 @@ This is a table of example machines.
 
 <div class="rot_th_tab">
 
+## Game machines
+
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Pong AI | - | | | | &#9749; | | &#9749; | &#9749; | |
+| Roguelike Troll | - | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | | |
+| Play Craps | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; |
+| Play Skunk | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; |
+| Blackjack player | - | | | | &#9749; | | &#9749; | | &#9749; |
+| Blackjack dealer | - | | | | &#9749; | | &#9749; | | &#9749; |
+| Pair of Dice | - | | | | &#9749; | | | &#9749; | &#9749; |
+| Deck of Cards | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
+| Blackjack 1 on 1 | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
+| Tamagatchi | - | | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; |
+
+</div>
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## Demonstration machines
+
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Decision tree | - | | | | &#9749; | | | | |
+| Random model | - | | | | &#9749; | | | | &#9749; |
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<div class="rot_th_tab">
+
 ## Comedy machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| <a href="#punjabinametheory">Punjabi name theory</a> | - | | | | | |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Is It Broke? | - | | | | | | | | |
+| Punjabi name theory | - | | | | | | | | |
+| Unprison your Think Rhino | - | | | | | | | | |
+| Plugging in USB | - | | | | | | | | |
 
 </div>
 
@@ -168,6 +232,19 @@ TimeWait  'Up to 2*MSL' -> Closed;
 CloseWait 'Close / FIN' -> LastAck;
 
 LastAck 'ACK' -> Closed;
+```
+
+If you want to play golf, you can get that down to seven lines using lists and
+chaining:
+
+```fsl
+Closed 'Passive open' -> Listen 'Send / SYN' -> SynSent;
+[Listen SynSent] 'Close' -> Closed 'Active Open / SYN' -> SynSent 'SYN+ACK / ACK' -> Established 'FIN / ACK' -> CloseWait 'Close / FIN' -> LastAck 'ACK' -> Closed;
+[SynRcvd Established] 'Close / FIN' -> FinWait1 'FIN / ACK' -> Closing 'ACK' -> TimeWait
+[Listen SynSent] 'SYN / SYN+ACK' -> SynRcvd 'Timeout / RST' -> Closed;
+FinWait1 'FIN+ACK / ACK' -> TimeWait 'Up to 2*MSL' -> Closed;
+FinWait1 'ACK / Nothing' -> FinWait2 'FIN / ACK' -> TimeWait;
+SynRcvd 'ACK' -> Established;
 ```
 
 &nbsp;
