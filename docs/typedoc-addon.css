@@ -60,3 +60,10 @@ pre { border-radius: 0.3em; }
 .rot_th_tab th+th+th,
 .rot_th_tab td+td+td          { padding: 6px 4px; min-width: 1.3em; }
 .rot                          { transform-origin: 0 0; transform: rotate(-90deg); display: inline-block; position: absolute; left: 0.25em; bottom: -0.75em; font-weight: 400; }
+
+html li.pages-entry-depth-0 { padding-left: 15px; }
+html li.pages-entry-depth-1 { padding-left: 30px; }
+html li.pages-entry-depth-2 { padding-left: 45px; }
+html li.pages-entry-depth-3 { padding-left: 60px; }
+html li.pages-entry-depth-4 { padding-left: 75px; }
+html li.pages-entry-depth-5 { padding-left: 90px; }
