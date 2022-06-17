@@ -280,6 +280,18 @@ SynRcvd 'ACK' -> Established;
 
 &nbsp;
 
+## Is it broke?
+
+<a name="isitbroke"></a>
+
 ## Punjabi Name Theory
 
 <a name="punjabinametheory"></a>
+
+## Unprison Your Think Rhino
+
+<a name="unprisonyourthinkrhino"></a>
+
+## Pluggging In USB
+
+<a name="plugginginusb"></a>
