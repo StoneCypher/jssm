@@ -20,24 +20,40 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 ## Useful machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| <a href="#lightswitch">Light switch</a> | 2 | | &#11088; | | | | | |
-| <a href="#trafficlight">Traffic light</a> | 4 | &#11088; | &#9749; | | | | | | |
-| <a href="#trafficintersection">Traffic intersection</a> | 7 | &#9749; | &#9749; | &#9749; | &#11088; | | | | | |
-| Practical intersection | - | &#9749; | &#9749; | &#9749; | &#9749; | | | &#11088; | |
-| Intersection classifier | - | | | | | | &#11088; | | | |
-| Mealy vending machine | - | | &#9749; | &#11088; | | | | | |
-| Moore vending machine | - | | &#9749; | &#9749; | | &#11088; | | | |
-| <a href="#tcpip">TCP/IP</a> | 12 | | &#9749; | | | | | | |
-| BGP | - | | &#9749; | &#9749; | &#9749; | &#9749; | | | |
-| SIP | - | | | | | | | | |
-| eMMC Transfer Mode | - | | &#9749; | &#9749; | | | | | |
-| HTTP (Color for 0.9/1.0/1.1/2/3) | - | | | | | | | | |
-| SIP | - | | | | | | | | |
-| Locking door | 3 | | &#9749; | | | | | | |
-| Sally trap | 3 | | &#9749; | &#9749; | | | | &#9749; | |
-| Hand counter | - | | | | | | | | |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| <a href="#lightswitch">Light switch</a> | 2 | | &#11088; | | | | | | |
+| <a href="#trafficlight">Traffic light</a> | 4 | &#11088; | &#9749; | | | | | | | |
+| <a href="#trafficintersection">Traffic intersection</a> | 7 | &#9749; | &#9749; | &#9749; | &#11088; | | | | | | |
+| Practical intersection | - | &#9749; | &#9749; | &#9749; | &#9749; | | | &#11088; | | |
+| Intersection classifier | - | | | | | | &#11088; | | | | |
+| Mealy vending machine | - | | &#9749; | &#11088; | | | | | | |
+| Moore vending machine | - | | &#9749; | &#9749; | | &#11088; | | | | |
+| Locking door | 3 | | &#9749; | | | | | | | |
+| Sally trap | 3 | | &#9749; | &#9749; | | | | &#9749; | | |
+| Hand counter | - | | | | | | | | | |
+
+</div>
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<div class="rot_th_tab">
+
+## Protocols
+
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| <a href="#tcpip">TCP/IP</a> | 12 | | &#9749; | | | | | | | |
+| BGP | - | | &#9749; | &#9749; | &#9749; | &#9749; | | | | |
+| SIP | - | | | | | | | | | |
+| eMMC Transfer Mode | - | | &#9749; | &#9749; | | | | | | |
+| HTTP (Color for 0.9/1.0/1.1/2/3) | - | | | | | | | | | |
 
 </div>
 
@@ -53,12 +69,12 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 ## Documentary machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| <a href="#statesofmatter">States of matter</a> | 4 | | &#9749; | | &#9749; | | | | |
-| <a href="#waterphases">Water phases</a> | 4 | | &#9749; | | | | &#9749; | | |
-| Pseudoscience generator | 18 | | | | &#9749; | &#9749; | | &#9749; | &#9749; |
-| Heartbeat (Little John) | - | | | &#9749; | | | | &#9749; | &#9749; |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| <a href="#statesofmatter">States of matter</a> | 4 | | &#9749; | | &#9749; | | | | | |
+| <a href="#waterphases">Water phases</a> | 4 | | &#9749; | | | | &#9749; | | | |
+| Pseudoscience generator | 18 | | | | &#9749; | &#9749; | | &#9749; | &#9749; | |
+| Heartbeat (Little John) | - | | | &#9749; | | | | &#9749; | &#9749; | |
 
 </div>
 
@@ -74,18 +90,19 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 ## Game machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| Pong AI | - | | | | &#9749; | | &#9749; | &#9749; | |
-| Roguelike Troll | - | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | | |
-| Play Craps | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; |
-| Play Skunk | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; |
-| Blackjack player | - | | | | &#9749; | | &#9749; | | &#9749; |
-| Blackjack dealer | - | | | | &#9749; | | &#9749; | | &#9749; |
-| Pair of Dice | - | | | | &#9749; | | | &#9749; | &#9749; |
-| Deck of Cards | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
-| Blackjack 1 on 1 | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
-| Tamagatchi | - | | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Pong AI | - | | | | &#9749; | | &#9749; | &#9749; | | |
+| Roguelike Troll | - | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | | | |
+| Play Craps | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
+| Play Skunk | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
+| Blackjack player | - | | | | &#9749; | | &#9749; | | &#9749; | |
+| Blackjack dealer | - | | | | &#9749; | | &#9749; | | &#9749; | |
+| Pair of Dice | - | | | | &#9749; | | | &#9749; | &#9749; | |
+| Deck of Cards | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | | |
+| Blackjack 1 on 1 | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | | |
+| Tamagatchi | - | | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | |
+| Konami Code Detector | - | | | | | | | | | &#11088; |
 
 </div>
 
@@ -97,12 +114,16 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 &nbsp;
 
+<div class="rot_th_tab">
+
 ## Demonstration machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| Decision tree | - | | | | &#9749; | | | | |
-| Random model | - | | | | &#9749; | | | | &#9749; |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Decision tree | - | | | | &#9749; | | | | | |
+| Random model | - | | | | &#9749; | | | | &#9749; | |
+
+</div>
 
 
 
@@ -116,12 +137,12 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 ## Comedy machines
 
-| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> |
-| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| Is It Broke? | - | | | | | | | | |
-| Punjabi name theory | - | | | | | | | | |
-| Unprison your Think Rhino | - | | | | | | | | |
-| Plugging in USB | - | | | | | | | | |
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Is It Broke? | - | | | | | | | | | |
+| Punjabi name theory | - | | | | | | | | | |
+| Unprison your Think Rhino | - | | | | | | | | | |
+| Plugging in USB | - | | | | | | | | | |
 
 </div>
 

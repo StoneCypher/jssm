@@ -22,6 +22,7 @@ module.exports = {
             { title: 'Vue',     source: 'todo.md' },
             { title: 'Angular', source: 'todo.md' },
             { title: 'Node',    source: 'todo.md' },
+            { title: 'CLI',     source: 'todo.md' },
           ] },
           { title: 'Environments', childrenDir: './', children: [
             { title: 'Node',        source: 'todo.md' },
@@ -37,8 +38,9 @@ module.exports = {
             { title: 'CDN',         source: 'todo.md' },
             { title: 'Local files', source: 'todo.md' },
           ] },
-          { title: 'Publishing',          source: 'todo.md' },
-          { title: 'Theme, style, color', source: 'Styling.md' }
+          { title: "Let's make a large machine", source: 'todo.md' },
+          { title: 'Publishing',                 source: 'todo.md' },
+          { title: 'Theme, style, color',        source: 'Styling.md' }
         ] },
         { title: 'Comparisons', childrenDir: './', children: [
           { title: 'Feature comparison', source: 'FeatureComparison.md' },
