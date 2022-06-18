@@ -34,7 +34,8 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Hand counter | - | | | | | | | | | |
 | Submit a form | - | | | | | | | | | |
 | Dishwasher control | - | | | | | | | | | |
-| CPU | - | | | | | | | | | |
+| Trivial CPU | - | | | | | | | | | |
+| Usable CPU | - | | | | | | | | | |
 
 </div>
 
