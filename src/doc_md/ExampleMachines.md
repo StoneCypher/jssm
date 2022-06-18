@@ -63,6 +63,8 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Submit a form | - | | | | | | | | | |
 | Music sampler | - | | | | | | | | | |
 
+</div>
+
 
 
 
