@@ -111,6 +111,7 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Blackjack 1 on 1 | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | | |
 | Tamagatchi | - | | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | |
 | Konami Code Detector | - | | | | | | | | | &#11088; |
+| Seal AI stick balance | - | | | | | | | | | &#11088; |
 
 </div>
 
