@@ -31,9 +31,11 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Moore vending machine | - | | &#9749; | &#9749; | | &#11088; | | | | |
 | Locking door | 3 | | &#9749; | | | | | | | |
 | Sally trap | 3 | | &#9749; | &#9749; | | | | &#9749; | | |
+| Car door locks | - | | | | | | | | | |
 | Hand counter | - | | | | | | | | | |
 | Submit a form | - | | | | | | | | | |
 | Dishwasher control | - | | | | | | | | | |
+| Autodialler | - | | | | | | | | | |
 | Trivial CPU | - | | | | | | | | | |
 | Usable CPU | - | | | | | | | | | |
 
