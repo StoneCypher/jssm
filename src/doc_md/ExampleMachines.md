@@ -33,7 +33,6 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Sally trap | 3 | | &#9749; | &#9749; | | | | &#9749; | | |
 | Car door locks | - | | | | | | | | | |
 | Hand counter | - | | | | | | | | | |
-| Submit a form | - | | | | | | | | | |
 | Dishwasher control | - | | | | | | | | | |
 | Autodialler | - | | | | | | | | | |
 | Trivial CPU | - | | | | | | | | | |
@@ -42,6 +41,27 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Markhov chain | - | | | | | | | | | |
 
 </div>
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<div class="rot_th_tab">
+
+## WWW machines
+
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Login | - | | | | | | | | | |
+| Anon/Ident UI | - | | | | | | | | | |
+| Trivial routed UI | - | | | | | | | | | |
+| Complex routed UI | - | | | | | | | | | |
+| Submit a form | - | | | | | | | | | |
+| Music sampler | - | | | | | | | | | |
 
 
 
