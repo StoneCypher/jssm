@@ -148,6 +148,8 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 
 
+
+
 &nbsp;
 
 &nbsp;
@@ -171,6 +173,10 @@ Pretty obvious two-stater.  Starts in `Off`; switches back and forth on
 Off 'toggle' <=> 'toggle' On;
 ```
 
+
+
+
+
 &nbsp;
 
 &nbsp;
@@ -188,6 +194,10 @@ Off 'enable' -> Red;
 Red 'next' => Green 'next' => Yellow 'next' => Red;
 [Red Yellow Green] 'disable' ~> Off;
 ```
+
+
+
+
 
 &nbsp;
 
@@ -209,6 +219,10 @@ GreenNorth;
 
 [GreenNorth YellowNorth RedNorth GreenEast YellowEast RedEast] 'disable' ~> Off;
 ```
+
+
+
+
 
 &nbsp;
 
@@ -267,6 +281,10 @@ FinWait1 'FIN+ACK / ACK' -> TimeWait 'Up to 2*MSL' -> Closed;
 FinWait1 'ACK / Nothing' -> FinWait2 'FIN / ACK' -> TimeWait;
 SynRcvd 'ACK' -> Established;
 ```
+
+
+
+
 
 &nbsp;
 

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-923 merges; 95 releases
+900 merges; 99 releases
 
 
 
@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
 
 
@@ -22,7 +22,26 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 6/17/2022 6:08:07 AM
+<a name="5__70__21" />
+
+## [5.70.21] - 6/17/2022 7:06:38 AM
+
+Commit [0612e2a46b9701eb2222cdb38bb9c2eb4a9f3e1d](https://github.com/StoneCypher/jssm/commit/0612e2a46b9701eb2222cdb38bb9c2eb4a9f3e1d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * another facile build to trigger an external push
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__70__20" />
+
+## [5.70.20] - 6/17/2022 6:08:07 AM
 
 Commit [70be907be736a36d61efde959249923f47c6db64](https://github.com/StoneCypher/jssm/commit/70be907be736a36d61efde959249923f47c6db64)
 
@@ -52,7 +71,9 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/14/2022 10:17:50 PM
+<a name="5__70__19" />
+
+## [5.70.19] - 6/14/2022 10:17:50 PM
 
 Commit [3e9590c7bf93bc04bb474870c6bdd3910b08494d](https://github.com/StoneCypher/jssm/commit/3e9590c7bf93bc04bb474870c6bdd3910b08494d)
 
@@ -67,7 +88,9 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/12/2022 10:23:56 PM
+<a name="5__70__18" />
+
+## [5.70.18] - 6/12/2022 10:23:56 PM
 
 Commit [1b55b081409efc11ec4b4cfd87f19c46577c0458](https://github.com/StoneCypher/jssm/commit/1b55b081409efc11ec4b4cfd87f19c46577c0458)
 
@@ -3175,21 +3198,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2022 12:20:21 PM
-
-Commit [401e993895dbdd54ebd5e25d154d38aa8ad68679](https://github.com/StoneCypher/jssm/commit/401e993895dbdd54ebd5e25d154d38aa8ad68679)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Add setup support for this._has_hooks; add performance differentiation tests for hooks
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 5/3/2022 12:01:52 PM
 
 Commit [f1534eeae47b10c7847762f560de25cfee5813e9](https://github.com/StoneCypher/jssm/commit/f1534eeae47b10c7847762f560de25cfee5813e9)
@@ -4072,21 +4080,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/29/2021 5:26:02 PM
-
-Commit [924fa77e5ffea974413dc2b218357b5220506b01](https://github.com/StoneCypher/jssm/commit/924fa77e5ffea974413dc2b218357b5220506b01)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Stashing whatever the fuck I was doing, not sure, need to demo for mooksmart
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 11/28/2021 12:11:34 PM
 
 Commit [4be74ac799167a2f79df3e6785a042608dd23166](https://github.com/StoneCypher/jssm/commit/4be74ac799167a2f79df3e6785a042608dd23166)
@@ -4213,51 +4206,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/28/2021 11:55:21 PM
-
-Commit [b7492b87c96ec5d13daf4dccada82d07aee3d84e](https://github.com/StoneCypher/jssm/commit/b7492b87c96ec5d13daf4dccada82d07aee3d84e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Tests to ensure empty state names are forbidden in string and datastructure, fixes StoneCypher/fsl#598
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 10/28/2021 11:55:21 PM
-
-Commit [84b6f9e41003e4786c50098d785cb830f6b307f1](https://github.com/StoneCypher/jssm/commit/84b6f9e41003e4786c50098d785cb830f6b307f1)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Tests to ensure empty state names are forbidden in string and datastructure, fixes StoneCypher/fsl#598
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 10/28/2021 11:55:21 PM
-
-Commit [a09a58aa3f7d21cd02d4211262cc8ac1927d0628](https://github.com/StoneCypher/jssm/commit/a09a58aa3f7d21cd02d4211262cc8ac1927d0628)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Tests to ensure empty state names are forbidden in string and datastructure, fixes StoneCypher/fsl#598
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 10/20/2021 1:48:21 PM
 
 Commit [d07888857d95df81fac0f3d039a39dde2812874e](https://github.com/StoneCypher/jssm/commit/d07888857d95df81fac0f3d039a39dde2812874e)
@@ -4279,21 +4227,6 @@ Merges [50eb6f8, 8ee2796]
 ## [Untagged] - 10/20/2021 1:44:13 PM
 
 Commit [8ee279641b6bf9ce587c2ad4a4c5fa50ce62c6ee](https://github.com/StoneCypher/jssm/commit/8ee279641b6bf9ce587c2ad4a4c5fa50ce62c6ee)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * remove double test process; remove docs and site from ci build
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 10/20/2021 1:44:13 PM
-
-Commit [069b8807af083b6eae1d76a80688bd5bb0321c2f](https://github.com/StoneCypher/jssm/commit/069b8807af083b6eae1d76a80688bd5bb0321c2f)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
@@ -4946,21 +4879,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 8:16:22 AM
-
-Commit [5b4f4274668267fabab336df9d405c33b6d788f6](https://github.com/StoneCypher/jssm/commit/5b4f4274668267fabab336df9d405c33b6d788f6)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Reacquire 100% coverage
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 1/18/2021 11:45:05 PM
 
 Commit [fe14695a0cefbb1caa6421c9d64c7221c38a1868](https://github.com/StoneCypher/jssm/commit/fe14695a0cefbb1caa6421c9d64c7221c38a1868)
@@ -5168,21 +5086,6 @@ Commit [fa8385cb70a48095b0a1b9d0ad2ae6d0caa03f06](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * Wrap parse(any, any) in parse(string, Object), fixes #543
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 1/16/2021 1:39:26 PM
-
-Commit [00adfebf040a324cb1c827823f68544fb2d00c22](https://github.com/StoneCypher/jssm/commit/00adfebf040a324cb1c827823f68544fb2d00c22)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Wrap parse(any, any) in parse(string, Object)
 
 
 
@@ -5614,51 +5517,6 @@ Commit [f19deb1e0583fffc52890801e6d5771b71a7c6a9](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * Move to TS4
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 1/14/2021 1:20:51 PM
-
-Commit [cc08eed473e7a184f482eeeaacef44ad98ceecd7](https://github.com/StoneCypher/jssm/commit/cc08eed473e7a184f482eeeaacef44ad98ceecd7)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * step one, new tree
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 1/14/2021 1:20:33 PM
-
-Commit [7d578782baafddfefb90c8a31c89d1df35b5d499](https://github.com/StoneCypher/jssm/commit/7d578782baafddfefb90c8a31c89d1df35b5d499)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * step one, new tree
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 1/14/2021 1:19:52 PM
-
-Commit [b0e183ef633653eab4c49bb31dc844b56c71acf0](https://github.com/StoneCypher/jssm/commit/b0e183ef633653eab4c49bb31dc844b56c71acf0)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * step one, new tree
 
 
 
@@ -6122,39 +5980,9 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 6:04:39 PM
-
-Commit [f60d1c3757cfaa1812d7a8736ea0e255a78020e6](https://github.com/StoneCypher/jssm/commit/f60d1c3757cfaa1812d7a8736ea0e255a78020e6)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Okay let's try doing this through .npmignore only
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 4/12/2020 5:52:20 PM
 
 Commit [1c51d966c3ca60db51d18026f8c9e5d9eebe5afb](https://github.com/StoneCypher/jssm/commit/1c51d966c3ca60db51d18026f8c9e5d9eebe5afb)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * could it be faulting me for having both a files and an npmignore?
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 4/12/2020 5:52:20 PM
-
-Commit [aa384bf04d7212cc4bec8422b09d6602cf44822c](https://github.com/StoneCypher/jssm/commit/aa384bf04d7212cc4bec8422b09d6602cf44822c)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
@@ -6395,25 +6223,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/11/2020 10:57:10 PM
-
-Commit [c192fc3ed368b6f3705e2ef4884f4a793df683b2](https://github.com/StoneCypher/jssm/commit/c192fc3ed368b6f3705e2ef4884f4a793df683b2)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump acorn from 5.7.3 to 5.7.4
-  * Bumps [acorn](https://github.com/acornjs/acorn) from 5.7.3 to 5.7.4.
-- [Release notes](https://github.com/acornjs/acorn/releases)
-- [Commits](https://github.com/acornjs/acorn/compare/5.7.3...5.7.4)
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 4/11/2020 10:56:02 PM
 
 Commit [fae52c7b8a524a6d589002ca6855b2b3108c4ace](https://github.com/StoneCypher/jssm/commit/fae52c7b8a524a6d589002ca6855b2b3108c4ace)
@@ -6483,40 +6292,6 @@ Commit [360aff67bb69a07a9a1c8c9a1218befe750a8ad2](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * First attempt to slim the package down
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 4/11/2020 9:07:41 PM
-
-Commit [6864ace8438a029d7749a2041686a76c0b2bc007](https://github.com/StoneCypher/jssm/commit/6864ace8438a029d7749a2041686a76c0b2bc007)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * First attempt to slim the package donw
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 3/13/2020 3:04:07 PM
-
-Commit [579bbd7e58e57997415db4e75e3848c69ed2342b](https://github.com/StoneCypher/jssm/commit/579bbd7e58e57997415db4e75e3848c69ed2342b)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump acorn from 5.7.3 to 5.7.4
-  * Bumps [acorn](https://github.com/acornjs/acorn) from 5.7.3 to 5.7.4.
-- [Release notes](https://github.com/acornjs/acorn/releases)
-- [Commits](https://github.com/acornjs/acorn/compare/5.7.3...5.7.4)
-  * Signed-off-by: dependabot[bot] <support@github.com>
 
 
 
@@ -6836,21 +6611,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/28/2020 6:29:42 PM
-
-Commit [667f11ff07bb06b483a09ce067d7d2db7896b9b6](https://github.com/StoneCypher/jssm/commit/667f11ff07bb06b483a09ce067d7d2db7896b9b6)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * arrange-start and arrange-end
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 1/26/2020 9:49:48 PM
 
 Commit [de1fea7329cb2c68cd7078b7b4ffcc2f1f19196b](https://github.com/StoneCypher/jssm/commit/de1fea7329cb2c68cd7078b7b4ffcc2f1f19196b)
@@ -6939,21 +6699,6 @@ Commit [de75a0417dee9d0bc6d3b7fa60578a08094f4bbe](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * Adds support for rounding (fixes StoneCypher/fsl#362) and diagonals (fixes StoneCypher/fsl#361)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 1/26/2020 7:46:21 PM
-
-Commit [40ea1cb81af4c46ed0679ba05c210dafabbc765b](https://github.com/StoneCypher/jssm/commit/40ea1cb81af4c46ed0679ba05c210dafabbc765b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Adds support for rounding and diagonals
 
 
 
@@ -7259,21 +7004,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/11/2020 10:39:26 AM
-
-Commit [22746a33730c7178e374807bc059622b9c61d15f](https://github.com/StoneCypher/jssm/commit/22746a33730c7178e374807bc059622b9c61d15f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * last several added flow, closes #287 and thus closes #286
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 1/10/2020 10:51:25 PM
 
 Commit [920c8622c266379762b86606e511460af055412f](https://github.com/StoneCypher/jssm/commit/920c8622c266379762b86606e511460af055412f)
@@ -7311,21 +7041,6 @@ Commit [c2c345f2a2cd947e0fd1ac8cc48bd1098c05b2f6](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * theme support achieved in machine
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 1/10/2020 9:10:13 PM
-
-Commit [459fe5c7da7e940af26a3bbd5e0ccc2e406476ab](https://github.com/StoneCypher/jssm/commit/459fe5c7da7e940af26a3bbd5e0ccc2e406476ab)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * theme support achieved in machine, next multi-themes
 
 
 
@@ -7722,63 +7437,6 @@ Commit [71ab9d7a44184629a5480335f897a247ec0ad00c](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * eslint thing was for for workflows v1, not v2; didn't work
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 10/16/2019 7:01:48 PM
-
-Commit [ca8799a10bade98da4d6aa558da286b703b0af54](https://github.com/StoneCypher/jssm/commit/ca8799a10bade98da4d6aa558da286b703b0af54)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump lodash from 4.17.11 to 4.17.15
-  * Bumps [lodash](https://github.com/lodash/lodash) from 4.17.11 to 4.17.15.
-- [Release notes](https://github.com/lodash/lodash/releases)
-- [Commits](https://github.com/lodash/lodash/compare/4.17.11...4.17.15)
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 10/16/2019 7:01:44 PM
-
-Commit [0c3fece48a44076b4fc9ac35cdc020184c0ad3fe](https://github.com/StoneCypher/jssm/commit/0c3fece48a44076b4fc9ac35cdc020184c0ad3fe)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump mixin-deep from 1.3.1 to 1.3.2
-  * Bumps [mixin-deep](https://github.com/jonschlinkert/mixin-deep) from 1.3.1 to 1.3.2.
-- [Release notes](https://github.com/jonschlinkert/mixin-deep/releases)
-- [Commits](https://github.com/jonschlinkert/mixin-deep/compare/1.3.1...1.3.2)
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 10/16/2019 7:01:42 PM
-
-Commit [739763822f7b87357d4103e50a327076291a5449](https://github.com/StoneCypher/jssm/commit/739763822f7b87357d4103e50a327076291a5449)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump lodash.merge from 4.6.1 to 4.6.2
-  * Bumps [lodash.merge](https://github.com/lodash/lodash) from 4.6.1 to 4.6.2.
-- [Release notes](https://github.com/lodash/lodash/releases)
-- [Commits](https://github.com/lodash/lodash/commits)
-  * Signed-off-by: dependabot[bot] <support@github.com>
 
 
 
@@ -8231,21 +7889,6 @@ Commit [e98824f54254cd8b32a755def3a5e0e6d936f842](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * index on (no branch): 816a498 attempt to surgery the lcov directly :|
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/6/2019 9:04:42 PM
-
-Commit [0212f991a68858abc888a293db0fcb59b7a2d954](https://github.com/StoneCypher/jssm/commit/0212f991a68858abc888a293db0fcb59b7a2d954)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * attempted ava upgrades
 
 
 
