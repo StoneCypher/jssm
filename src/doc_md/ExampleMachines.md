@@ -38,6 +38,7 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Autodialler | - | | | | | | | | | |
 | Trivial CPU | - | | | | | | | | | |
 | Usable CPU | - | | | | | | | | | |
+| Voicemail | - | | | | | | | | | |
 
 </div>
 
