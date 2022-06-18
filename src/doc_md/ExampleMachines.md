@@ -39,6 +39,7 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Trivial CPU | - | | | | | | | | | |
 | Usable CPU | - | | | | | | | | | |
 | Voicemail | - | | | | | | | | | |
+| Markhov chain | - | | | | | | | | | |
 
 </div>
 
