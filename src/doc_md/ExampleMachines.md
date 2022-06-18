@@ -32,6 +32,9 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Locking door | 3 | | &#9749; | | | | | | | |
 | Sally trap | 3 | | &#9749; | &#9749; | | | | &#9749; | | |
 | Hand counter | - | | | | | | | | | |
+| Submit a form | - | | | | | | | | | |
+| Dishwasher control | - | | | | | | | | | |
+| CPU | - | | | | | | | | | |
 
 </div>
 
