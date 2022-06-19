@@ -151,18 +151,23 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 | Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Pair of Dice | - | | | | &#9749; | | | &#9749; | &#9749; | |
+| Deck of Cards | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | | |
+| Tic Tac Toe | - | | | | | | | | | |
+| Connect 4 | - | | | | | | | | | |
 | Pong AI | - | | | | &#9749; | | &#9749; | &#9749; | | |
 | Roguelike Troll | - | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | | | |
 | Play Craps | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
 | Play Skunk | - | | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | |
 | Blackjack player | - | | | | &#9749; | | &#9749; | | &#9749; | |
 | Blackjack dealer | - | | | | &#9749; | | &#9749; | | &#9749; | |
-| Pair of Dice | - | | | | &#9749; | | | &#9749; | &#9749; | |
-| Deck of Cards | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | | |
 | Blackjack 1 on 1 | - | | &#9749; | &#9749; | &#9749; | &#9749; | | &#9749; | | |
 | Tamagatchi | - | | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | &#9749; | |
 | Konami Code Detector | - | | | | | | | | | &#11088; |
 | Seal AI stick balance | - | | | | | | | | | &#11088; |
+| 1v1 Poker | - | | | | | | | | | |
+| N-Player Poker | - | | | | | | | | | |
+| Nim opponent | - | | | | | | | | | |
 
 </div>
 
