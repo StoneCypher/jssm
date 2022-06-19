@@ -40,6 +40,7 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Voicemail | - | | | | | | | | | |
 | Markhov chain | - | | | | | | | | | |
 | Solaris USB State | - | | | | | | | | | |
+| Markdown parser | - | | | | | | | | | |
 
 </div>
 
