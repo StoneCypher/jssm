@@ -40,7 +40,6 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Voicemail | - | | | | | | | | | |
 | Markhov chain | - | | | | | | | | | |
 | Solaris USB State | - | | | | | | | | | |
-| Markdown parser | - | | | | | | | | | |
 
 </div>
 
@@ -64,6 +63,34 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Complex routed UI | - | | | | | | | | | |
 | Submit a form | - | | | | | | | | | |
 | Music sampler | - | | | | | | | | | |
+
+</div>
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<div class="rot_th_tab">
+
+## Parsers
+
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| ABAB | - | | | | | | | | | |
+| Number | - | | | | | | | | | |
+| Arithmetic | - | | | | | | | | | |
+| Markdown | - | | | | | | | | | |
+| JSON | - | | | | | | | | | |
+| Javascript ES3 | - | | | | | | | | | |
+| SGML | - | | | | | | | | | |
+| HTML | - | | | | | | | | | |
+| CSS | - | | | | | | | | | |
+| Lisp | - | | | | | | | | | |
+| Forth | - | | | | | | | | | |
 
 </div>
 
