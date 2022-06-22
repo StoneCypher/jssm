@@ -167,6 +167,8 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | 1v1 Poker | - | | | | | | | | | |
 | N-Player Poker | - | | | | | | | | | |
 | Nim opponent | - | | | | | | | | | |
+| 1v1 Matchmaker | - | | | | | | | | | |
+| N-Player Matchmaker | - | | | | | | | | | |
 
 </div>
 
