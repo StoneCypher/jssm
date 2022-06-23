@@ -22,7 +22,6 @@ module.exports = {
             { title: 'Vue',     source: 'todo.md' },
             { title: 'Angular', source: 'todo.md' },
             { title: 'Node',    source: 'todo.md' },
-            { title: 'CLI',     source: 'todo.md' },
           ] },
           { title: 'Environments', childrenDir: './', children: [
             { title: 'Node',        source: 'todo.md' },
@@ -49,7 +48,8 @@ module.exports = {
       ] },
       { title: 'Tools', childrenDir: './', children: [
         { title: 'Live Editor',   source: 'live_editor.md' },
-        { title: 'Github Action', source: 'todo.md' }
+        { title: 'Github Action', source: 'todo.md' },
+        { title: 'CLI',           source: 'todo.md' },
       ] },
       { title: 'VIRTUAL', childrenDir: './', children: [
         { title: 'Community', source: 'community.md' }

@@ -1781,9 +1781,10 @@ class Machine<mDT> {
     // TODO the forced-ness behavior needs to be cleaned up a lot here
     // TODO all the callbacks are wrong on forced, action, etc
 
-    let valid      : boolean = false,
+    let valid      : boolean               = false,
         trans_type : string,
-        newState   : StateType;
+        newState   : StateType,
+        fromAction : StateType | undefined = undefined;
 
     if (wasForced) {
       if (this.valid_force_transition(newStateOrAction, newData)) {
@@ -1798,6 +1799,7 @@ class Machine<mDT> {
         valid                           = true;
         trans_type                      = edge.kind;
         newState                        = edge.to;
+        fromAction                      = newStateOrAction;
       }
 
     } else {
@@ -1816,16 +1818,18 @@ class Machine<mDT> {
 
       if (this._has_hooks) {
 
+        const hook_args = { action: fromAction, from: this._state, to: newState, forced: wasForced };
+
         if (wasAction) {
           // 1. any action hook
           if (this._any_action_hook !== undefined) {
-            if ( this._any_action_hook() === false ) { return false; }
+            if ( this._any_action_hook(hook_args) === false ) { return false; }
           }
 
           // 2. global specific action hook
           const maybe_ga_hook: Function | undefined = this._global_action_hooks.get(newStateOrAction);
           if (maybe_ga_hook !== undefined) {
-            if (maybe_ga_hook({ action: newStateOrAction, forced: wasForced }) === false) {
+            if (maybe_ga_hook(hook_args) === false) {
               return false;
             }
           }
@@ -1833,7 +1837,7 @@ class Machine<mDT> {
 
         // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
-          if ( this._any_transition_hook() === false ) { return false; }
+          if ( this._any_transition_hook(hook_args) === false ) { return false; }
         }
 
         // 4. exit hook
@@ -1841,7 +1845,7 @@ class Machine<mDT> {
           const maybe_ex_hook: Function | undefined = this._exit_hooks.get(this._state);
 
           if (maybe_ex_hook !== undefined) {
-            if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
+            if (maybe_ex_hook(hook_args) === false) {
               return false;
             }
           }
@@ -1855,7 +1859,7 @@ class Machine<mDT> {
                   n_maybe_hook = this._named_hooks.get(nhn);
 
             if (n_maybe_hook !== undefined) {
-              if (n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction }) === false) {
+              if (n_maybe_hook(hook_args) === false) {
                 return false;
               }
             }
@@ -1869,7 +1873,7 @@ class Machine<mDT> {
             maybe_hook: Function | undefined = this._hooks.get(hn);
 
           if (maybe_hook !== undefined) {
-            if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction? newStateOrAction : undefined }) === false) {
+            if (maybe_hook(hook_args) === false) {
               return false;
             }
           }
@@ -1882,7 +1886,7 @@ class Machine<mDT> {
           if (this._standard_transition_hook !== undefined) {
             // todo handle actions
             // todo handle forced
-            if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
+            if (this._standard_transition_hook(hook_args) === false) {
               return false;
             }
           }
@@ -1893,7 +1897,7 @@ class Machine<mDT> {
           if (this._main_transition_hook !== undefined) {
             // todo handle actions
             // todo handle forced
-            if (this._main_transition_hook({ from: this._state, to: newState }) === false) {
+            if (this._main_transition_hook(hook_args) === false) {
               return false;
             }
           }
@@ -1904,7 +1908,7 @@ class Machine<mDT> {
           if (this._forced_transition_hook !== undefined) {
             // todo handle actions
             // todo handle forced
-            if (this._forced_transition_hook({ from: this._state, to: newState }) === false) {
+            if (this._forced_transition_hook(hook_args) === false) {
               return false;
             }
           }
@@ -1915,7 +1919,7 @@ class Machine<mDT> {
           const maybe_en_hook: Function | undefined = this._entry_hooks.get(newState);
 
           if (maybe_en_hook !== undefined) {
-            if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
+            if (maybe_en_hook(hook_args) === false) {
               return false;
             }
           }

@@ -182,7 +182,27 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 
 <div class="rot_th_tab">
 
-## Demonstration machines
+## Status machines
+
+| Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| User verification state | - | | | | | | | | | |
+| Physical shipping | - | | | | | | | | | |
+| Game achievements | - | | | | | | | | | |
+
+</div>
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<div class="rot_th_tab">
+
+## Conceptual machines
 
 | Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |

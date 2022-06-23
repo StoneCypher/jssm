@@ -67,3 +67,6 @@ html li.pages-entry-depth-2 { padding-left: 45px; }
 html li.pages-entry-depth-3 { padding-left: 60px; }
 html li.pages-entry-depth-4 { padding-left: 75px; }
 html li.pages-entry-depth-5 { padding-left: 90px; }
+
+.youtube-embed        { position: relative; padding-bottom: 56.25%; /* enforces 16:9 aspect */ }
+.youtube-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 1px solid black; }

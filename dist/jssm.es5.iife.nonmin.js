@@ -16782,7 +16782,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.70.36";
+  const version = "5.71.0";
 
   class JssmError extends Error {
       constructor(machine, message, JEEI) {
@@ -18094,7 +18094,7 @@ var jssm = (function (exports) {
       transition_impl(newStateOrAction, newData, wasForced, wasAction) {
           // TODO the forced-ness behavior needs to be cleaned up a lot here
           // TODO all the callbacks are wrong on forced, action, etc
-          let valid = false, trans_type, newState;
+          let valid = false, trans_type, newState, fromAction = undefined;
           if (wasForced) {
               if (this.valid_force_transition(newStateOrAction, newData)) {
                   valid = true;
@@ -18108,6 +18108,7 @@ var jssm = (function (exports) {
                   valid = true;
                   trans_type = edge.kind;
                   newState = edge.to;
+                  fromAction = newStateOrAction;
               }
           }
           else {
@@ -18123,24 +18124,25 @@ var jssm = (function (exports) {
           // todo major incomplete whargarbl comeback
           if (valid) {
               if (this._has_hooks) {
+                  const hook_args = { action: fromAction, from: this._state, to: newState, forced: wasForced };
                   if (wasAction) {
                       // 1. any action hook
                       if (this._any_action_hook !== undefined) {
-                          if (this._any_action_hook() === false) {
+                          if (this._any_action_hook(hook_args) === false) {
                               return false;
                           }
                       }
                       // 2. global specific action hook
                       const maybe_ga_hook = this._global_action_hooks.get(newStateOrAction);
                       if (maybe_ga_hook !== undefined) {
-                          if (maybe_ga_hook({ action: newStateOrAction, forced: wasForced }) === false) {
+                          if (maybe_ga_hook(hook_args) === false) {
                               return false;
                           }
                       }
                   }
                   // 3. any transition hook
                   if (this._any_transition_hook !== undefined) {
-                      if (this._any_transition_hook() === false) {
+                      if (this._any_transition_hook(hook_args) === false) {
                           return false;
                       }
                   }
@@ -18148,7 +18150,7 @@ var jssm = (function (exports) {
                   if (this._has_exit_hooks) {
                       const maybe_ex_hook = this._exit_hooks.get(this._state);
                       if (maybe_ex_hook !== undefined) {
-                          if (maybe_ex_hook({ from: this._state, forced: wasForced }) === false) {
+                          if (maybe_ex_hook(hook_args) === false) {
                               return false;
                           }
                       }
@@ -18158,7 +18160,7 @@ var jssm = (function (exports) {
                       if (wasAction) {
                           const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);
                           if (n_maybe_hook !== undefined) {
-                              if (n_maybe_hook({ from: this._state, to: newState, action: newStateOrAction }) === false) {
+                              if (n_maybe_hook(hook_args) === false) {
                                   return false;
                               }
                           }
@@ -18168,7 +18170,7 @@ var jssm = (function (exports) {
                   if (this._has_basic_hooks) {
                       const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
                       if (maybe_hook !== undefined) {
-                          if (maybe_hook({ from: this._state, to: newState, forced: wasForced, action: wasAction ? newStateOrAction : undefined }) === false) {
+                          if (maybe_hook(hook_args) === false) {
                               return false;
                           }
                       }
@@ -18179,7 +18181,7 @@ var jssm = (function (exports) {
                       if (this._standard_transition_hook !== undefined) {
                           // todo handle actions
                           // todo handle forced
-                          if (this._standard_transition_hook({ from: this._state, to: newState }) === false) {
+                          if (this._standard_transition_hook(hook_args) === false) {
                               return false;
                           }
                       }
@@ -18189,7 +18191,7 @@ var jssm = (function (exports) {
                       if (this._main_transition_hook !== undefined) {
                           // todo handle actions
                           // todo handle forced
-                          if (this._main_transition_hook({ from: this._state, to: newState }) === false) {
+                          if (this._main_transition_hook(hook_args) === false) {
                               return false;
                           }
                       }
@@ -18199,7 +18201,7 @@ var jssm = (function (exports) {
                       if (this._forced_transition_hook !== undefined) {
                           // todo handle actions
                           // todo handle forced
-                          if (this._forced_transition_hook({ from: this._state, to: newState }) === false) {
+                          if (this._forced_transition_hook(hook_args) === false) {
                               return false;
                           }
                       }
@@ -18208,7 +18210,7 @@ var jssm = (function (exports) {
                   if (this._has_entry_hooks) {
                       const maybe_en_hook = this._entry_hooks.get(newState);
                       if (maybe_en_hook !== undefined) {
-                          if (maybe_en_hook({ to: newState, forced: wasForced }) === false) {
+                          if (maybe_en_hook(hook_args) === false) {
                               return false;
                           }
                       }
