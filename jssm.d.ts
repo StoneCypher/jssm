@@ -260,6 +260,21 @@ declare class Machine<mDT> {
      *
      */
     state(): StateType;
+    /*********
+     *
+     *  Get the current data of a machine.
+     *
+     *  ```typescript
+     *  import * as jssm from 'jssm';
+     *
+     *  const switch = jssm.from('on <=> off;', {data: 1});
+     *  console.log( switch.data() );              // 1
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    data(): mDT;
     /********
      *
      *  Check whether a given state is final (either has no exits or is marked

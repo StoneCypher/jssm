@@ -1004,6 +1004,37 @@ class Machine<mDT> {
 
 
 
+
+  /*********
+   *
+   *  Get the current data of a machine.
+   *
+   *  ```typescript
+   *  import * as jssm from 'jssm';
+   *
+   *  const switch = jssm.from('on <=> off;', {data: 1});
+   *  console.log( switch.data() );              // 1
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  data(): mDT {
+    return this._data;
+  }
+
+  /* whargarbl todo major
+     when we reimplement this, reintroduce this change to the is_final call
+
+    is_changing(): boolean {
+      return true; // todo whargarbl
+    }
+  */
+
+
+
+
   /********
    *
    *  Check whether a given state is final (either has no exits or is marked

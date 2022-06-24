@@ -97,3 +97,46 @@ describe('Constructor data', () => {
 
 
 });
+
+
+
+
+
+describe('data/0 for reading current data', () => {
+
+  test('data/0 for data 1', () => {
+
+    const _bar = jssm.from('a -> b;', { data: 1 });
+    const data = _bar.data();
+
+    expect(data).toBe(1);
+
+  } );
+
+
+
+
+
+  test('data/0 for explicitly undefined data', () => {
+
+    const _bar = jssm.from('a -> b;', { data: undefined });
+    const data = _bar.data();
+
+    expect(data).toBe(undefined);
+
+  } );
+
+
+
+
+
+  test('data/0 for data was never defined', () => {
+
+    const _bar = jssm.from('a -> b;');
+    const data = _bar.data();
+
+    expect(data).toBe(undefined);
+
+  } );
+
+} );
