@@ -208,6 +208,7 @@ declare class Machine<mDT> {
     _raw_state_declaration?: Array<Object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
     _instance_name: string;
+    _data?: mDT;
     _graph_layout: JssmLayout;
     _dot_preamble: string;
     _arrange_declaration: Array<Array<StateType>>;
@@ -232,7 +233,7 @@ declare class Machine<mDT> {
     _main_transition_hook: HookHandler | undefined;
     _forced_transition_hook: HookHandler | undefined;
     _any_transition_hook: HookHandler | undefined;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name }: JssmGenericConfig<mDT>);
+    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, data }: JssmGenericConfig<mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.

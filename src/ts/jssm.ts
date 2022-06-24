@@ -708,6 +708,8 @@ class Machine<mDT> {
 
   _instance_name : string;
 
+  _data? : mDT;
+
   _graph_layout              : JssmLayout;
   _dot_preamble              : string;
   _arrange_declaration       : Array<Array<StateType>>;
@@ -762,7 +764,8 @@ class Machine<mDT> {
     theme                     = 'default',
     flow                      = 'down',
     graph_layout              = 'dot',
-    instance_name
+    instance_name,
+    data
 
   }: JssmGenericConfig<mDT>) {
 
@@ -818,6 +821,8 @@ class Machine<mDT> {
     this._forced_transition_hook   = undefined;
     this._any_transition_hook      = undefined;
     this._standard_transition_hook = undefined;
+
+    this._data                     = data;
 
 
     if (state_declaration) {
@@ -1666,7 +1671,6 @@ class Machine<mDT> {
 
   hook(from: string, to: string, handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'hook', from, to, handler });
     return this;
 
@@ -1676,7 +1680,6 @@ class Machine<mDT> {
 
   hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'named', from, to, action, handler });
     return this;
 
@@ -1686,7 +1689,6 @@ class Machine<mDT> {
 
   hook_global_action(action: string, handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'global action', action, handler });
     return this;
 
@@ -1696,7 +1698,6 @@ class Machine<mDT> {
 
   hook_any_action(handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'any action', handler });
     return this;
 
@@ -1706,7 +1707,6 @@ class Machine<mDT> {
 
   hook_standard_transition(handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'standard transition', handler });
     return this;
 
@@ -1716,7 +1716,6 @@ class Machine<mDT> {
 
   hook_main_transition(handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'main transition', handler });
     return this;
 
@@ -1726,7 +1725,6 @@ class Machine<mDT> {
 
   hook_forced_transition(handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'forced transition', handler });
     return this;
 
@@ -1736,7 +1734,6 @@ class Machine<mDT> {
 
   hook_any_transition(handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'any transition', handler });
     return this;
 
@@ -1746,7 +1743,6 @@ class Machine<mDT> {
 
   hook_entry(to: string, handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'entry', to, handler });
     return this;
 
@@ -1756,7 +1752,6 @@ class Machine<mDT> {
 
   hook_exit(from: string, handler: HookHandler): Machine<mDT> {
 
-    // TODO: should this throw if setting the hook fails, or ignore it and continue?
     this.set_hook({ kind: 'exit', from, handler });
     return this;
 
@@ -1818,12 +1813,14 @@ class Machine<mDT> {
 
       if (this._has_hooks) {
 
-        const hook_args = { action: fromAction, from: this._state, to: newState, forced: wasForced };
+        const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
 
         if (wasAction) {
           // 1. any action hook
           if (this._any_action_hook !== undefined) {
-            if ( this._any_action_hook(hook_args) === false ) { return false; }
+            if ( this._any_action_hook(hook_args) === false ) {
+              return false;
+            }
           }
 
           // 2. global specific action hook
@@ -1837,7 +1834,9 @@ class Machine<mDT> {
 
         // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
-          if ( this._any_transition_hook(hook_args) === false ) { return false; }
+          if ( this._any_transition_hook(hook_args) === false ) {
+            return false;
+          }
         }
 
         // 4. exit hook
@@ -2164,13 +2163,13 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
 
 function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<mDT> > | undefined): Machine<mDT> {
 
-  const to_decorate = make( MachineAsString );
+  const to_decorate = make<mDT>( MachineAsString );
 
   if (ExtraConstructorFields !== undefined) {
     Object.keys(ExtraConstructorFields).map(key => to_decorate[key] = ExtraConstructorFields[key]);
   }
 
-  return new Machine( to_decorate );
+  return new Machine<mDT>( to_decorate );
 
 }
 

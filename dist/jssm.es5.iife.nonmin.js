@@ -16782,7 +16782,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.71.1";
+  const version = "5.72.0";
 
   class JssmError extends Error {
       constructor(machine, message, JEEI) {
@@ -17341,7 +17341,7 @@ var jssm = (function (exports) {
   // TODO add a lotta docblock here
   class Machine {
       // whargarbl this badly needs to be broken up, monolith master
-      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name }) {
+      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, data }) {
           this._instance_name = instance_name;
           this._state = start_states[0];
           this._states = new Map();
@@ -17388,6 +17388,7 @@ var jssm = (function (exports) {
           this._forced_transition_hook = undefined;
           this._any_transition_hook = undefined;
           this._standard_transition_hook = undefined;
+          this._data = data;
           if (state_declaration) {
               state_declaration.map((state_decl) => {
                   if (this._state_declarations.has(state_decl.state)) { // no repeats
@@ -18036,52 +18037,42 @@ var jssm = (function (exports) {
           }
       }
       hook(from, to, handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'hook', from, to, handler });
           return this;
       }
       hook_action(from, to, action, handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'named', from, to, action, handler });
           return this;
       }
       hook_global_action(action, handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'global action', action, handler });
           return this;
       }
       hook_any_action(handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'any action', handler });
           return this;
       }
       hook_standard_transition(handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'standard transition', handler });
           return this;
       }
       hook_main_transition(handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'main transition', handler });
           return this;
       }
       hook_forced_transition(handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'forced transition', handler });
           return this;
       }
       hook_any_transition(handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'any transition', handler });
           return this;
       }
       hook_entry(to, handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'entry', to, handler });
           return this;
       }
       hook_exit(from, handler) {
-          // TODO: should this throw if setting the hook fails, or ignore it and continue?
           this.set_hook({ kind: 'exit', from, handler });
           return this;
       }
@@ -18124,7 +18115,7 @@ var jssm = (function (exports) {
           // todo major incomplete whargarbl comeback
           if (valid) {
               if (this._has_hooks) {
-                  const hook_args = { action: fromAction, from: this._state, to: newState, forced: wasForced };
+                  const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
                   if (wasAction) {
                       // 1. any action hook
                       if (this._any_action_hook !== undefined) {
