@@ -364,6 +364,10 @@ type ExitHook<mDT> = {
   handler : HookHandler<mDT>
 };
 
+
+
+
+
 type HookDescription<mDT>
   = BasicHookDescription<mDT>
   | HookDescriptionWithAction<mDT>
@@ -380,7 +384,11 @@ type HookDescription<mDT>
 
 
 
-// type HookComplexResult = {};
+type HookComplexResult<mDT> = {
+  pass   : boolean,    // DO NOT MAKE OPTIONAL, prevents accidental other objects
+  state? : StateType,
+  data?  : mDT,
+};
 
 type HookResult = true | false | undefined | void;
 
@@ -453,6 +461,8 @@ export {
 
   HookDescription,
     HookHandler,
-    HookResult
+    HookContext,
+    HookResult,
+    HookComplexResult
 
 };
