@@ -306,81 +306,98 @@ type JssmParseFunctionType =
 
 
 
-type HookHandler = Function;
-
-
-
-
-
-type BasicHookDescription = {
+type BasicHookDescription<mDT> = {
   kind    : 'hook'
   from    : string,
   to      : string,
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type HookDescriptionWithAction = {
+type HookDescriptionWithAction<mDT> = {
   kind    : 'named',
   from    : string,
   to      : string,
   action  : string,
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type StandardTransitionHook = {
+type StandardTransitionHook<mDT> = {
   kind    : 'standard transition',
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type MainTransitionHook = {
+type MainTransitionHook<mDT> = {
   kind    : 'main transition',
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type ForcedTransitionHook = {
+type ForcedTransitionHook<mDT> = {
   kind    : 'forced transition',
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type AnyTransitionHook = {
+type AnyTransitionHook<mDT> = {
   kind    : 'any transition',
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type GlobalActionHook = {
+type GlobalActionHook<mDT> = {
   kind    : 'global action',
   action  : string,
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type AnyActionHook = {
+type AnyActionHook<mDT> = {
   kind    : 'any action',
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type EntryHook = {
+type EntryHook<mDT> = {
   kind    : 'entry',
   to      : string,
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type ExitHook = {
+type ExitHook<mDT> = {
   kind    : 'exit',
   from    : string,
-  handler : HookHandler
+  handler : HookHandler<mDT>
 };
 
-type HookDescription
-  = BasicHookDescription
-  | HookDescriptionWithAction
-  | GlobalActionHook
-  | AnyActionHook
-  | StandardTransitionHook
-  | MainTransitionHook
-  | ForcedTransitionHook
-  | AnyTransitionHook
-  | EntryHook
-  | ExitHook;
+type HookDescription<mDT>
+  = BasicHookDescription<mDT>
+  | HookDescriptionWithAction<mDT>
+  | GlobalActionHook<mDT>
+  | AnyActionHook<mDT>
+  | StandardTransitionHook<mDT>
+  | MainTransitionHook<mDT>
+  | ForcedTransitionHook<mDT>
+  | AnyTransitionHook<mDT>
+  | EntryHook<mDT>
+  | ExitHook<mDT>;
+
+
+
+
+
+// type HookComplexResult = {};
+
+type HookResult = true | false | undefined | void;
+
+
+
+
+
+type HookContext<mDT> = {
+  data: mDT
+};
+
+
+
+
+
+type HookHandler<mDT> = (hook_context: HookContext<mDT>) =>
+  HookResult;
 
 
 
@@ -435,6 +452,7 @@ export {
     FslTheme,
 
   HookDescription,
-    HookHandler
+    HookHandler,
+    HookResult
 
 };

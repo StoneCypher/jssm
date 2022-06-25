@@ -228,11 +228,11 @@ declare class Machine<mDT> {
     _entry_hooks: Map<string, Function>;
     _exit_hooks: Map<string, Function>;
     _global_action_hooks: Map<string, Function>;
-    _any_action_hook: HookHandler | undefined;
-    _standard_transition_hook: HookHandler | undefined;
-    _main_transition_hook: HookHandler | undefined;
-    _forced_transition_hook: HookHandler | undefined;
-    _any_transition_hook: HookHandler | undefined;
+    _any_action_hook: HookHandler<mDT> | undefined;
+    _standard_transition_hook: HookHandler<mDT> | undefined;
+    _main_transition_hook: HookHandler<mDT> | undefined;
+    _forced_transition_hook: HookHandler<mDT> | undefined;
+    _any_transition_hook: HookHandler<mDT> | undefined;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, data }: JssmGenericConfig<mDT>);
     /********
      *
@@ -538,17 +538,17 @@ declare class Machine<mDT> {
     is_complete(): boolean;
     state_is_complete(whichState: StateType): boolean;
     has_completes(): boolean;
-    set_hook(HookDesc: HookDescription): void;
-    hook(from: string, to: string, handler: HookHandler): Machine<mDT>;
-    hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT>;
-    hook_global_action(action: string, handler: HookHandler): Machine<mDT>;
-    hook_any_action(handler: HookHandler): Machine<mDT>;
-    hook_standard_transition(handler: HookHandler): Machine<mDT>;
-    hook_main_transition(handler: HookHandler): Machine<mDT>;
-    hook_forced_transition(handler: HookHandler): Machine<mDT>;
-    hook_any_transition(handler: HookHandler): Machine<mDT>;
-    hook_entry(to: string, handler: HookHandler): Machine<mDT>;
-    hook_exit(from: string, handler: HookHandler): Machine<mDT>;
+    set_hook(HookDesc: HookDescription<mDT>): void;
+    hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
+    hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     edges_between(from: string, to: string): JssmTransition<mDT>[];
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
     /********

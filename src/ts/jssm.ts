@@ -734,11 +734,11 @@ class Machine<mDT> {
   _entry_hooks              : Map<string, Function>;
   _exit_hooks               : Map<string, Function>;
   _global_action_hooks      : Map<string, Function>;
-  _any_action_hook          : HookHandler | undefined;
-  _standard_transition_hook : HookHandler | undefined;
-  _main_transition_hook     : HookHandler | undefined;
-  _forced_transition_hook   : HookHandler | undefined;
-  _any_transition_hook      : HookHandler | undefined;
+  _any_action_hook          : HookHandler<mDT> | undefined;
+  _standard_transition_hook : HookHandler<mDT> | undefined;
+  _main_transition_hook     : HookHandler<mDT> | undefined;
+  _forced_transition_hook   : HookHandler<mDT> | undefined;
+  _any_transition_hook      : HookHandler<mDT> | undefined;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -1630,7 +1630,7 @@ class Machine<mDT> {
 
   // basic toolable hook call.  convenience wrappers will follow, like
   // hook(from, to, handler) and exit_hook(from, handler) and etc
-  set_hook(HookDesc: HookDescription) {
+  set_hook(HookDesc: HookDescription<mDT>) {
 
     switch (HookDesc.kind) {
 
@@ -1700,7 +1700,7 @@ class Machine<mDT> {
 
 
 
-  hook(from: string, to: string, handler: HookHandler): Machine<mDT> {
+  hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'hook', from, to, handler });
     return this;
@@ -1709,7 +1709,7 @@ class Machine<mDT> {
 
 
 
-  hook_action(from: string, to: string, action: string, handler: HookHandler): Machine<mDT> {
+  hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'named', from, to, action, handler });
     return this;
@@ -1718,7 +1718,7 @@ class Machine<mDT> {
 
 
 
-  hook_global_action(action: string, handler: HookHandler): Machine<mDT> {
+  hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'global action', action, handler });
     return this;
@@ -1727,7 +1727,7 @@ class Machine<mDT> {
 
 
 
-  hook_any_action(handler: HookHandler): Machine<mDT> {
+  hook_any_action(handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'any action', handler });
     return this;
@@ -1736,7 +1736,7 @@ class Machine<mDT> {
 
 
 
-  hook_standard_transition(handler: HookHandler): Machine<mDT> {
+  hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'standard transition', handler });
     return this;
@@ -1745,7 +1745,7 @@ class Machine<mDT> {
 
 
 
-  hook_main_transition(handler: HookHandler): Machine<mDT> {
+  hook_main_transition(handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'main transition', handler });
     return this;
@@ -1754,7 +1754,7 @@ class Machine<mDT> {
 
 
 
-  hook_forced_transition(handler: HookHandler): Machine<mDT> {
+  hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'forced transition', handler });
     return this;
@@ -1763,7 +1763,7 @@ class Machine<mDT> {
 
 
 
-  hook_any_transition(handler: HookHandler): Machine<mDT> {
+  hook_any_transition(handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'any transition', handler });
     return this;
@@ -1772,7 +1772,7 @@ class Machine<mDT> {
 
 
 
-  hook_entry(to: string, handler: HookHandler): Machine<mDT> {
+  hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'entry', to, handler });
     return this;
@@ -1781,7 +1781,7 @@ class Machine<mDT> {
 
 
 
-  hook_exit(from: string, handler: HookHandler): Machine<mDT> {
+  hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT> {
 
     this.set_hook({ kind: 'exit', from, handler });
     return this;

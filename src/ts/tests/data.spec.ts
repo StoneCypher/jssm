@@ -56,10 +56,10 @@ describe('Constructor data', () => {
 
   test('Hooks can read simple data (number 1,) no mDT', () => {
 
-    let   val_was = false;
+    let val_was: any;
 
-    const _bar    = jssm.from('a -> b;', { data: 1 });
-    _bar.hook_any_transition( ctx => val_was = ctx.data );
+    const _bar = jssm.from('a -> b;', { data: 1 });
+    _bar.hook_any_transition( ctx => { val_was = ctx.data; } );
     _bar.transition('b');
 
     expect(val_was).toBe(1);
@@ -71,13 +71,13 @@ describe('Constructor data', () => {
 
   test('Hooks can read low-complex data (member a,) no mDT', () => {
 
-    let   val_was = false;
+    let val_was: any;
 
     const _bar    = jssm.from('a -> b;', { data: { a: 1 } });
-    _bar.hook_any_transition( ctx => val_was = ctx.data['a'] );
+    _bar.hook_any_transition( ctx => { val_was = ctx.data; } );
     _bar.transition('b');
 
-    expect(val_was).toBe(1);
+    expect(val_was).toStrictEqual({a: 1});
 
   });
 
@@ -85,13 +85,13 @@ describe('Constructor data', () => {
 
   test('Hooks can read complex data (member a obj array idx 1,) no mDT', () => {
 
-    let   val_was = false;
+    let val_was: any;
 
     const _bar    = jssm.from('a -> b;', { data: { a: [0,1,2] } });
-    _bar.hook_any_transition( ctx => val_was = ctx.data['a'][1] );
+    _bar.hook_any_transition( ctx => { val_was = ctx.data; } );
     _bar.transition('b');
 
-    expect(val_was).toBe(1);
+    expect(val_was).toStrictEqual({a: [0,1,2]});
 
   });
 

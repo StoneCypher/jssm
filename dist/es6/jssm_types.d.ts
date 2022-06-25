@@ -149,57 +149,61 @@ declare type JssmCompileSeStart<DataType> = {
 };
 declare type JssmParseTree = Array<JssmCompileSeStart<StateType>>;
 declare type JssmParseFunctionType = (string: any) => JssmParseTree;
-declare type HookHandler = Function;
-declare type BasicHookDescription = {
+declare type BasicHookDescription<mDT> = {
     kind: 'hook';
     from: string;
     to: string;
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type HookDescriptionWithAction = {
+declare type HookDescriptionWithAction<mDT> = {
     kind: 'named';
     from: string;
     to: string;
     action: string;
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type StandardTransitionHook = {
+declare type StandardTransitionHook<mDT> = {
     kind: 'standard transition';
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type MainTransitionHook = {
+declare type MainTransitionHook<mDT> = {
     kind: 'main transition';
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type ForcedTransitionHook = {
+declare type ForcedTransitionHook<mDT> = {
     kind: 'forced transition';
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type AnyTransitionHook = {
+declare type AnyTransitionHook<mDT> = {
     kind: 'any transition';
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type GlobalActionHook = {
+declare type GlobalActionHook<mDT> = {
     kind: 'global action';
     action: string;
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type AnyActionHook = {
+declare type AnyActionHook<mDT> = {
     kind: 'any action';
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type EntryHook = {
+declare type EntryHook<mDT> = {
     kind: 'entry';
     to: string;
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type ExitHook = {
+declare type ExitHook<mDT> = {
     kind: 'exit';
     from: string;
-    handler: HookHandler;
+    handler: HookHandler<mDT>;
 };
-declare type HookDescription = BasicHookDescription | HookDescriptionWithAction | GlobalActionHook | AnyActionHook | StandardTransitionHook | MainTransitionHook | ForcedTransitionHook | AnyTransitionHook | EntryHook | ExitHook;
+declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT>;
+declare type HookResult = true | false | undefined | void;
+declare type HookContext<mDT> = {
+    data: mDT;
+};
+declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult;
 declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
-export { JssmColor, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler };
+export { JssmColor, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookResult };
