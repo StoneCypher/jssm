@@ -1845,6 +1845,8 @@ class Machine<mDT> {
 
         const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
 
+        let data_changed = false;
+
         if (wasAction) {
           // 1. any action hook
           const outcome = AbstractHookStep(this._any_action_hook, hook_args);
@@ -1878,9 +1880,17 @@ class Machine<mDT> {
 
         // 6. regular hook
         if (this._has_basic_hooks) {
+
           const hn: string = hook_name(this._state, newState),
                 outcome    = AbstractHookStep(this._hooks.get(hn), hook_args);
+
           if (outcome.pass === false) { return false; }
+
+          if (outcome.hasOwnProperty('data')) {
+            hook_args.data = outcome.data;
+            data_changed   = true;
+          }
+
         }
 
         // 7. edge type hook
@@ -1909,13 +1919,19 @@ class Machine<mDT> {
           if (outcome.pass === false) { return false; }
         }
 
+        // all hooks passed!  let's now establish the result
+
         this._state = newState;
+
+        if (data_changed) { this._data = hook_args.data; }
+
         return true;
 
       // or without hooks
       } else {
 
         this._state = newState;
+
         return true;
 
       }
@@ -2196,8 +2212,6 @@ function is_hook_rejection(hr: HookResult): boolean {
 
 
 
-// TODO hook_args: unknown
-
 function AbstractHookStep<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT> {
 
   if (maybe_hook !== undefined) {
@@ -2216,9 +2230,9 @@ function AbstractHookStep<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_ar
       return { pass: false };
     }
 
-    // if (is_hook_complex_result(result)) {
-    //   return result;
-    // }
+    if (is_hook_complex_result<mDT>(result)) {
+      return result;
+    }
 
     throw new TypeError(`Unknown hook result type ${result}`);
 

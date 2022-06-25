@@ -16783,7 +16783,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.72.3";
+const version = "5.72.4";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -18139,6 +18139,7 @@ class Machine {
         if (valid) {
             if (this._has_hooks) {
                 const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
+                let data_changed = false;
                 if (wasAction) {
                     // 1. any action hook
                     const outcome = AbstractHookStep(this._any_action_hook, hook_args);
@@ -18180,6 +18181,10 @@ class Machine {
                     if (outcome.pass === false) {
                         return false;
                     }
+                    if (outcome.hasOwnProperty('data')) {
+                        hook_args.data = outcome.data;
+                        data_changed = true;
+                    }
                 }
                 // 7. edge type hook
                 // 7a. standard transition hook
@@ -18210,7 +18215,11 @@ class Machine {
                         return false;
                     }
                 }
+                // all hooks passed!  let's now establish the result
                 this._state = newState;
+                if (data_changed) {
+                    this._data = hook_args.data;
+                }
                 return true;
                 // or without hooks
             }
@@ -18438,9 +18447,9 @@ function AbstractHookStep(maybe_hook, hook_args) {
         if (result === false) {
             return { pass: false };
         }
-        // if (is_hook_complex_result(result)) {
-        //   return result;
-        // }
+        if (is_hook_complex_result(result)) {
+            return result;
+        }
         throw new TypeError(`Unknown hook result type ${result}`);
     }
     else {
