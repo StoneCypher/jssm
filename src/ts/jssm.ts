@@ -1862,26 +1862,26 @@ class Machine<mDT> {
 
         if (wasAction) {
           // 1. any action hook
-          const outcome = AbstractHookStep(this._any_action_hook, hook_args);
+          const outcome = abstract_hook_step(this._any_action_hook, hook_args);
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
 
           // 2. global specific action hook
-          const outcome2 = AbstractHookStep(this._global_action_hooks.get(newStateOrAction), hook_args);
+          const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
           if (outcome2.pass === false) { return false; }
           update_fields(outcome2);
         }
 
         // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
-          const outcome = AbstractHookStep(this._any_transition_hook, hook_args);
+          const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
         }
 
         // 4. exit hook
         if (this._has_exit_hooks) {
-          const outcome = AbstractHookStep(this._exit_hooks.get(this._state), hook_args);
+          const outcome = abstract_hook_step(this._exit_hooks.get(this._state), hook_args);
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
         }
@@ -1891,7 +1891,7 @@ class Machine<mDT> {
           if (wasAction) {
 
             const nhn: string = named_hook_name(this._state, newState, newStateOrAction),
-                  outcome     = AbstractHookStep(this._named_hooks.get(nhn), hook_args);
+                  outcome     = abstract_hook_step(this._named_hooks.get(nhn), hook_args);
 
             if (outcome.pass === false) { return false; }
             update_fields(outcome);
@@ -1903,7 +1903,7 @@ class Machine<mDT> {
         if (this._has_basic_hooks) {
 
           const hn: string = hook_name(this._state, newState),
-                outcome    = AbstractHookStep(this._hooks.get(hn), hook_args);
+                outcome    = abstract_hook_step(this._hooks.get(hn), hook_args);
 
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
@@ -1914,28 +1914,28 @@ class Machine<mDT> {
 
         // 7a. standard transition hook
         if (trans_type === 'legal') {
-          const outcome = AbstractHookStep(this._standard_transition_hook, hook_args);
+          const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
         }
 
         // 7b. main type hook
         if (trans_type === 'main') {
-          const outcome = AbstractHookStep(this._main_transition_hook, hook_args);
+          const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
         }
 
         // 7c. forced transition hook
         if (trans_type === 'forced') {
-          const outcome = AbstractHookStep(this._forced_transition_hook, hook_args);
+          const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
         }
 
         // 8. entry hook
         if (this._has_entry_hooks) {
-          const outcome = AbstractHookStep(this._entry_hooks.get(newState), hook_args);
+          const outcome = abstract_hook_step(this._entry_hooks.get(newState), hook_args);
           if (outcome.pass === false) { return false; }
           update_fields(outcome);
         }
@@ -2233,7 +2233,7 @@ function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
 
 
 
-function AbstractHookStep<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT> {
+function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT> {
 
   if (maybe_hook !== undefined) {
 
@@ -2297,6 +2297,8 @@ export {
   gviz_shapes,
   named_colors,
 
-  is_hook_rejection
+  is_hook_rejection,
+    is_hook_complex_result,
+    abstract_hook_step
 
 };

@@ -823,16 +823,16 @@ describe('Hooks can change data (basic)', () => {
   test('Basic hook data change succeeds from no prior', () => {
 
     const foo = sm`a -> b;`
-      .hook('a', 'b', () => ({ pass: true, data: 'woo' }));
+      .hook('a', 'b', () => ({ pass: true, data: 'creation value' }));
 
     foo.transition('b');
-    expect( foo.data() ).toBe('woo');
+    expect( foo.data() ).toBe('creation value');
 
   });
 
   test('Basic hook data change succeeds from prior', () => {
 
-    const foo = jssm.from('a -> b;', {data: 'oh'})
+    const foo = jssm.from('a -> b;', {data: 'original value'})
       .hook('a', 'b', () => ({ pass: true, data: 'you' }));
 
     foo.transition('b');
@@ -849,23 +849,23 @@ describe('Hooks can change data (basic)', () => {
 describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],
-        non_action    = ['basic', 'entry', 'exit', 'any', 'standard', /* 'main', 'forced', */ 'any_transition'], // TODO main, forced
+        non_action    = ['basic', 'entry', 'exit', 'any', 'standard', 'main', /* 'forced', */ 'any_transition'], // TODO main, forced
         action_driven = ['action', 'gl_action', 'any_action'],
         matrix_hook   = [... non_action, ... action_driven],
 
         plans         = [];
 
   const setters = {
-    'basic': (m: jssm.Machine<string>) => m.hook('a', 'b', () => ({ pass: true, data: 'woo' })),
-    'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: true, data: 'woo' })),
-    'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: true, data: 'woo' })),
-    'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: true, data: 'woo' })),
-    'action': (m: jssm.Machine<string>) => m.hook_action('a', 'b', 'foo', () => ({ pass: true, data: 'woo' })),
-    'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: true, data: 'woo' })),
-    'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: true, data: 'woo' })),
-    'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: true, data: 'woo' })),
-//  'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: true, data: 'woo' })),
-    'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: true, data: 'woo' })),
+    'basic': (m: jssm.Machine<string>) => m.hook('a', 'b', () => ({ pass: true, data: 'creation value' })),
+    'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: true, data: 'creation value' })),
+    'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: true, data: 'creation value' })),
+    'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: true, data: 'creation value' })),
+    'action': (m: jssm.Machine<string>) => m.hook_action('a', 'b', 'foo', () => ({ pass: true, data: 'creation value' })),
+    'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: true, data: 'creation value' })),
+    'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: true, data: 'creation value' })),
+    'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: true, data: 'creation value' })),
+    'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: true, data: 'creation value' })),
+    'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: true, data: 'creation value' })),
   };
 
   const blockers = {
@@ -877,39 +877,61 @@ describe('Hooks can change data (full matrix)', () => {
     'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: false })),
     'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: false })),
     'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: false })),
-//  'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: false })),
+    'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: false })),
     'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false })),
   };
 
   const selfblockers = {
-    'basic': (m: jssm.Machine<string>) => m.hook('a', 'b', () => ({ pass: false, data: 'eek' })),
-    'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: false, data: 'eek' })),
-    'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: false, data: 'eek' })),
-    'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false, data: 'eek' })),
-    'action': (m: jssm.Machine<string>) => m.hook_action('a', 'b', 'foo', () => ({ pass: false, data: 'eek' })),
-    'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: false, data: 'eek' })),
-    'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: false, data: 'eek' })),
-    'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: false, data: 'eek' })),
-//  'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: false, data: 'eek' })),
-    'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false, data: 'eek' })),
+    'basic': (m: jssm.Machine<string>) => m.hook('a', 'b', () => ({ pass: false, data: 'never correct' })),
+    'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: false, data: 'never correct' })),
+    'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: false, data: 'never correct' })),
+    'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false, data: 'never correct' })),
+    'action': (m: jssm.Machine<string>) => m.hook_action('a', 'b', 'foo', () => ({ pass: false, data: 'never correct' })),
+    'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: false, data: 'never correct' })),
+    'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: false, data: 'never correct' })),
+    'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: false, data: 'never correct' })),
+    'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: false, data: 'never correct' })),
+    'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false, data: 'never correct' })),
   };
 
 
   matrix_priors.forEach(usePrior =>
+
+    // good rules - senders - cause the change
     matrix_hook.forEach( (good, g) => {
 
       plans.push({ use_prior: usePrior, setter: good, blocker: undefined, g, b: undefined });
 
+      // bad rules - blockers - block the change
       matrix_hook.forEach( (bad, b) => {
+
+        // TODO - temporarily skip blocked-by-main and blocked-by-forced
+        if (bad === 'main')   { return; }
+        if (bad === 'forced') { return; }
+
+        // single edge machines can't have both standard-and-main,
+        // standard-and-forced, or main-and-forced in the same edge.  therefore
+        // if the sender is one, don't test the other two (but do still test
+        // self collision
+        if (good === 'standard') { if ((bad === 'main')     || (bad === 'forced')) { return; } }
+        if (good === 'main')     { if ((bad === 'standard') || (bad === 'forced')) { return; } }
+        if (good === 'forced')   { if ((bad === 'standard') || (bad === 'main')  ) { return; } }
+
         let should_push = true;
-        if (action_driven.includes(good) !== action_driven.includes(bad)) {
+
+        // if the sender isn't action driven, the blocker can't be either,
+        // because the blocking event won't occur
+        if ( (!(action_driven.includes(good))) && action_driven.includes(bad) ) {
           should_push = false;
         }
+
         if (should_push) {
           plans.push({ use_prior: usePrior, setter: good, blocker: bad, g, b });
         }
+
       });
 
+      // now execute the plans (steeples evil fingers)
       plans.forEach(({ use_prior, setter, blocker, b, g }) => {
 
         let wwo,
@@ -917,7 +939,7 @@ describe('Hooks can change data (full matrix)', () => {
             arrow;
 
         if (use_prior) {
-          ctx = { data: 'oh' };
+          ctx = { data: 'original value' };
           wwo = "with";
         } else {
           ctx = undefined;
@@ -925,7 +947,13 @@ describe('Hooks can change data (full matrix)', () => {
         }
 
         switch (setter) {
-          default: arrow = '->';
+
+          case 'main':
+            arrow = '=>'; break;
+
+          default:
+            arrow = '->'; break;
+
         }
 
         const foo = jssm.from(`a 'foo' ${arrow} b;`, ctx);
@@ -938,6 +966,8 @@ describe('Hooks can change data (full matrix)', () => {
           if (blocker) { blockers[blocker](foo); }
         }
 
+        // what do we do to actually trigger it?  depends on if we are testing
+        // an action trigger or a transition trigger
         if (action_driven.includes(setter)) {
           foo.action('foo');
         } else {
@@ -948,15 +978,15 @@ describe('Hooks can change data (full matrix)', () => {
 
           if (b === g) {
             test(`self-blocking ${setter} ${wwo} prior`, () =>
-              expect( foo.data() ).toBe(use_prior? 'oh' : undefined) );
+              expect( foo.data() ).toBe(use_prior? 'original value' : undefined) );
           } else {
             test(`${setter} ${wwo} prior, blocked by ${blocker}`, () =>
-              expect( foo.data() ).toBe(use_prior? 'oh' : undefined) );
+              expect( foo.data() ).toBe(use_prior? 'original value' : undefined) );
           }
 
         } else {
           test(`${setter} ${wwo} prior, not blocked`, () =>
-            expect( foo.data() ).toBe('woo') );
+            expect( foo.data() ).toBe('creation value') );
         }
 
       });
@@ -970,5 +1000,110 @@ describe('Hooks can change data (full matrix)', () => {
 
 
 
-// describe('Hook rejection prevents data change', () => {
-// });
+describe('is_hook_complex_result', () => {
+
+  test('true', () =>
+    expect( jssm.is_hook_complex_result(true) )
+      .toBe(false) );
+
+  test('false', () =>
+    expect( jssm.is_hook_complex_result(false) )
+      .toBe(false) );
+
+  test('undefined', () =>
+    expect( jssm.is_hook_complex_result(undefined) )
+      .toBe(false) );
+
+  test('complex result pass', () =>
+    expect( jssm.is_hook_complex_result( { pass: true } ) )
+      .toBe(true) );
+
+  test('complex result reject', () =>
+    expect( jssm.is_hook_complex_result( { pass: false } ) )
+      .toBe(true) );
+
+});
+
+
+
+
+
+describe('is_hook_rejection', () => {
+
+  test('true', () =>
+    expect( jssm.is_hook_rejection(true) )
+      .toBe(false) );
+
+  test('false', () =>
+    expect( jssm.is_hook_rejection(false) )
+      .toBe(true) );
+
+  test('undefined', () =>
+    expect( jssm.is_hook_rejection(undefined) )
+      .toBe(false) );
+
+  test('complex result pass', () =>
+    expect( jssm.is_hook_rejection( { pass: true } ) )
+      .toBe(false) );
+
+  test('complex result reject', () =>
+    expect( jssm.is_hook_rejection( { pass: false } ) )
+      .toBe(true) );
+
+  test('complex result on an invalid argument', () =>
+    expect( () => jssm.is_hook_rejection( "blork" as any ) )
+      .toThrow() );
+
+});
+
+
+
+
+
+describe('abstract_hook_step', () => {
+
+  test('generates pass for undefined', () =>
+    expect( jssm.abstract_hook_step(undefined, {data: undefined}) )
+      .toStrictEqual({ pass: true }) );
+
+  test('generates pass for function returning undefined', () => {
+    const fn = jest.fn();
+    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+      .toStrictEqual({ pass: true })
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates pass for function returning true', () => {
+    const fn = jest.fn( () => true );
+    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+      .toStrictEqual({ pass: true })
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates reject for function returning false', () => {
+    const fn = jest.fn( () => false );
+    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+      .toStrictEqual({ pass: false })
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates pass for function returning complex pass', () => {
+    const fn = jest.fn( () => ({pass: true}) );
+    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+      .toStrictEqual({ pass: true })
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates reject for function returning complex reject', () => {
+    const fn = jest.fn( () => ({pass: false}) );
+    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+      .toStrictEqual({ pass: false })
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('throws for hook returning illegal value', () => {
+    expect( () => jssm.abstract_hook_step( () => "squid" as any, {data: undefined}) )
+      .toThrow()
+  });
+
+});
