@@ -22,6 +22,12 @@ module.exports = {
     },
   },
 
-  collectCoverageFrom: ["src/ts/**/{!(jssm-dot),}.{js,ts}"]
+  collectCoverageFrom: ["src/ts/**/{!(jssm-dot),}.{js,ts}"],
+
+  reporters: [
+    ['default',             {}],
+    ['jest-json-reporter2', { outputDir: './coverage/spec', outputFile: 'metrics.json',          fullOutput: false }],
+//  ['jest-json-reporter2', { outputDir: './coverage/spec', outputFile: 'extended-metrics.json', fullOutput: true  }],
+  ]
 
 };
