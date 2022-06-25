@@ -1328,8 +1328,6 @@ class Machine {
                 newState = newStateOrAction;
             }
         }
-        // todo whargarbl implement data stuff
-        // todo major incomplete whargarbl comeback
         if (valid) {
             if (this._has_hooks) {
                 const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
@@ -1376,51 +1374,38 @@ class Machine {
                 }
                 // 6. regular hook
                 if (this._has_basic_hooks) {
-                    const hn = hook_name(this._state, newState), maybe_hook = this._hooks.get(hn);
-                    if (maybe_hook !== undefined) {
-                        if (maybe_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const hn = hook_name(this._state, newState), outcome = AbstractHookStep(this._hooks.get(hn), hook_args);
+                    if (outcome.pass === false) {
+                        return false;
                     }
                 }
                 // 7. edge type hook
                 // 7a. standard transition hook
                 if (trans_type === 'legal') {
-                    if (this._standard_transition_hook !== undefined) {
-                        // todo handle actions
-                        // todo handle forced
-                        if (this._standard_transition_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const outcome = AbstractHookStep(this._standard_transition_hook, hook_args);
+                    if (outcome.pass === false) {
+                        return false;
                     }
                 }
                 // 7b. main type hook
                 if (trans_type === 'main') {
-                    if (this._main_transition_hook !== undefined) {
-                        // todo handle actions
-                        // todo handle forced
-                        if (this._main_transition_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const outcome = AbstractHookStep(this._main_transition_hook, hook_args);
+                    if (outcome.pass === false) {
+                        return false;
                     }
                 }
                 // 7c. forced transition hook
                 if (trans_type === 'forced') {
-                    if (this._forced_transition_hook !== undefined) {
-                        // todo handle actions
-                        // todo handle forced
-                        if (this._forced_transition_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const outcome = AbstractHookStep(this._forced_transition_hook, hook_args);
+                    if (outcome.pass === false) {
+                        return false;
                     }
                 }
                 // 8. entry hook
                 if (this._has_entry_hooks) {
-                    const maybe_en_hook = this._entry_hooks.get(newState);
-                    if (maybe_en_hook !== undefined) {
-                        if (maybe_en_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const outcome = AbstractHookStep(this._entry_hooks.get(newState), hook_args);
+                    if (outcome.pass === false) {
+                        return false;
                     }
                 }
                 this._state = newState;
@@ -1615,6 +1600,51 @@ function from(MachineAsString, ExtraConstructorFields) {
     }
     return new Machine(to_decorate);
 }
+function is_hook_complex_result(hr) {
+    if (typeof hr === 'object') {
+        if (typeof hr.pass === 'boolean') {
+            return true;
+        }
+    }
+    return false;
+}
+function is_hook_rejection(hr) {
+    if (hr === true) {
+        return false;
+    }
+    if (hr === undefined) {
+        return false;
+    }
+    if (hr === false) {
+        return true;
+    }
+    if (is_hook_complex_result(hr)) {
+        return (!(hr.pass));
+    }
+    throw new TypeError('unknown hook rejection type result');
+}
+// TODO hook_args: unknown
+function AbstractHookStep(maybe_hook, hook_args) {
+    if (maybe_hook !== undefined) {
+        const result = maybe_hook(hook_args);
+        if (result === undefined) {
+            return { pass: true };
+        }
+        if (result === true) {
+            return { pass: true };
+        }
+        if (result === false) {
+            return { pass: false };
+        }
+        // if (is_hook_complex_result(result)) {
+        //   return result;
+        // }
+        throw new TypeError(`Unknown hook result type ${result}`);
+    }
+    else {
+        return { pass: true };
+    }
+}
 export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
-seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors };
+seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection };

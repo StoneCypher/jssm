@@ -20,7 +20,7 @@ import {
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout,
   FslDirection, FslTheme,
-  HookDescription, HookHandler
+  HookDescription, HookHandler, HookContext, HookResult, HookComplexResult
 
 } from './jssm_types';
 
@@ -729,9 +729,9 @@ class Machine<mDT> {
 
   // no boolean for _has_any_transition_hook
 
-  _hooks                    : Map<string, Function>;
+  _hooks                    : Map<string, HookHandler<mDT>>;
   _named_hooks              : Map<string, Function>;
-  _entry_hooks              : Map<string, Function>;
+  _entry_hooks              : Map<string, HookHandler<mDT>>;
   _exit_hooks               : Map<string, Function>;
   _global_action_hooks      : Map<string, Function>;
   _any_action_hook          : HookHandler<mDT> | undefined;
@@ -1838,8 +1838,7 @@ class Machine<mDT> {
       }
     }
 
-    // todo whargarbl implement data stuff
-    // todo major incomplete whargarbl comeback
+
     if (valid) {
 
       if (this._has_hooks) {
@@ -1900,59 +1899,34 @@ class Machine<mDT> {
         // 6. regular hook
         if (this._has_basic_hooks) {
           const hn: string = hook_name(this._state, newState),
-            maybe_hook: Function | undefined = this._hooks.get(hn);
-
-          if (maybe_hook !== undefined) {
-            if (maybe_hook(hook_args) === false) {
-              return false;
-            }
-          }
+                outcome    = AbstractHookStep(this._hooks.get(hn), hook_args);
+          if (outcome.pass === false) { return false; }
         }
 
         // 7. edge type hook
 
         // 7a. standard transition hook
         if (trans_type === 'legal') {
-          if (this._standard_transition_hook !== undefined) {
-            // todo handle actions
-            // todo handle forced
-            if (this._standard_transition_hook(hook_args) === false) {
-              return false;
-            }
-          }
+          const outcome = AbstractHookStep(this._standard_transition_hook, hook_args);
+          if (outcome.pass === false) { return false; }
         }
 
         // 7b. main type hook
         if (trans_type === 'main') {
-          if (this._main_transition_hook !== undefined) {
-            // todo handle actions
-            // todo handle forced
-            if (this._main_transition_hook(hook_args) === false) {
-              return false;
-            }
-          }
+          const outcome = AbstractHookStep(this._main_transition_hook, hook_args);
+          if (outcome.pass === false) { return false; }
         }
 
         // 7c. forced transition hook
         if (trans_type === 'forced') {
-          if (this._forced_transition_hook !== undefined) {
-            // todo handle actions
-            // todo handle forced
-            if (this._forced_transition_hook(hook_args) === false) {
-              return false;
-            }
-          }
+          const outcome = AbstractHookStep(this._forced_transition_hook, hook_args);
+          if (outcome.pass === false) { return false; }
         }
 
         // 8. entry hook
         if (this._has_entry_hooks) {
-          const maybe_en_hook: Function | undefined = this._entry_hooks.get(newState);
-
-          if (maybe_en_hook !== undefined) {
-            if (maybe_en_hook(hook_args) === false) {
-              return false;
-            }
-          }
+          const outcome = AbstractHookStep(this._entry_hooks.get(newState), hook_args);
+          if (outcome.pass === false) { return false; }
         }
 
         this._state = newState;
@@ -2208,6 +2182,76 @@ function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< Js
 
 
 
+function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> {
+
+  if (typeof hr === 'object') {
+    if (typeof (hr as any).pass === 'boolean') {
+      return true;
+    }
+  }
+
+  return false;
+
+}
+
+
+
+
+
+function is_hook_rejection(hr: HookResult): boolean {
+
+  if (hr === true)      { return false; }
+  if (hr === undefined) { return false; }
+  if (hr === false)     { return true;  }
+
+  if (is_hook_complex_result(hr)) {
+    return (!(hr.pass));
+  }
+
+  throw new TypeError('unknown hook rejection type result');
+
+}
+
+
+
+
+
+// TODO hook_args: unknown
+
+function AbstractHookStep<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT> {
+
+  if (maybe_hook !== undefined) {
+
+    const result = maybe_hook(hook_args);
+
+    if (result === undefined) {
+      return { pass: true };
+    }
+
+    if (result === true) {
+      return { pass: true };
+    }
+
+    if (result === false) {
+      return { pass: false };
+    }
+
+    // if (is_hook_complex_result(result)) {
+    //   return result;
+    // }
+
+    throw new TypeError(`Unknown hook result type ${result}`);
+
+  } else {
+    return { pass: true };
+  }
+
+}
+
+
+
+
+
 export {
 
   version,
@@ -2236,6 +2280,8 @@ export {
 
   shapes,
   gviz_shapes,
-  named_colors
+  named_colors,
+
+  is_hook_rejection
 
 };
