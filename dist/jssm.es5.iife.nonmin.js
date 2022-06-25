@@ -16782,7 +16782,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.72.3";
+  const version = "5.72.4";
 
   class JssmError extends Error {
       constructor(machine, message, JEEI) {
@@ -18137,79 +18137,106 @@ var jssm = (function (exports) {
           }
           if (valid) {
               if (this._has_hooks) {
-                  const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
+                  const hook_args = {
+                      data: this._data,
+                      action: fromAction,
+                      from: this._state,
+                      to: newState,
+                      forced: wasForced
+                  };
+                  function update_fields(res) {
+                      if (res.hasOwnProperty('data')) {
+                          hook_args.data = res.data;
+                          data_changed = true;
+                      }
+                  }
+                  let data_changed = false;
                   if (wasAction) {
                       // 1. any action hook
-                      const outcome = AbstractHookStep(this._any_action_hook, hook_args);
+                      const outcome = abstract_hook_step(this._any_action_hook, hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                       // 2. global specific action hook
-                      const outcome2 = AbstractHookStep(this._global_action_hooks.get(newStateOrAction), hook_args);
+                      const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
                       if (outcome2.pass === false) {
                           return false;
                       }
+                      update_fields(outcome2);
                   }
                   // 3. any transition hook
                   if (this._any_transition_hook !== undefined) {
-                      const outcome = AbstractHookStep(this._any_transition_hook, hook_args);
+                      const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 4. exit hook
                   if (this._has_exit_hooks) {
-                      const outcome = AbstractHookStep(this._exit_hooks.get(this._state), hook_args);
+                      const outcome = abstract_hook_step(this._exit_hooks.get(this._state), hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 5. named transition / action hook
                   if (this._has_named_hooks) {
                       if (wasAction) {
-                          const nhn = named_hook_name(this._state, newState, newStateOrAction), outcome = AbstractHookStep(this._named_hooks.get(nhn), hook_args);
+                          const nhn = named_hook_name(this._state, newState, newStateOrAction), outcome = abstract_hook_step(this._named_hooks.get(nhn), hook_args);
                           if (outcome.pass === false) {
                               return false;
                           }
+                          update_fields(outcome);
                       }
                   }
                   // 6. regular hook
                   if (this._has_basic_hooks) {
-                      const hn = hook_name(this._state, newState), outcome = AbstractHookStep(this._hooks.get(hn), hook_args);
+                      const hn = hook_name(this._state, newState), outcome = abstract_hook_step(this._hooks.get(hn), hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 7. edge type hook
                   // 7a. standard transition hook
                   if (trans_type === 'legal') {
-                      const outcome = AbstractHookStep(this._standard_transition_hook, hook_args);
+                      const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 7b. main type hook
                   if (trans_type === 'main') {
-                      const outcome = AbstractHookStep(this._main_transition_hook, hook_args);
+                      const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 7c. forced transition hook
                   if (trans_type === 'forced') {
-                      const outcome = AbstractHookStep(this._forced_transition_hook, hook_args);
+                      const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 8. entry hook
                   if (this._has_entry_hooks) {
-                      const outcome = AbstractHookStep(this._entry_hooks.get(newState), hook_args);
+                      const outcome = abstract_hook_step(this._entry_hooks.get(newState), hook_args);
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
+                  // all hooks passed!  let's now establish the result
                   this._state = newState;
+                  if (data_changed) {
+                      this._data = hook_args.data;
+                  }
                   return true;
                   // or without hooks
               }
@@ -18424,8 +18451,7 @@ var jssm = (function (exports) {
       }
       throw new TypeError('unknown hook rejection type result');
   }
-  // TODO hook_args: unknown
-  function AbstractHookStep(maybe_hook, hook_args) {
+  function abstract_hook_step(maybe_hook, hook_args) {
       if (maybe_hook !== undefined) {
           const result = maybe_hook(hook_args);
           if (result === undefined) {
@@ -18437,9 +18463,9 @@ var jssm = (function (exports) {
           if (result === false) {
               return { pass: false };
           }
-          // if (is_hook_complex_result(result)) {
-          //   return result;
-          // }
+          if (is_hook_complex_result(result)) {
+              return result;
+          }
           throw new TypeError(`Unknown hook result type ${result}`);
       }
       else {
@@ -18448,6 +18474,7 @@ var jssm = (function (exports) {
   }
 
   exports.Machine = Machine;
+  exports.abstract_hook_step = abstract_hook_step;
   exports.arrow_direction = arrow_direction;
   exports.arrow_left_kind = arrow_left_kind;
   exports.arrow_right_kind = arrow_right_kind;
@@ -18455,6 +18482,7 @@ var jssm = (function (exports) {
   exports.from = from;
   exports.gviz_shapes = gviz_shapes;
   exports.histograph = histograph;
+  exports.is_hook_complex_result = is_hook_complex_result;
   exports.is_hook_rejection = is_hook_rejection;
   exports.make = make;
   exports.named_colors = named_colors;

@@ -390,7 +390,7 @@ type HookComplexResult<mDT> = {
   data?  : mDT,
 };
 
-type HookResult = true | false | undefined | void;
+type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 
 
 
@@ -405,7 +405,7 @@ type HookContext<mDT> = {
 
 
 type HookHandler<mDT> = (hook_context: HookContext<mDT>) =>
-  HookResult;
+  HookResult<mDT>;
 
 
 
