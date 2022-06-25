@@ -203,11 +203,11 @@ declare type HookComplexResult<mDT> = {
     state?: StateType;
     data?: mDT;
 };
-declare type HookResult = true | false | undefined | void;
+declare type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 declare type HookContext<mDT> = {
     data: mDT;
 };
-declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult;
+declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
 declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };

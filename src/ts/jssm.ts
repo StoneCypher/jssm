@@ -1843,7 +1843,20 @@ class Machine<mDT> {
 
       if (this._has_hooks) {
 
-        const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
+        const hook_args = {
+          data   : this._data,
+          action : fromAction,
+          from   : this._state,
+          to     : newState,
+          forced : wasForced
+        };
+
+        function update_fields(res: HookComplexResult<mDT>) {
+          if (res.hasOwnProperty('data')) {
+            hook_args.data = res.data;
+            data_changed   = true;
+          }
+        }
 
         let data_changed = false;
 
@@ -1851,30 +1864,38 @@ class Machine<mDT> {
           // 1. any action hook
           const outcome = AbstractHookStep(this._any_action_hook, hook_args);
           if (outcome.pass === false) { return false; }
+          update_fields(outcome);
 
           // 2. global specific action hook
           const outcome2 = AbstractHookStep(this._global_action_hooks.get(newStateOrAction), hook_args);
           if (outcome2.pass === false) { return false; }
+          update_fields(outcome2);
         }
 
         // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
           const outcome = AbstractHookStep(this._any_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
+          update_fields(outcome);
         }
 
         // 4. exit hook
         if (this._has_exit_hooks) {
           const outcome = AbstractHookStep(this._exit_hooks.get(this._state), hook_args);
           if (outcome.pass === false) { return false; }
+          update_fields(outcome);
         }
 
         // 5. named transition / action hook
         if (this._has_named_hooks) {
           if (wasAction) {
+
             const nhn: string = named_hook_name(this._state, newState, newStateOrAction),
                   outcome     = AbstractHookStep(this._named_hooks.get(nhn), hook_args);
+
             if (outcome.pass === false) { return false; }
+            update_fields(outcome);
+
           }
         }
 
@@ -1885,11 +1906,7 @@ class Machine<mDT> {
                 outcome    = AbstractHookStep(this._hooks.get(hn), hook_args);
 
           if (outcome.pass === false) { return false; }
-
-          if (outcome.hasOwnProperty('data')) {
-            hook_args.data = outcome.data;
-            data_changed   = true;
-          }
+          update_fields(outcome);
 
         }
 
@@ -1899,24 +1916,28 @@ class Machine<mDT> {
         if (trans_type === 'legal') {
           const outcome = AbstractHookStep(this._standard_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
+          update_fields(outcome);
         }
 
         // 7b. main type hook
         if (trans_type === 'main') {
           const outcome = AbstractHookStep(this._main_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
+          update_fields(outcome);
         }
 
         // 7c. forced transition hook
         if (trans_type === 'forced') {
           const outcome = AbstractHookStep(this._forced_transition_hook, hook_args);
           if (outcome.pass === false) { return false; }
+          update_fields(outcome);
         }
 
         // 8. entry hook
         if (this._has_entry_hooks) {
           const outcome = AbstractHookStep(this._entry_hooks.get(newState), hook_args);
           if (outcome.pass === false) { return false; }
+          update_fields(outcome);
         }
 
         // all hooks passed!  let's now establish the result
@@ -2194,7 +2215,7 @@ function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> 
 
 
 
-function is_hook_rejection(hr: HookResult): boolean {
+function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
 
   if (hr === true)      { return false; }
   if (hr === undefined) { return false; }

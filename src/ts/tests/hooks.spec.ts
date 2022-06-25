@@ -1,5 +1,6 @@
 
-import { sm } from '../jssm';
+import * as jssm from '../jssm';
+const sm = jssm.sm;
 
 
 
@@ -812,3 +813,143 @@ describe('Basic hooks on fluent API', () => {
   } );
 
 });
+
+
+
+
+
+describe('Hooks can change data (basic)', () => {
+
+  test('Basic hook data change succeeds from no prior', () => {
+
+    const foo = sm`a -> b;`
+      .hook('a', 'b', () => ({ pass: true, data: 'woo' }));
+
+    foo.transition('b');
+    expect( foo.data() ).toBe('woo');
+
+  });
+
+  test('Basic hook data change succeeds from prior', () => {
+
+    const foo = jssm.from('a -> b;', {data: 'oh'})
+      .hook('a', 'b', () => ({ pass: true, data: 'you' }));
+
+    foo.transition('b');
+    expect( foo.data() ).toBe('you');
+
+  });
+
+});
+
+
+
+
+
+describe('Hooks can change data (full matrix)', () => {
+
+  const matrix_priors = [true, false],
+        matrix_hook   = ['basic', 'entry', 'exit', 'any'],
+
+        plans         = [];
+
+  const setters = {
+    'basic': (m: jssm.Machine<string>) => m.hook('a', 'b', () => ({ pass: true, data: 'woo' })),
+    'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: true, data: 'woo' })),
+    'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: true, data: 'woo' })),
+    'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: true, data: 'woo' })),
+  };
+
+  const blockers = {
+    'basic': (m: jssm.Machine<string>) => m.hook('a', 'b', () => ({ pass: false })),
+    'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: false })),
+    'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: false })),
+    'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false })),
+  };
+
+  const selfblockers = {
+    'basic': (m: jssm.Machine<string>) => m.hook('a', 'b', () => ({ pass: false, data: 'eek' })),
+    'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: false, data: 'eek' })),
+    'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: false, data: 'eek' })),
+    'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false, data: 'eek' })),
+  };
+
+  matrix_priors.forEach(usePrior =>
+    matrix_hook.forEach( (good, g) => {
+
+      plans.push({ use_prior: usePrior, setter: good, blocker: undefined, g, b: undefined });
+
+      matrix_hook.forEach( (bad, b) => {
+        plans.push({ use_prior: usePrior, setter: good, blocker: bad, g, b });
+      });
+
+      plans.forEach(({ use_prior, setter, blocker, b, g }) => {
+
+        if (use_prior) {
+
+          const foo = jssm.from(`a -> b;`, { data: 'oh' });
+
+          // if the blocker is the same as the setter
+          if (b === g) {
+            selfblockers[setter](foo);
+          } else {
+            setters[setter](foo);
+            if (blocker) { blockers[blocker](foo); }
+          }
+
+          foo.transition('b');
+
+          if (blocker) {
+
+            if (b === g) {
+              test(`self-blocking ${setter} with prior`, () =>
+                expect( foo.data() ).toBe('oh') );
+            } else {
+              test(`${setter} with prior, blocked by ${blocker}`, () =>
+                expect( foo.data() ).toBe('oh') );
+            }
+
+          } else {
+            test(`${setter} with prior, not blocked`, () =>
+              expect( foo.data() ).toBe('woo') );
+          }
+
+        } else {
+
+          const foo = sm`a -> b;`;
+          setters[setter](foo);
+
+          if (blocker) { blockers[blocker](foo); }
+
+          foo.transition('b');
+
+          if (blocker) {
+
+            if (b === g) {
+              test(`self-blocking ${setter} without prior`, () =>
+                expect( foo.data() ).toBe(undefined) );
+            } else {
+              test(`${setter} without prior, blocked by ${blocker}`, () =>
+                expect( foo.data() ).toBe(undefined) );
+            }
+
+          } else {
+            test(`${setter} without prior, not blocked`, () =>
+              expect( foo.data() ).toBe('woo') );
+          }
+
+        }
+
+      });
+
+    })
+  );
+
+});
+
+
+
+
+
+// describe('Hook rejection prevents data change', () => {
+// });

@@ -18137,7 +18137,19 @@ var jssm = (function (exports) {
           }
           if (valid) {
               if (this._has_hooks) {
-                  const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
+                  const hook_args = {
+                      data: this._data,
+                      action: fromAction,
+                      from: this._state,
+                      to: newState,
+                      forced: wasForced
+                  };
+                  function update_fields(res) {
+                      if (res.hasOwnProperty('data')) {
+                          hook_args.data = res.data;
+                          data_changed = true;
+                      }
+                  }
                   let data_changed = false;
                   if (wasAction) {
                       // 1. any action hook
@@ -18145,11 +18157,13 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                       // 2. global specific action hook
                       const outcome2 = AbstractHookStep(this._global_action_hooks.get(newStateOrAction), hook_args);
                       if (outcome2.pass === false) {
                           return false;
                       }
+                      update_fields(outcome2);
                   }
                   // 3. any transition hook
                   if (this._any_transition_hook !== undefined) {
@@ -18157,6 +18171,7 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 4. exit hook
                   if (this._has_exit_hooks) {
@@ -18164,6 +18179,7 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 5. named transition / action hook
                   if (this._has_named_hooks) {
@@ -18172,6 +18188,7 @@ var jssm = (function (exports) {
                           if (outcome.pass === false) {
                               return false;
                           }
+                          update_fields(outcome);
                       }
                   }
                   // 6. regular hook
@@ -18180,10 +18197,7 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
-                      if (outcome.hasOwnProperty('data')) {
-                          hook_args.data = outcome.data;
-                          data_changed = true;
-                      }
+                      update_fields(outcome);
                   }
                   // 7. edge type hook
                   // 7a. standard transition hook
@@ -18192,6 +18206,7 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 7b. main type hook
                   if (trans_type === 'main') {
@@ -18199,6 +18214,7 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 7c. forced transition hook
                   if (trans_type === 'forced') {
@@ -18206,6 +18222,7 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // 8. entry hook
                   if (this._has_entry_hooks) {
@@ -18213,6 +18230,7 @@ var jssm = (function (exports) {
                       if (outcome.pass === false) {
                           return false;
                       }
+                      update_fields(outcome);
                   }
                   // all hooks passed!  let's now establish the result
                   this._state = newState;
@@ -18433,7 +18451,6 @@ var jssm = (function (exports) {
       }
       throw new TypeError('unknown hook rejection type result');
   }
-  // TODO hook_args: unknown
   function AbstractHookStep(maybe_hook, hook_args) {
       if (maybe_hook !== undefined) {
           const result = maybe_hook(hook_args);
