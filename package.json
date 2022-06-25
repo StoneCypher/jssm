@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.72.4",
+  "version": "5.72.5",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -47,7 +47,7 @@
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.js",
-    "build": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs",
+    "build": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
@@ -56,6 +56,7 @@
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
     "docs": "typedoc src/ts/jssm.ts --options typedoc-options.js",
+    "readme": "rm ./README.md && node ./src/buildjs/make_readme.js",
     "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog -b && cp CHANGELOG.* ./src/doc_md/"
   },
   "repository": {
@@ -119,6 +120,7 @@
     "fast-check": "^2.12.0",
     "glob": "^7.1.6",
     "jest": "^27.3.1",
+    "jest-json-reporter2": "^1.1.0",
     "pegjs": "^0.10.0",
     "rollup": "^2.72.1",
     "semver": "^5.7.1",
