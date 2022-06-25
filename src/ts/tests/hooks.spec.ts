@@ -849,7 +849,7 @@ describe('Hooks can change data (basic)', () => {
 describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],
-        non_action    = ['basic', 'entry', 'exit', 'any', 'standard', 'any_transition'], // TODO main, forced
+        non_action    = ['basic', 'entry', 'exit', 'any', 'standard', /* 'main', 'forced', */ 'any_transition'], // TODO main, forced
         action_driven = ['action', 'gl_action', 'any_action'],
         matrix_hook   = [... non_action, ... action_driven],
 
@@ -864,6 +864,7 @@ describe('Hooks can change data (full matrix)', () => {
     'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: true, data: 'woo' })),
     'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: true, data: 'woo' })),
     'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: true, data: 'woo' })),
+//  'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: true, data: 'woo' })),
     'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: true, data: 'woo' })),
   };
 
@@ -876,6 +877,7 @@ describe('Hooks can change data (full matrix)', () => {
     'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: false })),
     'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: false })),
     'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: false })),
+//  'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: false })),
     'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false })),
   };
 
@@ -888,6 +890,7 @@ describe('Hooks can change data (full matrix)', () => {
     'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: false, data: 'eek' })),
     'any_action': (m: jssm.Machine<string>) => m.hook_any_action(() => ({ pass: false, data: 'eek' })),
     'standard': (m: jssm.Machine<string>) => m.hook_standard_transition(() => ({ pass: false, data: 'eek' })),
+//  'main': (m: jssm.Machine<string>) => m.hook_main_transition(() => ({ pass: false, data: 'eek' })),
     'any_transition': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false, data: 'eek' })),
   };
 
@@ -909,16 +912,23 @@ describe('Hooks can change data (full matrix)', () => {
 
       plans.forEach(({ use_prior, setter, blocker, b, g }) => {
 
-        let foo,
-            wwo;
+        let wwo,
+            ctx,
+            arrow;
 
         if (use_prior) {
-          foo = jssm.from(`a 'foo' -> b;`, { data: 'oh' });
+          ctx = { data: 'oh' };
           wwo = "with";
         } else {
-          foo = sm`a 'foo' -> b;`;
+          ctx = undefined;
           wwo = "without";
         }
+
+        switch (setter) {
+          default: arrow = '->';
+        }
+
+        const foo = jssm.from(`a 'foo' ${arrow} b;`, ctx);
 
         // if the blocker is the same as the setter
         if (b === g) {
