@@ -849,7 +849,7 @@ describe('Hooks can change data (basic)', () => {
 describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],
-        matrix_hook   = ['basic', 'entry', 'exit', 'any'],
+        matrix_hook   = ['basic', 'entry', 'exit', 'any', 'action', 'gl_action'], // any action, standard, main, forced, any transition
 
         plans         = [];
 
@@ -858,6 +858,8 @@ describe('Hooks can change data (full matrix)', () => {
     'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: true, data: 'woo' })),
     'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: true, data: 'woo' })),
     'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: true, data: 'woo' })),
+    'action': (m: jssm.Machine<string>) => m.hook_action('a', 'b', 'foo', () => ({ pass: true, data: 'woo' })),
+    'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: true, data: 'woo' })),
   };
 
   const blockers = {
@@ -865,6 +867,8 @@ describe('Hooks can change data (full matrix)', () => {
     'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: false })),
     'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: false })),
     'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false })),
+    'action': (m: jssm.Machine<string>) => m.hook_action('a', 'b', 'foo', () => ({ pass: false })),
+    'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: false })),
   };
 
   const selfblockers = {
@@ -872,7 +876,11 @@ describe('Hooks can change data (full matrix)', () => {
     'entry': (m: jssm.Machine<string>) => m.hook_entry('b', () => ({ pass: false, data: 'eek' })),
     'exit': (m: jssm.Machine<string>) => m.hook_exit('a', () => ({ pass: false, data: 'eek' })),
     'any': (m: jssm.Machine<string>) => m.hook_any_transition(() => ({ pass: false, data: 'eek' })),
+    'action': (m: jssm.Machine<string>) => m.hook_action('a', 'b', 'foo', () => ({ pass: false, data: 'eek' })),
+    'gl_action': (m: jssm.Machine<string>) => m.hook_global_action('foo', () => ({ pass: false, data: 'eek' })),
   };
+
+  const action_driven = ['action', 'gl_action'];
 
   matrix_priors.forEach(usePrior =>
     matrix_hook.forEach( (good, g) => {
@@ -880,64 +888,55 @@ describe('Hooks can change data (full matrix)', () => {
       plans.push({ use_prior: usePrior, setter: good, blocker: undefined, g, b: undefined });
 
       matrix_hook.forEach( (bad, b) => {
-        plans.push({ use_prior: usePrior, setter: good, blocker: bad, g, b });
+        let should_push = true;
+        if (action_driven.includes(good) !== action_driven.includes(bad)) {
+          should_push = false;
+        }
+        if (should_push) {
+          plans.push({ use_prior: usePrior, setter: good, blocker: bad, g, b });
+        }
       });
 
       plans.forEach(({ use_prior, setter, blocker, b, g }) => {
 
+        let foo,
+            wwo;
+
         if (use_prior) {
+          foo = jssm.from(`a 'foo' -> b;`, { data: 'oh' });
+          wwo = "with";
+        } else {
+          foo = sm`a 'foo' -> b;`;
+          wwo = "without";
+        }
 
-          const foo = jssm.from(`a -> b;`, { data: 'oh' });
+        // if the blocker is the same as the setter
+        if (b === g) {
+          selfblockers[setter](foo);
+        } else {
+          setters[setter](foo);
+          if (blocker) { blockers[blocker](foo); }
+        }
 
-          // if the blocker is the same as the setter
-          if (b === g) {
-            selfblockers[setter](foo);
-          } else {
-            setters[setter](foo);
-            if (blocker) { blockers[blocker](foo); }
-          }
-
+        if (action_driven.includes(setter)) {
+          foo.action('foo');
+        } else {
           foo.transition('b');
+        }
 
-          if (blocker) {
+        if (blocker) {
 
-            if (b === g) {
-              test(`self-blocking ${setter} with prior`, () =>
-                expect( foo.data() ).toBe('oh') );
-            } else {
-              test(`${setter} with prior, blocked by ${blocker}`, () =>
-                expect( foo.data() ).toBe('oh') );
-            }
-
+          if (b === g) {
+            test(`self-blocking ${setter} ${wwo} prior`, () =>
+              expect( foo.data() ).toBe(use_prior? 'oh' : undefined) );
           } else {
-            test(`${setter} with prior, not blocked`, () =>
-              expect( foo.data() ).toBe('woo') );
+            test(`${setter} ${wwo} prior, blocked by ${blocker}`, () =>
+              expect( foo.data() ).toBe(use_prior? 'oh' : undefined) );
           }
 
         } else {
-
-          const foo = sm`a -> b;`;
-          setters[setter](foo);
-
-          if (blocker) { blockers[blocker](foo); }
-
-          foo.transition('b');
-
-          if (blocker) {
-
-            if (b === g) {
-              test(`self-blocking ${setter} without prior`, () =>
-                expect( foo.data() ).toBe(undefined) );
-            } else {
-              test(`${setter} without prior, blocked by ${blocker}`, () =>
-                expect( foo.data() ).toBe(undefined) );
-            }
-
-          } else {
-            test(`${setter} without prior, not blocked`, () =>
-              expect( foo.data() ).toBe('woo') );
-          }
-
+          test(`${setter} ${wwo} prior, not blocked`, () =>
+            expect( foo.data() ).toBe('woo') );
         }
 
       });

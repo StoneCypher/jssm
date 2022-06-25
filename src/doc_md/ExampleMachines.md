@@ -209,6 +209,7 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Decision tree | - | | | | &#9749; | | | | | |
 | Random model | - | | | | &#9749; | | | | &#9749; | |
 | Markhov chain | - | | | | | | | | | |
+| Collatz conjecture | - | | | | | | | | | |
 
 </div>
 
