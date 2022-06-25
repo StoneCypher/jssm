@@ -18141,42 +18141,36 @@ class Machine {
                 const hook_args = { data: this._data, action: fromAction, from: this._state, to: newState, forced: wasForced };
                 if (wasAction) {
                     // 1. any action hook
-                    if (this._any_action_hook !== undefined) {
-                        if (this._any_action_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const outcome = AbstractHookStep(this._any_action_hook, hook_args);
+                    if (outcome.pass === false) {
+                        return false;
                     }
                     // 2. global specific action hook
-                    const maybe_ga_hook = this._global_action_hooks.get(newStateOrAction);
-                    if (maybe_ga_hook !== undefined) {
-                        if (maybe_ga_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const outcome2 = AbstractHookStep(this._global_action_hooks.get(newStateOrAction), hook_args);
+                    if (outcome2.pass === false) {
+                        return false;
                     }
                 }
                 // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
-                    if (this._any_transition_hook(hook_args) === false) {
+                    const outcome = AbstractHookStep(this._any_transition_hook, hook_args);
+                    if (outcome.pass === false) {
                         return false;
                     }
                 }
                 // 4. exit hook
                 if (this._has_exit_hooks) {
-                    const maybe_ex_hook = this._exit_hooks.get(this._state);
-                    if (maybe_ex_hook !== undefined) {
-                        if (maybe_ex_hook(hook_args) === false) {
-                            return false;
-                        }
+                    const outcome = AbstractHookStep(this._exit_hooks.get(this._state), hook_args);
+                    if (outcome.pass === false) {
+                        return false;
                     }
                 }
                 // 5. named transition / action hook
                 if (this._has_named_hooks) {
                     if (wasAction) {
-                        const nhn = named_hook_name(this._state, newState, newStateOrAction), n_maybe_hook = this._named_hooks.get(nhn);
-                        if (n_maybe_hook !== undefined) {
-                            if (n_maybe_hook(hook_args) === false) {
-                                return false;
-                            }
+                        const nhn = named_hook_name(this._state, newState, newStateOrAction), outcome = AbstractHookStep(this._named_hooks.get(nhn), hook_args);
+                        if (outcome.pass === false) {
+                            return false;
                         }
                     }
                 }

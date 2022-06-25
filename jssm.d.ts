@@ -224,10 +224,10 @@ declare class Machine<mDT> {
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
     _hooks: Map<string, HookHandler<mDT>>;
-    _named_hooks: Map<string, Function>;
+    _named_hooks: Map<string, HookHandler<mDT>>;
     _entry_hooks: Map<string, HookHandler<mDT>>;
-    _exit_hooks: Map<string, Function>;
-    _global_action_hooks: Map<string, Function>;
+    _exit_hooks: Map<string, HookHandler<mDT>>;
+    _global_action_hooks: Map<string, HookHandler<mDT>>;
     _any_action_hook: HookHandler<mDT> | undefined;
     _standard_transition_hook: HookHandler<mDT> | undefined;
     _main_transition_hook: HookHandler<mDT> | undefined;
