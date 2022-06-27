@@ -102,6 +102,7 @@ declare type JssmGenericConfig<DataType> = {
     data?: DataType;
     nodes?: Array<StateType>;
     check?: JssmStatePermitterMaybeArray<DataType>;
+    history?: number;
     min_exits?: number;
     max_exits?: number;
     allow_islands?: false;
