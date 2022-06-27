@@ -208,6 +208,7 @@ type JssmGenericConfig<DataType> = {
   data?                      : DataType,
   nodes?                     : Array<StateType>,  // uncommon
   check?                     : JssmStatePermitterMaybeArray<DataType>,
+  history?                   : number,
 
 //locked?                    : bool = true,
   min_exits?                 : number,

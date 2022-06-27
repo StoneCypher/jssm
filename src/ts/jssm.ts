@@ -4,6 +4,7 @@
 type StateType = string;
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
+import { circular_buffer }         from 'circular_buffer_js';
 
 
 
@@ -740,6 +741,9 @@ class Machine<mDT> {
   _forced_transition_hook   : HookHandler<mDT> | undefined;
   _any_transition_hook      : HookHandler<mDT> | undefined;
 
+  _history        : circular_buffer<[StateType, mDT]>;
+  _history_length : number;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
@@ -765,6 +769,7 @@ class Machine<mDT> {
     flow                      = 'down',
     graph_layout              = 'dot',
     instance_name,
+    history,
     data
 
   }: JssmGenericConfig<mDT>) {
@@ -823,6 +828,9 @@ class Machine<mDT> {
     this._standard_transition_hook = undefined;
 
     this._data                     = data;
+
+    this._history_length           = history || 0;
+    this._history                  = new circular_buffer(this._history_length);
 
 
     if (state_declaration) {
@@ -1942,6 +1950,10 @@ class Machine<mDT> {
 
         // all hooks passed!  let's now establish the result
 
+        if (this._history_length) {
+          this._history.shove([ this._state, this._data ]);
+        }
+
         this._state = newState;
 
         if (data_changed) { this._data = hook_args.data; }
@@ -1950,6 +1962,10 @@ class Machine<mDT> {
 
       // or without hooks
       } else {
+
+        if (this._history_length) {
+          this._history.shove([ this._state, this._data ]);
+        }
 
         this._state = newState;
 
@@ -1962,6 +1978,118 @@ class Machine<mDT> {
       return false;
     }
 
+  }
+
+
+
+
+
+  /*********
+   *
+   *  Get a truncated history of the recent states and data of the machine.
+   *  Turned off by default; configure with `.from('...', {data: 5})` by length,
+   *  or set `.history_length` at runtime.
+   *
+   *  History *does not contain the current state*.  If you want that, call
+   *  `.history_inclusive` instead.
+   *
+   *  ```typescript
+   *  const foo = jssm.from(
+   *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
+   *    { history: 3 }
+   *  );
+   *
+   *  foo.action('next');
+   *  foo.action('next');
+   *  foo.action('next');
+   *  foo.action('next');
+   *
+   *  foo.history;  // [ ['b',undefined], ['c',undefined], ['d',undefined] ]
+   *  ```
+   *
+   *  Notice that the machine's current state, `e`, is not in the returned list.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get history() {
+    return this._history.toArray();
+  }
+
+
+
+
+
+  /*********
+   *
+   *  Get a truncated history of the recent states and data of the machine,
+   *  including the current state.  Turned off by default; configure with
+   *  `.from('...', {data: 5})` by length, or set `.history_length` at runtime.
+   *
+   *  History inclusive contains the current state.  If you only want past
+   *  states, call `.history` instead.
+   *
+   *  The list returned will be one longer than the history buffer kept, as the
+   *  history buffer kept gets the current state added to it to produce this
+   *  list.
+   *
+   *  ```typescript
+   *  const foo = jssm.from(
+   *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
+   *    { history: 3 }
+   *  );
+   *
+   *  foo.action('next');
+   *  foo.action('next');
+   *  foo.action('next');
+   *  foo.action('next');
+   *
+   *  foo.history_inclusive;  // [ ['b',undefined], ['c',undefined], ['d',undefined], ['e',undefined] ]
+   *  ```
+   *
+   *  Notice that the machine's current state, `e`, is in the returned list.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get history_inclusive() {
+    const ret = this._history.toArray();
+    ret.push([ this.state(), this.data() ]);
+    return ret;
+  }
+
+
+
+
+
+  /*********
+   *
+   *  Find out how long a history this machine is keeping.  Defaults to zero.
+   *  Settable directly.
+   *
+   *  ```typescript
+   *  const foo = jssm.from("a -> b;");
+   *  foo.history_length;                                  // 0
+   *
+   *  const bar = jssm.from("a -> b;", { history: 3 });
+   *  foo.history_length;                                  // 3
+   *  foo.history_length = 5;
+   *  foo.history_length;                                  // 5
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get history_length() {
+    return this._history_length;
+  }
+
+  set history_length(to: number) {
+    this._history_length = to;
+    this._history.resize(to, true);
   }
 
 

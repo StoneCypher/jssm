@@ -1,4 +1,5 @@
 declare type StateType = string;
+import { circular_buffer } from 'circular_buffer_js';
 import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
 JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
@@ -233,7 +234,9 @@ declare class Machine<mDT> {
     _main_transition_hook: HookHandler<mDT> | undefined;
     _forced_transition_hook: HookHandler<mDT> | undefined;
     _any_transition_hook: HookHandler<mDT> | undefined;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, data }: JssmGenericConfig<mDT>);
+    _history: circular_buffer<[StateType, mDT]>;
+    _history_length: number;
+    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -551,6 +554,88 @@ declare class Machine<mDT> {
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     edges_between(from: string, to: string): JssmTransition<mDT>[];
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    /*********
+     *
+     *  Get a truncated history of the recent states and data of the machine.
+     *  Turned off by default; configure with `.from('...', {data: 5})` by length,
+     *  or set `.history_length` at runtime.
+     *
+     *  History *does not contain the current state*.  If you want that, call
+     *  `.history_inclusive` instead.
+     *
+     *  ```typescript
+     *  const foo = jssm.from(
+     *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
+     *    { history: 3 }
+     *  );
+     *
+     *  foo.action('next');
+     *  foo.action('next');
+     *  foo.action('next');
+     *  foo.action('next');
+     *
+     *  foo.history;  // [ ['b',undefined], ['c',undefined], ['d',undefined] ]
+     *  ```
+     *
+     *  Notice that the machine's current state, `e`, is not in the returned list.
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get history(): [string, mDT][];
+    /*********
+     *
+     *  Get a truncated history of the recent states and data of the machine,
+     *  including the current state.  Turned off by default; configure with
+     *  `.from('...', {data: 5})` by length, or set `.history_length` at runtime.
+     *
+     *  History inclusive contains the current state.  If you only want past
+     *  states, call `.history` instead.
+     *
+     *  The list returned will be one longer than the history buffer kept, as the
+     *  history buffer kept gets the current state added to it to produce this
+     *  list.
+     *
+     *  ```typescript
+     *  const foo = jssm.from(
+     *    "a 'next' -> b 'next' -> c 'next' -> d 'next' -> e;",
+     *    { history: 3 }
+     *  );
+     *
+     *  foo.action('next');
+     *  foo.action('next');
+     *  foo.action('next');
+     *  foo.action('next');
+     *
+     *  foo.history_inclusive;  // [ ['b',undefined], ['c',undefined], ['d',undefined], ['e',undefined] ]
+     *  ```
+     *
+     *  Notice that the machine's current state, `e`, is in the returned list.
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get history_inclusive(): [string, mDT][];
+    /*********
+     *
+     *  Find out how long a history this machine is keeping.  Defaults to zero.
+     *  Settable directly.
+     *
+     *  ```typescript
+     *  const foo = jssm.from("a -> b;");
+     *  foo.history_length;                                  // 0
+     *
+     *  const bar = jssm.from("a -> b;", { history: 3 });
+     *  foo.history_length;                                  // 3
+     *  foo.history_length = 5;
+     *  foo.history_length;                                  // 5
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get history_length(): number;
+    set history_length(to: number);
     /********
      *
      *  Instruct the machine to complete an action.
