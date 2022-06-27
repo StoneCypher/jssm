@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.73.0",
+  "version": "5.73.1",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -110,7 +110,6 @@
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "benny": "^3.7.1",
-    "circular_buffer_js": "^1.10.0",
     "coveralls": "^3.0.11",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",
@@ -132,6 +131,7 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
+    "circular_buffer_js": "^1.10.0",
     "better_git_changelog": "^1.6.1",
     "reduce-to-639-1": "^1.0.4"
   }
