@@ -16785,7 +16785,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.73.1";
+const version = "5.74.0";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -17379,7 +17379,7 @@ class Machine {
         this._has_exit_hooks = false;
         this._has_global_action_hooks = false;
         this._has_transition_hooks = true;
-        // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
+        // no need for a boolean for single hooks, just test for undefinedness
         this._hooks = new Map();
         this._named_hooks = new Map();
         this._entry_hooks = new Map();
@@ -17391,6 +17391,25 @@ class Machine {
         this._forced_transition_hook = undefined;
         this._any_transition_hook = undefined;
         this._standard_transition_hook = undefined;
+        this._has_post_hooks = false;
+        this._has_post_basic_hooks = false;
+        this._has_post_named_hooks = false;
+        this._has_post_entry_hooks = false;
+        this._has_post_exit_hooks = false;
+        this._has_post_global_action_hooks = false;
+        this._has_post_transition_hooks = true;
+        // no need for a boolean for single hooks, just test for undefinedness
+        this._post_hooks = new Map();
+        this._post_named_hooks = new Map();
+        this._post_entry_hooks = new Map();
+        this._post_exit_hooks = new Map();
+        this._post_global_action_hooks = new Map();
+        this._post_any_action_hook = undefined;
+        this._post_standard_transition_hook = undefined;
+        this._post_main_transition_hook = undefined;
+        this._post_forced_transition_hook = undefined;
+        this._post_any_transition_hook = undefined;
+        this._post_standard_transition_hook = undefined;
         this._data = data;
         this._history_length = history || 0;
         this._history = new circular_buffer(this._history_length);
@@ -18245,7 +18264,8 @@ class Machine {
                 if (data_changed) {
                     this._data = hook_args.data;
                 }
-                return true;
+                // success fallthrough to posthooks; intentionally no return here
+                // look for "posthooks begin here"
                 // or without hooks
             }
             else {
@@ -18253,13 +18273,16 @@ class Machine {
                     this._history.shove([this._state, this._data]);
                 }
                 this._state = newState;
-                return true;
+                // success fallthrough to posthooks; intentionally no return here
+                // look for "posthooks begin here"
             }
             // not valid
         }
         else {
             return false;
         }
+        // posthooks begin here
+        return true;
     }
     /*********
      *
