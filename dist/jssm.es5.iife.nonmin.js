@@ -18079,6 +18079,64 @@ var jssm = (function (exports) {
                   this._has_hooks = true;
                   this._has_exit_hooks = true;
                   break;
+              case 'post hook':
+                  this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  this._has_basic_hooks = true;
+                  break;
+              case 'post named':
+                  this._post_named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  this._has_named_hooks = true;
+                  break;
+              case 'post global action':
+                  this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  this._has_post_global_action_hooks = true;
+                  break;
+              case 'post any action':
+                  this._post_any_action_hook = HookDesc.handler;
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  break;
+              case 'post standard transition':
+                  this._post_standard_transition_hook = HookDesc.handler;
+                  this._has_post_transition_hooks = true;
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  break;
+              case 'post main transition':
+                  this._post_main_transition_hook = HookDesc.handler;
+                  this._has_post_transition_hooks = true;
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  break;
+              case 'post forced transition':
+                  this._post_forced_transition_hook = HookDesc.handler;
+                  this._has_post_transition_hooks = true;
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  break;
+              case 'post any transition':
+                  this._post_any_transition_hook = HookDesc.handler;
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  break;
+              case 'post entry':
+                  this._post_entry_hooks.set(HookDesc.to, HookDesc.handler);
+                  this._has_post_entry_hooks = true;
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  break;
+              case 'post exit':
+                  this._post_exit_hooks.set(HookDesc.from, HookDesc.handler);
+                  this._has_post_exit_hooks = true;
+                  this._has_hooks = true;
+                  this._has_post_hooks = true;
+                  break;
               default:
                   throw new JssmError(this, `Unknown hook type ${HookDesc.kind}, should be impossible`);
           }
