@@ -569,6 +569,16 @@ declare class Machine<mDT> {
     hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
     hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     edges_between(from: string, to: string): JssmTransition<mDT>[];
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
     /*********

@@ -1740,71 +1740,62 @@ class Machine<mDT> {
         this._has_exit_hooks = true;
         break;
 
+
       case 'post hook':
-        this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
-        this._has_hooks       = true;
+        this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
         this._has_post_hooks  = true;
         this._has_basic_hooks = true;
         break;
 
       case 'post named':
         this._post_named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
-        this._has_hooks       = true;
         this._has_post_hooks  = true;
         this._has_named_hooks = true;
         break;
 
       case 'post global action':
         this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
-        this._has_hooks                    = true;
         this._has_post_hooks               = true;
         this._has_post_global_action_hooks = true;
         break;
 
       case 'post any action':
         this._post_any_action_hook = HookDesc.handler;
-        this._has_hooks            = true;
         this._has_post_hooks       = true;
         break;
 
       case 'post standard transition':
         this._post_standard_transition_hook = HookDesc.handler;
         this._has_post_transition_hooks     = true;
-        this._has_hooks                     = true;
         this._has_post_hooks                = true;
         break;
 
       case 'post main transition':
         this._post_main_transition_hook = HookDesc.handler;
         this._has_post_transition_hooks = true;
-        this._has_hooks                 = true;
         this._has_post_hooks            = true;
         break;
 
       case 'post forced transition':
         this._post_forced_transition_hook = HookDesc.handler;
         this._has_post_transition_hooks   = true;
-        this._has_hooks                   = true;
         this._has_post_hooks              = true;
         break;
 
       case 'post any transition':
         this._post_any_transition_hook = HookDesc.handler;
-        this._has_hooks                = true;
         this._has_post_hooks           = true;
         break;
 
       case 'post entry':
         this._post_entry_hooks.set(HookDesc.to, HookDesc.handler);
         this._has_post_entry_hooks = true;
-        this._has_hooks            = true;
         this._has_post_hooks       = true;
         break;
 
       case 'post exit':
         this._post_exit_hooks.set(HookDesc.from, HookDesc.handler);
         this._has_post_exit_hooks = true;
-        this._has_hooks           = true;
         this._has_post_hooks      = true;
         break;
 
@@ -1906,6 +1897,98 @@ class Machine<mDT> {
 
 
 
+
+
+  post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post hook', from, to, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post named', from, to, action, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post global action', action, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_any_action(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post any action', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post standard transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_main_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post main transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post forced transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post any transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post entry', to, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post exit', from, handler });
+    return this;
+
+  }
+
+
+
   // remove_hook(HookDesc: HookDescription) {
   //   throw new JssmError(this, 'TODO: Should remove hook here');
   // }
@@ -1955,17 +2038,17 @@ class Machine<mDT> {
     }
 
 
+    const hook_args = {
+      data   : this._data,
+      action : fromAction,
+      from   : this._state,
+      to     : newState,
+      forced : wasForced
+    };
+
     if (valid) {
 
       if (this._has_hooks) {
-
-        const hook_args = {
-          data   : this._data,
-          action : fromAction,
-          from   : this._state,
-          to     : newState,
-          forced : wasForced
-        };
 
         function update_fields(res: HookComplexResult<mDT>) {
           if (res.hasOwnProperty('data')) {
@@ -2090,6 +2173,19 @@ class Machine<mDT> {
     }
 
     // posthooks begin here
+
+    if (this._has_post_hooks) {
+
+      if (wasAction) {
+        // 1. any action posthook
+        if (this._post_any_action_hook !== undefined) { this._post_any_action_hook(hook_args); }
+
+        // 2. global specific action hook
+        const pgah = this._post_global_action_hooks.get(newStateOrAction)
+        if (pgah !== undefined) { pgah(hook_args); }
+      }
+
+    }
 
     return true;
 
