@@ -367,6 +367,66 @@ type ExitHook<mDT> = {
 
 
 
+type PostBasicHookDescription<mDT> = {
+  kind    : 'post hook'
+  from    : string,
+  to      : string,
+  handler : PostHookHandler<mDT>
+};
+
+type PostHookDescriptionWithAction<mDT> = {
+  kind    : 'post named',
+  from    : string,
+  to      : string,
+  action  : string,
+  handler : PostHookHandler<mDT>
+};
+
+type PostStandardTransitionHook<mDT> = {
+  kind    : 'post standard transition',
+  handler : PostHookHandler<mDT>
+};
+
+type PostMainTransitionHook<mDT> = {
+  kind    : 'post main transition',
+  handler : PostHookHandler<mDT>
+};
+
+type PostForcedTransitionHook<mDT> = {
+  kind    : 'post forced transition',
+  handler : PostHookHandler<mDT>
+};
+
+type PostAnyTransitionHook<mDT> = {
+  kind    : 'post any transition',
+  handler : PostHookHandler<mDT>
+};
+
+type PostGlobalActionHook<mDT> = {
+  kind    : 'post global action',
+  action  : string,
+  handler : PostHookHandler<mDT>
+};
+
+type PostAnyActionHook<mDT> = {
+  kind    : 'post any action',
+  handler : PostHookHandler<mDT>
+};
+
+type PostEntryHook<mDT> = {
+  kind    : 'post entry',
+  to      : string,
+  handler : PostHookHandler<mDT>
+};
+
+type PostExitHook<mDT> = {
+  kind    : 'post exit',
+  from    : string,
+  handler : PostHookHandler<mDT>
+};
+
+
+
 
 
 type HookDescription<mDT>
@@ -379,7 +439,17 @@ type HookDescription<mDT>
   | ForcedTransitionHook<mDT>
   | AnyTransitionHook<mDT>
   | EntryHook<mDT>
-  | ExitHook<mDT>;
+  | ExitHook<mDT>
+  | PostBasicHookDescription<mDT>
+  | PostHookDescriptionWithAction<mDT>
+  | PostGlobalActionHook<mDT>
+  | PostAnyActionHook<mDT>
+  | PostStandardTransitionHook<mDT>
+  | PostMainTransitionHook<mDT>
+  | PostForcedTransitionHook<mDT>
+  | PostAnyTransitionHook<mDT>
+  | PostEntryHook<mDT>
+  | PostExitHook<mDT>;
 
 
 
@@ -407,6 +477,9 @@ type HookContext<mDT> = {
 
 type HookHandler<mDT> = (hook_context: HookContext<mDT>) =>
   HookResult<mDT>;
+
+type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) =>
+  void;
 
 
 

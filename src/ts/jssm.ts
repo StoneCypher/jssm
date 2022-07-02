@@ -720,15 +720,14 @@ class Machine<mDT> {
   _theme : FslTheme;
   _flow  : FslDirection;
 
-  _has_hooks               : boolean;
-  _has_basic_hooks         : boolean;
-  _has_named_hooks         : boolean;
-  _has_entry_hooks         : boolean;
-  _has_exit_hooks          : boolean;
-  _has_global_action_hooks : boolean;
-  _has_transition_hooks    : boolean;
-
-  // no boolean for _has_any_transition_hook
+  _has_hooks                : boolean;
+  _has_basic_hooks          : boolean;
+  _has_named_hooks          : boolean;
+  _has_entry_hooks          : boolean;
+  _has_exit_hooks           : boolean;
+  _has_global_action_hooks  : boolean;
+  _has_transition_hooks     : boolean;
+  // no boolean for the single hooks, just check if they're defined
 
   _hooks                    : Map<string, HookHandler<mDT>>;
   _named_hooks              : Map<string, HookHandler<mDT>>;
@@ -740,6 +739,26 @@ class Machine<mDT> {
   _main_transition_hook     : HookHandler<mDT> | undefined;
   _forced_transition_hook   : HookHandler<mDT> | undefined;
   _any_transition_hook      : HookHandler<mDT> | undefined;
+
+  _has_post_hooks                : boolean;
+  _has_post_basic_hooks          : boolean;
+  _has_post_named_hooks          : boolean;
+  _has_post_entry_hooks          : boolean;
+  _has_post_exit_hooks           : boolean;
+  _has_post_global_action_hooks  : boolean;
+  _has_post_transition_hooks     : boolean;
+  // no boolean for the single hooks, just check if they're defined
+
+  _post_hooks                    : Map<string, HookHandler<mDT>>;
+  _post_named_hooks              : Map<string, HookHandler<mDT>>;
+  _post_entry_hooks              : Map<string, HookHandler<mDT>>;
+  _post_exit_hooks               : Map<string, HookHandler<mDT>>;
+  _post_global_action_hooks      : Map<string, HookHandler<mDT>>;
+  _post_any_action_hook          : HookHandler<mDT> | undefined;
+  _post_standard_transition_hook : HookHandler<mDT> | undefined;
+  _post_main_transition_hook     : HookHandler<mDT> | undefined;
+  _post_forced_transition_hook   : HookHandler<mDT> | undefined;
+  _post_any_transition_hook      : HookHandler<mDT> | undefined;
 
   _history        : circular_buffer<[StateType, mDT]>;
   _history_length : number;
@@ -813,7 +832,7 @@ class Machine<mDT> {
     this._has_exit_hooks          = false;
     this._has_global_action_hooks = false;
     this._has_transition_hooks    = true;
-    // no need for a boolean has any transition hook, as it's one or nothing, so just test that for undefinedness
+    // no need for a boolean for single hooks, just test for undefinedness
 
     this._hooks                    = new Map();
     this._named_hooks              = new Map();
@@ -825,7 +844,26 @@ class Machine<mDT> {
     this._main_transition_hook     = undefined;
     this._forced_transition_hook   = undefined;
     this._any_transition_hook      = undefined;
-    this._standard_transition_hook = undefined;
+
+    this._has_post_hooks               = false;
+    this._has_post_basic_hooks         = false;
+    this._has_post_named_hooks         = false;
+    this._has_post_entry_hooks         = false;
+    this._has_post_exit_hooks          = false;
+    this._has_post_global_action_hooks = false;
+    this._has_post_transition_hooks    = true;
+    // no need for a boolean for single hooks, just test for undefinedness
+
+    this._post_hooks                    = new Map();
+    this._post_named_hooks              = new Map();
+    this._post_entry_hooks              = new Map();
+    this._post_exit_hooks               = new Map();
+    this._post_global_action_hooks      = new Map();
+    this._post_any_action_hook          = undefined;
+    this._post_standard_transition_hook = undefined;
+    this._post_main_transition_hook     = undefined;
+    this._post_forced_transition_hook   = undefined;
+    this._post_any_transition_hook      = undefined;
 
     this._data                     = data;
 
@@ -1700,6 +1738,65 @@ class Machine<mDT> {
         this._has_exit_hooks = true;
         break;
 
+
+      case 'post hook':
+        this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+        this._has_post_hooks       = true;
+        this._has_post_basic_hooks = true;
+        break;
+
+      case 'post named':
+        this._post_named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+        this._has_post_hooks       = true;
+        this._has_post_named_hooks = true;
+        break;
+
+      case 'post global action':
+        this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
+        this._has_post_hooks               = true;
+        this._has_post_global_action_hooks = true;
+        break;
+
+      case 'post any action':
+        this._post_any_action_hook = HookDesc.handler;
+        this._has_post_hooks       = true;
+        break;
+
+      case 'post standard transition':
+        this._post_standard_transition_hook = HookDesc.handler;
+        this._has_post_transition_hooks     = true;
+        this._has_post_hooks                = true;
+        break;
+
+      case 'post main transition':
+        this._post_main_transition_hook = HookDesc.handler;
+        this._has_post_transition_hooks = true;
+        this._has_post_hooks            = true;
+        break;
+
+      case 'post forced transition':
+        this._post_forced_transition_hook = HookDesc.handler;
+        this._has_post_transition_hooks   = true;
+        this._has_post_hooks              = true;
+        break;
+
+      case 'post any transition':
+        this._post_any_transition_hook = HookDesc.handler;
+        this._has_post_hooks           = true;
+        break;
+
+      case 'post entry':
+        this._post_entry_hooks.set(HookDesc.to, HookDesc.handler);
+        this._has_post_entry_hooks = true;
+        this._has_post_hooks       = true;
+        break;
+
+      case 'post exit':
+        this._post_exit_hooks.set(HookDesc.from, HookDesc.handler);
+        this._has_post_exit_hooks = true;
+        this._has_post_hooks      = true;
+        break;
+
       default:
         throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
 
@@ -1798,6 +1895,98 @@ class Machine<mDT> {
 
 
 
+
+
+  post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post hook', from, to, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post named', from, to, action, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post global action', action, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_any_action(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post any action', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post standard transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_main_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post main transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post forced transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post any transition', handler });
+    return this;
+
+  }
+
+
+
+  post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post entry', to, handler });
+    return this;
+
+  }
+
+
+
+  post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT> {
+
+    this.set_hook({ kind: 'post exit', from, handler });
+    return this;
+
+  }
+
+
+
   // remove_hook(HookDesc: HookDescription) {
   //   throw new JssmError(this, 'TODO: Should remove hook here');
   // }
@@ -1847,17 +2036,18 @@ class Machine<mDT> {
     }
 
 
+    const hook_args = {
+      data   : this._data,
+      action : fromAction,
+      from   : this._state,
+      to     : newState,
+      forced : wasForced,
+      trans_type
+    };
+
     if (valid) {
 
       if (this._has_hooks) {
-
-        const hook_args = {
-          data   : this._data,
-          action : fromAction,
-          from   : this._state,
-          to     : newState,
-          forced : wasForced
-        };
 
         function update_fields(res: HookComplexResult<mDT>) {
           if (res.hasOwnProperty('data')) {
@@ -1958,7 +2148,9 @@ class Machine<mDT> {
 
         if (data_changed) { this._data = hook_args.data; }
 
-        return true;
+        // success fallthrough to posthooks; intentionally no return here
+        // look for "posthooks begin here"
+
 
       // or without hooks
       } else {
@@ -1969,7 +2161,8 @@ class Machine<mDT> {
 
         this._state = newState;
 
-        return true;
+        // success fallthrough to posthooks; intentionally no return here
+        // look for "posthooks begin here"
 
       }
 
@@ -1977,6 +2170,79 @@ class Machine<mDT> {
     } else {
       return false;
     }
+
+    // posthooks begin here
+
+    if (this._has_post_hooks) {
+
+      if (wasAction) {
+        // 1. any action posthook
+        if (this._post_any_action_hook !== undefined) { this._post_any_action_hook(hook_args); }
+
+        // 2. global specific action hook
+        const pgah = this._post_global_action_hooks.get(hook_args.action)
+        if (pgah !== undefined) { pgah(hook_args); }
+      }
+
+      // 3. any transition hook
+      if (this._post_any_transition_hook !== undefined) {
+        this._post_any_transition_hook(hook_args);
+      }
+
+      // 4. exit hook
+      if (this._has_post_exit_hooks) {
+        const peh = this._post_exit_hooks.get(hook_args.from);  // todo this is probably from instead
+        if (peh !== undefined) { peh(hook_args); }
+      }
+
+      // 5. named transition / action hook
+      if (this._has_post_named_hooks) {
+        if (wasAction) {
+          const nhn: string = named_hook_name(hook_args.from, hook_args.to, hook_args.action),
+                pnh         = this._post_named_hooks.get(nhn);
+
+          if (pnh !== undefined) { pnh(hook_args); }
+        }
+      }
+
+      // 6. regular hook
+      if (this._has_post_basic_hooks) {
+        const hook = this._post_hooks.get(hook_name(hook_args.from, hook_args.to));
+        if (hook !== undefined) { hook(hook_args); }
+      }
+
+      // 7. edge type hook
+
+      // 7a. standard transition hook
+      if (trans_type === 'legal') {
+        if (this._post_standard_transition_hook !== undefined) {
+          this._post_standard_transition_hook(hook_args);
+        }
+      }
+
+      // 7b. main type hook
+      if (trans_type === 'main') {
+        if (this._post_main_transition_hook !== undefined) {
+          this._post_main_transition_hook(hook_args);
+        }
+      }
+
+      // 7c. forced transition hook
+      if (trans_type === 'forced') {
+        if (this._post_forced_transition_hook !== undefined) {
+          this._post_forced_transition_hook(hook_args);
+        }
+      }
+
+      // 8. entry hook
+      if (this._has_post_entry_hooks) {
+        const hook = this._post_entry_hooks.get(hook_args.to);
+        if (hook !== undefined) { hook(hook_args); }
+      }
+
+    }
+
+    return true;
 
   }
 

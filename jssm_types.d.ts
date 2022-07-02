@@ -198,7 +198,55 @@ declare type ExitHook<mDT> = {
     from: string;
     handler: HookHandler<mDT>;
 };
-declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT>;
+declare type PostBasicHookDescription<mDT> = {
+    kind: 'post hook';
+    from: string;
+    to: string;
+    handler: PostHookHandler<mDT>;
+};
+declare type PostHookDescriptionWithAction<mDT> = {
+    kind: 'post named';
+    from: string;
+    to: string;
+    action: string;
+    handler: PostHookHandler<mDT>;
+};
+declare type PostStandardTransitionHook<mDT> = {
+    kind: 'post standard transition';
+    handler: PostHookHandler<mDT>;
+};
+declare type PostMainTransitionHook<mDT> = {
+    kind: 'post main transition';
+    handler: PostHookHandler<mDT>;
+};
+declare type PostForcedTransitionHook<mDT> = {
+    kind: 'post forced transition';
+    handler: PostHookHandler<mDT>;
+};
+declare type PostAnyTransitionHook<mDT> = {
+    kind: 'post any transition';
+    handler: PostHookHandler<mDT>;
+};
+declare type PostGlobalActionHook<mDT> = {
+    kind: 'post global action';
+    action: string;
+    handler: PostHookHandler<mDT>;
+};
+declare type PostAnyActionHook<mDT> = {
+    kind: 'post any action';
+    handler: PostHookHandler<mDT>;
+};
+declare type PostEntryHook<mDT> = {
+    kind: 'post entry';
+    to: string;
+    handler: PostHookHandler<mDT>;
+};
+declare type PostExitHook<mDT> = {
+    kind: 'post exit';
+    from: string;
+    handler: PostHookHandler<mDT>;
+};
+declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT>;
 declare type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType;
@@ -209,6 +257,7 @@ declare type HookContext<mDT> = {
     data: mDT;
 };
 declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
+declare type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
 declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };

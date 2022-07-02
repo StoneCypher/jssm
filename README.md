@@ -18,14 +18,14 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.73.1 at 6/27/2022, 2:52:26 AM
+* Generated for version 5.74.0 at 7/2/2022, 11:31:46 AM
 
 -->
 # jssm
 
 Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
 tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
-share online.  Easy to embed.  ***4,617 tests***.
+share online.  Easy to embed.  ***4,646 tests***.
 
 Readable, useful state machines as one-liner strings.
 
