@@ -581,7 +581,6 @@ class Machine {
         this._main_transition_hook = undefined;
         this._forced_transition_hook = undefined;
         this._any_transition_hook = undefined;
-        this._standard_transition_hook = undefined;
         this._has_post_hooks = false;
         this._has_post_basic_hooks = false;
         this._has_post_named_hooks = false;
@@ -600,7 +599,6 @@ class Machine {
         this._post_main_transition_hook = undefined;
         this._post_forced_transition_hook = undefined;
         this._post_any_transition_hook = undefined;
-        this._post_standard_transition_hook = undefined;
         this._data = data;
         this._history_length = history || 0;
         this._history = new circular_buffer(this._history_length);
@@ -1274,12 +1272,12 @@ class Machine {
             case 'post hook':
                 this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
                 this._has_post_hooks = true;
-                this._has_basic_hooks = true;
+                this._has_post_basic_hooks = true;
                 break;
             case 'post named':
                 this._post_named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
                 this._has_post_hooks = true;
-                this._has_named_hooks = true;
+                this._has_post_named_hooks = true;
                 break;
             case 'post global action':
                 this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
@@ -1291,16 +1289,19 @@ class Machine {
                 this._has_post_hooks = true;
                 break;
             case 'post standard transition':
+                console.log(`l1a ${JSON.stringify(HookDesc)}`);
                 this._post_standard_transition_hook = HookDesc.handler;
                 this._has_post_transition_hooks = true;
                 this._has_post_hooks = true;
                 break;
             case 'post main transition':
+                console.log(`l1b ${JSON.stringify(HookDesc)}`);
                 this._post_main_transition_hook = HookDesc.handler;
                 this._has_post_transition_hooks = true;
                 this._has_post_hooks = true;
                 break;
             case 'post forced transition':
+                console.log(`l1c ${JSON.stringify(HookDesc)}`);
                 this._post_forced_transition_hook = HookDesc.handler;
                 this._has_post_transition_hooks = true;
                 this._has_post_hooks = true;
@@ -1443,7 +1444,8 @@ class Machine {
             action: fromAction,
             from: this._state,
             to: newState,
-            forced: wasForced
+            forced: wasForced,
+            trans_type
         };
         if (valid) {
             if (this._has_hooks) {
@@ -1568,9 +1570,68 @@ class Machine {
                     this._post_any_action_hook(hook_args);
                 }
                 // 2. global specific action hook
-                const pgah = this._post_global_action_hooks.get(newStateOrAction);
+                const pgah = this._post_global_action_hooks.get(hook_args.action);
                 if (pgah !== undefined) {
                     pgah(hook_args);
+                }
+            }
+            // 3. any transition hook
+            if (this._post_any_transition_hook !== undefined) {
+                this._post_any_transition_hook(hook_args);
+            }
+            // 4. exit hook
+            if (this._has_post_exit_hooks) {
+                const peh = this._post_exit_hooks.get(hook_args.from); // todo this is probably from instead
+                if (peh !== undefined) {
+                    peh(hook_args);
+                }
+            }
+            // 5. named transition / action hook
+            if (this._has_post_named_hooks) {
+                if (wasAction) {
+                    const nhn = named_hook_name(hook_args.from, hook_args.to, hook_args.action), pnh = this._post_named_hooks.get(nhn);
+                    if (pnh !== undefined) {
+                        pnh(hook_args);
+                    }
+                }
+            }
+            // 6. regular hook
+            if (this._has_post_basic_hooks) {
+                const hook = this._post_hooks.get(hook_name(hook_args.from, hook_args.to));
+                if (hook !== undefined) {
+                    hook(hook_args);
+                }
+            }
+            // 7. edge type hook
+            // 7a. standard transition hook
+            if (trans_type === 'legal') {
+                console.log(`l2a ${JSON.stringify(hook_args)}`);
+                if (this._post_standard_transition_hook !== undefined) {
+                    console.log(`l3a ${JSON.stringify(hook_args)} ${JSON.stringify(this._post_standard_transition_hook)}`);
+                    this._post_standard_transition_hook(hook_args);
+                }
+            }
+            // 7b. main type hook
+            if (trans_type === 'main') {
+                console.log(`l2b ${JSON.stringify(hook_args)}`);
+                if (this._post_main_transition_hook !== undefined) {
+                    console.log(`l3b ${JSON.stringify(hook_args)} ${JSON.stringify(this._post_main_transition_hook)}`);
+                    this._post_main_transition_hook(hook_args);
+                }
+            }
+            // 7c. forced transition hook
+            if (trans_type === 'forced') {
+                console.log(`l2c ${JSON.stringify(hook_args)}`);
+                if (this._post_forced_transition_hook !== undefined) {
+                    console.log(`l3c ${JSON.stringify(hook_args)} ${JSON.stringify(this._post_forced_transition_hook)}`);
+                    this._post_forced_transition_hook(hook_args);
+                }
+            }
+            // 8. entry hook
+            if (this._has_post_entry_hooks) {
+                const hook = this._post_entry_hooks.get(hook_args.to);
+                if (hook !== undefined) {
+                    hook(hook_args);
                 }
             }
         }

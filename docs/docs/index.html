@@ -1,0 +1,118 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>JSSM, a JavaScript state machine - the FSM for FSL</title><meta name="description" content="Documentation for JSSM, a JavaScript state machine - the FSM for FSL"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><link rel="stylesheet" href="assets/custom.css"/><script async src="assets/search.js" id="search-script"></script><link rel="stylesheet" href="assets/pages.css"/></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">JSSM, a JavaScript state machine - the FSM for FSL</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>JSSM, a JavaScript state machine - the FSM for FSL </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<a href="#welcome-to-jssm" id="welcome-to-jssm" style="color: inherit; text-decoration: none;">
+  <h1>Welcome to JSSM</h1>
+</a>
+<p>This is the manual for <a href="https://github.com/StoneCypher/jssm/">JSSM</a>, an advanced
+finite state machine for Javascript.</p>
+<p>JSSM&#39;s goals, in order, are:</p>
+<ol>
+<li>Extreme correctness</li>
+<li>Ease of use</li>
+<li>Very short machines</li>
+<li>Convenient features</li>
+<li>High speed</li>
+</ol>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#extreme-correctness" id="extreme-correctness" style="color: inherit; text-decoration: none;">
+  <h2>Extreme correctness?</h2>
+</a>
+<p>JSSM has more than three thousand tests, and at time of writing has 100%
+coverage and more than eleven coverages per line on average.  JSSM also
+extensively uses randomized (stochastic / property / fuzz) testing.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#ease-of-use" id="ease-of-use" style="color: inherit; text-decoration: none;">
+  <h2>Ease of use?</h2>
+</a>
+<p>Doesn&#39;t even really need an explanation.</p>
+<pre><code class="language-typescript"><span class="hl-0">import</span><span class="hl-1"> { </span><span class="hl-2">sm</span><span class="hl-1"> } </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&#39;jssm&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-7">const</span><span class="hl-1"> </span><span class="hl-8">TrafficLight</span><span class="hl-1"> = </span><span class="hl-4">sm</span><span class="hl-3">`</span><br/><span class="hl-3">  Off &#39;start&#39; -&gt; Red &#39;next&#39; =&gt; Green &#39;next&#39; =&gt; Yellow &#39;next&#39; =&gt; Red;</span><br/><span class="hl-3">  [Red Yellow Green] &#39;shut down&#39; ~&gt; Off;</span><br/><span class="hl-3">`</span><span class="hl-1">;</span>
+</code></pre>
+<p>And now we have a traffic light.  Let&#39;s see how easy it is to use.</p>
+<pre><code><span class="hl-7">const</span><span class="hl-1"> </span><span class="hl-4">LogState</span><span class="hl-1"> = () </span><span class="hl-7">=&gt;</span><span class="hl-1"> </span><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-4">log</span><span class="hl-1">( </span><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-4">state</span><span class="hl-1">() );</span><br/><br/><span class="hl-4">LogState</span><span class="hl-1">();                         </span><span class="hl-6">// logs &quot;Off&quot;</span><br/><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-4">action</span><span class="hl-1">(</span><span class="hl-3">&#39;start&#39;</span><span class="hl-1">);       </span><span class="hl-6">// returns true</span><br/><span class="hl-4">LogState</span><span class="hl-1">();                         </span><span class="hl-6">// logs &quot;Red&quot;</span><br/><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-4">action</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);        </span><span class="hl-6">// returns true</span><br/><span class="hl-4">LogState</span><span class="hl-1">();                         </span><span class="hl-6">// logs &quot;Green&quot;</span><br/><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-4">transition</span><span class="hl-1">(</span><span class="hl-3">&#39;yellow&#39;</span><span class="hl-1">);  </span><span class="hl-6">// returns true</span><br/><span class="hl-4">LogState</span><span class="hl-1">();                         </span><span class="hl-6">// logs &quot;Yellow&quot;</span><br/><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-4">transition</span><span class="hl-1">(</span><span class="hl-3">&#39;blue&#39;</span><span class="hl-1">);    </span><span class="hl-6">// returns false, as there&#39;s no such state</span><br/><span class="hl-4">LogState</span><span class="hl-1">();                         </span><span class="hl-6">// logs &quot;Yellow&quot;</span><br/><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-4">transition</span><span class="hl-1">(</span><span class="hl-3">&#39;green&#39;</span><span class="hl-1">);   </span><span class="hl-6">// returns false, as yellow can only go to red</span><br/><span class="hl-4">LogState</span><span class="hl-1">();                         </span><span class="hl-6">// logs &quot;Yellow&quot;</span>
+</code></pre>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#very-short-machines" id="very-short-machines" style="color: inherit; text-decoration: none;">
+  <h2>Very short machines?</h2>
+</a>
+<p>To make the point, please consider the light switch from our language, as
+compared to the example given by a popular alternative library.</p>
+<p>If you&#39;d like more detailed comparisons, please see <a href="pages/Shootout.html">the line-of-code shootout</a>.</p>
+<p>&nbsp;</p>
+
+<a href="#jssm" id="jssm" style="color: inherit; text-decoration: none;">
+  <h3>JSSM</h3>
+</a>
+<pre><code><span class="hl-7">const</span><span class="hl-1"> </span><span class="hl-8">toggler</span><span class="hl-1"> = </span><span class="hl-4">sm</span><span class="hl-3">`inactive &#39;TOGGLE&#39; &lt;=&gt; &#39;TOGGLE&#39; active;`</span><span class="hl-1">;</span><br/><span class="hl-2">toggler</span><span class="hl-1">.</span><span class="hl-4">hook_any_transition</span><span class="hl-1">( () </span><span class="hl-7">=&gt;</span><span class="hl-1"> </span><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-4">log</span><span class="hl-1">( </span><span class="hl-2">toggler</span><span class="hl-1">.</span><span class="hl-4">state</span><span class="hl-1">() ) );</span>
+</code></pre>
+<p>&nbsp;</p>
+
+<a href="#the-other-library" id="the-other-library" style="color: inherit; text-decoration: none;">
+  <h3>The other library</h3>
+</a>
+<p>Note that this example is drawn from their documentation, not something we
+wrote.</p>
+<pre><code class="language-typescript"><span class="hl-7">const</span><span class="hl-1"> </span><span class="hl-8">toggleMachine</span><span class="hl-1"> = </span><span class="hl-4">createMachine</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-2">id      :</span><span class="hl-1"> </span><span class="hl-3">&#39;toggle&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-2">initial :</span><span class="hl-1"> </span><span class="hl-3">&#39;inactive&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-2">states  :</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-2">inactive :</span><span class="hl-1"> { </span><span class="hl-2">on:</span><span class="hl-1"> { </span><span class="hl-2">TOGGLE:</span><span class="hl-1"> </span><span class="hl-3">&#39;active&#39;</span><span class="hl-1">   } },</span><br/><span class="hl-1">    </span><span class="hl-2">active   :</span><span class="hl-1"> { </span><span class="hl-2">on:</span><span class="hl-1"> { </span><span class="hl-2">TOGGLE:</span><span class="hl-1"> </span><span class="hl-3">&#39;inactive&#39;</span><span class="hl-1"> } }</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-7">const</span><span class="hl-1"> </span><span class="hl-8">toggleService</span><span class="hl-1"> = </span><span class="hl-4">interpret</span><span class="hl-1">(</span><span class="hl-2">toggleMachine</span><span class="hl-1">)</span><br/><span class="hl-1">  .</span><span class="hl-4">onTransition</span><span class="hl-1">( (</span><span class="hl-2">state</span><span class="hl-1">) </span><span class="hl-7">=&gt;</span><span class="hl-1"> </span><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-4">log</span><span class="hl-1">(</span><span class="hl-2">state</span><span class="hl-1">.</span><span class="hl-2">value</span><span class="hl-1">) )</span><br/><span class="hl-1">  .</span><span class="hl-4">start</span><span class="hl-1">();</span>
+</code></pre>
+<p>&nbsp;</p>
+
+<a href="#is-that-a-fair-comparison" id="is-that-a-fair-comparison" style="color: inherit; text-decoration: none;">
+  <h3>Is that a fair comparison?</h3>
+</a>
+<p>They&#39;re both used roughly the same way.</p>
+<pre><code class="language-typescript"><span class="hl-2">toggler</span><span class="hl-1">.</span><span class="hl-4">action</span><span class="hl-1">(</span><span class="hl-3">&#39;TOGGLE&#39;</span><span class="hl-1">);  </span><span class="hl-6">// logs &quot;active&quot;</span>
+</code></pre>
+<pre><code class="language-typescript"><span class="hl-2">toggleService</span><span class="hl-1">.</span><span class="hl-4">send</span><span class="hl-1">(</span><span class="hl-3">&#39;TOGGLE&#39;</span><span class="hl-1">);  </span><span class="hl-6">// logs &quot;active&quot;</span>
+</code></pre>
+<p>&nbsp;</p>
+<p>Given that that&#39;s a comparison for just two states, how do you think this might
+impact complex machines?</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#convenient-features" id="convenient-features" style="color: inherit; text-decoration: none;">
+  <h2>Convenient features</h2>
+</a>
+<p>There are lots of state machine libraries out there, but they&#39;re not all made
+equally.</p>
+<ul>
+<li>Machine data (it&#39;s a <code>Mealy machine</code>, not just a <code>Moore machine</code> like most)</li>
+<li>Typescript support for machine data</li>
+<li>Hooks on states, edges, and many other events</li>
+<li>JS event broadcaster</li>
+<li>Dynamic compiler</li>
+<li>Domain-specific language</li>
+<li>State properties</li>
+<li>Probabilistic edges and random walks</li>
+<li>Live visualizations with styling in a system ready for tens of thousands of states</li>
+<li>Fully transactional, the way you&#39;d expect from real tools like SQL</li>
+<li>Named instances</li>
+<li>State stack traces</li>
+<li>Deep error objects with tons of context information</li>
+<li>High quality debugging tools</li>
+</ul>
+<p>But most important?  It&#39;s easy to use.</p>
+<p>State machines <em><strong>don&#39;t have to be hard</strong></em>.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#high-speed" id="high-speed" style="color: inherit; text-decoration: none;">
+  <h2>High speed</h2>
+</a>
+<p>All these tools don&#39;t leave you bleeding out.  The author&#39;s i7 from 2018 runs
+about 25 million transitions a second.  You probably have an i9 by now.</p>
+<p><img src="speed%20claim.png" alt=""></p>
+<p>Compilation is similarly fast: 100,000 compilations of the light switch machine
+on the same computer takes only 2.5 seconds.  As such, JSSM is suitable for
+dynamic compilation of completely runtime machines, such as those coming from
+databases, networks, other tools, or user input.</p>
+<p><img src="compile%20time%20claim.png" alt=""></p>
+<p>&nbsp;</p>
+<p>Correct.  Easy.  Brief.  Powerful.  Fast.</p>
+<p>Meet your new state machine.</p>
+<p><code>Next</code>: <a href="pages/GettingStarted.html">Let&#39;s get started</a>.</p>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-0"><a>Tutorials</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/WhatAreStateMachines.html">What are state machines?</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/GettingStarted.html">☕ <wbr/>Quick <wbr/>Start</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/LanguageReference.html">Language reference</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/todo.html">API reference</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/ExampleMachines.html">Example machines</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Howtos and <wbr/>Recipes</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-2"><a>Frameworks</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">React</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Vue</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Angular</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Node</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-2"><a>Environments</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Node</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Typescript</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">The browser</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Deno</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">AWS <wbr/>Lambda</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">SQL</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-2"><a>Bundling</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Rollup</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Webpack</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">CDN</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="pages/todo.html">Local files</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="pages/todo.html">Let&#39;s make a large machine</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="pages/todo.html">Publishing</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="pages/Styling.html">Theme, style, color</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Comparisons</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="pages/FeatureComparison.html">Feature comparison</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="pages/Shootout.html">LOC <wbr/>Shootout</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-0"><a>Tools</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/live_editor.html">Live <wbr/>Editor</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/todo.html">Github <wbr/>Action</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="pages/todo.html">CLI</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="pages/community.html">Community</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="pages/CHANGELOG.long.html">Changelog</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/Machine.html" class="tsd-kind-icon">Machine</a></li><li class="tsd-kind-variable"><a href="modules.html#gviz_shapes" class="tsd-kind-icon">gviz_<wbr/>shapes</a></li><li class="tsd-kind-variable"><a href="modules.html#histograph" class="tsd-kind-icon">histograph</a></li><li class="tsd-kind-variable"><a href="modules.html#named_colors" class="tsd-kind-icon">named_<wbr/>colors</a></li><li class="tsd-kind-variable"><a href="modules.html#shapes" class="tsd-kind-icon">shapes</a></li><li class="tsd-kind-variable"><a href="modules.html#version" class="tsd-kind-icon">version</a></li><li class="tsd-kind-variable"><a href="modules.html#weighted_histo_key" class="tsd-kind-icon">weighted_<wbr/>histo_<wbr/>key</a></li><li class="tsd-kind-variable"><a href="modules.html#weighted_rand_select" class="tsd-kind-icon">weighted_<wbr/>rand_<wbr/>select</a></li><li class="tsd-kind-variable"><a href="modules.html#weighted_sample_select" class="tsd-kind-icon">weighted_<wbr/>sample_<wbr/>select</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#abstract_hook_step" class="tsd-kind-icon">abstract_<wbr/>hook_<wbr/>step</a></li><li class="tsd-kind-function"><a href="modules.html#arrow_direction" class="tsd-kind-icon">arrow_<wbr/>direction</a></li><li class="tsd-kind-function"><a href="modules.html#arrow_left_kind" class="tsd-kind-icon">arrow_<wbr/>left_<wbr/>kind</a></li><li class="tsd-kind-function"><a href="modules.html#arrow_right_kind" class="tsd-kind-icon">arrow_<wbr/>right_<wbr/>kind</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#compile" class="tsd-kind-icon">compile</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#from" class="tsd-kind-icon">from</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#is_hook_complex_result" class="tsd-kind-icon">is_<wbr/>hook_<wbr/>complex_<wbr/>result</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#is_hook_rejection" class="tsd-kind-icon">is_<wbr/>hook_<wbr/>rejection</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#make" class="tsd-kind-icon">make</a></li><li class="tsd-kind-function"><a href="modules.html#parse" class="tsd-kind-icon">parse</a></li><li class="tsd-kind-function"><a href="modules.html#seq" class="tsd-kind-icon">seq</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#sm" class="tsd-kind-icon">sm</a></li><li class="tsd-kind-function"><a href="modules.html#transfer_state_properties" class="tsd-kind-icon">transfer_<wbr/>state_<wbr/>properties</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li><li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
