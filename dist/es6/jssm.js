@@ -1289,19 +1289,16 @@ class Machine {
                 this._has_post_hooks = true;
                 break;
             case 'post standard transition':
-                console.log(`l1a ${JSON.stringify(HookDesc)}`);
                 this._post_standard_transition_hook = HookDesc.handler;
                 this._has_post_transition_hooks = true;
                 this._has_post_hooks = true;
                 break;
             case 'post main transition':
-                console.log(`l1b ${JSON.stringify(HookDesc)}`);
                 this._post_main_transition_hook = HookDesc.handler;
                 this._has_post_transition_hooks = true;
                 this._has_post_hooks = true;
                 break;
             case 'post forced transition':
-                console.log(`l1c ${JSON.stringify(HookDesc)}`);
                 this._post_forced_transition_hook = HookDesc.handler;
                 this._has_post_transition_hooks = true;
                 this._has_post_hooks = true;
@@ -1605,25 +1602,19 @@ class Machine {
             // 7. edge type hook
             // 7a. standard transition hook
             if (trans_type === 'legal') {
-                console.log(`l2a ${JSON.stringify(hook_args)}`);
                 if (this._post_standard_transition_hook !== undefined) {
-                    console.log(`l3a ${JSON.stringify(hook_args)} ${JSON.stringify(this._post_standard_transition_hook)}`);
                     this._post_standard_transition_hook(hook_args);
                 }
             }
             // 7b. main type hook
             if (trans_type === 'main') {
-                console.log(`l2b ${JSON.stringify(hook_args)}`);
                 if (this._post_main_transition_hook !== undefined) {
-                    console.log(`l3b ${JSON.stringify(hook_args)} ${JSON.stringify(this._post_main_transition_hook)}`);
                     this._post_main_transition_hook(hook_args);
                 }
             }
             // 7c. forced transition hook
             if (trans_type === 'forced') {
-                console.log(`l2c ${JSON.stringify(hook_args)}`);
                 if (this._post_forced_transition_hook !== undefined) {
-                    console.log(`l3c ${JSON.stringify(hook_args)} ${JSON.stringify(this._post_forced_transition_hook)}`);
                     this._post_forced_transition_hook(hook_args);
                 }
             }

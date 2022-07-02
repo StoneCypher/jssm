@@ -288,3 +288,237 @@ describe('Basic posthooks on API callpoint', () => {
 
 
 });
+
+
+
+
+
+describe('Basic posthooks on fluent callpoint', () => {
+
+
+
+  test('Fluent basic posthooks call their handler', () => {
+
+    const handler  = jest.fn(x => true),
+          uncalled = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a -> b -> c;`;
+      _foo.post_hook('a', 'b', handler);
+      _foo.post_hook('b', 'a', uncalled);
+      _foo.post_hook('b', 'c', uncalled);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(handler.mock.calls.length).toBe(1);
+    expect(uncalled.mock.calls.length).toBe(0);
+
+  } );
+
+
+
+  test('Fluent named hooks call their handler', () => {
+
+    const handler  = jest.fn(x => true),
+          uncalled = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a 'next' -> b 'next' -> c;`;
+      _foo.post_hook_action('a', 'b', 'next', handler);
+      _foo.post_hook_action('b', 'c', 'next', uncalled);
+      _foo.post_hook_action('b', 'a', 'next', uncalled);
+      _foo.action('next');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(handler.mock.calls.length).toBe(1);
+    expect(uncalled.mock.calls.length).toBe(0);
+
+  } );
+
+
+
+  test('Fluent basic and named hooks on same transition both fire when action is called', () => {
+
+    const basic = jest.fn(x => true),
+          named = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a 'next' -> b;`;
+      _foo.post_hook('a', 'b', basic);
+      _foo.post_hook_action('a', 'b', 'next', named);
+      _foo.action('next');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(basic.mock.calls.length).toBe(1);
+    expect(named.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Only fluent basic hook is called with named on same transition when transition is called', () => {
+
+    const basic = jest.fn(x => true),
+          named = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a 'next' -> b;`;
+      _foo.post_hook('a', 'b', basic);
+      _foo.post_hook_action('a', 'b', 'next', named);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    // should hook from first, but not from second
+    expect(basic.mock.calls.length).toBe(1);
+    expect(named.mock.calls.length).toBe(0);
+
+  } );
+
+
+
+  test('Fluent standard posthooks call their handler', () => {
+
+    const handler  = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a -> b -> c;`;
+      _foo.post_hook_standard_transition(handler);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Fluent main posthooks call their handler', () => {
+
+    const handler  = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a => b => c;`;
+      _foo.post_hook_main_transition(handler);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Fluent forced posthooks call their handler', () => {
+
+    const handler  = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a ~> b ~> c;`;
+      _foo.post_hook_forced_transition(handler);
+      _foo.force_transition('b');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Fluent any transition posthooks call their handler', () => {
+
+    const handler = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a -> b => c ~> d;`;
+      _foo.post_hook_any_transition(handler);
+      _foo.transition('b');
+      _foo.transition('c');
+      _foo.force_transition('d');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(3);
+
+  } );
+
+
+
+  test('Fluent exit posthooks call their handler', () => {
+
+    const handler = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a -> b;`;
+      _foo.post_hook_exit('a', handler);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Fluent entry posthooks call their handler', () => {
+
+    const handler = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a -> b;`;
+      _foo.post_hook_entry('b', handler);
+      _foo.transition('b');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Fluent global action posthooks call their handler', () => {
+
+    const handler = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a 'next' -> b;`;
+      _foo.post_hook_global_action('next', handler);
+      _foo.action('next');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+  test('Fluent any action posthooks call their handler', () => {
+
+    const handler = jest.fn(x => true);
+
+    expect( () => {
+      const _foo = sm`a 'next' -> b;`;
+      _foo.post_hook_any_action(handler);
+      _foo.action('next');
+    })
+      .not.toThrow();
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  } );
+
+
+
+});
