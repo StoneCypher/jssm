@@ -1,15 +1,15 @@
 declare type StateType = string;
 declare type JssmSuccess = {
     success: true;
-};
+}; /** Composite type indicating success as part of a result */
 declare type JssmFailure = {
     success: false;
     error: any;
-};
+}; /** Composite type indicating an error, and why, as part of a result */
 declare type JssmIncomplete = {
     success: 'incomplete';
-};
-declare type JssmResult = JssmSuccess | JssmFailure | JssmIncomplete;
+}; /** Composite type indicating that a result isn't finished */
+declare type JssmResult = JssmSuccess | JssmFailure | JssmIncomplete; /** Composite type composing whether or not a result was successful */
 declare type JssmColor = string;
 declare type JssmPermitted = 'required' | 'disallowed';
 declare type JssmPermittedOpt = 'required' | 'disallowed' | 'optional';
@@ -252,6 +252,9 @@ declare type HookComplexResult<mDT> = {
     state?: StateType;
     data?: mDT;
 };
+/********
+ * Documents whether a hook succeeded, either with a primitive or a reference to the hook complex object
+ */
 declare type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 declare type HookContext<mDT> = {
     data: mDT;
