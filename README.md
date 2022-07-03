@@ -18,14 +18,18 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.75.0 at 7/3/2022, 10:12:58 AM
+* Generated for version 5.75.1 at 7/3/2022, 10:39:25 AM
 
 -->
 # jssm
 
 Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
 tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
-share online.  Easy to embed.  ***4,646 tests***.
+share online.  Easy to embed.
+
+***4,655 tests***.  4,646 specs with {{spec_coverage}}%
+coverage, 9 fuzz tests with {{stoch_coverage}}% coverage, run
+5,546 times.
 
 Readable, useful state machines as one-liner strings.
 
