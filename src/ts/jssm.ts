@@ -1681,19 +1681,19 @@ class Machine<mDT> {
     switch (HookDesc.kind) {
 
       case 'hook':
-        this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+        this._hooks.set( hook_name(HookDesc.from, HookDesc.to), HookDesc.handler );
         this._has_hooks       = true;
         this._has_basic_hooks = true;
         break;
 
       case 'named':
-        this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+        this._named_hooks.set( named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler );
         this._has_hooks       = true;
         this._has_named_hooks = true;
         break;
 
       case 'global action':
-        this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
+        this._global_action_hooks.set( HookDesc.action, HookDesc.handler );
         this._has_hooks               = true;
         this._has_global_action_hooks = true;
         break;
@@ -1727,26 +1727,26 @@ class Machine<mDT> {
         break;
 
       case 'entry':
-        this._entry_hooks.set(HookDesc.to, HookDesc.handler);
+        this._entry_hooks.set( HookDesc.to, HookDesc.handler );
         this._has_hooks       = true;
         this._has_entry_hooks = true;
         break;
 
       case 'exit':
-        this._exit_hooks.set(HookDesc.from, HookDesc.handler);
+        this._exit_hooks.set( HookDesc.from, HookDesc.handler );
         this._has_hooks      = true;
         this._has_exit_hooks = true;
         break;
 
 
       case 'post hook':
-        this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+        this._post_hooks.set( hook_name(HookDesc.from, HookDesc.to), HookDesc.handler );
         this._has_post_hooks       = true;
         this._has_post_basic_hooks = true;
         break;
 
       case 'post named':
-        this._post_named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+        this._post_named_hooks.set( named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler );
         this._has_post_hooks       = true;
         this._has_post_named_hooks = true;
         break;
@@ -1796,6 +1796,7 @@ class Machine<mDT> {
         this._has_post_exit_hooks = true;
         this._has_post_hooks      = true;
         break;
+
 
       default:
         throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);

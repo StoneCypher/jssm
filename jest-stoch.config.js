@@ -15,13 +15,19 @@ module.exports = {
 
   coverageThreshold : {
     global : {
-      branches   : 1,
-      functions  : 1,
-      lines      : 1,
-      statements : 1,
+      branches   : 0,
+      functions  : 0,
+      lines      : 0,
+      statements : 0,
     },
   },
 
-  collectCoverageFrom: ["src/ts/**/{!(jssm-dot),}.{js,ts}"]
+  collectCoverageFrom: ["src/ts/**/{!(jssm-dot),}.{js,ts}"],
+
+  reporters: [
+    ['default',             {}],
+    ['jest-json-reporter2', { outputDir: './coverage/stoch', outputFile: 'metrics.json',          fullOutput: false }],
+//  ['jest-json-reporter2', { outputDir: './coverage/stoch', outputFile: 'extended-metrics.json', fullOutput: true  }],
+  ]
 
 };

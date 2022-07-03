@@ -131,7 +131,7 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | <a href="#statesofmatter">States of matter</a> | 4 | | &#9749; | | &#9749; | | | | | |
 | <a href="#waterphases">Water phases</a> | 4 | | &#9749; | | | | &#9749; | | | |
-| Pseudoscience generator | 18 | | | | &#9749; | &#9749; | | &#9749; | &#9749; | |
+| Collatz conjecture | - | | | | | | | | | |
 | Heartbeat (Little John) | - | | | &#9749; | | | | &#9749; | &#9749; | |
 
 </div>
@@ -228,6 +228,7 @@ If a machine has a coffee cup &#9749;, that machine uses that feature.
 | Name | # | <span class="rot">Edge&nbsp;kinds</span> | <span class="rot">Actions</span> | <span class="rot">Hooks</span> | <span class="rot">Properties</span> | <span class="rot">Data</span> | <span class="rot">Sensors</span> | <span class="rot">After</span> | <span class="rot">Random&nbsp;edges</span> | <span class="rot">Input&nbsp;tape</span> |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | Is It Broke? | - | | | | | | | | | |
+| Pseudoscience generator | 18 | | | | &#9749; | &#9749; | | &#9749; | &#9749; | |
 | Punjabi name theory | - | | | | | | | | | |
 | Unprison your Think Rhino | - | | | | | | | | | |
 | Plugging in USB | - | | | | | | | | | |
