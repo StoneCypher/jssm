@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.75.0",
+  "version": "5.75.1",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -49,7 +49,7 @@
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
-    "docs": "typedoc src/ts/jssm.ts --options typedoc-options.js",
+    "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts --options typedoc-options.js",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.js",
     "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.js",
     "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog -b && cp CHANGELOG.* ./src/doc_md/"
@@ -130,6 +130,7 @@
   "dependencies": {
     "better_git_changelog": "^1.6.1",
     "circular_buffer_js": "^1.10.0",
-    "reduce-to-639-1": "^1.0.4"
+    "reduce-to-639-1": "^1.0.4",
+    "typedoc-plugin-missing-exports": "^0.23.0"
   }
 }

@@ -2,6 +2,10 @@
 const fs = require('fs'),
       xj = require('xml2js');
 
+const wt = JSON.parse( fs.readFileSync('./coverage/cloc/report_wt.json') ),
+      nt = JSON.parse( fs.readFileSync('./coverage/cloc/report_nt.json') );
+
+const lines = nt['TypeScript'].code;  // TODO add peg once cloc supports it
 
 
 
@@ -44,10 +48,11 @@ async function bulk() {
         readme_specc  = readme_spec.replaceAll('{{spec_coverage}}', get_coverage_pct(spec_json.coverage.project[0].metrics[0]['$'])),
         readme_stoch  = readme_specc.replaceAll('{{stoch_count}}', stoch_metrics.tests.success.toLocaleString()),
         readme_stochc = readme_stoch.replaceAll('{{stoch_coverage}}', get_coverage_pct(stoch_json.coverage.project[0].metrics[0]['$'])),
-        readme_lines  = readme_stoch,
-        readme_ratio  = readme_lines;
+        readme_lines  = readme_stochc.replaceAll('{{line_count}}', lines.toLocaleString()),
+        readme_ratio  = readme_lines.replaceAll('{{line_test_ratio}}', (tot_count / lines).toFixed(1)),
+        readme_rratio = readme_ratio.replaceAll('{{line_run_ratio}}', (run_count / lines).toFixed(1));
 
-  fs.writeFileSync('./README.md', warning_wv + readme_stochc);
+  fs.writeFileSync('./README.md', warning_wv + readme_rratio);
 
 }
 

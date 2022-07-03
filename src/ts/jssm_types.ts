@@ -5,10 +5,10 @@ type StateType = string;
 
 
 
-type JssmSuccess        = { success: true };
-type JssmFailure        = { success: false, error: any };
-type JssmIncomplete     = { success: 'incomplete' };
-type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete;
+type JssmSuccess        = { success: true };                          /** Composite type indicating success as part of a result */
+type JssmFailure        = { success: false, error: any };             /** Composite type indicating an error, and why, as part of a result */
+type JssmIncomplete     = { success: 'incomplete' };                  /** Composite type indicating that a result isn't finished */
+type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete; /** Composite type composing whether or not a result was successful */
 
 type JssmColor          = string;  // TODO FIXME constrain to #RRGGBBAA later // whargarbl
 
@@ -26,6 +26,9 @@ type JssmArrow          = '->' | '<-' | '<->' | '<=->' | '<~->'
 
 // TODO finish the arrow types - unicode *and* mixed
 
+/**
+ * A type teaching Typescript the various supported shapes for nodes, mostly inherited from GraphViz
+ */
 type JssmShape          = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle"
                         | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon"
                         | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon"
@@ -455,13 +458,14 @@ type HookDescription<mDT>
 
 
 
+/* Governs the return value from a hook when non-trivial; potentially carries final state, data; definitely carries whether passed */
 type HookComplexResult<mDT> = {
   pass   : boolean,    // DO NOT MAKE OPTIONAL, prevents accidental other objects
   state? : StateType,
   data?  : mDT,
 };
 
-type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
+type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;  /** Documents whether a hook succeeded, either with a primitive or a reference to the hook complex object */
 
 
 
@@ -496,6 +500,7 @@ type JssmErrorExtendedInfo = {
 export {
 
   JssmColor,
+    JssmShape,
 
   JssmTransition,
     JssmTransitions,
