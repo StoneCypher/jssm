@@ -1052,7 +1052,8 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf = wstate_to
+        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
+         = wstate_to
             .map((ws) => this.lookup_transition_for(this.state(), ws))
             .filter(Boolean);
         return wtf;

@@ -16784,7 +16784,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.75.1";
+  const version = "5.75.2";
 
   class JssmError extends Error {
       constructor(machine, message, JEEI) {
@@ -17860,7 +17860,8 @@ var jssm = (function (exports) {
           if (!(wstate)) {
               throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
           }
-          const wstate_to = wstate.to, wtf = wstate_to
+          const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
+           = wstate_to
               .map((ws) => this.lookup_transition_for(this.state(), ws))
               .filter(Boolean);
           return wtf;
