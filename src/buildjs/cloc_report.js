@@ -115,7 +115,7 @@ const bh = sized_r('', key_width),  // blank header the width of the languages
       h1 = header( heading(' Without tests ', h1_width, 'center', '-')),
       h2 = header2(heading(' With tests ',    h2_width, 'center', '-'));
 
-console.log(`\n${hpad}${tt}${hpad}${h1}${hpad}${h2}`);
+console.log(`${hpad}${tt}${hpad}${h1}${hpad}${h2}`);
 console.log(`${hpad}${bh}${hpad}${ln}${hpad}${cn}${hpad}${fn}${hpad}${lh}${hpad}${ch}${hpad}${fh}`);
 
 all_keys.forEach( k => {

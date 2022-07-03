@@ -4,9 +4,7 @@ Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
 tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
 share online.  Easy to embed.
 
-***{{test_count}} tests***.  {{spec_count}} specs with {{spec_coverage}}%
-coverage, {{stoch_count}} fuzz tests with {{stoch_coverage}}% coverage, run
-{{run_count}} times.
+***{{test_count}} tests*** run {{run_count}} times.  {{spec_count}} specs with {{spec_coverage}}% coverage, {{stoch_count}} fuzz tests with {{stoch_coverage}}% coverage.
 
 Readable, useful state machines as one-liner strings.
 
