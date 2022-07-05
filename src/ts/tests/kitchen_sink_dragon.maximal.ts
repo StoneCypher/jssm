@@ -21,6 +21,13 @@ const sm = jssm.sm;
 
 
 
+class AtomArb extends fc.NextArbitrary<T> {
+
+  generate(mrng, biasFactor): NextValue<T> {
+    mrng.
+  }
+
+};
 
 
 
@@ -66,7 +73,7 @@ describe('Test all the things', () => {
         function r_edgetype_1way() { return choose(['-', '-', '-', '-', '-', '=', '=', '~']); }
         function r_edgetype_2way() { return choose(['-', '-', '-', '-', '-', '=', '=', '~', '-', '-', '-', '-', '-', '=', '=', '~', '-=', '=-', '-~', '~-', '=~', '~-' ]); }
 
-        const has_nodes: Set<string> = new Set();
+        const has_nodes: string[] = [];
 
         let node_cursor = 0;
         function n() { return `n${node_cursor++}`; }
@@ -76,17 +83,35 @@ describe('Test all the things', () => {
               root_edge = shouldHalt? `${r_edgetype_1way()}>` : `<${r_edgetype_2way()}>`,
               [wsl,wsr] = [ ws(), ws() ];
 
-        has_nodes.add(root1);
-        has_nodes.add(root2);
+        has_nodes.push(root1);
+        has_nodes.push(root2);
 
-        const machine_string = `${root1}${wsl}${root_edge}${wsr}${root2};`;
+        let machine_string = `${root1}${wsl}${root_edge}${wsr}${root2};`,
+            nodes_left     = nodes_added;
 
-//          let machine;
-//              nodes_left  = nodes_added;
+        let this_loop = '';
+        while (nodes_left) {
 
-        // while (nodes_left) {
-        //   const this_loop =
-        // }
+          const left         = choose(has_nodes),
+                right        = choose(has_nodes);
+
+          let this_count  = r_int(nodes_left-1) + 1,
+              prev        = left;
+
+          nodes_left -= this_count;
+
+          while (this_count--) {
+            const should_chain = this_count? choose([true, true, false]) : false,
+                  new_node     = n(),
+                  [wsl,wsr]    = [ ws(), ws() ],
+                  arrow        = r_edgetype_1way() + '>';
+            this_loop += `${prev}${wsl}${arrow}${wsr}`;
+            if (should_chain === false) { this_loop += `${new_node};`; }
+            prev       = new_node;
+          }
+          machine_string += this_loop;
+
+        }
 
         let machine;
         try {
@@ -117,7 +142,7 @@ describe('Test all the things', () => {
 
         const sh = `${shouldHalt? '' : 'no '}halt`;
 
-        test(`${`#${nth++}`.padStart(3)}: ${shouldHalt? 'must ' : '  no-'}halt: ${machine_string}`, () => expect(halted).toBe(shouldHalt) );
+        test(`${`#${nth++}`.padStart(3)}: ${shouldHalt? 'must ' : '  no-'}halt: ${machine_string.substring(0,25)}`, () => expect(halted).toBe(shouldHalt) );
 
       }
     )
