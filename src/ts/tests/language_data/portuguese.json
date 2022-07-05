@@ -7,7 +7,7 @@
     "all_letters_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
     "all_digits_0123456789",
     "accents_éÉëïöËÏÖæÆœŒßçÇáàãâéêíìôõóú",
-    "common_symbols_!@#$^&*?.,=+#"
+    "common_symbols_!@#$^&*?.,+#"
   ]
 
 }

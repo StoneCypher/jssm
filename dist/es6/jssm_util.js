@@ -84,4 +84,20 @@ const hook_name = (from, to) => JSON.stringify([from, to]);
  *
  */
 const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
-export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name };
+/*******
+ *
+ *  Creates a Mulberry32 random generator.  Used by the randomness test suite.
+ *
+ *  Sourced from `bryc` at StackOverflow: https://stackoverflow.com/a/47593316/763127
+ *
+ */
+const make_mulberry_rand = (a) => () => {
+    if (a === undefined) {
+        a = new Date().getTime();
+    }
+    let t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+};
+export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name, make_mulberry_rand };
