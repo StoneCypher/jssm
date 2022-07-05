@@ -21,13 +21,13 @@ const sm = jssm.sm;
 
 
 
-class AtomArb extends fc.NextArbitrary<T> {
+// class AtomArb extends fc.NextArbitrary<T> {
 
-  generate(mrng, biasFactor): NextValue<T> {
-    mrng.
-  }
+//   generate(mrng, biasFactor): NextValue<T> {
+//     mrng.
+//   }
 
-};
+// };
 
 
 
