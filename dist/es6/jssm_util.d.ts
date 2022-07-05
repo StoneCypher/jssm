@@ -49,4 +49,12 @@ declare const hook_name: (from: string, to: string) => string;
  *
  */
 declare const named_hook_name: (from: string, to: string, action: string) => string;
-export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name };
+/*******
+ *
+ *  Creates a Mulberry32 random generator.  Used by the randomness test suite.
+ *
+ *  Sourced from `bryc` at StackOverflow: https://stackoverflow.com/a/47593316/763127
+ *
+ */
+declare const make_mulberry_rand: (a?: number | undefined) => () => number;
+export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name, make_mulberry_rand };

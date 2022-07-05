@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.75.1",
+  "version": "5.76.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -28,7 +28,10 @@
   "browser": "dist/jssm.es5.iife.js",
   "types": "./jssm.d.ts",
   "scripts": {
-    "jest": "jest -c jest-stoch.config.js --color --verbose && jest -c jest-spec.config.js --color --verbose",
+    "jest-stoch": "jest -c jest-stoch.config.js --color --verbose",
+    "jest-dragon": "jest -c jest-dragon.config.js --color --verbose",
+    "jest-spec": "jest -c jest-spec.config.js --color --verbose",
+    "jest": "npm run jest-spec",
     "test": "npm run make && npm run jest",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/jssm-dot.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && mkdir docs && cd coverage && mkdir cloc && cd ..",
     "peg": "rm -f src/ts/jssm-dot.js && pegjs src/ts/jssm-dot.peg && node src/buildjs/fixparser.js && rm src/ts/jssm-dot.js",
@@ -49,7 +52,7 @@
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
-    "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts --options typedoc-options.js",
+    "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.js",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.js",
     "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.js",
     "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog -b && cp CHANGELOG.* ./src/doc_md/"
@@ -102,8 +105,8 @@
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^4.0.0",
     "@types/jest": "^27.0.2",
-    "@typescript-eslint/eslint-plugin": "^4.13.0",
-    "@typescript-eslint/parser": "^4.13.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.4",
+    "@typescript-eslint/parser": "^5.30.4",
     "benny": "^3.7.1",
     "cloc": "^2.9.0",
     "coveralls": "^3.0.11",
@@ -123,8 +126,8 @@
     "terser": "^5.13.1",
     "text_audit": "^0.9.3",
     "ts-jest": "^27.0.7",
-    "typedoc": "^0.22.15",
-    "typescript": "^4.6.4",
+    "typedoc": "^0.22.18",
+    "typescript": "^4.7.4",
     "xml2js": "^0.4.23"
   },
   "dependencies": {

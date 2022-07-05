@@ -11,7 +11,7 @@
     "toutes_les_lettres_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
     "tous_les_chiffres_0123456789",
     "accents_àâäçéèêëîïôöùûüÿÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸ",
-    "symboles_communs_!@#$^&*()?.,=+#"
+    "symboles_communs_!@#$^&*()?.,+#"
   ]
-  
+
 }
