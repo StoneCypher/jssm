@@ -1,7 +1,3 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
 var reductions = {
   "abkhazian" : "ab",
   "аҧсуа бызшәа, аҧсшәа" : "ab",
@@ -18754,25 +18750,4 @@ function abstract_hook_step(maybe_hook, hook_args) {
     }
 }
 
-exports.Machine = Machine;
-exports.abstract_hook_step = abstract_hook_step;
-exports.arrow_direction = arrow_direction;
-exports.arrow_left_kind = arrow_left_kind;
-exports.arrow_right_kind = arrow_right_kind;
-exports.compile = compile;
-exports.from = from;
-exports.gviz_shapes = gviz_shapes;
-exports.histograph = histograph;
-exports.is_hook_complex_result = is_hook_complex_result;
-exports.is_hook_rejection = is_hook_rejection;
-exports.make = make;
-exports.named_colors = named_colors;
-exports.parse = wrap_parse;
-exports.seq = seq;
-exports.shapes = shapes;
-exports.sm = sm;
-exports.transfer_state_properties = transfer_state_properties;
-exports.version = version;
-exports.weighted_histo_key = weighted_histo_key;
-exports.weighted_rand_select = weighted_rand_select;
-exports.weighted_sample_select = weighted_sample_select;
+export { Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, compile, from, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sm, transfer_state_properties, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
