@@ -14,3 +14,17 @@ test('go (synonym of transition)', () => {
   expect( machine.state() ).toBe('b');
 
 });
+
+
+
+
+
+test('do (synonym of action)', () => {
+
+  const machine = jssm.sm`a 'next' -> b;`,
+        result  = machine.do('next');
+
+  expect( result ).toBe( true );
+  expect( machine.state() ).toBe('b');
+
+});
