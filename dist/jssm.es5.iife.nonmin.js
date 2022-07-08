@@ -16784,7 +16784,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.76.2";
+  const version = "5.77.0";
 
   class JssmError extends Error {
       constructor(machine, message, JEEI) {
@@ -18554,7 +18554,7 @@ var jssm = (function (exports) {
       }
       /********
        *
-       *  Instruct the machine to complete a transition.
+       *  Instruct the machine to complete a transition.  Synonym for {@link go}.
        *
        *  ```typescript
        *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
@@ -18572,6 +18572,28 @@ var jssm = (function (exports) {
        *
        */
       transition(newState, newData) {
+          return this.transition_impl(newState, newData, false, false);
+      }
+      /********
+       *
+       *  Instruct the machine to complete a transition.  Synonym for {@link transition}.
+       *
+       *  ```typescript
+       *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+       *
+       *  light.state();       // 'red'
+       *  light.go('green');   // true
+       *  light.state();       // 'green'
+       *  ```
+       *
+       *  @typeparam mDT The type of the machine data member; usually omitted
+       *
+       *  @param newState The state to switch to
+       *
+       *  @param newData The data change to insert during the transition
+       *
+       */
+      go(newState, newData) {
           return this.transition_impl(newState, newData, false, false);
       }
       /********
