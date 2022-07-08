@@ -2365,7 +2365,7 @@ class Machine<mDT> {
 
   /********
    *
-   *  Instruct the machine to complete an action.
+   *  Instruct the machine to complete an action.  Synonym for {@link do}.
    *
    *  ```typescript
    *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
@@ -2384,6 +2384,34 @@ class Machine<mDT> {
    */
 
   action(actionName: StateType, newData?: mDT): boolean {
+    return this.transition_impl(actionName, newData, false, true);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Instruct the machine to complete an action.  Synonym for {@link action}.
+   *
+   *  ```typescript
+   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *
+   *  light.state();           // 'red'
+   *  light.do('next');        // true
+   *  light.state();           // 'green'
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param actionName The action to engage
+   *
+   *  @param newData The data change to insert during the action
+   *
+   */
+
+  do(actionName: StateType, newData?: mDT): boolean {
     return this.transition_impl(actionName, newData, false, true);
   }
 
