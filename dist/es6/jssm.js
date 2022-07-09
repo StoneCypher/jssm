@@ -2007,6 +2007,12 @@ function abstract_hook_step(maybe_hook, hook_args) {
         return { pass: true };
     }
 }
-export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
+function deserialize(machine_string, ser) {
+    const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
+    machine._state = ser.state;
+    ser.history.forEach(history_item => machine._history.push(history_item));
+    return machine;
+}
+export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
 seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };

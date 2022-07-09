@@ -2749,6 +2749,23 @@ function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_
 
 
 
+function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT> {
+
+  const machine  = from(machine_string, { data: ser.data, history: ser.history_capacity });
+  machine._state = ser.state;
+
+  ser.history.forEach( history_item =>
+    machine._history.push(history_item)
+  );
+
+  return machine;
+
+}
+
+
+
+
+
 export {
 
   version,
@@ -2756,6 +2773,7 @@ export {
   transfer_state_properties,
 
   Machine,
+  deserialize,
 
   make,
   wrap_parse as parse,

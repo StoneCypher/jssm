@@ -18815,6 +18815,12 @@ var jssm = (function (exports) {
           return { pass: true };
       }
   }
+  function deserialize(machine_string, ser) {
+      const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
+      machine._state = ser.state;
+      ser.history.forEach(history_item => machine._history.push(history_item));
+      return machine;
+  }
 
   exports.Machine = Machine;
   exports.abstract_hook_step = abstract_hook_step;
@@ -18822,6 +18828,7 @@ var jssm = (function (exports) {
   exports.arrow_left_kind = arrow_left_kind;
   exports.arrow_right_kind = arrow_right_kind;
   exports.compile = compile;
+  exports.deserialize = deserialize;
   exports.from = from;
   exports.gviz_shapes = gviz_shapes;
   exports.histograph = histograph;

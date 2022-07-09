@@ -90,3 +90,75 @@ describe('Serialization', () => {
 
 
 } );
+
+
+
+
+
+describe('Deserialization', () => {
+
+
+
+
+
+  test('Creating deserializes', () => {
+
+    const machine_str = "a 'next' <-> 'next' b;"
+
+    const foo = jssm.from(machine_str);
+
+    foo.do('next');
+    foo.do('next');
+    foo.do('next');
+
+    const ser = foo.serialize(),
+          bar = jssm.deserialize(machine_str, ser);
+
+    expect(foo.state)
+      .toBe(bar.state);
+
+    expect(foo.history)
+      .toStrictEqual(bar.history);
+
+    expect(foo._history.capacity)
+      .toBe(bar._history.capacity);
+
+    expect(foo.data)
+      .toStrictEqual(bar.data);
+
+  });
+
+
+
+  test('Creating with history and data deserializes', () => {
+
+    const machine_str = "a 'next' <-> 'next' b;"
+
+    const foo = jssm.from(machine_str, { history: 5, data: 2 });
+
+    foo.do('next');
+    foo.do('next');
+    foo.do('next');
+
+    const ser = foo.serialize(),
+          bar = jssm.deserialize(machine_str, ser);
+
+    expect(foo.state)
+      .toBe(bar.state);
+
+    expect(foo.history)
+      .toStrictEqual(bar.history);
+
+    expect(foo._history.capacity)
+      .toBe(bar._history.capacity);
+
+    expect(foo.data)
+      .toStrictEqual(bar.data);
+
+  });
+
+
+
+
+
+} );
