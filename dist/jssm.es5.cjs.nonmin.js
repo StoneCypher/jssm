@@ -16785,7 +16785,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.77.1";
+const version = "5.78.0";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -17609,12 +17609,31 @@ class Machine {
      *  console.log( final_test.is_final() );   // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
-     *
      */
     is_final() {
         //  return ((!this.is_changing()) && this.state_is_final(this.state()));
         return this.state_is_final(this.state());
+    }
+    /********
+     *
+     *  Serialize the current machine, including all defining state but not the
+     *  machine string, to a structure.  This means you will need the machine
+     *  string to recreate (to not waste repeated space;) if you want the machine
+     *  string embedded, call {@link serialize_with_string} instead.
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    serialize(comment) {
+        return {
+            comment,
+            state: this._state,
+            data: this._data,
+            jssm_version: version,
+            history: this._history.toArray(),
+            history_capacity: this._history.capacity,
+            timestamp: new Date().getTime(),
+        };
     }
     graph_layout() {
         return this._graph_layout;

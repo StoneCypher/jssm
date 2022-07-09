@@ -20,6 +20,8 @@ import {
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout,
+  JssmHistory,
+  JssmSerialization,
   FslDirection, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult
 
@@ -760,7 +762,7 @@ class Machine<mDT> {
   _post_forced_transition_hook   : HookHandler<mDT> | undefined;
   _post_any_transition_hook      : HookHandler<mDT> | undefined;
 
-  _history        : circular_buffer<[StateType, mDT]>;
+  _history        : JssmHistory<mDT>;
   _history_length : number;
 
 
@@ -1124,13 +1126,42 @@ class Machine<mDT> {
    *  console.log( final_test.is_final() );   // true
    *  ```
    *
-   *  @typeparam mDT The type of the machine data member; usually omitted
-   *
    */
 
   is_final(): boolean {
     //  return ((!this.is_changing()) && this.state_is_final(this.state()));
     return this.state_is_final(this.state());
+  }
+
+
+
+
+
+  /********
+   *
+   *  Serialize the current machine, including all defining state but not the
+   *  machine string, to a structure.  This means you will need the machine
+   *  string to recreate (to not waste repeated space;) if you want the machine
+   *  string embedded, call {@link serialize_with_string} instead.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  serialize(comment?: string | undefined): JssmSerialization<mDT> {
+
+    return {
+
+      comment,
+      state            : this._state,
+      data             : this._data,
+      jssm_version     : version,
+      history          : this._history.toArray(),
+      history_capacity : this._history.capacity,
+      timestamp        : new Date().getTime(),
+
+    };
+
   }
 
 
