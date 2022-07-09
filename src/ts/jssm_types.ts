@@ -1,4 +1,10 @@
 
+import { circular_buffer } from 'circular_buffer_js';
+
+
+
+
+
 type StateType = string;
 
 
@@ -58,7 +64,17 @@ type FslTheme           = 'default' | 'ocean' | 'modern' | 'none';
 
 
 
-type State = string;
+type JssmSerialization<DataType> = {
+
+  jssm_version     : string,
+  timestamp        : number,
+  comment?         : string | undefined,
+  state            : StateType,
+  history          : [string, DataType][],
+  history_capacity : number,
+  data             : DataType
+
+};
 
 
 
@@ -497,6 +513,12 @@ type JssmErrorExtendedInfo = {
 
 
 
+type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
+
+
+
+
+
 export {
 
   JssmColor,
@@ -528,6 +550,9 @@ export {
     JssmStateDeclarationRule,
 
   JssmLayout,
+
+  JssmHistory,
+  JssmSerialization,
 
   JssmParseFunctionType,
 

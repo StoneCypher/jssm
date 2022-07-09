@@ -800,12 +800,31 @@ class Machine {
      *  console.log( final_test.is_final() );   // true
      *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
-     *
      */
     is_final() {
         //  return ((!this.is_changing()) && this.state_is_final(this.state()));
         return this.state_is_final(this.state());
+    }
+    /********
+     *
+     *  Serialize the current machine, including all defining state but not the
+     *  machine string, to a structure.  This means you will need the machine
+     *  string to recreate (to not waste repeated space;) if you want the machine
+     *  string embedded, call {@link serialize_with_string} instead.
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    serialize(comment) {
+        return {
+            comment,
+            state: this._state,
+            data: this._data,
+            jssm_version: version,
+            history: this._history.toArray(),
+            history_capacity: this._history.capacity,
+            timestamp: new Date().getTime(),
+        };
     }
     graph_layout() {
         return this._graph_layout;
@@ -1988,6 +2007,12 @@ function abstract_hook_step(maybe_hook, hook_args) {
         return { pass: true };
     }
 }
-export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
+function deserialize(machine_string, ser) {
+    const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
+    machine._state = ser.state;
+    ser.history.forEach(history_item => machine._history.push(history_item));
+    return machine;
+}
+export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
 seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };

@@ -1,7 +1,6 @@
 declare type StateType = string;
-import { circular_buffer } from 'circular_buffer_js';
 import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
+JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
 import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import { shapes, gviz_shapes, named_colors } from './jssm_constants';
 import { version } from './version';
@@ -251,7 +250,7 @@ declare class Machine<mDT> {
     _post_main_transition_hook: HookHandler<mDT> | undefined;
     _post_forced_transition_hook: HookHandler<mDT> | undefined;
     _post_any_transition_hook: HookHandler<mDT> | undefined;
-    _history: circular_buffer<[StateType, mDT]>;
+    _history: JssmHistory<mDT>;
     _history_length: number;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
     /********
@@ -330,10 +329,19 @@ declare class Machine<mDT> {
      *  console.log( final_test.is_final() );   // true
      *  ```
      *
+     */
+    is_final(): boolean;
+    /********
+     *
+     *  Serialize the current machine, including all defining state but not the
+     *  machine string, to a structure.  This means you will need the machine
+     *  string to recreate (to not waste repeated space;) if you want the machine
+     *  string embedded, call {@link serialize_with_string} instead.
+     *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
      */
-    is_final(): boolean;
+    serialize(comment?: string | undefined): JssmSerialization<mDT>;
     graph_layout(): string;
     dot_preamble(): string;
     machine_author(): Array<string>;
@@ -824,4 +832,5 @@ declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Par
 declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT>;
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
-export { version, transfer_state_properties, Machine, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };
+declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
+export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };
