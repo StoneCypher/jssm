@@ -32,8 +32,11 @@ import {
 
 
 import {
-  seq, weighted_rand_select, weighted_sample_select, histograph,
-  weighted_histo_key, array_box_if_string, hook_name, named_hook_name
+  seq,
+  weighted_rand_select, weighted_sample_select,
+  histograph, weighted_histo_key,
+  array_box_if_string,
+  name_bind_prop_and_state, hook_name, named_hook_name
 } from './jssm_util';
 
 
@@ -762,6 +765,10 @@ class Machine<mDT> {
   _post_forced_transition_hook   : HookHandler<mDT> | undefined;
   _post_any_transition_hook      : HookHandler<mDT> | undefined;
 
+  _property_keys      : Set<string>;
+  _default_properties : Map<string, any>;
+  _state_properties   : Map<string, any>;
+
   _history        : JssmHistory<mDT>;
   _history_length : number;
 
@@ -867,10 +874,14 @@ class Machine<mDT> {
     this._post_forced_transition_hook   = undefined;
     this._post_any_transition_hook      = undefined;
 
-    this._data                     = data;
+    this._data                          = data;
 
-    this._history_length           = history || 0;
-    this._history                  = new circular_buffer(this._history_length);
+    this._property_keys                 = new Set();
+    this._default_properties            = new Map();
+    this._state_properties              = new Map();
+
+    this._history_length                = history || 0;
+    this._history                       = new circular_buffer(this._history_length);
 
 
     if (state_declaration) {
@@ -1079,6 +1090,40 @@ class Machine<mDT> {
       return true; // todo whargarbl
     }
   */
+
+
+
+
+
+  /*********
+   *
+   *  Get the current value of a given property name.
+   *
+   *  ```typescript
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param name The relevant property name to look up
+   *
+   */
+
+  prop(name: string): any {
+
+    const bound_name = name_bind_prop_and_state(name, this.state());
+
+    if (this._state_properties.has(bound_name)) {
+      return this._state_properties.has(bound_name);
+
+    } else if (this._default_properties.has(name)) {
+      return this._default_properties.get(name);
+
+    } else {
+      return undefined;
+    }
+
+  }
+
 
 
 

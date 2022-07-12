@@ -947,6 +947,13 @@ const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any
  *  meant for external use.
  *
  */
+const name_bind_prop_and_state = (prop, state) => JSON.stringify([prop, state]);
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 const hook_name = (from, to) => JSON.stringify([from, to]);
 /*******
  *
@@ -16785,7 +16792,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.78.0";
+const version = "5.79.0";
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -17409,6 +17416,9 @@ class Machine {
         this._post_forced_transition_hook = undefined;
         this._post_any_transition_hook = undefined;
         this._data = data;
+        this._property_keys = new Set();
+        this._default_properties = new Map();
+        this._state_properties = new Map();
         this._history_length = history || 0;
         this._history = new circular_buffer(this._history_length);
         if (state_declaration) {
@@ -17572,6 +17582,30 @@ class Machine {
         return true; // todo whargarbl
       }
     */
+    /*********
+     *
+     *  Get the current value of a given property name.
+     *
+     *  ```typescript
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param name The relevant property name to look up
+     *
+     */
+    prop(name) {
+        const bound_name = name_bind_prop_and_state(name, this.state());
+        if (this._state_properties.has(bound_name)) {
+            return this._state_properties.has(bound_name);
+        }
+        else if (this._default_properties.has(name)) {
+            return this._default_properties.get(name);
+        }
+        else {
+            return undefined;
+        }
+    }
     /********
      *
      *  Check whether a given state is final (either has no exits or is marked

@@ -76,6 +76,13 @@ const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any
  *  meant for external use.
  *
  */
+const name_bind_prop_and_state = (prop, state) => JSON.stringify([prop, state]);
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 const hook_name = (from, to) => JSON.stringify([from, to]);
 /*******
  *
@@ -100,4 +107,4 @@ const make_mulberry_rand = (a) => () => {
     t ^= t + Math.imul(t ^ t >>> 7, t | 61);
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
 };
-export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name, make_mulberry_rand };
+export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, make_mulberry_rand };

@@ -250,6 +250,9 @@ declare class Machine<mDT> {
     _post_main_transition_hook: HookHandler<mDT> | undefined;
     _post_forced_transition_hook: HookHandler<mDT> | undefined;
     _post_any_transition_hook: HookHandler<mDT> | undefined;
+    _property_keys: Set<string>;
+    _default_properties: Map<string, any>;
+    _state_properties: Map<string, any>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
@@ -294,6 +297,19 @@ declare class Machine<mDT> {
      *
      */
     data(): mDT;
+    /*********
+     *
+     *  Get the current value of a given property name.
+     *
+     *  ```typescript
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param name The relevant property name to look up
+     *
+     */
+    prop(name: string): any;
     /********
      *
      *  Check whether a given state is final (either has no exits or is marked

@@ -41,6 +41,13 @@ declare const weighted_histo_key: Function;
  *  meant for external use.
  *
  */
+declare const name_bind_prop_and_state: (prop: string, state: string) => string;
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 declare const hook_name: (from: string, to: string) => string;
 /*******
  *
@@ -57,4 +64,4 @@ declare const named_hook_name: (from: string, to: string, action: string) => str
  *
  */
 declare const make_mulberry_rand: (a?: number | undefined) => () => number;
-export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name, make_mulberry_rand };
+export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, make_mulberry_rand };

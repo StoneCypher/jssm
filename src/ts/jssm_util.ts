@@ -143,6 +143,21 @@ const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: st
  *
  */
 
+const name_bind_prop_and_state = (prop: string, state: string): string =>
+
+  JSON.stringify([prop, state]);
+
+
+
+
+
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
+
 const hook_name = (from: string, to: string): string =>
 
   JSON.stringify([from, to]);
@@ -198,7 +213,7 @@ export {
   histograph, weighted_histo_key,
   weighted_rand_select, weighted_sample_select,
   array_box_if_string,
-  hook_name, named_hook_name,
+  name_bind_prop_and_state, hook_name, named_hook_name,
   make_mulberry_rand
 };
 
