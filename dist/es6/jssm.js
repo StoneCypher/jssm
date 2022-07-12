@@ -351,6 +351,9 @@ function compile_rule_handler(rule) {
     if (rule.key === 'machine_language') {
         return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
     }
+    if (rule.key === 'property_definition') {
+        return { agg_as: 'property_definition', val: { name: rule.name, default_value: rule.default_value } };
+    }
     if (rule.key === 'state_declaration') {
         if (!rule.name) {
             throw new JssmError(undefined, 'State declarations must have a name');
@@ -440,6 +443,7 @@ function compile(tree) {
         machine_license: [],
         machine_name: [],
         machine_reference: [],
+        property_definition: [],
         theme: [],
         flow: [],
         dot_preamble: [],

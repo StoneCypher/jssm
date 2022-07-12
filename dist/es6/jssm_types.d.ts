@@ -35,6 +35,10 @@ declare type JssmSerialization<DataType> = {
     history_capacity: number;
     data: DataType;
 };
+declare type JssmPropertyDefinition = {
+    name: string;
+    default_value?: any;
+};
 declare type JssmTransitionPermitter<DataType> = (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
 declare type JssmTransition<DataType> = {
@@ -137,6 +141,7 @@ declare type JssmGenericConfig<DataType> = {
     machine_license?: string;
     machine_name?: string;
     machine_version?: string;
+    property_definition?: Array<JssmPropertyDefinition>;
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
@@ -160,6 +165,7 @@ declare type JssmCompileSeStart<DataType> = {
     key: string;
     value?: string | number;
     name?: string;
+    default_value?: any;
 };
 declare type JssmParseTree = Array<JssmCompileSeStart<StateType>>;
 declare type JssmParseFunctionType = (string: any) => JssmParseTree;
@@ -275,4 +281,4 @@ declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
 declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmHistory, JssmSerialization, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };

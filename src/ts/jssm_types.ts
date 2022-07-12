@@ -80,6 +80,15 @@ type JssmSerialization<DataType> = {
 
 
 
+type JssmPropertyDefinition = {
+  name           : string;
+  default_value? : any
+};
+
+
+
+
+
 type JssmTransitionPermitter<DataType> =
   (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 
@@ -298,11 +307,12 @@ type JssmCompileSe = {
 
 type JssmCompileSeStart<DataType> = {
 
-  from   : DataType,
-  se     : JssmCompileSe,
-  key    : string,
-  value? : string | number,
-  name?  : string
+  from           : DataType,
+  se             : JssmCompileSe,
+  key            : string,
+  value?         : string | number,
+  name?          : string,
+  default_value? : any      // for properties
 
 };
 
@@ -553,6 +563,7 @@ export {
 
   JssmHistory,
   JssmSerialization,
+  JssmPropertyDefinition,
 
   JssmParseFunctionType,
 

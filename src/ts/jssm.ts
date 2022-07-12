@@ -22,6 +22,7 @@ import {
   JssmLayout,
   JssmHistory,
   JssmSerialization,
+  JssmPropertyDefinition,
   FslDirection, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult
 
@@ -444,6 +445,10 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
   }
 
+  if (rule.key === 'property_definition') {
+    return { agg_as: 'property_definition', val: { name: rule.name, default_value: rule.default_value } };
+  }
+
   if (rule.key === 'state_declaration') {
     if (!rule.name) { throw new JssmError(undefined, 'State declarations must have a name'); }
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
@@ -543,6 +548,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     machine_license           : Array<string>,
     machine_name              : Array<string>,
     machine_reference         : Array<string>,
+    property_definition       : Array<JssmPropertyDefinition>,
     theme                     : Array<string>,
     flow                      : Array<string>,
     dot_preamble              : Array<string>,
@@ -566,6 +572,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     machine_license           : [],
     machine_name              : [],
     machine_reference         : [],
+    property_definition       : [],
     theme                     : [],
     flow                      : [],
     dot_preamble              : [],
@@ -591,6 +598,8 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
     transitions: assembled_transitions
   };
+
+  // TODO: handle property defaults
 
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',

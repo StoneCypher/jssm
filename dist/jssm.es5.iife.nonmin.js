@@ -17166,6 +17166,9 @@ var jssm = (function (exports) {
       if (rule.key === 'machine_language') {
           return { agg_as: 'machine_language', val: reduceTo6391.reduce(rule.value) };
       }
+      if (rule.key === 'property_definition') {
+          return { agg_as: 'property_definition', val: { name: rule.name, default_value: rule.default_value } };
+      }
       if (rule.key === 'state_declaration') {
           if (!rule.name) {
               throw new JssmError(undefined, 'State declarations must have a name');
@@ -17255,6 +17258,7 @@ var jssm = (function (exports) {
           machine_license: [],
           machine_name: [],
           machine_reference: [],
+          property_definition: [],
           theme: [],
           flow: [],
           dot_preamble: [],
