@@ -1,7 +1,7 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { circular_buffer } from 'circular_buffer_js';
-import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import { shapes, gviz_shapes, named_colors } from './jssm_constants';
 import { parse } from './jssm-dot';
 import { version } from './version'; // replaced from package.js in build
@@ -456,11 +456,16 @@ function compile(tree) {
         const rule = compile_rule_handler(tr), agg_as = rule.agg_as, val = rule.val; // TODO FIXME no any
         results[agg_as] = results[agg_as].concat(val);
     });
+    const property_keys = results['property_definition'].map(pd => pd.name), repeat_props = find_repeated(property_keys);
+    if (repeat_props.length) {
+        throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`);
+    }
     const assembled_transitions = [].concat(...results['transition']);
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
         transitions: assembled_transitions
     };
+    // TODO: handle property defaults
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
         'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
@@ -477,7 +482,8 @@ function compile(tree) {
         }
     });
     ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
-        'machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map((multiKey) => {
+        'machine_author', 'machine_contributor', 'machine_reference',
+        'state_declaration', 'property_definition'].map((multiKey) => {
         if (results[multiKey].length) {
             result_cfg[multiKey] = results[multiKey];
         }
@@ -2046,4 +2052,4 @@ function deserialize(machine_string, ser) {
 }
 export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
-seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };
+seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };

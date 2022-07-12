@@ -34,6 +34,7 @@ import {
 
 import {
   seq,
+  unique, find_repeated,
   weighted_rand_select, weighted_sample_select,
   histograph, weighted_histo_key,
   array_box_if_string,
@@ -592,14 +593,19 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   });
 
+  const property_keys = results['property_definition'].map(pd => pd.name),
+        repeat_props  = find_repeated(property_keys);
+
+  if (repeat_props.length) {
+    throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`);
+  }
+
   const assembled_transitions: Array<JssmTransition<mDT>> = [].concat(...results['transition']);
 
   const result_cfg: JssmGenericConfig<mDT> = {
     start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
     transitions: assembled_transitions
   };
-
-  // TODO: handle property defaults
 
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
@@ -620,7 +626,8 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
   });
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
-    'machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map(
+   'machine_author', 'machine_contributor', 'machine_reference',
+   'state_declaration', 'property_definition'].map(
       (multiKey: string) => {
         if (results[multiKey].length) {
           result_cfg[multiKey] = results[multiKey];
@@ -2842,6 +2849,7 @@ export {
 
   // WHARGARBL TODO these should be exported to a utility library
   seq,
+  unique, find_repeated,
   weighted_rand_select,
   histograph,
   weighted_sample_select,

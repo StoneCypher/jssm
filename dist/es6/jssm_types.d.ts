@@ -130,6 +130,7 @@ declare type JssmGenericConfig<DataType> = {
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
     state_declaration?: Array<Object>;
+    properties?: Array<JssmPropertyDefinition>;
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
     arrange_end_declaration?: Array<Array<StateType>>;
@@ -141,7 +142,6 @@ declare type JssmGenericConfig<DataType> = {
     machine_license?: string;
     machine_name?: string;
     machine_version?: string;
-    property_definition?: Array<JssmPropertyDefinition>;
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
