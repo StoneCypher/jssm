@@ -804,6 +804,7 @@ class Machine<mDT> {
     machine_name,
     machine_version,
     state_declaration,
+    property_definition,
     fsl_version,
     dot_preamble              = undefined,
     arrange_declaration       = [],
@@ -1017,6 +1018,21 @@ class Machine<mDT> {
 
     });
 
+
+    if (Array.isArray(property_definition)) {
+
+      property_definition.forEach(pr => {
+
+        this._property_keys.add(pr.name);
+        if (pr.hasOwnProperty('default_value')) {
+          this._default_properties.set(pr.name, pr.default_value);
+        }
+
+      });
+
+    }
+
+
   }
 
 
@@ -1113,7 +1129,7 @@ class Machine<mDT> {
 
   /*********
    *
-   *  Get the current value of a given property name.
+   *  Get the current value of a given property name.  COMEBACK
    *
    *  ```typescript
    *  ```
@@ -1307,12 +1323,6 @@ class Machine<mDT> {
     };
 
   }
-
-  /*
-    load_machine_state(): boolean {
-      return false; // todo whargarbl
-    }
-  */
 
 
 

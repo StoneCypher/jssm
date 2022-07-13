@@ -255,7 +255,7 @@ declare class Machine<mDT> {
     _state_properties: Map<string, any>;
     _history: JssmHistory<mDT>;
     _history_length: number;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
+    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -299,7 +299,7 @@ declare class Machine<mDT> {
     data(): mDT;
     /*********
      *
-     *  Get the current value of a given property name.
+     *  Get the current value of a given property name.  COMEBACK
      *
      *  ```typescript
      *  ```

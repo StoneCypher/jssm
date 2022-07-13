@@ -17333,7 +17333,6 @@ var jssm = (function (exports) {
           start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
           transitions: assembled_transitions
       };
-      // TODO: handle property defaults
       const oneOnlyKeys = [
           'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
           'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
@@ -17413,7 +17412,7 @@ var jssm = (function (exports) {
   // TODO add a lotta docblock here
   class Machine {
       // whargarbl this badly needs to be broken up, monolith master
-      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data }) {
+      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data }) {
           this._instance_name = instance_name;
           this._state = start_states[0];
           this._states = new Map();
@@ -17578,6 +17577,14 @@ var jssm = (function (exports) {
                   */
               }
           });
+          if (Array.isArray(property_definition)) {
+              property_definition.forEach(pr => {
+                  this._property_keys.add(pr.name);
+                  if (pr.hasOwnProperty('default_value')) {
+                      this._default_properties.set(pr.name, pr.default_value);
+                  }
+              });
+          }
       }
       /********
        *
@@ -17646,7 +17653,7 @@ var jssm = (function (exports) {
       */
       /*********
        *
-       *  Get the current value of a given property name.
+       *  Get the current value of a given property name.  COMEBACK
        *
        *  ```typescript
        *  ```
@@ -17786,11 +17793,6 @@ var jssm = (function (exports) {
               states: this._states
           };
       }
-      /*
-        load_machine_state(): boolean {
-          return false; // todo whargarbl
-        }
-      */
       /*********
        *
        *  List all the states known by the machine.  Please note that the order of
