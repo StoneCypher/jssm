@@ -801,6 +801,9 @@ class Machine {
      *
      *  @param name The relevant property name to look up
      *
+     *  @returns The value behind the prop name.  Because functional props are
+     *  evaluated as getters, this can be anything.
+     *
      */
     prop(name) {
         const bound_name = name_bind_prop_and_state(name, this.state());
@@ -814,6 +817,78 @@ class Machine {
             return undefined;
         }
     }
+    // NEEDS_DOCS
+    // COMEBACK add prop_map, sparse_props and strict_props to doc text when implemented
+    /*********
+     *
+     *  Get the current value of every prop, as an object.  If no current definition
+     *  exists for a prop - that is, if the prop was defined without a default and
+     *  the current state also doesn't define the prop - then that prop will be listed
+     *  in the returned object with a value of `undefined`.
+     *
+     *  ```typescript
+     *  const traffic_light = sm`
+     *
+     *    property can_go     default true;
+     *    property hesitate   default true;
+     *    property stop_first default false;
+     *
+     *    Off -> Red => Green => Yellow => Red;
+     *    [Red Yellow Green] ~> [Off FlashingRed];
+     *    FlashingRed -> Red;
+     *
+     *    state Red:         { property stop_first true;  property can_go false; };
+     *    state Off:         { property stop_first true;  };
+     *    state FlashingRed: { property stop_first true;  };
+     *    state Green:       { property hesitate   false; };
+     *
+     *  `;
+     *
+     *  traffic_light.state();  // Off
+     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+     *
+     *  traffic_light.go('Red');
+     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+     *
+     *  traffic_light.go('Green');
+     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+     *  ```
+     *
+     */
+    props() {
+        const ret = {};
+        this.known_props().forEach(p => ret[p] = this.prop(p));
+        return ret;
+    }
+    // NEEDS_DOCS
+    // TODO COMEBACK
+    /*********
+     *
+     *  Get the current value of every prop, as an object.  Compare
+     *  {@link prop_map}, which returns a `Map`.
+     *
+     *  ```typescript
+     *
+     *  ```
+     *
+     */
+    // sparse_props(name: string): object {
+    // }
+    // NEEDS_DOCS
+    // TODO COMEBACK
+    /*********
+     *
+     *  Get the current value of every prop, as an object.  Compare
+     *  {@link prop_map}, which returns a `Map`.  Akin to {@link strict_prop},
+     *  this throws if a required prop is missing.
+     *
+     *  ```typescript
+     *
+     *  ```
+     *
+     */
+    // strict_props(name: string): object {
+    // }
     /*********
      *
      *  Check whether a given string is a known property's name.
@@ -1845,15 +1920,27 @@ class Machine {
      *  Instruct the machine to complete an action.  Synonym for {@link action}.
      *
      *  ```typescript
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *  const light = sm`
+     *    off 'start' -> red;
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off;
+     *  `;
      *
-     *  light.state();           // 'red'
-     *  light.do('next');        // true
-     *  light.state();           // 'green'
+     *  light.state();       // 'off'
+     *  light.do('start');   // true
+     *  light.state();       // 'red'
+     *  light.do('next');    // true
+     *  light.state();       // 'green'
+     *  light.do('next');    // true
+     *  light.state();       // 'yellow'
+     *  light.do('dance');   // !! false - no such action
+     *  light.state();       // 'yellow'
+     *  light.do('start');   // !! false - yellow does not have the action start
+     *  light.state();       // 'yellow'
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
-     *
+  b   *
      *  @param actionName The action to engage
      *
      *  @param newData The data change to insert during the action
@@ -1867,11 +1954,21 @@ class Machine {
      *  Instruct the machine to complete a transition.  Synonym for {@link go}.
      *
      *  ```typescript
-     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *  const light = sm`
+     *    off 'start' -> red;
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off;
+     *  `;
      *
-     *  light.state();               // 'red'
-     *  light.transition('green');   // true
-     *  light.state();               // 'green'
+     *  light.state();       // 'off'
+     *  light.go('red');     // true
+     *  light.state();       // 'red'
+     *  light.go('green');   // true
+     *  light.state();       // 'green'
+     *  light.go('blue');    // !! false - no such state
+     *  light.state();       // 'green'
+     *  light.go('red');     // !! false - green may not go directly to red, only to yellow
+     *  light.state();       // 'green'
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted

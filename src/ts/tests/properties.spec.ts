@@ -51,7 +51,7 @@ describe('Creating with properties doesn\'t throw', () => {
 
   test('Creating with special number default infinity', () => {
 
-    expect( () => jssm.from("property foo default Infinity; a -> b;") )
+    expect( () => jssm.from("property foo default Inf; a -> b;") )
       .not.toThrow();
 
   });
@@ -60,7 +60,7 @@ describe('Creating with properties doesn\'t throw', () => {
 
   test('Creating with special number default negative infinity', () => {
 
-    expect( () => jssm.from("property foo default NegInfinity; a -> b;") )
+    expect( () => jssm.from("property foo default NInf; a -> b;") )
       .not.toThrow();
 
   });
@@ -69,7 +69,7 @@ describe('Creating with properties doesn\'t throw', () => {
 
   test('Creating with special number default NaN', () => {
 
-    expect( () => jssm.from("property foo default Infinity; a -> b;") )
+    expect( () => jssm.from("property foo default NaN; a -> b;") )
       .not.toThrow();
 
   });
@@ -88,6 +88,33 @@ describe('Creating with properties doesn\'t throw', () => {
   test('Creating with special number default max safe integer', () => {
 
     expect( () => jssm.from("property foo default MaxSafeInt; a -> b;") )
+      .not.toThrow();
+
+  });
+
+
+
+  test('Creating with special number default min pos num', () => {
+
+    expect( () => jssm.from("property foo default MinPosNum; a -> b;") )
+      .not.toThrow();
+
+  });
+
+
+
+  test('Creating with special number default max pos num', () => {
+
+    expect( () => jssm.from("property foo default MaxPosNum; a -> b;") )
+      .not.toThrow();
+
+  });
+
+
+
+  test('Creating with special number default epsilon', () => {
+
+    expect( () => jssm.from("property foo default Epsilon; a -> b;") )
       .not.toThrow();
 
   });
@@ -168,15 +195,48 @@ describe('Read property defaults', () => {
 
 
 
+describe('Get all properties', () => {
+
+
+
+  describe('from defaults', () => {
+
+    test('One prop', () => {
+      const m = sm`property foo default "a"; a -> b;`;
+      expect(m.props()).toStrictEqual({foo: 'a'});
+    });
+
+    test('Two props with defaults', () => {
+      const m = sm`property foo default "a"; property bar default "b"; a -> b;`;
+      expect(m.props()).toStrictEqual({foo: 'a', bar: 'b'});
+    });
+
+    test('Two props, one with a default', () => {
+      const m = sm`property foo default "a"; property bar; a -> b;`;
+      expect(m.props()).toStrictEqual({foo: 'a', bar: undefined});
+    });
+
+    test('No props', () => {
+      const m = sm`a -> b;`;
+      expect(m.props()).toStrictEqual({});
+    });
+
+  });
+
+
+
+});
+
+
+
+
+
 describe('List known properties', () => {
-
-
 
   test('One prop', () => {
     const m = sm`property foo default "a"; a -> b;`;
     expect(m.known_props()).toStrictEqual(['foo']);
   });
-
 
   test('Two props', () => {
     const m = sm`property foo default 1; property bar; a -> b;`,
@@ -185,13 +245,10 @@ describe('List known properties', () => {
     expect(k).toStrictEqual(['bar','foo']);
   });
 
-
   test('No props', () => {
     const m = sm`a -> b;`;
     expect(m.known_props()).toStrictEqual([]);
   });
-
-
 
 });
 
@@ -229,21 +286,16 @@ describe('Check whether a property is known', () => {
 
 describe('Invalid property errors', () => {
 
-
-
   test('Repeated prop', () => {
     expect(() => {
       const m = sm`property foo default "a"; property foo default "a"; a -> b;`;
     }).toThrow();
   });
 
-
   test('Conflicted prop', () => {
     expect(() => {
       const m = sm`property foo default "a"; property foo default "b"; a -> b;`;
     }).toThrow();
   });
-
-
 
 });
