@@ -912,14 +912,13 @@ NamedList
 
 
 MachinePropertyDefaultNull
-  = 'null'
+  = 'null' { return null; }
 
 MachinePropertyDefaultUndefined
-  = 'undefined'
+  = 'undefined' { return undefined; }
 
 MachinePropertyDefaultBoolean
-  = 'true'
-  / 'false'
+  = Boolean
 
 MachinePropertyDefaultNumber
   = '-'? IntegerLiteral "." DecimalDigit* WS? { return parseFloat( text() ); }

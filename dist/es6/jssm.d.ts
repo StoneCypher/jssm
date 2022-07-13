@@ -299,17 +299,42 @@ declare class Machine<mDT> {
     data(): mDT;
     /*********
      *
-     *  Get the current value of a given property name.  COMEBACK
+     *  Get the current value of a given property name.
      *
      *  ```typescript
-     *  ```
      *
-     *  @typeparam mDT The type of the machine data member; usually omitted
+     *  ```
      *
      *  @param name The relevant property name to look up
      *
      */
     prop(name: string): any;
+    /*********
+     *
+     *  Check whether a given string is a known property's name.
+     *
+     *  ```typescript
+     *  const example = sm`property foo default 1; a->b;`;
+     *
+     *  example.known_prop('foo');  // true
+     *  example.known_prop('bar');  // false
+     *  ```
+     *
+     *  @param prop_name The relevant property name to look up
+     *
+     */
+    known_prop(prop_name: string): boolean;
+    /*********
+     *
+     *  List all known property names.  If you'd also like values, use
+     *  {@link props} instead.  The order of the properties is not defined, and
+     *  the properties generally will not be sorted.
+     *
+     *  ```typescript
+     *  ```
+     *
+     */
+    known_props(): string[];
     /********
      *
      *  Check whether a given state is final (either has no exits or is marked

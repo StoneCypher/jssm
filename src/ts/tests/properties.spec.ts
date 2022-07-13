@@ -1,6 +1,8 @@
 
 import * as jssm from '../jssm';
 
+const sm = jssm.sm;
+
 
 
 
@@ -114,3 +116,134 @@ describe('Creating with properties doesn\'t throw', () => {
 
 });
 
+
+
+
+
+
+describe('Read property defaults', () => {
+
+
+
+  test('string', () => {
+    const m = sm`property foo default "a"; a -> b;`;
+    expect(m.prop('foo')).toBe('a');
+  });
+
+
+  test('number', () => {
+    const m = sm`property foo default 1; a -> b;`;
+    expect(m.prop('foo')).toBe(1);
+  });
+
+
+  test('boolean', () => {
+    const m = sm`property foo default false; a -> b;`;
+    expect(m.prop('foo')).toBe(false);
+  });
+
+
+  test('undefined', () => {
+    const m = sm`property foo default undefined; a -> b;`;
+    expect(m.prop('foo')).toBe(undefined);
+  });
+
+
+  test('null', () => {
+    const m = sm`property foo default null; a -> b;`;
+    expect(m.prop('foo')).toBe(null);
+  });
+
+
+  test('no default given', () => {
+    const m = sm`property foo; a -> b;`;
+    expect(m.prop('foo')).toBe(undefined);
+  });
+
+
+
+});
+
+
+
+
+
+describe('List known properties', () => {
+
+
+
+  test('One prop', () => {
+    const m = sm`property foo default "a"; a -> b;`;
+    expect(m.known_props()).toStrictEqual(['foo']);
+  });
+
+
+  test('Two props', () => {
+    const m = sm`property foo default 1; property bar; a -> b;`,
+          k = m.known_props();
+    k.sort();
+    expect(k).toStrictEqual(['bar','foo']);
+  });
+
+
+  test('No props', () => {
+    const m = sm`a -> b;`;
+    expect(m.known_props()).toStrictEqual([]);
+  });
+
+
+
+});
+
+
+
+
+
+describe('Check whether a property is known', () => {
+
+  test('Known property with default', () => {
+    const example = sm`property foo default 1; a->b;`;
+    expect(example.known_prop('foo')).toBe(true);
+  });
+
+  test('Known property without default', () => {
+    const example = sm`property foo; a->b;`;
+    expect(example.known_prop('foo')).toBe(true);
+  });
+
+  test('Unknown property on machine with properties', () => {
+    const example = sm`property foo default 1; a->b;`;
+    expect(example.known_prop('bar')).toBe(false);
+  });
+
+  test('Unknown property on machine without properties', () => {
+    const example = sm`a->b;`;
+    expect(example.known_prop('bar')).toBe(false);
+  });
+
+});
+
+
+
+
+
+describe('Invalid property errors', () => {
+
+
+
+  test('Repeated prop', () => {
+    expect(() => {
+      const m = sm`property foo default "a"; property foo default "a"; a -> b;`;
+    }).toThrow();
+  });
+
+
+  test('Conflicted prop', () => {
+    expect(() => {
+      const m = sm`property foo default "a"; property foo default "b"; a -> b;`;
+    }).toThrow();
+  });
+
+
+
+});
