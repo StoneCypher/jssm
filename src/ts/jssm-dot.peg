@@ -2,6 +2,10 @@
 // If you're in PegJS Online and see "Missing initializer in const declaration,"
 // go down to the rule Exp and take the typescript type off of the const there
 //
+// Then do the same thing on SubExp
+//
+// Just search for "Reminder"
+//
 // Can't take it out permanently because it's necessary for the typescript chain
 
 
@@ -184,9 +188,6 @@ LineStyle
   / "dotted"
   / "dashed"
 
-HexDigit
-  = [0-9a-fA-F]
-
 Char
   = Unescaped
   / Escape Sequence:(
@@ -204,6 +205,9 @@ Char
         }
     )
     { return Sequence; }
+
+Null      = 'null'      { return null; }
+Undefined = 'undefined' { return undefined; }
 
 Escape    = "\\"
 QuoteMark = '"'
@@ -290,9 +294,106 @@ DecimalDigit
 NonZeroDigit
   = [1-9]
 
+HexDigit
+  = [0-9a-f]i
+
+BinaryDigit
+  = [0-1]
+
+OctalDigit
+  = [0-1]
+
 NonNegNumber "nonneg number"
   = IntegerLiteral "." DecimalDigit* WS? { return parseFloat(text()); }
   / IntegerLiteral                   WS? { return parseFloat(text()); }
+
+
+
+
+
+JsNumericLiteral "number"
+  = literal:JsHexIntegerLiteral      { return literal; }
+  / literal:JsBinaryIntegerLiteral   { return literal; }
+  / literal:NonJsOctalIntegerLiteral { return literal; }
+  / literal:JsDecimalLiteral         { return literal; }
+  / 'NaN'                            { return NaN; }
+  / 'NegativeInfinity'               { return Number.NEGATIVE_INFINITY; }
+  / 'NegativeInf'                    { return Number.NEGATIVE_INFINITY; }
+  / 'NegInfinity'                    { return Number.NEGATIVE_INFINITY; }
+  / 'NegInf'                         { return Number.NEGATIVE_INFINITY; }
+  / 'NInfinity'                      { return Number.NEGATIVE_INFINITY; }
+  / 'NInf'                           { return Number.NEGATIVE_INFINITY; }
+  / '-∞'                             { return Number.NEGATIVE_INFINITY; }
+  / 'PInfinity'                      { return Number.POSITIVE_INFINITY; }
+  / 'Infinity'                       { return Number.POSITIVE_INFINITY; }
+  / 'PInf'                           { return Number.POSITIVE_INFINITY; }
+  / 'Inf'                            { return Number.POSITIVE_INFINITY; }
+  / '∞'                              { return Number.POSITIVE_INFINITY; }
+  / 'Epsilon'                        { return Number.EPSILON; }
+  / '𝜀'                              { return Number.EPSILON; }            // math page epsilon
+  / 'ε'                              { return Number.EPSILON; }            // greek language epsilon
+  / 'Pi'                             { return Math.PI; }
+  / '𝜋'                              { return Math.PI; }
+  / 'π'                              { return Math.PI; }
+  / 'EulerNumber'                    { return Math.E; }
+  / 'E'                              { return Math.E; }
+  / 'e'                              { return Math.E; }
+  / 'Ɛ'                              { return Math.E; }
+  / 'ℇ'                              { return Math.E; }
+  / 'Root2'                          { return Math.SQRT2; }
+  / 'RootHalf'                       { return Math.SQRT1_2; }
+  / 'Ln2'                            { return Math.LN2; }
+  / 'NatLog2'                        { return Math.LN2; }
+  / 'Ln10'                           { return Math.LN10; }
+  / 'NatLog10'                       { return Math.LN10; }
+  / 'Log2E'                          { return Math.LOG2E; }
+  / 'Log10E'                         { return Math.LOG10E; }
+  / 'MaxSafeInt'                     { return Number.MAX_SAFE_INTEGER; }
+  / 'MinSafeInt'                     { return Number.MIN_SAFE_INTEGER; }
+  / 'MaxPosNum'                      { return Number.MAX_VALUE; }
+  / 'MinPosNum'                      { return Number.MIN_VALUE; }
+  / 'Phi'                            { return 1.61803398874989484820; }    // doubles trace 16 decimal digits, so 20 is extra
+  / '𝜑'                              { return 1.61803398874989484820; }
+  / '𝜙'                              { return 1.61803398874989484820; }
+  / 'ϕ'                              { return 1.61803398874989484820; }
+  / 'φ'                              { return 1.61803398874989484820; }
+  / 'EulerConstant'                  { return 0.57721566490153286060; }
+  / 'γ'                              { return 0.57721566490153286060; }
+  / '𝛾'                              { return 0.57721566490153286060; }
+  / 'γ'                              { return 0.57721566490153286060; }
+
+JsDecimalLiteral
+  = JsDecimalIntegerLiteral "." DecimalDigit* JsNExponentPart? { return parseFloat(text()); }
+  /                         "." DecimalDigit+ JsNExponentPart? { return parseFloat(text()); }
+  / JsDecimalIntegerLiteral                   JsNExponentPart? { return parseFloat(text()); }
+
+JsDecimalIntegerLiteral
+  = "0"
+  / NonZeroDigit DecimalDigit*
+
+JsNExponentPart
+  = JsNExponentIndicator JsNSignedInteger
+
+JsNExponentIndicator
+  = "e"i
+
+JsNSignedInteger
+  = [+-]? DecimalDigit+
+
+JsHexIntegerLiteral
+  = "0x"i digits:$HexDigit+ {
+      return parseInt(digits, 16);
+     }
+
+JsBinaryIntegerLiteral
+  = "0b"i digits:$BinaryDigit+ {
+      return parseInt(digits, 2);
+     }
+
+NonJsOctalIntegerLiteral
+  = "0o"i digits:$OctalDigit+ {
+      return parseInt(digits, 8);
+     }
 
 
 
@@ -864,6 +965,17 @@ MachineAttribute "machine attribute"
 
 
 
+PropertyVal
+  = String
+  / Boolean
+  / JsNumericLiteral
+  / Null
+  / Undefined
+
+
+
+
+
 SdStateColor "color"
   = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? { return { key:'color', value }; }
 
@@ -885,6 +997,13 @@ SdStateCorners "corners"
 SdStateLineStyle "linestyle"
   = WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'linestyle', value }; }
 
+
+SdStateProperty "state property"
+  = WS? "property" WS? ":" WS? prop_name:Atom WS? value:PropertyVal WS? ";" WS? {
+    return { key: 'state property', prop_name, value }
+  }
+
+
 StateDeclarationItems
   = SdStateColor
   / SdStateTextColor
@@ -893,6 +1012,7 @@ StateDeclarationItems
   / SdStateShape
   / SdStateCorners
   / SdStateLineStyle
+  / SdStateProperty
 
 StateDeclarationDesc
   = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
@@ -911,48 +1031,8 @@ NamedList
 
 
 
-MachinePropertyDefaultNull
-  = 'null' { return null; }
-
-MachinePropertyDefaultUndefined
-  = 'undefined' { return undefined; }
-
-MachinePropertyDefaultBoolean
-  = Boolean
-
-MachinePropertyDefaultNumber
-  = '-'? IntegerLiteral "." DecimalDigit* WS? { return parseFloat( text() ); }
-  / '-'? IntegerLiteral                   WS? { return parseFloat( text() ); }
-  / 'Infinity'
-  / 'NegInfinity'
-  / 'NaN'
-  / 'MaxSafeInt'
-  / 'MinSafeInt'
-
-MachinePropertyDefaultString
-  = '"' chars:MachinePropertyDefaultStringCharacter* '"' { return chars.join(''); }
-
-MachinePropertyDefaultStringCharacter
-  = !('"' / "\\") char:.                                     { return char;     }
-  / "\\" sequence:MachinePropertyDefaultStringEscapeSequence { return sequence; }
-
-MachinePropertyDefaultStringEscapeSequence
-  = "'"
-  / '"'
-  / "\\"
-  / "b"  { return "\b";   }
-  / "f"  { return "\f";   }
-  / "n"  { return "\n";   }
-  / "r"  { return "\r";   }
-  / "t"  { return "\t";   }
-  / "v"  { return "\x0B"; }
-
 MachinePropertyDefault
-  = MachinePropertyDefaultNull
-  / MachinePropertyDefaultUndefined
-  / MachinePropertyDefaultBoolean
-  / MachinePropertyDefaultNumber
-  / MachinePropertyDefaultString
+  = PropertyVal
 //   / MachinePropertyDefaultArray
 //   / MachinePropertyDefaultObject
 
