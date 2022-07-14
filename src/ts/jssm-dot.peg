@@ -999,8 +999,8 @@ SdStateLineStyle "linestyle"
 
 
 SdStateProperty "state property"
-  = WS? "property" WS? ":" WS? prop_name:Atom WS? value:PropertyVal WS? ";" WS? {
-    return { key: 'state property', prop_name, value }
+  = WS? "property" WS? ":" WS? name:Atom WS? value:PropertyVal WS? ";" WS? {
+    return { key: 'state_property', name, value }
   }
 
 

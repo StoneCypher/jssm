@@ -1314,8 +1314,8 @@ var jssm = (function (exports) {
           return { config_kind: "action", config_items: action_items || [] };
       }, peg$c1275 = function (transitionkey, value) { return { key: transitionkey, value: value }; }, peg$c1276 = peg$otherExpectation("graph default edge color"), peg$c1277 = function (value) { return { key: 'graph_default_edge_color', value: value }; }, peg$c1278 = "transition", peg$c1279 = peg$literalExpectation("transition", false), peg$c1280 = function (transition_items) {
           return { config_kind: "transition", config_items: transition_items || [] };
-      }, peg$c1281 = "graph_layout", peg$c1282 = peg$literalExpectation("graph_layout", false), peg$c1283 = function (value) { return { key: "graph_layout", value: value }; }, peg$c1284 = "start_states", peg$c1285 = peg$literalExpectation("start_states", false), peg$c1286 = function (value) { return { key: "start_states", value: value }; }, peg$c1287 = "end_states", peg$c1288 = peg$literalExpectation("end_states", false), peg$c1289 = function (value) { return { key: "end_states", value: value }; }, peg$c1290 = "graph_bg_color", peg$c1291 = peg$literalExpectation("graph_bg_color", false), peg$c1292 = function (value) { return { key: "graph_bg_color", value: value }; }, peg$c1293 = peg$otherExpectation("configuration"), peg$c1294 = "MIT", peg$c1295 = peg$literalExpectation("MIT", false), peg$c1296 = "BSD 2-clause", peg$c1297 = peg$literalExpectation("BSD 2-clause", false), peg$c1298 = "BSD 3-clause", peg$c1299 = peg$literalExpectation("BSD 3-clause", false), peg$c1300 = "Apache 2.0", peg$c1301 = peg$literalExpectation("Apache 2.0", false), peg$c1302 = "Mozilla 2.0", peg$c1303 = peg$literalExpectation("Mozilla 2.0", false), peg$c1304 = "Public domain", peg$c1305 = peg$literalExpectation("Public domain", false), peg$c1306 = "GPL v2", peg$c1307 = peg$literalExpectation("GPL v2", false), peg$c1308 = "GPL v3", peg$c1309 = peg$literalExpectation("GPL v3", false), peg$c1310 = "LGPL v2.1", peg$c1311 = peg$literalExpectation("LGPL v2.1", false), peg$c1312 = "LGPL v3.0", peg$c1313 = peg$literalExpectation("LGPL v3.0", false), peg$c1314 = "Unknown", peg$c1315 = peg$literalExpectation("Unknown", false), peg$c1316 = peg$otherExpectation("direction"), peg$c1317 = "up", peg$c1318 = peg$literalExpectation("up", false), peg$c1319 = "right", peg$c1320 = peg$literalExpectation("right", false), peg$c1321 = "down", peg$c1322 = peg$literalExpectation("down", false), peg$c1323 = "left", peg$c1324 = peg$literalExpectation("left", false), peg$c1325 = peg$otherExpectation("hook definition (open/closed)"), peg$c1326 = "open", peg$c1327 = peg$literalExpectation("open", false), peg$c1328 = "closed", peg$c1329 = peg$literalExpectation("closed", false), peg$c1330 = "machine_author", peg$c1331 = peg$literalExpectation("machine_author", false), peg$c1332 = function (value) { return { key: "machine_author", value }; }, peg$c1333 = "machine_contributor", peg$c1334 = peg$literalExpectation("machine_contributor", false), peg$c1335 = function (value) { return { key: "machine_contributor", value }; }, peg$c1336 = "machine_comment", peg$c1337 = peg$literalExpectation("machine_comment", false), peg$c1338 = function (value) { return { key: "machine_comment", value }; }, peg$c1339 = "machine_definition", peg$c1340 = peg$literalExpectation("machine_definition", false), peg$c1341 = function (value) { return { key: "machine_definition", value }; }, peg$c1342 = "machine_name", peg$c1343 = peg$literalExpectation("machine_name", false), peg$c1344 = function (value) { return { key: "machine_name", value }; }, peg$c1348 = "machine_version", peg$c1349 = peg$literalExpectation("machine_version", false), peg$c1350 = function (value) { return { key: "machine_version", value }; }, peg$c1351 = "machine_license", peg$c1352 = peg$literalExpectation("machine_license", false), peg$c1353 = function (value) { return { key: "machine_license", value }; }, peg$c1354 = "machine_language", peg$c1355 = peg$literalExpectation("machine_language", false), peg$c1356 = function (value) { return { key: "machine_language", value }; }, peg$c1357 = "fsl_version", peg$c1358 = peg$literalExpectation("fsl_version", false), peg$c1359 = function (value) { return { key: "fsl_version", value }; }, peg$c1360 = "theme", peg$c1361 = peg$literalExpectation("theme", false), peg$c1362 = function (value) { return { key: "theme", value }; }, peg$c1363 = "flow", peg$c1364 = peg$literalExpectation("flow", false), peg$c1365 = function (value) { return { key: "flow", value }; }, peg$c1366 = "hooks", peg$c1367 = peg$literalExpectation("hooks", false), peg$c1368 = function (value) { return { key: "hook_definition", value }; }, peg$c1369 = "dot_preamble", peg$c1370 = peg$literalExpectation("dot_preamble", false), peg$c1371 = function (value) { return { key: "dot_preamble", value }; }, peg$c1372 = peg$otherExpectation("machine attribute"), peg$c1373 = "color", peg$c1374 = peg$literalExpectation("color", false), peg$c1375 = function (value) { return { key: 'color', value }; }, peg$c1376 = peg$otherExpectation("text color"), peg$c1377 = "text-color", peg$c1378 = peg$literalExpectation("text-color", false), peg$c1379 = function (value) { return { key: 'text-color', value }; }, peg$c1380 = peg$otherExpectation("background color"), peg$c1381 = "background-color", peg$c1382 = peg$literalExpectation("background-color", false), peg$c1383 = function (value) { return { key: 'background-color', value }; }, peg$c1384 = peg$otherExpectation("border color"), peg$c1385 = "border-color", peg$c1386 = peg$literalExpectation("border-color", false), peg$c1387 = function (value) { return { key: 'border-color', value }; }, peg$c1388 = peg$otherExpectation("shape"), peg$c1389 = function (value) { return { key: 'shape', value }; }, peg$c1390 = peg$otherExpectation("corners"), peg$c1391 = "corners", peg$c1392 = peg$literalExpectation("corners", false), peg$c1393 = function (value) { return { key: 'corners', value }; }, peg$c1394 = peg$otherExpectation("linestyle"), peg$c1395 = function (value) { return { key: 'linestyle', value }; }, peg$c1396 = peg$otherExpectation("state property"), peg$c1397 = "property", peg$c1398 = peg$literalExpectation("property", false), peg$c1399 = function (prop_name, value) {
-          return { key: 'state property', prop_name, value };
+      }, peg$c1281 = "graph_layout", peg$c1282 = peg$literalExpectation("graph_layout", false), peg$c1283 = function (value) { return { key: "graph_layout", value: value }; }, peg$c1284 = "start_states", peg$c1285 = peg$literalExpectation("start_states", false), peg$c1286 = function (value) { return { key: "start_states", value: value }; }, peg$c1287 = "end_states", peg$c1288 = peg$literalExpectation("end_states", false), peg$c1289 = function (value) { return { key: "end_states", value: value }; }, peg$c1290 = "graph_bg_color", peg$c1291 = peg$literalExpectation("graph_bg_color", false), peg$c1292 = function (value) { return { key: "graph_bg_color", value: value }; }, peg$c1293 = peg$otherExpectation("configuration"), peg$c1294 = "MIT", peg$c1295 = peg$literalExpectation("MIT", false), peg$c1296 = "BSD 2-clause", peg$c1297 = peg$literalExpectation("BSD 2-clause", false), peg$c1298 = "BSD 3-clause", peg$c1299 = peg$literalExpectation("BSD 3-clause", false), peg$c1300 = "Apache 2.0", peg$c1301 = peg$literalExpectation("Apache 2.0", false), peg$c1302 = "Mozilla 2.0", peg$c1303 = peg$literalExpectation("Mozilla 2.0", false), peg$c1304 = "Public domain", peg$c1305 = peg$literalExpectation("Public domain", false), peg$c1306 = "GPL v2", peg$c1307 = peg$literalExpectation("GPL v2", false), peg$c1308 = "GPL v3", peg$c1309 = peg$literalExpectation("GPL v3", false), peg$c1310 = "LGPL v2.1", peg$c1311 = peg$literalExpectation("LGPL v2.1", false), peg$c1312 = "LGPL v3.0", peg$c1313 = peg$literalExpectation("LGPL v3.0", false), peg$c1314 = "Unknown", peg$c1315 = peg$literalExpectation("Unknown", false), peg$c1316 = peg$otherExpectation("direction"), peg$c1317 = "up", peg$c1318 = peg$literalExpectation("up", false), peg$c1319 = "right", peg$c1320 = peg$literalExpectation("right", false), peg$c1321 = "down", peg$c1322 = peg$literalExpectation("down", false), peg$c1323 = "left", peg$c1324 = peg$literalExpectation("left", false), peg$c1325 = peg$otherExpectation("hook definition (open/closed)"), peg$c1326 = "open", peg$c1327 = peg$literalExpectation("open", false), peg$c1328 = "closed", peg$c1329 = peg$literalExpectation("closed", false), peg$c1330 = "machine_author", peg$c1331 = peg$literalExpectation("machine_author", false), peg$c1332 = function (value) { return { key: "machine_author", value }; }, peg$c1333 = "machine_contributor", peg$c1334 = peg$literalExpectation("machine_contributor", false), peg$c1335 = function (value) { return { key: "machine_contributor", value }; }, peg$c1336 = "machine_comment", peg$c1337 = peg$literalExpectation("machine_comment", false), peg$c1338 = function (value) { return { key: "machine_comment", value }; }, peg$c1339 = "machine_definition", peg$c1340 = peg$literalExpectation("machine_definition", false), peg$c1341 = function (value) { return { key: "machine_definition", value }; }, peg$c1342 = "machine_name", peg$c1343 = peg$literalExpectation("machine_name", false), peg$c1344 = function (value) { return { key: "machine_name", value }; }, peg$c1348 = "machine_version", peg$c1349 = peg$literalExpectation("machine_version", false), peg$c1350 = function (value) { return { key: "machine_version", value }; }, peg$c1351 = "machine_license", peg$c1352 = peg$literalExpectation("machine_license", false), peg$c1353 = function (value) { return { key: "machine_license", value }; }, peg$c1354 = "machine_language", peg$c1355 = peg$literalExpectation("machine_language", false), peg$c1356 = function (value) { return { key: "machine_language", value }; }, peg$c1357 = "fsl_version", peg$c1358 = peg$literalExpectation("fsl_version", false), peg$c1359 = function (value) { return { key: "fsl_version", value }; }, peg$c1360 = "theme", peg$c1361 = peg$literalExpectation("theme", false), peg$c1362 = function (value) { return { key: "theme", value }; }, peg$c1363 = "flow", peg$c1364 = peg$literalExpectation("flow", false), peg$c1365 = function (value) { return { key: "flow", value }; }, peg$c1366 = "hooks", peg$c1367 = peg$literalExpectation("hooks", false), peg$c1368 = function (value) { return { key: "hook_definition", value }; }, peg$c1369 = "dot_preamble", peg$c1370 = peg$literalExpectation("dot_preamble", false), peg$c1371 = function (value) { return { key: "dot_preamble", value }; }, peg$c1372 = peg$otherExpectation("machine attribute"), peg$c1373 = "color", peg$c1374 = peg$literalExpectation("color", false), peg$c1375 = function (value) { return { key: 'color', value }; }, peg$c1376 = peg$otherExpectation("text color"), peg$c1377 = "text-color", peg$c1378 = peg$literalExpectation("text-color", false), peg$c1379 = function (value) { return { key: 'text-color', value }; }, peg$c1380 = peg$otherExpectation("background color"), peg$c1381 = "background-color", peg$c1382 = peg$literalExpectation("background-color", false), peg$c1383 = function (value) { return { key: 'background-color', value }; }, peg$c1384 = peg$otherExpectation("border color"), peg$c1385 = "border-color", peg$c1386 = peg$literalExpectation("border-color", false), peg$c1387 = function (value) { return { key: 'border-color', value }; }, peg$c1388 = peg$otherExpectation("shape"), peg$c1389 = function (value) { return { key: 'shape', value }; }, peg$c1390 = peg$otherExpectation("corners"), peg$c1391 = "corners", peg$c1392 = peg$literalExpectation("corners", false), peg$c1393 = function (value) { return { key: 'corners', value }; }, peg$c1394 = peg$otherExpectation("linestyle"), peg$c1395 = function (value) { return { key: 'linestyle', value }; }, peg$c1396 = peg$otherExpectation("state property"), peg$c1397 = "property", peg$c1398 = peg$literalExpectation("property", false), peg$c1399 = function (name, value) {
+          return { key: 'state_property', name, value };
       }, peg$c1400 = function (name, value) { return { key: 'state_declaration', name, value }; }, peg$c1401 = "&", peg$c1402 = peg$literalExpectation("&", false), peg$c1403 = function (name, value) { return { key: 'named_list', name, value }; }, peg$c1404 = function (name, default_value) { return { key: 'property_definition', name, default_value }; }, peg$c1405 = function (name) { return { key: 'property_definition', name }; }, peg$c1406 = "arrange", peg$c1407 = peg$literalExpectation("arrange", false), peg$c1408 = function (value) { return { key: 'arrange_declaration', value }; }, peg$c1409 = "arrange-start", peg$c1410 = peg$literalExpectation("arrange-start", false), peg$c1411 = function (value) { return { key: 'arrange_start_declaration', value }; }, peg$c1412 = "arrange-end", peg$c1413 = peg$literalExpectation("arrange-end", false), peg$c1414 = function (value) { return { key: 'arrange_end_declaration', value }; }, peg$c1415 = peg$otherExpectation("arrange declaration"), peg$currPos = 0, peg$savedPos = 0, peg$posDetailsCache = [{ line: 1, column: 1 }], peg$maxFailPos = 0, peg$maxFailExpected = [], peg$silentFails = 0, peg$result;
       if ("startRule" in options) {
           if (!(options.startRule in peg$startRuleFunctions)) {
@@ -18207,6 +18207,7 @@ var jssm = (function (exports) {
               return { agg_as: 'property_definition', val: { name: rule.name } };
           }
       }
+      // state properties are in here
       if (rule.key === 'state_declaration') {
           if (!rule.name) {
               throw new JssmError(undefined, 'State declarations must have a name');
@@ -18298,6 +18299,7 @@ var jssm = (function (exports) {
           machine_name: [],
           machine_reference: [],
           property_definition: [],
+          state_property: {},
           theme: [],
           flow: [],
           dot_preamble: [],
@@ -18317,7 +18319,8 @@ var jssm = (function (exports) {
       const assembled_transitions = [].concat(...results['transition']);
       const result_cfg = {
           start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
-          transitions: assembled_transitions
+          transitions: assembled_transitions,
+          state_property: []
       };
       const oneOnlyKeys = [
           'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
@@ -18340,6 +18343,22 @@ var jssm = (function (exports) {
           if (results[multiKey].length) {
               result_cfg[multiKey] = results[multiKey];
           }
+      });
+      // re-walk state declarations, already wrapped up, to get state properties,
+      // which go out in a different datastructure
+      results.state_declaration.forEach(sd => {
+          sd.declarations.forEach(decl => {
+              if (decl.key === 'state_property') {
+                  const label = name_bind_prop_and_state(decl.name, sd.state);
+                  console.log(`Bind ${sd.state}:${decl.name} as ${label}`);
+                  if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
+                      throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`);
+                  }
+                  else {
+                      result_cfg.state_property.push({ name: label, default_value: decl.value });
+                  }
+              }
+          });
       });
       return result_cfg;
   }
@@ -18390,6 +18409,9 @@ var jssm = (function (exports) {
               case 'border-color':
                   state_decl.borderColor = d.value;
                   break;
+              case 'state_property':
+                  state_decl.property = { name: d.name, value: d.value };
+                  break;
               default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
           }
       });
@@ -18398,7 +18420,7 @@ var jssm = (function (exports) {
   // TODO add a lotta docblock here
   class Machine {
       // whargarbl this badly needs to be broken up, monolith master
-      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data }) {
+      constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data }) {
           this._instance_name = instance_name;
           this._state = start_states[0];
           this._states = new Map();
@@ -18571,6 +18593,11 @@ var jssm = (function (exports) {
                   }
               });
           }
+          if (Array.isArray(state_property)) {
+              state_property.forEach(sp => {
+                  this._state_properties.set(sp.name, sp.default_value);
+              });
+          }
       }
       /********
        *
@@ -18655,7 +18682,7 @@ var jssm = (function (exports) {
       prop(name) {
           const bound_name = name_bind_prop_and_state(name, this.state());
           if (this._state_properties.has(bound_name)) {
-              return this._state_properties.has(bound_name);
+              return this._state_properties.get(bound_name);
           }
           else if (this._default_properties.has(name)) {
               return this._default_properties.get(name);

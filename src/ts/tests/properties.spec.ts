@@ -1,7 +1,8 @@
 
 import * as jssm from '../jssm';
-
 const sm = jssm.sm;
+
+import { JssmGenericConfig } from '../jssm_types';
 
 
 
@@ -143,6 +144,54 @@ describe('Creating with properties doesn\'t throw', () => {
 
 });
 
+
+
+
+
+describe('Basic usage', () => {
+
+  const traffic_light = sm`
+
+    property can_go     default true;
+    property hesitate   default true;
+    property stop_first default false;
+
+    Off -> Red => Green => Yellow => Red;
+    [Red Yellow Green] ~> Off;
+
+    state Red:         { property: stop_first true;  property: can_go false; };
+    state Off:         { property: stop_first true;  };
+    state Green:       { property: hesitate   false; };
+
+  `;
+
+  describe('Off state props', () => {
+    expect(traffic_light.state()).toBe('Off');
+    expect(traffic_light.props()).toStrictEqual({ can_go: true, hesitate: true, stop_first: true });
+  });
+
+  traffic_light.go('Red');
+
+  describe('Red state props', () => {
+    expect(traffic_light.state()).toBe('Red');
+    expect(traffic_light.props()).toStrictEqual({ can_go: false, hesitate: true, stop_first: true });
+  });
+
+  traffic_light.go('Green');
+
+  describe('Green state props', () => {
+    expect(traffic_light.state()).toBe('Green');
+    expect(traffic_light.props()).toStrictEqual({ can_go: true, hesitate: false, stop_first: false });
+  });
+
+  traffic_light.go('Yellow');
+
+  describe('Yellow state props', () => {
+    expect(traffic_light.state()).toBe('Yellow');
+    expect(traffic_light.props()).toStrictEqual({ can_go: true, hesitate: true, stop_first: false });
+  });
+
+});
 
 
 
@@ -297,5 +346,38 @@ describe('Invalid property errors', () => {
       const m = sm`property foo default "a"; property foo default "b"; a -> b;`;
     }).toThrow();
   });
+
+  test('Repeated state prop', () => {
+    expect(() => {
+      const m = sm`property foo default "a"; a -> b; state a: { property: a 1; property: a 1; };`;
+    }).toThrow();
+  });
+
+  test('Conflicted state prop', () => {
+    expect(() => {
+      const m = sm`property foo default "a"; a -> b; state a: { property: a 1; property: a 2; };`;
+    }).toThrow();
+  });
+
+});
+
+
+
+
+
+test('Indiana General Assembly of 1897 Bill 246', () => {
+
+  // https://en.wikipedia.org/wiki/Indiana_Pi_Bill
+
+  const TheLaw = sm`
+    property pi default Pi;
+    Earth->Indiana;
+    state Indiana: { property: pi 3.2; };
+  `;
+
+  expect(TheLaw.prop('pi')).toBe(Math.PI);
+
+  TheLaw.go('Indiana');
+  expect(TheLaw.prop('pi')).toBe(3.2);
 
 });

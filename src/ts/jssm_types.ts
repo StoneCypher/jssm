@@ -115,7 +115,7 @@ type JssmTransition<DataType> = {
 };
 
 type JssmTransitions<DataType> =
-  Array< JssmTransition<DataType> >;
+  JssmTransition<DataType>[];
 
 type JssmTransitionList = {
   entrances : Array<StateType>,
@@ -198,7 +198,8 @@ type JssmGenericMachine<DataType> = {
 
 type JssmStateDeclarationRule = {
   key   : string,
-  value : any  // TODO FIXME COMEBACK enumerate types against concrete keys
+  value : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
+  name? : string
 };
 
 type JssmStateDeclaration = {
@@ -214,7 +215,8 @@ type JssmStateDeclaration = {
   backgroundColor? : JssmColor,
   borderColor?     : JssmColor,
 
-  state            : StateType
+  state            : StateType,
+  property?        : { name: string, value: unknown }
 
 };
 
@@ -252,8 +254,9 @@ type JssmGenericConfig<DataType> = {
   start_states               : Array<StateType>,
   end_states?                : Array<StateType>,
 
-  state_declaration?         : Array<Object>,
-  property_definition?       : Array<JssmPropertyDefinition>,
+  state_declaration?         : Object[],
+  property_definition?       : JssmPropertyDefinition[],
+  state_property?            : JssmPropertyDefinition[]
 
   arrange_declaration?       : Array<Array<StateType>>,
   arrange_start_declaration? : Array<Array<StateType>>,
@@ -313,6 +316,7 @@ type JssmCompileSeStart<DataType> = {
   key            : string,
   value?         : string | number,
   name?          : string,
+  state?         : string,
   default_value? : any      // for properties
 
 };

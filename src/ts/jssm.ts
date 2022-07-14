@@ -13,7 +13,7 @@ import { circular_buffer }         from 'circular_buffer_js';
 import {
 
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList, // JssmTransitionRule,
+  JssmTransition, JssmTransitions, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
@@ -455,6 +455,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     }
   }
 
+  // state properties are in here
   if (rule.key === 'state_declaration') {
     if (!rule.name) { throw new JssmError(undefined, 'State declarations must have a name'); }
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
@@ -545,7 +546,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     start_states              : Array<string>,
     end_states                : Array<string>,
     state_config              : Array<any>,           // TODO COMEBACK no any
-    state_declaration         : Array<string>,
+    state_declaration         : Array<JssmStateDeclaration>,
     fsl_version               : Array<string>,
     machine_author            : Array<string>,
     machine_comment           : Array<string>,
@@ -556,6 +557,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     machine_name              : Array<string>,
     machine_reference         : Array<string>,
     property_definition       : Array<JssmPropertyDefinition>,
+    state_property            : { [name: string]: JssmPropertyDefinition },
     theme                     : Array<string>,
     flow                      : Array<string>,
     dot_preamble              : Array<string>,
@@ -580,6 +582,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     machine_name              : [],
     machine_reference         : [],
     property_definition       : [],
+    state_property            : {},
     theme                     : [],
     flow                      : [],
     dot_preamble              : [],
@@ -606,11 +609,12 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`);
   }
 
-  const assembled_transitions: Array<JssmTransition<mDT>> = [].concat(...results['transition']);
+  const assembled_transitions: JssmTransitions<mDT> = [].concat(...results['transition']);
 
   const result_cfg: JssmGenericConfig<mDT> = {
-    start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
-    transitions: assembled_transitions
+    start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],
+    transitions    : assembled_transitions,
+    state_property : []
   };
 
   const oneOnlyKeys: Array<string> = [
@@ -640,6 +644,25 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
         }
       }
     );
+
+  // re-walk state declarations, already wrapped up, to get state properties,
+  // which go out in a different datastructure
+  results.state_declaration.forEach(sd => {
+    sd.declarations.forEach(decl => {
+
+      if (decl.key === 'state_property') {
+        const label = name_bind_prop_and_state(decl.name, sd.state)
+        console.log(`Bind ${sd.state}:${decl.name} as ${label}`);
+
+        if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
+          throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`);
+        } else {
+          result_cfg.state_property.push({ name: label, default_value: decl.value });
+        }
+      }
+
+    });
+  });
 
   return result_cfg;
 
@@ -693,6 +716,8 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'text-color'       : state_decl.textColor       = d.value; break;
       case 'background-color' : state_decl.backgroundColor = d.value; break;
       case 'border-color'     : state_decl.borderColor     = d.value; break;
+
+      case 'state_property'   : state_decl.property        = { name: d.name, value: d.value }; break;
 
       default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
 
@@ -811,6 +836,7 @@ class Machine<mDT> {
     machine_version,
     state_declaration,
     property_definition,
+    state_property,
     fsl_version,
     dot_preamble              = undefined,
     arrange_declaration       = [],
@@ -1039,6 +1065,15 @@ class Machine<mDT> {
     }
 
 
+    if (Array.isArray(state_property)) {
+
+      state_property.forEach(sp => {
+        this._state_properties.set(sp.name, sp.default_value);
+      });
+
+    }
+
+
   }
 
 
@@ -1154,7 +1189,7 @@ class Machine<mDT> {
     const bound_name = name_bind_prop_and_state(name, this.state());
 
     if (this._state_properties.has(bound_name)) {
-      return this._state_properties.has(bound_name);
+      return this._state_properties.get(bound_name);
 
     } else if (this._default_properties.has(name)) {
       return this._default_properties.get(name);

@@ -7,6 +7,9 @@ import {
   name_bind_prop_and_state
 } from '../jssm_util';
 
+import { unique        as jssm_unique        } from '../jssm';
+import { find_repeated as jssm_find_repeated } from '../jssm';
+
 
 
 
@@ -188,6 +191,10 @@ describe('unique', () => {
     expect(unique<number>([1,2,1.0,2.0])).toStrictEqual([1,2]);
   });
 
+  test('external call 1,2,1.0,2.0', () => {
+    expect(jssm_unique<number>([1,2,1.0,2.0])).toStrictEqual([1,2]);
+  });
+
   test('"one","two","one"', () => {
     expect(unique<string>(["one","two","one"])).toStrictEqual(["one","two"]);
   });
@@ -246,6 +253,10 @@ describe('find_repeated', () => {
 
   test('"a","b","c","b","a"', () => {
     expect(find_repeated<number>([0, NaN, 0, NaN])).toStrictEqual([ [0,2] ]);
+  });
+
+  test('External call "a","b","c","b","a"', () => {
+    expect(jssm_find_repeated<number>([0, NaN, 0, NaN])).toStrictEqual([ [0,2] ]);
   });
 
 });

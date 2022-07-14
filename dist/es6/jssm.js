@@ -360,6 +360,7 @@ function compile_rule_handler(rule) {
             return { agg_as: 'property_definition', val: { name: rule.name } };
         }
     }
+    // state properties are in here
     if (rule.key === 'state_declaration') {
         if (!rule.name) {
             throw new JssmError(undefined, 'State declarations must have a name');
@@ -451,6 +452,7 @@ function compile(tree) {
         machine_name: [],
         machine_reference: [],
         property_definition: [],
+        state_property: {},
         theme: [],
         flow: [],
         dot_preamble: [],
@@ -470,7 +472,8 @@ function compile(tree) {
     const assembled_transitions = [].concat(...results['transition']);
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
-        transitions: assembled_transitions
+        transitions: assembled_transitions,
+        state_property: []
     };
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
@@ -493,6 +496,22 @@ function compile(tree) {
         if (results[multiKey].length) {
             result_cfg[multiKey] = results[multiKey];
         }
+    });
+    // re-walk state declarations, already wrapped up, to get state properties,
+    // which go out in a different datastructure
+    results.state_declaration.forEach(sd => {
+        sd.declarations.forEach(decl => {
+            if (decl.key === 'state_property') {
+                const label = name_bind_prop_and_state(decl.name, sd.state);
+                console.log(`Bind ${sd.state}:${decl.name} as ${label}`);
+                if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
+                    throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`);
+                }
+                else {
+                    result_cfg.state_property.push({ name: label, default_value: decl.value });
+                }
+            }
+        });
     });
     return result_cfg;
 }
@@ -543,6 +562,9 @@ function transfer_state_properties(state_decl) {
             case 'border-color':
                 state_decl.borderColor = d.value;
                 break;
+            case 'state_property':
+                state_decl.property = { name: d.name, value: d.value };
+                break;
             default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
         }
     });
@@ -551,7 +573,7 @@ function transfer_state_properties(state_decl) {
 // TODO add a lotta docblock here
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data }) {
+    constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data }) {
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -724,6 +746,11 @@ class Machine {
                 }
             });
         }
+        if (Array.isArray(state_property)) {
+            state_property.forEach(sp => {
+                this._state_properties.set(sp.name, sp.default_value);
+            });
+        }
     }
     /********
      *
@@ -808,7 +835,7 @@ class Machine {
     prop(name) {
         const bound_name = name_bind_prop_and_state(name, this.state());
         if (this._state_properties.has(bound_name)) {
-            return this._state_properties.has(bound_name);
+            return this._state_properties.get(bound_name);
         }
         else if (this._default_properties.has(name)) {
             return this._default_properties.get(name);
