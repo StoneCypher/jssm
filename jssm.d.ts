@@ -1,7 +1,7 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
 JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
-import { seq, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import { shapes, gviz_shapes, named_colors } from './jssm_constants';
 import { version } from './version';
 /*********
@@ -250,9 +250,12 @@ declare class Machine<mDT> {
     _post_main_transition_hook: HookHandler<mDT> | undefined;
     _post_forced_transition_hook: HookHandler<mDT> | undefined;
     _post_any_transition_hook: HookHandler<mDT> | undefined;
+    _property_keys: Set<string>;
+    _default_properties: Map<string, any>;
+    _state_properties: Map<string, any>;
     _history: JssmHistory<mDT>;
     _history_length: number;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
+    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -294,6 +297,105 @@ declare class Machine<mDT> {
      *
      */
     data(): mDT;
+    /*********
+     *
+     *  Get the current value of a given property name.
+     *
+     *  ```typescript
+     *
+     *  ```
+     *
+     *  @param name The relevant property name to look up
+     *
+     *  @returns The value behind the prop name.  Because functional props are
+     *  evaluated as getters, this can be anything.
+     *
+     */
+    prop(name: string): any;
+    /*********
+     *
+     *  Get the current value of every prop, as an object.  If no current definition
+     *  exists for a prop - that is, if the prop was defined without a default and
+     *  the current state also doesn't define the prop - then that prop will be listed
+     *  in the returned object with a value of `undefined`.
+     *
+     *  ```typescript
+     *  const traffic_light = sm`
+     *
+     *    property can_go     default true;
+     *    property hesitate   default true;
+     *    property stop_first default false;
+     *
+     *    Off -> Red => Green => Yellow => Red;
+     *    [Red Yellow Green] ~> [Off FlashingRed];
+     *    FlashingRed -> Red;
+     *
+     *    state Red:         { property stop_first true;  property can_go false; };
+     *    state Off:         { property stop_first true;  };
+     *    state FlashingRed: { property stop_first true;  };
+     *    state Green:       { property hesitate   false; };
+     *
+     *  `;
+     *
+     *  traffic_light.state();  // Off
+     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+     *
+     *  traffic_light.go('Red');
+     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+     *
+     *  traffic_light.go('Green');
+     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+     *  ```
+     *
+     */
+    props(): object;
+    /*********
+     *
+     *  Get the current value of every prop, as an object.  Compare
+     *  {@link prop_map}, which returns a `Map`.
+     *
+     *  ```typescript
+     *
+     *  ```
+     *
+     */
+    /*********
+     *
+     *  Get the current value of every prop, as an object.  Compare
+     *  {@link prop_map}, which returns a `Map`.  Akin to {@link strict_prop},
+     *  this throws if a required prop is missing.
+     *
+     *  ```typescript
+     *
+     *  ```
+     *
+     */
+    /*********
+     *
+     *  Check whether a given string is a known property's name.
+     *
+     *  ```typescript
+     *  const example = sm`property foo default 1; a->b;`;
+     *
+     *  example.known_prop('foo');  // true
+     *  example.known_prop('bar');  // false
+     *  ```
+     *
+     *  @param prop_name The relevant property name to look up
+     *
+     */
+    known_prop(prop_name: string): boolean;
+    /*********
+     *
+     *  List all known property names.  If you'd also like values, use
+     *  {@link props} instead.  The order of the properties is not defined, and
+     *  the properties generally will not be sorted.
+     *
+     *  ```typescript
+     *  ```
+     *
+     */
+    known_props(): string[];
     /********
      *
      *  Check whether a given state is final (either has no exits or is marked
@@ -696,15 +798,27 @@ declare class Machine<mDT> {
      *  Instruct the machine to complete an action.  Synonym for {@link action}.
      *
      *  ```typescript
-     *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *  const light = sm`
+     *    off 'start' -> red;
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off;
+     *  `;
      *
-     *  light.state();           // 'red'
-     *  light.do('next');        // true
-     *  light.state();           // 'green'
+     *  light.state();       // 'off'
+     *  light.do('start');   // true
+     *  light.state();       // 'red'
+     *  light.do('next');    // true
+     *  light.state();       // 'green'
+     *  light.do('next');    // true
+     *  light.state();       // 'yellow'
+     *  light.do('dance');   // !! false - no such action
+     *  light.state();       // 'yellow'
+     *  light.do('start');   // !! false - yellow does not have the action start
+     *  light.state();       // 'yellow'
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
-     *
+  b   *
      *  @param actionName The action to engage
      *
      *  @param newData The data change to insert during the action
@@ -716,11 +830,21 @@ declare class Machine<mDT> {
      *  Instruct the machine to complete a transition.  Synonym for {@link go}.
      *
      *  ```typescript
-     *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+     *  const light = sm`
+     *    off 'start' -> red;
+     *    red 'next' -> green 'next' -> yellow 'next' -> red;
+     *    [red yellow green] 'shutdown' ~> off;
+     *  `;
      *
-     *  light.state();               // 'red'
-     *  light.transition('green');   // true
-     *  light.state();               // 'green'
+     *  light.state();       // 'off'
+     *  light.go('red');     // true
+     *  light.state();       // 'red'
+     *  light.go('green');   // true
+     *  light.state();       // 'green'
+     *  light.go('blue');    // !! false - no such state
+     *  light.state();       // 'green'
+     *  light.go('red');     // !! false - green may not go directly to red, only to yellow
+     *  light.state();       // 'green'
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -833,4 +957,4 @@ declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResu
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };
+export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };

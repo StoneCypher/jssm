@@ -13,7 +13,7 @@ import { circular_buffer }         from 'circular_buffer_js';
 import {
 
   JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList, // JssmTransitionRule,
+  JssmTransition, JssmTransitions, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
@@ -22,6 +22,7 @@ import {
   JssmLayout,
   JssmHistory,
   JssmSerialization,
+  JssmPropertyDefinition,
   FslDirection, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult
 
@@ -32,8 +33,12 @@ import {
 
 
 import {
-  seq, weighted_rand_select, weighted_sample_select, histograph,
-  weighted_histo_key, array_box_if_string, hook_name, named_hook_name
+  seq,
+  unique, find_repeated,
+  weighted_rand_select, weighted_sample_select,
+  histograph, weighted_histo_key,
+  array_box_if_string,
+  name_bind_prop_and_state, hook_name, named_hook_name
 } from './jssm_util';
 
 
@@ -383,8 +388,8 @@ function compile_rule_transition_step<mDT>(
   const uFrom: Array<string> = (Array.isArray(from) ? from : [from]),
     uTo: Array<string> = (Array.isArray(to) ? to : [to]);
 
-  uFrom.map((f: string) => {
-    uTo.map((t: string) => {
+  uFrom.map( (f: string) => {
+    uTo.map( (t: string) => {
 
       const right: JssmTransition<mDT> = makeTransition(this_se, f, t, true);
       if (right.kind !== 'none') { edges.push(right); }
@@ -441,6 +446,16 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
   }
 
+  // manually rehandled to make `undefined` as a property safe
+  if (rule.key === 'property_definition') {
+    if (rule.hasOwnProperty('default_value')) {
+      return { agg_as: 'property_definition', val: { name: rule.name, default_value: rule.default_value } };
+    } else {
+      return { agg_as: 'property_definition', val: { name: rule.name } };
+    }
+  }
+
+  // state properties are in here
   if (rule.key === 'state_declaration') {
     if (!rule.name) { throw new JssmError(undefined, 'State declarations must have a name'); }
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
@@ -451,6 +466,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     return { agg_as: rule.key, val: [rule.value] };
   }
 
+  // things that can only exist once and are just a value under their own name
   const tautologies: Array<string> = [
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
@@ -530,7 +546,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     start_states              : Array<string>,
     end_states                : Array<string>,
     state_config              : Array<any>,           // TODO COMEBACK no any
-    state_declaration         : Array<string>,
+    state_declaration         : Array<JssmStateDeclaration>,
     fsl_version               : Array<string>,
     machine_author            : Array<string>,
     machine_comment           : Array<string>,
@@ -540,6 +556,8 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     machine_license           : Array<string>,
     machine_name              : Array<string>,
     machine_reference         : Array<string>,
+    property_definition       : Array<JssmPropertyDefinition>,
+    state_property            : { [name: string]: JssmPropertyDefinition },
     theme                     : Array<string>,
     flow                      : Array<string>,
     dot_preamble              : Array<string>,
@@ -563,6 +581,8 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
     machine_license           : [],
     machine_name              : [],
     machine_reference         : [],
+    property_definition       : [],
+    state_property            : {},
     theme                     : [],
     flow                      : [],
     dot_preamble              : [],
@@ -582,11 +602,19 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   });
 
-  const assembled_transitions: Array<JssmTransition<mDT>> = [].concat(...results['transition']);
+  const property_keys = results['property_definition'].map(pd => pd.name),
+        repeat_props  = find_repeated(property_keys);
+
+  if (repeat_props.length) {
+    throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`);
+  }
+
+  const assembled_transitions: JssmTransitions<mDT> = [].concat(...results['transition']);
 
   const result_cfg: JssmGenericConfig<mDT> = {
-    start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
-    transitions: assembled_transitions
+    start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],
+    transitions    : assembled_transitions,
+    state_property : []
   };
 
   const oneOnlyKeys: Array<string> = [
@@ -608,13 +636,33 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
   });
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
-    'machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map(
+   'machine_author', 'machine_contributor', 'machine_reference',
+   'state_declaration', 'property_definition'].map(
       (multiKey: string) => {
         if (results[multiKey].length) {
           result_cfg[multiKey] = results[multiKey];
         }
       }
     );
+
+  // re-walk state declarations, already wrapped up, to get state properties,
+  // which go out in a different datastructure
+  results.state_declaration.forEach(sd => {
+    sd.declarations.forEach(decl => {
+
+      if (decl.key === 'state_property') {
+        const label = name_bind_prop_and_state(decl.name, sd.state)
+        console.log(`Bind ${sd.state}:${decl.name} as ${label}`);
+
+        if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
+          throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`);
+        } else {
+          result_cfg.state_property.push({ name: label, default_value: decl.value });
+        }
+      }
+
+    });
+  });
 
   return result_cfg;
 
@@ -668,6 +716,8 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'text-color'       : state_decl.textColor       = d.value; break;
       case 'background-color' : state_decl.backgroundColor = d.value; break;
       case 'border-color'     : state_decl.borderColor     = d.value; break;
+
+      case 'state_property'   : state_decl.property        = { name: d.name, value: d.value }; break;
 
       default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
 
@@ -762,6 +812,10 @@ class Machine<mDT> {
   _post_forced_transition_hook   : HookHandler<mDT> | undefined;
   _post_any_transition_hook      : HookHandler<mDT> | undefined;
 
+  _property_keys      : Set<string>;
+  _default_properties : Map<string, any>;
+  _state_properties   : Map<string, any>;
+
   _history        : JssmHistory<mDT>;
   _history_length : number;
 
@@ -781,6 +835,8 @@ class Machine<mDT> {
     machine_name,
     machine_version,
     state_declaration,
+    property_definition,
+    state_property,
     fsl_version,
     dot_preamble              = undefined,
     arrange_declaration       = [],
@@ -867,10 +923,14 @@ class Machine<mDT> {
     this._post_forced_transition_hook   = undefined;
     this._post_any_transition_hook      = undefined;
 
-    this._data                     = data;
+    this._data                          = data;
 
-    this._history_length           = history || 0;
-    this._history                  = new circular_buffer(this._history_length);
+    this._property_keys                 = new Set();
+    this._default_properties            = new Map();
+    this._state_properties              = new Map();
+
+    this._history_length                = history || 0;
+    this._history                       = new circular_buffer(this._history_length);
 
 
     if (state_declaration) {
@@ -990,6 +1050,30 @@ class Machine<mDT> {
 
     });
 
+
+    if (Array.isArray(property_definition)) {
+
+      property_definition.forEach(pr => {
+
+        this._property_keys.add(pr.name);
+        if (pr.hasOwnProperty('default_value')) {
+          this._default_properties.set(pr.name, pr.default_value);
+        }
+
+      });
+
+    }
+
+
+    if (Array.isArray(state_property)) {
+
+      state_property.forEach(sp => {
+        this._state_properties.set(sp.name, sp.default_value);
+      });
+
+    }
+
+
   }
 
 
@@ -1079,6 +1163,184 @@ class Machine<mDT> {
       return true; // todo whargarbl
     }
   */
+
+
+
+
+
+  // NEEDS_DOCS
+  /*********
+   *
+   *  Get the current value of a given property name.
+   *
+   *  ```typescript
+   *
+   *  ```
+   *
+   *  @param name The relevant property name to look up
+   *
+   *  @returns The value behind the prop name.  Because functional props are
+   *  evaluated as getters, this can be anything.
+   *
+   */
+
+  prop(name: string): any {
+
+    const bound_name = name_bind_prop_and_state(name, this.state());
+
+    if (this._state_properties.has(bound_name)) {
+      return this._state_properties.get(bound_name);
+
+    } else if (this._default_properties.has(name)) {
+      return this._default_properties.get(name);
+
+    } else {
+      return undefined;
+    }
+
+  }
+
+
+
+
+
+  // NEEDS_DOCS
+  // COMEBACK add prop_map, sparse_props and strict_props to doc text when implemented
+  /*********
+   *
+   *  Get the current value of every prop, as an object.  If no current definition
+   *  exists for a prop - that is, if the prop was defined without a default and
+   *  the current state also doesn't define the prop - then that prop will be listed
+   *  in the returned object with a value of `undefined`.
+   *
+   *  ```typescript
+   *  const traffic_light = sm`
+   *
+   *    property can_go     default true;
+   *    property hesitate   default true;
+   *    property stop_first default false;
+   *
+   *    Off -> Red => Green => Yellow => Red;
+   *    [Red Yellow Green] ~> [Off FlashingRed];
+   *    FlashingRed -> Red;
+   *
+   *    state Red:         { property stop_first true;  property can_go false; };
+   *    state Off:         { property stop_first true;  };
+   *    state FlashingRed: { property stop_first true;  };
+   *    state Green:       { property hesitate   false; };
+   *
+   *  `;
+   *
+   *  traffic_light.state();  // Off
+   *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+   *
+   *  traffic_light.go('Red');
+   *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+   *
+   *  traffic_light.go('Green');
+   *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+   *  ```
+   *
+   */
+
+  props(): object {
+
+    const ret: object = {};
+    this.known_props().forEach(
+      p =>
+        ret[p] = this.prop(p)
+    );
+
+    return ret;
+
+  }
+
+
+
+
+
+  // NEEDS_DOCS
+  // TODO COMEBACK
+  /*********
+   *
+   *  Get the current value of every prop, as an object.  Compare
+   *  {@link prop_map}, which returns a `Map`.
+   *
+   *  ```typescript
+   *
+   *  ```
+   *
+   */
+
+  // sparse_props(name: string): object {
+
+  // }
+
+
+
+
+
+  // NEEDS_DOCS
+  // TODO COMEBACK
+  /*********
+   *
+   *  Get the current value of every prop, as an object.  Compare
+   *  {@link prop_map}, which returns a `Map`.  Akin to {@link strict_prop},
+   *  this throws if a required prop is missing.
+   *
+   *  ```typescript
+   *
+   *  ```
+   *
+   */
+
+  // strict_props(name: string): object {
+
+  // }
+
+
+
+
+
+  /*********
+   *
+   *  Check whether a given string is a known property's name.
+   *
+   *  ```typescript
+   *  const example = sm`property foo default 1; a->b;`;
+   *
+   *  example.known_prop('foo');  // true
+   *  example.known_prop('bar');  // false
+   *  ```
+   *
+   *  @param prop_name The relevant property name to look up
+   *
+   */
+
+  known_prop(prop_name: string): boolean {
+    return this._property_keys.has(prop_name);
+  }
+
+
+
+
+
+  // NEEDS_DOCS
+  /*********
+   *
+   *  List all known property names.  If you'd also like values, use
+   *  {@link props} instead.  The order of the properties is not defined, and
+   *  the properties generally will not be sorted.
+   *
+   *  ```typescript
+   *  ```
+   *
+   */
+
+  known_props(): string[] {
+    return [... this._property_keys];
+  }
+
 
 
 
@@ -1246,12 +1508,6 @@ class Machine<mDT> {
     };
 
   }
-
-  /*
-    load_machine_state(): boolean {
-      return false; // todo whargarbl
-    }
-  */
 
 
 
@@ -2427,15 +2683,27 @@ class Machine<mDT> {
    *  Instruct the machine to complete an action.  Synonym for {@link action}.
    *
    *  ```typescript
-   *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *  const light = sm`
+   *    off 'start' -> red;
+   *    red 'next' -> green 'next' -> yellow 'next' -> red;
+   *    [red yellow green] 'shutdown' ~> off;
+   *  `;
    *
-   *  light.state();           // 'red'
-   *  light.do('next');        // true
-   *  light.state();           // 'green'
+   *  light.state();       // 'off'
+   *  light.do('start');   // true
+   *  light.state();       // 'red'
+   *  light.do('next');    // true
+   *  light.state();       // 'green'
+   *  light.do('next');    // true
+   *  light.state();       // 'yellow'
+   *  light.do('dance');   // !! false - no such action
+   *  light.state();       // 'yellow'
+   *  light.do('start');   // !! false - yellow does not have the action start
+   *  light.state();       // 'yellow'
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
-   *
+b   *
    *  @param actionName The action to engage
    *
    *  @param newData The data change to insert during the action
@@ -2455,11 +2723,21 @@ class Machine<mDT> {
    *  Instruct the machine to complete a transition.  Synonym for {@link go}.
    *
    *  ```typescript
-   *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *  const light = sm`
+   *    off 'start' -> red;
+   *    red 'next' -> green 'next' -> yellow 'next' -> red;
+   *    [red yellow green] 'shutdown' ~> off;
+   *  `;
    *
-   *  light.state();               // 'red'
-   *  light.transition('green');   // true
-   *  light.state();               // 'green'
+   *  light.state();       // 'off'
+   *  light.go('red');     // true
+   *  light.state();       // 'red'
+   *  light.go('green');   // true
+   *  light.state();       // 'green'
+   *  light.go('blue');    // !! false - no such state
+   *  light.state();       // 'green'
+   *  light.go('red');     // !! false - green may not go directly to red, only to yellow
+   *  light.state();       // 'green'
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -2788,6 +3066,7 @@ export {
 
   // WHARGARBL TODO these should be exported to a utility library
   seq,
+  unique, find_repeated,
   weighted_rand_select,
   histograph,
   weighted_sample_select,

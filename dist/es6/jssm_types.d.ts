@@ -35,6 +35,10 @@ declare type JssmSerialization<DataType> = {
     history_capacity: number;
     data: DataType;
 };
+declare type JssmPropertyDefinition = {
+    name: string;
+    default_value?: any;
+};
 declare type JssmTransitionPermitter<DataType> = (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
 declare type JssmTransition<DataType> = {
@@ -48,7 +52,7 @@ declare type JssmTransition<DataType> = {
     forced_only: boolean;
     main_path: boolean;
 };
-declare type JssmTransitions<DataType> = Array<JssmTransition<DataType>>;
+declare type JssmTransitions<DataType> = JssmTransition<DataType>[];
 declare type JssmTransitionList = {
     entrances: Array<StateType>;
     exits: Array<StateType>;
@@ -93,6 +97,7 @@ declare type JssmGenericMachine<DataType> = {
 declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
+    name?: string;
 };
 declare type JssmStateDeclaration = {
     declarations: Array<JssmStateDeclarationRule>;
@@ -104,6 +109,10 @@ declare type JssmStateDeclaration = {
     backgroundColor?: JssmColor;
     borderColor?: JssmColor;
     state: StateType;
+    property?: {
+        name: string;
+        value: unknown;
+    };
 };
 declare type JssmGenericConfig<DataType> = {
     graph_layout?: JssmLayout;
@@ -125,7 +134,9 @@ declare type JssmGenericConfig<DataType> = {
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
-    state_declaration?: Array<Object>;
+    state_declaration?: Object[];
+    property_definition?: JssmPropertyDefinition[];
+    state_property?: JssmPropertyDefinition[];
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
     arrange_end_declaration?: Array<Array<StateType>>;
@@ -160,6 +171,8 @@ declare type JssmCompileSeStart<DataType> = {
     key: string;
     value?: string | number;
     name?: string;
+    state?: string;
+    default_value?: any;
 };
 declare type JssmParseTree = Array<JssmCompileSeStart<StateType>>;
 declare type JssmParseFunctionType = (string: any) => JssmParseTree;
@@ -275,4 +288,4 @@ declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
 declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmHistory, JssmSerialization, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };

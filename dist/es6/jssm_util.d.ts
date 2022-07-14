@@ -41,6 +41,13 @@ declare const weighted_histo_key: Function;
  *  meant for external use.
  *
  */
+declare function name_bind_prop_and_state(prop: string, state: string): string;
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
 declare const hook_name: (from: string, to: string) => string;
 /*******
  *
@@ -57,4 +64,40 @@ declare const named_hook_name: (from: string, to: string, action: string) => str
  *
  */
 declare const make_mulberry_rand: (a?: number | undefined) => () => number;
-export { seq, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, hook_name, named_hook_name, make_mulberry_rand };
+/*******
+ *
+ *  Reduces an array to its unique contents.  Compares with `===` and makes no
+ *  effort to deep-compare contents; two matching arrays or objects contained
+ *  will be treated as distinct, according to javascript rules.  This also means
+ *  that `NaNs` will be ***dropped***, because they do not self-compare.
+ *
+ *  ```typescript
+ *  unique( [] );                     // []
+ *  unique( [0,0] );                  // [0]
+ *  unique( [0,1,2, 0,1,2, 0,1,2] );  // [0,1,2]
+ *  unique( [ [1], [1] ] );           // [ [1], [1] ] because arrays don't match
+ *  unique( [0,NaN,2] );              // [0,2]
+ *  ```
+ *
+ */
+declare const unique: <T>(arr?: T[]) => T[];
+/*******
+ *
+ *  Lists all repeated items in an array along with their counts.  Subject to
+ *  matching rules of Map.  `NaN` is manually removed because of conflict rules
+ *  around {@link unique}.  Because these are compared with `===` and because
+ *  arrays and objects never match that way unless they're the same object,
+ *  arrays and objects are never considered repeats.
+ *
+ *  ```typescript
+ *  find_repeated<string>([ ]);                     // []
+ *  find_repeated<string>([ "one" ]);               // []
+ *  find_repeated<string>([ "one", "two" ]);        // []
+ *  find_repeated<string>([ "one", "one" ]);        // [ ["one", 2] ]
+ *  find_repeated<string>([ "one", "two", "one" ]); // [ ["one", 2] ]
+ *  find_repeated<number>([ 0, NaN, 0, NaN ]);      // [ [0,     2] ]
+ *  ```
+ *
+ */
+declare function find_repeated<T>(arr: T[]): [T, number][];
+export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, make_mulberry_rand };
