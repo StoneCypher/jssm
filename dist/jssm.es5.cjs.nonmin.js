@@ -17851,7 +17851,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.79.0";
+const version = "5.79.1";
 
 // whargarbl lots of these return arrays could/should be sets
 /* eslint-disable complexity */
@@ -18690,6 +18690,35 @@ class Machine {
         }
         else {
             return undefined;
+        }
+    }
+    // NEEDS_DOCS
+    /*********
+     *
+     *  Get the current value of a given property name.  If missing on the state
+     *  and without a global default, throw, unlike {@link prop}, which would
+     *  return `undefined` instead.
+     *
+     *  ```typescript
+     *
+     *  ```
+     *
+     *  @param name The relevant property name to look up
+     *
+     *  @returns The value behind the prop name.  Because functional props are
+     *  evaluated as getters, this can be anything.
+     *
+     */
+    strict_prop(name) {
+        const bound_name = name_bind_prop_and_state(name, this.state());
+        if (this._state_properties.has(bound_name)) {
+            return this._state_properties.get(bound_name);
+        }
+        else if (this._default_properties.has(name)) {
+            return this._default_properties.get(name);
+        }
+        else {
+            throw new JssmError(this, `Strictly requested a prop '${name}' which doesn't exist on current state '${this.state()}' and has no default`);
         }
     }
     // NEEDS_DOCS

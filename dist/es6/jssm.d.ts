@@ -314,6 +314,23 @@ declare class Machine<mDT> {
     prop(name: string): any;
     /*********
      *
+     *  Get the current value of a given property name.  If missing on the state
+     *  and without a global default, throw, unlike {@link prop}, which would
+     *  return `undefined` instead.
+     *
+     *  ```typescript
+     *
+     *  ```
+     *
+     *  @param name The relevant property name to look up
+     *
+     *  @returns The value behind the prop name.  Because functional props are
+     *  evaluated as getters, this can be anything.
+     *
+     */
+    strict_prop(name: string): any;
+    /*********
+     *
      *  Get the current value of every prop, as an object.  If no current definition
      *  exists for a prop - that is, if the prop was defined without a default and
      *  the current state also doesn't define the prop - then that prop will be listed

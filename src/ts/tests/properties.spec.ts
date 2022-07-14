@@ -231,9 +231,90 @@ describe('Read property defaults', () => {
   });
 
 
-  test('no default given', () => {
+  test('no default given but present on state', () => {
+    const m = sm`property foo; a -> b; state b: { property: foo 1; };`;
+    m.go('b');
+    expect(m.prop('foo')).toBe(1);
+  });
+
+
+  test('default given but overridden on state', () => {
+    const m = sm`property foo default 1; a -> b; state b: { property: foo 2; };`;
+    m.go('b');
+    expect(m.prop('foo')).toBe(2);
+  });
+
+
+  test('no default given, should supplant undefined', () => {
     const m = sm`property foo; a -> b;`;
     expect(m.prop('foo')).toBe(undefined);
+  });
+
+
+
+});
+
+
+
+
+
+describe('Strictly read property', () => {
+
+
+
+  test('string', () => {
+    const m = sm`property foo default "a"; a -> b;`;
+    expect(m.strict_prop('foo')).toBe('a');
+  });
+
+
+  test('number', () => {
+    const m = sm`property foo default 1; a -> b;`;
+    expect(m.strict_prop('foo')).toBe(1);
+  });
+
+
+  test('boolean', () => {
+    const m = sm`property foo default false; a -> b;`;
+    expect(m.strict_prop('foo')).toBe(false);
+  });
+
+
+  test('undefined', () => {
+    const m = sm`property foo default undefined; a -> b;`;
+    expect(m.strict_prop('foo')).toBe(undefined);
+  });
+
+
+  test('null', () => {
+    const m = sm`property foo default null; a -> b;`;
+    expect(m.strict_prop('foo')).toBe(null);
+  });
+
+
+  test('no default given', () => {
+    const m = sm`property foo; a -> b;`;
+    expect( () => m.strict_prop('foo') ).toThrow();
+  });
+
+
+  test('no default given but present on state', () => {
+    const m = sm`property foo; a -> b; state b: { property: foo 1; };`;
+    m.go('b');
+    expect(m.strict_prop('foo')).toBe(1);
+  });
+
+
+  test('default given but overridden on state', () => {
+    const m = sm`property foo default 1; a -> b; state b: { property: foo 2; };`;
+    m.go('b');
+    expect(m.strict_prop('foo')).toBe(2);
+  });
+
+
+  test('no default given, should throw', () => {
+    const m = sm`property foo; a -> b;`;
+    expect(() => m.strict_prop('foo')).toThrow();
   });
 
 
