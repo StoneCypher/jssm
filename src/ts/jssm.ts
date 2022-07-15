@@ -448,11 +448,18 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
 
   // manually rehandled to make `undefined` as a property safe
   if (rule.key === 'property_definition') {
+    const ret: { agg_as: string, val: { name: string, default_value?: unknown, required?: boolean } }
+             = { agg_as: 'property_definition', val: { name: rule.name } };
+
     if (rule.hasOwnProperty('default_value')) {
-      return { agg_as: 'property_definition', val: { name: rule.name, default_value: rule.default_value } };
-    } else {
-      return { agg_as: 'property_definition', val: { name: rule.name } };
+      ret.val.default_value = rule.default_value;
     }
+
+    if (rule.hasOwnProperty('required')) {
+      ret.val.required = rule.required;
+    }
+
+    return ret;
   }
 
   // state properties are in here
@@ -652,7 +659,6 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
       if (decl.key === 'state_property') {
         const label = name_bind_prop_and_state(decl.name, sd.state)
-        console.log(`Bind ${sd.state}:${decl.name} as ${label}`);
 
         if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
           throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`);
@@ -812,9 +818,10 @@ class Machine<mDT> {
   _post_forced_transition_hook   : HookHandler<mDT> | undefined;
   _post_any_transition_hook      : HookHandler<mDT> | undefined;
 
-  _property_keys      : Set<string>;
-  _default_properties : Map<string, any>;
-  _state_properties   : Map<string, any>;
+  _property_keys       : Set<string>;
+  _default_properties  : Map<string, any>;
+  _state_properties    : Map<string, any>;
+  _required_properties : Set<string>;
 
   _history        : JssmHistory<mDT>;
   _history_length : number;
@@ -928,6 +935,7 @@ class Machine<mDT> {
     this._property_keys                 = new Set();
     this._default_properties            = new Map();
     this._state_properties              = new Map();
+    this._required_properties           = new Set();
 
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
@@ -1056,8 +1064,13 @@ class Machine<mDT> {
       property_definition.forEach(pr => {
 
         this._property_keys.add(pr.name);
+
         if (pr.hasOwnProperty('default_value')) {
           this._default_properties.set(pr.name, pr.default_value);
+        }
+
+        if (pr.hasOwnProperty('required') && (pr.required === true)) {
+          this._required_properties.add(pr.name);
         }
 
       });
@@ -1073,6 +1086,36 @@ class Machine<mDT> {
 
     }
 
+
+    // done building, do checks
+
+
+    this._state_properties.forEach( (_value, key) => {
+      const inside = JSON.parse(key);
+      if (Array.isArray(inside)) {
+        const j_property = inside[0];
+        if (typeof j_property === 'string') {
+          const j_state = inside[1];
+          if (typeof j_state === 'string') {
+            if (!(this.known_prop(j_property))) {
+              throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
+            }
+          }
+        }
+      }
+    });
+
+    this._required_properties.forEach( dp_key => {
+      if (this._default_properties.has(dp_key)) {
+        throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
+      }
+      this.states().forEach(s => {
+        const bound_name = name_bind_prop_and_state(dp_key, s);
+        if (!(this._state_properties.has(bound_name))) {
+          throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
+        }
+      });
+    });
 
   }
 
@@ -1576,9 +1619,15 @@ class Machine<mDT> {
 
 
   state_for(whichState: StateType): JssmGenericState {
+
     const state: JssmGenericState = this._states.get(whichState);
-    if (state) { return state; }
-    else { throw new JssmError(this, 'No such state', { requested_state: whichState }); }
+
+    if (state) {
+      return state;
+    } else {
+      throw new JssmError(this, 'No such state', { requested_state: whichState });
+    }
+
   }
 
 

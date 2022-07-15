@@ -258,6 +258,49 @@ describe('Read property defaults', () => {
 
 
 
+describe('Property requirement', () => {
+
+
+
+  test('string', () => {
+    const m = sm`property foo required; a -> b; state a: { property: foo "a"; }; state b: { property: foo "b"; };`;
+    expect(m.prop('foo')).toBe('a');
+    m.go('b');
+    expect(m.prop('foo')).toBe('b');
+  });
+
+
+  test('number', () => {
+    const m = sm`property foo required; a -> b; state a: { property: foo 1; }; state b: { property: foo 2; };`;
+    expect(m.prop('foo')).toBe(1);
+    m.go('b');
+    expect(m.prop('foo')).toBe(2);
+  });
+
+
+  test('boolean', () => {
+    const m = sm`property foo required; a -> b; state a: { property: foo true; }; state b: { property: foo false; };`;
+    expect(m.prop('foo')).toBe(true);
+    m.go('b');
+    expect(m.prop('foo')).toBe(false);
+  });
+
+
+  test('undefined and null', () => {
+    const m = sm`property foo required; a -> b; state a: { property: foo undefined; }; state b: { property: foo null; };`;
+    expect(m.prop('foo')).toBe(undefined);
+    m.go('b');
+    expect(m.prop('foo')).toBe(null);
+  });
+
+
+
+});
+
+
+
+
+
 describe('Strictly read property', () => {
 
 
@@ -437,6 +480,24 @@ describe('Invalid property errors', () => {
   test('Conflicted state prop', () => {
     expect(() => {
       const m = sm`property foo default "a"; a -> b; state a: { property: a 1; property: a 2; };`;
+    }).toThrow();
+  });
+
+  test('Property requirement and default simultaneously', () => {
+    expect(() => {
+      const m = sm`property foo default "a" required; a -> b;`;
+    }).toThrow();
+  });
+
+  test('Use of undeclared property', () => {
+    expect(() => {
+      const m = sm`a -> b; state a: { property: foo 2; };`;
+    }).toThrow();
+  });
+
+  test('Missing required property', () => {
+    expect(() => {
+      const m = sm`property foo required; a -> b;`;
     }).toThrow();
   });
 
