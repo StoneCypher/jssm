@@ -253,6 +253,7 @@ declare class Machine<mDT> {
     _property_keys: Set<string>;
     _default_properties: Map<string, any>;
     _state_properties: Map<string, any>;
+    _required_properties: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);

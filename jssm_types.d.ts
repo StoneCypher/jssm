@@ -38,6 +38,7 @@ declare type JssmSerialization<DataType> = {
 declare type JssmPropertyDefinition = {
     name: string;
     default_value?: any;
+    required?: boolean;
 };
 declare type JssmTransitionPermitter<DataType> = (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
@@ -173,6 +174,7 @@ declare type JssmCompileSeStart<DataType> = {
     name?: string;
     state?: string;
     default_value?: any;
+    required?: boolean;
 };
 declare type JssmParseTree = Array<JssmCompileSeStart<StateType>>;
 declare type JssmParseFunctionType = (string: any) => JssmParseTree;

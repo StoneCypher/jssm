@@ -999,8 +999,11 @@ SdStateLineStyle "linestyle"
 
 
 SdStateProperty "state property"
-  = WS? "property" WS? ":" WS? name:Atom WS? value:PropertyVal WS? ";" WS? {
+  = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal                WS? ";" WS? {
     return { key: 'state_property', name, value }
+  }
+  / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required'? WS? ";" WS? {
+    return { key: 'state_property', name, value, required: true }
   }
 
 
@@ -1037,8 +1040,10 @@ MachinePropertyDefault
 //   / MachinePropertyDefaultObject
 
 MachineProperty
-  = WS? "property" WS? name:Label WS? 'default' WS default_value:MachinePropertyDefault WS? ";" WS? { return { key:'property_definition', name, default_value }; }
-  / WS? "property" WS? name:Label WS?                                                       ";" WS? { return { key:'property_definition', name };          }
+  = WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault WS  'required' WS? ";" WS? { return { key:'property_definition', name, default_value, required: true }; }
+  / WS? "property" WS name:Label                                                      WS  'required' WS? ";" WS? { return { key:'property_definition', name,                required: true }; }
+  / WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault                WS? ";" WS? { return { key:'property_definition', name, default_value                 }; }
+  / WS? "property" WS name:Label                                                                     WS? ";" WS? { return { key:'property_definition', name                                }; }
 
 
 

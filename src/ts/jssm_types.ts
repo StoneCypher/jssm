@@ -81,8 +81,9 @@ type JssmSerialization<DataType> = {
 
 
 type JssmPropertyDefinition = {
-  name           : string;
-  default_value? : any
+  name           : string,
+  default_value? : any,
+  required?      : boolean
 };
 
 
@@ -197,9 +198,9 @@ type JssmGenericMachine<DataType> = {
 
 
 type JssmStateDeclarationRule = {
-  key   : string,
-  value : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
-  name? : string
+  key       : string,
+  value     : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
+  name?     : string
 };
 
 type JssmStateDeclaration = {
@@ -317,7 +318,8 @@ type JssmCompileSeStart<DataType> = {
   value?         : string | number,
   name?          : string,
   state?         : string,
-  default_value? : any      // for properties
+  default_value? : any,     // for properties
+  required?      : boolean  // for properties
 
 };
 
