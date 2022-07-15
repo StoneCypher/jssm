@@ -200,7 +200,7 @@ type JssmGenericMachine<DataType> = {
 type JssmStateDeclarationRule = {
   key       : string,
   value     : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
-  name?     : string1041
+  name?     : string
 };
 
 type JssmStateDeclaration = {

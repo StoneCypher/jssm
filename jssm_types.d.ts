@@ -99,7 +99,6 @@ declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
-    required?: boolean;
 };
 declare type JssmStateDeclaration = {
     declarations: Array<JssmStateDeclarationRule>;
