@@ -46,7 +46,7 @@ the library directly in the HTML, from CDN.
 
 At this point, you can already play with the library, in the developer console.
 
-<div class="youtube-embed"><iframe src="http://www.youtube.com/embed/hIezzLrVvRQ?html5=1" frameborder="0" allowfullscreen></iframe></div>
+<div class="youtube-embed"><iframe src="//www.youtube.com/embed/hIezzLrVvRQ?html5=1" frameborder="0" allowfullscreen></iframe></div>
 
 
 
