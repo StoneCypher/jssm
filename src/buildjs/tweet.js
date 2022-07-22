@@ -28,9 +28,23 @@ const tweet = async (status) => {
 
 (async () => {
 
+  const makeTweet = fromText => {
+
+    const cap      = 280,
+          addendum = ' #fsl #fsm #jssm #🤖',
+          alen     = addendum.length,
+          mlen     = cap - alen,
+          pref     = fromText.length > mlen? (fromText.substring(0, mlen-1) + '…') : fromText;
+
+    return pref + addendum;
+
+  };
+
+  const the_tweet = makeTweet(process.argv[2]);
+
   try {
     console.log(`${blue('Tweeting ')}${cyan(process.argv[2])}`);
-    await tweet(process.argv[2]);
+    await tweet(the_tweet);
   } catch (err) {
     console.error(err);
   }
