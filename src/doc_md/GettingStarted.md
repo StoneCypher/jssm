@@ -127,7 +127,7 @@ We'll also add a bit of Javascript to make it usable.
 
 End result should look a bit like this:
 
-<div class="youtube-embed"><iframe src="http://www.youtube.com/embed/qG5UQs13kBo?html5=1" frameborder="0" allowfullscreen></iframe></div>
+<div class="youtube-embed"><iframe src="//www.youtube.com/embed/qG5UQs13kBo?html5=1" frameborder="0" allowfullscreen></iframe></div>
 
 
 
@@ -214,7 +214,7 @@ window.onload = () => {
 
 And now, they're linked.
 
-<div class="youtube-embed"><iframe src="http://www.youtube.com/embed/1Js2-AYaXus?html5=1" frameborder="0" allowfullscreen></iframe></div>
+<div class="youtube-embed"><iframe src="//www.youtube.com/embed/1Js2-AYaXus?html5=1" frameborder="0" allowfullscreen></iframe></div>
 
 
 
