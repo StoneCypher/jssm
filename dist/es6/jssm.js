@@ -2,7 +2,8 @@
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { circular_buffer } from 'circular_buffer_js';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
-import { shapes, gviz_shapes, named_colors } from './jssm_constants';
+import * as constants from './jssm_constants';
+const { shapes, gviz_shapes, named_colors } = constants;
 import { parse } from './jssm-dot';
 import { version } from './version'; // replaced from package.js in build
 import { JssmError } from './jssm_error';
@@ -2276,4 +2277,4 @@ function deserialize(machine_string, ser) {
 }
 export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
-seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };
+seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };

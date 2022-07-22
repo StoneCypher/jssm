@@ -45,7 +45,8 @@ import {
 
 
 
-import { shapes, gviz_shapes, named_colors } from './jssm_constants';
+import * as constants from './jssm_constants';
+const { shapes, gviz_shapes, named_colors } = constants;
 
 
 
@@ -3158,6 +3159,8 @@ export {
   histograph,
   weighted_sample_select,
   weighted_histo_key,
+
+  constants,
 
   shapes,
   gviz_shapes,

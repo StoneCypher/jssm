@@ -107,11 +107,13 @@ jobs:
       run: |
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
         echo "TAG=$TAG" >> $GITHUB_ENV
+        echo $TAG
 
     - name: Export commit message to envvars
       run: |
-        export COMMITMESSAGE=$(git log -1 --pretty=format:%B)
+        export COMMITMESSAGE="$(git log -1 --pretty=format:%B)"
         echo "\nCOMMITMESSAGE=$COMMITMESSAGE" >> $GITHUB_ENV
+        echo $COMMITMESSAGE
 
     - name: Use Node.js 18.x
       uses: actions/setup-node@v1

@@ -31,7 +31,7 @@ const tweet = async (status) => {
   const makeTweet = fromText => {
 
     const cap      = 280,
-          addendum = ' #fsl #fsm #jssm #🤖',
+          addendum = ' #fsl #fsm #jssm #state 🤖',
           alen     = addendum.length,
           mlen     = cap - alen,
           pref     = fromText.length > mlen? (fromText.substring(0, mlen-1) + '…') : fromText;
