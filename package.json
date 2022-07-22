@@ -108,6 +108,7 @@
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
     "benny": "^3.7.1",
+    "chalk": "^4.1.2",
     "cloc": "^2.10.0",
     "coveralls": "^3.0.11",
     "eslint": "^7.32.0",
@@ -123,17 +124,18 @@
     "pegjs": "^0.10.0",
     "rollup": "^2.72.1",
     "semver": "^5.7.1",
-    "terser": "^5.13.1",
+    "terser": "^5.14.2",
     "text_audit": "^0.9.3",
     "ts-jest": "^27.0.7",
+    "twitter-api-client": "^1.6.0",
     "typedoc": "^0.22.18",
+    "typedoc-plugin-missing-exports": "^0.23.0",
     "typescript": "^4.7.4",
     "xml2js": "^0.4.23"
   },
   "dependencies": {
     "better_git_changelog": "^1.6.1",
     "circular_buffer_js": "^1.10.0",
-    "reduce-to-639-1": "^1.0.4",
-    "typedoc-plugin-missing-exports": "^0.23.0"
+    "reduce-to-639-1": "^1.0.4"
   }
 }
