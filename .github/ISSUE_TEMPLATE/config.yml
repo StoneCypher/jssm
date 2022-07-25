@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Unified issue tracker
+    url: https://github.com/StoneCypher/fsl/issues
+    about: Issues for all FSL and JSSM repositories go here
+  - name: Live community on Discord
+    url: https://discord.com/invite/9P95USqnMK
+    about: Come chat with us
+  - name: Live editor
+    url: https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html
+    about: Try what you're doing live
+  - name: Documentation
+    url: https://stonecypher.github.io/jssm/docs/
+    about: Read the friendly manual
