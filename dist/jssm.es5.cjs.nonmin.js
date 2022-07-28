@@ -18264,7 +18264,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.79.10";
+const version = "5.79.12";
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
