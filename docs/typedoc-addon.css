@@ -80,4 +80,4 @@ html li.pages-entry-depth-5 { padding-left: 90px; }
 .frot_th_tab th span             { width: 12em; text-align: left; }
 .frot_th_tab .rot                { left: 0.2em; }
 .frot_th_tab table tr+tr th      { width: 11em; text-align: right; }
-.frot_th_tab td.tablenotch       { background: transparent; border-top-color: transparent; border-left-color: transparent; }
+.frot_th_tab th.tablenotch       { background: transparent; border-top-color: transparent; border-left-color: transparent; }
