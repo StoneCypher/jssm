@@ -6,7 +6,7 @@ A quick look at what machines offer what functionality.
 
 <table id="feature_comparison">
   <tr>
-    <th></th>
+    <th class="tablenotch"></th>
     <th><span class="rot">jssm</span></th>
     <th><span class="rot">XState</span></th>
     <th><span class="rot">javascript-state-machine</span></th>
@@ -66,7 +66,7 @@ A quick look at what machines offer what functionality.
     <th>Actions</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -85,7 +85,7 @@ A quick look at what machines offer what functionality.
     <th>Data</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -104,7 +104,7 @@ A quick look at what machines offer what functionality.
     <th>TypeScript data</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -123,7 +123,7 @@ A quick look at what machines offer what functionality.
     <th>General hooks</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -142,7 +142,7 @@ A quick look at what machines offer what functionality.
     <th>Specific hooks</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -161,7 +161,7 @@ A quick look at what machines offer what functionality.
     <th>Post-hooks</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -180,7 +180,7 @@ A quick look at what machines offer what functionality.
     <th>Hook rejection</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -199,7 +199,7 @@ A quick look at what machines offer what functionality.
     <th>Transactions</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -218,7 +218,25 @@ A quick look at what machines offer what functionality.
     <th>Properties</th>
     <td>✅</td>
     <td>✅</td>
+    <td>✅</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+    <th>Methods</th>
+    <td>✅</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -237,7 +255,7 @@ A quick look at what machines offer what functionality.
     <th>Weighted edges</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -256,7 +274,7 @@ A quick look at what machines offer what functionality.
     <th>Heirarchical states</th>
     <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -273,9 +291,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>State groups</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -292,9 +310,28 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Timeouts</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>✅</td>
+    <td>❌</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+  <tr>
+    <th>Error hooks</th>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -311,9 +348,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Stripes</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -330,9 +367,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Cycles</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -349,9 +386,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Kinds</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -370,7 +407,7 @@ A quick look at what machines offer what functionality.
     <th>State spread</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -387,9 +424,28 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Input/output tape</th>
-    <td>⌛</td>
+    <td>⌚</td>
+    <td>❌</td>
     <td>❌</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+  <tr>
+    <th>Async transitions</th>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -408,7 +464,7 @@ A quick look at what machines offer what functionality.
     <th>Graph API</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -427,7 +483,7 @@ A quick look at what machines offer what functionality.
     <th>History</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -446,7 +502,26 @@ A quick look at what machines offer what functionality.
     <th>Random walks</th>
     <td>✅</td>
     <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+  <tr>
+    <th>Defined lifecycle</th>
+    <td>✅</td>
+    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -465,7 +540,7 @@ A quick look at what machines offer what functionality.
     <th>State histograms</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -484,7 +559,7 @@ A quick look at what machines offer what functionality.
     <th>Serialization</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -503,7 +578,26 @@ A quick look at what machines offer what functionality.
     <th>Named instances</th>
     <td>✅</td>
     <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+  <tr>
+    <th>Factories</th>
+    <td>✅</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -522,7 +616,64 @@ A quick look at what machines offer what functionality.
     <th>String DSL</th>
     <td>✅</td>
     <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+  <tr>
+    <th>Defined start states</th>
+    <td>✅</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+  <tr>
+    <th>Extend existing objects</th>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+  </tr>
+  <tr>
+    <th>Probabilistic starts</th>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -541,7 +692,7 @@ A quick look at what machines offer what functionality.
     <th>In-source debugger</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -560,7 +711,7 @@ A quick look at what machines offer what functionality.
     <th>Browser debugger</th>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -577,9 +728,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Compiler</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -596,9 +747,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Cross-compiler</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -617,7 +768,7 @@ A quick look at what machines offer what functionality.
     <th>Graph renderer</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -636,7 +787,7 @@ A quick look at what machines offer what functionality.
     <th>Visual styling</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -655,7 +806,7 @@ A quick look at what machines offer what functionality.
     <th>Live editor</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -674,7 +825,7 @@ A quick look at what machines offer what functionality.
     <th>CLI</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -691,9 +842,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Github Action</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -712,7 +863,7 @@ A quick look at what machines offer what functionality.
     <th>URL live-paste</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -731,7 +882,7 @@ A quick look at what machines offer what functionality.
     <th>Manual</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -750,7 +901,7 @@ A quick look at what machines offer what functionality.
     <th>API samples</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -769,7 +920,7 @@ A quick look at what machines offer what functionality.
     <th>Demo videos</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -788,7 +939,7 @@ A quick look at what machines offer what functionality.
     <th>Discord community</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -807,7 +958,7 @@ A quick look at what machines offer what functionality.
     <th>Example library</th>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -826,7 +977,7 @@ A quick look at what machines offer what functionality.
     <th>100% test coverage</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -845,7 +996,7 @@ A quick look at what machines offer what functionality.
     <th>Fuzz testing</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -862,9 +1013,9 @@ A quick look at what machines offer what functionality.
   </tr>
   <tr>
     <th>Mutation testing</th>
-    <td>⌛</td>
+    <td>⌚</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -883,7 +1034,7 @@ A quick look at what machines offer what functionality.
     <th>i18n testing</th>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -920,3 +1071,10 @@ A quick look at what machines offer what functionality.
 </table>
 
 </div>
+
+
+## Updates
+
+Mistake?  Something out of date?  New row or column needed?
+
+[Please let us know.](https://github.com/StoneCypher/fsl/issues/new?assignees=&labels=&template=feature-requesting-template.md&title=Change%20needed%20to%20Feature%20Comparison%20Matrix:&body=Please%20detail%20the%20necessary%20changes%20here&labels=Cleanup,Collected+propaganda,Competititon,Documentation,Help+sidebar,Other+environments,Publicity+and+Visibility)
