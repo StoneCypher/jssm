@@ -109,11 +109,16 @@ jobs:
         echo "TAG=$TAG" >> $GITHUB_ENV
         echo $TAG
 
-    - name: Export commit message to envvars
+    # - name: Export commit message to envvars
+    #   run: |
+    #     export COMMITMESSAGE="$(git log -1 --pretty=format:%B)"
+    #     echo "\nCOMMITMESSAGE=\"$COMMITMESSAGE\"" >> $GITHUB_ENV
+    #     echo $COMMITMESSAGE
+
+    - name: Export commit message to outputs
       run: |
-        export COMMITMESSAGE="$(git log -1 --pretty=format:%B)"
-        echo "\nCOMMITMESSAGE=\"$COMMITMESSAGE\"" >> $GITHUB_ENV
-        echo $COMMITMESSAGE
+        echo "::set-output name=COMMIT_MSG::$(git log -1 --pretty=format:%B)"
+        echo "${{ steps.release.outputs.COMMIT_MSG }}"
 
     - name: Use Node.js 18.x
       uses: actions/setup-node@v1
@@ -141,7 +146,7 @@ jobs:
 
     - name: Tweet notice
       run: |
-        npm install && node ./src/buildjs/tweet.js "Released ${{ env.TAG }} - ${{ env.COMMITMESSAGE }}"
+        npm install && node ./src/buildjs/tweet.js "Released ${{ env.TAG }} - ${{ steps.release.outputs.COMMIT_MSG }}"
       env:
         JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
         JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
