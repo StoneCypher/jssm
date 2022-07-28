@@ -73,10 +73,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -92,10 +92,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -111,10 +111,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -129,11 +129,11 @@ encouraged.
     <th>General hooks</th>
     <td>✅</td>
     <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -149,10 +149,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -168,10 +168,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -187,10 +187,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -206,10 +206,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -225,10 +225,10 @@ encouraged.
     <td>❌</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -244,10 +244,10 @@ encouraged.
     <td>❌</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -263,10 +263,10 @@ encouraged.
     <td>❌</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -282,10 +282,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -296,14 +296,15 @@ encouraged.
     <td>❌</td>
     <td>❌</td>
   </tr>
+  <tr>
     <th>Methods</th>
     <td>✅</td>
     <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -319,10 +320,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -338,10 +339,10 @@ encouraged.
     <td>❌</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -357,10 +358,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -376,10 +377,10 @@ encouraged.
     <td>⌚</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -395,10 +396,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -414,10 +415,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -433,10 +434,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -452,10 +453,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -471,10 +472,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -490,10 +491,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -509,10 +510,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -528,10 +529,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -547,10 +548,10 @@ encouraged.
     <td>❌</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -566,10 +567,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -585,10 +586,10 @@ encouraged.
     <td>❌</td>
     <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -604,10 +605,10 @@ encouraged.
     <td>⌚</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -623,10 +624,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -642,10 +643,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -661,10 +662,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -680,10 +681,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -699,10 +700,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -718,10 +719,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -737,10 +738,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -756,10 +757,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -775,10 +776,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -794,10 +795,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -813,10 +814,29 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+  </tr>
+  <tr>
+    <th>Extend existing objects</th>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -832,23 +852,8 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
     <td>✅</td>
-    <td>❌</td>
-    <td>❌</td>
-  </tr>
-  <tr>
-    <th>Extend existing objects</th>
-    <td>❌</td>
+    <td>✅</td>
     <td>❌</td>
     <td>✅</td>
     <td>❔</td>
@@ -857,11 +862,7 @@ encouraged.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❌</td>
+    <td>✅</td>
     <td>❌</td>
     <td>❌</td>
   </tr>
@@ -870,10 +871,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -889,10 +890,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -908,10 +909,10 @@ encouraged.
     <td>❌</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -927,10 +928,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -946,10 +947,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -965,10 +966,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>✅</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -984,10 +985,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1003,10 +1004,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1022,10 +1023,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1041,10 +1042,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1060,10 +1061,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1079,10 +1080,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>✅</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1098,10 +1099,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1117,10 +1118,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1136,10 +1137,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1155,10 +1156,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1174,10 +1175,10 @@ encouraged.
     <td>✅</td>
     <td>✅</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1193,10 +1194,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1212,10 +1213,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1231,10 +1232,10 @@ encouraged.
     <td>⌚</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1250,10 +1251,10 @@ encouraged.
     <td>✅</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
@@ -1269,10 +1270,10 @@ encouraged.
     <td>44</td>
     <td>23</td>
     <td>19</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
-    <td>❔</td>
+    <td>11</td>
+    <td>12</td>
+    <td>2</td>
+    <td>11</td>
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
