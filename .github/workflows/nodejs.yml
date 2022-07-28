@@ -112,7 +112,7 @@ jobs:
     - name: Export commit message to envvars
       run: |
         export COMMITMESSAGE="$(git log -1 --pretty=format:%B)"
-        echo "\nCOMMITMESSAGE=$COMMITMESSAGE" >> $GITHUB_ENV
+        echo "\nCOMMITMESSAGE=\"$COMMITMESSAGE\"" >> $GITHUB_ENV
         echo $COMMITMESSAGE
 
     - name: Use Node.js 18.x
