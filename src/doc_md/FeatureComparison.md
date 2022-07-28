@@ -78,7 +78,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -97,7 +97,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -116,7 +116,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -135,7 +135,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -154,7 +154,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -173,7 +173,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -192,7 +192,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -211,7 +211,45 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+  </tr>
+  <tr>
+    <th>Extending machines</th>
+    <td>❌</td>
+    <td>✅</td>
+    <td>❌</td>
     <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❌</td>
+    <td>❌</td>
+  </tr>
+  <tr>
+    <th>Dynamic graphs</th>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❌</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>❔</td>
+    <td>✅</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -230,7 +268,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
     <th>Methods</th>
@@ -248,7 +286,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -267,7 +305,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -286,7 +324,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -305,7 +343,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -324,7 +362,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -343,7 +381,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -362,7 +400,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -381,7 +419,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -400,7 +438,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -419,7 +457,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -438,7 +476,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -457,7 +495,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -476,7 +514,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -495,7 +533,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -514,7 +552,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>✅</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -533,7 +571,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -552,7 +590,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -571,7 +609,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -590,7 +628,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -609,7 +647,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -628,7 +666,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -647,7 +685,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -666,7 +704,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -685,7 +723,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -704,7 +742,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -723,7 +761,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -742,7 +780,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -761,7 +799,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -780,7 +818,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -799,7 +837,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>✅</td>
   </tr>
   <tr>
@@ -818,7 +856,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -837,7 +875,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -856,7 +894,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -875,7 +913,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -894,7 +932,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -913,7 +951,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -932,7 +970,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -951,7 +989,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -970,7 +1008,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -989,7 +1027,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1008,7 +1046,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1027,7 +1065,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1046,7 +1084,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1065,7 +1103,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1084,7 +1122,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1103,7 +1141,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1122,7 +1160,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1141,7 +1179,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1160,7 +1198,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
@@ -1179,13 +1217,13 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>❌</td>
     <td>❌</td>
   </tr>
   <tr>
     <th>Count</th>
     <td>44</td>
-    <td>22</td>
+    <td>23</td>
     <td>19</td>
     <td>❔</td>
     <td>❔</td>
@@ -1198,7 +1236,7 @@ A quick look at what machines offer what functionality.
     <td>❔</td>
     <td>❔</td>
     <td>❔</td>
-    <td>❔</td>
+    <td>4</td>
     <td>9</td>
   </tr>
 </table>
