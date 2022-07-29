@@ -1,9 +1,17 @@
 
+const { spawnSync } = require('child_process');
+
 const chalk             = require('chalk'),
       { TwitterClient } = require('twitter-api-client');
 
 const blue = chalk.blueBright,
       cyan = chalk.cyanBright;
+
+const tag            = spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
+      commit_message = spawnSync('git log -1 --pretty=format:%B');
+
+console.log(tag);
+console.log(commit_message);
 
 
 
