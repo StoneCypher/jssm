@@ -401,6 +401,24 @@ function KitchenSink100Times() {
 
 
 
+function CompileTrivialABStringUsingSm() {
+  const ab = sm`a -> b;`;
+  if (ab === undefined) { throw 'not defined!'; }  // prevent removal through shaking
+}
+
+
+
+
+
+function CompileTrivialABStringUsingFrom() {
+  const ab = jssm.from('a -> b;');
+  if (ab === undefined) { throw 'not defined!'; }  // prevent removal through shaking
+}
+
+
+
+
+
 b.suite('General performance suite',
 
   b.add('Blind cycle a traffic light 100 times by transition',                 TransitionCycleTL100Times                       ),
@@ -424,6 +442,8 @@ b.suite('General performance suite',
   b.add('Blind cycle a main transition tl 100 times by action',                ActionCycleTLWithMTHooks100Times                ),
   b.add('Blind cycle a forced transition tl 100 times by action',              ActionCycleTLWithFTHooks100Times                ),
   b.add('Kitchen Sink 100 times',                                              KitchenSink100Times                             ),
+  b.add('Compile `a -> b;` using sm',                                          CompileTrivialABStringUsingSm                   ),
+  b.add('Compile `a -> b;` using .from',                                       CompileTrivialABStringUsingFrom                 ),
 
   b.cycle(),
   b.complete(),

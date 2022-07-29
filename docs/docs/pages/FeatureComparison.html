@@ -459,7 +459,7 @@ encouraged.</p>
     <td>❌</td>
     <td>❌</td>
     <td>❌</td>
-    <td>❌</td>
+    <td>✅</td>
     <td>❌</td>
     <td>❌</td>
     <td>❌</td>
@@ -658,7 +658,7 @@ encouraged.</p>
     <td>10</td>
     <td>11</td>
     <td>10</td>
-    <td>1</td>
+    <td>2</td>
     <td>8</td>
     <td>6</td>
     <td>7</td>
@@ -1684,7 +1684,7 @@ encouraged.</p>
     <td>10</td>
     <td>11</td>
     <td>10</td>
-    <td>1</td>
+    <td>2</td>
     <td>8</td>
     <td>6</td>
     <td>7</td>
@@ -1798,7 +1798,7 @@ encouraged.</p>
     <td>18</td>
     <td>13</td>
     <td>12</td>
-    <td>3</td>
+    <td>4</td>
     <td>11</td>
     <td>6</td>
     <td>10</td>
@@ -1874,8 +1874,9 @@ encouraged.</p>
 
   <dt><a name="general_hooks"></a>General hooks</dt>
   <dd>
-    Support for general hooks means that you can establish a hook on general or
-    global events, such as "any transition" or "any event."
+    Hooks allow you to specify a function that gets called because of something
+    that happened.  Support for general hooks means that you can establish a
+    hook on general or global events, such as "any transition" or "any event."
   </dd>
 
   <dt><a name="specific_hooks"></a>Specific hooks</dt>
@@ -1887,7 +1888,10 @@ encouraged.</p>
   <dt><a name="post_hooks"></a>Post-hooks</dt>
   <dd>
     Posthooks fire after a transition is complete, rather than before, and the
-    data passed to the posthook reflects the later configuration.
+    data passed to the posthook reflects the later configuration.  If you wanted
+    to make an editor that visualized states' actions with buttons, you'd need
+    to use posthooks, not hooks, so that the buttons were for what state they're
+    now on, rather than the ones in the previous configuration.
   </dd>
 
   <dt><a name="hook_rejection"></a>Hook rejection</dt>
@@ -2017,20 +2021,21 @@ encouraged.</p>
     This is the formal classical finite state machine
     <tt>(Σ,Γ,S,s<sub>0</sub>,𝛿,F)</tt> from the textbooks, which is defined as
     two alphabets, one set of transformations, an initial state, and two token
-    streams.  From this worldview on finite state machines, the state alphabet
-    <tt>Σ</tt> is your state list, the output alphabet is the same by default
-    but could be changed by your hooks, the set of states <tt>S</tt> is just
-    the states you've defined, the set of transformations <tt>𝛿</tt> accepts
-    an input symbol (from the tape) if Moore and also some <syn>data</syn> if
-    Mealy, which are your transitions, and the two streams are the input tape
-    and the output tape.  If you'd like to write a FSM as an acceptor or a
-    validator, typically you would use these tape facilities.  These tend to be
-    found in parsing, iteration, and utility oriented machines.  If you are only
-    using the input tape and a halting state (by example, a machine that checks
-    if the input is a number,) you create an <syn>acceptor</syn>; if you use the
-    output tape to produce a transformed set of symbols (by example, an
-    upper-casing machine,) you have instead made a <syn>transducer</syn>.
-    Support for tape is quite rare, despite being high value.
+    streams.  From this worldview on finite state machines, the input alphabet
+    <tt>Σ</tt> is the things that are allowed to be on the input tape; the
+    output alphabet is the your state list by default, but could be changed by
+    your hooks; the set of states <tt>S</tt> is just the states you've defined;
+    the set of transformations <tt>𝛿</tt> is your transitions, accepts an input
+    symbol (from the tape) if Moore and also some <syn>data</syn> if Mealy; and
+    the two streams are the input tape and the output tape.  If you'd like to
+    write a FSM as an acceptor or a validator, typically you would use these
+    tape facilities.  These tend to be found in parsing, iteration, and utility
+    oriented machines.  If you are only using the input tape and a halting state
+    (by example, a machine that checks if the input is a number,) you create an
+    <syn>acceptor</syn>; if you use the output tape to produce a transformed set
+    of symbols (by example, an upper-casing machine,) you have instead made a
+    <syn>transducer</syn>.  Support for tape is quite rare, despite being high
+    value.
   </dd>
 
   <dt><a name="tape_validator"></a>Tape validator</dt>
