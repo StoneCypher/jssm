@@ -18263,7 +18263,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.79.16";
+  const version = "5.79.17";
 
   // whargarbl lots of these return arrays could/should be sets
   const { shapes, gviz_shapes, named_colors } = constants;

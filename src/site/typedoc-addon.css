@@ -89,3 +89,11 @@ html li.pages-entry-depth-5 { padding-left: 90px; }
 .tsd-panel .frot_th_tab table tr.faketitle td { background: transparent; border: 0; text-align: left; font-weight: bold; font-size: 150%; padding: 1.5em 0 0.5em 0; }
 
 .sums td { font-weight: bold; }
+
+dt+dd { margin-top: 0.25em; }
+dd+dt { margin-top: 1em; }
+dt    { font-weight: bold; font-size: 110%; }
+dd    { line-height: 120%; padding: 0; margin: 0 0 0 2em; }
+
+dl tt  { background-color: rgba(0,0,0,   0.1); border-radius: 0.25em; display: inline-block; padding: 0 0.1em; }
+dl syn { background-color: rgba(0,0,128, 0.1); border-radius: 0.25em; display: inline-block; padding: 0 0.1em; }
