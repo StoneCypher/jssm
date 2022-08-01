@@ -79,4 +79,44 @@ describe('State style', () => {
 
 
 
+
+
+describe('Default state style', () => {
+
+  test(`can set default state style`, () =>
+    expect( () => {
+      const _foo = sm`state: { shape: circle; }; a->b;`;
+    }).not.toThrow() );
+
+  test(`can set hooked state style`, () =>
+    expect( () => {
+      const _foo = sm`hooked_state: { shape: circle; }; a->b;`;
+    }).not.toThrow() );
+
+  test(`can set active state style`, () =>
+    expect( () => {
+      const _foo = sm`active_state: { shape: circle; }; a->b;`;
+    }).not.toThrow() );
+
+  test(`can set terminal state style`, () =>
+    expect( () => {
+      const _foo = sm`terminal_state: { shape: circle; }; a->b;`;
+    }).not.toThrow() );
+
+  test(`can set start state style`, () =>
+    expect( () => {
+      const _foo = sm`start_state: { shape: circle; }; a->b;`;
+    }).not.toThrow() );
+
+  test(`can set end state style`, () =>
+    expect( () => {
+      const _foo = sm`end_state: { shape: circle; }; a->b;`;
+    }).not.toThrow() );
+
+});
+
+
+
+
+
 test.todo('Read the actual values back out');

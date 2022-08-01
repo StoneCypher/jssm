@@ -115,6 +115,7 @@ declare type JssmStateDeclaration = {
         value: unknown;
     };
 };
+declare type JssmStateConfig = Partial<JssmStateDeclaration>;
 declare type JssmGenericConfig<DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
@@ -152,6 +153,12 @@ declare type JssmGenericConfig<DataType> = {
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
+    default_state_config?: JssmStateConfig;
+    default_start_state_config?: JssmStateConfig;
+    default_end_state_config?: JssmStateConfig;
+    default_hooked_state_config?: JssmStateConfig;
+    default_terminal_state_config?: JssmStateConfig;
+    default_active_state_config?: JssmStateConfig;
 };
 declare type JssmCompileRule = {
     agg_as: string;
@@ -290,4 +297,4 @@ declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
 declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };

@@ -379,7 +379,9 @@ function compile_rule_handler(rule) {
         'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
         'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
         'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-        'flow', 'dot_preamble'
+        'flow', 'dot_preamble', 'default_state_config', 'default_start_state_config',
+        'default_end_state_config', 'default_hooked_state_config',
+        'default_active_state_config', 'default_terminal_state_config'
     ];
     if (tautologies.includes(rule.key)) {
         return { agg_as: rule.key, val: rule.value };
@@ -462,7 +464,13 @@ function compile(tree) {
         arrange_declaration: [],
         arrange_start_declaration: [],
         arrange_end_declaration: [],
-        machine_version: []
+        machine_version: [],
+        default_state_config: [],
+        default_active_state_config: [],
+        default_hooked_state_config: [],
+        default_terminal_state_config: [],
+        default_start_state_config: [],
+        default_end_state_config: [],
     };
     tree.map((tr) => {
         const rule = compile_rule_handler(tr), agg_as = rule.agg_as, val = rule.val; // TODO FIXME no any
@@ -476,12 +484,15 @@ function compile(tree) {
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
         transitions: assembled_transitions,
-        state_property: []
+        state_property: [],
     };
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
         'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-        'theme', 'flow', 'dot_preamble'
+        'theme', 'flow', 'dot_preamble', 'default_state_config',
+        'default_start_state_config', 'default_end_state_config',
+        'default_hooked_state_config', 'default_terminal_state_config',
+        'default_active_state_config'
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {
@@ -575,7 +586,7 @@ function transfer_state_properties(state_decl) {
 // TODO add a lotta docblock here
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data }) {
+    constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }) {
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -644,6 +655,12 @@ class Machine {
         this._default_properties = new Map();
         this._state_properties = new Map();
         this._required_properties = new Set();
+        this._state_style = default_state_config !== null && default_state_config !== void 0 ? default_state_config : {};
+        this._active_state_style = default_active_state_config !== null && default_active_state_config !== void 0 ? default_active_state_config : {};
+        this._hooked_state_style = default_hooked_state_config !== null && default_hooked_state_config !== void 0 ? default_hooked_state_config : {};
+        this._terminal_state_style = default_terminal_state_config !== null && default_terminal_state_config !== void 0 ? default_terminal_state_config : {};
+        this._start_state_style = default_start_state_config !== null && default_start_state_config !== void 0 ? default_start_state_config : {};
+        this._end_state_style = default_end_state_config !== null && default_end_state_config !== void 0 ? default_end_state_config : {};
         this._history_length = history || 0;
         this._history = new circular_buffer(this._history_length);
         if (state_declaration) {

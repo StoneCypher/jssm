@@ -221,61 +221,70 @@ type JssmStateDeclaration = {
 
 };
 
+type JssmStateConfig = Partial<JssmStateDeclaration>;
+
 
 
 
 
 type JssmGenericConfig<DataType> = {
 
-  graph_layout?              : JssmLayout,
+  graph_layout?                  : JssmLayout,
 
-  complete?                  : Array<StateType>,
-  transitions                : JssmTransitions<DataType>,
+  complete?                      : Array<StateType>,
+  transitions                    : JssmTransitions<DataType>,
 
-  theme?                     : FslTheme,
-  flow?                      : FslDirection,
+  theme?                         : FslTheme,
+  flow?                          : FslDirection,
 
-  name?                      : string,
-  data?                      : DataType,
-  nodes?                     : Array<StateType>,  // uncommon
-  check?                     : JssmStatePermitterMaybeArray<DataType>,
-  history?                   : number,
+  name?                          : string,
+  data?                          : DataType,
+  nodes?                         : Array<StateType>,  // uncommon
+  check?                         : JssmStatePermitterMaybeArray<DataType>,
+  history?                       : number,
 
-//locked?                    : bool = true,
-  min_exits?                 : number,
-  max_exits?                 : number,
-  allow_islands?             : false,
-  allow_force?               : false,
-  actions?                   : JssmPermittedOpt,
+//locked?                        : bool = true,
+  min_exits?                     : number,
+  max_exits?                     : number,
+  allow_islands?                 : false,
+  allow_force?                   : false,
+  actions?                       : JssmPermittedOpt,
 
-  simplify_bidi?             : boolean,
+  simplify_bidi?                 : boolean,
 
-  dot_preamble?              : string,
+  dot_preamble?                  : string,
 
-  start_states               : Array<StateType>,
-  end_states?                : Array<StateType>,
+  start_states                   : Array<StateType>,
+  end_states?                    : Array<StateType>,
 
-  state_declaration?         : Object[],
-  property_definition?       : JssmPropertyDefinition[],
-  state_property?            : JssmPropertyDefinition[]
+  state_declaration?             : Object[],
+  property_definition?           : JssmPropertyDefinition[],
+  state_property?                : JssmPropertyDefinition[]
 
-  arrange_declaration?       : Array<Array<StateType>>,
-  arrange_start_declaration? : Array<Array<StateType>>,
-  arrange_end_declaration?   : Array<Array<StateType>>,
+  arrange_declaration?           : Array<Array<StateType>>,
+  arrange_start_declaration?     : Array<Array<StateType>>,
+  arrange_end_declaration?       : Array<Array<StateType>>,
 
-  machine_author?            : string | Array<string>,
-  machine_comment?           : string,
-  machine_contributor?       : string | Array<string>,
-  machine_definition?        : string,
-  machine_language?          : string,   // TODO FIXME COMEBACK
-  machine_license?           : string,   // TODO FIXME COMEBACK
-  machine_name?              : string,
-  machine_version?           : string,   // TODO FIXME COMEBACK
+  machine_author?                : string | Array<string>,
+  machine_comment?               : string,
+  machine_contributor?           : string | Array<string>,
+  machine_definition?            : string,
+  machine_language?              : string,   // TODO FIXME COMEBACK
+  machine_license?               : string,   // TODO FIXME COMEBACK
+  machine_name?                  : string,
+  machine_version?               : string,   // TODO FIXME COMEBACK
 
-  fsl_version?               : string,   // TODO FIXME COMEBACK
+  fsl_version?                   : string,   // TODO FIXME COMEBACK
 
-  auto_api?                  : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
-  instance_name?             : string | undefined
+  auto_api?                      : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  instance_name?                 : string | undefined,
+
+  default_state_config?          : JssmStateConfig,
+  default_start_state_config?    : JssmStateConfig,
+  default_end_state_config?      : JssmStateConfig,
+  default_hooked_state_config?   : JssmStateConfig,
+  default_terminal_state_config? : JssmStateConfig,
+  default_active_state_config?   : JssmStateConfig
 
 };
 
@@ -565,6 +574,7 @@ export {
 
   JssmStateDeclaration,
     JssmStateDeclarationRule,
+    JssmStateConfig,
 
   JssmLayout,
 

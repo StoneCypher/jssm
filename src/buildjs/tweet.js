@@ -1,5 +1,6 @@
 
-const { spawnSync } = require('child_process');
+const { spawnSync }    = require('child_process'),
+      { readFileSync } = require('fs');
 
 const chalk             = require('chalk'),
       { TwitterClient } = require('twitter-api-client');
@@ -7,9 +8,12 @@ const chalk             = require('chalk'),
 const blue = chalk.blueBright,
       cyan = chalk.cyanBright;
 
-const tag            = spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
+const package = JSON.parse( readFileSync('./package.json') );
+
+const tag            = package.version, // spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
       commit_message = spawnSync('git log -1 --pretty=format:%B');
 
+console.log('found:');
 console.log(tag);
 console.log(commit_message);
 
@@ -39,7 +43,7 @@ const tweet = async (status) => {
   const makeTweet = fromText => {
 
     const cap      = 280,
-          addendum = ' #fsl #fsm #jssm #state 🤖',
+          addendum = ' #fsl #fsm #jssm #state #statemachine 🤖',
           alen     = addendum.length,
           mlen     = cap - alen,
           pref     = fromText.length > mlen? (fromText.substring(0, mlen-1) + '…') : fromText;
@@ -48,7 +52,7 @@ const tweet = async (status) => {
 
   };
 
-  const the_tweet = makeTweet(process.argv[2]);
+  const the_tweet = makeTweet(`Released ${tag} - ${commit_message}`);
 
   try {
     console.log(`${blue('Tweeting ')}${cyan(process.argv[2])}`);

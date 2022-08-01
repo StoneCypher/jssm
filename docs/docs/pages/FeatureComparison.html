@@ -573,9 +573,9 @@ encouraged.</p>
   </tr>
   <tr>
     <th>Serialization</th>
-    <th>1</th>
+    <th>2</th>
     <td>✅</td>
-    <td>❌</td>
+    <td>✅</td>
     <td>❌</td>
     <td>❌</td>
     <td>❌</td>
@@ -1680,7 +1680,7 @@ encouraged.</p>
   <tr>
     <th colspan="2">Language features</th>
     <td>19</td>
-    <td>13</td>
+    <td>14</td>
     <td>10</td>
     <td>11</td>
     <td>10</td>
@@ -1794,7 +1794,7 @@ encouraged.</p>
   <tr class="sums">
     <th colspan="2">Sum totals</th>
     <td>43</td>
-    <td>25</td>
+    <td>26</td>
     <td>18</td>
     <td>13</td>
     <td>12</td>
@@ -1824,6 +1824,13 @@ encouraged.</p>
 <a href="#definitions" id="definitions" style="color: inherit; text-decoration: none;">
   <h2>Definitions</h2>
 </a>
+<p>By section:</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#" id="" style="color: inherit; text-decoration: none;">
+  <h3></h3>
+</a>
 <dl>
 
   <dt><a name="states"></a>States</dt>
@@ -1849,18 +1856,22 @@ encouraged.</p>
     from transitions, which specify the end goal, by being a label specifying
     what's being done, instead; since these are also not part of the input or
     output alphabets, these are effectively a layer of indirection on behavior.
-    On a traffic light, we probably have <tt>next</tt>, <tt>turn on</tt>, and
-    <tt>turn off</tt>. Actions are sometimes called <syn>tasks</syn>,
-    <syn>raise</syn>, <syn>signal</syn>, <syn>event</syn>, or <syn>do</syn>.
-    In some machines these are mandatory; in FSL they are optional.
+    What's useful here is the names can be repeated from different starting
+    points.  To progress in our traffic light without actions, we need to know
+    what color we're on to ask for the successor by title; with actions, we can
+    just teach each color the idea of <tt>next</tt>.  Actions are sometimes
+    called <syn>tasks</syn>, <syn>raise</syn>, <syn>signal</syn>,
+    <syn>event</syn>, or <syn>do</syn>.  In some machines these are mandatory;
+    in FSL they are optional.
   </dd>
 
   <dt><a name="data"></a>Data</dt>
   <dd>
-    The difference between a Mealy and a Moore machine - data support means you
-    can track more than just states.  In a vending machine, having no data means
-    you need states for every valid sum of coin values; having data means you
-    just track a number for what's already contained.  Some machines call this
+    Data is the difference between a Mealy and a Moore machine - data support
+    means you can track more than just states.  In a vending machine, having no
+    data means you need states for every valid sum of coin values (one for five
+    cents, one for ten cents, etc;) having data means you just track
+    a number for what's already contained.  Some machines call this
     <syn>context</syn>, or occasionally <syn>input</syn>.
   </dd>
 

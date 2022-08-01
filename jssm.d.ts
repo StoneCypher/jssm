@@ -1,5 +1,5 @@
 declare type StateType = string;
-import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
+import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
 JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import * as constants from './jssm_constants';
@@ -257,7 +257,13 @@ declare class Machine<mDT> {
     _required_properties: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
+    _state_style: JssmStateConfig;
+    _active_state_style: JssmStateConfig;
+    _hooked_state_style: JssmStateConfig;
+    _terminal_state_style: JssmStateConfig;
+    _start_state_style: JssmStateConfig;
+    _end_state_style: JssmStateConfig;
+    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.

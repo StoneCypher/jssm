@@ -2,12 +2,27 @@
 <a href="#what-are-finite-state-machines" id="what-are-finite-state-machines" style="color: inherit; text-decoration: none;">
   <h1>What are Finite State Machines?</h1>
 </a>
+<p>Support tools are important to keeping software running correctly.  As
+programmers move from small software to medium software, they often find that
+teaching the computer more about what&#39;s going on, so that the computer can
+meaningfully argue, is a productive strategy.</p>
+<p><code>Type system</code>s are an obvious example - if you have a variable meant to store a
+number, and accidentally attempt to assign some text to it, it is useful for
+your programming lanugage or environment to be able to discover and announce the
+mistake.  <code>Check constraint</code>s, <code>foreign key</code>s, <code>spec</code>s, and <code>unit test</code>s are
+other examples of teaching the computer to say &quot;no.&quot;</p>
+<p><code>Finite State Machine</code>s are a very powerful mechanism for teaching the computer
+what&#39;s actually happening.  They represent something as a collection of <code>states</code>
+(finite because you predefine which ones exist,) then define which states may
+turn into which other states.  Most of the value of a <code>state machine</code> comes from
+this modelling, and from refusing inappropriate transitions.</p>
 <p><code>Finite State Machine</code>s are a classic tool from the 1950s, meant to allow a
 system to be better defined.  In formal and high safety systems they are a
 critical tool.  FSL, the <code>Finite State Language</code>, exists to make them easier to
 write, debug, and maintain.</p>
-<p>Most likely, you&#39;re already pretty familiar with a lot of state machines.  On
-those grounds, we teach state machines by example.</p>
+<p>Most likely, you&#39;re already pretty familiar with a lot of state machines -
+light switches, traffic lights, microwaves, and so forth.  On those grounds, we
+teach state machines by example.</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 

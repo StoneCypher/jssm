@@ -772,23 +772,41 @@ StateItems
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "state_config", value: { config_kind: "state", config_items: state_items || [] } };
+    return { key: "state_config", val: state_items || [] };
   }
 
 ConfigStartState
   = WS? "start_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "state_config", value: { config_kind: "in_state", config_items: state_items || [] } };
+    return { key: "default_start_state_config", val: state_items || [] };
   }
 
 ConfigEndState
   = WS? "end_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "state_config", value: { config_kind: "out_state", config_items: state_items || [] } };
+    return { key: "default_end_state_config", val: state_items || [] };
+  }
+
+ConfigActiveState
+  = WS? "active_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "default_active_state_config", val: state_items || [] };
+  }
+
+ConfigTerminalState
+  = WS? "terminal_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "default_terminal_state_config", val: state_items || [] };
+  }
+
+ConfigHookedState
+  = WS? "hooked_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "default_hooked_state_config", val: state_items || [] };
   }
 
 ConfigAnyState
   = ConfigState
   / ConfigStartState
   / ConfigEndState
+  / ConfigActiveState
+  / ConfigTerminalState
+  / ConfigHookedState
 
 
 

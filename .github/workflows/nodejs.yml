@@ -146,7 +146,7 @@ jobs:
 
     - name: Tweet notice
       run: |
-        npm install && node ./src/buildjs/tweet.js "Released ${{ env.TAG }} - ${{ steps.release.outputs.COMMIT_MSG }}"
+        npm install && node ./src/buildjs/tweet.js
       env:
         JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
         JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}

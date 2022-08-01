@@ -12,7 +12,7 @@ import { circular_buffer }         from 'circular_buffer_js';
 
 import {
 
-  JssmGenericState, JssmGenericConfig,
+  JssmGenericState, JssmGenericConfig, JssmStateConfig,
   JssmTransition, JssmTransitions, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
@@ -479,7 +479,9 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
     'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow', 'dot_preamble'
+    'flow', 'dot_preamble', 'default_state_config', 'default_start_state_config',
+    'default_end_state_config', 'default_hooked_state_config',
+    'default_active_state_config', 'default_terminal_state_config'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -549,55 +551,68 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
 function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   const results: {
-    graph_layout              : Array<JssmLayout>,
-    transition                : Array<JssmTransition<mDT>>,
-    start_states              : Array<string>,
-    end_states                : Array<string>,
-    state_config              : Array<any>,           // TODO COMEBACK no any
-    state_declaration         : Array<JssmStateDeclaration>,
-    fsl_version               : Array<string>,
-    machine_author            : Array<string>,
-    machine_comment           : Array<string>,
-    machine_contributor       : Array<string>,
-    machine_definition        : Array<string>,
-    machine_language          : Array<string>,
-    machine_license           : Array<string>,
-    machine_name              : Array<string>,
-    machine_reference         : Array<string>,
-    property_definition       : Array<JssmPropertyDefinition>,
-    state_property            : { [name: string]: JssmPropertyDefinition },
-    theme                     : Array<string>,
-    flow                      : Array<string>,
-    dot_preamble              : Array<string>,
-    arrange_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_start_declaration : Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_end_declaration   : Array<Array<string>>, // TODO COMEBACK CHECKME
-    machine_version           : Array<string>         // TODO COMEBACK semver
+    graph_layout                  : Array<JssmLayout>,
+    transition                    : Array<JssmTransition<mDT>>,
+    start_states                  : Array<string>,
+    end_states                    : Array<string>,
+    state_config                  : Array<any>,           // TODO COMEBACK no any
+    state_declaration             : Array<JssmStateDeclaration>,
+    fsl_version                   : Array<string>,
+    machine_author                : Array<string>,
+    machine_comment               : Array<string>,
+    machine_contributor           : Array<string>,
+    machine_definition            : Array<string>,
+    machine_language              : Array<string>,
+    machine_license               : Array<string>,
+    machine_name                  : Array<string>,
+    machine_reference             : Array<string>,
+    property_definition           : Array<JssmPropertyDefinition>,
+    state_property                : { [name: string]: JssmPropertyDefinition },
+    theme                         : Array<string>,
+    flow                          : Array<string>,
+    dot_preamble                  : Array<string>,
+    arrange_declaration           : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_start_declaration     : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_end_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
+    machine_version               : Array<string>,        // TODO COMEBACK semver
+    default_state_config          : Array<JssmStateConfig>,
+    default_active_state_config   : Array<JssmStateConfig>,
+    default_hooked_state_config   : Array<JssmStateConfig>,
+    default_terminal_state_config : Array<JssmStateConfig>,
+    default_start_state_config    : Array<JssmStateConfig>,
+    default_end_state_config      : Array<JssmStateConfig>,
   } = {
-    graph_layout              : [],
-    transition                : [],
-    start_states              : [],
-    end_states                : [],
-    state_config              : [],
-    state_declaration         : [],
-    fsl_version               : [],
-    machine_author            : [],
-    machine_comment           : [],
-    machine_contributor       : [],
-    machine_definition        : [],
-    machine_language          : [],
-    machine_license           : [],
-    machine_name              : [],
-    machine_reference         : [],
-    property_definition       : [],
-    state_property            : {},
-    theme                     : [],
-    flow                      : [],
-    dot_preamble              : [],
-    arrange_declaration       : [],
-    arrange_start_declaration : [],
-    arrange_end_declaration   : [],
-    machine_version           : []
+    graph_layout                  : [],
+    transition                    : [],
+    start_states                  : [],
+    end_states                    : [],
+    state_config                  : [],
+    state_declaration             : [],
+    fsl_version                   : [],
+    machine_author                : [],
+    machine_comment               : [],
+    machine_contributor           : [],
+    machine_definition            : [],
+    machine_language              : [],
+    machine_license               : [],
+    machine_name                  : [],
+    machine_reference             : [],
+    property_definition           : [],
+    state_property                : {},
+    theme                         : [],
+    flow                          : [],
+    dot_preamble                  : [],
+    arrange_declaration           : [],
+    arrange_start_declaration     : [],
+    arrange_end_declaration       : [],
+    machine_version               : [],
+    default_state_config          : [],
+    default_active_state_config   : [],
+    default_hooked_state_config   : [],
+    default_terminal_state_config : [],
+    default_start_state_config    : [],
+    default_end_state_config      : [],
+
   };
 
   tree.map((tr: JssmCompileSeStart<StateType>) => {
@@ -622,13 +637,16 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
   const result_cfg: JssmGenericConfig<mDT> = {
     start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],
     transitions    : assembled_transitions,
-    state_property : []
+    state_property : [],
   };
 
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
     'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'theme', 'flow', 'dot_preamble'
+    'theme', 'flow', 'dot_preamble', 'default_state_config',
+    'default_start_state_config', 'default_end_state_config',
+    'default_hooked_state_config', 'default_terminal_state_config',
+    'default_active_state_config'
   ];
 
   oneOnlyKeys.map((oneOnlyKey: string) => {
@@ -827,6 +845,13 @@ class Machine<mDT> {
   _history        : JssmHistory<mDT>;
   _history_length : number;
 
+  _state_style          : JssmStateConfig;
+  _active_state_style   : JssmStateConfig;
+  _hooked_state_style   : JssmStateConfig;
+  _terminal_state_style : JssmStateConfig;
+  _start_state_style    : JssmStateConfig;
+  _end_state_style      : JssmStateConfig;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
@@ -855,7 +880,13 @@ class Machine<mDT> {
     graph_layout              = 'dot',
     instance_name,
     history,
-    data
+    data,
+    default_state_config,
+    default_active_state_config,
+    default_hooked_state_config,
+    default_terminal_state_config,
+    default_start_state_config,
+    default_end_state_config
 
   }: JssmGenericConfig<mDT>) {
 
@@ -937,6 +968,13 @@ class Machine<mDT> {
     this._default_properties            = new Map();
     this._state_properties              = new Map();
     this._required_properties           = new Set();
+
+    this._state_style                   = default_state_config          ?? {};
+    this._active_state_style            = default_active_state_config   ?? {};
+    this._hooked_state_style            = default_hooked_state_config   ?? {};
+    this._terminal_state_style          = default_terminal_state_config ?? {};
+    this._start_state_style             = default_start_state_config    ?? {};
+    this._end_state_style               = default_end_state_config      ?? {};
 
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
