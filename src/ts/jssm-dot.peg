@@ -644,7 +644,7 @@ SingleEdgeColor "single edge color"
   = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
 
 TransitionLineStyle "transition line style"
-  = WS? "linestyle" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
+  = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
 
 ArrowItems
   = SingleEdgeColor
@@ -758,46 +758,46 @@ GvizLayout
   / "fdp"
   / "neato"
 
-StateItemShapeKey
-  = "shape"
-
-StateItemShape
-  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:"shape", value:value}; }
-
-StateItem
-  = StateItemShape
+// StateItemShapeKey
+//   = "shape"
+//
+// StateItemShape
+//   = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return { shape: value }; }
+//
+// StateItem
+//   = StateItemShape
 
 StateItems
-  = StateItem+
+  = StateDeclarationItem+
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "state_config", val: state_items || [] };
+    return { key: "default_state_config", value: state_items || [] };
   }
 
 ConfigStartState
   = WS? "start_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_start_state_config", val: state_items || [] };
+    return { key: "default_start_state_config", value: state_items || [] };
   }
 
 ConfigEndState
   = WS? "end_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_end_state_config", val: state_items || [] };
+    return { key: "default_end_state_config", value: state_items || [] };
   }
 
 ConfigActiveState
   = WS? "active_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_active_state_config", val: state_items || [] };
+    return { key: "default_active_state_config", value: state_items || [] };
   }
 
 ConfigTerminalState
   = WS? "terminal_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_terminal_state_config", val: state_items || [] };
+    return { key: "default_terminal_state_config", value: state_items || [] };
   }
 
 ConfigHookedState
   = WS? "hooked_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_hooked_state_config", val: state_items || [] };
+    return { key: "default_hooked_state_config", value: state_items || [] };
   }
 
 ConfigAnyState
@@ -836,14 +836,14 @@ TransitionKey
   / "todo"
 
 TransitionItem
-  = transitionkey:TransitionKey ":" value:Label ";" { return {key:transitionkey, value:value}; }
+  = key:TransitionKey ":" value:Label ";" { return { key, value }; }
 
 TransitionItems
   = GraphDefaultEdgeColor
   / TransitionItem+
 
 GraphDefaultEdgeColor "graph default edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'graph_default_edge_color', value:value}; }
+  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
 
 ConfigTransition
   = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
@@ -1013,7 +1013,7 @@ SdStateCorners "corners"
   = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? { return { key:'corners', value }; }
 
 SdStateLineStyle "linestyle"
-  = WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'linestyle', value }; }
+  = WS? "line-style"       WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
 
 
 SdStateProperty "state property"
@@ -1025,7 +1025,7 @@ SdStateProperty "state property"
   }
 
 
-StateDeclarationItems
+StateDeclarationItem
   = SdStateColor
   / SdStateTextColor
   / SdStateBackgroundColor
@@ -1036,7 +1036,7 @@ StateDeclarationItems
   / SdStateProperty
 
 StateDeclarationDesc
-  = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
+  = "{" WS? items:StateDeclarationItem* WS? "}" { return items; }
 
 StateDeclaration
   = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }

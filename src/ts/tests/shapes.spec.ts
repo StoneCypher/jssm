@@ -84,12 +84,12 @@ describe('Corners', () => {
 describe('Line style', () => {
 
   test('solid', () =>
-    expect(sm`state a: { linestyle: solid; }; a->b;`.state_declaration("a").linestyle).toBe("solid"));
+    expect(sm`state a: { line-style: solid; }; a->b;`.state_declaration("a").lineStyle).toBe("solid"));
 
   test('dashed', () =>
-    expect(sm`state a: { linestyle: dashed; }; a->b;`.state_declaration("a").linestyle).toBe("dashed"));
+    expect(sm`state a: { line-style: dashed; }; a->b;`.state_declaration("a").lineStyle).toBe("dashed"));
 
   test('dotted', () =>
-    expect(sm`state a: { linestyle: dotted; }; a->b;`.state_declaration("a").linestyle).toBe("dotted"));
+    expect(sm`state a: { line-style: dotted; }; a->b;`.state_declaration("a").lineStyle).toBe("dotted"));
 
 });

@@ -210,7 +210,7 @@ type JssmStateDeclaration = {
   shape?           : JssmShape,
   color?           : JssmColor,
   corners?         : JssmCorner,
-  linestyle?       : JssmLineStyle,
+  lineStyle?       : JssmLineStyle,
 
   textColor?       : JssmColor,
   backgroundColor? : JssmColor,
@@ -222,6 +222,21 @@ type JssmStateDeclaration = {
 };
 
 type JssmStateConfig = Partial<JssmStateDeclaration>;
+
+type JssmStateStyleShape           = { key: 'shape',            value: JssmShape     };
+type JssmStateStyleColor           = { key: 'color',            value: JssmColor     };
+type JssmStateStyleTextColor       = { key: 'text-color',       value: JssmColor     };
+type JssmStateStyleCorners         = { key: 'corners',          value: JssmCorner    };
+type JssmStateStyleLineStyle       = { key: 'line-style',       value: JssmLineStyle };
+type JssmStateStyleBackgroundColor = { key: 'background-color', value: JssmColor     };
+type JssmStateStyleBorderColor     = { key: 'border-color',     value: JssmColor     };
+
+type JssmStateStyleKey     = JssmStateStyleShape | JssmStateStyleColor
+                           | JssmStateStyleTextColor | JssmStateStyleCorners
+                           | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor
+                           | JssmStateStyleBorderColor;
+
+type JssmStateStyleKeyList = JssmStateStyleKey[];
 
 
 
@@ -279,12 +294,12 @@ type JssmGenericConfig<DataType> = {
   auto_api?                      : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
   instance_name?                 : string | undefined,
 
-  default_state_config?          : JssmStateConfig,
-  default_start_state_config?    : JssmStateConfig,
-  default_end_state_config?      : JssmStateConfig,
-  default_hooked_state_config?   : JssmStateConfig,
-  default_terminal_state_config? : JssmStateConfig,
-  default_active_state_config?   : JssmStateConfig
+  default_state_config?          : JssmStateStyleKeyList,
+  default_start_state_config?    : JssmStateStyleKeyList,
+  default_end_state_config?      : JssmStateStyleKeyList,
+  default_hooked_state_config?   : JssmStateStyleKeyList,
+  default_terminal_state_config? : JssmStateStyleKeyList,
+  default_active_state_config?   : JssmStateStyleKeyList
 
 };
 
@@ -575,6 +590,9 @@ export {
   JssmStateDeclaration,
     JssmStateDeclarationRule,
     JssmStateConfig,
+
+  JssmStateStyleKey,
+    JssmStateStyleKeyList,
 
   JssmLayout,
 

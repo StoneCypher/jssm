@@ -17,6 +17,7 @@ import {
   JssmMachineInternalState,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
+  JssmStateStyleKey, JssmStateStyleKeyList,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout,
@@ -643,10 +644,7 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
     'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'theme', 'flow', 'dot_preamble', 'default_state_config',
-    'default_start_state_config', 'default_end_state_config',
-    'default_hooked_state_config', 'default_terminal_state_config',
-    'default_active_state_config'
+    'theme', 'flow', 'dot_preamble'
   ];
 
   oneOnlyKeys.map((oneOnlyKey: string) => {
@@ -663,7 +661,10 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
    'machine_author', 'machine_contributor', 'machine_reference',
-   'state_declaration', 'property_definition'].map(
+   'state_declaration', 'property_definition', 'default_state_config',
+   'default_start_state_config', 'default_end_state_config',
+   'default_hooked_state_config', 'default_terminal_state_config',
+   'default_active_state_config'].map(
       (multiKey: string) => {
         if (results[multiKey].length) {
           result_cfg[multiKey] = results[multiKey];
@@ -736,7 +737,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'shape'            : state_decl.shape           = d.value; break;
       case 'color'            : state_decl.color           = d.value; break;
       case 'corners'          : state_decl.corners         = d.value; break;
-      case 'linestyle'        : state_decl.linestyle       = d.value; break;
+      case 'line-style'       : state_decl.lineStyle       = d.value; break;
 
       case 'text-color'       : state_decl.textColor       = d.value; break;
       case 'background-color' : state_decl.backgroundColor = d.value; break;
@@ -751,6 +752,77 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
   } );
 
   return state_decl;
+
+}
+
+
+
+
+
+function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig {
+
+  const state_style: JssmStateConfig = {};
+
+  if (Array.isArray(jssk)) {
+
+    jssk.forEach( (key, i) => {
+
+      if (typeof key !== 'object') {
+        throw new JssmError(this, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
+      }
+
+      switch (key.key) {
+
+        case 'shape':
+          if (state_style.shape !== undefined) { throw new JssmError(this, `cannot redefine 'shape' in state_style_condense, already defined`); }
+          state_style.shape = key.value;
+          break;
+
+        case 'color':
+          if (state_style.color !== undefined) { throw new JssmError(this, `cannot redefine 'color' in state_style_condense, already defined`); }
+          state_style.color = key.value;
+          break;
+
+        case 'text-color':
+          if (state_style.textColor !== undefined) { throw new JssmError(this, `cannot redefine 'text-color' in state_style_condense, already defined`); }
+          state_style.textColor = key.value;
+          break;
+
+        case 'corners':
+          if (state_style.corners !== undefined) { throw new JssmError(this, `cannot redefine 'corners' in state_style_condense, already defined`); }
+          state_style.corners = key.value;
+          break;
+
+        case 'line-style':
+          if (state_style.lineStyle !== undefined) { throw new JssmError(this, `cannot redefine 'line-style' in state_style_condense, already defined`); }
+          state_style.lineStyle = key.value;
+          break;
+
+        case 'background-color':
+          if (state_style.backgroundColor !== undefined) { throw new JssmError(this, `cannot redefine 'background-color' in state_style_condense, already defined`); }
+          state_style.backgroundColor = key.value;
+          break;
+
+        case 'border-color':
+          if (state_style.borderColor !== undefined) { throw new JssmError(this, `cannot redefine 'border-color' in state_style_condense, already defined`); }
+          state_style.borderColor = key.value;
+          break;
+
+        default:
+          // TODO do that <never> trick to assert this list is complete
+          throw new JssmError(this, `unknown state style key in condense: ${(key as any).key}`);
+
+      }
+
+    });
+
+  } else if (jssk === undefined) {
+    // do nothing, undefined is legal and means we should return the empty container above
+  } else {
+    throw new JssmError(this, 'state_style_condense received a non-array');
+  }
+
+  return state_style;
 
 }
 
@@ -969,12 +1041,12 @@ class Machine<mDT> {
     this._state_properties              = new Map();
     this._required_properties           = new Set();
 
-    this._state_style                   = default_state_config          ?? {};
-    this._active_state_style            = default_active_state_config   ?? {};
-    this._hooked_state_style            = default_hooked_state_config   ?? {};
-    this._terminal_state_style          = default_terminal_state_config ?? {};
-    this._start_state_style             = default_start_state_config    ?? {};
-    this._end_state_style               = default_end_state_config      ?? {};
+    this._state_style                   = state_style_condense(default_state_config);
+    this._active_state_style            = state_style_condense(default_active_state_config);
+    this._hooked_state_style            = state_style_condense(default_hooked_state_config);
+    this._terminal_state_style          = state_style_condense(default_terminal_state_config);
+    this._start_state_style             = state_style_condense(default_start_state_config);
+    this._end_state_style               = state_style_condense(default_end_state_config);
 
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
@@ -2806,6 +2878,192 @@ class Machine<mDT> {
 
   /********
    *
+   *  Get the standard style for a single state.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.standard_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; state: { shape: circle; };`;
+   *  console.log(light.standard_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get standard_state_style(): JssmStateConfig {
+    return this._state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the hooked state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  The hooked style is only applied to nodes which have a named hook in the
+   *  graph.  Open hooks set through the external API aren't graphed, because
+   *  that would be literally every node.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.hooked_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
+   *  console.log(light.hooked_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get hooked_state_style(): JssmStateConfig {
+    return this._hooked_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the start state style.  ***Does not*** include composition from an
+   *  applied theme, or things from the underlying base stylesheet; only the
+   *  modifications applied by this machine.
+   *
+   *  Start states are defined by the directive `start_states`, or in absentia,
+   *  are the first mentioned state.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.start_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; start_state: { shape: circle; };`;
+   *  console.log(light.start_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get start_state_style(): JssmStateConfig {
+    return this._start_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the end state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  End states are defined in the directive `end_states`, and are distinct
+   *  from terminal states.  End states are voluntary successful endpoints for a
+   *  process.  Terminal states are states that cannot be exited.  By example,
+   *  most error states are terminal states, but not end states.  Also, since
+   *  some end states can be exited and are determined by hooks, such as
+   *  recursive or iterative nodes, there is such a thing as an end state that
+   *  is not a terminal state.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.standard_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; end_state: { shape: circle; };`;
+   *  console.log(light.standard_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get end_state_style(): JssmStateConfig {
+    return this._end_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the terminal state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  Terminal state styles are automatically determined by the machine.  Any
+   *  state without a valid exit transition is terminal.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.terminal_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
+   *  console.log(light.terminal_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get terminal_state_style(): JssmStateConfig {
+    return this._terminal_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the style for the active state.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.active_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; active_state: { shape: circle; };`;
+   *  console.log(light.active_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get active_state_style(): JssmStateConfig {
+    return this._active_state_style;
+  }
+
+
+
+
+
+  /********
+   *
    *  Instruct the machine to complete an action.  Synonym for {@link action}.
    *
    *  ```typescript
@@ -3206,6 +3464,7 @@ export {
 
   is_hook_rejection,
     is_hook_complex_result,
-    abstract_hook_step
+    abstract_hook_step,
+    state_style_condense
 
 };
