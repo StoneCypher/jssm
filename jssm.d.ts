@@ -959,6 +959,26 @@ declare class Machine<mDT> {
     get active_state_style(): JssmStateConfig;
     /********
      *
+     *  Gets the composite style for a specific node by individually imposing the
+     *  style layers on a given object, after determining which layers are
+     *  appropriate.
+     *
+     *  The order of composition is base, then theme, then user content.  Each
+     *  item in the stack will be composited independently.  First, the base state
+     *  style, then the theme state style, then the user state style.
+     *
+     *  After the three state styles, we'll composite the start styles; then the
+     *  end styles; then the hooked styles; then the terminal styles; finally, the
+     *  active styles.
+     *
+     *  The base state style must exist.  All other styles are optional.
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    style_for(state: StateType): JssmStateConfig;
+    /********
+     *
      *  Instruct the machine to complete an action.  Synonym for {@link action}.
      *
      *  ```typescript

@@ -34,6 +34,15 @@ import {
 
 
 import {
+  base_state_style,
+  base_active_state_style
+} from './jssm_base_stylesheet';
+
+
+
+
+
+import {
   seq,
   unique, find_repeated,
   weighted_rand_select, weighted_sample_select,
@@ -1518,6 +1527,7 @@ class Machine<mDT> {
 
 
   // NEEDS_DOCS
+
   /*********
    *
    *  List all known property names.  If you'd also like values, use
@@ -1558,7 +1568,7 @@ class Machine<mDT> {
    */
 
   state_is_final(whichState: StateType): boolean {
-    return ((this.state_is_terminal(whichState)) && (this.state_is_complete(whichState)));
+    return ((this.state_is_terminal(whichState)) || (this.state_is_complete(whichState)));
   }
 
 
@@ -3064,6 +3074,86 @@ class Machine<mDT> {
 
   /********
    *
+   *  Gets the composite style for a specific node by individually imposing the
+   *  style layers on a given object, after determining which layers are
+   *  appropriate.
+   *
+   *  The order of composition is base, then theme, then user content.  Each
+   *  item in the stack will be composited independently.  First, the base state
+   *  style, then the theme state style, then the user state style.
+   *
+   *  After the three state styles, we'll composite the start styles; then the
+   *  end styles; then the hooked styles; then the terminal styles; finally, the
+   *  active styles.
+   *
+   *  The base state style must exist.  All other styles are optional.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  style_for(state: StateType): JssmStateConfig {
+
+    // basic state style
+    const layers = [ base_state_style ];
+//  if (theme.state_style) { layers.push(theme.state_style); }
+    if (this._state_style) { layers.push(this._state_style); }
+
+
+/*
+    // start state style
+    if (this.is_starting_state(state)) {
+      layers.push(base_start_state_style);
+//    if (theme.start_state_style) { layers.push(theme.start_state_style); }
+      if (this._start_state_style) { layers.push(this._start_state_style); }
+    }
+
+    // end state style
+    if (this.is_ending_state(state)) {
+      layers.push(base_end_state_style);
+//    if (theme.end_state_style) { layers.push(theme.end_state_style); }
+      if (this._end_state_style) { layers.push(this._end_state_style); }
+    }
+
+    // hooked state style
+    if (this.has_hooks(state)) {
+      layers.push(base_hooked_state_style);
+//    if (theme.hooked_state_style) { layers.push(theme.hooked_state_style); }
+      if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+    }
+
+    // terminal state style
+    if (this.is_terminal_state(state)) {
+      layers.push(base_terminal_state_style);
+//    if (theme.terminal_state_style) { layers.push(theme.terminal_state_style); }
+      if (this._terminal_state_style) { layers.push(this._terminal_state_style); }
+    }
+*/
+
+    // active state style
+    if (this.state() === state) {
+      layers.push(base_active_state_style);
+//    if (theme.active_state_style) { layers.push(theme.active_state_style); }
+      if (this._active_state_style) { layers.push(this._active_state_style); }
+    }
+
+    return layers.reduce((acc: JssmStateConfig, cur: JssmStateConfig) => {
+
+      const composite_state: JssmStateConfig = acc;
+      Object.keys(cur).forEach(key => composite_state[key] = cur[key]);
+
+      return composite_state;
+
+    }, {} as JssmStateConfig);
+
+  }
+
+
+
+
+
+  /********
+   *
    *  Instruct the machine to complete an action.  Synonym for {@link action}.
    *
    *  ```typescript
@@ -3465,6 +3555,7 @@ export {
   is_hook_rejection,
     is_hook_complex_result,
     abstract_hook_step,
-    state_style_condense
+
+  state_style_condense
 
 };

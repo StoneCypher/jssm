@@ -1,6 +1,7 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { circular_buffer } from 'circular_buffer_js';
+import { base_state_style, base_active_state_style } from './jssm_base_stylesheet';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -1109,7 +1110,7 @@ class Machine {
      *
      */
     state_is_final(whichState) {
-        return ((this.state_is_terminal(whichState)) && (this.state_is_complete(whichState)));
+        return ((this.state_is_terminal(whichState)) || (this.state_is_complete(whichState)));
     }
     /********
      *
@@ -2233,6 +2234,75 @@ class Machine {
      */
     get active_state_style() {
         return this._active_state_style;
+    }
+    /********
+     *
+     *  Gets the composite style for a specific node by individually imposing the
+     *  style layers on a given object, after determining which layers are
+     *  appropriate.
+     *
+     *  The order of composition is base, then theme, then user content.  Each
+     *  item in the stack will be composited independently.  First, the base state
+     *  style, then the theme state style, then the user state style.
+     *
+     *  After the three state styles, we'll composite the start styles; then the
+     *  end styles; then the hooked styles; then the terminal styles; finally, the
+     *  active styles.
+     *
+     *  The base state style must exist.  All other styles are optional.
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    style_for(state) {
+        // basic state style
+        const layers = [base_state_style];
+        //  if (theme.state_style) { layers.push(theme.state_style); }
+        if (this._state_style) {
+            layers.push(this._state_style);
+        }
+        /*
+            // start state style
+            if (this.is_starting_state(state)) {
+              layers.push(base_start_state_style);
+        //    if (theme.start_state_style) { layers.push(theme.start_state_style); }
+              if (this._start_state_style) { layers.push(this._start_state_style); }
+            }
+        
+            // end state style
+            if (this.is_ending_state(state)) {
+              layers.push(base_end_state_style);
+        //    if (theme.end_state_style) { layers.push(theme.end_state_style); }
+              if (this._end_state_style) { layers.push(this._end_state_style); }
+            }
+        
+            // hooked state style
+            if (this.has_hooks(state)) {
+              layers.push(base_hooked_state_style);
+        //    if (theme.hooked_state_style) { layers.push(theme.hooked_state_style); }
+              if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+            }
+        
+            // terminal state style
+            if (this.is_terminal_state(state)) {
+              layers.push(base_terminal_state_style);
+        //    if (theme.terminal_state_style) { layers.push(theme.terminal_state_style); }
+              if (this._terminal_state_style) { layers.push(this._terminal_state_style); }
+            }
+        */
+        // active state style
+        if (this.state() === state) {
+            layers.push(base_active_state_style);
+            //    if (theme.active_state_style) { layers.push(theme.active_state_style); }
+            if (this._active_state_style) {
+                layers.push(this._active_state_style);
+            }
+        }
+        return layers.reduce((acc, cur) => {
+            const composite_state = acc;
+            Object.keys(cur).forEach(key => composite_state[key] = cur[key]);
+            return composite_state;
+        }, {});
     }
     /********
      *
