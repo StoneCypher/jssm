@@ -198,6 +198,8 @@ declare class Machine<mDT> {
     _actions: Map<StateType, Map<StateType, number>>;
     _reverse_actions: Map<StateType, Map<StateType, number>>;
     _reverse_action_targets: Map<StateType, Map<StateType, number>>;
+    _start_states: Set<StateType>;
+    _end_states: Set<StateType>;
     _machine_author?: Array<string>;
     _machine_comment?: string;
     _machine_contributor?: Array<string>;
@@ -264,7 +266,7 @@ declare class Machine<mDT> {
     _terminal_state_style: JssmStateConfig;
     _start_state_style: JssmStateConfig;
     _end_state_style: JssmStateConfig;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<mDT>);
+    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -424,6 +426,56 @@ declare class Machine<mDT> {
     known_props(): string[];
     /********
      *
+     *  Check whether a given state is a valid start state (either because it was
+     *  explicitly named as such, or because it was the first mentioned state.)
+     *
+     *  ```typescript
+     *  import { sm, is_start_state } from 'jssm';
+     *
+     *  const example = sm`a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // false
+     *
+     *  const example = sm`start_states: [a b]; a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // true
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The name of the state to check
+     *
+     */
+    is_start_state(whichState: StateType): boolean;
+    /********
+     *
+     *  Check whether a given state is a valid start state (either because it was
+     *  explicitly named as such, or because it was the first mentioned state.)
+     *
+     *  ```typescript
+     *  import { sm, is_end_state } from 'jssm';
+     *
+     *  const example = sm`a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // false
+     *  console.log( final_test.is_start_state('b') );   // true
+     *
+     *  const example = sm`end_states: [a b]; a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // true
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The name of the state to check
+     *
+     */
+    is_end_state(whichState: StateType): boolean;
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -448,7 +500,7 @@ declare class Machine<mDT> {
      *  `complete`.)
      *
      *  ```typescript
-     *  import { sm, state_is_final } from 'jssm';
+     *  import { sm, is_final } from 'jssm';
      *
      *  const final_test = sm`first -> second;`;
      *
@@ -967,9 +1019,9 @@ declare class Machine<mDT> {
      *  item in the stack will be composited independently.  First, the base state
      *  style, then the theme state style, then the user state style.
      *
-     *  After the three state styles, we'll composite the start styles; then the
-     *  end styles; then the hooked styles; then the terminal styles; finally, the
-     *  active styles.
+     *  After the three state styles, we'll composite the hooked styles; then the
+     *  terminal styles; then the start styles; then the end styles; finally, the
+     *  active styles.  Remember, last wins.
      *
      *  The base state style must exist.  All other styles are optional.
      *

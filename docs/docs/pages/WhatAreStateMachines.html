@@ -50,7 +50,8 @@ relevant arrow.</p>
 </code></pre>
 <p>And were we to graph this, it might look like so:</p>
 <p><img src="./SimpleLightSwitch.png" alt=""></p>
-<p>But, a light switch is hardly convincing, or much worth paying attention to.</p>
+<p>But, a light switch is hardly convincing, or much worth paying attention to.
+There isn&#39;t a whole lot of value here, except for showing notation.</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
@@ -61,16 +62,22 @@ relevant arrow.</p>
 (or four if you count <code>Off</code>,) and there&#39;s a good reason for it to be there: it&#39;s
 important that a traffic light doesn&#39;t &quot;go backwards.&quot;</p>
 <p>Traffic lights are directional in several ways.  The important one is color: a
-traffic light that&#39;s <code>Yellow</code> must next go to <code>Red</code>.  If the wrong thing
+traffic light that&#39;s <code>Yellow</code> must next go to <code>Red</code>.  <em><strong>If the wrong thing
 happens, and the light goes from <code>Yellow</code> to <code>Green</code> instead, an accident might
-happen.  People could die.</p>
+happen</strong></em>.  People could die.</p>
 <p>In code, you&#39;d need to do something like this:</p>
-<pre><code class="language-typescript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">allowed</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;green&#39;</span><span class="hl-2">  :</span><span class="hl-1"> [</span><span class="hl-3">&#39;yellow&#39;</span><span class="hl-1">, </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;yellow&#39;</span><span class="hl-2"> :</span><span class="hl-1"> [</span><span class="hl-3">&#39;red&#39;</span><span class="hl-1">, </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;red&#39;</span><span class="hl-2">    :</span><span class="hl-1"> [</span><span class="hl-3">&#39;green&#39;</span><span class="hl-1">, </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;off&#39;</span><span class="hl-2">    :</span><span class="hl-1"> [</span><span class="hl-3">&#39;red&#39;</span><span class="hl-1">]</span><br/><span class="hl-1">};</span><br/><br/><span class="hl-4">let</span><span class="hl-1"> </span><span class="hl-2">state</span><span class="hl-1"> = </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-4">function</span><span class="hl-1"> </span><span class="hl-6">switch_to</span><span class="hl-1">(</span><span class="hl-2">next</span><span class="hl-1">) {</span><br/><br/><span class="hl-1">  </span><span class="hl-0">if</span><span class="hl-1"> (</span><span class="hl-2">allowed</span><span class="hl-1">[</span><span class="hl-2">state</span><span class="hl-1">].</span><span class="hl-6">includes</span><span class="hl-1">(</span><span class="hl-2">next</span><span class="hl-1">)) {</span><br/><span class="hl-1">    </span><span class="hl-2">state</span><span class="hl-1"> = </span><span class="hl-2">next</span><span class="hl-1">;</span><br/><span class="hl-1">    </span><span class="hl-0">return</span><span class="hl-1"> </span><span class="hl-4">true</span><span class="hl-1">;</span><br/><span class="hl-1">  } </span><span class="hl-0">else</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">return</span><span class="hl-1"> </span><span class="hl-4">false</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span><br/><br/><span class="hl-6">switch_to</span><span class="hl-1">(</span><span class="hl-3">&#39;red&#39;</span><span class="hl-1">);</span>
+<pre><code class="language-typescript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">allowed</span><span class="hl-1"> = {</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;green&#39;</span><span class="hl-2">  :</span><span class="hl-1"> [</span><span class="hl-3">&#39;yellow&#39;</span><span class="hl-1">, </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;yellow&#39;</span><span class="hl-2"> :</span><span class="hl-1"> [</span><span class="hl-3">&#39;red&#39;</span><span class="hl-1">, </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;red&#39;</span><span class="hl-2">    :</span><span class="hl-1"> [</span><span class="hl-3">&#39;green&#39;</span><span class="hl-1">, </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-3">&#39;off&#39;</span><span class="hl-2">    :</span><span class="hl-1"> [</span><span class="hl-3">&#39;red&#39;</span><span class="hl-1">]</span><br/><span class="hl-1">};</span><br/><br/><span class="hl-4">let</span><span class="hl-1"> </span><span class="hl-2">state</span><span class="hl-1"> = </span><span class="hl-3">&#39;off&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-4">function</span><span class="hl-1"> </span><span class="hl-6">switch_to</span><span class="hl-1">(</span><span class="hl-2">next</span><span class="hl-1">) {</span><br/><br/><span class="hl-1">  </span><span class="hl-0">if</span><span class="hl-1"> (</span><span class="hl-2">allowed</span><span class="hl-1">[</span><span class="hl-2">state</span><span class="hl-1">].</span><span class="hl-6">includes</span><span class="hl-1">(</span><span class="hl-2">next</span><span class="hl-1">)) {</span><br/><span class="hl-1">    </span><span class="hl-2">state</span><span class="hl-1"> = </span><span class="hl-2">next</span><span class="hl-1">;</span><br/><span class="hl-1">    </span><span class="hl-0">return</span><span class="hl-1"> </span><span class="hl-4">true</span><span class="hl-1">;</span><br/><span class="hl-1">  } </span><span class="hl-0">else</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-0">return</span><span class="hl-1"> </span><span class="hl-4">false</span><span class="hl-1">;</span><br/><span class="hl-1">  }</span><br/><br/><span class="hl-1">}</span><br/><br/><span class="hl-6">switch_to</span><span class="hl-1">(</span><span class="hl-3">&#39;red&#39;</span><span class="hl-1">);</span><br/><span class="hl-6">switch_to</span><span class="hl-1">(</span><span class="hl-3">&#39;green&#39;</span><span class="hl-1">);</span><br/><span class="hl-6">switch_to</span><span class="hl-1">(</span><span class="hl-3">&#39;yellow&#39;</span><span class="hl-1">);</span><br/><span class="hl-6">switch_to</span><span class="hl-1">(</span><span class="hl-3">&#39;red&#39;</span><span class="hl-1">);</span>
 </code></pre>
 <p>And that is a rudimentary state machine.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#doing-it-in-fsl" id="doing-it-in-fsl" style="color: inherit; text-decoration: none;">
+  <h2>Doing it in FSL</h2>
+</a>
 <p>Of course, we&#39;re in a state machine programming language and library whose
 design is meant to make them simple, so, we&#39;d write this, instead:</p>
-<pre><code class="language-typescript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">TrafficLight</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`</span><br/><span class="hl-3">  Off -&gt; Red -&gt; Green -&gt; Yellow -&gt; Red;</span><br/><span class="hl-3">  [Red Yellow Green] -&gt; Off;</span><br/><span class="hl-3">`</span><span class="hl-1">;</span><br/><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">transition</span><span class="hl-1">(</span><span class="hl-3">&#39;Red&#39;</span><span class="hl-1">);</span>
+<pre><code class="language-typescript"><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">TrafficLight</span><span class="hl-1"> = </span><span class="hl-6">sm</span><span class="hl-3">`</span><br/><span class="hl-3">  Off -&gt; Red -&gt; Green -&gt; Yellow -&gt; Red;</span><br/><span class="hl-3">  [Red Yellow Green] -&gt; Off;</span><br/><span class="hl-3">`</span><span class="hl-1">;</span><br/><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">go</span><span class="hl-1">(</span><span class="hl-3">&#39;Red&#39;</span><span class="hl-1">);</span><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">go</span><span class="hl-1">(</span><span class="hl-3">&#39;Green&#39;</span><span class="hl-1">);</span><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">go</span><span class="hl-1">(</span><span class="hl-3">&#39;Yellow&#39;</span><span class="hl-1">);</span><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">go</span><span class="hl-1">(</span><span class="hl-3">&#39;Red&#39;</span><span class="hl-1">);</span>
 </code></pre>
 <p>It&#39;s implied that, unless you say otherwise, the first mentioned state is the
 state the machine starts in, so, this traffic light starts in <code>Off</code>.</p>
@@ -83,18 +90,27 @@ tell it to do that, it&#39;ll refuse.</p>
 <p>This is, roughly, the value of type systems, check constraints, proof systems,
 some kinds of constraint programming, and arguably of testing and even linting:
 teaching the machine what wrong is, so that it can support you.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#making-life-easier" id="making-life-easier" style="color: inherit; text-decoration: none;">
+  <h2>Making life easier.</h2>
+</a>
 <p>State machines are an extremely powerful tool for machine auditing and machine
-self-diagnosis.  They can also, however, be supportive and convenient.  By
-example, the previous state machine requires a user to know what color it&#39;s
-currently in to proceed.  This seems undesirable.  Let&#39;s teach it to accept an
-instruction <code>next</code> to proeed to whatever the next correct color is:</p>
-<pre><code class="language-fsl"><span class="hl-10">Off</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Red</span><span class="hl-1">;</span><br/><span class="hl-10">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Red</span><span class="hl-1">;</span><br/><span class="hl-1">[</span><span class="hl-10">Red</span><span class="hl-1"> </span><span class="hl-10">Yellow</span><span class="hl-1"> </span><span class="hl-10">Green</span><span class="hl-1">] </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Off</span><span class="hl-1">;</span>
+self-diagnosis.</p>
+<p>They can also, however, be supportive and convenient.  By example, the previous
+version of our traffic light state machine requires a user to know what color
+it&#39;s currently in, in order to proceed.</p>
+<p>This seems undesirable.  Less thinking is better.</p>
+<p>Let&#39;s teach our machine to accept an instruction <code>next</code> to proeed to whatever
+the correct successor color is:</p>
+<pre><code class="language-fsl"><span class="hl-10">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;enable&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Red</span><span class="hl-1">;</span><br/><span class="hl-10">Red</span><span class="hl-1"> </span><span class="hl-4">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Green</span><span class="hl-1"> </span><span class="hl-4">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Yellow</span><span class="hl-1"> </span><span class="hl-4">&#39;next&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Red</span><span class="hl-1">;</span><br/><span class="hl-1">[</span><span class="hl-10">Red</span><span class="hl-1"> </span><span class="hl-10">Yellow</span><span class="hl-1"> </span><span class="hl-10">Green</span><span class="hl-1">] </span><span class="hl-4">&#39;disable&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Off</span><span class="hl-1">;</span>
 </code></pre>
 <p>We didn&#39;t have to break off the opening <code>Off -&gt; Red</code> that way; the author just
 thinks it&#39;s cleaner looking (indeed, this machine can be a one-liner if you
 don&#39;t much care about readability.)</p>
-<p>Now, we can interact with the machine as such:</p>
-<pre><code class="language-typescript"><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">action</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);</span>
+<p>Now, we can interact with the machine in this easier way:</p>
+<pre><code class="language-typescript"><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">do</span><span class="hl-1">(</span><span class="hl-3">&#39;enable&#39;</span><span class="hl-1">);  </span><span class="hl-7">// to red</span><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">do</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);    </span><span class="hl-7">// to green</span><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">do</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);    </span><span class="hl-7">// to yellow</span><br/><span class="hl-2">TrafficLight</span><span class="hl-1">.</span><span class="hl-6">do</span><span class="hl-1">(</span><span class="hl-3">&#39;next&#39;</span><span class="hl-1">);    </span><span class="hl-7">// to red</span>
 </code></pre>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -104,12 +120,20 @@ don&#39;t much care about readability.)</p>
 </a>
 <p>And, already, a bunch of other simple machines are accessable.  Some examples:</p>
 <p>&nbsp;</p>
+
+<a href="#three-brightness-lamp" id="three-brightness-lamp" style="color: inherit; text-decoration: none;">
+  <h3>Three brightness lamp</h3>
+</a>
 <p>Three brightness lamp is pretty similar to a traffic light, except that <code>Off</code> is
 part of the main loop instead of an extra state:</p>
 <pre><code class="language-fsl"><span class="hl-10">Off</span><span class="hl-1"> </span><span class="hl-4">&#39;touch&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Bright</span><span class="hl-1"> </span><span class="hl-4">&#39;touch&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Medium</span><span class="hl-1"> </span><span class="hl-4">&#39;touch&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Dim</span><span class="hl-1"> </span><span class="hl-4">&#39;touch&#39;</span><span class="hl-1"> </span><span class="hl-0">-&gt;</span><span class="hl-1"> </span><span class="hl-10">Off</span><span class="hl-1">;</span>
 </code></pre>
 <p><img src="lamp_machine.png" alt=""></p>
 <p>&nbsp;</p>
+
+<a href="#locking-door" id="locking-door" style="color: inherit; text-decoration: none;">
+  <h3>Locking door</h3>
+</a>
 <p>A locking door, by contrast, might have a state for <code>Unlocked</code> which responds to
 <code>open</code> by switching to <code>Opened</code>, but a state <code>Locked</code> which responds to <code>open</code>
 by going to itself (or perhaps just not expressing the action at all.)</p>
@@ -117,6 +141,10 @@ by going to itself (or perhaps just not expressing the action at all.)</p>
 </code></pre>
 <p><img src="locked_door_machine.png" alt=""></p>
 <p>&nbsp;</p>
+
+<a href="#states-of-matter" id="states-of-matter" style="color: inherit; text-decoration: none;">
+  <h3>States of matter</h3>
+</a>
 <p>The basic four states of matter on Earth:</p>
 <pre><code class="language-fsl"><span class="hl-1"> </span><span class="hl-10">Solid</span><span class="hl-1">      </span><span class="hl-4">&#39;melt&#39;</span><span class="hl-1"> </span><span class="hl-0">&lt;-&gt;</span><span class="hl-1"> </span><span class="hl-4">&#39;freeze&#39;</span><span class="hl-1">    </span><span class="hl-10">Liquid</span><span class="hl-1">;</span><br/><span class="hl-10">Liquid</span><span class="hl-1">  </span><span class="hl-4">&#39;vaporize&#39;</span><span class="hl-1"> </span><span class="hl-0">&lt;-&gt;</span><span class="hl-1"> </span><span class="hl-4">&#39;condense&#39;</span><span class="hl-1">  </span><span class="hl-10">Gas</span><span class="hl-1">;</span><br/><span class="hl-1">   </span><span class="hl-10">Gas</span><span class="hl-1">    </span><span class="hl-4">&#39;ionize&#39;</span><span class="hl-1"> </span><span class="hl-0">&lt;-&gt;</span><span class="hl-1"> </span><span class="hl-4">&#39;recombine&#39;</span><span class="hl-1"> </span><span class="hl-10">Plasma</span><span class="hl-1">;</span><br/><span class="hl-1"> </span><span class="hl-10">Solid</span><span class="hl-1"> </span><span class="hl-4">&#39;sublimate&#39;</span><span class="hl-1"> </span><span class="hl-0">&lt;-&gt;</span><span class="hl-1"> </span><span class="hl-4">&#39;deposit&#39;</span><span class="hl-1">   </span><span class="hl-10">Gas</span><span class="hl-1">;</span>
 </code></pre>

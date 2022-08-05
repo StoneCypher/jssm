@@ -882,6 +882,17 @@ const base_active_state_style = {
     textColor: 'white',
     backgroundColor: 'dodgerblue4'
 };
+const base_terminal_state_style = {
+    textColor: 'white',
+    backgroundColor: 'crimson'
+};
+const base_start_state_style = {
+    backgroundColor: 'yellow'
+};
+const base_end_state_style = {
+    textColor: 'white',
+    backgroundColor: 'darkolivegreen'
+};
 
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
@@ -19083,6 +19094,7 @@ function compile(tree) {
     const assembled_transitions = [].concat(...results['transition']);
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
+        end_states: results.end_states,
         transitions: assembled_transitions,
         state_property: [],
     };
@@ -19248,7 +19260,7 @@ function state_style_condense(jssk) {
 // TODO add a lotta docblock here
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }) {
+    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }) {
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -19259,6 +19271,8 @@ class Machine {
         this._actions = new Map();
         this._reverse_actions = new Map();
         this._reverse_action_targets = new Map(); // todo
+        this._start_states = new Set(start_states);
+        this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
         this._machine_author = array_box_if_string(machine_author);
         this._machine_comment = machine_comment;
         this._machine_contributor = array_box_if_string(machine_contributor);
@@ -19689,6 +19703,60 @@ class Machine {
     }
     /********
      *
+     *  Check whether a given state is a valid start state (either because it was
+     *  explicitly named as such, or because it was the first mentioned state.)
+     *
+     *  ```typescript
+     *  import { sm, is_start_state } from 'jssm';
+     *
+     *  const example = sm`a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // false
+     *
+     *  const example = sm`start_states: [a b]; a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // true
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The name of the state to check
+     *
+     */
+    is_start_state(whichState) {
+        return this._start_states.has(whichState);
+    }
+    /********
+     *
+     *  Check whether a given state is a valid start state (either because it was
+     *  explicitly named as such, or because it was the first mentioned state.)
+     *
+     *  ```typescript
+     *  import { sm, is_end_state } from 'jssm';
+     *
+     *  const example = sm`a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // false
+     *  console.log( final_test.is_start_state('b') );   // true
+     *
+     *  const example = sm`end_states: [a b]; a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // true
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The name of the state to check
+     *
+     */
+    is_end_state(whichState) {
+        return this._end_states.has(whichState);
+    }
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -19715,7 +19783,7 @@ class Machine {
      *  `complete`.)
      *
      *  ```typescript
-     *  import { sm, state_is_final } from 'jssm';
+     *  import { sm, is_final } from 'jssm';
      *
      *  const final_test = sm`first -> second;`;
      *
@@ -20842,9 +20910,9 @@ class Machine {
      *  item in the stack will be composited independently.  First, the base state
      *  style, then the theme state style, then the user state style.
      *
-     *  After the three state styles, we'll composite the start styles; then the
-     *  end styles; then the hooked styles; then the terminal styles; finally, the
-     *  active styles.
+     *  After the three state styles, we'll composite the hooked styles; then the
+     *  terminal styles; then the start styles; then the end styles; finally, the
+     *  active styles.  Remember, last wins.
      *
      *  The base state style must exist.  All other styles are optional.
      *
@@ -20859,34 +20927,37 @@ class Machine {
             layers.push(this._state_style);
         }
         /*
-            // start state style
-            if (this.is_starting_state(state)) {
-              layers.push(base_start_state_style);
-        //    if (theme.start_state_style) { layers.push(theme.start_state_style); }
-              if (this._start_state_style) { layers.push(this._start_state_style); }
-            }
-        
-            // end state style
-            if (this.is_ending_state(state)) {
-              layers.push(base_end_state_style);
-        //    if (theme.end_state_style) { layers.push(theme.end_state_style); }
-              if (this._end_state_style) { layers.push(this._end_state_style); }
-            }
-        
             // hooked state style
             if (this.has_hooks(state)) {
               layers.push(base_hooked_state_style);
         //    if (theme.hooked_state_style) { layers.push(theme.hooked_state_style); }
               if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
             }
-        
-            // terminal state style
-            if (this.is_terminal_state(state)) {
-              layers.push(base_terminal_state_style);
-        //    if (theme.terminal_state_style) { layers.push(theme.terminal_state_style); }
-              if (this._terminal_state_style) { layers.push(this._terminal_state_style); }
-            }
         */
+        // terminal state style
+        if (this.state_is_terminal(state)) {
+            layers.push(base_terminal_state_style);
+            //    if (theme.terminal_state_style) { layers.push(theme.terminal_state_style); }
+            if (this._terminal_state_style) {
+                layers.push(this._terminal_state_style);
+            }
+        }
+        // start state style
+        if (this.is_start_state(state)) {
+            layers.push(base_start_state_style);
+            //    if (theme.start_state_style) { layers.push(theme.start_state_style); }
+            if (this._start_state_style) {
+                layers.push(this._start_state_style);
+            }
+        }
+        // end state style
+        if (this.is_end_state(state)) {
+            layers.push(base_end_state_style);
+            //    if (theme.end_state_style) { layers.push(theme.end_state_style); }
+            if (this._end_state_style) {
+                layers.push(this._end_state_style);
+            }
+        }
         // active state style
         if (this.state() === state) {
             layers.push(base_active_state_style);
