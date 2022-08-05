@@ -286,13 +286,13 @@ describe('reports state_is_final', () => {
     expect(machine.state_is_final('off') )
       .toBe(false) );
 
-  test('final false for just terminal', () =>
+  test('final true for just terminal', () =>
     expect(machine.state_is_final('mid') )
-      .toBe(false) );
+      .toBe(true) );
 
-  test('final false for just complete', () =>
+  test('final true for just complete', () =>
     expect(machine.state_is_final('fin') )
-      .toBe(false) );
+      .toBe(true) );
 
   test('final true', () =>
     expect(machine.state_is_final('red') )

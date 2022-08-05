@@ -12,11 +12,12 @@ import { circular_buffer }         from 'circular_buffer_js';
 
 import {
 
-  JssmGenericState, JssmGenericConfig,
+  JssmGenericState, JssmGenericConfig, JssmStateConfig,
   JssmTransition, JssmTransitions, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
+  JssmStateStyleKey, JssmStateStyleKeyList,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmArrow, JssmArrowDirection, JssmArrowKind,
   JssmLayout,
@@ -27,6 +28,18 @@ import {
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult
 
 } from './jssm_types';
+
+
+
+
+
+import {
+  base_state_style,
+  base_start_state_style,
+  base_end_state_style,
+  base_terminal_state_style,
+  base_active_state_style
+} from './jssm_base_stylesheet';
 
 
 
@@ -479,7 +492,9 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
     'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow', 'dot_preamble'
+    'flow', 'dot_preamble', 'default_state_config', 'default_start_state_config',
+    'default_end_state_config', 'default_hooked_state_config',
+    'default_active_state_config', 'default_terminal_state_config'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -549,55 +564,68 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
 function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   const results: {
-    graph_layout              : Array<JssmLayout>,
-    transition                : Array<JssmTransition<mDT>>,
-    start_states              : Array<string>,
-    end_states                : Array<string>,
-    state_config              : Array<any>,           // TODO COMEBACK no any
-    state_declaration         : Array<JssmStateDeclaration>,
-    fsl_version               : Array<string>,
-    machine_author            : Array<string>,
-    machine_comment           : Array<string>,
-    machine_contributor       : Array<string>,
-    machine_definition        : Array<string>,
-    machine_language          : Array<string>,
-    machine_license           : Array<string>,
-    machine_name              : Array<string>,
-    machine_reference         : Array<string>,
-    property_definition       : Array<JssmPropertyDefinition>,
-    state_property            : { [name: string]: JssmPropertyDefinition },
-    theme                     : Array<string>,
-    flow                      : Array<string>,
-    dot_preamble              : Array<string>,
-    arrange_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_start_declaration : Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_end_declaration   : Array<Array<string>>, // TODO COMEBACK CHECKME
-    machine_version           : Array<string>         // TODO COMEBACK semver
+    graph_layout                  : Array<JssmLayout>,
+    transition                    : Array<JssmTransition<mDT>>,
+    start_states                  : Array<string>,
+    end_states                    : Array<string>,
+    state_config                  : Array<any>,           // TODO COMEBACK no any
+    state_declaration             : Array<JssmStateDeclaration>,
+    fsl_version                   : Array<string>,
+    machine_author                : Array<string>,
+    machine_comment               : Array<string>,
+    machine_contributor           : Array<string>,
+    machine_definition            : Array<string>,
+    machine_language              : Array<string>,
+    machine_license               : Array<string>,
+    machine_name                  : Array<string>,
+    machine_reference             : Array<string>,
+    property_definition           : Array<JssmPropertyDefinition>,
+    state_property                : { [name: string]: JssmPropertyDefinition },
+    theme                         : Array<string>,
+    flow                          : Array<string>,
+    dot_preamble                  : Array<string>,
+    arrange_declaration           : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_start_declaration     : Array<Array<string>>, // TODO COMEBACK CHECKME
+    arrange_end_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
+    machine_version               : Array<string>,        // TODO COMEBACK semver
+    default_state_config          : Array<JssmStateConfig>,
+    default_active_state_config   : Array<JssmStateConfig>,
+    default_hooked_state_config   : Array<JssmStateConfig>,
+    default_terminal_state_config : Array<JssmStateConfig>,
+    default_start_state_config    : Array<JssmStateConfig>,
+    default_end_state_config      : Array<JssmStateConfig>,
   } = {
-    graph_layout              : [],
-    transition                : [],
-    start_states              : [],
-    end_states                : [],
-    state_config              : [],
-    state_declaration         : [],
-    fsl_version               : [],
-    machine_author            : [],
-    machine_comment           : [],
-    machine_contributor       : [],
-    machine_definition        : [],
-    machine_language          : [],
-    machine_license           : [],
-    machine_name              : [],
-    machine_reference         : [],
-    property_definition       : [],
-    state_property            : {},
-    theme                     : [],
-    flow                      : [],
-    dot_preamble              : [],
-    arrange_declaration       : [],
-    arrange_start_declaration : [],
-    arrange_end_declaration   : [],
-    machine_version           : []
+    graph_layout                  : [],
+    transition                    : [],
+    start_states                  : [],
+    end_states                    : [],
+    state_config                  : [],
+    state_declaration             : [],
+    fsl_version                   : [],
+    machine_author                : [],
+    machine_comment               : [],
+    machine_contributor           : [],
+    machine_definition            : [],
+    machine_language              : [],
+    machine_license               : [],
+    machine_name                  : [],
+    machine_reference             : [],
+    property_definition           : [],
+    state_property                : {},
+    theme                         : [],
+    flow                          : [],
+    dot_preamble                  : [],
+    arrange_declaration           : [],
+    arrange_start_declaration     : [],
+    arrange_end_declaration       : [],
+    machine_version               : [],
+    default_state_config          : [],
+    default_active_state_config   : [],
+    default_hooked_state_config   : [],
+    default_terminal_state_config : [],
+    default_start_state_config    : [],
+    default_end_state_config      : [],
+
   };
 
   tree.map((tr: JssmCompileSeStart<StateType>) => {
@@ -621,8 +649,9 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   const result_cfg: JssmGenericConfig<mDT> = {
     start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],
+    end_states     : results.end_states,
     transitions    : assembled_transitions,
-    state_property : []
+    state_property : [],
   };
 
   const oneOnlyKeys: Array<string> = [
@@ -645,7 +674,10 @@ function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
    'machine_author', 'machine_contributor', 'machine_reference',
-   'state_declaration', 'property_definition'].map(
+   'state_declaration', 'property_definition', 'default_state_config',
+   'default_start_state_config', 'default_end_state_config',
+   'default_hooked_state_config', 'default_terminal_state_config',
+   'default_active_state_config'].map(
       (multiKey: string) => {
         if (results[multiKey].length) {
           result_cfg[multiKey] = results[multiKey];
@@ -718,7 +750,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'shape'            : state_decl.shape           = d.value; break;
       case 'color'            : state_decl.color           = d.value; break;
       case 'corners'          : state_decl.corners         = d.value; break;
-      case 'linestyle'        : state_decl.linestyle       = d.value; break;
+      case 'line-style'       : state_decl.lineStyle       = d.value; break;
 
       case 'text-color'       : state_decl.textColor       = d.value; break;
       case 'background-color' : state_decl.backgroundColor = d.value; break;
@@ -740,6 +772,77 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
 
 
+function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig {
+
+  const state_style: JssmStateConfig = {};
+
+  if (Array.isArray(jssk)) {
+
+    jssk.forEach( (key, i) => {
+
+      if (typeof key !== 'object') {
+        throw new JssmError(this, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
+      }
+
+      switch (key.key) {
+
+        case 'shape':
+          if (state_style.shape !== undefined) { throw new JssmError(this, `cannot redefine 'shape' in state_style_condense, already defined`); }
+          state_style.shape = key.value;
+          break;
+
+        case 'color':
+          if (state_style.color !== undefined) { throw new JssmError(this, `cannot redefine 'color' in state_style_condense, already defined`); }
+          state_style.color = key.value;
+          break;
+
+        case 'text-color':
+          if (state_style.textColor !== undefined) { throw new JssmError(this, `cannot redefine 'text-color' in state_style_condense, already defined`); }
+          state_style.textColor = key.value;
+          break;
+
+        case 'corners':
+          if (state_style.corners !== undefined) { throw new JssmError(this, `cannot redefine 'corners' in state_style_condense, already defined`); }
+          state_style.corners = key.value;
+          break;
+
+        case 'line-style':
+          if (state_style.lineStyle !== undefined) { throw new JssmError(this, `cannot redefine 'line-style' in state_style_condense, already defined`); }
+          state_style.lineStyle = key.value;
+          break;
+
+        case 'background-color':
+          if (state_style.backgroundColor !== undefined) { throw new JssmError(this, `cannot redefine 'background-color' in state_style_condense, already defined`); }
+          state_style.backgroundColor = key.value;
+          break;
+
+        case 'border-color':
+          if (state_style.borderColor !== undefined) { throw new JssmError(this, `cannot redefine 'border-color' in state_style_condense, already defined`); }
+          state_style.borderColor = key.value;
+          break;
+
+        default:
+          // TODO do that <never> trick to assert this list is complete
+          throw new JssmError(this, `unknown state style key in condense: ${(key as any).key}`);
+
+      }
+
+    });
+
+  } else if (jssk === undefined) {
+    // do nothing, undefined is legal and means we should return the empty container above
+  } else {
+    throw new JssmError(this, 'state_style_condense received a non-array');
+  }
+
+  return state_style;
+
+}
+
+
+
+
+
 // TODO add a lotta docblock here
 
 class Machine<mDT> {
@@ -753,6 +856,9 @@ class Machine<mDT> {
   _actions                : Map<StateType, Map<StateType, number>>;
   _reverse_actions        : Map<StateType, Map<StateType, number>>;
   _reverse_action_targets : Map<StateType, Map<StateType, number>>;
+
+  _start_states           : Set<StateType>;
+  _end_states             : Set<StateType>;
 
   _machine_author?        : Array<string>;
   _machine_comment?       : string;
@@ -827,11 +933,19 @@ class Machine<mDT> {
   _history        : JssmHistory<mDT>;
   _history_length : number;
 
+  _state_style          : JssmStateConfig;
+  _active_state_style   : JssmStateConfig;
+  _hooked_state_style   : JssmStateConfig;
+  _terminal_state_style : JssmStateConfig;
+  _start_state_style    : JssmStateConfig;
+  _end_state_style      : JssmStateConfig;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
 
     start_states,
+    end_states = [],
     complete = [],
     transitions,
     machine_author,
@@ -855,7 +969,13 @@ class Machine<mDT> {
     graph_layout              = 'dot',
     instance_name,
     history,
-    data
+    data,
+    default_state_config,
+    default_active_state_config,
+    default_hooked_state_config,
+    default_terminal_state_config,
+    default_start_state_config,
+    default_end_state_config
 
   }: JssmGenericConfig<mDT>) {
 
@@ -870,6 +990,9 @@ class Machine<mDT> {
     this._actions                = new Map();
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();   // todo
+
+    this._start_states = new Set(start_states);
+    this._end_states   = new Set(end_states);   // todo consider what to do about incorporating complete too
 
     this._machine_author        = array_box_if_string(machine_author);
     this._machine_comment       = machine_comment;
@@ -937,6 +1060,13 @@ class Machine<mDT> {
     this._default_properties            = new Map();
     this._state_properties              = new Map();
     this._required_properties           = new Set();
+
+    this._state_style                   = state_style_condense(default_state_config);
+    this._active_state_style            = state_style_condense(default_active_state_config);
+    this._hooked_state_style            = state_style_condense(default_hooked_state_config);
+    this._terminal_state_style          = state_style_condense(default_terminal_state_config);
+    this._start_state_style             = state_style_condense(default_start_state_config);
+    this._end_state_style               = state_style_condense(default_end_state_config);
 
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
@@ -1408,6 +1538,7 @@ class Machine<mDT> {
 
 
   // NEEDS_DOCS
+
   /*********
    *
    *  List all known property names.  If you'd also like values, use
@@ -1421,6 +1552,72 @@ class Machine<mDT> {
 
   known_props(): string[] {
     return [... this._property_keys];
+  }
+
+
+
+
+
+  /********
+   *
+   *  Check whether a given state is a valid start state (either because it was
+   *  explicitly named as such, or because it was the first mentioned state.)
+   *
+   *  ```typescript
+   *  import { sm, is_start_state } from 'jssm';
+   *
+   *  const example = sm`a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // true
+   *  console.log( final_test.is_start_state('b') );   // false
+   *
+   *  const example = sm`start_states: [a b]; a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // true
+   *  console.log( final_test.is_start_state('b') );   // true
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param whichState The name of the state to check
+   *
+   */
+
+  is_start_state(whichState: StateType): boolean {
+    return this._start_states.has(whichState);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Check whether a given state is a valid start state (either because it was
+   *  explicitly named as such, or because it was the first mentioned state.)
+   *
+   *  ```typescript
+   *  import { sm, is_end_state } from 'jssm';
+   *
+   *  const example = sm`a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // false
+   *  console.log( final_test.is_start_state('b') );   // true
+   *
+   *  const example = sm`end_states: [a b]; a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // true
+   *  console.log( final_test.is_start_state('b') );   // true
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param whichState The name of the state to check
+   *
+   */
+
+  is_end_state(whichState: StateType): boolean {
+    return this._end_states.has(whichState);
   }
 
 
@@ -1448,7 +1645,7 @@ class Machine<mDT> {
    */
 
   state_is_final(whichState: StateType): boolean {
-    return ((this.state_is_terminal(whichState)) && (this.state_is_complete(whichState)));
+    return ((this.state_is_terminal(whichState)) || (this.state_is_complete(whichState)));
   }
 
 
@@ -1461,7 +1658,7 @@ class Machine<mDT> {
    *  `complete`.)
    *
    *  ```typescript
-   *  import { sm, state_is_final } from 'jssm';
+   *  import { sm, is_final } from 'jssm';
    *
    *  const final_test = sm`first -> second;`;
    *
@@ -2768,6 +2965,277 @@ class Machine<mDT> {
 
   /********
    *
+   *  Get the standard style for a single state.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.standard_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; state: { shape: circle; };`;
+   *  console.log(light.standard_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get standard_state_style(): JssmStateConfig {
+    return this._state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the hooked state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  The hooked style is only applied to nodes which have a named hook in the
+   *  graph.  Open hooks set through the external API aren't graphed, because
+   *  that would be literally every node.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.hooked_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
+   *  console.log(light.hooked_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get hooked_state_style(): JssmStateConfig {
+    return this._hooked_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the start state style.  ***Does not*** include composition from an
+   *  applied theme, or things from the underlying base stylesheet; only the
+   *  modifications applied by this machine.
+   *
+   *  Start states are defined by the directive `start_states`, or in absentia,
+   *  are the first mentioned state.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.start_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; start_state: { shape: circle; };`;
+   *  console.log(light.start_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get start_state_style(): JssmStateConfig {
+    return this._start_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the end state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  End states are defined in the directive `end_states`, and are distinct
+   *  from terminal states.  End states are voluntary successful endpoints for a
+   *  process.  Terminal states are states that cannot be exited.  By example,
+   *  most error states are terminal states, but not end states.  Also, since
+   *  some end states can be exited and are determined by hooks, such as
+   *  recursive or iterative nodes, there is such a thing as an end state that
+   *  is not a terminal state.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.standard_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; end_state: { shape: circle; };`;
+   *  console.log(light.standard_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get end_state_style(): JssmStateConfig {
+    return this._end_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the terminal state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  Terminal state styles are automatically determined by the machine.  Any
+   *  state without a valid exit transition is terminal.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.terminal_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
+   *  console.log(light.terminal_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get terminal_state_style(): JssmStateConfig {
+    return this._terminal_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the style for the active state.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.active_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; active_state: { shape: circle; };`;
+   *  console.log(light.active_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get active_state_style(): JssmStateConfig {
+    return this._active_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Gets the composite style for a specific node by individually imposing the
+   *  style layers on a given object, after determining which layers are
+   *  appropriate.
+   *
+   *  The order of composition is base, then theme, then user content.  Each
+   *  item in the stack will be composited independently.  First, the base state
+   *  style, then the theme state style, then the user state style.
+   *
+   *  After the three state styles, we'll composite the hooked styles; then the
+   *  terminal styles; then the start styles; then the end styles; finally, the
+   *  active styles.  Remember, last wins.
+   *
+   *  The base state style must exist.  All other styles are optional.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  style_for(state: StateType): JssmStateConfig {
+
+
+    // basic state style
+    const layers = [ base_state_style ];
+//  if (theme.state_style) { layers.push(theme.state_style); }
+    if (this._state_style) { layers.push(this._state_style); }
+
+
+/*
+    // hooked state style
+    if (this.has_hooks(state)) {
+      layers.push(base_hooked_state_style);
+//    if (theme.hooked_state_style) { layers.push(theme.hooked_state_style); }
+      if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+    }
+*/
+
+
+    // terminal state style
+    if (this.state_is_terminal(state)) {
+      layers.push(base_terminal_state_style);
+//    if (theme.terminal_state_style) { layers.push(theme.terminal_state_style); }
+      if (this._terminal_state_style) { layers.push(this._terminal_state_style); }
+    }
+
+
+    // start state style
+    if (this.is_start_state(state)) {
+      layers.push(base_start_state_style);
+//    if (theme.start_state_style) { layers.push(theme.start_state_style); }
+      if (this._start_state_style) { layers.push(this._start_state_style); }
+    }
+
+
+    // end state style
+    if (this.is_end_state(state)) {
+      layers.push(base_end_state_style);
+//    if (theme.end_state_style) { layers.push(theme.end_state_style); }
+      if (this._end_state_style) { layers.push(this._end_state_style); }
+    }
+
+
+    // active state style
+    if (this.state() === state) {
+      layers.push(base_active_state_style);
+//    if (theme.active_state_style) { layers.push(theme.active_state_style); }
+      if (this._active_state_style) { layers.push(this._active_state_style); }
+    }
+
+    return layers.reduce((acc: JssmStateConfig, cur: JssmStateConfig) => {
+
+      const composite_state: JssmStateConfig = acc;
+      Object.keys(cur).forEach(key => composite_state[key] = cur[key]);
+
+      return composite_state;
+
+    }, {} as JssmStateConfig);
+
+  }
+
+
+
+
+
+  /********
+   *
    *  Instruct the machine to complete an action.  Synonym for {@link action}.
    *
    *  ```typescript
@@ -3168,6 +3636,8 @@ export {
 
   is_hook_rejection,
     is_hook_complex_result,
-    abstract_hook_step
+    abstract_hook_step,
+
+  state_style_condense
 
 };

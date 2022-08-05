@@ -1,6 +1,6 @@
 declare type StateType = string;
-import { JssmGenericState, JssmGenericConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
+import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
+JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmStateStyleKeyList, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import * as constants from './jssm_constants';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[];
@@ -188,6 +188,7 @@ declare function make<mDT>(plan: string): JssmGenericConfig<mDT>;
  *
  */
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
+declare function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig;
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
@@ -197,6 +198,8 @@ declare class Machine<mDT> {
     _actions: Map<StateType, Map<StateType, number>>;
     _reverse_actions: Map<StateType, Map<StateType, number>>;
     _reverse_action_targets: Map<StateType, Map<StateType, number>>;
+    _start_states: Set<StateType>;
+    _end_states: Set<StateType>;
     _machine_author?: Array<string>;
     _machine_comment?: string;
     _machine_contributor?: Array<string>;
@@ -257,7 +260,13 @@ declare class Machine<mDT> {
     _required_properties: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
-    constructor({ start_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data }: JssmGenericConfig<mDT>);
+    _state_style: JssmStateConfig;
+    _active_state_style: JssmStateConfig;
+    _hooked_state_style: JssmStateConfig;
+    _terminal_state_style: JssmStateConfig;
+    _start_state_style: JssmStateConfig;
+    _end_state_style: JssmStateConfig;
+    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -417,6 +426,56 @@ declare class Machine<mDT> {
     known_props(): string[];
     /********
      *
+     *  Check whether a given state is a valid start state (either because it was
+     *  explicitly named as such, or because it was the first mentioned state.)
+     *
+     *  ```typescript
+     *  import { sm, is_start_state } from 'jssm';
+     *
+     *  const example = sm`a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // false
+     *
+     *  const example = sm`start_states: [a b]; a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // true
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The name of the state to check
+     *
+     */
+    is_start_state(whichState: StateType): boolean;
+    /********
+     *
+     *  Check whether a given state is a valid start state (either because it was
+     *  explicitly named as such, or because it was the first mentioned state.)
+     *
+     *  ```typescript
+     *  import { sm, is_end_state } from 'jssm';
+     *
+     *  const example = sm`a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // false
+     *  console.log( final_test.is_start_state('b') );   // true
+     *
+     *  const example = sm`end_states: [a b]; a -> b;`;
+     *
+     *  console.log( final_test.is_start_state('a') );   // true
+     *  console.log( final_test.is_start_state('b') );   // true
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param whichState The name of the state to check
+     *
+     */
+    is_end_state(whichState: StateType): boolean;
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -441,7 +500,7 @@ declare class Machine<mDT> {
      *  `complete`.)
      *
      *  ```typescript
-     *  import { sm, state_is_final } from 'jssm';
+     *  import { sm, is_final } from 'jssm';
      *
      *  const final_test = sm`first -> second;`;
      *
@@ -814,6 +873,164 @@ declare class Machine<mDT> {
     action(actionName: StateType, newData?: mDT): boolean;
     /********
      *
+     *  Get the standard style for a single state.  ***Does not*** include
+     *  composition from an applied theme, or things from the underlying base
+     *  stylesheet; only the modifications applied by this machine.
+     *
+     *  ```typescript
+     *  const light = sm`a -> b;`;
+     *  console.log(light.standard_state_style);
+     *  // {}
+     *
+     *  const light = sm`a -> b; state: { shape: circle; };`;
+     *  console.log(light.standard_state_style);
+     *  // { shape: 'circle' }
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get standard_state_style(): JssmStateConfig;
+    /********
+     *
+     *  Get the hooked state style.  ***Does not*** include
+     *  composition from an applied theme, or things from the underlying base
+     *  stylesheet; only the modifications applied by this machine.
+     *
+     *  The hooked style is only applied to nodes which have a named hook in the
+     *  graph.  Open hooks set through the external API aren't graphed, because
+     *  that would be literally every node.
+     *
+     *  ```typescript
+     *  const light = sm`a -> b;`;
+     *  console.log(light.hooked_state_style);
+     *  // {}
+     *
+     *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
+     *  console.log(light.hooked_state_style);
+     *  // { shape: 'circle' }
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get hooked_state_style(): JssmStateConfig;
+    /********
+     *
+     *  Get the start state style.  ***Does not*** include composition from an
+     *  applied theme, or things from the underlying base stylesheet; only the
+     *  modifications applied by this machine.
+     *
+     *  Start states are defined by the directive `start_states`, or in absentia,
+     *  are the first mentioned state.
+     *
+     *  ```typescript
+     *  const light = sm`a -> b;`;
+     *  console.log(light.start_state_style);
+     *  // {}
+     *
+     *  const light = sm`a -> b; start_state: { shape: circle; };`;
+     *  console.log(light.start_state_style);
+     *  // { shape: 'circle' }
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get start_state_style(): JssmStateConfig;
+    /********
+     *
+     *  Get the end state style.  ***Does not*** include
+     *  composition from an applied theme, or things from the underlying base
+     *  stylesheet; only the modifications applied by this machine.
+     *
+     *  End states are defined in the directive `end_states`, and are distinct
+     *  from terminal states.  End states are voluntary successful endpoints for a
+     *  process.  Terminal states are states that cannot be exited.  By example,
+     *  most error states are terminal states, but not end states.  Also, since
+     *  some end states can be exited and are determined by hooks, such as
+     *  recursive or iterative nodes, there is such a thing as an end state that
+     *  is not a terminal state.
+     *
+     *  ```typescript
+     *  const light = sm`a -> b;`;
+     *  console.log(light.standard_state_style);
+     *  // {}
+     *
+     *  const light = sm`a -> b; end_state: { shape: circle; };`;
+     *  console.log(light.standard_state_style);
+     *  // { shape: 'circle' }
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get end_state_style(): JssmStateConfig;
+    /********
+     *
+     *  Get the terminal state style.  ***Does not*** include
+     *  composition from an applied theme, or things from the underlying base
+     *  stylesheet; only the modifications applied by this machine.
+     *
+     *  Terminal state styles are automatically determined by the machine.  Any
+     *  state without a valid exit transition is terminal.
+     *
+     *  ```typescript
+     *  const light = sm`a -> b;`;
+     *  console.log(light.terminal_state_style);
+     *  // {}
+     *
+     *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
+     *  console.log(light.terminal_state_style);
+     *  // { shape: 'circle' }
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get terminal_state_style(): JssmStateConfig;
+    /********
+     *
+     *  Get the style for the active state.  ***Does not*** include
+     *  composition from an applied theme, or things from the underlying base
+     *  stylesheet; only the modifications applied by this machine.
+     *
+     *  ```typescript
+     *  const light = sm`a -> b;`;
+     *  console.log(light.active_state_style);
+     *  // {}
+     *
+     *  const light = sm`a -> b; active_state: { shape: circle; };`;
+     *  console.log(light.active_state_style);
+     *  // { shape: 'circle' }
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    get active_state_style(): JssmStateConfig;
+    /********
+     *
+     *  Gets the composite style for a specific node by individually imposing the
+     *  style layers on a given object, after determining which layers are
+     *  appropriate.
+     *
+     *  The order of composition is base, then theme, then user content.  Each
+     *  item in the stack will be composited independently.  First, the base state
+     *  style, then the theme state style, then the user state style.
+     *
+     *  After the three state styles, we'll composite the hooked styles; then the
+     *  terminal styles; then the start styles; then the end styles; finally, the
+     *  active styles.  Remember, last wins.
+     *
+     *  The base state style must exist.  All other styles are optional.
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    style_for(state: StateType): JssmStateConfig;
+    /********
+     *
      *  Instruct the machine to complete an action.  Synonym for {@link action}.
      *
      *  ```typescript
@@ -976,4 +1193,4 @@ declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResu
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step };
+export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense };
