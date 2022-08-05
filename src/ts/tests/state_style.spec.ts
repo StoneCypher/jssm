@@ -3,6 +3,14 @@ import { Shapes, LineStyles } from './constants.spec';
 
 import { sm, state_style_condense } from '../jssm';
 
+import {
+  base_state_style,
+  base_start_state_style,
+  base_end_state_style,
+  base_terminal_state_style,
+  base_active_state_style
+} from '../jssm_base_stylesheet';
+
 
 
 
@@ -190,35 +198,74 @@ describe('Default state style', () => {
 
   describe(`All properties block doublings`, () => {
 
-
-    test('shape reads out', () => {
+    test('shape blocks doublings', () => {
       expect( () => sm`a->b; state: { shape: circle; shape: circle; };` ).toThrow();
     });
 
-    test('background-color reads out', () => {
+    test('background-color blocks doublings', () => {
       expect( () => sm`a->b; state: { background-color: red; background-color: red; };` ).toThrow();
     });
 
-    test('color reads out', () => {
+    test('color blocks doublings', () => {
       expect( () => sm`a->b; state: { color: blue; color: blue; };` ).toThrow();
     });
 
-    test('text-color reads out', () => {
+    test('text-color blocks doublings', () => {
       expect( () => sm`a->b; state: { text-color: green; text-color: green; };` ).toThrow();
     });
 
-    test('corners read out', () => {
+    test('corners block doublings', () => {
       expect( () => sm`a->b; state: { corners: rounded; corners: rounded; };` ).toThrow();
     });
 
-    test('line-style reads out', () => {
+    test('line-style blocks doublings', () => {
       expect( () => sm`a->b; state: { line-style: dashed; line-style: dashed; };` ).toThrow();
     });
 
-    test('border-color reads out', () => {
+    test('border-color blocks doublings', () => {
       expect( () => sm`a->b; state: { border-color: yellow; border-color: yellow; };` ).toThrow();
     });
 
+  });
+
+});
+
+
+
+
+
+describe('application order', () => {
+
+  // end state should override terminal, so e is end, but f is terminal
+
+  // TODO doesn't cover themes
+  // TODO doesn't cover hooked nodes
+  const zed = sm`start_states: [a b]; end_states: [e]; [a b] -> c -> d -> [e f];`;
+  zed.go('c');
+
+  test('start states style appropriately', () => {
+    expect( zed.style_for('a').backgroundColor )
+      .toEqual( base_start_state_style.backgroundColor );
+  });
+
+  test('end states style appropriately', () => {
+    expect( zed.style_for('e').backgroundColor )
+      .toEqual( base_end_state_style.backgroundColor );
+  });
+
+  test('terminal states style appropriately', () => {
+    expect( zed.style_for('f').backgroundColor )
+      .toEqual( base_terminal_state_style.backgroundColor );
+  });
+
+  test('standard states style appropriately', () => {
+    expect( zed.style_for('d').backgroundColor )
+      .toEqual( base_state_style.backgroundColor );
+  });
+
+  test('active states style appropriately', () => {
+    expect( zed.style_for('c').backgroundColor )
+      .toEqual( base_active_state_style.backgroundColor );
   });
 
 });
