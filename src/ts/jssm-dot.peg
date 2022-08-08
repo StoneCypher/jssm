@@ -1014,13 +1014,14 @@ SdStateCorners "corners"
 
 SdStateLineStyle "linestyle"
   = WS? "line-style"       WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
+  / WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
 
 
 SdStateProperty "state property"
-  = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal                WS? ";" WS? {
+  = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
     return { key: 'state_property', name, value }
   }
-  / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required'? WS? ";" WS? {
+  / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required' WS? ";" WS? {
     return { key: 'state_property', name, value, required: true }
   }
 

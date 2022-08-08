@@ -2358,9 +2358,18 @@ class Machine {
                 layers.push(this._active_state_style);
             }
         }
+        const individual_style = {}, decl = this._state_declarations.get(state);
+        individual_style.color = decl === null || decl === void 0 ? void 0 : decl.color;
+        individual_style.textColor = decl === null || decl === void 0 ? void 0 : decl.textColor;
+        individual_style.borderColor = decl === null || decl === void 0 ? void 0 : decl.borderColor;
+        individual_style.backgroundColor = decl === null || decl === void 0 ? void 0 : decl.backgroundColor;
+        individual_style.lineStyle = decl === null || decl === void 0 ? void 0 : decl.lineStyle;
+        individual_style.corners = decl === null || decl === void 0 ? void 0 : decl.corners;
+        individual_style.shape = decl === null || decl === void 0 ? void 0 : decl.shape;
+        layers.push(individual_style);
         return layers.reduce((acc, cur) => {
             const composite_state = acc;
-            Object.keys(cur).forEach(key => composite_state[key] = cur[key]);
+            Object.keys(cur).forEach(key => { var _a; return composite_state[key] = (_a = cur[key]) !== null && _a !== void 0 ? _a : composite_state[key]; });
             return composite_state;
         }, {});
     }

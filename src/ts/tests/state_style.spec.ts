@@ -53,24 +53,39 @@ describe('State style', () => {
 
     // TODO FIXME it turns out state: , start_state: , and end_state: are on vestigial productions.  fix it
 
-    // test(`can set regular state border line style to ${linestyle}`, () =>
-    //   expect( () => {
-    //     const _foo = sm`machine_name: bob; state: { linestyle: ${linestyle}; }; a->b;`;
-    //   }).not.toThrow() );
+    test(`can set regular state border line style to ${linestyle} using no-dash`, () =>
+      expect( () => {
+        const _foo = sm`machine_name: bob; state: { linestyle: ${linestyle}; }; a->b;`;
+      }).not.toThrow() );
 
-    // test(`can set start state border line style to ${linestyle}`, () =>
-    //   expect( () => {
-    //     const _foo = sm`machine_name: bob; start_state: { linestyle: ${linestyle}; }; a->b;`;
-    //   }).not.toThrow() );
-
-    // test(`can set end state border line style to ${linestyle}`, () =>
-    //   expect( () => {
-    //     const _foo = sm`machine_name: bob; end_state: { linestyle: ${linestyle}; }; a->b;`;
-    //   }).not.toThrow() );
-
-    test(`can set specific state border line style to ${linestyle}`, () =>
+    test(`can set regular state border line style to ${linestyle}`, () =>
       expect( () => {
         const _foo = sm`machine_name: bob; a->b; state a: { line-style: ${linestyle}; }; `;
+      }).not.toThrow() );
+
+    test(`can set active state border line style to ${linestyle}`, () =>
+      expect( () => {
+        const _foo = sm`machine_name: bob; a->b; active_state: { line-style: ${linestyle}; }; `;
+      }).not.toThrow() );
+
+    test(`can set terminal state border line style to ${linestyle}`, () =>
+      expect( () => {
+        const _foo = sm`machine_name: bob; a->b; terminal_state: { line-style: ${linestyle}; }; `;
+      }).not.toThrow() );
+
+    test(`can set start state border line style to ${linestyle} using no-dash`, () =>
+      expect( () => {
+        const _foo = sm`machine_name: bob; start_state: { linestyle: ${linestyle}; }; a->b;`;
+      }).not.toThrow() );
+
+    test(`can set end state border line style to ${linestyle} using no-dash`, () =>
+      expect( () => {
+        const _foo = sm`machine_name: bob; end_state: { linestyle: ${linestyle}; }; a->b;`;
+      }).not.toThrow() );
+
+    test(`can set specific state border line style to ${linestyle} using no-dash notation`, () =>
+      expect( () => {
+        const _foo = sm`machine_name: bob; a->b; state a: { linestyle: ${linestyle}; }; `;
       }).not.toThrow() );
 
     test(`can set transition line style to ${linestyle}`, () =>
@@ -192,6 +207,46 @@ describe('Default state style', () => {
 
     test('border-color reads out', () => {
       expect( foo.standard_state_style.borderColor ).toEqual( '#ffff00ff' );
+    });
+
+  });
+
+  describe(`All properties overridable from inline`, () => {
+
+    const foo = sm`
+      a->b;
+      state   : { shape: circle;    background-color: red;    color: blue;   text-color: green; corners: rounded; line-style: dashed; border-color: yellow; };
+      state a : { shape: rectangle; background-color: purple; color: orange; text-color: cyan;  corners: lined;   line-style: dotted; border-color: brown;  };
+    `;
+
+    const sa = foo.style_for('a');
+
+    test('shape reads out', () => {
+      expect( sa.shape ).toEqual( 'rectangle' );
+    });
+
+    test('background-color reads out', () => {
+      expect( sa.backgroundColor ).toEqual( '#800080ff' );
+    });
+
+    test('color reads out', () => {
+      expect( sa.color ).toEqual( '#ffa500ff' );
+    });
+
+    test('text-color reads out', () => {
+      expect( sa.textColor ).toEqual( '#00ffffff' );
+    });
+
+    test('corners read out', () => {
+      expect( sa.corners ).toEqual( 'lined' );
+    });
+
+    test('line-style reads out', () => {
+      expect( sa.lineStyle ).toEqual( 'dotted' );
+    });
+
+    test('border-color reads out', () => {
+      expect( sa.borderColor ).toEqual( '#a52a2aff' );
     });
 
   });
