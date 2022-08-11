@@ -3219,10 +3219,25 @@ class Machine<mDT> {
       if (this._active_state_style) { layers.push(this._active_state_style); }
     }
 
+
+    const individual_style : JssmStateConfig      = {},
+          decl             : JssmStateDeclaration = this._state_declarations.get(state);
+
+    individual_style.color           = decl?.color;
+    individual_style.textColor       = decl?.textColor;
+    individual_style.borderColor     = decl?.borderColor;
+    individual_style.backgroundColor = decl?.backgroundColor;
+    individual_style.lineStyle       = decl?.lineStyle;
+    individual_style.corners         = decl?.corners;
+    individual_style.shape           = decl?.shape;
+
+    layers.push(individual_style);
+
+
     return layers.reduce((acc: JssmStateConfig, cur: JssmStateConfig) => {
 
       const composite_state: JssmStateConfig = acc;
-      Object.keys(cur).forEach(key => composite_state[key] = cur[key]);
+      Object.keys(cur).forEach(key => composite_state[key] = cur[key] ?? composite_state[key]);
 
       return composite_state;
 
