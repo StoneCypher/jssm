@@ -348,7 +348,7 @@ function makeTransition<mDT>(
  *  ```typescript
  *  import { sm } from 'jssm';
  *
- *  const switch = sm`on <=> off;`;
+ *  const lswitch = sm`on <=> off;`;
  *  ```
  *
  *  Method {@link from}:
@@ -544,7 +544,7 @@ function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileR
  *  ```typescript
  *  import { sm } from 'jssm';
  *
- *  const switch = sm`on <=> off;`;
+ *  const lswitch = sm`on <=> off;`;
  *  ```
  *
  *  Method {@link from}:
@@ -754,6 +754,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
       case 'text-color'       : state_decl.textColor       = d.value; break;
       case 'background-color' : state_decl.backgroundColor = d.value; break;
+      case 'state-label'      : state_decl.stateLabel      = d.value; break;
       case 'border-color'     : state_decl.borderColor     = d.value; break;
 
       case 'state_property'   : state_decl.property        = { name: d.name, value: d.value }; break;
@@ -787,37 +788,58 @@ function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig {
       switch (key.key) {
 
         case 'shape':
-          if (state_style.shape !== undefined) { throw new JssmError(this, `cannot redefine 'shape' in state_style_condense, already defined`); }
+          if (state_style.shape !== undefined) {
+            throw new JssmError(this, `cannot redefine 'shape' in state_style_condense, already defined`);
+          }
           state_style.shape = key.value;
           break;
 
         case 'color':
-          if (state_style.color !== undefined) { throw new JssmError(this, `cannot redefine 'color' in state_style_condense, already defined`); }
+          if (state_style.color !== undefined) {
+            throw new JssmError(this, `cannot redefine 'color' in state_style_condense, already defined`);
+          }
           state_style.color = key.value;
           break;
 
         case 'text-color':
-          if (state_style.textColor !== undefined) { throw new JssmError(this, `cannot redefine 'text-color' in state_style_condense, already defined`); }
+          if (state_style.textColor !== undefined) {
+            throw new JssmError(this, `cannot redefine 'text-color' in state_style_condense, already defined`);
+          }
           state_style.textColor = key.value;
           break;
 
         case 'corners':
-          if (state_style.corners !== undefined) { throw new JssmError(this, `cannot redefine 'corners' in state_style_condense, already defined`); }
+          if (state_style.corners !== undefined) {
+            throw new JssmError(this, `cannot redefine 'corners' in state_style_condense, already defined`);
+          }
           state_style.corners = key.value;
           break;
 
         case 'line-style':
-          if (state_style.lineStyle !== undefined) { throw new JssmError(this, `cannot redefine 'line-style' in state_style_condense, already defined`); }
+          if (state_style.lineStyle !== undefined) {
+            throw new JssmError(this, `cannot redefine 'line-style' in state_style_condense, already defined`);
+          }
           state_style.lineStyle = key.value;
           break;
 
         case 'background-color':
-          if (state_style.backgroundColor !== undefined) { throw new JssmError(this, `cannot redefine 'background-color' in state_style_condense, already defined`); }
+          if (state_style.backgroundColor !== undefined) {
+            throw new JssmError(this, `cannot redefine 'background-color' in state_style_condense, already defined`);
+          }
           state_style.backgroundColor = key.value;
           break;
 
+        case 'state-label':
+          if (state_style.stateLabel !== undefined) {
+            throw new JssmError(this, `cannot redefine 'state-label' in state_style_condense, already defined`);
+          }
+          state_style.stateLabel = key.value;
+          break;
+
         case 'border-color':
-          if (state_style.borderColor !== undefined) { throw new JssmError(this, `cannot redefine 'border-color' in state_style_condense, already defined`); }
+          if (state_style.borderColor !== undefined) {
+            throw new JssmError(this, `cannot redefine 'border-color' in state_style_condense, already defined`);
+          }
           state_style.borderColor = key.value;
           break;
 
@@ -939,6 +961,8 @@ class Machine<mDT> {
   _terminal_state_style : JssmStateConfig;
   _start_state_style    : JssmStateConfig;
   _end_state_style      : JssmStateConfig;
+
+  _state_labels : Map<string, string>;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -1071,7 +1095,10 @@ class Machine<mDT> {
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
 
+    this._state_labels                  = new Map();
 
+
+    // consolidate the state declarations
     if (state_declaration) {
       state_declaration.map((state_decl: JssmStateDeclaration) => {
 
@@ -1085,10 +1112,29 @@ class Machine<mDT> {
     }
 
 
+    // walk the decls for labels; aggregate them when found
+    [... this._state_declarations].map(sd => {
+
+      const [key, decl] = sd,
+            labelled    = decl.declarations.filter(d => d.key === 'state-label');
+
+      if (labelled.length > 1) {
+        throw new JssmError(this, `state ${key} may only have one state-label; has ${labelled.length}`);
+      }
+
+      if (labelled.length === 1) {
+        this._state_labels.set(key, labelled[0].value);
+      }
+
+    });
+
+
+
+    // walk the transitions
     transitions.map((tr: JssmTransition<mDT>) => {
 
       if ( tr.from === undefined ) { throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`); }
-      if ( tr.to === undefined )   { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
+      if ( tr.to   === undefined ) { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
       const cursor_from: JssmGenericState
@@ -1284,11 +1330,11 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;');
-   *  console.log( switch.state() );             // 'on'
+   *  const lswitch = jssm.from('on <=> off;');
+   *  console.log( lswitch.state() );             // 'on'
    *
-   *  switch.transition('off');
-   *  console.log( switch.state() );             // 'off'
+   *  lswitch.transition('off');
+   *  console.log( lswitch.state() );             // 'off'
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1299,13 +1345,28 @@ class Machine<mDT> {
     return this._state;
   }
 
-  /* whargarbl todo major
-     when we reimplement this, reintroduce this change to the is_final call
 
-    is_changing(): boolean {
-      return true; // todo whargarbl
-    }
-  */
+
+
+
+  /*********
+   *
+   *  Get the label for a given state, if any; return `undefined` otherwise.
+   *
+   *  ```typescript
+   *  import * as jssm from 'jssm';
+   *
+   *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
+   *  console.log( lswitch.label_for('a') );              // 'Foo!'
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  label_for(state: StateType): string {
+    return this._state_labels.get(state);
+  }
 
 
 
@@ -1318,8 +1379,8 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;', {data: 1});
-   *  console.log( switch.data() );              // 1
+   *  const lswitch = jssm.from('on <=> off;', {data: 1});
+   *  console.log( lswitch.data() );              // 1
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1329,14 +1390,6 @@ class Machine<mDT> {
   data(): mDT {
     return this._data;
   }
-
-  /* whargarbl todo major
-     when we reimplement this, reintroduce this change to the is_final call
-
-    is_changing(): boolean {
-      return true; // todo whargarbl
-    }
-  */
 
 
 
@@ -1800,8 +1853,8 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;');
-   *  console.log( switch.states() );             // ['on', 'off']
+   *  const lswitch = jssm.from('on <=> off;');
+   *  console.log( lswitch.states() );             // ['on', 'off']
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1839,10 +1892,10 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;');
+   *  const lswitch = jssm.from('on <=> off;');
    *
-   *  console.log( switch.has_state('off') );     // true
-   *  console.log( switch.has_state('dance') );   // false
+   *  console.log( lswitch.has_state('off') );     // true
+   *  console.log( lswitch.has_state('dance') );   // false
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -3455,7 +3508,7 @@ b   *
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
@@ -3503,7 +3556,7 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted

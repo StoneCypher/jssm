@@ -994,6 +994,9 @@ PropertyVal
 
 
 
+SdStateLabel "color"
+  = WS? "label"            WS? ":" WS? value:Label     WS? ";" WS? { return { key:'state-label', value }; }
+
 SdStateColor "color"
   = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? { return { key:'color', value }; }
 
@@ -1027,7 +1030,8 @@ SdStateProperty "state property"
 
 
 StateDeclarationItem
-  = SdStateColor
+  = SdStateLabel
+  / SdStateColor
   / SdStateTextColor
   / SdStateBackgroundColor
   / SdStateBorderColor

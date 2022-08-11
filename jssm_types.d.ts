@@ -106,6 +106,7 @@ declare type JssmStateDeclaration = {
     color?: JssmColor;
     corners?: JssmCorner;
     lineStyle?: JssmLineStyle;
+    stateLabel?: string;
     textColor?: JssmColor;
     backgroundColor?: JssmColor;
     borderColor?: JssmColor;
@@ -136,6 +137,10 @@ declare type JssmStateStyleLineStyle = {
     key: 'line-style';
     value: JssmLineStyle;
 };
+declare type JssmStateStyleStateLabel = {
+    key: 'state-label';
+    value: string;
+};
 declare type JssmStateStyleBackgroundColor = {
     key: 'background-color';
     value: JssmColor;
@@ -144,7 +149,7 @@ declare type JssmStateStyleBorderColor = {
     key: 'border-color';
     value: JssmColor;
 };
-declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleBorderColor;
+declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor;
 declare type JssmStateStyleKeyList = JssmStateStyleKey[];
 declare type JssmGenericConfig<DataType> = {
     graph_layout?: JssmLayout;

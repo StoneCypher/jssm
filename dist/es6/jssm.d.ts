@@ -94,7 +94,7 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  ```typescript
  *  import { sm } from 'jssm';
  *
- *  const switch = sm`on <=> off;`;
+ *  const lswitch = sm`on <=> off;`;
  *  ```
  *
  *  Method {@link from}:
@@ -149,7 +149,7 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  ```typescript
  *  import { sm } from 'jssm';
  *
- *  const switch = sm`on <=> off;`;
+ *  const lswitch = sm`on <=> off;`;
  *  ```
  *
  *  Method {@link from}:
@@ -266,6 +266,7 @@ declare class Machine<mDT> {
     _terminal_state_style: JssmStateConfig;
     _start_state_style: JssmStateConfig;
     _end_state_style: JssmStateConfig;
+    _state_labels: Map<string, string>;
     constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<mDT>);
     /********
      *
@@ -282,11 +283,11 @@ declare class Machine<mDT> {
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;');
-     *  console.log( switch.state() );             // 'on'
+     *  const lswitch = jssm.from('on <=> off;');
+     *  console.log( lswitch.state() );             // 'on'
      *
-     *  switch.transition('off');
-     *  console.log( switch.state() );             // 'off'
+     *  lswitch.transition('off');
+     *  console.log( lswitch.state() );             // 'off'
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -295,13 +296,28 @@ declare class Machine<mDT> {
     state(): StateType;
     /*********
      *
+     *  Get the label for a given state, if any; return `undefined` otherwise.
+     *
+     *  ```typescript
+     *  import * as jssm from 'jssm';
+     *
+     *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
+     *  console.log( lswitch.label_for('a') );              // 'Foo!'
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    label_for(state: StateType): string;
+    /*********
+     *
      *  Get the current data of a machine.
      *
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;', {data: 1});
-     *  console.log( switch.data() );              // 1
+     *  const lswitch = jssm.from('on <=> off;', {data: 1});
+     *  console.log( lswitch.data() );              // 1
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -545,8 +561,8 @@ declare class Machine<mDT> {
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;');
-     *  console.log( switch.states() );             // ['on', 'off']
+     *  const lswitch = jssm.from('on <=> off;');
+     *  console.log( lswitch.states() );             // ['on', 'off']
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -561,10 +577,10 @@ declare class Machine<mDT> {
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;');
+     *  const lswitch = jssm.from('on <=> off;');
      *
-     *  console.log( switch.has_state('off') );     // true
-     *  console.log( switch.has_state('dance') );   // false
+     *  console.log( lswitch.has_state('off') );     // true
+     *  console.log( lswitch.has_state('dance') );   // false
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1155,7 +1171,7 @@ declare class Machine<mDT> {
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1178,7 +1194,7 @@ declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: a
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted

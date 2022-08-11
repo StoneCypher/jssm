@@ -277,6 +277,10 @@ describe('Default state style', () => {
       expect( () => sm`a->b; state: { line-style: dashed; line-style: dashed; };` ).toThrow();
     });
 
+    test('label blocks doublings', () => {
+      expect( () => sm`a->b; state: { label: butt; label: chunks; };` ).toThrow();
+    });
+
     test('border-color blocks doublings', () => {
       expect( () => sm`a->b; state: { border-color: yellow; border-color: yellow; };` ).toThrow();
     });

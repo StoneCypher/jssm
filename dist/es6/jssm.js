@@ -272,7 +272,7 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
  *  ```typescript
  *  import { sm } from 'jssm';
  *
- *  const switch = sm`on <=> off;`;
+ *  const lswitch = sm`on <=> off;`;
  *  ```
  *
  *  Method {@link from}:
@@ -424,7 +424,7 @@ function compile_rule_handler(rule) {
  *  ```typescript
  *  import { sm } from 'jssm';
  *
- *  const switch = sm`on <=> off;`;
+ *  const lswitch = sm`on <=> off;`;
  *  ```
  *
  *  Method {@link from}:
@@ -574,6 +574,9 @@ function transfer_state_properties(state_decl) {
             case 'background-color':
                 state_decl.backgroundColor = d.value;
                 break;
+            case 'state-label':
+                state_decl.stateLabel = d.value;
+                break;
             case 'border-color':
                 state_decl.borderColor = d.value;
                 break;
@@ -628,6 +631,12 @@ function state_style_condense(jssk) {
                         throw new JssmError(this, `cannot redefine 'background-color' in state_style_condense, already defined`);
                     }
                     state_style.backgroundColor = key.value;
+                    break;
+                case 'state-label':
+                    if (state_style.stateLabel !== undefined) {
+                        throw new JssmError(this, `cannot redefine 'state-label' in state_style_condense, already defined`);
+                    }
+                    state_style.stateLabel = key.value;
                     break;
                 case 'border-color':
                     if (state_style.borderColor !== undefined) {
@@ -731,6 +740,8 @@ class Machine {
         this._end_state_style = state_style_condense(default_end_state_config);
         this._history_length = history || 0;
         this._history = new circular_buffer(this._history_length);
+        this._state_labels = new Map();
+        // consolidate the state declarations
         if (state_declaration) {
             state_declaration.map((state_decl) => {
                 if (this._state_declarations.has(state_decl.state)) { // no repeats
@@ -739,6 +750,17 @@ class Machine {
                 this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
             });
         }
+        // walk the decls for labels; aggregate them when found
+        [...this._state_declarations].map(sd => {
+            const [key, decl] = sd, labelled = decl.declarations.filter(d => d.key === 'state-label');
+            if (labelled.length > 1) {
+                throw new JssmError(this, `state ${key} may only have one state-label; has ${labelled.length}`);
+            }
+            if (labelled.length === 1) {
+                this._state_labels.set(key, labelled[0].value);
+            }
+        });
+        // walk the transitions
         transitions.map((tr) => {
             if (tr.from === undefined) {
                 throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`);
@@ -890,11 +912,11 @@ class Machine {
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;');
-     *  console.log( switch.state() );             // 'on'
+     *  const lswitch = jssm.from('on <=> off;');
+     *  console.log( lswitch.state() );             // 'on'
      *
-     *  switch.transition('off');
-     *  console.log( switch.state() );             // 'off'
+     *  lswitch.transition('off');
+     *  console.log( lswitch.state() );             // 'off'
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -903,13 +925,23 @@ class Machine {
     state() {
         return this._state;
     }
-    /* whargarbl todo major
-       when we reimplement this, reintroduce this change to the is_final call
-  
-      is_changing(): boolean {
-        return true; // todo whargarbl
-      }
-    */
+    /*********
+     *
+     *  Get the label for a given state, if any; return `undefined` otherwise.
+     *
+     *  ```typescript
+     *  import * as jssm from 'jssm';
+     *
+     *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
+     *  console.log( lswitch.label_for('a') );              // 'Foo!'
+     *  ```
+     *
+     *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     */
+    label_for(state) {
+        return this._state_labels.get(state);
+    }
     /*********
      *
      *  Get the current data of a machine.
@@ -917,8 +949,8 @@ class Machine {
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;', {data: 1});
-     *  console.log( switch.data() );              // 1
+     *  const lswitch = jssm.from('on <=> off;', {data: 1});
+     *  console.log( lswitch.data() );              // 1
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -927,13 +959,6 @@ class Machine {
     data() {
         return this._data;
     }
-    /* whargarbl todo major
-       when we reimplement this, reintroduce this change to the is_final call
-  
-      is_changing(): boolean {
-        return true; // todo whargarbl
-      }
-    */
     // NEEDS_DOCS
     /*********
      *
@@ -1273,8 +1298,8 @@ class Machine {
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;');
-     *  console.log( switch.states() );             // ['on', 'off']
+     *  const lswitch = jssm.from('on <=> off;');
+     *  console.log( lswitch.states() );             // ['on', 'off']
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1299,10 +1324,10 @@ class Machine {
      *  ```typescript
      *  import * as jssm from 'jssm';
      *
-     *  const switch = jssm.from('on <=> off;');
+     *  const lswitch = jssm.from('on <=> off;');
      *
-     *  console.log( switch.has_state('off') );     // true
-     *  console.log( switch.has_state('dance') );   // false
+     *  console.log( lswitch.has_state('off') );     // true
+     *  console.log( lswitch.has_state('dance') );   // false
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
@@ -2543,7 +2568,7 @@ class Machine {
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
@@ -2578,7 +2603,7 @@ function sm(template_strings, ...remainder /* , arguments */) {
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted

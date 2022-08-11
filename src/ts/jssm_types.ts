@@ -212,6 +212,8 @@ type JssmStateDeclaration = {
   corners?         : JssmCorner,
   lineStyle?       : JssmLineStyle,
 
+  stateLabel?      : string,
+
   textColor?       : JssmColor,
   backgroundColor? : JssmColor,
   borderColor?     : JssmColor,
@@ -228,13 +230,14 @@ type JssmStateStyleColor           = { key: 'color',            value: JssmColor
 type JssmStateStyleTextColor       = { key: 'text-color',       value: JssmColor     };
 type JssmStateStyleCorners         = { key: 'corners',          value: JssmCorner    };
 type JssmStateStyleLineStyle       = { key: 'line-style',       value: JssmLineStyle };
+type JssmStateStyleStateLabel      = { key: 'state-label',      value: string        };
 type JssmStateStyleBackgroundColor = { key: 'background-color', value: JssmColor     };
 type JssmStateStyleBorderColor     = { key: 'border-color',     value: JssmColor     };
 
 type JssmStateStyleKey     = JssmStateStyleShape | JssmStateStyleColor
                            | JssmStateStyleTextColor | JssmStateStyleCorners
                            | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor
-                           | JssmStateStyleBorderColor;
+                           | JssmStateStyleStateLabel | JssmStateStyleBorderColor;
 
 type JssmStateStyleKeyList = JssmStateStyleKey[];
 
