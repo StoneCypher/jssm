@@ -245,6 +245,32 @@ type JssmStateStyleKeyList = JssmStateStyleKey[];
 
 
 
+type JssmBaseTheme = {
+
+  state      : JssmStateConfig,
+  active     : JssmStateConfig,
+  hooked     : JssmStateConfig,
+  start      : JssmStateConfig,
+  end        : JssmStateConfig,
+  terminal   : JssmStateConfig,
+
+  graph      : undefined,
+
+  legal      : undefined,
+  main       : undefined,
+  forced     : undefined,
+
+  action     : undefined,
+  title      : undefined
+
+};
+
+type JssmTheme = Partial<JssmBaseTheme>;
+
+
+
+
+
 type JssmGenericConfig<DataType> = {
 
   graph_layout?                  : JssmLayout,
@@ -596,6 +622,9 @@ export {
 
   JssmStateStyleKey,
     JssmStateStyleKeyList,
+
+  JssmBaseTheme,
+    JssmTheme,
 
   JssmLayout,
 

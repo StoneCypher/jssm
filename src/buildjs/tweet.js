@@ -11,7 +11,7 @@ const blue = chalk.blueBright,
 const package = JSON.parse( readFileSync('./package.json') );
 
 const tag            = package.version, // spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
-      commit_message = spawnSync('git log -1 --pretty=format:%B');
+      commit_message = spawnSync('echo test');
 
 console.log('found:');
 console.log(tag);

@@ -1,5 +1,8 @@
 
-import { JssmStateConfig } from './jssm_types';
+import {
+  JssmStateConfig,
+  JssmBaseTheme
+} from './jssm_types';
 
 
 
@@ -77,6 +80,14 @@ const base_active_end_state_style: JssmStateConfig = {
 
 
 
+const base_theme: JssmBaseTheme = {
+
+};
+
+
+
+
+
 export {
 
   base_state_style,
@@ -89,6 +100,8 @@ export {
   base_active_start_state_style,
 
   base_end_state_style,
-  base_active_end_state_style
+  base_active_end_state_style,
+
+  base_theme
 
 };
