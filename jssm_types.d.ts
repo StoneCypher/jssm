@@ -151,16 +151,25 @@ declare type JssmStateStyleBorderColor = {
 };
 declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor;
 declare type JssmStateStyleKeyList = JssmStateStyleKey[];
-declare type JssmStateStyle = {
-    shape: JssmStateStyleShape;
-    color: JssmStateStyleColor;
-    textColor: JssmStateStyleTextColor;
-    corners: JssmStateStyleCorners;
-    lineStyle: JssmStateStyleLineStyle;
-    stateLabel: JssmStateStyleStateLabel;
-    backgroundColor: JssmStateStyleBackgroundColor;
-    borderColor: JssmStateStyleBorderColor;
+declare type JssmBaseTheme = {
+    state: JssmStateConfig;
+    hooked: JssmStateConfig;
+    start: JssmStateConfig;
+    end: JssmStateConfig;
+    terminal: JssmStateConfig;
+    active: JssmStateConfig;
+    active_hooked: JssmStateConfig;
+    active_start: JssmStateConfig;
+    active_end: JssmStateConfig;
+    active_terminal: JssmStateConfig;
+    graph: undefined;
+    legal: undefined;
+    main: undefined;
+    forced: undefined;
+    action: undefined;
+    title: undefined;
 };
+declare type JssmTheme = Partial<JssmBaseTheme>;
 declare type JssmGenericConfig<DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
@@ -342,4 +351,4 @@ declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
 declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyle, JssmStateStyleKey, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };

@@ -247,21 +247,26 @@ type JssmStateStyleKeyList = JssmStateStyleKey[];
 
 type JssmBaseTheme = {
 
-  state      : JssmStateConfig,
-  active     : JssmStateConfig,
-  hooked     : JssmStateConfig,
-  start      : JssmStateConfig,
-  end        : JssmStateConfig,
-  terminal   : JssmStateConfig,
+  state           : JssmStateConfig,
+  hooked          : JssmStateConfig,
+  start           : JssmStateConfig,
+  end             : JssmStateConfig,
+  terminal        : JssmStateConfig,
 
-  graph      : undefined,
+  active          : JssmStateConfig,
+  active_hooked   : JssmStateConfig,
+  active_start    : JssmStateConfig,
+  active_end      : JssmStateConfig,
+  active_terminal : JssmStateConfig,
 
-  legal      : undefined,
-  main       : undefined,
-  forced     : undefined,
+  graph           : undefined,
 
-  action     : undefined,
-  title      : undefined
+  legal           : undefined,
+  main            : undefined,
+  forced          : undefined,
+
+  action          : undefined,
+  title           : undefined
 
 };
 
