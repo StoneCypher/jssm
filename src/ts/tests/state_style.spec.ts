@@ -9,7 +9,7 @@ import {
   base_end_state_style,
   base_terminal_state_style,
   base_active_state_style
-} from '../jssm_base_stylesheet';
+} from '../themes/jssm_base_stylesheet';
 
 
 

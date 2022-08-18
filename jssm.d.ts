@@ -1025,6 +1025,7 @@ declare class Machine<mDT> {
      *
      */
     get active_state_style(): JssmStateConfig;
+    has_hooks(state: StateType): false;
     /********
      *
      *  Gets the composite style for a specific node by individually imposing the
@@ -1070,7 +1071,7 @@ declare class Machine<mDT> {
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
-  b   *
+     *
      *  @param actionName The action to engage
      *
      *  @param newData The data change to insert during the action

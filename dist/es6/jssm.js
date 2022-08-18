@@ -1,7 +1,7 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { circular_buffer } from 'circular_buffer_js';
-import { base_state_style, base_start_state_style, base_end_state_style, base_terminal_state_style, base_active_state_style } from './jssm_base_stylesheet';
+import { base_theme } from './themes/jssm_base_stylesheet';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -2317,6 +2317,12 @@ class Machine {
     get active_state_style() {
         return this._active_state_style;
     }
+    /*
+     */
+    // TODO COMEBACK IMPLEMENTME FIXME
+    has_hooks(state) {
+        return false;
+    }
     /********
      *
      *  Gets the composite style for a specific node by individually imposing the
@@ -2337,48 +2343,74 @@ class Machine {
      *
      */
     style_for(state) {
+        // TODO
+        const themes = [];
         // basic state style
-        const layers = [base_state_style];
-        //  if (theme.state_style) { layers.push(theme.state_style); }
+        const layers = [base_theme.state];
+        themes.map(theme => {
+            if (theme.state) {
+                layers.push(theme.state);
+            }
+        });
         if (this._state_style) {
             layers.push(this._state_style);
         }
-        /*
-            // hooked state style
-            if (this.has_hooks(state)) {
-              layers.push(base_hooked_state_style);
-        //    if (theme.hooked_state_style) { layers.push(theme.hooked_state_style); }
-              if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+        // hooked state style
+        if (this.has_hooks(state)) {
+            layers.push(base_theme.hooked);
+            themes.map(theme => {
+                if (theme.hooked) {
+                    layers.push(theme.hooked);
+                }
+            });
+            if (this._hooked_state_style) {
+                layers.push(this._hooked_state_style);
             }
-        */
+        }
         // terminal state style
         if (this.state_is_terminal(state)) {
-            layers.push(base_terminal_state_style);
-            //    if (theme.terminal_state_style) { layers.push(theme.terminal_state_style); }
+            layers.push(base_theme.terminal);
+            themes.map(theme => {
+                if (theme.terminal) {
+                    layers.push(theme.terminal);
+                }
+            });
             if (this._terminal_state_style) {
                 layers.push(this._terminal_state_style);
             }
         }
         // start state style
         if (this.is_start_state(state)) {
-            layers.push(base_start_state_style);
-            //    if (theme.start_state_style) { layers.push(theme.start_state_style); }
+            layers.push(base_theme.start);
+            themes.map(theme => {
+                if (theme.start) {
+                    layers.push(theme.start);
+                }
+            });
             if (this._start_state_style) {
                 layers.push(this._start_state_style);
             }
         }
         // end state style
         if (this.is_end_state(state)) {
-            layers.push(base_end_state_style);
-            //    if (theme.end_state_style) { layers.push(theme.end_state_style); }
+            layers.push(base_theme.end);
+            themes.map(theme => {
+                if (theme.end) {
+                    layers.push(theme.end);
+                }
+            });
             if (this._end_state_style) {
                 layers.push(this._end_state_style);
             }
         }
         // active state style
         if (this.state() === state) {
-            layers.push(base_active_state_style);
-            //    if (theme.active_state_style) { layers.push(theme.active_state_style); }
+            layers.push(base_theme.active);
+            themes.map(theme => {
+                if (theme.active) {
+                    layers.push(theme.active);
+                }
+            });
             if (this._active_state_style) {
                 layers.push(this._active_state_style);
             }
@@ -2423,7 +2455,7 @@ class Machine {
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
-  b   *
+     *
      *  @param actionName The action to engage
      *
      *  @param newData The data change to insert during the action

@@ -2,7 +2,7 @@
 import {
   JssmStateConfig,
   JssmBaseTheme
-} from './jssm_types';
+} from '../jssm_types';
 
 
 
