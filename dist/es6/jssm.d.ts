@@ -218,7 +218,7 @@ declare class Machine<mDT> {
     _arrange_declaration: Array<Array<StateType>>;
     _arrange_start_declaration: Array<Array<StateType>>;
     _arrange_end_declaration: Array<Array<StateType>>;
-    _theme: FslTheme;
+    _themes: FslTheme[];
     _flow: FslDirection;
     _has_hooks: boolean;
     _has_basic_hooks: boolean;
@@ -626,6 +626,7 @@ declare class Machine<mDT> {
     list_named_transitions(): Map<StateType, number>;
     list_actions(): Array<StateType>;
     theme(): FslTheme;
+    themes(): FslTheme[];
     flow(): FslDirection;
     get_transition_by_state_names(from: StateType, to: StateType): number;
     lookup_transition_for(from: StateType, to: StateType): JssmTransition<mDT>;

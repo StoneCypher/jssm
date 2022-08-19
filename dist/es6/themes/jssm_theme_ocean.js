@@ -36,7 +36,7 @@ const base_active_end_state_style = {
     textColor: 'white',
     backgroundColor: 'darkgreen'
 };
-const base_theme = {
+const ocean_theme = {
     state: base_state_style,
     start: base_start_state_style,
     end: base_end_state_style,
@@ -54,4 +54,4 @@ const base_theme = {
     graph: undefined,
     title: undefined // TODO FIXME
 };
-export { base_state_style, base_active_state_style, base_terminal_state_style, base_active_terminal_state_style, base_start_state_style, base_active_start_state_style, base_end_state_style, base_active_end_state_style, base_theme, base_theme as theme };
+export { base_state_style, base_active_state_style, base_terminal_state_style, base_active_terminal_state_style, base_start_state_style, base_active_start_state_style, base_end_state_style, base_active_end_state_style, ocean_theme, ocean_theme as theme };

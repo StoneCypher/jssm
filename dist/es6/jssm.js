@@ -2,6 +2,13 @@
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { circular_buffer } from 'circular_buffer_js';
 import { base_theme } from './themes/jssm_base_stylesheet';
+import { default_theme } from './themes/jssm_theme_default';
+import { modern_theme } from './themes/jssm_theme_modern';
+import { ocean_theme } from './themes/jssm_theme_ocean';
+const themes = new Map();
+themes.set('default', default_theme);
+themes.set('modern', modern_theme);
+themes.set('ocean', ocean_theme);
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -688,7 +695,7 @@ class Machine {
         this._arrange_start_declaration = arrange_start_declaration;
         this._arrange_end_declaration = arrange_end_declaration;
         this._dot_preamble = dot_preamble;
-        this._theme = theme;
+        this._themes = [theme];
         this._flow = flow;
         this._graph_layout = graph_layout;
         this._has_hooks = false;
@@ -1381,7 +1388,10 @@ class Machine {
         return Array.from(this._actions.keys());
     }
     theme() {
-        return this._theme; // constructor sets this to "default" otherwise
+        return this._themes[0]; // returns topmost only
+    }
+    themes() {
+        return this._themes; // constructor sets this to "default" otherwise
     }
     flow() {
         return this._flow;

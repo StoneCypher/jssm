@@ -34,7 +34,16 @@ import {
 
 
 
-import { base_theme } from './themes/jssm_base_stylesheet';
+import { base_theme }    from './themes/jssm_base_stylesheet';
+
+import { default_theme } from './themes/jssm_theme_default';
+import { modern_theme }  from './themes/jssm_theme_modern';
+import { ocean_theme }   from './themes/jssm_theme_ocean';
+
+const themes: Map<string, JssmBaseTheme> = new Map();
+themes.set('default', default_theme);
+themes.set('modern',  modern_theme);
+themes.set('ocean',   ocean_theme);
 
 
 
@@ -899,8 +908,8 @@ class Machine<mDT> {
   _arrange_start_declaration : Array<Array<StateType>>;
   _arrange_end_declaration   : Array<Array<StateType>>;
 
-  _theme : FslTheme;
-  _flow  : FslDirection;
+  _themes : FslTheme[];
+  _flow   : FslDirection;
 
   _has_hooks                : boolean;
   _has_basic_hooks          : boolean;
@@ -1029,7 +1038,7 @@ class Machine<mDT> {
     this._arrange_end_declaration   = arrange_end_declaration;
 
     this._dot_preamble = dot_preamble;
-    this._theme        = theme;
+    this._themes       = [theme];
     this._flow         = flow;
     this._graph_layout = graph_layout;
 
@@ -1955,8 +1964,8 @@ class Machine<mDT> {
 
 
 
-  theme(): FslTheme {
-    return this._theme;  // constructor sets this to "default" otherwise
+  themes(): FslTheme[] {
+    return this._themes;     // constructor sets this to "default" otherwise
   }
 
   flow(): FslDirection {

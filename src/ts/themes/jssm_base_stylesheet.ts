@@ -138,6 +138,7 @@ export {
   base_end_state_style,
   base_active_end_state_style,
 
-  base_theme
+  base_theme,
+    base_theme as theme
 
 };
