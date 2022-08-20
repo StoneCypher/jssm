@@ -40,10 +40,10 @@ import { default_theme } from './themes/jssm_theme_default';
 import { modern_theme }  from './themes/jssm_theme_modern';
 import { ocean_theme }   from './themes/jssm_theme_ocean';
 
-const themes: Map<string, JssmBaseTheme> = new Map();
-themes.set('default', default_theme);
-themes.set('modern',  modern_theme);
-themes.set('ocean',   ocean_theme);
+const theme_mapping: Map<string, JssmBaseTheme> = new Map();
+theme_mapping.set('default', default_theme);
+theme_mapping.set('modern',  modern_theme);
+theme_mapping.set('ocean',   ocean_theme);
 
 
 
@@ -3211,9 +3211,9 @@ class Machine<mDT> {
 
   // TODO COMEBACK IMPLEMENTME FIXME
 
-  has_hooks(state: StateType): false {
-    return false;
-  }
+  // has_hooks(state: StateType): false {
+  //   return false;
+  // }
 
 
 
@@ -3242,8 +3242,18 @@ class Machine<mDT> {
   style_for(state: StateType): JssmStateConfig {
 
 
-    // TODO
+    // first look up the themes
     const themes: JssmBaseTheme[] = [];
+
+    this._themes.forEach(th => {
+
+      const theme_impl = theme_mapping.get(th);
+
+      if (theme_impl !== undefined) {
+        themes.push(theme_impl);
+      }
+
+    });
 
     // basic state style
     const layers = [ base_theme.state ];
@@ -3257,13 +3267,13 @@ class Machine<mDT> {
 
 
     // hooked state style
-    if (this.has_hooks(state)) {
-      layers.push(base_theme.hooked);
-      themes.map(theme => {
-        if (theme.hooked) { layers.push(theme.hooked); }
-      });
-      if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
-    }
+    // if (this.has_hooks(state)) {
+    //   layers.push(base_theme.hooked);
+    //   themes.map(theme => {
+    //     if (theme.hooked) { layers.push(theme.hooked); }
+    //   });
+    //   if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+    // }
 
 
     // terminal state style

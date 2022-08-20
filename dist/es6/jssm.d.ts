@@ -625,7 +625,6 @@ declare class Machine<mDT> {
     list_edges(): Array<JssmTransition<mDT>>;
     list_named_transitions(): Map<StateType, number>;
     list_actions(): Array<StateType>;
-    theme(): FslTheme;
     themes(): FslTheme[];
     flow(): FslDirection;
     get_transition_by_state_names(from: StateType, to: StateType): number;
@@ -1026,7 +1025,6 @@ declare class Machine<mDT> {
      *
      */
     get active_state_style(): JssmStateConfig;
-    has_hooks(state: StateType): false;
     /********
      *
      *  Gets the composite style for a specific node by individually imposing the

@@ -5,10 +5,10 @@ import { base_theme } from './themes/jssm_base_stylesheet';
 import { default_theme } from './themes/jssm_theme_default';
 import { modern_theme } from './themes/jssm_theme_modern';
 import { ocean_theme } from './themes/jssm_theme_ocean';
-const themes = new Map();
-themes.set('default', default_theme);
-themes.set('modern', modern_theme);
-themes.set('ocean', ocean_theme);
+const theme_mapping = new Map();
+theme_mapping.set('default', default_theme);
+theme_mapping.set('modern', modern_theme);
+theme_mapping.set('ocean', ocean_theme);
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -1387,9 +1387,6 @@ class Machine {
     list_actions() {
         return Array.from(this._actions.keys());
     }
-    theme() {
-        return this._themes[0]; // returns topmost only
-    }
     themes() {
         return this._themes; // constructor sets this to "default" otherwise
     }
@@ -2330,9 +2327,9 @@ class Machine {
     /*
      */
     // TODO COMEBACK IMPLEMENTME FIXME
-    has_hooks(state) {
-        return false;
-    }
+    // has_hooks(state: StateType): false {
+    //   return false;
+    // }
     /********
      *
      *  Gets the composite style for a specific node by individually imposing the
@@ -2353,8 +2350,14 @@ class Machine {
      *
      */
     style_for(state) {
-        // TODO
+        // first look up the themes
         const themes = [];
+        this._themes.forEach(th => {
+            const theme_impl = theme_mapping.get(th);
+            if (theme_impl !== undefined) {
+                themes.push(theme_impl);
+            }
+        });
         // basic state style
         const layers = [base_theme.state];
         themes.map(theme => {
@@ -2366,17 +2369,13 @@ class Machine {
             layers.push(this._state_style);
         }
         // hooked state style
-        if (this.has_hooks(state)) {
-            layers.push(base_theme.hooked);
-            themes.map(theme => {
-                if (theme.hooked) {
-                    layers.push(theme.hooked);
-                }
-            });
-            if (this._hooked_state_style) {
-                layers.push(this._hooked_state_style);
-            }
-        }
+        // if (this.has_hooks(state)) {
+        //   layers.push(base_theme.hooked);
+        //   themes.map(theme => {
+        //     if (theme.hooked) { layers.push(theme.hooked); }
+        //   });
+        //   if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+        // }
         // terminal state style
         if (this.state_is_terminal(state)) {
             layers.push(base_theme.terminal);
