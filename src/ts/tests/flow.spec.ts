@@ -1,6 +1,6 @@
 
-import { FlowDirections } from './constants.spec';
-import { sm }             from '../jssm';
+import { FlowDirections }    from './constants.spec';
+import { sm, FslDirections } from '../jssm';
 
 
 
@@ -18,5 +18,15 @@ describe('Flow directions', () => {
 
   test('Fake flow direction throws', () =>
     expect( () => { const _foo = sm`flow: yourFlowIsWhackSon; a-> b;`; } ).toThrow() );
+
+  test('FslDirections', () => {
+
+    const foo  = sm`a->b;`,
+          dirs = FslDirections;
+
+    expect( Array.isArray(FslDirections) ).toBe(true);
+    expect( typeof FslDirections[0] ).toBe('string');
+
+  });
 
 });

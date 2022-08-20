@@ -1,14 +1,17 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { circular_buffer } from 'circular_buffer_js';
+import { FslDirections } from './jssm_types';
 import { base_theme } from './themes/jssm_base_stylesheet';
 import { default_theme } from './themes/jssm_theme_default';
 import { modern_theme } from './themes/jssm_theme_modern';
 import { ocean_theme } from './themes/jssm_theme_ocean';
+import { plain_theme } from './themes/jssm_theme_plain';
 const theme_mapping = new Map();
 theme_mapping.set('default', default_theme);
 theme_mapping.set('modern', modern_theme);
 theme_mapping.set('ocean', ocean_theme);
+theme_mapping.set('plain', plain_theme);
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -1387,8 +1390,19 @@ class Machine {
     list_actions() {
         return Array.from(this._actions.keys());
     }
-    themes() {
+    all_themes() {
+        return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
+    }
+    get themes() {
         return this._themes; // constructor sets this to "default" otherwise
+    }
+    set themes(to) {
+        if (typeof to === 'string') {
+            this._themes = [to];
+        }
+        else {
+            this._themes = to;
+        }
     }
     flow() {
         return this._flow;
@@ -2713,4 +2727,6 @@ function deserialize(machine_string, ser) {
 }
 export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
-seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense };
+seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections
+//  FslThemes
+ };
