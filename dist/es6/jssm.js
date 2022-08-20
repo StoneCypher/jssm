@@ -1,7 +1,14 @@
 // whargarbl lots of these return arrays could/should be sets
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 import { circular_buffer } from 'circular_buffer_js';
-import { base_state_style, base_start_state_style, base_end_state_style, base_terminal_state_style, base_active_state_style } from './jssm_base_stylesheet';
+import { base_theme } from './themes/jssm_base_stylesheet';
+import { default_theme } from './themes/jssm_theme_default';
+import { modern_theme } from './themes/jssm_theme_modern';
+import { ocean_theme } from './themes/jssm_theme_ocean';
+const theme_mapping = new Map();
+theme_mapping.set('default', default_theme);
+theme_mapping.set('modern', modern_theme);
+theme_mapping.set('ocean', ocean_theme);
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -491,7 +498,7 @@ function compile(tree) {
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
         'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-        'theme', 'flow', 'dot_preamble'
+        'flow', 'dot_preamble'
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {
@@ -504,7 +511,7 @@ function compile(tree) {
         }
     });
     ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
-        'machine_author', 'machine_contributor', 'machine_reference',
+        'machine_author', 'machine_contributor', 'machine_reference', 'theme',
         'state_declaration', 'property_definition', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_terminal_state_config',
@@ -661,7 +668,7 @@ function state_style_condense(jssk) {
 // TODO add a lotta docblock here
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }) {
+    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }) {
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -688,7 +695,7 @@ class Machine {
         this._arrange_start_declaration = arrange_start_declaration;
         this._arrange_end_declaration = arrange_end_declaration;
         this._dot_preamble = dot_preamble;
-        this._theme = theme;
+        this._themes = theme;
         this._flow = flow;
         this._graph_layout = graph_layout;
         this._has_hooks = false;
@@ -1380,8 +1387,8 @@ class Machine {
     list_actions() {
         return Array.from(this._actions.keys());
     }
-    theme() {
-        return this._theme; // constructor sets this to "default" otherwise
+    themes() {
+        return this._themes; // constructor sets this to "default" otherwise
     }
     flow() {
         return this._flow;
@@ -2317,6 +2324,12 @@ class Machine {
     get active_state_style() {
         return this._active_state_style;
     }
+    /*
+     */
+    // TODO COMEBACK IMPLEMENTME FIXME
+    // has_hooks(state: StateType): false {
+    //   return false;
+    // }
     /********
      *
      *  Gets the composite style for a specific node by individually imposing the
@@ -2337,48 +2350,76 @@ class Machine {
      *
      */
     style_for(state) {
+        // first look up the themes
+        const themes = [];
+        this._themes.forEach(th => {
+            const theme_impl = theme_mapping.get(th);
+            if (theme_impl !== undefined) {
+                themes.push(theme_impl);
+            }
+        });
         // basic state style
-        const layers = [base_state_style];
-        //  if (theme.state_style) { layers.push(theme.state_style); }
+        const layers = [base_theme.state];
+        themes.reverse().map(theme => {
+            if (theme.state) {
+                layers.push(theme.state);
+            }
+        });
         if (this._state_style) {
             layers.push(this._state_style);
         }
-        /*
-            // hooked state style
-            if (this.has_hooks(state)) {
-              layers.push(base_hooked_state_style);
-        //    if (theme.hooked_state_style) { layers.push(theme.hooked_state_style); }
-              if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
-            }
-        */
+        // hooked state style
+        // if (this.has_hooks(state)) {
+        //   layers.push(base_theme.hooked);
+        //   themes.map(theme => {
+        //     if (theme.hooked) { layers.push(theme.hooked); }
+        //   });
+        //   if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+        // }
         // terminal state style
         if (this.state_is_terminal(state)) {
-            layers.push(base_terminal_state_style);
-            //    if (theme.terminal_state_style) { layers.push(theme.terminal_state_style); }
+            layers.push(base_theme.terminal);
+            themes.map(theme => {
+                if (theme.terminal) {
+                    layers.push(theme.terminal);
+                }
+            });
             if (this._terminal_state_style) {
                 layers.push(this._terminal_state_style);
             }
         }
         // start state style
         if (this.is_start_state(state)) {
-            layers.push(base_start_state_style);
-            //    if (theme.start_state_style) { layers.push(theme.start_state_style); }
+            layers.push(base_theme.start);
+            themes.map(theme => {
+                if (theme.start) {
+                    layers.push(theme.start);
+                }
+            });
             if (this._start_state_style) {
                 layers.push(this._start_state_style);
             }
         }
         // end state style
         if (this.is_end_state(state)) {
-            layers.push(base_end_state_style);
-            //    if (theme.end_state_style) { layers.push(theme.end_state_style); }
+            layers.push(base_theme.end);
+            themes.map(theme => {
+                if (theme.end) {
+                    layers.push(theme.end);
+                }
+            });
             if (this._end_state_style) {
                 layers.push(this._end_state_style);
             }
         }
         // active state style
         if (this.state() === state) {
-            layers.push(base_active_state_style);
-            //    if (theme.active_state_style) { layers.push(theme.active_state_style); }
+            layers.push(base_theme.active);
+            themes.map(theme => {
+                if (theme.active) {
+                    layers.push(theme.active);
+                }
+            });
             if (this._active_state_style) {
                 layers.push(this._active_state_style);
             }
@@ -2423,7 +2464,7 @@ class Machine {
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
-  b   *
+     *
      *  @param actionName The action to engage
      *
      *  @param newData The data change to insert during the action

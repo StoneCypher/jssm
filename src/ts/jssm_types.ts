@@ -283,7 +283,7 @@ type JssmGenericConfig<DataType> = {
   complete?                      : Array<StateType>,
   transitions                    : JssmTransitions<DataType>,
 
-  theme?                         : FslTheme,
+  theme?                         : FslTheme[],
   flow?                          : FslDirection,
 
   name?                          : string,
