@@ -25,6 +25,10 @@ Theme
   / "modern"
   / "ocean"
 
+ThemeOrThemeList
+  = '[' WS? ths:(Theme WS)* th:Theme? ']' { const themes = ths.map(t => t[0]); themes.push(th); return themes; }
+  / th:Theme                              { return [th]; }
+
 
 
 
@@ -952,7 +956,7 @@ FslVersion
   = WS? "fsl_version"         WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "fsl_version", value }; }
 
 MachineTheme
-  = WS? "theme"               WS? ":" WS? value:Theme                WS? ";" WS? { return { key: "theme", value }; }
+  = WS? "theme"               WS? ":" WS? value:ThemeOrThemeList     WS? ";" WS? { return { key: "theme", value }; }
 
 MachineFlow
   = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }

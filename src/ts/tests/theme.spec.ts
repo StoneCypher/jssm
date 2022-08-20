@@ -46,3 +46,23 @@ describe('Named themes', () => {
     expect( () => { const _foo = compile(parse(`theme: zeghezgqqqqthirteen; a->b;`)); } ).toThrow() );
 
 });
+
+
+
+
+
+describe('Multiple themes', () => {
+
+  test(`Theme "[ocean modern]" parses as a theme`, () =>
+    expect( () => { const _foo = sm`theme: [ocean modern]; a-> b;`; }).not.toThrow() );
+
+  test(`Theme "[ocean modern]" shows first theme as dominant`, () =>
+    expect( sm`theme: [ocean modern]; a->b;`.themes() ).toStrictEqual(['ocean','modern']) );
+
+  test(`Theme "[ocean modern]" shows first theme as dominant`, () =>
+    expect( sm`theme: [ocean modern]; a->b;`.style_for('a').backgroundColor ).toBe('deepskyblue') );
+
+  test('Fake theme throws at the parser level', () =>
+    expect( () => { const _foo = sm`theme: [ocean zeghezgqqqqthirteen]; a-> b;`; }).toThrow() );
+
+});

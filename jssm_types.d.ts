@@ -174,7 +174,7 @@ declare type JssmGenericConfig<DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
     transitions: JssmTransitions<DataType>;
-    theme?: FslTheme;
+    theme?: FslTheme[];
     flow?: FslDirection;
     name?: string;
     data?: DataType;

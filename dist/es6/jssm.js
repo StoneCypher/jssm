@@ -498,7 +498,7 @@ function compile(tree) {
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
         'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-        'theme', 'flow', 'dot_preamble'
+        'flow', 'dot_preamble'
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {
@@ -511,7 +511,7 @@ function compile(tree) {
         }
     });
     ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
-        'machine_author', 'machine_contributor', 'machine_reference',
+        'machine_author', 'machine_contributor', 'machine_reference', 'theme',
         'state_declaration', 'property_definition', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_terminal_state_config',
@@ -668,7 +668,7 @@ function state_style_condense(jssk) {
 // TODO add a lotta docblock here
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = 'default', flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }) {
+    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }) {
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -695,7 +695,7 @@ class Machine {
         this._arrange_start_declaration = arrange_start_declaration;
         this._arrange_end_declaration = arrange_end_declaration;
         this._dot_preamble = dot_preamble;
-        this._themes = [theme];
+        this._themes = theme;
         this._flow = flow;
         this._graph_layout = graph_layout;
         this._has_hooks = false;
@@ -2360,7 +2360,7 @@ class Machine {
         });
         // basic state style
         const layers = [base_theme.state];
-        themes.map(theme => {
+        themes.reverse().map(theme => {
             if (theme.state) {
                 layers.push(theme.state);
             }

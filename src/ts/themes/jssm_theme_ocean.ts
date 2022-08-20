@@ -9,10 +9,7 @@ import {
 
 
 const base_state_style: JssmStateConfig = {
-  shape           : 'rectangle',
-  backgroundColor : 'khaki',
-  textColor       : 'black',
-  borderColor     : 'black'
+  backgroundColor : 'cadetblue1',
 };
 
 
@@ -21,7 +18,7 @@ const base_state_style: JssmStateConfig = {
 
 const base_active_state_style: JssmStateConfig = {
   textColor       : 'white',
-  backgroundColor : 'dodgerblue4'
+  backgroundColor : 'deepskyblue'
 };
 
 
@@ -29,7 +26,8 @@ const base_active_state_style: JssmStateConfig = {
 
 
 const base_hooked_state_style: JssmStateConfig = {
-  shape : 'component'
+  shape           : 'component',
+  backgroundColor : 'mediumaquamarine'
 };
 
 
@@ -38,7 +36,7 @@ const base_hooked_state_style: JssmStateConfig = {
 
 const base_terminal_state_style: JssmStateConfig = {
   textColor       : 'white',
-  backgroundColor : 'crimson'
+  backgroundColor : 'darkviolet'
 };
 
 
@@ -47,7 +45,7 @@ const base_terminal_state_style: JssmStateConfig = {
 
 const base_active_terminal_state_style: JssmStateConfig = {
   textColor       : 'white',
-  backgroundColor : 'indigo'
+  backgroundColor : 'deeppink'
 };
 
 
@@ -55,7 +53,7 @@ const base_active_terminal_state_style: JssmStateConfig = {
 
 
 const base_start_state_style: JssmStateConfig = {
-  backgroundColor : 'yellow'
+  backgroundColor : 'darkseagreen1'
 };
 
 
@@ -63,7 +61,7 @@ const base_start_state_style: JssmStateConfig = {
 
 
 const base_active_start_state_style: JssmStateConfig = {
-  backgroundColor : 'yellowgreen'
+  backgroundColor : 'aquamarine'
 };
 
 
@@ -71,7 +69,7 @@ const base_active_start_state_style: JssmStateConfig = {
 
 
 const base_active_hooked_state_style: JssmStateConfig = {
-  backgroundColor : 'yellowgreen'
+  backgroundColor : 'aquamarine'
 };
 
 
@@ -80,7 +78,7 @@ const base_active_hooked_state_style: JssmStateConfig = {
 
 const base_end_state_style: JssmStateConfig = {
   textColor       : 'white',
-  backgroundColor : 'darkolivegreen'
+  backgroundColor : 'chartreuse1'
 };
 
 

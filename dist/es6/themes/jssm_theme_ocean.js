@@ -1,36 +1,34 @@
 const base_state_style = {
-    shape: 'rectangle',
-    backgroundColor: 'khaki',
-    textColor: 'black',
-    borderColor: 'black'
+    backgroundColor: 'cadetblue1',
 };
 const base_active_state_style = {
     textColor: 'white',
-    backgroundColor: 'dodgerblue4'
+    backgroundColor: 'deepskyblue'
 };
 const base_hooked_state_style = {
-    shape: 'component'
+    shape: 'component',
+    backgroundColor: 'mediumaquamarine'
 };
 const base_terminal_state_style = {
     textColor: 'white',
-    backgroundColor: 'crimson'
+    backgroundColor: 'darkviolet'
 };
 const base_active_terminal_state_style = {
     textColor: 'white',
-    backgroundColor: 'indigo'
+    backgroundColor: 'deeppink'
 };
 const base_start_state_style = {
-    backgroundColor: 'yellow'
+    backgroundColor: 'darkseagreen1'
 };
 const base_active_start_state_style = {
-    backgroundColor: 'yellowgreen'
+    backgroundColor: 'aquamarine'
 };
 const base_active_hooked_state_style = {
-    backgroundColor: 'yellowgreen'
+    backgroundColor: 'aquamarine'
 };
 const base_end_state_style = {
     textColor: 'white',
-    backgroundColor: 'darkolivegreen'
+    backgroundColor: 'chartreuse1'
 };
 const base_active_end_state_style = {
     textColor: 'white',
