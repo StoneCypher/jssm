@@ -57,8 +57,11 @@ type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
 
 
 
-type FslDirection       = 'up' | 'right' | 'down' | 'left';
-type FslTheme           = 'default' | 'ocean' | 'modern' | 'none';
+const FslDirections     = ['up', 'right', 'down', 'left'] as const;
+type  FslDirection      = typeof FslDirections[number];
+
+const FslThemes         = ['default', 'ocean', 'modern', 'plain'] as const;
+type  FslTheme          = typeof FslThemes[number];
 
 
 
@@ -643,7 +646,10 @@ export {
 
   JssmErrorExtendedInfo,
 
-  FslDirection,
+  FslDirections,
+    FslDirection,
+
+  FslThemes,
     FslTheme,
 
   HookDescription,

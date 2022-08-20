@@ -24,7 +24,7 @@ import {
   JssmHistory,
   JssmSerialization,
   JssmPropertyDefinition,
-  FslDirection, FslTheme,
+  FslDirection, FslDirections, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult,
   JssmBaseTheme
 
@@ -39,11 +39,13 @@ import { base_theme }    from './themes/jssm_base_stylesheet';
 import { default_theme } from './themes/jssm_theme_default';
 import { modern_theme }  from './themes/jssm_theme_modern';
 import { ocean_theme }   from './themes/jssm_theme_ocean';
+import { plain_theme }   from './themes/jssm_theme_plain';
 
-const theme_mapping: Map<string, JssmBaseTheme> = new Map();
+const theme_mapping: Map<FslTheme, JssmBaseTheme> = new Map();
 theme_mapping.set('default', default_theme);
 theme_mapping.set('modern',  modern_theme);
 theme_mapping.set('ocean',   ocean_theme);
+theme_mapping.set('plain',   plain_theme);
 
 
 
@@ -1964,8 +1966,20 @@ class Machine<mDT> {
 
 
 
-  themes(): FslTheme[] {
+  all_themes(): FslTheme[] {
+    return [... theme_mapping.keys()];     // constructor sets this to "default" otherwise
+  }
+
+  get themes(): FslTheme[] {
     return this._themes;     // constructor sets this to "default" otherwise
+  }
+
+  set themes(to: FslTheme | FslTheme[]) {
+    if (typeof to === 'string') {
+      this._themes = [to];
+    } else {
+      this._themes = to;
+    }
   }
 
   flow(): FslDirection {
@@ -3749,6 +3763,9 @@ export {
     is_hook_complex_result,
     abstract_hook_step,
 
-  state_style_condense
+  state_style_condense,
+
+  FslDirections
+//  FslThemes
 
 };
