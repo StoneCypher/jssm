@@ -37,20 +37,20 @@ async function bulk() {
         run_count     = spec_metrics.tests.success + (stoch_metrics.tests.success * 100),
 
         warning       = fs.readFileSync('./src/md/generated-file-warning.txt').toString(),
-        warning_wf    = warning.replaceAll('{{real_source}}', './src/md/readme_base.md'),
-        warning_wd    = warning_wf.replaceAll('{{datetime}}', new Date().toLocaleString()),
-        warning_wv    = warning_wd.replaceAll('{{build}}', package.version),
+        warning_wf    = warning.replace(/{{real_source}}/g, './src/md/readme_base.md'),
+        warning_wd    = warning_wf.replace(/{{datetime}}/g, new Date().toLocaleString()),
+        warning_wv    = warning_wd.replace(/{{build}}/g, package.version),
 
         readme_base   = fs.readFileSync('./src/md/README_base.md').toString(),
-        readme_tests  = readme_base.replaceAll('{{test_count}}', tot_count.toLocaleString()),
-        readme_runs   = readme_tests.replaceAll('{{run_count}}', run_count.toLocaleString()),
-        readme_spec   = readme_runs.replaceAll('{{spec_count}}', spec_metrics.tests.success.toLocaleString()),
-        readme_specc  = readme_spec.replaceAll('{{spec_coverage}}', get_coverage_pct(spec_json.coverage.project[0].metrics[0]['$'])),
-        readme_stoch  = readme_specc.replaceAll('{{stoch_count}}', stoch_metrics.tests.success.toLocaleString()),
-        readme_stochc = readme_stoch.replaceAll('{{stoch_coverage}}', get_coverage_pct(stoch_json.coverage.project[0].metrics[0]['$'])),
-        readme_lines  = readme_stochc.replaceAll('{{line_count}}', lines.toLocaleString()),
-        readme_ratio  = readme_lines.replaceAll('{{line_test_ratio}}', (tot_count / lines).toFixed(1)),
-        readme_rratio = readme_ratio.replaceAll('{{line_run_ratio}}', (run_count / lines).toFixed(1));
+        readme_tests  = readme_base.replace(/{{test_count}}/g, tot_count.toLocaleString()),
+        readme_runs   = readme_tests.replace(/{{run_count}}/g, run_count.toLocaleString()),
+        readme_spec   = readme_runs.replace(/{{spec_count}}/g, spec_metrics.tests.success.toLocaleString()),
+        readme_specc  = readme_spec.replace(/{{spec_coverage}}/g, get_coverage_pct(spec_json.coverage.project[0].metrics[0]['$'])),
+        readme_stoch  = readme_specc.replace(/{{stoch_count}}/g, stoch_metrics.tests.success.toLocaleString()),
+        readme_stochc = readme_stoch.replace(/{{stoch_coverage}}/g, get_coverage_pct(stoch_json.coverage.project[0].metrics[0]['$'])),
+        readme_lines  = readme_stochc.replace(/{{line_count}}/g, lines.toLocaleString()),
+        readme_ratio  = readme_lines.replace(/{{line_test_ratio}}/g, (tot_count / lines).toFixed(1)),
+        readme_rratio = readme_ratio.replace(/{{line_run_ratio}}/g, (run_count / lines).toFixed(1));
 
   fs.writeFileSync('./README.md', warning_wv + readme_rratio);
 

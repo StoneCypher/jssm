@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.82.1",
+  "version": "5.82.2",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -31,7 +31,7 @@
     "jest-stoch": "jest -c jest-stoch.config.js --color --verbose",
     "jest-dragon": "jest -c jest-dragon.config.js --color --verbose",
     "jest-spec": "jest -c jest-spec.config.js --color --verbose",
-    "jest": "npm run jest-spec",
+    "jest": "npm run jest-stoch && npm run jest-spec",
     "test": "npm run make && npm run jest",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/jssm-dot.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && mkdir docs && cd coverage && mkdir cloc && cd ..",
     "peg": "rm -f src/ts/jssm-dot.js && pegjs src/ts/jssm-dot.peg && node src/buildjs/fixparser.js && rm src/ts/jssm-dot.js",

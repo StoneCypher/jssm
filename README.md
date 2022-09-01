@@ -18,7 +18,7 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.82.1 at 8/20/2022, 11:14:58 AM
+* Generated for version 5.82.2 at 9/1/2022, 4:16:19 PM
 
 -->
 # jssm
@@ -29,7 +29,7 @@ share online.  Easy to embed.
 
 Readable, useful state machines as one-liner strings.
 
-***4,840 tests*** run 5,731 times.  4,831 specs with 100.0% coverage, 9 fuzz tests with 5.4% coverage.  With 2,612 lines, that's about 1.9 tests per line, or 2.2 generated tests per line.
+***4,840 tests*** run 5,731 times.  4,831 specs with 100.0% coverage, 9 fuzz tests with 11.8% coverage.  With 2,612 lines, that's about 1.9 tests per line, or 2.2 generated tests per line.
 
 ***Meet your new state machine library.***
 
