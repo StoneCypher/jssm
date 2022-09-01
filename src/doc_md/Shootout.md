@@ -29,7 +29,7 @@ the end.
 
 | Library | Tog | Traf | Matt | Avg |
 | ---- | ---- | ---- | ---- | ---- |
-| jssm | **1** | **2** | **5** | 2.66 |
+| jssm | **[1](#jssm-toggle-machine-1-line)** | **2** | **5** | 2.66 |
 | state-machine | 5 | 8 | 14 | 9 |
 | faste | 4 | 14 | 24 | 10.66 |
 | javascript-state-machine | 7 | 13 | **23** | 14.33 |
@@ -69,7 +69,6 @@ linking them with actions.
 &nbsp;
 
 ### `jssm` toggle machine, 1 line
-
 ```javascript
 export const toggleMachine = sm`active 'TOGGLE' <=> 'TOGGLE' inactive;`;
 ````
