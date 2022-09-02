@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1030 merges; 5 releases
+1032 merges; 5 releases
 
 
 
@@ -14,6 +14,36 @@ Published tags:
 
 <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 6:08:10 PM
+
+Commit [1f69c53f4d3851f205896c446c65e9ecdbf26bbc](https://github.com/StoneCypher/jssm/commit/1f69c53f4d3851f205896c446c65e9ecdbf26bbc)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+  * all example links are inline-d
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 6:04:35 PM
+
+Commit [a307163e979abf8af53e4936f972c017f91198ba](https://github.com/StoneCypher/jssm/commit/a307163e979abf8af53e4936f972c017f91198ba)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * add spurious single type return to theme getter to agree with the setter type, fixes StoneCypher/fsl#1189
 
 
 

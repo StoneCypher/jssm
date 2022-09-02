@@ -20616,6 +20616,9 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    // This will always return an array of FSL themes; the reason we spuriously
+    // add the single type is that the setter and getter need matching accept/return
+    // types, and the setter can take both as a convenience
     get themes() {
         return this._themes; // constructor sets this to "default" otherwise
     }
