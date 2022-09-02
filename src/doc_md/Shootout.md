@@ -30,15 +30,15 @@ the end.
 | Library | Tog | Traf | Matt | Avg |
 | ---- | ---- | ---- | ---- | ---- |
 | jssm | **[1](#jssm-toggle-machine-1-line)** | **2** | **5** | 2.66 |
-| state-machine | 5 | 8 | 14 | 9 |
-| faste | 4 | 14 | 24 | 10.66 |
-| javascript-state-machine | 7 | 13 | **23** | 14.33 |
-| finity | 7 | 10 | 28 | 15 |
-| stately | 8 | 18 | 24 | 16.66 |
-| robot | 17 | 24 | 31 | 24 |
-| xstate | **16** | 36 | 33 | 28.33 |
-| <fail>nanostate</fail> | 8 | **12** | <fail>15</fail> | <fail>11.66</fail> |
-| <fail>machina</fail> | 20 | 26 | <fail>36</fail> | <fail>27.33</fail> |
+| state-machine | [5](#state-machine-toggle-machine-5-lines) | 8 | 14 | 9 |
+| faste | [4](#faste-toggle-machine-4-lines) | 14 | 24 | 10.66 |
+| javascript-state-machine | [7](#javascript-state-machine-toggle-machine-7-lines) | 13 | **23** | 14.33 |
+| finity | [7](#created-finity-toggle-machine-7-lines) | 10 | 28 | 15 |
+| stately | [8](#created-stately-toggle-machine-8-lines) | 18 | 24 | 16.66 |
+| robot | [17](#created-robot-toggle-machine-17-lines) | 24 | 31 | 24 |
+| xstate | **[16](#xstate-toggle-machine-16-lines)** | 36 | 33 | 28.33 |
+| <fail>nanostate</fail> | [8](#nanostate-toggle-machine-8-lines) | **12** | <fail>15</fail> | <fail>11.66</fail> |
+| <fail>machina</fail> | [20](#machina-toggle-machine-20-lines) | 26 | <fail>36</fail> | <fail>27.33</fail> |
 
 </span>
 

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1025 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1026 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -14,6 +14,21 @@ Published tags:
 
 <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 4:53:34 PM
+
+Commit [07e19355674ecf8c44ceb54f31cafebefdf08921](https://github.com/StoneCypher/jssm/commit/07e19355674ecf8c44ceb54f31cafebefdf08921)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+  * relative link to code in Shootout.md
 
 
 
@@ -159,18 +174,3 @@ Merges [72d6ef7, 88d7309]
 
   * Merge pull request #528 from StoneCypher/SpinUpThemes
   * Spin up themes
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 8/19/2022 11:04:20 PM
-
-Commit [88d7309bfd2217fe9aeae3be681ae1f520542365](https://github.com/StoneCypher/jssm/commit/88d7309bfd2217fe9aeae3be681ae1f520542365)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Multiple themes, fixes StoneCypher/fsl#128
