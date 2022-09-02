@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1034 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1035 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -14,6 +14,23 @@ Published tags:
 
 <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 6:56:09 PM
+
+Commit [50b5d8b1a4efce1c7359f713a02cb0477abd7d4a](https://github.com/StoneCypher/jssm/commit/50b5d8b1a4efce1c7359f713a02cb0477abd7d4a)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+Merges [9e18022, 94c4f37]
+
+  * Merge branch 'main' into feature/new-readme
 
 
 
@@ -159,20 +176,3 @@ Commit [07e19355674ecf8c44ceb54f31cafebefdf08921](https://github.com/StoneCypher
 Author: `Vat Raghavan <machinshin@gmail.com>`
 
   * relative link to code in Shootout.md
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 9/1/2022 4:47:48 PM
-
-Commit [223713ea6a253834711cd8bd61ffc35598bc63a4](https://github.com/StoneCypher/jssm/commit/223713ea6a253834711cd8bd61ffc35598bc63a4)
-
-Author: `Vat Raghavan <machinshin@gmail.com>`
-
-Merges [da69e65, a781f59]
-
-  * WIP on main: da69e65 re-enable stoch testing, fixes StoneCypher/fsl#1187; replace .replaceAll with .replace, fixes StoneCypher/fsl#1188
