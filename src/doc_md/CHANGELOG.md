@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1035 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1036 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -14,6 +14,21 @@ Published tags:
 
 <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 6:59:27 PM
+
+Commit [d916b2fe3b67c66ad6c47eef1df6dcfd9863d247](https://github.com/StoneCypher/jssm/commit/d916b2fe3b67c66ad6c47eef1df6dcfd9863d247)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+  * update version number
 
 
 
@@ -161,18 +176,3 @@ Commit [a824b2fea98113f5c1ff04227ff4261a41e8634e](https://github.com/StoneCypher
 Author: `Vat Raghavan <machinshin@gmail.com>`
 
   * all toggle examples are inline-linked
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 9/1/2022 4:53:34 PM
-
-Commit [07e19355674ecf8c44ceb54f31cafebefdf08921](https://github.com/StoneCypher/jssm/commit/07e19355674ecf8c44ceb54f31cafebefdf08921)
-
-Author: `Vat Raghavan <machinshin@gmail.com>`
-
-  * relative link to code in Shootout.md
