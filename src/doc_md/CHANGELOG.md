@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1036 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1037 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -14,6 +14,21 @@ Published tags:
 
 <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 7:05:32 PM
+
+Commit [c7bb4b01d3b5475d9ccb91ff7999556ef39e8805](https://github.com/StoneCypher/jssm/commit/c7bb4b01d3b5475d9ccb91ff7999556ef39e8805)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+  * re-build
 
 
 
@@ -161,18 +176,3 @@ Merges [da69e65, a824b2f]
 
   * Merge pull request #531 from machinshin/feature/shootout-inline-links
   * relative link to code in Shootout.md
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 9/1/2022 5:06:20 PM
-
-Commit [a824b2fea98113f5c1ff04227ff4261a41e8634e](https://github.com/StoneCypher/jssm/commit/a824b2fea98113f5c1ff04227ff4261a41e8634e)
-
-Author: `Vat Raghavan <machinshin@gmail.com>`
-
-  * all toggle examples are inline-linked

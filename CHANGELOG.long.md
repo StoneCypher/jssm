@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1036 merges; 5 releases
+1037 merges; 5 releases
 
 
 
@@ -14,6 +14,21 @@ Published tags:
 
 <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 7:05:32 PM
+
+Commit [c7bb4b01d3b5475d9ccb91ff7999556ef39e8805](https://github.com/StoneCypher/jssm/commit/c7bb4b01d3b5475d9ccb91ff7999556ef39e8805)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+  * re-build
 
 
 
