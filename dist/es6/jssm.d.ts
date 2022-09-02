@@ -626,7 +626,7 @@ declare class Machine<mDT> {
     list_named_transitions(): Map<StateType, number>;
     list_actions(): Array<StateType>;
     all_themes(): FslTheme[];
-    get themes(): FslTheme[];
+    get themes(): FslTheme | FslTheme[];
     set themes(to: FslTheme | FslTheme[]);
     flow(): FslDirection;
     get_transition_by_state_names(from: StateType, to: StateType): number;

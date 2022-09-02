@@ -19233,7 +19233,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.82.1";
+  const version = "5.82.5";
 
   // whargarbl lots of these return arrays could/should be sets
   const theme_mapping = new Map();
@@ -20615,6 +20615,9 @@ var jssm = (function (exports) {
       all_themes() {
           return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
       }
+      // This will always return an array of FSL themes; the reason we spuriously
+      // add the single type is that the setter and getter need matching accept/return
+      // types, and the setter can take both as a convenience
       get themes() {
           return this._themes; // constructor sets this to "default" otherwise
       }
