@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1026 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1030 merges; 5 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -14,6 +14,71 @@ Published tags:
 
 <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 5:27:33 PM
+
+Commit [3e29597b539a12d599c6742fa93cd646ff3eb9a3](https://github.com/StoneCypher/jssm/commit/3e29597b539a12d599c6742fa93cd646ff3eb9a3)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+Merges [a824b2f, e10f189]
+
+  * WIP on feature/shootout-inline-links: a824b2f all toggle examples are inline-linked
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 5:27:33 PM
+
+Commit [e10f1897d591b3f17aa336877b9d6f05d68f5b26](https://github.com/StoneCypher/jssm/commit/e10f1897d591b3f17aa336877b9d6f05d68f5b26)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+  * index on feature/shootout-inline-links: a824b2f all toggle examples are inline-linked
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 5:26:59 PM
+
+Commit [58751e614c6f3f9223239af91f44079ee3a1f045](https://github.com/StoneCypher/jssm/commit/58751e614c6f3f9223239af91f44079ee3a1f045)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [da69e65, a824b2f]
+
+  * Merge pull request #531 from machinshin/feature/shootout-inline-links
+  * relative link to code in Shootout.md
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 9/1/2022 5:06:20 PM
+
+Commit [a824b2fea98113f5c1ff04227ff4261a41e8634e](https://github.com/StoneCypher/jssm/commit/a824b2fea98113f5c1ff04227ff4261a41e8634e)
+
+Author: `Vat Raghavan <machinshin@gmail.com>`
+
+  * all toggle examples are inline-linked
 
 
 
@@ -108,69 +173,3 @@ Commit [da69e65ee5a1567825b011d3e17655c2dbd6261d](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * re-enable stoch testing, fixes StoneCypher/fsl#1187; replace .replaceAll with .replace, fixes StoneCypher/fsl#1188
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 9/1/2022 3:57:04 PM
-
-Commit [9e18022f7b474f06e30df55df254f01a0bf6ceb6](https://github.com/StoneCypher/jssm/commit/9e18022f7b474f06e30df55df254f01a0bf6ceb6)
-
-Author: `Vat Raghavan <machinshin@gmail.com>`
-
-  * more-readable README
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 8/20/2022 11:19:53 AM
-
-Commit [27480ec9b23dc281db0212e68f53aabcdc8b946f](https://github.com/StoneCypher/jssm/commit/27480ec9b23dc281db0212e68f53aabcdc8b946f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [5278df4, 03e1ad3]
-
-  * Merge pull request #529 from StoneCypher/ExposeThemesAndDirections
-  * Expose themes and directions; fixes StoneCypher/fsl#540, fixes StoneCypher/fsl#541
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 8/20/2022 11:16:34 AM
-
-Commit [03e1ad3acf5074dd570eb9a2e2001abab10fb923](https://github.com/StoneCypher/jssm/commit/03e1ad3acf5074dd570eb9a2e2001abab10fb923)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * Expose themes and directions; fixes StoneCypher/fsl#540, fixes StoneCypher/fsl#541
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 8/19/2022 11:11:19 PM
-
-Commit [5278df4d94a347b37da6cdca2a64a6ca85665b42](https://github.com/StoneCypher/jssm/commit/5278df4d94a347b37da6cdca2a64a6ca85665b42)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [72d6ef7, 88d7309]
-
-  * Merge pull request #528 from StoneCypher/SpinUpThemes
-  * Spin up themes
