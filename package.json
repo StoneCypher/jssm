@@ -31,7 +31,7 @@
     "jest-unicode-action": "jest unicode-actions.uspec.ts -c jest-unicode.config.js --color --verbose",
     "jest-unicode-string": "jest unicode-strings.uspec.ts -c jest-unicode.config.js --color --verbose",
     "jest-unicode-atom": "jest unicode-atoms.uspec.ts -c jest-unicode.config.js --color --verbose",
-    "jest-unicode-full-slow": "npm run jest-unicode-atom && npm run jest-unicode-string",
+    "jest-unicode-full-slow": "npm run jest-unicode-atom && npm run jest-unicode-string && jest-unicode-action",
     "jest-stoch": "jest -c jest-stoch.config.js --color --verbose",
     "jest-dragon": "jest -c jest-dragon.config.js --color --verbose",
     "jest-spec": "jest -c jest-spec.config.js --color --verbose",
