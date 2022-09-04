@@ -215,7 +215,7 @@ Undefined = 'undefined' { return undefined; }
 
 Escape    = "\\"
 QuoteMark = '"'
-Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]  // explicitly omits "
+Unescaped = [\x00-\x21\x23-\x5B\x5D-\uFFFF]  // explicitly omits "
 
 ActionLabelChar
   = ActionLabelUnescaped
@@ -236,7 +236,7 @@ ActionLabelChar
     { return Sequence; }
 
 ActionLabelQuoteMark = "'"
-ActionLabelUnescaped = [\x20-\x26\x28-\x5B\x5D-\u10FFFF]  // explicitly omits ' which is hex 27
+ActionLabelUnescaped = [\x20-\x26\x28-\x5B\x5D-\uFFFF]  // explicitly omits ' which is hex 27
 
 ActionLabel "action label"
   = ActionLabelQuoteMark chars:ActionLabelChar* ActionLabelQuoteMark { return chars.join(""); }

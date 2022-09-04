@@ -53,6 +53,42 @@ jobs:
 
 
 
+  unicode-atoms:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Verify the version was bumped
+      run: |
+        npm install && npm run jssm-unicode-atom
+
+
+
+  unicode-strings:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Verify the version was bumped
+      run: |
+        npm install && npm run jssm-unicode-string
+
+
+
   benchmark:
 
     runs-on: ubuntu-latest
@@ -96,7 +132,7 @@ jobs:
 
     if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
 
-    needs: [build, verify-version-bump]
+    needs: [build, verify-version-bump, unicode-strings, unicode-atoms]
 
     runs-on: ubuntu-latest
 
