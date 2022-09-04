@@ -19234,7 +19234,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.82.7";
+const version = "5.83.0";
 
 // whargarbl lots of these return arrays could/should be sets
 const theme_mapping = new Map();
