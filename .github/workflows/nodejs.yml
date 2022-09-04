@@ -20,7 +20,7 @@ jobs:
 
     - name: Verify the version was bumped
       run: |
-        npm install && npm run jssm-unicode-atom
+        npm install && npm run jest-unicode-atom
 
 
 
@@ -38,7 +38,7 @@ jobs:
 
     - name: Verify the version was bumped
       run: |
-        npm install && npm run jssm-unicode-string
+        npm install && npm run jest-unicode-string
 
 
 
@@ -56,7 +56,7 @@ jobs:
 
     - name: Verify the version was bumped
       run: |
-        npm install && npm run jssm-unicode-action
+        npm install && npm run jest-unicode-action
 
 
 
