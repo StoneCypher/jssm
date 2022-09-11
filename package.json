@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.83.1",
+  "version": "5.83.2",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -126,7 +126,6 @@
     "jest": "^27.3.1",
     "jest-json-reporter2": "^1.1.0",
     "pegjs": "^0.10.0",
-    "reduce-to-639-1": "^1.1.0",
     "rollup": "^2.72.1",
     "semver": "^5.7.1",
     "terser": "^5.14.2",
@@ -139,6 +138,7 @@
     "xml2js": "^0.4.23"
   },
   "dependencies": {
+    "reduce-to-639-1": "^1.1.0",
     "better_git_changelog": "^1.6.1",
     "circular_buffer_js": "^1.10.0"
   }

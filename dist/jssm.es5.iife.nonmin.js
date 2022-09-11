@@ -19300,7 +19300,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.83.1";
+  const version = "5.83.2";
 
   // whargarbl lots of these return arrays could/should be sets
   const theme_mapping = new Map();
