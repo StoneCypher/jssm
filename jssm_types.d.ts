@@ -26,7 +26,7 @@ declare type JssmCorner = 'regular' | 'rounded' | 'lined';
 declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
 declare const FslDirections: readonly ["up", "right", "down", "left"];
 declare type FslDirection = typeof FslDirections[number];
-declare const FslThemes: readonly ["default", "ocean", "modern", "plain"];
+declare const FslThemes: readonly ["default", "ocean", "modern", "plain", "bold"];
 declare type FslTheme = typeof FslThemes[number];
 declare type JssmSerialization<DataType> = {
     jssm_version: string;
@@ -154,6 +154,7 @@ declare type JssmStateStyleBorderColor = {
 declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor;
 declare type JssmStateStyleKeyList = JssmStateStyleKey[];
 declare type JssmBaseTheme = {
+    name: string;
     state: JssmStateConfig;
     hooked: JssmStateConfig;
     start: JssmStateConfig;

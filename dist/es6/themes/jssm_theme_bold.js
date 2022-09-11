@@ -36,8 +36,8 @@ const base_active_end_state_style = {
     textColor: 'white',
     backgroundColor: 'darkgreen'
 };
-const modern_theme = {
-    name: 'modern',
+const bold_theme = {
+    name: 'bold',
     state: base_state_style,
     start: base_start_state_style,
     end: base_end_state_style,
@@ -55,4 +55,4 @@ const modern_theme = {
     graph: undefined,
     title: undefined // TODO FIXME
 };
-export { base_state_style, base_active_state_style, base_terminal_state_style, base_active_terminal_state_style, base_start_state_style, base_active_start_state_style, base_end_state_style, base_active_end_state_style, modern_theme, modern_theme as theme };
+export { base_state_style, base_active_state_style, base_terminal_state_style, base_active_terminal_state_style, base_start_state_style, base_active_start_state_style, base_end_state_style, base_active_end_state_style, bold_theme, bold_theme as theme };

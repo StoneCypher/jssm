@@ -96,9 +96,9 @@ const base_active_end_state_style: JssmStateConfig = {
 
 
 
-const modern_theme: JssmBaseTheme = {
+const bold_theme: JssmBaseTheme = {
 
-  name            : 'modern',
+  name            : 'bold',
 
   state           : base_state_style,
   start           : base_start_state_style,
@@ -140,7 +140,7 @@ export {
   base_end_state_style,
   base_active_end_state_style,
 
-  modern_theme,
-    modern_theme as theme
+  bold_theme,
+    bold_theme as theme
 
 };

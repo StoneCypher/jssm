@@ -96,6 +96,8 @@ const base_active_end_state_style: JssmStateConfig = {
 
 const ocean_theme: JssmBaseTheme = {
 
+  name            : 'ocean',
+
   state           : base_state_style,
   start           : base_start_state_style,
   end             : base_end_state_style,

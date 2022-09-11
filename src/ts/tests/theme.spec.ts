@@ -1,5 +1,5 @@
 
-import { Themes } from './constants.spec';
+import { Themes }             from './constants.spec';
 
 import { sm, compile, parse } from '../jssm';
 import { FslThemes }          from '../jssm_types';
