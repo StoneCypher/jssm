@@ -40,12 +40,16 @@ import { default_theme } from './themes/jssm_theme_default';
 import { modern_theme }  from './themes/jssm_theme_modern';
 import { ocean_theme }   from './themes/jssm_theme_ocean';
 import { plain_theme }   from './themes/jssm_theme_plain';
+import { bold_theme }    from './themes/jssm_theme_bold';
+
 
 const theme_mapping: Map<FslTheme, JssmBaseTheme> = new Map();
+
 theme_mapping.set('default', default_theme);
 theme_mapping.set('modern',  modern_theme);
 theme_mapping.set('ocean',   ocean_theme);
 theme_mapping.set('plain',   plain_theme);
+theme_mapping.set('bold',    bold_theme);
 
 
 
@@ -1973,7 +1977,7 @@ class Machine<mDT> {
   // This will always return an array of FSL themes; the reason we spuriously
   // add the single type is that the setter and getter need matching accept/return
   // types, and the setter can take both as a convenience
-  
+
   get themes(): FslTheme | FslTheme[] {
     return this._themes;     // constructor sets this to "default" otherwise
   }

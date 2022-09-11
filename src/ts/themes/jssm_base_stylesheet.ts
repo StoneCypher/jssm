@@ -10,7 +10,7 @@ import {
 
 const base_state_style: JssmStateConfig = {
   shape           : 'rectangle',
-  backgroundColor : 'khaki',
+  backgroundColor : 'white',
   textColor       : 'black',
   borderColor     : 'black'
 };
@@ -97,6 +97,8 @@ const base_active_end_state_style: JssmStateConfig = {
 
 
 const base_theme: JssmBaseTheme = {
+
+  name            : 'base',
 
   state           : base_state_style,
   start           : base_start_state_style,

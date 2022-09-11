@@ -110,6 +110,8 @@ const base_active_end_state_style: JssmStateConfig = {
 
 const plain_theme: JssmBaseTheme = {
 
+  name            : 'plain',
+
   state           : base_state_style,
   start           : base_start_state_style,
   end             : base_end_state_style,

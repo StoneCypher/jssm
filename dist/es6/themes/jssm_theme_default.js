@@ -1,6 +1,6 @@
 const base_state_style = {
     shape: 'rectangle',
-    backgroundColor: 'khaki',
+    backgroundColor: 'white',
     textColor: 'black',
     borderColor: 'black'
 };
@@ -37,6 +37,7 @@ const base_active_end_state_style = {
     backgroundColor: 'darkgreen'
 };
 const default_theme = {
+    name: 'default',
     state: base_state_style,
     start: base_start_state_style,
     end: base_end_state_style,

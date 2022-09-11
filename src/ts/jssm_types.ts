@@ -60,7 +60,7 @@ type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
 const FslDirections     = ['up', 'right', 'down', 'left'] as const;
 type  FslDirection      = typeof FslDirections[number];
 
-const FslThemes         = ['default', 'ocean', 'modern', 'plain'] as const;
+const FslThemes         = ['default', 'ocean', 'modern', 'plain', 'bold'] as const;
 type  FslTheme          = typeof FslThemes[number];
 
 
@@ -249,6 +249,8 @@ type JssmStateStyleKeyList = JssmStateStyleKey[];
 
 
 type JssmBaseTheme = {
+
+  name            : string,
 
   state           : JssmStateConfig,
   hooked          : JssmStateConfig,

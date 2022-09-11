@@ -24,6 +24,7 @@ Theme
   / "default"
   / "modern"
   / "ocean"
+  / "bold"
 
 ThemeOrThemeList
   = '[' WS? ths:(Theme WS)* th:Theme? ']' { const themes = ths.map(t => t[0]); themes.push(th); return themes; }
