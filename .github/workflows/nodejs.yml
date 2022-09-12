@@ -163,17 +163,6 @@ jobs:
         echo "TAG=$TAG" >> $GITHUB_ENV
         echo $TAG
 
-    # - name: Export commit message to envvars
-    #   run: |
-    #     export COMMITMESSAGE="$(git log -1 --pretty=format:%B)"
-    #     echo "\nCOMMITMESSAGE=\"$COMMITMESSAGE\"" >> $GITHUB_ENV
-    #     echo $COMMITMESSAGE
-
-    - name: Export commit message to outputs
-      run: |
-        echo "::set-output name=COMMIT_MSG::$(git log -1 --pretty=format:%B)"
-        echo "${{ steps.release.outputs.COMMIT_MSG }}"
-
     - name: Use Node.js 18.x
       uses: actions/setup-node@v1
       with:
@@ -206,7 +195,6 @@ jobs:
         JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
         JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
         JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
-        TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
 
 
@@ -237,4 +225,10 @@ jobs:
 
     steps:
     - name: Results page
-      run: echo '### Results!\n\n* Published to NPM\n* Bumped `jssm-viz`\n* Bumped `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY
+      run: |
+        export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
+        echo '### Results!' >> $GITHUB_STEP_SUMMARY
+        echo "* Published $TAG to NPM" >> $GITHUB_STEP_SUMMARY
+        echo '* Bumping `jssm-viz`' >> $GITHUB_STEP_SUMMARY
+        echo '    * which will bump `jssm-viz-cli`' >> $GITHUB_STEP_SUMMARY
+        echo '    * which will bump `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY
