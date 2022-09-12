@@ -1368,10 +1368,7 @@ class Machine<mDT> {
    *
    *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
    *  console.log( lswitch.label_for('a') );              // 'Foo!'
-   *  console.log( lswitch.label_for('b') );              // undefined
    *  ```
-   *
-   *  See also {@link display_text}.
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
    *
@@ -1379,37 +1376,6 @@ class Machine<mDT> {
 
   label_for(state: StateType): string {
     return this._state_labels.get(state);
-  }
-
-
-
-
-
-  /*********
-   *
-   *  Get whatever the node should show as text.
-   *
-   *  Currently, this means to get the label for a given state, if any;
-   *  otherwise to return the node's name.  However, this definition is expected
-   *  to grow with time, and it is currently considered ill-advised to manually
-   *  parse this text.
-   *
-   *  See also {@link label_for}.
-   *
-   *  ```typescript
-   *  import * as jssm from 'jssm';
-   *
-   *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
-   *  console.log( lswitch.display_text('a') );              // 'Foo!'
-   *  console.log( lswitch.display_text('b') );              // 'b'
-   *  ```
-   *
-   *  @typeparam mDT The type of the machine data member; usually omitted
-   *
-   */
-
-  display_text(state: StateType): string {
-    return this._state_labels.get(state) ?? state;
   }
 
 

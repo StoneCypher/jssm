@@ -200,7 +200,6 @@ jobs:
 
     - name: Tweet notice
       run: |
-        echo "${{toJSON(github.event)}}"
         npm install && node ./src/buildjs/tweet.js
       env:
         JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
