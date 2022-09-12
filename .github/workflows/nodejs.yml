@@ -18,7 +18,7 @@ jobs:
       with:
         node-version: 18.x
 
-    - name: Verify the version was bumped
+    - name: Check full unicode over atoms
       run: |
         npm install && npm run make && npm run jest-unicode-atom
 
@@ -36,7 +36,7 @@ jobs:
       with:
         node-version: 18.x
 
-    - name: Verify the version was bumped
+    - name: Check full unicode over strings
       run: |
         npm install && npm run make && npm run jest-unicode-string
 
@@ -54,7 +54,7 @@ jobs:
       with:
         node-version: 18.x
 
-    - name: Verify the version was bumped
+    - name: Check full unicode over action statements
       run: |
         npm install && npm run make && npm run jest-unicode-action
 
@@ -86,7 +86,7 @@ jobs:
           - node-version: 17.x
             os: ubuntu-latest
 
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v1
@@ -200,12 +200,14 @@ jobs:
 
     - name: Tweet notice
       run: |
+        echo "${{toJSON(github.event)}}"
         npm install && node ./src/buildjs/tweet.js
       env:
         JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
         JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
         JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
         JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
+        TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
 
 
