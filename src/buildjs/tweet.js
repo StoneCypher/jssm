@@ -11,7 +11,7 @@ const blue = chalk.blueBright,
 const package = JSON.parse( readFileSync('./package.json') );
 
 const tag            = package.version, // spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
-      commit_message = spawnSync('echo test');
+      commit_message = process.env['TW_COMMIT_MESSAGE'];
 
 console.log('found:');
 console.log(tag);
@@ -40,6 +40,7 @@ const tweet = async (status) => {
 
 (async () => {
 
+
   const makeTweet = fromText => {
 
     const cap      = 280,
@@ -52,13 +53,20 @@ const tweet = async (status) => {
 
   };
 
+
+
   const the_tweet = makeTweet(`Released ${tag} - ${commit_message}`);
 
   try {
+
     console.log(`${blue('Tweeting ')}${cyan(process.argv[2])}`);
     await tweet(the_tweet);
+
   } catch (err) {
+
     console.error(err);
+
   }
+
 
 })();
