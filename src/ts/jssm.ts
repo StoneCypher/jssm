@@ -75,7 +75,7 @@ const { shapes, gviz_shapes, named_colors } = constants;
 
 
 
-import { parse }     from './jssm-dot';
+import { parse }     from './fsl_parser';
 import { version }   from './version';    // replaced from package.js in build
 import { JssmError } from './jssm_error';
 

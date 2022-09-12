@@ -17,7 +17,7 @@ theme_mapping.set('bold', bold_theme);
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
-import { parse } from './jssm-dot';
+import { parse } from './fsl_parser';
 import { version } from './version'; // replaced from package.js in build
 import { JssmError } from './jssm_error';
 /* eslint-disable complexity */
