@@ -23,6 +23,10 @@ describe('State style', () => {
     expect( sm`a -> b; state a: { label: "string test"; };`.label_for('a') )
       .toBe('string test') );
 
+  test(`Missing labels read out as undefined`, () =>
+    expect( sm`a -> b; state a: { label: atomtest; };`.label_for('b') )
+      .toBe(undefined) );
+
 });
 
 
