@@ -11,11 +11,31 @@ const blue = chalk.blueBright,
 const package = JSON.parse( readFileSync('./package.json') );
 
 const tag            = package.version, // spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
-      commit_message = process.env['TW_COMMIT_MESSAGE'];
+      commit_message = handle_cmsg(process.env['TW_COMMIT_MESSAGE']);
 
 console.log('found:');
 console.log(tag);
 console.log(commit_message);
+
+
+
+
+
+// comes in as
+//   1: "Merge pull request #foo from\n\nActual text we want"
+//   2: "Merge pull request #foo from\n\nActual text we want\n\nMore stuff to ignore"
+
+function handle_cmsg(cmsg) {
+
+  const parsable = cmsg
+                     .replace('\r', '\n')
+                     .split('\n')
+                     .filter(s => s !== '');
+
+  // we almost certainly want 1, but if missing, fall back to merge notice in 0
+  return parsable[1] ?? (parsable[0] ?? '');
+
+}
 
 
 
