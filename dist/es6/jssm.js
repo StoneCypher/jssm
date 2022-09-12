@@ -18,7 +18,7 @@ import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_selec
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
 import { parse } from './fsl_parser';
-import { version } from './version'; // replaced from package.js in build
+import { version, build_time } from './version'; // replaced from package.js in build
 import { JssmError } from './jssm_error';
 /* eslint-disable complexity */
 /*********
@@ -2759,7 +2759,7 @@ function deserialize(machine_string, ser) {
     ser.history.forEach(history_item => machine._history.push(history_item));
     return machine;
 }
-export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
+export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
 seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections
 //  FslThemes

@@ -75,9 +75,9 @@ const { shapes, gviz_shapes, named_colors } = constants;
 
 
 
-import { parse }     from './fsl_parser';
-import { version }   from './version';    // replaced from package.js in build
-import { JssmError } from './jssm_error';
+import { parse }               from './fsl_parser';
+import { version, build_time } from './version';    // replaced from package.js in build
+import { JssmError }           from './jssm_error';
 
 
 
@@ -3770,6 +3770,7 @@ function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): 
 export {
 
   version,
+    build_time,
 
   transfer_state_properties,
 

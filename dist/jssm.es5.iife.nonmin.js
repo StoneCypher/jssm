@@ -19300,7 +19300,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.85.5";
+  const version = "5.85.5", build_time = 1663021576657;
 
   // whargarbl lots of these return arrays could/should be sets
   const theme_mapping = new Map();
@@ -22054,6 +22054,7 @@ var jssm = (function (exports) {
   exports.arrow_direction = arrow_direction;
   exports.arrow_left_kind = arrow_left_kind;
   exports.arrow_right_kind = arrow_right_kind;
+  exports.build_time = build_time;
   exports.compile = compile;
   exports.constants = constants;
   exports.deserialize = deserialize;

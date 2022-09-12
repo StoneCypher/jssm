@@ -4,7 +4,7 @@ JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmStateStyleKey
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import * as constants from './jssm_constants';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[];
-import { version } from './version';
+import { version, build_time } from './version';
 /*********
  *
  *  Return the direction of an arrow - `right`, `left`, or `both`.
@@ -1237,4 +1237,4 @@ declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResu
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { version, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections };
+export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections };
