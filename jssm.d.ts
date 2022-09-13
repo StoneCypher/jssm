@@ -651,6 +651,7 @@ declare class Machine<mDT> {
     list_edges(): Array<JssmTransition<mDT>>;
     list_named_transitions(): Map<StateType, number>;
     list_actions(): Array<StateType>;
+    get uses_actions(): boolean;
     all_themes(): FslTheme[];
     get themes(): FslTheme | FslTheme[];
     set themes(to: FslTheme | FslTheme[]);

@@ -15,6 +15,14 @@ test('build-set version number is present', () =>
 
 
 
+test('build_time is present', () =>
+  expect(typeof jssm.build_time)
+    .toBe('number'));
+
+
+
+
+
 describe('Stochastic weather', () => {
 
   new jssm.Machine({

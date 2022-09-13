@@ -284,14 +284,17 @@ function makeTransition<mDT>(
 
 ): JssmTransition<mDT> {
 
-  const kind: JssmArrowKind = isRight ? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
-    edge: JssmTransition<mDT> = {
-      from,
-      to,
-      kind,
-      forced_only: kind === 'forced',
-      main_path: kind === 'main'
-    };
+  const kind: JssmArrowKind = isRight
+                            ? arrow_right_kind(this_se.kind)
+                            : arrow_left_kind(this_se.kind),
+
+        edge: JssmTransition<mDT> = {
+          from,
+          to,
+          kind,
+          forced_only : kind === 'forced',
+          main_path   : kind === 'main'
+        };
 
   //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new JssmError(undefined, `Must have an index if transition was in a list"); }
   //  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new JssmError(undefined, `Must be in a list if transition has an index");   }
@@ -306,10 +309,11 @@ function makeTransition<mDT>(
 
     }
   */
-  const action: string = isRight ? 'r_action' : 'l_action',
-    probability: string = isRight ? 'r_probability' : 'l_probability';
 
-  if (this_se[action]) { edge.action = this_se[action]; }
+  const action      : string = isRight ? 'r_action'      : 'l_action',
+        probability : string = isRight ? 'r_probability' : 'l_probability';
+
+  if (this_se[action])      { edge.action      = this_se[action]; }
   if (this_se[probability]) { edge.probability = this_se[probability]; }
 
   return edge;
@@ -409,8 +413,8 @@ function compile_rule_transition_step<mDT>(
 
   const edges: Array<JssmTransition<mDT>> = [];
 
-  const uFrom: Array<string> = (Array.isArray(from) ? from : [from]),
-    uTo: Array<string> = (Array.isArray(to) ? to : [to]);
+  const uFrom : Array<string> = ( Array.isArray(from) ? from : [from] ),
+        uTo   : Array<string> = ( Array.isArray(to)   ? to   : [to]   );
 
   uFrom.map( (f: string) => {
     uTo.map( (t: string) => {
@@ -979,8 +983,8 @@ class Machine<mDT> {
   constructor({
 
     start_states,
-    end_states = [],
-    complete = [],
+    end_states                = [],
+    complete                  = [],
     transitions,
     machine_author,
     machine_comment,
@@ -1276,7 +1280,7 @@ class Machine<mDT> {
 
     // done building, do checks
 
-
+    // assert all props are valid
     this._state_properties.forEach( (_value, key) => {
       const inside = JSON.parse(key);
       if (Array.isArray(inside)) {
@@ -1292,6 +1296,7 @@ class Machine<mDT> {
       }
     });
 
+    // assert all required properties are serviced
     this._required_properties.forEach( dp_key => {
       if (this._default_properties.has(dp_key)) {
         throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
@@ -1303,6 +1308,24 @@ class Machine<mDT> {
         }
       });
     });
+
+    // assert chosen starting state is valid
+    if (!(this.has_state( this.state() ))) {
+      throw new JssmError(this, `Current start state "${this.state()}" does not exist`);
+    }
+
+    // assert all starting states are valid
+    start_states.forEach( (ss, ssi) => {
+      if (!(this.has_state(ss))) {
+        throw new JssmError(this, `Start state ${ssi} "${ss}" does not exist`);
+      }
+    });
+
+    // assert chosen starting state is valid
+    if (!( start_states.length === this._start_states.size )) {
+      throw new JssmError(this, `Start states cannot be repeated`);
+    }
+
 
   }
 
@@ -2000,6 +2023,10 @@ class Machine<mDT> {
 
   list_actions(): Array<StateType> {
     return Array.from(this._actions.keys());
+  }
+
+  get uses_actions(): boolean {
+    return Array.from(this._actions.keys()).length > 0;
   }
 
 
