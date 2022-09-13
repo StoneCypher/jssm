@@ -19300,7 +19300,7 @@ var jssm = (function (exports) {
       }
   }
 
-  const version = "5.85.5", build_time = 1663021576657;
+  const version = "5.85.6", build_time = 1663032793693;
 
   // whargarbl lots of these return arrays could/should be sets
   const theme_mapping = new Map();
@@ -19507,7 +19507,9 @@ var jssm = (function (exports) {
    */
   // TODO add at-param to docblock
   function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
-      const kind = isRight ? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind), edge = {
+      const kind = isRight
+          ? arrow_right_kind(this_se.kind)
+          : arrow_left_kind(this_se.kind), edge = {
           from,
           to,
           kind,
@@ -20165,6 +20167,7 @@ var jssm = (function (exports) {
               });
           }
           // done building, do checks
+          // assert all props are valid
           this._state_properties.forEach((_value, key) => {
               const inside = JSON.parse(key);
               if (Array.isArray(inside)) {
@@ -20179,6 +20182,7 @@ var jssm = (function (exports) {
                   }
               }
           });
+          // assert all required properties are serviced
           this._required_properties.forEach(dp_key => {
               if (this._default_properties.has(dp_key)) {
                   throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
@@ -20190,6 +20194,20 @@ var jssm = (function (exports) {
                   }
               });
           });
+          // assert chosen starting state is valid
+          if (!(this.has_state(this.state()))) {
+              throw new JssmError(this, `Current start state "${this.state()}" does not exist`);
+          }
+          // assert all starting states are valid
+          start_states.forEach((ss, ssi) => {
+              if (!(this.has_state(ss))) {
+                  throw new JssmError(this, `Start state ${ssi} "${ss}" does not exist`);
+              }
+          });
+          // assert chosen starting state is valid
+          if (!(start_states.length === this._start_states.size)) {
+              throw new JssmError(this, `Start states cannot be repeated`);
+          }
       }
       /********
        *
@@ -20708,6 +20726,9 @@ var jssm = (function (exports) {
       }
       list_actions() {
           return Array.from(this._actions.keys());
+      }
+      get uses_actions() {
+          return Array.from(this._actions.keys()).length > 0;
       }
       all_themes() {
           return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise

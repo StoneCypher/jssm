@@ -3,6 +3,8 @@
 
 import * as jssm from '../jssm';
 
+const sm = jssm.sm;
+
 
 
 
@@ -148,6 +150,25 @@ describe('Reports on action edges', () => {
   test('Reports on action edges, that it doesn\'t have', () =>
     expect( () => roae_machine.current_action_edge_for('power_west') )
       .toThrow() );
+
+});
+
+
+
+
+
+describe('uses_actions', () => {
+
+  const does   = sm`a 'next' -> b;`,
+        doesnt = sm`a -> b;`;
+
+  test('uses_actions true when does', () =>
+    expect( does.uses_actions )
+      .toBe(true) );
+
+  test('uses_actions false when doesn\'t', () =>
+    expect( doesnt.uses_actions )
+      .toBe(false) );
 
 });
 
