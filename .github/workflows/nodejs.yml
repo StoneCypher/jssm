@@ -42,6 +42,42 @@ jobs:
 
 
 
+  unicode-atom-labels:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Check full unicode over atom labels
+      run: |
+        npm install && npm run make && npm run jest-unicode-atom-label
+
+
+
+  unicode-string-labels:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Check full unicode over string labels
+      run: |
+        npm install && npm run make && npm run jest-unicode-string-label
+
+
+
   unicode-actions:
 
     runs-on: ubuntu-latest
@@ -150,7 +186,7 @@ jobs:
 
     if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
 
-    needs: [build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions]
+    needs: [build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
 
     runs-on: ubuntu-latest
 
@@ -195,6 +231,7 @@ jobs:
         JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
         JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
         JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
+        TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
 
 
