@@ -46,6 +46,13 @@ describe('compile/1', () => {
     }).not.toThrow() );
   });
 
+  describe('direct make callpoint', () => {
+    const match = { start_states: [ 'a' ], end_states: [], transitions: [ { from: 'a', to: 'b', kind: 'legal', forced_only: false, main_path: false } ], state_property: [] };
+    test('direct match', () => {
+      expect(jssm.make('a->b;')).toStrictEqual(match);
+    })
+  });
+
 });
 
 
@@ -72,6 +79,12 @@ describe('error catchery', () => {
     test('throws', () => expect( () => {
       sm`a->b; c: { foo: red; };`;
     } ).toThrow() );
+  });
+
+  describe('direct make failure throws', () => {
+    test('direct match', () => {
+      expect( () => jssm.make('kaboom')).toThrow();
+    })
   });
 
 });

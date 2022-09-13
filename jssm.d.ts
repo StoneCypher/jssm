@@ -1,133 +1,12 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
+JssmMachineInternalState, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
+import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import * as constants from './jssm_constants';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[];
 import { version, build_time } from './version';
-/*********
- *
- *  This method wraps the parser call that comes from the peg grammar,
- *  {@link parse}.  Generally neither this nor that should be used directly
- *  unless you mean to develop plugins or extensions for the machine.
- *
- *  Parses the intermediate representation of a compiled string down to a
- *  machine configuration object.  If you're using this (probably don't,) you're
- *  probably also using {@link compile} and {@link Machine.constructor}.
- *
- *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
- *
- *  const intermediate = wrap_parse('a -> b;', {});
- *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
- *
- *  const cfg = compile(intermediate);
- *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
- *
- *  const machine = new Machine(cfg);
- *  // Machine { _instance_name: undefined, _state: 'a', ...
- *  ```
- *
- *  This method is mostly for plugin and intermediate tool authors, or people
- *  who need to work with the machine's intermediate representation.
- *
- *  # Hey!
- *
- *  Most people looking at this want either the `sm` operator or method `from`,
- *  which perform all the steps in the chain.  The library's author mostly uses
- *  operator `sm`, and mostly falls back to `.from` when needing to parse
- *  strings dynamically instead of from template literals.
- *
- *  Operator {@link sm}:
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const lswitch = sm`on <=> off;`;
- *  ```
- *
- *  Method {@link from}:
- *
- *  ```typescript
- *  import * as jssm from 'jssm';
- *
- *  const toggle = jssm.from('up <=> down;');
- *  ```
- *
- *  `wrap_parse` itself is an internal convenience method for alting out an
- *  object as the options call.  Not generally meant for external use.
- *
- *  @param input The FSL code to be evaluated
- *
- *  @param options Things to control about the instance
- *
- */
-declare function wrap_parse(input: string, options?: Object): any;
-/*********
- *
- *  Compile a machine's JSON intermediate representation to a config object.  If
- *  you're using this (probably don't,) you're probably also using
- *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
- *
- *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
- *
- *  const intermediate = parse('a -> b;');
- *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
- *
- *  const cfg = compile(intermediate);
- *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
- *
- *  const machine = new Machine(cfg);
- *  // Machine { _instance_name: undefined, _state: 'a', ...
- *  ```
- *
- *  This method is mostly for plugin and intermediate tool authors, or people
- *  who need to work with the machine's intermediate representation.
- *
- *  # Hey!
- *
- *  Most people looking at this want either the `sm` operator or method `from`,
- *  which perform all the steps in the chain.  The library's author mostly uses
- *  operator `sm`, and mostly falls back to `.from` when needing to parse
- *  strings dynamically instead of from template literals.
- *
- *  Operator {@link sm}:
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const lswitch = sm`on <=> off;`;
- *  ```
- *
- *  Method {@link from}:
- *
- *  ```typescript
- *  import * as jssm from 'jssm';
- *
- *  const toggle = jssm.from('up <=> down;');
- *  ```
- *
- *  @typeparam mDT The type of the machine data member; usually omitted
- *
- *  @param tree The parse tree to be boiled down into a machine config
- *
- */
-declare function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT>;
-/*********
- *
- *  An internal convenience wrapper for parsing then compiling a machine string.
- *  Not generally meant for external use.  Please see {@link compile} or
- *  {@link sm}.
- *
- *  @typeparam mDT The type of the machine data member; usually omitted
- *
- *  @param plan The FSL code to be evaluated and built into a machine config
- *
- */
-declare function make<mDT>(plan: string): JssmGenericConfig<mDT>;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -142,7 +21,7 @@ declare function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateCon
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
-    _edges: Array<JssmTransition<mDT>>;
+    _edges: Array<JssmTransition<StateType, mDT>>;
     _edge_map: Map<StateType, Map<StateType, number>>;
     _named_transitions: Map<StateType, number>;
     _actions: Map<StateType, Map<StateType, number>>;
@@ -217,7 +96,7 @@ declare class Machine<mDT> {
     _start_state_style: JssmStateConfig;
     _end_state_style: JssmStateConfig;
     _state_labels: Map<string, string>;
-    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<mDT>);
+    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -598,7 +477,7 @@ declare class Machine<mDT> {
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
      */
-    list_edges(): Array<JssmTransition<mDT>>;
+    list_edges(): Array<JssmTransition<StateType, mDT>>;
     list_named_transitions(): Map<StateType, number>;
     list_actions(): Array<StateType>;
     get uses_actions(): boolean;
@@ -607,7 +486,7 @@ declare class Machine<mDT> {
     set themes(to: FslTheme | FslTheme[]);
     flow(): FslDirection;
     get_transition_by_state_names(from: StateType, to: StateType): number;
-    lookup_transition_for(from: StateType, to: StateType): JssmTransition<mDT>;
+    lookup_transition_for(from: StateType, to: StateType): JssmTransition<StateType, mDT>;
     /********
      *
      *  List all transitions attached to the current state, sorted by entrance and
@@ -669,7 +548,7 @@ declare class Machine<mDT> {
      *
      */
     list_exits(whichState?: StateType): Array<StateType>;
-    probable_exits_for(whichState: StateType): Array<JssmTransition<mDT>>;
+    probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>>;
     probabilistic_transition(): boolean;
     probabilistic_walk(n: number): Array<StateType>;
     probabilistic_histo_walk(n: number): Map<StateType, number>;
@@ -762,7 +641,7 @@ declare class Machine<mDT> {
     post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
-    edges_between(from: string, to: string): JssmTransition<mDT>[];
+    edges_between(from: string, to: string): JssmTransition<StateType, mDT>[];
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
     /*********
      *
@@ -1130,7 +1009,7 @@ declare class Machine<mDT> {
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
     current_action_for(action: StateType): number;
-    current_action_edge_for(action: StateType): JssmTransition<mDT>;
+    current_action_edge_for(action: StateType): JssmTransition<StateType, mDT>;
     valid_action(action: StateType, _newData?: mDT): boolean;
     valid_transition(newState: StateType, _newData?: mDT): boolean;
     valid_force_transition(newState: StateType, _newData?: mDT): boolean;
@@ -1183,7 +1062,7 @@ declare function sm<mDT>(template_strings: TemplateStringsArray, ...remainder: a
  *  @param ExtraConstructorFields Extra non-code configuration to pass at creation time
  *
  */
-declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial<JssmGenericConfig<mDT>> | undefined): Machine<mDT>;
+declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial<JssmGenericConfig<StateType, mDT>> | undefined): Machine<mDT>;
 declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT>;
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;

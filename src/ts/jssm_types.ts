@@ -104,11 +104,11 @@ type JssmTransitionPermitterMaybeArray<DataType> =
 
 
 
-type JssmTransition<DataType> = {
+type JssmTransition<StateType, DataType> = {
 
   from         : StateType,
   to           : StateType,
-  name?        : string,
+  name?        : StateType,
   action?      : StateType,
   check?       : JssmTransitionPermitterMaybeArray<DataType>,  // validate this edge's transition; usually about data
   probability? : number,                                       // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
@@ -118,8 +118,8 @@ type JssmTransition<DataType> = {
 
 };
 
-type JssmTransitions<DataType> =
-  JssmTransition<DataType>[];
+type JssmTransitions<StateType, DataType> =
+  JssmTransition<StateType, DataType>[];
 
 type JssmTransitionList = {
   entrances : Array<StateType>,
@@ -162,7 +162,7 @@ type JssmMachineInternalState<DataType> = {
   edge_map                    : Map< StateType, Map<StateType, number> >,
   actions                     : Map< StateType, Map<StateType, number> >,
   reverse_actions             : Map< StateType, Map<StateType, number> >,
-  edges                       : Array< JssmTransition<DataType> >
+  edges                       : Array< JssmTransition<StateType, DataType> >
 
 };
 
@@ -182,7 +182,7 @@ type JssmGenericMachine<DataType> = {
   state            : StateType,
   data?            : DataType,
   nodes?           : Array<StateType>,
-  transitions      : JssmTransitions<DataType>,
+  transitions      : JssmTransitions<StateType, DataType>,
   check?           : JssmStatePermitterMaybeArray<DataType>,
 
   min_transitions? : number,
@@ -281,12 +281,12 @@ type JssmTheme = Partial<JssmBaseTheme>;
 
 
 
-type JssmGenericConfig<DataType> = {
+type JssmGenericConfig<StateType, DataType> = {
 
   graph_layout?                  : JssmLayout,
 
   complete?                      : Array<StateType>,
-  transitions                    : JssmTransitions<DataType>,
+  transitions                    : JssmTransitions<StateType, DataType>,
 
   theme?                         : FslTheme[],
   flow?                          : FslDirection,
@@ -346,7 +346,7 @@ type JssmGenericConfig<DataType> = {
 
 
 
-type JssmCompileRule = {
+type JssmCompileRule<StateType> = {
 
   agg_as : string,
   val    : any      // TODO COMEBACK FIXME
@@ -357,10 +357,10 @@ type JssmCompileRule = {
 
 
 
-type JssmCompileSe = {
+type JssmCompileSe<StateType, mDT> = {
 
   to            : StateType,
-  se            : JssmCompileSe,
+  se            : JssmCompileSe<StateType, mDT>,
   kind          : JssmArrow,
   l_action?     : StateType,
   r_action?     : StateType,
@@ -373,10 +373,10 @@ type JssmCompileSe = {
 
 
 
-type JssmCompileSeStart<DataType> = {
+type JssmCompileSeStart<StateType, DataType> = {
 
-  from           : DataType,
-  se             : JssmCompileSe,
+  from           : StateType,
+  se             : JssmCompileSe<StateType, DataType>,
   key            : string,
   value?         : string | number,
   name?          : string,
@@ -390,17 +390,17 @@ type JssmCompileSeStart<DataType> = {
 
 
 
-type JssmParseTree =
+type JssmParseTree<StateType, mDT> =
 
-  Array< JssmCompileSeStart<StateType> >;
-
-
+  Array< JssmCompileSeStart<StateType, mDT> >;
 
 
 
-type JssmParseFunctionType =
 
-  (string) => JssmParseTree;
+
+type JssmParseFunctionType<StateType, mDT> =
+
+  (string) => JssmParseTree<StateType, mDT>;
 
 
 
