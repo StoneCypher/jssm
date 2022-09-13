@@ -1,61 +1,11 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmStateStyleKeyList, JssmArrow, JssmArrowDirection, JssmArrowKind, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
+JssmMachineInternalState, JssmParseTree, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
 import * as constants from './jssm_constants';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[];
 import { version, build_time } from './version';
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_direction } from 'jssm';
- *
- *  arrow_direction('->');    // 'right'
- *  arrow_direction('<~=>');  // 'both'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-declare function arrow_direction(arrow: JssmArrow): JssmArrowDirection;
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_left_kind } from 'jssm';
- *
- *  arrow_left_kind('<-');    // 'legal'
- *  arrow_left_kind('<=');    // 'main'
- *  arrow_left_kind('<~');    // 'forced'
- *  arrow_left_kind('<->');   // 'legal'
- *  arrow_left_kind('->');    // 'none'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-declare function arrow_left_kind(arrow: JssmArrow): JssmArrowKind;
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_left_kind } from 'jssm';
- *
- *  arrow_left_kind('->');    // 'legal'
- *  arrow_left_kind('=>');    // 'main'
- *  arrow_left_kind('~>');    // 'forced'
- *  arrow_left_kind('<->');   // 'legal'
- *  arrow_left_kind('<-');    // 'none'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
 /*********
  *
  *  This method wraps the parser call that comes from the peg grammar,

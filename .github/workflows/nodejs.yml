@@ -155,7 +155,7 @@ jobs:
       with:
         node-version: 18.x
 
-    - name: Verify the version was bumped
+    - name: Run the benchmarks
       run: |
         npm install && npm run benny
 
@@ -261,6 +261,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v2
+
     - name: Results page
       run: |
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
