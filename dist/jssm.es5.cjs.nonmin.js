@@ -866,6 +866,218 @@ class circular_buffer{constructor(uCapacity){if(!Number.isInteger(uCapacity)){th
 
 const FslDirections = ['up', 'right', 'down', 'left'];
 
+class JssmError extends Error {
+    constructor(machine, message, JEEI) {
+        const { requested_state } = (JEEI === undefined)
+            ? { requested_state: undefined }
+            : JEEI;
+        const follow_ups = [];
+        if (machine) {
+            if (machine.state() !== undefined) {
+                follow_ups.push(`at "${machine.state()}"`);
+            }
+        }
+        if (requested_state !== undefined) {
+            follow_ups.push(`requested "${requested_state}"`);
+        }
+        const complex_msg = `${((machine === null || machine === void 0 ? void 0 : machine.instance_name()) !== undefined)
+            ? `[[${machine.instance_name()}]]: `
+            : ''}${message}${follow_ups.length
+            ? ` (${follow_ups.join(', ')})`
+            : ''}`;
+        super(complex_msg);
+        this.name = 'JssmError';
+        this.message = complex_msg;
+        this.base_message = message;
+        this.requested_state = requested_state;
+    }
+}
+
+/* eslint-disable complexity */
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_direction } from 'jssm';
+ *
+ *  arrow_direction('->');    // 'right'
+ *  arrow_direction('<~=>');  // 'both'
+ *  ```
+ *
+ *  @param arrow The arrow to be evaluated
+ *
+ */
+function arrow_direction(arrow) {
+    switch (String(arrow)) {
+        case '->':
+        case '→':
+        case '=>':
+        case '⇒':
+        case '~>':
+        case '↛':
+            return 'right';
+        case '<-':
+        case '←':
+        case '<=':
+        case '⇐':
+        case '<~':
+        case '↚':
+            return 'left';
+        case '<->':
+        case '↔':
+        case '<-=>':
+        case '←⇒':
+        case '←=>':
+        case '<-⇒':
+        case '<-~>':
+        case '←↛':
+        case '←~>':
+        case '<-↛':
+        case '<=>':
+        case '⇔':
+        case '<=->':
+        case '⇐→':
+        case '⇐->':
+        case '<=→':
+        case '<=~>':
+        case '⇐↛':
+        case '⇐~>':
+        case '<=↛':
+        case '<~>':
+        case '↮':
+        case '<~->':
+        case '↚→':
+        case '↚->':
+        case '<~→':
+        case '<~=>':
+        case '↚⇒':
+        case '↚=>':
+        case '<~⇒':
+            return 'both';
+        default:
+            throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
+    }
+}
+/* eslint-enable complexity */
+/* eslint-disable complexity */
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from 'jssm';
+ *
+ *  arrow_left_kind('<-');    // 'legal'
+ *  arrow_left_kind('<=');    // 'main'
+ *  arrow_left_kind('<~');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('->');    // 'none'
+ *  ```
+ *
+ *  @param arrow The arrow to be evaluated
+ *
+ */
+function arrow_left_kind(arrow) {
+    switch (String(arrow)) {
+        case '->':
+        case '→':
+        case '=>':
+        case '⇒':
+        case '~>':
+        case '↛':
+            return 'none';
+        case '<-':
+        case '←':
+        case '<->':
+        case '↔':
+        case '<-=>':
+        case '←⇒':
+        case '<-~>':
+        case '←↛':
+            return 'legal';
+        case '<=':
+        case '⇐':
+        case '<=>':
+        case '⇔':
+        case '<=->':
+        case '⇐→':
+        case '<=~>':
+        case '⇐↛':
+            return 'main';
+        case '<~':
+        case '↚':
+        case '<~>':
+        case '↮':
+        case '<~->':
+        case '↚→':
+        case '<~=>':
+        case '↚⇒':
+            return 'forced';
+        default:
+            throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
+    }
+}
+/* eslint-enable complexity */
+/* eslint-disable complexity */
+/*********
+ *
+ *  Return the direction of an arrow - `right`, `left`, or `both`.
+ *
+ *  ```typescript
+ *  import { arrow_left_kind } from 'jssm';
+ *
+ *  arrow_left_kind('->');    // 'legal'
+ *  arrow_left_kind('=>');    // 'main'
+ *  arrow_left_kind('~>');    // 'forced'
+ *  arrow_left_kind('<->');   // 'legal'
+ *  arrow_left_kind('<-');    // 'none'
+ *  ```
+ *
+ *  @param arrow The arrow to be evaluated
+ *
+ */
+function arrow_right_kind(arrow) {
+    switch (String(arrow)) {
+        case '<-':
+        case '←':
+        case '<=':
+        case '⇐':
+        case '<~':
+        case '↚':
+            return 'none';
+        case '->':
+        case '→':
+        case '<->':
+        case '↔':
+        case '<=->':
+        case '⇐→':
+        case '<~->':
+        case '↚→':
+            return 'legal';
+        case '=>':
+        case '⇒':
+        case '<=>':
+        case '⇔':
+        case '<-=>':
+        case '←⇒':
+        case '<~=>':
+        case '↚⇒':
+            return 'main';
+        case '~>':
+        case '↛':
+        case '<~>':
+        case '↮':
+        case '<-~>':
+        case '←↛':
+        case '<=~>':
+        case '⇐↛':
+            return 'forced';
+        default:
+            throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
+    }
+}
+
 const base_state_style$5 = {
     shape: 'rectangle',
     backgroundColor: 'white',
@@ -1223,33 +1435,6 @@ const bold_theme = {
     graph: undefined,
     title: undefined // TODO FIXME
 };
-
-class JssmError extends Error {
-    constructor(machine, message, JEEI) {
-        const { requested_state } = (JEEI === undefined)
-            ? { requested_state: undefined }
-            : JEEI;
-        const follow_ups = [];
-        if (machine) {
-            if (machine.state() !== undefined) {
-                follow_ups.push(`at "${machine.state()}"`);
-            }
-        }
-        if (requested_state !== undefined) {
-            follow_ups.push(`requested "${requested_state}"`);
-        }
-        const complex_msg = `${((machine === null || machine === void 0 ? void 0 : machine.instance_name()) !== undefined)
-            ? `[[${machine.instance_name()}]]: `
-            : ''}${message}${follow_ups.length
-            ? ` (${follow_ups.join(', ')})`
-            : ''}`;
-        super(complex_msg);
-        this.name = 'JssmError';
-        this.message = complex_msg;
-        this.base_message = message;
-        this.requested_state = requested_state;
-    }
-}
 
 const array_box_if_string = n => typeof n === 'string' ? [n] : n;
 // this is explicitly about other peoples' data, so it has to be weakly typed
@@ -19301,7 +19486,7 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.85.7", build_time = 1663035398527;
+const version = "5.85.8", build_time = 1663038933181;
 
 // whargarbl lots of these return arrays could/should be sets
 const theme_mapping = new Map();
@@ -19311,191 +19496,6 @@ theme_mapping.set('ocean', ocean_theme);
 theme_mapping.set('plain', plain_theme);
 theme_mapping.set('bold', bold_theme);
 const { shapes, gviz_shapes, named_colors } = constants;
-/* eslint-disable complexity */
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_direction } from 'jssm';
- *
- *  arrow_direction('->');    // 'right'
- *  arrow_direction('<~=>');  // 'both'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-function arrow_direction(arrow) {
-    switch (String(arrow)) {
-        case '->':
-        case '→':
-        case '=>':
-        case '⇒':
-        case '~>':
-        case '↛':
-            return 'right';
-        case '<-':
-        case '←':
-        case '<=':
-        case '⇐':
-        case '<~':
-        case '↚':
-            return 'left';
-        case '<->':
-        case '↔':
-        case '<-=>':
-        case '←⇒':
-        case '←=>':
-        case '<-⇒':
-        case '<-~>':
-        case '←↛':
-        case '←~>':
-        case '<-↛':
-        case '<=>':
-        case '⇔':
-        case '<=->':
-        case '⇐→':
-        case '⇐->':
-        case '<=→':
-        case '<=~>':
-        case '⇐↛':
-        case '⇐~>':
-        case '<=↛':
-        case '<~>':
-        case '↮':
-        case '<~->':
-        case '↚→':
-        case '↚->':
-        case '<~→':
-        case '<~=>':
-        case '↚⇒':
-        case '↚=>':
-        case '<~⇒':
-            return 'both';
-        default:
-            throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
-    }
-}
-/* eslint-enable complexity */
-/* eslint-disable complexity */
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_left_kind } from 'jssm';
- *
- *  arrow_left_kind('<-');    // 'legal'
- *  arrow_left_kind('<=');    // 'main'
- *  arrow_left_kind('<~');    // 'forced'
- *  arrow_left_kind('<->');   // 'legal'
- *  arrow_left_kind('->');    // 'none'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-function arrow_left_kind(arrow) {
-    switch (String(arrow)) {
-        case '->':
-        case '→':
-        case '=>':
-        case '⇒':
-        case '~>':
-        case '↛':
-            return 'none';
-        case '<-':
-        case '←':
-        case '<->':
-        case '↔':
-        case '<-=>':
-        case '←⇒':
-        case '<-~>':
-        case '←↛':
-            return 'legal';
-        case '<=':
-        case '⇐':
-        case '<=>':
-        case '⇔':
-        case '<=->':
-        case '⇐→':
-        case '<=~>':
-        case '⇐↛':
-            return 'main';
-        case '<~':
-        case '↚':
-        case '<~>':
-        case '↮':
-        case '<~->':
-        case '↚→':
-        case '<~=>':
-        case '↚⇒':
-            return 'forced';
-        default:
-            throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
-    }
-}
-/* eslint-enable complexity */
-/* eslint-disable complexity */
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_left_kind } from 'jssm';
- *
- *  arrow_left_kind('->');    // 'legal'
- *  arrow_left_kind('=>');    // 'main'
- *  arrow_left_kind('~>');    // 'forced'
- *  arrow_left_kind('<->');   // 'legal'
- *  arrow_left_kind('<-');    // 'none'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-function arrow_right_kind(arrow) {
-    switch (String(arrow)) {
-        case '<-':
-        case '←':
-        case '<=':
-        case '⇐':
-        case '<~':
-        case '↚':
-            return 'none';
-        case '->':
-        case '→':
-        case '<->':
-        case '↔':
-        case '<=->':
-        case '⇐→':
-        case '<~->':
-        case '↚→':
-            return 'legal';
-        case '=>':
-        case '⇒':
-        case '<=>':
-        case '⇔':
-        case '<-=>':
-        case '←⇒':
-        case '<~=>':
-        case '↚⇒':
-            return 'main';
-        case '~>':
-        case '↛':
-        case '<~>':
-        case '↮':
-        case '<-~>':
-        case '←↛':
-        case '<=~>':
-        case '⇐↛':
-            return 'forced';
-        default:
-            throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
-    }
-}
-/* eslint-enable complexity */
 /*********
  *
  *  Internal method meant to perform factory assembly of an edge.  Not meant for
