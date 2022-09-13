@@ -44,10 +44,10 @@ declare type JssmPropertyDefinition = {
 };
 declare type JssmTransitionPermitter<DataType> = (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
-declare type JssmTransition<DataType> = {
+declare type JssmTransition<StateType, DataType> = {
     from: StateType;
     to: StateType;
-    name?: string;
+    name?: StateType;
     action?: StateType;
     check?: JssmTransitionPermitterMaybeArray<DataType>;
     probability?: number;
@@ -55,7 +55,7 @@ declare type JssmTransition<DataType> = {
     forced_only: boolean;
     main_path: boolean;
 };
-declare type JssmTransitions<DataType> = JssmTransition<DataType>[];
+declare type JssmTransitions<StateType, DataType> = JssmTransition<StateType, DataType>[];
 declare type JssmTransitionList = {
     entrances: Array<StateType>;
     exits: Array<StateType>;
@@ -79,7 +79,7 @@ declare type JssmMachineInternalState<DataType> = {
     edge_map: Map<StateType, Map<StateType, number>>;
     actions: Map<StateType, Map<StateType, number>>;
     reverse_actions: Map<StateType, Map<StateType, number>>;
-    edges: Array<JssmTransition<DataType>>;
+    edges: Array<JssmTransition<StateType, DataType>>;
 };
 declare type JssmStatePermitter<DataType> = (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
@@ -88,7 +88,7 @@ declare type JssmGenericMachine<DataType> = {
     state: StateType;
     data?: DataType;
     nodes?: Array<StateType>;
-    transitions: JssmTransitions<DataType>;
+    transitions: JssmTransitions<StateType, DataType>;
     check?: JssmStatePermitterMaybeArray<DataType>;
     min_transitions?: number;
     max_transitions?: number;
@@ -173,10 +173,10 @@ declare type JssmBaseTheme = {
     title: undefined;
 };
 declare type JssmTheme = Partial<JssmBaseTheme>;
-declare type JssmGenericConfig<DataType> = {
+declare type JssmGenericConfig<StateType, DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
-    transitions: JssmTransitions<DataType>;
+    transitions: JssmTransitions<StateType, DataType>;
     theme?: FslTheme[];
     flow?: FslDirection;
     name?: string;
@@ -217,22 +217,22 @@ declare type JssmGenericConfig<DataType> = {
     default_terminal_state_config?: JssmStateStyleKeyList;
     default_active_state_config?: JssmStateStyleKeyList;
 };
-declare type JssmCompileRule = {
+declare type JssmCompileRule<StateType> = {
     agg_as: string;
     val: any;
 };
-declare type JssmCompileSe = {
+declare type JssmCompileSe<StateType, mDT> = {
     to: StateType;
-    se: JssmCompileSe;
+    se: JssmCompileSe<StateType, mDT>;
     kind: JssmArrow;
     l_action?: StateType;
     r_action?: StateType;
     l_probability: number;
     r_probability: number;
 };
-declare type JssmCompileSeStart<DataType> = {
-    from: DataType;
-    se: JssmCompileSe;
+declare type JssmCompileSeStart<StateType, DataType> = {
+    from: StateType;
+    se: JssmCompileSe<StateType, DataType>;
     key: string;
     value?: string | number;
     name?: string;
@@ -240,8 +240,8 @@ declare type JssmCompileSeStart<DataType> = {
     default_value?: any;
     required?: boolean;
 };
-declare type JssmParseTree = Array<JssmCompileSeStart<StateType>>;
-declare type JssmParseFunctionType = (string: any) => JssmParseTree;
+declare type JssmParseTree<StateType, mDT> = Array<JssmCompileSeStart<StateType, mDT>>;
+declare type JssmParseFunctionType<StateType, mDT> = (string: any) => JssmParseTree<StateType, mDT>;
 declare type BasicHookDescription<mDT> = {
     kind: 'hook';
     from: string;

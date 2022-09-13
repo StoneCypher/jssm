@@ -2,866 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var reductions = {
-  "abkhazian" : "ab",
-  "аҧсуа бызшәа, аҧсшәа" : "ab",
-  "ab" : "ab",
-  "abk" : "ab",
-  "аҧсуа бызшәа" : "ab",
-  "аҧсшәа" : "ab",
-  "afar" : "aa",
-  "afaraf" : "aa",
-  "aa" : "aa",
-  "aar" : "aa",
-  "afrikaans" : "af",
-  "af" : "af",
-  "afr" : "af",
-  "akan" : "ak",
-  "ak" : "ak",
-  "aka" : "ak",
-  "aka + 2" : "ak",
-  "albanian" : "sq",
-  "shqip" : "sq",
-  "sq" : "sq",
-  "sqi" : "sq",
-  "alb" : "sq",
-  "sqi + 4" : "sq",
-  "amharic" : "am",
-  "አማርኛ" : "am",
-  "am" : "am",
-  "amh" : "am",
-  "arabic" : "ar",
-  "العربية" : "ar",
-  "ar" : "ar",
-  "ara" : "ar",
-  "ara + 30" : "ar",
-  "aragonese" : "an",
-  "aragonés" : "an",
-  "an" : "an",
-  "arg" : "an",
-  "armenian" : "hy",
-  "հայերեն" : "hy",
-  "hy" : "hy",
-  "hye" : "hy",
-  "arm" : "hy",
-  "assamese" : "as",
-  "অসমীয়া" : "as",
-  "as" : "as",
-  "asm" : "as",
-  "avaric" : "av",
-  "авар мацӏ, магӏарул мацӏ" : "av",
-  "av" : "av",
-  "ava" : "av",
-  "авар мацӏ" : "av",
-  "магӏарул мацӏ" : "av",
-  "avestan" : "ae",
-  "avesta" : "ae",
-  "ae" : "ae",
-  "ave" : "ae",
-  "aymara" : "ay",
-  "aymar aru" : "ay",
-  "ay" : "ay",
-  "aym" : "ay",
-  "aym + 2" : "ay",
-  "azerbaijani" : "az",
-  "azərbaycan dili" : "az",
-  "az" : "az",
-  "aze" : "az",
-  "aze + 2" : "az",
-  "bambara" : "bm",
-  "bamanankan" : "bm",
-  "bm" : "bm",
-  "bam" : "bm",
-  "bashkir" : "ba",
-  "башҡорт теле" : "ba",
-  "ba" : "ba",
-  "bak" : "ba",
-  "basque" : "eu",
-  "euskara, euskera" : "eu",
-  "eu" : "eu",
-  "eus" : "eu",
-  "baq" : "eu",
-  "euskara" : "eu",
-  "euskera" : "eu",
-  "belarusian" : "be",
-  "беларуская мова" : "be",
-  "be" : "be",
-  "bel" : "be",
-  "bengali" : "bn",
-  "বাংলা" : "bn",
-  "bn" : "bn",
-  "ben" : "bn",
-  "bihari languages" : "bh",
-  "भोजपुरी" : "bh",
-  "bh" : "bh",
-  "bih" : "bh",
-  "bislama" : "bi",
-  "bi" : "bi",
-  "bis" : "bi",
-  "bosnian" : "bs",
-  "bosanski jezik" : "bs",
-  "bs" : "bs",
-  "bos" : "bs",
-  "breton" : "br",
-  "brezhoneg" : "br",
-  "br" : "br",
-  "bre" : "br",
-  "bulgarian" : "bg",
-  "български език" : "bg",
-  "bg" : "bg",
-  "bul" : "bg",
-  "burmese" : "my",
-  "ဗမာစာ" : "my",
-  "my" : "my",
-  "mya" : "my",
-  "bur" : "my",
-  "catalan, valencian" : "ca",
-  "català, valencià" : "ca",
-  "ca" : "ca",
-  "cat" : "ca",
-  "català" : "ca",
-  "valencià" : "ca",
-  "chamorro" : "ch",
-  "chamoru" : "ch",
-  "ch" : "ch",
-  "cha" : "ch",
-  "chechen" : "ce",
-  "нохчийн мотт" : "ce",
-  "ce" : "ce",
-  "che" : "ce",
-  "chichewa, chewa, nyanja" : "ny",
-  "chicheŵa, chinyanja" : "ny",
-  "ny" : "ny",
-  "nya" : "ny",
-  "chicheŵa" : "ny",
-  "chinyanja" : "ny",
-  "chinese" : "zh",
-  "中文 (zhōngwén), 汉语, 漢語" : "zh",
-  "zh" : "zh",
-  "zho" : "zh",
-  "chi" : "zh",
-  "zho + 13" : "zh",
-  "中文 (zhōngwén)" : "zh",
-  "汉语" : "zh",
-  "漢語" : "zh",
-  "chuvash" : "cv",
-  "чӑваш чӗлхи" : "cv",
-  "cv" : "cv",
-  "chv" : "cv",
-  "cornish" : "kw",
-  "kernewek" : "kw",
-  "kw" : "kw",
-  "cor" : "kw",
-  "corsican" : "co",
-  "corsu, lingua corsa" : "co",
-  "co" : "co",
-  "cos" : "co",
-  "corsu" : "co",
-  "lingua corsa" : "co",
-  "cree" : "cr",
-  "ᓀᐦᐃᔭᐍᐏᐣ" : "cr",
-  "cr" : "cr",
-  "cre" : "cr",
-  "cre + 6" : "cr",
-  "croatian" : "hr",
-  "hrvatski jezik" : "hr",
-  "hr" : "hr",
-  "hrv" : "hr",
-  "czech" : "cs",
-  "čeština, český jazyk" : "cs",
-  "cs" : "cs",
-  "ces" : "cs",
-  "cze" : "cs",
-  "čeština" : "cs",
-  "český jazyk" : "cs",
-  "danish" : "da",
-  "dansk" : "da",
-  "da" : "da",
-  "dan" : "da",
-  "divehi, dhivehi, maldivian" : "dv",
-  "ދިވެހި" : "dv",
-  "dv" : "dv",
-  "div" : "dv",
-  "dutch, flemish" : "nl",
-  "nederlands, vlaams" : "nl",
-  "nl" : "nl",
-  "nld" : "nl",
-  "dut" : "nl",
-  "nederlands" : "nl",
-  "vlaams" : "nl",
-  "dzongkha" : "dz",
-  "རྫོང་ཁ" : "dz",
-  "dz" : "dz",
-  "dzo" : "dz",
-  "english" : "en",
-  "en" : "en",
-  "eng" : "en",
-  "esperanto" : "eo",
-  "eo" : "eo",
-  "epo" : "eo",
-  "estonian" : "et",
-  "eesti, eesti keel" : "et",
-  "et" : "et",
-  "est" : "et",
-  "est + 2" : "et",
-  "eesti" : "et",
-  "eesti keel" : "et",
-  "ewe" : "ee",
-  "eʋegbe" : "ee",
-  "ee" : "ee",
-  "faroese" : "fo",
-  "føroyskt" : "fo",
-  "fo" : "fo",
-  "fao" : "fo",
-  "fijian" : "fj",
-  "vosa vakaviti" : "fj",
-  "fj" : "fj",
-  "fij" : "fj",
-  "finnish" : "fi",
-  "suomi, suomen kieli" : "fi",
-  "fi" : "fi",
-  "fin" : "fi",
-  "suomi" : "fi",
-  "suomen kieli" : "fi",
-  "french" : "fr",
-  "français, langue française" : "fr",
-  "fr" : "fr",
-  "fra" : "fr",
-  "fre" : "fr",
-  "français" : "fr",
-  "langue française" : "fr",
-  "fulah" : "ff",
-  "fulfulde, pulaar, pular" : "ff",
-  "ff" : "ff",
-  "ful" : "ff",
-  "ful + 9" : "ff",
-  "fulfulde" : "ff",
-  "pulaar" : "ff",
-  "pular" : "ff",
-  "galician" : "gl",
-  "galego" : "gl",
-  "gl" : "gl",
-  "glg" : "gl",
-  "georgian" : "ka",
-  "ქართული" : "ka",
-  "ka" : "ka",
-  "kat" : "ka",
-  "geo" : "ka",
-  "german" : "de",
-  "deutsch" : "de",
-  "de" : "de",
-  "deu" : "de",
-  "ger" : "de",
-  "greek (modern)" : "el",
-  "ελληνικά" : "el",
-  "el" : "el",
-  "ell" : "el",
-  "gre" : "el",
-  "guaraní" : "gn",
-  "avañe'ẽ" : "gn",
-  "gn" : "gn",
-  "grn" : "gn",
-  "grn + 5" : "gn",
-  "gujarati" : "gu",
-  "ગુજરાતી" : "gu",
-  "gu" : "gu",
-  "guj" : "gu",
-  "haitian, haitian creole" : "ht",
-  "kreyòl ayisyen" : "ht",
-  "ht" : "ht",
-  "hat" : "ht",
-  "hausa" : "ha",
-  "(hausa) هَوُسَ" : "ha",
-  "ha" : "ha",
-  "hau" : "ha",
-  "hebrew (modern)" : "he",
-  "עברית" : "he",
-  "he" : "he",
-  "heb" : "he",
-  "herero" : "hz",
-  "otjiherero" : "hz",
-  "hz" : "hz",
-  "her" : "hz",
-  "hindi" : "hi",
-  "हिन्दी, हिंदी" : "hi",
-  "hi" : "hi",
-  "hin" : "hi",
-  "हिन्दी" : "hi",
-  "हिंदी" : "hi",
-  "hiri motu" : "ho",
-  "ho" : "ho",
-  "hmo" : "ho",
-  "hungarian" : "hu",
-  "magyar" : "hu",
-  "hu" : "hu",
-  "hun" : "hu",
-  "interlingua" : "ia",
-  "ia" : "ia",
-  "ina" : "ia",
-  "indonesian" : "id",
-  "bahasa indonesia" : "id",
-  "id" : "id",
-  "ind" : "id",
-  "interlingue" : "ie",
-  "originally called occidental; then interlingue after wwii" : "ie",
-  "ie" : "ie",
-  "ile" : "ie",
-  "irish" : "ga",
-  "gaeilge" : "ga",
-  "ga" : "ga",
-  "gle" : "ga",
-  "igbo" : "ig",
-  "asụsụ igbo" : "ig",
-  "ig" : "ig",
-  "ibo" : "ig",
-  "inupiaq" : "ik",
-  "iñupiaq, iñupiatun" : "ik",
-  "ik" : "ik",
-  "ipk" : "ik",
-  "ipk + 2" : "ik",
-  "iñupiaq" : "ik",
-  "iñupiatun" : "ik",
-  "ido" : "io",
-  "io" : "io",
-  "icelandic" : "is",
-  "íslenska" : "is",
-  "is" : "is",
-  "isl" : "is",
-  "ice" : "is",
-  "italian" : "it",
-  "italiano" : "it",
-  "it" : "it",
-  "ita" : "it",
-  "inuktitut" : "iu",
-  "ᐃᓄᒃᑎᑐᑦ" : "iu",
-  "iu" : "iu",
-  "iku" : "iu",
-  "iku + 2" : "iu",
-  "japanese" : "ja",
-  "日本語 (にほんご)" : "ja",
-  "ja" : "ja",
-  "jpn" : "ja",
-  "javanese" : "jv",
-  "ꦧꦱꦗꦮ, basa jawa" : "jv",
-  "jv" : "jv",
-  "jav" : "jv",
-  "ꦧꦱꦗꦮ" : "jv",
-  "basa jawa" : "jv",
-  "kalaallisut, greenlandic" : "kl",
-  "kalaallisut, kalaallit oqaasii" : "kl",
-  "kl" : "kl",
-  "kal" : "kl",
-  "kalaallisut" : "kl",
-  "kalaallit oqaasii" : "kl",
-  "kannada" : "kn",
-  "ಕನ್ನಡ" : "kn",
-  "kn" : "kn",
-  "kan" : "kn",
-  "kanuri" : "kr",
-  "kr" : "kr",
-  "kau" : "kr",
-  "kau + 3" : "kr",
-  "kashmiri" : "ks",
-  "कश्मीरी, كشميري‎" : "ks",
-  "ks" : "ks",
-  "kas" : "ks",
-  "कश्मीरी" : "ks",
-  "كشميري‎" : "ks",
-  "kazakh" : "kk",
-  "қазақ тілі" : "kk",
-  "kk" : "kk",
-  "kaz" : "kk",
-  "central khmer" : "km",
-  "ខ្មែរ, ខេមរភាសា, ភាសាខ្មែរ" : "km",
-  "km" : "km",
-  "khm" : "km",
-  "ខ្មែរ" : "km",
-  "ខេមរភាសា" : "km",
-  "ភាសាខ្មែរ" : "km",
-  "kikuyu, gikuyu" : "ki",
-  "gĩkũyũ" : "ki",
-  "ki" : "ki",
-  "kik" : "ki",
-  "kinyarwanda" : "rw",
-  "ikinyarwanda" : "rw",
-  "rw" : "rw",
-  "kin" : "rw",
-  "kirghiz, kyrgyz" : "ky",
-  "кыргызча, кыргыз тили" : "ky",
-  "ky" : "ky",
-  "kir" : "ky",
-  "кыргызча" : "ky",
-  "кыргыз тили" : "ky",
-  "komi" : "kv",
-  "коми кыв" : "kv",
-  "kv" : "kv",
-  "kom" : "kv",
-  "kom + 2" : "kv",
-  "kongo" : "kg",
-  "kikongo" : "kg",
-  "kg" : "kg",
-  "kon" : "kg",
-  "kon + 3" : "kg",
-  "korean" : "ko",
-  "한국어" : "ko",
-  "ko" : "ko",
-  "kor" : "ko",
-  "kurdish" : "ku",
-  "kurdî, كوردی‎" : "ku",
-  "ku" : "ku",
-  "kur" : "ku",
-  "kur + 3" : "ku",
-  "kurdî" : "ku",
-  "كوردی‎" : "ku",
-  "kuanyama, kwanyama" : "kj",
-  "kuanyama" : "kj",
-  "kj" : "kj",
-  "kua" : "kj",
-  "latin" : "la",
-  "latine, lingua latina" : "la",
-  "la" : "la",
-  "lat" : "la",
-  "latine" : "la",
-  "lingua latina" : "la",
-  "luxembourgish, letzeburgesch" : "lb",
-  "lëtzebuergesch" : "lb",
-  "lb" : "lb",
-  "ltz" : "lb",
-  "ganda" : "lg",
-  "luganda" : "lg",
-  "lg" : "lg",
-  "lug" : "lg",
-  "limburgan, limburger, limburgish" : "li",
-  "limburgs" : "li",
-  "li" : "li",
-  "lim" : "li",
-  "lingala" : "ln",
-  "lingála" : "ln",
-  "ln" : "ln",
-  "lin" : "ln",
-  "lao" : "lo",
-  "ພາສາລາວ" : "lo",
-  "lo" : "lo",
-  "lithuanian" : "lt",
-  "lietuvių kalba" : "lt",
-  "lt" : "lt",
-  "lit" : "lt",
-  "luba-katanga" : "lu",
-  "kiluba" : "lu",
-  "lu" : "lu",
-  "lub" : "lu",
-  "latvian" : "lv",
-  "latviešu valoda" : "lv",
-  "lv" : "lv",
-  "lav" : "lv",
-  "lav + 2" : "lv",
-  "manx" : "gv",
-  "gaelg, gailck" : "gv",
-  "gv" : "gv",
-  "glv" : "gv",
-  "gaelg" : "gv",
-  "gailck" : "gv",
-  "macedonian" : "mk",
-  "македонски јазик" : "mk",
-  "mk" : "mk",
-  "mkd" : "mk",
-  "mac" : "mk",
-  "malagasy" : "mg",
-  "fiteny malagasy" : "mg",
-  "mg" : "mg",
-  "mlg" : "mg",
-  "mlg + 10" : "mg",
-  "malay" : "ms",
-  "bahasa melayu, بهاس ملايو‎" : "ms",
-  "ms" : "ms",
-  "msa" : "ms",
-  "may" : "ms",
-  "msa + 13" : "ms",
-  "bahasa melayu" : "ms",
-  "بهاس ملايو‎" : "ms",
-  "malayalam" : "ml",
-  "മലയാളം" : "ml",
-  "ml" : "ml",
-  "mal" : "ml",
-  "maltese" : "mt",
-  "malti" : "mt",
-  "mt" : "mt",
-  "mlt" : "mt",
-  "maori" : "mi",
-  "te reo māori" : "mi",
-  "mi" : "mi",
-  "mri" : "mi",
-  "mao" : "mi",
-  "marathi" : "mr",
-  "मराठी" : "mr",
-  "mr" : "mr",
-  "mar" : "mr",
-  "marshallese" : "mh",
-  "kajin m̧ajeļ" : "mh",
-  "mh" : "mh",
-  "mah" : "mh",
-  "mongolian" : "mn",
-  "монгол хэл" : "mn",
-  "mn" : "mn",
-  "mon" : "mn",
-  "mon + 2" : "mn",
-  "nauru" : "na",
-  "dorerin naoero" : "na",
-  "na" : "na",
-  "nau" : "na",
-  "navajo, navaho" : "nv",
-  "diné bizaad" : "nv",
-  "nv" : "nv",
-  "nav" : "nv",
-  "north ndebele" : "nd",
-  "isindebele" : "nr",
-  "nd" : "nd",
-  "nde" : "nd",
-  "nepali" : "ne",
-  "नेपाली" : "ne",
-  "ne" : "ne",
-  "nep" : "ne",
-  "ndonga" : "ng",
-  "owambo" : "ng",
-  "ng" : "ng",
-  "ndo" : "ng",
-  "norwegian bokmål" : "nb",
-  "norsk bokmål" : "nb",
-  "nb" : "nb",
-  "nob" : "nb",
-  "norwegian nynorsk" : "nn",
-  "norsk nynorsk" : "nn",
-  "nn" : "nn",
-  "nno" : "nn",
-  "norwegian" : "no",
-  "norsk" : "no",
-  "no" : "no",
-  "nor" : "no",
-  "nor + 2" : "no",
-  "sichuan yi, nuosu" : "ii",
-  "ꆈꌠ꒿ nuosuhxop" : "ii",
-  "ii" : "ii",
-  "iii" : "ii",
-  "south ndebele" : "nr",
-  "nr" : "nr",
-  "nbl" : "nr",
-  "occitan" : "oc",
-  "occitan, lenga d'òc" : "oc",
-  "oc" : "oc",
-  "oci" : "oc",
-  "lenga d'òc" : "oc",
-  "ojibwa" : "oj",
-  "ᐊᓂᔑᓈᐯᒧᐎᓐ" : "oj",
-  "oj" : "oj",
-  "oji" : "oj",
-  "oji + 7" : "oj",
-  "church slavic, church slavonic, old church slavonic, old slavonic, old bulgarian" : "cu",
-  "ѩзыкъ словѣньскъ" : "cu",
-  "cu" : "cu",
-  "chu" : "cu",
-  "oromo" : "om",
-  "afaan oromoo" : "om",
-  "om" : "om",
-  "orm" : "om",
-  "orm + 4" : "om",
-  "oriya" : "or",
-  "ଓଡ଼ିଆ" : "or",
-  "or" : "or",
-  "ori" : "or",
-  "ossetian, ossetic" : "os",
-  "ирон æвзаг" : "os",
-  "os" : "os",
-  "oss" : "os",
-  "panjabi, punjabi" : "pa",
-  "ਪੰਜਾਬੀ" : "pa",
-  "pa" : "pa",
-  "pan" : "pa",
-  "pali" : "pi",
-  "पाऴि" : "pi",
-  "pi" : "pi",
-  "pli" : "pi",
-  "persian" : "fa",
-  "فارسی" : "fa",
-  "fa" : "fa",
-  "fas" : "fa",
-  "per" : "fa",
-  "fas + 2" : "fa",
-  "polish" : "pl",
-  "język polski, polszczyzna" : "pl",
-  "pl" : "pl",
-  "pol" : "pl",
-  "język polski" : "pl",
-  "polszczyzna" : "pl",
-  "pashto, pushto" : "ps",
-  "پښتو" : "ps",
-  "ps" : "ps",
-  "pus" : "ps",
-  "pus + 3" : "ps",
-  "portuguese" : "pt",
-  "português" : "pt",
-  "pt" : "pt",
-  "por" : "pt",
-  "quechua" : "qu",
-  "runa simi, kichwa" : "qu",
-  "qu" : "qu",
-  "que" : "qu",
-  "que + 44" : "qu",
-  "runa simi" : "qu",
-  "kichwa" : "qu",
-  "romansh" : "rm",
-  "rumantsch grischun" : "rm",
-  "rm" : "rm",
-  "roh" : "rm",
-  "rundi" : "rn",
-  "ikirundi" : "rn",
-  "rn" : "rn",
-  "run" : "rn",
-  "romanian, moldavian, moldovan" : "ro",
-  "română" : "ro",
-  "ro" : "ro",
-  "ron" : "ro",
-  "rum" : "ro",
-  "russian" : "ru",
-  "русский" : "ru",
-  "ru" : "ru",
-  "rus" : "ru",
-  "sanskrit" : "sa",
-  "संस्कृतम्" : "sa",
-  "sa" : "sa",
-  "san" : "sa",
-  "sardinian" : "sc",
-  "sardu" : "sc",
-  "sc" : "sc",
-  "srd" : "sc",
-  "srd + 4" : "sc",
-  "sindhi" : "sd",
-  "सिन्धी, سنڌي، سندھی‎" : "sd",
-  "sd" : "sd",
-  "snd" : "sd",
-  "सिन्धी" : "sd",
-  "سنڌي، سندھی‎" : "sd",
-  "northern sami" : "se",
-  "davvisámegiella" : "se",
-  "se" : "se",
-  "sme" : "se",
-  "samoan" : "sm",
-  "gagana fa'a samoa" : "sm",
-  "sm" : "sm",
-  "smo" : "sm",
-  "sango" : "sg",
-  "yângâ tî sängö" : "sg",
-  "sg" : "sg",
-  "sag" : "sg",
-  "serbian" : "sr",
-  "српски језик" : "sr",
-  "sr" : "sr",
-  "srp" : "sr",
-  "gaelic, scottish gaelic" : "gd",
-  "gàidhlig" : "gd",
-  "gd" : "gd",
-  "gla" : "gd",
-  "shona" : "sn",
-  "chishona" : "sn",
-  "sn" : "sn",
-  "sna" : "sn",
-  "sinhala, sinhalese" : "si",
-  "සිංහල" : "si",
-  "si" : "si",
-  "sin" : "si",
-  "slovak" : "sk",
-  "slovenčina, slovenský jazyk" : "sk",
-  "sk" : "sk",
-  "slk" : "sk",
-  "slo" : "sk",
-  "slovenčina" : "sk",
-  "slovenský jazyk" : "sk",
-  "slovenian" : "sl",
-  "slovenski jezik, slovenščina" : "sl",
-  "sl" : "sl",
-  "slv" : "sl",
-  "slovenski jezik" : "sl",
-  "slovenščina" : "sl",
-  "somali" : "so",
-  "soomaaliga, af soomaali" : "so",
-  "so" : "so",
-  "som" : "so",
-  "soomaaliga" : "so",
-  "af soomaali" : "so",
-  "southern sotho" : "st",
-  "sesotho" : "st",
-  "st" : "st",
-  "sot" : "st",
-  "spanish, castilian" : "es",
-  "español" : "es",
-  "es" : "es",
-  "spa" : "es",
-  "sundanese" : "su",
-  "basa sunda" : "su",
-  "su" : "su",
-  "sun" : "su",
-  "swahili" : "sw",
-  "kiswahili" : "sw",
-  "sw" : "sw",
-  "swa" : "sw",
-  "swa + 2" : "sw",
-  "swati" : "ss",
-  "siswati" : "ss",
-  "ss" : "ss",
-  "ssw" : "ss",
-  "swedish" : "sv",
-  "svenska" : "sv",
-  "sv" : "sv",
-  "swe" : "sv",
-  "tamil" : "ta",
-  "தமிழ்" : "ta",
-  "ta" : "ta",
-  "tam" : "ta",
-  "telugu" : "te",
-  "తెలుగు" : "te",
-  "te" : "te",
-  "tel" : "te",
-  "tajik" : "tg",
-  "тоҷикӣ, toçikī, تاجیکی‎" : "tg",
-  "tg" : "tg",
-  "tgk" : "tg",
-  "тоҷикӣ" : "tg",
-  "toçikī" : "tg",
-  "تاجیکی‎" : "tg",
-  "thai" : "th",
-  "ไทย" : "th",
-  "th" : "th",
-  "tha" : "th",
-  "tigrinya" : "ti",
-  "ትግርኛ" : "ti",
-  "ti" : "ti",
-  "tir" : "ti",
-  "tibetan" : "bo",
-  "བོད་ཡིག" : "bo",
-  "bo" : "bo",
-  "bod" : "bo",
-  "tib" : "bo",
-  "turkmen" : "tk",
-  "türkmen, түркмен" : "tk",
-  "tk" : "tk",
-  "tuk" : "tk",
-  "türkmen" : "tk",
-  "түркмен" : "tk",
-  "tagalog" : "tl",
-  "wikang tagalog" : "tl",
-  "tl" : "tl",
-  "tgl" : "tl",
-  "tswana" : "tn",
-  "setswana" : "tn",
-  "tn" : "tn",
-  "tsn" : "tn",
-  "tonga (tonga islands)" : "to",
-  "faka tonga" : "to",
-  "to" : "to",
-  "ton" : "to",
-  "turkish" : "tr",
-  "türkçe" : "tr",
-  "tr" : "tr",
-  "tur" : "tr",
-  "tsonga" : "ts",
-  "xitsonga" : "ts",
-  "ts" : "ts",
-  "tso" : "ts",
-  "tatar" : "tt",
-  "татар теле, tatar tele" : "tt",
-  "tt" : "tt",
-  "tat" : "tt",
-  "татар теле" : "tt",
-  "tatar tele" : "tt",
-  "twi" : "tw",
-  "tw" : "tw",
-  "tahitian" : "ty",
-  "reo tahiti" : "ty",
-  "ty" : "ty",
-  "tah" : "ty",
-  "uighur, uyghur" : "ug",
-  "ئۇيغۇرچە‎, uyghurche" : "ug",
-  "ug" : "ug",
-  "uig" : "ug",
-  "ئۇيغۇرچە‎" : "ug",
-  "uyghurche" : "ug",
-  "ukrainian" : "uk",
-  "українська" : "uk",
-  "uk" : "uk",
-  "ukr" : "uk",
-  "urdu" : "ur",
-  "اردو" : "ur",
-  "ur" : "ur",
-  "urd" : "ur",
-  "uzbek" : "uz",
-  "oʻzbek, ўзбек, أۇزبېك‎" : "uz",
-  "uz" : "uz",
-  "uzb" : "uz",
-  "uzb + 2" : "uz",
-  "oʻzbek" : "uz",
-  "ўзбек" : "uz",
-  "أۇزبېك‎" : "uz",
-  "venda" : "ve",
-  "tshivenḓa" : "ve",
-  "ve" : "ve",
-  "ven" : "ve",
-  "vietnamese" : "vi",
-  "tiếng việt" : "vi",
-  "vi" : "vi",
-  "vie" : "vi",
-  "volapük" : "vo",
-  "vo" : "vo",
-  "vol" : "vo",
-  "walloon" : "wa",
-  "walon" : "wa",
-  "wa" : "wa",
-  "wln" : "wa",
-  "welsh" : "cy",
-  "cymraeg" : "cy",
-  "cy" : "cy",
-  "cym" : "cy",
-  "wel" : "cy",
-  "wolof" : "wo",
-  "wollof" : "wo",
-  "wo" : "wo",
-  "wol" : "wo",
-  "western frisian" : "fy",
-  "frysk" : "fy",
-  "fy" : "fy",
-  "fry" : "fy",
-  "xhosa" : "xh",
-  "isixhosa" : "xh",
-  "xh" : "xh",
-  "xho" : "xh",
-  "yiddish" : "yi",
-  "ייִדיש" : "yi",
-  "yi" : "yi",
-  "yid" : "yi",
-  "yid + 2" : "yi",
-  "yoruba" : "yo",
-  "yorùbá" : "yo",
-  "yo" : "yo",
-  "yor" : "yo",
-  "zhuang, chuang" : "za",
-  "saɯ cueŋƅ, saw cuengh" : "za",
-  "za" : "za",
-  "zha" : "za",
-  "zha + 16" : "za",
-  "saɯ cueŋƅ" : "za",
-  "saw cuengh" : "za",
-  "zulu" : "zu",
-  "isizulu" : "zu",
-  "zu" : "zu",
-  "zul" : "zu"
-};
-
-
-
-
-
-function reduce(from) {
-  return reductions[from.toLowerCase()];
-}
-
 class circular_buffer{constructor(uCapacity){if(!Number.isInteger(uCapacity)){throw new RangeError(`Capacity must be an integer, received ${uCapacity}`)}if(uCapacity<0){throw new RangeError(`Capacity must be a non-negative integer, received ${uCapacity}`)}this._values=new Array(uCapacity);this._capacity=uCapacity;this._cursor=0;this._offset=0;this._length=0;}get capacity(){return this._capacity}set capacity(newSize){this.resize(newSize);}get length(){return this._length}set length(newLength){if(newLength>this._capacity){throw new RangeError(`Requested new length [${newLength}] exceeds container capacity [${this._capacity}]`)}if(newLength<0){throw new RangeError(`Requested new length [${newLength}] cannot be negative`)}if(!Number.isInteger(newLength)){throw new RangeError(`Requested new length [${newLength}] must be an integer`)}if(this._length<=newLength){return}this._length=newLength;}get available(){return this._capacity-this._length}get isEmpty(){return this._length===0}get isFull(){return this._length===this._capacity}get first(){if(this.isEmpty){throw new RangeError("Cannot return first element of an empty container")}return this.at(0)}get last(){if(this.isEmpty){throw new RangeError("Cannot return last element of an empty container")}return this.at(this.length-1)}static from(i,map_fn,t){const new_array=map_fn?Array.from(i,map_fn,t):Array.from(i);const target_length=new_array.length;const ncb=new circular_buffer(target_length);ncb._values=new_array;ncb._length=target_length;return ncb}push(v){if(this.isFull){throw new RangeError(`Cannot push, structure is full to capacity`)}this._values[(this._cursor+this._length++)%this._capacity]=v;return v}shove(v){let shoved;if(this._capacity===0){throw new RangeError(`Cannot shove, structure is zero-capacity`)}if(this.isFull){shoved=this.pop();}this.push(v);return shoved}fill(x){for(let i=0;i<this._capacity;i++){this._values[i]=x;}this._length=this._capacity;return this._values}indexOf(searchElement,fromIndex){const normalized=this.toArray();return normalized.indexOf(searchElement,fromIndex)}find(predicate,thisArg){return this.toArray().find(predicate,thisArg)}every(functor,thisArg){const normalized=this.toArray(),res=normalized.every(functor,thisArg);this._values=normalized;this._values.length=this._capacity;this._cursor=0;return res}some(functor,thisArg){const normalized=this.toArray(),res=normalized.some(functor,thisArg);this._values=normalized;this._values.length=this._capacity;this._cursor=0;return res}reverse(){const normalized=this.toArray();this._values=normalized.reverse();this._values.length=this._capacity;this._cursor=0;return this}clear(){const old=this.toArray();this._length=0;return old}pop(){if(this._length<=0){throw new RangeError(`Cannot pop, structure is empty`)}const cache=this.at(0);--this._length;++this._offset;++this._cursor;if(this._cursor>=this._capacity){this._cursor-=this._capacity;}return cache}at(i){if(i<0){throw new RangeError(`circular_buffer does not support negative traversals; called at(${i})`)}if(!Number.isInteger(i)){throw new RangeError(`Accessors must be non-negative integers; called at(${i})`)}if(i>=this._capacity){throw new RangeError(`Requested cell ${i} exceeds container permanent capacity`)}if(i>=this._length){throw new RangeError(`Requested cell ${i} exceeds container current length`)}return this._values[(this._cursor+i)%this._capacity]}pos(i){return this.at(i-this.offset())}offset(){return this._offset}resize(newSize,preferEnd=false){this._values=this.toArray();this._cursor=0;const oldSize=this._length;this._length=Math.min(this._length,newSize);this._capacity=newSize;if(newSize>=oldSize){this._values.length=newSize;}else {if(preferEnd){const tmp=this._values.slice(oldSize-newSize);this._values=tmp;}else {this._values.length=newSize;}}}toArray(){const startPoint=this._cursor%this._capacity;if(this._capacity>startPoint+this._length){return this._values.slice(startPoint,startPoint+this._length)}else {const base=this._values.slice(startPoint,this._capacity);base.push(...this._values.slice(0,this.length-(this._capacity-startPoint)));return base}}}
 
 const FslDirections = ['up', 'right', 'down', 'left'];
@@ -1077,626 +217,6 @@ function arrow_right_kind(arrow) {
             throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
     }
 }
-
-const base_state_style$5 = {
-    shape: 'rectangle',
-    backgroundColor: 'white',
-    textColor: 'black',
-    borderColor: 'black'
-};
-const base_active_state_style$5 = {
-    textColor: 'white',
-    backgroundColor: 'dodgerblue4'
-};
-const base_hooked_state_style$5 = {
-    shape: 'component'
-};
-const base_terminal_state_style$5 = {
-    textColor: 'white',
-    backgroundColor: 'crimson'
-};
-const base_active_terminal_state_style$5 = {
-    textColor: 'white',
-    backgroundColor: 'indigo'
-};
-const base_start_state_style$5 = {
-    backgroundColor: 'yellow'
-};
-const base_active_start_state_style$5 = {
-    backgroundColor: 'yellowgreen'
-};
-const base_active_hooked_state_style$5 = {
-    backgroundColor: 'yellowgreen'
-};
-const base_end_state_style$5 = {
-    textColor: 'white',
-    backgroundColor: 'darkolivegreen'
-};
-const base_active_end_state_style$5 = {
-    textColor: 'white',
-    backgroundColor: 'darkgreen'
-};
-const base_theme = {
-    name: 'base',
-    state: base_state_style$5,
-    start: base_start_state_style$5,
-    end: base_end_state_style$5,
-    terminal: base_terminal_state_style$5,
-    hooked: base_hooked_state_style$5,
-    active: base_active_state_style$5,
-    active_start: base_active_start_state_style$5,
-    active_end: base_active_end_state_style$5,
-    active_terminal: base_active_terminal_state_style$5,
-    active_hooked: base_active_hooked_state_style$5,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
-    title: undefined // TODO FIXME
-};
-
-const base_state_style$4 = {
-    shape: 'rectangle',
-    backgroundColor: 'white',
-    textColor: 'black',
-    borderColor: 'black'
-};
-const base_active_state_style$4 = {
-    textColor: 'white',
-    backgroundColor: 'dodgerblue4'
-};
-const base_hooked_state_style$4 = {
-    shape: 'component'
-};
-const base_terminal_state_style$4 = {
-    textColor: 'white',
-    backgroundColor: 'crimson'
-};
-const base_active_terminal_state_style$4 = {
-    textColor: 'white',
-    backgroundColor: 'indigo'
-};
-const base_start_state_style$4 = {
-    backgroundColor: 'yellow'
-};
-const base_active_start_state_style$4 = {
-    backgroundColor: 'yellowgreen'
-};
-const base_active_hooked_state_style$4 = {
-    backgroundColor: 'yellowgreen'
-};
-const base_end_state_style$4 = {
-    textColor: 'white',
-    backgroundColor: 'darkolivegreen'
-};
-const base_active_end_state_style$4 = {
-    textColor: 'white',
-    backgroundColor: 'darkgreen'
-};
-const default_theme = {
-    name: 'default',
-    state: base_state_style$4,
-    start: base_start_state_style$4,
-    end: base_end_state_style$4,
-    terminal: base_terminal_state_style$4,
-    hooked: base_hooked_state_style$4,
-    active: base_active_state_style$4,
-    active_start: base_active_start_state_style$4,
-    active_end: base_active_end_state_style$4,
-    active_terminal: base_active_terminal_state_style$4,
-    active_hooked: base_active_hooked_state_style$4,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
-    title: undefined // TODO FIXME
-};
-
-const base_state_style$3 = {
-    shape: 'rectangle',
-    backgroundColor: 'khaki',
-    textColor: 'black',
-    borderColor: 'black'
-};
-const base_active_state_style$3 = {
-    textColor: 'white',
-    backgroundColor: 'dodgerblue4'
-};
-const base_hooked_state_style$3 = {
-    shape: 'component'
-};
-const base_terminal_state_style$3 = {
-    textColor: 'white',
-    backgroundColor: 'crimson'
-};
-const base_active_terminal_state_style$3 = {
-    textColor: 'white',
-    backgroundColor: 'indigo'
-};
-const base_start_state_style$3 = {
-    backgroundColor: 'yellow'
-};
-const base_active_start_state_style$3 = {
-    backgroundColor: 'yellowgreen'
-};
-const base_active_hooked_state_style$3 = {
-    backgroundColor: 'yellowgreen'
-};
-const base_end_state_style$3 = {
-    textColor: 'white',
-    backgroundColor: 'darkolivegreen'
-};
-const base_active_end_state_style$3 = {
-    textColor: 'white',
-    backgroundColor: 'darkgreen'
-};
-const modern_theme = {
-    name: 'modern',
-    state: base_state_style$3,
-    start: base_start_state_style$3,
-    end: base_end_state_style$3,
-    terminal: base_terminal_state_style$3,
-    hooked: base_hooked_state_style$3,
-    active: base_active_state_style$3,
-    active_start: base_active_start_state_style$3,
-    active_end: base_active_end_state_style$3,
-    active_terminal: base_active_terminal_state_style$3,
-    active_hooked: base_active_hooked_state_style$3,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
-    title: undefined // TODO FIXME
-};
-
-const base_state_style$2 = {
-    backgroundColor: 'cadetblue1',
-};
-const base_active_state_style$2 = {
-    textColor: 'white',
-    backgroundColor: 'deepskyblue'
-};
-const base_hooked_state_style$2 = {
-    shape: 'component',
-    backgroundColor: 'mediumaquamarine'
-};
-const base_terminal_state_style$2 = {
-    textColor: 'white',
-    backgroundColor: 'darkviolet'
-};
-const base_active_terminal_state_style$2 = {
-    textColor: 'white',
-    backgroundColor: 'deeppink'
-};
-const base_start_state_style$2 = {
-    backgroundColor: 'darkseagreen1'
-};
-const base_active_start_state_style$2 = {
-    backgroundColor: 'aquamarine'
-};
-const base_active_hooked_state_style$2 = {
-    backgroundColor: 'aquamarine'
-};
-const base_end_state_style$2 = {
-    textColor: 'white',
-    backgroundColor: 'chartreuse1'
-};
-const base_active_end_state_style$2 = {
-    textColor: 'white',
-    backgroundColor: 'darkgreen'
-};
-const ocean_theme = {
-    name: 'ocean',
-    state: base_state_style$2,
-    start: base_start_state_style$2,
-    end: base_end_state_style$2,
-    terminal: base_terminal_state_style$2,
-    hooked: base_hooked_state_style$2,
-    active: base_active_state_style$2,
-    active_start: base_active_start_state_style$2,
-    active_end: base_active_end_state_style$2,
-    active_terminal: base_active_terminal_state_style$2,
-    active_hooked: base_active_hooked_state_style$2,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
-    title: undefined // TODO FIXME
-};
-
-const base_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_active_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_hooked_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_terminal_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_active_terminal_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_start_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_active_start_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_active_hooked_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_end_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const base_active_end_state_style$1 = {
-    textColor: 'black',
-    backgroundColor: 'transparent',
-    shape: 'plaintext'
-};
-const plain_theme = {
-    name: 'plain',
-    state: base_state_style$1,
-    start: base_start_state_style$1,
-    end: base_end_state_style$1,
-    terminal: base_terminal_state_style$1,
-    hooked: base_hooked_state_style$1,
-    active: base_active_state_style$1,
-    active_start: base_active_start_state_style$1,
-    active_end: base_active_end_state_style$1,
-    active_terminal: base_active_terminal_state_style$1,
-    active_hooked: base_active_hooked_state_style$1,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
-    title: undefined // TODO FIXME
-};
-
-const base_state_style = {
-    shape: 'rectangle',
-    backgroundColor: 'khaki',
-    textColor: 'black',
-    borderColor: 'black'
-};
-const base_active_state_style = {
-    textColor: 'white',
-    backgroundColor: 'dodgerblue4'
-};
-const base_hooked_state_style = {
-    shape: 'component'
-};
-const base_terminal_state_style = {
-    textColor: 'white',
-    backgroundColor: 'crimson'
-};
-const base_active_terminal_state_style = {
-    textColor: 'white',
-    backgroundColor: 'indigo'
-};
-const base_start_state_style = {
-    backgroundColor: 'yellow'
-};
-const base_active_start_state_style = {
-    backgroundColor: 'yellowgreen'
-};
-const base_active_hooked_state_style = {
-    backgroundColor: 'yellowgreen'
-};
-const base_end_state_style = {
-    textColor: 'white',
-    backgroundColor: 'darkolivegreen'
-};
-const base_active_end_state_style = {
-    textColor: 'white',
-    backgroundColor: 'darkgreen'
-};
-const bold_theme = {
-    name: 'bold',
-    state: base_state_style,
-    start: base_start_state_style,
-    end: base_end_state_style,
-    terminal: base_terminal_state_style,
-    hooked: base_hooked_state_style,
-    active: base_active_state_style,
-    active_start: base_active_start_state_style,
-    active_end: base_active_end_state_style,
-    active_terminal: base_active_terminal_state_style,
-    active_hooked: base_active_hooked_state_style,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
-    title: undefined // TODO FIXME
-};
-
-const array_box_if_string = n => typeof n === 'string' ? [n] : n;
-// this is explicitly about other peoples' data, so it has to be weakly typed
-/* eslint-disable flowtype/no-weak-types */
-const weighted_rand_select = (options, probability_property = 'probability') => {
-    if (!Array.isArray(options)) {
-        throw new TypeError('options must be a non-empty array of objects');
-    }
-    if (!(typeof options[0] === 'object')) {
-        throw new TypeError('options must be a non-empty array of objects');
-    }
-    const frand = (cap) => Math.random() * cap, or_one = (item) => item === undefined ? 1 : item, prob_sum = options.reduce((acc, val) => acc + or_one(val[probability_property]), 0), rnd = frand(prob_sum);
-    let cursor = 0, cursor_sum = 0;
-    while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
-    return options[cursor - 1];
-};
-/* eslint-enable flowtype/no-weak-types */
-/*******
- *
- *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
- *
- *  ```typescript
- *  import { seq } from './jssm';
- *
- *  seq(5);  // [0, 1, 2, 3, 4]
- *  seq(0);  // []
- *  ```
- *
- */
-function seq(n) {
-    if (!(Number.isInteger(n))) {
-        throw new TypeError('seq/1 takes a non-negative integer n as an argument');
-    }
-    if (n < 0) {
-        throw new TypeError('seq/1 takes a non-negative integer n as an argument');
-    }
-    return (new Array(n))
-        .fill(true)
-        .map((_, i) => i);
-}
-/*******
- *
- *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
- *  with deep equality; will fail for complex contents, as such.
- *
- *  ```typescript
- *  import { histograph } from './jssm';
- *
- *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
- *  ```
- *
- */
-const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
- ar.sort()
-    .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
- (m.set(v, (m.has(v) ? m.get(v) + 1 : 1)), m), new Map());
-const weighted_sample_select = (n, options, probability_property) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
- seq(n)
-    .map((_i) => // TODO FIXME eslint-disable-line flowtype/no-weak-types
- weighted_rand_select(options, probability_property));
-const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
- histograph(weighted_sample_select(n, opts, prob_prop)
-    .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
-));
-/*******
- *
- *  Internal method generating names for edges for the hook lookup map.  Not
- *  meant for external use.
- *
- */
-function name_bind_prop_and_state(prop, state) {
-    if (typeof prop !== 'string') {
-        throw new JssmError(undefined, `Name of property must be a string; got ${prop}`);
-    }
-    if (typeof state !== 'string') {
-        throw new JssmError(undefined, `Name of state must be a string; got ${prop}`);
-    }
-    return JSON.stringify([prop, state]);
-}
-/*******
- *
- *  Internal method generating names for edges for the hook lookup map.  Not
- *  meant for external use.
- *
- */
-const hook_name = (from, to) => JSON.stringify([from, to]);
-/*******
- *
- *  Internal method generating names for actions for the hook lookup map.  Not
- *  meant for external use.
- *
- */
-const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
-/*******
- *
- *  Reduces an array to its unique contents.  Compares with `===` and makes no
- *  effort to deep-compare contents; two matching arrays or objects contained
- *  will be treated as distinct, according to javascript rules.  This also means
- *  that `NaNs` will be ***dropped***, because they do not self-compare.
- *
- *  ```typescript
- *  unique( [] );                     // []
- *  unique( [0,0] );                  // [0]
- *  unique( [0,1,2, 0,1,2, 0,1,2] );  // [0,1,2]
- *  unique( [ [1], [1] ] );           // [ [1], [1] ] because arrays don't match
- *  unique( [0,NaN,2] );              // [0,2]
- *  ```
- *
- */
-const unique = (arr) => arr.filter((v, i, a) => a.indexOf(v) === i);
-/*******
- *
- *  Lists all repeated items in an array along with their counts.  Subject to
- *  matching rules of Map.  `NaN` is manually removed because of conflict rules
- *  around {@link unique}.  Because these are compared with `===` and because
- *  arrays and objects never match that way unless they're the same object,
- *  arrays and objects are never considered repeats.
- *
- *  ```typescript
- *  find_repeated<string>([ ]);                     // []
- *  find_repeated<string>([ "one" ]);               // []
- *  find_repeated<string>([ "one", "two" ]);        // []
- *  find_repeated<string>([ "one", "one" ]);        // [ ["one", 2] ]
- *  find_repeated<string>([ "one", "two", "one" ]); // [ ["one", 2] ]
- *  find_repeated<number>([ 0, NaN, 0, NaN ]);      // [ [0,     2] ]
- *  ```
- *
- */
-function find_repeated(arr) {
-    const uniqued = unique(arr);
-    if (uniqued.length !== arr.length) {
-        const residue_keys = new Map();
-        arr.forEach(k => residue_keys.set(k, residue_keys.has(k)
-            ? (residue_keys.get(k) + 1)
-            : 1));
-        uniqued.forEach(k => residue_keys.set(k, residue_keys.get(k) - 1));
-        return [...residue_keys.entries()]
-            .filter((e) => ((e[1] > 0) && (!(Number.isNaN(e[0])))))
-            .map((e) => [e[0], e[1] + 1]);
-    }
-    else {
-        return [];
-    }
-}
-
-const NegInfinity = Number.NEGATIVE_INFINITY, PosInfinity = Number.POSITIVE_INFINITY, Epsilon = Number.EPSILON, Pi = Math.PI, E = Math.E, Root2 = Math.SQRT2, RootHalf = Math.SQRT1_2, Ln2 = Math.LN2, Ln10 = Math.LN10, Log2E = Math.LOG2E, Log10E = Math.LOG10E, MaxSafeInt = Number.MAX_SAFE_INTEGER, MinSafeInt = Number.MIN_SAFE_INTEGER, MaxPosNum = Number.MAX_VALUE, MinPosNum = Number.MIN_VALUE, Phi = 1.61803398874989484820, EulerC = 0.57721566490153286060;
-const gviz_shapes$1 = [
-    "box3d",
-    "polygon",
-    "ellipse",
-    "oval",
-    "circle",
-    "point",
-    "egg",
-    "triangle",
-    "plaintext",
-    "plain",
-    "diamond",
-    "trapezium",
-    "parallelogram",
-    "house",
-    "pentagon",
-    "hexagon",
-    "septagon",
-    "octagon",
-    "doublecircle",
-    "doubleoctagon",
-    "tripleoctagon",
-    "invtriangle",
-    "invtrapezium",
-    "invhouse",
-    "Mdiamond",
-    "Msquare",
-    "Mcircle",
-    "rectangle",
-    "rect",
-    "square",
-    "star",
-    "none",
-    "underline",
-    "cylinder",
-    "note",
-    "tab",
-    "folder",
-    "box",
-    "component",
-    "promoter",
-    "cds",
-    "terminator",
-    "utr",
-    "primersite",
-    "restrictionsite",
-    "fivepoverhang",
-    "threepoverhang",
-    "noverhang",
-    "assembly",
-    "signature",
-    "insulator",
-    "ribosite",
-    "rnastab",
-    "proteasesite",
-    "proteinstab",
-    "rpromoter",
-    "rarrow",
-    "larrow",
-    "lpromoter",
-    "record"
-];
-const shapes$1 = gviz_shapes$1;
-const named_colors$1 = [
-    "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige",
-    "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown",
-    "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral",
-    "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan",
-    "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki",
-    "DarkMagenta", "DarkOliveGreen", "Darkorange", "DarkOrchid", "DarkRed",
-    "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray",
-    "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue",
-    "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen",
-    "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey",
-    "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory",
-    "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon",
-    "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray",
-    "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen",
-    "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue",
-    "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon",
-    "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple",
-    "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise",
-    "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin",
-    "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed",
-    "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed",
-    "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple",
-    "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown",
-    "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue",
-    "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal",
-    "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
-    "Yellow", "YellowGreen"
-];
-
-var constants = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  NegInfinity: NegInfinity,
-  PosInfinity: PosInfinity,
-  Epsilon: Epsilon,
-  Pi: Pi,
-  E: E,
-  Root2: Root2,
-  RootHalf: RootHalf,
-  Ln2: Ln2,
-  Ln10: Ln10,
-  Log2E: Log2E,
-  Log10E: Log10E,
-  MaxSafeInt: MaxSafeInt,
-  MinSafeInt: MinSafeInt,
-  MaxPosNum: MaxPosNum,
-  MinPosNum: MinPosNum,
-  Phi: Phi,
-  EulerC: EulerC,
-  gviz_shapes: gviz_shapes$1,
-  shapes: shapes$1,
-  named_colors: named_colors$1
-});
 
 /*
  * Generated by PEG.js 0.10.0.
@@ -19486,16 +18006,1010 @@ function peg$parse(input, options) {
     }
 }
 
-const version = "5.85.8", build_time = 1663038933181;
+const array_box_if_string = n => typeof n === 'string' ? [n] : n;
+// this is explicitly about other peoples' data, so it has to be weakly typed
+/* eslint-disable flowtype/no-weak-types */
+const weighted_rand_select = (options, probability_property = 'probability') => {
+    if (!Array.isArray(options)) {
+        throw new TypeError('options must be a non-empty array of objects');
+    }
+    if (!(typeof options[0] === 'object')) {
+        throw new TypeError('options must be a non-empty array of objects');
+    }
+    const frand = (cap) => Math.random() * cap, or_one = (item) => item === undefined ? 1 : item, prob_sum = options.reduce((acc, val) => acc + or_one(val[probability_property]), 0), rnd = frand(prob_sum);
+    let cursor = 0, cursor_sum = 0;
+    while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
+    return options[cursor - 1];
+};
+/* eslint-enable flowtype/no-weak-types */
+/*******
+ *
+ *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
+ *
+ *  ```typescript
+ *  import { seq } from './jssm';
+ *
+ *  seq(5);  // [0, 1, 2, 3, 4]
+ *  seq(0);  // []
+ *  ```
+ *
+ */
+function seq(n) {
+    if (!(Number.isInteger(n))) {
+        throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+    }
+    if (n < 0) {
+        throw new TypeError('seq/1 takes a non-negative integer n as an argument');
+    }
+    return (new Array(n))
+        .fill(true)
+        .map((_, i) => i);
+}
+/*******
+ *
+ *  Returns the histograph of an array as a `Map`.  Makes no attempt to cope
+ *  with deep equality; will fail for complex contents, as such.
+ *
+ *  ```typescript
+ *  import { histograph } from './jssm';
+ *
+ *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
+ *  ```
+ *
+ */
+const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
+ ar.sort()
+    .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
+ (m.set(v, (m.has(v) ? m.get(v) + 1 : 1)), m), new Map());
+const weighted_sample_select = (n, options, probability_property) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+ seq(n)
+    .map((_i) => // TODO FIXME eslint-disable-line flowtype/no-weak-types
+ weighted_rand_select(options, probability_property));
+const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+ histograph(weighted_sample_select(n, opts, prob_prop)
+    .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
+));
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
+function name_bind_prop_and_state(prop, state) {
+    if (typeof prop !== 'string') {
+        throw new JssmError(undefined, `Name of property must be a string; got ${prop}`);
+    }
+    if (typeof state !== 'string') {
+        throw new JssmError(undefined, `Name of state must be a string; got ${prop}`);
+    }
+    return JSON.stringify([prop, state]);
+}
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
+const hook_name = (from, to) => JSON.stringify([from, to]);
+/*******
+ *
+ *  Internal method generating names for actions for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
+const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
+/*******
+ *
+ *  Reduces an array to its unique contents.  Compares with `===` and makes no
+ *  effort to deep-compare contents; two matching arrays or objects contained
+ *  will be treated as distinct, according to javascript rules.  This also means
+ *  that `NaNs` will be ***dropped***, because they do not self-compare.
+ *
+ *  ```typescript
+ *  unique( [] );                     // []
+ *  unique( [0,0] );                  // [0]
+ *  unique( [0,1,2, 0,1,2, 0,1,2] );  // [0,1,2]
+ *  unique( [ [1], [1] ] );           // [ [1], [1] ] because arrays don't match
+ *  unique( [0,NaN,2] );              // [0,2]
+ *  ```
+ *
+ */
+const unique = (arr) => arr.filter((v, i, a) => a.indexOf(v) === i);
+/*******
+ *
+ *  Lists all repeated items in an array along with their counts.  Subject to
+ *  matching rules of Map.  `NaN` is manually removed because of conflict rules
+ *  around {@link unique}.  Because these are compared with `===` and because
+ *  arrays and objects never match that way unless they're the same object,
+ *  arrays and objects are never considered repeats.
+ *
+ *  ```typescript
+ *  find_repeated<string>([ ]);                     // []
+ *  find_repeated<string>([ "one" ]);               // []
+ *  find_repeated<string>([ "one", "two" ]);        // []
+ *  find_repeated<string>([ "one", "one" ]);        // [ ["one", 2] ]
+ *  find_repeated<string>([ "one", "two", "one" ]); // [ ["one", 2] ]
+ *  find_repeated<number>([ 0, NaN, 0, NaN ]);      // [ [0,     2] ]
+ *  ```
+ *
+ */
+function find_repeated(arr) {
+    const uniqued = unique(arr);
+    if (uniqued.length !== arr.length) {
+        const residue_keys = new Map();
+        arr.forEach(k => residue_keys.set(k, residue_keys.has(k)
+            ? (residue_keys.get(k) + 1)
+            : 1));
+        uniqued.forEach(k => residue_keys.set(k, residue_keys.get(k) - 1));
+        return [...residue_keys.entries()]
+            .filter((e) => ((e[1] > 0) && (!(Number.isNaN(e[0])))))
+            .map((e) => [e[0], e[1] + 1]);
+    }
+    else {
+        return [];
+    }
+}
 
-// whargarbl lots of these return arrays could/should be sets
-const theme_mapping = new Map();
-theme_mapping.set('default', default_theme);
-theme_mapping.set('modern', modern_theme);
-theme_mapping.set('ocean', ocean_theme);
-theme_mapping.set('plain', plain_theme);
-theme_mapping.set('bold', bold_theme);
-const { shapes, gviz_shapes, named_colors } = constants;
+var reductions = {
+  "abkhazian" : "ab",
+  "аҧсуа бызшәа, аҧсшәа" : "ab",
+  "ab" : "ab",
+  "abk" : "ab",
+  "аҧсуа бызшәа" : "ab",
+  "аҧсшәа" : "ab",
+  "afar" : "aa",
+  "afaraf" : "aa",
+  "aa" : "aa",
+  "aar" : "aa",
+  "afrikaans" : "af",
+  "af" : "af",
+  "afr" : "af",
+  "akan" : "ak",
+  "ak" : "ak",
+  "aka" : "ak",
+  "aka + 2" : "ak",
+  "albanian" : "sq",
+  "shqip" : "sq",
+  "sq" : "sq",
+  "sqi" : "sq",
+  "alb" : "sq",
+  "sqi + 4" : "sq",
+  "amharic" : "am",
+  "አማርኛ" : "am",
+  "am" : "am",
+  "amh" : "am",
+  "arabic" : "ar",
+  "العربية" : "ar",
+  "ar" : "ar",
+  "ara" : "ar",
+  "ara + 30" : "ar",
+  "aragonese" : "an",
+  "aragonés" : "an",
+  "an" : "an",
+  "arg" : "an",
+  "armenian" : "hy",
+  "հայերեն" : "hy",
+  "hy" : "hy",
+  "hye" : "hy",
+  "arm" : "hy",
+  "assamese" : "as",
+  "অসমীয়া" : "as",
+  "as" : "as",
+  "asm" : "as",
+  "avaric" : "av",
+  "авар мацӏ, магӏарул мацӏ" : "av",
+  "av" : "av",
+  "ava" : "av",
+  "авар мацӏ" : "av",
+  "магӏарул мацӏ" : "av",
+  "avestan" : "ae",
+  "avesta" : "ae",
+  "ae" : "ae",
+  "ave" : "ae",
+  "aymara" : "ay",
+  "aymar aru" : "ay",
+  "ay" : "ay",
+  "aym" : "ay",
+  "aym + 2" : "ay",
+  "azerbaijani" : "az",
+  "azərbaycan dili" : "az",
+  "az" : "az",
+  "aze" : "az",
+  "aze + 2" : "az",
+  "bambara" : "bm",
+  "bamanankan" : "bm",
+  "bm" : "bm",
+  "bam" : "bm",
+  "bashkir" : "ba",
+  "башҡорт теле" : "ba",
+  "ba" : "ba",
+  "bak" : "ba",
+  "basque" : "eu",
+  "euskara, euskera" : "eu",
+  "eu" : "eu",
+  "eus" : "eu",
+  "baq" : "eu",
+  "euskara" : "eu",
+  "euskera" : "eu",
+  "belarusian" : "be",
+  "беларуская мова" : "be",
+  "be" : "be",
+  "bel" : "be",
+  "bengali" : "bn",
+  "বাংলা" : "bn",
+  "bn" : "bn",
+  "ben" : "bn",
+  "bihari languages" : "bh",
+  "भोजपुरी" : "bh",
+  "bh" : "bh",
+  "bih" : "bh",
+  "bislama" : "bi",
+  "bi" : "bi",
+  "bis" : "bi",
+  "bosnian" : "bs",
+  "bosanski jezik" : "bs",
+  "bs" : "bs",
+  "bos" : "bs",
+  "breton" : "br",
+  "brezhoneg" : "br",
+  "br" : "br",
+  "bre" : "br",
+  "bulgarian" : "bg",
+  "български език" : "bg",
+  "bg" : "bg",
+  "bul" : "bg",
+  "burmese" : "my",
+  "ဗမာစာ" : "my",
+  "my" : "my",
+  "mya" : "my",
+  "bur" : "my",
+  "catalan, valencian" : "ca",
+  "català, valencià" : "ca",
+  "ca" : "ca",
+  "cat" : "ca",
+  "català" : "ca",
+  "valencià" : "ca",
+  "chamorro" : "ch",
+  "chamoru" : "ch",
+  "ch" : "ch",
+  "cha" : "ch",
+  "chechen" : "ce",
+  "нохчийн мотт" : "ce",
+  "ce" : "ce",
+  "che" : "ce",
+  "chichewa, chewa, nyanja" : "ny",
+  "chicheŵa, chinyanja" : "ny",
+  "ny" : "ny",
+  "nya" : "ny",
+  "chicheŵa" : "ny",
+  "chinyanja" : "ny",
+  "chinese" : "zh",
+  "中文 (zhōngwén), 汉语, 漢語" : "zh",
+  "zh" : "zh",
+  "zho" : "zh",
+  "chi" : "zh",
+  "zho + 13" : "zh",
+  "中文 (zhōngwén)" : "zh",
+  "汉语" : "zh",
+  "漢語" : "zh",
+  "chuvash" : "cv",
+  "чӑваш чӗлхи" : "cv",
+  "cv" : "cv",
+  "chv" : "cv",
+  "cornish" : "kw",
+  "kernewek" : "kw",
+  "kw" : "kw",
+  "cor" : "kw",
+  "corsican" : "co",
+  "corsu, lingua corsa" : "co",
+  "co" : "co",
+  "cos" : "co",
+  "corsu" : "co",
+  "lingua corsa" : "co",
+  "cree" : "cr",
+  "ᓀᐦᐃᔭᐍᐏᐣ" : "cr",
+  "cr" : "cr",
+  "cre" : "cr",
+  "cre + 6" : "cr",
+  "croatian" : "hr",
+  "hrvatski jezik" : "hr",
+  "hr" : "hr",
+  "hrv" : "hr",
+  "czech" : "cs",
+  "čeština, český jazyk" : "cs",
+  "cs" : "cs",
+  "ces" : "cs",
+  "cze" : "cs",
+  "čeština" : "cs",
+  "český jazyk" : "cs",
+  "danish" : "da",
+  "dansk" : "da",
+  "da" : "da",
+  "dan" : "da",
+  "divehi, dhivehi, maldivian" : "dv",
+  "ދިވެހި" : "dv",
+  "dv" : "dv",
+  "div" : "dv",
+  "dutch, flemish" : "nl",
+  "nederlands, vlaams" : "nl",
+  "nl" : "nl",
+  "nld" : "nl",
+  "dut" : "nl",
+  "nederlands" : "nl",
+  "vlaams" : "nl",
+  "dzongkha" : "dz",
+  "རྫོང་ཁ" : "dz",
+  "dz" : "dz",
+  "dzo" : "dz",
+  "english" : "en",
+  "en" : "en",
+  "eng" : "en",
+  "esperanto" : "eo",
+  "eo" : "eo",
+  "epo" : "eo",
+  "estonian" : "et",
+  "eesti, eesti keel" : "et",
+  "et" : "et",
+  "est" : "et",
+  "est + 2" : "et",
+  "eesti" : "et",
+  "eesti keel" : "et",
+  "ewe" : "ee",
+  "eʋegbe" : "ee",
+  "ee" : "ee",
+  "faroese" : "fo",
+  "føroyskt" : "fo",
+  "fo" : "fo",
+  "fao" : "fo",
+  "fijian" : "fj",
+  "vosa vakaviti" : "fj",
+  "fj" : "fj",
+  "fij" : "fj",
+  "finnish" : "fi",
+  "suomi, suomen kieli" : "fi",
+  "fi" : "fi",
+  "fin" : "fi",
+  "suomi" : "fi",
+  "suomen kieli" : "fi",
+  "french" : "fr",
+  "français, langue française" : "fr",
+  "fr" : "fr",
+  "fra" : "fr",
+  "fre" : "fr",
+  "français" : "fr",
+  "langue française" : "fr",
+  "fulah" : "ff",
+  "fulfulde, pulaar, pular" : "ff",
+  "ff" : "ff",
+  "ful" : "ff",
+  "ful + 9" : "ff",
+  "fulfulde" : "ff",
+  "pulaar" : "ff",
+  "pular" : "ff",
+  "galician" : "gl",
+  "galego" : "gl",
+  "gl" : "gl",
+  "glg" : "gl",
+  "georgian" : "ka",
+  "ქართული" : "ka",
+  "ka" : "ka",
+  "kat" : "ka",
+  "geo" : "ka",
+  "german" : "de",
+  "deutsch" : "de",
+  "de" : "de",
+  "deu" : "de",
+  "ger" : "de",
+  "greek (modern)" : "el",
+  "ελληνικά" : "el",
+  "el" : "el",
+  "ell" : "el",
+  "gre" : "el",
+  "guaraní" : "gn",
+  "avañe'ẽ" : "gn",
+  "gn" : "gn",
+  "grn" : "gn",
+  "grn + 5" : "gn",
+  "gujarati" : "gu",
+  "ગુજરાતી" : "gu",
+  "gu" : "gu",
+  "guj" : "gu",
+  "haitian, haitian creole" : "ht",
+  "kreyòl ayisyen" : "ht",
+  "ht" : "ht",
+  "hat" : "ht",
+  "hausa" : "ha",
+  "(hausa) هَوُسَ" : "ha",
+  "ha" : "ha",
+  "hau" : "ha",
+  "hebrew (modern)" : "he",
+  "עברית" : "he",
+  "he" : "he",
+  "heb" : "he",
+  "herero" : "hz",
+  "otjiherero" : "hz",
+  "hz" : "hz",
+  "her" : "hz",
+  "hindi" : "hi",
+  "हिन्दी, हिंदी" : "hi",
+  "hi" : "hi",
+  "hin" : "hi",
+  "हिन्दी" : "hi",
+  "हिंदी" : "hi",
+  "hiri motu" : "ho",
+  "ho" : "ho",
+  "hmo" : "ho",
+  "hungarian" : "hu",
+  "magyar" : "hu",
+  "hu" : "hu",
+  "hun" : "hu",
+  "interlingua" : "ia",
+  "ia" : "ia",
+  "ina" : "ia",
+  "indonesian" : "id",
+  "bahasa indonesia" : "id",
+  "id" : "id",
+  "ind" : "id",
+  "interlingue" : "ie",
+  "originally called occidental; then interlingue after wwii" : "ie",
+  "ie" : "ie",
+  "ile" : "ie",
+  "irish" : "ga",
+  "gaeilge" : "ga",
+  "ga" : "ga",
+  "gle" : "ga",
+  "igbo" : "ig",
+  "asụsụ igbo" : "ig",
+  "ig" : "ig",
+  "ibo" : "ig",
+  "inupiaq" : "ik",
+  "iñupiaq, iñupiatun" : "ik",
+  "ik" : "ik",
+  "ipk" : "ik",
+  "ipk + 2" : "ik",
+  "iñupiaq" : "ik",
+  "iñupiatun" : "ik",
+  "ido" : "io",
+  "io" : "io",
+  "icelandic" : "is",
+  "íslenska" : "is",
+  "is" : "is",
+  "isl" : "is",
+  "ice" : "is",
+  "italian" : "it",
+  "italiano" : "it",
+  "it" : "it",
+  "ita" : "it",
+  "inuktitut" : "iu",
+  "ᐃᓄᒃᑎᑐᑦ" : "iu",
+  "iu" : "iu",
+  "iku" : "iu",
+  "iku + 2" : "iu",
+  "japanese" : "ja",
+  "日本語 (にほんご)" : "ja",
+  "ja" : "ja",
+  "jpn" : "ja",
+  "javanese" : "jv",
+  "ꦧꦱꦗꦮ, basa jawa" : "jv",
+  "jv" : "jv",
+  "jav" : "jv",
+  "ꦧꦱꦗꦮ" : "jv",
+  "basa jawa" : "jv",
+  "kalaallisut, greenlandic" : "kl",
+  "kalaallisut, kalaallit oqaasii" : "kl",
+  "kl" : "kl",
+  "kal" : "kl",
+  "kalaallisut" : "kl",
+  "kalaallit oqaasii" : "kl",
+  "kannada" : "kn",
+  "ಕನ್ನಡ" : "kn",
+  "kn" : "kn",
+  "kan" : "kn",
+  "kanuri" : "kr",
+  "kr" : "kr",
+  "kau" : "kr",
+  "kau + 3" : "kr",
+  "kashmiri" : "ks",
+  "कश्मीरी, كشميري‎" : "ks",
+  "ks" : "ks",
+  "kas" : "ks",
+  "कश्मीरी" : "ks",
+  "كشميري‎" : "ks",
+  "kazakh" : "kk",
+  "қазақ тілі" : "kk",
+  "kk" : "kk",
+  "kaz" : "kk",
+  "central khmer" : "km",
+  "ខ្មែរ, ខេមរភាសា, ភាសាខ្មែរ" : "km",
+  "km" : "km",
+  "khm" : "km",
+  "ខ្មែរ" : "km",
+  "ខេមរភាសា" : "km",
+  "ភាសាខ្មែរ" : "km",
+  "kikuyu, gikuyu" : "ki",
+  "gĩkũyũ" : "ki",
+  "ki" : "ki",
+  "kik" : "ki",
+  "kinyarwanda" : "rw",
+  "ikinyarwanda" : "rw",
+  "rw" : "rw",
+  "kin" : "rw",
+  "kirghiz, kyrgyz" : "ky",
+  "кыргызча, кыргыз тили" : "ky",
+  "ky" : "ky",
+  "kir" : "ky",
+  "кыргызча" : "ky",
+  "кыргыз тили" : "ky",
+  "komi" : "kv",
+  "коми кыв" : "kv",
+  "kv" : "kv",
+  "kom" : "kv",
+  "kom + 2" : "kv",
+  "kongo" : "kg",
+  "kikongo" : "kg",
+  "kg" : "kg",
+  "kon" : "kg",
+  "kon + 3" : "kg",
+  "korean" : "ko",
+  "한국어" : "ko",
+  "ko" : "ko",
+  "kor" : "ko",
+  "kurdish" : "ku",
+  "kurdî, كوردی‎" : "ku",
+  "ku" : "ku",
+  "kur" : "ku",
+  "kur + 3" : "ku",
+  "kurdî" : "ku",
+  "كوردی‎" : "ku",
+  "kuanyama, kwanyama" : "kj",
+  "kuanyama" : "kj",
+  "kj" : "kj",
+  "kua" : "kj",
+  "latin" : "la",
+  "latine, lingua latina" : "la",
+  "la" : "la",
+  "lat" : "la",
+  "latine" : "la",
+  "lingua latina" : "la",
+  "luxembourgish, letzeburgesch" : "lb",
+  "lëtzebuergesch" : "lb",
+  "lb" : "lb",
+  "ltz" : "lb",
+  "ganda" : "lg",
+  "luganda" : "lg",
+  "lg" : "lg",
+  "lug" : "lg",
+  "limburgan, limburger, limburgish" : "li",
+  "limburgs" : "li",
+  "li" : "li",
+  "lim" : "li",
+  "lingala" : "ln",
+  "lingála" : "ln",
+  "ln" : "ln",
+  "lin" : "ln",
+  "lao" : "lo",
+  "ພາສາລາວ" : "lo",
+  "lo" : "lo",
+  "lithuanian" : "lt",
+  "lietuvių kalba" : "lt",
+  "lt" : "lt",
+  "lit" : "lt",
+  "luba-katanga" : "lu",
+  "kiluba" : "lu",
+  "lu" : "lu",
+  "lub" : "lu",
+  "latvian" : "lv",
+  "latviešu valoda" : "lv",
+  "lv" : "lv",
+  "lav" : "lv",
+  "lav + 2" : "lv",
+  "manx" : "gv",
+  "gaelg, gailck" : "gv",
+  "gv" : "gv",
+  "glv" : "gv",
+  "gaelg" : "gv",
+  "gailck" : "gv",
+  "macedonian" : "mk",
+  "македонски јазик" : "mk",
+  "mk" : "mk",
+  "mkd" : "mk",
+  "mac" : "mk",
+  "malagasy" : "mg",
+  "fiteny malagasy" : "mg",
+  "mg" : "mg",
+  "mlg" : "mg",
+  "mlg + 10" : "mg",
+  "malay" : "ms",
+  "bahasa melayu, بهاس ملايو‎" : "ms",
+  "ms" : "ms",
+  "msa" : "ms",
+  "may" : "ms",
+  "msa + 13" : "ms",
+  "bahasa melayu" : "ms",
+  "بهاس ملايو‎" : "ms",
+  "malayalam" : "ml",
+  "മലയാളം" : "ml",
+  "ml" : "ml",
+  "mal" : "ml",
+  "maltese" : "mt",
+  "malti" : "mt",
+  "mt" : "mt",
+  "mlt" : "mt",
+  "maori" : "mi",
+  "te reo māori" : "mi",
+  "mi" : "mi",
+  "mri" : "mi",
+  "mao" : "mi",
+  "marathi" : "mr",
+  "मराठी" : "mr",
+  "mr" : "mr",
+  "mar" : "mr",
+  "marshallese" : "mh",
+  "kajin m̧ajeļ" : "mh",
+  "mh" : "mh",
+  "mah" : "mh",
+  "mongolian" : "mn",
+  "монгол хэл" : "mn",
+  "mn" : "mn",
+  "mon" : "mn",
+  "mon + 2" : "mn",
+  "nauru" : "na",
+  "dorerin naoero" : "na",
+  "na" : "na",
+  "nau" : "na",
+  "navajo, navaho" : "nv",
+  "diné bizaad" : "nv",
+  "nv" : "nv",
+  "nav" : "nv",
+  "north ndebele" : "nd",
+  "isindebele" : "nr",
+  "nd" : "nd",
+  "nde" : "nd",
+  "nepali" : "ne",
+  "नेपाली" : "ne",
+  "ne" : "ne",
+  "nep" : "ne",
+  "ndonga" : "ng",
+  "owambo" : "ng",
+  "ng" : "ng",
+  "ndo" : "ng",
+  "norwegian bokmål" : "nb",
+  "norsk bokmål" : "nb",
+  "nb" : "nb",
+  "nob" : "nb",
+  "norwegian nynorsk" : "nn",
+  "norsk nynorsk" : "nn",
+  "nn" : "nn",
+  "nno" : "nn",
+  "norwegian" : "no",
+  "norsk" : "no",
+  "no" : "no",
+  "nor" : "no",
+  "nor + 2" : "no",
+  "sichuan yi, nuosu" : "ii",
+  "ꆈꌠ꒿ nuosuhxop" : "ii",
+  "ii" : "ii",
+  "iii" : "ii",
+  "south ndebele" : "nr",
+  "nr" : "nr",
+  "nbl" : "nr",
+  "occitan" : "oc",
+  "occitan, lenga d'òc" : "oc",
+  "oc" : "oc",
+  "oci" : "oc",
+  "lenga d'òc" : "oc",
+  "ojibwa" : "oj",
+  "ᐊᓂᔑᓈᐯᒧᐎᓐ" : "oj",
+  "oj" : "oj",
+  "oji" : "oj",
+  "oji + 7" : "oj",
+  "church slavic, church slavonic, old church slavonic, old slavonic, old bulgarian" : "cu",
+  "ѩзыкъ словѣньскъ" : "cu",
+  "cu" : "cu",
+  "chu" : "cu",
+  "oromo" : "om",
+  "afaan oromoo" : "om",
+  "om" : "om",
+  "orm" : "om",
+  "orm + 4" : "om",
+  "oriya" : "or",
+  "ଓଡ଼ିଆ" : "or",
+  "or" : "or",
+  "ori" : "or",
+  "ossetian, ossetic" : "os",
+  "ирон æвзаг" : "os",
+  "os" : "os",
+  "oss" : "os",
+  "panjabi, punjabi" : "pa",
+  "ਪੰਜਾਬੀ" : "pa",
+  "pa" : "pa",
+  "pan" : "pa",
+  "pali" : "pi",
+  "पाऴि" : "pi",
+  "pi" : "pi",
+  "pli" : "pi",
+  "persian" : "fa",
+  "فارسی" : "fa",
+  "fa" : "fa",
+  "fas" : "fa",
+  "per" : "fa",
+  "fas + 2" : "fa",
+  "polish" : "pl",
+  "język polski, polszczyzna" : "pl",
+  "pl" : "pl",
+  "pol" : "pl",
+  "język polski" : "pl",
+  "polszczyzna" : "pl",
+  "pashto, pushto" : "ps",
+  "پښتو" : "ps",
+  "ps" : "ps",
+  "pus" : "ps",
+  "pus + 3" : "ps",
+  "portuguese" : "pt",
+  "português" : "pt",
+  "pt" : "pt",
+  "por" : "pt",
+  "quechua" : "qu",
+  "runa simi, kichwa" : "qu",
+  "qu" : "qu",
+  "que" : "qu",
+  "que + 44" : "qu",
+  "runa simi" : "qu",
+  "kichwa" : "qu",
+  "romansh" : "rm",
+  "rumantsch grischun" : "rm",
+  "rm" : "rm",
+  "roh" : "rm",
+  "rundi" : "rn",
+  "ikirundi" : "rn",
+  "rn" : "rn",
+  "run" : "rn",
+  "romanian, moldavian, moldovan" : "ro",
+  "română" : "ro",
+  "ro" : "ro",
+  "ron" : "ro",
+  "rum" : "ro",
+  "russian" : "ru",
+  "русский" : "ru",
+  "ru" : "ru",
+  "rus" : "ru",
+  "sanskrit" : "sa",
+  "संस्कृतम्" : "sa",
+  "sa" : "sa",
+  "san" : "sa",
+  "sardinian" : "sc",
+  "sardu" : "sc",
+  "sc" : "sc",
+  "srd" : "sc",
+  "srd + 4" : "sc",
+  "sindhi" : "sd",
+  "सिन्धी, سنڌي، سندھی‎" : "sd",
+  "sd" : "sd",
+  "snd" : "sd",
+  "सिन्धी" : "sd",
+  "سنڌي، سندھی‎" : "sd",
+  "northern sami" : "se",
+  "davvisámegiella" : "se",
+  "se" : "se",
+  "sme" : "se",
+  "samoan" : "sm",
+  "gagana fa'a samoa" : "sm",
+  "sm" : "sm",
+  "smo" : "sm",
+  "sango" : "sg",
+  "yângâ tî sängö" : "sg",
+  "sg" : "sg",
+  "sag" : "sg",
+  "serbian" : "sr",
+  "српски језик" : "sr",
+  "sr" : "sr",
+  "srp" : "sr",
+  "gaelic, scottish gaelic" : "gd",
+  "gàidhlig" : "gd",
+  "gd" : "gd",
+  "gla" : "gd",
+  "shona" : "sn",
+  "chishona" : "sn",
+  "sn" : "sn",
+  "sna" : "sn",
+  "sinhala, sinhalese" : "si",
+  "සිංහල" : "si",
+  "si" : "si",
+  "sin" : "si",
+  "slovak" : "sk",
+  "slovenčina, slovenský jazyk" : "sk",
+  "sk" : "sk",
+  "slk" : "sk",
+  "slo" : "sk",
+  "slovenčina" : "sk",
+  "slovenský jazyk" : "sk",
+  "slovenian" : "sl",
+  "slovenski jezik, slovenščina" : "sl",
+  "sl" : "sl",
+  "slv" : "sl",
+  "slovenski jezik" : "sl",
+  "slovenščina" : "sl",
+  "somali" : "so",
+  "soomaaliga, af soomaali" : "so",
+  "so" : "so",
+  "som" : "so",
+  "soomaaliga" : "so",
+  "af soomaali" : "so",
+  "southern sotho" : "st",
+  "sesotho" : "st",
+  "st" : "st",
+  "sot" : "st",
+  "spanish, castilian" : "es",
+  "español" : "es",
+  "es" : "es",
+  "spa" : "es",
+  "sundanese" : "su",
+  "basa sunda" : "su",
+  "su" : "su",
+  "sun" : "su",
+  "swahili" : "sw",
+  "kiswahili" : "sw",
+  "sw" : "sw",
+  "swa" : "sw",
+  "swa + 2" : "sw",
+  "swati" : "ss",
+  "siswati" : "ss",
+  "ss" : "ss",
+  "ssw" : "ss",
+  "swedish" : "sv",
+  "svenska" : "sv",
+  "sv" : "sv",
+  "swe" : "sv",
+  "tamil" : "ta",
+  "தமிழ்" : "ta",
+  "ta" : "ta",
+  "tam" : "ta",
+  "telugu" : "te",
+  "తెలుగు" : "te",
+  "te" : "te",
+  "tel" : "te",
+  "tajik" : "tg",
+  "тоҷикӣ, toçikī, تاجیکی‎" : "tg",
+  "tg" : "tg",
+  "tgk" : "tg",
+  "тоҷикӣ" : "tg",
+  "toçikī" : "tg",
+  "تاجیکی‎" : "tg",
+  "thai" : "th",
+  "ไทย" : "th",
+  "th" : "th",
+  "tha" : "th",
+  "tigrinya" : "ti",
+  "ትግርኛ" : "ti",
+  "ti" : "ti",
+  "tir" : "ti",
+  "tibetan" : "bo",
+  "བོད་ཡིག" : "bo",
+  "bo" : "bo",
+  "bod" : "bo",
+  "tib" : "bo",
+  "turkmen" : "tk",
+  "türkmen, түркмен" : "tk",
+  "tk" : "tk",
+  "tuk" : "tk",
+  "türkmen" : "tk",
+  "түркмен" : "tk",
+  "tagalog" : "tl",
+  "wikang tagalog" : "tl",
+  "tl" : "tl",
+  "tgl" : "tl",
+  "tswana" : "tn",
+  "setswana" : "tn",
+  "tn" : "tn",
+  "tsn" : "tn",
+  "tonga (tonga islands)" : "to",
+  "faka tonga" : "to",
+  "to" : "to",
+  "ton" : "to",
+  "turkish" : "tr",
+  "türkçe" : "tr",
+  "tr" : "tr",
+  "tur" : "tr",
+  "tsonga" : "ts",
+  "xitsonga" : "ts",
+  "ts" : "ts",
+  "tso" : "ts",
+  "tatar" : "tt",
+  "татар теле, tatar tele" : "tt",
+  "tt" : "tt",
+  "tat" : "tt",
+  "татар теле" : "tt",
+  "tatar tele" : "tt",
+  "twi" : "tw",
+  "tw" : "tw",
+  "tahitian" : "ty",
+  "reo tahiti" : "ty",
+  "ty" : "ty",
+  "tah" : "ty",
+  "uighur, uyghur" : "ug",
+  "ئۇيغۇرچە‎, uyghurche" : "ug",
+  "ug" : "ug",
+  "uig" : "ug",
+  "ئۇيغۇرچە‎" : "ug",
+  "uyghurche" : "ug",
+  "ukrainian" : "uk",
+  "українська" : "uk",
+  "uk" : "uk",
+  "ukr" : "uk",
+  "urdu" : "ur",
+  "اردو" : "ur",
+  "ur" : "ur",
+  "urd" : "ur",
+  "uzbek" : "uz",
+  "oʻzbek, ўзбек, أۇزبېك‎" : "uz",
+  "uz" : "uz",
+  "uzb" : "uz",
+  "uzb + 2" : "uz",
+  "oʻzbek" : "uz",
+  "ўзбек" : "uz",
+  "أۇزبېك‎" : "uz",
+  "venda" : "ve",
+  "tshivenḓa" : "ve",
+  "ve" : "ve",
+  "ven" : "ve",
+  "vietnamese" : "vi",
+  "tiếng việt" : "vi",
+  "vi" : "vi",
+  "vie" : "vi",
+  "volapük" : "vo",
+  "vo" : "vo",
+  "vol" : "vo",
+  "walloon" : "wa",
+  "walon" : "wa",
+  "wa" : "wa",
+  "wln" : "wa",
+  "welsh" : "cy",
+  "cymraeg" : "cy",
+  "cy" : "cy",
+  "cym" : "cy",
+  "wel" : "cy",
+  "wolof" : "wo",
+  "wollof" : "wo",
+  "wo" : "wo",
+  "wol" : "wo",
+  "western frisian" : "fy",
+  "frysk" : "fy",
+  "fy" : "fy",
+  "fry" : "fy",
+  "xhosa" : "xh",
+  "isixhosa" : "xh",
+  "xh" : "xh",
+  "xho" : "xh",
+  "yiddish" : "yi",
+  "ייִדיש" : "yi",
+  "yi" : "yi",
+  "yid" : "yi",
+  "yid + 2" : "yi",
+  "yoruba" : "yo",
+  "yorùbá" : "yo",
+  "yo" : "yo",
+  "yor" : "yo",
+  "zhuang, chuang" : "za",
+  "saɯ cueŋƅ, saw cuengh" : "za",
+  "za" : "za",
+  "zha" : "za",
+  "zha + 16" : "za",
+  "saɯ cueŋƅ" : "za",
+  "saw cuengh" : "za",
+  "zulu" : "zu",
+  "isizulu" : "zu",
+  "zu" : "zu",
+  "zul" : "zu"
+};
+
+
+
+
+
+function reduce(from) {
+  return reductions[from.toLowerCase()];
+}
+
 /*********
  *
  *  Internal method meant to perform factory assembly of an edge.  Not meant for
@@ -19849,6 +19363,493 @@ function compile(tree) {
 function make(plan) {
     return compile(wrap_parse(plan));
 }
+
+const base_state_style$5 = {
+    shape: 'rectangle',
+    backgroundColor: 'white',
+    textColor: 'black',
+    borderColor: 'black'
+};
+const base_active_state_style$5 = {
+    textColor: 'white',
+    backgroundColor: 'dodgerblue4'
+};
+const base_hooked_state_style$5 = {
+    shape: 'component'
+};
+const base_terminal_state_style$5 = {
+    textColor: 'white',
+    backgroundColor: 'crimson'
+};
+const base_active_terminal_state_style$5 = {
+    textColor: 'white',
+    backgroundColor: 'indigo'
+};
+const base_start_state_style$5 = {
+    backgroundColor: 'yellow'
+};
+const base_active_start_state_style$5 = {
+    backgroundColor: 'yellowgreen'
+};
+const base_active_hooked_state_style$5 = {
+    backgroundColor: 'yellowgreen'
+};
+const base_end_state_style$5 = {
+    textColor: 'white',
+    backgroundColor: 'darkolivegreen'
+};
+const base_active_end_state_style$5 = {
+    textColor: 'white',
+    backgroundColor: 'darkgreen'
+};
+const base_theme = {
+    name: 'base',
+    state: base_state_style$5,
+    start: base_start_state_style$5,
+    end: base_end_state_style$5,
+    terminal: base_terminal_state_style$5,
+    hooked: base_hooked_state_style$5,
+    active: base_active_state_style$5,
+    active_start: base_active_start_state_style$5,
+    active_end: base_active_end_state_style$5,
+    active_terminal: base_active_terminal_state_style$5,
+    active_hooked: base_active_hooked_state_style$5,
+    legal: undefined,
+    main: undefined,
+    forced: undefined,
+    action: undefined,
+    graph: undefined,
+    title: undefined // TODO FIXME
+};
+
+const base_state_style$4 = {
+    shape: 'rectangle',
+    backgroundColor: 'white',
+    textColor: 'black',
+    borderColor: 'black'
+};
+const base_active_state_style$4 = {
+    textColor: 'white',
+    backgroundColor: 'dodgerblue4'
+};
+const base_hooked_state_style$4 = {
+    shape: 'component'
+};
+const base_terminal_state_style$4 = {
+    textColor: 'white',
+    backgroundColor: 'crimson'
+};
+const base_active_terminal_state_style$4 = {
+    textColor: 'white',
+    backgroundColor: 'indigo'
+};
+const base_start_state_style$4 = {
+    backgroundColor: 'yellow'
+};
+const base_active_start_state_style$4 = {
+    backgroundColor: 'yellowgreen'
+};
+const base_active_hooked_state_style$4 = {
+    backgroundColor: 'yellowgreen'
+};
+const base_end_state_style$4 = {
+    textColor: 'white',
+    backgroundColor: 'darkolivegreen'
+};
+const base_active_end_state_style$4 = {
+    textColor: 'white',
+    backgroundColor: 'darkgreen'
+};
+const default_theme = {
+    name: 'default',
+    state: base_state_style$4,
+    start: base_start_state_style$4,
+    end: base_end_state_style$4,
+    terminal: base_terminal_state_style$4,
+    hooked: base_hooked_state_style$4,
+    active: base_active_state_style$4,
+    active_start: base_active_start_state_style$4,
+    active_end: base_active_end_state_style$4,
+    active_terminal: base_active_terminal_state_style$4,
+    active_hooked: base_active_hooked_state_style$4,
+    legal: undefined,
+    main: undefined,
+    forced: undefined,
+    action: undefined,
+    graph: undefined,
+    title: undefined // TODO FIXME
+};
+
+const base_state_style$3 = {
+    shape: 'rectangle',
+    backgroundColor: 'khaki',
+    textColor: 'black',
+    borderColor: 'black'
+};
+const base_active_state_style$3 = {
+    textColor: 'white',
+    backgroundColor: 'dodgerblue4'
+};
+const base_hooked_state_style$3 = {
+    shape: 'component'
+};
+const base_terminal_state_style$3 = {
+    textColor: 'white',
+    backgroundColor: 'crimson'
+};
+const base_active_terminal_state_style$3 = {
+    textColor: 'white',
+    backgroundColor: 'indigo'
+};
+const base_start_state_style$3 = {
+    backgroundColor: 'yellow'
+};
+const base_active_start_state_style$3 = {
+    backgroundColor: 'yellowgreen'
+};
+const base_active_hooked_state_style$3 = {
+    backgroundColor: 'yellowgreen'
+};
+const base_end_state_style$3 = {
+    textColor: 'white',
+    backgroundColor: 'darkolivegreen'
+};
+const base_active_end_state_style$3 = {
+    textColor: 'white',
+    backgroundColor: 'darkgreen'
+};
+const modern_theme = {
+    name: 'modern',
+    state: base_state_style$3,
+    start: base_start_state_style$3,
+    end: base_end_state_style$3,
+    terminal: base_terminal_state_style$3,
+    hooked: base_hooked_state_style$3,
+    active: base_active_state_style$3,
+    active_start: base_active_start_state_style$3,
+    active_end: base_active_end_state_style$3,
+    active_terminal: base_active_terminal_state_style$3,
+    active_hooked: base_active_hooked_state_style$3,
+    legal: undefined,
+    main: undefined,
+    forced: undefined,
+    action: undefined,
+    graph: undefined,
+    title: undefined // TODO FIXME
+};
+
+const base_state_style$2 = {
+    backgroundColor: 'cadetblue1',
+};
+const base_active_state_style$2 = {
+    textColor: 'white',
+    backgroundColor: 'deepskyblue'
+};
+const base_hooked_state_style$2 = {
+    shape: 'component',
+    backgroundColor: 'mediumaquamarine'
+};
+const base_terminal_state_style$2 = {
+    textColor: 'white',
+    backgroundColor: 'darkviolet'
+};
+const base_active_terminal_state_style$2 = {
+    textColor: 'white',
+    backgroundColor: 'deeppink'
+};
+const base_start_state_style$2 = {
+    backgroundColor: 'darkseagreen1'
+};
+const base_active_start_state_style$2 = {
+    backgroundColor: 'aquamarine'
+};
+const base_active_hooked_state_style$2 = {
+    backgroundColor: 'aquamarine'
+};
+const base_end_state_style$2 = {
+    textColor: 'white',
+    backgroundColor: 'chartreuse1'
+};
+const base_active_end_state_style$2 = {
+    textColor: 'white',
+    backgroundColor: 'darkgreen'
+};
+const ocean_theme = {
+    name: 'ocean',
+    state: base_state_style$2,
+    start: base_start_state_style$2,
+    end: base_end_state_style$2,
+    terminal: base_terminal_state_style$2,
+    hooked: base_hooked_state_style$2,
+    active: base_active_state_style$2,
+    active_start: base_active_start_state_style$2,
+    active_end: base_active_end_state_style$2,
+    active_terminal: base_active_terminal_state_style$2,
+    active_hooked: base_active_hooked_state_style$2,
+    legal: undefined,
+    main: undefined,
+    forced: undefined,
+    action: undefined,
+    graph: undefined,
+    title: undefined // TODO FIXME
+};
+
+const base_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_active_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_hooked_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_terminal_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_active_terminal_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_start_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_active_start_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_active_hooked_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_end_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const base_active_end_state_style$1 = {
+    textColor: 'black',
+    backgroundColor: 'transparent',
+    shape: 'plaintext'
+};
+const plain_theme = {
+    name: 'plain',
+    state: base_state_style$1,
+    start: base_start_state_style$1,
+    end: base_end_state_style$1,
+    terminal: base_terminal_state_style$1,
+    hooked: base_hooked_state_style$1,
+    active: base_active_state_style$1,
+    active_start: base_active_start_state_style$1,
+    active_end: base_active_end_state_style$1,
+    active_terminal: base_active_terminal_state_style$1,
+    active_hooked: base_active_hooked_state_style$1,
+    legal: undefined,
+    main: undefined,
+    forced: undefined,
+    action: undefined,
+    graph: undefined,
+    title: undefined // TODO FIXME
+};
+
+const base_state_style = {
+    shape: 'rectangle',
+    backgroundColor: 'khaki',
+    textColor: 'black',
+    borderColor: 'black'
+};
+const base_active_state_style = {
+    textColor: 'white',
+    backgroundColor: 'dodgerblue4'
+};
+const base_hooked_state_style = {
+    shape: 'component'
+};
+const base_terminal_state_style = {
+    textColor: 'white',
+    backgroundColor: 'crimson'
+};
+const base_active_terminal_state_style = {
+    textColor: 'white',
+    backgroundColor: 'indigo'
+};
+const base_start_state_style = {
+    backgroundColor: 'yellow'
+};
+const base_active_start_state_style = {
+    backgroundColor: 'yellowgreen'
+};
+const base_active_hooked_state_style = {
+    backgroundColor: 'yellowgreen'
+};
+const base_end_state_style = {
+    textColor: 'white',
+    backgroundColor: 'darkolivegreen'
+};
+const base_active_end_state_style = {
+    textColor: 'white',
+    backgroundColor: 'darkgreen'
+};
+const bold_theme = {
+    name: 'bold',
+    state: base_state_style,
+    start: base_start_state_style,
+    end: base_end_state_style,
+    terminal: base_terminal_state_style,
+    hooked: base_hooked_state_style,
+    active: base_active_state_style,
+    active_start: base_active_start_state_style,
+    active_end: base_active_end_state_style,
+    active_terminal: base_active_terminal_state_style,
+    active_hooked: base_active_hooked_state_style,
+    legal: undefined,
+    main: undefined,
+    forced: undefined,
+    action: undefined,
+    graph: undefined,
+    title: undefined // TODO FIXME
+};
+
+const NegInfinity = Number.NEGATIVE_INFINITY, PosInfinity = Number.POSITIVE_INFINITY, Epsilon = Number.EPSILON, Pi = Math.PI, E = Math.E, Root2 = Math.SQRT2, RootHalf = Math.SQRT1_2, Ln2 = Math.LN2, Ln10 = Math.LN10, Log2E = Math.LOG2E, Log10E = Math.LOG10E, MaxSafeInt = Number.MAX_SAFE_INTEGER, MinSafeInt = Number.MIN_SAFE_INTEGER, MaxPosNum = Number.MAX_VALUE, MinPosNum = Number.MIN_VALUE, Phi = 1.61803398874989484820, EulerC = 0.57721566490153286060;
+const gviz_shapes$1 = [
+    "box3d",
+    "polygon",
+    "ellipse",
+    "oval",
+    "circle",
+    "point",
+    "egg",
+    "triangle",
+    "plaintext",
+    "plain",
+    "diamond",
+    "trapezium",
+    "parallelogram",
+    "house",
+    "pentagon",
+    "hexagon",
+    "septagon",
+    "octagon",
+    "doublecircle",
+    "doubleoctagon",
+    "tripleoctagon",
+    "invtriangle",
+    "invtrapezium",
+    "invhouse",
+    "Mdiamond",
+    "Msquare",
+    "Mcircle",
+    "rectangle",
+    "rect",
+    "square",
+    "star",
+    "none",
+    "underline",
+    "cylinder",
+    "note",
+    "tab",
+    "folder",
+    "box",
+    "component",
+    "promoter",
+    "cds",
+    "terminator",
+    "utr",
+    "primersite",
+    "restrictionsite",
+    "fivepoverhang",
+    "threepoverhang",
+    "noverhang",
+    "assembly",
+    "signature",
+    "insulator",
+    "ribosite",
+    "rnastab",
+    "proteasesite",
+    "proteinstab",
+    "rpromoter",
+    "rarrow",
+    "larrow",
+    "lpromoter",
+    "record"
+];
+const shapes$1 = gviz_shapes$1;
+const named_colors$1 = [
+    "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige",
+    "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown",
+    "BurlyWood", "CadetBlue", "Chartreuse", "Chocolate", "Coral",
+    "CornflowerBlue", "Cornsilk", "Crimson", "Cyan", "DarkBlue", "DarkCyan",
+    "DarkGoldenRod", "DarkGray", "DarkGrey", "DarkGreen", "DarkKhaki",
+    "DarkMagenta", "DarkOliveGreen", "Darkorange", "DarkOrchid", "DarkRed",
+    "DarkSalmon", "DarkSeaGreen", "DarkSlateBlue", "DarkSlateGray",
+    "DarkSlateGrey", "DarkTurquoise", "DarkViolet", "DeepPink", "DeepSkyBlue",
+    "DimGray", "DimGrey", "DodgerBlue", "FireBrick", "FloralWhite", "ForestGreen",
+    "Fuchsia", "Gainsboro", "GhostWhite", "Gold", "GoldenRod", "Gray", "Grey",
+    "Green", "GreenYellow", "HoneyDew", "HotPink", "IndianRed", "Indigo", "Ivory",
+    "Khaki", "Lavender", "LavenderBlush", "LawnGreen", "LemonChiffon",
+    "LightBlue", "LightCoral", "LightCyan", "LightGoldenRodYellow", "LightGray",
+    "LightGrey", "LightGreen", "LightPink", "LightSalmon", "LightSeaGreen",
+    "LightSkyBlue", "LightSlateGray", "LightSlateGrey", "LightSteelBlue",
+    "LightYellow", "Lime", "LimeGreen", "Linen", "Magenta", "Maroon",
+    "MediumAquaMarine", "MediumBlue", "MediumOrchid", "MediumPurple",
+    "MediumSeaGreen", "MediumSlateBlue", "MediumSpringGreen", "MediumTurquoise",
+    "MediumVioletRed", "MidnightBlue", "MintCream", "MistyRose", "Moccasin",
+    "NavajoWhite", "Navy", "OldLace", "Olive", "OliveDrab", "Orange", "OrangeRed",
+    "Orchid", "PaleGoldenRod", "PaleGreen", "PaleTurquoise", "PaleVioletRed",
+    "PapayaWhip", "PeachPuff", "Peru", "Pink", "Plum", "PowderBlue", "Purple",
+    "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown",
+    "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue",
+    "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal",
+    "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
+    "Yellow", "YellowGreen"
+];
+
+var constants = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    NegInfinity: NegInfinity,
+    PosInfinity: PosInfinity,
+    Epsilon: Epsilon,
+    Pi: Pi,
+    E: E,
+    Root2: Root2,
+    RootHalf: RootHalf,
+    Ln2: Ln2,
+    Ln10: Ln10,
+    Log2E: Log2E,
+    Log10E: Log10E,
+    MaxSafeInt: MaxSafeInt,
+    MinSafeInt: MinSafeInt,
+    MaxPosNum: MaxPosNum,
+    MinPosNum: MinPosNum,
+    Phi: Phi,
+    EulerC: EulerC,
+    gviz_shapes: gviz_shapes$1,
+    shapes: shapes$1,
+    named_colors: named_colors$1
+});
+
+const version = "5.85.9", build_time = 1663041756792;
+
+// whargarbl lots of these return arrays could/should be sets
+const theme_mapping = new Map();
+theme_mapping.set('default', default_theme);
+theme_mapping.set('modern', modern_theme);
+theme_mapping.set('ocean', ocean_theme);
+theme_mapping.set('plain', plain_theme);
+theme_mapping.set('bold', bold_theme);
+const { shapes, gviz_shapes, named_colors } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
