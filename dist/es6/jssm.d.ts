@@ -56,6 +56,7 @@ declare class Machine<mDT> {
     _has_exit_hooks: boolean;
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
+    _has_forced_transitions: boolean;
     _hooks: Map<string, HookHandler<mDT>>;
     _named_hooks: Map<string, HookHandler<mDT>>;
     _entry_hooks: Map<string, HookHandler<mDT>>;
@@ -481,6 +482,7 @@ declare class Machine<mDT> {
     list_named_transitions(): Map<StateType, number>;
     list_actions(): Array<StateType>;
     get uses_actions(): boolean;
+    get uses_forced_transitions(): boolean;
     all_themes(): FslTheme[];
     get themes(): FslTheme | FslTheme[];
     set themes(to: FslTheme | FslTheme[]);
@@ -511,7 +513,10 @@ declare class Machine<mDT> {
     /********
      *
      *  List all entrances attached to the current state.  Please note that the
-     *  order of the list is not defined.
+     *  order of the list is not defined.  This list includes both unforced and
+     *  forced entrances; if this isn't desired, consider
+     *  {@link list_unforced_entrances} or {@link list_forced_entrances} as
+     *  appropriate.
      *
      *  ```typescript
      *  import { sm } from 'jssm';
@@ -531,7 +536,9 @@ declare class Machine<mDT> {
     /********
      *
      *  List all exits attached to the current state.  Please note that the order
-     *  of the list is not defined.
+     *  of the list is not defined.  This list includes both unforced and forced
+     *  exits; if this isn't desired, consider {@link list_unforced_exits} or
+     *  {@link list_forced_exits} as appropriate.
      *
      *  ```typescript
      *  import { sm } from 'jssm';

@@ -19846,7 +19846,7 @@ var jssm = (function (exports) {
         named_colors: named_colors$1
     });
 
-    const version = "5.85.10", build_time = 1663374435658;
+    const version = "5.85.11", build_time = 1663395098701;
 
     // whargarbl lots of these return arrays could/should be sets
     const { shapes, gviz_shapes, named_colors } = constants;
@@ -20003,6 +20003,7 @@ var jssm = (function (exports) {
             this._has_global_action_hooks = false;
             this._has_transition_hooks = true;
             // no need for a boolean for single hooks, just test for undefinedness
+            this._has_forced_transitions = false;
             this._hooks = new Map();
             this._named_hooks = new Map();
             this._entry_hooks = new Map();
@@ -20094,6 +20095,9 @@ var jssm = (function (exports) {
                 // add the edge; note its id
                 this._edges.push(tr);
                 const thisEdgeId = this._edges.length - 1;
+                if (tr.forced_only) {
+                    this._has_forced_transitions = true;
+                }
                 // guard against repeating a transition name
                 if (tr.name) {
                     if (this._named_transitions.has(tr.name)) {
@@ -20732,6 +20736,9 @@ var jssm = (function (exports) {
         get uses_actions() {
             return Array.from(this._actions.keys()).length > 0;
         }
+        get uses_forced_transitions() {
+            return this._has_forced_transitions;
+        }
         all_themes() {
             return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
         }
@@ -20791,7 +20798,10 @@ var jssm = (function (exports) {
         /********
          *
          *  List all entrances attached to the current state.  Please note that the
-         *  order of the list is not defined.
+         *  order of the list is not defined.  This list includes both unforced and
+         *  forced entrances; if this isn't desired, consider
+         *  {@link list_unforced_entrances} or {@link list_forced_entrances} as
+         *  appropriate.
          *
          *  ```typescript
          *  import { sm } from 'jssm';
@@ -20808,14 +20818,16 @@ var jssm = (function (exports) {
          *
          */
         list_entrances(whichState = this.state()) {
-            return (this._states.get(whichState)
-                || { from: undefined }).from
-                || [];
+            var _a, _b;
+            const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { from: undefined });
+            return (_b = guaranteed.from) !== null && _b !== void 0 ? _b : [];
         }
         /********
          *
          *  List all exits attached to the current state.  Please note that the order
-         *  of the list is not defined.
+         *  of the list is not defined.  This list includes both unforced and forced
+         *  exits; if this isn't desired, consider {@link list_unforced_exits} or
+         *  {@link list_forced_exits} as appropriate.
          *
          *  ```typescript
          *  import { sm } from 'jssm';
@@ -20832,9 +20844,9 @@ var jssm = (function (exports) {
          *
          */
         list_exits(whichState = this.state()) {
-            return (this._states.get(whichState)
-                || { to: undefined }).to
-                || [];
+            var _a, _b;
+            const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
+            return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
         }
         probable_exits_for(whichState) {
             const wstate = this._states.get(whichState);
