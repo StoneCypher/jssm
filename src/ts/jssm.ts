@@ -254,6 +254,8 @@ class Machine<mDT> {
   _has_transition_hooks     : boolean;
   // no boolean for the single hooks, just check if they're defined
 
+  _has_forced_transitions   : boolean;
+
   _hooks                    : Map<string, HookHandler<mDT>>;
   _named_hooks              : Map<string, HookHandler<mDT>>;
   _entry_hooks              : Map<string, HookHandler<mDT>>;
@@ -385,6 +387,8 @@ class Machine<mDT> {
     this._has_transition_hooks    = true;
     // no need for a boolean for single hooks, just test for undefinedness
 
+    this._has_forced_transitions   = false;
+
     this._hooks                    = new Map();
     this._named_hooks              = new Map();
     this._entry_hooks              = new Map();
@@ -502,6 +506,7 @@ class Machine<mDT> {
       // add the edge; note its id
       this._edges.push(tr);
       const thisEdgeId: number = this._edges.length - 1;
+      if (tr.forced_only) { this._has_forced_transitions = true; }
 
       // guard against repeating a transition name
       if (tr.name) {
@@ -1353,6 +1358,10 @@ class Machine<mDT> {
     return Array.from(this._actions.keys()).length > 0;
   }
 
+  get uses_forced_transitions(): boolean {
+    return this._has_forced_transitions;
+  }
+
 
 
   all_themes(): FslTheme[] {
@@ -1436,7 +1445,10 @@ class Machine<mDT> {
   /********
    *
    *  List all entrances attached to the current state.  Please note that the
-   *  order of the list is not defined.
+   *  order of the list is not defined.  This list includes both unforced and
+   *  forced entrances; if this isn't desired, consider
+   *  {@link list_unforced_entrances} or {@link list_forced_entrances} as
+   *  appropriate.
    *
    *  ```typescript
    *  import { sm } from 'jssm';
@@ -1454,9 +1466,10 @@ class Machine<mDT> {
    */
 
   list_entrances(whichState: StateType = this.state()): Array<StateType> {
-    return (this._states.get(whichState)
-      || { from: undefined }).from
-      || [];
+
+    const guaranteed = (this._states.get(whichState) ?? { from: undefined });
+    return guaranteed.from ?? [];
+
   }
 
 
@@ -1466,7 +1479,9 @@ class Machine<mDT> {
   /********
    *
    *  List all exits attached to the current state.  Please note that the order
-   *  of the list is not defined.
+   *  of the list is not defined.  This list includes both unforced and forced
+   *  exits; if this isn't desired, consider {@link list_unforced_exits} or
+   *  {@link list_forced_exits} as appropriate.
    *
    *  ```typescript
    *  import { sm } from 'jssm';
@@ -1484,9 +1499,10 @@ class Machine<mDT> {
    */
 
   list_exits(whichState: StateType = this.state()): Array<StateType> {
-    return (this._states.get(whichState)
-      || { to: undefined }).to
-      || [];
+
+    const guaranteed = (this._states.get(whichState) ?? { to: undefined });
+    return guaranteed.to ?? [];
+
   }
 
 
