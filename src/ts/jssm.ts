@@ -35,31 +35,7 @@ import {
 
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, makeTransition, wrap_parse }          from './jssm_compiler';
-
-    // compile_rule_handler,
-    // compile_rule_transition_step,
-    // compile_rule_handle_transition,
-
-
-
-
-
-import { base_theme }    from './themes/jssm_base_stylesheet';
-
-import { default_theme } from './themes/jssm_theme_default';
-import { modern_theme }  from './themes/jssm_theme_modern';
-import { ocean_theme }   from './themes/jssm_theme_ocean';
-import { plain_theme }   from './themes/jssm_theme_plain';
-import { bold_theme }    from './themes/jssm_theme_bold';
-
-
-const theme_mapping: Map<FslTheme, JssmBaseTheme> = new Map();
-
-theme_mapping.set('default', default_theme);
-theme_mapping.set('modern',  modern_theme);
-theme_mapping.set('ocean',   ocean_theme);
-theme_mapping.set('plain',   plain_theme);
-theme_mapping.set('bold',    bold_theme);
+import { theme_mapping, base_theme }                          from './jssm_theme';
 
 
 
