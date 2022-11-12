@@ -74,6 +74,7 @@ declare class Machine<mDT> {
     _has_post_exit_hooks: boolean;
     _has_post_global_action_hooks: boolean;
     _has_post_transition_hooks: boolean;
+    _allows_override: boolean;
     _post_hooks: Map<string, HookHandler<mDT>>;
     _post_named_hooks: Map<string, HookHandler<mDT>>;
     _post_entry_hooks: Map<string, HookHandler<mDT>>;
@@ -483,6 +484,12 @@ declare class Machine<mDT> {
     list_actions(): Array<StateType>;
     get uses_actions(): boolean;
     get uses_forced_transitions(): boolean;
+    /*********
+     *
+     *  Check if a machine allows overriding state and data.
+     *
+     */
+    get allows_override(): boolean;
     all_themes(): FslTheme[];
     get themes(): FslTheme | FslTheme[];
     set themes(to: FslTheme | FslTheme[]);

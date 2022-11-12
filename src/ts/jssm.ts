@@ -276,6 +276,8 @@ class Machine<mDT> {
   _has_post_transition_hooks     : boolean;
   // no boolean for the single hooks, just check if they're defined
 
+  _allows_override : boolean;
+
   _post_hooks                    : Map<string, HookHandler<mDT>>;
   _post_named_hooks              : Map<string, HookHandler<mDT>>;
   _post_entry_hooks              : Map<string, HookHandler<mDT>>;
@@ -408,6 +410,8 @@ class Machine<mDT> {
     this._has_post_global_action_hooks = false;
     this._has_post_transition_hooks    = true;
     // no need for a boolean for single hooks, just test for undefinedness
+
+    this._allows_override = false;
 
     this._post_hooks                    = new Map();
     this._post_named_hooks              = new Map();
@@ -1361,6 +1365,22 @@ class Machine<mDT> {
   get uses_forced_transitions(): boolean {
     return this._has_forced_transitions;
   }
+
+
+
+
+
+  /*********
+   *
+   *  Check if a machine allows overriding state and data.
+   *
+   */
+
+  get allows_override(): boolean {
+    return this._allows_override === true;
+  }
+
+
 
 
 
