@@ -19846,7 +19846,7 @@ var jssm = (function (exports) {
         named_colors: named_colors$1
     });
 
-    const version = "5.85.11", build_time = 1663395098701;
+    const version = "5.86.0", build_time = 1668217213797;
 
     // whargarbl lots of these return arrays could/should be sets
     const { shapes, gviz_shapes, named_colors } = constants;
@@ -20022,6 +20022,7 @@ var jssm = (function (exports) {
             this._has_post_global_action_hooks = false;
             this._has_post_transition_hooks = true;
             // no need for a boolean for single hooks, just test for undefinedness
+            this._allows_override = false;
             this._post_hooks = new Map();
             this._post_named_hooks = new Map();
             this._post_entry_hooks = new Map();
@@ -20738,6 +20739,14 @@ var jssm = (function (exports) {
         }
         get uses_forced_transitions() {
             return this._has_forced_transitions;
+        }
+        /*********
+         *
+         *  Check if a machine allows overriding state and data.
+         *
+         */
+        get allows_override() {
+            return this._allows_override === true;
         }
         all_themes() {
             return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise

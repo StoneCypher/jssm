@@ -183,6 +183,7 @@ class Machine {
         this._has_post_global_action_hooks = false;
         this._has_post_transition_hooks = true;
         // no need for a boolean for single hooks, just test for undefinedness
+        this._allows_override = false;
         this._post_hooks = new Map();
         this._post_named_hooks = new Map();
         this._post_entry_hooks = new Map();
@@ -899,6 +900,14 @@ class Machine {
     }
     get uses_forced_transitions() {
         return this._has_forced_transitions;
+    }
+    /*********
+     *
+     *  Check if a machine allows overriding state and data.
+     *
+     */
+    get allows_override() {
+        return this._allows_override === true;
     }
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
