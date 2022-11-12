@@ -25,8 +25,11 @@ describe('.allows_override', () => {
 
   // });
 
-  // test('allowed in code, missing in config reads out true', () => {
 
+
+  // test('allowed in code, missing in config reads out true', () => {
+  //   const machine = sm`allows_override: true; a -> b;`;
+  //   expect(machine.allows_override).toBe(true);
   // });
 
   // test('allowed in code, undefined in config reads out true', () => {
@@ -41,8 +44,11 @@ describe('.allows_override', () => {
 
   // });
 
-  // test('disallowed in code, missing in config reads out false', () => {
 
+
+  // test('disallowed in code, missing in config reads out false', () => {
+  //   const machine = sm`allows_override: false; a -> b;`;
+  //   expect(machine.allows_override).toBe(false);
   // });
 
   // test('disallowed in code, undefined in config reads out false', () => {

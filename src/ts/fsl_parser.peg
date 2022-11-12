@@ -860,16 +860,28 @@ ConfigTransition
 
 
 ConfigGraphLayout
-  = WS? "graph_layout"   WS? ":" WS? value:GvizLayout WS? ";" WS? { return { key: "graph_layout",   value: value }; }
+  = WS? "graph_layout"    WS? ":" WS? value:GvizLayout WS? ";" WS? { return { key: "graph_layout",    value: value }; }
 
 ConfigStartNodes
-  = WS? "start_states"   WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "start_states",   value: value }; }
+  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "start_states",    value: value }; }
 
 ConfigEndNodes
-  = WS? "end_states"     WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "end_states",     value: value }; }
+  = WS? "end_states"      WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "end_states",      value: value }; }
 
 ConfigGraphBgColor
-  = WS? "graph_bg_color" WS? ":" WS? value:Color      WS? ";" WS? { return { key: "graph_bg_color", value: value }; }
+  = WS? "graph_bg_color"  WS? ":" WS? value:Color      WS? ";" WS? { return { key: "graph_bg_color",  value: value }; }
+
+ConfigAllowsOverride
+  = WS? "allows_override" WS? ":" WS? value:OverrideT  WS? ";" WS? { return { key: "allows_override", value: value }; }
+
+
+
+
+
+OverrideT
+  = 'true'      { return true;      }
+  / 'false'     { return false;     }
+  / 'undefined' { return undefined; }
 
 
 
@@ -884,6 +896,7 @@ Config "configuration"
   / ConfigAnyState
   / ConfigValidation
   / ConfigGraphBgColor
+  / ConfigAllowsOverride
 
 
 

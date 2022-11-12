@@ -1,5 +1,5 @@
 
-const version    : string = "5.86.0",
-      build_time : number = 1668217213797;
+const version    : string = "5.86.1",
+      build_time : number = 1668220727832;
 
 export { version, build_time };
