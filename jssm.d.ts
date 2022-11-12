@@ -1,6 +1,6 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
+JssmMachineInternalState, JssmAllowsOverride, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
@@ -74,7 +74,8 @@ declare class Machine<mDT> {
     _has_post_exit_hooks: boolean;
     _has_post_global_action_hooks: boolean;
     _has_post_transition_hooks: boolean;
-    _allows_override: boolean;
+    _code_allows_override: JssmAllowsOverride;
+    _config_allows_override: JssmAllowsOverride;
     _post_hooks: Map<string, HookHandler<mDT>>;
     _post_named_hooks: Map<string, HookHandler<mDT>>;
     _post_entry_hooks: Map<string, HookHandler<mDT>>;
@@ -98,7 +99,7 @@ declare class Machine<mDT> {
     _start_state_style: JssmStateConfig;
     _end_state_style: JssmStateConfig;
     _state_labels: Map<string, string>;
-    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -486,10 +487,22 @@ declare class Machine<mDT> {
     get uses_forced_transitions(): boolean;
     /*********
      *
+     *  Check if the code that built the machine allows overriding state and data.
+     *
+     */
+    get code_allows_override(): JssmAllowsOverride;
+    /*********
+     *
+     *  Check if the machine config allows overriding state and data.
+     *
+     */
+    get config_allows_override(): JssmAllowsOverride;
+    /*********
+     *
      *  Check if a machine allows overriding state and data.
      *
      */
-    get allows_override(): boolean;
+    get allows_override(): JssmAllowsOverride;
     all_themes(): FslTheme[];
     get themes(): FslTheme | FslTheme[];
     set themes(to: FslTheme | FslTheme[]);
