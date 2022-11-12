@@ -25,7 +25,8 @@ import {
   JssmGenericConfig,
   JssmStateDeclaration,
   JssmLayout,
-  JssmPropertyDefinition
+  JssmPropertyDefinition,
+  JssmAllowsOverride
 } from './jssm_types';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
@@ -280,9 +281,10 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
     'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow', 'dot_preamble', 'default_state_config', 'default_start_state_config',
-    'default_end_state_config', 'default_hooked_state_config',
-    'default_active_state_config', 'default_terminal_state_config'
+    'flow', 'dot_preamble', 'allows_override', 'default_state_config',
+    'default_start_state_config', 'default_end_state_config',
+    'default_hooked_state_config', 'default_active_state_config',
+    'default_terminal_state_config'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -382,6 +384,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : Array<JssmStateConfig>,
     default_start_state_config    : Array<JssmStateConfig>,
     default_end_state_config      : Array<JssmStateConfig>,
+    allows_override               : Array<JssmAllowsOverride>
   } = {
     graph_layout                  : [],
     transition                    : [],
@@ -413,7 +416,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : [],
     default_start_state_config    : [],
     default_end_state_config      : [],
-
+    allows_override               : []
   };
 
   tree.map((tr: JssmCompileSeStart<StateType, mDT>) => {
@@ -422,7 +425,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
           agg_as : string                     = rule.agg_as,
           val    : any                        = rule.val;                  // TODO FIXME no any
 
-    results[agg_as] = results[agg_as].concat(val);
+    results[agg_as] = results[agg_as].concat(val)
 
   });
 
@@ -445,7 +448,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
     'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'flow', 'dot_preamble'
+    'flow', 'dot_preamble', 'allows_override'
   ];
 
   oneOnlyKeys.map((oneOnlyKey: string) => {

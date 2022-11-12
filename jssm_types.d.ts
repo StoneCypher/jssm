@@ -24,6 +24,7 @@ declare type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
 declare type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp';
 declare type JssmCorner = 'regular' | 'rounded' | 'lined';
 declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
+declare type JssmAllowsOverride = true | false | undefined;
 declare const FslDirections: readonly ["up", "right", "down", "left"];
 declare type FslDirection = typeof FslDirections[number];
 declare const FslThemes: readonly ["default", "ocean", "modern", "plain", "bold"];
@@ -190,6 +191,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
+    allows_override?: JssmAllowsOverride;
+    config_allows_override?: JssmAllowsOverride;
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
@@ -354,4 +357,4 @@ declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
 declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };

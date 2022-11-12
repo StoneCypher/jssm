@@ -192,9 +192,10 @@ function compile_rule_handler(rule) {
         'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
         'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
         'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-        'flow', 'dot_preamble', 'default_state_config', 'default_start_state_config',
-        'default_end_state_config', 'default_hooked_state_config',
-        'default_active_state_config', 'default_terminal_state_config'
+        'flow', 'dot_preamble', 'allows_override', 'default_state_config',
+        'default_start_state_config', 'default_end_state_config',
+        'default_hooked_state_config', 'default_active_state_config',
+        'default_terminal_state_config'
     ];
     if (tautologies.includes(rule.key)) {
         return { agg_as: rule.key, val: rule.value };
@@ -284,6 +285,7 @@ function compile(tree) {
         default_terminal_state_config: [],
         default_start_state_config: [],
         default_end_state_config: [],
+        allows_override: []
     };
     tree.map((tr) => {
         const rule = compile_rule_handler(tr), agg_as = rule.agg_as, val = rule.val; // TODO FIXME no any
@@ -303,7 +305,7 @@ function compile(tree) {
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
         'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-        'flow', 'dot_preamble'
+        'flow', 'dot_preamble', 'allows_override'
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {

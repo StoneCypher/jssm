@@ -15,6 +15,7 @@ import {
   JssmGenericState, JssmGenericConfig, JssmStateConfig,
   JssmTransition, JssmTransitions, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
+  JssmAllowsOverride,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmStateStyleKey, JssmStateStyleKeyList,
@@ -276,7 +277,8 @@ class Machine<mDT> {
   _has_post_transition_hooks     : boolean;
   // no boolean for the single hooks, just check if they're defined
 
-  _allows_override : boolean;
+  _code_allows_override   : JssmAllowsOverride;
+  _config_allows_override : JssmAllowsOverride;
 
   _post_hooks                    : Map<string, HookHandler<mDT>>;
   _post_named_hooks              : Map<string, HookHandler<mDT>>;
@@ -341,7 +343,9 @@ class Machine<mDT> {
     default_hooked_state_config,
     default_terminal_state_config,
     default_start_state_config,
-    default_end_state_config
+    default_end_state_config,
+    allows_override,
+    config_allows_override
 
   }: JssmGenericConfig<StateType, mDT>) {
 
@@ -411,7 +415,11 @@ class Machine<mDT> {
     this._has_post_transition_hooks    = true;
     // no need for a boolean for single hooks, just test for undefinedness
 
-    this._allows_override = false;
+    this._code_allows_override   = allows_override;
+    this._config_allows_override = config_allows_override;
+    if ( (allows_override === false) && (config_allows_override === true) ) {
+      throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+    }
 
     this._post_hooks                    = new Map();
     this._post_named_hooks              = new Map();
@@ -1372,12 +1380,67 @@ class Machine<mDT> {
 
   /*********
    *
+   *  Check if the code that built the machine allows overriding state and data.
+   *
+   */
+
+  get code_allows_override(): JssmAllowsOverride {
+    return this._code_allows_override;
+  }
+
+
+
+
+
+  /*********
+   *
+   *  Check if the machine config allows overriding state and data.
+   *
+   */
+
+  get config_allows_override(): JssmAllowsOverride {
+    return this._config_allows_override;
+  }
+
+
+
+
+
+  /*********
+   *
    *  Check if a machine allows overriding state and data.
    *
    */
 
-  get allows_override(): boolean {
-    return this._allows_override === true;
+  get allows_override(): JssmAllowsOverride {
+
+    // code false?  config true, throw.  config false, false.  config undefined, false.
+    if (this._code_allows_override === false) {
+      /* istanbul ignore next */
+      if (this._config_allows_override === true) {
+        /* istanbul ignore next */
+        throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code; should be unreachable");
+      } else {
+        return false;
+      }
+    }
+
+    // code true?  config true, true.  config false, false.  config undefined, true.
+    if (this._code_allows_override === true) {
+      if (this._config_allows_override === false) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    // code must be undefined.  config false, false.  config true, true.  config undefined, false.
+    if (this._config_allows_override === true) {
+      return true;
+    } else {
+      return false;
+    }
+
   }
 
 
@@ -3058,7 +3121,13 @@ function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< Js
   const to_decorate = make<StateType, mDT>( MachineAsString );
 
   if (ExtraConstructorFields !== undefined) {
-    Object.keys(ExtraConstructorFields).map(key => to_decorate[key] = ExtraConstructorFields[key]);
+    Object.keys(ExtraConstructorFields).map(key => {
+      if (key === 'allows_override') {
+        to_decorate['config_allows_override'] = ExtraConstructorFields['allows_override'];
+      } else {
+        to_decorate[key] = ExtraConstructorFields[key];
+      }
+    });
   }
 
   return new Machine<mDT>( to_decorate );

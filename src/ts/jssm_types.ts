@@ -53,6 +53,8 @@ type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';  // todo add the re
 type JssmCorner         = 'regular' | 'rounded' | 'lined';
 type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
 
+type JssmAllowsOverride = true | false | undefined;
+
 
 
 
@@ -305,6 +307,8 @@ type JssmGenericConfig<StateType, DataType> = {
   actions?                       : JssmPermittedOpt,
 
   simplify_bidi?                 : boolean,
+  allows_override?               : JssmAllowsOverride,
+  config_allows_override?        : JssmAllowsOverride,
 
   dot_preamble?                  : string,
 
@@ -641,6 +645,7 @@ export {
   JssmHistory,
   JssmSerialization,
   JssmPropertyDefinition,
+  JssmAllowsOverride,
 
   JssmParseFunctionType,
 
