@@ -2135,6 +2135,45 @@ class Machine<mDT> {
 
 
 
+  /*********
+   *
+   *  Replace the current state and data with no regard to the graph.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const machine = sm`a -> b -> c;`;
+   *  console.log( machine.state() );    // 'a'
+   *
+   *  machine.go('b');
+   *  machine.go('c');
+   *  console.log( machine.state() );    // 'c'
+   *
+   *  machine.override('a');
+   *  console.log( machine.state() );    // 'a'
+   *  ```
+   *
+   */
+
+  override(newState: StateType, newData?: mDT | undefined) {
+
+    if (this.allows_override) {
+
+      if (this._states.has(newState)) {
+        this._state = newState;
+        this._data  = newData;
+      } else {
+        throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
+      }
+
+    } else {
+      throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+    }
+
+  }
+
+
+
   transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
 
     // TODO the forced-ness behavior needs to be cleaned up a lot here

@@ -189,3 +189,91 @@ describe('.allows_override negative tests', () => {
   });
 
 });
+
+
+
+
+
+describe('.override/2', () => {
+
+  test('working override without data', () => {
+    const machine = sm`allows_override: true; a -> b -> c;`;
+    machine.go('b');
+    machine.go('c');
+    expect(machine.state()).toBe('c');
+    machine.override('a', undefined);
+    expect(machine.state()).toBe('a');
+  });
+
+  test('working override with data', () => {
+    const machine = jssm.from(`allows_override: true; a -> b -> c;`, { data: 'foo' });
+    machine.go('b');
+    machine.go('c');
+    expect(machine.state()).toBe('c');
+    expect(machine.data()).toBe('foo');
+    machine.override('a', 'bar');
+    expect(machine.state()).toBe('a');
+    expect(machine.data()).toBe('bar');
+  });
+
+  test('working override to distinct chain', () => {
+    const machine = sm`allows_override: true; a -> b -> c -> a; d -> e -> f -> d;`;
+    machine.go('b');
+    machine.go('c');
+    expect(machine.state()).toBe('c');
+    machine.override('d', undefined);
+    machine.go('e')
+    expect(machine.state()).toBe('e');
+  });
+
+  test('working override to distinct chain then back', () => {
+    const machine = sm`allows_override: true; a -> b -> c -> a; d -> e -> f -> d;`;
+    machine.go('b');
+    machine.go('c');
+    expect(machine.state()).toBe('c');
+    machine.override('d', undefined);
+    machine.go('e')
+    expect(machine.state()).toBe('e');
+    machine.override('a', undefined);
+    machine.go('b')
+    expect(machine.state()).toBe('b');
+  });
+
+});
+
+
+
+
+
+describe('.override/2 negative tests', () => {
+
+  test('allowed, but to state that does not exist', () => {
+    const machine = sm`allows_override: true; a -> b;`;
+    expect(machine.state()).toBe('a');
+    expect( () => machine.override('c') ).toThrow();
+  });
+
+  test('disallowed in code', () => {
+    const machine = sm`allows_override: false; a -> b;`;
+    expect(machine.state()).toBe('a');
+    expect( () => machine.override('b') ).toThrow();
+  });
+
+  test('disallowed in config', () => {
+    const machine = jssm.from(`a -> b;`, { allows_override: false });
+    expect(machine.state()).toBe('a');
+    expect( () => machine.override('b') ).toThrow();
+  });
+
+  test('disallowed by default', () => {
+    const machine = jssm.from(`a -> b;`);
+    expect(machine.state()).toBe('a');
+    expect( () => machine.override('b') ).toThrow();
+  });
+
+  test('disallowed in code and config', () => {
+    const machine = jssm.from(`allows_override: false; a -> b;`, { allows_override: false });
+    expect( () => machine.override('b') ).toThrow();
+  });
+
+});

@@ -669,6 +669,26 @@ declare class Machine<mDT> {
     post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     edges_between(from: string, to: string): JssmTransition<StateType, mDT>[];
+    /*********
+     *
+     *  Replace the current state and data with no regard to the graph.
+     *
+     *  ```typescript
+     *  import { sm } from 'jssm';
+     *
+     *  const machine = sm`a -> b -> c;`;
+     *  console.log( machine.state() );    // 'a'
+     *
+     *  machine.go('b');
+     *  machine.go('c');
+     *  console.log( machine.state() );    // 'c'
+     *
+     *  machine.override('a');
+     *  console.log( machine.state() );    // 'a'
+     *  ```
+     *
+     */
+    override(newState: StateType, newData?: mDT | undefined): void;
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
     /*********
      *

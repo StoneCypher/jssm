@@ -20020,7 +20020,7 @@ var jssm = (function (exports) {
         named_colors: named_colors$1
     });
 
-    const version = "5.86.2", build_time = 1668285414765;
+    const version = "5.86.3", build_time = 1668305137795;
 
     // whargarbl lots of these return arrays could/should be sets
     const { shapes, gviz_shapes, named_colors } = constants;
@@ -21437,6 +21437,39 @@ var jssm = (function (exports) {
         // }
         edges_between(from, to) {
             return this._edges.filter(edge => ((edge.from === from) && (edge.to === to)));
+        }
+        /*********
+         *
+         *  Replace the current state and data with no regard to the graph.
+         *
+         *  ```typescript
+         *  import { sm } from 'jssm';
+         *
+         *  const machine = sm`a -> b -> c;`;
+         *  console.log( machine.state() );    // 'a'
+         *
+         *  machine.go('b');
+         *  machine.go('c');
+         *  console.log( machine.state() );    // 'c'
+         *
+         *  machine.override('a');
+         *  console.log( machine.state() );    // 'a'
+         *  ```
+         *
+         */
+        override(newState, newData) {
+            if (this.allows_override) {
+                if (this._states.has(newState)) {
+                    this._state = newState;
+                    this._data = newData;
+                }
+                else {
+                    throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
+                }
+            }
+            else {
+                throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+            }
         }
         transition_impl(newStateOrAction, newData, wasForced, wasAction) {
             // TODO the forced-ness behavior needs to be cleaned up a lot here
