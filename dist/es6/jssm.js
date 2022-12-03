@@ -1492,6 +1492,7 @@ class Machine {
             action: fromAction,
             from: this._state,
             to: newState,
+            next_data: newData,
             forced: wasForced,
             trans_type
         };

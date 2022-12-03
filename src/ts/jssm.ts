@@ -2212,11 +2212,12 @@ class Machine<mDT> {
 
 
     const hook_args = {
-      data   : this._data,
-      action : fromAction,
-      from   : this._state,
-      to     : newState,
-      forced : wasForced,
+      data       : this._data,
+      action     : fromAction,
+      from       : this._state,
+      to         : newState,
+      next_data  : newData,
+      forced     : wasForced,
       trans_type
     };
 
