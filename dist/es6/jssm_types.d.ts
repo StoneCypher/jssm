@@ -346,10 +346,12 @@ declare type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType;
     data?: mDT;
+    next_data?: mDT;
 };
 declare type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>; /** Documents whether a hook succeeded, either with a primitive or a reference to the hook complex object */
 declare type HookContext<mDT> = {
     data: mDT;
+    next_data: mDT;
 };
 declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
 declare type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;

@@ -1063,46 +1063,46 @@ describe('is_hook_rejection', () => {
 describe('abstract_hook_step', () => {
 
   test('generates pass for undefined', () =>
-    expect( jssm.abstract_hook_step(undefined, {data: undefined}) )
+    expect( jssm.abstract_hook_step(undefined, { data: undefined, next_data: undefined }) )
       .toStrictEqual({ pass: true }) );
 
   test('generates pass for function returning undefined', () => {
     const fn = jest.fn();
-    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+    expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
       .toStrictEqual({ pass: true })
     expect(fn).toHaveBeenCalled();
   });
 
   test('generates pass for function returning true', () => {
     const fn = jest.fn( () => true );
-    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+    expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
       .toStrictEqual({ pass: true })
     expect(fn).toHaveBeenCalled();
   });
 
   test('generates reject for function returning false', () => {
     const fn = jest.fn( () => false );
-    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+    expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
       .toStrictEqual({ pass: false })
     expect(fn).toHaveBeenCalled();
   });
 
   test('generates pass for function returning complex pass', () => {
     const fn = jest.fn( () => ({pass: true}) );
-    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+    expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
       .toStrictEqual({ pass: true })
     expect(fn).toHaveBeenCalled();
   });
 
   test('generates reject for function returning complex reject', () => {
     const fn = jest.fn( () => ({pass: false}) );
-    expect( jssm.abstract_hook_step(fn, {data: undefined}) )
+    expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
       .toStrictEqual({ pass: false })
     expect(fn).toHaveBeenCalled();
   });
 
   test('throws for hook returning illegal value', () => {
-    expect( () => jssm.abstract_hook_step( () => "squid" as any, {data: undefined}) )
+    expect( () => jssm.abstract_hook_step( () => "squid" as any, { data: undefined, next_data: undefined }) )
       .toThrow()
   });
 
