@@ -13,7 +13,7 @@ const config = {
   input: 'dist/es6/jssm.js',
 
   output: {
-    file   : 'dist/deno/jssm.deno-esm.js',
+    file   : 'dist/deno/jssm.deno-esm.nonmin.js',
     format : 'esm',
     name   : 'jssm'
   },

@@ -45,3 +45,4 @@ src/ts/jssm-dot.ts
 build/
 
 docs/docs/*.css.map
+*.nonmin.js
