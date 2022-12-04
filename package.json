@@ -46,7 +46,7 @@
     "make_deno": "rollup -c rollup.config.deno.js",
     "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
     "makever": "node src/buildjs/makever.js",
-    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_deno && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs && rm ./dist/es6/*.nonmin.js",
+    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_deno && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs && npm run min_deno && rm ./dist/es6/*.nonmin.js",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
