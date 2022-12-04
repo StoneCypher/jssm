@@ -22,7 +22,7 @@ module.exports = {
     },
   },
 
-  collectCoverageFrom: ["src/ts/**/{!(jssm-dot),}.{js,ts}"],
+  collectCoverageFrom: ["src/ts/**/{!(fsl_parser),}.{js,ts}"],
 
   reporters: [
     ['default',             {}],

@@ -1,4 +1,24 @@
 
+export const NegInfinity = Number.NEGATIVE_INFINITY,
+             PosInfinity = Number.POSITIVE_INFINITY,
+             Epsilon     = Number.EPSILON,
+             Pi          = Math.PI,
+             E           = Math.E,
+             Root2       = Math.SQRT2,
+             RootHalf    = Math.SQRT1_2,
+             Ln2         = Math.LN2,
+             Ln10        = Math.LN10,
+             Log2E       = Math.LOG2E,
+             Log10E      = Math.LOG10E,
+             MaxSafeInt  = Number.MAX_SAFE_INTEGER,
+             MinSafeInt  = Number.MIN_SAFE_INTEGER,
+             MaxPosNum   = Number.MAX_VALUE,
+             MinPosNum   = Number.MIN_VALUE,
+             Phi         = 1.61803398874989484820,
+             EulerC      = 0.57721566490153286060;
+
+
+
 const gviz_shapes = [
   "box3d",
   "polygon",
@@ -102,4 +122,11 @@ const named_colors = [
 
 
 
-export { gviz_shapes, shapes, named_colors };
+export {
+
+  gviz_shapes,
+    shapes,
+
+  named_colors,
+
+};

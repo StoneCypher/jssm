@@ -402,7 +402,7 @@ looks like HTML in Javascript, that's a DSL.
 This library implements a simple language for `defining finite state machine`s inside of strings.  For example, this
 `DSL` defines that `'a -> b;'` actually means "create two states, create a transition between them, assign the first as
 the initial state", et cetera.  That micro-language is the `DSL` that we'll be referring to a lot, coming up.  This
-`DSL`'s formal name is `jssm-dot`, because it's a descendant-in-spirit of an older flowcharting language
+`DSL`'s parser's original name was `jssm-dot`, because it's a descendant-in-spirit of an older flowcharting language
 [DOT](http://www.graphviz.org/content/dot-language), from [graphviz](graphviz.org), which is also used to make the
 visualizations in [jssm-viz](https://github.com/StoneCypher/jssm-viz) by way of [viz-js](viz-js.com).
 
@@ -528,7 +528,7 @@ Let's load it and use it!  😀
 ### An introduction to machine design
 
 Let's make a `state machine` for ATMs.  In the process, we will use a lot of core concepts of `finite state machine`s
-and of `jssm-dot`, this library's `DSL`.
+and of `fsl`, this library's `DSL`.
 
 We're going to improve on this [NCSU ATM diagram](https://people.engr.ncsu.edu/efg/210/s99/Notes/fsm/atm.gif) that I
 found:

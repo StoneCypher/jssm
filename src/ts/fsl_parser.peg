@@ -2,6 +2,10 @@
 // If you're in PegJS Online and see "Missing initializer in const declaration,"
 // go down to the rule Exp and take the typescript type off of the const there
 //
+// Then do the same thing on SubExp
+//
+// Just search for "Reminder"
+//
 // Can't take it out permanently because it's necessary for the typescript chain
 
 
@@ -20,6 +24,11 @@ Theme
   / "default"
   / "modern"
   / "ocean"
+  / "bold"
+
+ThemeOrThemeList
+  = '[' WS? ths:(Theme WS)* th:Theme? ']' { const themes = ths.map(t => t[0]); themes.push(th); return themes; }
+  / th:Theme                              { return [th]; }
 
 
 
@@ -184,9 +193,6 @@ LineStyle
   / "dotted"
   / "dashed"
 
-HexDigit
-  = [0-9a-fA-F]
-
 Char
   = Unescaped
   / Escape Sequence:(
@@ -205,9 +211,12 @@ Char
     )
     { return Sequence; }
 
+Null      = 'null'      { return null; }
+Undefined = 'undefined' { return undefined; }
+
 Escape    = "\\"
 QuoteMark = '"'
-Unescaped = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]  // explicitly omits "
+Unescaped = [\x00-\x21\x23-\x5B\x5D-\uFFFF]  // explicitly omits "
 
 ActionLabelChar
   = ActionLabelUnescaped
@@ -228,7 +237,7 @@ ActionLabelChar
     { return Sequence; }
 
 ActionLabelQuoteMark = "'"
-ActionLabelUnescaped = [\x20-\x26\x28-\x5B\x5D-\u10FFFF]  // explicitly omits ' which is hex 27
+ActionLabelUnescaped = [\x20-\x26\x28-\x5B\x5D-\uFFFF]  // explicitly omits ' which is hex 27
 
 ActionLabel "action label"
   = ActionLabelQuoteMark chars:ActionLabelChar* ActionLabelQuoteMark { return chars.join(""); }
@@ -290,9 +299,106 @@ DecimalDigit
 NonZeroDigit
   = [1-9]
 
+HexDigit
+  = [0-9a-f]i
+
+BinaryDigit
+  = [0-1]
+
+OctalDigit
+  = [0-1]
+
 NonNegNumber "nonneg number"
   = IntegerLiteral "." DecimalDigit* WS? { return parseFloat(text()); }
   / IntegerLiteral                   WS? { return parseFloat(text()); }
+
+
+
+
+
+JsNumericLiteral "number"
+  = literal:JsHexIntegerLiteral      { return literal; }
+  / literal:JsBinaryIntegerLiteral   { return literal; }
+  / literal:NonJsOctalIntegerLiteral { return literal; }
+  / literal:JsDecimalLiteral         { return literal; }
+  / 'NaN'                            { return NaN; }
+  / 'NegativeInfinity'               { return Number.NEGATIVE_INFINITY; }
+  / 'NegativeInf'                    { return Number.NEGATIVE_INFINITY; }
+  / 'NegInfinity'                    { return Number.NEGATIVE_INFINITY; }
+  / 'NegInf'                         { return Number.NEGATIVE_INFINITY; }
+  / 'NInfinity'                      { return Number.NEGATIVE_INFINITY; }
+  / 'NInf'                           { return Number.NEGATIVE_INFINITY; }
+  / '-∞'                             { return Number.NEGATIVE_INFINITY; }
+  / 'PInfinity'                      { return Number.POSITIVE_INFINITY; }
+  / 'Infinity'                       { return Number.POSITIVE_INFINITY; }
+  / 'PInf'                           { return Number.POSITIVE_INFINITY; }
+  / 'Inf'                            { return Number.POSITIVE_INFINITY; }
+  / '∞'                              { return Number.POSITIVE_INFINITY; }
+  / 'Epsilon'                        { return Number.EPSILON; }
+  / '𝜀'                              { return Number.EPSILON; }            // math page epsilon
+  / 'ε'                              { return Number.EPSILON; }            // greek language epsilon
+  / 'Pi'                             { return Math.PI; }
+  / '𝜋'                              { return Math.PI; }
+  / 'π'                              { return Math.PI; }
+  / 'EulerNumber'                    { return Math.E; }
+  / 'E'                              { return Math.E; }
+  / 'e'                              { return Math.E; }
+  / 'Ɛ'                              { return Math.E; }
+  / 'ℇ'                              { return Math.E; }
+  / 'Root2'                          { return Math.SQRT2; }
+  / 'RootHalf'                       { return Math.SQRT1_2; }
+  / 'Ln2'                            { return Math.LN2; }
+  / 'NatLog2'                        { return Math.LN2; }
+  / 'Ln10'                           { return Math.LN10; }
+  / 'NatLog10'                       { return Math.LN10; }
+  / 'Log2E'                          { return Math.LOG2E; }
+  / 'Log10E'                         { return Math.LOG10E; }
+  / 'MaxSafeInt'                     { return Number.MAX_SAFE_INTEGER; }
+  / 'MinSafeInt'                     { return Number.MIN_SAFE_INTEGER; }
+  / 'MaxPosNum'                      { return Number.MAX_VALUE; }
+  / 'MinPosNum'                      { return Number.MIN_VALUE; }
+  / 'Phi'                            { return 1.61803398874989484820; }    // doubles trace 16 decimal digits, so 20 is extra
+  / '𝜑'                              { return 1.61803398874989484820; }
+  / '𝜙'                              { return 1.61803398874989484820; }
+  / 'ϕ'                              { return 1.61803398874989484820; }
+  / 'φ'                              { return 1.61803398874989484820; }
+  / 'EulerConstant'                  { return 0.57721566490153286060; }
+  / 'γ'                              { return 0.57721566490153286060; }
+  / '𝛾'                              { return 0.57721566490153286060; }
+  / 'γ'                              { return 0.57721566490153286060; }
+
+JsDecimalLiteral
+  = JsDecimalIntegerLiteral "." DecimalDigit* JsNExponentPart? { return parseFloat(text()); }
+  /                         "." DecimalDigit+ JsNExponentPart? { return parseFloat(text()); }
+  / JsDecimalIntegerLiteral                   JsNExponentPart? { return parseFloat(text()); }
+
+JsDecimalIntegerLiteral
+  = "0"
+  / NonZeroDigit DecimalDigit*
+
+JsNExponentPart
+  = JsNExponentIndicator JsNSignedInteger
+
+JsNExponentIndicator
+  = "e"i
+
+JsNSignedInteger
+  = [+-]? DecimalDigit+
+
+JsHexIntegerLiteral
+  = "0x"i digits:$HexDigit+ {
+      return parseInt(digits, 16);
+     }
+
+JsBinaryIntegerLiteral
+  = "0b"i digits:$BinaryDigit+ {
+      return parseInt(digits, 2);
+     }
+
+NonJsOctalIntegerLiteral
+  = "0o"i digits:$OctalDigit+ {
+      return parseInt(digits, 8);
+     }
 
 
 
@@ -543,7 +649,7 @@ SingleEdgeColor "single edge color"
   = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
 
 TransitionLineStyle "transition line style"
-  = WS? "linestyle" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
+  = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
 
 ArrowItems
   = SingleEdgeColor
@@ -657,37 +763,55 @@ GvizLayout
   / "fdp"
   / "neato"
 
-StateItemShapeKey
-  = "shape"
-
-StateItemShape
-  = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return {key:"shape", value:value}; }
-
-StateItem
-  = StateItemShape
+// StateItemShapeKey
+//   = "shape"
+//
+// StateItemShape
+//   = WS? "shape" WS? ":" WS? value:GvizShape WS? ";" WS? { return { shape: value }; }
+//
+// StateItem
+//   = StateItemShape
 
 StateItems
-  = StateItem+
+  = StateDeclarationItem+
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "state_config", value: { config_kind: "state", config_items: state_items || [] } };
+    return { key: "default_state_config", value: state_items || [] };
   }
 
 ConfigStartState
   = WS? "start_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "state_config", value: { config_kind: "in_state", config_items: state_items || [] } };
+    return { key: "default_start_state_config", value: state_items || [] };
   }
 
 ConfigEndState
   = WS? "end_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "state_config", value: { config_kind: "out_state", config_items: state_items || [] } };
+    return { key: "default_end_state_config", value: state_items || [] };
+  }
+
+ConfigActiveState
+  = WS? "active_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "default_active_state_config", value: state_items || [] };
+  }
+
+ConfigTerminalState
+  = WS? "terminal_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "default_terminal_state_config", value: state_items || [] };
+  }
+
+ConfigHookedState
+  = WS? "hooked_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
+    return { key: "default_hooked_state_config", value: state_items || [] };
   }
 
 ConfigAnyState
   = ConfigState
   / ConfigStartState
   / ConfigEndState
+  / ConfigActiveState
+  / ConfigTerminalState
+  / ConfigHookedState
 
 
 
@@ -717,14 +841,14 @@ TransitionKey
   / "todo"
 
 TransitionItem
-  = transitionkey:TransitionKey ":" value:Label ";" { return {key:transitionkey, value:value}; }
+  = key:TransitionKey ":" value:Label ";" { return { key, value }; }
 
 TransitionItems
   = GraphDefaultEdgeColor
   / TransitionItem+
 
 GraphDefaultEdgeColor "graph default edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'graph_default_edge_color', value:value}; }
+  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
 
 ConfigTransition
   = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
@@ -736,16 +860,28 @@ ConfigTransition
 
 
 ConfigGraphLayout
-  = WS? "graph_layout"   WS? ":" WS? value:GvizLayout WS? ";" WS? { return {key:"graph_layout",   value:value}; }
+  = WS? "graph_layout"    WS? ":" WS? value:GvizLayout WS? ";" WS? { return { key: "graph_layout",    value: value }; }
 
 ConfigStartNodes
-  = WS? "start_states"   WS? ":" WS? value:LabelList  WS? ";" WS? { return {key:"start_states",   value:value}; }
+  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "start_states",    value: value }; }
 
 ConfigEndNodes
-  = WS? "end_states"     WS? ":" WS? value:LabelList  WS? ";" WS? { return {key:"end_states",     value:value}; }
+  = WS? "end_states"      WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "end_states",      value: value }; }
 
 ConfigGraphBgColor
-  = WS? "graph_bg_color" WS? ":" WS? value:Color      WS? ";" WS? { return {key:"graph_bg_color", value:value}; }
+  = WS? "graph_bg_color"  WS? ":" WS? value:Color      WS? ";" WS? { return { key: "graph_bg_color",  value: value }; }
+
+ConfigAllowsOverride
+  = WS? "allows_override" WS? ":" WS? value:OverrideT  WS? ";" WS? { return { key: "allows_override", value: value }; }
+
+
+
+
+
+OverrideT
+  = 'true'      { return true;      }
+  / 'false'     { return false;     }
+  / 'undefined' { return undefined; }
 
 
 
@@ -760,6 +896,7 @@ Config "configuration"
   / ConfigAnyState
   / ConfigValidation
   / ConfigGraphBgColor
+  / ConfigAllowsOverride
 
 
 
@@ -833,7 +970,7 @@ FslVersion
   = WS? "fsl_version"         WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "fsl_version", value }; }
 
 MachineTheme
-  = WS? "theme"               WS? ":" WS? value:Theme                WS? ";" WS? { return { key: "theme", value }; }
+  = WS? "theme"               WS? ":" WS? value:ThemeOrThemeList     WS? ";" WS? { return { key: "theme", value }; }
 
 MachineFlow
   = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }
@@ -864,6 +1001,20 @@ MachineAttribute "machine attribute"
 
 
 
+PropertyVal
+  = String
+  / Boolean
+  / JsNumericLiteral
+  / Null
+  / Undefined
+
+
+
+
+
+SdStateLabel "color"
+  = WS? "label"            WS? ":" WS? value:Label     WS? ";" WS? { return { key:'state-label', value }; }
+
 SdStateColor "color"
   = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? { return { key:'color', value }; }
 
@@ -883,19 +1034,32 @@ SdStateCorners "corners"
   = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? { return { key:'corners', value }; }
 
 SdStateLineStyle "linestyle"
-  = WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'linestyle', value }; }
+  = WS? "line-style"       WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
+  / WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
 
-StateDeclarationItems
-  = SdStateColor
+
+SdStateProperty "state property"
+  = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
+    return { key: 'state_property', name, value }
+  }
+  / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required' WS? ";" WS? {
+    return { key: 'state_property', name, value, required: true }
+  }
+
+
+StateDeclarationItem
+  = SdStateLabel
+  / SdStateColor
   / SdStateTextColor
   / SdStateBackgroundColor
   / SdStateBorderColor
   / SdStateShape
   / SdStateCorners
   / SdStateLineStyle
+  / SdStateProperty
 
 StateDeclarationDesc
-  = "{" WS? items:StateDeclarationItems* WS? "}" { return items; }
+  = "{" WS? items:StateDeclarationItem* WS? "}" { return items; }
 
 StateDeclaration
   = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
@@ -911,55 +1075,16 @@ NamedList
 
 
 
-MachinePropertyDefaultNull
-  = 'null'
-
-MachinePropertyDefaultUndefined
-  = 'undefined'
-
-MachinePropertyDefaultBoolean
-  = 'true'
-  / 'false'
-
-MachinePropertyDefaultNumber
-  = '-'? IntegerLiteral "." DecimalDigit* WS? { return parseFloat( text() ); }
-  / '-'? IntegerLiteral                   WS? { return parseFloat( text() ); }
-  / 'Infinity'
-  / 'NegInfinity'
-  / 'NaN'
-  / 'MaxSafeInt'
-  / 'MinSafeInt'
-
-MachinePropertyDefaultString
-  = '"' chars:MachinePropertyDefaultStringCharacter* '"' { return chars.join(''); }
-
-MachinePropertyDefaultStringCharacter
-  = !('"' / "\\") char:.                                     { return char;     }
-  / "\\" sequence:MachinePropertyDefaultStringEscapeSequence { return sequence; }
-
-MachinePropertyDefaultStringEscapeSequence
-  = "'"
-  / '"'
-  / "\\"
-  / "b"  { return "\b";   }
-  / "f"  { return "\f";   }
-  / "n"  { return "\n";   }
-  / "r"  { return "\r";   }
-  / "t"  { return "\t";   }
-  / "v"  { return "\x0B"; }
-
 MachinePropertyDefault
-  = MachinePropertyDefaultNull
-  / MachinePropertyDefaultUndefined
-  / MachinePropertyDefaultBoolean
-  / MachinePropertyDefaultNumber
-  / MachinePropertyDefaultString
+  = PropertyVal
 //   / MachinePropertyDefaultArray
 //   / MachinePropertyDefaultObject
 
 MachineProperty
-  = WS? "property" WS? name:Label WS? 'default' WS default_value:MachinePropertyDefault WS? ";" WS? { return { key:'property_definition', name, default_value }; }
-  / WS? "property" WS? name:Label WS?                                                       ";" WS? { return { key:'property_definition', name };          }
+  = WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault WS  'required' WS? ";" WS? { return { key:'property_definition', name, default_value, required: true }; }
+  / WS? "property" WS name:Label                                                      WS  'required' WS? ";" WS? { return { key:'property_definition', name,                required: true }; }
+  / WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault                WS? ";" WS? { return { key:'property_definition', name, default_value                 }; }
+  / WS? "property" WS name:Label                                                                     WS? ";" WS? { return { key:'property_definition', name                                }; }
 
 
 

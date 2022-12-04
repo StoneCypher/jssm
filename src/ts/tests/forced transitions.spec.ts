@@ -24,3 +24,25 @@ describe('reject and accept correctly', () => {
   test('now in c',                       () => expect( machine.state()               ).toBe('c')   );
 
 });
+
+
+
+
+
+describe('uses_forced_transitions', () => {
+
+  test( 'standard transition', () => expect(sm`a -> b;`.uses_forced_transitions).toBe(false) );
+  test( 'main transition',     () => expect(sm`a => b;`.uses_forced_transitions).toBe(false) );
+  test( 'forced transition',   () => expect(sm`a ~> b;`.uses_forced_transitions).toBe(true)  );
+
+  test( 'standard and main transition',   () => expect(sm`a -> b; c => d;`.uses_forced_transitions).toBe(false) );
+  test( 'forced and main transition',     () => expect(sm`a ~> b; c => d;`.uses_forced_transitions).toBe(true)  );
+  test( 'main and forced transition',     () => expect(sm`a => b; c ~> d;`.uses_forced_transitions).toBe(true)  );
+  test( 'standard and forced transition', () => expect(sm`a -> b; c ~> d;`.uses_forced_transitions).toBe(true)  );
+
+  test( 'standard and main transition, chain',   () => expect(sm`a -> c => d;`.uses_forced_transitions).toBe(false) );
+  test( 'forced and main transition, chain',     () => expect(sm`a ~> c => d;`.uses_forced_transitions).toBe(true)  );
+  test( 'main and forced transition, chain',     () => expect(sm`a => c ~> d;`.uses_forced_transitions).toBe(true)  );
+  test( 'standard and forced transition, chain', () => expect(sm`a -> c ~> d;`.uses_forced_transitions).toBe(true)  );
+
+});

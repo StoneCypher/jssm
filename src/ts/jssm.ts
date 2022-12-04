@@ -12,16 +12,21 @@ import { circular_buffer }         from 'circular_buffer_js';
 
 import {
 
-  JssmGenericState, JssmGenericConfig,
-  JssmTransition, JssmTransitionList, // JssmTransitionRule,
+  JssmGenericState, JssmGenericConfig, JssmStateConfig,
+  JssmTransition, JssmTransitions, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
+  JssmAllowsOverride,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
+  JssmStateStyleKey, JssmStateStyleKeyList,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
-  JssmArrow, JssmArrowDirection, JssmArrowKind,
-  JssmLayout,
-  FslDirection, FslTheme,
-  HookDescription, HookHandler, HookContext, HookResult, HookComplexResult
+  JssmLayout, JssmHistory,
+  JssmArrowKind,
+  JssmSerialization,
+  JssmPropertyDefinition,
+  FslDirection, FslDirections, FslTheme,
+  HookDescription, HookHandler, HookContext, HookResult, HookComplexResult,
+  JssmBaseTheme
 
 } from './jssm_types';
 
@@ -29,614 +34,37 @@ import {
 
 
 
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
+import { compile, make, makeTransition, wrap_parse }          from './jssm_compiler';
+import { theme_mapping, base_theme }                          from './jssm_theme';
+
+
+
+
+
 import {
-  seq, weighted_rand_select, weighted_sample_select, histograph,
-  weighted_histo_key, array_box_if_string, hook_name, named_hook_name
+  seq,
+  unique, find_repeated,
+  weighted_rand_select, weighted_sample_select,
+  histograph, weighted_histo_key,
+  array_box_if_string,
+  name_bind_prop_and_state, hook_name, named_hook_name
 } from './jssm_util';
 
 
 
 
 
-import { shapes, gviz_shapes, named_colors } from './jssm_constants';
+import * as constants from './jssm_constants';
+const { shapes, gviz_shapes, named_colors } = constants;
 
 
 
 
 
-import { parse }     from './jssm-dot';
-import { version }   from './version';    // replaced from package.js in build
-import { JssmError } from './jssm_error';
-
-
-
-
-
-/* eslint-disable complexity */
-
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_direction } from 'jssm';
- *
- *  arrow_direction('->');    // 'right'
- *  arrow_direction('<~=>');  // 'both'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-
-function arrow_direction(arrow: JssmArrow): JssmArrowDirection {
-
-  switch (String(arrow)) {
-
-    case '->': case '→':
-    case '=>': case '⇒':
-    case '~>': case '↛':
-      return 'right';
-
-    case '<-': case '←':
-    case '<=': case '⇐':
-    case '<~': case '↚':
-      return 'left';
-
-    case '<->': case '↔':
-    case '<-=>': case '←⇒': case '←=>': case '<-⇒':
-    case '<-~>': case '←↛': case '←~>': case '<-↛':
-
-    case '<=>': case '⇔':
-    case '<=->': case '⇐→': case '⇐->': case '<=→':
-    case '<=~>': case '⇐↛': case '⇐~>': case '<=↛':
-
-    case '<~>': case '↮':
-    case '<~->': case '↚→': case '↚->': case '<~→':
-    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒':
-      return 'both';
-
-    default:
-      throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
-
-  }
-
-}
-
-/* eslint-enable complexity */
-
-
-
-
-
-/* eslint-disable complexity */
-
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_left_kind } from 'jssm';
- *
- *  arrow_left_kind('<-');    // 'legal'
- *  arrow_left_kind('<=');    // 'main'
- *  arrow_left_kind('<~');    // 'forced'
- *  arrow_left_kind('<->');   // 'legal'
- *  arrow_left_kind('->');    // 'none'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-
-function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
-
-  switch (String(arrow)) {
-
-    case '->': case '→':
-    case '=>': case '⇒':
-    case '~>': case '↛':
-      return 'none';
-
-    case '<-': case '←':
-    case '<->': case '↔':
-    case '<-=>': case '←⇒':
-    case '<-~>': case '←↛':
-      return 'legal';
-
-    case '<=': case '⇐':
-    case '<=>': case '⇔':
-    case '<=->': case '⇐→':
-    case '<=~>': case '⇐↛':
-      return 'main';
-
-    case '<~': case '↚':
-    case '<~>': case '↮':
-    case '<~->': case '↚→':
-    case '<~=>': case '↚⇒':
-      return 'forced';
-
-    default:
-      throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
-
-  }
-
-}
-
-/* eslint-enable complexity */
-
-
-
-
-
-/* eslint-disable complexity */
-
-/*********
- *
- *  Return the direction of an arrow - `right`, `left`, or `both`.
- *
- *  ```typescript
- *  import { arrow_left_kind } from 'jssm';
- *
- *  arrow_left_kind('->');    // 'legal'
- *  arrow_left_kind('=>');    // 'main'
- *  arrow_left_kind('~>');    // 'forced'
- *  arrow_left_kind('<->');   // 'legal'
- *  arrow_left_kind('<-');    // 'none'
- *  ```
- *
- *  @param arrow The arrow to be evaluated
- *
- */
-
-function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
-
-  switch (String(arrow)) {
-
-    case '<-': case '←':
-    case '<=': case '⇐':
-    case '<~': case '↚':
-      return 'none';
-
-    case '->': case '→':
-    case '<->': case '↔':
-    case '<=->': case '⇐→':
-    case '<~->': case '↚→':
-      return 'legal';
-
-    case '=>': case '⇒':
-    case '<=>': case '⇔':
-    case '<-=>': case '←⇒':
-    case '<~=>': case '↚⇒':
-      return 'main';
-
-    case '~>': case '↛':
-    case '<~>': case '↮':
-    case '<-~>': case '←↛':
-    case '<=~>': case '⇐↛':
-      return 'forced';
-
-    default:
-      throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
-
-  }
-
-}
-
-/* eslint-enable complexity */
-
-
-
-
-
-/*********
- *
- *  Internal method meant to perform factory assembly of an edge.  Not meant for
- *  external use.
- *
- *  @internal
- *
- *  @typeparam mDT The type of the machine data member; usually omitted
- *
- */
-
-// TODO add at-param to docblock
-
-function makeTransition<mDT>(
-
-  this_se    : JssmCompileSe,
-  from       : string,
-  to         : string,
-  isRight    : boolean,
-  _wasList?  : Array<string>,
-  _wasIndex? : number
-
-): JssmTransition<mDT> {
-
-  const kind: JssmArrowKind = isRight ? arrow_right_kind(this_se.kind) : arrow_left_kind(this_se.kind),
-    edge: JssmTransition<mDT> = {
-      from,
-      to,
-      kind,
-      forced_only: kind === 'forced',
-      main_path: kind === 'main'
-    };
-
-  //  if ((wasList  !== undefined) && (wasIndex === undefined)) { throw new JssmError(undefined, `Must have an index if transition was in a list"); }
-  //  if ((wasIndex !== undefined) && (wasList  === undefined)) { throw new JssmError(undefined, `Must be in a list if transition has an index");   }
-  /*
-    if (typeof edge.to === 'object') {
-
-      if (edge.to.key === 'cycle') {
-        if (wasList === undefined) { throw new JssmError(undefined, "Must have a waslist if a to is type cycle"); }
-        const nextIndex = wrapBy(wasIndex, edge.to.value, wasList.length);
-        edge.to = wasList[nextIndex];
-      }
-
-    }
-  */
-  const action: string = isRight ? 'r_action' : 'l_action',
-    probability: string = isRight ? 'r_probability' : 'l_probability';
-
-  if (this_se[action]) { edge.action = this_se[action]; }
-  if (this_se[probability]) { edge.probability = this_se[probability]; }
-
-  return edge;
-
-}
-
-
-
-
-
-/*********
- *
- *  This method wraps the parser call that comes from the peg grammar,
- *  {@link parse}.  Generally neither this nor that should be used directly
- *  unless you mean to develop plugins or extensions for the machine.
- *
- *  Parses the intermediate representation of a compiled string down to a
- *  machine configuration object.  If you're using this (probably don't,) you're
- *  probably also using {@link compile} and {@link Machine.constructor}.
- *
- *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
- *
- *  const intermediate = wrap_parse('a -> b;', {});
- *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
- *
- *  const cfg = compile(intermediate);
- *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
- *
- *  const machine = new Machine(cfg);
- *  // Machine { _instance_name: undefined, _state: 'a', ...
- *  ```
- *
- *  This method is mostly for plugin and intermediate tool authors, or people
- *  who need to work with the machine's intermediate representation.
- *
- *  # Hey!
- *
- *  Most people looking at this want either the `sm` operator or method `from`,
- *  which perform all the steps in the chain.  The library's author mostly uses
- *  operator `sm`, and mostly falls back to `.from` when needing to parse
- *  strings dynamically instead of from template literals.
- *
- *  Operator {@link sm}:
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const switch = sm`on <=> off;`;
- *  ```
- *
- *  Method {@link from}:
- *
- *  ```typescript
- *  import * as jssm from 'jssm';
- *
- *  const toggle = jssm.from('up <=> down;');
- *  ```
- *
- *  `wrap_parse` itself is an internal convenience method for alting out an
- *  object as the options call.  Not generally meant for external use.
- *
- *  @param input The FSL code to be evaluated
- *
- *  @param options Things to control about the instance
- *
- */
-
-function wrap_parse(input: string, options?: Object) {
-  return parse(input, options || {});
-}
-
-
-
-
-
-/*********
- *
- *  Internal method performing one step in compiling rules for transitions.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- *  @typeparam mDT The type of the machine data member; usually omitted
- *
- */
-
-function compile_rule_transition_step<mDT>(
-
-  acc     : Array<JssmTransition<mDT>>,
-  from    : string,
-  to      : string,
-  this_se : JssmCompileSe,
-  next_se : JssmCompileSe
-
-): Array<JssmTransition<mDT>> { // todo typescript describe the parser representation of a transition step extension
-
-  const edges: Array<JssmTransition<mDT>> = [];
-
-  const uFrom: Array<string> = (Array.isArray(from) ? from : [from]),
-    uTo: Array<string> = (Array.isArray(to) ? to : [to]);
-
-  uFrom.map((f: string) => {
-    uTo.map((t: string) => {
-
-      const right: JssmTransition<mDT> = makeTransition(this_se, f, t, true);
-      if (right.kind !== 'none') { edges.push(right); }
-
-      const left: JssmTransition<mDT> = makeTransition(this_se, t, f, false);
-      if (left.kind !== 'none') { edges.push(left); }
-
-    });
-  });
-
-  const new_acc: Array<JssmTransition<mDT>> = acc.concat(edges);
-
-  if (next_se) {
-    return compile_rule_transition_step(new_acc, to, next_se.to, next_se, next_se.se);
-  } else {
-    return new_acc;
-  }
-
-}
-
-
-
-/*********
- *
- *  Internal method performing one step in compiling rules for transitions.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- */
-
-function compile_rule_handle_transition(rule: JssmCompileSeStart<StateType>): any { // TODO FIXME no any // todo typescript describe the parser representation of a transition
-  return compile_rule_transition_step([], rule.from, rule.se.to, rule.se, rule.se.se);
-}
-
-
-
-/*********
- *
- *  Internal method performing one step in compiling rules for transitions.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- */
-
-function compile_rule_handler(rule: JssmCompileSeStart<StateType>): JssmCompileRule {
-
-  if (rule.key === 'transition') {
-    return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
-  }
-
-  if (rule.key === 'machine_language') {
-    return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
-  }
-
-  if (rule.key === 'state_declaration') {
-    if (!rule.name) { throw new JssmError(undefined, 'State declarations must have a name'); }
-    return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
-  }
-
-  if (['arrange_declaration', 'arrange_start_declaration',
-    'arrange_end_declaration'].includes(rule.key)) {
-    return { agg_as: rule.key, val: [rule.value] };
-  }
-
-  const tautologies: Array<string> = [
-    'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
-    'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-    'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow', 'dot_preamble'
-  ];
-
-  if (tautologies.includes(rule.key)) {
-    return { agg_as: rule.key, val: rule.value };
-  }
-
-  throw new JssmError(undefined, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
-
-}
-
-
-
-
-
-/*********
- *
- *  Compile a machine's JSON intermediate representation to a config object.  If
- *  you're using this (probably don't,) you're probably also using
- *  {@link parse} to get the IR, and the object constructor
- *  {@link Machine.construct} to turn the config object into a workable machine.
- *
- *  ```typescript
- *  import { parse, compile, Machine } from 'jssm';
- *
- *  const intermediate = parse('a -> b;');
- *  // [ {key:'transition', from:'a', se:{kind:'->',to:'b'}} ]
- *
- *  const cfg = compile(intermediate);
- *  // { start_states:['a'], transitions: [{ from:'a', to:'b', kind:'legal', forced_only:false, main_path:false }] }
- *
- *  const machine = new Machine(cfg);
- *  // Machine { _instance_name: undefined, _state: 'a', ...
- *  ```
- *
- *  This method is mostly for plugin and intermediate tool authors, or people
- *  who need to work with the machine's intermediate representation.
- *
- *  # Hey!
- *
- *  Most people looking at this want either the `sm` operator or method `from`,
- *  which perform all the steps in the chain.  The library's author mostly uses
- *  operator `sm`, and mostly falls back to `.from` when needing to parse
- *  strings dynamically instead of from template literals.
- *
- *  Operator {@link sm}:
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const switch = sm`on <=> off;`;
- *  ```
- *
- *  Method {@link from}:
- *
- *  ```typescript
- *  import * as jssm from 'jssm';
- *
- *  const toggle = jssm.from('up <=> down;');
- *  ```
- *
- *  @typeparam mDT The type of the machine data member; usually omitted
- *
- *  @param tree The parse tree to be boiled down into a machine config
- *
- */
-
-function compile<mDT>(tree: JssmParseTree): JssmGenericConfig<mDT> {
-
-  const results: {
-    graph_layout              : Array<JssmLayout>,
-    transition                : Array<JssmTransition<mDT>>,
-    start_states              : Array<string>,
-    end_states                : Array<string>,
-    state_config              : Array<any>,           // TODO COMEBACK no any
-    state_declaration         : Array<string>,
-    fsl_version               : Array<string>,
-    machine_author            : Array<string>,
-    machine_comment           : Array<string>,
-    machine_contributor       : Array<string>,
-    machine_definition        : Array<string>,
-    machine_language          : Array<string>,
-    machine_license           : Array<string>,
-    machine_name              : Array<string>,
-    machine_reference         : Array<string>,
-    theme                     : Array<string>,
-    flow                      : Array<string>,
-    dot_preamble              : Array<string>,
-    arrange_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_start_declaration : Array<Array<string>>, // TODO COMEBACK CHECKME
-    arrange_end_declaration   : Array<Array<string>>, // TODO COMEBACK CHECKME
-    machine_version           : Array<string>         // TODO COMEBACK semver
-  } = {
-    graph_layout              : [],
-    transition                : [],
-    start_states              : [],
-    end_states                : [],
-    state_config              : [],
-    state_declaration         : [],
-    fsl_version               : [],
-    machine_author            : [],
-    machine_comment           : [],
-    machine_contributor       : [],
-    machine_definition        : [],
-    machine_language          : [],
-    machine_license           : [],
-    machine_name              : [],
-    machine_reference         : [],
-    theme                     : [],
-    flow                      : [],
-    dot_preamble              : [],
-    arrange_declaration       : [],
-    arrange_start_declaration : [],
-    arrange_end_declaration   : [],
-    machine_version           : []
-  };
-
-  tree.map((tr: JssmCompileSeStart<StateType>) => {
-
-    const rule   : JssmCompileRule = compile_rule_handler(tr),
-          agg_as : string          = rule.agg_as,
-          val    : any             = rule.val;                  // TODO FIXME no any
-
-    results[agg_as] = results[agg_as].concat(val);
-
-  });
-
-  const assembled_transitions: Array<JssmTransition<mDT>> = [].concat(...results['transition']);
-
-  const result_cfg: JssmGenericConfig<mDT> = {
-    start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
-    transitions: assembled_transitions
-  };
-
-  const oneOnlyKeys: Array<string> = [
-    'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
-    'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'theme', 'flow', 'dot_preamble'
-  ];
-
-  oneOnlyKeys.map((oneOnlyKey: string) => {
-    if (results[oneOnlyKey].length > 1) {
-      throw new JssmError(undefined,
-        `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`
-      );
-    } else {
-      if (results[oneOnlyKey].length) {
-        result_cfg[oneOnlyKey] = results[oneOnlyKey][0];
-      }
-    }
-  });
-
-  ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
-    'machine_author', 'machine_contributor', 'machine_reference', 'state_declaration'].map(
-      (multiKey: string) => {
-        if (results[multiKey].length) {
-          result_cfg[multiKey] = results[multiKey];
-        }
-      }
-    );
-
-  return result_cfg;
-
-}
-
-
-
-
-
-/*********
- *
- *  An internal convenience wrapper for parsing then compiling a machine string.
- *  Not generally meant for external use.  Please see {@link compile} or
- *  {@link sm}.
- *
- *  @typeparam mDT The type of the machine data member; usually omitted
- *
- *  @param plan The FSL code to be evaluated and built into a machine config
- *
- */
-
-function make<mDT>(plan: string): JssmGenericConfig<mDT> {
-  return compile(wrap_parse(plan));
-}
+import { parse }               from './fsl_parser';
+import { version, build_time } from './version';    // replaced from package.js in build
+import { JssmError }           from './jssm_error';
 
 
 
@@ -661,11 +89,14 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'shape'            : state_decl.shape           = d.value; break;
       case 'color'            : state_decl.color           = d.value; break;
       case 'corners'          : state_decl.corners         = d.value; break;
-      case 'linestyle'        : state_decl.linestyle       = d.value; break;
+      case 'line-style'       : state_decl.lineStyle       = d.value; break;
 
       case 'text-color'       : state_decl.textColor       = d.value; break;
       case 'background-color' : state_decl.backgroundColor = d.value; break;
+      case 'state-label'      : state_decl.stateLabel      = d.value; break;
       case 'border-color'     : state_decl.borderColor     = d.value; break;
+
+      case 'state_property'   : state_decl.property        = { name: d.name, value: d.value }; break;
 
       default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
 
@@ -681,6 +112,98 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
 
 
+function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig {
+
+  const state_style: JssmStateConfig = {};
+
+  if (Array.isArray(jssk)) {
+
+    jssk.forEach( (key, i) => {
+
+      if (typeof key !== 'object') {
+        throw new JssmError(this, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
+      }
+
+      switch (key.key) {
+
+        case 'shape':
+          if (state_style.shape !== undefined) {
+            throw new JssmError(this, `cannot redefine 'shape' in state_style_condense, already defined`);
+          }
+          state_style.shape = key.value;
+          break;
+
+        case 'color':
+          if (state_style.color !== undefined) {
+            throw new JssmError(this, `cannot redefine 'color' in state_style_condense, already defined`);
+          }
+          state_style.color = key.value;
+          break;
+
+        case 'text-color':
+          if (state_style.textColor !== undefined) {
+            throw new JssmError(this, `cannot redefine 'text-color' in state_style_condense, already defined`);
+          }
+          state_style.textColor = key.value;
+          break;
+
+        case 'corners':
+          if (state_style.corners !== undefined) {
+            throw new JssmError(this, `cannot redefine 'corners' in state_style_condense, already defined`);
+          }
+          state_style.corners = key.value;
+          break;
+
+        case 'line-style':
+          if (state_style.lineStyle !== undefined) {
+            throw new JssmError(this, `cannot redefine 'line-style' in state_style_condense, already defined`);
+          }
+          state_style.lineStyle = key.value;
+          break;
+
+        case 'background-color':
+          if (state_style.backgroundColor !== undefined) {
+            throw new JssmError(this, `cannot redefine 'background-color' in state_style_condense, already defined`);
+          }
+          state_style.backgroundColor = key.value;
+          break;
+
+        case 'state-label':
+          if (state_style.stateLabel !== undefined) {
+            throw new JssmError(this, `cannot redefine 'state-label' in state_style_condense, already defined`);
+          }
+          state_style.stateLabel = key.value;
+          break;
+
+        case 'border-color':
+          if (state_style.borderColor !== undefined) {
+            throw new JssmError(this, `cannot redefine 'border-color' in state_style_condense, already defined`);
+          }
+          state_style.borderColor = key.value;
+          break;
+
+        default:
+          // TODO do that <never> trick to assert this list is complete
+          throw new JssmError(this, `unknown state style key in condense: ${(key as any).key}`);
+
+      }
+
+    });
+
+  } else if (jssk === undefined) {
+    // do nothing, undefined is legal and means we should return the empty container above
+  } else {
+    throw new JssmError(this, 'state_style_condense received a non-array');
+  }
+
+  return state_style;
+
+}
+
+
+
+
+
 // TODO add a lotta docblock here
 
 class Machine<mDT> {
@@ -688,12 +211,15 @@ class Machine<mDT> {
 
   _state                  : StateType;
   _states                 : Map<StateType, JssmGenericState>;
-  _edges                  : Array<JssmTransition<mDT>>;
+  _edges                  : Array< JssmTransition<StateType, mDT> >;
   _edge_map               : Map<StateType, Map<StateType, number>>;
   _named_transitions      : Map<StateType, number>;
   _actions                : Map<StateType, Map<StateType, number>>;
   _reverse_actions        : Map<StateType, Map<StateType, number>>;
   _reverse_action_targets : Map<StateType, Map<StateType, number>>;
+
+  _start_states           : Set<StateType>;
+  _end_states             : Set<StateType>;
 
   _machine_author?        : Array<string>;
   _machine_comment?       : string;
@@ -717,8 +243,8 @@ class Machine<mDT> {
   _arrange_start_declaration : Array<Array<StateType>>;
   _arrange_end_declaration   : Array<Array<StateType>>;
 
-  _theme : FslTheme;
-  _flow  : FslDirection;
+  _themes : FslTheme[];
+  _flow   : FslDirection;
 
   _has_hooks                : boolean;
   _has_basic_hooks          : boolean;
@@ -728,6 +254,8 @@ class Machine<mDT> {
   _has_global_action_hooks  : boolean;
   _has_transition_hooks     : boolean;
   // no boolean for the single hooks, just check if they're defined
+
+  _has_forced_transitions   : boolean;
 
   _hooks                    : Map<string, HookHandler<mDT>>;
   _named_hooks              : Map<string, HookHandler<mDT>>;
@@ -749,6 +277,9 @@ class Machine<mDT> {
   _has_post_transition_hooks     : boolean;
   // no boolean for the single hooks, just check if they're defined
 
+  _code_allows_override   : JssmAllowsOverride;
+  _config_allows_override : JssmAllowsOverride;
+
   _post_hooks                    : Map<string, HookHandler<mDT>>;
   _post_named_hooks              : Map<string, HookHandler<mDT>>;
   _post_entry_hooks              : Map<string, HookHandler<mDT>>;
@@ -760,15 +291,30 @@ class Machine<mDT> {
   _post_forced_transition_hook   : HookHandler<mDT> | undefined;
   _post_any_transition_hook      : HookHandler<mDT> | undefined;
 
-  _history        : circular_buffer<[StateType, mDT]>;
+  _property_keys       : Set<string>;
+  _default_properties  : Map<string, any>;
+  _state_properties    : Map<string, any>;
+  _required_properties : Set<string>;
+
+  _history        : JssmHistory<mDT>;
   _history_length : number;
+
+  _state_style          : JssmStateConfig;
+  _active_state_style   : JssmStateConfig;
+  _hooked_state_style   : JssmStateConfig;
+  _terminal_state_style : JssmStateConfig;
+  _start_state_style    : JssmStateConfig;
+  _end_state_style      : JssmStateConfig;
+
+  _state_labels : Map<string, string>;
 
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
 
     start_states,
-    complete = [],
+    end_states                = [],
+    complete                  = [],
     transitions,
     machine_author,
     machine_comment,
@@ -779,19 +325,29 @@ class Machine<mDT> {
     machine_name,
     machine_version,
     state_declaration,
+    property_definition,
+    state_property,
     fsl_version,
     dot_preamble              = undefined,
     arrange_declaration       = [],
     arrange_start_declaration = [],
     arrange_end_declaration   = [],
-    theme                     = 'default',
+    theme                     = ['default'],
     flow                      = 'down',
     graph_layout              = 'dot',
     instance_name,
     history,
-    data
+    data,
+    default_state_config,
+    default_active_state_config,
+    default_hooked_state_config,
+    default_terminal_state_config,
+    default_start_state_config,
+    default_end_state_config,
+    allows_override,
+    config_allows_override
 
-  }: JssmGenericConfig<mDT>) {
+  }: JssmGenericConfig<StateType, mDT>) {
 
     this._instance_name = instance_name;
 
@@ -804,6 +360,9 @@ class Machine<mDT> {
     this._actions                = new Map();
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();   // todo
+
+    this._start_states = new Set(start_states);
+    this._end_states   = new Set(end_states);   // todo consider what to do about incorporating complete too
 
     this._machine_author        = array_box_if_string(machine_author);
     this._machine_comment       = machine_comment;
@@ -821,7 +380,7 @@ class Machine<mDT> {
     this._arrange_end_declaration   = arrange_end_declaration;
 
     this._dot_preamble = dot_preamble;
-    this._theme        = theme;
+    this._themes       = theme;
     this._flow         = flow;
     this._graph_layout = graph_layout;
 
@@ -833,6 +392,8 @@ class Machine<mDT> {
     this._has_global_action_hooks = false;
     this._has_transition_hooks    = true;
     // no need for a boolean for single hooks, just test for undefinedness
+
+    this._has_forced_transitions   = false;
 
     this._hooks                    = new Map();
     this._named_hooks              = new Map();
@@ -854,6 +415,12 @@ class Machine<mDT> {
     this._has_post_transition_hooks    = true;
     // no need for a boolean for single hooks, just test for undefinedness
 
+    this._code_allows_override   = allows_override;
+    this._config_allows_override = config_allows_override;
+    if ( (allows_override === false) && (config_allows_override === true) ) {
+      throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+    }
+
     this._post_hooks                    = new Map();
     this._post_named_hooks              = new Map();
     this._post_entry_hooks              = new Map();
@@ -865,12 +432,27 @@ class Machine<mDT> {
     this._post_forced_transition_hook   = undefined;
     this._post_any_transition_hook      = undefined;
 
-    this._data                     = data;
+    this._data                          = data;
 
-    this._history_length           = history || 0;
-    this._history                  = new circular_buffer(this._history_length);
+    this._property_keys                 = new Set();
+    this._default_properties            = new Map();
+    this._state_properties              = new Map();
+    this._required_properties           = new Set();
+
+    this._state_style                   = state_style_condense(default_state_config);
+    this._active_state_style            = state_style_condense(default_active_state_config);
+    this._hooked_state_style            = state_style_condense(default_hooked_state_config);
+    this._terminal_state_style          = state_style_condense(default_terminal_state_config);
+    this._start_state_style             = state_style_condense(default_start_state_config);
+    this._end_state_style               = state_style_condense(default_end_state_config);
+
+    this._history_length                = history || 0;
+    this._history                       = new circular_buffer(this._history_length);
+
+    this._state_labels                  = new Map();
 
 
+    // consolidate the state declarations
     if (state_declaration) {
       state_declaration.map((state_decl: JssmStateDeclaration) => {
 
@@ -884,10 +466,29 @@ class Machine<mDT> {
     }
 
 
-    transitions.map((tr: JssmTransition<mDT>) => {
+    // walk the decls for labels; aggregate them when found
+    [... this._state_declarations].map(sd => {
+
+      const [key, decl] = sd,
+            labelled    = decl.declarations.filter(d => d.key === 'state-label');
+
+      if (labelled.length > 1) {
+        throw new JssmError(this, `state ${key} may only have one state-label; has ${labelled.length}`);
+      }
+
+      if (labelled.length === 1) {
+        this._state_labels.set(key, labelled[0].value);
+      }
+
+    });
+
+
+
+    // walk the transitions
+    transitions.map((tr: JssmTransition<StateType, mDT>) => {
 
       if ( tr.from === undefined ) { throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`); }
-      if ( tr.to === undefined )   { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
+      if ( tr.to   === undefined ) { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
       const cursor_from: JssmGenericState
@@ -917,6 +518,7 @@ class Machine<mDT> {
       // add the edge; note its id
       this._edges.push(tr);
       const thisEdgeId: number = this._edges.length - 1;
+      if (tr.forced_only) { this._has_forced_transitions = true; }
 
       // guard against repeating a transition name
       if (tr.name) {
@@ -988,6 +590,84 @@ class Machine<mDT> {
 
     });
 
+
+    if (Array.isArray(property_definition)) {
+
+      property_definition.forEach(pr => {
+
+        this._property_keys.add(pr.name);
+
+        if (pr.hasOwnProperty('default_value')) {
+          this._default_properties.set(pr.name, pr.default_value);
+        }
+
+        if (pr.hasOwnProperty('required') && (pr.required === true)) {
+          this._required_properties.add(pr.name);
+        }
+
+      });
+
+    }
+
+
+    if (Array.isArray(state_property)) {
+
+      state_property.forEach(sp => {
+        this._state_properties.set(sp.name, sp.default_value);
+      });
+
+    }
+
+
+    // done building, do checks
+
+    // assert all props are valid
+    this._state_properties.forEach( (_value, key) => {
+      const inside = JSON.parse(key);
+      if (Array.isArray(inside)) {
+        const j_property = inside[0];
+        if (typeof j_property === 'string') {
+          const j_state = inside[1];
+          if (typeof j_state === 'string') {
+            if (!(this.known_prop(j_property))) {
+              throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
+            }
+          }
+        }
+      }
+    });
+
+    // assert all required properties are serviced
+    this._required_properties.forEach( dp_key => {
+      if (this._default_properties.has(dp_key)) {
+        throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
+      }
+      this.states().forEach(s => {
+        const bound_name = name_bind_prop_and_state(dp_key, s);
+        if (!(this._state_properties.has(bound_name))) {
+          throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
+        }
+      });
+    });
+
+    // assert chosen starting state is valid
+    if (!(this.has_state( this.state() ))) {
+      throw new JssmError(this, `Current start state "${this.state()}" does not exist`);
+    }
+
+    // assert all starting states are valid
+    start_states.forEach( (ss, ssi) => {
+      if (!(this.has_state(ss))) {
+        throw new JssmError(this, `Start state ${ssi} "${ss}" does not exist`);
+      }
+    });
+
+    // assert chosen starting state is valid
+    if (!( start_states.length === this._start_states.size )) {
+      throw new JssmError(this, `Start states cannot be repeated`);
+    }
+
+
   }
 
 
@@ -1024,11 +704,11 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;');
-   *  console.log( switch.state() );             // 'on'
+   *  const lswitch = jssm.from('on <=> off;');
+   *  console.log( lswitch.state() );             // 'on'
    *
-   *  switch.transition('off');
-   *  console.log( switch.state() );             // 'off'
+   *  lswitch.transition('off');
+   *  console.log( lswitch.state() );             // 'off'
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1039,13 +719,62 @@ class Machine<mDT> {
     return this._state;
   }
 
-  /* whargarbl todo major
-     when we reimplement this, reintroduce this change to the is_final call
 
-    is_changing(): boolean {
-      return true; // todo whargarbl
-    }
-  */
+
+
+
+  /*********
+   *
+   *  Get the label for a given state, if any; return `undefined` otherwise.
+   *
+   *  ```typescript
+   *  import * as jssm from 'jssm';
+   *
+   *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
+   *  console.log( lswitch.label_for('a') );              // 'Foo!'
+   *  console.log( lswitch.label_for('b') );              // undefined
+   *  ```
+   *
+   *  See also {@link display_text}.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  label_for(state: StateType): string {
+    return this._state_labels.get(state);
+  }
+
+
+
+
+
+  /*********
+   *
+   *  Get whatever the node should show as text.
+   *
+   *  Currently, this means to get the label for a given state, if any;
+   *  otherwise to return the node's name.  However, this definition is expected
+   *  to grow with time, and it is currently considered ill-advised to manually
+   *  parse this text.
+   *
+   *  See also {@link label_for}.
+   *
+   *  ```typescript
+   *  import * as jssm from 'jssm';
+   *
+   *  const lswitch = jssm.from('a -> b; state a: { label: "Foo!"; };');
+   *  console.log( lswitch.display_text('a') );              // 'Foo!'
+   *  console.log( lswitch.display_text('b') );              // 'b'
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  display_text(state: StateType): string {
+    return this._state_labels.get(state) ?? state;
+  }
 
 
 
@@ -1058,8 +787,8 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;', {data: 1});
-   *  console.log( switch.data() );              // 1
+   *  const lswitch = jssm.from('on <=> off;', {data: 1});
+   *  console.log( lswitch.data() );              // 1
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1070,13 +799,288 @@ class Machine<mDT> {
     return this._data;
   }
 
-  /* whargarbl todo major
-     when we reimplement this, reintroduce this change to the is_final call
 
-    is_changing(): boolean {
-      return true; // todo whargarbl
+
+
+
+  // NEEDS_DOCS
+  /*********
+   *
+   *  Get the current value of a given property name.
+   *
+   *  ```typescript
+   *
+   *  ```
+   *
+   *  @param name The relevant property name to look up
+   *
+   *  @returns The value behind the prop name.  Because functional props are
+   *  evaluated as getters, this can be anything.
+   *
+   */
+
+  prop(name: string): any {
+
+    const bound_name = name_bind_prop_and_state(name, this.state());
+
+    if (this._state_properties.has(bound_name)) {
+      return this._state_properties.get(bound_name);
+
+    } else if (this._default_properties.has(name)) {
+      return this._default_properties.get(name);
+
+    } else {
+      return undefined;
     }
-  */
+
+  }
+
+
+
+
+
+  // NEEDS_DOCS
+  /*********
+   *
+   *  Get the current value of a given property name.  If missing on the state
+   *  and without a global default, throw, unlike {@link prop}, which would
+   *  return `undefined` instead.
+   *
+   *  ```typescript
+   *
+   *  ```
+   *
+   *  @param name The relevant property name to look up
+   *
+   *  @returns The value behind the prop name.  Because functional props are
+   *  evaluated as getters, this can be anything.
+   *
+   */
+
+  strict_prop(name: string): any {
+
+    const bound_name = name_bind_prop_and_state(name, this.state());
+
+    if (this._state_properties.has(bound_name)) {
+      return this._state_properties.get(bound_name);
+
+    } else if (this._default_properties.has(name)) {
+      return this._default_properties.get(name);
+
+    } else {
+      throw new JssmError(this, `Strictly requested a prop '${name}' which doesn't exist on current state '${this.state()}' and has no default`);
+    }
+
+  }
+
+
+
+
+
+  // NEEDS_DOCS
+  // COMEBACK add prop_map, sparse_props and strict_props to doc text when implemented
+  /*********
+   *
+   *  Get the current value of every prop, as an object.  If no current definition
+   *  exists for a prop - that is, if the prop was defined without a default and
+   *  the current state also doesn't define the prop - then that prop will be listed
+   *  in the returned object with a value of `undefined`.
+   *
+   *  ```typescript
+   *  const traffic_light = sm`
+   *
+   *    property can_go     default true;
+   *    property hesitate   default true;
+   *    property stop_first default false;
+   *
+   *    Off -> Red => Green => Yellow => Red;
+   *    [Red Yellow Green] ~> [Off FlashingRed];
+   *    FlashingRed -> Red;
+   *
+   *    state Red:         { property stop_first true;  property can_go false; };
+   *    state Off:         { property stop_first true;  };
+   *    state FlashingRed: { property stop_first true;  };
+   *    state Green:       { property hesitate   false; };
+   *
+   *  `;
+   *
+   *  traffic_light.state();  // Off
+   *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+   *
+   *  traffic_light.go('Red');
+   *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+   *
+   *  traffic_light.go('Green');
+   *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+   *  ```
+   *
+   */
+
+  props(): object {
+
+    const ret: object = {};
+    this.known_props().forEach(
+      p =>
+        ret[p] = this.prop(p)
+    );
+
+    return ret;
+
+  }
+
+
+
+
+
+  // NEEDS_DOCS
+  // TODO COMEBACK
+  /*********
+   *
+   *  Get the current value of every prop, as an object.  Compare
+   *  {@link prop_map}, which returns a `Map`.
+   *
+   *  ```typescript
+   *
+   *  ```
+   *
+   */
+
+  // sparse_props(name: string): object {
+
+  // }
+
+
+
+
+
+  // NEEDS_DOCS
+  // TODO COMEBACK
+  /*********
+   *
+   *  Get the current value of every prop, as an object.  Compare
+   *  {@link prop_map}, which returns a `Map`.  Akin to {@link strict_prop},
+   *  this throws if a required prop is missing.
+   *
+   *  ```typescript
+   *
+   *  ```
+   *
+   */
+
+  // strict_props(name: string): object {
+
+  // }
+
+
+
+
+
+  /*********
+   *
+   *  Check whether a given string is a known property's name.
+   *
+   *  ```typescript
+   *  const example = sm`property foo default 1; a->b;`;
+   *
+   *  example.known_prop('foo');  // true
+   *  example.known_prop('bar');  // false
+   *  ```
+   *
+   *  @param prop_name The relevant property name to look up
+   *
+   */
+
+  known_prop(prop_name: string): boolean {
+    return this._property_keys.has(prop_name);
+  }
+
+
+
+
+
+  // NEEDS_DOCS
+
+  /*********
+   *
+   *  List all known property names.  If you'd also like values, use
+   *  {@link props} instead.  The order of the properties is not defined, and
+   *  the properties generally will not be sorted.
+   *
+   *  ```typescript
+   *  ```
+   *
+   */
+
+  known_props(): string[] {
+    return [... this._property_keys];
+  }
+
+
+
+
+
+  /********
+   *
+   *  Check whether a given state is a valid start state (either because it was
+   *  explicitly named as such, or because it was the first mentioned state.)
+   *
+   *  ```typescript
+   *  import { sm, is_start_state } from 'jssm';
+   *
+   *  const example = sm`a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // true
+   *  console.log( final_test.is_start_state('b') );   // false
+   *
+   *  const example = sm`start_states: [a b]; a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // true
+   *  console.log( final_test.is_start_state('b') );   // true
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param whichState The name of the state to check
+   *
+   */
+
+  is_start_state(whichState: StateType): boolean {
+    return this._start_states.has(whichState);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Check whether a given state is a valid start state (either because it was
+   *  explicitly named as such, or because it was the first mentioned state.)
+   *
+   *  ```typescript
+   *  import { sm, is_end_state } from 'jssm';
+   *
+   *  const example = sm`a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // false
+   *  console.log( final_test.is_start_state('b') );   // true
+   *
+   *  const example = sm`end_states: [a b]; a -> b;`;
+   *
+   *  console.log( final_test.is_start_state('a') );   // true
+   *  console.log( final_test.is_start_state('b') );   // true
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param whichState The name of the state to check
+   *
+   */
+
+  is_end_state(whichState: StateType): boolean {
+    return this._end_states.has(whichState);
+  }
+
 
 
 
@@ -1102,7 +1106,7 @@ class Machine<mDT> {
    */
 
   state_is_final(whichState: StateType): boolean {
-    return ((this.state_is_terminal(whichState)) && (this.state_is_complete(whichState)));
+    return ((this.state_is_terminal(whichState)) || (this.state_is_complete(whichState)));
   }
 
 
@@ -1115,7 +1119,7 @@ class Machine<mDT> {
    *  `complete`.)
    *
    *  ```typescript
-   *  import { sm, state_is_final } from 'jssm';
+   *  import { sm, is_final } from 'jssm';
    *
    *  const final_test = sm`first -> second;`;
    *
@@ -1124,13 +1128,42 @@ class Machine<mDT> {
    *  console.log( final_test.is_final() );   // true
    *  ```
    *
-   *  @typeparam mDT The type of the machine data member; usually omitted
-   *
    */
 
   is_final(): boolean {
     //  return ((!this.is_changing()) && this.state_is_final(this.state()));
     return this.state_is_final(this.state());
+  }
+
+
+
+
+
+  /********
+   *
+   *  Serialize the current machine, including all defining state but not the
+   *  machine string, to a structure.  This means you will need the machine
+   *  string to recreate (to not waste repeated space;) if you want the machine
+   *  string embedded, call {@link serialize_with_string} instead.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  serialize(comment?: string | undefined): JssmSerialization<mDT> {
+
+    return {
+
+      comment,
+      state            : this._state,
+      data             : this._data,
+      jssm_version     : version,
+      history          : this._history.toArray(),
+      history_capacity : this._history.capacity,
+      timestamp        : new Date().getTime(),
+
+    };
+
   }
 
 
@@ -1216,12 +1249,6 @@ class Machine<mDT> {
 
   }
 
-  /*
-    load_machine_state(): boolean {
-      return false; // todo whargarbl
-    }
-  */
-
 
 
 
@@ -1234,8 +1261,8 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;');
-   *  console.log( switch.states() );             // ['on', 'off']
+   *  const lswitch = jssm.from('on <=> off;');
+   *  console.log( lswitch.states() );             // ['on', 'off']
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1251,9 +1278,15 @@ class Machine<mDT> {
 
 
   state_for(whichState: StateType): JssmGenericState {
+
     const state: JssmGenericState = this._states.get(whichState);
-    if (state) { return state; }
-    else { throw new JssmError(this, 'No such state', { requested_state: whichState }); }
+
+    if (state) {
+      return state;
+    } else {
+      throw new JssmError(this, 'No such state', { requested_state: whichState });
+    }
+
   }
 
 
@@ -1267,10 +1300,10 @@ class Machine<mDT> {
    *  ```typescript
    *  import * as jssm from 'jssm';
    *
-   *  const switch = jssm.from('on <=> off;');
+   *  const lswitch = jssm.from('on <=> off;');
    *
-   *  console.log( switch.has_state('off') );     // true
-   *  console.log( switch.has_state('dance') );   // false
+   *  console.log( lswitch.has_state('off') );     // true
+   *  console.log( lswitch.has_state('dance') );   // false
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -1321,7 +1354,7 @@ class Machine<mDT> {
    *
    */
 
-  list_edges(): Array<JssmTransition<mDT>> {
+  list_edges(): Array<JssmTransition<StateType, mDT>> {
     return this._edges;
   }
 
@@ -1333,10 +1366,105 @@ class Machine<mDT> {
     return Array.from(this._actions.keys());
   }
 
+  get uses_actions(): boolean {
+    return Array.from(this._actions.keys()).length > 0;
+  }
+
+  get uses_forced_transitions(): boolean {
+    return this._has_forced_transitions;
+  }
 
 
-  theme(): FslTheme {
-    return this._theme;  // constructor sets this to "default" otherwise
+
+
+
+  /*********
+   *
+   *  Check if the code that built the machine allows overriding state and data.
+   *
+   */
+
+  get code_allows_override(): JssmAllowsOverride {
+    return this._code_allows_override;
+  }
+
+
+
+
+
+  /*********
+   *
+   *  Check if the machine config allows overriding state and data.
+   *
+   */
+
+  get config_allows_override(): JssmAllowsOverride {
+    return this._config_allows_override;
+  }
+
+
+
+
+
+  /*********
+   *
+   *  Check if a machine allows overriding state and data.
+   *
+   */
+
+  get allows_override(): JssmAllowsOverride {
+
+    // code false?  config true, throw.  config false, false.  config undefined, false.
+    if (this._code_allows_override === false) {
+      /* istanbul ignore next */
+      if (this._config_allows_override === true) {
+        /* istanbul ignore next */
+        throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code; should be unreachable");
+      } else {
+        return false;
+      }
+    }
+
+    // code true?  config true, true.  config false, false.  config undefined, true.
+    if (this._code_allows_override === true) {
+      if (this._config_allows_override === false) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+
+    // code must be undefined.  config false, false.  config true, true.  config undefined, false.
+    if (this._config_allows_override === true) {
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
+
+
+
+
+  all_themes(): FslTheme[] {
+    return [... theme_mapping.keys()];     // constructor sets this to "default" otherwise
+  }
+
+  // This will always return an array of FSL themes; the reason we spuriously
+  // add the single type is that the setter and getter need matching accept/return
+  // types, and the setter can take both as a convenience
+
+  get themes(): FslTheme | FslTheme[] {
+    return this._themes;     // constructor sets this to "default" otherwise
+  }
+
+  set themes(to: FslTheme | FslTheme[]) {
+    if (typeof to === 'string') {
+      this._themes = [to];
+    } else {
+      this._themes = to;
+    }
   }
 
   flow(): FslDirection {
@@ -1359,7 +1487,7 @@ class Machine<mDT> {
 
 
 
-  lookup_transition_for(from: StateType, to: StateType): JssmTransition<mDT> {
+  lookup_transition_for(from: StateType, to: StateType): JssmTransition<StateType, mDT> {
     const id: number = this.get_transition_by_state_names(from, to);
     return ((id === undefined) || (id === null)) ? undefined : this._edges[id];
   }
@@ -1400,7 +1528,10 @@ class Machine<mDT> {
   /********
    *
    *  List all entrances attached to the current state.  Please note that the
-   *  order of the list is not defined.
+   *  order of the list is not defined.  This list includes both unforced and
+   *  forced entrances; if this isn't desired, consider
+   *  {@link list_unforced_entrances} or {@link list_forced_entrances} as
+   *  appropriate.
    *
    *  ```typescript
    *  import { sm } from 'jssm';
@@ -1418,9 +1549,10 @@ class Machine<mDT> {
    */
 
   list_entrances(whichState: StateType = this.state()): Array<StateType> {
-    return (this._states.get(whichState)
-      || { from: undefined }).from
-      || [];
+
+    const guaranteed = (this._states.get(whichState) ?? { from: undefined });
+    return guaranteed.from ?? [];
+
   }
 
 
@@ -1430,7 +1562,9 @@ class Machine<mDT> {
   /********
    *
    *  List all exits attached to the current state.  Please note that the order
-   *  of the list is not defined.
+   *  of the list is not defined.  This list includes both unforced and forced
+   *  exits; if this isn't desired, consider {@link list_unforced_exits} or
+   *  {@link list_forced_exits} as appropriate.
    *
    *  ```typescript
    *  import { sm } from 'jssm';
@@ -1448,25 +1582,26 @@ class Machine<mDT> {
    */
 
   list_exits(whichState: StateType = this.state()): Array<StateType> {
-    return (this._states.get(whichState)
-      || { to: undefined }).to
-      || [];
+
+    const guaranteed = (this._states.get(whichState) ?? { to: undefined });
+    return guaranteed.to ?? [];
+
   }
 
 
 
 
 
-  probable_exits_for(whichState: StateType): Array<JssmTransition<mDT>> {
+  probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>> {
 
     const wstate: JssmGenericState = this._states.get(whichState);
     if (!(wstate)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
     const wstate_to: Array<StateType> = wstate.to,
 
-      wtf: Array<JssmTransition<mDT>> // wstate_to_filtered -> wtf
+      wtf: Array<JssmTransition<StateType, mDT>> // wstate_to_filtered -> wtf
         = wstate_to
-          .map((ws): JssmTransition<mDT> => this.lookup_transition_for(this.state(), ws))
+          .map((ws): JssmTransition<StateType, mDT> => this.lookup_transition_for(this.state(), ws))
           .filter(Boolean);
 
     return wtf;
@@ -1474,7 +1609,7 @@ class Machine<mDT> {
   }
 
   probabilistic_transition(): boolean {
-    const selected: JssmTransition<mDT> = weighted_rand_select(this.probable_exits_for(this.state()));
+    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(this.probable_exits_for(this.state()));
     return this.transition(selected.to);
   }
 
@@ -1604,9 +1739,9 @@ class Machine<mDT> {
     }
 
     return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<mDT>): boolean => o.from === whichState)
-      .map((filtered: JssmTransition<mDT>): StateType => filtered.action);
+      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
+      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
+      .map((filtered: JssmTransition<StateType, mDT>): StateType => filtered.action);
 
   }
 
@@ -1619,8 +1754,8 @@ class Machine<mDT> {
     if (!(ra_base)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
 
     return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<mDT>): boolean => o.from === whichState)
+      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
+      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
       .map((filtered): any => ({
         action: filtered.action,          // TODO FIXME no any
         probability: filtered.probability
@@ -1994,8 +2129,47 @@ class Machine<mDT> {
 
 
 
-  edges_between(from: string, to: string): JssmTransition<mDT>[] {
+  edges_between(from: string, to: string): JssmTransition<StateType, mDT>[] {
     return this._edges.filter( edge => ((edge.from === from) && (edge.to === to)) );
+  }
+
+
+
+  /*********
+   *
+   *  Replace the current state and data with no regard to the graph.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const machine = sm`a -> b -> c;`;
+   *  console.log( machine.state() );    // 'a'
+   *
+   *  machine.go('b');
+   *  machine.go('c');
+   *  console.log( machine.state() );    // 'c'
+   *
+   *  machine.override('a');
+   *  console.log( machine.state() );    // 'a'
+   *  ```
+   *
+   */
+
+  override(newState: StateType, newData?: mDT | undefined) {
+
+    if (this.allows_override) {
+
+      if (this._states.has(newState)) {
+        this._state = newState;
+        this._data  = newData;
+      } else {
+        throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
+      }
+
+    } else {
+      throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code");
+    }
+
   }
 
 
@@ -2019,11 +2193,11 @@ class Machine<mDT> {
 
     } else if (wasAction) {
       if (this.valid_action(newStateOrAction, newData)) {
-        const edge: JssmTransition<mDT> = this.current_action_edge_for(newStateOrAction);
-        valid                           = true;
-        trans_type                      = edge.kind;
-        newState                        = edge.to;
-        fromAction                      = newStateOrAction;
+        const edge: JssmTransition<StateType, mDT> = this.current_action_edge_for(newStateOrAction);
+        valid                                      = true;
+        trans_type                                 = edge.kind;
+        newState                                   = edge.to;
+        fromAction                                 = newStateOrAction;
       }
 
     } else {
@@ -2038,11 +2212,12 @@ class Machine<mDT> {
 
 
     const hook_args = {
-      data   : this._data,
-      action : fromAction,
-      from   : this._state,
-      to     : newState,
-      forced : wasForced,
+      data       : this._data,
+      action     : fromAction,
+      from       : this._state,
+      to         : newState,
+      next_data  : newData,
+      forced     : wasForced,
       trans_type
     };
 
@@ -2052,8 +2227,9 @@ class Machine<mDT> {
 
         function update_fields(res: HookComplexResult<mDT>) {
           if (res.hasOwnProperty('data')) {
-            hook_args.data = res.data;
-            data_changed   = true;
+            hook_args.data      = res.data;
+            hook_args.next_data = res.next_data;
+            data_changed        = true;
           }
         }
 
@@ -2365,7 +2541,7 @@ class Machine<mDT> {
 
   /********
    *
-   *  Instruct the machine to complete an action.
+   *  Instruct the machine to complete an action.  Synonym for {@link do}.
    *
    *  ```typescript
    *  const light = sm`red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
@@ -2393,14 +2569,389 @@ class Machine<mDT> {
 
   /********
    *
-   *  Instruct the machine to complete a transition.
+   *  Get the standard style for a single state.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
    *
    *  ```typescript
-   *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *  const light = sm`a -> b;`;
+   *  console.log(light.standard_state_style);
+   *  // {}
    *
-   *  light.state();               // 'red'
-   *  light.transition('green');   // true
-   *  light.state();               // 'green'
+   *  const light = sm`a -> b; state: { shape: circle; };`;
+   *  console.log(light.standard_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get standard_state_style(): JssmStateConfig {
+    return this._state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the hooked state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  The hooked style is only applied to nodes which have a named hook in the
+   *  graph.  Open hooks set through the external API aren't graphed, because
+   *  that would be literally every node.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.hooked_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; hooked_state: { shape: circle; };`;
+   *  console.log(light.hooked_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get hooked_state_style(): JssmStateConfig {
+    return this._hooked_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the start state style.  ***Does not*** include composition from an
+   *  applied theme, or things from the underlying base stylesheet; only the
+   *  modifications applied by this machine.
+   *
+   *  Start states are defined by the directive `start_states`, or in absentia,
+   *  are the first mentioned state.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.start_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; start_state: { shape: circle; };`;
+   *  console.log(light.start_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get start_state_style(): JssmStateConfig {
+    return this._start_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the end state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  End states are defined in the directive `end_states`, and are distinct
+   *  from terminal states.  End states are voluntary successful endpoints for a
+   *  process.  Terminal states are states that cannot be exited.  By example,
+   *  most error states are terminal states, but not end states.  Also, since
+   *  some end states can be exited and are determined by hooks, such as
+   *  recursive or iterative nodes, there is such a thing as an end state that
+   *  is not a terminal state.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.standard_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; end_state: { shape: circle; };`;
+   *  console.log(light.standard_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get end_state_style(): JssmStateConfig {
+    return this._end_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the terminal state style.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  Terminal state styles are automatically determined by the machine.  Any
+   *  state without a valid exit transition is terminal.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.terminal_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; terminal_state: { shape: circle; };`;
+   *  console.log(light.terminal_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get terminal_state_style(): JssmStateConfig {
+    return this._terminal_state_style;
+  }
+
+
+
+
+
+  /********
+   *
+   *  Get the style for the active state.  ***Does not*** include
+   *  composition from an applied theme, or things from the underlying base
+   *  stylesheet; only the modifications applied by this machine.
+   *
+   *  ```typescript
+   *  const light = sm`a -> b;`;
+   *  console.log(light.active_state_style);
+   *  // {}
+   *
+   *  const light = sm`a -> b; active_state: { shape: circle; };`;
+   *  console.log(light.active_state_style);
+   *  // { shape: 'circle' }
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  get active_state_style(): JssmStateConfig {
+    return this._active_state_style;
+  }
+
+
+
+
+
+  /*
+   */
+
+  // TODO COMEBACK IMPLEMENTME FIXME
+
+  // has_hooks(state: StateType): false {
+  //   return false;
+  // }
+
+
+
+
+
+  /********
+   *
+   *  Gets the composite style for a specific node by individually imposing the
+   *  style layers on a given object, after determining which layers are
+   *  appropriate.
+   *
+   *  The order of composition is base, then theme, then user content.  Each
+   *  item in the stack will be composited independently.  First, the base state
+   *  style, then the theme state style, then the user state style.
+   *
+   *  After the three state styles, we'll composite the hooked styles; then the
+   *  terminal styles; then the start styles; then the end styles; finally, the
+   *  active styles.  Remember, last wins.
+   *
+   *  The base state style must exist.  All other styles are optional.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   */
+
+  style_for(state: StateType): JssmStateConfig {
+
+
+    // first look up the themes
+    const themes: JssmBaseTheme[] = [];
+
+    this._themes.forEach(th => {
+
+      const theme_impl = theme_mapping.get(th);
+
+      if (theme_impl !== undefined) {
+        themes.push(theme_impl);
+      }
+
+    });
+
+    // basic state style
+    const layers = [ base_theme.state ];
+
+
+    themes.reverse().map(theme => {
+      if (theme.state) { layers.push(theme.state); }
+    });
+
+    if (this._state_style) { layers.push(this._state_style); }
+
+
+    // hooked state style
+    // if (this.has_hooks(state)) {
+    //   layers.push(base_theme.hooked);
+    //   themes.map(theme => {
+    //     if (theme.hooked) { layers.push(theme.hooked); }
+    //   });
+    //   if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
+    // }
+
+
+    // terminal state style
+    if (this.state_is_terminal(state)) {
+      layers.push(base_theme.terminal);
+      themes.map(theme => {
+        if (theme.terminal) { layers.push(theme.terminal); }
+      });
+      if (this._terminal_state_style) { layers.push(this._terminal_state_style); }
+    }
+
+
+    // start state style
+    if (this.is_start_state(state)) {
+      layers.push(base_theme.start);
+      themes.map(theme => {
+        if (theme.start) { layers.push(theme.start); }
+      });
+      if (this._start_state_style) { layers.push(this._start_state_style); }
+    }
+
+
+    // end state style
+    if (this.is_end_state(state)) {
+      layers.push(base_theme.end);
+      themes.map(theme => {
+        if (theme.end) { layers.push(theme.end); }
+      });
+      if (this._end_state_style) { layers.push(this._end_state_style); }
+    }
+
+
+    // active state style
+    if (this.state() === state) {
+      layers.push(base_theme.active);
+      themes.map(theme => {
+        if (theme.active) { layers.push(theme.active); }
+      });
+      if (this._active_state_style) { layers.push(this._active_state_style); }
+    }
+
+
+    const individual_style : JssmStateConfig      = {},
+          decl             : JssmStateDeclaration = this._state_declarations.get(state);
+
+    individual_style.color           = decl?.color;
+    individual_style.textColor       = decl?.textColor;
+    individual_style.borderColor     = decl?.borderColor;
+    individual_style.backgroundColor = decl?.backgroundColor;
+    individual_style.lineStyle       = decl?.lineStyle;
+    individual_style.corners         = decl?.corners;
+    individual_style.shape           = decl?.shape;
+
+    layers.push(individual_style);
+
+
+    return layers.reduce((acc: JssmStateConfig, cur: JssmStateConfig) => {
+
+      const composite_state: JssmStateConfig = acc;
+      Object.keys(cur).forEach(key => composite_state[key] = cur[key] ?? composite_state[key]);
+
+      return composite_state;
+
+    }, {} as JssmStateConfig);
+
+  }
+
+
+
+
+
+  /********
+   *
+   *  Instruct the machine to complete an action.  Synonym for {@link action}.
+   *
+   *  ```typescript
+   *  const light = sm`
+   *    off 'start' -> red;
+   *    red 'next' -> green 'next' -> yellow 'next' -> red;
+   *    [red yellow green] 'shutdown' ~> off;
+   *  `;
+   *
+   *  light.state();       // 'off'
+   *  light.do('start');   // true
+   *  light.state();       // 'red'
+   *  light.do('next');    // true
+   *  light.state();       // 'green'
+   *  light.do('next');    // true
+   *  light.state();       // 'yellow'
+   *  light.do('dance');   // !! false - no such action
+   *  light.state();       // 'yellow'
+   *  light.do('start');   // !! false - yellow does not have the action start
+   *  light.state();       // 'yellow'
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param actionName The action to engage
+   *
+   *  @param newData The data change to insert during the action
+   *
+   */
+
+  do(actionName: StateType, newData?: mDT): boolean {
+    return this.transition_impl(actionName, newData, false, true);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Instruct the machine to complete a transition.  Synonym for {@link go}.
+   *
+   *  ```typescript
+   *  const light = sm`
+   *    off 'start' -> red;
+   *    red 'next' -> green 'next' -> yellow 'next' -> red;
+   *    [red yellow green] 'shutdown' ~> off;
+   *  `;
+   *
+   *  light.state();       // 'off'
+   *  light.go('red');     // true
+   *  light.state();       // 'red'
+   *  light.go('green');   // true
+   *  light.state();       // 'green'
+   *  light.go('blue');    // !! false - no such state
+   *  light.state();       // 'green'
+   *  light.go('red');     // !! false - green may not go directly to red, only to yellow
+   *  light.state();       // 'green'
    *  ```
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
@@ -2412,6 +2963,34 @@ class Machine<mDT> {
    */
 
   transition(newState: StateType, newData?: mDT): boolean {
+    return this.transition_impl(newState, newData, false, false);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Instruct the machine to complete a transition.  Synonym for {@link transition}.
+   *
+   *  ```typescript
+   *  const light = sm`red -> green -> yellow -> red; [red yellow green] 'shutdown' ~> off 'start' -> red;`;
+   *
+   *  light.state();       // 'red'
+   *  light.go('green');   // true
+   *  light.state();       // 'green'
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param newState The state to switch to
+   *
+   *  @param newData The data change to insert during the transition
+   *
+   */
+
+  go(newState: StateType, newData?: mDT): boolean {
     return this.transition_impl(newState, newData, false, false);
   }
 
@@ -2457,7 +3036,7 @@ class Machine<mDT> {
       : undefined;
   }
 
-  current_action_edge_for(action: StateType): JssmTransition<mDT> {
+  current_action_edge_for(action: StateType): JssmTransition<StateType, mDT> {
     const idx: number = this.current_action_for(action);
     if ((idx === undefined) || (idx === null)) { throw new JssmError(this, `No such action ${JSON.stringify(action)}`); }
     return this._edges[idx];
@@ -2472,7 +3051,7 @@ class Machine<mDT> {
   valid_transition(newState: StateType, _newData?: mDT): boolean {  // todo comeback unignore newData
     // todo whargarbl implement data stuff
     // todo major incomplete whargarbl comeback
-    const transition_for: JssmTransition<mDT> = this.lookup_transition_for(this.state(), newState);
+    const transition_for: JssmTransition<StateType, mDT> = this.lookup_transition_for(this.state(), newState);
 
     if (!(transition_for)) { return false; }
     if (transition_for.forced_only) { return false; }
@@ -2519,7 +3098,7 @@ class Machine<mDT> {
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
@@ -2567,7 +3146,7 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
  *  ```typescript
  *  import * as jssm from 'jssm';
  *
- *  const switch = jssm.from('on <=> off;');
+ *  const lswitch = jssm.from('on <=> off;');
  *  ```
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
@@ -2578,12 +3157,18 @@ function sm<mDT>(template_strings: TemplateStringsArray, ...remainder /* , argum
  *
  */
 
-function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<mDT> > | undefined): Machine<mDT> {
+function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< JssmGenericConfig<StateType, mDT> > | undefined): Machine<mDT> {
 
-  const to_decorate = make<mDT>( MachineAsString );
+  const to_decorate = make<StateType, mDT>( MachineAsString );
 
   if (ExtraConstructorFields !== undefined) {
-    Object.keys(ExtraConstructorFields).map(key => to_decorate[key] = ExtraConstructorFields[key]);
+    Object.keys(ExtraConstructorFields).map(key => {
+      if (key === 'allows_override') {
+        to_decorate['config_allows_override'] = ExtraConstructorFields['allows_override'];
+      } else {
+        to_decorate[key] = ExtraConstructorFields[key];
+      }
+    });
   }
 
   return new Machine<mDT>( to_decorate );
@@ -2662,13 +3247,32 @@ function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_
 
 
 
+function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT> {
+
+  const machine  = from(machine_string, { data: ser.data, history: ser.history_capacity });
+  machine._state = ser.state;
+
+  ser.history.forEach( history_item =>
+    machine._history.push(history_item)
+  );
+
+  return machine;
+
+}
+
+
+
+
+
 export {
 
   version,
+    build_time,
 
   transfer_state_properties,
 
   Machine,
+  deserialize,
 
   make,
   wrap_parse as parse,
@@ -2683,10 +3287,13 @@ export {
 
   // WHARGARBL TODO these should be exported to a utility library
   seq,
+  unique, find_repeated,
   weighted_rand_select,
   histograph,
   weighted_sample_select,
   weighted_histo_key,
+
+  constants,
 
   shapes,
   gviz_shapes,
@@ -2694,6 +3301,11 @@ export {
 
   is_hook_rejection,
     is_hook_complex_result,
-    abstract_hook_step
+    abstract_hook_step,
+
+  state_style_condense,
+
+  FslDirections
+//  FslThemes
 
 };

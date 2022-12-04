@@ -1,3 +1,4 @@
+import { circular_buffer } from 'circular_buffer_js';
 declare type StateType = string;
 declare type JssmSuccess = {
     success: true;
@@ -23,14 +24,31 @@ declare type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
 declare type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp';
 declare type JssmCorner = 'regular' | 'rounded' | 'lined';
 declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
-declare type FslDirection = 'up' | 'right' | 'down' | 'left';
-declare type FslTheme = 'default' | 'ocean' | 'modern' | 'none';
+declare type JssmAllowsOverride = true | false | undefined;
+declare const FslDirections: readonly ["up", "right", "down", "left"];
+declare type FslDirection = typeof FslDirections[number];
+declare const FslThemes: readonly ["default", "ocean", "modern", "plain", "bold"];
+declare type FslTheme = typeof FslThemes[number];
+declare type JssmSerialization<DataType> = {
+    jssm_version: string;
+    timestamp: number;
+    comment?: string | undefined;
+    state: StateType;
+    history: [string, DataType][];
+    history_capacity: number;
+    data: DataType;
+};
+declare type JssmPropertyDefinition = {
+    name: string;
+    default_value?: any;
+    required?: boolean;
+};
 declare type JssmTransitionPermitter<DataType> = (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
-declare type JssmTransition<DataType> = {
+declare type JssmTransition<StateType, DataType> = {
     from: StateType;
     to: StateType;
-    name?: string;
+    name?: StateType;
     action?: StateType;
     check?: JssmTransitionPermitterMaybeArray<DataType>;
     probability?: number;
@@ -38,7 +56,7 @@ declare type JssmTransition<DataType> = {
     forced_only: boolean;
     main_path: boolean;
 };
-declare type JssmTransitions<DataType> = Array<JssmTransition<DataType>>;
+declare type JssmTransitions<StateType, DataType> = JssmTransition<StateType, DataType>[];
 declare type JssmTransitionList = {
     entrances: Array<StateType>;
     exits: Array<StateType>;
@@ -62,7 +80,7 @@ declare type JssmMachineInternalState<DataType> = {
     edge_map: Map<StateType, Map<StateType, number>>;
     actions: Map<StateType, Map<StateType, number>>;
     reverse_actions: Map<StateType, Map<StateType, number>>;
-    edges: Array<JssmTransition<DataType>>;
+    edges: Array<JssmTransition<StateType, DataType>>;
 };
 declare type JssmStatePermitter<DataType> = (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
@@ -71,7 +89,7 @@ declare type JssmGenericMachine<DataType> = {
     state: StateType;
     data?: DataType;
     nodes?: Array<StateType>;
-    transitions: JssmTransitions<DataType>;
+    transitions: JssmTransitions<StateType, DataType>;
     check?: JssmStatePermitterMaybeArray<DataType>;
     min_transitions?: number;
     max_transitions?: number;
@@ -83,23 +101,84 @@ declare type JssmGenericMachine<DataType> = {
 declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
+    name?: string;
 };
 declare type JssmStateDeclaration = {
     declarations: Array<JssmStateDeclarationRule>;
     shape?: JssmShape;
     color?: JssmColor;
     corners?: JssmCorner;
-    linestyle?: JssmLineStyle;
+    lineStyle?: JssmLineStyle;
+    stateLabel?: string;
     textColor?: JssmColor;
     backgroundColor?: JssmColor;
     borderColor?: JssmColor;
     state: StateType;
+    property?: {
+        name: string;
+        value: unknown;
+    };
 };
-declare type JssmGenericConfig<DataType> = {
+declare type JssmStateConfig = Partial<JssmStateDeclaration>;
+declare type JssmStateStyleShape = {
+    key: 'shape';
+    value: JssmShape;
+};
+declare type JssmStateStyleColor = {
+    key: 'color';
+    value: JssmColor;
+};
+declare type JssmStateStyleTextColor = {
+    key: 'text-color';
+    value: JssmColor;
+};
+declare type JssmStateStyleCorners = {
+    key: 'corners';
+    value: JssmCorner;
+};
+declare type JssmStateStyleLineStyle = {
+    key: 'line-style';
+    value: JssmLineStyle;
+};
+declare type JssmStateStyleStateLabel = {
+    key: 'state-label';
+    value: string;
+};
+declare type JssmStateStyleBackgroundColor = {
+    key: 'background-color';
+    value: JssmColor;
+};
+declare type JssmStateStyleBorderColor = {
+    key: 'border-color';
+    value: JssmColor;
+};
+declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor;
+declare type JssmStateStyleKeyList = JssmStateStyleKey[];
+declare type JssmBaseTheme = {
+    name: string;
+    state: JssmStateConfig;
+    hooked: JssmStateConfig;
+    start: JssmStateConfig;
+    end: JssmStateConfig;
+    terminal: JssmStateConfig;
+    active: JssmStateConfig;
+    active_hooked: JssmStateConfig;
+    active_start: JssmStateConfig;
+    active_end: JssmStateConfig;
+    active_terminal: JssmStateConfig;
+    graph: undefined;
+    legal: undefined;
+    main: undefined;
+    forced: undefined;
+    action: undefined;
+    title: undefined;
+};
+declare type JssmTheme = Partial<JssmBaseTheme>;
+declare type JssmGenericConfig<StateType, DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
-    transitions: JssmTransitions<DataType>;
-    theme?: FslTheme;
+    transitions: JssmTransitions<StateType, DataType>;
+    theme?: FslTheme[];
     flow?: FslDirection;
     name?: string;
     data?: DataType;
@@ -112,10 +191,14 @@ declare type JssmGenericConfig<DataType> = {
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
+    allows_override?: JssmAllowsOverride;
+    config_allows_override?: JssmAllowsOverride;
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
-    state_declaration?: Array<Object>;
+    state_declaration?: Object[];
+    property_definition?: JssmPropertyDefinition[];
+    state_property?: JssmPropertyDefinition[];
     arrange_declaration?: Array<Array<StateType>>;
     arrange_start_declaration?: Array<Array<StateType>>;
     arrange_end_declaration?: Array<Array<StateType>>;
@@ -130,29 +213,38 @@ declare type JssmGenericConfig<DataType> = {
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
+    default_state_config?: JssmStateStyleKeyList;
+    default_start_state_config?: JssmStateStyleKeyList;
+    default_end_state_config?: JssmStateStyleKeyList;
+    default_hooked_state_config?: JssmStateStyleKeyList;
+    default_terminal_state_config?: JssmStateStyleKeyList;
+    default_active_state_config?: JssmStateStyleKeyList;
 };
-declare type JssmCompileRule = {
+declare type JssmCompileRule<StateType> = {
     agg_as: string;
     val: any;
 };
-declare type JssmCompileSe = {
+declare type JssmCompileSe<StateType, mDT> = {
     to: StateType;
-    se: JssmCompileSe;
+    se: JssmCompileSe<StateType, mDT>;
     kind: JssmArrow;
     l_action?: StateType;
     r_action?: StateType;
     l_probability: number;
     r_probability: number;
 };
-declare type JssmCompileSeStart<DataType> = {
-    from: DataType;
-    se: JssmCompileSe;
+declare type JssmCompileSeStart<StateType, DataType> = {
+    from: StateType;
+    se: JssmCompileSe<StateType, DataType>;
     key: string;
     value?: string | number;
     name?: string;
+    state?: string;
+    default_value?: any;
+    required?: boolean;
 };
-declare type JssmParseTree = Array<JssmCompileSeStart<StateType>>;
-declare type JssmParseFunctionType = (string: any) => JssmParseTree;
+declare type JssmParseTree<StateType, mDT> = Array<JssmCompileSeStart<StateType, mDT>>;
+declare type JssmParseFunctionType<StateType, mDT> = (string: any) => JssmParseTree<StateType, mDT>;
 declare type BasicHookDescription<mDT> = {
     kind: 'hook';
     from: string;
@@ -254,14 +346,17 @@ declare type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType;
     data?: mDT;
+    next_data?: mDT;
 };
 declare type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>; /** Documents whether a hook succeeded, either with a primitive or a reference to the hook complex object */
 declare type HookContext<mDT> = {
     data: mDT;
+    next_data: mDT;
 };
 declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
 declare type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
 declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmLayout, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirection, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };
+declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult };

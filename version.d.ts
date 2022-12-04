@@ -1,2 +1,2 @@
-declare const version: string;
-export { version };
+declare const version: string, build_time: number;
+export { version, build_time };

@@ -1,4 +1,10 @@
 
+import { JssmError } from './jssm_error';
+
+
+
+
+
 /*******
  *
  *  Predicate for validating an array for uniqueness.  Not generally meant for
@@ -143,6 +149,31 @@ const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: st
  *
  */
 
+function name_bind_prop_and_state(prop: string, state: string): string {
+
+  if (typeof prop  !== 'string') {
+    throw new JssmError(undefined, `Name of property must be a string; got ${prop}`);
+  }
+
+  if (typeof state !== 'string') {
+    throw new JssmError(undefined, `Name of state must be a string; got ${prop}`);
+  }
+
+  return JSON.stringify([prop, state]);
+
+}
+
+
+
+
+
+/*******
+ *
+ *  Internal method generating names for edges for the hook lookup map.  Not
+ *  meant for external use.
+ *
+ */
+
 const hook_name = (from: string, to: string): string =>
 
   JSON.stringify([from, to]);
@@ -192,13 +223,96 @@ const make_mulberry_rand = (a?: number | undefined) =>
 
 
 
+/*******
+ *
+ *  Reduces an array to its unique contents.  Compares with `===` and makes no
+ *  effort to deep-compare contents; two matching arrays or objects contained
+ *  will be treated as distinct, according to javascript rules.  This also means
+ *  that `NaNs` will be ***dropped***, because they do not self-compare.
+ *
+ *  ```typescript
+ *  unique( [] );                     // []
+ *  unique( [0,0] );                  // [0]
+ *  unique( [0,1,2, 0,1,2, 0,1,2] );  // [0,1,2]
+ *  unique( [ [1], [1] ] );           // [ [1], [1] ] because arrays don't match
+ *  unique( [0,NaN,2] );              // [0,2]
+ *  ```
+ *
+ */
+
+const unique = <T>(arr?: T[]) =>
+
+  arr.filter( (v, i, a) => a.indexOf(v) === i );
+
+
+
+
+
+/*******
+ *
+ *  Lists all repeated items in an array along with their counts.  Subject to
+ *  matching rules of Map.  `NaN` is manually removed because of conflict rules
+ *  around {@link unique}.  Because these are compared with `===` and because
+ *  arrays and objects never match that way unless they're the same object,
+ *  arrays and objects are never considered repeats.
+ *
+ *  ```typescript
+ *  find_repeated<string>([ ]);                     // []
+ *  find_repeated<string>([ "one" ]);               // []
+ *  find_repeated<string>([ "one", "two" ]);        // []
+ *  find_repeated<string>([ "one", "one" ]);        // [ ["one", 2] ]
+ *  find_repeated<string>([ "one", "two", "one" ]); // [ ["one", 2] ]
+ *  find_repeated<number>([ 0, NaN, 0, NaN ]);      // [ [0,     2] ]
+ *  ```
+ *
+ */
+
+function find_repeated<T>(arr: T[]): [T, number][] {
+
+  const uniqued = unique<T>(arr);
+
+  if (uniqued.length !== arr.length) {
+
+    const residue_keys = new Map();
+
+    arr.forEach(k =>
+      residue_keys.set(
+        k,
+        residue_keys.has(k)
+          ? (residue_keys.get(k)+1)
+          : 1
+      )
+    );
+
+    uniqued.forEach(k =>
+      residue_keys.set(
+        k,
+        residue_keys.get(k) - 1
+      )
+    );
+
+    return [ ... residue_keys.entries() ]
+             .filter( (e) => ( (e[1] > 0) && (!(Number.isNaN(e[0]))) ) )
+             .map( (e) => [e[0], e[1]+1] );
+
+  } else {
+    return [];
+  }
+
+}
+
+
+
+
+
 export {
   seq,
+  unique, find_repeated,
   arr_uniq_p,
   histograph, weighted_histo_key,
   weighted_rand_select, weighted_sample_select,
   array_box_if_string,
-  hook_name, named_hook_name,
+  name_bind_prop_and_state, hook_name, named_hook_name,
   make_mulberry_rand
 };
 

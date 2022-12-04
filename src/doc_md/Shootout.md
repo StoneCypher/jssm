@@ -29,16 +29,16 @@ the end.
 
 | Library | Tog | Traf | Matt | Avg |
 | ---- | ---- | ---- | ---- | ---- |
-| jssm | **1** | **2** | **5** | 2.66 |
-| state-machine | 5 | 8 | 14 | 9 |
-| faste | 4 | 14 | 24 | 10.66 |
-| javascript-state-machine | 7 | 13 | **23** | 14.33 |
-| finity | 7 | 10 | 28 | 15 |
-| stately | 8 | 18 | 24 | 16.66 |
-| robot | 17 | 24 | 31 | 24 |
-| xstate | **16** | 36 | 33 | 28.33 |
-| <fail>nanostate</fail> | 8 | **12** | <fail>15</fail> | <fail>11.66</fail> |
-| <fail>machina</fail> | 20 | 26 | <fail>36</fail> | <fail>27.33</fail> |
+| jssm | **[1](#jssm-toggle-machine-1-line)** | **[2](#jssm-traffic-light-2-lines)** | **[5](#jssm-states-of-matter-5-lines)** | 2.66 |
+| state-machine | [5](#state-machine-toggle-machine-5-lines) | [8](#state-machine-traffic-light-8-lines) | [14](#state-machine-states-of-matter-14-lines) | 9 |
+| faste | [4](#faste-toggle-machine-4-lines) | [14](#faste-traffic-light-14-lines) | [24](#created-faste-states-of-matter-24-lines) | 10.66 |
+| javascript-state-machine | [7](#javascript-state-machine-toggle-machine-7-lines) | [13](#javascript-state-machine-traffic-light-13-lines) | **[23](#javascript-state-machine-states-of-matter-23-lines)** | 14.33 |
+| finity | [7](#created-finity-toggle-machine-7-lines) | [10](#created-finity-traffic-light-10-lines) | [28](#created-finity-states-of-matter-28-lines) | 15 |
+| stately | [8](#created-stately-toggle-machine-8-lines) | [18](#created-stately-traffic-light-18-lines) | [24](#created-stately-states-of-matter-24-lines) | 16.66 |
+| robot | [17](#created-robot-toggle-machine-17-lines) | [24](#created-robot-traffic-light-24-lines) | [31](#created-robot-states-of-matter-31-lines) | 24 |
+| xstate | **[16](#xstate-toggle-machine-16-lines)** | [36](#created-xstate-traffic-light-36-lines) | [33](#created-xstate-traffic-light-33-lines) | 28.33 |
+| <fail>nanostate</fail> | [8](#nanostate-toggle-machine-8-lines) | **[12](#nanostate-traffic-light-12-lines)** | <fail>[15](#nanostate-states-of-matter-15-lines-❌-cannot-implement)</fail> | <fail>11.66</fail> |
+| <fail>machina</fail> | [20](#machina-toggle-machine-20-lines) | [26](#machina-traffic-light-26-lines) | <fail>[36](#machina-states-of-matter-36-lines-❌-cannot-implement)</fail> | <fail>27.33</fail> |
 
 </span>
 
@@ -55,21 +55,20 @@ linking them with actions.
 
 | lib | length |
 | ---- | ---- |
-| jssm | 1 |
-| faste | 4 |
-| state-machine | 5 |
-| finity | 7 |
-| javascript-state-machine | 7 |
-| stately | 8 |
-| <fail>nanostate</fail> | 8 |
-| xstate | 16 |
-| robot | 17 |
-| <fail>machina</fail> | 20 |
+| jssm | [1](#jssm-toggle-machine-1-line) |
+| faste | [4](#faste-toggle-machine-4-lines) |
+| state-machine | [5](#state-machine-toggle-machine-5-lines) |
+| finity | [7](#created-finity-toggle-machine-7-lines) |
+| javascript-state-machine | [7](#javascript-state-machine-toggle-machine-7-lines) |
+| stately | [8](#created-stately-toggle-machine-8-lines) |
+| <fail>nanostate</fail> | [8](#nanostate-toggle-machine-8-lines) |
+| xstate | [16](#xstate-toggle-machine-16-lines) |
+| robot | [17](#created-robot-toggle-machine-17-lines) |
+| <fail>machina</fail> | [20](#machina-toggle-machine-20-lines) |
 
 &nbsp;
 
 ### `jssm` toggle machine, 1 line
-
 ```javascript
 export const toggleMachine = sm`active 'TOGGLE' <=> 'TOGGLE' inactive;`;
 ````
@@ -278,16 +277,16 @@ systems' lingo.)
 
 | lib | length |
 | ---- | ---- |
-| jssm | 2 |
-| state-machine | 8 |
-| finity | 10 |
-| javascript-state-machine | 13 |
-| <fail>nanostate</fail> | 12 |
-| faste | 14 |
-| stately | 18 |
-| robot | 24 |
-| xstate | 36 |
-| <fail>machina</fail> | 26 |
+| jssm | [2](#jssm-traffic-light-2-lines) |
+| state-machine | [8](#state-machine-traffic-light-8-lines) |
+| finity | [10](#created-finity-traffic-light-10-lines) |
+| javascript-state-machine | [13](#javascript-state-machine-traffic-light-13-lines) |
+| faste | [14](#faste-traffic-light-14-lines) |
+| stately | [18](#created-stately-traffic-light-18-lines) |
+| robot | [24](#created-robot-traffic-light-24-lines) |
+| xstate | [36](#created-xstate-traffic-light-36-lines) |
+| <fail>nanostate</fail> | [12](#nanostate-traffic-light-12-lines) |
+| <fail>machina</fail> | [26](#machina-traffic-light-26-lines) |
 
 &nbsp;
 
@@ -583,16 +582,16 @@ or an edge, in other machines' terminology.)
 
 | lib | length |
 | ---- | ---- |
-| jssm | 5 |
-| state-machine | 14 |
-| <fail>nanostate</fail> | <fail>15</fail> ❌ |
-| javascript-state-machine | 23 |
-| stately | 24 |
-| faste | 24 |
-| finity | 28 |
-| robot | 31 |
-| xstate | 35 |
-| <fail>machina</fail> | <fail>36</fail> ❌ |
+| jssm | [5](#jssm-states-of-matter-5-lines) |
+| state-machine | [14](#state-machine-states-of-matter-14-lines) |
+| <fail>nanostate</fail> | <fail>[15](#nanostate-states-of-matter-15-lines-❌-cannot-implement)</fail> ❌ |
+| javascript-state-machine | [23](#javascript-state-machine-states-of-matter-23-lines) |
+| stately | [24](#created-stately-states-of-matter-24-lines) |
+| faste | [24](#created-faste-states-of-matter-24-lines) |
+| finity | [28](#created-finity-states-of-matter-28-lines) |
+| robot | [31](#created-robot-states-of-matter-31-lines) |
+| xstate | [33](#created-xstate-traffic-light-33-lines) |
+| <fail>machina</fail> | <fail>[36](#machina-states-of-matter-36-lines-❌-cannot-implement)</fail> ❌ |
 
 &nbsp;
 

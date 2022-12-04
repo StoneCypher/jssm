@@ -1,4 +1,10 @@
 
+import { circular_buffer } from 'circular_buffer_js';
+
+
+
+
+
 type StateType = string;
 
 
@@ -47,18 +53,43 @@ type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';  // todo add the re
 type JssmCorner         = 'regular' | 'rounded' | 'lined';
 type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
 
-
-
-
-
-type FslDirection       = 'up' | 'right' | 'down' | 'left';
-type FslTheme           = 'default' | 'ocean' | 'modern' | 'none';
+type JssmAllowsOverride = true | false | undefined;
 
 
 
 
 
-type State = string;
+const FslDirections     = ['up', 'right', 'down', 'left'] as const;
+type  FslDirection      = typeof FslDirections[number];
+
+const FslThemes         = ['default', 'ocean', 'modern', 'plain', 'bold'] as const;
+type  FslTheme          = typeof FslThemes[number];
+
+
+
+
+
+type JssmSerialization<DataType> = {
+
+  jssm_version     : string,
+  timestamp        : number,
+  comment?         : string | undefined,
+  state            : StateType,
+  history          : [string, DataType][],
+  history_capacity : number,
+  data             : DataType
+
+};
+
+
+
+
+
+type JssmPropertyDefinition = {
+  name           : string,
+  default_value? : any,
+  required?      : boolean
+};
 
 
 
@@ -75,11 +106,11 @@ type JssmTransitionPermitterMaybeArray<DataType> =
 
 
 
-type JssmTransition<DataType> = {
+type JssmTransition<StateType, DataType> = {
 
   from         : StateType,
   to           : StateType,
-  name?        : string,
+  name?        : StateType,
   action?      : StateType,
   check?       : JssmTransitionPermitterMaybeArray<DataType>,  // validate this edge's transition; usually about data
   probability? : number,                                       // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
@@ -89,8 +120,8 @@ type JssmTransition<DataType> = {
 
 };
 
-type JssmTransitions<DataType> =
-  Array< JssmTransition<DataType> >;
+type JssmTransitions<StateType, DataType> =
+  JssmTransition<StateType, DataType>[];
 
 type JssmTransitionList = {
   entrances : Array<StateType>,
@@ -133,7 +164,7 @@ type JssmMachineInternalState<DataType> = {
   edge_map                    : Map< StateType, Map<StateType, number> >,
   actions                     : Map< StateType, Map<StateType, number> >,
   reverse_actions             : Map< StateType, Map<StateType, number> >,
-  edges                       : Array< JssmTransition<DataType> >
+  edges                       : Array< JssmTransition<StateType, DataType> >
 
 };
 
@@ -153,7 +184,7 @@ type JssmGenericMachine<DataType> = {
   state            : StateType,
   data?            : DataType,
   nodes?           : Array<StateType>,
-  transitions      : JssmTransitions<DataType>,
+  transitions      : JssmTransitions<StateType, DataType>,
   check?           : JssmStatePermitterMaybeArray<DataType>,
 
   min_transitions? : number,
@@ -172,8 +203,9 @@ type JssmGenericMachine<DataType> = {
 
 
 type JssmStateDeclarationRule = {
-  key   : string,
-  value : any  // TODO FIXME COMEBACK enumerate types against concrete keys
+  key       : string,
+  value     : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
+  name?     : string
 };
 
 type JssmStateDeclaration = {
@@ -183,13 +215,134 @@ type JssmStateDeclaration = {
   shape?           : JssmShape,
   color?           : JssmColor,
   corners?         : JssmCorner,
-  linestyle?       : JssmLineStyle,
+  lineStyle?       : JssmLineStyle,
+
+  stateLabel?      : string,
 
   textColor?       : JssmColor,
   backgroundColor? : JssmColor,
   borderColor?     : JssmColor,
 
-  state            : StateType
+  state            : StateType,
+  property?        : { name: string, value: unknown }
+
+};
+
+type JssmStateConfig = Partial<JssmStateDeclaration>;
+
+type JssmStateStyleShape           = { key: 'shape',            value: JssmShape     };
+type JssmStateStyleColor           = { key: 'color',            value: JssmColor     };
+type JssmStateStyleTextColor       = { key: 'text-color',       value: JssmColor     };
+type JssmStateStyleCorners         = { key: 'corners',          value: JssmCorner    };
+type JssmStateStyleLineStyle       = { key: 'line-style',       value: JssmLineStyle };
+type JssmStateStyleStateLabel      = { key: 'state-label',      value: string        };
+type JssmStateStyleBackgroundColor = { key: 'background-color', value: JssmColor     };
+type JssmStateStyleBorderColor     = { key: 'border-color',     value: JssmColor     };
+
+type JssmStateStyleKey     = JssmStateStyleShape | JssmStateStyleColor
+                           | JssmStateStyleTextColor | JssmStateStyleCorners
+                           | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor
+                           | JssmStateStyleStateLabel | JssmStateStyleBorderColor;
+
+type JssmStateStyleKeyList = JssmStateStyleKey[];
+
+
+
+
+
+type JssmBaseTheme = {
+
+  name            : string,
+
+  state           : JssmStateConfig,
+  hooked          : JssmStateConfig,
+  start           : JssmStateConfig,
+  end             : JssmStateConfig,
+  terminal        : JssmStateConfig,
+
+  active          : JssmStateConfig,
+  active_hooked   : JssmStateConfig,
+  active_start    : JssmStateConfig,
+  active_end      : JssmStateConfig,
+  active_terminal : JssmStateConfig,
+
+  graph           : undefined,
+
+  legal           : undefined,
+  main            : undefined,
+  forced          : undefined,
+
+  action          : undefined,
+  title           : undefined
+
+};
+
+type JssmTheme = Partial<JssmBaseTheme>;
+
+
+
+
+
+type JssmGenericConfig<StateType, DataType> = {
+
+  graph_layout?                  : JssmLayout,
+
+  complete?                      : Array<StateType>,
+  transitions                    : JssmTransitions<StateType, DataType>,
+
+  theme?                         : FslTheme[],
+  flow?                          : FslDirection,
+
+  name?                          : string,
+  data?                          : DataType,
+  nodes?                         : Array<StateType>,  // uncommon
+  check?                         : JssmStatePermitterMaybeArray<DataType>,
+  history?                       : number,
+
+//locked?                        : bool = true,
+  min_exits?                     : number,
+  max_exits?                     : number,
+  allow_islands?                 : false,
+  allow_force?                   : false,
+  actions?                       : JssmPermittedOpt,
+
+  simplify_bidi?                 : boolean,
+  allows_override?               : JssmAllowsOverride,
+  config_allows_override?        : JssmAllowsOverride,
+
+  dot_preamble?                  : string,
+
+  start_states                   : Array<StateType>,
+  end_states?                    : Array<StateType>,
+
+  state_declaration?             : Object[],
+  property_definition?           : JssmPropertyDefinition[],
+  state_property?                : JssmPropertyDefinition[]
+
+  arrange_declaration?           : Array<Array<StateType>>,
+  arrange_start_declaration?     : Array<Array<StateType>>,
+  arrange_end_declaration?       : Array<Array<StateType>>,
+
+  machine_author?                : string | Array<string>,
+  machine_comment?               : string,
+  machine_contributor?           : string | Array<string>,
+  machine_definition?            : string,
+  machine_language?              : string,   // TODO FIXME COMEBACK
+  machine_license?               : string,   // TODO FIXME COMEBACK
+  machine_name?                  : string,
+  machine_version?               : string,   // TODO FIXME COMEBACK
+
+  fsl_version?                   : string,   // TODO FIXME COMEBACK
+
+  auto_api?                      : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
+  instance_name?                 : string | undefined,
+
+  default_state_config?          : JssmStateStyleKeyList,
+  default_start_state_config?    : JssmStateStyleKeyList,
+  default_end_state_config?      : JssmStateStyleKeyList,
+  default_hooked_state_config?   : JssmStateStyleKeyList,
+  default_terminal_state_config? : JssmStateStyleKeyList,
+  default_active_state_config?   : JssmStateStyleKeyList
 
 };
 
@@ -197,63 +350,7 @@ type JssmStateDeclaration = {
 
 
 
-type JssmGenericConfig<DataType> = {
-
-  graph_layout?              : JssmLayout,
-
-  complete?                  : Array<StateType>,
-  transitions                : JssmTransitions<DataType>,
-
-  theme?                     : FslTheme,
-  flow?                      : FslDirection,
-
-  name?                      : string,
-  data?                      : DataType,
-  nodes?                     : Array<StateType>,  // uncommon
-  check?                     : JssmStatePermitterMaybeArray<DataType>,
-  history?                   : number,
-
-//locked?                    : bool = true,
-  min_exits?                 : number,
-  max_exits?                 : number,
-  allow_islands?             : false,
-  allow_force?               : false,
-  actions?                   : JssmPermittedOpt,
-
-  simplify_bidi?             : boolean,
-
-  dot_preamble?              : string,
-
-  start_states               : Array<StateType>,
-  end_states?                : Array<StateType>,
-
-  state_declaration?         : Array<Object>,
-
-  arrange_declaration?       : Array<Array<StateType>>,
-  arrange_start_declaration? : Array<Array<StateType>>,
-  arrange_end_declaration?   : Array<Array<StateType>>,
-
-  machine_author?            : string | Array<string>,
-  machine_comment?           : string,
-  machine_contributor?       : string | Array<string>,
-  machine_definition?        : string,
-  machine_language?          : string,   // TODO FIXME COMEBACK
-  machine_license?           : string,   // TODO FIXME COMEBACK
-  machine_name?              : string,
-  machine_version?           : string,   // TODO FIXME COMEBACK
-
-  fsl_version?               : string,   // TODO FIXME COMEBACK
-
-  auto_api?                  : boolean | string, // TODO FIXME COMEBACK // boolean false means don't; boolean true means do; string means do-with-this-prefix
-  instance_name?             : string | undefined
-
-};
-
-
-
-
-
-type JssmCompileRule = {
+type JssmCompileRule<StateType> = {
 
   agg_as : string,
   val    : any      // TODO COMEBACK FIXME
@@ -264,10 +361,10 @@ type JssmCompileRule = {
 
 
 
-type JssmCompileSe = {
+type JssmCompileSe<StateType, mDT> = {
 
   to            : StateType,
-  se            : JssmCompileSe,
+  se            : JssmCompileSe<StateType, mDT>,
   kind          : JssmArrow,
   l_action?     : StateType,
   r_action?     : StateType,
@@ -280,13 +377,16 @@ type JssmCompileSe = {
 
 
 
-type JssmCompileSeStart<DataType> = {
+type JssmCompileSeStart<StateType, DataType> = {
 
-  from   : DataType,
-  se     : JssmCompileSe,
-  key    : string,
-  value? : string | number,
-  name?  : string
+  from           : StateType,
+  se             : JssmCompileSe<StateType, DataType>,
+  key            : string,
+  value?         : string | number,
+  name?          : string,
+  state?         : string,
+  default_value? : any,     // for properties
+  required?      : boolean  // for properties
 
 };
 
@@ -294,17 +394,17 @@ type JssmCompileSeStart<DataType> = {
 
 
 
-type JssmParseTree =
+type JssmParseTree<StateType, mDT> =
 
-  Array< JssmCompileSeStart<StateType> >;
-
-
+  Array< JssmCompileSeStart<StateType, mDT> >;
 
 
 
-type JssmParseFunctionType =
 
-  (string) => JssmParseTree;
+
+type JssmParseFunctionType<StateType, mDT> =
+
+  (string) => JssmParseTree<StateType, mDT>;
 
 
 
@@ -460,9 +560,10 @@ type HookDescription<mDT>
 
 /* Governs the return value from a hook when non-trivial; potentially carries final state, data; definitely carries whether passed */
 type HookComplexResult<mDT> = {
-  pass   : boolean,    // DO NOT MAKE OPTIONAL, prevents accidental other objects
-  state? : StateType,
-  data?  : mDT,
+  pass       : boolean,    // DO NOT MAKE OPTIONAL, prevents accidental other objects
+  state?     : StateType,
+  data?      : mDT,
+  next_data? : mDT
 };
 
 type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;  /** Documents whether a hook succeeded, either with a primitive or a reference to the hook complex object */
@@ -472,7 +573,8 @@ type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 
 
 type HookContext<mDT> = {
-  data: mDT
+  data      : mDT,
+  next_data : mDT
 };
 
 
@@ -492,6 +594,12 @@ type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) =>
 type JssmErrorExtendedInfo = {
   requested_state? : StateType | undefined
 };
+
+
+
+
+
+type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
 
 
 
@@ -526,8 +634,20 @@ export {
 
   JssmStateDeclaration,
     JssmStateDeclarationRule,
+    JssmStateConfig,
+
+  JssmStateStyleKey,
+    JssmStateStyleKeyList,
+
+  JssmBaseTheme,
+    JssmTheme,
 
   JssmLayout,
+
+  JssmHistory,
+  JssmSerialization,
+  JssmPropertyDefinition,
+  JssmAllowsOverride,
 
   JssmParseFunctionType,
 
@@ -535,7 +655,10 @@ export {
 
   JssmErrorExtendedInfo,
 
-  FslDirection,
+  FslDirections,
+    FslDirection,
+
+  FslThemes,
     FslTheme,
 
   HookDescription,

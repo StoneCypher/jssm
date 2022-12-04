@@ -6,6 +6,96 @@ jobs:
 
 
 
+  unicode-atoms:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Check full unicode over atoms
+      run: |
+        npm install && npm run make && npm run jest-unicode-atom
+
+
+
+  unicode-strings:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Check full unicode over strings
+      run: |
+        npm install && npm run make && npm run jest-unicode-string
+
+
+
+  unicode-atom-labels:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Check full unicode over atom labels
+      run: |
+        npm install && npm run make && npm run jest-unicode-atom-label
+
+
+
+  unicode-string-labels:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Check full unicode over string labels
+      run: |
+        npm install && npm run make && npm run jest-unicode-string-label
+
+
+
+  unicode-actions:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18.x
+
+    - name: Check full unicode over action statements
+      run: |
+        npm install && npm run make && npm run jest-unicode-action
+
+
+
   build:
 
     strategy:
@@ -32,7 +122,7 @@ jobs:
           - node-version: 17.x
             os: ubuntu-latest
 
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v1
@@ -65,7 +155,7 @@ jobs:
       with:
         node-version: 18.x
 
-    - name: Verify the version was bumped
+    - name: Run the benchmarks
       run: |
         npm install && npm run benny
 
@@ -96,7 +186,7 @@ jobs:
 
     if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
 
-    needs: [build, verify-version-bump]
+    needs: [build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
 
     runs-on: ubuntu-latest
 
@@ -107,6 +197,7 @@ jobs:
       run: |
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
         echo "TAG=$TAG" >> $GITHUB_ENV
+        echo $TAG
 
     - name: Use Node.js 18.x
       uses: actions/setup-node@v1
@@ -131,6 +222,16 @@ jobs:
         npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
+
+    - name: Tweet notice
+      run: |
+        npm install && node ./src/buildjs/tweet.js
+      env:
+        JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
+        JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
+        JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
+        JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
+        TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
 
 
@@ -160,5 +261,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v2
+
     - name: Results page
-      run: echo '### Results!\n\n* Published to NPM\n* Bumped `jssm-viz`\n* Bumped `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY
+      run: |
+        export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
+        echo '### Results!' >> $GITHUB_STEP_SUMMARY
+        echo "* Published $TAG to NPM" >> $GITHUB_STEP_SUMMARY
+        echo '* Bumping `jssm-viz`' >> $GITHUB_STEP_SUMMARY
+        echo '    * which will bump `jssm-viz-cli`' >> $GITHUB_STEP_SUMMARY
+        echo '    * which will bump `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY
