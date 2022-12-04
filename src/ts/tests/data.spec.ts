@@ -1,6 +1,8 @@
 
 import * as jssm from '../jssm';
 
+const sm = jssm.sm;
+
 
 
 
@@ -93,6 +95,95 @@ describe('Constructor data', () => {
 
     expect(val_was).toStrictEqual({a: [0,1,2]});
 
+  });
+
+
+});
+
+
+
+
+
+describe('next_data for each hook', () => {
+
+  test("any action hook", () => {
+    const m = jssm.from<string>("a 'nx' -> b;");
+    let nd: string;
+    m.hook_any_action( ({ next_data }) => { nd = next_data; });
+    m.action('nx', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("global specific action hook", () => {
+    const m = jssm.from<string>("a 'nx' -> b;");
+    let nd: string;
+    m.hook_global_action( 'nx', ({ next_data }) => { nd = next_data; });
+    m.action('nx', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("any transition hook", () => {
+    const m = jssm.from<string>('a -> b;');
+    let nd: string;
+    m.hook_any_transition( ({ next_data }) => { nd = next_data; });
+    m.go('b', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("exit hook", () => {
+    const m = jssm.from<string>("a 'nx' -> b;");
+    let nd: string;
+    m.hook_exit( 'a', ({ next_data }) => { nd = next_data; });
+    m.go('b', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("action hook", () => {
+    const m = jssm.from<string>("a 'nx' -> b;");
+    let nd: string;
+    m.hook_action( 'a', 'b', 'nx', ({ next_data }) => { nd = next_data; });
+    m.action('nx', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("regular ol' transition hook", () => {
+    const m = jssm.from<string>('a -> b;');
+    let nd: string;
+    m.hook( 'a', 'b', ({ next_data }) => { nd = next_data; });
+    m.go('b', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("hook any standard transition", () => {
+    const m = jssm.from<string>('a -> b;');
+    let nd: string;
+    m.hook_standard_transition( ({ next_data }) => { nd = next_data; });
+    m.go('b', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("hook any main transition", () => {
+    const m = jssm.from<string>('a => b;');
+    let nd: string;
+    m.hook_main_transition( ({ next_data }) => { nd = next_data; });
+    m.go('b', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("hook any forced transition", () => {
+    const m = jssm.from<string>('a ~> b;');
+    let nd: string;
+    m.hook_forced_transition( ({ next_data }) => { nd = next_data; });
+    m.force_transition('b', 'foo');
+    expect(nd).toBe('foo');
+  });
+
+  test("entry hook", () => {
+    const m = jssm.from<string>("a 'nx' -> b;");
+    let nd: string;
+    m.hook_entry( 'b', ({ next_data }) => { nd = next_data; });
+    m.go('b', 'foo');
+    expect(nd).toBe('foo');
   });
 
 

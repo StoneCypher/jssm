@@ -2212,11 +2212,12 @@ class Machine<mDT> {
 
 
     const hook_args = {
-      data   : this._data,
-      action : fromAction,
-      from   : this._state,
-      to     : newState,
-      forced : wasForced,
+      data       : this._data,
+      action     : fromAction,
+      from       : this._state,
+      to         : newState,
+      next_data  : newData,
+      forced     : wasForced,
       trans_type
     };
 
@@ -2226,8 +2227,9 @@ class Machine<mDT> {
 
         function update_fields(res: HookComplexResult<mDT>) {
           if (res.hasOwnProperty('data')) {
-            hook_args.data = res.data;
-            data_changed   = true;
+            hook_args.data      = res.data;
+            hook_args.next_data = res.next_data;
+            data_changed        = true;
           }
         }
 

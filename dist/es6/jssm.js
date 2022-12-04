@@ -1492,6 +1492,7 @@ class Machine {
             action: fromAction,
             from: this._state,
             to: newState,
+            next_data: newData,
             forced: wasForced,
             trans_type
         };
@@ -1500,6 +1501,7 @@ class Machine {
                 function update_fields(res) {
                     if (res.hasOwnProperty('data')) {
                         hook_args.data = res.data;
+                        hook_args.next_data = res.next_data;
                         data_changed = true;
                     }
                 }

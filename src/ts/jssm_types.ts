@@ -560,9 +560,10 @@ type HookDescription<mDT>
 
 /* Governs the return value from a hook when non-trivial; potentially carries final state, data; definitely carries whether passed */
 type HookComplexResult<mDT> = {
-  pass   : boolean,    // DO NOT MAKE OPTIONAL, prevents accidental other objects
-  state? : StateType,
-  data?  : mDT,
+  pass       : boolean,    // DO NOT MAKE OPTIONAL, prevents accidental other objects
+  state?     : StateType,
+  data?      : mDT,
+  next_data? : mDT
 };
 
 type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;  /** Documents whether a hook succeeded, either with a primitive or a reference to the hook complex object */
@@ -572,7 +573,8 @@ type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 
 
 type HookContext<mDT> = {
-  data: mDT
+  data      : mDT,
+  next_data : mDT
 };
 
 
