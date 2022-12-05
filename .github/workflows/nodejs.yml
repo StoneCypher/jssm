@@ -107,7 +107,11 @@ jobs:
             os: macos-latest
           - node-version: 18.x   # finish check big-3 on latest current
             os: windows-latest
-          - node-version: 13.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
+          - node-version: 11.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
+            os: ubuntu-latest
+          - node-version: 12.x
+            os: ubuntu-latest
+          - node-version: 13.x
             os: ubuntu-latest
           - node-version: 14.x
             os: ubuntu-latest
@@ -121,7 +125,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:

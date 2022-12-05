@@ -2,6 +2,8 @@
 const fs = require('fs'),
       xj = require('xml2js');
 
+const pv = JSON.parse( fs.readFileSync('./package.json').toString() ).version;
+
 const wt = JSON.parse( fs.readFileSync('./coverage/cloc/report_wt.json') ),
       nt = JSON.parse( fs.readFileSync('./coverage/cloc/report_nt.json') );
 
@@ -50,7 +52,8 @@ async function bulk() {
         readme_stochc = readme_stoch.replace(/{{stoch_coverage}}/g, get_coverage_pct(stoch_json.coverage.project[0].metrics[0]['$'])),
         readme_lines  = readme_stochc.replace(/{{line_count}}/g, lines.toLocaleString()),
         readme_ratio  = readme_lines.replace(/{{line_test_ratio}}/g, (tot_count / lines).toFixed(1)),
-        readme_rratio = readme_ratio.replace(/{{line_run_ratio}}/g, (run_count / lines).toFixed(1));
+        readme_rratio = readme_ratio.replace(/{{line_run_ratio}}/g, (run_count / lines).toFixed(1)),
+        readme_jver   = readme_ratio.replace(/{{jssm_version}}/g, pv);
 
   fs.writeFileSync('./README.md', warning_wv + readme_rratio);
 
