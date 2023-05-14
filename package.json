@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.89.0",
+  "version": "5.89.1",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -43,7 +43,7 @@
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.js",
     "make_cjs": "rollup -c",
     "make_iife": "rollup -c rollup.config.iife.js",
-    "make_deno": "rollup -c rollup.config.deno.js",
+    "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno",
     "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
     "makever": "node src/buildjs/makever.js",
     "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_deno && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs && npm run min_deno && rm ./dist/es6/*.nonmin.js",
@@ -58,11 +58,11 @@
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
-    "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.deno-esm.js",
+    "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
     "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.js",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.js",
-    "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.js",
+    "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.js && cp README.md dist/deno",
     "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog -b && cp CHANGELOG.* ./src/doc_md/"
   },
   "repository": {

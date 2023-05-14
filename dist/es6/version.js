@@ -1,2 +1,2 @@
-const version = "5.89.0", build_time = 1683487351764;
+const version = "5.89.1", build_time = 1684045938941;
 export { version, build_time };

@@ -15,7 +15,7 @@ In Deno, it is generally preferred to load modules from the official module syst
 The most common usage is probably to match one or more methods off of the module:
 
 ```typescript
-import { sm } from "https://deno.land/x/jssm@5.90.0";
+import { sm } from "https://deno.land/x/jssm@5.89.1/jssm.js";
 
 const TrafficLight = sm`Red => Green => Yellow => Red;`;
 ```
@@ -23,12 +23,12 @@ const TrafficLight = sm`Red => Green => Yellow => Red;`;
 You can also bulk import the entire module:
 
 ```typescript
-import * as jssm from "https://deno.land/x/jssm@5.90.0";
+import * as jssm from "https://deno.land/x/jssm@5.89.1/jssm.js";
 
 const TrafficLight = jssm.sm`Red => Green => Yellow => Red;`;
 ```
 
-Please note the version number at the end of the URL.  Whereas not required, it's good practice; without it, you'll get the current major, which if years later may have breaking changes.
+Please note the version number near the end of the URL.  Whereas not required, it's good practice; without it, you'll get the current major, which if years later may have breaking changes.
 
 &nbsp;
 
@@ -48,6 +48,8 @@ Or, the whole module:
 
 ```typescript
 import * as jssm from "./dist/deno/jssm.deno-esm.js";
+
+const TrafficLight = jssm.sm`Red => Green => Yellow => Red;`;
 ```
 
 &nbsp;
@@ -72,4 +74,10 @@ Or, to bind the whole module,
 import * as jssm from "https://raw.githubusercontent.com/StoneCypher/jssm/main/dist/deno/jssm.deno-esm.js";
 
 const TrafficLight = jssm.sm`Red => Green => Yellow => Red;`;
+```
+
+One downside to this approach is that deno will cache indefinitely, until told otherwise, and it's difficult to notice this or to change it once noticed.  To force a cache update:
+
+```
+deno cache --reload "https://raw.githubusercontent.com/StoneCypher/jssm/main/dist/deno/jssm.deno-esm.js"
 ```
