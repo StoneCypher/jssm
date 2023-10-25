@@ -3,6 +3,8 @@
 
 import * as jssm from '../jssm';
 
+const sm = jssm.sm;
+
 
 
 
@@ -142,5 +144,63 @@ describe('probabilistic_histo_walk', () => {
   test('histo off is 2', () =>
     expect(histo.get('off'))
       .toBe(2) );
+
+});
+
+
+
+
+
+describe('random seed', () => {
+
+  const a = sm`a -> b;`;
+  const b = jssm.from(`a -> b;`, { rng_seed: 2 });
+  const c = new jssm.Machine({
+    start_states : ['off'],
+    transitions  : [ { from: 'off', to: 'red', kind: 'legal', forced_only: false, main_path: false } ],
+    rng_seed     : 2
+  });
+
+  test('Has RNG seed when unspecified', () => {
+    expect(typeof a.rng_seed).toBe('number')
+  });
+
+  test('Has RNG seed when specified in .from form', () => {
+    expect(b.rng_seed).toBe(2)
+  });
+
+  test('Has RNG seed when specified in constructor form', () => {
+    expect(c.rng_seed).toBe(2)
+  });
+
+
+  test('Can get and set RNG to 1 and then to 2', () => {
+
+    a.rng_seed = 1;
+    expect(a.rng_seed).toBe(1);
+
+    a.rng_seed = 2;
+    expect(a.rng_seed).toBe(2);
+
+  });
+
+
+  test('Setting RNG to undefined actually sets to clock', () => {
+
+    a.rng_seed = 1;
+    expect(a.rng_seed).toBe(1);
+
+    a.rng_seed = undefined;
+    expect(a.rng_seed).not.toBe(undefined);
+    expect(a.rng_seed).not.toBe(1);
+
+    a.rng_seed = 1;
+    expect(a.rng_seed).toBe(1);
+
+    a.rng_seed = undefined;
+    expect(a.rng_seed).not.toBe(undefined);
+    expect(a.rng_seed).not.toBe(1);
+
+  });
 
 });

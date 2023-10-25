@@ -342,7 +342,9 @@ type JssmGenericConfig<StateType, DataType> = {
   default_end_state_config?      : JssmStateStyleKeyList,
   default_hooked_state_config?   : JssmStateStyleKeyList,
   default_terminal_state_config? : JssmStateStyleKeyList,
-  default_active_state_config?   : JssmStateStyleKeyList
+  default_active_state_config?   : JssmStateStyleKeyList,
+
+  rng_seed?                      : number | undefined
 
 };
 
@@ -601,6 +603,8 @@ type JssmErrorExtendedInfo = {
 
 type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
 
+type JssmRng = () => number;
+
 
 
 
@@ -665,6 +669,8 @@ export {
     HookHandler,
     HookContext,
     HookResult,
-    HookComplexResult
+    HookComplexResult,
+
+  JssmRng
 
 };

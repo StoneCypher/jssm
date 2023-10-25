@@ -1,6 +1,6 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmAllowsOverride, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult } from './jssm_types';
+JssmMachineInternalState, JssmAllowsOverride, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, JssmRng } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
@@ -40,8 +40,10 @@ declare class Machine<mDT> {
     _fsl_version?: string;
     _raw_state_declaration?: Array<Object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
-    _instance_name: string;
     _data?: mDT;
+    _instance_name: string;
+    _rng_seed: number;
+    _rng: JssmRng;
     _graph_layout: JssmLayout;
     _dot_preamble: string;
     _arrange_declaration: Array<Array<StateType>>;
@@ -99,7 +101,7 @@ declare class Machine<mDT> {
     _start_state_style: JssmStateConfig;
     _end_state_style: JssmStateConfig;
     _state_labels: Map<string, string>;
-    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -668,6 +670,8 @@ declare class Machine<mDT> {
     post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    get rng_seed(): number;
+    set rng_seed(to: number | undefined);
     edges_between(from: string, to: string): JssmTransition<StateType, mDT>[];
     /*********
      *

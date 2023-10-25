@@ -11,7 +11,7 @@ function arr_uniq_p(el, i, source) {
 const array_box_if_string = n => typeof n === 'string' ? [n] : n;
 // this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
-const weighted_rand_select = (options, probability_property = 'probability') => {
+const weighted_rand_select = (options, probability_property = 'probability', rng) => {
     if (!Array.isArray(options)) {
         throw new TypeError('options must be a non-empty array of objects');
     }

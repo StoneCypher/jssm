@@ -4,7 +4,7 @@ import { FslDirections } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { theme_mapping, base_theme } from './jssm_theme';
-import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name } from './jssm_util';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32 } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
 import { version, build_time } from './version'; // replaced from package.js in build
@@ -126,7 +126,7 @@ function state_style_condense(jssk) {
 // TODO add a lotta docblock here
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override }) {
+    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed }) {
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -212,6 +212,8 @@ class Machine {
         this._history_length = history || 0;
         this._history = new circular_buffer(this._history_length);
         this._state_labels = new Map();
+        this._rng_seed = rng_seed !== null && rng_seed !== void 0 ? rng_seed : new Date().getTime();
+        this._rng = gen_splitmix32(this._rng_seed);
         // consolidate the state declarations
         if (state_declaration) {
             state_declaration.map((state_decl) => {
@@ -1076,7 +1078,7 @@ class Machine {
         return wtf;
     }
     probabilistic_transition() {
-        const selected = weighted_rand_select(this.probable_exits_for(this.state()));
+        const selected = weighted_rand_select(this.probable_exits_for(this.state()), undefined, this._rng);
         return this.transition(selected.to);
     }
     probabilistic_walk(n) {
@@ -1418,6 +1420,17 @@ class Machine {
     post_hook_exit(from, handler) {
         this.set_hook({ kind: 'post exit', from, handler });
         return this;
+    }
+    get rng_seed() {
+        return this._rng_seed;
+    }
+    set rng_seed(to) {
+        if (typeof to === 'undefined') {
+            this._rng_seed = new Date().getTime();
+        }
+        else {
+            this._rng_seed = to;
+        }
     }
     // remove_hook(HookDesc: HookDescription) {
     //   throw new JssmError(this, 'TODO: Should remove hook here');

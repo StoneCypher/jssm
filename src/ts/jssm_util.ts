@@ -1,4 +1,6 @@
 
+import { JssmRng }   from './jssm_types';
+
 import { JssmError } from './jssm_error';
 
 
@@ -30,7 +32,7 @@ const array_box_if_string = n =>
 // this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
 
-const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability'): any => {
+const weighted_rand_select: Function = (options: Array<any>, probability_property: string = 'probability', rng: JssmRng): any => {
 
   if (!Array.isArray(options)) {
     throw new TypeError('options must be a non-empty array of objects');

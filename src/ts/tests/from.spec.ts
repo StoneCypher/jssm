@@ -18,8 +18,16 @@ describe('Creating with .from', () => {
 
   test('matches results from sm``', () => {
 
-    expect( jssm.from('a -> b;') )
-      .toStrictEqual( sm`a -> b;` );
+    const a = jssm.from('a -> b;'),
+          b = sm`a -> b;`;
+
+    // they will legitimately vary because the RNG seed is clock-set.
+    // manually suppress that difference
+    a.rng_seed = 1;
+    b.rng_seed = 1;
+
+    expect( `${a}` )
+      .toStrictEqual( `${b}` );
 
   });
 

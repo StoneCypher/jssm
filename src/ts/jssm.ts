@@ -26,7 +26,8 @@ import {
   JssmPropertyDefinition,
   FslDirection, FslDirections, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult,
-  JssmBaseTheme
+  JssmBaseTheme,
+  JssmRng
 
 } from './jssm_types';
 
@@ -48,7 +49,8 @@ import {
   weighted_rand_select, weighted_sample_select,
   histograph, weighted_histo_key,
   array_box_if_string,
-  name_bind_prop_and_state, hook_name, named_hook_name
+  name_bind_prop_and_state, hook_name, named_hook_name,
+  gen_splitmix32
 } from './jssm_util';
 
 
@@ -233,9 +235,12 @@ class Machine<mDT> {
   _raw_state_declaration? : Array<Object>;
   _state_declarations     : Map<StateType, JssmStateDeclaration>;
 
+  _data? : mDT;
+
   _instance_name : string;
 
-  _data? : mDT;
+  _rng_seed : number;
+  _rng      : JssmRng;
 
   _graph_layout              : JssmLayout;
   _dot_preamble              : string;
@@ -345,7 +350,8 @@ class Machine<mDT> {
     default_start_state_config,
     default_end_state_config,
     allows_override,
-    config_allows_override
+    config_allows_override,
+    rng_seed
 
   }: JssmGenericConfig<StateType, mDT>) {
 
@@ -417,6 +423,7 @@ class Machine<mDT> {
 
     this._code_allows_override   = allows_override;
     this._config_allows_override = config_allows_override;
+
     if ( (allows_override === false) && (config_allows_override === true) ) {
       throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
     }
@@ -450,6 +457,10 @@ class Machine<mDT> {
     this._history                       = new circular_buffer(this._history_length);
 
     this._state_labels                  = new Map();
+
+    this._rng_seed                      = rng_seed ?? new Date().getTime();
+    this._rng                           = gen_splitmix32(this._rng_seed);
+
 
 
     // consolidate the state declarations
@@ -1609,7 +1620,7 @@ class Machine<mDT> {
   }
 
   probabilistic_transition(): boolean {
-    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(this.probable_exits_for(this.state()));
+    const selected: JssmTransition<StateType, mDT> = weighted_rand_select(this.probable_exits_for(this.state()), undefined, this._rng);
     return this.transition(selected.to);
   }
 
@@ -2120,6 +2131,26 @@ class Machine<mDT> {
     return this;
 
   }
+
+
+
+
+
+  get rng_seed(): number {
+    return this._rng_seed;
+  }
+
+  set rng_seed(to: number | undefined) {
+
+    if (typeof to === 'undefined') {
+      this._rng_seed = new Date().getTime();
+    } else {
+      this._rng_seed = to;
+    }
+
+  }
+
+
 
 
 
