@@ -1,38 +1,83 @@
 # Deno
 
-I was not able to make this work on Deno.
+`Warning: Deno support is newly underway.  The local instructions work.  Module publishing stuff has to be fixed.`
 
-Originally, I tried pointing `deno.land` at the typescript source directory.
-However, Deno requires file extensions in Typescript, which Typescript forbids.
+Deno does not require installation.  (However, if you're going to alter the library and submit a PR, installing in NPM then running `npm run build` is necessary.)
 
-Subsequently, I tried pointing `deno.land` at the es6 build directory.  However,
-Deno requires extensions in Node, and Typescript refuses to emit them.
+In Deno, it is generally preferred to load modules from the official module system.  However, you can also load from a local build (which can be useful if you're modifying the library,) or from the Github repo directly.
 
-Afterwards, I tried loading the es5 minified CJS, because there would be no
-file references in a single file.  However, this causes Deno to crash with a
-stack overflow, on a relatively small file that works correctly in Netscape
-Navigator 4 as well as current Chrome.  I have tried this against
-`deno 1.23 on windows`, `deno 1.23 on ubuntu`, `deno 1.16 on ubuntu`, and
-`deno 1.0 on ubuntu`, even when following the CJS instructions.
+&nbsp;
 
-I really wanted this to be available to Deno, and it seems like it's one inch
-from it, but I wasn't able to tie the loop.
+## From the Deno module service
 
-I suspect that there is actually some way to pull this off, and that a
-sufficiently domain-sophisticated person could probably one-sentence an answer.
+***This is very probably what you want to do***.
 
-***I would greatly appreciate assistance.***  However, I am not willing to
-become Deno-centric, and I am not willing to use codemods to service non-deno
-users.
+The most common usage is probably to match one or more methods off of the module:
 
+```typescript
+import { sm } from "https://deno.land/x/jssm@5.89.1/jssm.js";
 
+const TrafficLight = sm`Red => Green => Yellow => Red;`;
+```
+
+You can also bulk import the entire module:
+
+```typescript
+import * as jssm from "https://deno.land/x/jssm@5.89.1/jssm.js";
+
+const TrafficLight = jssm.sm`Red => Green => Yellow => Red;`;
+```
+
+Please note the version number near the end of the URL.  Whereas not required, it's good practice; without it, you'll get the current major, which if years later may have breaking changes.
 
 &nbsp;
 
 &nbsp;
 
-## So why is it still up?
+## Loading locally
 
-I can't find a deprecation mechanism.
+This is typically useful if you are bundling, or if you're modifying the library.  This way, you can get the local copy, rather than hitting the network, which might mean getting a local build, or just not leaning so heavily into `deno.land/x` for every automated build.
 
-I would appreciate advice.
+```typescript
+import { sm } from "./dist/deno/jssm.deno-esm.js";
+
+const TrafficLight = sm`Red => Green => Yellow => Red;`;
+```
+
+Or, the whole module:
+
+```typescript
+import * as jssm from "./dist/deno/jssm.deno-esm.js";
+
+const TrafficLight = jssm.sm`Red => Green => Yellow => Red;`;
+```
+
+&nbsp;
+
+&nbsp;
+
+## Loading directly from Github
+
+This is rarely useful, but could be if you want to validate a source against the official Github, or want to make certain that you're getting the current build regardless of middleman services, or if you're just new to the machine and want to try it out.
+
+This might be useful in immediate diagnostic practice, but this is not recommended in the long term, as the target URL is not guaranteed by either the author or Github to be stable, and if this URL gets hit heavily GH can disable access:
+
+```typescript
+import { sm } from "https://raw.githubusercontent.com/StoneCypher/jssm/main/dist/deno/jssm.deno-esm.js";
+
+const TrafficLight = sm`Red => Green => Yellow => Red;`;
+```
+
+Or, to bind the whole module,
+
+```typescript
+import * as jssm from "https://raw.githubusercontent.com/StoneCypher/jssm/main/dist/deno/jssm.deno-esm.js";
+
+const TrafficLight = jssm.sm`Red => Green => Yellow => Red;`;
+```
+
+One downside to this approach is that deno will cache indefinitely, until told otherwise, and it's difficult to notice this or to change it once noticed.  To force a cache update:
+
+```
+deno cache --reload "https://raw.githubusercontent.com/StoneCypher/jssm/main/dist/deno/jssm.deno-esm.js"
+```

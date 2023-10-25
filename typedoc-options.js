@@ -27,7 +27,7 @@ module.exports = {
             { title: 'Node',        source: 'todo.md' },
             { title: 'Typescript',  source: 'todo.md' },
             { title: 'The browser', source: 'todo.md' },
-//          { title: 'Deno',        source: 'todo.md' },
+            { title: 'Deno',        source: 'Environments_Deno.md' },
             { title: 'AWS Lambda',  source: 'todo.md' },
             { title: 'SQL',         source: 'todo.md' },
           ] },

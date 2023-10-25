@@ -102,20 +102,27 @@ const hook_name = (from, to) => JSON.stringify([from, to]);
 const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
 /*******
  *
- *  Creates a Mulberry32 random generator.  Used by the randomness test suite.
+ *  Creates a SplitMix32 random generator.  Used by the randomness test suite.
  *
- *  Sourced from `bryc` at StackOverflow: https://stackoverflow.com/a/47593316/763127
+ *  Sourced from `bryc`: https://github.com/bryc/code/blob/master/jshash/PRNGs.md#splitmix32
+ *
+ *  Replaces the Mulberry generator, which was found to have problems
  *
  */
-const make_mulberry_rand = (a) => () => {
+function gen_splitmix32(a) {
     if (a === undefined) {
         a = new Date().getTime();
     }
-    let t = a += 0x6D2B79F5;
-    t = Math.imul(t ^ t >>> 15, t | 1);
-    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-};
+    return function () {
+        a |= 0;
+        a = a + 0x9e3779b9 | 0;
+        var t = a ^ a >>> 16;
+        t = Math.imul(t, 0x21f0aaad);
+        t = t ^ t >>> 15;
+        t = Math.imul(t, 0x735a2d97);
+        return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
+    };
+}
 /*******
  *
  *  Reduces an array to its unique contents.  Compares with `===` and makes no
@@ -167,4 +174,4 @@ function find_repeated(arr) {
         return [];
     }
 }
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, make_mulberry_rand };
+export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32 };

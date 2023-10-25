@@ -69,14 +69,14 @@ const MTL = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`  // MTL = Mo
 
 log( MTL.state() );  // 'Red'
 
-TLWA.action('next');  // true, console logs 'GO GO GO'
-log( TLWA.state() );  // 'Green'
+MTL.action('next');  // true, console logs 'GO GO GO'
+log( MTL.state() );  // 'Green'
 
-TLWA.action('next');  // true
-log( TLWA.state() );  // 'Yellow'
+MTL.action('next');  // true
+log( MTL.state() );  // 'Yellow'
 
-TLWA.action('next');  // true, console logs 'STOP'
-log( TLWA.state() );  // 'Red'
+MTL.action('next');  // true, console logs 'STOP'
+log( MTL.state() );  // 'Red'
 ```
 
 <br/>
