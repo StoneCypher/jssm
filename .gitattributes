@@ -1,0 +1,6 @@
+docs/* linguist-generated=true
+build/* linguist-generated=true
+dist/* linguist-generated=true
+src/ts/generated_code/* linguist-generated=true
+benchmark/* linguist-generated=true
+coverage/* linguist-generated=true
