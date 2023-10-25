@@ -107,6 +107,12 @@ jobs:
             os: macos-latest
           - node-version: 20.x   # finish check big-3 on latest current
             os: windows-latest
+          - node-version: 21.x   # check newest non-lts too
+            os: ubuntu-latest
+          - node-version: 21.x   # check newest non-lts too
+            os: macos-latest
+          - node-version: 21.x   # check newest non-lts too
+            os: windows-latest
           - node-version: 11.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
             os: ubuntu-latest
           - node-version: 12.x

@@ -49,6 +49,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
         cursor_sum : number   = 0;
 
   while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
+
   return options[cursor-1];
 
 };

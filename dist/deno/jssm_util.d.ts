@@ -58,12 +58,14 @@ declare const hook_name: (from: string, to: string) => string;
 declare const named_hook_name: (from: string, to: string, action: string) => string;
 /*******
  *
- *  Creates a Mulberry32 random generator.  Used by the randomness test suite.
+ *  Creates a SplitMix32 random generator.  Used by the randomness test suite.
  *
- *  Sourced from `bryc` at StackOverflow: https://stackoverflow.com/a/47593316/763127
+ *  Sourced from `bryc`: https://github.com/bryc/code/blob/master/jshash/PRNGs.md#splitmix32
+ *
+ *  Replaces the Mulberry generator, which was found to have problems
  *
  */
-declare const make_mulberry_rand: (a?: number | undefined) => () => number;
+declare function gen_splitmix32(a?: number | undefined): () => number;
 /*******
  *
  *  Reduces an array to its unique contents.  Compares with `===` and makes no
@@ -100,4 +102,4 @@ declare const unique: <T>(arr?: T[]) => T[];
  *
  */
 declare function find_repeated<T>(arr: T[]): [T, number][];
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, make_mulberry_rand };
+export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32 };
