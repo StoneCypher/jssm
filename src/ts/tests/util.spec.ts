@@ -3,7 +3,7 @@ import {
   seq,
   unique,
   find_repeated,
-  make_mulberry_rand,
+  gen_splitmix32,
   name_bind_prop_and_state
 } from '../jssm_util';
 
@@ -82,7 +82,7 @@ describe('seq', () => {
 
 
 
-describe('make_mulberry_rand', () => {
+describe('gen_splitmix32', () => {
 
 
 
@@ -90,7 +90,7 @@ describe('make_mulberry_rand', () => {
 
     test(`Seed ${n} - Generates 500 numbers [0,1)`, () => {
 
-      const rnd  = make_mulberry_rand(n);
+      const rnd  = gen_splitmix32(n);
       let   fail = false;
 
       seq(500).forEach(_ => {
@@ -111,13 +111,13 @@ describe('make_mulberry_rand', () => {
 
 
 
-  const rnd = (n) => Math.floor(make_mulberry_rand( new Date().getTime()+n )() * Number.MAX_SAFE_INTEGER );
+  const rnd = (n) => Math.floor(gen_splitmix32( new Date().getTime()+n )() * Number.MAX_SAFE_INTEGER );
 
   [ rnd(0), rnd(1), rnd(2), rnd(3), rnd(4) ].map( n =>
 
     test(`Seed ${n} - Generates 500 numbers [0,1)`, () => {
 
-      const rnd  = make_mulberry_rand(n);
+      const rnd  = gen_splitmix32(n);
       let   fail = false;
 
       seq(500).forEach(_ => {
@@ -140,7 +140,7 @@ describe('make_mulberry_rand', () => {
 
   test(`Seed undefined - Generates 500 numbers [0,1)`, () => {
 
-    const rnd  = make_mulberry_rand();
+    const rnd  = gen_splitmix32();
     let   fail = false;
 
     seq(500).forEach(_ => {
