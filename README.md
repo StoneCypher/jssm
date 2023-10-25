@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.89.1 at 5/13/2023, 11:34:21 PM
+* Generated for version 5.89.3 at 10/25/2023, 10:57:57 AM
 
 -->
-# jssm 5.89.1
+# jssm 5.89.3
 
 Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
 tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
@@ -92,14 +92,14 @@ const MTL = sm`Red 'next' -> Green 'next' -> Yellow 'next' -> Red;`  // MTL = Mo
 
 log( MTL.state() );  // 'Red'
 
-TLWA.action('next');  // true, console logs 'GO GO GO'
-log( TLWA.state() );  // 'Green'
+MTL.action('next');  // true, console logs 'GO GO GO'
+log( MTL.state() );  // 'Green'
 
-TLWA.action('next');  // true
-log( TLWA.state() );  // 'Yellow'
+MTL.action('next');  // true
+log( MTL.state() );  // 'Yellow'
 
-TLWA.action('next');  // true, console logs 'STOP'
-log( TLWA.state() );  // 'Red'
+MTL.action('next');  // true, console logs 'STOP'
+log( MTL.state() );  // 'Red'
 ```
 
 <br/>

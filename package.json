@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.89.2",
+  "version": "5.89.3",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -118,7 +118,6 @@
     "benny": "^3.7.1",
     "chalk": "^4.1.2",
     "cloc": "^2.10.0",
-    "coveralls": "^3.0.11",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",
     "eslint-plugin-new-with-error": "^2.0.0",
@@ -131,7 +130,7 @@
     "jest-json-reporter2": "^1.1.0",
     "pegjs": "^0.10.0",
     "rollup": "^2.72.1",
-    "semver": "^5.7.1",
+    "semver": "^7.5.4",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
     "ts-jest": "^27.0.7",
@@ -142,8 +141,8 @@
     "xml2js": "^0.4.23"
   },
   "dependencies": {
-    "reduce-to-639-1": "^1.1.0",
     "better_git_changelog": "^1.6.1",
-    "circular_buffer_js": "^1.10.0"
+    "circular_buffer_js": "^1.10.0",
+    "reduce-to-639-1": "^1.1.0"
   }
 }
