@@ -23,22 +23,6 @@ function TransitionCycleTL100Times() {
 
 
 
-const Tl4A = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-
-function ActionCycleTL100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4A.action('next');
-    Tl4A.action('next');
-    Tl4A.action('next');
-  }
-
-}
-
-
-
-
-
 const Tl4WH = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
 Tl4WH.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
 
