@@ -5,9 +5,9 @@
     "node": ">=10.0.0"
   },
   "exports": {
-    "require": "./dist/jssm.es5.cjs.js",
+    "require": "./dist/jssm.es5.cjs",
     "import": "./dist/es6/jssm.js",
-    "default": "./dist/jssm.es5.cjs.js",
+    "default": "./dist/jssm.es5.cjs",
     "browser": "dist/jssm.es5.iife.js"
   },
   "autoupdate": {
@@ -17,16 +17,16 @@
       {
         "basePath": "/dist",
         "files": [
-          "jssm.es5.cjs.js"
+          "jssm.es5.cjs"
         ]
       }
     ]
   },
   "type": "module",
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
-  "main": "dist/jssm.es5.cjs.js",
+  "main": "dist/jssm.es5.cjs",
   "module": "dist/es6/jssm.js",
-  "browser": "dist/jssm.es5.iife.js",
+  "browser": "dist/jssm.es5.iife.cjs",
   "types": "./jssm.d.ts",
   "scripts": {
     "jest-unicode-action": "jest unicode-actions.uspec.ts -c jest-unicode.config.cjs --color --verbose",
@@ -57,8 +57,8 @@
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
-    "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js",
-    "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.cjs.nonmin.js && terser dist/jssm.es5.cjs.nonmin.js > dist/jssm.es5.cjs.js",
+    "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.cjs && terser dist/jssm.es5.iife.nonmin.cjs > dist/jssm.es5.iife.cjs",
+    "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
     "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
     "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
