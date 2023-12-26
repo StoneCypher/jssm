@@ -53,7 +53,7 @@ async function bulk() {
         readme_lines  = readme_stochc.replace(/{{line_count}}/g, lines.toLocaleString()),
         readme_ratio  = readme_lines.replace(/{{line_test_ratio}}/g, (tot_count / lines).toFixed(1)),
         readme_rratio = readme_ratio.replace(/{{line_run_ratio}}/g, (run_count / lines).toFixed(1)),
-        readme_jver   = readme_ratio.replace(/{{jssm_version}}/g, pv);
+        readme_jver   = readme_rratio.replace(/{{jssm_version}}/g, pv);
 
   fs.writeFileSync('./README.md', warning_wv + readme_jver);
 
