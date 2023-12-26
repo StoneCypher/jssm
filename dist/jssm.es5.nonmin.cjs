@@ -20044,7 +20044,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.91.0", build_time = 1703626449533;
+const version = "5.91.1", build_time = 1703633113298;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;

@@ -8,9 +8,9 @@ const chalk             = require('chalk'),
 const blue = chalk.blueBright,
       cyan = chalk.cyanBright;
 
-const package = JSON.parse( readFileSync('./package.json') );
+const pkg  = JSON.parse( readFileSync('./package.json') );
 
-const tag            = package.version, // spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
+const tag            = pkg.version, // spawnSync(`awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json`),
       commit_message = handle_cmsg(process.env['TW_COMMIT_MESSAGE']);
 
 console.log('found:');
