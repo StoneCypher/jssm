@@ -3,8 +3,8 @@ const { execSync }     = require('child_process'),
       { readFileSync } = require('fs'),
       semver           = require('semver');
 
-const package          = readFileSync('./package.json'),
-      pJson            = JSON.parse(package),
+const pkg              = readFileSync('./package.json'),
+      pJson            = JSON.parse(pkg),
       priv_version     = pJson.version;
 
 const public_version   = `${execSync('npm view jssm version')}`.trim(),
