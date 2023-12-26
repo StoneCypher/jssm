@@ -35,7 +35,11 @@ console.log(
     .map(
       ({ name, diff }) =>
         `${name}: ${diff.toFixed(2)}% ${
-          diff > 0 ? 'faster' : diff < 0 ? 'slower' : 'same'
+          diff > 0
+            ? 'faster'
+            : diff < 0
+                ? 'slower'
+                : 'same'
         }`,
     )
     .join('\n')

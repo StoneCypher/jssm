@@ -1,11 +1,11 @@
 
-import { readFileSync, writeFileSync } from 'fs';
-import { parseStringPromise }          from 'xml2js';
+const fs = require('fs'),
+      xj = require('xml2js');
 
-const pv = JSON.parse( readFileSync('./package.json').toString() ).version;
+const pv = JSON.parse( fs.readFileSync('./package.json').toString() ).version;
 
-const wt = JSON.parse( readFileSync('./coverage/cloc/report_wt.json') ),
-      nt = JSON.parse( readFileSync('./coverage/cloc/report_nt.json') );
+const wt = JSON.parse( fs.readFileSync('./coverage/cloc/report_wt.json') ),
+      nt = JSON.parse( fs.readFileSync('./coverage/cloc/report_nt.json') );
 
 const lines = nt['TypeScript'].code;  // TODO add peg once cloc supports it
 
@@ -25,25 +25,25 @@ function get_coverage_pct(coverage) {
 
 async function bulk() {
 
-  const spec_xml   = readFileSync('./coverage/spec/clover.xml').toString(),
-        stoch_xml  = readFileSync('./coverage/stoch/clover.xml').toString(),
-        spec_json  = await parseStringPromise(spec_xml),
-        stoch_json = await parseStringPromise(stoch_xml);
+  const spec_xml   = fs.readFileSync('./coverage/spec/clover.xml').toString(),
+        stoch_xml  = fs.readFileSync('./coverage/stoch/clover.xml').toString(),
+        spec_json  = await xj.parseStringPromise(spec_xml),
+        stoch_json = await xj.parseStringPromise(stoch_xml);
 
 
 
-  const pkg           = JSON.parse(readFileSync('./package.json')),
-        spec_metrics  = JSON.parse(readFileSync('./coverage/spec/metrics.json')),
-        stoch_metrics = JSON.parse(readFileSync('./coverage/stoch/metrics.json')),
+  const package       = JSON.parse(fs.readFileSync('./package.json')),
+        spec_metrics  = JSON.parse(fs.readFileSync('./coverage/spec/metrics.json')),
+        stoch_metrics = JSON.parse(fs.readFileSync('./coverage/stoch/metrics.json')),
         tot_count     = spec_metrics.tests.success + stoch_metrics.tests.success,
         run_count     = spec_metrics.tests.success + (stoch_metrics.tests.success * 100),
 
-        warning       = readFileSync('./src/md/generated-file-warning.txt').toString(),
+        warning       = fs.readFileSync('./src/md/generated-file-warning.txt').toString(),
         warning_wf    = warning.replace(/{{real_source}}/g, './src/md/readme_base.md'),
         warning_wd    = warning_wf.replace(/{{datetime}}/g, new Date().toLocaleString()),
-        warning_wv    = warning_wd.replace(/{{build}}/g, pkg.version),
+        warning_wv    = warning_wd.replace(/{{build}}/g, package.version),
 
-        readme_base   = readFileSync('./src/md/README_base.md').toString(),
+        readme_base   = fs.readFileSync('./src/md/README_base.md').toString(),
         readme_tests  = readme_base.replace(/{{test_count}}/g, tot_count.toLocaleString()),
         readme_runs   = readme_tests.replace(/{{run_count}}/g, run_count.toLocaleString()),
         readme_spec   = readme_runs.replace(/{{spec_count}}/g, spec_metrics.tests.success.toLocaleString()),
@@ -55,7 +55,7 @@ async function bulk() {
         readme_rratio = readme_ratio.replace(/{{line_run_ratio}}/g, (run_count / lines).toFixed(1)),
         readme_jver   = readme_ratio.replace(/{{jssm_version}}/g, pv);
 
-  writeFileSync('./README.md', warning_wv + readme_jver);
+  fs.writeFileSync('./README.md', warning_wv + readme_jver);
 
 }
 
