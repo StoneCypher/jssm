@@ -1,23 +1,26 @@
 
-const fs    = require('fs'),
-      color = require('cli-color');
+const fs = require('fs');
+const { readFileSync } = fs;
 
-const header   = s => color.yellow.bold(s),
-      header2  = s => color.yellow(s),
-      language = s => color.cyan.bold(s),
-      data     = s => color.white.bold(s),
-      negative = s => color.red.bold(s),
-      positive = s => color.white.bold(s),
-      zero     = s => color.xterm(241)(s),
-      special  = s => color.green.bold(s);
+const pc = require('picocolors');
+const { bold, yellow, blue, white, cyan, red, dim } = pc;
+
+const header   = s => bold(yellow(s));
+const header2  = s => yellow(s);
+const language = s => bold(cyan(s));
+const data     = s => bold(white(s));
+const negative = s => bold(red(s));
+const positive = s => bold(white(s));
+const zzero    = s => dim(white(s));
+const special  = s => bold(green(s));
 
 const hpad_width = 2,
       hpad       = ' '.repeat(hpad_width),
       vsep       = '-',
       min_head   = 5;
 
-const wt = JSON.parse( fs.readFileSync('./coverage/cloc/report_wt.json') ),
-      nt = JSON.parse( fs.readFileSync('./coverage/cloc/report_nt.json') );
+const wt = JSON.parse( readFileSync('./coverage/cloc/report_wt.json') ),
+      nt = JSON.parse( readFileSync('./coverage/cloc/report_nt.json') );
 
 const uniq = (arr) =>
   arr.filter((v, i, a) =>
@@ -71,7 +74,7 @@ function cfnum(n = 0) {
   if (typeof(n) !== 'number') { throw new TypeError('cfnum is for numbers'); }
   if (n < 0) { return negative(fnum(n)); }
   if (n > 0) { return positive(fnum(n)); }
-  if (n === 0) { return zero(fnum(n)); }
+  if (n === 0) { return zzero(fnum(n)); }
   return special(fnum(n));
 }
 
@@ -86,7 +89,7 @@ function szcfnum(n = 0, range_max, min = 5, dir = 'right', filler = ' ') {
         t   = `${filler.repeat(lp)}${f}${filler.repeat(rp)}`;
   if (n < 0) { return negative(t); }
   if (n > 0) { return positive(t); }
-  if (n === 0) { return zero(t); }
+  if (n === 0) { return zzero(t); }
   return special(t);
 }
 
@@ -105,7 +108,7 @@ function heading(tx, w, dir = 'center', filler = ' ') {
 
 
 const bh = sized_r('', key_width),  // blank header the width of the languages
-      tt = zero(heading('CLOC', key_width, 'right', ' ')),
+      tt = zzero(heading('CLOC', key_width, 'right', ' ')),
       lh = header2('Lines'),
       ch = header2('Cmnts'),
       fh = header2('Files'),

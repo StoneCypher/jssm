@@ -6,12 +6,17 @@
 // then add the es6 module one we have
 // then save under the other filename
 
-const fs         = require('fs'),
-      orig_fname = './src/ts/fsl_parser.js';
+import {
+  readFileSync,
+  writeFileSync,
+  unlinkSync
+} from 'fs';
 
-const orig       = fs.readFileSync(orig_fname),
+const orig_fname = './src/ts/fsl_parser.js';
+
+const orig       = readFileSync(orig_fname),
       lines      = `${orig}`.split('\n'),
-      tail       = fs.readFileSync('src/buildjs/peg_ts_export_footer.ts');
+      tail       = readFileSync('src/buildjs/peg_ts_export_footer.ts');
 
 lines.pop();  // shut up, it's funny
 lines.pop();
@@ -19,5 +24,5 @@ lines.pop();
 lines.pop();
 lines.pop();
 
-fs.writeFileSync('./src/ts/fsl_parser.ts', lines.join('\n') + tail);
-fs.unlinkSync(orig_fname);
+writeFileSync('./src/ts/fsl_parser.ts', lines.join('\n') + tail);
+unlinkSync(orig_fname);

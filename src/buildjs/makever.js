@@ -1,10 +1,23 @@
 
-const fs = require('fs');
+import {
+  readFileSync,
+  writeFileSync
+} from 'fs';
 
-const package = JSON.parse(fs.readFileSync('package.json'));
 
-fs.writeFileSync('./src/ts/version.ts', `
-const version    : string = "${package.version}",
+
+
+
+const pkg = JSON.parse(
+  readFileSync('package.json')
+);
+
+
+
+
+
+writeFileSync('./src/ts/version.ts', `
+const version    : string = "${pkg.version}",
       build_time : number = ${new Date().getTime()};
 
 export { version, build_time };
