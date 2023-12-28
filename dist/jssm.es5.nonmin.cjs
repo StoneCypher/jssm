@@ -20044,7 +20044,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.91.1", build_time = 1703633113298;
+const version = "5.91.1", build_time = 1703723222885;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -21645,6 +21645,9 @@ class Machine {
                 if (data_changed) {
                     this._data = hook_args.data;
                 }
+                else if (newData !== undefined) {
+                    this._data = newData;
+                }
                 // success fallthrough to posthooks; intentionally no return here
                 // look for "posthooks begin here"
                 // or without hooks
@@ -21654,6 +21657,11 @@ class Machine {
                     this._history.shove([this._state, this._data]);
                 }
                 this._state = newState;
+                // TODO known bug: this gives no way to set data to undefined
+                //   see https://github.com/StoneCypher/fsl/issues/1264
+                if (newData !== undefined) {
+                    this._data = newData;
+                }
                 // success fallthrough to posthooks; intentionally no return here
                 // look for "posthooks begin here"
             }

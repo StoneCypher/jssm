@@ -2354,7 +2354,11 @@ class Machine<mDT> {
 
         this._state = newState;
 
-        if (data_changed) { this._data = hook_args.data; }
+        if (data_changed) {
+          this._data = hook_args.data;
+        } else if (newData !== undefined) {
+          this._data = newData;
+        }
 
         // success fallthrough to posthooks; intentionally no return here
         // look for "posthooks begin here"
@@ -2368,6 +2372,12 @@ class Machine<mDT> {
         }
 
         this._state = newState;
+
+        // TODO known bug: this gives no way to set data to undefined
+        //   see https://github.com/StoneCypher/fsl/issues/1264
+        if (newData !== undefined) {
+          this._data = newData;
+        }
 
         // success fallthrough to posthooks; intentionally no return here
         // look for "posthooks begin here"

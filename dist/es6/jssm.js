@@ -1608,6 +1608,9 @@ class Machine {
                 if (data_changed) {
                     this._data = hook_args.data;
                 }
+                else if (newData !== undefined) {
+                    this._data = newData;
+                }
                 // success fallthrough to posthooks; intentionally no return here
                 // look for "posthooks begin here"
                 // or without hooks
@@ -1617,6 +1620,11 @@ class Machine {
                     this._history.shove([this._state, this._data]);
                 }
                 this._state = newState;
+                // TODO known bug: this gives no way to set data to undefined
+                //   see https://github.com/StoneCypher/fsl/issues/1264
+                if (newData !== undefined) {
+                    this._data = newData;
+                }
                 // success fallthrough to posthooks; intentionally no return here
                 // look for "posthooks begin here"
             }
