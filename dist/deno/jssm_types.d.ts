@@ -48,6 +48,8 @@ declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitt
 declare type JssmTransition<StateType, DataType> = {
     from: StateType;
     to: StateType;
+    after_time?: number;
+    se?: JssmCompileSe<StateType, DataType>;
     name?: StateType;
     action?: StateType;
     check?: JssmTransitionPermitterMaybeArray<DataType>;
@@ -230,12 +232,14 @@ declare type JssmCompileRule<StateType> = {
 };
 declare type JssmCompileSe<StateType, mDT> = {
     to: StateType;
-    se: JssmCompileSe<StateType, mDT>;
+    se?: JssmCompileSe<StateType, mDT>;
     kind: JssmArrow;
     l_action?: StateType;
     r_action?: StateType;
     l_probability: number;
     r_probability: number;
+    l_after?: number;
+    r_after?: number;
 };
 declare type JssmCompileSeStart<StateType, DataType> = {
     from: StateType;

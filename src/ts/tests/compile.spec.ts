@@ -47,7 +47,7 @@ describe('compile/1', () => {
   });
 
   describe('direct make callpoint', () => {
-    const match = { start_states: [ 'a' ], end_states: [], transitions: [ { from: 'a', to: 'b', kind: 'legal', forced_only: false, main_path: false } ], state_property: [] };
+    const match = { start_states: [ 'a' ], end_states: [], transitions: [ { from: 'a', to: 'b', kind: 'legal', after_time: undefined, forced_only: false, main_path: false } ], state_property: [] };
     test('direct match', () => {
       expect(jssm.make('a->b;')).toStrictEqual(match);
     })

@@ -1451,7 +1451,7 @@ function peg$parse(input, options) {
       peg$c1288 = peg$literalExpectation("w", false),
       peg$c1289 = "after",
       peg$c1290 = peg$literalExpectation("after", false),
-      peg$c1291 = function(value, timescale) { return { key: 'after', value: value * timescale }; },
+      peg$c1291 = function(value, timescale) { return value * (timescale || 1000); },
       peg$c1292 = function(names) { return names.map(i => i[0]); },
       peg$c1293 = "+|",
       peg$c1294 = peg$literalExpectation("+|", false),

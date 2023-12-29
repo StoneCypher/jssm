@@ -319,6 +319,8 @@ class Machine<mDT> {
   _created        : number;
   _create_time    : number;
 
+  _after_mapping : Map<string, [string, number]>;
+
   _timeout_source       : ( Function, number ) => number;
   _clear_timeout_source : ( h ) => void;
   _timeout_handle       : number | undefined;
@@ -491,6 +493,8 @@ class Machine<mDT> {
     this._timeout_handle                = undefined;
     this._timeout_target                = undefined;
 
+    this._after_mapping                 = new Map();
+
 
     // consolidate the state declarations
     if (state_declaration) {
@@ -567,6 +571,17 @@ class Machine<mDT> {
         } else {
           this._named_transitions.set(tr.name, thisEdgeId);
         }
+      }
+
+      // set up the after mapping, if any
+      if (tr.after_time) {
+        if (this._after_mapping.has(tr.from)) {
+          throw new JssmError(this, `tried to set up a second 'after' mapping for ${tr.from}`);
+        }
+        if (tr.after_time === undefined) {
+          throw new JssmError(this, `tried to set up an 'r_after' mapping for ${tr.from}, but no time claim exists`);
+        }
+        this._after_mapping.set(tr.from, [tr.to, tr.after_time])
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
@@ -710,6 +725,8 @@ class Machine<mDT> {
 
     this._created     = this._time_source();
     this._create_time = this._created - this._create_started;
+
+    this.auto_set_state_timeout();
 
   }
 
@@ -2289,10 +2306,7 @@ class Machine<mDT> {
       if (this._has_hooks) {
 
         // once validity is known, clear old 'after' timeout clause
-        if (this._timeout_handle) {
-          this._clear_timeout_source(this._timeout_handle);
-          this._timeout_handle = undefined;
-        }
+        this.clear_state_timeout();
 
         function update_fields(res: HookComplexResult<mDT>) {
           if (res.hasOwnProperty('data')) {
@@ -2499,20 +2513,23 @@ class Machine<mDT> {
     }
 
     // possibly re-establish new 'after' clause
-    // TODO COMEBACK
-
-    /*
-    const after_res = lookup(this._state);
-    if (after_res !== false) {
-      const [ next_state, after_time ] = after_res;
-      this._timeout_handle = this._timeout_source(
-        () => this.go(next_state),
-        after_time
-      );
-    }
-    */
+    this.auto_set_state_timeout();
 
     return true;
+
+  }
+
+
+
+
+
+  auto_set_state_timeout(): void {
+
+    const after_res = this._after_mapping.get(this._state);
+    if (after_res !== undefined) {
+      const [ next_state, after_time ] = after_res;
+      this.set_state_timeout(next_state, after_time);
+    }
 
   }
 

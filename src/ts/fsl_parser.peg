@@ -703,7 +703,7 @@ TimeType
 
 
 ArrowAfter
-  = 'after' WS value:NonNegNumber WS? timescale:TimeType? { return { key: 'after', value: value * timescale }; }
+  = 'after' WS value:NonNegNumber WS? timescale:TimeType? { return value * (timescale || 1000); }
 
 
 

@@ -351,7 +351,7 @@ function peg$parse(input, options) {
         return `#${r}${r}${g}${g}${b}${b}${a}${a}`;
     }, peg$c1198 = function (r1, r2, g1, g2, b1, b2, a1, a2) {
         return `#${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`;
-    }, peg$c1199 = peg$otherExpectation("color"), peg$c1200 = "arc_label", peg$c1201 = peg$literalExpectation("arc_label", false), peg$c1202 = "head_label", peg$c1203 = peg$literalExpectation("head_label", false), peg$c1204 = "tail_label", peg$c1205 = peg$literalExpectation("tail_label", false), peg$c1206 = ":", peg$c1207 = peg$literalExpectation(":", false), peg$c1208 = ";", peg$c1209 = peg$literalExpectation(";", false), peg$c1210 = function (key, value) { return { key: key, value: value }; }, peg$c1211 = peg$otherExpectation("single edge color"), peg$c1212 = "edge_color", peg$c1213 = peg$literalExpectation("edge_color", false), peg$c1214 = function (value) { return { key: 'single_edge_color', value: value }; }, peg$c1215 = peg$otherExpectation("transition line style"), peg$c1216 = "line-style", peg$c1217 = peg$literalExpectation("line-style", false), peg$c1218 = function (value) { return { key: 'transition_line_style', value: value }; }, peg$c1219 = "{", peg$c1220 = peg$literalExpectation("{", false), peg$c1221 = "}", peg$c1222 = peg$literalExpectation("}", false), peg$c1223 = function (items) { return items; }, peg$c1224 = "%", peg$c1225 = peg$literalExpectation("%", false), peg$c1226 = function (value) { return { key: 'arrow probability', value: value }; }, peg$c1227 = "milliseconds", peg$c1228 = peg$literalExpectation("milliseconds", false), peg$c1229 = function () { return 1; }, peg$c1230 = "millisecond", peg$c1231 = peg$literalExpectation("millisecond", false), peg$c1232 = "msecs", peg$c1233 = peg$literalExpectation("msecs", false), peg$c1234 = "msec", peg$c1235 = peg$literalExpectation("msec", false), peg$c1236 = "ms", peg$c1237 = peg$literalExpectation("ms", false), peg$c1238 = "seconds", peg$c1239 = peg$literalExpectation("seconds", false), peg$c1240 = function () { return 1000; }, peg$c1241 = "second", peg$c1242 = peg$literalExpectation("second", false), peg$c1243 = "secs", peg$c1244 = peg$literalExpectation("secs", false), peg$c1245 = "sec", peg$c1246 = peg$literalExpectation("sec", false), peg$c1247 = "s", peg$c1248 = peg$literalExpectation("s", false), peg$c1249 = "minutes", peg$c1250 = peg$literalExpectation("minutes", false), peg$c1251 = function () { return 1000 * 60; }, peg$c1252 = "minute", peg$c1253 = peg$literalExpectation("minute", false), peg$c1254 = "mins", peg$c1255 = peg$literalExpectation("mins", false), peg$c1256 = "min", peg$c1257 = peg$literalExpectation("min", false), peg$c1258 = "m", peg$c1259 = peg$literalExpectation("m", false), peg$c1260 = "hours", peg$c1261 = peg$literalExpectation("hours", false), peg$c1262 = function () { return 1000 * 60 * 60; }, peg$c1263 = "hour", peg$c1264 = peg$literalExpectation("hour", false), peg$c1265 = "hrs", peg$c1266 = peg$literalExpectation("hrs", false), peg$c1267 = "hr", peg$c1268 = peg$literalExpectation("hr", false), peg$c1269 = "h", peg$c1270 = peg$literalExpectation("h", false), peg$c1271 = "days", peg$c1272 = peg$literalExpectation("days", false), peg$c1273 = function () { return 1000 * 60 * 60 * 24; }, peg$c1274 = "day", peg$c1275 = peg$literalExpectation("day", false), peg$c1276 = "d", peg$c1277 = peg$literalExpectation("d", false), peg$c1278 = "weeks", peg$c1279 = peg$literalExpectation("weeks", false), peg$c1280 = function () { return 1000 * 60 * 60 * 24 * 7; }, peg$c1281 = "week", peg$c1282 = peg$literalExpectation("week", false), peg$c1283 = "wks", peg$c1284 = peg$literalExpectation("wks", false), peg$c1285 = "wk", peg$c1286 = peg$literalExpectation("wk", false), peg$c1287 = "w", peg$c1288 = peg$literalExpectation("w", false), peg$c1289 = "after", peg$c1290 = peg$literalExpectation("after", false), peg$c1291 = function (value, timescale) { return { key: 'after', value: value * timescale }; }, peg$c1292 = function (names) { return names.map(i => i[0]); }, peg$c1293 = "+|", peg$c1294 = peg$literalExpectation("+|", false), peg$c1295 = function (nzd, dd) { return { key: 'stripe', value: parseInt(`${nzd}${dd}`, 10) }; }, peg$c1296 = "-|", peg$c1297 = peg$literalExpectation("-|", false), peg$c1298 = function (nzd, dd) { return { key: 'stripe', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }, peg$c1299 = "+", peg$c1300 = peg$literalExpectation("+", false), peg$c1301 = function (nzd, dd) { return { key: 'cycle', value: parseInt(`${nzd}${dd}`, 10) }; }, peg$c1302 = "-", peg$c1303 = peg$literalExpectation("-", false), peg$c1304 = function (nzd, dd) { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }, peg$c1305 = "+0", peg$c1306 = peg$literalExpectation("+0", false), peg$c1307 = function () { return { key: 'cycle', value: 0 }; }, peg$c1308 = function (r_after, r_action, r_prob, l_desc, arrow, r_desc, l_prob, l_action, l_after, label, tail) {
+    }, peg$c1199 = peg$otherExpectation("color"), peg$c1200 = "arc_label", peg$c1201 = peg$literalExpectation("arc_label", false), peg$c1202 = "head_label", peg$c1203 = peg$literalExpectation("head_label", false), peg$c1204 = "tail_label", peg$c1205 = peg$literalExpectation("tail_label", false), peg$c1206 = ":", peg$c1207 = peg$literalExpectation(":", false), peg$c1208 = ";", peg$c1209 = peg$literalExpectation(";", false), peg$c1210 = function (key, value) { return { key: key, value: value }; }, peg$c1211 = peg$otherExpectation("single edge color"), peg$c1212 = "edge_color", peg$c1213 = peg$literalExpectation("edge_color", false), peg$c1214 = function (value) { return { key: 'single_edge_color', value: value }; }, peg$c1215 = peg$otherExpectation("transition line style"), peg$c1216 = "line-style", peg$c1217 = peg$literalExpectation("line-style", false), peg$c1218 = function (value) { return { key: 'transition_line_style', value: value }; }, peg$c1219 = "{", peg$c1220 = peg$literalExpectation("{", false), peg$c1221 = "}", peg$c1222 = peg$literalExpectation("}", false), peg$c1223 = function (items) { return items; }, peg$c1224 = "%", peg$c1225 = peg$literalExpectation("%", false), peg$c1226 = function (value) { return { key: 'arrow probability', value: value }; }, peg$c1227 = "milliseconds", peg$c1228 = peg$literalExpectation("milliseconds", false), peg$c1229 = function () { return 1; }, peg$c1230 = "millisecond", peg$c1231 = peg$literalExpectation("millisecond", false), peg$c1232 = "msecs", peg$c1233 = peg$literalExpectation("msecs", false), peg$c1234 = "msec", peg$c1235 = peg$literalExpectation("msec", false), peg$c1236 = "ms", peg$c1237 = peg$literalExpectation("ms", false), peg$c1238 = "seconds", peg$c1239 = peg$literalExpectation("seconds", false), peg$c1240 = function () { return 1000; }, peg$c1241 = "second", peg$c1242 = peg$literalExpectation("second", false), peg$c1243 = "secs", peg$c1244 = peg$literalExpectation("secs", false), peg$c1245 = "sec", peg$c1246 = peg$literalExpectation("sec", false), peg$c1247 = "s", peg$c1248 = peg$literalExpectation("s", false), peg$c1249 = "minutes", peg$c1250 = peg$literalExpectation("minutes", false), peg$c1251 = function () { return 1000 * 60; }, peg$c1252 = "minute", peg$c1253 = peg$literalExpectation("minute", false), peg$c1254 = "mins", peg$c1255 = peg$literalExpectation("mins", false), peg$c1256 = "min", peg$c1257 = peg$literalExpectation("min", false), peg$c1258 = "m", peg$c1259 = peg$literalExpectation("m", false), peg$c1260 = "hours", peg$c1261 = peg$literalExpectation("hours", false), peg$c1262 = function () { return 1000 * 60 * 60; }, peg$c1263 = "hour", peg$c1264 = peg$literalExpectation("hour", false), peg$c1265 = "hrs", peg$c1266 = peg$literalExpectation("hrs", false), peg$c1267 = "hr", peg$c1268 = peg$literalExpectation("hr", false), peg$c1269 = "h", peg$c1270 = peg$literalExpectation("h", false), peg$c1271 = "days", peg$c1272 = peg$literalExpectation("days", false), peg$c1273 = function () { return 1000 * 60 * 60 * 24; }, peg$c1274 = "day", peg$c1275 = peg$literalExpectation("day", false), peg$c1276 = "d", peg$c1277 = peg$literalExpectation("d", false), peg$c1278 = "weeks", peg$c1279 = peg$literalExpectation("weeks", false), peg$c1280 = function () { return 1000 * 60 * 60 * 24 * 7; }, peg$c1281 = "week", peg$c1282 = peg$literalExpectation("week", false), peg$c1283 = "wks", peg$c1284 = peg$literalExpectation("wks", false), peg$c1285 = "wk", peg$c1286 = peg$literalExpectation("wk", false), peg$c1287 = "w", peg$c1288 = peg$literalExpectation("w", false), peg$c1289 = "after", peg$c1290 = peg$literalExpectation("after", false), peg$c1291 = function (value, timescale) { return value * (timescale || 1000); }, peg$c1292 = function (names) { return names.map(i => i[0]); }, peg$c1293 = "+|", peg$c1294 = peg$literalExpectation("+|", false), peg$c1295 = function (nzd, dd) { return { key: 'stripe', value: parseInt(`${nzd}${dd}`, 10) }; }, peg$c1296 = "-|", peg$c1297 = peg$literalExpectation("-|", false), peg$c1298 = function (nzd, dd) { return { key: 'stripe', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }, peg$c1299 = "+", peg$c1300 = peg$literalExpectation("+", false), peg$c1301 = function (nzd, dd) { return { key: 'cycle', value: parseInt(`${nzd}${dd}`, 10) }; }, peg$c1302 = "-", peg$c1303 = peg$literalExpectation("-", false), peg$c1304 = function (nzd, dd) { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }, peg$c1305 = "+0", peg$c1306 = peg$literalExpectation("+0", false), peg$c1307 = function () { return { key: 'cycle', value: 0 }; }, peg$c1308 = function (r_after, r_action, r_prob, l_desc, arrow, r_desc, l_prob, l_action, l_after, label, tail) {
         // Reminder: remove this type and the one in Exp if you want to work in pegjs online
         // TODO: properly type this
         const base = { kind: arrow, to: label };
@@ -19833,6 +19833,7 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
         from,
         to,
         kind,
+        after_time: isRight ? this_se.r_after : this_se.l_after,
         forced_only: kind === 'forced',
         main_path: kind === 'main'
     };
@@ -20654,7 +20655,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.93.0", build_time = 1703834882217;
+const version = "5.93.0", build_time = 1703840402728;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -20872,6 +20873,7 @@ class Machine {
         this._clear_timeout_source = clear_timeout_source !== null && clear_timeout_source !== void 0 ? clear_timeout_source : ((h) => clearTimeout(h));
         this._timeout_handle = undefined;
         this._timeout_target = undefined;
+        this._after_mapping = new Map();
         // consolidate the state declarations
         if (state_declaration) {
             state_declaration.map((state_decl) => {
@@ -20932,6 +20934,16 @@ class Machine {
                 else {
                     this._named_transitions.set(tr.name, thisEdgeId);
                 }
+            }
+            // set up the after mapping, if any
+            if (tr.after_time) {
+                if (this._after_mapping.has(tr.from)) {
+                    throw new JssmError(this, `tried to set up a second 'after' mapping for ${tr.from}`);
+                }
+                if (tr.after_time === undefined) {
+                    throw new JssmError(this, `tried to set up an 'r_after' mapping for ${tr.from}, but no time claim exists`);
+                }
+                this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
             }
             // set up the mapping, so that edges can be looked up by endpoint pairs
             const from_mapping = this._edge_map.get(tr.from) || new Map();
@@ -21042,6 +21054,7 @@ class Machine {
         }
         this._created = this._time_source();
         this._create_time = this._created - this._create_started;
+        this.auto_set_state_timeout();
     }
     /********
      *
@@ -22172,10 +22185,7 @@ class Machine {
         if (valid) {
             if (this._has_hooks) {
                 // once validity is known, clear old 'after' timeout clause
-                if (this._timeout_handle) {
-                    this._clear_timeout_source(this._timeout_handle);
-                    this._timeout_handle = undefined;
-                }
+                this.clear_state_timeout();
                 function update_fields(res) {
                     if (res.hasOwnProperty('data')) {
                         hook_args.data = res.data;
@@ -22366,18 +22376,15 @@ class Machine {
             }
         }
         // possibly re-establish new 'after' clause
-        // TODO COMEBACK
-        /*
-        const after_res = lookup(this._state);
-        if (after_res !== false) {
-          const [ next_state, after_time ] = after_res;
-          this._timeout_handle = this._timeout_source(
-            () => this.go(next_state),
-            after_time
-          );
-        }
-        */
+        this.auto_set_state_timeout();
         return true;
+    }
+    auto_set_state_timeout() {
+        const after_res = this._after_mapping.get(this._state);
+        if (after_res !== undefined) {
+            const [next_state, after_time] = after_res;
+            this.set_state_timeout(next_state, after_time);
+        }
     }
     /*********
      *

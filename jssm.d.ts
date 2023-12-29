@@ -106,6 +106,7 @@ declare class Machine<mDT> {
     _create_started: number;
     _created: number;
     _create_time: number;
+    _after_mapping: Map<string, [string, number]>;
     _timeout_source: (Function: any, number: any) => number;
     _clear_timeout_source: (h: any) => void;
     _timeout_handle: number | undefined;
@@ -703,6 +704,7 @@ declare class Machine<mDT> {
      */
     override(newState: StateType, newData?: mDT | undefined): void;
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    auto_set_state_timeout(): void;
     /*********
      *
      *  Get a truncated history of the recent states and data of the machine.

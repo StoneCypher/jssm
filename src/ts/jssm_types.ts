@@ -108,15 +108,17 @@ type JssmTransitionPermitterMaybeArray<DataType> =
 
 type JssmTransition<StateType, DataType> = {
 
-  from         : StateType,
-  to           : StateType,
-  name?        : StateType,
-  action?      : StateType,
-  check?       : JssmTransitionPermitterMaybeArray<DataType>,  // validate this edge's transition; usually about data
-  probability? : number,                                       // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
-  kind         : JssmArrowKind,
-  forced_only  : boolean,
-  main_path    : boolean
+  from          : StateType,
+  to            : StateType,
+  after_time  ? : number,
+  se          ? : JssmCompileSe<StateType, DataType>,
+  name        ? : StateType,
+  action      ? : StateType,
+  check       ? : JssmTransitionPermitterMaybeArray<DataType>,  // validate this edge's transition; usually about data
+  probability ? : number,                                       // for stoch modelling, would like to constrain to [0..1], dunno how // TODO FIXME
+  kind          : JssmArrowKind,
+  forced_only   : boolean,
+  main_path     : boolean
 
 };
 
@@ -369,13 +371,15 @@ type JssmCompileRule<StateType> = {
 
 type JssmCompileSe<StateType, mDT> = {
 
-  to            : StateType,
-  se            : JssmCompileSe<StateType, mDT>,
-  kind          : JssmArrow,
-  l_action?     : StateType,
-  r_action?     : StateType,
-  l_probability : number,
-  r_probability : number
+  to              : StateType,
+  se            ? : JssmCompileSe<StateType, mDT>,
+  kind            : JssmArrow,
+  l_action      ? : StateType,
+  r_action      ? : StateType,
+  l_probability   : number,
+  r_probability   : number,
+  l_after       ? : number,
+  r_after       ? : number
 
 };
 
