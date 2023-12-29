@@ -220,6 +220,9 @@ declare type JssmGenericConfig<StateType, DataType> = {
     default_terminal_state_config?: JssmStateStyleKeyList;
     default_active_state_config?: JssmStateStyleKeyList;
     rng_seed?: number | undefined;
+    time_source?: () => number;
+    timeout_source?: (Function: any, number: any) => number;
+    clear_timeout_source?: (number: any) => void;
 };
 declare type JssmCompileRule<StateType> = {
     agg_as: string;

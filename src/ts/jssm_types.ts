@@ -344,7 +344,11 @@ type JssmGenericConfig<StateType, DataType> = {
   default_terminal_state_config? : JssmStateStyleKeyList,
   default_active_state_config?   : JssmStateStyleKeyList,
 
-  rng_seed?                      : number | undefined
+  rng_seed?                      : number | undefined,
+
+  time_source?                   : () => number,
+  timeout_source?                : (Function, number) => number,
+  clear_timeout_source?          : (number) => void
 
 };
 

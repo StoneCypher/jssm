@@ -313,6 +313,17 @@ class Machine<mDT> {
 
   _state_labels : Map<string, string>;
 
+  _time_source    : () => number;
+  _time_origin    : number;
+  _create_started : number;
+  _created        : number;
+  _create_time    : number;
+
+  _timeout_source       : ( Function, number ) => number;
+  _clear_timeout_source : ( h ) => void;
+  _timeout_handle       : number | undefined;
+  _timeout_target       : string | undefined;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
@@ -351,9 +362,23 @@ class Machine<mDT> {
     default_end_state_config,
     allows_override,
     config_allows_override,
-    rng_seed
+    rng_seed,
+    time_source,
+    timeout_source,
+    clear_timeout_source
 
   }: JssmGenericConfig<StateType, mDT>) {
+
+    this._time_source                   = time_source
+                                          ?? ( performance
+                                               ? (performance.now
+                                                  ? ( () => performance.now() )
+                                                  : ( () => new Date().getTime() )
+                                                 )
+                                               : ( () => new Date().getTime() ) );
+
+    this._create_started                = this._time_source();
+    this._time_origin                   = ( performance? performance.timeOrigin : 0 );
 
     this._instance_name = instance_name;
 
@@ -461,6 +486,10 @@ class Machine<mDT> {
     this._rng_seed                      = rng_seed ?? new Date().getTime();
     this._rng                           = gen_splitmix32(this._rng_seed);
 
+    this._timeout_source                = timeout_source ?? ( (f: Function, a: number) => setTimeout(f, a) );
+    this._clear_timeout_source          = clear_timeout_source ?? ( (h: number) => clearTimeout(h) );
+    this._timeout_handle                = undefined;
+    this._timeout_target                = undefined;
 
 
     // consolidate the state declarations
@@ -678,6 +707,9 @@ class Machine<mDT> {
       throw new JssmError(this, `Start states cannot be repeated`);
     }
 
+
+    this._created     = this._time_source();
+    this._create_time = this._created - this._create_started;
 
   }
 
@@ -2256,6 +2288,12 @@ class Machine<mDT> {
 
       if (this._has_hooks) {
 
+        // once validity is known, clear old 'after' timeout clause
+        if (this._timeout_handle) {
+          this._clear_timeout_source(this._timeout_handle);
+          this._timeout_handle = undefined;
+        }
+
         function update_fields(res: HookComplexResult<mDT>) {
           if (res.hasOwnProperty('data')) {
             hook_args.data      = res.data;
@@ -2459,6 +2497,20 @@ class Machine<mDT> {
       }
 
     }
+
+    // possibly re-establish new 'after' clause
+    // TODO COMEBACK
+
+    /*
+    const after_res = lookup(this._state);
+    if (after_res !== false) {
+      const [ next_state, after_time ] = after_res;
+      this._timeout_handle = this._timeout_source(
+        () => this.go(next_state),
+        after_time
+      );
+    }
+    */
 
     return true;
 
@@ -3111,6 +3163,52 @@ class Machine<mDT> {
     return this._instance_name;
   }
 
+
+
+  get creation_date(): Date {
+    return new Date(Math.floor( this.creation_timestamp ));
+  }
+
+  get creation_timestamp(): number {
+    return this._time_origin + this._created;
+  }
+
+  get create_time(): number {
+    return this._create_time;
+  }
+
+
+
+  set_state_timeout(next_state: StateType, after_time: number) {
+
+    if (this._timeout_handle !== undefined) {
+      throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}`);
+    }
+
+    this._timeout_handle = this._timeout_source(
+      () => this.go(next_state),
+      after_time
+    );
+
+    return this._timeout_handle;
+
+  }
+
+
+
+  clear_state_timeout() {
+
+    if (this._timeout_handle === undefined) {
+      return;  // calling with no timeout is a no-op, means it can be called glad-handedly
+    }
+
+    this._clear_timeout_source( this._timeout_handle );
+    this._timeout_handle = undefined;
+
+  }
+
+
+
   /* eslint-disable no-use-before-define */
   /* eslint-disable class-methods-use-this */
   sm(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
@@ -3328,7 +3426,8 @@ export {
 
   // WHARGARBL TODO these should be exported to a utility library
   seq,
-  unique, find_repeated,
+  unique,
+  find_repeated,
   weighted_rand_select,
   histograph,
   weighted_sample_select,

@@ -53,7 +53,7 @@ describe('Basic hooks on API callpoint', () => {
 // TODO
 
     expect( () => { const _foo = sm`a -FAIL> b;`; } )
-      .toThrow( 'Expected \"{\", action label, arrow, nonneg number, or whitespace but \"-\" found.' )
+      .toThrow( 'Expected \"after\", \"{\", action label, arrow, nonneg number, or whitespace but \"-\" found.' )
 
   } );
 
