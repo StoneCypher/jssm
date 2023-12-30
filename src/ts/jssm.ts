@@ -372,7 +372,7 @@ class Machine<mDT> {
   }: JssmGenericConfig<StateType, mDT>) {
 
     this._time_source                   = time_source
-                                          ?? ( performance
+                                          ?? ( (performance !== undefined)
                                                ? (performance.now
                                                   ? ( () => performance.now() )
                                                   : ( () => new Date().getTime() )
@@ -380,7 +380,9 @@ class Machine<mDT> {
                                                : ( () => new Date().getTime() ) );
 
     this._create_started                = this._time_source();
-    this._time_origin                   = ( performance? performance.timeOrigin : 0 );
+    this._time_origin                   = ( (performance !== undefined)
+                                            ? performance.timeOrigin
+                                            : 0 );
 
     this._instance_name = instance_name;
 
