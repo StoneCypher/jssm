@@ -316,7 +316,6 @@ class Machine<mDT> {
   _time_source    : () => number;
   _create_started : number;
   _created        : number;
-  _create_time    : number;
 
   _after_mapping : Map<string, [string, number]>;
 
@@ -324,6 +323,7 @@ class Machine<mDT> {
   _clear_timeout_source : ( h ) => void;
   _timeout_handle       : number | undefined;
   _timeout_target       : string | undefined;
+  _timeout_target_time  : number | undefined;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -484,6 +484,7 @@ class Machine<mDT> {
     this._clear_timeout_source          = clear_timeout_source ?? ( (h: number) => clearTimeout(h) );
     this._timeout_handle                = undefined;
     this._timeout_target                = undefined;
+    this._timeout_target_time           = undefined;
 
     this._after_mapping                 = new Map();
 
@@ -567,12 +568,6 @@ class Machine<mDT> {
 
       // set up the after mapping, if any
       if (tr.after_time) {
-        if (this._after_mapping.has(tr.from)) {
-          throw new JssmError(this, `tried to set up a second 'after' mapping for ${tr.from}`);
-        }
-        if (tr.after_time === undefined) {
-          throw new JssmError(this, `tried to set up an 'r_after' mapping for ${tr.from}, but no time claim exists`);
-        }
         this._after_mapping.set(tr.from, [tr.to, tr.after_time])
       }
 
@@ -715,8 +710,7 @@ class Machine<mDT> {
     }
 
 
-    this._created     = this._time_source();
-    this._create_time = this._created - this._create_started;
+    this._created = this._time_source();
 
     this.auto_set_state_timeout();
 
@@ -3182,8 +3176,8 @@ class Machine<mDT> {
     return this._created;
   }
 
-  get create_time(): number {
-    return this._create_time;
+  get create_start_time(): number {
+    return this._create_started;
   }
 
 
@@ -3191,15 +3185,24 @@ class Machine<mDT> {
   set_state_timeout(next_state: StateType, after_time: number) {
 
     if (this._timeout_handle !== undefined) {
-      throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}`);
+      throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}:${this._timeout_target_time}`);
     }
 
     this._timeout_handle = this._timeout_source(
+
+      // it seems like istanbul can't see this line being followed, even though it is, actively
+      // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
+      // we'll mark it no-check so that our coverage numbers aren't wrecked
+
+      /* istanbul ignore next */
       () => this.go(next_state),
+
       after_time
+
     );
 
-    return this._timeout_handle;
+    this._timeout_target      = next_state;
+    this._timeout_target_time = after_time;
 
   }
 
@@ -3212,8 +3215,25 @@ class Machine<mDT> {
     }
 
     this._clear_timeout_source( this._timeout_handle );
-    this._timeout_handle = undefined;
 
+    this._timeout_handle      = undefined;
+    this._timeout_target      = undefined;
+    this._timeout_target_time = undefined;
+
+  }
+
+
+
+  state_timeout_for(which_state: StateType): [StateType, number] | undefined {
+    return this._after_mapping.get(which_state);
+  }
+
+
+
+  current_state_timeout(): [StateType, number] | undefined {
+    return (this._timeout_target !== undefined)
+      ? [ this._timeout_target, this._timeout_target_time ]
+      : undefined;
   }
 
 

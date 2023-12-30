@@ -220,6 +220,7 @@ class Machine {
         this._clear_timeout_source = clear_timeout_source !== null && clear_timeout_source !== void 0 ? clear_timeout_source : ((h) => clearTimeout(h));
         this._timeout_handle = undefined;
         this._timeout_target = undefined;
+        this._timeout_target_time = undefined;
         this._after_mapping = new Map();
         // consolidate the state declarations
         if (state_declaration) {
@@ -284,12 +285,6 @@ class Machine {
             }
             // set up the after mapping, if any
             if (tr.after_time) {
-                if (this._after_mapping.has(tr.from)) {
-                    throw new JssmError(this, `tried to set up a second 'after' mapping for ${tr.from}`);
-                }
-                if (tr.after_time === undefined) {
-                    throw new JssmError(this, `tried to set up an 'r_after' mapping for ${tr.from}, but no time claim exists`);
-                }
                 this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
             }
             // set up the mapping, so that edges can be looked up by endpoint pairs
@@ -400,7 +395,6 @@ class Machine {
             throw new JssmError(this, `Start states cannot be repeated`);
         }
         this._created = this._time_source();
-        this._create_time = this._created - this._create_started;
         this.auto_set_state_timeout();
     }
     /********
@@ -2270,15 +2264,21 @@ class Machine {
     get creation_timestamp() {
         return this._created;
     }
-    get create_time() {
-        return this._create_time;
+    get create_start_time() {
+        return this._create_started;
     }
     set_state_timeout(next_state, after_time) {
         if (this._timeout_handle !== undefined) {
-            throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}`);
+            throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}:${this._timeout_target_time}`);
         }
-        this._timeout_handle = this._timeout_source(() => this.go(next_state), after_time);
-        return this._timeout_handle;
+        this._timeout_handle = this._timeout_source(
+        // it seems like istanbul can't see this line being followed, even though it is, actively
+        // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
+        // we'll mark it no-check so that our coverage numbers aren't wrecked
+        /* istanbul ignore next */
+        () => this.go(next_state), after_time);
+        this._timeout_target = next_state;
+        this._timeout_target_time = after_time;
     }
     clear_state_timeout() {
         if (this._timeout_handle === undefined) {
@@ -2286,6 +2286,16 @@ class Machine {
         }
         this._clear_timeout_source(this._timeout_handle);
         this._timeout_handle = undefined;
+        this._timeout_target = undefined;
+        this._timeout_target_time = undefined;
+    }
+    state_timeout_for(which_state) {
+        return this._after_mapping.get(which_state);
+    }
+    current_state_timeout() {
+        return (this._timeout_target !== undefined)
+            ? [this._timeout_target, this._timeout_target_time]
+            : undefined;
     }
     /* eslint-disable no-use-before-define */
     /* eslint-disable class-methods-use-this */
