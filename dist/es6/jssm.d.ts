@@ -102,7 +102,6 @@ declare class Machine<mDT> {
     _end_state_style: JssmStateConfig;
     _state_labels: Map<string, string>;
     _time_source: () => number;
-    _time_origin: number;
     _create_started: number;
     _created: number;
     _create_time: number;

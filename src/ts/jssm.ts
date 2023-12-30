@@ -314,7 +314,6 @@ class Machine<mDT> {
   _state_labels : Map<string, string>;
 
   _time_source    : () => number;
-  _time_origin    : number;
   _create_started : number;
   _created        : number;
   _create_time    : number;
@@ -371,18 +370,9 @@ class Machine<mDT> {
 
   }: JssmGenericConfig<StateType, mDT>) {
 
-    this._time_source                   = time_source
-                                          ?? ( (performance !== undefined)
-                                               ? (performance.now
-                                                  ? ( () => performance.now() )
-                                                  : ( () => new Date().getTime() )
-                                                 )
-                                               : ( () => new Date().getTime() ) );
+    this._time_source                   = () => new Date().getTime();
 
     this._create_started                = this._time_source();
-    this._time_origin                   = ( (performance !== undefined)
-                                            ? performance.timeOrigin
-                                            : 0 );
 
     this._instance_name = instance_name;
 
@@ -3189,7 +3179,7 @@ class Machine<mDT> {
   }
 
   get creation_timestamp(): number {
-    return this._time_origin + this._created;
+    return this._created;
   }
 
   get create_time(): number {

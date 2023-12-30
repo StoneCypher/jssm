@@ -127,13 +127,8 @@ function state_style_condense(jssk) {
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
     constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
-        this._time_source = time_source !== null && time_source !== void 0 ? time_source : ((performance !== undefined)
-            ? (performance.now
-                ? (() => performance.now())
-                : (() => new Date().getTime()))
-            : (() => new Date().getTime()));
+        this._time_source = () => new Date().getTime();
         this._create_started = this._time_source();
-        this._time_origin = ((performance !== undefined) ? performance.timeOrigin : 0);
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -2273,7 +2268,7 @@ class Machine {
         return new Date(Math.floor(this.creation_timestamp));
     }
     get creation_timestamp() {
-        return this._time_origin + this._created;
+        return this._created;
     }
     get create_time() {
         return this._create_time;
