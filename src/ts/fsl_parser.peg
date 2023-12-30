@@ -666,6 +666,49 @@ ArrowProbability
 
 
 
+TimeType
+  = 'milliseconds' { return 1;                       }
+  / 'millisecond'  { return 1;                       }
+  / 'msecs'        { return 1;                       }
+  / 'msec'         { return 1;                       }
+  / 'ms'           { return 1;                       }
+
+  / 'seconds'      { return 1000;                    }
+  / 'second'       { return 1000;                    }
+  / 'secs'         { return 1000;                    }
+  / 'sec'          { return 1000;                    }
+  / 's'            { return 1000;                    }
+
+  / 'minutes'      { return 1000 * 60;               }
+  / 'minute'       { return 1000 * 60;               }
+  / 'mins'         { return 1000 * 60;               }
+  / 'min'          { return 1000 * 60;               }
+  / 'm'            { return 1000 * 60;               }
+
+  / 'hours'        { return 1000 * 60 * 60;          }
+  / 'hour'         { return 1000 * 60 * 60;          }
+  / 'hrs'          { return 1000 * 60 * 60;          }
+  / 'hr'           { return 1000 * 60 * 60;          }
+  / 'h'            { return 1000 * 60 * 60;          }
+
+  / 'days'         { return 1000 * 60 * 60 * 24;     }
+  / 'day'          { return 1000 * 60 * 60 * 24;     }
+  / 'd'            { return 1000 * 60 * 60 * 24;     }
+
+  / 'weeks'        { return 1000 * 60 * 60 * 24 * 7; }
+  / 'week'         { return 1000 * 60 * 60 * 24 * 7; }
+  / 'wks'          { return 1000 * 60 * 60 * 24 * 7; }
+  / 'wk'           { return 1000 * 60 * 60 * 24 * 7; }
+  / 'w'            { return 1000 * 60 * 60 * 24 * 7; }
+
+
+ArrowAfter
+  = 'after' WS value:NonNegNumber WS? timescale:TimeType? { return value * (timescale || 1000); }
+
+
+
+
+
 LabelList
   = "[" WS? names:(Label WS?)* "]" { return names.map(i => i[0]); }
 
@@ -695,13 +738,15 @@ ArrowTarget
 // todo these shouldn't be ordered, this is dumb // whargarbl comeback major
 
 Subexp
-  = WS? r_action : ActionLabel?
+  = WS? r_after  : ArrowAfter?
+    WS? r_action : ActionLabel?
     WS? r_prob   : ArrowProbability?
     WS? l_desc   : ArrowDesc?
     WS? arrow    : Arrow
     WS? r_desc   : ArrowDesc?
     WS? l_prob   : ArrowProbability?
     WS? l_action : ActionLabel?
+    WS? l_after  : ArrowAfter?
     WS? label    : ArrowTarget
     WS? tail     : Subexp? {
 
@@ -709,6 +754,7 @@ Subexp
       // TODO: properly type this
       const base: any = { kind: arrow, to: label };
 
+      if (l_after)               { base.l_after       = l_after;      }
       if (tail && (tail !== [])) { base.se            = tail;         }
       if (l_desc)                { base.l_desc        = l_desc;       }
       if (r_desc)                { base.r_desc        = r_desc;       }
@@ -716,6 +762,7 @@ Subexp
       if (r_action)              { base.r_action      = r_action;     }
       if (l_prob)                { base.l_probability = l_prob.value; }
       if (r_prob)                { base.r_probability = r_prob.value; }
+      if (r_after)               { base.r_after       = r_after;      }
 
       return base;
 

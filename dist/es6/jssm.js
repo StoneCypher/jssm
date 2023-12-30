@@ -126,7 +126,9 @@ function state_style_condense(jssk) {
 // TODO add a lotta docblock here
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed }) {
+    constructor({ start_states, end_states = [], complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+        this._time_source = () => new Date().getTime();
+        this._create_started = this._time_source();
         this._instance_name = instance_name;
         this._state = start_states[0];
         this._states = new Map();
@@ -214,6 +216,12 @@ class Machine {
         this._state_labels = new Map();
         this._rng_seed = rng_seed !== null && rng_seed !== void 0 ? rng_seed : new Date().getTime();
         this._rng = gen_splitmix32(this._rng_seed);
+        this._timeout_source = timeout_source !== null && timeout_source !== void 0 ? timeout_source : ((f, a) => setTimeout(f, a));
+        this._clear_timeout_source = clear_timeout_source !== null && clear_timeout_source !== void 0 ? clear_timeout_source : ((h) => clearTimeout(h));
+        this._timeout_handle = undefined;
+        this._timeout_target = undefined;
+        this._timeout_target_time = undefined;
+        this._after_mapping = new Map();
         // consolidate the state declarations
         if (state_declaration) {
             state_declaration.map((state_decl) => {
@@ -274,6 +282,10 @@ class Machine {
                 else {
                     this._named_transitions.set(tr.name, thisEdgeId);
                 }
+            }
+            // set up the after mapping, if any
+            if (tr.after_time) {
+                this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
             }
             // set up the mapping, so that edges can be looked up by endpoint pairs
             const from_mapping = this._edge_map.get(tr.from) || new Map();
@@ -382,6 +394,8 @@ class Machine {
         if (!(start_states.length === this._start_states.size)) {
             throw new JssmError(this, `Start states cannot be repeated`);
         }
+        this._created = this._time_source();
+        this.auto_set_state_timeout();
     }
     /********
      *
@@ -1511,6 +1525,8 @@ class Machine {
         };
         if (valid) {
             if (this._has_hooks) {
+                // once validity is known, clear old 'after' timeout clause
+                this.clear_state_timeout();
                 function update_fields(res) {
                     if (res.hasOwnProperty('data')) {
                         hook_args.data = res.data;
@@ -1700,7 +1716,16 @@ class Machine {
                 }
             }
         }
+        // possibly re-establish new 'after' clause
+        this.auto_set_state_timeout();
         return true;
+    }
+    auto_set_state_timeout() {
+        const after_res = this._after_mapping.get(this._state);
+        if (after_res !== undefined) {
+            const [next_state, after_time] = after_res;
+            this.set_state_timeout(next_state, after_time);
+        }
     }
     /*********
      *
@@ -2232,6 +2257,45 @@ class Machine {
     }
     instance_name() {
         return this._instance_name;
+    }
+    get creation_date() {
+        return new Date(Math.floor(this.creation_timestamp));
+    }
+    get creation_timestamp() {
+        return this._created;
+    }
+    get create_start_time() {
+        return this._create_started;
+    }
+    set_state_timeout(next_state, after_time) {
+        if (this._timeout_handle !== undefined) {
+            throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}:${this._timeout_target_time}`);
+        }
+        this._timeout_handle = this._timeout_source(
+        // it seems like istanbul can't see this line being followed, even though it is, actively
+        // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
+        // we'll mark it no-check so that our coverage numbers aren't wrecked
+        /* istanbul ignore next */
+        () => this.go(next_state), after_time);
+        this._timeout_target = next_state;
+        this._timeout_target_time = after_time;
+    }
+    clear_state_timeout() {
+        if (this._timeout_handle === undefined) {
+            return; // calling with no timeout is a no-op, means it can be called glad-handedly
+        }
+        this._clear_timeout_source(this._timeout_handle);
+        this._timeout_handle = undefined;
+        this._timeout_target = undefined;
+        this._timeout_target_time = undefined;
+    }
+    state_timeout_for(which_state) {
+        return this._after_mapping.get(which_state);
+    }
+    current_state_timeout() {
+        return (this._timeout_target !== undefined)
+            ? [this._timeout_target, this._timeout_target_time]
+            : undefined;
     }
     /* eslint-disable no-use-before-define */
     /* eslint-disable class-methods-use-this */

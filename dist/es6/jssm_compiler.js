@@ -21,6 +21,7 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
         from,
         to,
         kind,
+        after_time: isRight ? this_se.r_after : this_se.l_after,
         forced_only: kind === 'forced',
         main_path: kind === 'main'
     };

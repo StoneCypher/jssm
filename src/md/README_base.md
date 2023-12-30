@@ -6,7 +6,12 @@ share online.  Easy to embed.
 
 Readable, useful state machines as one-liner strings.
 
-***{{test_count}} tests*** run {{run_count}} times.  {{spec_count}} specs with {{spec_coverage}}% coverage, {{stoch_count}} fuzz tests with {{stoch_coverage}}% coverage.  With {{line_count}} lines, that's about {{line_test_ratio}} tests per line, or {{line_run_ratio}} generated tests per line.
+***{{test_count}} tests***, run {{run_count}} times.
+
+* {{spec_count}} specs with {{spec_coverage}}% coverage.
+* {{stoch_count}} fuzz tests with {{stoch_coverage}}% coverage.
+
+With {{line_count}} lines, that's about {{line_test_ratio}} tests per line, or {{line_run_ratio}} generated tests per line.
 
 ***Meet your new state machine library.***
 

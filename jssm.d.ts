@@ -101,7 +101,16 @@ declare class Machine<mDT> {
     _start_state_style: JssmStateConfig;
     _end_state_style: JssmStateConfig;
     _state_labels: Map<string, string>;
-    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed }: JssmGenericConfig<StateType, mDT>);
+    _time_source: () => number;
+    _create_started: number;
+    _created: number;
+    _after_mapping: Map<string, [string, number]>;
+    _timeout_source: (Function: any, number: any) => number;
+    _clear_timeout_source: (h: any) => void;
+    _timeout_handle: number | undefined;
+    _timeout_target: string | undefined;
+    _timeout_target_time: number | undefined;
+    constructor({ start_states, end_states, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -694,6 +703,7 @@ declare class Machine<mDT> {
      */
     override(newState: StateType, newData?: mDT | undefined): void;
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    auto_set_state_timeout(): void;
     /*********
      *
      *  Get a truncated history of the recent states and data of the machine.
@@ -1065,6 +1075,13 @@ declare class Machine<mDT> {
     valid_transition(newState: StateType, _newData?: mDT): boolean;
     valid_force_transition(newState: StateType, _newData?: mDT): boolean;
     instance_name(): string | undefined;
+    get creation_date(): Date;
+    get creation_timestamp(): number;
+    get create_start_time(): number;
+    set_state_timeout(next_state: StateType, after_time: number): void;
+    clear_state_timeout(): void;
+    state_timeout_for(which_state: StateType): [StateType, number] | undefined;
+    current_state_timeout(): [StateType, number] | undefined;
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 /*********

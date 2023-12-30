@@ -313,6 +313,18 @@ class Machine<mDT> {
 
   _state_labels : Map<string, string>;
 
+  _time_source    : () => number;
+  _create_started : number;
+  _created        : number;
+
+  _after_mapping : Map<string, [string, number]>;
+
+  _timeout_source       : ( Function, number ) => number;
+  _clear_timeout_source : ( h ) => void;
+  _timeout_handle       : number | undefined;
+  _timeout_target       : string | undefined;
+  _timeout_target_time  : number | undefined;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
@@ -351,9 +363,16 @@ class Machine<mDT> {
     default_end_state_config,
     allows_override,
     config_allows_override,
-    rng_seed
+    rng_seed,
+    time_source,
+    timeout_source,
+    clear_timeout_source
 
   }: JssmGenericConfig<StateType, mDT>) {
+
+    this._time_source                   = () => new Date().getTime();
+
+    this._create_started                = this._time_source();
 
     this._instance_name = instance_name;
 
@@ -461,6 +480,13 @@ class Machine<mDT> {
     this._rng_seed                      = rng_seed ?? new Date().getTime();
     this._rng                           = gen_splitmix32(this._rng_seed);
 
+    this._timeout_source                = timeout_source ?? ( (f: Function, a: number) => setTimeout(f, a) );
+    this._clear_timeout_source          = clear_timeout_source ?? ( (h: number) => clearTimeout(h) );
+    this._timeout_handle                = undefined;
+    this._timeout_target                = undefined;
+    this._timeout_target_time           = undefined;
+
+    this._after_mapping                 = new Map();
 
 
     // consolidate the state declarations
@@ -538,6 +564,11 @@ class Machine<mDT> {
         } else {
           this._named_transitions.set(tr.name, thisEdgeId);
         }
+      }
+
+      // set up the after mapping, if any
+      if (tr.after_time) {
+        this._after_mapping.set(tr.from, [tr.to, tr.after_time])
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
@@ -678,6 +709,10 @@ class Machine<mDT> {
       throw new JssmError(this, `Start states cannot be repeated`);
     }
 
+
+    this._created = this._time_source();
+
+    this.auto_set_state_timeout();
 
   }
 
@@ -2256,6 +2291,9 @@ class Machine<mDT> {
 
       if (this._has_hooks) {
 
+        // once validity is known, clear old 'after' timeout clause
+        this.clear_state_timeout();
+
         function update_fields(res: HookComplexResult<mDT>) {
           if (res.hasOwnProperty('data')) {
             hook_args.data      = res.data;
@@ -2460,7 +2498,24 @@ class Machine<mDT> {
 
     }
 
+    // possibly re-establish new 'after' clause
+    this.auto_set_state_timeout();
+
     return true;
+
+  }
+
+
+
+
+
+  auto_set_state_timeout(): void {
+
+    const after_res = this._after_mapping.get(this._state);
+    if (after_res !== undefined) {
+      const [ next_state, after_time ] = after_res;
+      this.set_state_timeout(next_state, after_time);
+    }
 
   }
 
@@ -3111,6 +3166,78 @@ class Machine<mDT> {
     return this._instance_name;
   }
 
+
+
+  get creation_date(): Date {
+    return new Date(Math.floor( this.creation_timestamp ));
+  }
+
+  get creation_timestamp(): number {
+    return this._created;
+  }
+
+  get create_start_time(): number {
+    return this._create_started;
+  }
+
+
+
+  set_state_timeout(next_state: StateType, after_time: number) {
+
+    if (this._timeout_handle !== undefined) {
+      throw new JssmError(this, `Asked to set a state timeout to ${next_state}:${after_time}, but already timing out to ${this._timeout_target}:${this._timeout_target_time}`);
+    }
+
+    this._timeout_handle = this._timeout_source(
+
+      // it seems like istanbul can't see this line being followed, even though it is, actively
+      // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
+      // we'll mark it no-check so that our coverage numbers aren't wrecked
+
+      /* istanbul ignore next */
+      () => this.go(next_state),
+
+      after_time
+
+    );
+
+    this._timeout_target      = next_state;
+    this._timeout_target_time = after_time;
+
+  }
+
+
+
+  clear_state_timeout() {
+
+    if (this._timeout_handle === undefined) {
+      return;  // calling with no timeout is a no-op, means it can be called glad-handedly
+    }
+
+    this._clear_timeout_source( this._timeout_handle );
+
+    this._timeout_handle      = undefined;
+    this._timeout_target      = undefined;
+    this._timeout_target_time = undefined;
+
+  }
+
+
+
+  state_timeout_for(which_state: StateType): [StateType, number] | undefined {
+    return this._after_mapping.get(which_state);
+  }
+
+
+
+  current_state_timeout(): [StateType, number] | undefined {
+    return (this._timeout_target !== undefined)
+      ? [ this._timeout_target, this._timeout_target_time ]
+      : undefined;
+  }
+
+
+
   /* eslint-disable no-use-before-define */
   /* eslint-disable class-methods-use-this */
   sm(template_strings: TemplateStringsArray, ...remainder /* , arguments */): Machine<mDT> {
@@ -3328,7 +3455,8 @@ export {
 
   // WHARGARBL TODO these should be exported to a utility library
   seq,
-  unique, find_repeated,
+  unique,
+  find_repeated,
   weighted_rand_select,
   histograph,
   weighted_sample_select,
