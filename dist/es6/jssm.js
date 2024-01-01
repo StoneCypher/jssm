@@ -1152,7 +1152,12 @@ class Machine {
             return Array.from(wstate.keys());
         }
         else {
-            throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+            if (this.has_state(whichState)) {
+                return [];
+            }
+            else {
+                throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+            }
         }
     }
     /********

@@ -20655,7 +20655,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.95.0", build_time = 1704098570300;
+const version = "5.96.0", build_time = 1704101055736;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -21800,7 +21800,12 @@ class Machine {
             return Array.from(wstate.keys());
         }
         else {
-            throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+            if (this.has_state(whichState)) {
+                return [];
+            }
+            else {
+                throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+            }
         }
     }
     /********

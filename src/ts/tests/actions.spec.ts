@@ -157,6 +157,34 @@ describe('Reports on action edges', () => {
 
 
 
+describe('When states don\'t have actions', () => {
+
+  const m = sm`a 'foo' -> b; a 'bar' -> c; b -> c;`;
+
+  test('a has two actions', () =>
+    expect( m.actions('a').sort() )
+      .toStrictEqual(['bar', 'foo']) );
+
+  test('b has zero actions', () =>
+    expect( m.actions('b') )
+      .toStrictEqual([]) );
+
+  test('d throws, as d does not exist', () =>
+    expect( () => m.actions('d') )
+      .toThrow() );
+
+  const m2 = sm`a -> b;`;
+
+  test('a has zero actions', () =>
+    expect( m2.actions('a') )
+      .toStrictEqual([]) );
+
+});
+
+
+
+
+
 describe('uses_actions', () => {
 
   const does   = sm`a 'next' -> b;`,
