@@ -235,7 +235,7 @@ jobs:
 
     - name: Tweet notice
       run: |
-        npm install && node ./src/buildjs/tweet.js
+        npm install && node ./src/buildjs/tweet.cjs
       env:
         JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
         JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}

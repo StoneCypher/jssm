@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.94.0 at 12/30/2023, 3:35:04 PM
+* Generated for version 5.95.0 at 1/1/2024, 12:44:24 AM
 
 -->
-# jssm 5.94.0
+# jssm 5.95.0
 
 Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
 tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to
@@ -29,12 +29,12 @@ share online.  Easy to embed.
 
 Readable, useful state machines as one-liner strings.
 
-***5,056 tests***, run 5,947 times.
+***5,057 tests***, run 5,948 times.
 
-* 5,047 specs with 100.0% coverage.
-* 9 fuzz tests with 12.6% coverage.
+* 5,048 specs with 100.0% coverage.
+* 9 fuzz tests with 12.5% coverage.
 
-With 2,942 lines, that's about 1.7 tests per line, or 2.0 generated tests per line.
+With 2,949 lines, that's about 1.7 tests per line, or 2.0 generated tests per line.
 
 ***Meet your new state machine library.***
 

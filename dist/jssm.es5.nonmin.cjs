@@ -20655,7 +20655,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.94.0", build_time = 1703979205400;
+const version = "5.95.0", build_time = 1704098570300;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -21044,6 +21044,11 @@ class Machine {
         }
         this._created = this._time_source();
         this.auto_set_state_timeout();
+        this._arrange_declaration.forEach((arrange_pair) => arrange_pair.forEach((possibleState) => {
+            if (!(this._states.has(possibleState))) {
+                throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
+            }
+        }));
     }
     /********
      *

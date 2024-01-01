@@ -711,8 +711,15 @@ class Machine<mDT> {
 
 
     this._created = this._time_source();
-
     this.auto_set_state_timeout();
+
+    this._arrange_declaration.forEach( (arrange_pair: string[]) =>
+      arrange_pair.forEach( (possibleState: string) => {
+        if (!(this._states.has(possibleState))) {
+          throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
+        }
+      })
+    );
 
   }
 
