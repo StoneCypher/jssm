@@ -69,4 +69,13 @@ describe('Arrange', () => {
 
 
 
+  test('Cannot arrange a node that does not exist', () => {
+
+    expect( () => { const _foo = sm`a -> b; arrange[a c];`; })
+      .toThrow();
+
+  });
+
+
+
 });
