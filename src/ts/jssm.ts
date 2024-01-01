@@ -1726,7 +1726,11 @@ class Machine<mDT> {
     if (wstate) {
       return Array.from(wstate.keys());
     } else {
-      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+      if (this.has_state(whichState)) {
+        return [];
+      } else {
+        throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+      }
     }
   }
 
