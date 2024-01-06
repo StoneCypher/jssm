@@ -2286,7 +2286,10 @@ class Machine {
         // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
         // we'll mark it no-check so that our coverage numbers aren't wrecked
         /* istanbul ignore next */
-        () => this.go(next_state), after_time);
+        () => {
+            this.clear_state_timeout();
+            this.go(next_state);
+        }, after_time);
         this._timeout_target = next_state;
         this._timeout_target_time = after_time;
     }

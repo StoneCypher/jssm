@@ -70,6 +70,41 @@ test('custom timeout sources', () => {
 
 
 
+const delay = (time: number = 1000) =>
+
+  new Promise( handler => setTimeout(handler, time) );
+
+
+
+
+
+test('timeout chains', async () => {
+
+  let hit_b = false,
+      hit_c = false,
+      hit_d = false;
+
+  const m = sm_from(`a after 200ms -> b after 10ms -> c after 10ms -> d;`);
+  m.hook_entry('b', () => hit_b = true);
+  m.hook_entry('c', () => hit_c = true);
+  m.hook_entry('d', () => hit_d = true);
+
+  expect(hit_b).toBe(false);
+  expect(hit_c).toBe(false);
+  expect(hit_d).toBe(false);
+
+  await delay(600);
+
+  expect(hit_b).toBe(true);
+  expect(hit_c).toBe(true);
+  expect(hit_d).toBe(true);
+
+});
+
+
+
+
+
 describe('after mapping runs normally with very short time', () => {
 
   describe('by machine', () => {

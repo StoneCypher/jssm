@@ -3206,7 +3206,10 @@ class Machine<mDT> {
       // we'll mark it no-check so that our coverage numbers aren't wrecked
 
       /* istanbul ignore next */
-      () => this.go(next_state),
+      () => {
+        this.clear_state_timeout();
+        this.go(next_state)
+      },
 
       after_time
 
