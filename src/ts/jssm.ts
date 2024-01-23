@@ -29,15 +29,15 @@ import {
   JssmBaseTheme,
   JssmRng
 
-} from './jssm_types';
+} from './jssm_types.js';
 
 
 
 
 
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
-import { compile, make, makeTransition, wrap_parse }          from './jssm_compiler';
-import { theme_mapping, base_theme }                          from './jssm_theme';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
+import { compile, make, makeTransition, wrap_parse }          from './jssm_compiler.js';
+import { theme_mapping, base_theme }                          from './jssm_theme.js';
 
 
 
@@ -51,22 +51,22 @@ import {
   array_box_if_string,
   name_bind_prop_and_state, hook_name, named_hook_name,
   gen_splitmix32
-} from './jssm_util';
+} from './jssm_util.js';
 
 
 
 
 
-import * as constants from './jssm_constants';
+import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors } = constants;
 
 
 
 
 
-import { parse }               from './fsl_parser';
-import { version, build_time } from './version';    // replaced from package.js in build
-import { JssmError }           from './jssm_error';
+import { parse }               from './fsl_parser.js';
+import { version, build_time } from './version.js';    // replaced from package.js in build
+import { JssmError }           from './jssm_error.js';
 
 
 

@@ -1,7 +1,7 @@
 
-import { JssmRng }   from './jssm_types';
+import { JssmRng }   from './jssm_types.js';
 
-import { JssmError } from './jssm_error';
+import { JssmError } from './jssm_error.js';
 
 
 

@@ -1,5 +1,5 @@
 
-import { JssmErrorExtendedInfo } from './jssm_types';
+import { JssmErrorExtendedInfo } from './jssm_types.js';
 
 
 
