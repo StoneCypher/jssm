@@ -1,6 +1,6 @@
 
-import { JssmArrow, JssmArrowDirection, JssmArrowKind } from './jssm_types';
-import { JssmError }                                    from './jssm_error';
+import { JssmArrow, JssmArrowDirection, JssmArrowKind } from './jssm_types.js';
+import { JssmError }                                    from './jssm_error.js';
 
 
 
