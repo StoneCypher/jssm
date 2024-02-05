@@ -13,7 +13,7 @@ const config = {
   input: 'dist/es6/jssm.js',
 
   output: {
-    file   : 'dist/jssm.es6.cjs.js',
+    file   : 'dist/jssm.es6.js',
     format : 'es',
     name   : 'jssm'
   },

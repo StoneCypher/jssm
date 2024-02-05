@@ -1,14 +1,14 @@
 {
   "name": "jssm",
-  "version": "5.97.0",
+  "version": "5.97.1",
   "engines": {
     "node": ">=10.0.0"
   },
   "exports": {
     "require": "./dist/jssm.es5.cjs",
-    "import": "./dist/jssm.es6.js",
+    "import": "./dist/jssm.es6.mjs",
     "default": "./dist/jssm.es5.cjs",
-    "browser": "dist/jssm.es5.iife.js"
+    "browser": "dist/jssm.es5.iife.cjs"
   },
   "autoupdate": {
     "source": "git",
@@ -60,7 +60,7 @@
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.cjs && terser dist/jssm.es5.iife.nonmin.cjs > dist/jssm.es5.iife.cjs && cp dist/jssm.es5.iife.nonmin.cjs ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
-    "min_es6": "mv dist/jssm.es6.cjs.js dist/jssm.es6.nonmin.cjs && terser dist/jssm.es6.nonmin.cjs > dist/jssm.es6.cjs",
+    "min_es6": "mv dist/jssm.es6.js dist/jssm.es6.nonmin.cjs && terser dist/jssm.es6.nonmin.cjs > dist/jssm.es6.mjs",
     "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
     "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
