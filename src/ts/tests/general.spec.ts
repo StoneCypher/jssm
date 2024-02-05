@@ -677,7 +677,7 @@ describe('reports on transitions', () => {
       .toBe('object') );
 
   test('specified transition correct entrance count', () =>
-   expect(machine.list_transitions('off').entrances.length)
+    expect(machine.list_transitions('off').entrances.length)
       .toBe(0) );
 
   test('specified transition correct exit count', () =>

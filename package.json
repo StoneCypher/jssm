@@ -1,12 +1,12 @@
 {
   "name": "jssm",
-  "version": "5.96.1",
+  "version": "5.97.0",
   "engines": {
     "node": ">=10.0.0"
   },
   "exports": {
     "require": "./dist/jssm.es5.cjs",
-    "import": "./dist/es6/jssm.js",
+    "import": "./dist/jssm.es6.js",
     "default": "./dist/jssm.es5.cjs",
     "browser": "dist/jssm.es5.iife.js"
   },
@@ -25,7 +25,7 @@
   "type": "module",
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
   "main": "dist/jssm.es5.cjs",
-  "module": "dist/es6/jssm.js",
+  "module": "dist/jssm.es6.js",
   "browser": "dist/jssm.es5.iife.cjs",
   "types": "./jssm.d.ts",
   "scripts": {
@@ -42,12 +42,13 @@
     "test": "npm run make && npm run jest",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.cjs",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
-    "make_cjs": "rollup -c",
+    "make_cjs": "rollup -c rollup.config.es5.js",
+    "make_es6": "rollup -c rollup.config.es6.js",
     "make_iife": "rollup -c rollup.config.iife.js",
     "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno",
     "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
     "makever": "node src/buildjs/makever.cjs",
-    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_deno && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs && npm run min_deno && rm ./dist/es6/*.nonmin.js",
+    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_es6 && npm run make_deno && npm run make_cjs && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && rm ./dist/es6/*.nonmin.js",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
@@ -59,6 +60,7 @@
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.cjs && terser dist/jssm.es5.iife.nonmin.cjs > dist/jssm.es5.iife.cjs && cp dist/jssm.es5.iife.nonmin.cjs ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
+    "min_es6": "mv dist/jssm.es6.cjs.js dist/jssm.es6.nonmin.cjs && terser dist/jssm.es6.nonmin.cjs > dist/jssm.es6.cjs",
     "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
     "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
