@@ -675,6 +675,12 @@ describe('initializes with states', () => {
       .toThrow());
 
 
+  test('accepts state not in start state list due to flag', () => {
+    const machine = jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Green', start_states_no_enforce: true });
+    expect(machine.state()).toBe('Green');
+  });
+
+
 });
 
 
