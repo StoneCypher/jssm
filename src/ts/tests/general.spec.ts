@@ -640,7 +640,7 @@ describe('returns states', () => {
   });
 
   test('that it has', () =>
-    expect(typeof machine.machine_state() )
+    expect( typeof machine.machine_state() )
       .toBe('object') );
 
 });

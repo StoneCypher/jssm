@@ -331,6 +331,8 @@ class Machine<mDT> {
 
     start_states,
     end_states                = [],
+    initial_state,
+    start_states_no_enforce,
     complete                  = [],
     transitions,
     machine_author,
@@ -376,7 +378,6 @@ class Machine<mDT> {
 
     this._instance_name = instance_name;
 
-    this._state                  = start_states[0];
     this._states                 = new Map();
     this._state_declarations     = new Map();
     this._edges                  = [];
@@ -500,6 +501,24 @@ class Machine<mDT> {
         this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
 
       });
+    }
+
+
+    // set initial state either from the specified or the start state list.  validate admission behavior.
+    if (initial_state) {
+
+      if (! (this._state_declarations.has(initial_state)) ) {
+        throw new JssmError(this, `requested start state ${initial_state} does not exist`);
+      }
+
+      if ( (! (start_states_no_enforce) ) && (! (start_states.includes(initial_state) )) ) {
+        throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
+      }
+
+      this._state = initial_state;
+
+    } else {
+      this._state = start_states[0];
     }
 
 
