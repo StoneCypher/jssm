@@ -669,16 +669,18 @@ describe('initializes with states', () => {
     expect(() => jssm.from(`start_states: [Red Yellow Green]; Red => Green => Yellow => Red;`, { initial_state: 'Blue' }))
       .toThrow());
 
-
   test('fails because that state is not in start state list', () =>
     expect(() => jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Green' }))
       .toThrow());
-
 
   test('accepts state not in start state list due to flag', () => {
     const machine = jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Green', start_states_no_enforce: true });
     expect(machine.state()).toBe('Green');
   });
+
+  test('rejects absent state despite flag', () =>
+    expect(() => jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Blue', start_states_no_enforce: true }))
+      .toThrow());
 
 
 });
