@@ -670,6 +670,11 @@ describe('initializes with states', () => {
       .toThrow());
 
 
+  test('fails because that state is not in start state list', () =>
+    expect(() => jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Green' }))
+      .toThrow());
+
+
 });
 
 
