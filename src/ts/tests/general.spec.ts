@@ -651,6 +651,7 @@ describe('returns states', () => {
 
 describe('initializes with states', () => {
 
+
   describe('without start state list', () => {
 
     ['Red', 'Yellow', 'Green'].forEach( color => {
@@ -662,6 +663,12 @@ describe('initializes with states', () => {
     });
 
   });
+
+
+  test('fails because that state is absent', () =>
+    expect(() => jssm.from(`start_states: [Red Yellow Green]; Red => Green => Yellow => Red;`, { initial_state: 'Blue' }))
+      .toThrow());
+
 
 });
 
