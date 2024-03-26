@@ -682,6 +682,12 @@ describe('initializes with states', () => {
     expect(() => jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Blue', start_states_no_enforce: true }))
       .toThrow());
 
+  test('initial_state and data co-exist', () => {
+    const machine = jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Red', data: 2 });
+    expect(machine.state()).toBe('Red');
+    expect(machine.data()).toBe(2);
+  });
+
 
 });
 
