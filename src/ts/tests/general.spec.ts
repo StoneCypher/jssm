@@ -649,6 +649,26 @@ describe('returns states', () => {
 
 
 
+describe('initializes with states', () => {
+
+  describe('without start state list', () => {
+
+    ['Red', 'Yellow', 'Green'].forEach( color => {
+
+      const machine = jssm.from(`start_states: [Red Yellow Green]; Red => Green => Yellow => Red;`, { initial_state: color });
+      test(`Initial state in traffic light is ${color}`, () =>
+        expect(machine.state()).toBe(color));
+
+    });
+
+  });
+
+});
+
+
+
+
+
 describe('reports on transitions', () => {
 
   const machine = new jssm.Machine({

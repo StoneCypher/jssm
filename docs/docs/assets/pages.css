@@ -1,0 +1,30 @@
+.tsd-typography li > ul {
+	margin: 0;
+}
+.tsd-navigation li.pages-entry {
+	border-left: 2px solid var(--color-text-aside);
+}
+.tsd-navigation li.pages-entry a {
+	padding-left: 0!important;
+}
+.tsd-navigation li.pages-entry.pages-entry-page > a {
+	color: var(--color-link);
+}
+li.pages-entry-depth-0 {
+	padding-left: 10px;
+}
+li.pages-entry-depth-1 {
+	padding-left: 20px;
+}
+li.pages-entry-depth-2 {
+	padding-left: 30px;
+}
+li.pages-entry-depth-3 {
+	padding-left: 40px;
+}
+li.pages-entry-depth-4 {
+	padding-left: 50px;
+}
+.tsd-page-toolbar .table-cell .pages-entry {
+	white-space: normal;
+}

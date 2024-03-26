@@ -504,24 +504,6 @@ class Machine<mDT> {
     }
 
 
-    // set initial state either from the specified or the start state list.  validate admission behavior.
-    if (initial_state) {
-
-      if (! (this._state_declarations.has(initial_state)) ) {
-        throw new JssmError(this, `requested start state ${initial_state} does not exist`);
-      }
-
-      if ( (! (start_states_no_enforce) ) && (! (start_states.includes(initial_state) )) ) {
-        throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
-      }
-
-      this._state = initial_state;
-
-    } else {
-      this._state = start_states[0];
-    }
-
-
     // walk the decls for labels; aggregate them when found
     [... this._state_declarations].map(sd => {
 
@@ -677,6 +659,24 @@ class Machine<mDT> {
         this._state_properties.set(sp.name, sp.default_value);
       });
 
+    }
+
+
+    // set initial state either from the specified or the start state list.  validate admission behavior.
+    if (initial_state) {
+
+      if (! (this._states.has(initial_state)) ) {
+        throw new JssmError(this, `requested start state ${initial_state} does not exist`);
+      }
+
+      if ( (! (start_states_no_enforce) ) && (! (start_states.includes(initial_state) )) ) {
+        throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
+      }
+
+      this._state = initial_state;
+
+    } else {
+      this._state = start_states[0];
     }
 
 

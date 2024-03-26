@@ -20655,7 +20655,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.98.0", build_time = 1711414350764;
+const version = "5.98.0", build_time = 1711415037128;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -20878,19 +20878,6 @@ class Machine {
                 this._state_declarations.set(state_decl.state, transfer_state_properties(state_decl));
             });
         }
-        // set initial state either from the specified or the start state list.  validate admission behavior.
-        if (initial_state) {
-            if (!(this._state_declarations.has(initial_state))) {
-                throw new JssmError(this, `requested start state ${initial_state} does not exist`);
-            }
-            if ((!(start_states_no_enforce)) && (!(start_states.includes(initial_state)))) {
-                throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
-            }
-            this._state = initial_state;
-        }
-        else {
-            this._state = start_states[0];
-        }
         // walk the decls for labels; aggregate them when found
         [...this._state_declarations].map(sd => {
             const [key, decl] = sd, labelled = decl.declarations.filter(d => d.key === 'state-label');
@@ -21011,6 +20998,19 @@ class Machine {
             state_property.forEach(sp => {
                 this._state_properties.set(sp.name, sp.default_value);
             });
+        }
+        // set initial state either from the specified or the start state list.  validate admission behavior.
+        if (initial_state) {
+            if (!(this._states.has(initial_state))) {
+                throw new JssmError(this, `requested start state ${initial_state} does not exist`);
+            }
+            if ((!(start_states_no_enforce)) && (!(start_states.includes(initial_state)))) {
+                throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
+            }
+            this._state = initial_state;
+        }
+        else {
+            this._state = start_states[0];
         }
         // done building, do checks
         // assert all props are valid
