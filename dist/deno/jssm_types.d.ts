@@ -198,6 +198,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
+    initial_state?: StateType;
+    start_states_no_enforce?: boolean;
     state_declaration?: Object[];
     property_definition?: JssmPropertyDefinition[];
     state_property?: JssmPropertyDefinition[];
