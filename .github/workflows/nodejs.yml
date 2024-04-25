@@ -105,7 +105,11 @@ jobs:
             os: ubuntu-latest
           - node-version: 22.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
             os: macos-latest
-          - node-version: 22.x   # finish check big-3 on latest current
+# bug in gh action for new version: https://github.com/nodejs/node/issues/52682
+#          - node-version: 22.x   # finish check big-3 on latest current
+#            os: windows-latest
+# testing under 20 instead until fixed
+          - node-version: 20.x   # finish check big-3 on latest current
             os: windows-latest
           - node-version: 21.x   # check newest non-lts too
             os: ubuntu-latest
