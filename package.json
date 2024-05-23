@@ -14,7 +14,7 @@
       "default": "./dist/jssm.es6.mjs"
     },
     "default": {
-      "types": "./jssm.d.ts",
+      "types": "./jssm.es5.d.cts",
       "default": "./dist/jssm.es5.cjs"
     },
     "browser": "dist/jssm.es5.iife.cjs"
