@@ -63,7 +63,6 @@
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
     "build": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs && npm run cloc && npm run readme",
-    "build-no-test": "npm run vet && npm run site && npm run changelog && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
