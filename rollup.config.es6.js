@@ -2,13 +2,11 @@
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs    from '@rollup/plugin-commonjs';
 import replace     from '@rollup/plugin-replace';
+import dts         from "rollup-plugin-dts";
 
 const pkg = require('./package.json');
 
-
-
-
-const config = {
+const config = [{
 
   input: 'dist/es6/jssm.js',
 
@@ -32,13 +30,23 @@ const config = {
     replace({
       preventAssignment      : true,
       'process.env.NODE_ENV' : JSON.stringify( 'production' )
-    })
+    }),
 
-  ]
+  ]}, {
 
-};
+  input: 'dist/es6/jssm.d.ts',
 
+  output: { 
+    file   : './jssm.es6.d.ts',
+    format : 'es'
+  },
 
+  plugins : [
+
+    dts()
+  ]}
+];
+  
 
 
 

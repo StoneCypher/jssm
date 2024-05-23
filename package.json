@@ -5,9 +5,18 @@
     "node": ">=10.0.0"
   },
   "exports": {
-    "require": "./dist/jssm.es5.cjs",
-    "import": "./dist/jssm.es6.mjs",
-    "default": "./dist/jssm.es5.cjs",
+    "require": {
+      "types": "./jssm.es5.d.cts",
+      "default": "./dist/jssm.es5.cjs"
+    },
+    "import": {
+      "types": "./jssm.es6.d.ts",
+      "default": "./dist/jssm.es6.mjs"
+    },
+    "default": {
+      "types": "./jssm.d.ts",
+      "default": "./dist/jssm.es5.cjs"
+    },
     "browser": "dist/jssm.es5.iife.cjs"
   },
   "autoupdate": {
@@ -54,6 +63,7 @@
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
     "build": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs && npm run cloc && npm run readme",
+    "build-no-test": "npm run vet && npm run site && npm run changelog && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
@@ -134,6 +144,7 @@
     "pegjs": "^0.10.0",
     "picocolors": "^1.0.0",
     "rollup": "^2.72.1",
+    "rollup-plugin-dts": "^4.2.3",
     "semver": "^7.5.4",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
