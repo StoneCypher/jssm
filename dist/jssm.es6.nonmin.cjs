@@ -383,7 +383,7 @@ function peg$parse(input, options) {
         // Reminder: remove this type and the one in subexp if you want to work in pegjs online
         // TODO: properly type this
         const base = { key: 'transition', from: label };
-        if (se && (se !== [])) {
+        if (se) {
             base.se = se;
         }
         return base;
@@ -20663,7 +20663,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.98.5", build_time = 1720293702616;
+const version = "5.98.6", build_time = 1720294042824;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;

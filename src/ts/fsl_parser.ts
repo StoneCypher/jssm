@@ -1491,7 +1491,7 @@ function peg$parse(input, options) {
           // Reminder: remove this type and the one in subexp if you want to work in pegjs online
           // TODO: properly type this
           const base: any = { key: 'transition', from: label };
-          if (se && (se !== [])) { base.se = se; }
+          if (se) { base.se = se; }
           return base;
         },
       peg$c1310 = "whargarbl",
