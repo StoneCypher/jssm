@@ -48,7 +48,7 @@ type JssmShape          = "box" | "polygon" | "ellipse" | "oval" | "circle" | "p
 type JssmArrowDirection = 'left' | 'right' | 'both';
 type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
-type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp';  // todo add the rest
+type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';  // todo add the rest
 
 type JssmCorner         = 'regular' | 'rounded' | 'lined';
 type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';

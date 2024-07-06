@@ -809,6 +809,7 @@ GvizLayout
   / "circo"
   / "fdp"
   / "neato"
+  / "twopi";
 
 // StateItemShapeKey
 //   = "shape"
