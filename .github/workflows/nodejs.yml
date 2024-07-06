@@ -233,15 +233,15 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
 
-    - name: Tweet notice
-      run: |
-        npm install && node ./src/buildjs/tweet.cjs
-      env:
-        JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
-        JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
-        JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
-        JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
-        TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+    # - name: Tweet notice
+    #   run: |
+    #     npm install && node ./src/buildjs/tweet.cjs
+    #   env:
+    #     JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
+    #     JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
+    #     JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
+    #     JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
+    #     TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
 
 
