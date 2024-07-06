@@ -1474,15 +1474,15 @@ function peg$parse(input, options) {
             // TODO: properly type this
             const base: any = { kind: arrow, to: label };
 
-            if (l_after)               { base.l_after       = l_after;      }
-            if (tail && (tail !== [])) { base.se            = tail;         }
-            if (l_desc)                { base.l_desc        = l_desc;       }
-            if (r_desc)                { base.r_desc        = r_desc;       }
-            if (l_action)              { base.l_action      = l_action;     }
-            if (r_action)              { base.r_action      = r_action;     }
-            if (l_prob)                { base.l_probability = l_prob.value; }
-            if (r_prob)                { base.r_probability = r_prob.value; }
-            if (r_after)               { base.r_after       = r_after;      }
+            if (l_after)  { base.l_after       = l_after;      }
+            if (tail)     { base.se            = tail;         }
+            if (l_desc)   { base.l_desc        = l_desc;       }
+            if (r_desc)   { base.r_desc        = r_desc;       }
+            if (l_action) { base.l_action      = l_action;     }
+            if (r_action) { base.r_action      = r_action;     }
+            if (l_prob)   { base.l_probability = l_prob.value; }
+            if (r_prob)   { base.r_probability = r_prob.value; }
+            if (r_after)  { base.r_after       = r_after;      }
 
             return base;
 

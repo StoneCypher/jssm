@@ -358,7 +358,7 @@ function peg$parse(input, options) {
         if (l_after) {
             base.l_after = l_after;
         }
-        if (tail && (tail !== [])) {
+        if (tail) {
             base.se = tail;
         }
         if (l_desc) {
@@ -20667,7 +20667,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.98.4", build_time = 1720292226942;
+const version = "5.98.5", build_time = 1720293702616;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
