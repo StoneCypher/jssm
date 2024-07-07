@@ -3,7 +3,7 @@ import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, J
 JssmMachineInternalState, JssmAllowsOverride, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, JssmRng } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
-import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key } from './jssm_util';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[];
 import { version, build_time } from './version';
@@ -56,6 +56,7 @@ declare class Machine<mDT> {
     _has_named_hooks: boolean;
     _has_entry_hooks: boolean;
     _has_exit_hooks: boolean;
+    _has_after_hooks: boolean;
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
     _has_forced_transitions: boolean;
@@ -63,6 +64,7 @@ declare class Machine<mDT> {
     _named_hooks: Map<string, HookHandler<mDT>>;
     _entry_hooks: Map<string, HookHandler<mDT>>;
     _exit_hooks: Map<string, HookHandler<mDT>>;
+    _after_hooks: Map<string, HookHandler<mDT>>;
     _global_action_hooks: Map<string, HookHandler<mDT>>;
     _any_action_hook: HookHandler<mDT> | undefined;
     _standard_transition_hook: HookHandler<mDT> | undefined;
@@ -669,6 +671,7 @@ declare class Machine<mDT> {
     hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
     hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
@@ -1135,4 +1138,4 @@ declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResu
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections };
+export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, sleep, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections };

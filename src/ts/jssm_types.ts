@@ -481,6 +481,12 @@ type ExitHook<mDT> = {
   handler : HookHandler<mDT>
 };
 
+type AfterHook<mDT> = {
+  kind    : 'after',
+  from    : string,
+  handler : HookHandler<mDT>
+};
+
 
 
 type PostBasicHookDescription<mDT> = {
@@ -556,6 +562,7 @@ type HookDescription<mDT>
   | AnyTransitionHook<mDT>
   | EntryHook<mDT>
   | ExitHook<mDT>
+  | AfterHook<mDT>
   | PostBasicHookDescription<mDT>
   | PostHookDescriptionWithAction<mDT>
   | PostGlobalActionHook<mDT>

@@ -18962,6 +18962,9 @@ function find_repeated(arr) {
         return [];
     }
 }
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 var reductions = {
   "abkhazian" : "ab",
@@ -20663,7 +20666,7 @@ var constants = /*#__PURE__*/Object.freeze({
     named_colors: named_colors$1
 });
 
-const version = "5.98.7", build_time = 1720294433127;
+const version = "5.99.0", build_time = 1720314479976;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -20818,6 +20821,7 @@ class Machine {
         this._has_named_hooks = false;
         this._has_entry_hooks = false;
         this._has_exit_hooks = false;
+        this._has_after_hooks = false;
         this._has_global_action_hooks = false;
         this._has_transition_hooks = true;
         // no need for a boolean for single hooks, just test for undefinedness
@@ -20826,6 +20830,7 @@ class Machine {
         this._named_hooks = new Map();
         this._entry_hooks = new Map();
         this._exit_hooks = new Map();
+        this._after_hooks = new Map();
         this._global_action_hooks = new Map();
         this._any_action_hook = undefined;
         this._standard_transition_hook = undefined;
@@ -21981,6 +21986,11 @@ class Machine {
                 this._has_hooks = true;
                 this._has_exit_hooks = true;
                 break;
+            case 'after':
+                this._after_hooks.set(HookDesc.from, HookDesc.handler);
+                this._has_hooks = true;
+                this._has_after_hooks = true;
+                break;
             case 'post hook':
                 this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
                 this._has_post_hooks = true;
@@ -22071,6 +22081,10 @@ class Machine {
     }
     hook_exit(from, handler) {
         this.set_hook({ kind: 'exit', from, handler });
+        return this;
+    }
+    hook_after(from, handler) {
+        this.set_hook({ kind: 'after', from, handler });
         return this;
     }
     post_hook(from, to, handler) {
@@ -22214,18 +22228,32 @@ class Machine {
                 }
                 let data_changed = false;
                 if (wasAction) {
-                    // 1. any action hook
+                    // 1a. any action hook
                     const outcome = abstract_hook_step(this._any_action_hook, hook_args);
                     if (outcome.pass === false) {
                         return false;
                     }
                     update_fields(outcome);
-                    // 2. global specific action hook
+                    // 1b. global specific action hook
                     const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
                     if (outcome2.pass === false) {
                         return false;
                     }
                     update_fields(outcome2);
+                }
+                // 2. after hook
+                if (this._has_after_hooks) {
+                    const ah = this._after_hooks.get(newStateOrAction);
+                    const outcome = abstract_hook_step(ah, hook_args);
+                    // there's no such thing as after not passing, so, omit the result pass check
+                    /* istanbul can't trace this through the timer */
+                    /* istanbul ignore next */
+                    if (ah !== undefined) {
+                        /* istanbul can't trace this through the timer */
+                        /* istanbul ignore next */
+                        ah({ data: outcome.data, next_data: outcome.next_data });
+                    }
+                    update_fields(outcome);
                 }
                 // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
@@ -22956,6 +22984,12 @@ class Machine {
         /* istanbul ignore next */
         () => {
             this.clear_state_timeout();
+            if (this._has_after_hooks) {
+                const ah = this._after_hooks.get(this.state());
+                if (ah !== undefined) {
+                    ah({ data: this._data, next_data: this._data });
+                }
+            }
             this.go(next_state);
         }, after_time);
         this._timeout_target = next_state;
@@ -23107,4 +23141,4 @@ function deserialize(machine_string, ser) {
     return machine;
 }
 
-export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, constants, deserialize, find_repeated, from, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, constants, deserialize, find_repeated, from, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };

@@ -102,4 +102,5 @@ declare const unique: <T>(arr?: T[]) => T[];
  *
  */
 declare function find_repeated<T>(arr: T[]): [T, number][];
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32 };
+declare function sleep(ms: number): Promise<unknown>;
+export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep };
