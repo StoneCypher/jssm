@@ -2372,9 +2372,14 @@ class Machine<mDT> {
         if (this._has_after_hooks) {
           const ah = this._after_hooks.get(newStateOrAction);
           const outcome = abstract_hook_step(ah, hook_args);
-          if (outcome.pass === false) { return false; }
-          const manufactured_context: HookContext<mDT> = { data: outcome.data, next_data: outcome.next_data };
-          if (ah !== undefined) { ah(manufactured_context); }
+          // there's no such thing as after not passing, so, omit the result pass check
+          /* istanbul can't trace this through the timer */
+          /* istanbul ignore next */
+          if (ah !== undefined) {
+            /* istanbul can't trace this through the timer */
+            /* istanbul ignore next */
+            ah({ data: outcome.data, next_data: outcome.next_data });
+          }
           update_fields(outcome);
         }
 

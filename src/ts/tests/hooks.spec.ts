@@ -846,19 +846,19 @@ describe('Hooks can change data (basic)', () => {
 
 
 
-describe('After hook', () => {
+describe('After hook callback', () => {
 
-  test('Basic hook data change succeeds from no prior', async () => {
+  test('Callback fires', async () => {
 
-    let hook_fired: boolean = false;
+    let hook_fired: false | Object = false;
 
-    const foo = sm`a after 0.1s -> b;`;
-    foo.hook_after( 'a', () => { hook_fired = true; } );
+    const foo = jssm.from('a after 0.01s -> b;', { data: 'foo' });
+    foo.hook_after( 'a', (res: Object) => { hook_fired = res; } );
     expect(foo.state()).toBe('a');
 
-    await jssm.sleep(500);
+    await jssm.sleep(1000);
     expect(foo.state()).toBe('b');
-    expect(hook_fired).toBe(true);
+    expect(hook_fired).toStrictEqual({ data: 'foo', next_data: 'foo' });
 
   });
 
