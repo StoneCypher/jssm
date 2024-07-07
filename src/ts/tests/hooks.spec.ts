@@ -846,6 +846,28 @@ describe('Hooks can change data (basic)', () => {
 
 
 
+describe('After hook', () => {
+
+  test('Basic hook data change succeeds from no prior', async () => {
+
+    let hook_fired: boolean = false;
+
+    const foo = sm`a after 0.1s -> b;`;
+    foo.hook_after( 'a', () => { hook_fired = true; } );
+    expect(foo.state()).toBe('a');
+
+    await jssm.sleep(500);
+    expect(foo.state()).toBe('b');
+    expect(hook_fired).toBe(true);
+
+  });
+
+});
+
+
+
+
+
 describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],

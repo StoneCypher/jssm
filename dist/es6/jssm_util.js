@@ -174,4 +174,7 @@ function find_repeated(arr) {
         return [];
     }
 }
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32 };
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep };
