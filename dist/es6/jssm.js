@@ -4,7 +4,7 @@ import { FslDirections } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { theme_mapping, base_theme } from './jssm_theme';
-import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32 } from './jssm_util';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors } = constants;
 import { version, build_time } from './version'; // replaced from package.js in build
@@ -162,6 +162,7 @@ class Machine {
         this._has_named_hooks = false;
         this._has_entry_hooks = false;
         this._has_exit_hooks = false;
+        this._has_after_hooks = false;
         this._has_global_action_hooks = false;
         this._has_transition_hooks = true;
         // no need for a boolean for single hooks, just test for undefinedness
@@ -170,6 +171,7 @@ class Machine {
         this._named_hooks = new Map();
         this._entry_hooks = new Map();
         this._exit_hooks = new Map();
+        this._after_hooks = new Map();
         this._global_action_hooks = new Map();
         this._any_action_hook = undefined;
         this._standard_transition_hook = undefined;
@@ -1325,6 +1327,11 @@ class Machine {
                 this._has_hooks = true;
                 this._has_exit_hooks = true;
                 break;
+            case 'after':
+                this._after_hooks.set(HookDesc.from, HookDesc.handler);
+                this._has_hooks = true;
+                this._has_after_hooks = true;
+                break;
             case 'post hook':
                 this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
                 this._has_post_hooks = true;
@@ -1415,6 +1422,10 @@ class Machine {
     }
     hook_exit(from, handler) {
         this.set_hook({ kind: 'exit', from, handler });
+        return this;
+    }
+    hook_after(from, handler) {
+        this.set_hook({ kind: 'after', from, handler });
         return this;
     }
     post_hook(from, to, handler) {
@@ -1558,18 +1569,32 @@ class Machine {
                 }
                 let data_changed = false;
                 if (wasAction) {
-                    // 1. any action hook
+                    // 1a. any action hook
                     const outcome = abstract_hook_step(this._any_action_hook, hook_args);
                     if (outcome.pass === false) {
                         return false;
                     }
                     update_fields(outcome);
-                    // 2. global specific action hook
+                    // 1b. global specific action hook
                     const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
                     if (outcome2.pass === false) {
                         return false;
                     }
                     update_fields(outcome2);
+                }
+                // 2. after hook
+                if (this._has_after_hooks) {
+                    const ah = this._after_hooks.get(newStateOrAction);
+                    const outcome = abstract_hook_step(ah, hook_args);
+                    // there's no such thing as after not passing, so, omit the result pass check
+                    /* istanbul can't trace this through the timer */
+                    /* istanbul ignore next */
+                    if (ah !== undefined) {
+                        /* istanbul can't trace this through the timer */
+                        /* istanbul ignore next */
+                        ah({ data: outcome.data, next_data: outcome.next_data });
+                    }
+                    update_fields(outcome);
                 }
                 // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
@@ -2300,6 +2325,12 @@ class Machine {
         /* istanbul ignore next */
         () => {
             this.clear_state_timeout();
+            if (this._has_after_hooks) {
+                const ah = this._after_hooks.get(this.state());
+                if (ah !== undefined) {
+                    ah({ data: this._data, next_data: this._data });
+                }
+            }
             this.go(next_state);
         }, after_time);
         this._timeout_target = next_state;
@@ -2452,6 +2483,6 @@ function deserialize(machine_string, ser) {
 }
 export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
-seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections
+seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, sleep, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections
 //  FslThemes
  };

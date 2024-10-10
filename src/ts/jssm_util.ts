@@ -319,6 +319,14 @@ function find_repeated<T>(arr: T[]): [T, number][] {
 
 
 
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+
+
+
 export {
 
   seq,
@@ -328,7 +336,8 @@ export {
   weighted_rand_select, weighted_sample_select,
   array_box_if_string,
   name_bind_prop_and_state, hook_name, named_hook_name,
-  gen_splitmix32
+  gen_splitmix32,
+  sleep
 
 };
 

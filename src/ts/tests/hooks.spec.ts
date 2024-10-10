@@ -846,6 +846,28 @@ describe('Hooks can change data (basic)', () => {
 
 
 
+describe('After hook callback', () => {
+
+  test('Callback fires', async () => {
+
+    let hook_fired: false | Object = false;
+
+    const foo = jssm.from('a after 0.01s -> b;', { data: 'foo' });
+    foo.hook_after( 'a', (res: Object) => { hook_fired = res; } );
+    expect(foo.state()).toBe('a');
+
+    await jssm.sleep(1000);
+    expect(foo.state()).toBe('b');
+    expect(hook_fired).toStrictEqual({ data: 'foo', next_data: 'foo' });
+
+  });
+
+});
+
+
+
+
+
 describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],
