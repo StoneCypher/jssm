@@ -10,7 +10,7 @@ declare type JssmArrow = '->' | '<-' | '<->' | '<=->' | '<~->' | '=>' | '<=' | '
 declare type JssmShape = "box" | "polygon" | "ellipse" | "oval" | "circle" | "point" | "egg" | "triangle" | "plaintext" | "plain" | "diamond" | "trapezium" | "parallelogram" | "house" | "pentagon" | "hexagon" | "septagon" | "octagon" | "doublecircle" | "doubleoctagon" | "tripleoctagon" | "invtriangle" | "invtrapezium" | "invhouse" | "Mdiamond" | "Msquare" | "Mcircle" | "rect" | "rectangle" | "square" | "star" | "none" | "underline" | "cylinder" | "note" | "tab" | "folder" | "box3d" | "component" | "promoter" | "cds" | "terminator" | "utr" | "primersite" | "restrictionsite" | "fivepoverhang" | "threepoverhang" | "noverhang" | "assembly" | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab" | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
 declare type JssmArrowDirection = 'left' | 'right' | 'both';
 declare type JssmArrowKind = 'none' | 'legal' | 'main' | 'forced';
-declare type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp';
+declare type JssmLayout = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';
 declare type JssmCorner = 'regular' | 'rounded' | 'lined';
 declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
 declare type JssmAllowsOverride = true | false | undefined;
@@ -248,6 +248,11 @@ declare type ExitHook<mDT> = {
     from: string;
     handler: HookHandler<mDT>;
 };
+declare type AfterHook<mDT> = {
+    kind: 'after';
+    from: string;
+    handler: HookHandler<mDT>;
+};
 declare type PostBasicHookDescription<mDT> = {
     kind: 'post hook';
     from: string;
@@ -296,7 +301,7 @@ declare type PostExitHook<mDT> = {
     from: string;
     handler: PostHookHandler<mDT>;
 };
-declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT>;
+declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT>;
 declare type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType$1;
@@ -553,6 +558,7 @@ declare const unique: <T>(arr?: T[]) => T[];
  *
  */
 declare function find_repeated<T>(arr: T[]): [T, number][];
+declare function sleep(ms: number): Promise<unknown>;
 
 declare const NegInfinity: number;
 declare const PosInfinity: number;
@@ -675,6 +681,7 @@ declare class Machine<mDT> {
     _has_named_hooks: boolean;
     _has_entry_hooks: boolean;
     _has_exit_hooks: boolean;
+    _has_after_hooks: boolean;
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
     _has_forced_transitions: boolean;
@@ -682,6 +689,7 @@ declare class Machine<mDT> {
     _named_hooks: Map<string, HookHandler<mDT>>;
     _entry_hooks: Map<string, HookHandler<mDT>>;
     _exit_hooks: Map<string, HookHandler<mDT>>;
+    _after_hooks: Map<string, HookHandler<mDT>>;
     _global_action_hooks: Map<string, HookHandler<mDT>>;
     _any_action_hook: HookHandler<mDT> | undefined;
     _standard_transition_hook: HookHandler<mDT> | undefined;
@@ -1288,6 +1296,7 @@ declare class Machine<mDT> {
     hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
     hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
     post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
@@ -1755,4 +1764,4 @@ declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
