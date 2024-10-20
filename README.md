@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.99.0 at 7/6/2024, 6:09:45 PM
+* Generated for version 5.100.0 at 10/20/2024, 11:10:30 AM
 
 -->
-# jssm 5.99.0
+# jssm 5.100.0
 
 Easy.  Small.  Fast.  TS, es6, es5.  Node, Browser.  100% coverage.  Property
 tests.  Fuzz tests.  Language tests for a dozen languages and emoji.  Easy to

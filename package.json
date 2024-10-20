@@ -1,13 +1,22 @@
 {
   "name": "jssm",
-  "version": "5.99.0",
+  "version": "5.100.0",
   "engines": {
     "node": ">=10.0.0"
   },
   "exports": {
-    "require": "./dist/jssm.es5.cjs",
-    "import": "./dist/jssm.es6.mjs",
-    "default": "./dist/jssm.es5.cjs",
+    "require": {
+      "types": "./jssm.es5.d.cts",
+      "default": "./dist/jssm.es5.cjs"
+    },
+    "import": {
+      "types": "./jssm.es6.d.ts",
+      "default": "./dist/jssm.es6.mjs"
+    },
+    "default": {
+      "types": "./jssm.es5.d.cts",
+      "default": "./dist/jssm.es5.cjs"
+    },
     "browser": "dist/jssm.es5.iife.cjs"
   },
   "autoupdate": {
@@ -134,6 +143,7 @@
     "pegjs": "^0.10.0",
     "picocolors": "^1.0.0",
     "rollup": "^2.72.1",
+    "rollup-plugin-dts": "^4.2.3",
     "semver": "^7.5.4",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
