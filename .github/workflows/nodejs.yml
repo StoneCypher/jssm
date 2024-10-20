@@ -117,11 +117,7 @@ jobs:
             os: macos-latest
           - node-version: 21.x   # check newest non-lts too
             os: windows-latest
-          - node-version: 14.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
-            os: ubuntu-latest
-          - node-version: 15.x
-            os: ubuntu-latest
-          - node-version: 16.x
+          - node-version: 16.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
             os: ubuntu-latest
           - node-version: 17.x
             os: ubuntu-latest
