@@ -4,7 +4,9 @@ import commonjs    from '@rollup/plugin-commonjs';
 import replace     from '@rollup/plugin-replace';
 import dts         from "rollup-plugin-dts";
 
-const pkg = require('./package.json');
+
+
+
 
 const config = [{
 
