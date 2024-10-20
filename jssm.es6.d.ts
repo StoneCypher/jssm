@@ -581,46 +581,25 @@ declare const gviz_shapes$1: string[];
 declare const shapes$1: string[];
 declare const named_colors$1: string[];
 
-declare const jssm_constants_d_NegInfinity: typeof NegInfinity;
-declare const jssm_constants_d_PosInfinity: typeof PosInfinity;
-declare const jssm_constants_d_Epsilon: typeof Epsilon;
-declare const jssm_constants_d_Pi: typeof Pi;
 declare const jssm_constants_d_E: typeof E;
+declare const jssm_constants_d_Epsilon: typeof Epsilon;
+declare const jssm_constants_d_EulerC: typeof EulerC;
+declare const jssm_constants_d_Ln10: typeof Ln10;
+declare const jssm_constants_d_Ln2: typeof Ln2;
+declare const jssm_constants_d_Log10E: typeof Log10E;
+declare const jssm_constants_d_Log2E: typeof Log2E;
+declare const jssm_constants_d_MaxPosNum: typeof MaxPosNum;
+declare const jssm_constants_d_MaxSafeInt: typeof MaxSafeInt;
+declare const jssm_constants_d_MinPosNum: typeof MinPosNum;
+declare const jssm_constants_d_MinSafeInt: typeof MinSafeInt;
+declare const jssm_constants_d_NegInfinity: typeof NegInfinity;
+declare const jssm_constants_d_Phi: typeof Phi;
+declare const jssm_constants_d_Pi: typeof Pi;
+declare const jssm_constants_d_PosInfinity: typeof PosInfinity;
 declare const jssm_constants_d_Root2: typeof Root2;
 declare const jssm_constants_d_RootHalf: typeof RootHalf;
-declare const jssm_constants_d_Ln2: typeof Ln2;
-declare const jssm_constants_d_Ln10: typeof Ln10;
-declare const jssm_constants_d_Log2E: typeof Log2E;
-declare const jssm_constants_d_Log10E: typeof Log10E;
-declare const jssm_constants_d_MaxSafeInt: typeof MaxSafeInt;
-declare const jssm_constants_d_MinSafeInt: typeof MinSafeInt;
-declare const jssm_constants_d_MaxPosNum: typeof MaxPosNum;
-declare const jssm_constants_d_MinPosNum: typeof MinPosNum;
-declare const jssm_constants_d_Phi: typeof Phi;
-declare const jssm_constants_d_EulerC: typeof EulerC;
 declare namespace jssm_constants_d {
-  export {
-    gviz_shapes$1 as gviz_shapes,
-    shapes$1 as shapes,
-    named_colors$1 as named_colors,
-    jssm_constants_d_NegInfinity as NegInfinity,
-    jssm_constants_d_PosInfinity as PosInfinity,
-    jssm_constants_d_Epsilon as Epsilon,
-    jssm_constants_d_Pi as Pi,
-    jssm_constants_d_E as E,
-    jssm_constants_d_Root2 as Root2,
-    jssm_constants_d_RootHalf as RootHalf,
-    jssm_constants_d_Ln2 as Ln2,
-    jssm_constants_d_Ln10 as Ln10,
-    jssm_constants_d_Log2E as Log2E,
-    jssm_constants_d_Log10E as Log10E,
-    jssm_constants_d_MaxSafeInt as MaxSafeInt,
-    jssm_constants_d_MinSafeInt as MinSafeInt,
-    jssm_constants_d_MaxPosNum as MaxPosNum,
-    jssm_constants_d_MinPosNum as MinPosNum,
-    jssm_constants_d_Phi as Phi,
-    jssm_constants_d_EulerC as EulerC,
-  };
+  export { jssm_constants_d_E as E, jssm_constants_d_Epsilon as Epsilon, jssm_constants_d_EulerC as EulerC, jssm_constants_d_Ln10 as Ln10, jssm_constants_d_Ln2 as Ln2, jssm_constants_d_Log10E as Log10E, jssm_constants_d_Log2E as Log2E, jssm_constants_d_MaxPosNum as MaxPosNum, jssm_constants_d_MaxSafeInt as MaxSafeInt, jssm_constants_d_MinPosNum as MinPosNum, jssm_constants_d_MinSafeInt as MinSafeInt, jssm_constants_d_NegInfinity as NegInfinity, jssm_constants_d_Phi as Phi, jssm_constants_d_Pi as Pi, jssm_constants_d_PosInfinity as PosInfinity, jssm_constants_d_Root2 as Root2, jssm_constants_d_RootHalf as RootHalf, gviz_shapes$1 as gviz_shapes, named_colors$1 as named_colors, shapes$1 as shapes };
 }
 
 declare const version: string;

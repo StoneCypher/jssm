@@ -20644,29 +20644,29 @@ const named_colors$1 = [
 
 var constants = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    NegInfinity: NegInfinity,
-    PosInfinity: PosInfinity,
-    Epsilon: Epsilon,
-    Pi: Pi,
     E: E,
+    Epsilon: Epsilon,
+    EulerC: EulerC,
+    Ln10: Ln10,
+    Ln2: Ln2,
+    Log10E: Log10E,
+    Log2E: Log2E,
+    MaxPosNum: MaxPosNum,
+    MaxSafeInt: MaxSafeInt,
+    MinPosNum: MinPosNum,
+    MinSafeInt: MinSafeInt,
+    NegInfinity: NegInfinity,
+    Phi: Phi,
+    Pi: Pi,
+    PosInfinity: PosInfinity,
     Root2: Root2,
     RootHalf: RootHalf,
-    Ln2: Ln2,
-    Ln10: Ln10,
-    Log2E: Log2E,
-    Log10E: Log10E,
-    MaxSafeInt: MaxSafeInt,
-    MinSafeInt: MinSafeInt,
-    MaxPosNum: MaxPosNum,
-    MinPosNum: MinPosNum,
-    Phi: Phi,
-    EulerC: EulerC,
     gviz_shapes: gviz_shapes$1,
-    shapes: shapes$1,
-    named_colors: named_colors$1
+    named_colors: named_colors$1,
+    shapes: shapes$1
 });
 
-const version = "5.101.0", build_time = 1729453571202;
+const version = "5.102.0", build_time = 1729454870660;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
