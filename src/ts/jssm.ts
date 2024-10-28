@@ -874,7 +874,7 @@ class Machine<mDT> {
    */
 
   data(): mDT {
-    return this._data;
+    return structuredClone( this._data );
   }
 
 

@@ -62,6 +62,29 @@ describe('Round trip for machine without hooks', () => {
 
 
 
+describe('Data member separate from data retval', () => {
+
+  const m1 = jssm.from('a -> b;', { data: { foo: 'first_value' } }),
+        d  = m1.data();
+
+  test('initial state updates', () => {
+
+    expect(m1.data().foo).toBe( 'first_value' );
+    expect(d.foo        ).toBe( 'first_value' );
+
+    d.foo = 'second_value';
+
+    expect(m1.data().foo).toBe( 'first_value'  );
+    expect(d.foo        ).toBe( 'second_value' );
+
+  });
+
+});
+
+
+
+
+
 describe('Round trip for machine with hooks', () => {
 
   const m1 = jssm.from('a -> b -> c -> a;', { data: 'initial', history: 5 });

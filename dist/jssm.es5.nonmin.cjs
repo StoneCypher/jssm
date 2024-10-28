@@ -20668,7 +20668,7 @@ var constants = /*#__PURE__*/Object.freeze({
     shapes: shapes$1
 });
 
-const version = "5.103.0", build_time = 1729455776683;
+const version = "5.104.0", build_time = 1730107053270;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -21172,7 +21172,7 @@ class Machine {
      *
      */
     data() {
-        return this._data;
+        return structuredClone(this._data);
     }
     // NEEDS_DOCS
     /*********

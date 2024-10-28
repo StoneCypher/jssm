@@ -511,7 +511,7 @@ class Machine {
      *
      */
     data() {
-        return this._data;
+        return structuredClone(this._data);
     }
     // NEEDS_DOCS
     /*********

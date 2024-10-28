@@ -1,13 +1,13 @@
 {
   "name": "jssm",
-  "version": "5.103.0",
+  "version": "5.104.0",
   "engines": {
     "node": ">=10.0.0"
   },
   "exports": {
     "require": {
       "types": "./jssm.es5.d.cts",
-      "default": "./dist/jssm.es5.cjs"
+      "default": "./dist/jssm.es5.cjs.js"
     },
     "import": {
       "types": "./jssm.es6.d.ts",
