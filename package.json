@@ -7,7 +7,7 @@
   "exports": {
     "require": {
       "types": "./jssm.es5.d.cts",
-      "default": "./dist/jssm.es5.cjs.js"
+      "default": "./dist/jssm.es5.cjs"
     },
     "import": {
       "types": "./jssm.es6.d.ts",
