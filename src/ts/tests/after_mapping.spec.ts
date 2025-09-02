@@ -245,7 +245,7 @@ describe('after mapping general topics', () => {
 function simple_test_factory(description: string, machine_string: string) {
 
   return test(
-    "setting a ${description} doesn't throw", () => {
+    `setting a ${description} doesn't throw`, () => {
       expect( () => {
         const m = sm`a after 1 -> b;`;
         m.clear_state_timeout();
