@@ -1137,5 +1137,26 @@ declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Par
 declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT>;
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
+/**
+ * Deserializes a previously serialized machine state.
+ *
+ * This function recreates a machine from a serialization object, restoring its
+ * state, data, and history. For security and compatibility reasons, it will
+ * refuse to deserialize data from future versions of the library.
+ *
+ * @typeparam mDT - The type of the machine data member
+ *
+ * @param {string} machine_string - The FSL string defining the machine structure
+ * @param {JssmSerialization<mDT>} ser - The serialization object to restore from
+ *
+ * @returns {Machine<mDT>} - The restored machine instance
+ *
+ * @throws {Error} If the serialization is from a future version
+ *
+ * @example
+ * const machine = jssm.from("a -> b;");
+ * const serialized = machine.serialize();
+ * const restored = jssm.deserialize("a -> b;", serialized);
+ */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, sleep, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, state_style_condense, FslDirections };
