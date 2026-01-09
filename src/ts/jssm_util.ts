@@ -38,6 +38,10 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
     throw new TypeError('options must be a non-empty array of objects');
   }
 
+  if (options.length === 0) {
+    throw new TypeError('options must be a non-empty array of objects');
+  }
+
   if (!(typeof options[0] === 'object')) {
     throw new TypeError('options must be a non-empty array of objects');
   }
@@ -50,7 +54,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
   let   cursor     : number   = 0,
         cursor_sum : number   = 0;
 
-  while ((cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
+  while (cursor < options.length && (cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
 
   return options[cursor-1];
 

@@ -46,3 +46,5 @@ build/
 
 docs/docs/*.css.map
 *.nonmin.js
+
+.claude
