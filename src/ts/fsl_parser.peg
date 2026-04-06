@@ -27,7 +27,7 @@ Theme
   / "bold"
 
 ThemeOrThemeList
-  = '[' WS? ths:(Theme WS)* th:Theme? ']' { const themes = ths.map(t => t[0]); themes.push(th); return themes; }
+  = '[' WS? ths:(Theme WS)* th:Theme? ']' { const themes = ths.map(t => t[0]); if (th) themes.push(th); return themes; }
   / th:Theme                              { return [th]; }
 
 

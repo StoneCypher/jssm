@@ -1679,7 +1679,7 @@ class Machine<mDT> {
 
       wtf: Array<JssmTransition<StateType, mDT>> // wstate_to_filtered -> wtf
         = wstate_to
-          .map((ws): JssmTransition<StateType, mDT> => this.lookup_transition_for(this.state(), ws))
+          .map((ws): JssmTransition<StateType, mDT> => this.lookup_transition_for(whichState, ws))
           .filter(Boolean);
 
     return wtf;
@@ -1817,6 +1817,9 @@ class Machine<mDT> {
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
 
     if (!(ra_base)) {
+      if (this.has_state(whichState)) {
+        return [];
+      }
       throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
     }
 
@@ -1833,7 +1836,12 @@ class Machine<mDT> {
 
   probable_action_exits(whichState: StateType = this.state()): Array<any> { // these are mNT   // TODO FIXME no any
     const ra_base: Map<StateType, number> = this._reverse_actions.get(whichState);
-    if (!(ra_base)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`); }
+    if (!(ra_base)) {
+      if (this.has_state(whichState)) {
+        return [];
+      }
+      throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
+    }
 
     return Array.from(ra_base.values())
       .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
@@ -2234,6 +2242,8 @@ class Machine<mDT> {
       this._rng_seed = to;
     }
 
+    this._rng = gen_splitmix32(this._rng_seed);
+
   }
 
 
@@ -2373,13 +2383,6 @@ class Machine<mDT> {
           const ah = this._after_hooks.get(newStateOrAction);
           const outcome = abstract_hook_step(ah, hook_args);
           // there's no such thing as after not passing, so, omit the result pass check
-          /* istanbul can't trace this through the timer */
-          /* istanbul ignore next */
-          if (ah !== undefined) {
-            /* istanbul can't trace this through the timer */
-            /* istanbul ignore next */
-            ah({ data: outcome.data, next_data: outcome.next_data });
-          }
           update_fields(outcome);
         }
 
@@ -3425,7 +3428,7 @@ function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< Js
 
 function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> {
 
-  if (typeof hr === 'object') {
+  if (hr !== null && typeof hr === 'object') {
     if (typeof (hr as any).pass === 'boolean') {
       return true;
     }
@@ -3472,6 +3475,10 @@ function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_
     }
 
     if (result === false) {
+      return { pass: false };
+    }
+
+    if (result === null) {
       return { pass: false };
     }
 

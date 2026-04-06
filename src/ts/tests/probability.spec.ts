@@ -203,4 +203,33 @@ describe('random seed', () => {
 
   });
 
+  test('Setting rng_seed at runtime regenerates the RNG and produces deterministic results', () => {
+
+    const m = sm`a 50% -> b; a 50% -> c; b -> a; c -> a;`;
+
+    // Run N probabilistic transitions with a known seed
+    const N = 20;
+
+    m.rng_seed = 12345;
+    const run1: string[] = [];
+    for (let i = 0; i < N; i++) {
+      m.force_transition('a');
+      m.probabilistic_transition();
+      run1.push(m.state());
+    }
+
+    // Reset to same seed and repeat
+    m.rng_seed = 12345;
+    const run2: string[] = [];
+    for (let i = 0; i < N; i++) {
+      m.force_transition('a');
+      m.probabilistic_transition();
+      run2.push(m.state());
+    }
+
+    // Both runs must be identical, proving the setter regenerated the RNG
+    expect(run1).toEqual(run2);
+
+  });
+
 });

@@ -161,6 +161,23 @@ describe('probable exits for', () => {
 });
 
 
+describe('probable_exits_for with non-current state', () => {
+
+  const machine = jssm.sm`a -> b -> c;`;
+
+  test('machine starts at a', () =>
+    expect(machine.state())
+      .toBe('a') );
+
+  test('probable_exits_for b returns exit to c, not from current state a', () => {
+    const exits = machine.probable_exits_for('b');
+    expect(exits.length).toBe(1);
+    expect(exits[0].from).toBe('b');
+    expect(exits[0].to).toBe('c');
+  });
+
+});
+
 
 
 

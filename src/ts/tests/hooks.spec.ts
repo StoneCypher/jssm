@@ -131,6 +131,18 @@ test('Basic hook rejection works', () => {
 
 
 
+test('Hook returning null does not crash and rejects the transition', () => {
+
+  const foo = sm`a => b;`;
+
+  foo.set_hook({ from: 'a', to: 'b', kind: 'hook', handler: () => null as any });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+});
+
+
+
 test('Basic hook rejection works on forced edges', () => {
 
   const foo = sm`a ~> b ~> c;`;
@@ -1044,6 +1056,10 @@ describe('is_hook_complex_result', () => {
     expect( jssm.is_hook_complex_result( { pass: false } ) )
       .toBe(true) );
 
+  test('null', () =>
+    expect( jssm.is_hook_complex_result(null) )
+      .toBe(false) );
+
 });
 
 
@@ -1118,6 +1134,13 @@ describe('abstract_hook_step', () => {
 
   test('generates reject for function returning complex reject', () => {
     const fn = jest.fn( () => ({pass: false}) );
+    expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
+      .toStrictEqual({ pass: false })
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates reject for function returning null', () => {
+    const fn = jest.fn( () => null as any );
     expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
       .toStrictEqual({ pass: false })
     expect(fn).toHaveBeenCalled();

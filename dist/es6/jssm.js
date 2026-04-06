@@ -1106,7 +1106,7 @@ class Machine {
         }
         const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
          = wstate_to
-            .map((ws) => this.lookup_transition_for(this.state(), ws))
+            .map((ws) => this.lookup_transition_for(whichState, ws))
             .filter(Boolean);
         return wtf;
     }
@@ -1217,6 +1217,9 @@ class Machine {
     list_exit_actions(whichState = this.state()) {
         const ra_base = this._reverse_actions.get(whichState);
         if (!(ra_base)) {
+            if (this.has_state(whichState)) {
+                return [];
+            }
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
         }
         return Array.from(ra_base.values())
@@ -1227,6 +1230,9 @@ class Machine {
     probable_action_exits(whichState = this.state()) {
         const ra_base = this._reverse_actions.get(whichState);
         if (!(ra_base)) {
+            if (this.has_state(whichState)) {
+                return [];
+            }
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
         }
         return Array.from(ra_base.values())
@@ -1478,6 +1484,7 @@ class Machine {
         else {
             this._rng_seed = to;
         }
+        this._rng = gen_splitmix32(this._rng_seed);
     }
     // remove_hook(HookDesc: HookDescription) {
     //   throw new JssmError(this, 'TODO: Should remove hook here');
@@ -1587,13 +1594,6 @@ class Machine {
                     const ah = this._after_hooks.get(newStateOrAction);
                     const outcome = abstract_hook_step(ah, hook_args);
                     // there's no such thing as after not passing, so, omit the result pass check
-                    /* istanbul can't trace this through the timer */
-                    /* istanbul ignore next */
-                    if (ah !== undefined) {
-                        /* istanbul can't trace this through the timer */
-                        /* istanbul ignore next */
-                        ah({ data: outcome.data, next_data: outcome.next_data });
-                    }
                     update_fields(outcome);
                 }
                 // 3. any transition hook
@@ -2432,7 +2432,7 @@ function from(MachineAsString, ExtraConstructorFields) {
     return new Machine(to_decorate);
 }
 function is_hook_complex_result(hr) {
-    if (typeof hr === 'object') {
+    if (hr !== null && typeof hr === 'object') {
         if (typeof hr.pass === 'boolean') {
             return true;
         }
@@ -2464,6 +2464,9 @@ function abstract_hook_step(maybe_hook, hook_args) {
             return { pass: true };
         }
         if (result === false) {
+            return { pass: false };
+        }
+        if (result === null) {
             return { pass: false };
         }
         if (is_hook_complex_result(result)) {

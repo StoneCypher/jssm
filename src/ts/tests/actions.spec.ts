@@ -204,6 +204,38 @@ describe('uses_actions', () => {
 
 
 
+describe('list_exit_actions on states without actions', () => {
+
+  const m = sm`a 'foo' -> b; a 'bar' -> c; b -> c;`;
+
+  test('list_exit_actions returns [] for a valid state with no actions', () =>
+    expect( m.list_exit_actions('b') )
+      .toStrictEqual([]) );
+
+  test('list_exit_actions throws for a nonexistent state', () =>
+    expect( () => m.list_exit_actions('z') )
+      .toThrow() );
+
+});
+
+
+
+describe('probable_action_exits on states without actions', () => {
+
+  const m = sm`a 'foo' -> b; a 'bar' -> c; b -> c;`;
+
+  test('probable_action_exits returns [] for a valid state with no actions', () =>
+    expect( m.probable_action_exits('b') )
+      .toStrictEqual([]) );
+
+  test('probable_action_exits throws for a nonexistent state', () =>
+    expect( () => m.probable_action_exits('z') )
+      .toThrow() );
+
+});
+
+
+
 describe('Two nodes should be able to have matching edges with differing action labels', () => {
 
   // const machine = sm`a 'first' -> a; a 'second' -> a;`;

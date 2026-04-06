@@ -156,7 +156,7 @@ function peg$parse(input, options) {
       peg$c12 = peg$literalExpectation("[", false),
       peg$c13 = "]",
       peg$c14 = peg$literalExpectation("]", false),
-      peg$c15 = function(ths, th) { const themes = ths.map(t => t[0]); themes.push(th); return themes; },
+      peg$c15 = function(ths, th) { const themes = ths.map(t => t[0]); if (th) themes.push(th); return themes; },
       peg$c16 = function(th) { return [th]; },
       peg$c17 = "box3d",
       peg$c18 = peg$literalExpectation("box3d", false),
