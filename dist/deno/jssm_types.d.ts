@@ -356,7 +356,23 @@ declare type PostExitHook<mDT> = {
     from: string;
     handler: PostHookHandler<mDT>;
 };
-declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT>;
+declare type PreEverythingHook<mDT> = {
+    kind: 'pre everything';
+    handler: EverythingHookHandler<mDT>;
+};
+declare type EverythingHook<mDT> = {
+    kind: 'everything';
+    handler: EverythingHookHandler<mDT>;
+};
+declare type PrePostEverythingHook<mDT> = {
+    kind: 'pre post everything';
+    handler: PostEverythingHookHandler<mDT>;
+};
+declare type PostEverythingHook<mDT> = {
+    kind: 'post everything';
+    handler: PostEverythingHookHandler<mDT>;
+};
+declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 declare type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType;
@@ -368,11 +384,16 @@ declare type HookContext<mDT> = {
     data: mDT;
     next_data: mDT;
 };
+declare type EverythingHookContext<mDT> = HookContext<mDT> & {
+    hook_name: string;
+};
 declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
 declare type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
+declare type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => HookResult<mDT>;
+declare type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => void;
 declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
 };
 declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
 declare type JssmRng = () => number;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, JssmRng };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmRng };

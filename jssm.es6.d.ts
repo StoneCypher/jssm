@@ -301,7 +301,23 @@ declare type PostExitHook<mDT> = {
     from: string;
     handler: PostHookHandler<mDT>;
 };
-declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT>;
+declare type PreEverythingHook<mDT> = {
+    kind: 'pre everything';
+    handler: EverythingHookHandler<mDT>;
+};
+declare type EverythingHook<mDT> = {
+    kind: 'everything';
+    handler: EverythingHookHandler<mDT>;
+};
+declare type PrePostEverythingHook<mDT> = {
+    kind: 'pre post everything';
+    handler: PostEverythingHookHandler<mDT>;
+};
+declare type PostEverythingHook<mDT> = {
+    kind: 'post everything';
+    handler: PostEverythingHookHandler<mDT>;
+};
+declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 declare type HookComplexResult<mDT> = {
     pass: boolean;
     state?: StateType$1;
@@ -313,8 +329,13 @@ declare type HookContext<mDT> = {
     data: mDT;
     next_data: mDT;
 };
+declare type EverythingHookContext<mDT> = HookContext<mDT> & {
+    hook_name: string;
+};
 declare type HookHandler<mDT> = (hook_context: HookContext<mDT>) => HookResult<mDT>;
 declare type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) => void;
+declare type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => HookResult<mDT>;
+declare type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) => void;
 declare type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
 declare type JssmRng = () => number;
 
@@ -493,6 +514,33 @@ declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): J
  */
 declare function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType, mDT>;
 
+/*******
+ *
+ *  Selects a single item from a weighted array of objects using cumulative
+ *  probability.  Each object in the array should have a numeric property
+ *  indicating its relative weight (defaults to `'probability'`).  Objects
+ *  missing the property are treated as weight 1.
+ *
+ *  ```typescript
+ *  const opts = [
+ *    { value: 'common',  probability: 0.8 },
+ *    { value: 'rare',    probability: 0.2 }
+ *  ];
+ *
+ *  weighted_rand_select(opts);  // most often { value: 'common', ... }
+ *  ```
+ *
+ *  @param options              - Non-empty array of objects to choose from.
+ *  @param probability_property - Name of the numeric weight property on each
+ *                                object.  Defaults to `'probability'`.
+ *  @param rng                  - Optional random number generator `() => number`
+ *                                in `[0, 1)`.  Defaults to `Math.random`.
+ *
+ *  @returns One element from `options`, chosen by weighted random selection.
+ *
+ *  @throws {TypeError} If `options` is not a non-empty array of objects.
+ *
+ */
 declare const weighted_rand_select: Function;
 /*******
  *
@@ -520,7 +568,57 @@ declare function seq(n: number): number[];
  *
  */
 declare const histograph: Function;
+/*******
+ *
+ *  Draws `n` weighted random samples from an array of objects.  Each draw is
+ *  independent (with replacement), delegating to {@link weighted_rand_select}.
+ *
+ *  ```typescript
+ *  const opts = [
+ *    { value: 'a', probability: 0.9 },
+ *    { value: 'b', probability: 0.1 }
+ *  ];
+ *
+ *  weighted_sample_select(3, opts, 'probability');
+ *  // e.g. [ { value: 'a', ... }, { value: 'a', ... }, { value: 'b', ... } ]
+ *  ```
+ *
+ *  @param n                    - Number of samples to draw.
+ *  @param options              - Non-empty array of weighted objects.
+ *  @param probability_property - Name of the numeric weight property.
+ *  @param rng                  - Optional random number generator.
+ *
+ *  @returns An array of `n` independently selected items.
+ *
+ */
 declare const weighted_sample_select: Function;
+/*******
+ *
+ *  Draws `n` weighted random samples, extracts a named key from each, and
+ *  returns a histograph (`Map`) of how often each key value appeared.  Useful
+ *  for validating that a probabilistic transition distribution is roughly
+ *  correct over many trials.
+ *
+ *  ```typescript
+ *  const opts = [
+ *    { to: 'a', probability: 0.7 },
+ *    { to: 'b', probability: 0.3 }
+ *  ];
+ *
+ *  weighted_histo_key(1000, opts, 'probability', 'to');
+ *  // Map { 'a' => ~700, 'b' => ~300 }
+ *  ```
+ *
+ *  @param n         - Number of samples to draw.
+ *  @param opts      - Non-empty array of weighted objects.
+ *  @param prob_prop - Name of the numeric weight property.
+ *  @param extract   - Name of the property to extract from each sample for
+ *                     histogramming.
+ *  @param rng       - Optional random number generator.
+ *
+ *  @returns A `Map` from extracted key values to their occurrence counts.
+ *
+ */
 declare const weighted_histo_key: Function;
 /*******
  *
@@ -568,8 +666,33 @@ declare const unique: <T>(arr: T[]) => T[];
  *
  */
 declare function find_repeated<T>(arr: T[]): [T, number][];
+/*******
+ *
+ *  Returns a `Promise` that resolves after `ms` milliseconds.  Useful for
+ *  inserting delays in async test flows or demos.
+ *
+ *  ```typescript
+ *  await sleep(100);  // pauses execution for 100ms
+ *  ```
+ *
+ *  @param ms - Number of milliseconds to wait before resolving.
+ *
+ *  @returns A `Promise<void>` that resolves after the timeout.
+ *
+ */
 declare function sleep(ms: number): Promise<unknown>;
 
+/*******
+ *
+ *  Convenience aliases for common mathematical and numeric constants from
+ *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
+ *  can reference them without importing `Math` directly.
+ *
+ *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
+ *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
+ *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
+ *
+ */
 declare const NegInfinity: number;
 declare const PosInfinity: number;
 declare const Epsilon: number;
@@ -587,8 +710,24 @@ declare const MaxPosNum: number;
 declare const MinPosNum: number;
 declare const Phi = 1.618033988749895;
 declare const EulerC = 0.5772156649015329;
+/*******
+ *
+ *  Complete list of node shapes supported by Graphviz.  Used by jssm-viz to
+ *  validate and render state shapes in FSL `state ... : { shape: ... }` blocks.
+ *
+ *  `shapes` is an alias for `gviz_shapes`.
+ *
+ */
 declare const gviz_shapes$1: string[];
 declare const shapes$1: string[];
+/*******
+ *
+ *  List of CSS/SVG named colors accepted by jssm-viz for state styling
+ *  properties like `background-color` and `text-color`.  Case-insensitive
+ *  matching is done at parse time; the canonical casing here follows the
+ *  CSS specification.
+ *
+ */
 declare const named_colors$1: string[];
 
 declare const jssm_constants_d_E: typeof E;
@@ -653,6 +792,26 @@ declare const named_colors: string[];
  */
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
+/*******
+ *
+ *  Core finite state machine class.  Holds the full graph of states and
+ *  transitions, the current state, hooks, data, properties, and all runtime
+ *  behavior.  Typically created via the {@link sm} tagged template literal
+ *  rather than constructed directly.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *
+ *  const light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
+ *  light.state();       // 'Red'
+ *  light.action('next'); // true
+ *  light.state();       // 'Green'
+ *  ```
+ *
+ *  @typeparam mDT The machine data type — the type of the value stored in
+ *  `.data()`.  Defaults to `undefined` when no data is used.
+ *
+ */
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
@@ -725,6 +884,10 @@ declare class Machine<mDT> {
     _post_main_transition_hook: HookHandler<mDT> | undefined;
     _post_forced_transition_hook: HookHandler<mDT> | undefined;
     _post_any_transition_hook: HookHandler<mDT> | undefined;
+    _pre_everything_hook: EverythingHookHandler<mDT> | undefined;
+    _everything_hook: EverythingHookHandler<mDT> | undefined;
+    _pre_post_everything_hook: PostEverythingHookHandler<mDT> | undefined;
+    _post_everything_hook: PostEverythingHookHandler<mDT> | undefined;
     _property_keys: Set<string>;
     _default_properties: Map<string, any>;
     _state_properties: Map<string, any>;
@@ -772,6 +935,8 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns The current state name.
+     *
      */
     state(): StateType;
     /*********
@@ -789,6 +954,10 @@ declare class Machine<mDT> {
      *  See also {@link display_text}.
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param state The state to get the label for.
+     *
+     *  @returns The label string, or `undefined` if no label is set.
      *
      */
     label_for(state: StateType): string;
@@ -813,6 +982,10 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @param state The state to get display text for.
+     *
+     *  @returns The label if one exists, otherwise the state's name.
+     *
      */
     display_text(state: StateType): string;
     /*********
@@ -828,45 +1001,60 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns A deep clone of the machine's current data value.
+     *
      */
     data(): mDT;
     /*********
      *
-     *  Get the current value of a given property name.
+     *  Get the current value of a given property name.  Checks the current
+     *  state's properties first, then falls back to the global default.
+     *  Returns `undefined` if neither exists.  For a throwing variant, see
+     *  {@link strict_prop}.
      *
      *  ```typescript
+     *  const m = sm`property color default "grey"; a -> b;
+     *               state b: { property color "blue"; };`;
      *
+     *  m.prop('color');  // 'grey'  (default, because state is 'a')
+     *  m.go('b');
+     *  m.prop('color');  // 'blue'  (state 'b' overrides the default)
+     *  m.prop('size');   // undefined (no such property)
      *  ```
      *
-     *  @param name The relevant property name to look up
+     *  @param name The relevant property name to look up.
      *
-     *  @returns The value behind the prop name.  Because functional props are
-     *  evaluated as getters, this can be anything.
+     *  @returns The value behind the prop name, or `undefined` if not defined.
      *
      */
     prop(name: string): any;
     /*********
      *
      *  Get the current value of a given property name.  If missing on the state
-     *  and without a global default, throw, unlike {@link prop}, which would
-     *  return `undefined` instead.
+     *  and without a global default, throws a {@link JssmError}, unlike
+     *  {@link prop}, which would return `undefined` instead.
      *
      *  ```typescript
+     *  const m = sm`property color default "grey"; a -> b;`;
      *
+     *  m.strict_prop('color');  // 'grey'
+     *  m.strict_prop('size');   // throws JssmError
      *  ```
      *
-     *  @param name The relevant property name to look up
+     *  @param name The relevant property name to look up.
      *
-     *  @returns The value behind the prop name.  Because functional props are
-     *  evaluated as getters, this can be anything.
+     *  @returns The value behind the prop name.
+     *
+     *  @throws {JssmError} If the property is not defined on the current state
+     *  and has no default.
      *
      */
     strict_prop(name: string): any;
     /*********
      *
      *  Get the current value of every prop, as an object.  If no current definition
-     *  exists for a prop - that is, if the prop was defined without a default and
-     *  the current state also doesn't define the prop - then that prop will be listed
+     *  exists for a prop — that is, if the prop was defined without a default and
+     *  the current state also doesn't define the prop — then that prop will be listed
      *  in the returned object with a value of `undefined`.
      *
      *  ```typescript
@@ -897,29 +1085,12 @@ declare class Machine<mDT> {
      *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
      *  ```
      *
+     *  @returns An object mapping every known property name to its current value
+     *  (or `undefined` if the property has no default and the current state
+     *  doesn't define it).
+     *
      */
     props(): object;
-    /*********
-     *
-     *  Get the current value of every prop, as an object.  Compare
-     *  {@link prop_map}, which returns a `Map`.
-     *
-     *  ```typescript
-     *
-     *  ```
-     *
-     */
-    /*********
-     *
-     *  Get the current value of every prop, as an object.  Compare
-     *  {@link prop_map}, which returns a `Map`.  Akin to {@link strict_prop},
-     *  this throws if a required prop is missing.
-     *
-     *  ```typescript
-     *
-     *  ```
-     *
-     */
     /*********
      *
      *  Check whether a given string is a known property's name.
@@ -942,7 +1113,12 @@ declare class Machine<mDT> {
      *  the properties generally will not be sorted.
      *
      *  ```typescript
+     *  const m = sm`property color default "grey"; property size default 1; a -> b;`;
+     *
+     *  m.known_props();  // ['color', 'size']
      *  ```
+     *
+     *  @returns An array of all property name strings defined on this machine.
      *
      */
     known_props(): string[];
@@ -1042,22 +1218,78 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @param comment An optional comment string to embed in the serialized
+     *  output for identification or debugging.
+     *
+     *  @returns A {@link JssmSerialization} object containing the machine's
+     *  current state, data, and timestamp.
+     *
      */
     serialize(comment?: string | undefined): JssmSerialization<mDT>;
+    /** Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
+     *  FSL `graph_layout` directive.
+     *  @returns The layout string, or the default if not set.
+     */
     graph_layout(): string;
+    /** Get the Graphviz DOT preamble string, injected before the graph body
+     *  during visualization.  Set via the FSL `dot_preamble` directive.
+     *  @returns The preamble string.
+     */
     dot_preamble(): string;
+    /** Get the machine's author list.  Set via the FSL `machine_author` directive.
+     *  @returns An array of author name strings.
+     */
     machine_author(): Array<string>;
+    /** Get the machine's comment string.  Set via the FSL `machine_comment` directive.
+     *  @returns The comment string.
+     */
     machine_comment(): string;
+    /** Get the machine's contributor list.  Set via the FSL `machine_contributor` directive.
+     *  @returns An array of contributor name strings.
+     */
     machine_contributor(): Array<string>;
+    /** Get the machine's definition string.  Set via the FSL `machine_definition` directive.
+     *  @returns The definition string.
+     */
     machine_definition(): string;
+    /** Get the machine's language (ISO 639-1).  Set via the FSL `machine_language` directive.
+     *  @returns The language code string.
+     */
     machine_language(): string;
+    /** Get the machine's license string.  Set via the FSL `machine_license` directive.
+     *  @returns The license string.
+     */
     machine_license(): string;
+    /** Get the machine's name.  Set via the FSL `machine_name` directive.
+     *  @returns The machine name string.
+     */
     machine_name(): string;
+    /** Get the machine's version string.  Set via the FSL `machine_version` directive.
+     *  @returns The version string.
+     */
     machine_version(): string;
+    /** Get the raw state declaration objects as parsed from the FSL source.
+     *  @returns An array of raw state declaration objects.
+     */
     raw_state_declarations(): Array<Object>;
+    /** Get the processed state declaration for a specific state.
+     *  @param which - The state to look up.
+     *  @returns The {@link JssmStateDeclaration} for the given state.
+     */
     state_declaration(which: StateType): JssmStateDeclaration;
+    /** Get all processed state declarations as a Map.
+     *  @returns A `Map` from state name to {@link JssmStateDeclaration}.
+     */
     state_declarations(): Map<StateType, JssmStateDeclaration>;
+    /** Get the FSL language version this machine was compiled under.
+     *  @returns The FSL version string.
+     */
     fsl_version(): string;
+    /** Get the complete internal state of the machine as a serializable
+     *  structure.  Includes actions, edges, edge map, named transitions,
+     *  reverse actions, current state, and states map.
+     *  @returns A {@link JssmMachineInternalState} snapshot.
+     */
     machine_state(): JssmMachineInternalState<mDT>;
     /*********
      *
@@ -1073,8 +1305,15 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns An array of all state names in the machine.
+     *
      */
     states(): Array<StateType>;
+    /** Get the internal state descriptor for a given state name.
+     *  @param whichState - The state to look up.
+     *  @returns The {@link JssmGenericState} descriptor.
+     *  @throws {JssmError} If the state does not exist.
+     */
     state_for(whichState: StateType): JssmGenericState;
     /*********
      *
@@ -1091,7 +1330,9 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
-     *  @param whichState The state to be checked for extance
+     *  @param whichState The state to be checked for existence.
+     *
+     *  @returns `true` if the state exists, `false` otherwise.
      *
      */
     has_state(whichState: StateType): boolean;
@@ -1127,15 +1368,31 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns An array of all {@link JssmTransition} edge objects.
+     *
      */
     list_edges(): Array<JssmTransition<StateType, mDT>>;
+    /** Get the map of named transitions (transitions with explicit names).
+     *  @returns A `Map` from transition name to edge index.
+     */
     list_named_transitions(): Map<StateType, number>;
+    /** List all distinct action names defined anywhere in the machine.
+     *  @returns An array of action name strings.
+     */
     list_actions(): Array<StateType>;
+    /** Whether any actions are defined on this machine.
+     *  @returns `true` if the machine has at least one action.
+     */
     get uses_actions(): boolean;
+    /** Whether any forced (`~>`) transitions exist in this machine.
+     *  @returns `true` if at least one forced transition is defined.
+     */
     get uses_forced_transitions(): boolean;
     /*********
      *
      *  Check if the code that built the machine allows overriding state and data.
+     *
+     *  @returns The override permission from the FSL source code.
      *
      */
     get code_allows_override(): JssmAllowsOverride;
@@ -1143,19 +1400,50 @@ declare class Machine<mDT> {
      *
      *  Check if the machine config allows overriding state and data.
      *
+     *  @returns The override permission from the runtime config.
+     *
      */
     get config_allows_override(): JssmAllowsOverride;
     /*********
      *
-     *  Check if a machine allows overriding state and data.
+     *  Check if a machine allows overriding state and data.  Resolves the
+     *  combined effect of code and config permissions — config may not be
+     *  less strict than code.
+     *
+     *  @returns The effective override permission.
      *
      */
     get allows_override(): JssmAllowsOverride;
+    /** List all available theme names.
+     *  @returns An array of theme name strings.
+     */
     all_themes(): FslTheme[];
+    /** Get the active theme(s) for this machine.  Always stored as an array
+     *  internally; the union return type exists for setter compatibility.
+     *  @returns The current theme or array of themes.
+     */
     get themes(): FslTheme | FslTheme[];
+    /** Set the active theme(s).  Accepts a single theme name or an array.
+     *  @param to - A theme name or array of theme names to apply.
+     */
     set themes(to: FslTheme | FslTheme[]);
+    /** Get the flow direction for graph layout (e.g. `'right'`, `'down'`).
+     *  Set via the FSL `flow` directive.
+     *  @returns The current flow direction.
+     */
     flow(): FslDirection;
+    /** Look up a transition's edge index by source and target state names.
+     *  @param from - Source state name.
+     *  @param to   - Target state name.
+     *  @returns The edge index in the edges array, or `undefined` if no
+     *  such transition exists.
+     */
     get_transition_by_state_names(from: StateType, to: StateType): number;
+    /** Look up the full transition object for a given source→target pair.
+     *  @param from - Source state name.
+     *  @param to   - Target state name.
+     *  @returns The {@link JssmTransition} object, or `undefined` if none exists.
+     */
     lookup_transition_for(from: StateType, to: StateType): JssmTransition<StateType, mDT>;
     /********
      *
@@ -1223,9 +1511,29 @@ declare class Machine<mDT> {
      *
      */
     list_exits(whichState?: StateType): Array<StateType>;
+    /** Get the transitions available from a state, filtered to those with
+     *  probability data.  Used by the probabilistic walk system.
+     *  @param whichState - The state to inspect.
+     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @throws {JssmError} If the state does not exist.
+     */
     probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>>;
+    /** Take a single random transition from the current state, weighted by
+     *  edge probabilities.
+     *  @returns `true` if a transition was taken, `false` otherwise.
+     */
     probabilistic_transition(): boolean;
+    /** Take `n` consecutive probabilistic transitions and return the sequence
+     *  of states visited (before each transition).
+     *  @param n - Number of steps to walk.
+     *  @returns An array of state names visited during the walk.
+     */
     probabilistic_walk(n: number): Array<StateType>;
+    /** Take `n` probabilistic steps and return a histograph of how many times
+     *  each state was visited.
+     *  @param n - Number of steps to walk.
+     *  @returns A `Map` from state name to visit count.
+     */
     probabilistic_histo_walk(n: number): Map<StateType, number>;
     /********
      *
@@ -1258,7 +1566,10 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
-     *  @param whichState The state whose actions to have listed
+     *  @param whichState The state whose actions to list.  Defaults to the
+     *  current state.
+     *
+     *  @returns An array of action names available from the given state.
      *
      */
     actions(whichState?: StateType): Array<StateType>;
@@ -1285,40 +1596,276 @@ declare class Machine<mDT> {
      *
      */
     list_states_having_action(whichState: StateType): Array<StateType>;
+    /** List all action names available as exits from a given state.
+     *  @param whichState - The state to inspect.  Defaults to the current state.
+     *  @returns An array of action name strings.
+     *  @throws {JssmError} If the state does not exist.
+     */
     list_exit_actions(whichState?: StateType): Array<StateType>;
+    /** List all action exits from a state with their probabilities.
+     *  @param whichState - The state to inspect.  Defaults to the current state.
+     *  @returns An array of `{ action, probability }` objects.
+     *  @throws {JssmError} If the state does not exist.
+     */
     probable_action_exits(whichState?: StateType): Array<any>;
+    /** Check whether a state has no incoming transitions (unreachable after start).
+     *  @param whichState - The state to check.
+     *  @returns `true` if the state has zero entrances.
+     *  @throws {JssmError} If the state does not exist.
+     */
     is_unenterable(whichState: StateType): boolean;
+    /** Check whether any state in the machine is unenterable.
+     *  @returns `true` if at least one state has no incoming transitions.
+     */
     has_unenterables(): boolean;
+    /** Check whether the current state is terminal (has no exits).
+     *  @returns `true` if the current state has zero exits.
+     */
     is_terminal(): boolean;
+    /** Check whether a specific state is terminal (has no exits).
+     *  @param whichState - The state to check.
+     *  @returns `true` if the state has zero exits.
+     *  @throws {JssmError} If the state does not exist.
+     */
     state_is_terminal(whichState: StateType): boolean;
+    /** Check whether any state in the machine is terminal.
+     *  @returns `true` if at least one state has no exits.
+     */
     has_terminals(): boolean;
+    /** Check whether the current state is complete (every exit has an action).
+     *  @returns `true` if the current state is complete.
+     */
     is_complete(): boolean;
+    /** Check whether a specific state is complete (every exit has an action).
+     *  @param whichState - The state to check.
+     *  @returns `true` if the state is complete.
+     *  @throws {JssmError} If the state does not exist.
+     */
     state_is_complete(whichState: StateType): boolean;
+    /** Check whether any state in the machine is complete.
+     *  @returns `true` if at least one state is complete.
+     */
     has_completes(): boolean;
+    /** Low-level hook registration.  Installs a handler described by a
+     *  {@link HookDescription} into the appropriate internal map.  Prefer the
+     *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
+     *  calling this directly.
+     *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
+     */
     set_hook(HookDesc: HookDescription<mDT>): void;
+    /** Register a pre-transition hook on a specific edge.  Fires before
+     *  transitioning from `from` to `to`.  If the handler returns `false`, the
+     *  transition is blocked.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b -> c;`;
+     *  m.hook('a', 'b', () => console.log('a->b'));
+     *  ```
+     *
+     *  @param from    - Source state name.
+     *  @param to      - Target state name.
+     *  @param handler - Callback invoked before the transition.
+     *  @returns `this` for chaining.
+     */
     hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook on a specific action-labeled edge.
+     *  @param from    - Source state name.
+     *  @param to      - Target state name.
+     *  @param action  - The action label that triggers this hook.
+     *  @param handler - Callback invoked before the transition.
+     *  @returns `this` for chaining.
+     */
     hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook on any edge triggered by a specific action.
+     *  @param action  - The action name to hook.
+     *  @param handler - Callback invoked before any transition with this action.
+     *  @returns `this` for chaining.
+     */
     hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook on any action-driven transition.
+     *  @param handler - Callback invoked before any action transition.
+     *  @returns `this` for chaining.
+     */
     hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook on any standard (`->`) transition.
+     *  @param handler - Callback invoked before any legal transition.
+     *  @returns `this` for chaining.
+     */
     hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook on any main-path (`=>`) transition.
+     *  @param handler - Callback invoked before any main transition.
+     *  @returns `this` for chaining.
+     */
     hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook on any forced (`~>`) transition.
+     *  @param handler - Callback invoked before any forced transition.
+     *  @returns `this` for chaining.
+     */
     hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook on any transition regardless of kind.
+     *  @param handler - Callback invoked before every transition.
+     *  @returns `this` for chaining.
+     */
     hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a hook that fires when entering a specific state.
+     *  @param to      - The state being entered.
+     *  @param handler - Callback invoked on entry.
+     *  @returns `this` for chaining.
+     */
     hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a hook that fires when leaving a specific state.
+     *  @param from    - The state being exited.
+     *  @param handler - Callback invoked on exit.
+     *  @returns `this` for chaining.
+     */
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a hook that fires after leaving a specific state (post-exit).
+     *  @param from    - The state that was exited.
+     *  @param handler - Callback invoked after exit completes.
+     *  @returns `this` for chaining.
+     */
     hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on a specific edge.  Fires after the transition
+     *  from `from` to `to` has completed.  Cannot block the transition.
+     *  @param from    - Source state name.
+     *  @param to      - Target state name.
+     *  @param handler - Callback invoked after the transition.
+     *  @returns `this` for chaining.
+     */
     post_hook(from: string, to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on a specific action-labeled edge.
+     *  @param from    - Source state name.
+     *  @param to      - Target state name.
+     *  @param action  - The action label.
+     *  @param handler - Callback invoked after the transition.
+     *  @returns `this` for chaining.
+     */
     post_hook_action(from: string, to: string, action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on any edge triggered by a specific action.
+     *  @param action  - The action name.
+     *  @param handler - Callback invoked after any transition with this action.
+     *  @returns `this` for chaining.
+     */
     post_hook_global_action(action: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on any action-driven transition.
+     *  @param handler - Callback invoked after any action transition.
+     *  @returns `this` for chaining.
+     */
     post_hook_any_action(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on any standard (`->`) transition.
+     *  @param handler - Callback invoked after any legal transition.
+     *  @returns `this` for chaining.
+     */
     post_hook_standard_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on any main-path (`=>`) transition.
+     *  @param handler - Callback invoked after any main transition.
+     *  @returns `this` for chaining.
+     */
     post_hook_main_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on any forced (`~>`) transition.
+     *  @param handler - Callback invoked after any forced transition.
+     *  @returns `this` for chaining.
+     */
     post_hook_forced_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook on any transition regardless of kind.
+     *  @param handler - Callback invoked after every transition.
+     *  @returns `this` for chaining.
+     */
     post_hook_any_transition(handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook that fires after entering a specific state.
+     *  @param to      - The state that was entered.
+     *  @param handler - Callback invoked after entry.
+     *  @returns `this` for chaining.
+     */
     post_hook_entry(to: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Post-transition hook that fires after leaving a specific state.
+     *  @param from    - The state that was exited.
+     *  @param handler - Callback invoked after exit.
+     *  @returns `this` for chaining.
+     */
     post_hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook that fires **before** all other pre-hooks
+     *  on every transition.  If the handler returns `false`, the transition is
+     *  blocked.  The handler receives an {@link EverythingHookContext} whose
+     *  `hook_name` is `'pre everything'`.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b -> c;`;
+     *  m.hook_pre_everything(({ hook_name }) => {
+     *    console.log(`${hook_name} fired`);
+     *    return true;
+     *  });
+     *  ```
+     *
+     *  @param handler - Callback invoked before all other pre-hooks.
+     *  @returns `this` for chaining.
+     */
+    hook_pre_everything(handler: EverythingHookHandler<mDT>): Machine<mDT>;
+    /** Register a pre-transition hook that fires **after** all other pre-hooks
+     *  on every transition.  If the handler returns `false`, the transition is
+     *  blocked.  The handler receives an {@link EverythingHookContext} whose
+     *  `hook_name` is `'everything'`.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b -> c;`;
+     *  m.hook_everything(({ hook_name }) => {
+     *    console.log(`${hook_name} fired`);
+     *    return true;
+     *  });
+     *  ```
+     *
+     *  @param handler - Callback invoked after all other pre-hooks.
+     *  @returns `this` for chaining.
+     */
+    hook_everything(handler: EverythingHookHandler<mDT>): Machine<mDT>;
+    /** Register a post-transition hook that fires **after** all other
+     *  post-hooks on every transition.  Cannot block the transition.  The
+     *  handler receives an {@link EverythingHookContext} whose `hook_name` is
+     *  `'post everything'`.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b -> c;`;
+     *  m.hook_post_everything(({ hook_name }) => {
+     *    console.log(`${hook_name} fired`);
+     *  });
+     *  ```
+     *
+     *  @param handler - Callback invoked after all other post-hooks.
+     *  @returns `this` for chaining.
+     */
+    hook_post_everything(handler: PostEverythingHookHandler<mDT>): Machine<mDT>;
+    /** Register a post-transition hook that fires **before** all other
+     *  post-hooks on every transition.  Cannot block the transition.  The
+     *  handler receives an {@link EverythingHookContext} whose `hook_name` is
+     *  `'pre post everything'`.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b -> c;`;
+     *  m.hook_pre_post_everything(({ hook_name }) => {
+     *    console.log(`${hook_name} fired`);
+     *  });
+     *  ```
+     *
+     *  @param handler - Callback invoked before all other post-hooks.
+     *  @returns `this` for chaining.
+     */
+    hook_pre_post_everything(handler: PostEverythingHookHandler<mDT>): Machine<mDT>;
+    /** Get the current RNG seed used for probabilistic transitions.
+     *  @returns The numeric seed value.
+     */
     get rng_seed(): number;
+    /** Set the RNG seed.  Pass `undefined` to reseed from the current time.
+     *  Resets the internal PRNG so subsequent probabilistic operations use the
+     *  new seed.
+     *  @param to - The seed value, or `undefined` for time-based seeding.
+     */
     set rng_seed(to: number | undefined);
+    /** Get all edges between two states (there can be multiple with
+     *  different actions).
+     *  @param from - Source state name.
+     *  @param to   - Target state name.
+     *  @returns An array of matching {@link JssmTransition} objects.
+     */
     edges_between(from: string, to: string): JssmTransition<StateType, mDT>[];
     /*********
      *
@@ -1341,6 +1888,9 @@ declare class Machine<mDT> {
      */
     override(newState: StateType, newData?: mDT | undefined): void;
     transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean;
+    /** If the current state has an `after` timeout configured, schedule it.
+     *  Called internally after each transition.
+     */
     auto_set_state_timeout(): void;
     /*********
      *
@@ -1442,6 +1992,9 @@ declare class Machine<mDT> {
      *
      *  @param newData The data change to insert during the action
      *
+     *  @returns `true` if the action was valid and the transition occurred,
+     *  `false` otherwise.
+     *
      */
     action(actionName: StateType, newData?: mDT): boolean;
     /********
@@ -1461,6 +2014,8 @@ declare class Machine<mDT> {
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @returns The {@link JssmStateConfig} for standard states.
      *
      */
     get standard_state_style(): JssmStateConfig;
@@ -1486,6 +2041,8 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns The {@link JssmStateConfig} for hooked states.
+     *
      */
     get hooked_state_style(): JssmStateConfig;
     /********
@@ -1508,6 +2065,8 @@ declare class Machine<mDT> {
      *  ```
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @returns The {@link JssmStateConfig} for start states.
      *
      */
     get start_state_style(): JssmStateConfig;
@@ -1537,6 +2096,8 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns The {@link JssmStateConfig} for end states.
+     *
      */
     get end_state_style(): JssmStateConfig;
     /********
@@ -1560,6 +2121,8 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns The {@link JssmStateConfig} for terminal states.
+     *
      */
     get terminal_state_style(): JssmStateConfig;
     /********
@@ -1580,6 +2143,8 @@ declare class Machine<mDT> {
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
+     *  @returns The {@link JssmStateConfig} for the active state.
+     *
      */
     get active_state_style(): JssmStateConfig;
     /********
@@ -1599,6 +2164,10 @@ declare class Machine<mDT> {
      *  The base state style must exist.  All other styles are optional.
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
+     *
+     *  @param state The state to compute the composite style for.
+     *
+     *  @returns The fully composited {@link JssmStateConfig} for the given state.
      *
      */
     style_for(state: StateType): JssmStateConfig;
@@ -1632,6 +2201,9 @@ declare class Machine<mDT> {
      *
      *  @param newData The data change to insert during the action
      *
+     *  @returns `true` if the action was valid and the transition occurred,
+     *  `false` otherwise.
+     *
      */
     do(actionName: StateType, newData?: mDT): boolean;
     /********
@@ -1662,6 +2234,8 @@ declare class Machine<mDT> {
      *
      *  @param newData The data change to insert during the transition
      *
+     *  @returns `true` if the transition was legal and occurred, `false` otherwise.
+     *
      */
     transition(newState: StateType, newData?: mDT): boolean;
     /********
@@ -1681,6 +2255,8 @@ declare class Machine<mDT> {
      *  @param newState The state to switch to
      *
      *  @param newData The data change to insert during the transition
+     *
+     *  @returns `true` if the transition was legal and occurred, `false` otherwise.
      *
      */
     go(newState: StateType, newData?: mDT): boolean;
@@ -1705,21 +2281,84 @@ declare class Machine<mDT> {
      *
      *  @param newData The data change to insert during the transition
      *
+     *  @returns `true` if a transition (forced or otherwise) existed and occurred,
+     *  `false` otherwise.
+     *
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
+    /** Get the edge index for an action from the current state.
+     *  @param action - The action name.
+     *  @returns The edge index, or `undefined` if the action is not available.
+     */
     current_action_for(action: StateType): number;
+    /** Get the full transition object for an action from the current state.
+     *  @param action - The action name.
+     *  @returns The {@link JssmTransition} object.
+     *  @throws {JssmError} If the action is not available from the current state.
+     */
     current_action_edge_for(action: StateType): JssmTransition<StateType, mDT>;
+    /** Check whether an action is available from the current state.
+     *  @param action   - The action name to check.
+     *  @param _newData - Reserved for future data validation.
+     *  @returns `true` if the action can be taken.
+     */
     valid_action(action: StateType, _newData?: mDT): boolean;
+    /** Check whether a transition to a given state is legal (non-forced) from
+     *  the current state.
+     *  @param newState - The target state.
+     *  @param _newData - Reserved for future data validation.
+     *  @returns `true` if the transition is legal.
+     */
     valid_transition(newState: StateType, _newData?: mDT): boolean;
+    /** Check whether a forced transition to a given state exists from the
+     *  current state.
+     *  @param newState - The target state.
+     *  @param _newData - Reserved for future data validation.
+     *  @returns `true` if a forced (or any) transition exists.
+     */
     valid_force_transition(newState: StateType, _newData?: mDT): boolean;
+    /** Get the instance name of this machine, if one was assigned at creation.
+     *  @returns The instance name string, or `undefined`.
+     */
     instance_name(): string | undefined;
+    /** Get the creation date of this machine as a `Date` object.
+     *  @returns A `Date` representing when the machine was created.
+     */
     get creation_date(): Date;
+    /** Get the creation timestamp (milliseconds since epoch).
+     *  @returns The timestamp as a number.
+     */
     get creation_timestamp(): number;
+    /** Get the timestamp when construction began (before parsing).
+     *  @returns The start-of-construction timestamp as a number.
+     */
     get create_start_time(): number;
+    /** Schedule an automatic transition to `next_state` after `after_time`
+     *  milliseconds.  Only one timeout may be active at a time.
+     *  @param next_state - The state to transition to when the timer fires.
+     *  @param after_time - Delay in milliseconds.
+     *  @throws {JssmError} If a timeout is already pending.
+     */
     set_state_timeout(next_state: StateType, after_time: number): void;
+    /** Cancel any pending state timeout.  Safe to call when no timeout is active.
+     */
     clear_state_timeout(): void;
+    /** Get the configured `after` timeout for a given state, if any.
+     *  @param which_state - The state to look up.
+     *  @returns A `[targetState, delayMs]` tuple, or `undefined` if no timeout
+     *  is configured for that state.
+     */
     state_timeout_for(which_state: StateType): [StateType, number] | undefined;
+    /** Get the configured `after` timeout for the current state, if any.
+     *  @returns A `[targetState, delayMs]` tuple, or `undefined`.
+     */
     current_state_timeout(): [StateType, number] | undefined;
+    /** Convenience method to create a new machine from a tagged template literal.
+     *  Equivalent to calling the top-level `sm` function.
+     *  @param template_strings - The template string array.
+     *  @param remainder        - Interpolated values.
+     *  @returns A new {@link Machine} instance.
+     */
     sm(template_strings: TemplateStringsArray, ...remainder: any[]): Machine<mDT>;
 }
 /*********
@@ -1772,6 +2411,7 @@ declare function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Par
 declare function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT>;
 declare function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean;
 declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT>;
+declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT>;
 /**
  * Deserializes a previously serialized machine state.
  *
@@ -1795,4 +2435,4 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };

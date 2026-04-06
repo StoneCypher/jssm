@@ -547,6 +547,26 @@ type PostExitHook<mDT> = {
   handler : PostHookHandler<mDT>
 };
 
+type PreEverythingHook<mDT> = {
+  kind    : 'pre everything',
+  handler : EverythingHookHandler<mDT>
+};
+
+type EverythingHook<mDT> = {
+  kind    : 'everything',
+  handler : EverythingHookHandler<mDT>
+};
+
+type PrePostEverythingHook<mDT> = {
+  kind    : 'pre post everything',
+  handler : PostEverythingHookHandler<mDT>
+};
+
+type PostEverythingHook<mDT> = {
+  kind    : 'post everything',
+  handler : PostEverythingHookHandler<mDT>
+};
+
 
 
 
@@ -572,7 +592,11 @@ type HookDescription<mDT>
   | PostForcedTransitionHook<mDT>
   | PostAnyTransitionHook<mDT>
   | PostEntryHook<mDT>
-  | PostExitHook<mDT>;
+  | PostExitHook<mDT>
+  | PreEverythingHook<mDT>
+  | EverythingHook<mDT>
+  | PrePostEverythingHook<mDT>
+  | PostEverythingHook<mDT>;
 
 
 
@@ -597,6 +621,10 @@ type HookContext<mDT> = {
   next_data : mDT
 };
 
+type EverythingHookContext<mDT> = HookContext<mDT> & {
+  hook_name : string
+};
+
 
 
 
@@ -605,6 +633,12 @@ type HookHandler<mDT> = (hook_context: HookContext<mDT>) =>
   HookResult<mDT>;
 
 type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) =>
+  void;
+
+type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) =>
+  HookResult<mDT>;
+
+type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) =>
   void;
 
 
@@ -688,6 +722,9 @@ export {
     HookContext,
     HookResult,
     HookComplexResult,
+    EverythingHookContext,
+    EverythingHookHandler,
+    PostEverythingHookHandler,
 
   JssmRng
 

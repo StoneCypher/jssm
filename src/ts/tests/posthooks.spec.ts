@@ -522,3 +522,328 @@ describe('Basic posthooks on fluent callpoint', () => {
 
 
 });
+
+
+
+
+
+describe('Everything posthooks on API callpoint', () => {
+
+
+  test('Setting a pre post everything hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a -> b;`;
+      _foo.set_hook({ handler: () => {}, kind: 'pre post everything' })
+    })
+      .not.toThrow();
+
+  });
+
+
+  test('Setting a post everything hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a -> b;`;
+      _foo.set_hook({ handler: () => {}, kind: 'post everything' })
+    })
+      .not.toThrow();
+
+  });
+
+
+});
+
+
+
+
+
+describe('Pre post everything hook', () => {
+
+
+  test('Pre post everything hook calls its handler', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.set_hook({ handler, kind: 'pre post everything' });
+    foo.transition('b');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Fluent pre post everything hook calls its handler', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_post_everything(handler);
+    foo.transition('b');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Pre post everything hook fires before other post-hooks', () => {
+
+    const order = [];
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_post_everything( () => { order.push('pre_post_everything'); } );
+    foo.set_hook({ handler: () => { order.push('post_entry'); }, to: 'b', kind: 'post entry' });
+    foo.set_hook({ handler: () => { order.push('post_hook'); }, from: 'a', to: 'b', kind: 'post hook' });
+
+    foo.transition('b');
+
+    expect(order[0]).toBe('pre_post_everything');
+    expect(order.length).toBe(3);
+
+  });
+
+
+  test('Pre post everything hook receives hook_name in context', () => {
+
+    let received_name;
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_post_everything( (ctx) => { received_name = ctx.hook_name; } );
+
+    foo.transition('b');
+    expect(received_name).toBe('pre post everything');
+
+  });
+
+
+  test('Pre post everything hook fires on action transitions', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a 'go' -> b;`;
+    foo.hook_pre_post_everything(handler);
+    foo.action('go');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Pre post everything hook fires on forced transitions', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a ~> b;`;
+    foo.hook_pre_post_everything(handler);
+    foo.force_transition('b');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+});
+
+
+
+
+
+describe('Post everything hook', () => {
+
+
+  test('Post everything hook calls its handler', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.set_hook({ handler, kind: 'post everything' });
+    foo.transition('b');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Fluent post everything hook calls its handler', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.hook_post_everything(handler);
+    foo.transition('b');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Post everything hook fires after other post-hooks', () => {
+
+    const order = [];
+
+    const foo = sm`a -> b;`;
+    foo.set_hook({ handler: () => { order.push('post_entry'); }, to: 'b', kind: 'post entry' });
+    foo.set_hook({ handler: () => { order.push('post_hook'); }, from: 'a', to: 'b', kind: 'post hook' });
+    foo.hook_post_everything( () => { order.push('post_everything'); } );
+
+    foo.transition('b');
+
+    expect(order[order.length - 1]).toBe('post_everything');
+    expect(order.length).toBe(3);
+
+  });
+
+
+  test('Post everything hook receives hook_name in context', () => {
+
+    let received_name;
+
+    const foo = sm`a -> b;`;
+    foo.hook_post_everything( (ctx) => { received_name = ctx.hook_name; } );
+
+    foo.transition('b');
+    expect(received_name).toBe('post everything');
+
+  });
+
+
+  test('Post everything hook fires on action transitions', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a 'go' -> b;`;
+    foo.hook_post_everything(handler);
+    foo.action('go');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Post everything hook fires on forced transitions', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a ~> b;`;
+    foo.hook_post_everything(handler);
+    foo.force_transition('b');
+
+    expect(handler.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Pre post everything and post everything bracket other post-hooks', () => {
+
+    const order = [];
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_post_everything( () => { order.push('pre_post'); } );
+    foo.set_hook({ handler: () => { order.push('post_hook'); }, from: 'a', to: 'b', kind: 'post hook' });
+    foo.hook_post_everything( () => { order.push('post'); } );
+
+    foo.transition('b');
+
+    expect(order).toEqual(['pre_post', 'post_hook', 'post']);
+
+  });
+
+
+  test('Post everything hooks bracket all post-hook types on action transitions', () => {
+
+    const order = [];
+
+    const foo = sm`a 'go' -> b;`;
+    foo.hook_pre_post_everything( () => { order.push('pre_post'); } );
+    foo.set_hook({ handler: () => { order.push('any_action'); }, kind: 'post any action' });
+    foo.set_hook({ handler: () => { order.push('entry'); }, to: 'b', kind: 'post entry' });
+    foo.set_hook({ handler: () => { order.push('exit'); }, from: 'a', kind: 'post exit' });
+    foo.hook_post_everything( () => { order.push('post'); } );
+
+    foo.action('go');
+
+    expect(order[0]).toBe('pre_post');
+    expect(order[order.length - 1]).toBe('post');
+    expect(order.length).toBe(5);
+
+  });
+
+
+  test('Post everything hooks fire on multiple consecutive transitions', () => {
+
+    const pre_cnt  = jest.fn();
+    const post_cnt = jest.fn();
+
+    const foo = sm`a -> b -> c;`;
+    foo.hook_pre_post_everything(pre_cnt);
+    foo.hook_post_everything(post_cnt);
+
+    foo.transition('b');
+    foo.transition('c');
+
+    expect(pre_cnt).toHaveBeenCalledTimes(2);
+    expect(post_cnt).toHaveBeenCalledTimes(2);
+
+  });
+
+
+  test('Pre post everything receives correct from/to on each transition', () => {
+
+    const transitions: any[] = [];
+
+    const foo = sm`a -> b -> c;`;
+    foo.hook_pre_post_everything( (ctx: any) => { transitions.push({ from: ctx.from, to: ctx.to }); } );
+
+    foo.transition('b');
+    foo.transition('c');
+
+    expect(transitions).toEqual([
+      { from: 'a', to: 'b' },
+      { from: 'b', to: 'c' }
+    ]);
+
+  });
+
+
+  test('Post everything does not fire when transition is invalid', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.hook_post_everything(handler);
+
+    expect(foo.transition('c')).toBe(false);
+    expect(handler).not.toHaveBeenCalled();
+
+  });
+
+
+  test('Pre post everything does not fire when transition is invalid', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_post_everything(handler);
+
+    expect(foo.transition('c')).toBe(false);
+    expect(handler).not.toHaveBeenCalled();
+
+  });
+
+
+  test('Post everything does not fire when pre-hook rejects', () => {
+
+    const handler = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: () => false });
+    foo.hook_post_everything(handler);
+
+    expect(foo.transition('b')).toBe(false);
+    expect(handler).not.toHaveBeenCalled();
+
+  });
+
+
+});

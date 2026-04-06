@@ -307,7 +307,7 @@
       overflow-x: auto;
     }
     .code-tab {
-      padding: 0.6rem 1.25rem;
+      padding: 0.42rem 0.7rem;
       font-size: 0.85rem; font-weight: 500;
       color: #64748b;
       background: none; border: none;
@@ -321,6 +321,8 @@
     .code-tab.active {
       color: #c4b5fd;
       background: rgba(99, 102, 241, 0.1);
+      padding-left: 0.875rem;
+      padding-right: 0.875rem;
     }
     .code-panels {
       background: rgba(15, 23, 42, 0.8);
@@ -368,6 +370,37 @@
     .op { color: #94a3b8; }      /* operators */
     .bool { color: #f472b6; }    /* booleans */
     .num { color: #38bdf8; }     /* numbers */
+
+    /* ── Comparison Section ───────────────────────── */
+    .compare-controls {
+      display: flex; justify-content: space-between;
+      margin-bottom: 0; padding: 0.75rem 1rem;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-bottom: none; border-radius: 12px 12px 0 0;
+    }
+    .compare-controls select {
+      background: rgba(30, 41, 59, 0.8); color: #c4b5fd;
+      border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 6px;
+      padding: 0.4rem 0.75rem; font-size: 0.85rem;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+    }
+    .compare-controls select:hover { border-color: rgba(99, 102, 241, 0.5); }
+    .compare-panels {
+      display: flex; gap: 0;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-top: none; border-radius: 0 0 12px 12px; overflow: hidden;
+    }
+    .compare-half { flex: 1; padding: 1rem 1.25rem 1.25rem; min-width: 0; }
+    .compare-half:first-child { border-right: 1px solid rgba(99, 102, 241, 0.15); }
+    .compare-label {
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600;
+      color: #94a3b8; margin-bottom: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .compare-label span { font-weight: 400; color: #64748b; font-size: 0.75rem; }
+    .compare-panels pre { font-size: 0.8rem; line-height: 1.65; overflow-x: auto; margin: 0; white-space: pre; }
 
     /* ── Features Grid ────────────────────────────── */
     .features-grid {
@@ -601,6 +634,12 @@
         <button class="code-tab" onclick="switchTab(event, 'tab-styling')" role="tab">Styling</button>
         <button class="code-tab" onclick="switchTab(event, 'tab-types')" role="tab">Transitions</button>
         <button class="code-tab" onclick="switchTab(event, 'tab-factories')" role="tab">Factories</button>
+        <button class="code-tab" onclick="switchTab(event, 'tab-data')" role="tab">Data</button>
+        <button class="code-tab" onclick="switchTab(event, 'tab-validation')" role="tab">Validation</button>
+        <button class="code-tab" onclick="switchTab(event, 'tab-probabilistic')" role="tab">Probabilistic</button>
+        <button class="code-tab" onclick="switchTab(event, 'tab-history')" role="tab">History</button>
+        <button class="code-tab" onclick="switchTab(event, 'tab-properties')" role="tab">Properties</button>
+        <button class="code-tab" onclick="switchTab(event, 'tab-serialization')" role="tab">Serialization</button>
       </div>
       <div class="code-panels">
         <div class="code-panel active" id="tab-basic">
@@ -704,6 +743,237 @@
 <span class="fn">main_and_first</span>.<span class="meth">action</span>(<span class="str">'next'</span>);
 <span class="fn">main_and_first</span>.<span class="meth">state</span>();&nbsp;&nbsp; <span class="cm">// 'Green' — only this one moved</span>
 <span class="fn">oak_and_third</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp; <span class="cm">// 'Red'   — independent instance</span></pre>
+        </div>
+        <div class="code-panel" id="tab-data">
+          <p class="code-desc">Attach custom data to your machine. Hooks can read, validate, and transform data during transitions.</p>
+<pre><span class="kw">import</span> { <span class="meth">from</span> } <span class="kw">from</span> <span class="str">'jssm'</span>;
+
+<span class="kw">const</span> <span class="fn">counter</span> <span class="op">=</span> <span class="meth">from</span>(
+  <span class="str">"<span class="fsl">idle <span class="fsl-act">'inc'</span> <span class="fsl-op">=&gt;</span> idle<span class="fsl-op">;</span> idle <span class="fsl-act">'dec'</span> <span class="fsl-op">=&gt;</span> idle<span class="fsl-op">;</span> idle <span class="fsl-act">'reset'</span> <span class="fsl-op">=&gt;</span> idle<span class="fsl-op">;</span></span>"</span>,
+  { <span class="fn">data</span><span class="op">:</span> <span class="num">0</span> }
+);
+
+<span class="fn">counter</span>.<span class="meth">hook_action</span>(<span class="str">'idle'</span>,<span class="str">'idle'</span>,<span class="str">'inc'</span>,&nbsp;&nbsp; ({<span class="fn">data</span>}) <span class="op">=&gt;</span> ({ <span class="fn">pass</span><span class="op">:</span> <span class="kw">true</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">data</span><span class="op">:</span> <span class="fn">data</span> <span class="op">+</span> <span class="num">1</span> }));
+<span class="fn">counter</span>.<span class="meth">hook_action</span>(<span class="str">'idle'</span>,<span class="str">'idle'</span>,<span class="str">'dec'</span>,&nbsp;&nbsp; ({<span class="fn">data</span>}) <span class="op">=&gt;</span> ({ <span class="fn">pass</span><span class="op">:</span> <span class="fn">data</span> <span class="op">&gt;</span> <span class="num">0</span>, <span class="fn">data</span><span class="op">:</span> <span class="fn">data</span> <span class="op">-</span> <span class="num">1</span> }));
+<span class="fn">counter</span>.<span class="meth">hook_action</span>(<span class="str">'idle'</span>,<span class="str">'idle'</span>,<span class="str">'reset'</span>, ()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="op">=&gt;</span> ({ <span class="fn">pass</span><span class="op">:</span> <span class="kw">true</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">data</span><span class="op">:</span> <span class="num">0</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }));
+
+<span class="fn">counter</span>.<span class="meth">action</span>(<span class="str">'inc'</span>);&nbsp;&nbsp; <span class="cm">// true</span>
+<span class="fn">counter</span>.<span class="meth">action</span>(<span class="str">'inc'</span>);&nbsp;&nbsp; <span class="cm">// true</span>
+<span class="fn">counter</span>.<span class="meth">data</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 2</span>
+<span class="fn">counter</span>.<span class="meth">action</span>(<span class="str">'dec'</span>);&nbsp;&nbsp; <span class="cm">// true</span>
+<span class="fn">counter</span>.<span class="meth">data</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 1</span>
+<span class="fn">counter</span>.<span class="meth">action</span>(<span class="str">'dec'</span>);&nbsp;&nbsp; <span class="cm">// true</span>
+<span class="fn">counter</span>.<span class="meth">action</span>(<span class="str">'dec'</span>);&nbsp;&nbsp; <span class="cm-err">// false — hook rejects: can't go below 0</span></pre>
+          <p class="code-desc" style="margin-top:1.25rem;">Wire it to HTML &mdash; complete, working page:</p>
+<pre>&lt;!doctype html&gt;
+&lt;script type=<span class="str">"module"</span>&gt;
+<span class="kw">import</span> { <span class="meth">from</span> } <span class="kw">from</span> <span class="str">'https://cdn.jsdelivr.net/npm/jssm/+esm'</span>;
+
+<span class="kw">const</span> <span class="fn">counter</span> <span class="op">=</span> <span class="meth">from</span>(
+  <span class="str">"<span class="fsl">idle <span class="fsl-act">'inc'</span> <span class="fsl-op">=&gt;</span> idle<span class="fsl-op">;</span> idle <span class="fsl-act">'dec'</span> <span class="fsl-op">=&gt;</span> idle<span class="fsl-op">;</span> idle <span class="fsl-act">'reset'</span> <span class="fsl-op">=&gt;</span> idle<span class="fsl-op">;</span></span>"</span>,
+  { <span class="fn">data</span><span class="op">:</span> <span class="num">0</span> }
+);
+
+<span class="fn">counter</span>.<span class="meth">hook_action</span>(<span class="str">'idle'</span>,<span class="str">'idle'</span>,<span class="str">'inc'</span>,&nbsp;&nbsp; ({<span class="fn">data</span>}) <span class="op">=&gt;</span> ({ <span class="fn">pass</span><span class="op">:</span> <span class="kw">true</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">data</span><span class="op">:</span> <span class="fn">data</span> <span class="op">+</span> <span class="num">1</span> }));
+<span class="fn">counter</span>.<span class="meth">hook_action</span>(<span class="str">'idle'</span>,<span class="str">'idle'</span>,<span class="str">'dec'</span>,&nbsp;&nbsp; ({<span class="fn">data</span>}) <span class="op">=&gt;</span> ({ <span class="fn">pass</span><span class="op">:</span> <span class="fn">data</span> <span class="op">&gt;</span> <span class="num">0</span>, <span class="fn">data</span><span class="op">:</span> <span class="fn">data</span> <span class="op">-</span> <span class="num">1</span> }));
+<span class="fn">counter</span>.<span class="meth">hook_action</span>(<span class="str">'idle'</span>,<span class="str">'idle'</span>,<span class="str">'reset'</span>, ()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="op">=&gt;</span> ({ <span class="fn">pass</span><span class="op">:</span> <span class="kw">true</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">data</span><span class="op">:</span> <span class="num">0</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }));
+
+<span class="kw">const</span> <span class="fn">el</span> <span class="op">=</span> document.<span class="meth">getElementById</span>(<span class="str">'count'</span>);
+window.<span class="fn">go</span> <span class="op">=</span> (<span class="fn">a</span>) <span class="op">=&gt;</span> { <span class="fn">counter</span>.<span class="meth">action</span>(<span class="fn">a</span>); <span class="fn">el</span>.<span class="fn">textContent</span> <span class="op">=</span> <span class="fn">counter</span>.<span class="meth">data</span>(); };
+&lt;/script&gt;
+
+&lt;span id=<span class="str">"count"</span>&gt;<span class="num">0</span>&lt;/span&gt;
+&lt;button onclick=<span class="str">"go('inc')"</span>&gt;+&lt;/button&gt;
+&lt;button onclick=<span class="str">"go('dec')"</span>&gt;&minus;&lt;/button&gt;
+&lt;button onclick=<span class="str">"go('reset')"</span>&gt;Reset&lt;/button&gt;</pre>
+        </div>
+        <div class="code-panel" id="tab-validation">
+          <p class="code-desc">Hooks can reject transitions &mdash; enforce business rules directly in the machine, not scattered through your code.</p>
+<pre><span class="kw">const</span> <span class="fn">form</span> <span class="op">=</span> <span class="meth">from</span>(
+  <span class="str">"<span class="fsl">editing <span class="fsl-act">'submit'</span> <span class="fsl-op">=&gt;</span> submitted <span class="fsl-op">=&gt;</span> confirmed<span class="fsl-op">;</span></span>"</span>,
+  { <span class="fn">data</span><span class="op">:</span> { <span class="fn">email</span><span class="op">:</span> <span class="str">''</span>, <span class="fn">name</span><span class="op">:</span> <span class="str">''</span> } }
+);
+
+<span class="cm">// Block submission unless both fields are filled</span>
+<span class="fn">form</span>.<span class="meth">hook_action</span>(<span class="str">'editing'</span>, <span class="str">'submitted'</span>, <span class="str">'submit'</span>,
+  ({ <span class="fn">data</span> }) <span class="op">=&gt;</span> ({
+    <span class="fn">pass</span><span class="op">:</span> <span class="fn">data</span>.<span class="fn">email</span>.<span class="meth">includes</span>(<span class="str">'@'</span>) <span class="op">&amp;&amp;</span> <span class="fn">data</span>.<span class="fn">name</span>.<span class="fn">length</span> <span class="op">&gt;</span> <span class="num">0</span>
+  })
+);
+
+<span class="fn">form</span>.<span class="meth">action</span>(<span class="str">'submit'</span>);&nbsp;&nbsp;&nbsp; <span class="cm-err">// false — empty fields</span>
+
+<span class="fn">form</span>.<span class="meth">go</span>(<span class="str">'submitted'</span>, { <span class="fn">email</span><span class="op">:</span> <span class="str">'a@b.co'</span>, <span class="fn">name</span><span class="op">:</span> <span class="str">'Jo'</span> });
+<span class="fn">form</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'submitted' — hook approved</span>
+
+<span class="fn">form</span>.<span class="meth">go</span>(<span class="str">'confirmed'</span>);
+<span class="fn">form</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'confirmed'</span></pre>
+        </div>
+        <div class="code-panel" id="tab-probabilistic">
+          <p class="code-desc">Weighted random transitions in the DSL. Simulate, model, or test stochastic systems natively.</p>
+<pre><span class="kw">const</span> <span class="fn">weather</span> <span class="op">=</span> <span class="meth">sm</span><span class="str">`
+  <span class="fsl">Sunny&nbsp; <span class="fsl-val">70%</span> <span class="fsl-op">=&gt;</span> Sunny<span class="fsl-op">;</span>&nbsp; Sunny&nbsp; <span class="fsl-val">20%</span> <span class="fsl-op">-></span> Cloudy<span class="fsl-op">;</span> Sunny&nbsp; <span class="fsl-val">10%</span> <span class="fsl-op">-></span> Rainy<span class="fsl-op">;</span>
+  Cloudy <span class="fsl-val">40%</span> <span class="fsl-op">=&gt;</span> Cloudy<span class="fsl-op">;</span> Cloudy <span class="fsl-val">30%</span> <span class="fsl-op">-></span> Sunny<span class="fsl-op">;</span>&nbsp; Cloudy <span class="fsl-val">30%</span> <span class="fsl-op">-></span> Rainy<span class="fsl-op">;</span>
+  Rainy&nbsp; <span class="fsl-val">50%</span> <span class="fsl-op">=&gt;</span> Rainy<span class="fsl-op">;</span>&nbsp; Rainy&nbsp; <span class="fsl-val">30%</span> <span class="fsl-op">-></span> Cloudy<span class="fsl-op">;</span> Rainy&nbsp; <span class="fsl-val">20%</span> <span class="fsl-op">-></span> Sunny<span class="fsl-op">;</span></span>
+`</span>;
+
+<span class="fn">weather</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'Sunny'</span>
+
+<span class="cm">// Take one random step, weighted by percentages</span>
+<span class="fn">weather</span>.<span class="meth">probabilistic_transition</span>();&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// true</span>
+<span class="fn">weather</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'Sunny' (70% likely)</span>
+
+<span class="cm">// Simulate a week</span>
+<span class="fn">weather</span>.<span class="meth">probabilistic_walk</span>(<span class="num">7</span>);
+<span class="cm">// ['Sunny','Sunny','Cloudy','Rainy','Rainy','Cloudy','Sunny']</span>
+
+<span class="cm">// Run 10,000 steps and see the distribution</span>
+<span class="fn">weather</span>.<span class="meth">probabilistic_histo_walk</span>(<span class="num">10000</span>);
+<span class="cm">// Map { 'Sunny' => 4217, 'Cloudy' => 2890, 'Rainy' => 2893 }</span></pre>
+        </div>
+        <div class="code-panel" id="tab-history">
+          <p class="code-desc">Track where the machine has been. History is a fixed-size buffer &mdash; old entries roll off automatically.</p>
+<pre><span class="kw">const</span> <span class="fn">nav</span> <span class="op">=</span> <span class="meth">from</span>(
+  <span class="str">"<span class="fsl">home <span class="fsl-act">'navigate'</span> <span class="fsl-op">=&gt;</span> about <span class="fsl-act">'navigate'</span> <span class="fsl-op">=&gt;</span> blog <span class="fsl-act">'navigate'</span> <span class="fsl-op">=&gt;</span> contact<span class="fsl-op">;</span></span>"</span>,
+  { <span class="fn">history</span><span class="op">:</span> <span class="num">5</span> }
+);
+
+<span class="fn">nav</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'home'</span>
+<span class="fn">nav</span>.<span class="fn">history</span>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// [] — nothing yet</span>
+
+<span class="fn">nav</span>.<span class="meth">action</span>(<span class="str">'navigate'</span>);
+<span class="fn">nav</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'about'</span>
+<span class="fn">nav</span>.<span class="fn">history</span>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// [['home', undefined]]</span>
+
+<span class="fn">nav</span>.<span class="meth">action</span>(<span class="str">'navigate'</span>);
+<span class="fn">nav</span>.<span class="meth">action</span>(<span class="str">'navigate'</span>);
+<span class="fn">nav</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'contact'</span>
+
+<span class="cm">// history includes data at each step (here undefined)</span>
+<span class="fn">nav</span>.<span class="fn">history</span>;
+<span class="cm">// [['home', undefined], ['about', undefined], ['blog', undefined]]</span>
+
+<span class="cm">// history_inclusive adds the current state too</span>
+<span class="fn">nav</span>.<span class="fn">history_inclusive</span>;
+<span class="cm">// [['home', undefined], ['about', undefined], ['blog', undefined], ['contact', undefined]]</span></pre>
+        </div>
+        <div class="code-panel" id="tab-properties">
+          <p class="code-desc">Attach metadata to states directly in the DSL. Query properties at runtime without external lookups.</p>
+<pre><span class="kw">const</span> <span class="fn">light</span> <span class="op">=</span> <span class="meth">sm</span><span class="str">`
+  <span class="fsl"><span class="fsl-prop">property</span> can_go&nbsp;&nbsp;&nbsp; <span class="fsl-prop">default</span> <span class="fsl-val">true</span><span class="fsl-op">;</span>
+  <span class="fsl-prop">property</span> slow_down <span class="fsl-prop">default</span> <span class="fsl-val">false</span><span class="fsl-op">;</span>
+  <span class="fsl-prop">property</span> enabled&nbsp;&nbsp; <span class="fsl-prop">default</span> <span class="fsl-val">true</span><span class="fsl-op">;</span>
+
+  Red <span class="fsl-act">'next'</span> <span class="fsl-op">=&gt;</span> Green <span class="fsl-act">'next'</span> <span class="fsl-op">=&gt;</span> Yellow <span class="fsl-act">'next'</span> <span class="fsl-op">=&gt;</span> Red<span class="fsl-op">;</span>
+  <span class="fsl-op">[</span>Red Yellow Green<span class="fsl-op">]</span> <span class="fsl-act">'off'</span> <span class="fsl-op">~&gt;</span> Off <span class="fsl-act">'on'</span> <span class="fsl-op">-></span> Red<span class="fsl-op">;</span>
+
+  <span class="fsl-prop">state</span> Red&nbsp;&nbsp;&nbsp; <span class="fsl-op">:</span> <span class="fsl-op">{</span> <span class="fsl-prop">property</span><span class="fsl-op">:</span> can_go&nbsp;&nbsp;&nbsp; <span class="fsl-val">false</span><span class="fsl-op">;</span> <span class="fsl-op">};</span>
+  <span class="fsl-prop">state</span> Yellow <span class="fsl-op">:</span> <span class="fsl-op">{</span> <span class="fsl-prop">property</span><span class="fsl-op">:</span> slow_down <span class="fsl-val">true</span><span class="fsl-op">;</span>&nbsp; <span class="fsl-op">};</span>
+  <span class="fsl-prop">state</span> Off&nbsp;&nbsp;&nbsp; <span class="fsl-op">:</span> <span class="fsl-op">{</span> <span class="fsl-prop">property</span><span class="fsl-op">:</span> enabled&nbsp;&nbsp; <span class="fsl-val">false</span><span class="fsl-op">;</span> <span class="fsl-prop">property</span><span class="fsl-op">:</span> can_go <span class="fsl-val">false</span><span class="fsl-op">;</span> <span class="fsl-op">};</span></span>
+`</span>;
+
+<span class="fn">light</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'Red'</span>
+<span class="fn">light</span>.<span class="meth">prop</span>(<span class="str">'enabled'</span>);&nbsp;&nbsp;&nbsp; <span class="cm">// true  (default)</span>
+<span class="fn">light</span>.<span class="meth">prop</span>(<span class="str">'can_go'</span>);&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// false</span>
+
+<span class="fn">light</span>.<span class="meth">action</span>(<span class="str">'next'</span>);&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// true</span>
+<span class="fn">light</span>.<span class="meth">state</span>();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// 'Green'</span>
+<span class="fn">light</span>.<span class="meth">prop</span>(<span class="str">'can_go'</span>);&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// true  (default)</span>
+<span class="fn">light</span>.<span class="meth">prop</span>(<span class="str">'slow_down'</span>);&nbsp; <span class="cm">// false (default)</span>
+
+<span class="fn">light</span>.<span class="meth">force_transition</span>(<span class="str">'Off'</span>);
+<span class="fn">light</span>.<span class="meth">prop</span>(<span class="str">'enabled'</span>);&nbsp;&nbsp;&nbsp; <span class="cm">// false</span>
+<span class="fn">light</span>.<span class="meth">prop</span>(<span class="str">'can_go'</span>);&nbsp;&nbsp;&nbsp;&nbsp; <span class="cm">// false</span>
+<span class="fn">light</span>.<span class="meth">props</span>();
+<span class="cm">// { can_go: false, slow_down: false, enabled: false }</span></pre>
+        </div>
+        <div class="code-panel" id="tab-serialization">
+          <p class="code-desc">Save and restore machine state. Persist to a database, send over the network, or snapshot for debugging.</p>
+<pre><span class="kw">const</span> <span class="fn">machine</span> <span class="op">=</span> <span class="meth">from</span>(
+  <span class="str">"<span class="fsl">idle <span class="fsl-act">'start'</span> <span class="fsl-op">=&gt;</span> running <span class="fsl-act">'done'</span> <span class="fsl-op">=&gt;</span> finished<span class="fsl-op">;</span></span>"</span>,
+  { <span class="fn">data</span><span class="op">:</span> { <span class="fn">progress</span><span class="op">:</span> <span class="num">0</span> }, <span class="fn">history</span><span class="op">:</span> <span class="num">10</span> }
+);
+
+<span class="fn">machine</span>.<span class="meth">action</span>(<span class="str">'start'</span>);
+
+<span class="cm">// Snapshot the machine</span>
+<span class="kw">const</span> <span class="fn">snap</span> <span class="op">=</span> <span class="fn">machine</span>.<span class="meth">serialize</span>(<span class="str">'mid-run checkpoint'</span>);
+<span class="cm">// {</span>
+<span class="cm">//   jssm_version: '5.98.0',</span>
+<span class="cm">//   timestamp:    1712428800000,</span>
+<span class="cm">//   comment:      'mid-run checkpoint',</span>
+<span class="cm">//   state:        'running',</span>
+<span class="cm">//   data:         { progress: 0 },</span>
+<span class="cm">//   history:      [['idle', { progress: 0 }]],</span>
+<span class="cm">//   history_capacity: 10</span>
+<span class="cm">// }</span>
+
+<span class="cm">// Restore later — even in a different process</span>
+<span class="kw">const</span> <span class="fn">dsl</span> <span class="op">=</span> <span class="str">"<span class="fsl">idle <span class="fsl-act">'start'</span> <span class="fsl-op">=&gt;</span> running <span class="fsl-act">'done'</span> <span class="fsl-op">=&gt;</span> finished<span class="fsl-op">;</span></span>"</span>;
+<span class="kw">const</span> <span class="fn">restored</span> <span class="op">=</span> <span class="fn">jssm</span>.<span class="meth">deserialize</span>(<span class="fn">dsl</span>, <span class="fn">snap</span>);
+
+<span class="fn">restored</span>.<span class="meth">state</span>();&nbsp;&nbsp; <span class="cm">// 'running'</span>
+<span class="fn">restored</span>.<span class="meth">data</span>();&nbsp;&nbsp;&nbsp; <span class="cm">// { progress: 0 }</span>
+<span class="fn">restored</span>.<span class="fn">history</span>;&nbsp;&nbsp; <span class="cm">// [['idle', { progress: 0 }]]</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Example Machines ──────────────────────────── -->
+  <section class="code-section">
+    <div class="reveal">
+      <p class="section-label">// Compare</p>
+      <h2 class="section-title">See the difference</h2>
+      <p class="section-desc">The same machine, side by side. Pick an example and a library to compare.</p>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="compare-controls">
+        <select id="example-select" onchange="updateComparison()" aria-label="Example machine">
+          <option value="toggle">Toggle (light switch)</option>
+          <option value="traffic">Traffic Light</option>
+          <option value="matter">States of Matter</option>
+          <option value="promise">Promise Lifecycle</option>
+          <option value="connection">Connection</option>
+          <option value="door">Door Lock</option>
+          <option value="wizard">Install Wizard</option>
+          <option value="vending">Vending Machine</option>
+          <option value="rpg">RPG Character</option>
+          <option value="ghost">Pac-Man Ghost</option>
+          <option value="boss">Boss Fight</option>
+          <option value="inventory">Inventory Item</option>
+          <option value="quest">Quest Status</option>
+          <option value="fighting">Fighting Game</option>
+        </select>
+        <select id="compare-select" onchange="updateComparison()" aria-label="Compare to library">
+          <option value="xstate">vs XState</option>
+          <option value="javascript-state-machine">vs javascript-state-machine</option>
+          <option value="finity">vs Finity</option>
+          <option value="robot">vs Robot</option>
+          <option value="stately">vs Stately.js</option>
+          <option value="faste">vs Faste</option>
+          <option value="state-machine">vs state-machine</option>
+          <option value="machina">vs Machina</option>
+          <option value="nanostate">vs Nanostate</option>
+          <option value="typescript-fsm">vs typescript-fsm</option>
+          <option value="edium-fsm">vs @edium/fsm</option>
+          <option value="fsm-as-promised">vs fsm-as-promised</option>
+          <option value="typestate">vs TypeState</option>
+          <option value="stent">vs Stent</option>
+          <option value="fsm-event">vs fsm-event</option>
+          <option value="pastafarian">vs Pastafarian</option>
+          <option value="mood">vs Mood</option>
+          <option value="node-state">vs node-state</option>
+        </select>
+      </div>
+      <div class="compare-panels">
+        <div class="compare-half">
+          <div class="compare-label">jssm <span id="jssm-lines"></span></div>
+          <pre id="jssm-code"></pre>
+        </div>
+        <div class="compare-half">
+          <div class="compare-label"><span id="compare-name"></span> <span id="compare-lines"></span></div>
+          <pre id="compare-code"></pre>
         </div>
       </div>
     </div>
@@ -913,7 +1183,4154 @@ state Off <span class="fsl-op">:</span> <span class="fsl-op">{</span>
       document.getElementById(panelId).classList.add('active');
     }
 
+
+    /* ── Comparison Data & Logic ─────────────────── */
+/* ── comparisons_data.js ─────────────────────────────────────────────
+   Full JavaScript comparisons data for the jssm landing page shootout.
+   Plain JS, no module syntax.  Loaded via <script src> before the
+   inline <script> block that calls updateComparison().
+   ──────────────────────────────────────────────────────────────────── */
+
+var comparisons = {
+
+  /* ================================================================
+     1. toggle — two states, bidirectional TOGGLE
+     ================================================================ */
+  toggle: {
+    jssm:
+`const toggle = sm\`active 'TOGGLE' <=> 'TOGGLE' inactive;\`;`,
+
+    xstate:
+`const toggle = createMachine({
+  id: 'toggle',
+  initial: 'inactive',
+  states: {
+    inactive: {
+      on: {
+        TOGGLE: 'active'
+      }
+    },
+    active: {
+      on: {
+        TOGGLE: 'inactive'
+      }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const toggle = new StateMachine({
+  init: 'inactive',
+  transitions: [
+    { name: 'toggle', from: 'inactive', to: 'active' },
+    { name: 'toggle', from: 'active', to: 'inactive' }
+  ]
+});`,
+
+    finity:
+`const toggle = Finity
+  .configure()
+    .initialState('inactive')
+      .on('toggle').transitionTo('active')
+    .state('active')
+      .on('toggle').transitionTo('inactive')
+  .start();`,
+
+    robot:
+`const toggle = createMachine({
+  inactive: state(
+    transition('toggle', 'active')
+  ),
+  active: state(
+    transition('toggle', 'inactive')
+  )
+}, () => true);`,
+
+    stately:
+`const toggle = Stately.machine({
+  inactive: {
+    toggle: 'active'
+  },
+  active: {
+    toggle: 'inactive'
+  }
+});`,
+
+    faste:
+`const toggle = faste()
+  .on('toggle', ['inactive'], ({transitTo}) => transitTo('active'))
+  .on('toggle', ['active'], ({transitTo}) => transitTo('inactive'));`,
+
+    'state-machine':
+`const toggle = new StateMachine({
+  transitions: [
+    'toggle : inactive > active > inactive'
+  ]
+});`,
+
+    machina:
+`const toggle = new machina.Fsm({
+  initialState: 'inactive',
+  states: {
+    uninitialized: {
+      '*': function () {
+        this.deferUntilTransition();
+        this.transition('inactive');
+      }
+    },
+    inactive: {
+      _toggle: 'active'
+    },
+    active: {
+      _toggle: 'inactive'
+    }
+  },
+  toggle: function () {
+    this.handle('_toggle');
+  }
+});`,
+
+    nanostate:
+`const toggle = nanostate('inactive', {
+  inactive: {
+    toggle: 'active'
+  },
+  active: {
+    toggle: 'inactive'
+  }
+});`,
+
+    'typescript-fsm':
+`const toggle = new StateMachine('inactive', [
+  t('inactive', 'toggle', 'active', () => {}),
+  t('active', 'toggle', 'inactive', () => {})
+]);`,
+
+    'edium-fsm':
+`const toggle = new StateMachine('toggle');
+const inactive = toggle.createState('inactive');
+const active = toggle.createState('active');
+toggle.addTransition(inactive, active, 'toggle');
+toggle.addTransition(active, inactive, 'toggle');
+toggle.start(inactive);`,
+
+    'fsm-as-promised':
+`const toggle = StateMachine({
+  initial: 'inactive',
+  events: [
+    { name: 'toggle', from: 'inactive', to: 'active' },
+    { name: 'toggle', from: 'active', to: 'inactive' }
+  ]
+});`,
+
+    typestate:
+`const toggle = new FiniteStateMachine('inactive');
+toggle.from('inactive').to('active');
+toggle.from('active').to('inactive');`,
+
+    stent:
+`const toggle = Machine.create('toggle', {
+  state: { name: 'inactive' },
+  transitions: {
+    inactive: {
+      toggle: 'active'
+    },
+    active: {
+      toggle: 'inactive'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const toggle = fsm('inactive', {
+  inactive: {
+    toggle: 'active'
+  },
+  active: {
+    toggle: 'inactive'
+  }
+});`,
+
+    pastafarian:
+`const toggle = new StateMachine({
+  initial: 'inactive',
+  states: {
+    inactive: ['active'],
+    active: ['inactive']
+  }
+});`,
+
+    mood:
+`const toggle = mood('inactive', {
+  inactive: ['toggle', 'active'],
+  active: ['toggle', 'inactive']
+});`,
+
+    'node-state':
+`class Toggle extends NodeState {
+  constructor() {
+    super({
+      states: {
+        inactive: {
+          toggle: () => this.goto('active')
+        },
+        active: {
+          toggle: () => this.goto('inactive')
+        }
+      }
+    });
+  }
+}
+const toggle = new Toggle();`
+  },
+
+  /* ================================================================
+     2. traffic — red→green→yellow→red, hook on entering red
+     ================================================================ */
+  traffic: {
+    jssm:
+`const trafficLight = sm\`red 'next' => green 'next' => yellow 'next' => red;\`;
+trafficLight.hook_entry('red', () => { console.log('Red light!'); return true; });`,
+
+    xstate:
+`const trafficLight = createMachine(
+  {
+    id: 'traffic',
+    initial: 'green',
+    states: {
+      green: {
+        on: {
+          next: { target: 'yellow' }
+        }
+      },
+      yellow: {
+        on: {
+          next: { target: 'red' }
+        }
+      },
+      red: {
+        entry: 'alertRed',
+        on: {
+          next: { target: 'green' }
+        }
+      }
+    }
+  },
+  {
+    actions: {
+      alertRed: () => {
+        console.log('Red light!');
+      }
+    }
+  }
+);`,
+
+    'javascript-state-machine':
+`const trafficLight = new StateMachine({
+  init: 'green',
+  transitions: [
+    { name: 'next', from: 'green', to: 'yellow' },
+    { name: 'next', from: 'yellow', to: 'red' },
+    { name: 'next', from: 'red', to: 'green' }
+  ],
+  methods: {
+    onRed: function () {
+      console.log('Red light!');
+    }
+  }
+});`,
+
+    finity:
+`const trafficLight = Finity
+  .configure()
+    .initialState('green')
+      .on('next').transitionTo('yellow')
+    .state('yellow')
+      .on('next').transitionTo('red')
+    .state('red')
+      .onEnter(() => console.log('Red light!'))
+      .on('next').transitionTo('green')
+  .start();`,
+
+    robot:
+`const trafficLight = createMachine({
+  green: state(
+    transition('next', 'yellow')
+  ),
+  yellow: state(
+    transition(
+      'next', 'red',
+      action(() => console.log('Red light!'))
+    )
+  ),
+  red: state(
+    transition('next', 'green')
+  )
+}, () => true);`,
+
+    stately:
+`const trafficLight = Stately.machine({
+  green: {
+    next: 'yellow'
+  },
+  yellow: {
+    next: 'red'
+  },
+  red: {
+    onEnter: () => console.log('Red light!'),
+    next: 'green'
+  }
+});`,
+
+    faste:
+`const trafficLight = faste()
+  .on('next', ['green'], ({transitTo}) => transitTo('yellow'))
+  .on('next', ['yellow'], ({transitTo}) => {
+    console.log('Red light!');
+    transitTo('red');
+  })
+  .on('next', ['red'], ({transitTo}) => transitTo('green'));`,
+
+    'state-machine':
+`const trafficLight = new StateMachine({
+  transitions: [
+    'next : green > yellow > red > green'
+  ],
+  handlers: {
+    'enter:red': function () {
+      console.log('Red light!');
+    }
+  }
+});`,
+
+    machina:
+`const trafficLight = new machina.Fsm({
+  initialState: 'green',
+  states: {
+    green: {
+      _next: 'yellow'
+    },
+    yellow: {
+      _next: 'red'
+    },
+    red: {
+      _onEnter: function () {
+        console.log('Red light!');
+      },
+      _next: 'green'
+    }
+  },
+  next: function () {
+    this.handle('_next');
+  }
+});`,
+
+    nanostate:
+`const trafficLight = nanostate('green', {
+  green: {
+    next: 'yellow'
+  },
+  yellow: {
+    next: 'red'
+  },
+  red: {
+    next: 'green'
+  }
+});
+trafficLight.on('red', () => console.log('Red light!'));`,
+
+    'typescript-fsm':
+`const trafficLight = new StateMachine('green', [
+  t('green', 'next', 'yellow', () => {}),
+  t('yellow', 'next', 'red', () => {
+    console.log('Red light!');
+  }),
+  t('red', 'next', 'green', () => {})
+]);`,
+
+    'edium-fsm':
+`const trafficLight = new StateMachine('trafficLight');
+const green = trafficLight.createState('green');
+const yellow = trafficLight.createState('yellow');
+const red = trafficLight.createState('red', null, () => console.log('Red light!'));
+trafficLight.addTransition(green, yellow, 'next');
+trafficLight.addTransition(yellow, red, 'next');
+trafficLight.addTransition(red, green, 'next');
+trafficLight.start(green);`,
+
+    'fsm-as-promised':
+`const trafficLight = StateMachine({
+  initial: 'green',
+  events: [
+    { name: 'next', from: 'green', to: 'yellow' },
+    { name: 'next', from: 'yellow', to: 'red' },
+    { name: 'next', from: 'red', to: 'green' }
+  ],
+  callbacks: {
+    onenterred: function () {
+      console.log('Red light!');
+    }
+  }
+});`,
+
+    typestate:
+`const trafficLight = new FiniteStateMachine('green');
+trafficLight.from('green').to('yellow');
+trafficLight.from('yellow').to('red');
+trafficLight.from('red').to('green');
+trafficLight.on('red', () => console.log('Red light!'));`,
+
+    stent:
+`const trafficLight = Machine.create('trafficLight', {
+  state: { name: 'green' },
+  transitions: {
+    green: {
+      next: 'yellow'
+    },
+    yellow: {
+      next: 'red'
+    },
+    red: {
+      next: 'green'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const trafficLight = fsm('green', {
+  green: {
+    next: 'yellow'
+  },
+  yellow: {
+    next: 'red'
+  },
+  red: {
+    next: 'green'
+  }
+});
+trafficLight.on('red', () => console.log('Red light!'));`,
+
+    pastafarian:
+`const trafficLight = new StateMachine({
+  initial: 'green',
+  states: {
+    green: ['yellow'],
+    yellow: ['red'],
+    red: ['green']
+  }
+});
+trafficLight.on('red', () => console.log('Red light!'));`,
+
+    mood:
+`const trafficLight = mood('green', {
+  green: ['next', 'yellow'],
+  yellow: ['next', 'red'],
+  red: ['next', 'green']
+});
+trafficLight.on('red', () => console.log('Red light!'));`,
+
+    'node-state':
+`class TrafficLight extends NodeState {
+  constructor() {
+    super({
+      states: {
+        green: {
+          next: () => this.goto('yellow')
+        },
+        yellow: {
+          next: () => this.goto('red')
+        },
+        red: {
+          Enter: () => console.log('Red light!'),
+          next: () => this.goto('green')
+        }
+      }
+    });
+  }
+}
+const trafficLight = new TrafficLight();`
+  },
+
+  /* ================================================================
+     3. matter — solid↔liquid↔gas with action hooks
+     ================================================================ */
+  matter: {
+    jssm:
+`let matter = sm\`solid 'melt' => liquid 'vaporize' => gas; gas 'condense' => liquid 'freeze' => solid;\`;
+matter.hook_global_action('melt', () => { console.log('melting'); return true; });
+matter.hook_global_action('freeze', () => { console.log('freezing'); return true; });
+matter.hook_global_action('vaporize', () => { console.log('vaporizing'); return true; });
+matter.hook_global_action('condense', () => { console.log('condensing'); return true; });`,
+
+    xstate:
+`const matter = createMachine({
+  id: 'matter',
+  initial: 'solid',
+  states: {
+    solid: {
+      on: {
+        melt: { target: 'liquid' }
+      }
+    },
+    liquid: {
+      on: {
+        vaporize: { target: 'gas' },
+        freeze: { target: 'solid' }
+      }
+    },
+    gas: {
+      on: {
+        condense: { target: 'liquid' }
+      }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const matter = new StateMachine({
+  init: 'solid',
+  transitions: [
+    { name: 'melt', from: 'solid', to: 'liquid' },
+    { name: 'freeze', from: 'liquid', to: 'solid' },
+    { name: 'vaporize', from: 'liquid', to: 'gas' },
+    { name: 'condense', from: 'gas', to: 'liquid' }
+  ],
+  methods: {
+    onMelt: function () { console.log('melting'); },
+    onFreeze: function () { console.log('freezing'); },
+    onVaporize: function () { console.log('vaporizing'); },
+    onCondense: function () { console.log('condensing'); }
+  }
+});`,
+
+    finity:
+`const matter = Finity
+  .configure()
+    .initialState('solid')
+      .on('melt').transitionTo('liquid')
+    .state('liquid')
+      .on('vaporize').transitionTo('gas')
+      .on('freeze').transitionTo('solid')
+    .state('gas')
+      .on('condense').transitionTo('liquid')
+    .global()
+      .onTransition((from, to) => {
+        if (from === 'solid' && to === 'liquid') console.log('melting');
+        if (from === 'liquid' && to === 'solid') console.log('freezing');
+        if (from === 'liquid' && to === 'gas') console.log('vaporizing');
+        if (from === 'gas' && to === 'liquid') console.log('condensing');
+      })
+  .start();`,
+
+    robot:
+`const matter = createMachine({
+  solid: state(
+    transition(
+      'melt', 'liquid',
+      action(() => console.log('melting'))
+    )
+  ),
+  liquid: state(
+    transition(
+      'vaporize', 'gas',
+      action(() => console.log('vaporizing'))
+    ),
+    transition(
+      'freeze', 'solid',
+      action(() => console.log('freezing'))
+    )
+  ),
+  gas: state(
+    transition(
+      'condense', 'liquid',
+      action(() => console.log('condensing'))
+    )
+  )
+}, () => true);`,
+
+    stately:
+`const matter = Stately.machine({
+  solid: {
+    onEnter: () => console.log('solid'),
+    melt: 'liquid'
+  },
+  liquid: {
+    onEnter: () => console.log('liquid'),
+    vaporize: 'gas',
+    freeze: 'solid'
+  },
+  gas: {
+    onEnter: () => console.log('gas'),
+    condense: 'liquid'
+  }
+});`,
+
+    faste:
+`const matter = faste()
+  .on('melt', ['solid'], ({transitTo}) => {
+    console.log('melting');
+    transitTo('liquid');
+  })
+  .on('freeze', ['liquid'], ({transitTo}) => {
+    console.log('freezing');
+    transitTo('solid');
+  })
+  .on('vaporize', ['liquid'], ({transitTo}) => {
+    console.log('vaporizing');
+    transitTo('gas');
+  })
+  .on('condense', ['gas'], ({transitTo}) => {
+    console.log('condensing');
+    transitTo('liquid');
+  });`,
+
+    'state-machine':
+`const matter = new StateMachine({
+  transitions: [
+    'melt     : solid  > liquid',
+    'freeze   : liquid > solid',
+    'vaporize : liquid > gas',
+    'condense : gas    > liquid'
+  ],
+  handlers: {
+    'melt':     function () { console.log('melting'); },
+    'freeze':   function () { console.log('freezing'); },
+    'vaporize': function () { console.log('vaporizing'); },
+    'condense': function () { console.log('condensing'); }
+  }
+});`,
+
+    machina:
+`const matter = new machina.Fsm({
+  initialState: 'solid',
+  states: {
+    solid: {
+      _melt: function () {
+        console.log('melting');
+        this.transition('liquid');
+      }
+    },
+    liquid: {
+      _vaporize: function () {
+        console.log('vaporizing');
+        this.transition('gas');
+      },
+      _freeze: function () {
+        console.log('freezing');
+        this.transition('solid');
+      }
+    },
+    gas: {
+      _condense: function () {
+        console.log('condensing');
+        this.transition('liquid');
+      }
+    }
+  },
+  melt: function () { this.handle('_melt'); },
+  freeze: function () { this.handle('_freeze'); },
+  vaporize: function () { this.handle('_vaporize'); },
+  condense: function () { this.handle('_condense'); }
+});`,
+
+    nanostate:
+`const matter = nanostate('solid', {
+  solid: {
+    melt: 'liquid'
+  },
+  liquid: {
+    vaporize: 'gas',
+    freeze: 'solid'
+  },
+  gas: {
+    condense: 'liquid'
+  }
+});
+matter.on('liquid', () => console.log('now liquid'));
+matter.on('gas', () => console.log('now gas'));
+matter.on('solid', () => console.log('now solid'));`,
+
+    'typescript-fsm':
+`const matter = new StateMachine('solid', [
+  t('solid', 'melt', 'liquid', () => { console.log('melting'); }),
+  t('liquid', 'freeze', 'solid', () => { console.log('freezing'); }),
+  t('liquid', 'vaporize', 'gas', () => { console.log('vaporizing'); }),
+  t('gas', 'condense', 'liquid', () => { console.log('condensing'); })
+]);`,
+
+    'edium-fsm':
+`const matter = new StateMachine('matter');
+const solid = matter.createState('solid');
+const liquid = matter.createState('liquid');
+const gas = matter.createState('gas');
+matter.addTransition(solid, liquid, 'melt');
+matter.addTransition(liquid, solid, 'freeze');
+matter.addTransition(liquid, gas, 'vaporize');
+matter.addTransition(gas, liquid, 'condense');
+matter.start(solid);`,
+
+    'fsm-as-promised':
+`const matter = StateMachine({
+  initial: 'solid',
+  events: [
+    { name: 'melt', from: 'solid', to: 'liquid' },
+    { name: 'freeze', from: 'liquid', to: 'solid' },
+    { name: 'vaporize', from: 'liquid', to: 'gas' },
+    { name: 'condense', from: 'gas', to: 'liquid' }
+  ],
+  callbacks: {
+    onmelt: function () { console.log('melting'); },
+    onfreeze: function () { console.log('freezing'); },
+    onvaporize: function () { console.log('vaporizing'); },
+    oncondense: function () { console.log('condensing'); }
+  }
+});`,
+
+    typestate:
+`const matter = new FiniteStateMachine('solid');
+matter.from('solid').to('liquid');
+matter.from('liquid').to('solid');
+matter.from('liquid').to('gas');
+matter.from('gas').to('liquid');
+matter.on('liquid', () => console.log('now liquid'));
+matter.on('gas', () => console.log('now gas'));
+matter.on('solid', () => console.log('now solid'));`,
+
+    stent:
+`const matter = Machine.create('matter', {
+  state: { name: 'solid' },
+  transitions: {
+    solid: {
+      melt: 'liquid'
+    },
+    liquid: {
+      vaporize: 'gas',
+      freeze: 'solid'
+    },
+    gas: {
+      condense: 'liquid'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const matter = fsm('solid', {
+  solid: {
+    melt: 'liquid'
+  },
+  liquid: {
+    vaporize: 'gas',
+    freeze: 'solid'
+  },
+  gas: {
+    condense: 'liquid'
+  }
+});
+matter.on('liquid', () => console.log('now liquid'));
+matter.on('gas', () => console.log('now gas'));
+matter.on('solid', () => console.log('now solid'));`,
+
+    pastafarian:
+`const matter = new StateMachine({
+  initial: 'solid',
+  states: {
+    solid: ['liquid'],
+    liquid: ['gas', 'solid'],
+    gas: ['liquid']
+  }
+});
+matter.on('liquid', () => console.log('now liquid'));
+matter.on('gas', () => console.log('now gas'));
+matter.on('solid', () => console.log('now solid'));`,
+
+    mood:
+`const matter = mood('solid', {
+  solid: ['melt', 'liquid'],
+  liquid: [['vaporize', 'gas'], ['freeze', 'solid']],
+  gas: ['condense', 'liquid']
+});
+matter.on('liquid', () => console.log('now liquid'));
+matter.on('gas', () => console.log('now gas'));
+matter.on('solid', () => console.log('now solid'));`,
+
+    'node-state':
+`class Matter extends NodeState {
+  constructor() {
+    super({
+      states: {
+        solid: {
+          Enter: () => console.log('now solid'),
+          melt: () => this.goto('liquid')
+        },
+        liquid: {
+          Enter: () => console.log('now liquid'),
+          vaporize: () => this.goto('gas'),
+          freeze: () => this.goto('solid')
+        },
+        gas: {
+          Enter: () => console.log('now gas'),
+          condense: () => this.goto('liquid')
+        }
+      }
+    });
+  }
+}
+const matter = new Matter();`
+  },
+
+  /* ================================================================
+     4. promise — pending→fulfilled | pending→rejected (terminal)
+     ================================================================ */
+  promise: {
+    jssm:
+`const promise = sm\`pending 'resolve' => fulfilled; pending 'reject' => rejected;\`;`,
+
+    xstate:
+`const promise = createMachine({
+  id: 'promise',
+  initial: 'pending',
+  states: {
+    pending: {
+      on: {
+        resolve: 'fulfilled',
+        reject: 'rejected'
+      }
+    },
+    fulfilled: {
+      type: 'final'
+    },
+    rejected: {
+      type: 'final'
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const promise = new StateMachine({
+  init: 'pending',
+  transitions: [
+    { name: 'resolve', from: 'pending', to: 'fulfilled' },
+    { name: 'reject', from: 'pending', to: 'rejected' }
+  ]
+});`,
+
+    finity:
+`const promise = Finity
+  .configure()
+    .initialState('pending')
+      .on('resolve').transitionTo('fulfilled')
+      .on('reject').transitionTo('rejected')
+    .state('fulfilled')
+    .state('rejected')
+  .start();`,
+
+    robot:
+`const promise = createMachine({
+  pending: state(
+    transition('resolve', 'fulfilled'),
+    transition('reject', 'rejected')
+  ),
+  fulfilled: state(),
+  rejected: state()
+}, () => true);`,
+
+    stately:
+`const promise = Stately.machine({
+  pending: {
+    resolve: 'fulfilled',
+    reject: 'rejected'
+  },
+  fulfilled: {},
+  rejected: {}
+});`,
+
+    faste:
+`const promise = faste()
+  .on('resolve', ['pending'], ({transitTo}) => transitTo('fulfilled'))
+  .on('reject', ['pending'], ({transitTo}) => transitTo('rejected'));`,
+
+    'state-machine':
+`const promise = new StateMachine({
+  transitions: [
+    'resolve : pending > fulfilled',
+    'reject  : pending > rejected'
+  ]
+});`,
+
+    machina:
+`const promise = new machina.Fsm({
+  initialState: 'pending',
+  states: {
+    pending: {
+      _resolve: 'fulfilled',
+      _reject: 'rejected'
+    },
+    fulfilled: {},
+    rejected: {}
+  },
+  resolve: function () { this.handle('_resolve'); },
+  reject: function () { this.handle('_reject'); }
+});`,
+
+    nanostate:
+`const promise = nanostate('pending', {
+  pending: {
+    resolve: 'fulfilled',
+    reject: 'rejected'
+  },
+  fulfilled: {},
+  rejected: {}
+});`,
+
+    'typescript-fsm':
+`const promise = new StateMachine('pending', [
+  t('pending', 'resolve', 'fulfilled', () => {}),
+  t('pending', 'reject', 'rejected', () => {})
+]);`,
+
+    'edium-fsm':
+`const promise = new StateMachine('promise');
+const pending = promise.createState('pending');
+const fulfilled = promise.createState('fulfilled');
+const rejected = promise.createState('rejected');
+promise.addTransition(pending, fulfilled, 'resolve');
+promise.addTransition(pending, rejected, 'reject');
+promise.start(pending);`,
+
+    'fsm-as-promised':
+`const promise = StateMachine({
+  initial: 'pending',
+  events: [
+    { name: 'resolve', from: 'pending', to: 'fulfilled' },
+    { name: 'reject', from: 'pending', to: 'rejected' }
+  ]
+});`,
+
+    typestate:
+`const promise = new FiniteStateMachine('pending');
+promise.from('pending').to('fulfilled');
+promise.from('pending').to('rejected');`,
+
+    stent:
+`const promise = Machine.create('promise', {
+  state: { name: 'pending' },
+  transitions: {
+    pending: {
+      resolve: 'fulfilled',
+      reject: 'rejected'
+    },
+    fulfilled: {},
+    rejected: {}
+  }
+});`,
+
+    'fsm-event':
+`const promise = fsm('pending', {
+  pending: {
+    resolve: 'fulfilled',
+    reject: 'rejected'
+  },
+  fulfilled: {},
+  rejected: {}
+});`,
+
+    pastafarian:
+`const promise = new StateMachine({
+  initial: 'pending',
+  states: {
+    pending: ['fulfilled', 'rejected'],
+    fulfilled: [],
+    rejected: []
+  }
+});`,
+
+    mood:
+`const promise = mood('pending', {
+  pending: [['resolve', 'fulfilled'], ['reject', 'rejected']],
+  fulfilled: [],
+  rejected: []
+});`,
+
+    'node-state':
+`class Promise extends NodeState {
+  constructor() {
+    super({
+      states: {
+        pending: {
+          resolve: () => this.goto('fulfilled'),
+          reject: () => this.goto('rejected')
+        },
+        fulfilled: {},
+        rejected: {}
+      }
+    });
+  }
+}
+const promise = new Promise();`
+  },
+
+  /* ================================================================
+     5. connection — disconnected→connecting→connected→disconnecting→
+        disconnected, plus error: connecting→disconnected
+     ================================================================ */
+  connection: {
+    jssm:
+`const connection = sm\`
+  disconnected 'connect' => connecting 'success' => connected;
+  connected 'disconnect' => disconnecting 'done' => disconnected;
+  connecting 'error' => disconnected;
+\`;`,
+
+    xstate:
+`const connection = createMachine({
+  id: 'connection',
+  initial: 'disconnected',
+  states: {
+    disconnected: {
+      on: { connect: 'connecting' }
+    },
+    connecting: {
+      on: {
+        success: 'connected',
+        error: 'disconnected'
+      }
+    },
+    connected: {
+      on: { disconnect: 'disconnecting' }
+    },
+    disconnecting: {
+      on: { done: 'disconnected' }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const connection = new StateMachine({
+  init: 'disconnected',
+  transitions: [
+    { name: 'connect', from: 'disconnected', to: 'connecting' },
+    { name: 'success', from: 'connecting', to: 'connected' },
+    { name: 'error', from: 'connecting', to: 'disconnected' },
+    { name: 'disconnect', from: 'connected', to: 'disconnecting' },
+    { name: 'done', from: 'disconnecting', to: 'disconnected' }
+  ]
+});`,
+
+    finity:
+`const connection = Finity
+  .configure()
+    .initialState('disconnected')
+      .on('connect').transitionTo('connecting')
+    .state('connecting')
+      .on('success').transitionTo('connected')
+      .on('error').transitionTo('disconnected')
+    .state('connected')
+      .on('disconnect').transitionTo('disconnecting')
+    .state('disconnecting')
+      .on('done').transitionTo('disconnected')
+  .start();`,
+
+    robot:
+`const connection = createMachine({
+  disconnected: state(
+    transition('connect', 'connecting')
+  ),
+  connecting: state(
+    transition('success', 'connected'),
+    transition('error', 'disconnected')
+  ),
+  connected: state(
+    transition('disconnect', 'disconnecting')
+  ),
+  disconnecting: state(
+    transition('done', 'disconnected')
+  )
+}, () => true);`,
+
+    stately:
+`const connection = Stately.machine({
+  disconnected: {
+    connect: 'connecting'
+  },
+  connecting: {
+    success: 'connected',
+    error: 'disconnected'
+  },
+  connected: {
+    disconnect: 'disconnecting'
+  },
+  disconnecting: {
+    done: 'disconnected'
+  }
+});`,
+
+    faste:
+`const connection = faste()
+  .on('connect', ['disconnected'], ({transitTo}) => transitTo('connecting'))
+  .on('success', ['connecting'], ({transitTo}) => transitTo('connected'))
+  .on('error', ['connecting'], ({transitTo}) => transitTo('disconnected'))
+  .on('disconnect', ['connected'], ({transitTo}) => transitTo('disconnecting'))
+  .on('done', ['disconnecting'], ({transitTo}) => transitTo('disconnected'));`,
+
+    'state-machine':
+`const connection = new StateMachine({
+  transitions: [
+    'connect    : disconnected  > connecting',
+    'success    : connecting    > connected',
+    'error      : connecting    > disconnected',
+    'disconnect : connected     > disconnecting',
+    'done       : disconnecting > disconnected'
+  ]
+});`,
+
+    machina:
+`const connection = new machina.Fsm({
+  initialState: 'disconnected',
+  states: {
+    disconnected: {
+      _connect: 'connecting'
+    },
+    connecting: {
+      _success: 'connected',
+      _error: 'disconnected'
+    },
+    connected: {
+      _disconnect: 'disconnecting'
+    },
+    disconnecting: {
+      _done: 'disconnected'
+    }
+  },
+  connect: function () { this.handle('_connect'); },
+  success: function () { this.handle('_success'); },
+  error: function () { this.handle('_error'); },
+  disconnect: function () { this.handle('_disconnect'); },
+  done: function () { this.handle('_done'); }
+});`,
+
+    nanostate:
+`const connection = nanostate('disconnected', {
+  disconnected: {
+    connect: 'connecting'
+  },
+  connecting: {
+    success: 'connected',
+    error: 'disconnected'
+  },
+  connected: {
+    disconnect: 'disconnecting'
+  },
+  disconnecting: {
+    done: 'disconnected'
+  }
+});`,
+
+    'typescript-fsm':
+`const connection = new StateMachine('disconnected', [
+  t('disconnected', 'connect', 'connecting', () => {}),
+  t('connecting', 'success', 'connected', () => {}),
+  t('connecting', 'error', 'disconnected', () => {}),
+  t('connected', 'disconnect', 'disconnecting', () => {}),
+  t('disconnecting', 'done', 'disconnected', () => {})
+]);`,
+
+    'edium-fsm':
+`const connection = new StateMachine('connection');
+const disconnected = connection.createState('disconnected');
+const connecting = connection.createState('connecting');
+const connected = connection.createState('connected');
+const disconnecting = connection.createState('disconnecting');
+connection.addTransition(disconnected, connecting, 'connect');
+connection.addTransition(connecting, connected, 'success');
+connection.addTransition(connecting, disconnected, 'error');
+connection.addTransition(connected, disconnecting, 'disconnect');
+connection.addTransition(disconnecting, disconnected, 'done');
+connection.start(disconnected);`,
+
+    'fsm-as-promised':
+`const connection = StateMachine({
+  initial: 'disconnected',
+  events: [
+    { name: 'connect', from: 'disconnected', to: 'connecting' },
+    { name: 'success', from: 'connecting', to: 'connected' },
+    { name: 'error', from: 'connecting', to: 'disconnected' },
+    { name: 'disconnect', from: 'connected', to: 'disconnecting' },
+    { name: 'done', from: 'disconnecting', to: 'disconnected' }
+  ]
+});`,
+
+    typestate:
+`const connection = new FiniteStateMachine('disconnected');
+connection.from('disconnected').to('connecting');
+connection.from('connecting').to('connected');
+connection.from('connecting').to('disconnected');
+connection.from('connected').to('disconnecting');
+connection.from('disconnecting').to('disconnected');`,
+
+    stent:
+`const connection = Machine.create('connection', {
+  state: { name: 'disconnected' },
+  transitions: {
+    disconnected: {
+      connect: 'connecting'
+    },
+    connecting: {
+      success: 'connected',
+      error: 'disconnected'
+    },
+    connected: {
+      disconnect: 'disconnecting'
+    },
+    disconnecting: {
+      done: 'disconnected'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const connection = fsm('disconnected', {
+  disconnected: {
+    connect: 'connecting'
+  },
+  connecting: {
+    success: 'connected',
+    error: 'disconnected'
+  },
+  connected: {
+    disconnect: 'disconnecting'
+  },
+  disconnecting: {
+    done: 'disconnected'
+  }
+});`,
+
+    pastafarian:
+`const connection = new StateMachine({
+  initial: 'disconnected',
+  states: {
+    disconnected: ['connecting'],
+    connecting: ['connected', 'disconnected'],
+    connected: ['disconnecting'],
+    disconnecting: ['disconnected']
+  }
+});`,
+
+    mood:
+`const connection = mood('disconnected', {
+  disconnected: ['connect', 'connecting'],
+  connecting: [['success', 'connected'], ['error', 'disconnected']],
+  connected: ['disconnect', 'disconnecting'],
+  disconnecting: ['done', 'disconnected']
+});`,
+
+    'node-state':
+`class Connection extends NodeState {
+  constructor() {
+    super({
+      states: {
+        disconnected: {
+          connect: () => this.goto('connecting')
+        },
+        connecting: {
+          success: () => this.goto('connected'),
+          error: () => this.goto('disconnected')
+        },
+        connected: {
+          disconnect: () => this.goto('disconnecting')
+        },
+        disconnecting: {
+          done: () => this.goto('disconnected')
+        }
+      }
+    });
+  }
+}
+const connection = new Connection();`
+  },
+
+  /* ================================================================
+     6. door — locked↔unlocked with guard (data===1234)
+     ================================================================ */
+  door: {
+    jssm:
+`const door = sm\`locked 'unlock' => unlocked 'lock' => locked;\`;
+door.hook_action('unlock', () => ({ pass: data === 1234 }));`,
+
+    xstate:
+`const door = createMachine({
+  id: 'door',
+  initial: 'locked',
+  states: {
+    locked: {
+      on: {
+        unlock: {
+          target: 'unlocked',
+          cond: 'checkCode'
+        }
+      }
+    },
+    unlocked: {
+      on: {
+        lock: 'locked'
+      }
+    }
+  }
+}, {
+  guards: {
+    checkCode: (ctx, event) => event.data === 1234
+  }
+});`,
+
+    'javascript-state-machine':
+`const door = new StateMachine({
+  init: 'locked',
+  transitions: [
+    { name: 'unlock', from: 'locked', to: 'unlocked' },
+    { name: 'lock', from: 'unlocked', to: 'locked' }
+  ],
+  methods: {
+    onBeforeUnlock: function (lifecycle, data) {
+      return data === 1234;
+    }
+  }
+});`,
+
+    finity:
+`const door = Finity
+  .configure()
+    .initialState('locked')
+      .on('unlock')
+        .withCondition((ctx) => ctx.data === 1234)
+        .transitionTo('unlocked')
+    .state('unlocked')
+      .on('lock').transitionTo('locked')
+  .start();`,
+
+    robot:
+`const door = createMachine({
+  locked: state(
+    transition(
+      'unlock', 'unlocked',
+      guard((ctx) => ctx.data === 1234)
+    )
+  ),
+  unlocked: state(
+    transition('lock', 'locked')
+  )
+}, () => true);`,
+
+    stately:
+`const door = Stately.machine({
+  locked: {
+    unlock: function (data) {
+      if (data === 1234) return this.unlocked;
+      return this.locked;
+    }
+  },
+  unlocked: {
+    lock: 'locked'
+  }
+});`,
+
+    faste:
+`const door = faste()
+  .on('unlock', ['locked'], ({transitTo}, data) => {
+    if (data === 1234) transitTo('unlocked');
+  })
+  .on('lock', ['unlocked'], ({transitTo}) => transitTo('locked'));`,
+
+    'state-machine':
+`// No built-in guard; validate before transitioning
+const door = new StateMachine({
+  transitions: [
+    'unlock : locked   > unlocked',
+    'lock   : unlocked > locked'
+  ]
+});`,
+
+    machina:
+`const door = new machina.Fsm({
+  initialState: 'locked',
+  states: {
+    locked: {
+      _unlock: function (data) {
+        if (data === 1234) {
+          this.transition('unlocked');
+        }
+      }
+    },
+    unlocked: {
+      _lock: 'locked'
+    }
+  },
+  unlock: function (data) { this.handle('_unlock', data); },
+  lock: function () { this.handle('_lock'); }
+});`,
+
+    nanostate:
+`// No built-in guard; validate before transitioning
+const door = nanostate('locked', {
+  locked: {
+    unlock: 'unlocked'
+  },
+  unlocked: {
+    lock: 'locked'
+  }
+});`,
+
+    'typescript-fsm':
+`const door = new StateMachine('locked', [
+  t('locked', 'unlock', 'unlocked', (data) => {
+    if (data !== 1234) throw new Error('Invalid code');
+  }),
+  t('unlocked', 'lock', 'locked', () => {})
+]);`,
+
+    'edium-fsm':
+`// No built-in guard; validate before transitioning
+const door = new StateMachine('door');
+const locked = door.createState('locked');
+const unlocked = door.createState('unlocked');
+door.addTransition(locked, unlocked, 'unlock');
+door.addTransition(unlocked, locked, 'lock');
+door.start(locked);`,
+
+    'fsm-as-promised':
+`const door = StateMachine({
+  initial: 'locked',
+  events: [
+    { name: 'unlock', from: 'locked', to: 'unlocked' },
+    { name: 'lock', from: 'unlocked', to: 'locked' }
+  ],
+  callbacks: {
+    onbeforeunlock: function (event) {
+      return event.data === 1234;
+    }
+  }
+});`,
+
+    typestate:
+`// No built-in guard; validate before transitioning
+const door = new FiniteStateMachine('locked');
+door.from('locked').to('unlocked');
+door.from('unlocked').to('locked');`,
+
+    stent:
+`// No built-in guard; validate before transitioning
+const door = Machine.create('door', {
+  state: { name: 'locked' },
+  transitions: {
+    locked: {
+      unlock: 'unlocked'
+    },
+    unlocked: {
+      lock: 'locked'
+    }
+  }
+});`,
+
+    'fsm-event':
+`// No built-in guard; validate before transitioning
+const door = fsm('locked', {
+  locked: {
+    unlock: 'unlocked'
+  },
+  unlocked: {
+    lock: 'locked'
+  }
+});`,
+
+    pastafarian:
+`// No built-in guard; validate before transitioning
+const door = new StateMachine({
+  initial: 'locked',
+  states: {
+    locked: ['unlocked'],
+    unlocked: ['locked']
+  }
+});`,
+
+    mood:
+`// No built-in guard; validate before transitioning
+const door = mood('locked', {
+  locked: ['unlock', 'unlocked'],
+  unlocked: ['lock', 'locked']
+});`,
+
+    'node-state':
+`// No built-in guard; validate before transitioning
+class Door extends NodeState {
+  constructor() {
+    super({
+      states: {
+        locked: {
+          unlock: () => this.goto('unlocked')
+        },
+        unlocked: {
+          lock: () => this.goto('locked')
+        }
+      }
+    });
+  }
+}
+const door = new Door();`
+  },
+
+  /* ================================================================
+     7. wizard — pick_install→choose_features→icon_and_menu→complete
+        with back from choose_features and icon_and_menu
+     ================================================================ */
+  wizard: {
+    jssm:
+`const wizard = sm\`
+  pick_install 'next' => choose_features;
+  choose_features 'next' => icon_and_menu 'next' => complete;
+  choose_features 'back' => pick_install;
+  icon_and_menu 'back' => choose_features;
+\`;`,
+
+    xstate:
+`const wizard = createMachine({
+  id: 'wizard',
+  initial: 'pick_install',
+  states: {
+    pick_install: {
+      on: { next: 'choose_features' }
+    },
+    choose_features: {
+      on: {
+        next: 'icon_and_menu',
+        back: 'pick_install'
+      }
+    },
+    icon_and_menu: {
+      on: {
+        next: 'complete',
+        back: 'choose_features'
+      }
+    },
+    complete: {
+      type: 'final'
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const wizard = new StateMachine({
+  init: 'pick_install',
+  transitions: [
+    { name: 'next', from: 'pick_install', to: 'choose_features' },
+    { name: 'next', from: 'choose_features', to: 'icon_and_menu' },
+    { name: 'next', from: 'icon_and_menu', to: 'complete' },
+    { name: 'back', from: 'choose_features', to: 'pick_install' },
+    { name: 'back', from: 'icon_and_menu', to: 'choose_features' }
+  ]
+});`,
+
+    finity:
+`const wizard = Finity
+  .configure()
+    .initialState('pick_install')
+      .on('next').transitionTo('choose_features')
+    .state('choose_features')
+      .on('next').transitionTo('icon_and_menu')
+      .on('back').transitionTo('pick_install')
+    .state('icon_and_menu')
+      .on('next').transitionTo('complete')
+      .on('back').transitionTo('choose_features')
+    .state('complete')
+  .start();`,
+
+    robot:
+`const wizard = createMachine({
+  pick_install: state(
+    transition('next', 'choose_features')
+  ),
+  choose_features: state(
+    transition('next', 'icon_and_menu'),
+    transition('back', 'pick_install')
+  ),
+  icon_and_menu: state(
+    transition('next', 'complete'),
+    transition('back', 'choose_features')
+  ),
+  complete: state()
+}, () => true);`,
+
+    stately:
+`const wizard = Stately.machine({
+  pick_install: {
+    next: 'choose_features'
+  },
+  choose_features: {
+    next: 'icon_and_menu',
+    back: 'pick_install'
+  },
+  icon_and_menu: {
+    next: 'complete',
+    back: 'choose_features'
+  },
+  complete: {}
+});`,
+
+    faste:
+`const wizard = faste()
+  .on('next', ['pick_install'], ({transitTo}) => transitTo('choose_features'))
+  .on('next', ['choose_features'], ({transitTo}) => transitTo('icon_and_menu'))
+  .on('next', ['icon_and_menu'], ({transitTo}) => transitTo('complete'))
+  .on('back', ['choose_features'], ({transitTo}) => transitTo('pick_install'))
+  .on('back', ['icon_and_menu'], ({transitTo}) => transitTo('choose_features'));`,
+
+    'state-machine':
+`const wizard = new StateMachine({
+  transitions: [
+    'next : pick_install > choose_features > icon_and_menu > complete',
+    'back : choose_features > pick_install',
+    'back : icon_and_menu > choose_features'
+  ]
+});`,
+
+    machina:
+`const wizard = new machina.Fsm({
+  initialState: 'pick_install',
+  states: {
+    pick_install: {
+      _next: 'choose_features'
+    },
+    choose_features: {
+      _next: 'icon_and_menu',
+      _back: 'pick_install'
+    },
+    icon_and_menu: {
+      _next: 'complete',
+      _back: 'choose_features'
+    },
+    complete: {}
+  },
+  next: function () { this.handle('_next'); },
+  back: function () { this.handle('_back'); }
+});`,
+
+    nanostate:
+`const wizard = nanostate('pick_install', {
+  pick_install: {
+    next: 'choose_features'
+  },
+  choose_features: {
+    next: 'icon_and_menu',
+    back: 'pick_install'
+  },
+  icon_and_menu: {
+    next: 'complete',
+    back: 'choose_features'
+  },
+  complete: {}
+});`,
+
+    'typescript-fsm':
+`const wizard = new StateMachine('pick_install', [
+  t('pick_install', 'next', 'choose_features', () => {}),
+  t('choose_features', 'next', 'icon_and_menu', () => {}),
+  t('icon_and_menu', 'next', 'complete', () => {}),
+  t('choose_features', 'back', 'pick_install', () => {}),
+  t('icon_and_menu', 'back', 'choose_features', () => {})
+]);`,
+
+    'edium-fsm':
+`const wizard = new StateMachine('wizard');
+const pickInstall = wizard.createState('pick_install');
+const chooseFeatures = wizard.createState('choose_features');
+const iconAndMenu = wizard.createState('icon_and_menu');
+const complete = wizard.createState('complete');
+wizard.addTransition(pickInstall, chooseFeatures, 'next');
+wizard.addTransition(chooseFeatures, iconAndMenu, 'next');
+wizard.addTransition(iconAndMenu, complete, 'next');
+wizard.addTransition(chooseFeatures, pickInstall, 'back');
+wizard.addTransition(iconAndMenu, chooseFeatures, 'back');
+wizard.start(pickInstall);`,
+
+    'fsm-as-promised':
+`const wizard = StateMachine({
+  initial: 'pick_install',
+  events: [
+    { name: 'next', from: 'pick_install', to: 'choose_features' },
+    { name: 'next', from: 'choose_features', to: 'icon_and_menu' },
+    { name: 'next', from: 'icon_and_menu', to: 'complete' },
+    { name: 'back', from: 'choose_features', to: 'pick_install' },
+    { name: 'back', from: 'icon_and_menu', to: 'choose_features' }
+  ]
+});`,
+
+    typestate:
+`const wizard = new FiniteStateMachine('pick_install');
+wizard.from('pick_install').to('choose_features');
+wizard.from('choose_features').to('icon_and_menu');
+wizard.from('icon_and_menu').to('complete');
+wizard.from('choose_features').to('pick_install');
+wizard.from('icon_and_menu').to('choose_features');`,
+
+    stent:
+`const wizard = Machine.create('wizard', {
+  state: { name: 'pick_install' },
+  transitions: {
+    pick_install: {
+      next: 'choose_features'
+    },
+    choose_features: {
+      next: 'icon_and_menu',
+      back: 'pick_install'
+    },
+    icon_and_menu: {
+      next: 'complete',
+      back: 'choose_features'
+    },
+    complete: {}
+  }
+});`,
+
+    'fsm-event':
+`const wizard = fsm('pick_install', {
+  pick_install: {
+    next: 'choose_features'
+  },
+  choose_features: {
+    next: 'icon_and_menu',
+    back: 'pick_install'
+  },
+  icon_and_menu: {
+    next: 'complete',
+    back: 'choose_features'
+  },
+  complete: {}
+});`,
+
+    pastafarian:
+`const wizard = new StateMachine({
+  initial: 'pick_install',
+  states: {
+    pick_install: ['choose_features'],
+    choose_features: ['icon_and_menu', 'pick_install'],
+    icon_and_menu: ['complete', 'choose_features'],
+    complete: []
+  }
+});`,
+
+    mood:
+`const wizard = mood('pick_install', {
+  pick_install: ['next', 'choose_features'],
+  choose_features: [['next', 'icon_and_menu'], ['back', 'pick_install']],
+  icon_and_menu: [['next', 'complete'], ['back', 'choose_features']],
+  complete: []
+});`,
+
+    'node-state':
+`class Wizard extends NodeState {
+  constructor() {
+    super({
+      states: {
+        pick_install: {
+          next: () => this.goto('choose_features')
+        },
+        choose_features: {
+          next: () => this.goto('icon_and_menu'),
+          back: () => this.goto('pick_install')
+        },
+        icon_and_menu: {
+          next: () => this.goto('complete'),
+          back: () => this.goto('choose_features')
+        },
+        complete: {}
+      }
+    });
+  }
+}
+const wizard = new Wizard();`
+  },
+
+  /* ================================================================
+     8. vending — idle→coin_inserted→item_selected→dispensing→idle
+        plus cancel: coin_inserted→idle
+     ================================================================ */
+  vending: {
+    jssm:
+`const vending = sm\`
+  idle 'insert_coin' => coin_inserted;
+  coin_inserted 'select_item' => item_selected;
+  item_selected 'dispense' => dispensing 'done' => idle;
+  coin_inserted 'cancel' => idle;
+\`;`,
+
+    xstate:
+`const vending = createMachine({
+  id: 'vending',
+  initial: 'idle',
+  states: {
+    idle: {
+      on: { insert_coin: 'coin_inserted' }
+    },
+    coin_inserted: {
+      on: {
+        select_item: 'item_selected',
+        cancel: 'idle'
+      }
+    },
+    item_selected: {
+      on: { dispense: 'dispensing' }
+    },
+    dispensing: {
+      on: { done: 'idle' }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const vending = new StateMachine({
+  init: 'idle',
+  transitions: [
+    { name: 'insert_coin', from: 'idle', to: 'coin_inserted' },
+    { name: 'select_item', from: 'coin_inserted', to: 'item_selected' },
+    { name: 'dispense', from: 'item_selected', to: 'dispensing' },
+    { name: 'done', from: 'dispensing', to: 'idle' },
+    { name: 'cancel', from: 'coin_inserted', to: 'idle' }
+  ]
+});`,
+
+    finity:
+`const vending = Finity
+  .configure()
+    .initialState('idle')
+      .on('insert_coin').transitionTo('coin_inserted')
+    .state('coin_inserted')
+      .on('select_item').transitionTo('item_selected')
+      .on('cancel').transitionTo('idle')
+    .state('item_selected')
+      .on('dispense').transitionTo('dispensing')
+    .state('dispensing')
+      .on('done').transitionTo('idle')
+  .start();`,
+
+    robot:
+`const vending = createMachine({
+  idle: state(
+    transition('insert_coin', 'coin_inserted')
+  ),
+  coin_inserted: state(
+    transition('select_item', 'item_selected'),
+    transition('cancel', 'idle')
+  ),
+  item_selected: state(
+    transition('dispense', 'dispensing')
+  ),
+  dispensing: state(
+    transition('done', 'idle')
+  )
+}, () => true);`,
+
+    stately:
+`const vending = Stately.machine({
+  idle: {
+    insert_coin: 'coin_inserted'
+  },
+  coin_inserted: {
+    select_item: 'item_selected',
+    cancel: 'idle'
+  },
+  item_selected: {
+    dispense: 'dispensing'
+  },
+  dispensing: {
+    done: 'idle'
+  }
+});`,
+
+    faste:
+`const vending = faste()
+  .on('insert_coin', ['idle'], ({transitTo}) => transitTo('coin_inserted'))
+  .on('select_item', ['coin_inserted'], ({transitTo}) => transitTo('item_selected'))
+  .on('dispense', ['item_selected'], ({transitTo}) => transitTo('dispensing'))
+  .on('done', ['dispensing'], ({transitTo}) => transitTo('idle'))
+  .on('cancel', ['coin_inserted'], ({transitTo}) => transitTo('idle'));`,
+
+    'state-machine':
+`const vending = new StateMachine({
+  transitions: [
+    'insert_coin : idle          > coin_inserted',
+    'select_item : coin_inserted > item_selected',
+    'dispense    : item_selected > dispensing',
+    'done        : dispensing    > idle',
+    'cancel      : coin_inserted > idle'
+  ]
+});`,
+
+    machina:
+`const vending = new machina.Fsm({
+  initialState: 'idle',
+  states: {
+    idle: {
+      _insert_coin: 'coin_inserted'
+    },
+    coin_inserted: {
+      _select_item: 'item_selected',
+      _cancel: 'idle'
+    },
+    item_selected: {
+      _dispense: 'dispensing'
+    },
+    dispensing: {
+      _done: 'idle'
+    }
+  },
+  insert_coin: function () { this.handle('_insert_coin'); },
+  select_item: function () { this.handle('_select_item'); },
+  dispense: function () { this.handle('_dispense'); },
+  done: function () { this.handle('_done'); },
+  cancel: function () { this.handle('_cancel'); }
+});`,
+
+    nanostate:
+`const vending = nanostate('idle', {
+  idle: {
+    insert_coin: 'coin_inserted'
+  },
+  coin_inserted: {
+    select_item: 'item_selected',
+    cancel: 'idle'
+  },
+  item_selected: {
+    dispense: 'dispensing'
+  },
+  dispensing: {
+    done: 'idle'
+  }
+});`,
+
+    'typescript-fsm':
+`const vending = new StateMachine('idle', [
+  t('idle', 'insert_coin', 'coin_inserted', () => {}),
+  t('coin_inserted', 'select_item', 'item_selected', () => {}),
+  t('item_selected', 'dispense', 'dispensing', () => {}),
+  t('dispensing', 'done', 'idle', () => {}),
+  t('coin_inserted', 'cancel', 'idle', () => {})
+]);`,
+
+    'edium-fsm':
+`const vending = new StateMachine('vending');
+const idle = vending.createState('idle');
+const coinInserted = vending.createState('coin_inserted');
+const itemSelected = vending.createState('item_selected');
+const dispensing = vending.createState('dispensing');
+vending.addTransition(idle, coinInserted, 'insert_coin');
+vending.addTransition(coinInserted, itemSelected, 'select_item');
+vending.addTransition(itemSelected, dispensing, 'dispense');
+vending.addTransition(dispensing, idle, 'done');
+vending.addTransition(coinInserted, idle, 'cancel');
+vending.start(idle);`,
+
+    'fsm-as-promised':
+`const vending = StateMachine({
+  initial: 'idle',
+  events: [
+    { name: 'insert_coin', from: 'idle', to: 'coin_inserted' },
+    { name: 'select_item', from: 'coin_inserted', to: 'item_selected' },
+    { name: 'dispense', from: 'item_selected', to: 'dispensing' },
+    { name: 'done', from: 'dispensing', to: 'idle' },
+    { name: 'cancel', from: 'coin_inserted', to: 'idle' }
+  ]
+});`,
+
+    typestate:
+`const vending = new FiniteStateMachine('idle');
+vending.from('idle').to('coin_inserted');
+vending.from('coin_inserted').to('item_selected');
+vending.from('item_selected').to('dispensing');
+vending.from('dispensing').to('idle');
+vending.from('coin_inserted').to('idle');`,
+
+    stent:
+`const vending = Machine.create('vending', {
+  state: { name: 'idle' },
+  transitions: {
+    idle: {
+      insert_coin: 'coin_inserted'
+    },
+    coin_inserted: {
+      select_item: 'item_selected',
+      cancel: 'idle'
+    },
+    item_selected: {
+      dispense: 'dispensing'
+    },
+    dispensing: {
+      done: 'idle'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const vending = fsm('idle', {
+  idle: {
+    insert_coin: 'coin_inserted'
+  },
+  coin_inserted: {
+    select_item: 'item_selected',
+    cancel: 'idle'
+  },
+  item_selected: {
+    dispense: 'dispensing'
+  },
+  dispensing: {
+    done: 'idle'
+  }
+});`,
+
+    pastafarian:
+`const vending = new StateMachine({
+  initial: 'idle',
+  states: {
+    idle: ['coin_inserted'],
+    coin_inserted: ['item_selected', 'idle'],
+    item_selected: ['dispensing'],
+    dispensing: ['idle']
+  }
+});`,
+
+    mood:
+`const vending = mood('idle', {
+  idle: ['insert_coin', 'coin_inserted'],
+  coin_inserted: [['select_item', 'item_selected'], ['cancel', 'idle']],
+  item_selected: ['dispense', 'dispensing'],
+  dispensing: ['done', 'idle']
+});`,
+
+    'node-state':
+`class Vending extends NodeState {
+  constructor() {
+    super({
+      states: {
+        idle: {
+          insert_coin: () => this.goto('coin_inserted')
+        },
+        coin_inserted: {
+          select_item: () => this.goto('item_selected'),
+          cancel: () => this.goto('idle')
+        },
+        item_selected: {
+          dispense: () => this.goto('dispensing')
+        },
+        dispensing: {
+          done: () => this.goto('idle')
+        }
+      }
+    });
+  }
+}
+const vending = new Vending();`
+  },
+
+  /* ================================================================
+     9. rpg — idle, walking, running, attacking with list syntax
+     ================================================================ */
+  rpg: {
+    jssm:
+`const rpg = sm\`
+  idle 'walk' => walking;
+  walking 'run' => running;
+  [idle walking running] 'attack' => attacking;
+  [walking running attacking] 'stop' => idle;
+\`;`,
+
+    xstate:
+`const rpg = createMachine({
+  id: 'rpg',
+  initial: 'idle',
+  states: {
+    idle: {
+      on: {
+        walk: 'walking',
+        attack: 'attacking'
+      }
+    },
+    walking: {
+      on: {
+        run: 'running',
+        attack: 'attacking',
+        stop: 'idle'
+      }
+    },
+    running: {
+      on: {
+        attack: 'attacking',
+        stop: 'idle'
+      }
+    },
+    attacking: {
+      on: {
+        stop: 'idle'
+      }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const rpg = new StateMachine({
+  init: 'idle',
+  transitions: [
+    { name: 'walk', from: 'idle', to: 'walking' },
+    { name: 'run', from: 'walking', to: 'running' },
+    { name: 'attack', from: ['idle', 'walking', 'running'], to: 'attacking' },
+    { name: 'stop', from: ['walking', 'running', 'attacking'], to: 'idle' }
+  ]
+});`,
+
+    finity:
+`const rpg = Finity
+  .configure()
+    .initialState('idle')
+      .on('walk').transitionTo('walking')
+      .on('attack').transitionTo('attacking')
+    .state('walking')
+      .on('run').transitionTo('running')
+      .on('attack').transitionTo('attacking')
+      .on('stop').transitionTo('idle')
+    .state('running')
+      .on('attack').transitionTo('attacking')
+      .on('stop').transitionTo('idle')
+    .state('attacking')
+      .on('stop').transitionTo('idle')
+  .start();`,
+
+    robot:
+`const rpg = createMachine({
+  idle: state(
+    transition('walk', 'walking'),
+    transition('attack', 'attacking')
+  ),
+  walking: state(
+    transition('run', 'running'),
+    transition('attack', 'attacking'),
+    transition('stop', 'idle')
+  ),
+  running: state(
+    transition('attack', 'attacking'),
+    transition('stop', 'idle')
+  ),
+  attacking: state(
+    transition('stop', 'idle')
+  )
+}, () => true);`,
+
+    stately:
+`const rpg = Stately.machine({
+  idle: {
+    walk: 'walking',
+    attack: 'attacking'
+  },
+  walking: {
+    run: 'running',
+    attack: 'attacking',
+    stop: 'idle'
+  },
+  running: {
+    attack: 'attacking',
+    stop: 'idle'
+  },
+  attacking: {
+    stop: 'idle'
+  }
+});`,
+
+    faste:
+`const rpg = faste()
+  .on('walk', ['idle'], ({transitTo}) => transitTo('walking'))
+  .on('run', ['walking'], ({transitTo}) => transitTo('running'))
+  .on('attack', ['idle', 'walking', 'running'], ({transitTo}) => transitTo('attacking'))
+  .on('stop', ['walking', 'running', 'attacking'], ({transitTo}) => transitTo('idle'));`,
+
+    'state-machine':
+`const rpg = new StateMachine({
+  transitions: [
+    'walk   : idle    > walking',
+    'run    : walking > running',
+    'attack : idle    > attacking',
+    'attack : walking > attacking',
+    'attack : running > attacking',
+    'stop   : walking   > idle',
+    'stop   : running   > idle',
+    'stop   : attacking > idle'
+  ]
+});`,
+
+    machina:
+`const rpg = new machina.Fsm({
+  initialState: 'idle',
+  states: {
+    idle: {
+      _walk: 'walking',
+      _attack: 'attacking'
+    },
+    walking: {
+      _run: 'running',
+      _attack: 'attacking',
+      _stop: 'idle'
+    },
+    running: {
+      _attack: 'attacking',
+      _stop: 'idle'
+    },
+    attacking: {
+      _stop: 'idle'
+    }
+  },
+  walk: function () { this.handle('_walk'); },
+  run: function () { this.handle('_run'); },
+  attack: function () { this.handle('_attack'); },
+  stop: function () { this.handle('_stop'); }
+});`,
+
+    nanostate:
+`const rpg = nanostate('idle', {
+  idle: {
+    walk: 'walking',
+    attack: 'attacking'
+  },
+  walking: {
+    run: 'running',
+    attack: 'attacking',
+    stop: 'idle'
+  },
+  running: {
+    attack: 'attacking',
+    stop: 'idle'
+  },
+  attacking: {
+    stop: 'idle'
+  }
+});`,
+
+    'typescript-fsm':
+`const rpg = new StateMachine('idle', [
+  t('idle', 'walk', 'walking', () => {}),
+  t('walking', 'run', 'running', () => {}),
+  t('idle', 'attack', 'attacking', () => {}),
+  t('walking', 'attack', 'attacking', () => {}),
+  t('running', 'attack', 'attacking', () => {}),
+  t('walking', 'stop', 'idle', () => {}),
+  t('running', 'stop', 'idle', () => {}),
+  t('attacking', 'stop', 'idle', () => {})
+]);`,
+
+    'edium-fsm':
+`const rpg = new StateMachine('rpg');
+const idle = rpg.createState('idle');
+const walking = rpg.createState('walking');
+const running = rpg.createState('running');
+const attacking = rpg.createState('attacking');
+rpg.addTransition(idle, walking, 'walk');
+rpg.addTransition(walking, running, 'run');
+rpg.addTransition(idle, attacking, 'attack');
+rpg.addTransition(walking, attacking, 'attack');
+rpg.addTransition(running, attacking, 'attack');
+rpg.addTransition(walking, idle, 'stop');
+rpg.addTransition(running, idle, 'stop');
+rpg.addTransition(attacking, idle, 'stop');
+rpg.start(idle);`,
+
+    'fsm-as-promised':
+`const rpg = StateMachine({
+  initial: 'idle',
+  events: [
+    { name: 'walk', from: 'idle', to: 'walking' },
+    { name: 'run', from: 'walking', to: 'running' },
+    { name: 'attack', from: ['idle', 'walking', 'running'], to: 'attacking' },
+    { name: 'stop', from: ['walking', 'running', 'attacking'], to: 'idle' }
+  ]
+});`,
+
+    typestate:
+`const rpg = new FiniteStateMachine('idle');
+rpg.from('idle').to('walking');
+rpg.from('walking').to('running');
+rpg.from('idle').to('attacking');
+rpg.from('walking').to('attacking');
+rpg.from('running').to('attacking');
+rpg.from('walking').to('idle');
+rpg.from('running').to('idle');
+rpg.from('attacking').to('idle');`,
+
+    stent:
+`const rpg = Machine.create('rpg', {
+  state: { name: 'idle' },
+  transitions: {
+    idle: {
+      walk: 'walking',
+      attack: 'attacking'
+    },
+    walking: {
+      run: 'running',
+      attack: 'attacking',
+      stop: 'idle'
+    },
+    running: {
+      attack: 'attacking',
+      stop: 'idle'
+    },
+    attacking: {
+      stop: 'idle'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const rpg = fsm('idle', {
+  idle: {
+    walk: 'walking',
+    attack: 'attacking'
+  },
+  walking: {
+    run: 'running',
+    attack: 'attacking',
+    stop: 'idle'
+  },
+  running: {
+    attack: 'attacking',
+    stop: 'idle'
+  },
+  attacking: {
+    stop: 'idle'
+  }
+});`,
+
+    pastafarian:
+`const rpg = new StateMachine({
+  initial: 'idle',
+  states: {
+    idle: ['walking', 'attacking'],
+    walking: ['running', 'attacking', 'idle'],
+    running: ['attacking', 'idle'],
+    attacking: ['idle']
+  }
+});`,
+
+    mood:
+`const rpg = mood('idle', {
+  idle: [['walk', 'walking'], ['attack', 'attacking']],
+  walking: [['run', 'running'], ['attack', 'attacking'], ['stop', 'idle']],
+  running: [['attack', 'attacking'], ['stop', 'idle']],
+  attacking: ['stop', 'idle']
+});`,
+
+    'node-state':
+`class RPG extends NodeState {
+  constructor() {
+    super({
+      states: {
+        idle: {
+          walk: () => this.goto('walking'),
+          attack: () => this.goto('attacking')
+        },
+        walking: {
+          run: () => this.goto('running'),
+          attack: () => this.goto('attacking'),
+          stop: () => this.goto('idle')
+        },
+        running: {
+          attack: () => this.goto('attacking'),
+          stop: () => this.goto('idle')
+        },
+        attacking: {
+          stop: () => this.goto('idle')
+        }
+      }
+    });
+  }
+}
+const rpg = new RPG();`
+  },
+
+  /* ================================================================
+     10. ghost — Pac-Man ghost AI
+     ================================================================ */
+  ghost: {
+    jssm:
+`const ghost = sm\`
+  chase 'scatter' => scatter 'chase' => chase;
+  [chase scatter] 'power_pellet' => frightened;
+  frightened 'eat' => eaten 'respawn' => respawn 'ready' => chase;
+\`;`,
+
+    xstate:
+`const ghost = createMachine({
+  id: 'ghost',
+  initial: 'chase',
+  states: {
+    chase: {
+      on: {
+        scatter: 'scatter',
+        power_pellet: 'frightened'
+      }
+    },
+    scatter: {
+      on: {
+        chase: 'chase',
+        power_pellet: 'frightened'
+      }
+    },
+    frightened: {
+      on: {
+        eat: 'eaten'
+      }
+    },
+    eaten: {
+      on: {
+        respawn: 'respawn'
+      }
+    },
+    respawn: {
+      on: {
+        ready: 'chase'
+      }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const ghost = new StateMachine({
+  init: 'chase',
+  transitions: [
+    { name: 'scatter', from: 'chase', to: 'scatter' },
+    { name: 'chase', from: 'scatter', to: 'chase' },
+    { name: 'power_pellet', from: ['chase', 'scatter'], to: 'frightened' },
+    { name: 'eat', from: 'frightened', to: 'eaten' },
+    { name: 'respawn', from: 'eaten', to: 'respawn' },
+    { name: 'ready', from: 'respawn', to: 'chase' }
+  ]
+});`,
+
+    finity:
+`const ghost = Finity
+  .configure()
+    .initialState('chase')
+      .on('scatter').transitionTo('scatter')
+      .on('power_pellet').transitionTo('frightened')
+    .state('scatter')
+      .on('chase').transitionTo('chase')
+      .on('power_pellet').transitionTo('frightened')
+    .state('frightened')
+      .on('eat').transitionTo('eaten')
+    .state('eaten')
+      .on('respawn').transitionTo('respawn')
+    .state('respawn')
+      .on('ready').transitionTo('chase')
+  .start();`,
+
+    robot:
+`const ghost = createMachine({
+  chase: state(
+    transition('scatter', 'scatter'),
+    transition('power_pellet', 'frightened')
+  ),
+  scatter: state(
+    transition('chase', 'chase'),
+    transition('power_pellet', 'frightened')
+  ),
+  frightened: state(
+    transition('eat', 'eaten')
+  ),
+  eaten: state(
+    transition('respawn', 'respawn')
+  ),
+  respawn: state(
+    transition('ready', 'chase')
+  )
+}, () => true);`,
+
+    stately:
+`const ghost = Stately.machine({
+  chase: {
+    scatter: 'scatter',
+    power_pellet: 'frightened'
+  },
+  scatter: {
+    chase: 'chase',
+    power_pellet: 'frightened'
+  },
+  frightened: {
+    eat: 'eaten'
+  },
+  eaten: {
+    respawn: 'respawn'
+  },
+  respawn: {
+    ready: 'chase'
+  }
+});`,
+
+    faste:
+`const ghost = faste()
+  .on('scatter', ['chase'], ({transitTo}) => transitTo('scatter'))
+  .on('chase', ['scatter'], ({transitTo}) => transitTo('chase'))
+  .on('power_pellet', ['chase', 'scatter'], ({transitTo}) => transitTo('frightened'))
+  .on('eat', ['frightened'], ({transitTo}) => transitTo('eaten'))
+  .on('respawn', ['eaten'], ({transitTo}) => transitTo('respawn'))
+  .on('ready', ['respawn'], ({transitTo}) => transitTo('chase'));`,
+
+    'state-machine':
+`const ghost = new StateMachine({
+  transitions: [
+    'scatter      : chase   > scatter',
+    'chase        : scatter > chase',
+    'power_pellet : chase   > frightened',
+    'power_pellet : scatter > frightened',
+    'eat          : frightened > eaten',
+    'respawn      : eaten      > respawn',
+    'ready        : respawn    > chase'
+  ]
+});`,
+
+    machina:
+`const ghost = new machina.Fsm({
+  initialState: 'chase',
+  states: {
+    chase: {
+      _scatter: 'scatter',
+      _power_pellet: 'frightened'
+    },
+    scatter: {
+      _chase: 'chase',
+      _power_pellet: 'frightened'
+    },
+    frightened: {
+      _eat: 'eaten'
+    },
+    eaten: {
+      _respawn: 'respawn'
+    },
+    respawn: {
+      _ready: 'chase'
+    }
+  },
+  scatter: function () { this.handle('_scatter'); },
+  chase: function () { this.handle('_chase'); },
+  power_pellet: function () { this.handle('_power_pellet'); },
+  eat: function () { this.handle('_eat'); },
+  respawn: function () { this.handle('_respawn'); },
+  ready: function () { this.handle('_ready'); }
+});`,
+
+    nanostate:
+`const ghost = nanostate('chase', {
+  chase: {
+    scatter: 'scatter',
+    power_pellet: 'frightened'
+  },
+  scatter: {
+    chase: 'chase',
+    power_pellet: 'frightened'
+  },
+  frightened: {
+    eat: 'eaten'
+  },
+  eaten: {
+    respawn: 'respawn'
+  },
+  respawn: {
+    ready: 'chase'
+  }
+});`,
+
+    'typescript-fsm':
+`const ghost = new StateMachine('chase', [
+  t('chase', 'scatter', 'scatter', () => {}),
+  t('scatter', 'chase', 'chase', () => {}),
+  t('chase', 'power_pellet', 'frightened', () => {}),
+  t('scatter', 'power_pellet', 'frightened', () => {}),
+  t('frightened', 'eat', 'eaten', () => {}),
+  t('eaten', 'respawn', 'respawn', () => {}),
+  t('respawn', 'ready', 'chase', () => {})
+]);`,
+
+    'edium-fsm':
+`const ghost = new StateMachine('ghost');
+const chase = ghost.createState('chase');
+const scatter = ghost.createState('scatter');
+const frightened = ghost.createState('frightened');
+const eaten = ghost.createState('eaten');
+const respawn = ghost.createState('respawn');
+ghost.addTransition(chase, scatter, 'scatter');
+ghost.addTransition(scatter, chase, 'chase');
+ghost.addTransition(chase, frightened, 'power_pellet');
+ghost.addTransition(scatter, frightened, 'power_pellet');
+ghost.addTransition(frightened, eaten, 'eat');
+ghost.addTransition(eaten, respawn, 'respawn');
+ghost.addTransition(respawn, chase, 'ready');
+ghost.start(chase);`,
+
+    'fsm-as-promised':
+`const ghost = StateMachine({
+  initial: 'chase',
+  events: [
+    { name: 'scatter', from: 'chase', to: 'scatter' },
+    { name: 'chase', from: 'scatter', to: 'chase' },
+    { name: 'power_pellet', from: ['chase', 'scatter'], to: 'frightened' },
+    { name: 'eat', from: 'frightened', to: 'eaten' },
+    { name: 'respawn', from: 'eaten', to: 'respawn' },
+    { name: 'ready', from: 'respawn', to: 'chase' }
+  ]
+});`,
+
+    typestate:
+`const ghost = new FiniteStateMachine('chase');
+ghost.from('chase').to('scatter');
+ghost.from('scatter').to('chase');
+ghost.from('chase').to('frightened');
+ghost.from('scatter').to('frightened');
+ghost.from('frightened').to('eaten');
+ghost.from('eaten').to('respawn');
+ghost.from('respawn').to('chase');`,
+
+    stent:
+`const ghost = Machine.create('ghost', {
+  state: { name: 'chase' },
+  transitions: {
+    chase: {
+      scatter: 'scatter',
+      power_pellet: 'frightened'
+    },
+    scatter: {
+      chase: 'chase',
+      power_pellet: 'frightened'
+    },
+    frightened: {
+      eat: 'eaten'
+    },
+    eaten: {
+      respawn: 'respawn'
+    },
+    respawn: {
+      ready: 'chase'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const ghost = fsm('chase', {
+  chase: {
+    scatter: 'scatter',
+    power_pellet: 'frightened'
+  },
+  scatter: {
+    chase: 'chase',
+    power_pellet: 'frightened'
+  },
+  frightened: {
+    eat: 'eaten'
+  },
+  eaten: {
+    respawn: 'respawn'
+  },
+  respawn: {
+    ready: 'chase'
+  }
+});`,
+
+    pastafarian:
+`const ghost = new StateMachine({
+  initial: 'chase',
+  states: {
+    chase: ['scatter', 'frightened'],
+    scatter: ['chase', 'frightened'],
+    frightened: ['eaten'],
+    eaten: ['respawn'],
+    respawn: ['chase']
+  }
+});`,
+
+    mood:
+`const ghost = mood('chase', {
+  chase: [['scatter', 'scatter'], ['power_pellet', 'frightened']],
+  scatter: [['chase', 'chase'], ['power_pellet', 'frightened']],
+  frightened: ['eat', 'eaten'],
+  eaten: ['respawn', 'respawn'],
+  respawn: ['ready', 'chase']
+});`,
+
+    'node-state':
+`class Ghost extends NodeState {
+  constructor() {
+    super({
+      states: {
+        chase: {
+          scatter: () => this.goto('scatter'),
+          power_pellet: () => this.goto('frightened')
+        },
+        scatter: {
+          chase: () => this.goto('chase'),
+          power_pellet: () => this.goto('frightened')
+        },
+        frightened: {
+          eat: () => this.goto('eaten')
+        },
+        eaten: {
+          respawn: () => this.goto('respawn')
+        },
+        respawn: {
+          ready: () => this.goto('chase')
+        }
+      }
+    });
+  }
+}
+const ghost = new Ghost();`
+  },
+
+  /* ================================================================
+     11. boss — phase1→enraged→phase2→vulnerable→defeated + recover
+     ================================================================ */
+  boss: {
+    jssm:
+`const boss = sm\`phase1 'enrage' => enraged 'calm' => phase2 'weaken' => vulnerable 'finish' => defeated; vulnerable 'recover' => phase2;\`;`,
+
+    xstate:
+`const boss = createMachine({
+  id: 'boss',
+  initial: 'phase1',
+  states: {
+    phase1: {
+      on: { enrage: 'enraged' }
+    },
+    enraged: {
+      on: { calm: 'phase2' }
+    },
+    phase2: {
+      on: { weaken: 'vulnerable' }
+    },
+    vulnerable: {
+      on: {
+        finish: 'defeated',
+        recover: 'phase2'
+      }
+    },
+    defeated: {
+      type: 'final'
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const boss = new StateMachine({
+  init: 'phase1',
+  transitions: [
+    { name: 'enrage', from: 'phase1', to: 'enraged' },
+    { name: 'calm', from: 'enraged', to: 'phase2' },
+    { name: 'weaken', from: 'phase2', to: 'vulnerable' },
+    { name: 'finish', from: 'vulnerable', to: 'defeated' },
+    { name: 'recover', from: 'vulnerable', to: 'phase2' }
+  ]
+});`,
+
+    finity:
+`const boss = Finity
+  .configure()
+    .initialState('phase1')
+      .on('enrage').transitionTo('enraged')
+    .state('enraged')
+      .on('calm').transitionTo('phase2')
+    .state('phase2')
+      .on('weaken').transitionTo('vulnerable')
+    .state('vulnerable')
+      .on('finish').transitionTo('defeated')
+      .on('recover').transitionTo('phase2')
+    .state('defeated')
+  .start();`,
+
+    robot:
+`const boss = createMachine({
+  phase1: state(
+    transition('enrage', 'enraged')
+  ),
+  enraged: state(
+    transition('calm', 'phase2')
+  ),
+  phase2: state(
+    transition('weaken', 'vulnerable')
+  ),
+  vulnerable: state(
+    transition('finish', 'defeated'),
+    transition('recover', 'phase2')
+  ),
+  defeated: state()
+}, () => true);`,
+
+    stately:
+`const boss = Stately.machine({
+  phase1: {
+    enrage: 'enraged'
+  },
+  enraged: {
+    calm: 'phase2'
+  },
+  phase2: {
+    weaken: 'vulnerable'
+  },
+  vulnerable: {
+    finish: 'defeated',
+    recover: 'phase2'
+  },
+  defeated: {}
+});`,
+
+    faste:
+`const boss = faste()
+  .on('enrage', ['phase1'], ({transitTo}) => transitTo('enraged'))
+  .on('calm', ['enraged'], ({transitTo}) => transitTo('phase2'))
+  .on('weaken', ['phase2'], ({transitTo}) => transitTo('vulnerable'))
+  .on('finish', ['vulnerable'], ({transitTo}) => transitTo('defeated'))
+  .on('recover', ['vulnerable'], ({transitTo}) => transitTo('phase2'));`,
+
+    'state-machine':
+`const boss = new StateMachine({
+  transitions: [
+    'enrage  : phase1     > enraged',
+    'calm    : enraged    > phase2',
+    'weaken  : phase2     > vulnerable',
+    'finish  : vulnerable > defeated',
+    'recover : vulnerable > phase2'
+  ]
+});`,
+
+    machina:
+`const boss = new machina.Fsm({
+  initialState: 'phase1',
+  states: {
+    phase1: {
+      _enrage: 'enraged'
+    },
+    enraged: {
+      _calm: 'phase2'
+    },
+    phase2: {
+      _weaken: 'vulnerable'
+    },
+    vulnerable: {
+      _finish: 'defeated',
+      _recover: 'phase2'
+    },
+    defeated: {}
+  },
+  enrage: function () { this.handle('_enrage'); },
+  calm: function () { this.handle('_calm'); },
+  weaken: function () { this.handle('_weaken'); },
+  finish: function () { this.handle('_finish'); },
+  recover: function () { this.handle('_recover'); }
+});`,
+
+    nanostate:
+`const boss = nanostate('phase1', {
+  phase1: {
+    enrage: 'enraged'
+  },
+  enraged: {
+    calm: 'phase2'
+  },
+  phase2: {
+    weaken: 'vulnerable'
+  },
+  vulnerable: {
+    finish: 'defeated',
+    recover: 'phase2'
+  },
+  defeated: {}
+});`,
+
+    'typescript-fsm':
+`const boss = new StateMachine('phase1', [
+  t('phase1', 'enrage', 'enraged', () => {}),
+  t('enraged', 'calm', 'phase2', () => {}),
+  t('phase2', 'weaken', 'vulnerable', () => {}),
+  t('vulnerable', 'finish', 'defeated', () => {}),
+  t('vulnerable', 'recover', 'phase2', () => {})
+]);`,
+
+    'edium-fsm':
+`const boss = new StateMachine('boss');
+const phase1 = boss.createState('phase1');
+const enraged = boss.createState('enraged');
+const phase2 = boss.createState('phase2');
+const vulnerable = boss.createState('vulnerable');
+const defeated = boss.createState('defeated');
+boss.addTransition(phase1, enraged, 'enrage');
+boss.addTransition(enraged, phase2, 'calm');
+boss.addTransition(phase2, vulnerable, 'weaken');
+boss.addTransition(vulnerable, defeated, 'finish');
+boss.addTransition(vulnerable, phase2, 'recover');
+boss.start(phase1);`,
+
+    'fsm-as-promised':
+`const boss = StateMachine({
+  initial: 'phase1',
+  events: [
+    { name: 'enrage', from: 'phase1', to: 'enraged' },
+    { name: 'calm', from: 'enraged', to: 'phase2' },
+    { name: 'weaken', from: 'phase2', to: 'vulnerable' },
+    { name: 'finish', from: 'vulnerable', to: 'defeated' },
+    { name: 'recover', from: 'vulnerable', to: 'phase2' }
+  ]
+});`,
+
+    typestate:
+`const boss = new FiniteStateMachine('phase1');
+boss.from('phase1').to('enraged');
+boss.from('enraged').to('phase2');
+boss.from('phase2').to('vulnerable');
+boss.from('vulnerable').to('defeated');
+boss.from('vulnerable').to('phase2');`,
+
+    stent:
+`const boss = Machine.create('boss', {
+  state: { name: 'phase1' },
+  transitions: {
+    phase1: {
+      enrage: 'enraged'
+    },
+    enraged: {
+      calm: 'phase2'
+    },
+    phase2: {
+      weaken: 'vulnerable'
+    },
+    vulnerable: {
+      finish: 'defeated',
+      recover: 'phase2'
+    },
+    defeated: {}
+  }
+});`,
+
+    'fsm-event':
+`const boss = fsm('phase1', {
+  phase1: {
+    enrage: 'enraged'
+  },
+  enraged: {
+    calm: 'phase2'
+  },
+  phase2: {
+    weaken: 'vulnerable'
+  },
+  vulnerable: {
+    finish: 'defeated',
+    recover: 'phase2'
+  },
+  defeated: {}
+});`,
+
+    pastafarian:
+`const boss = new StateMachine({
+  initial: 'phase1',
+  states: {
+    phase1: ['enraged'],
+    enraged: ['phase2'],
+    phase2: ['vulnerable'],
+    vulnerable: ['defeated', 'phase2'],
+    defeated: []
+  }
+});`,
+
+    mood:
+`const boss = mood('phase1', {
+  phase1: ['enrage', 'enraged'],
+  enraged: ['calm', 'phase2'],
+  phase2: ['weaken', 'vulnerable'],
+  vulnerable: [['finish', 'defeated'], ['recover', 'phase2']],
+  defeated: []
+});`,
+
+    'node-state':
+`class Boss extends NodeState {
+  constructor() {
+    super({
+      states: {
+        phase1: {
+          enrage: () => this.goto('enraged')
+        },
+        enraged: {
+          calm: () => this.goto('phase2')
+        },
+        phase2: {
+          weaken: () => this.goto('vulnerable')
+        },
+        vulnerable: {
+          finish: () => this.goto('defeated'),
+          recover: () => this.goto('phase2')
+        },
+        defeated: {}
+      }
+    });
+  }
+}
+const boss = new Boss();`
+  },
+
+  /* ================================================================
+     12. inventory — unequipped, equipped, enchanted, broken
+     ================================================================ */
+  inventory: {
+    jssm:
+`const inventory = sm\`
+  unequipped 'equip' => equipped 'enchant' => enchanted;
+  [equipped enchanted] 'break' => broken;
+  equipped 'unequip' => unequipped;
+  broken 'repair' => unequipped;
+\`;`,
+
+    xstate:
+`const inventory = createMachine({
+  id: 'inventory',
+  initial: 'unequipped',
+  states: {
+    unequipped: {
+      on: { equip: 'equipped' }
+    },
+    equipped: {
+      on: {
+        enchant: 'enchanted',
+        unequip: 'unequipped',
+        break: 'broken'
+      }
+    },
+    enchanted: {
+      on: {
+        break: 'broken'
+      }
+    },
+    broken: {
+      on: { repair: 'unequipped' }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const inventory = new StateMachine({
+  init: 'unequipped',
+  transitions: [
+    { name: 'equip', from: 'unequipped', to: 'equipped' },
+    { name: 'enchant', from: 'equipped', to: 'enchanted' },
+    { name: 'unequip', from: 'equipped', to: 'unequipped' },
+    { name: 'break', from: ['equipped', 'enchanted'], to: 'broken' },
+    { name: 'repair', from: 'broken', to: 'unequipped' }
+  ]
+});`,
+
+    finity:
+`const inventory = Finity
+  .configure()
+    .initialState('unequipped')
+      .on('equip').transitionTo('equipped')
+    .state('equipped')
+      .on('enchant').transitionTo('enchanted')
+      .on('unequip').transitionTo('unequipped')
+      .on('break').transitionTo('broken')
+    .state('enchanted')
+      .on('break').transitionTo('broken')
+    .state('broken')
+      .on('repair').transitionTo('unequipped')
+  .start();`,
+
+    robot:
+`const inventory = createMachine({
+  unequipped: state(
+    transition('equip', 'equipped')
+  ),
+  equipped: state(
+    transition('enchant', 'enchanted'),
+    transition('unequip', 'unequipped'),
+    transition('break', 'broken')
+  ),
+  enchanted: state(
+    transition('break', 'broken')
+  ),
+  broken: state(
+    transition('repair', 'unequipped')
+  )
+}, () => true);`,
+
+    stately:
+`const inventory = Stately.machine({
+  unequipped: {
+    equip: 'equipped'
+  },
+  equipped: {
+    enchant: 'enchanted',
+    unequip: 'unequipped',
+    break: 'broken'
+  },
+  enchanted: {
+    break: 'broken'
+  },
+  broken: {
+    repair: 'unequipped'
+  }
+});`,
+
+    faste:
+`const inventory = faste()
+  .on('equip', ['unequipped'], ({transitTo}) => transitTo('equipped'))
+  .on('enchant', ['equipped'], ({transitTo}) => transitTo('enchanted'))
+  .on('unequip', ['equipped'], ({transitTo}) => transitTo('unequipped'))
+  .on('break', ['equipped', 'enchanted'], ({transitTo}) => transitTo('broken'))
+  .on('repair', ['broken'], ({transitTo}) => transitTo('unequipped'));`,
+
+    'state-machine':
+`const inventory = new StateMachine({
+  transitions: [
+    'equip   : unequipped > equipped',
+    'enchant : equipped   > enchanted',
+    'unequip : equipped   > unequipped',
+    'break   : equipped   > broken',
+    'break   : enchanted  > broken',
+    'repair  : broken     > unequipped'
+  ]
+});`,
+
+    machina:
+`const inventory = new machina.Fsm({
+  initialState: 'unequipped',
+  states: {
+    unequipped: {
+      _equip: 'equipped'
+    },
+    equipped: {
+      _enchant: 'enchanted',
+      _unequip: 'unequipped',
+      _break: 'broken'
+    },
+    enchanted: {
+      _break: 'broken'
+    },
+    broken: {
+      _repair: 'unequipped'
+    }
+  },
+  equip: function () { this.handle('_equip'); },
+  enchant: function () { this.handle('_enchant'); },
+  unequip: function () { this.handle('_unequip'); },
+  break: function () { this.handle('_break'); },
+  repair: function () { this.handle('_repair'); }
+});`,
+
+    nanostate:
+`const inventory = nanostate('unequipped', {
+  unequipped: {
+    equip: 'equipped'
+  },
+  equipped: {
+    enchant: 'enchanted',
+    unequip: 'unequipped',
+    break: 'broken'
+  },
+  enchanted: {
+    break: 'broken'
+  },
+  broken: {
+    repair: 'unequipped'
+  }
+});`,
+
+    'typescript-fsm':
+`const inventory = new StateMachine('unequipped', [
+  t('unequipped', 'equip', 'equipped', () => {}),
+  t('equipped', 'enchant', 'enchanted', () => {}),
+  t('equipped', 'unequip', 'unequipped', () => {}),
+  t('equipped', 'break', 'broken', () => {}),
+  t('enchanted', 'break', 'broken', () => {}),
+  t('broken', 'repair', 'unequipped', () => {})
+]);`,
+
+    'edium-fsm':
+`const inventory = new StateMachine('inventory');
+const unequipped = inventory.createState('unequipped');
+const equipped = inventory.createState('equipped');
+const enchanted = inventory.createState('enchanted');
+const broken = inventory.createState('broken');
+inventory.addTransition(unequipped, equipped, 'equip');
+inventory.addTransition(equipped, enchanted, 'enchant');
+inventory.addTransition(equipped, unequipped, 'unequip');
+inventory.addTransition(equipped, broken, 'break');
+inventory.addTransition(enchanted, broken, 'break');
+inventory.addTransition(broken, unequipped, 'repair');
+inventory.start(unequipped);`,
+
+    'fsm-as-promised':
+`const inventory = StateMachine({
+  initial: 'unequipped',
+  events: [
+    { name: 'equip', from: 'unequipped', to: 'equipped' },
+    { name: 'enchant', from: 'equipped', to: 'enchanted' },
+    { name: 'unequip', from: 'equipped', to: 'unequipped' },
+    { name: 'break', from: ['equipped', 'enchanted'], to: 'broken' },
+    { name: 'repair', from: 'broken', to: 'unequipped' }
+  ]
+});`,
+
+    typestate:
+`const inventory = new FiniteStateMachine('unequipped');
+inventory.from('unequipped').to('equipped');
+inventory.from('equipped').to('enchanted');
+inventory.from('equipped').to('unequipped');
+inventory.from('equipped').to('broken');
+inventory.from('enchanted').to('broken');
+inventory.from('broken').to('unequipped');`,
+
+    stent:
+`const inventory = Machine.create('inventory', {
+  state: { name: 'unequipped' },
+  transitions: {
+    unequipped: {
+      equip: 'equipped'
+    },
+    equipped: {
+      enchant: 'enchanted',
+      unequip: 'unequipped',
+      break: 'broken'
+    },
+    enchanted: {
+      break: 'broken'
+    },
+    broken: {
+      repair: 'unequipped'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const inventory = fsm('unequipped', {
+  unequipped: {
+    equip: 'equipped'
+  },
+  equipped: {
+    enchant: 'enchanted',
+    unequip: 'unequipped',
+    break: 'broken'
+  },
+  enchanted: {
+    break: 'broken'
+  },
+  broken: {
+    repair: 'unequipped'
+  }
+});`,
+
+    pastafarian:
+`const inventory = new StateMachine({
+  initial: 'unequipped',
+  states: {
+    unequipped: ['equipped'],
+    equipped: ['enchanted', 'unequipped', 'broken'],
+    enchanted: ['broken'],
+    broken: ['unequipped']
+  }
+});`,
+
+    mood:
+`const inventory = mood('unequipped', {
+  unequipped: ['equip', 'equipped'],
+  equipped: [['enchant', 'enchanted'], ['unequip', 'unequipped'], ['break', 'broken']],
+  enchanted: ['break', 'broken'],
+  broken: ['repair', 'unequipped']
+});`,
+
+    'node-state':
+`class Inventory extends NodeState {
+  constructor() {
+    super({
+      states: {
+        unequipped: {
+          equip: () => this.goto('equipped')
+        },
+        equipped: {
+          enchant: () => this.goto('enchanted'),
+          unequip: () => this.goto('unequipped'),
+          break: () => this.goto('broken')
+        },
+        enchanted: {
+          break: () => this.goto('broken')
+        },
+        broken: {
+          repair: () => this.goto('unequipped')
+        }
+      }
+    });
+  }
+}
+const inventory = new Inventory();`
+  },
+
+  /* ================================================================
+     13. quest — available→accepted→in_progress→complete→turned_in
+         abandon from [accepted in_progress]→available
+     ================================================================ */
+  quest: {
+    jssm:
+`const quest = sm\`
+  available 'accept' => accepted 'start' => in_progress;
+  in_progress 'complete' => complete 'turn_in' => turned_in;
+  [accepted in_progress] 'abandon' => available;
+\`;`,
+
+    xstate:
+`const quest = createMachine({
+  id: 'quest',
+  initial: 'available',
+  states: {
+    available: {
+      on: { accept: 'accepted' }
+    },
+    accepted: {
+      on: {
+        start: 'in_progress',
+        abandon: 'available'
+      }
+    },
+    in_progress: {
+      on: {
+        complete: 'complete',
+        abandon: 'available'
+      }
+    },
+    complete: {
+      on: { turn_in: 'turned_in' }
+    },
+    turned_in: {
+      type: 'final'
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const quest = new StateMachine({
+  init: 'available',
+  transitions: [
+    { name: 'accept', from: 'available', to: 'accepted' },
+    { name: 'start', from: 'accepted', to: 'in_progress' },
+    { name: 'complete', from: 'in_progress', to: 'complete' },
+    { name: 'turn_in', from: 'complete', to: 'turned_in' },
+    { name: 'abandon', from: ['accepted', 'in_progress'], to: 'available' }
+  ]
+});`,
+
+    finity:
+`const quest = Finity
+  .configure()
+    .initialState('available')
+      .on('accept').transitionTo('accepted')
+    .state('accepted')
+      .on('start').transitionTo('in_progress')
+      .on('abandon').transitionTo('available')
+    .state('in_progress')
+      .on('complete').transitionTo('complete')
+      .on('abandon').transitionTo('available')
+    .state('complete')
+      .on('turn_in').transitionTo('turned_in')
+    .state('turned_in')
+  .start();`,
+
+    robot:
+`const quest = createMachine({
+  available: state(
+    transition('accept', 'accepted')
+  ),
+  accepted: state(
+    transition('start', 'in_progress'),
+    transition('abandon', 'available')
+  ),
+  in_progress: state(
+    transition('complete', 'complete'),
+    transition('abandon', 'available')
+  ),
+  complete: state(
+    transition('turn_in', 'turned_in')
+  ),
+  turned_in: state()
+}, () => true);`,
+
+    stately:
+`const quest = Stately.machine({
+  available: {
+    accept: 'accepted'
+  },
+  accepted: {
+    start: 'in_progress',
+    abandon: 'available'
+  },
+  in_progress: {
+    complete: 'complete',
+    abandon: 'available'
+  },
+  complete: {
+    turn_in: 'turned_in'
+  },
+  turned_in: {}
+});`,
+
+    faste:
+`const quest = faste()
+  .on('accept', ['available'], ({transitTo}) => transitTo('accepted'))
+  .on('start', ['accepted'], ({transitTo}) => transitTo('in_progress'))
+  .on('complete', ['in_progress'], ({transitTo}) => transitTo('complete'))
+  .on('turn_in', ['complete'], ({transitTo}) => transitTo('turned_in'))
+  .on('abandon', ['accepted', 'in_progress'], ({transitTo}) => transitTo('available'));`,
+
+    'state-machine':
+`const quest = new StateMachine({
+  transitions: [
+    'accept   : available    > accepted',
+    'start    : accepted     > in_progress',
+    'complete : in_progress  > complete',
+    'turn_in  : complete     > turned_in',
+    'abandon  : accepted     > available',
+    'abandon  : in_progress  > available'
+  ]
+});`,
+
+    machina:
+`const quest = new machina.Fsm({
+  initialState: 'available',
+  states: {
+    available: {
+      _accept: 'accepted'
+    },
+    accepted: {
+      _start: 'in_progress',
+      _abandon: 'available'
+    },
+    in_progress: {
+      _complete: 'complete',
+      _abandon: 'available'
+    },
+    complete: {
+      _turn_in: 'turned_in'
+    },
+    turned_in: {}
+  },
+  accept: function () { this.handle('_accept'); },
+  start: function () { this.handle('_start'); },
+  complete: function () { this.handle('_complete'); },
+  turn_in: function () { this.handle('_turn_in'); },
+  abandon: function () { this.handle('_abandon'); }
+});`,
+
+    nanostate:
+`const quest = nanostate('available', {
+  available: {
+    accept: 'accepted'
+  },
+  accepted: {
+    start: 'in_progress',
+    abandon: 'available'
+  },
+  in_progress: {
+    complete: 'complete',
+    abandon: 'available'
+  },
+  complete: {
+    turn_in: 'turned_in'
+  },
+  turned_in: {}
+});`,
+
+    'typescript-fsm':
+`const quest = new StateMachine('available', [
+  t('available', 'accept', 'accepted', () => {}),
+  t('accepted', 'start', 'in_progress', () => {}),
+  t('in_progress', 'complete', 'complete', () => {}),
+  t('complete', 'turn_in', 'turned_in', () => {}),
+  t('accepted', 'abandon', 'available', () => {}),
+  t('in_progress', 'abandon', 'available', () => {})
+]);`,
+
+    'edium-fsm':
+`const quest = new StateMachine('quest');
+const available = quest.createState('available');
+const accepted = quest.createState('accepted');
+const inProgress = quest.createState('in_progress');
+const complete = quest.createState('complete');
+const turnedIn = quest.createState('turned_in');
+quest.addTransition(available, accepted, 'accept');
+quest.addTransition(accepted, inProgress, 'start');
+quest.addTransition(inProgress, complete, 'complete');
+quest.addTransition(complete, turnedIn, 'turn_in');
+quest.addTransition(accepted, available, 'abandon');
+quest.addTransition(inProgress, available, 'abandon');
+quest.start(available);`,
+
+    'fsm-as-promised':
+`const quest = StateMachine({
+  initial: 'available',
+  events: [
+    { name: 'accept', from: 'available', to: 'accepted' },
+    { name: 'start', from: 'accepted', to: 'in_progress' },
+    { name: 'complete', from: 'in_progress', to: 'complete' },
+    { name: 'turn_in', from: 'complete', to: 'turned_in' },
+    { name: 'abandon', from: ['accepted', 'in_progress'], to: 'available' }
+  ]
+});`,
+
+    typestate:
+`const quest = new FiniteStateMachine('available');
+quest.from('available').to('accepted');
+quest.from('accepted').to('in_progress');
+quest.from('in_progress').to('complete');
+quest.from('complete').to('turned_in');
+quest.from('accepted').to('available');
+quest.from('in_progress').to('available');`,
+
+    stent:
+`const quest = Machine.create('quest', {
+  state: { name: 'available' },
+  transitions: {
+    available: {
+      accept: 'accepted'
+    },
+    accepted: {
+      start: 'in_progress',
+      abandon: 'available'
+    },
+    in_progress: {
+      complete: 'complete',
+      abandon: 'available'
+    },
+    complete: {
+      turn_in: 'turned_in'
+    },
+    turned_in: {}
+  }
+});`,
+
+    'fsm-event':
+`const quest = fsm('available', {
+  available: {
+    accept: 'accepted'
+  },
+  accepted: {
+    start: 'in_progress',
+    abandon: 'available'
+  },
+  in_progress: {
+    complete: 'complete',
+    abandon: 'available'
+  },
+  complete: {
+    turn_in: 'turned_in'
+  },
+  turned_in: {}
+});`,
+
+    pastafarian:
+`const quest = new StateMachine({
+  initial: 'available',
+  states: {
+    available: ['accepted'],
+    accepted: ['in_progress', 'available'],
+    in_progress: ['complete', 'available'],
+    complete: ['turned_in'],
+    turned_in: []
+  }
+});`,
+
+    mood:
+`const quest = mood('available', {
+  available: ['accept', 'accepted'],
+  accepted: [['start', 'in_progress'], ['abandon', 'available']],
+  in_progress: [['complete', 'complete'], ['abandon', 'available']],
+  complete: ['turn_in', 'turned_in'],
+  turned_in: []
+});`,
+
+    'node-state':
+`class Quest extends NodeState {
+  constructor() {
+    super({
+      states: {
+        available: {
+          accept: () => this.goto('accepted')
+        },
+        accepted: {
+          start: () => this.goto('in_progress'),
+          abandon: () => this.goto('available')
+        },
+        in_progress: {
+          complete: () => this.goto('complete'),
+          abandon: () => this.goto('available')
+        },
+        complete: {
+          turn_in: () => this.goto('turned_in')
+        },
+        turned_in: {}
+      }
+    });
+  }
+}
+const quest = new Quest();`
+  },
+
+  /* ================================================================
+     14. fighting — standing, crouching, jumping, blocking, stunned
+     ================================================================ */
+  fighting: {
+    jssm:
+`const fighting = sm\`
+  standing 'crouch' => crouching 'stand' => standing;
+  standing 'jump' => jumping 'land' => standing;
+  standing 'block' => blocking 'release' => standing;
+  [standing crouching jumping blocking] 'hit' => stunned;
+  stunned 'recover' => standing;
+\`;`,
+
+    xstate:
+`const fighting = createMachine({
+  id: 'fighting',
+  initial: 'standing',
+  states: {
+    standing: {
+      on: {
+        crouch: 'crouching',
+        jump: 'jumping',
+        block: 'blocking',
+        hit: 'stunned'
+      }
+    },
+    crouching: {
+      on: {
+        stand: 'standing',
+        hit: 'stunned'
+      }
+    },
+    jumping: {
+      on: {
+        land: 'standing',
+        hit: 'stunned'
+      }
+    },
+    blocking: {
+      on: {
+        release: 'standing',
+        hit: 'stunned'
+      }
+    },
+    stunned: {
+      on: {
+        recover: 'standing'
+      }
+    }
+  }
+});`,
+
+    'javascript-state-machine':
+`const fighting = new StateMachine({
+  init: 'standing',
+  transitions: [
+    { name: 'crouch', from: 'standing', to: 'crouching' },
+    { name: 'stand', from: 'crouching', to: 'standing' },
+    { name: 'jump', from: 'standing', to: 'jumping' },
+    { name: 'land', from: 'jumping', to: 'standing' },
+    { name: 'block', from: 'standing', to: 'blocking' },
+    { name: 'release', from: 'blocking', to: 'standing' },
+    { name: 'hit', from: ['standing', 'crouching', 'jumping', 'blocking'], to: 'stunned' },
+    { name: 'recover', from: 'stunned', to: 'standing' }
+  ]
+});`,
+
+    finity:
+`const fighting = Finity
+  .configure()
+    .initialState('standing')
+      .on('crouch').transitionTo('crouching')
+      .on('jump').transitionTo('jumping')
+      .on('block').transitionTo('blocking')
+      .on('hit').transitionTo('stunned')
+    .state('crouching')
+      .on('stand').transitionTo('standing')
+      .on('hit').transitionTo('stunned')
+    .state('jumping')
+      .on('land').transitionTo('standing')
+      .on('hit').transitionTo('stunned')
+    .state('blocking')
+      .on('release').transitionTo('standing')
+      .on('hit').transitionTo('stunned')
+    .state('stunned')
+      .on('recover').transitionTo('standing')
+  .start();`,
+
+    robot:
+`const fighting = createMachine({
+  standing: state(
+    transition('crouch', 'crouching'),
+    transition('jump', 'jumping'),
+    transition('block', 'blocking'),
+    transition('hit', 'stunned')
+  ),
+  crouching: state(
+    transition('stand', 'standing'),
+    transition('hit', 'stunned')
+  ),
+  jumping: state(
+    transition('land', 'standing'),
+    transition('hit', 'stunned')
+  ),
+  blocking: state(
+    transition('release', 'standing'),
+    transition('hit', 'stunned')
+  ),
+  stunned: state(
+    transition('recover', 'standing')
+  )
+}, () => true);`,
+
+    stately:
+`const fighting = Stately.machine({
+  standing: {
+    crouch: 'crouching',
+    jump: 'jumping',
+    block: 'blocking',
+    hit: 'stunned'
+  },
+  crouching: {
+    stand: 'standing',
+    hit: 'stunned'
+  },
+  jumping: {
+    land: 'standing',
+    hit: 'stunned'
+  },
+  blocking: {
+    release: 'standing',
+    hit: 'stunned'
+  },
+  stunned: {
+    recover: 'standing'
+  }
+});`,
+
+    faste:
+`const fighting = faste()
+  .on('crouch', ['standing'], ({transitTo}) => transitTo('crouching'))
+  .on('stand', ['crouching'], ({transitTo}) => transitTo('standing'))
+  .on('jump', ['standing'], ({transitTo}) => transitTo('jumping'))
+  .on('land', ['jumping'], ({transitTo}) => transitTo('standing'))
+  .on('block', ['standing'], ({transitTo}) => transitTo('blocking'))
+  .on('release', ['blocking'], ({transitTo}) => transitTo('standing'))
+  .on('hit', ['standing', 'crouching', 'jumping', 'blocking'], ({transitTo}) => transitTo('stunned'))
+  .on('recover', ['stunned'], ({transitTo}) => transitTo('standing'));`,
+
+    'state-machine':
+`const fighting = new StateMachine({
+  transitions: [
+    'crouch  : standing  > crouching',
+    'stand   : crouching > standing',
+    'jump    : standing  > jumping',
+    'land    : jumping   > standing',
+    'block   : standing  > blocking',
+    'release : blocking  > standing',
+    'hit     : standing  > stunned',
+    'hit     : crouching > stunned',
+    'hit     : jumping   > stunned',
+    'hit     : blocking  > stunned',
+    'recover : stunned   > standing'
+  ]
+});`,
+
+    machina:
+`const fighting = new machina.Fsm({
+  initialState: 'standing',
+  states: {
+    standing: {
+      _crouch: 'crouching',
+      _jump: 'jumping',
+      _block: 'blocking',
+      _hit: 'stunned'
+    },
+    crouching: {
+      _stand: 'standing',
+      _hit: 'stunned'
+    },
+    jumping: {
+      _land: 'standing',
+      _hit: 'stunned'
+    },
+    blocking: {
+      _release: 'standing',
+      _hit: 'stunned'
+    },
+    stunned: {
+      _recover: 'standing'
+    }
+  },
+  crouch: function () { this.handle('_crouch'); },
+  stand: function () { this.handle('_stand'); },
+  jump: function () { this.handle('_jump'); },
+  land: function () { this.handle('_land'); },
+  block: function () { this.handle('_block'); },
+  release: function () { this.handle('_release'); },
+  hit: function () { this.handle('_hit'); },
+  recover: function () { this.handle('_recover'); }
+});`,
+
+    nanostate:
+`const fighting = nanostate('standing', {
+  standing: {
+    crouch: 'crouching',
+    jump: 'jumping',
+    block: 'blocking',
+    hit: 'stunned'
+  },
+  crouching: {
+    stand: 'standing',
+    hit: 'stunned'
+  },
+  jumping: {
+    land: 'standing',
+    hit: 'stunned'
+  },
+  blocking: {
+    release: 'standing',
+    hit: 'stunned'
+  },
+  stunned: {
+    recover: 'standing'
+  }
+});`,
+
+    'typescript-fsm':
+`const fighting = new StateMachine('standing', [
+  t('standing', 'crouch', 'crouching', () => {}),
+  t('crouching', 'stand', 'standing', () => {}),
+  t('standing', 'jump', 'jumping', () => {}),
+  t('jumping', 'land', 'standing', () => {}),
+  t('standing', 'block', 'blocking', () => {}),
+  t('blocking', 'release', 'standing', () => {}),
+  t('standing', 'hit', 'stunned', () => {}),
+  t('crouching', 'hit', 'stunned', () => {}),
+  t('jumping', 'hit', 'stunned', () => {}),
+  t('blocking', 'hit', 'stunned', () => {}),
+  t('stunned', 'recover', 'standing', () => {})
+]);`,
+
+    'edium-fsm':
+`const fighting = new StateMachine('fighting');
+const standing = fighting.createState('standing');
+const crouching = fighting.createState('crouching');
+const jumping = fighting.createState('jumping');
+const blocking = fighting.createState('blocking');
+const stunned = fighting.createState('stunned');
+fighting.addTransition(standing, crouching, 'crouch');
+fighting.addTransition(crouching, standing, 'stand');
+fighting.addTransition(standing, jumping, 'jump');
+fighting.addTransition(jumping, standing, 'land');
+fighting.addTransition(standing, blocking, 'block');
+fighting.addTransition(blocking, standing, 'release');
+fighting.addTransition(standing, stunned, 'hit');
+fighting.addTransition(crouching, stunned, 'hit');
+fighting.addTransition(jumping, stunned, 'hit');
+fighting.addTransition(blocking, stunned, 'hit');
+fighting.addTransition(stunned, standing, 'recover');
+fighting.start(standing);`,
+
+    'fsm-as-promised':
+`const fighting = StateMachine({
+  initial: 'standing',
+  events: [
+    { name: 'crouch', from: 'standing', to: 'crouching' },
+    { name: 'stand', from: 'crouching', to: 'standing' },
+    { name: 'jump', from: 'standing', to: 'jumping' },
+    { name: 'land', from: 'jumping', to: 'standing' },
+    { name: 'block', from: 'standing', to: 'blocking' },
+    { name: 'release', from: 'blocking', to: 'standing' },
+    { name: 'hit', from: ['standing', 'crouching', 'jumping', 'blocking'], to: 'stunned' },
+    { name: 'recover', from: 'stunned', to: 'standing' }
+  ]
+});`,
+
+    typestate:
+`const fighting = new FiniteStateMachine('standing');
+fighting.from('standing').to('crouching');
+fighting.from('crouching').to('standing');
+fighting.from('standing').to('jumping');
+fighting.from('jumping').to('standing');
+fighting.from('standing').to('blocking');
+fighting.from('blocking').to('standing');
+fighting.from('standing').to('stunned');
+fighting.from('crouching').to('stunned');
+fighting.from('jumping').to('stunned');
+fighting.from('blocking').to('stunned');
+fighting.from('stunned').to('standing');`,
+
+    stent:
+`const fighting = Machine.create('fighting', {
+  state: { name: 'standing' },
+  transitions: {
+    standing: {
+      crouch: 'crouching',
+      jump: 'jumping',
+      block: 'blocking',
+      hit: 'stunned'
+    },
+    crouching: {
+      stand: 'standing',
+      hit: 'stunned'
+    },
+    jumping: {
+      land: 'standing',
+      hit: 'stunned'
+    },
+    blocking: {
+      release: 'standing',
+      hit: 'stunned'
+    },
+    stunned: {
+      recover: 'standing'
+    }
+  }
+});`,
+
+    'fsm-event':
+`const fighting = fsm('standing', {
+  standing: {
+    crouch: 'crouching',
+    jump: 'jumping',
+    block: 'blocking',
+    hit: 'stunned'
+  },
+  crouching: {
+    stand: 'standing',
+    hit: 'stunned'
+  },
+  jumping: {
+    land: 'standing',
+    hit: 'stunned'
+  },
+  blocking: {
+    release: 'standing',
+    hit: 'stunned'
+  },
+  stunned: {
+    recover: 'standing'
+  }
+});`,
+
+    pastafarian:
+`const fighting = new StateMachine({
+  initial: 'standing',
+  states: {
+    standing: ['crouching', 'jumping', 'blocking', 'stunned'],
+    crouching: ['standing', 'stunned'],
+    jumping: ['standing', 'stunned'],
+    blocking: ['standing', 'stunned'],
+    stunned: ['standing']
+  }
+});`,
+
+    mood:
+`const fighting = mood('standing', {
+  standing: [['crouch', 'crouching'], ['jump', 'jumping'], ['block', 'blocking'], ['hit', 'stunned']],
+  crouching: [['stand', 'standing'], ['hit', 'stunned']],
+  jumping: [['land', 'standing'], ['hit', 'stunned']],
+  blocking: [['release', 'standing'], ['hit', 'stunned']],
+  stunned: ['recover', 'standing']
+});`,
+
+    'node-state':
+`class Fighting extends NodeState {
+  constructor() {
+    super({
+      states: {
+        standing: {
+          crouch: () => this.goto('crouching'),
+          jump: () => this.goto('jumping'),
+          block: () => this.goto('blocking'),
+          hit: () => this.goto('stunned')
+        },
+        crouching: {
+          stand: () => this.goto('standing'),
+          hit: () => this.goto('stunned')
+        },
+        jumping: {
+          land: () => this.goto('standing'),
+          hit: () => this.goto('stunned')
+        },
+        blocking: {
+          release: () => this.goto('standing'),
+          hit: () => this.goto('stunned')
+        },
+        stunned: {
+          recover: () => this.goto('standing')
+        }
+      }
+    });
+  }
+}
+const fighting = new Fighting();`
+  }
+
+};
+
+
+/* ── Library display names ─────────────────────────────────────────── */
+
+var libNames = {
+  'xstate':                    'XState',
+  'javascript-state-machine':  'javascript-state-machine',
+  'finity':                    'Finity',
+  'robot':                     'Robot',
+  'stately':                   'Stately.js',
+  'faste':                     'Faste',
+  'state-machine':             'state-machine',
+  'machina':                   'Machina',
+  'nanostate':                 'Nanostate',
+  'typescript-fsm':            'typescript-fsm',
+  'edium-fsm':                 '@edium/fsm',
+  'fsm-as-promised':           'fsm-as-promised',
+  'typestate':                 'TypeState',
+  'stent':                     'Stent',
+  'fsm-event':                 'fsm-event',
+  'pastafarian':               'Pastafarian',
+  'mood':                      'Mood',
+  'node-state':                'node-state'
+};
+
+
+/* ── Helper functions ──────────────────────────────────────────────── */
+
+function countLines(str) {
+  return str.split('\n').length;
+}
+
+function countChars(str) {
+  return str.replace(/\s/g, '').length;
+}
+
+/**
+ * Tokenizer-based syntax highlighter for JS code snippets.
+ * Extracts strings and comments first to prevent keyword bleeding,
+ * then applies highlighting to the remaining text.
+ */
+function highlightJS(code) {
+  // 1. HTML-escape
+  var s = code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // 2. Extract strings and comments into tokens, replace with placeholders
+  var tokens = [];
+  var tokenIndex = 0;
+
+  s = s.replace(/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|`(?:[^`\\]|\\.)*`|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g, function (match) {
+    var id = '\x00TOK' + tokenIndex + '\x00';
+    var cls;
+    if (match[0] === '/' && (match[1] === '/' || match[1] === '*')) {
+      cls = 'hl-cmt';
+    } else {
+      cls = 'hl-str';
+    }
+    tokens[tokenIndex] = '<span class="' + cls + '">' + match + '</span>';
+    tokenIndex++;
+    return id;
+  });
+
+  // 3. Highlight keywords, booleans, numbers, methods on remaining text
+  s = s.replace(/\b(const|let|var|new|function|class|extends|return|if|else|throw|export|this|super)\b/g,
+    '<span class="hl-kw">$1</span>');
+
+  s = s.replace(/\b(true|false|null|undefined)\b/g,
+    '<span class="hl-bool">$1</span>');
+
+  s = s.replace(/\b(\d+(?:\.\d+)?)\b/g,
+    '<span class="hl-num">$1</span>');
+
+  s = s.replace(/\.([a-zA-Z_]\w*)\s*\(/g,
+    '.<span class="hl-fn">$1</span>(');
+
+  // 4. Restore tokens
+  for (var i = 0; i < tokens.length; i++) {
+    s = s.replace('\x00TOK' + i + '\x00', tokens[i]);
+  }
+
+  return s;
+}
+
+/**
+ * Generates a percentage badge string.
+ * Negative = fewer (green), positive = more (red).
+ * Only the number is colored; parens and % are uncolored.
+ */
+function pctBadge(mine, theirs) {
+  if (theirs === 0) return '';
+  var pct = ((mine - theirs) / theirs * 100);
+  if (Math.abs(pct) < 0.05) return '';
+  var color = pct < 0 ? '#6b8f71' : '#8f6b6b';
+  var sign = pct > 0 ? '+' : '';
+  return ' (<span style="color:' + color + '">' + sign + pct.toFixed(1) + '</span>%)';
+}
+
+/**
+ * Reads current selections from the two <select> elements, computes
+ * line/char counts, renders highlighted code into the panels, and
+ * updates the stats badges.
+ */
+function updateComparison() {
+  var exSel  = document.getElementById('example-select');
+  var libSel = document.getElementById('compare-select');
+  if (!exSel || !libSel) return;
+
+  var example = exSel.value;
+  var lib     = libSel.value;
+
+  var data    = comparisons[example];
+  if (!data) return;
+
+  var jssmCode    = data.jssm    || '';
+  var compareCode = data[lib]    || '';
+
+  var jssmLines    = countLines(jssmCode);
+  var compareLines = countLines(compareCode);
+  var jssmChars    = countChars(jssmCode);
+  var compareChars = countChars(compareCode);
+
+  var jssmCodeEl    = document.getElementById('jssm-code');
+  var compareCodeEl = document.getElementById('compare-code');
+  var jssmLinesEl   = document.getElementById('jssm-lines');
+  var compareLinesEl = document.getElementById('compare-lines');
+  var compareNameEl  = document.getElementById('compare-name');
+
+  if (jssmCodeEl)     jssmCodeEl.innerHTML    = highlightJS(jssmCode);
+  if (compareCodeEl)  compareCodeEl.innerHTML  = highlightJS(compareCode);
+  if (compareNameEl)  compareNameEl.textContent = libNames[lib] || lib;
+
+  if (jssmLinesEl) {
+    jssmLinesEl.innerHTML =
+      jssmLines + ' line' + (jssmLines !== 1 ? 's' : '') +
+      pctBadge(jssmLines, compareLines) +
+      ' &middot; ' +
+      jssmChars + ' chars' +
+      pctBadge(jssmChars, compareChars);
+  }
+
+  if (compareLinesEl) {
+    compareLinesEl.innerHTML =
+      compareLines + ' line' + (compareLines !== 1 ? 's' : '') +
+      pctBadge(compareLines, jssmLines) +
+      ' &middot; ' +
+      compareChars + ' chars' +
+      pctBadge(compareChars, jssmChars);
+  }
+}
+
+/* ── Initialize on load ──────────────────────────────────────────── */
+updateComparison();
+
+
     /* ── Copy Install Command ────────────────────── */
+
     function copyInstall(el) {
       navigator.clipboard.writeText('npm install --save jssm').then(() => {
         el.classList.add('copied');

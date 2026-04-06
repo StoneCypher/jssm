@@ -881,6 +881,40 @@ amount of time.
 ### How to publish a machine
 #### Legal, main, and forced
 ### Validators
+### Hooks
+Hooks let you observe or gate transitions.  **Pre-hooks** fire before the
+state changes and may return `false` to block the transition.  **Post-hooks**
+fire after the state has changed and cannot block it.
+
+In addition to the per-state and per-edge hooks (`hook`, `hook_entry`,
+`hook_exit`, `hook_action`, etc.), four **everything hooks** bracket the entire
+pipeline:
+
+| Method | Kind | Fires |
+|---|---|---|
+| `hook_pre_everything(handler)` | pre-hook | **Before** all other pre-hooks |
+| `hook_everything(handler)` | pre-hook | **After** all other pre-hooks |
+| `hook_pre_post_everything(handler)` | post-hook | **Before** all other post-hooks |
+| `hook_post_everything(handler)` | post-hook | **After** all other post-hooks |
+
+Everything-hook handlers receive an `EverythingHookContext` that extends the
+normal `HookContext` with a `hook_name` string identifying which everything
+hook fired (e.g. `'pre everything'`, `'everything'`, `'pre post everything'`,
+`'post everything'`).
+
+```typescript
+const m = sm`a -> b -> c;`;
+
+m.hook_pre_everything(({ hook_name, data, next_data }) => {
+  console.log(`${hook_name} — about to transition`);
+  return true;  // return false to block
+});
+
+m.hook_post_everything(({ hook_name }) => {
+  console.log(`${hook_name} — transition complete`);
+});
+```
+
 ### State history
 ### Automatic visualization
 

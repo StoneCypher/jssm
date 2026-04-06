@@ -9,8 +9,20 @@ import { JssmError } from './jssm_error';
 
 /*******
  *
- *  Predicate for validating an array for uniqueness.  Not generally meant for
- *  external use.
+ *  Predicate for validating an array for uniqueness.  Returns `true` when
+ *  `el` is the first occurrence in `source`, `false` otherwise.  Intended
+ *  for use as an `Array.filter` callback.  Not generally meant for external
+ *  use.
+ *
+ *  ```typescript
+ *  [1, 2, 2, 3].filter(arr_uniq_p);  // [1, 2, 3]
+ *  ```
+ *
+ *  @param el     - The current element being tested.
+ *  @param i      - The index of the current element.
+ *  @param source - The full array being filtered.
+ *
+ *  @returns `true` if `el` is the first occurrence in `source`.
  *
  */
 
@@ -22,12 +34,58 @@ function arr_uniq_p<T>(el: T, i: number, source: T[]): boolean {
 
 
 
+/*******
+ *
+ *  Wraps a string in an array, or passes through if already non-string.
+ *  Used to normalize arguments that accept either a single state name or
+ *  an array of state names.
+ *
+ *  ```typescript
+ *  array_box_if_string('hello');    // ['hello']
+ *  array_box_if_string(['a','b']); // ['a','b']
+ *  ```
+ *
+ *  @param n - A string to box, or a value to pass through unchanged.
+ *
+ *  @returns The input wrapped in an array if it was a string, otherwise the
+ *           input unchanged.
+ *
+ */
+
 const array_box_if_string = n =>
   typeof n === 'string'? [n] : n;
 
 
 
 
+
+/*******
+ *
+ *  Selects a single item from a weighted array of objects using cumulative
+ *  probability.  Each object in the array should have a numeric property
+ *  indicating its relative weight (defaults to `'probability'`).  Objects
+ *  missing the property are treated as weight 1.
+ *
+ *  ```typescript
+ *  const opts = [
+ *    { value: 'common',  probability: 0.8 },
+ *    { value: 'rare',    probability: 0.2 }
+ *  ];
+ *
+ *  weighted_rand_select(opts);  // most often { value: 'common', ... }
+ *  ```
+ *
+ *  @param options              - Non-empty array of objects to choose from.
+ *  @param probability_property - Name of the numeric weight property on each
+ *                                object.  Defaults to `'probability'`.
+ *  @param rng                  - Optional random number generator `() => number`
+ *                                in `[0, 1)`.  Defaults to `Math.random`.
+ *
+ *  @returns One element from `options`, chosen by weighted random selection.
+ *
+ *  @throws {TypeError} If `options` is not a non-empty array of objects.
+ *
+ */
 
 // this is explicitly about other peoples' data, so it has to be weakly typed
 /* eslint-disable flowtype/no-weak-types */
@@ -127,6 +185,30 @@ const histograph: Function = (ar : any[]): Map<any, number> => // eslint-disable
 
 
 
+/*******
+ *
+ *  Draws `n` weighted random samples from an array of objects.  Each draw is
+ *  independent (with replacement), delegating to {@link weighted_rand_select}.
+ *
+ *  ```typescript
+ *  const opts = [
+ *    { value: 'a', probability: 0.9 },
+ *    { value: 'b', probability: 0.1 }
+ *  ];
+ *
+ *  weighted_sample_select(3, opts, 'probability');
+ *  // e.g. [ { value: 'a', ... }, { value: 'a', ... }, { value: 'b', ... } ]
+ *  ```
+ *
+ *  @param n                    - Number of samples to draw.
+ *  @param options              - Non-empty array of weighted objects.
+ *  @param probability_property - Name of the numeric weight property.
+ *  @param rng                  - Optional random number generator.
+ *
+ *  @returns An array of `n` independently selected items.
+ *
+ */
+
 const weighted_sample_select: Function = (n: number, options: Array<any>, probability_property: string, rng?: JssmRng): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
 
     seq(n)
@@ -137,6 +219,34 @@ const weighted_sample_select: Function = (n: number, options: Array<any>, probab
 
 
 
+
+/*******
+ *
+ *  Draws `n` weighted random samples, extracts a named key from each, and
+ *  returns a histograph (`Map`) of how often each key value appeared.  Useful
+ *  for validating that a probabilistic transition distribution is roughly
+ *  correct over many trials.
+ *
+ *  ```typescript
+ *  const opts = [
+ *    { to: 'a', probability: 0.7 },
+ *    { to: 'b', probability: 0.3 }
+ *  ];
+ *
+ *  weighted_histo_key(1000, opts, 'probability', 'to');
+ *  // Map { 'a' => ~700, 'b' => ~300 }
+ *  ```
+ *
+ *  @param n         - Number of samples to draw.
+ *  @param opts      - Non-empty array of weighted objects.
+ *  @param prob_prop - Name of the numeric weight property.
+ *  @param extract   - Name of the property to extract from each sample for
+ *                     histogramming.
+ *  @param rng       - Optional random number generator.
+ *
+ *  @returns A `Map` from extracted key values to their occurrence counts.
+ *
+ */
 
 const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
 
@@ -153,8 +263,19 @@ const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: st
 
 /*******
  *
- *  Internal method generating names for edges for the hook lookup map.  Not
- *  meant for external use.
+ *  Internal method generating composite keys for the hook lookup map by
+ *  JSON-serializing a `[property, state]` pair.  Not meant for external use.
+ *
+ *  ```typescript
+ *  name_bind_prop_and_state('color', 'Red');  // '["color","Red"]'
+ *  ```
+ *
+ *  @param prop  - The property name (e.g. a data key or hook category).
+ *  @param state - The state name to bind to.
+ *
+ *  @returns A deterministic JSON string key for the `[prop, state]` pair.
+ *
+ *  @throws {JssmError} If either argument is not a string.
  *
  */
 
@@ -178,8 +299,18 @@ function name_bind_prop_and_state(prop: string, state: string): string {
 
 /*******
  *
- *  Internal method generating names for edges for the hook lookup map.  Not
- *  meant for external use.
+ *  Internal method generating composite keys for transition hooks by
+ *  JSON-serializing a `[from, to]` state pair.  Used to look up hooks
+ *  registered on a specific edge.  Not meant for external use.
+ *
+ *  ```typescript
+ *  hook_name('Red', 'Green');  // '["Red","Green"]'
+ *  ```
+ *
+ *  @param from - The source state name.
+ *  @param to   - The target state name.
+ *
+ *  @returns A deterministic JSON string key for the `[from, to]` pair.
  *
  */
 
@@ -193,8 +324,19 @@ const hook_name = (from: string, to: string): string =>
 
 /*******
  *
- *  Internal method generating names for actions for the hook lookup map.  Not
- *  meant for external use.
+ *  Internal method generating composite keys for named-action hooks by
+ *  JSON-serializing a `[from, to, action]` triple.  Used to look up hooks
+ *  registered on a specific action-labeled edge.  Not meant for external use.
+ *
+ *  ```typescript
+ *  named_hook_name('Red', 'Green', 'next');  // '["Red","Green","next"]'
+ *  ```
+ *
+ *  @param from   - The source state name.
+ *  @param to     - The target state name.
+ *  @param action - The action label on the edge.
+ *
+ *  @returns A deterministic JSON string key for the `[from, to, action]` triple.
  *
  */
 
@@ -324,6 +466,21 @@ function find_repeated<T>(arr: T[]): [T, number][] {
 
 
 
+
+/*******
+ *
+ *  Returns a `Promise` that resolves after `ms` milliseconds.  Useful for
+ *  inserting delays in async test flows or demos.
+ *
+ *  ```typescript
+ *  await sleep(100);  // pauses execution for 100ms
+ *  ```
+ *
+ *  @param ms - Number of milliseconds to wait before resolving.
+ *
+ *  @returns A `Promise<void>` that resolves after the timeout.
+ *
+ */
 
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));

@@ -18,7 +18,7 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.106.0 at 4/6/2026, 10:36:25 AM
+* Generated for version 5.106.0 at 4/6/2026, 12:02:23 PM
 
 -->
 # jssm 5.106.0
@@ -29,12 +29,12 @@ share online.  Easy to embed.
 
 Readable, useful state machines as one-liner strings.
 
-***5,102 tests***, run 5,993 times.
+***9 tests***, run 900 times.
 
-* 5,093 specs with 100.0% coverage.
-* 9 fuzz tests with 12.0% coverage.
+* 0 specs with 100.0% coverage.
+* 9 fuzz tests with 11.6% coverage.
 
-With 3,040 lines, that's about 1.7 tests per line, or 2.0 generated tests per line.
+With 3,150 lines, that's about 0.0 tests per line, or 0.3 generated tests per line.
 
 ***Meet your new state machine library.***
 
@@ -904,6 +904,40 @@ amount of time.
 ### How to publish a machine
 #### Legal, main, and forced
 ### Validators
+### Hooks
+Hooks let you observe or gate transitions.  **Pre-hooks** fire before the
+state changes and may return `false` to block the transition.  **Post-hooks**
+fire after the state has changed and cannot block it.
+
+In addition to the per-state and per-edge hooks (`hook`, `hook_entry`,
+`hook_exit`, `hook_action`, etc.), four **everything hooks** bracket the entire
+pipeline:
+
+| Method | Kind | Fires |
+|---|---|---|
+| `hook_pre_everything(handler)` | pre-hook | **Before** all other pre-hooks |
+| `hook_everything(handler)` | pre-hook | **After** all other pre-hooks |
+| `hook_pre_post_everything(handler)` | post-hook | **Before** all other post-hooks |
+| `hook_post_everything(handler)` | post-hook | **After** all other post-hooks |
+
+Everything-hook handlers receive an `EverythingHookContext` that extends the
+normal `HookContext` with a `hook_name` string identifying which everything
+hook fired (e.g. `'pre everything'`, `'everything'`, `'pre post everything'`,
+`'post everything'`).
+
+```typescript
+const m = sm`a -> b -> c;`;
+
+m.hook_pre_everything(({ hook_name, data, next_data }) => {
+  console.log(`${hook_name} — about to transition`);
+  return true;  // return false to block
+});
+
+m.hook_post_everything(({ hook_name }) => {
+  console.log(`${hook_name} — transition complete`);
+});
+```
+
 ### State history
 ### Automatic visualization
 

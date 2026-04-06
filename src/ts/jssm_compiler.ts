@@ -38,15 +38,28 @@ import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 /*********
  *
  *  Internal method meant to perform factory assembly of an edge.  Not meant for
- *  external use.
+ *  external use.  Constructs a {@link JssmTransition} from a parsed
+ *  semi-edge (`this_se`), a source state, a target state, and directionality.
  *
  *  @internal
  *
- *  @typeparam mDT The type of the machine data member; usually omitted
+ *  @typeparam StateType The type of state names (usually `string`).
+ *  @typeparam mDT       The type of the machine data member; usually omitted.
+ *
+ *  @param this_se    - The parsed semi-edge containing kind, action, and
+ *                      probability metadata.
+ *  @param from       - The source state of the transition.
+ *  @param to         - The target state of the transition.
+ *  @param isRight    - `true` if this is a left-to-right transition, `false`
+ *                      for right-to-left.  Determines which arrow kind
+ *                      extraction function is used.
+ *  @param _wasList   - If the transition was expanded from a list (e.g.
+ *                      `[A B C] -> D`), the original list of states.
+ *  @param _wasIndex  - The index of `from` within `_wasList`, if applicable.
+ *
+ *  @returns A fully assembled {@link JssmTransition} edge object.
  *
  */
-
-// TODO add at-param to docblock
 
 function makeTransition<StateType, mDT>(
 

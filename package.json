@@ -1,10 +1,12 @@
 {
   "name": "jssm",
-  "version": "5.106.0",
+  "version": "5.107.0",
   "engines": {
     "node": ">=10.0.0"
   },
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     "require": {
       "types": "./jssm.es5.d.cts",

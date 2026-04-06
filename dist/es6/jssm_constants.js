@@ -1,4 +1,23 @@
+/*******
+ *
+ *  Convenience aliases for common mathematical and numeric constants from
+ *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
+ *  can reference them without importing `Math` directly.
+ *
+ *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
+ *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
+ *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
+ *
+ */
 export const NegInfinity = Number.NEGATIVE_INFINITY, PosInfinity = Number.POSITIVE_INFINITY, Epsilon = Number.EPSILON, Pi = Math.PI, E = Math.E, Root2 = Math.SQRT2, RootHalf = Math.SQRT1_2, Ln2 = Math.LN2, Ln10 = Math.LN10, Log2E = Math.LOG2E, Log10E = Math.LOG10E, MaxSafeInt = Number.MAX_SAFE_INTEGER, MinSafeInt = Number.MIN_SAFE_INTEGER, MaxPosNum = Number.MAX_VALUE, MinPosNum = Number.MIN_VALUE, Phi = 1.61803398874989484820, EulerC = 0.57721566490153286060;
+/*******
+ *
+ *  Complete list of node shapes supported by Graphviz.  Used by jssm-viz to
+ *  validate and render state shapes in FSL `state ... : { shape: ... }` blocks.
+ *
+ *  `shapes` is an alias for `gviz_shapes`.
+ *
+ */
 const gviz_shapes = [
     "box3d",
     "polygon",
@@ -62,6 +81,14 @@ const gviz_shapes = [
     "record"
 ];
 const shapes = gviz_shapes;
+/*******
+ *
+ *  List of CSS/SVG named colors accepted by jssm-viz for state styling
+ *  properties like `background-color` and `text-color`.  Case-insensitive
+ *  matching is done at parse time; the canonical casing here follows the
+ *  CSS specification.
+ *
+ */
 const named_colors = [
     "AliceBlue", "AntiqueWhite", "Aqua", "Aquamarine", "Azure", "Beige",
     "Bisque", "Black", "BlanchedAlmond", "Blue", "BlueViolet", "Brown",
