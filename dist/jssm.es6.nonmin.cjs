@@ -129,8 +129,12 @@ function arrow_left_kind(arrow) {
         case '↔':
         case '<-=>':
         case '←⇒':
+        case '←=>':
+        case '<-⇒':
         case '<-~>':
         case '←↛':
+        case '←~>':
+        case '<-↛':
             return 'legal';
         case '<=':
         case '⇐':
@@ -138,8 +142,12 @@ function arrow_left_kind(arrow) {
         case '⇔':
         case '<=->':
         case '⇐→':
+        case '⇐->':
+        case '<=→':
         case '<=~>':
         case '⇐↛':
+        case '⇐~>':
+        case '<=↛':
             return 'main';
         case '<~':
         case '↚':
@@ -147,8 +155,12 @@ function arrow_left_kind(arrow) {
         case '↮':
         case '<~->':
         case '↚→':
+        case '↚->':
+        case '<~→':
         case '<~=>':
         case '↚⇒':
+        case '↚=>':
+        case '<~⇒':
             return 'forced';
         default:
             throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
@@ -188,8 +200,12 @@ function arrow_right_kind(arrow) {
         case '↔':
         case '<=->':
         case '⇐→':
+        case '⇐->':
+        case '<=→':
         case '<~->':
         case '↚→':
+        case '↚->':
+        case '<~→':
             return 'legal';
         case '=>':
         case '⇒':
@@ -197,8 +213,12 @@ function arrow_right_kind(arrow) {
         case '⇔':
         case '<-=>':
         case '←⇒':
+        case '←=>':
+        case '<-⇒':
         case '<~=>':
         case '↚⇒':
+        case '↚=>':
+        case '<~⇒':
             return 'main';
         case '~>':
         case '↛':
@@ -206,8 +226,12 @@ function arrow_right_kind(arrow) {
         case '↮':
         case '<-~>':
         case '←↛':
+        case '←~>':
+        case '<-↛':
         case '<=~>':
         case '⇐↛':
+        case '⇐~>':
+        case '<=↛':
             return 'forced';
         default:
             throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
@@ -20669,7 +20693,7 @@ var constants = /*#__PURE__*/Object.freeze({
     shapes: shapes$1
 });
 
-const version = "5.104.2", build_time = 1767919734221;
+const version = "5.104.3", build_time = 1775481926205;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;

@@ -94,20 +94,20 @@ function arrow_left_kind(arrow: JssmArrow): JssmArrowKind {
 
     case '<-': case '←':
     case '<->': case '↔':
-    case '<-=>': case '←⇒':
-    case '<-~>': case '←↛':
+    case '<-=>': case '←⇒': case '←=>': case '<-⇒':
+    case '<-~>': case '←↛': case '←~>': case '<-↛':
       return 'legal';
 
     case '<=': case '⇐':
     case '<=>': case '⇔':
-    case '<=->': case '⇐→':
-    case '<=~>': case '⇐↛':
+    case '<=->': case '⇐→': case '⇐->': case '<=→':
+    case '<=~>': case '⇐↛': case '⇐~>': case '<=↛':
       return 'main';
 
     case '<~': case '↚':
     case '<~>': case '↮':
-    case '<~->': case '↚→':
-    case '<~=>': case '↚⇒':
+    case '<~->': case '↚→': case '↚->': case '<~→':
+    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒':
       return 'forced';
 
     default:
@@ -154,20 +154,20 @@ function arrow_right_kind(arrow: JssmArrow): JssmArrowKind {
 
     case '->': case '→':
     case '<->': case '↔':
-    case '<=->': case '⇐→':
-    case '<~->': case '↚→':
+    case '<=->': case '⇐→': case '⇐->': case '<=→':
+    case '<~->': case '↚→': case '↚->': case '<~→':
       return 'legal';
 
     case '=>': case '⇒':
     case '<=>': case '⇔':
-    case '<-=>': case '←⇒':
-    case '<~=>': case '↚⇒':
+    case '<-=>': case '←⇒': case '←=>': case '<-⇒':
+    case '<~=>': case '↚⇒': case '↚=>': case '<~⇒':
       return 'main';
 
     case '~>': case '↛':
     case '<~>': case '↮':
-    case '<-~>': case '←↛':
-    case '<=~>': case '⇐↛':
+    case '<-~>': case '←↛': case '←~>': case '<-↛':
+    case '<=~>': case '⇐↛': case '⇐~>': case '<=↛':
       return 'forced';
 
     default:
