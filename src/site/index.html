@@ -1597,7 +1597,10 @@ trafficLight.on('red', () => console.log('Red light!'));`,
       next: 'yellow'
     },
     yellow: {
-      next: 'red'
+      next: function () {
+        console.log('Red light!');
+        return { name: 'red' };
+      }
     },
     red: {
       next: 'green'
@@ -1665,31 +1668,45 @@ const trafficLight = new TrafficLight();`
      ================================================================ */
   matter: {
     jssm:
-`let matter = sm\`solid 'melt' => liquid 'vaporize' => gas; gas 'condense' => liquid 'freeze' => solid;\`;
-matter.hook_global_action('melt', () => { console.log('melting'); return true; });
-matter.hook_global_action('freeze', () => { console.log('freezing'); return true; });
-matter.hook_global_action('vaporize', () => { console.log('vaporizing'); return true; });
-matter.hook_global_action('condense', () => { console.log('condensing'); return true; });`,
+`let matter = sm\`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas;\`;
 
+matter.hook_any_action( hh => {
+  console.log(hh.action === 'melt'
+                ? 'melting'
+                : hh.action.substring(0, hh.length-1) + 'ing'
+             );
+} );
+`,
     xstate:
 `const matter = createMachine({
-  id: 'matter',
   initial: 'solid',
   states: {
     solid: {
       on: {
-        melt: { target: 'liquid' }
+        melt: {
+          target: 'liquid',
+          actions: () => console.log('melting')
+        }
       }
     },
     liquid: {
       on: {
-        vaporize: { target: 'gas' },
-        freeze: { target: 'solid' }
+        vaporize: {
+          target: 'gas',
+          actions: () => console.log('vaporizing')
+        },
+        freeze: {
+          target: 'solid',
+          actions: () => console.log('freezing')
+        }
       }
     },
     gas: {
       on: {
-        condense: { target: 'liquid' }
+        condense: {
+          target: 'liquid',
+          actions: () => console.log('condensing')
+        }
       }
     }
   }
@@ -1869,9 +1886,9 @@ matter.on('solid', () => console.log('now solid'));`,
 
     'edium-fsm':
 `const matter = new StateMachine('matter');
-const solid = matter.createState('solid');
-const liquid = matter.createState('liquid');
-const gas = matter.createState('gas');
+const solid = matter.createState('solid', false, () => console.log('now solid'));
+const liquid = matter.createState('liquid', false, () => console.log('now liquid'));
+const gas = matter.createState('gas', false, () => console.log('now gas'));
 matter.addTransition(solid, liquid, 'melt');
 matter.addTransition(liquid, solid, 'freeze');
 matter.addTransition(liquid, gas, 'vaporize');
@@ -1910,14 +1927,26 @@ matter.on('solid', () => console.log('now solid'));`,
   state: { name: 'solid' },
   transitions: {
     solid: {
-      melt: 'liquid'
+      melt: function () {
+        console.log('melting');
+        return { name: 'liquid' };
+      }
     },
     liquid: {
-      vaporize: 'gas',
-      freeze: 'solid'
+      vaporize: function () {
+        console.log('vaporizing');
+        return { name: 'gas' };
+      },
+      freeze: function () {
+        console.log('freezing');
+        return { name: 'solid' };
+      }
     },
     gas: {
-      condense: 'liquid'
+      condense: function () {
+        console.log('condensing');
+        return { name: 'liquid' };
+      }
     }
   }
 });`,
@@ -3897,8 +3926,11 @@ const ghost = new Ghost();`
      ================================================================ */
   boss: {
     jssm:
-`const boss = sm\`phase1 'enrage' => enraged 'calm' => phase2 'weaken' => vulnerable 'finish' => defeated; vulnerable 'recover' => phase2;\`;`,
-
+`const boss = sm\`
+  phase1 'enrage' => enraged 'calm' =>
+    phase2 'weaken' => vulnerable 'finish' => defeated;
+  vulnerable 'recover' => phase2;
+\`;`,
     xstate:
 `const boss = createMachine({
   id: 'boss',
@@ -5210,7 +5242,7 @@ var libNames = {
 /* ── Helper functions ──────────────────────────────────────────────── */
 
 function countLines(str) {
-  return str.split('\n').length;
+  return str.split('\n').filter(function(l) { return l.trim() !== ''; }).length;
 }
 
 function countChars(str) {
