@@ -548,7 +548,7 @@ declare function gen_splitmix32(a?: number | undefined): () => number;
  *  ```
  *
  */
-declare const unique: <T>(arr?: T[]) => T[];
+declare const unique: <T>(arr: T[]) => T[];
 /*******
  *
  *  Lists all repeated items in an array along with their counts.  Subject to
@@ -609,7 +609,28 @@ declare const jssm_constants_d_PosInfinity: typeof PosInfinity;
 declare const jssm_constants_d_Root2: typeof Root2;
 declare const jssm_constants_d_RootHalf: typeof RootHalf;
 declare namespace jssm_constants_d {
-  export { jssm_constants_d_E as E, jssm_constants_d_Epsilon as Epsilon, jssm_constants_d_EulerC as EulerC, jssm_constants_d_Ln10 as Ln10, jssm_constants_d_Ln2 as Ln2, jssm_constants_d_Log10E as Log10E, jssm_constants_d_Log2E as Log2E, jssm_constants_d_MaxPosNum as MaxPosNum, jssm_constants_d_MaxSafeInt as MaxSafeInt, jssm_constants_d_MinPosNum as MinPosNum, jssm_constants_d_MinSafeInt as MinSafeInt, jssm_constants_d_NegInfinity as NegInfinity, jssm_constants_d_Phi as Phi, jssm_constants_d_Pi as Pi, jssm_constants_d_PosInfinity as PosInfinity, jssm_constants_d_Root2 as Root2, jssm_constants_d_RootHalf as RootHalf, gviz_shapes$1 as gviz_shapes, named_colors$1 as named_colors, shapes$1 as shapes };
+  export {
+    jssm_constants_d_E as E,
+    jssm_constants_d_Epsilon as Epsilon,
+    jssm_constants_d_EulerC as EulerC,
+    jssm_constants_d_Ln10 as Ln10,
+    jssm_constants_d_Ln2 as Ln2,
+    jssm_constants_d_Log10E as Log10E,
+    jssm_constants_d_Log2E as Log2E,
+    jssm_constants_d_MaxPosNum as MaxPosNum,
+    jssm_constants_d_MaxSafeInt as MaxSafeInt,
+    jssm_constants_d_MinPosNum as MinPosNum,
+    jssm_constants_d_MinSafeInt as MinSafeInt,
+    jssm_constants_d_NegInfinity as NegInfinity,
+    jssm_constants_d_Phi as Phi,
+    jssm_constants_d_Pi as Pi,
+    jssm_constants_d_PosInfinity as PosInfinity,
+    jssm_constants_d_Root2 as Root2,
+    jssm_constants_d_RootHalf as RootHalf,
+    gviz_shapes$1 as gviz_shapes,
+    named_colors$1 as named_colors,
+    shapes$1 as shapes,
+  };
 }
 
 declare const version: string;

@@ -18901,7 +18901,7 @@ function name_bind_prop_and_state(prop, state) {
         throw new JssmError(undefined, `Name of property must be a string; got ${prop}`);
     }
     if (typeof state !== 'string') {
-        throw new JssmError(undefined, `Name of state must be a string; got ${prop}`);
+        throw new JssmError(undefined, `Name of state must be a string; got ${state}`);
     }
     return JSON.stringify([prop, state]);
 }
@@ -18935,7 +18935,7 @@ function gen_splitmix32(a) {
     return function () {
         a |= 0;
         a = a + 0x9e3779b9 | 0;
-        var t = a ^ a >>> 16;
+        let t = a ^ a >>> 16;
         t = Math.imul(t, 0x21f0aaad);
         t = t ^ t >>> 15;
         t = Math.imul(t, 0x735a2d97);
@@ -20224,53 +20224,23 @@ const base_active_state_style$5 = {
     textColor: 'white',
     backgroundColor: 'dodgerblue4'
 };
-const base_hooked_state_style$5 = {
-    shape: 'component'
-};
 const base_terminal_state_style$5 = {
     textColor: 'white',
     backgroundColor: 'crimson'
 };
-const base_active_terminal_state_style$5 = {
-    textColor: 'white',
-    backgroundColor: 'indigo'
-};
 const base_start_state_style$5 = {
     backgroundColor: 'yellow'
-};
-const base_active_start_state_style$5 = {
-    backgroundColor: 'yellowgreen'
-};
-const base_active_hooked_state_style$5 = {
-    backgroundColor: 'yellowgreen'
 };
 const base_end_state_style$5 = {
     textColor: 'white',
     backgroundColor: 'darkolivegreen'
 };
-const base_active_end_state_style$5 = {
-    textColor: 'white',
-    backgroundColor: 'darkgreen'
-};
 const base_theme = {
-    name: 'base',
     state: base_state_style$5,
     start: base_start_state_style$5,
     end: base_end_state_style$5,
     terminal: base_terminal_state_style$5,
-    hooked: base_hooked_state_style$5,
-    active: base_active_state_style$5,
-    active_start: base_active_start_state_style$5,
-    active_end: base_active_end_state_style$5,
-    active_terminal: base_active_terminal_state_style$5,
-    active_hooked: base_active_hooked_state_style$5,
-    legal: undefined,
-    main: undefined,
-    forced: undefined,
-    action: undefined,
-    graph: undefined,
-    title: undefined // TODO FIXME
-};
+    active: base_active_state_style$5};
 
 const base_state_style$4 = {
     shape: 'rectangle',
@@ -20697,7 +20667,7 @@ var constants = /*#__PURE__*/Object.freeze({
     shapes: shapes$1
 });
 
-const version = "5.105.1", build_time = 1775483383993;
+const version = "5.105.2", build_time = 1775484444481;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;

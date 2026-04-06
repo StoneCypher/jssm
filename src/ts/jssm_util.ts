@@ -47,10 +47,10 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
   }
 
   const frand      : Function = rng
-                             ? (cap): number => rng() * cap
-                             : (cap): number => Math.random() * cap,
-        or_one     : Function = (item): any   => item === undefined? 1 : item,
-        prob_sum   : number   = options.reduce( (acc, val:any): number => acc + or_one(val[probability_property]), 0 ),
+                             ? (cap: number): number => rng() * cap
+                             : (cap: number): number => Math.random() * cap,
+        or_one     : Function = (item: unknown): any   => item === undefined? 1 : item,
+        prob_sum   : number   = options.reduce( (acc: number, val:any): number => acc + or_one(val[probability_property]), 0 ),
         rnd        : number   = frand(prob_sum);
 
   let   cursor     : number   = 0,
@@ -165,7 +165,7 @@ function name_bind_prop_and_state(prop: string, state: string): string {
   }
 
   if (typeof state !== 'string') {
-    throw new JssmError(undefined, `Name of state must be a string; got ${prop}`);
+    throw new JssmError(undefined, `Name of state must be a string; got ${state}`);
   }
 
   return JSON.stringify([prop, state]);
@@ -227,7 +227,7 @@ function gen_splitmix32(a? : number | undefined) {
     a |= 0;
     a  = a + 0x9e3779b9 | 0;
 
-    var t = a ^ a >>> 16;
+    let t = a ^ a >>> 16;
         t = Math.imul(t, 0x21f0aaad);
 
         t = t ^ t >>> 15;
@@ -260,7 +260,7 @@ function gen_splitmix32(a? : number | undefined) {
  *
  */
 
-const unique = <T>(arr?: T[]) =>
+const unique = <T>(arr: T[]) =>
 
   arr.filter( (v, i, a) => a.indexOf(v) === i );
 

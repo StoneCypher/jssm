@@ -87,7 +87,7 @@ function name_bind_prop_and_state(prop, state) {
         throw new JssmError(undefined, `Name of property must be a string; got ${prop}`);
     }
     if (typeof state !== 'string') {
-        throw new JssmError(undefined, `Name of state must be a string; got ${prop}`);
+        throw new JssmError(undefined, `Name of state must be a string; got ${state}`);
     }
     return JSON.stringify([prop, state]);
 }
@@ -121,7 +121,7 @@ function gen_splitmix32(a) {
     return function () {
         a |= 0;
         a = a + 0x9e3779b9 | 0;
-        var t = a ^ a >>> 16;
+        let t = a ^ a >>> 16;
         t = Math.imul(t, 0x21f0aaad);
         t = t ^ t >>> 15;
         t = Math.imul(t, 0x735a2d97);

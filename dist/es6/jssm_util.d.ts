@@ -82,7 +82,7 @@ declare function gen_splitmix32(a?: number | undefined): () => number;
  *  ```
  *
  */
-declare const unique: <T>(arr?: T[]) => T[];
+declare const unique: <T>(arr: T[]) => T[];
 /*******
  *
  *  Lists all repeated items in an array along with their counts.  Subject to
