@@ -17,7 +17,7 @@ import { version, build_time } from './version';
  *
  */
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
-declare function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig;
+declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;

@@ -115,7 +115,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
 
 
-function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig {
+function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig {
 
   const state_style: JssmStateConfig = {};
 
@@ -124,70 +124,70 @@ function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig {
     jssk.forEach( (key, i) => {
 
       if (typeof key !== 'object') {
-        throw new JssmError(this, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
+        throw new JssmError(machine, `invalid state item ${i} in state_style_condense list: ${JSON.stringify(key)}`);
       }
 
       switch (key.key) {
 
         case 'shape':
           if (state_style.shape !== undefined) {
-            throw new JssmError(this, `cannot redefine 'shape' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'shape' in state_style_condense, already defined`);
           }
           state_style.shape = key.value;
           break;
 
         case 'color':
           if (state_style.color !== undefined) {
-            throw new JssmError(this, `cannot redefine 'color' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'color' in state_style_condense, already defined`);
           }
           state_style.color = key.value;
           break;
 
         case 'text-color':
           if (state_style.textColor !== undefined) {
-            throw new JssmError(this, `cannot redefine 'text-color' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'text-color' in state_style_condense, already defined`);
           }
           state_style.textColor = key.value;
           break;
 
         case 'corners':
           if (state_style.corners !== undefined) {
-            throw new JssmError(this, `cannot redefine 'corners' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'corners' in state_style_condense, already defined`);
           }
           state_style.corners = key.value;
           break;
 
         case 'line-style':
           if (state_style.lineStyle !== undefined) {
-            throw new JssmError(this, `cannot redefine 'line-style' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'line-style' in state_style_condense, already defined`);
           }
           state_style.lineStyle = key.value;
           break;
 
         case 'background-color':
           if (state_style.backgroundColor !== undefined) {
-            throw new JssmError(this, `cannot redefine 'background-color' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'background-color' in state_style_condense, already defined`);
           }
           state_style.backgroundColor = key.value;
           break;
 
         case 'state-label':
           if (state_style.stateLabel !== undefined) {
-            throw new JssmError(this, `cannot redefine 'state-label' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'state-label' in state_style_condense, already defined`);
           }
           state_style.stateLabel = key.value;
           break;
 
         case 'border-color':
           if (state_style.borderColor !== undefined) {
-            throw new JssmError(this, `cannot redefine 'border-color' in state_style_condense, already defined`);
+            throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
           }
           state_style.borderColor = key.value;
           break;
 
         default:
           // TODO do that <never> trick to assert this list is complete
-          throw new JssmError(this, `unknown state style key in condense: ${(key as any).key}`);
+          throw new JssmError(machine, `unknown state style key in condense: ${(key as any).key}`);
 
       }
 
@@ -196,7 +196,7 @@ function state_style_condense(jssk: JssmStateStyleKeyList): JssmStateConfig {
   } else if (jssk === undefined) {
     // do nothing, undefined is legal and means we should return the empty container above
   } else {
-    throw new JssmError(this, 'state_style_condense received a non-array');
+    throw new JssmError(machine, 'state_style_condense received a non-array');
   }
 
   return state_style;
@@ -472,12 +472,12 @@ class Machine<mDT> {
     this._state_properties              = new Map();
     this._required_properties           = new Set();
 
-    this._state_style                   = state_style_condense(default_state_config);
-    this._active_state_style            = state_style_condense(default_active_state_config);
-    this._hooked_state_style            = state_style_condense(default_hooked_state_config);
-    this._terminal_state_style          = state_style_condense(default_terminal_state_config);
-    this._start_state_style             = state_style_condense(default_start_state_config);
-    this._end_state_style               = state_style_condense(default_end_state_config);
+    this._state_style                   = state_style_condense(default_state_config, this);
+    this._active_state_style            = state_style_condense(default_active_state_config, this);
+    this._hooked_state_style            = state_style_condense(default_hooked_state_config, this);
+    this._terminal_state_style          = state_style_condense(default_terminal_state_config, this);
+    this._start_state_style             = state_style_condense(default_start_state_config, this);
+    this._end_state_style               = state_style_condense(default_end_state_config, this);
 
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
