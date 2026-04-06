@@ -46,7 +46,9 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
     throw new TypeError('options must be a non-empty array of objects');
   }
 
-  const frand      : Function = (cap): number => Math.random() * cap,
+  const frand      : Function = rng
+                             ? (cap): number => rng() * cap
+                             : (cap): number => Math.random() * cap,
         or_one     : Function = (item): any   => item === undefined? 1 : item,
         prob_sum   : number   = options.reduce( (acc, val:any): number => acc + or_one(val[probability_property]), 0 ),
         rnd        : number   = frand(prob_sum);
@@ -125,21 +127,21 @@ const histograph: Function = (ar : any[]): Map<any, number> => // eslint-disable
 
 
 
-const weighted_sample_select: Function = (n: number, options: Array<any>, probability_property: string): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+const weighted_sample_select: Function = (n: number, options: Array<any>, probability_property: string, rng?: JssmRng): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
 
     seq(n)
       .map( (_i): any =>   // TODO FIXME eslint-disable-line flowtype/no-weak-types
-        weighted_rand_select(options, probability_property)
+        weighted_rand_select(options, probability_property, rng)
       );
 
 
 
 
 
-const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: string, extract: string): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+const weighted_histo_key: Function = (n: number, opts: Array<any>, prob_prop: string, extract: string, rng?: JssmRng): Array<any> => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
 
     histograph(
-      weighted_sample_select(n, opts, prob_prop)
+      weighted_sample_select(n, opts, prob_prop, rng)
         .map(
           (s): any => s[extract]     // TODO FIXME eslint-disable-line flowtype/no-weak-types
         )

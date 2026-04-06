@@ -524,6 +524,16 @@ declare const weighted_sample_select: Function;
 declare const weighted_histo_key: Function;
 /*******
  *
+ *  Creates a SplitMix32 random generator.  Used by the randomness test suite.
+ *
+ *  Sourced from `bryc`: https://github.com/bryc/code/blob/master/jshash/PRNGs.md#splitmix32
+ *
+ *  Replaces the Mulberry generator, which was found to have problems
+ *
+ */
+declare function gen_splitmix32(a?: number | undefined): () => number;
+/*******
+ *
  *  Reduces an array to its unique contents.  Compares with `===` and makes no
  *  effort to deep-compare contents; two matching arrays or objects contained
  *  will be treated as distinct, according to javascript rules.  This also means
@@ -1764,4 +1774,4 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };

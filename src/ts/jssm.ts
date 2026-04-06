@@ -3607,6 +3607,7 @@ export {
   histograph,
   weighted_sample_select,
   weighted_histo_key,
+  gen_splitmix32,
   sleep,
 
   constants,

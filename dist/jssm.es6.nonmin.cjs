@@ -18833,7 +18833,9 @@ const weighted_rand_select = (options, probability_property = 'probability', rng
     if (!(typeof options[0] === 'object')) {
         throw new TypeError('options must be a non-empty array of objects');
     }
-    const frand = (cap) => Math.random() * cap, or_one = (item) => item === undefined ? 1 : item, prob_sum = options.reduce((acc, val) => acc + or_one(val[probability_property]), 0), rnd = frand(prob_sum);
+    const frand = rng
+        ? (cap) => rng() * cap
+        : (cap) => Math.random() * cap, or_one = (item) => item === undefined ? 1 : item, prob_sum = options.reduce((acc, val) => acc + or_one(val[probability_property]), 0), rnd = frand(prob_sum);
     let cursor = 0, cursor_sum = 0;
     while (cursor < options.length && (cursor_sum += or_one(options[cursor++][probability_property])) <= rnd) { } // eslint-disable-line no-empty,fp/no-loops
     return options[cursor - 1];
@@ -18878,12 +18880,12 @@ const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
  ar.sort()
     .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
  (m.set(v, (m.has(v) ? m.get(v) + 1 : 1)), m), new Map());
-const weighted_sample_select = (n, options, probability_property) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+const weighted_sample_select = (n, options, probability_property, rng) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
  seq(n)
     .map((_i) => // TODO FIXME eslint-disable-line flowtype/no-weak-types
- weighted_rand_select(options, probability_property));
-const weighted_histo_key = (n, opts, prob_prop, extract) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
- histograph(weighted_sample_select(n, opts, prob_prop)
+ weighted_rand_select(options, probability_property, rng));
+const weighted_histo_key = (n, opts, prob_prop, extract, rng) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
+ histograph(weighted_sample_select(n, opts, prob_prop, rng)
     .map((s) => s[extract] // TODO FIXME eslint-disable-line flowtype/no-weak-types
 ));
 /*******
@@ -20693,7 +20695,7 @@ var constants = /*#__PURE__*/Object.freeze({
     shapes: shapes$1
 });
 
-const version = "5.105.0", build_time = 1775482533348;
+const version = "5.105.1", build_time = 1775483383993;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -23223,4 +23225,4 @@ function deserialize(machine_string, ser) {
     return machine;
 }
 
-export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, constants, deserialize, find_repeated, from, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
