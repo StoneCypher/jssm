@@ -29,12 +29,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over strings
       run: |
@@ -47,12 +47,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over atom labels
       run: |
@@ -65,12 +65,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over string labels
       run: |
@@ -83,12 +83,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over action statements
       run: |
@@ -101,17 +101,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - node-version: 23.x   # fastest, so run first, to error fast
+          - node-version: 24.x   # fastest, so run first, to error fast
             os: ubuntu-latest
-          - node-version: 23.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
+          - node-version: 24.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
             os: macos-latest
-          - node-version: 23.x   # finish check big-3 on latest current
+          - node-version: 24.x   # finish check big-3 on latest current
             os: windows-latest
-          - node-version: 22.x   # check newest non-lts too
+          - node-version: 23.x   # check newest non-lts too
             os: ubuntu-latest
-          - node-version: 22.x   # check newest non-lts too
+          - node-version: 23.x   # check newest non-lts too
             os: macos-latest
-          - node-version: 22.x   # check newest non-lts too
+          - node-version: 23.x   # check newest non-lts too
             os: windows-latest
           - node-version: 17.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
             os: ubuntu-latest
@@ -121,13 +121,17 @@ jobs:
             os: ubuntu-latest
           - node-version: 20.x
             os: ubuntu-latest
+          - node-version: 21.x
+            os: ubuntu-latest
+          - node-version: 22.x
+            os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
@@ -148,12 +152,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Run the benchmarks
       run: |
@@ -166,12 +170,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Verify the version was bumped
       run: |
@@ -191,7 +195,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Export tag to envvars
       run: |
@@ -199,10 +203,10 @@ jobs:
         echo "TAG=$TAG" >> $GITHUB_ENV
         echo $TAG
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
         registry-url: https://registry.npmjs.org/
 
     - name: Push tags
@@ -242,7 +246,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Export tag to envvars
       run: |
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
@@ -261,7 +265,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Results page
       run: |
