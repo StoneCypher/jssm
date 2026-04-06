@@ -65,7 +65,7 @@ function seq(n) {
  *
  */
 const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
- ar.sort()
+ [...ar].sort()
     .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
  (m.set(v, (m.has(v) ? m.get(v) + 1 : 1)), m), new Map());
 const weighted_sample_select = (n, options, probability_property, rng) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types

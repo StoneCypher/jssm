@@ -19,6 +19,13 @@ describe('histograph/1', () => {
   test('([1,1,2]) generates Map([[1,2],[2,1]])', () =>
     expect( jssm.histograph([1,1,2]) ).toEqual( new Map( [[1,2],[2,1]] ) ) );
 
+  test('does not mutate the input array', () => {
+    const input = [3, 1, 2, 1];
+    const copy  = [...input];
+    jssm.histograph(input);
+    expect(input).toEqual(copy);
+  });
+
 });
 
 // stochable

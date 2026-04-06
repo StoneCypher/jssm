@@ -421,7 +421,7 @@ class Machine<mDT> {
     this._has_exit_hooks          = false;
     this._has_after_hooks         = false;
     this._has_global_action_hooks = false;
-    this._has_transition_hooks    = true;
+    this._has_transition_hooks    = false;
     // no need for a boolean for single hooks, just test for undefinedness
 
     this._has_forced_transitions   = false;
@@ -444,7 +444,7 @@ class Machine<mDT> {
     this._has_post_entry_hooks         = false;
     this._has_post_exit_hooks          = false;
     this._has_post_global_action_hooks = false;
-    this._has_post_transition_hooks    = true;
+    this._has_post_transition_hooks    = false;
     // no need for a boolean for single hooks, just test for undefinedness
 
     this._code_allows_override   = allows_override;
@@ -2319,7 +2319,7 @@ class Machine<mDT> {
 
     } else {
       if (this.valid_transition(newStateOrAction, newData)) {
-        if (this._has_transition_hooks) {
+        if (this._has_transition_hooks || this._has_post_transition_hooks) {
           trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
         }
         valid    = true;

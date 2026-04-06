@@ -116,7 +116,7 @@ function seq(n: number): number[] {
 
 const histograph: Function = (ar : any[]): Map<any, number> => // eslint-disable-line flowtype/no-weak-types
 
-    ar.sort()
+    [...ar].sort()
       .reduce(
         (m,v): Map<any, any> =>    // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
           ( m.set(v, (m.has(v)? m.get(v)+1 : 1)) , m),

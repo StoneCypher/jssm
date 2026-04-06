@@ -18877,7 +18877,7 @@ function seq(n) {
  *
  */
 const histograph = (ar) => // eslint-disable-line flowtype/no-weak-types
- ar.sort()
+ [...ar].sort()
     .reduce((m, v) => // TODO FIXME eslint-disable-line flowtype/no-weak-types,no-sequences
  (m.set(v, (m.has(v) ? m.get(v) + 1 : 1)), m), new Map());
 const weighted_sample_select = (n, options, probability_property, rng) => // TODO FIXME no any // eslint-disable-line flowtype/no-weak-types
@@ -20665,7 +20665,7 @@ var constants = /*#__PURE__*/Object.freeze({
     shapes: shapes$1
 });
 
-const version = "5.105.2", build_time = 1775484444481;
+const version = "5.105.3", build_time = 1775485193705;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -20822,7 +20822,7 @@ class Machine {
         this._has_exit_hooks = false;
         this._has_after_hooks = false;
         this._has_global_action_hooks = false;
-        this._has_transition_hooks = true;
+        this._has_transition_hooks = false;
         // no need for a boolean for single hooks, just test for undefinedness
         this._has_forced_transitions = false;
         this._hooks = new Map();
@@ -20842,7 +20842,7 @@ class Machine {
         this._has_post_entry_hooks = false;
         this._has_post_exit_hooks = false;
         this._has_post_global_action_hooks = false;
-        this._has_post_transition_hooks = true;
+        this._has_post_transition_hooks = false;
         // no need for a boolean for single hooks, just test for undefinedness
         this._code_allows_override = allows_override;
         this._config_allows_override = config_allows_override;
@@ -22198,7 +22198,7 @@ class Machine {
         }
         else {
             if (this.valid_transition(newStateOrAction, newData)) {
-                if (this._has_transition_hooks) {
+                if (this._has_transition_hooks || this._has_post_transition_hooks) {
                     trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
                 }
                 valid = true;
