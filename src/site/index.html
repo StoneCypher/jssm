@@ -400,7 +400,16 @@
       text-transform: uppercase; letter-spacing: 0.05em;
     }
     .compare-label span { font-weight: 400; color: #64748b; font-size: 0.75rem; }
+    .compare-label span.compare-lib-name { font-weight: 600; color: #94a3b8; font-size: 0.8rem; }
     .compare-panels pre { font-size: 0.8rem; line-height: 1.65; overflow-x: auto; margin: 0; white-space: pre; }
+    .hl-kw { color: #c084fc; }
+    .hl-str { color: #6ee7b7; }
+    .hl-cmt { color: #475569; font-style: italic; }
+    .hl-bool { color: #f472b6; }
+    .hl-num { color: #38bdf8; }
+    .hl-fn { color: #b0b8fc; }
+    .hl-mem { color: #818cf8; }
+    .hl-op { color: #94a3b8; }
 
     /* ── Features Grid ────────────────────────────── */
     .features-grid {
@@ -972,7 +981,7 @@ window.<span class="fn">go</span> <span class="op">=</span> (<span class="fn">a<
           <pre id="jssm-code"></pre>
         </div>
         <div class="compare-half">
-          <div class="compare-label"><span id="compare-name"></span> <span id="compare-lines"></span></div>
+          <div class="compare-label"><span id="compare-name" class="compare-lib-name"></span> <span id="compare-lines"></span></div>
           <pre id="compare-code"></pre>
         </div>
       </div>
@@ -5247,8 +5256,35 @@ function highlightJS(code) {
   s = s.replace(/\b(\d+(?:\.\d+)?)\b/g,
     '<span class="hl-num">$1</span>');
 
+  // Operators (must run before spans are inserted to avoid matching inside tags)
+  // Work on HTML-escaped text: &gt; &lt; &amp;
+  s = s.replace(/=&gt;/g, function() {
+    var id = '\x00TOK' + tokenIndex + '\x00';
+    tokens[tokenIndex++] = '<span class="hl-op">=&gt;</span>';
+    return id;
+  });
+  s = s.replace(/&amp;&amp;/g, function() {
+    var id = '\x00TOK' + tokenIndex + '\x00';
+    tokens[tokenIndex++] = '<span class="hl-op">&amp;&amp;</span>';
+    return id;
+  });
+  s = s.replace(/\|\|/g, function() {
+    var id = '\x00TOK' + tokenIndex + '\x00';
+    tokens[tokenIndex++] = '<span class="hl-op">||</span>';
+    return id;
+  });
+  s = s.replace(/(===|!==|==|!=|&lt;=|&gt;=)/g, function(m) {
+    var id = '\x00TOK' + tokenIndex + '\x00';
+    tokens[tokenIndex++] = '<span class="hl-op">' + m + '</span>';
+    return id;
+  });
+
   s = s.replace(/\.([a-zA-Z_]\w*)\s*\(/g,
     '.<span class="hl-fn">$1</span>(');
+
+  // Property access (member names not followed by parentheses or existing span)
+  s = s.replace(/\.([a-zA-Z_]\w*)(?!\s*[\(<])/g,
+    '.<span class="hl-mem">$1</span>');
 
   // 4. Restore tokens
   for (var i = 0; i < tokens.length; i++) {
