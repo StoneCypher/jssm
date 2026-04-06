@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1190 merges; 210 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1190 merges; 211 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
 
 
@@ -22,30 +22,19 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 4:48:33 PM
+## [Untagged] - 4/6/2026 6:30:23 AM
 
-Commit [068f45100fd21b8612e74873067df0739ea95960](https://github.com/StoneCypher/jssm/commit/068f45100fd21b8612e74873067df0739ea95960)
+Commit [086557cd10fda0b0849591a8f8d316e5ec4ea46d](https://github.com/StoneCypher/jssm/commit/086557cd10fda0b0849591a8f8d316e5ec4ea46d)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [02e7ae7, 1df01b2]
-
-  * Merge branch 'main' of github.com:StoneCypher/jssm
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 1/8/2026 4:48:18 PM
-
-Commit [02e7ae7253e4ddb73931ca019e1c9895ab031277](https://github.com/StoneCypher/jssm/commit/02e7ae7253e4ddb73931ca019e1c9895ab031277)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * bugfix for out of range on weighted rand select
+  * fix: add missing mixed-notation Unicode arrow variants to arrow_left_kind and arrow_right_kind
+  * arrow_direction handled all 4 variants of bidirectional mixed ASCII/Unicode
+arrows (e.g. <-=>, ←⇒, ←=>, <-⇒), but arrow_left_kind and arrow_right_kind
+only handled 2 of 4 for each combination. This caused a throw on mixed-notation
+arrows that arrow_direction accepted.
+  * Adds 12 missing case arms (4 per arrow-kind group × 3 groups) to each function.
+  * Fixes @stonecypher/fsl#1311, @stonecypher/fsl#1312
 
 
 
@@ -54,38 +43,29 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/4/2026 5:12:34 PM
+## [Untagged] - 3/25/2026 2:57:18 PM
 
-Commit [1df01b29861af4aac17124d5240af38eaba2686e](https://github.com/StoneCypher/jssm/commit/1df01b29861af4aac17124d5240af38eaba2686e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [eed2dad, 3585cb1]
-
-  * Merge pull request #577 from StoneCypher/dependabot/npm_and_yarn/js-yaml-3.14.2
-  * Bump js-yaml from 3.14.1 to 3.14.2
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 11/21/2025 1:55:20 PM
-
-Commit [3585cb120f240940a9fb6348b099bbb48dd865e6](https://github.com/StoneCypher/jssm/commit/3585cb120f240940a9fb6348b099bbb48dd865e6)
+Commit [ec27de1205e01203dddadedd0d421037d909d898](https://github.com/StoneCypher/jssm/commit/ec27de1205e01203dddadedd0d421037d909d898)
 
 Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
 
-  * Bump js-yaml from 3.14.1 to 3.14.2
-  * Bumps [js-yaml](https://github.com/nodeca/js-yaml) from 3.14.1 to 3.14.2.
-- [Changelog](https://github.com/nodeca/js-yaml/blob/master/CHANGELOG.md)
-- [Commits](https://github.com/nodeca/js-yaml/compare/3.14.1...3.14.2)
+  * Bump picomatch
+  * Bumps  and [picomatch](https://github.com/micromatch/picomatch). These dependencies needed to be updated together.
+  * Updates `picomatch` from 2.3.1 to 2.3.2
+- [Release notes](https://github.com/micromatch/picomatch/releases)
+- [Changelog](https://github.com/micromatch/picomatch/blob/master/CHANGELOG.md)
+- [Commits](https://github.com/micromatch/picomatch/compare/2.3.1...2.3.2)
+  * Updates `picomatch` from 4.0.2 to 4.0.4
+- [Release notes](https://github.com/micromatch/picomatch/releases)
+- [Changelog](https://github.com/micromatch/picomatch/blob/master/CHANGELOG.md)
+- [Commits](https://github.com/micromatch/picomatch/compare/2.3.1...2.3.2)
   * ---
 updated-dependencies:
-- dependency-name: js-yaml
-  dependency-version: 3.14.2
+- dependency-name: picomatch
+  dependency-version: 2.3.2
+  dependency-type: indirect
+- dependency-name: picomatch
+  dependency-version: 4.0.4
   dependency-type: indirect
 ...
   * Signed-off-by: dependabot[bot] <support@github.com>
@@ -97,15 +77,104 @@ updated-dependencies:
 
 &nbsp;
 
-<a name="5__104__2" />
+## [Untagged] - 3/19/2026 10:46:01 AM
 
-## [5.104.2] - 9/2/2025 6:39:31 AM
+Commit [960020f04c4fc87eded14c66148ddb47e69f1c33](https://github.com/StoneCypher/jssm/commit/960020f04c4fc87eded14c66148ddb47e69f1c33)
 
-Commit [eed2dad1aaf3aa384efc501ff94c7898d9529eac](https://github.com/StoneCypher/jssm/commit/eed2dad1aaf3aa384efc501ff94c7898d9529eac)
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * Bump flatted from 3.2.7 to 3.4.2
+  * Bumps [flatted](https://github.com/WebReflection/flatted) from 3.2.7 to 3.4.2.
+- [Commits](https://github.com/WebReflection/flatted/compare/v3.2.7...v3.4.2)
+  * ---
+updated-dependencies:
+- dependency-name: flatted
+  dependency-version: 3.4.2
+  dependency-type: indirect
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 2/27/2026 6:55:01 PM
+
+Commit [6084ca8ca19e416828d1db3ee0424e1147dcab08](https://github.com/StoneCypher/jssm/commit/6084ca8ca19e416828d1db3ee0424e1147dcab08)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * Bump minimatch
+  * Bumps  and [minimatch](https://github.com/isaacs/minimatch). These dependencies needed to be updated together.
+  * Updates `minimatch` from 5.1.0 to 5.1.9
+- [Changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md)
+- [Commits](https://github.com/isaacs/minimatch/compare/v5.1.0...v5.1.9)
+  * Updates `minimatch` from 3.1.2 to 3.1.5
+- [Changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md)
+- [Commits](https://github.com/isaacs/minimatch/compare/v5.1.0...v5.1.9)
+  * Updates `minimatch` from 5.1.6 to 5.1.9
+- [Changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md)
+- [Commits](https://github.com/isaacs/minimatch/compare/v5.1.0...v5.1.9)
+  * ---
+updated-dependencies:
+- dependency-name: minimatch
+  dependency-version: 5.1.9
+  dependency-type: indirect
+- dependency-name: minimatch
+  dependency-version: 3.1.5
+  dependency-type: indirect
+- dependency-name: minimatch
+  dependency-version: 5.1.9
+  dependency-type: indirect
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 2/26/2026 2:55:38 AM
+
+Commit [039e26a0a2516b99a8b758dd819f09347b212608](https://github.com/StoneCypher/jssm/commit/039e26a0a2516b99a8b758dd819f09347b212608)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * Bump rollup from 4.24.0 to 4.59.0
+  * Bumps [rollup](https://github.com/rollup/rollup) from 4.24.0 to 4.59.0.
+- [Release notes](https://github.com/rollup/rollup/releases)
+- [Changelog](https://github.com/rollup/rollup/blob/master/CHANGELOG.md)
+- [Commits](https://github.com/rollup/rollup/compare/v4.24.0...v4.59.0)
+  * ---
+updated-dependencies:
+- dependency-name: rollup
+  dependency-version: 4.59.0
+  dependency-type: direct:development
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 1/28/2026 9:23:19 PM
+
+Commit [e416b8fae907b64681e6bb449b612fbfcb9fbf62](https://github.com/StoneCypher/jssm/commit/e416b8fae907b64681e6bb449b612fbfcb9fbf62)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix test label
+Merges [ab6395f, 962b666]
+
+  * Merge pull request #579 from StoneCypher/dependabot/npm_and_yarn/lodash-4.17.23
+  * Bump lodash from 4.17.21 to 4.17.23
 
 
 
@@ -114,13 +183,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/30/2025 11:59:14 AM
+## [Untagged] - 1/28/2026 9:22:15 PM
 
-Commit [83eb9ba05ee1089b9cdb94cfb5afd023edd18089](https://github.com/StoneCypher/jssm/commit/83eb9ba05ee1089b9cdb94cfb5afd023edd18089)
+Commit [ab6395fcd9a831f56890013107eb08d0e0a513cc](https://github.com/StoneCypher/jssm/commit/ab6395fcd9a831f56890013107eb08d0e0a513cc)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * Eliminated two methods.  Please reimplement them both.
+  * Add Claude Code GitHub Actions workflow
 
 
 
@@ -129,31 +198,43 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/4/2025 1:21:48 AM
+## [Untagged] - 1/21/2026 3:33:24 PM
 
-Commit [03dda20b684b8614caa993ac796f95d6bfabd74e](https://github.com/StoneCypher/jssm/commit/03dda20b684b8614caa993ac796f95d6bfabd74e)
+Commit [962b666b0752aca06c2c826d90af269dc46d62b1](https://github.com/StoneCypher/jssm/commit/962b666b0752aca06c2c826d90af269dc46d62b1)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * Bump lodash from 4.17.21 to 4.17.23
+  * Bumps [lodash](https://github.com/lodash/lodash) from 4.17.21 to 4.17.23.
+- [Release notes](https://github.com/lodash/lodash/releases)
+- [Commits](https://github.com/lodash/lodash/compare/4.17.21...4.17.23)
+  * ---
+updated-dependencies:
+- dependency-name: lodash
+  dependency-version: 4.17.23
+  dependency-type: indirect
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__105__0" />
+
+## [5.105.0] - 1/8/2026 7:12:03 PM
+
+Commit [53af77fef01bdf609c03efa2fbc7e368711dffa5](https://github.com/StoneCypher/jssm/commit/53af77fef01bdf609c03efa2fbc7e368711dffa5)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [31dfb9c, 51d8ae4]
+Merges [464d03b, bebbaa7]
 
-  * Merge pull request #576 from miguel-rios-r/UpdatePackageJsonDefaultExportFileExtension
-  * Remove .js in package.json > export > dafault
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 4/3/2025 7:56:09 AM
-
-Commit [51d8ae4581a9c2b851fdd441c3c51e89353e2fd2](https://github.com/StoneCypher/jssm/commit/51d8ae4581a9c2b851fdd441c3c51e89353e2fd2)
-
-Author: `MRR <miguelrios@Miguels-MacBook-Air.local>`
-
-  * Remove .js in package.json > export > dafault because it file doesnt exist
+  * Merge pull request #578 from StoneCypher/VersionCheckDeserialize_1010
+  * Add version checking to deserialize to refuse future versions
 
 
 
@@ -162,27 +243,10 @@ Author: `MRR <miguelrios@Miguels-MacBook-Air.local>`
 
 &nbsp;
 
-## [Untagged] - 2/4/2025 5:01:42 PM
+## [Untagged] - 1/8/2026 6:09:27 PM
 
-Commit [77c87d1279333427cd78386c2a7e3a903fed494e](https://github.com/StoneCypher/jssm/commit/77c87d1279333427cd78386c2a7e3a903fed494e)
+Commit [d748bce20850adfaaa56f854a1bc5bd9a707c398](https://github.com/StoneCypher/jssm/commit/d748bce20850adfaaa56f854a1bc5bd9a707c398)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * This branch is bullshit, ignore it, I just need to show off the test environment
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__104__1" />
-
-## [5.104.1] - 10/28/2024 2:26:03 AM
-
-Commit [31dfb9c1f14c6de3cf9ba7773273164c675567c4](https://github.com/StoneCypher/jssm/commit/31dfb9c1f14c6de3cf9ba7773273164c675567c4)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * remove node 16 from gha over rollup support, move big-3 to node 23 and node 22
+  * yep

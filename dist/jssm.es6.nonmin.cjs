@@ -20693,7 +20693,7 @@ var constants = /*#__PURE__*/Object.freeze({
     shapes: shapes$1
 });
 
-const version = "5.104.3", build_time = 1775481926205;
+const version = "5.105.0", build_time = 1775482533348;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
@@ -23161,7 +23161,62 @@ function abstract_hook_step(maybe_hook, hook_args) {
         return { pass: true };
     }
 }
+/**
+ * Compares two semantic version strings.
+ *
+ * @param {string} v1 - First version string (e.g., "5.104.2")
+ * @param {string} v2 - Second version string (e.g., "5.103.1")
+ *
+ * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
+ *
+ * @example
+ * compareVersions("5.104.2", "5.103.1") // returns 1 (v1 is newer)
+ *
+ * @example
+ * compareVersions("5.104.2", "6.0.0")   // returns -1 (v1 is older)
+ *
+ * @example
+ * compareVersions("5.104.2", "5.104.2") // returns 0 (equal)
+ */
+function compareVersions(v1, v2) {
+    const parts1 = v1.split('.').map(Number);
+    const parts2 = v2.split('.').map(Number);
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+        const num1 = parts1[i] || 0;
+        const num2 = parts2[i] || 0;
+        if (num1 !== num2) {
+            return num1 - num2;
+        }
+    }
+    return 0;
+}
+/**
+ * Deserializes a previously serialized machine state.
+ *
+ * This function recreates a machine from a serialization object, restoring its
+ * state, data, and history. For security and compatibility reasons, it will
+ * refuse to deserialize data from future versions of the library.
+ *
+ * @typeparam mDT - The type of the machine data member
+ *
+ * @param {string} machine_string - The FSL string defining the machine structure
+ * @param {JssmSerialization<mDT>} ser - The serialization object to restore from
+ *
+ * @returns {Machine<mDT>} - The restored machine instance
+ *
+ * @throws {Error} If the serialization is from a future version
+ *
+ * @example
+ * const machine = jssm.from("a -> b;");
+ * const serialized = machine.serialize();
+ * const restored = jssm.deserialize("a -> b;", serialized);
+ */
 function deserialize(machine_string, ser) {
+    // Refuse to deserialize data from future versions
+    if (compareVersions(ser.jssm_version, version) > 0) {
+        throw new Error(`Cannot deserialize from future version ${ser.jssm_version} ` +
+            `(current version is ${version}). Please upgrade jssm to deserialize this data.`);
+    }
     const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
     machine._state = ser.state;
     ser.history.forEach(history_item => machine._history.push(history_item));
