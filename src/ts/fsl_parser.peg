@@ -1086,6 +1086,10 @@ SdStateLineStyle "linestyle"
   / WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
 
 
+SdStateImage "image"
+  = WS? "image"            WS? ":" WS? value:String    WS? ";" WS? { return { key:'image', value }; }
+
+
 SdStateProperty "state property"
   = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
     return { key: 'state_property', name, value }
@@ -1104,6 +1108,7 @@ StateDeclarationItem
   / SdStateShape
   / SdStateCorners
   / SdStateLineStyle
+  / SdStateImage
   / SdStateProperty
 
 StateDeclarationDesc

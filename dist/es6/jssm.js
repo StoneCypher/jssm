@@ -45,6 +45,9 @@ function transfer_state_properties(state_decl) {
             case 'border-color':
                 state_decl.borderColor = d.value;
                 break;
+            case 'image':
+                state_decl.image = d.value;
+                break;
             case 'state_property':
                 state_decl.property = { name: d.name, value: d.value };
                 break;
@@ -2612,6 +2615,7 @@ class Machine {
         individual_style.lineStyle = decl === null || decl === void 0 ? void 0 : decl.lineStyle;
         individual_style.corners = decl === null || decl === void 0 ? void 0 : decl.corners;
         individual_style.shape = decl === null || decl === void 0 ? void 0 : decl.shape;
+        individual_style.image = decl === null || decl === void 0 ? void 0 : decl.image;
         layers.push(individual_style);
         return layers.reduce((acc, cur) => {
             const composite_state = acc;
@@ -3055,11 +3059,12 @@ function abstract_everything_hook_step(maybe_hook, hook_args) {
  * compareVersions("5.104.2", "5.104.2") // returns 0 (equal)
  */
 function compareVersions(v1, v2) {
+    var _a, _b;
     const parts1 = v1.split('.').map(Number);
     const parts2 = v2.split('.').map(Number);
     for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-        const num1 = parts1[i] || 0;
-        const num2 = parts2[i] || 0;
+        const num1 = (_a = parts1[i]) !== null && _a !== void 0 ? _a : 0;
+        const num2 = (_b = parts2[i]) !== null && _b !== void 0 ? _b : 0;
         if (num1 !== num2) {
             return num1 - num2;
         }

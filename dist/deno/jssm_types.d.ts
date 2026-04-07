@@ -115,6 +115,7 @@ declare type JssmStateDeclaration = {
     textColor?: JssmColor;
     backgroundColor?: JssmColor;
     borderColor?: JssmColor;
+    image?: string;
     state: StateType;
     property?: {
         name: string;
@@ -154,7 +155,11 @@ declare type JssmStateStyleBorderColor = {
     key: 'border-color';
     value: JssmColor;
 };
-declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor;
+declare type JssmStateStyleImage = {
+    key: 'image';
+    value: string;
+};
+declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor | JssmStateStyleImage;
 declare type JssmStateStyleKeyList = JssmStateStyleKey[];
 declare type JssmBaseTheme = {
     name: string;

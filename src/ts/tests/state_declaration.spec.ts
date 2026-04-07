@@ -197,6 +197,48 @@ describe('error catchery', () => {
       .toThrow()
   );
 
+  describe('Image state declaration property', () => {
+
+    test('Parsing state with image doesn\'t throw', () => {
+      expect(() => { const _foo = sm`state Foo: { image: "icon.png"; }; a -> b;`; })
+        .not.toThrow();
+    });
+
+    test('state_declaration has image property', () => {
+      const mach = sm`state Foo: { image: "icon.png"; }; Foo -> b;`;
+      expect(mach.state_declaration('Foo')?.image).toBe('icon.png');
+    });
+
+    test('style_for includes image property', () => {
+      const mach = sm`state Foo: { image: "icon.png"; }; Foo -> b;`;
+      expect(mach.style_for('Foo').image).toBe('icon.png');
+    });
+
+    test('state without image returns undefined for declaration', () => {
+      const mach = sm`state Foo: { color: red; }; Foo -> b;`;
+      expect(mach.state_declaration('Foo')?.image).toBeUndefined();
+    });
+
+    test('state without image returns undefined for style_for', () => {
+      const mach = sm`Foo -> b;`;
+      expect(mach.style_for('Foo').image).toBeUndefined();
+    });
+
+    test('image works alongside other properties', () => {
+      const mach = sm`state Foo: { image: "hero.png"; shape: circle; color: red; }; Foo -> b;`;
+      expect(mach.state_declaration('Foo')?.image).toBe('hero.png');
+      expect(mach.state_declaration('Foo')?.shape).toBe('circle');
+      expect(mach.state_declaration('Foo')?.color).toBe('#ff0000ff');
+    });
+
+    test('image with URL path', () => {
+      const mach = sm`state Foo: { image: "https://example.com/icon.png"; }; Foo -> b;`;
+      expect(mach.state_declaration('Foo')?.image).toBe('https://example.com/icon.png');
+    });
+
+  });
+
+
   describe('Cannot generate an empty state name as datastructure', () => {
 
     const prestate = {

@@ -144,6 +144,26 @@ describe('Version checking in deserialization', () => {
         .not.toThrow();
     });
 
+    test('Accepts older version with more segments than current', () => {
+      const machine_str = "a -> b;";
+      const foo = jssm.from(machine_str);
+      const ser = foo.serialize();
+      ser.jssm_version = '0.0.0.1';
+
+      expect(() => jssm.deserialize(machine_str, ser))
+        .not.toThrow();
+    });
+
+    test('Rejects future version with more segments than current', () => {
+      const machine_str = "a -> b;";
+      const foo = jssm.from(machine_str);
+      const ser = foo.serialize();
+      ser.jssm_version = '999.0.0.1';
+
+      expect(() => jssm.deserialize(machine_str, ser))
+        .toThrow(/Cannot deserialize from future version/);
+    });
+
     test('Rejects future version with fewer segments', () => {
       const machine_str = "a -> b;";
       const foo = jssm.from(machine_str);

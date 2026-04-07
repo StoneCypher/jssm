@@ -99,6 +99,8 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'state-label'      : state_decl.stateLabel      = d.value; break;
       case 'border-color'     : state_decl.borderColor     = d.value; break;
 
+      case 'image'            : state_decl.image           = d.value; break;
+
       case 'state_property'   : state_decl.property        = { name: d.name, value: d.value }; break;
 
       default: throw new JssmError(undefined, `Unknown state property: '${JSON.stringify(d)}'`);
@@ -3524,6 +3526,7 @@ class Machine<mDT> {
     individual_style.lineStyle       = decl?.lineStyle;
     individual_style.corners         = decl?.corners;
     individual_style.shape           = decl?.shape;
+    individual_style.image           = decl?.image;
 
     layers.push(individual_style);
 
@@ -4111,8 +4114,8 @@ function compareVersions(v1: string, v2: string): number {
   const parts2 = v2.split('.').map(Number);
 
   for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-    const num1 = parts1[i] || 0;
-    const num2 = parts2[i] || 0;
+    const num1 = parts1[i] ?? 0;
+    const num2 = parts2[i] ?? 0;
 
     if (num1 !== num2) {
       return num1 - num2;
