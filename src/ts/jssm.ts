@@ -117,6 +117,49 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
 
 
 
+/**
+ *
+ *  Collapse a list of individual state-style key/value pairs into a single
+ *  {@link JssmStateConfig} object, remapping FSL-style kebab-case keys to the
+ *  camelCase field names the runtime uses.
+ *
+ *  The parser emits state styling as a flat array like
+ *  `[{ key: 'color', value: 'red' }, { key: 'line-style', value: 'dashed' }]`
+ *  because that is the most natural shape for the grammar to produce.  This
+ *  helper runs once per style bucket during `Machine` construction to turn
+ *  those arrays into the compact `{ color, lineStyle, ... }` objects the
+ *  graph-rendering code expects.
+ *
+ *  ```typescript
+ *  state_style_condense([
+ *    { key: 'color',      value: 'red' },
+ *    { key: 'shape',      value: 'oval' },
+ *    { key: 'line-style', value: 'dashed' }
+ *  ]);
+ *  // => { color: 'red', shape: 'oval', lineStyle: 'dashed' }
+ *
+ *  state_style_condense(undefined);
+ *  // => {}
+ *  ```
+ *
+ *  @param jssk The list of style keys to condense.  `undefined` is accepted
+ *  and yields an empty config.
+ *
+ *  @param machine Optional `Machine` reference, used only so that any
+ *  {@link JssmError} thrown can point at the offending machine in its
+ *  diagnostic message.
+ *
+ *  @returns A `JssmStateConfig` object containing every key from `jssk`
+ *  remapped into its camelCase field.
+ *
+ *  @throws {JssmError} If `jssk` is neither an array nor `undefined`, if any
+ *  element is not an object, if the same key appears more than once, or if a
+ *  key is not one of the recognized style names.
+ *
+ *  @internal
+ *
+ */
+
 function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig {
 
   const state_style: JssmStateConfig = {};
@@ -2742,10 +2785,52 @@ class Machine<mDT> {
 
 
 
+  /*********
+   *
+   *  Shared transition core used by {@link transition}, {@link force_transition},
+   *  and {@link action}.  Runs validation, fires the full hook pipeline (pre-
+   *  everything, any-action, after, any-transition, exit, named, basic,
+   *  edge-type, entry, everything), commits the new state if nothing
+   *  rejected, and returns whether the transition succeeded.
+   *
+   *  Not meant for external use.  Call one of the public wrappers instead:
+   *  - `transition` for an ordinary legal transition
+   *  - `force_transition` to bypass the legality check
+   *  - `action` to dispatch by action name rather than target state
+   *
+   *  @remarks
+   *  Known sharp edges, carried over from the original `// TODO` comments:
+   *  - The forced-ness behavior needs to be cleaned up a lot here.
+   *  - The callbacks are not fully correct across the forced / action / plain
+   *    cases and should be revisited.
+   *  - When multiple edges exist between two states with different `kind`
+   *    values, only the first edge's kind is used to pick the edge-type hook.
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted.
+   *
+   *  @param newStateOrAction The target state name (for a plain or forced
+   *  transition) or the action name (when `wasAction` is true).
+   *
+   *  @param newData Optional replacement machine data to install alongside
+   *  the transition.  Hooks may further override this via complex results.
+   *
+   *  @param wasForced `true` if the caller invoked `force_transition`, in
+   *  which case legality is checked against `valid_force_transition` rather
+   *  than `valid_transition`.
+   *
+   *  @param wasAction `true` if the caller invoked `action`, in which case
+   *  `newStateOrAction` is an action name and the target state is looked up
+   *  via the current action edge.
+   *
+   *  @returns `true` if the transition was valid and every hook passed;
+   *  `false` if the transition was invalid or any hook rejected.
+   *
+   *  @internal
+   *
+   */
+
   transition_impl(newStateOrAction: StateType, newData: mDT | undefined, wasForced: boolean, wasAction: boolean): boolean {
 
-    // TODO the forced-ness behavior needs to be cleaned up a lot here
-    // TODO all the callbacks are wrong on forced, action, etc
 
     let valid      : boolean               = false,
         trans_type : string,
@@ -3984,6 +4069,34 @@ function from<mDT>(MachineAsString: string, ExtraConstructorFields?: Partial< Js
 
 
 
+/**
+ *
+ *  Type guard that narrows an unknown value to a {@link HookComplexResult}.
+ *
+ *  A hook complex result is an object with at minimum a boolean `pass` field,
+ *  and may optionally also carry replacement `data` / `next_data` fields that
+ *  the machine should adopt if the hook passes.  This helper is used by the
+ *  hook-dispatch machinery to tell "hook returned a complex object" from
+ *  "hook returned a bare boolean / null / undefined".
+ *
+ *  ```typescript
+ *  is_hook_complex_result({ pass: true });                 // true
+ *  is_hook_complex_result({ pass: false, data: { x: 1 }}); // true
+ *  is_hook_complex_result(true);                           // false
+ *  is_hook_complex_result(null);                           // false
+ *  is_hook_complex_result({ other: 'thing' });             // false
+ *  ```
+ *
+ *  @typeparam mDT The type of the machine data member; usually omitted.
+ *
+ *  @param hr The value to test.
+ *
+ *  @returns `true` if `hr` is a non-null object with a boolean `pass` field;
+ *  `false` otherwise.  When `true`, TypeScript narrows `hr` to
+ *  `HookComplexResult<mDT>`.
+ *
+ */
+
 function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> {
 
   if (hr !== null && typeof hr === 'object') {
@@ -3999,6 +4112,36 @@ function is_hook_complex_result<mDT>(hr: unknown): hr is HookComplexResult<mDT> 
 
 
 
+
+/**
+ *
+ *  Normalize any legal hook return value to a single "did it reject?" boolean.
+ *
+ *  Hooks in jssm may return any of the following to indicate success:
+ *  `true`, `undefined`, or a complex result whose `pass` field is `true`.
+ *  They may return any of the following to indicate rejection:
+ *  `false`, or a complex result whose `pass` field is `false`.  This helper
+ *  collapses all of those shapes into one boolean so callers don't have to
+ *  re-implement the matrix.
+ *
+ *  ```typescript
+ *  is_hook_rejection(true);            // false (pass)
+ *  is_hook_rejection(undefined);       // false (pass)
+ *  is_hook_rejection(false);           // true  (reject)
+ *  is_hook_rejection({ pass: true });  // false (pass)
+ *  is_hook_rejection({ pass: false }); // true  (reject)
+ *  ```
+ *
+ *  @typeparam mDT The type of the machine data member; usually omitted.
+ *
+ *  @param hr A hook result of any legal shape.
+ *
+ *  @returns `true` if the hook rejected the transition; `false` if it passed.
+ *
+ *  @throws {TypeError} If `hr` is not a recognized hook result shape (for
+ *  example, a number or a plain object without a `pass` field).
+ *
+ */
 
 function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
 
@@ -4017,6 +4160,44 @@ function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
 
 
 
+
+/**
+ *
+ *  Invoke an optional transition/action hook and normalize its return value
+ *  into a {@link HookComplexResult}.
+ *
+ *  This is the central adapter the transition pipeline uses to run every
+ *  non-"everything" hook kind (basic, named, entry, exit, after, action, etc).
+ *  It accepts `undefined` for the hook slot because most hooks are not set on
+ *  most machines; when no hook is installed the step is a no-op pass.
+ *
+ *  The valid return shapes from a hook and their normalized meanings are:
+ *  - `undefined` → `{ pass: true }`
+ *  - `true`      → `{ pass: true }`
+ *  - `false`     → `{ pass: false }`
+ *  - `null`      → `{ pass: false }`
+ *  - a complex result object → returned as-is
+ *
+ *  Anything else is a programmer error and throws.
+ *
+ *  @typeparam mDT The type of the machine data member; usually omitted.
+ *
+ *  @param maybe_hook The hook handler to call, or `undefined` for the
+ *  "no hook installed" case.
+ *
+ *  @param hook_args The context object passed to the hook.  Includes the
+ *  current and proposed state, current and proposed data, action name, and
+ *  transition kind.
+ *
+ *  @returns A {@link HookComplexResult} describing whether the hook passed
+ *  and, optionally, any data replacements it requested.
+ *
+ *  @throws {TypeError} If the hook returns a value that is not one of the
+ *  legal shapes listed above.
+ *
+ *  @internal
+ *
+ */
 
 function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_args: HookContext<mDT>): HookComplexResult<mDT> {
 
@@ -4053,6 +4234,41 @@ function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_
 }
 
 
+
+/**
+ *
+ *  Invoke an optional "everything" hook and normalize its return value into
+ *  a {@link HookComplexResult}.
+ *
+ *  Mechanically identical to {@link abstract_hook_step}, but typed for the
+ *  everything-hook family (`pre_everything_hook` and `everything_hook`),
+ *  whose context object carries an extra `hook_name` field identifying which
+ *  bracket of the pipeline is firing.  Separated from `abstract_hook_step`
+ *  so TypeScript can enforce that the hook handler and the context object
+ *  agree on shape.
+ *
+ *  The valid return shapes and their meanings are the same as for
+ *  `abstract_hook_step`:
+ *  - `undefined` or `true` → `{ pass: true }`
+ *  - `false` or `null`     → `{ pass: false }`
+ *  - a complex result      → returned as-is
+ *
+ *  @typeparam mDT The type of the machine data member; usually omitted.
+ *
+ *  @param maybe_hook The everything-hook handler, or `undefined` when none
+ *  is installed.
+ *
+ *  @param hook_args The everything-hook context object.  Differs from a
+ *  normal hook context in that it also includes `hook_name`.
+ *
+ *  @returns A {@link HookComplexResult} describing whether the hook passed
+ *  and any data replacements it requested.
+ *
+ *  @throws {TypeError} If the hook returns a value outside the legal shapes.
+ *
+ *  @internal
+ *
+ */
 
 function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT> {
 

@@ -74,7 +74,7 @@
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
     "min_es6": "mv dist/jssm.es6.js dist/jssm.es6.nonmin.cjs && terser dist/jssm.es6.nonmin.cjs > dist/jssm.es6.mjs",
     "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.js",
-    "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/ && cp -r src/demo docs/ && cp dist/index.es5.iife.cjs docs/demo",
+    "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/ && cp -r src/demo docs/ && cp dist/jssm.es5.iife.cjs docs/demo",
     "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.cjs",
     "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.cjs && cp README.md dist/deno",
