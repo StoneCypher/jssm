@@ -124,6 +124,9 @@
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
     "@knodes/typedoc-plugin-pages": "^0.22.5",
+    "@types/jsdom": "^21.1.7",
+    "@viz-js/viz": "^3.26.0",
+    "jsdom": "^24.1.0",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-replace": "^6.0.1",
@@ -161,5 +164,8 @@
     "better_git_changelog": "^1.6.1",
     "circular_buffer_js": "^1.10.0",
     "reduce-to-639-1": "^1.1.0"
+  },
+  "optionalDependencies": {
+    "@viz-js/viz": "^3.26.0"
   }
 }
