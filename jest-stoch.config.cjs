@@ -3,6 +3,8 @@ module.exports = {
 
   testEnvironment            : 'node',
 
+  coverageProvider           : 'v8',
+
   moduleFileExtensions       : ['js', 'ts'],
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/"],
   testMatch                  : ['**/*.stoch.ts'],
