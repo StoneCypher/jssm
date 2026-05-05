@@ -258,8 +258,288 @@ function style_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string {
 
 
 
+/**
+ *  Convert an FSL flow direction (`up`/`right`/`down`/`left`) to a graphviz
+ *  `rankdir=` declaration line.  Throws on unknown input.
+ *
+ *  @internal
+ */
+function flow_direction_to_rankdir(flow_direction: string): string {
+  switch (flow_direction) {
+    case 'up'    : return 'rankdir=BT;';
+    case 'right' : return 'rankdir=LR;';
+    case 'down'  : return 'rankdir=TB;';
+    case 'left'  : return 'rankdir=RL;';
+    default      : throw new JssmError(undefined, `unknown flow direction '${flow_direction}'`);
+  }
+}
+
+
+
+
+/**
+ *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
+ *
+ *  @internal
+ */
+function dot_template(rank_dir: string, graph_bg_color: string, nodes: string, edges: string, arranges: string, preamble = ''): string {
+  return `digraph G {
+${preamble}
+
+${rank_dir}
+fontname="Open Sans";
+style=filled;
+bgcolor="${graph_bg_color}";
+node [fontsize=14; shape=box; style=filled; fillcolor=white; fontname="Times New Roman"];
+edge [fontsize=6; fontname="Open Sans"];
+
+${nodes}
+
+${edges}
+
+${arranges}
+}`;
+}
+
+
+
+
+/**
+ *  Render the node-feature list for one machine, one node per state.
+ *
+ *  @internal
+ */
+function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[]): string {
+
+  return l_states.map((s) => {
+
+    const style        = u_jssm.style_for(s);
+    const border_color = style.borderColor;
+    const bgcolor      = style.backgroundColor;
+    const fgcolor      = style.textColor;
+
+    const terminal  = u_jssm.state_is_terminal(s);
+    const final_    = u_jssm.state_is_final(s);
+    const complete  = u_jssm.state_is_complete(s);
+    const use_label = u_jssm.display_text(s);
+    const image     = image_for_state(u_jssm, s);
+
+    const features = [
+      ['label',     use_label],
+      ['shape',     style.shape                  || ''],
+      ['color',     border_color                 || ''],
+      ['style',     style_for_state(u_jssm, s)   || ''],
+      ['fontcolor', fgcolor                      || ''],
+      ['image',     image                        || ''],
+      ['fillcolor', bgcolor ? bgcolor :
+                    (final_   ? vc('fill_final') :
+                    (complete ? vc('fill_complete') :
+                    (terminal ? vc('fill_terminal') : '')))]
+    ]
+      .filter(r => r[1])
+      .map(r => `${r[0]}="${r[1]}"`)
+      .join(' ');
+
+    return `${node_of(s, l_states)} [${features}];`;
+
+  }).join(' ');
+
+}
+
+
+
+
+/**
+ *  Render the edge-feature list, including bidirectional fold-up and
+ *  per-direction action / probability labels.  Pushed strikes prevent
+ *  duplicate emission of bidirectional edges.
+ *
+ *  @internal
+ */
+function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], strike: [string, string][]): string {
+
+  return u_jssm.states().map((s) =>
+
+    u_jssm.list_exits(s).map((ex) => {
+
+      if (strike.find(row => (row[0] === s) && (row[1] == ex))) {
+        return '';
+      }
+
+      const doublequote = (txt: string) => txt.replace(/"/g, '\\"');
+
+      const edge      = u_jssm.list_transitions(s);
+      const edge_tr   = u_jssm.lookup_transition_for(s, ex);
+      const pair      = u_jssm.list_transitions(ex);
+      const pair_id   = u_jssm.get_transition_by_state_names(ex, s);
+      const pair_tr   = u_jssm.lookup_transition_for(ex, s);
+      const double    = pair_id && (s !== ex);
+
+      const if_obj_field = (obj: any, field: string) => obj ? (obj[field] ?? '') : '';
+
+      const h_final    = u_jssm.state_is_final(s);
+      const h_complete = u_jssm.state_is_complete(s);
+      const h_terminal = u_jssm.state_is_terminal(s);
+
+      const t_final    = u_jssm.state_is_final(ex);
+      const t_complete = u_jssm.state_is_complete(ex);
+      const t_terminal = u_jssm.state_is_terminal(ex);
+
+      const lineColor = (final_: boolean, complete: boolean, terminal: boolean, lkind: string, suffix = '_solo') =>
+        final_   ? vc(`${lkind}_final${suffix}`)    :
+        complete ? vc(`${lkind}_complete${suffix}`) :
+        terminal ? vc(`${lkind}_terminal${suffix}`) :
+                   vc(`${lkind}${suffix}`);
+
+      const textColor = (final_: boolean, complete: boolean, terminal: boolean, suffix = '_solo'): string =>
+        final_   ? vc(`text_final${suffix}`)    :
+        complete ? vc(`text_complete${suffix}`) :
+        terminal ? vc(`text_terminal${suffix}`) :
+                   '';
+
+      const headColor = textColor(h_final, h_complete, h_terminal, double ? '_1' : '_solo');
+      const tailColor = textColor(t_final, t_complete, t_terminal, double ? '_2' : '_solo');
+
+      const labelInline = [
+        [pair, 'probability', 'headlabel', 'name', 'action', double, headColor],
+        [edge, 'probability', 'taillabel', 'name', 'action', true,   tailColor]
+      ]
+        .map((r: any) => ({
+          which   : r[2],
+          whether : (r[5] ? ([(if_obj_field(r[0], r[5])), (if_obj_field(r[0], r[1])), (if_obj_field(r[0], r[3]))].filter(q => q).join('<br/>') || '') : ''),
+          color   : r[6]
+        }))
+        .filter(present => present.whether)
+        .map(r => `${r.which}=${r.color ? `<<font color="${r.color}">${r.whether}</font>>` : `"${r.whether}"`};`)
+        .join(' ');
+
+      const label      = edge_tr ? ([`${(edge_tr.action || '')}`, `${(edge_tr.probability || '')}`].filter(x => x !== '').join('\n') || undefined) : undefined;
+      const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
+
+      const rlabel      = pair_tr ? ([`${(pair_tr.action || '')}`, `${(pair_tr.probability || '')}`].filter(x => x !== '').join('\n') || undefined) : undefined;
+      const maybeRLabel = rlabel ? `headlabel="${doublequote(rlabel)}";` : '';
+
+      const tc1 = lineColor(t_final, t_complete, t_terminal, edge_tr.kind, '_1');
+      const tc2 = lineColor(h_final, h_complete, h_terminal, (pair_tr || { kind: 'legal' }).kind, '_2');
+      const tcd = lineColor(t_final, t_complete, t_terminal, edge_tr.kind, '_solo');
+
+      const arrowHead = edge_tr.forced_only ? 'ediamond' : (edge_tr.main_path ? 'normal;weight=5' : 'empty');
+      const arrowTail = pair_tr ? (pair_tr.forced_only ? 'ediamond' : (pair_tr.main_path ? 'normal;weight=5' : 'empty')) : '';
+
+      const edgeInline = edge ? (double
+        ? `${maybeLabel}${maybeRLabel}arrowhead=${arrowHead};arrowtail=${arrowTail};dir=both;color="${tc1}:${tc2}"`
+        : `${maybeLabel}arrowhead=${arrowHead};color="${tcd}"`) : '';
+
+      if (pair) { strike.push([ex, s]); }
+
+      return `${node_of(s, l_states)}->${node_of(ex, l_states)} [${labelInline}${edgeInline}];`;
+
+    }).join(' ')
+
+  ).join(' ');
+
+}
+
+
+
+
+/**
+ *  Render `arrange`, `arrange_start`, and `arrange_end` declarations to
+ *  rank-grouped subgraphs (`rank=same`/`rank=min`/`rank=max`).
+ *
+ *  @internal
+ */
+function arranges_for<T>(u_jssm: jssm.Machine<T>, l_states: string[]): string {
+  let decl = '';
+
+  if (u_jssm._arrange_declaration) {
+    decl += u_jssm._arrange_declaration.map(d => `{rank=same; ${d.map(di => node_of(di, l_states)).join('; ')};};`).join('\n');
+  }
+
+  if (u_jssm._arrange_start_declaration) {
+    decl += u_jssm._arrange_start_declaration.map(d => `{rank=min; ${d.map(di => node_of(di, l_states)).join('; ')};};`).join('\n');
+  }
+
+  if (u_jssm._arrange_end_declaration) {
+    decl += u_jssm._arrange_end_declaration.map(d => `{rank=max; ${d.map(di => node_of(di, l_states)).join('; ')};};`).join('\n');
+  }
+
+  return decl;
+}
+
+
+
+
+/**
+ *  Render a {@link jssm.Machine} as a graphviz dot string.
+ *
+ *  ```typescript
+ *  import { sm } from 'jssm';
+ *  import { machine_to_dot } from 'jssm/viz';
+ *
+ *  const dot = machine_to_dot(sm`a -> b;`);
+ *  // 'digraph G { ... }'
+ *  ```
+ *
+ *  @param u_jssm The machine to render.
+ *  @returns A complete graphviz dot source string.
+ */
+function machine_to_dot<T>(u_jssm: jssm.Machine<T>): string {
+
+  const l_states = u_jssm.states();
+  const nodes    = states_to_nodes_string(u_jssm, l_states);
+
+  const strike: [string, string][] = [];
+  const edges    = states_to_edges_string(u_jssm, l_states, strike);
+
+  const arranges = arranges_for(u_jssm, l_states);
+
+  const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
+  const preamble = u_jssm.dot_preamble() || '';
+
+  return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
+
+}
+
+
+
+
+/**
+ *  Render an FSL string directly to graphviz dot source.
+ *
+ *  ```typescript
+ *  import { fsl_to_dot } from 'jssm/viz';
+ *  const dot = fsl_to_dot('a -> b;');
+ *  ```
+ *
+ *  @param fsl The FSL source.
+ *  @returns A complete graphviz dot source string.
+ */
+function fsl_to_dot(fsl: string): string {
+  return machine_to_dot(jssm.sm`${fsl}`);
+}
+
+
+
+
+/**
+ *  Deprecated, no-op compat alias retained from jssm-viz.  Does nothing.
+ *  Will be removed in the next major.
+ *
+ *  @deprecated Use {@link machine_to_dot} instead.
+ */
+function dot<T>(_machine: jssm.Machine<T>): void {
+  // intentionally no-op; preserved for binary compat with old jssm-viz
+}
+
+
+
+
 export {
   configure,
+  dot,
+  fsl_to_dot,
+  machine_to_dot,
   version, build_time
 };
 
