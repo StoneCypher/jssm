@@ -65,6 +65,26 @@ and TypeScript typings.  A Deno build is included.  Node 10 or newer.
 
 <br/>
 
+## Visualization
+
+`jssm` ships with a visualization subpath that renders state machines to
+SVG using Graphviz (via [`@viz-js/viz`](https://www.npmjs.com/package/@viz-js/viz)).
+
+```typescript
+import { sm }                  from 'jssm';
+import { fsl_to_svg_string }   from 'jssm/viz';
+
+const svg = await fsl_to_svg_string('a -> b;');
+```
+
+The viz subpath is opt-in — importing only from `jssm` does not pull in
+`@viz-js/viz`. See the Visualization doc page for browser, ESM, and IIFE
+usage patterns.
+
+
+
+<br/>
+
 ## 60-second tour
 
 **Actions** let a machine advance without the caller knowing the next state:
