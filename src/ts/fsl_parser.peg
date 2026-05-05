@@ -363,9 +363,8 @@ JsNumericLiteral "number"
   / 'ϕ'                              { return 1.61803398874989484820; }
   / 'φ'                              { return 1.61803398874989484820; }
   / 'EulerConstant'                  { return 0.57721566490153286060; }
-  / 'γ'                              { return 0.57721566490153286060; }
-  / '𝛾'                              { return 0.57721566490153286060; }
-  / 'γ'                              { return 0.57721566490153286060; }
+  / 'γ'                              { return 0.57721566490153286060; }            // greek small letter gamma U+03B3
+  / '𝛾'                              { return 0.57721566490153286060; }            // mathematical italic small gamma U+1D6FE
 
 JsDecimalLiteral
   = JsDecimalIntegerLiteral "." DecimalDigit* JsNExponentPart? { return parseFloat(text()); }
