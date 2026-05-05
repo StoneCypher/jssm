@@ -99,3 +99,97 @@ describe('state-declaration readers', () => {
   });
 
 });
+
+
+
+describe('machine_to_dot output structure', () => {
+
+  test('produces a digraph G { ... } envelope', () => {
+    const dot = jv.machine_to_dot(sm`a -> b;`);
+    expect(dot).toMatch(/^digraph G \{/);
+    expect(dot).toMatch(/\}\s*$/);
+  });
+
+  test('contains node identifiers for all states', () => {
+    const dot = jv.machine_to_dot(sm`alpha -> beta;`);
+    expect(dot).toMatch(/n0/);
+    expect(dot).toMatch(/n1/);
+    expect(dot).toMatch(/label="alpha"/);
+    expect(dot).toMatch(/label="beta"/);
+  });
+
+  test('fsl_to_dot is equivalent to machine_to_dot(sm`...`)', () => {
+    const a = jv.machine_to_dot(sm`a -> b;`);
+    const b = jv.fsl_to_dot('a -> b;');
+    expect(a).toBe(b);
+  });
+
+});
+
+
+
+describe('state-styling renders into dot', () => {
+
+  test('shape: circle produces shape="circle"', () => {
+    const dot = jv.machine_to_dot(sm`state c: { shape: circle; }; a -> c;`);
+    expect(dot).toMatch(/shape="circle"/);
+  });
+
+  test('color (border-color) produces a color attribute', () => {
+    const dot = jv.machine_to_dot(sm`state c: { border-color: #FF0000FF; }; a -> c;`);
+    expect(dot).toMatch(/color="#FF0000FF"/);
+  });
+
+  test('corners: rounded produces style with rounded', () => {
+    const dot = jv.machine_to_dot(sm`state c: { corners: rounded; }; a -> c;`);
+    expect(dot).toMatch(/style="rounded[^"]*filled"/);
+  });
+
+  test('line-style: dashed produces style with dashed', () => {
+    const dot = jv.machine_to_dot(sm`state c: { line-style: dashed; }; a -> c;`);
+    expect(dot).toMatch(/style="[^"]*dashed[^"]*filled"/);
+  });
+
+  test('image: foo.png produces image="foo.png"', () => {
+    const dot = jv.machine_to_dot(sm`state c: { image: "foo.png"; }; a -> c;`);
+    expect(dot).toMatch(/image="foo\.png"/);
+  });
+
+});
+
+
+
+describe('arrange declarations render into dot', () => {
+
+  test('arrange [a b] produces a rank=same group', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; arrange [a b];`);
+    expect(dot).toMatch(/rank=same/);
+  });
+
+  test('arrange-start [a] produces a rank=min group', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; arrange-start [a];`);
+    expect(dot).toMatch(/rank=min/);
+  });
+
+  test('arrange-end [b] produces a rank=max group', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; arrange-end [b];`);
+    expect(dot).toMatch(/rank=max/);
+  });
+
+});
+
+
+
+describe('flow direction renders into dot', () => {
+
+  test('flow: right produces rankdir=LR', () => {
+    const dot = jv.machine_to_dot(sm`flow: right; a -> b;`);
+    expect(dot).toMatch(/rankdir=LR/);
+  });
+
+  test('default flow (down) produces rankdir=TB', () => {
+    const dot = jv.machine_to_dot(sm`a -> b;`);
+    expect(dot).toMatch(/rankdir=TB/);
+  });
+
+});
