@@ -285,10 +285,10 @@ import type { Viz }               from '@viz-js/viz';
 
 
 /**
- *  Cached viz.js instance.  First render call awaits {@link instance}; later
- *  calls reuse the resolved promise.  Internal.
+ *  Cached resolved viz.js instance.  Populated on first call to
+ *  {@link get_viz}; later calls reuse it directly.  Internal.
  */
-let viz_instance_promise: Promise<Viz> | null = null;
+let viz_instance: Viz | null = null;
 
 /**
  *  DOM parser injected via {@link configure} for environments without a
@@ -308,12 +308,12 @@ let injected_dom_parser: typeof globalThis.DOMParser | null = null;
  */
 async function get_viz(): Promise<Viz> {
 
-  if (viz_instance_promise === null) {
+  if (viz_instance === null) {
     const mod = await import('@viz-js/viz');
-    viz_instance_promise = mod.instance();
+    viz_instance = await mod.instance();
   }
 
-  return viz_instance_promise;
+  return viz_instance;
 
 }
 
