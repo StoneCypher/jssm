@@ -3,11 +3,13 @@ module.exports = {
 
   testEnvironment            : 'node',
 
+  coverageProvider           : 'v8',
+
   moduleFileExtensions       : ['js', 'ts'],
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/"],
   testMatch                  : ['**/*.stoch.ts'],
 
-  transform                  : { '^.+\\.ts$': 'ts-jest' },
+  transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript' }, target: 'es2020' } }] },
 
   verbose                    : false,
   collectCoverage            : true,

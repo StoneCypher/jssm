@@ -3,11 +3,13 @@ module.exports = {
 
   testEnvironment            : 'node',
 
+  coverageProvider           : 'v8',
+
   moduleFileExtensions       : ['js', 'ts'],
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/", "/src/ts/jssm_viz.ts", "/src/ts/jssm_viz_colors.ts"],
   testMatch                  : ['**/*.spec.ts'],
 
-  transform                  : { '^.+\\.ts$': 'ts-jest' },
+  transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript' }, target: 'es2020' } }] },
 
   verbose                    : false,
   collectCoverage            : true,
@@ -15,10 +17,10 @@ module.exports = {
 
   coverageThreshold : {
     global : {
-      branches   : 90,
-      functions  : 90,
-      lines      : 90,
-      statements : 90,
+      branches   : 100,
+      functions  : 100,
+      lines      : 100,
+      statements : 100,
     },
   },
 

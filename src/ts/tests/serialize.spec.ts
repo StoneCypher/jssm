@@ -174,6 +174,34 @@ describe('Version checking in deserialization', () => {
         .toThrow(/Cannot deserialize from future version/);
     });
 
+    // The two tests below exercise compareVersions's `?? 0` branches —
+    // the existing fewer/more-segment tests exit the iteration loop at i=0
+    // because the major versions differ.  These versions match the current
+    // version's prefix so the loop iterates past one array's length, hitting
+    // the nullish-coalescing branch on parts1[i] / parts2[i].
+
+    test('Handles version equal to current with fewer trailing segments', () => {
+      const machine_str = "a -> b;";
+      const foo = jssm.from(machine_str);
+      const ser = foo.serialize();
+      // strip the patch component to get a 2-segment version
+      ser.jssm_version = ser.jssm_version.split('.').slice(0, 2).join('.');
+
+      expect(() => jssm.deserialize(machine_str, ser))
+        .not.toThrow();
+    });
+
+    test('Handles version equal to current with extra trailing zero segment', () => {
+      const machine_str = "a -> b;";
+      const foo = jssm.from(machine_str);
+      const ser = foo.serialize();
+      // append an extra zero segment
+      ser.jssm_version = `${ser.jssm_version}.0`;
+
+      expect(() => jssm.deserialize(machine_str, ser))
+        .not.toThrow();
+    });
+
   });
 
 

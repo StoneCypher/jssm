@@ -277,3 +277,25 @@ describe('.override/2 negative tests', () => {
   });
 
 });
+
+
+
+
+
+describe('.allows_override defensive guard', () => {
+
+  // The constructor validates that code-level `allows_override: false` paired
+  // with config-level `allows_override: true` is rejected up front (jssm.ts
+  // around line 522).  The .allows_override getter has a defense-in-depth
+  // check for the same invariant in case the field is mutated post-construction.
+  // This test reaches that defensive throw by intentionally bypassing the
+  // constructor's validation.
+
+  test('throws when _config_allows_override is mutated to true after construction', () => {
+    const machine = jssm.from(`allows_override: false; a -> b;`);
+    (machine as any)._config_allows_override = true;
+    expect(() => machine.allows_override)
+      .toThrow(/should be unreachable/);
+  });
+
+});
