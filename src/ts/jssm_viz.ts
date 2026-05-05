@@ -1,11 +1,10 @@
 
 import * as jssm                 from './jssm';
 import { JssmError }              from './jssm_error';
+import { default_viz_colors }     from './jssm_viz_colors';
 import { version, build_time }    from './version';
 
 import type { Viz }               from '@viz-js/viz';
-
-// default_viz_colors will be imported by Task 4-6 when rendering functions are added.
 
 
 
@@ -82,7 +81,66 @@ function configure(opts: { DOMParser?: typeof globalThis.DOMParser }): void {
 
 
 
+/**
+ *  Look up a color from the default viz palette by key, returning empty
+ *  string if the key is unknown (so it disappears in feature concatenation).
+ *
+ *  @internal
+ */
+function vc(col: string): string {
+  return (default_viz_colors as Record<string, string>)[col] ?? '';
+}
+
+
+
+
+/**
+ *  Build a graphviz-safe node identifier for a state, by index.
+ *
+ *  @internal
+ */
+function node_of(state: string, l_states: string[]): string {
+  return `n${l_states.indexOf(state)}`;
+}
+
+
+
+
+/**
+ *  Convert an 8-channel hex color (`#RRGGBBAA`) to a 6-channel hex color
+ *  (`#RRGGBB`), discarding the alpha channel.  Throws if the input is not
+ *  a 9-character `#`-prefixed string.
+ *
+ *  Graphviz dot does not support alpha; this is a lossy projection.
+ *
+ *  @internal
+ */
+function color8to6(color8: string): string {
+  if (color8.length !== 9) { throw new JssmError(undefined, `not a color8: ${color8}`); }
+  if (color8[0] !== '#')   { throw new JssmError(undefined, `not a color8: ${color8}`); }
+  return `#${color8.substring(1, 7)}`;
+}
+
+
+
+
+/**
+ *  Variant of {@link color8to6} that passes `undefined` through.
+ *
+ *  @internal
+ */
+function u_color8to6(color8?: string): string | undefined {
+  if (color8 === undefined) { return undefined; }
+  return color8to6(color8);
+}
+
+
+
+
 export {
   configure,
   version, build_time
 };
+
+/** @internal — test-only access to private helpers. */
+export const _test = { color8to6, u_color8to6, vc, node_of };

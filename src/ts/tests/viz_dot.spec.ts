@@ -21,3 +21,25 @@ describe('jssm_viz module loads', () => {
       .toBe('number'));
 
 });
+
+
+
+describe('color8to6 helper', () => {
+
+  test('strips alpha channel from #RRGGBBAA', () =>
+    expect(jv._test.color8to6('#11223344'))
+      .toBe('#112233'));
+
+  test('throws on non-#-prefixed input', () =>
+    expect(() => jv._test.color8to6('11223344'))
+      .toThrow());
+
+  test('throws on length mismatch', () =>
+    expect(() => jv._test.color8to6('#1122'))
+      .toThrow());
+
+  test('u_color8to6 returns undefined for undefined input', () =>
+    expect(jv._test.u_color8to6(undefined))
+      .toBeUndefined());
+
+});
