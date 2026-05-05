@@ -574,6 +574,70 @@ async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>): Promise<string
 
 
 /**
+ *  Resolve a `DOMParser` constructor: prefer `globalThis.DOMParser` (browsers,
+ *  jsdom test environment), fall back to the value passed to {@link configure},
+ *  throw `JssmError` if neither is available.
+ *
+ *  @internal
+ */
+function get_dom_parser(): typeof globalThis.DOMParser {
+  if (typeof globalThis.DOMParser === 'function') { return globalThis.DOMParser; }
+  if (injected_dom_parser !== null)               { return injected_dom_parser; }
+  throw new JssmError(undefined,
+    'jssm/viz: *_svg_element requires a browser DOM. Use *_svg_string in Node, or call configure({ DOMParser }) with a parser from jsdom or @xmldom/xmldom.');
+}
+
+
+
+
+/**
+ *  Render dot source to a parsed `SVGSVGElement`.  Browser-by-default; in
+ *  Node, requires a `DOMParser` to have been injected via {@link configure}.
+ *
+ *  @param dot Graphviz dot source.
+ *  @returns A promise resolving to a parsed `SVGSVGElement`.
+ *  @throws {JssmError} if no `DOMParser` is available.
+ */
+async function dot_to_svg_element(dot: string): Promise<SVGSVGElement> {
+  const ParserCtor = get_dom_parser();
+  const svg_string = await dot_to_svg(dot);
+  const parser     = new ParserCtor();
+  const doc        = parser.parseFromString(svg_string, 'image/svg+xml');
+  return doc.documentElement as unknown as SVGSVGElement;
+}
+
+
+
+
+/**
+ *  Render an FSL string directly to a parsed `SVGSVGElement`.
+ *
+ *  @param fsl The FSL source.
+ *  @returns A promise resolving to a parsed `SVGSVGElement`.
+ *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
+ */
+async function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement> {
+  return dot_to_svg_element(fsl_to_dot(fsl));
+}
+
+
+
+
+/**
+ *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
+ *
+ *  @param u_jssm The machine to render.
+ *  @returns A promise resolving to a parsed `SVGSVGElement`.
+ *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
+ */
+async function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>): Promise<SVGSVGElement> {
+  return dot_to_svg_element(machine_to_dot(u_jssm));
+}
+
+
+
+
+/**
  *  Deprecated, no-op compat alias retained from jssm-viz.  Does nothing.
  *  Will be removed in the next major.
  *
@@ -589,8 +653,8 @@ function dot<T>(_machine: jssm.Machine<T>): void {
 export {
   configure,
   dot, dot_to_svg,
-  fsl_to_dot, fsl_to_svg_string,
-  machine_to_dot, machine_to_svg_string,
+  fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element,
+  machine_to_dot, machine_to_svg_string, machine_to_svg_element,
   version, build_time
 };
 
