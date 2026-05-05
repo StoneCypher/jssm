@@ -4,7 +4,7 @@ module.exports = {
   testEnvironment            : 'node',
 
   moduleFileExtensions       : ['js', 'ts'],
-  coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/"],
+  coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/", "/src/ts/jssm_viz.ts", "/src/ts/jssm_viz_colors.ts"],
   testMatch                  : ['**/*.spec.ts'],
 
   transform                  : { '^.+\\.ts$': 'ts-jest' },

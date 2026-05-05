@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1206 merges; 216 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1232 merges; 216 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,35 +22,13 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 4/8/2026 10:15:09 AM
+## [Untagged] - 5/5/2026 1:21:15 AM
 
-Commit [a04556949a6f5c93f9ac9ce03c1d2a456b4c3f14](https://github.com/StoneCypher/jssm/commit/a04556949a6f5c93f9ac9ce03c1d2a456b4c3f14)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat: add image state declaration property for jssm-viz image nodes
-  * Add `image` as a recognized FSL state property so that
-`state Foo : { image: "icon.png"; };` is parsed and flows through
-transfer_state_properties, JssmStateDeclaration, and style_for.
-jssm-viz can now read `style_for(state).image` to render image nodes.
-  * Also fix compareVersions to use ?? instead of ||, and add coverage
-for version strings with more segments than current.
-  * 9 new tests (7 image, 2 serialize). 5161 tests pass at 100% coverage.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 4/6/2026 6:34:32 PM
-
-Commit [4ca12c1a285b173aceb96e2f446525122322f44b](https://github.com/StoneCypher/jssm/commit/4ca12c1a285b173aceb96e2f446525122322f44b)
+Commit [28400fbcbf93091504754d91e9094c7c1c90ce27](https://github.com/StoneCypher/jssm/commit/28400fbcbf93091504754d91e9094c7c1c90ce27)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * build residues were missing
+  * docs: add migration guide for jssm-viz consumers
 
 
 
@@ -59,16 +37,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 3:51:14 PM
+## [Untagged] - 5/5/2026 1:20:04 AM
 
-Commit [cbf9656d136b7b3cc85240e7f5b025fc6b00892f](https://github.com/StoneCypher/jssm/commit/cbf9656d136b7b3cc85240e7f5b025fc6b00892f)
+Commit [66406a443ac29a3a11f47001bd02c5fff65ce713](https://github.com/StoneCypher/jssm/commit/66406a443ac29a3a11f47001bd02c5fff65ce713)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * chore: rebuild with full pipeline (docs, changelog, readme, site)
-  * Prior commits used `npm run make` which skipped docs, changelog, site,
-cloc, and readme generation. This rebuild with `npm run build` brings
-all artifacts up to date for 5.107.3.
+  * docs(viz): add Visualization page covering jssm/viz usage
 
 
 
@@ -77,18 +52,13 @@ all artifacts up to date for 5.107.3.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 3:31:35 PM
+## [Untagged] - 5/5/2026 1:15:48 AM
 
-Commit [7546aa25e32842364f514a11844974868abbf43e](https://github.com/StoneCypher/jssm/commit/7546aa25e32842364f514a11844974868abbf43e)
+Commit [f31a9e929ce7d2645a3a9f4c5cc7191a275bd975](https://github.com/StoneCypher/jssm/commit/f31a9e929ce7d2645a3a9f4c5cc7191a275bd975)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(site): fair shootout comparisons and skip blank lines in count
-  * Add missing hooks to shootout entries that were unfairly short:
-xstate matter (action callbacks), stent matter (function handlers),
-edium-fsm matter (entry callbacks), stent traffic (Red light! hook).
-Fix jssm matter example bug (hh.length → explicit hook_global_action
-calls matching Shootout.md). Skip blank lines in line count.
+  * feat: expose jssm/viz as a package.json#exports subpath
 
 
 
@@ -97,18 +67,13 @@ calls matching Shootout.md). Skip blank lines in line count.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 1:58:00 PM
+## [Untagged] - 5/5/2026 1:15:23 AM
 
-Commit [fe0acfd765d8d88eafd3cde4fe71acbe93291bf7](https://github.com/StoneCypher/jssm/commit/fe0acfd765d8d88eafd3cde4fe71acbe93291bf7)
+Commit [414e1464a3c0cc165869bbc6f32eaee73b978986](https://github.com/StoneCypher/jssm/commit/414e1464a3c0cc165869bbc6f32eaee73b978986)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(site): syntax highlight comparison panels and match library label formatting
-  * Add hl-mem and hl-op CSS classes for member access and operators in the
-comparison code panels. Fix highlighter to tokenize multi-char operators
-(=>, ===, !==, &&, ||) before inserting spans, preventing HTML leakage.
-Match competitor library name styling to jssm label (same weight, color,
-size) via compare-lib-name class.
+  * build(viz): chain make_viz_* and min_viz_* into make pipeline
 
 
 
@@ -117,23 +82,13 @@ size) via compare-lib-name class.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 1:46:20 PM
+## [Untagged] - 5/5/2026 1:12:14 AM
 
-Commit [2b8dfc94e6bbee473d5872b65eeb9873cf6335e2](https://github.com/StoneCypher/jssm/commit/2b8dfc94e6bbee473d5872b65eeb9873cf6335e2)
+Commit [28a77e29b4140b334b82d71a81fcbeb84124b5a1](https://github.com/StoneCypher/jssm/commit/28a77e29b4140b334b82d71a81fcbeb84124b5a1)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat: add four everything hooks and landing page comparison shootout
-  * Add hook_pre_everything, hook_everything, hook_post_everything, and
-hook_pre_post_everything — bracket hooks that fire before/after all
-other pre-hooks and post-hooks respectively. Handlers receive an
-EverythingHookContext with a hook_name field identifying which hook fired.
-  * Landing page gains six new code tabs (Data, Validation, Probabilistic,
-History, Properties, Serialization) and a side-by-side comparison section
-with 14 example machines across 18 competitor libraries, syntax
-highlighted with line/char counts and percentage deltas.
-  * 57 new tests cover registration, rejection, data mutation, ordering,
-and all hook combinations. 5152 tests pass at 100% coverage.
+  * build(viz): add rollup configs for jssm/viz subpath (es6, cjs, iife)
 
 
 
@@ -142,13 +97,13 @@ and all hook combinations. 5152 tests pass at 100% coverage.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 10:38:57 AM
+## [Untagged] - 5/5/2026 1:09:39 AM
 
-Commit [4fc6a80e607ee9ad4c59aa6b57093e3b088adbf4](https://github.com/StoneCypher/jssm/commit/4fc6a80e607ee9ad4c59aa6b57093e3b088adbf4)
+Commit [7ec1781cd2a4af821346f0133f67ce2ada035092](https://github.com/StoneCypher/jssm/commit/7ec1781cd2a4af821346f0133f67ce2ada035092)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * remove superpowers from git history
+  * test(viz): cover Node *_svg_element error path and configure validation
 
 
 
@@ -157,18 +112,18 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 10:37:11 AM
+## [Untagged] - 5/5/2026 1:08:04 AM
 
-Commit [55d70400c90aebc7c1e82d75d5958452f5a3371d](https://github.com/StoneCypher/jssm/commit/55d70400c90aebc7c1e82d75d5958452f5a3371d)
+Commit [1602bec1f353142c6dae1ff72f14b515d50d3dc7](https://github.com/StoneCypher/jssm/commit/1602bec1f353142c6dae1ff72f14b515d50d3dc7)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(site): replace placeholder site with full jssm landing page
-  * Replaces the minimal placeholder index.html with a comprehensive,
-self-contained landing page featuring dark gradient design, animated
-scroll reveals, tabbed code showcase (Basic, Lists, Actions, Hooks,
-Styling, Transitions, Factories), syntax-highlighted FSL examples,
-feature grid, visual diagram section, and community links.
+  * feat(viz): add fsl_to_svg_element and machine_to_svg_element
+  * Adds dot_to_svg_element, fsl_to_svg_element, and machine_to_svg_element
+to jssm_viz.ts, backed by get_dom_parser() which prefers globalThis.DOMParser
+and falls back to the injected parser from configure(). Also installs
+jest-environment-jsdom (required for Jest 28+) and adds jsdom-env test
+with a TextDecoder/TextEncoder polyfill for @viz-js/viz WebAssembly loader.
 
 
 
@@ -177,20 +132,13 @@ feature grid, visual diagram section, and community links.
 
 &nbsp;
 
-<a name="5__105__6" />
+## [Untagged] - 5/5/2026 1:00:04 AM
 
-## [5.105.6] - 4/6/2026 8:42:09 AM
-
-Commit [dde6b7b30b6db70ead47157fc5fc78d6ed612ddf](https://github.com/StoneCypher/jssm/commit/dde6b7b30b6db70ead47157fc5fc78d6ed612ddf)
+Commit [fe74896506bad35ba70f6ce3d2a615d055c9c730](https://github.com/StoneCypher/jssm/commit/fe74896506bad35ba70f6ce3d2a615d055c9c730)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix: pass machine instance to state_style_condense for error context
-  * state_style_condense is a standalone function that was using `this` in
-JssmError calls, which is undefined in strict mode. Added an explicit
-machine parameter so errors include the machine's instance name and
-current state in their messages.
-  * Fixes stonecypher/fsl#1329
+  * feat(viz): add SVG string rendering via @viz-js/viz@3
 
 
 
@@ -199,24 +147,43 @@ current state in their messages.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 8:23:11 AM
+## [Untagged] - 5/5/2026 12:57:28 AM
 
-Commit [9b7a57da85c324be22020a55d1ebf50482e78999](https://github.com/StoneCypher/jssm/commit/9b7a57da85c324be22020a55d1ebf50482e78999)
+Commit [030c21888f729ae502ea13638be23920cd7d241c](https://github.com/StoneCypher/jssm/commit/030c21888f729ae502ea13638be23920cd7d241c)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix: six bug fixes across core, hooks, probabilistic transitions, and parser
-  * - rng_seed setter now regenerates the RNG function, making runtime seed
-  changes actually affect probabilistic transitions
-- is_hook_complex_result no longer crashes on null (typeof null === 'object')
-  and abstract_hook_step treats null returns as rejection
-- probable_exits_for uses whichState instead of this.state() for transition
-  lookups, fixing incorrect results when called with a non-current state
-- list_exit_actions and probable_action_exits return [] for valid states
-  without actions instead of throwing misleading "No such state" errors
-- After hook handler no longer invoked twice per transition; removed
-  redundant direct call after abstract_hook_step already invoked it
-- PEG parser ThemeOrThemeList guards against pushing undefined into theme
-  array on empty bracket input
-  * Fixes stonecypher/fsl#1323, stonecypher/fsl#1324, stonecypher/fsl#1325,
-stonecypher/fsl#1326, stonecypher/fsl#1327, stonecypher/fsl#1328
+  * fix(viz): edge_tr null guard and labelInline JssmTransition vs List
+  * Two bugs that originated in jssm-viz, now fixed during the fold-in.
+  * 1. lookup_transition_for() returns undefined when no transition exists,
+   but states_to_edges_string dereferenced edge_tr unguarded (.kind,
+   .forced_only, .main_path). Added an early return; in practice
+   list_exits always has a corresponding edge but the guard closes
+   the type-system contract gap.
+  * 2. The labelInline rows passed list_transitions() results — which are
+   JssmTransitionList wrappers ({entrances, exits}) — into a path that
+   reads .probability, .action, .name off them. Those fields don't
+   exist on JssmTransitionList, so the colored-HTML per-direction
+   labels were silently dropped (the simpler taillabel="..." path
+   continued to work via edge_tr, so user-visible labels still
+   appeared, just without the per-direction color treatment). Now
+   passes edge_tr and pair_tr — the actual transition objects — and
+   the colored HTML labels render again.
+  * Also tightens `if (pair)` to `if (pair_tr)` (pair was always truthy
+as an object literal) and removes the vacuous `edge ?` truthiness
+guard that's redundant after the edge_tr early return.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/5/2026 12:54:43 AM
+
+Commit [886d4979ad18743bf2ebb6c1f04a3fba7176a28e](https://github.com/StoneCypher/jssm/commit/886d4979ad18743bf2ebb6c1f04a3fba7176a28e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(viz): add structural smoke tests for dot output
