@@ -368,12 +368,12 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
 
       const doublequote = (txt: string) => txt.replace(/"/g, '\\"');
 
-      const edge      = u_jssm.list_transitions(s);
-      const edge_tr   = u_jssm.lookup_transition_for(s, ex);
-      const pair      = u_jssm.list_transitions(ex);
-      const pair_id   = u_jssm.get_transition_by_state_names(ex, s);
-      const pair_tr   = u_jssm.lookup_transition_for(ex, s);
-      const double    = pair_id && (s !== ex);
+      const edge_tr = u_jssm.lookup_transition_for(s, ex);
+      if (!edge_tr) { return ''; }    // belt-and-suspenders; list_exits should always have a corresponding transition
+
+      const pair_id = u_jssm.get_transition_by_state_names(ex, s);
+      const pair_tr = u_jssm.lookup_transition_for(ex, s);
+      const double  = (pair_id !== undefined) && (s !== ex);
 
       const if_obj_field = (obj: any, field: string) => obj ? (obj[field] ?? '') : '';
 
@@ -400,9 +400,14 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
       const headColor = textColor(h_final, h_complete, h_terminal, double ? '_1' : '_solo');
       const tailColor = textColor(t_final, t_complete, t_terminal, double ? '_2' : '_solo');
 
+      // The labelInline rows take the actual JssmTransition objects (edge_tr, pair_tr),
+      // not the JssmTransitionList wrappers from list_transitions.  The original
+      // jssm-viz code passed the lists by mistake, so this colored-HTML label path
+      // silently produced empty strings for years; only the simpler `taillabel="..."`
+      // form below kept user-visible labels rendering.  Fixed during the merge.
       const labelInline = [
-        [pair, 'probability', 'headlabel', 'name', 'action', double, headColor],
-        [edge, 'probability', 'taillabel', 'name', 'action', true,   tailColor]
+        [pair_tr, 'probability', 'headlabel', 'name', 'action', double, headColor],
+        [edge_tr, 'probability', 'taillabel', 'name', 'action', true,   tailColor]
       ]
         .map((r: any) => ({
           which   : r[2],
@@ -413,7 +418,7 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
         .map(r => `${r.which}=${r.color ? `<<font color="${r.color}">${r.whether}</font>>` : `"${r.whether}"`};`)
         .join(' ');
 
-      const label      = edge_tr ? ([`${(edge_tr.action || '')}`, `${(edge_tr.probability || '')}`].filter(x => x !== '').join('\n') || undefined) : undefined;
+      const label      = ([`${(edge_tr.action || '')}`, `${(edge_tr.probability || '')}`].filter(x => x !== '').join('\n') || undefined);
       const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
 
       const rlabel      = pair_tr ? ([`${(pair_tr.action || '')}`, `${(pair_tr.probability || '')}`].filter(x => x !== '').join('\n') || undefined) : undefined;
@@ -426,11 +431,11 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
       const arrowHead = edge_tr.forced_only ? 'ediamond' : (edge_tr.main_path ? 'normal;weight=5' : 'empty');
       const arrowTail = pair_tr ? (pair_tr.forced_only ? 'ediamond' : (pair_tr.main_path ? 'normal;weight=5' : 'empty')) : '';
 
-      const edgeInline = edge ? (double
+      const edgeInline = double
         ? `${maybeLabel}${maybeRLabel}arrowhead=${arrowHead};arrowtail=${arrowTail};dir=both;color="${tc1}:${tc2}"`
-        : `${maybeLabel}arrowhead=${arrowHead};color="${tcd}"`) : '';
+        : `${maybeLabel}arrowhead=${arrowHead};color="${tcd}"`;
 
-      if (pair) { strike.push([ex, s]); }
+      if (pair_tr) { strike.push([ex, s]); }
 
       return `${node_of(s, l_states)}->${node_of(ex, l_states)} [${labelInline}${edgeInline}];`;
 
