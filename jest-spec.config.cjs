@@ -7,7 +7,7 @@ module.exports = {
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/", "/src/ts/jssm_viz.ts", "/src/ts/jssm_viz_colors.ts"],
   testMatch                  : ['**/*.spec.ts'],
 
-  transform                  : { '^.+\\.ts$': 'ts-jest' },
+  transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript' }, target: 'es2020' } }] },
 
   verbose                    : false,
   collectCoverage            : true,
