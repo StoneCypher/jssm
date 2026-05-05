@@ -75,3 +75,27 @@ describe('node_of helper', () => {
       .toBe('n2'));
 
 });
+
+
+
+describe('state-declaration readers', () => {
+
+  test('image_for_state reads image property from declaration', () => {
+    const m = sm`state c: { image: "foo.png"; }; a -> c;`;
+    expect(jv._test.image_for_state(m, 'c'))
+      .toBe('foo.png');
+  });
+
+  test('image_for_state returns undefined for state without image', () => {
+    const m = sm`state c: { color: red; }; a -> c;`;
+    expect(jv._test.image_for_state(m, 'c'))
+      .toBeUndefined();
+  });
+
+  test('shape_for_state reads shape', () => {
+    const m = sm`state c: { shape: circle; }; a -> c;`;
+    expect(jv._test.shape_for_state(m, 'c'))
+      .toBe('circle');
+  });
+
+});

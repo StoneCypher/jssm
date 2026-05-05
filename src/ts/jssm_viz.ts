@@ -137,10 +137,135 @@ function u_color8to6(color8?: string): string | undefined {
 
 
 
+/**
+ *  Read the border color from a state declaration, projecting from
+ *  `#RRGGBBAA` to `#RRGGBB`.  Returns `undefined` if not declared.
+ *
+ *  @internal
+ */
+function border_color_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined {
+  const decls = u_jssm._state_declarations;
+  if (!decls) { return undefined; }
+  const state_decl = decls.get(state);
+  if (!state_decl) { return undefined; }
+  return u_color8to6(state_decl.borderColor);
+}
+
+
+
+
+/**
+ *  Read the text color from a state declaration.  Returns `undefined` if
+ *  not declared.
+ *
+ *  @internal
+ */
+function text_color_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined {
+  const decls = u_jssm._state_declarations;
+  if (!decls) { return undefined; }
+  const state_decl = decls.get(state);
+  if (!state_decl) { return undefined; }
+  return u_color8to6(state_decl.textColor);
+}
+
+
+
+
+/**
+ *  Read the background color from a state declaration.  Returns `undefined`
+ *  if not declared.
+ *
+ *  @internal
+ */
+function background_color_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined {
+  const decls = u_jssm._state_declarations;
+  if (!decls) { return undefined; }
+  const state_decl = decls.get(state);
+  if (!state_decl) { return undefined; }
+  return u_color8to6(state_decl.backgroundColor);
+}
+
+
+
+
+/**
+ *  Read the graphviz shape for a state declaration.  Returns `undefined` if
+ *  not declared.
+ *
+ *  @internal
+ */
+function shape_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined {
+  const decls = u_jssm._state_declarations;
+  if (!decls) { return undefined; }
+  const state_decl = decls.get(state);
+  if (!state_decl) { return undefined; }
+  return state_decl.shape;
+}
+
+
+
+
+/**
+ *  Read the image filename for a state declaration.  Returns `undefined` if
+ *  not declared.  Wired into dot output via `states_to_nodes_string`; the
+ *  `image` property was added to jssm in commit `a045569`.
+ *
+ *  @internal
+ */
+function image_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined {
+  const decls = u_jssm._state_declarations;
+  if (!decls) { return undefined; }
+  const state_decl = decls.get(state);
+  if (!state_decl) { return undefined; }
+  return state_decl.image;
+}
+
+
+
+
+/**
+ *  Compose a graphviz `style` string for a state, combining `corners` and
+ *  `line-style` declarations.  Returns either the empty string or a
+ *  `corners,line,filled`-shape string.
+ *
+ *  @internal
+ */
+function style_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string {
+  const decls = u_jssm._state_declarations;
+  if (!decls) { return ''; }
+  const state_decl = decls.get(state);
+  if (!state_decl) { return ''; }
+
+  const corners = {
+    rounded : 'rounded',
+    lined   : 'diagonals',
+    regular : 'regular'
+  }[state_decl.corners ?? 'regular'];
+
+  const lines = {
+    dashed : 'dashed',
+    dotted : 'dotted',
+    solid  : 'solid'
+  }[state_decl.lineStyle ?? 'solid'];
+
+  const style = [corners, lines]
+                  .filter(f => f !== '')
+                  .join(',');
+
+  return style ? `${style},filled` : '';
+}
+
+
+
+
 export {
   configure,
   version, build_time
 };
 
 /** @internal — test-only access to private helpers. */
-export const _test = { color8to6, u_color8to6, vc, node_of };
+export const _test = {
+  color8to6, u_color8to6, vc, node_of,
+  border_color_for_state, text_color_for_state, background_color_for_state,
+  shape_for_state, image_for_state, style_for_state
+};
