@@ -528,6 +528,52 @@ function fsl_to_dot(fsl: string): string {
 
 
 /**
+ *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
+ *  underlying viz instance is lazy-initialized on first call and cached for
+ *  the lifetime of the module.
+ *
+ *  ```typescript
+ *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  ```
+ *
+ *  @param dot Graphviz dot source.
+ *  @returns A promise resolving to an SVG XML string.
+ */
+async function dot_to_svg(dot: string): Promise<string> {
+  const viz = await get_viz();
+  return viz.renderString(dot, { format: 'svg' });
+}
+
+
+
+
+/**
+ *  Render an FSL string directly to SVG.
+ *
+ *  @param fsl The FSL source.
+ *  @returns A promise resolving to an SVG XML string.
+ */
+async function fsl_to_svg_string(fsl: string): Promise<string> {
+  return dot_to_svg(fsl_to_dot(fsl));
+}
+
+
+
+
+/**
+ *  Render a {@link jssm.Machine} to SVG.
+ *
+ *  @param u_jssm The machine to render.
+ *  @returns A promise resolving to an SVG XML string.
+ */
+async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>): Promise<string> {
+  return dot_to_svg(machine_to_dot(u_jssm));
+}
+
+
+
+
+/**
  *  Deprecated, no-op compat alias retained from jssm-viz.  Does nothing.
  *  Will be removed in the next major.
  *
@@ -542,9 +588,9 @@ function dot<T>(_machine: jssm.Machine<T>): void {
 
 export {
   configure,
-  dot,
-  fsl_to_dot,
-  machine_to_dot,
+  dot, dot_to_svg,
+  fsl_to_dot, fsl_to_svg_string,
+  machine_to_dot, machine_to_svg_string,
   version, build_time
 };
 
