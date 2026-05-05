@@ -175,7 +175,6 @@
     "semver": "^7.5.4",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
-    "ts-jest": "^29.1.5",
     "twitter-api-client": "^1.6.0",
     "typedoc": "^0.22.18",
     "typedoc-plugin-missing-exports": "^0.23.0",
