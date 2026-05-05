@@ -252,9 +252,9 @@ describe('jssm_viz module loads', () => {
     expect(typeof jv.version)
       .toBe('string'));
 
-  test('exports build_time as string', () =>
+  test('exports build_time as number', () =>
     expect(typeof jv.build_time)
-      .toBe('string'));
+      .toBe('number'));
 
 });
 ```
