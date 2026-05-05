@@ -193,3 +193,37 @@ describe('flow direction renders into dot', () => {
   });
 
 });
+
+
+
+describe('*_svg_element in Node without configure', () => {
+
+  test('fsl_to_svg_element rejects with a clear JssmError', async () => {
+    await expect(jv.fsl_to_svg_element('a -> b;'))
+      .rejects.toThrow(/requires a browser DOM/);
+  });
+
+  test('machine_to_svg_element rejects with a clear JssmError', async () => {
+    await expect(jv.machine_to_svg_element(sm`a -> b;`))
+      .rejects.toThrow(/requires a browser DOM/);
+  });
+
+});
+
+
+
+
+
+describe('configure() input validation', () => {
+
+  test('throws on non-constructor DOMParser', () => {
+    expect(() => jv.configure({ DOMParser: 'not a constructor' as any }))
+      .toThrow(/must be a constructor/);
+  });
+
+  test('no-op for empty options object', () => {
+    expect(() => jv.configure({}))
+      .not.toThrow();
+  });
+
+});
