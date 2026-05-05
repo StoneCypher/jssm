@@ -8,19 +8,32 @@
     "access": "public"
   },
   "exports": {
-    "require": {
-      "types": "./jssm.es5.d.cts",
-      "default": "./dist/jssm.es5.cjs"
+    ".": {
+      "require": {
+        "types": "./jssm.es5.d.cts",
+        "default": "./dist/jssm.es5.cjs"
+      },
+      "import": {
+        "types": "./jssm.es6.d.ts",
+        "default": "./dist/jssm.es6.mjs"
+      },
+      "default": {
+        "types": "./jssm.es5.d.cts",
+        "default": "./dist/jssm.es5.cjs"
+      },
+      "browser": "./dist/jssm.es5.iife.js"
     },
-    "import": {
-      "types": "./jssm.es6.d.ts",
-      "default": "./dist/jssm.es6.mjs"
-    },
-    "default": {
-      "types": "./jssm.es5.d.cts",
-      "default": "./dist/jssm.es5.cjs"
-    },
-    "browser": "./dist/jssm.es5.iife.js"
+    "./viz": {
+      "require": {
+        "types": "./jssm_viz.es5.d.cts",
+        "default": "./dist/jssm_viz.cjs"
+      },
+      "import": {
+        "types": "./jssm_viz.es6.d.ts",
+        "default": "./dist/jssm_viz.mjs"
+      },
+      "browser": "./dist/jssm_viz.iife.cjs"
+    }
   },
   "autoupdate": {
     "source": "git",
