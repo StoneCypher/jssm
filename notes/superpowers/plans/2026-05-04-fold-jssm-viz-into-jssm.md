@@ -4,7 +4,7 @@
 
 **Goal:** Fold the visualization library `jssm-viz` into `jssm` as a `jssm/viz` subpath export, upgrade the visualization engine from `viz.js@2.1.2` to `@viz-js/viz@3.26+`, and add two new convenience functions plus an optional `configure({ DOMParser })` injection point.
 
-**Architecture:** New `src/ts/jssm_viz.ts` (with `jssm_viz_colors.ts`) as a sibling to `jssm.ts`. Subpath-only `package.json#exports` field. Three new Rollup configs (es6/cjs/iife) producing `dist/jssm_viz.{mjs,cjs,iife.cjs}`. `@viz-js/viz` is loaded via a cached `instance()` promise and externalized in all bundles, with the IIFE relying on dynamic `import()` resolved through the host's import map. `*_svg_element` functions throw a clear `JssmError` in Node unless the user calls `configure({ DOMParser })`.
+**Architecture:** New `src/ts/jssm_viz.ts` (with `jssm_viz_colors.ts`) as a sibling to `jssm.ts`. Subpath-only `package.json#exports` field. Three new Rollup configs (es6/cjs/iife) producing `dist/jssm_viz.{mjs,cjs,iife.js}`. `@viz-js/viz` is loaded via a cached `instance()` promise and externalized in all bundles, with the IIFE relying on dynamic `import()` resolved through the host's import map. `*_svg_element` functions throw a clear `JssmError` in Node unless the user calls `configure({ DOMParser })`.
 
 **Tech Stack:** TypeScript 4.7, Jest 29 (ts-jest), Rollup 4, PEG.js, `@viz-js/viz@3`, jsdom (devDep, for testing only).
 
@@ -1735,7 +1735,7 @@ In `scripts`, add the new build/minify entries (alongside the existing `make_*` 
 "make_viz_cjs"   : "rollup -c rollup.config.viz.es5.js",
 "make_viz_es6"   : "rollup -c rollup.config.viz.es6.js",
 "make_viz_iife"  : "rollup -c rollup.config.viz.iife.js",
-"min_viz_iife"   : "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.cjs && terser dist/jssm_viz.es5.iife.nonmin.cjs > dist/jssm_viz.iife.cjs",
+"min_viz_iife"   : "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.js && terser dist/jssm_viz.es5.iife.nonmin.js > dist/jssm_viz.iife.js",
 "min_viz_cjs"    : "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
 "min_viz_es6"    : "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
 ```
@@ -1755,7 +1755,7 @@ npm run make
 Expected: completes without errors. Output files exist:
 
 ```
-ls dist/jssm_viz.cjs dist/jssm_viz.mjs dist/jssm_viz.iife.cjs jssm_viz.es5.d.cts jssm_viz.es6.d.ts
+ls dist/jssm_viz.cjs dist/jssm_viz.mjs dist/jssm_viz.iife.js jssm_viz.es5.d.cts jssm_viz.es6.d.ts
 ```
 
 If `make` fails, the most likely cause is path or filename mismatch in a rollup config or a min_viz_* script. Inspect intermediate files to diagnose.
@@ -1801,7 +1801,7 @@ In `package.json`, replace the existing `exports` block with:
       "types"   : "./jssm.es5.d.cts",
       "default" : "./dist/jssm.es5.cjs"
     },
-    "browser": "./dist/jssm.es5.iife.cjs"
+    "browser": "./dist/jssm.es5.iife.js"
   },
   "./viz": {
     "require": {
@@ -1812,7 +1812,7 @@ In `package.json`, replace the existing `exports` block with:
       "types"   : "./jssm_viz.es6.d.ts",
       "default" : "./dist/jssm_viz.mjs"
     },
-    "browser" : "./dist/jssm_viz.iife.cjs"
+    "browser" : "./dist/jssm_viz.iife.js"
   }
 }
 ```
@@ -1860,8 +1860,8 @@ npm run make
 Expected: completes without errors. All artifacts present:
 
 ```
-ls dist/jssm.es5.cjs dist/jssm.es6.mjs dist/jssm.es5.iife.cjs
-ls dist/jssm_viz.cjs dist/jssm_viz.mjs dist/jssm_viz.iife.cjs
+ls dist/jssm.es5.cjs dist/jssm.es6.mjs dist/jssm.es5.iife.js
+ls dist/jssm_viz.cjs dist/jssm_viz.mjs dist/jssm_viz.iife.js
 ```
 
 - [ ] **Step 2: Full test suite**
@@ -2010,8 +2010,8 @@ dynamic `import('@viz-js/viz')` inside jssm/viz can be resolved:
   { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz/+esm" } }
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm.es5.iife.cjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm_viz.iife.cjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm.es5.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm_viz.iife.js"></script>
 
 <script>
   jssm_viz.fsl_to_svg_string('a -> b;')
@@ -2233,8 +2233,8 @@ Create `tmp/manual-smoke/index.html`:
   <script type="importmap">
     { "imports": { "@viz-js/viz": "https://cdn.jsdelivr.net/npm/@viz-js/viz@3/+esm" } }
   </script>
-  <script src="../../dist/jssm.es5.iife.cjs"></script>
-  <script src="../../dist/jssm_viz.iife.cjs"></script>
+  <script src="../../dist/jssm.es5.iife.js"></script>
+  <script src="../../dist/jssm_viz.iife.js"></script>
 </head>
 <body>
   <div id="chart"></div>

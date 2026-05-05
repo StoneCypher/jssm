@@ -12,27 +12,25 @@
       kbd        { font-size: 115%; padding: 0 0.25em; background-color: #ddd; }
     </style>
 
-    <script defer type="text/javascript" src="jssm.es5.iife.cjs"></script>
+    <script defer src="jssm.es5.iife.js"></script>
 
     <script defer type="text/javascript">
     /* eslint-disable */
 
-      let jssm, sm;
+      let jssm, sm = jssm.sm;
 
-      window.onload = () => {
-
-//      jssm = require('jssm');
-        sm   = jssm.sm;
-
-        document.body.innerHTML = `<h1>Ready</h1><p>JSSM has now been loaded at version ${jssm.version}, and is bound to the global <code>jssm</code> (aka <code>window.jssm</code>.)  Also, the state machine template string tag is exposed as <code>sm</code> (aka <code>window.sm</code>).</p><p>Please open a console and type something like</p><p><code>var traffic_light = sm<b>\` off -> red => green => yellow => red; [red yellow green] ~> off; \`</b>;</code></p><p>Now you have a working state machine to play with:</p><pre>&gt; traffic_light.state();\n"off"\n\n&gt; traffic_light.transition("green");\nfalse\n\n&gt; traffic_light.state();\n"off"\n\n&gt; traffic_light.transition("red");\ntrue\n\n&gt; traffic_light.state();\n"red"</pre><p>Consoles are <kbd>f12</kbd> on Windows and Linux PCs, or <kbd>command-option-j</kbd> on Macs.</p>`;
-
-      }
+      window.onload = () => {}
 
     /* eslint-enable */
     </script>
 
   </head>
 
-  <body>Loading&hellip;</body>
+  <body>
+    <h1>Simple usage demo</h1>
+    <p>This is meant as a simplified demo of how to work with <tt>jssm</tt> and <tt>jssm-viz</tt> in the browser.  For a more extensive demo, look at <tt>src/site/editor/index.html</tt>.</p>
+    <textarea id="editor"></textarea>
+    <div id="viewer"></div>
+  </body>
 
 </html>

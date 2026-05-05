@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.108.1 at 5/4/2026, 11:55:25 PM
+* Generated for version 5.109.0 at 5/5/2026, 2:01:48 AM
 
 -->
-# jssm 5.108.1
+# jssm 5.109.0
 
 **Easy.**  Tiny.  Fast.  Finite state machines as one-liner strings, for
 TypeScript and JavaScript.  Renders to PNG, SVG, and JPEG.  Runs in Node,
@@ -83,6 +83,26 @@ npm install jssm
 
 The package ships pure ES6, a CommonJS ES5 bundle, an IIFE for browsers,
 and TypeScript typings.  A Deno build is included.  Node 10 or newer.
+
+
+
+<br/>
+
+## Visualization
+
+`jssm` ships with a visualization subpath that renders state machines to
+SVG using Graphviz (via [`@viz-js/viz`](https://www.npmjs.com/package/@viz-js/viz)).
+
+```typescript
+import { sm }                  from 'jssm';
+import { fsl_to_svg_string }   from 'jssm/viz';
+
+const svg = await fsl_to_svg_string('a -> b;');
+```
+
+The viz subpath is opt-in — importing only from `jssm` does not pull in
+`@viz-js/viz`. See the Visualization doc page for browser, ESM, and IIFE
+usage patterns.
 
 
 
@@ -164,7 +184,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  5,170 tests at 99.9% line coverage
+  library.**  5,206 tests at 99.9% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -297,11 +317,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***5,170 tests***, run 6,061 times.
+***5,206 tests***, run 6,097 times.
 
-- 5,161 specs with 99.9% coverage
-- 9 fuzz tests with 11.6% coverage
-- 3,155 TypeScript lines — 1.6 tests per line, 1.9 generated tests per line
+- 5,197 specs with 99.9% coverage
+- 9 fuzz tests with 9.9% coverage
+- 3,481 TypeScript lines — 1.5 tests per line, 1.8 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

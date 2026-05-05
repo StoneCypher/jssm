@@ -129,12 +129,12 @@ The current jssm-viz re-export of `jssm` itself is dropped — redundant once th
       "require": { "types": "./jssm.es5.d.cts", "default": "./dist/jssm.es5.cjs" },
       "import":  { "types": "./jssm.es6.d.ts",  "default": "./dist/jssm.es6.mjs" },
       "default": { "types": "./jssm.es5.d.cts", "default": "./dist/jssm.es5.cjs" },
-      "browser": "./dist/jssm.es5.iife.cjs"
+      "browser": "./dist/jssm.es5.iife.js"
     },
     "./viz": {
       "require": { "types": "./jssm_viz.d.cts", "default": "./dist/jssm_viz.cjs" },
       "import":  { "types": "./jssm_viz.d.ts",  "default": "./dist/jssm_viz.mjs" },
-      "browser": "./dist/jssm_viz.iife.cjs"
+      "browser": "./dist/jssm_viz.iife.js"
     }
   },
   "optionalDependencies": {
@@ -158,7 +158,7 @@ Three new configs:
 ```
 rollup.config.viz.es6.js     → dist/jssm_viz.mjs        (@viz-js/viz external)
 rollup.config.viz.es5.js     → dist/jssm_viz.cjs        (@viz-js/viz external)
-rollup.config.viz.iife.js    → dist/jssm_viz.iife.cjs   (@viz-js/viz external; uses dynamic import())
+rollup.config.viz.iife.js    → dist/jssm_viz.iife.js   (@viz-js/viz external; uses dynamic import())
 ```
 
 Notes:
@@ -193,8 +193,8 @@ Then either form works:
 
 ```html
 <!-- IIFE -->
-<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm.es5.iife.cjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm_viz.iife.cjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm.es5.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jssm/dist/jssm_viz.iife.js"></script>
 <script>
   jssm_viz.fsl_to_svg_string('a -> b;').then(svg => /* ... */);
 </script>
