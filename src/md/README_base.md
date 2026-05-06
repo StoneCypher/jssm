@@ -1,5 +1,10 @@
 # jssm {{jssm_version}}
 
+[**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
+[Documentation](https://stonecypher.github.io/jssm/docs/) ·
+[Discord](https://discord.gg/9P95USqnMK) ·
+[Issues](https://github.com/StoneCypher/fsl/issues)
+
 **Easy.**  Tiny.  Fast.  Finite state machines as one-liner strings, for
 TypeScript and JavaScript.  Renders to PNG, SVG, and JPEG.  Runs in Node,
 browsers, and Deno.  MIT licensed.
@@ -8,12 +13,21 @@ browsers, and Deno.  MIT licensed.
 import { sm } from 'jssm';
 
 const TrafficLight = sm`Red -> Green -> Yellow -> Red;`;
+```
 
-TrafficLight.state();              // 'Red'
-TrafficLight.transition('Green');  // true
-TrafficLight.state();              // 'Green'
-TrafficLight.transition('Red');    // false — Red is not reachable from Green
-TrafficLight.transition('Blue');   // throws — Blue is not a state
+That's it.  Using it is equally easy:
+
+```javascript
+TrafficLight.state();      // 'Red'
+TrafficLight.go('Green');  // true
+TrafficLight.state();      // 'Green'
+```
+
+The point of a state machine is to refuse to do things that aren't correct:
+
+```javascript
+TrafficLight.go('Red');    // false  - Green doesn't go to Red, only Yellow
+TrafficLight.go('Blue');   // throws - Blue doesn't exist at all
 ```
 
 A more involved machine, with main paths, forced paths, and per-state
@@ -23,7 +37,7 @@ styling, renders to:
 
 ```javascript
 const TrafficLightWithOff = sm`
-  Red => Green => Yellow => Red;
+  Red 'next' => Green 'next' => Yellow 'next' => Red;
   [Red Yellow Green] ~> Off -> Red;
 
   flow: left;
@@ -77,7 +91,7 @@ import { fsl_to_svg_string }   from 'jssm/viz';
 const svg = await fsl_to_svg_string('a -> b;');
 ```
 
-The viz subpath is opt-in — importing only from `jssm` does not pull in
+The viz subpath is opt-in - importing only from `jssm` does not pull in
 `@viz-js/viz`. See the Visualization doc page for browser, ESM, and IIFE
 usage patterns.
 
@@ -108,7 +122,7 @@ const Light = sm`
 ```
 
 `->` is a legal transition.  `=>` is a legal transition that is also part of
-the main path.  `~>` is a transition that requires `force_transition` —
+the main path.  `~>` is a transition that requires `force_transition` -
 useful for emergency stops, resets, and other rarities.
 
 **Hooks** observe and gate transitions:
@@ -138,14 +152,14 @@ distinction.
 
 **The big win: most state-machine libraries make you write a gargantuan
 JSON document, or call a builder API a few dozen times, to define a single
-machine.  jssm machines are short, readable, arrow-driven strings — so they
+machine.  jssm machines are short, readable, arrow-driven strings - so they
 are easy to write, easy to read, easy to debug, and easy to share.**
 
 That decision shows up everywhere downstream:
 
 - **A DSL with features other state-machine libraries don't have.**  Three
   arrow types distinguish legal, main-path, and forced transitions.  Array
-  notation collapses repeated edges — `[Red Yellow Green] ~> Off` replaces
+  notation collapses repeated edges - `[Red Yellow Green] ~> Off` replaces
   three lines.  Named actions, per-state styling, named edges, validators,
   and live visualization all live in the same string the runtime parses.
 
@@ -172,13 +186,13 @@ That decision shows up everywhere downstream:
 
 ## Documentation
 
-- [What are state machines?](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/WhatAreStateMachines.md) — conceptual intro for newcomers
-- [Getting started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md) — install and use the library across Node, browser, Deno, ES5/ES6, CDN, and TypeScript
-- [Tutorial: a four-state traffic light](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_TrafficLight.md) — short walkthrough that introduces the three arrow types
-- [Tutorial: building an ATM state machine](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_ATM.md) — longer walkthrough that builds a real-world machine in nine incremental steps
-- [Language reference](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/LanguageReference.md) — DSL reference for people already comfortable with state machines
-- [Catalog of example machines](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/ExampleMachines.md) — comparison table of worked examples (light switch, traffic light, intersection, vending machine, more)
-- [Generated API reference](https://stonecypher.github.io/jssm/docs/) — full surface, generated from the TypeScript source
+- [What are state machines?](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/WhatAreStateMachines.md) - conceptual intro for newcomers
+- [Getting started](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/GettingStarted.md) - install and use the library across Node, browser, Deno, ES5/ES6, CDN, and TypeScript
+- [Tutorial: a four-state traffic light](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_TrafficLight.md) - short walkthrough that introduces the three arrow types
+- [Tutorial: building an ATM state machine](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/Tutorial_ATM.md) - longer walkthrough that builds a real-world machine in nine incremental steps
+- [Language reference](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/LanguageReference.md) - DSL reference for people already comfortable with state machines
+- [Catalog of example machines](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/ExampleMachines.md) - comparison table of worked examples (light switch, traffic light, intersection, vending machine, more)
+- [Generated API reference](https://stonecypher.github.io/jssm/docs/) - full surface, generated from the TypeScript source
 
 
 
@@ -200,8 +214,8 @@ That decision shows up everywhere downstream:
 | `.hook_pre_everything(fn)` · `.hook_everything(fn)` | Bracket the pre-hook pipeline |
 | `.hook_pre_post_everything(fn)` · `.hook_post_everything(fn)` | Bracket the post-hook pipeline |
 
-The full surface — including history, validators, factories, data, and the
-graph-introspection methods — is in the [generated API
+The full surface - including history, validators, factories, data, and the
+graph-introspection methods - is in the [generated API
 docs](https://stonecypher.github.io/jssm/docs/).
 
 
@@ -235,7 +249,7 @@ are all welcome on Discord.  Issues that need a paper trail go in the
 ## Comparisons
 
 A direct, head-to-head comparison with the other actively-maintained JS state
-machine libraries — XState, Stately.js, Finity, machina.js, and others — is
+machine libraries - XState, Stately.js, Finity, machina.js, and others - is
 in progress and will live in
 [FeatureComparison.md](https://github.com/StoneCypher/jssm/blob/main/src/doc_md/FeatureComparison.md).
 
@@ -273,13 +287,13 @@ gave strong feedback on the initial tutorial draft.
 
 Translation contributors:
 
-- [Mykhaylo Les](https://github.com/miles91) — [Ukrainian](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/ukrainian.json), [Belarusian](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/belarussian.json), [Russian](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/russian.json)
-- [Tanvir Islam](https://github.com/tanvirrb) — [Bengali](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/bengali.json) (also published the first non-English `FSL` machine)
-- [Francisco Junior](https://github.com/fcojr) — [Portuguese](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/portuguese.json)
-- [Jeff Katz](https://github.com/kraln) — [German](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/german.json)
-- [Alex Cresswell](https://github.com/technophile77) — [Spanish](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/spanish.json)
-- [Dvir Cohen](https://github.com/cohendvir) — [Hebrew](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/hebrew.json)
-- [David de la Peña](https://github.com/daviddelapena) — [French](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/french.json)
+- [Mykhaylo Les](https://github.com/miles91) - [Ukrainian](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/ukrainian.json), [Belarusian](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/belarussian.json), [Russian](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/russian.json)
+- [Tanvir Islam](https://github.com/tanvirrb) - [Bengali](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/bengali.json) (also published the first non-English `FSL` machine)
+- [Francisco Junior](https://github.com/fcojr) - [Portuguese](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/portuguese.json)
+- [Jeff Katz](https://github.com/kraln) - [German](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/german.json)
+- [Alex Cresswell](https://github.com/technophile77) - [Spanish](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/spanish.json)
+- [Dvir Cohen](https://github.com/cohendvir) - [Hebrew](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/hebrew.json)
+- [David de la Peña](https://github.com/daviddelapena) - [French](https://github.com/StoneCypher/jssm/blob/main/src/ts/tests/language_data/french.json)
 
 If your contribution is missing here, please open an issue.
 
@@ -298,7 +312,7 @@ If your contribution is missing here, please open an issue.
 
 - {{spec_count}} specs with {{spec_coverage}}% coverage
 - {{stoch_count}} fuzz tests with {{stoch_coverage}}% coverage
-- {{line_count}} TypeScript lines — {{line_test_ratio}} tests per line, {{line_run_ratio}} generated tests per line
+- {{line_count}} TypeScript lines - {{line_test_ratio}} tests per line, {{line_run_ratio}} generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
