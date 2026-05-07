@@ -216,24 +216,20 @@ version with its own plan.
 Surfaced by `notes/fsl-grammar-reference.md` while cataloguing the
 parser. Each is concrete and isolated.
 
-- [ ] **`OctalDigit` accepts only `[0-1]`** `[trivial]` — should be
-      `[0-7]`. Currently `0o17` is rejected even though `0o11` is
-      accepted. One-character grammar fix plus a regression test.
-- [ ] **`machine_reference` is parsed but unwired** `[trivial]` — the
-      grammar defines a `machine_reference : <LabelOrLabelList>;` rule
-      (line 1004) that constructs an AST node, but `MachineAttribute`
-      (the alternation listing legal top-level keywords) does not
-      include it, so writing `machine_reference: 'foo';` produces a
-      parse error. Either wire it up or delete the orphan rule.
-- [ ] **`Whitespace` named rule is dead code** `[trivial]` — defined
-      at line 248 but has no callers; `WS` uses its own inline char
-      class. Prune.
-- [ ] **`SdStateLabel` mislabeled in error messages** `[trivial]` —
-      line 1062 reads `SdStateLabel "color"` but the rule parses
-      `label : <Label>;`. The `"color"` string is a copy-paste
-      leftover from the adjacent `SdStateColor` rule; surfaces as
-      misleading "Expected color…" parse errors when the parser
-      wanted a `label:` assignment.
+- [x] **`OctalDigit` accepts only `[0-1]`** `[done]` — fixed; now
+      `[0-7]`. Regression tests in
+      `src/ts/tests/grammar_regressions.spec.ts` verify `0o27 === 23`
+      and that `0o8`/`0o9` are still rejected.
+- [x] **`machine_reference` is parsed but unwired** `[done]` — added
+      to the `MachineAttribute` alternation. Surprise: the runtime was
+      already fully wired (`jssm_compiler.ts:297, 385, 417, 481`), so
+      only the grammar exposure was missing. Regression tests cover
+      single-label, label-list, and quoted-string forms.
+- [x] **`Whitespace` named rule is dead code** `[done]` — pruned.
+      Regression test asserts the orphan rule cannot return.
+- [x] **`SdStateLabel` mislabeled in error messages** `[done]` —
+      display name corrected from `"color"` to `"label"`. Regression
+      test asserts the correct `.peg` source label.
 
 ## Notes
 

@@ -245,9 +245,6 @@ ActionLabel "action label"
 LineTerminator
   = [\n\r\u2028\u2029]
 
-Whitespace
-  = [ \t\n\r\v]+
-
 BlockCommentTail
   = "*/"
   / . BlockCommentTail
@@ -306,7 +303,7 @@ BinaryDigit
   = [0-1]
 
 OctalDigit
-  = [0-1]
+  = [0-7]
 
 NonNegNumber "nonneg number"
   = IntegerLiteral "." DecimalDigit* WS? { return parseFloat(text()); }
@@ -1061,6 +1058,7 @@ MachineAttribute "machine attribute"
   / MachineContributor
   / MachineComment
   / MachineDefinition
+  / MachineReference
   / MachineVersion
   / MachineLicense
   / MachineLanguage
@@ -1084,7 +1082,7 @@ PropertyVal
 
 
 
-SdStateLabel "color"
+SdStateLabel "label"
   = WS? "label"            WS? ":" WS? value:Label     WS? ";" WS? { return { key:'state-label', value }; }
 
 SdStateColor "color"

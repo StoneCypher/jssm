@@ -10,6 +10,10 @@ runtime does with it.  A few productions are accepted by the parser and
 either ignored or only partially honoured downstream; those are flagged
 inline.
 
+*Last verified against `src/ts/fsl_parser.peg` on 2026-05-05.*  When
+re-syncing, `git log src/ts/fsl_parser.peg --since=<that date>` will
+show what may need to be re-audited.
+
 Grammar conventions used throughout this document:
 
 - `Foo`            — a named PEG rule
@@ -151,8 +155,7 @@ Accepts:
   the prefix case-insensitive)
 - Binary integers: `0b…` / `0B…` (same — case-insensitive prefix)
 - Octal integers: `0o…` / `0O…` (same — case-insensitive prefix.
-  Note: `BinaryDigit` and `OctalDigit` are both currently `[0-1]` in
-  the grammar — see "Quirks" below)
+  `BinaryDigit` is `[0-1]`; `OctalDigit` is `[0-7]`)
 - Decimal floats with optional exponent — exponent indicator is
   case-insensitive (`1e10`, `1E10`, `2.5e-3`); leading-dot form is
   legal (`.25`)
@@ -290,37 +293,74 @@ Returns `{ key: 'transition', from: ArrowTarget, se: Subexp }`.
 ### `Subexp` — the chained tail
 
 A `Subexp` is the right-hand side of an arrow plus any further chained
-transitions.  It is a fixed-order sequence of optional decorations
-followed by a mandatory arrow, target, and optional further `Subexp`:
+transitions.  It is a free-ordered run of decorations, a mandatory
+arrow, another free-ordered run of decorations, a target, and an
+optional further `Subexp`:
 
 ```
-WS? r_after?
-WS? r_action?
-WS? r_prob?
-WS? l_desc?      // ArrowDesc, attached to the *left* node
+WS? ArrowDecorations    // pre-arrow run, any order
 WS? Arrow
-WS? r_desc?      // ArrowDesc, attached to the *right* node
-WS? l_prob?
-WS? l_action?
-WS? l_after?
+WS? ArrowDecorations    // post-arrow run, any order
 WS? ArrowTarget
-WS? Subexp?      // chain another segment
+WS? Subexp?             // chain another segment
 ```
 
-The naming is confusing at first glance:
+### `ArrowDecoration` and `ArrowDecorations`
+
+Each side of the arrow accepts a *free-ordered* run of decorations.
+A single `ArrowDecoration` is one of:
+
+- `ArrowAfter`        — `after N [unit]`
+- `ActionLabel`       — `'name'`
+- `ArrowProbability`  — `N%`
+- `ArrowDesc`         — `{ ... }` brace block
+
+`ArrowDecorations` is a Kleene-star (zero or more) over
+`ArrowDecoration` with optional whitespace between items.  Each *kind*
+may appear **at most once per side**; a duplicate raises a parse error
+with the message:
+
+```
+duplicate <kind> decoration before arrow
+duplicate <kind> decoration after arrow
+```
+
+Within a side, decorations may appear in any order — `5% 'click' after 3s`
+and `after 3s 'click' 5%` parse identically.
+
+### AST mapping for decorations
+
+The AST naming is mirrored across the arrow so that `<->`-style
+two-way arrows can carry *independent* metadata for each direction.
+The mirroring is asymmetric: timing/action/probability decorations
+swap sides between source position and AST key, but `desc` swaps the
+opposite way.
+
+| Decoration kind | Before arrow → AST key | After arrow → AST key |
+|-----------------|------------------------|------------------------|
+| `after`         | `r_after`              | `l_after`              |
+| action label    | `r_action`             | `l_action`             |
+| probability     | `r_probability`        | `l_probability`        |
+| `{ ... }` desc  | `l_desc`               | `r_desc`               |
+
+The `r_`/`l_` prefixes refer to *which node* the decoration attaches
+to:
 
 - Decorations *before* the arrow attach to the right-hand node
-  (because they describe the transition leaving that node going back
-  the other way) and so are prefixed `r_`.
+  (they describe the transition leaving that node going back the
+  other way) and so are prefixed `r_`.
 - Decorations *after* the arrow attach to the left-hand node and are
   prefixed `l_`.
 
-This mirroring is what lets `<->`-style two-way arrows carry
-*independent* metadata for each direction.
+The `desc` row is swapped relative to the others: a brace block
+before the arrow attaches to the *left* node (`l_desc`), and one
+after the arrow attaches to the *right* node (`r_desc`).  This
+mirrors which side of the arrow visually carries the block in the
+source.
 
-The grammar comment `// todo these shouldn't be ordered, this is dumb`
-acknowledges that the fixed slot order is a wart: today, ordering of
-decorations is positional, not free.
+A pre-arrow decoration whose value is falsy — notably an empty `{}`
+brace block returning `null` — is silently skipped, preserving AST
+shape compatibility with the original fixed-order grammar.
 
 ### Arrow targets — `ArrowTarget`
 
@@ -606,6 +646,7 @@ hyphenated forms aren't shadowed.
 | Per-arrow timing     | `ArrowAfter`                                 |
 | Per-arrow odds       | `ArrowProbability`                           |
 | Per-arrow event      | `ActionLabel`                                |
+| Per-arrow decoration set | `ArrowDecoration` / `ArrowDecorations`   |
 | Per-arrow caption    | `arc_label` / `head_label` / `tail_label`    |
 | Per-arrow colour     | `edge_color` (inside `ArrowDesc`)            |
 | Per-arrow line style | `line-style` (inside `ArrowDesc`)            |
@@ -621,11 +662,6 @@ hyphenated forms aren't shadowed.
 
 ## 14. Quirks and footguns to be aware of
 
-- **Octal vs binary digits.** Both `BinaryDigit` and `OctalDigit` are
-  defined as `[0-1]`.  This is almost certainly a bug — `OctalDigit`
-  should be `[0-7]`.  As a result `0o17` is rejected even though
-  `0o11` is accepted.
-
 - **Missing `-0` cycle.** `Cycle` accepts `+0` but not `-0` or bare
   `0`.  Probably intentional (zero is unsigned), but worth noting.
 
@@ -636,11 +672,6 @@ hyphenated forms aren't shadowed.
 - **Bare `after` numbers default to seconds.** `after 5 -> foo`
   means *five seconds*, not five milliseconds.  The implicit unit
   scale is `1000`.
-
-- **Subexp decoration order is positional.** Per the grammar's own
-  `// todo` comment, the optional-decoration slots before/after an
-  arrow have a fixed order today.  Reordering them produces a parse
-  failure.
 
 - **`String` vs `ActionLabel` quoting.** Double quotes parse as
   string literals; single quotes parse as action labels.  Their
@@ -663,25 +694,3 @@ hyphenated forms aren't shadowed.
   consumes it today; only `SemVer` is referenced.  Range-aware
   version handling appears to be partially scaffolded for future
   work.
-
-- **`MachineReference` is defined but unwired.** The grammar
-  contains a rule for `machine_reference : <LabelOrLabelList> ;`
-  (line 1004) that constructs a `{ key: 'machine_reference', value }`
-  AST node — but `MachineAttribute` (the alternation that lists
-  the legal top-level metadata keywords) does *not* include it.
-  As a result, writing `machine_reference: 'foo';` in an FSL
-  document produces a parse error.  This looks like a real bug,
-  not intentional scaffolding: every other `Machine*` rule in the
-  same block is referenced.
-
-- **`Whitespace` (the named rule) is dead code.** A rule named
-  `Whitespace = [ \t\n\r\v]+` exists at line 248 but has no
-  callers — `WS` uses its own inline character class.  Harmless
-  but worth pruning.
-
-- **`SdStateLabel` carries the wrong display label.** Line 1062
-  reads `SdStateLabel "color"` but the rule actually parses
-  `label : <Label>;`.  The `"color"` string is a copy-paste leftover
-  from `SdStateColor` immediately below it, and surfaces in
-  parse-error messages ("Expected color…") when the parser wanted
-  a `label:` assignment inside a state declaration.

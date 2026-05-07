@@ -19,5 +19,14 @@ lines.pop();
 lines.pop();
 lines.pop();
 
-fs.writeFileSync('./src/ts/fsl_parser.ts', lines.join('\n') + tail);
+// pegjs's runtime declares `error(message, location)` and
+// `expected(description, location)` with both parameters required, but
+// each function's body treats `location` as optional (`!== void 0` check
+// with a fallback to `peg$computeLocation`).  Mark the parameter optional
+// in the generated TypeScript so action blocks can use the one-argument
+// form without tripping `error TS2554: Expected 2 arguments, but got 1`.
+const body = lines.join('\n')
+  .replace(/function (error|expected)\((\w+), location\)/g, 'function $1($2, location?)');
+
+fs.writeFileSync('./src/ts/fsl_parser.ts', body + tail);
 fs.unlinkSync(orig_fname);
