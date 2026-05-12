@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Payload-aware actions · fsl.tools cookbook</title>
+<meta name="description" content="Most actions carry data — a form submission, a server response, a user id. Pass it through with the transition and read it in the hook."/>
+<link rel="stylesheet" href="cookbook.css"/>
+</head>
+<body>
+
+<header class="cb-nav-bar"><div class="cb-nav-inner">
+  <a class="cb-brand" href="../index.html">fsl<span class="dot">.</span>tools</a>
+  <nav class="cb-nav-links">
+    <a href="../index.html#install">Install</a>
+    <a href="index.html">Cookbook</a>
+    <a href="../index.html#learn">Learn</a>
+    <a href="../index.html#community">Community</a>
+  </nav>
+</div></header>
+
+<div class="cb-page">
+  <article>
+    <div class="cb-eyebrow">
+      <span class="cat">// Hooks</span>
+      <span class="num">r05</span>
+    </div>
+    <h1 class="cb-title">Payload-aware actions</h1>
+    <p class="cb-problem">Most actions carry data — a form submission, a server response, a user id. Pass it through with the transition and read it in the hook.</p>
+    <nav class="cb-tags"><a class="cb-tag" href="index.html?tag=hook_action">hook_action</a><a class="cb-tag" href="index.html?tag=data">data</a><a class="cb-tag" href="index.html?tag=session">session</a></nav>
+    
+
+    <section id="sec-blocks" class="cb-section">
+      <h2>Code</h2>
+      
+      <figure class="cb-block">
+        <figcaption class="cb-block-head"><span>session.hooks.ts</span></figcaption>
+        <pre class="cb-pre"><code><span style="color:#c9cfde">session</span><span style="color:#c9cfde">.</span><span style="color:#c9cfde">go</span><span style="color:#c9cfde">(</span><span style="color:#c4ae5a">&#39;login&#39;</span><span style="color:#c9cfde">,</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">{</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">user</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">}</span><span style="color:#c9cfde">)</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde">session</span><span style="color:#c9cfde">.</span><span style="color:#c9cfde">hook_action</span><span style="color:#c9cfde">(</span><span style="color:#c4ae5a">&#39;login&#39;</span><span style="color:#c9cfde">,</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">(</span><span style="color:#c9cfde">{</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">data</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">}</span><span style="color:#c9cfde">)</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">=</span><span style="color:#c9cfde">&gt;</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">{</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">currentUser</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">=</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">data</span><span style="color:#c9cfde">.</span><span style="color:#c9cfde">user</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">router</span><span style="color:#c9cfde">.</span><span style="color:#c9cfde">push</span><span style="color:#c9cfde">(</span><span style="color:#c4ae5a">&#39;/dashboard&#39;</span><span style="color:#c9cfde">)</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde">}</span><span style="color:#c9cfde">)</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde">
+</span><span style="color:rgb(201 207 222 / 50%)">// the payload travels with the action, not in module state</span><span style="color:#c9cfde">
+</span></code></pre>
+      </figure>
+    
+    </section>
+
+    
+    
+
+    <nav class="cb-prevnext">
+      <a class="cb-nav prev" href="hooks-log.html"><span class="cb-nav-label">← Previous</span><span class="cb-nav-title">Transition logging</span></a>
+      <span></span>
+    </nav>
+  </article>
+
+  <aside class="cb-toc">
+    <div class="cb-toc-head">// on this page</div>
+    <ul><li><a href="#sec-blocks">Code</a></li></ul>
+  </aside>
+</div>
+
+<footer class="cb-footer">
+  <a href="index.html">← All recipes</a>
+</footer>
+
+<script>
+  // Sticky-TOC active link based on scroll position.
+  (function () {
+    const links = [...document.querySelectorAll('.cb-toc a')];
+    const targets = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    function onScroll() {
+      let cur = targets[0];
+      for (const t of targets) if (t.getBoundingClientRect().top < 140) cur = t;
+      links.forEach(a => a.classList.toggle('active', cur && a.getAttribute('href') === '#' + cur.id));
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>

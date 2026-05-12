@@ -1,11 +1,11 @@
 # Cookbook authoring — for agents
 
-This document tells Claude Code (and any future agent) **exactly** how to add a recipe to the fsl.tools cookbook. Read it before touching `recipes/` or `scripts/build.js`.
+This document tells Claude Code (and any future agent) **exactly** how to add a recipe to the fsl.tools cookbook. Read it before touching `recipes/` or `scripts/build.cjs`.
 
 ## TL;DR
 
-1. Drop a new `recipes/<category>-<slug>.js` file.
-2. Run `node scripts/build.js`.
+1. Drop a new `recipes/<category>-<slug>.cjs` file.
+2. Run `node scripts/build.cjs`.
 3. Done. The recipe page, the cookbook index, the manifest, and (if it's a triple) the triples picker all update.
 
 No SPA. No React on the recipe pages. Output is a folder of plain `.html` files.
@@ -16,15 +16,15 @@ No SPA. No React on the recipe pages. Output is a folder of plain `.html` files.
 
 ```
 recipes/                         ← SOURCE: one file per recipe
-  patterns-toggle.js
-  patterns-cycle.js
-  hooks-entry.js
-  test-vitest-vite-react.js      ← TRIPLES (see below)
-  test-jest-webpack-vue.js
+  patterns-toggle.cjs
+  patterns-cycle.cjs
+  hooks-entry.cjs
+  test-vitest-vite-react.cjs      ← TRIPLES (see below)
+  test-jest-webpack-vue.cjs
   ...
 
 scripts/
-  build.js                       ← `node scripts/build.js` — produces /cookbook/**
+  build.cjs                       ← `node scripts/build.cjs` — produces /cookbook/**
   templates/
     recipe.html                  ← per-recipe shell (header / footer / TOC scaffold)
     index.html                   ← /cookbook/index.html shell
@@ -50,7 +50,7 @@ The homepage (`index.html`) is still a small React app. The cookbook is **plain 
 ## Filename → URL convention
 
 ```
-recipes/<category>-<slug>.js     →     /cookbook/<category>-<slug>.html
+recipes/<category>-<slug>.cjs     →     /cookbook/<category>-<slug>.html
 ```
 
 The filename **is** the URL. Pick it carefully — it never changes.
@@ -63,7 +63,7 @@ The filename **is** the URL. Pick it carefully — it never changes.
 Triples are normal recipes with a fixed slug shape:
 
 ```
-recipes/test-<runner>-<bundler>-<frontend>.js
+recipes/test-<runner>-<bundler>-<frontend>.cjs
 ```
 
 - `runner` ∈ {`vitest`, `jest`, `playwright`, `cypress`, `mocha`, `node`}
@@ -72,7 +72,7 @@ recipes/test-<runner>-<bundler>-<frontend>.js
 
 The build script recognizes the `test-` prefix and adds the recipe to the triples picker at `/cookbook/test/index.html`. Each axis value is also auto-tagged on the recipe.
 
-If you need a fourth axis later (e.g. TS vs JS), append it: `test-vitest-vite-react-ts.js`. Update the `parseTripleSlug` function in `scripts/build.js` to match.
+If you need a fourth axis later (e.g. TS vs JS), append it: `test-vitest-vite-react-ts.cjs`. Update the `parseTripleSlug` function in `scripts/build.cjs` to match.
 
 ---
 
@@ -81,7 +81,7 @@ If you need a fourth axis later (e.g. TS vs JS), append it: `test-vitest-vite-re
 A recipe is a plain ES module exporting a single object as `module.exports`. **No imports, no dependencies, no JSX.** Just a data record.
 
 ```js
-// recipes/patterns-toggle.js
+// recipes/patterns-toggle.cjs
 module.exports = {
   // REQUIRED
   title: 'Toggle',
@@ -177,10 +177,10 @@ A short closing paragraph below the code/graph. Same Markdown-light rules as `pr
 ## Build script
 
 ```bash
-node scripts/build.js
+node scripts/build.cjs
 ```
 
-Reads every `recipes/*.js`, validates required fields, writes:
+Reads every `recipes/*.cjs`, validates required fields, writes:
 
 - `cookbook/<basename>.html` — one per recipe.
 - `cookbook/index.html` — searchable list of all recipes (client-side filter on `manifest.json`).
@@ -207,9 +207,9 @@ Idempotent. Safe to run on every save. The output folder can be wiped (`rm -rf c
 
 ## What you SHOULD touch
 
-- `recipes/*.js` — add freely.
+- `recipes/*.cjs` — add freely.
 - `scripts/templates/*.html` — change the per-recipe page chrome here, not by editing the generated HTML.
-- `scripts/build.js` — extend when you need new code-block kinds, new categories with custom rendering, or a new top-level page (e.g. an integrations matrix).
+- `scripts/build.cjs` — extend when you need new code-block kinds, new categories with custom rendering, or a new top-level page (e.g. an integrations matrix).
 - This file (`AGENTS.md`) — keep in sync with reality.
 
 ---
@@ -217,17 +217,17 @@ Idempotent. Safe to run on every save. The output folder can be wiped (`rm -rf c
 ## Common tasks
 
 ### Add a new pattern
-1. `recipes/patterns-debounce.js` with the schema above.
-2. `node scripts/build.js`.
+1. `recipes/patterns-debounce.cjs` with the schema above.
+2. `node scripts/build.cjs`.
 
 ### Add the testing triple for vitest × vite × react
-1. `recipes/test-vitest-vite-react.js`. The build infers the triple from the filename.
-2. `node scripts/build.js`. The recipe appears at `/cookbook/test-vitest-vite-react.html` AND in the picker at `/cookbook/test/index.html`.
+1. `recipes/test-vitest-vite-react.cjs`. The build infers the triple from the filename.
+2. `node scripts/build.cjs`. The recipe appears at `/cookbook/test-vitest-vite-react.html` AND in the picker at `/cookbook/test/index.html`.
 
 ### Add a whole new category
 Just use it as the `category` field. The index page groups by category alphabetically; nothing else to do.
 
 ### Add a new code-block kind (e.g. `python`)
-Edit `scripts/build.js`:
+Edit `scripts/build.cjs`:
 - Add the kind to the `KIND_LABELS` map.
 - If the highlighter should treat it specially, extend the `highlight()` function. Otherwise it falls through to the plain renderer.

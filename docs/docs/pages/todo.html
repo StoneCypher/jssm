@@ -212,6 +212,16 @@ gviz/viz.js or out-of-band?</li>
 <li><input disabled="" type="checkbox"> <strong>Harel statechart representation</strong> <code>[hard]</code> — depends on
 hierarchical states existing (see Architectural). Cannot do until
 that lands.</li>
+<li><input disabled="" type="checkbox"> <strong>Web Components renderer</strong> <code>[medium]</code> — ship a custom element
+(e.g. <code>&lt;jssm-machine&gt;</code>) that takes an FSL string and renders a
+live, embeddable state-machine view, exposing transition
+controls and the current state. Distinct from the static
+diagram formats above and from <code>jssm/viz</code>&#39;s SVG output: this is
+a drop-in interactive embed for docs sites, the fsl.tools
+homepage, tutorials, and blog posts. Design choices to settle
+first: API surface, styling extensibility (Shadow DOM vs. light
+DOM), whether the element owns its machine or proxies to one
+passed in.</li>
 </ul>
 
 <a href="#input-formats" id="input-formats" style="color: inherit; text-decoration: none;">
@@ -279,6 +289,56 @@ Regression test asserts the orphan rule cannot return.</li>
 <li><input checked="" disabled="" type="checkbox"> <strong><code>SdStateLabel</code> mislabeled in error messages</strong> <code>[done]</code> —
 display name corrected from <code>&quot;color&quot;</code> to <code>&quot;label&quot;</code>. Regression
 test asserts the correct <code>.peg</code> source label.</li>
+</ul>
+
+<a href="#fsltools-site" id="fsltools-site" style="color: inherit; text-decoration: none;">
+  <h2>fsl.tools site</h2>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Replace the bespoke renderer widget with the official one</strong>
+<code>[straightforward]</code> — when the time comes. <code>src/fsl.tools/site/</code>
+currently ships a hand-rolled SVG graph renderer
+(<code>scripts/build.js#renderGraph</code> for the static cookbook,
+<code>components/CookbookGraph.jsx</code> for the homepage SPA) so the site
+can render graphs without dragging the full <code>jssm/viz</code> pipeline
+in at build time. Once <code>jssm/viz</code> is the right tool for both
+surfaces, swap the bespoke widget out so the cookbook and the
+rest of the ecosystem stay visually consistent.</li>
+</ul>
+
+<a href="#shared-content-infrastructure" id="shared-content-infrastructure" style="color: inherit; text-decoration: none;">
+  <h2>Shared content infrastructure</h2>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Centralize examples, demos, and shootouts for cross-site
+reuse</strong> <code>[medium]</code> — example content currently scatters across
+<code>src/demo/</code> (main jssm site), <code>src/fsl.tools/site/recipes/</code>
+(cookbook), the language-shootout comparisons, and ad-hoc
+snippets in the README. Extract them into a single canonical
+source so the main jssm site, fsl.tools, and future per-
+language implementation sites (jssm-py, jssm-rs, jssm-go, etc.)
+can all consume the same content rather than each maintaining
+its own copy. Format must be language-agnostic enough that a
+non-JS site can render it — the existing recipe-file shape in
+<code>src/fsl.tools/site/recipes/</code> with a <code>language</code> (or target-
+implementation) tag axis added is the natural starting point.
+Open design questions: where lives canonical (a top-level
+<code>examples/</code> sibling to <code>src/</code>? a separate sibling repo so the
+Python and Rust ports can vendor it without pulling all of
+jssm?), how each site declares which examples it surfaces, and
+how translations of prose (problem statements, notes) are
+managed when the same example renders FSL → JS, FSL → Python,
+FSL → Rust.</li>
+</ul>
+
+<a href="#project-maintenance" id="project-maintenance" style="color: inherit; text-decoration: none;">
+  <h2>Project maintenance</h2>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Sweep the GitHub issue list</strong> <code>[straightforward]</code> — triage the
+open issues at <code>github.com/StoneCypher/jssm/issues</code>: close stale
+ones, label and prioritize the rest, and roll anything still
+live into this TODO so it&#39;s not invisible.</li>
 </ul>
 
 <a href="#notes" id="notes" style="color: inherit; text-decoration: none;">

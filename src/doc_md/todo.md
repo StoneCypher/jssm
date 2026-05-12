@@ -173,6 +173,16 @@ candidates as quick credibility wins alongside the larger tooling work.
 - [ ] **Harel statechart representation** `[hard]` — depends on
       hierarchical states existing (see Architectural). Cannot do until
       that lands.
+- [ ] **Web Components renderer** `[medium]` — ship a custom element
+      (e.g. `<jssm-machine>`) that takes an FSL string and renders a
+      live, embeddable state-machine view, exposing transition
+      controls and the current state. Distinct from the static
+      diagram formats above and from `jssm/viz`'s SVG output: this is
+      a drop-in interactive embed for docs sites, the fsl.tools
+      homepage, tutorials, and blog posts. Design choices to settle
+      first: API surface, styling extensibility (Shadow DOM vs. light
+      DOM), whether the element owns its machine or proxies to one
+      passed in.
 
 ### Input formats
 
@@ -230,6 +240,63 @@ parser. Each is concrete and isolated.
 - [x] **`SdStateLabel` mislabeled in error messages** `[done]` —
       display name corrected from `"color"` to `"label"`. Regression
       test asserts the correct `.peg` source label.
+
+## fsl.tools site
+
+- [ ] **Replace the bespoke renderer widget with the official one**
+      `[straightforward]` — when the time comes. `src/fsl.tools/site/`
+      currently ships a hand-rolled SVG graph renderer
+      (`scripts/build.js#renderGraph` for the static cookbook,
+      `components/CookbookGraph.jsx` for the homepage SPA) so the site
+      can render graphs without dragging the full `jssm/viz` pipeline
+      in at build time. Once `jssm/viz` is the right tool for both
+      surfaces, swap the bespoke widget out so the cookbook and the
+      rest of the ecosystem stay visually consistent.
+
+## Shared content infrastructure
+
+- [ ] **Centralize examples, demos, and shootouts for cross-site
+      reuse** `[medium]` — example content currently scatters across
+      `src/demo/` (main jssm site), `src/fsl.tools/site/recipes/`
+      (cookbook), the language-shootout comparisons, and ad-hoc
+      snippets in the README. Extract them into a single canonical
+      source so the main jssm site, fsl.tools, and future per-
+      language implementation sites (jssm-py, jssm-rs, jssm-go, etc.)
+      can all consume the same content rather than each maintaining
+      its own copy. Format must be language-agnostic enough that a
+      non-JS site can render it — the existing recipe-file shape in
+      `src/fsl.tools/site/recipes/` with a `language` (or target-
+      implementation) tag axis added is the natural starting point.
+      Open design questions: where lives canonical (a top-level
+      `examples/` sibling to `src/`? a separate sibling repo so the
+      Python and Rust ports can vendor it without pulling all of
+      jssm?), how each site declares which examples it surfaces, and
+      how translations of prose (problem statements, notes) are
+      managed when the same example renders FSL → JS, FSL → Python,
+      FSL → Rust.
+
+## Project maintenance
+
+- [ ] **Sweep the GitHub issue list** `[straightforward]` — triage the
+      open issues at `github.com/StoneCypher/jssm/issues`: close stale
+      ones, label and prioritize the rest, and roll anything still
+      live into this TODO so it's not invisible.
+
+## Marketing and SEO
+
+- [ ] **Write a gitbook for SEO** `[medium]` — long-form hosted book
+      covering state machines as a concept, FSL as the syntax, and
+      jssm as the runtime. Targets search visibility for state-
+      machine *learning* queries ("how do state machines work",
+      "finite state machine tutorial", "when to use a state machine
+      in JS", etc.) rather than jssm-specific queries — pulls in
+      developers who don't yet know jssm exists. Distinct from the
+      cookbook (recipes for existing users) and from the typedoc-
+      generated reference docs (API surface): this is the
+      "concept + tutorial + comparison" tier that the other two
+      deliberately omit. Gitbook ranks unusually well on technical-
+      tutorial queries, so the format itself is part of the SEO play,
+      not just a content choice.
 
 ## Notes
 

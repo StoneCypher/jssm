@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.110.1",
+  "version": "5.111.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -81,7 +81,7 @@
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
-    "build": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs && npm run cloc && npm run readme",
+    "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
@@ -94,6 +94,8 @@
     "min_viz_cjs": "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
     "min_viz_es6": "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/ && cp -r src/demo docs/ && cp dist/jssm.es5.iife.js docs/demo",
+    "make_cookbook": "node src/fsl.tools/site/scripts/build.cjs",
+    "site_fsl_tools": "cd docs && mkdir fsl.tools && cd .. && cp -r src/fsl.tools/site/cookbook docs/fsl.tools/",
     "docs": "typedoc src/ts/jssm.ts src/ts/jssm_viz.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.cjs",
     "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.cjs && cp README.md dist/deno",
