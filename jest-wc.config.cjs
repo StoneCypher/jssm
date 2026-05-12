@@ -9,7 +9,13 @@ module.exports = {
   testPathIgnorePatterns     : ["/node_modules/"],
   testMatch                  : ['**/src/ts/wc/**/*.spec.ts'],
 
-  transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript', decorators: true }, target: 'es2020' } }] },
+  moduleNameMapper           : { '^(\\.{1,2}/.*)\\.js$': '$1' },
+
+  transform                  : {
+    '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript', decorators: true }, target: 'es2020' } }],
+    '^.+\\.js$': ['@swc/jest', { jsc: { parser: { syntax: 'ecmascript' }, target: 'es2020' } }],
+  },
+  transformIgnorePatterns    : ['/node_modules/(?!(lit|lit-html|lit-element|@lit)/)'],
 
   verbose                    : false,
   collectCoverage            : true,
