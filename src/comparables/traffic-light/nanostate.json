@@ -1,0 +1,19 @@
+{
+  "library": {
+    "name": "nanostate",
+    "npm": "nanostate",
+    "homepage": "https://github.com/choojs/nanostate",
+    "languages": ["javascript"]
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "lines": 12,
+  "official": true,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/choojs/nanostate/blob/master/README.md",
+    "note": "Taken from the readme. Changed the name of the event from `timer` to `next`; exported and consted. Reordered to start in red, instead of to start in green. Added a red light hook with `.on`."
+  },
+  "code": "export const trafficLight = nanostate(\"red\", {\n  red: {\n    next: \"green\",\n  },\n  green: {\n    next: \"yellow\",\n  },\n  yellow: {\n    next: \"red\",\n  },\n});\n\ntrafficLight.on('red', () => console.log('Red light!'));",
+  "formattedWith": "prettier"
+}
