@@ -233,13 +233,24 @@ describe('Decimal integer and exponent-form parsing', () => {
 
   test('Exponent notation: 1e<n> equals Math.pow(10, n), case-insensitive', () => {
 
+     // Compared via relative-error rather than strict equality.  The
+     // literal `1e<n>` parses to the closest IEEE 754 double to the
+     // mathematical value, while `Math.pow(10, n)` computes via
+     // `exp(n * log(10))` which can introduce a 1-ULP rounding
+     // difference (e.g. `1e-4 !== Math.pow(10, -4)` on some platforms).
+     // We assert the parsed literal is within 1e-12 relative error of
+     // the expected value — well within float64's ~15-digit precision
+     // but tight enough that a real grammar bug would surface.
+
      fc.assert(
        fc.property(
          fc.integer({ min: -10, max: 10 }),
          fc.boolean(),
          (exp, upper_e) => {
-           const literal = `1${upper_e ? 'E' : 'e'}${exp}`;
-           expect(parse_prop_default(literal)).toBe(Math.pow(10, exp));
+           const literal  = `1${upper_e ? 'E' : 'e'}${exp}`;
+           const actual   = parse_prop_default(literal) as number;
+           const expected = Math.pow(10, exp);
+           expect(actual / expected).toBeCloseTo(1, 12);
          }
        ),
        { numRuns: RUNS }

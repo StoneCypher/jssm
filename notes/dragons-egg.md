@@ -29,8 +29,8 @@ Last updated: 2026-05-12.
 |---|---|---|---|
 | 1 | Document shape | — | Not directly testable (exercised indirectly) |
 | 2 | Lexical layer | — | Gap |
-| 3 | Numeric | `numeric.stoch.ts` | **Covered** ✓ (pins two bugs) |
-| 4 | Colours | — | Gap |
+| 3 | Numeric | `numeric.stoch.ts` | **Covered** ✓ (fixed two bugs during writing) |
+| 4 | Colours | `colors.stoch.ts` | **Covered** ✓ |
 | 5 | Arrows | — | Gap |
 | 6 | Transition expressions — arrow decorations | `arrow_decorations.stoch.ts` | **Covered** ✓ |
 | 6 | Transition expressions — other (Stripe / Cycle / chains) | — | Gap |
@@ -287,32 +287,125 @@ exercises the bundled output rather than the source.
 
 
 
+### 2026-05-12 — `colors.stoch.ts`
+
+**Grammar section:** §4 (Colours — SvgColorLabel, Rgb3/Rgb6/Rgba4/Rgba8,
+top-level `Color` rule).
+
+**Background.** §4 covers the full SVG/CSS named-colour palette (~140
+names, both lowercase and CamelCase spellings → 280 entries in the PEG
+alternation) plus four hex forms.  Two structural risks: (a) PEG's
+first-match-wins requires longer prefixes ahead of shorter ones in the
+alternation list — ten documented prefix-pairs (`aquamarine` before
+`aqua`, `goldenrod` before `gold`, etc.); (b) the `Color` rule's
+alternative order is `SvgColor / Rgba8 / Rgb6 / Rgba4 / Rgb3` so 8-digit
+hex doesn't get truncated to 6 digits.  Both risks are tested directly.
+36 tests, 100 fast-check iterations on each stoch test.
+
+**Properties asserted.**
+
+1. **Spot-checked canonical values for 15 well-known colours** — `red`
+   → `#ff0000ff`, `green` → `#008000ff`, `blue` → `#0000ffff`, `white`,
+   `black`, `gray`, `navy`, `teal`, `aliceblue`, `aqua`, `fuchsia`,
+   `silver`, `gold`, `orange`, `purple`.  Externally-verified against
+   the CSS Color Module Level 3 / SVG 1.1 palette so the grammar
+   doesn't silently drift.
+2. **All ten prefix-pair longer names parse correctly** — `aquamarine`,
+   `blueviolet`, `goldenrod`, `greenyellow`, `lavenderblush`, `limegreen`,
+   `olivedrab`, `orangered`, `whitesmoke`, `yellowgreen` each parse to
+   their distinct canonical hex (verified ≠ the shorter prefix's hex).
+3. **Every named colour parses** — iterates `jssm.named_colors` (147
+   entries) and confirms each parses both CamelCase and lowercase
+   without throwing.
+4. **Every named colour matches `#[0-9a-fA-F]{8}` shape.**
+5. **Lowercase and CamelCase spellings produce identical canonical values.**
+6. **Alpha is always `ff` for named colours** (the CSS palette has no
+   transparency).
+7. **Rgb3 lowercase** — `#rgb` → each digit doubled + lowercase `ff`
+   alpha (e.g. `#abc` → `#aabbccff`).
+8. **Rgb3 uppercase** — `#RGB` → doubled-with-case-preserved + lowercase
+   `ff` alpha (`#ABC` → `#AABBCCff`).
+9. **Rgb6 lowercase** — `#rrggbb` → identity + lowercase `ff` alpha.
+10. **Rgb6 uppercase** — case-preserving body + lowercase `ff` alpha.
+11. **Rgba4** — `#rgba` → each of 4 digits doubled (including alpha).
+12. **Rgba8 round-trip** — `#rrggbbaa` → identity.
+13. **Rgba8 vs Rgb6 precedence** — random 8-digit hex preserves its
+    alpha rather than being truncated to 6 digits + default `ff`.
+
+**Discovered behaviour (not a bug, worth noting).**
+
+For uppercase user input, the parser **preserves the case in the
+doubled / pass-through body** but **always appends lowercase `ff`**
+for omitted alpha.  So `#FFF` → `#FFFFFFff` and `#ABCDEF` → `#ABCDEFff`.
+The grammar reference §4 says "All hex forms are lower-case-extended to
+8 digits with `ff` alpha when alpha is omitted" — empirically this means
+"the *appended alpha* is lowercase," not "the body is case-normalised."
+Tests assert the actual case-preserving behaviour.
+
+**Generators / helpers introduced.**
+
+- `parse_state_color(literal)` — wraps any colour literal in a
+  `state F : { color : ... ; };` declaration and extracts the
+  canonicalised value at `tree[0].value[0].value`.  Reusable for
+  any future test that exercises the `Color` grammar surface.
+- `hex_literal_arb(digits, alphabet)` — fast-check arbitrary that
+  generates random `#xxxx...` hex strings with the given digit count
+  and casing alphabet.  Reusable for hex-shaped property tests.
+- `HEX_LOWER`, `HEX_UPPER`, `HEX_ALL` — digit alphabets for `hex_literal_arb`.
+
+**Dragon-tier suggestions** (when we get to dragon testing for §4):
+
+- **Whitespace fuzzing inside the hex literal.** `#  fff` — does the
+  parser accept whitespace between `#` and digits?  Probably not,
+  but the dragon tier should confirm rejection.
+- **Mixed-case digits in 6/8-digit hex.** `#AaBbCc` — what's the
+  output? Currently case-preserving body; dragon should fuzz mixed
+  case at every position.
+- **Boundary on hex length.** `#ff` (2 digits) and `#fffff` (5 digits)
+  — neither matches any Rgb_ form.  Dragon should confirm rejection.
+- **Mutation testing on the SVG palette ordering.** Re-order any two
+  adjacent prefix-pair entries in the grammar; the prefix-protection
+  tests must catch it.
+- **Alpha edge cases.** `#000000ff` (fully opaque) and `#00000000`
+  (fully transparent) — currently round-trip identity; dragon should
+  also fuzz half-transparency boundary values.
+- **Named colour CSS extensions.**  CSS Color Module Level 4 adds
+  more named colours (`rebeccapurple`, etc.).  Dragon tier should
+  audit `jssm.named_colors` against the current spec and flag gaps.
+- **Round-trip through `Color → format → parse`** when the project
+  gains a formatter — every parseable colour should re-emit to the
+  same value.
+
+**Cross-references.**
+
+- `notes/fsl-grammar-reference.md` §4 — the documented grammar surface.
+- `jssm.named_colors` (exported) — the canonical list of 147 names.
+
+
+
 ## Up next (gap-filling order)
 
 Suggested order, by ratio of historical-bug-density to test-writing-cost
 (`notes/language-features-from-issues.md` informed this ranking):
 
-1. **`colors.stoch.ts`** (§4) — the prefix-protection ordering rule is
-   exactly what fuzzing the 140-name SVG palette stresses. Easy generators,
-   important property.
-2. **`arrows.stoch.ts`** (§5) — small surface, well-defined Unicode ↔ ASCII
+1. **`arrows.stoch.ts`** (§5) — small surface, well-defined Unicode ↔ ASCII
    equivalences, first-match-wins precedence claim worth verifying.
-3. **`arrange.stoch.ts`** (§12) — lift from placeholder to real. Small file,
+2. **`arrange.stoch.ts`** (§12) — lift from placeholder to real. Small file,
    symbol value of completing the placeholder.
-4. **`grammar_roundtrip.stoch.ts`** (cross-cutting) — parse-twice
+3. **`grammar_roundtrip.stoch.ts`** (cross-cutting) — parse-twice
    determinism, whitespace/comment invariance. Pays dividends as the
    generator becomes the substrate for other tests.
-5. **`transitions_misc.stoch.ts`** (§6 — non-decoration) — Stripe, Cycle,
+4. **`transitions_misc.stoch.ts`** (§6 — non-decoration) — Stripe, Cycle,
    chain composition, two-way arrow metadata mirroring.
-6. **`lexical.stoch.ts`** (§2) — Atom/Label/String/ActionLabel character
+5. **`lexical.stoch.ts`** (§2) — Atom/Label/String/ActionLabel character
    classes, escape vocabularies.
-7. **`state_declarations.stoch.ts`** (§7) — 60 GvizShape names, item
+6. **`state_declarations.stoch.ts`** (§7) — 60 GvizShape names, item
    ordering, per-state property syntax.
-8. **`config_blocks.stoch.ts`** (§8) — 9 block forms, single-value configs,
+7. **`config_blocks.stoch.ts`** (§8) — 9 block forms, single-value configs,
    placeholder-key tolerance.
-9. **`machine_attributes.stoch.ts`** (§9) — 14 attributes including URL,
+8. **`machine_attributes.stoch.ts`** (§9) — 14 attributes including URL,
    license, theme, direction, SemVer plumbing.
-10. **`properties.stoch.ts`** (§10) — 4 MachineProperty shapes,
-    PropertyVal types, state-level vs top-level syntax.
-11. **`named_list.stoch.ts`** (§11) — Label vs LabelOrLabelList, forward
+9. **`properties.stoch.ts`** (§10) — 4 MachineProperty shapes,
+   PropertyVal types, state-level vs top-level syntax.
+10. **`named_list.stoch.ts`** (§11) — Label vs LabelOrLabelList, forward
     references.
