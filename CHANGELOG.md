@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1309 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1321 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,35 +22,13 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:21:06 PM
+## [Untagged] - 5/12/2026 12:41:10 PM
 
-Commit [3060678d02d847eeb15a7b60d9a11d0875146c5f](https://github.com/StoneCypher/jssm/commit/3060678d02d847eeb15a7b60d9a11d0875146c5f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(wc): scaffold JssmViz Lit element with class/define split
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:20:53 PM
-
-Commit [f0f99dd4d643d6fc5925a0d1be02db2d70763a8a](https://github.com/StoneCypher/jssm/commit/f0f99dd4d643d6fc5925a0d1be02db2d70763a8a)
+Commit [215cad3ab26f0fffc4734b11f0e06bf1add9f684](https://github.com/StoneCypher/jssm/commit/215cad3ab26f0fffc4734b11f0e06bf1add9f684)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * build(wc): teach jest-wc about ESM .js suffix imports and Lit ESM
-  * - moduleNameMapper strips trailing .js from relative imports so TS
-  sources can use modern ESM-style import specifiers (e.g.
-  './foo.js') that resolve to .ts during Jest's resolution.
-- transformIgnorePatterns allows lit, lit-html, lit-element, and
-  @lit packages through the SWC transform (they ship as native
-  ESM and Jest's CJS host needs them transpiled).
-- Adds a .js transform entry so SWC handles the de-ignored lit JS.
+  * build: rebuild dist after merge of main into stonecypher/fsl#1328
 
 
 
@@ -59,32 +37,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:20:20 PM
+## [Untagged] - 5/12/2026 12:41:09 PM
 
-Commit [63c4d392d5cc6f0d102c8e6187da0bf6e2818941](https://github.com/StoneCypher/jssm/commit/63c4d392d5cc6f0d102c8e6187da0bf6e2818941)
+Commit [88f3dc67d5595f0b02a2e2a41010a2488d10ba29](https://github.com/StoneCypher/jssm/commit/88f3dc67d5595f0b02a2e2a41010a2488d10ba29)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(viz): slug-based SVG/dot node IDs replace index scheme
-  * Replaces the index-based `n0`/`n1`/... node identifier scheme used in
-dot/SVG output with human-readable slugs derived from state names.
-Each state gets a deterministic, URL-safe slug used as the dot node
-identifier (and therefore as the basis for the SVG `<title>` and the
-generated SVG element `id`).
-  * Slug rules:
-  - lowercase
-  - non-`[a-z0-9]` runs collapsed to single `-`
-  - leading/trailing `-` trimmed
-  - empty result falls back to `node-N` (1-based declaration index)
-  - collisions resolved deterministically with `-2`, `-3`, ... suffixes
-    in declaration order
-  * The state's original name is still emitted as the `label=` attribute,
-so user-visible rendering is unchanged. Only the underlying node
-identifier scheme changes.
-  * This is a behavior change visible to anyone selecting graph nodes by
-the old `n0`/`n1` identifiers in their own CSS/JS over the rendered
-SVG. Such consumers must migrate to the slug-based IDs.
-  * Closes StoneCypher/fsl#316
+  * feat(cli): dispatcher PATH probe and in-process eligibility
 
 
 
@@ -93,13 +52,13 @@ SVG. Such consumers must migrate to the slug-based IDs.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:18:12 PM
+## [Untagged] - 5/12/2026 12:40:30 PM
 
-Commit [664d7bba106952369e55a891e69ecc01f351623e](https://github.com/StoneCypher/jssm/commit/664d7bba106952369e55a891e69ecc01f351623e)
+Commit [86bb09a622f48414e855cb19f5080e88c7101283](https://github.com/StoneCypher/jssm/commit/86bb09a622f48414e855cb19f5080e88c7101283)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): extract javascript-state-machine examples
+  * fix(comparables): correct nanostate matter line count (heading drift)
 
 
 
@@ -108,13 +67,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:15:46 PM
+## [Untagged] - 5/12/2026 12:39:20 PM
 
-Commit [b0e4de6d647503a6e8655ce6b8ccda1cf981cdea](https://github.com/StoneCypher/jssm/commit/b0e4de6d647503a6e8655ce6b8ccda1cf981cdea)
+Commit [a8a9c2bb0e7959b2f1be0c925e1dfb51a71b576b](https://github.com/StoneCypher/jssm/commit/a8a9c2bb0e7959b2f1be0c925e1dfb51a71b576b)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): renderSet() with per-input error capture
+  * feat(comparables): extract nanostate examples
 
 
 
@@ -123,13 +82,33 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:10:34 PM
+## [Untagged] - 5/12/2026 12:36:28 PM
 
-Commit [aa3807f06718637159c00531cd3624a1d39a388b](https://github.com/StoneCypher/jssm/commit/aa3807f06718637159c00531cd3624a1d39a388b)
+Commit [6104fbea313fbcd0e42d92a4f567ed5b945ff883](https://github.com/StoneCypher/jssm/commit/6104fbea313fbcd0e42d92a4f567ed5b945ff883)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(comparables): drop misleading source.url on xstate matter (no single source URL)
+Merges [042394b, 17bb265]
+
+  * Merge branch 'main' into worktree-agent-a8562119fe10fe2f0
+  * # Conflicts:
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/fsl_parser.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
 
 
 
@@ -138,13 +117,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:09:16 PM
+## [Untagged] - 5/12/2026 12:35:40 PM
 
-Commit [ee334baad2e20ef847bb104b579668ed708ef03c](https://github.com/StoneCypher/jssm/commit/ee334baad2e20ef847bb104b579668ed708ef03c)
+Commit [012340bd5b4922815c6d304d5a5343c48a41248a](https://github.com/StoneCypher/jssm/commit/012340bd5b4922815c6d304d5a5343c48a41248a)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): extract xstate examples (toggle, traffic light, matter)
+  * feat(cli): fsl-render binary entry
 
 
 
@@ -153,33 +132,32 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:06:41 PM
+## [Untagged] - 5/12/2026 12:34:21 PM
 
-Commit [0f5e97f57168c188f91f5187ab7c01b966550f65](https://github.com/StoneCypher/jssm/commit/0f5e97f57168c188f91f5187ab7c01b966550f65)
+Commit [6b1c76e0dfdce25b2be930a302bfdced0994a38b](https://github.com/StoneCypher/jssm/commit/6b1c76e0dfdce25b2be930a302bfdced0994a38b)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * test(stoch): lexical.stoch.ts (§2); fix empty action labels and falsy decoration values dropped by parser+compiler
-  * Adds 47 fast-check tests covering §2 Lexical layer of the FSL grammar
-reference: whitespace invariance over `a->b;`, block/line comments
-and terminator vocabulary (LF / CR / U+2028 / U+2029 / EOF), String
-and ActionLabel escape vocabularies plus \uXXXX, atom first/rest
-character classes (including Unicode), Label-form equivalence, and
-LabelList shapes.
-  * Property-based testing surfaced an over-broad truthy guard in the
-parser: empty action labels (`a '' -> b;`) were parseable but the
-empty string was suppressed alongside null/undefined from empty
-brace blocks. Fixed at:
-  *   - src/ts/fsl_parser.peg — eight decoration-assignment lines now
-    check `d.v != null` instead of `d.v`, preserving the original
-    intent (suppress missing-value sentinels) while letting
-    legitimately-empty primitives through.
-  - src/ts/jssm_compiler.ts — same null-aware check on action and
-    probability so the fix carries end-to-end to the compiled edge.
-  * Side effect: `after 0` decorations now produce `r_after`/`l_after`
-of 0 in the AST rather than being suppressed. No existing tests
-regress; full spec suite (5251 tests) and full stoch suite (138
-tests, +47 new) pass.
+  * feat(wc): JssmViz renders SVG on fsl prop change
+  * Wires real Graphviz rendering into the JssmViz Lit element via
+`fsl_to_svg_string` from `jssm/viz`. The async render runs on every
+`fsl`/`engine` change via `willUpdate`, with a stale-result guard, and
+the SVG string is injected through Lit's `unsafeHTML` directive.
+  * Two test-infrastructure fixes shipped with this change:
+  * - `jest-wc.config.cjs`: switch @swc/jest to `legacyDecorator: true`
+  with `useDefineForClassFields: false`. Without this, swc emits
+  `_define_property(this, "fsl", "")` in the constructor, which
+  overwrites Lit's prototype accessor with a plain own property —
+  meaning `el.fsl = ...` never invokes Lit's setter and `willUpdate`
+  never sees the change.
+- `src/ts/wc/tests/jest.setup.cjs`: polyfill `TextDecoder` /
+  `TextEncoder` from `util` onto `globalThis` before any test runs.
+  jsdom does not expose them, but the `@viz-js/viz` WASM module
+  imported transitively through `fsl_to_svg_string` requires them.
+  * Note: the `fsl_to_svg_string` signature in this repo is
+`(fsl: string) => Promise<string>` — it does not accept an options
+object — so the `engine` prop is reactive but its value does not
+yet reach the renderer. Task 6 will add real engine threading.
 
 
 
@@ -188,13 +166,44 @@ tests, +47 new) pass.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:06:23 PM
+## [Untagged] - 5/12/2026 12:32:05 PM
 
-Commit [8b02846d147409303e2f47586fc06858f61e8b12](https://github.com/StoneCypher/jssm/commit/8b02846d147409303e2f47586fc06858f61e8b12)
+Commit [5d9dfb1d0092634bb8a27e82ab1b2bbdcee05a58](https://github.com/StoneCypher/jssm/commit/5d9dfb1d0092634bb8a27e82ab1b2bbdcee05a58)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): extract jssm examples (toggle, traffic light, matter)
+  * feat(grammar): accept `edge-color` as alias for `edge_color` (StoneCypher/fsl#358)
+  * The FSL grammar had `edge_color` as an underscore outlier while its peer
+arrow / state colour keywords (`line-style`, `text-color`, `background-color`,
+`border-color`) are all dashed.  Both `SingleEdgeColor` (per-edge override
+inside `ArrowDesc`) and `GraphDefaultEdgeColor` (default inside
+`transition: { ... };`) now accept either spelling:
+  * - `a -> { edge-color: red; } b;`        (new, consistent)
+- `a -> { edge_color: red; } b;`        (legacy, still accepted)
+- `transition: { edge-color: blue; };`  (new)
+- `transition: { edge_color: blue; };`  (legacy)
+  * Both alternatives produce identical parser AST nodes (`single_edge_color`
+and `graph_default_edge_color` respectively), so downstream consumers see
+no behavioural change.
+  * Files
+- src/ts/fsl_parser.peg: alternative added to both rules; underscore form
+  kept for backward compatibility.
+- src/ts/fsl_parser.ts: parser regenerated via `pegjs` + `fixparser.cjs`.
+- src/ts/tests/edge_color_alias.spec.ts: regression suite for
+  StoneCypher/fsl#358 -- 7 substring-style assertions covering both rules
+  with both spellings, plus an `expect(dash).toEqual(under)` AST-identity
+  check for each rule.  Compiles-into-machine path is exercised for the
+  ArrowDesc rule only; the `transition: { ... };` rule is parser-only
+  because `compile_rule_handler` doesn't yet wire that config_kind through
+  (pre-existing bug, out of scope here).
+- notes/fsl-grammar-reference.md: documents the alias in both places it
+  references the keyword (§ArrowDesc and §config-statement rollup table).
+  * Pre-existing observation, not fixed in this commit: `transition: { ... };`
+config statements throw `compile_rule_handler: Unknown rule` regardless of
+underscore vs dash spelling.  That's a compiler gap independent of the
+naming-consistency issue here.
+  * Spec suite: 64 suites / 5258 tests pass (+ 34 todo) = 5292 total.
+Stoch suite: 5 suites / 91 tests pass.
 
 
 
@@ -203,28 +212,49 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:58:59 AM
+## [Untagged] - 5/12/2026 12:28:21 PM
 
-Commit [bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568](https://github.com/StoneCypher/jssm/commit/bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568)
+Commit [dff205bff292e4263ca69b1fee67d1894ac4c00a](https://github.com/StoneCypher/jssm/commit/dff205bff292e4263ca69b1fee67d1894ac4c00a)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(machine): expose grammar charset ranges for state names and action labels
-  * Adds three frozen `ReadonlyArray<{from, to}>` constants — `state_name_chars`,
-`state_name_first_chars`, and `action_label_chars` — derived from the PEG
-rules `AtomLetter`, `AtomFirstLetter`, and `ActionLabelUnescaped`.  Each
-constant carries a `keep in sync` comment pointing at the source line in
-`fsl_parser.peg` so the data and the grammar can't drift silently.
-  * Re-exports the constants from `jssm.ts` alongside `shapes`/`named_colors`,
-and adds three matching `Machine` instance methods — `all_state_name_chars`,
-`all_state_name_first_chars`, `all_action_label_chars` — mirroring the
-existing `all_themes()` exposition shape from issues #540/#541.
-  * Tooling that needs to know which characters are legal in a given FSL token
-position (editors, validators, linters) can now read these without
-re-parsing the PEG grammar.
-  * Adds `src/ts/tests/characterset.spec.ts` with 27 tests covering range
-membership for ASCII letters/digits, the `+` distinction between first and
-non-first atom positions, space inclusion and apostrophe exclusion in
-action labels, and identity of the constants returned by the three
-`Machine` methods.
-  * Closes fsl#542.
+  * feat(comparables): extract state-machine examples
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:24:50 PM
+
+Commit [17bb2657421d355ea19ce51629e8e7af8060d039](https://github.com/StoneCypher/jssm/commit/17bb2657421d355ea19ce51629e8e7af8060d039)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): §5 arrows, §11 named lists, §12 arrange
+  * Adds three new stochastic test files covering small-but-distinct
+grammar sections:
+  *   - arrows.stoch.ts     (§5)  45 tests — enumerates all 30 arrow
+    surface spellings (15 ASCII + 15 Unicode aliases), confirms
+    Unicode canonicalises to ASCII at tree[0].se.kind, pins the
+    PEG ordering invariant that prevents 4-char mixed arrows
+    (`<-=>`, `<-~>`, `<=->`, `<=~>`, `<~->`, `<~=>`) from being
+    short-circuited by their 2-char prefixes, and verifies back
+    arrows preserve source order (from/to don't swap).
+  *   - named_lists.stoch.ts (§11) 9 tests — covers the four shapes of
+    LabelOrLabelList in the value position (bare label → string;
+    `[]` → empty array; `[x]` → one-element array; `[x y z]` →
+    ordered array), Label-form equivalence in both the `name`
+    position and per-member, random round-trips, and WS tolerance
+    at all five `WS?` slots of the rule.
+  *   - arrange.stoch.ts    (§12) 17 tests, replaces the prior TODO
+    placeholder — exercises all three arrange keywords (`arrange`,
+    `arrange-start`, `arrange-end`) producing their distinct AST
+    keys, the same LabelOrLabelList value-shape branches, the PEG
+    ordering invariant that hyphenated forms aren't shadowed by
+    the bare `arrange` keyword, random round-trips, and WS
+    tolerance.
+  * Stoch suite grows from 138 to 208 tests (+70); full spec suite
+(5251) and full stoch suite both green.
