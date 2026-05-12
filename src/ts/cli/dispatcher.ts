@@ -155,9 +155,7 @@ export async function invokeBySpawn(pluginPath: string, argv: string[]): Promise
     const [spawnCmd, spawnArgs] = isCmdScript
       ? ['cmd.exe', ['/c', pluginPath, ...argv]]
       : [pluginPath, argv];
-    const child = spawn(spawnCmd, spawnArgs, { stdio: ['inherit', 'pipe', 'pipe'] });
-    child.stdout?.on('data', (chunk: Buffer) => { process.stdout.write(chunk); });
-    child.stderr?.on('data', (chunk: Buffer) => { process.stderr.write(chunk); });
+    const child = spawn(spawnCmd, spawnArgs, { stdio: 'inherit' });
     child.on('exit', (code, signal) => {
       if (signal) res(128 + (process.platform === 'win32' ? 1 : 0));
       else res(typeof code === 'number' ? code : 2);

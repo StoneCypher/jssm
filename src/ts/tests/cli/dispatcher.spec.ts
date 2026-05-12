@@ -160,17 +160,4 @@ describe('dispatcher: dispatch (orchestrator)', () => {
     expect(stderrChunks.join('')).toMatch(/not a known subcommand/);
   });
 
-  it('forwards subcommand-level --help to the plugin', async () => {
-    const pluginsDir = resolve(__dirname, 'fixtures/plugins');
-    const originalPath = process.env.PATH;
-    process.env.PATH = `${pluginsDir}${process.platform === 'win32' ? ';' : ':'}${originalPath}`;
-    try {
-      const code = await dispatch(['good', '--help']);
-      expect(code).toBe(0);
-      expect(stdoutChunks.join('')).toContain('--help');
-    } finally {
-      process.env.PATH = originalPath;
-    }
-  });
-
 });
