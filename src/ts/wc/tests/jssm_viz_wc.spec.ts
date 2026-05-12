@@ -38,4 +38,24 @@ describe('JssmViz rendering', () => {
     document.body.removeChild(el);
   });
 
+  it('fires viz-error when fsl fails to parse', async () => {
+    const el = document.createElement('jssm-viz');
+    document.body.appendChild(el);
+
+    const errorEvent: Promise<CustomEvent> = new Promise(resolve => {
+      el.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
+    });
+
+    el.fsl = 'this is not valid fsl !!!';
+
+    const evt = await errorEvent;
+    expect(evt.type).toBe('viz-error');
+    expect(typeof evt.detail.message).toBe('string');
+    expect(evt.detail.message.length).toBeGreaterThan(0);
+    expect(evt.bubbles).toBe(true);
+    expect(evt.composed).toBe(true);
+
+    document.body.removeChild(el);
+  });
+
 });
