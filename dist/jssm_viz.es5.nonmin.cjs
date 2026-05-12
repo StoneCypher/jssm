@@ -20806,7 +20806,7 @@ theme_mapping.set('ocean', ocean_theme);
 theme_mapping.set('plain', plain_theme);
 theme_mapping.set('bold', bold_theme);
 
-const version = "5.112.0", build_time = 1778576310751;
+const version = "5.112.1", build_time = 1778591560310;
 
 // whargarbl lots of these return arrays could/should be sets
 /*********
