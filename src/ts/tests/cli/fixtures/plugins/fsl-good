@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "fsl-good: --help"
+exit 0

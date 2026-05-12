@@ -6,6 +6,7 @@ import {
   isInProcessEligible,
   invokeInProcess,
   invokeBySpawn,
+  dispatch,
 } from '../../cli/dispatcher';
 
 const fixturePluginsDir = resolve(__dirname, 'fixtures/plugins');
@@ -116,6 +117,60 @@ describe('dispatcher: invokeBySpawn', () => {
     const args = ['-e', 'process.exit(4)'];
     const code = await invokeBySpawn(node, args);
     expect(code).toBe(4);
+  });
+
+});
+
+describe('dispatcher: dispatch (orchestrator)', () => {
+
+  let stdoutChunks: string[];
+  let stderrChunks: string[];
+  let realStdout: typeof process.stdout.write;
+  let realStderr: typeof process.stderr.write;
+
+  beforeEach(() => {
+    stdoutChunks = [];
+    stderrChunks = [];
+    realStdout = process.stdout.write.bind(process.stdout);
+    realStderr = process.stderr.write.bind(process.stderr);
+    (process.stdout as any).write = (chunk: any) => { stdoutChunks.push(String(chunk)); return true; };
+    (process.stderr as any).write = (chunk: any) => { stderrChunks.push(String(chunk)); return true; };
+  });
+  afterEach(() => {
+    (process.stdout as any).write = realStdout;
+    (process.stderr as any).write = realStderr;
+  });
+
+  it('handles --help reserved name on the dispatcher itself', async () => {
+    const code = await dispatch(['--help']);
+    expect(code).toBe(0);
+    expect(stdoutChunks.join('')).toMatch(/fsl/);
+    expect(stdoutChunks.join('')).toContain('Usage:');
+  });
+
+  it('handles --version on the dispatcher itself', async () => {
+    const code = await dispatch(['--version']);
+    expect(code).toBe(0);
+    expect(stdoutChunks.join('')).toMatch(/fsl\s+\S/);
+  });
+
+  it('returns 1 with helpful error for unknown subcommand', async () => {
+    const code = await dispatch(['definitely-not-a-real-subcommand-xyz']);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/not a known subcommand/);
+  });
+
+  it('forwards subcommand-level --help to the plugin', async () => {
+    const pluginsDir = resolve(__dirname, 'fixtures/plugins');
+    const originalPath = process.env.PATH;
+    process.env.PATH = `${pluginsDir}${process.platform === 'win32' ? ';' : ':'}${originalPath}`;
+    try {
+      const code = await dispatch(['good', '--help']);
+      expect(code).toBe(0);
+      expect(stdoutChunks.join('')).toContain('--help');
+    } finally {
+      process.env.PATH = originalPath;
+    }
   });
 
 });

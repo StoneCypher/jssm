@@ -150,7 +150,14 @@ export async function invokeInProcess(pluginPath: string, argv: string[]): Promi
  */
 export async function invokeBySpawn(pluginPath: string, argv: string[]): Promise<number> {
   return new Promise<number>((res) => {
-    const child = spawn(pluginPath, argv, { stdio: 'inherit' });
+    const ext = extname(pluginPath).toLowerCase();
+    const isCmdScript = IS_WINDOWS && (ext === '.cmd' || ext === '.bat');
+    const [spawnCmd, spawnArgs] = isCmdScript
+      ? ['cmd.exe', ['/c', pluginPath, ...argv]]
+      : [pluginPath, argv];
+    const child = spawn(spawnCmd, spawnArgs, { stdio: ['inherit', 'pipe', 'pipe'] });
+    child.stdout?.on('data', (chunk: Buffer) => { process.stdout.write(chunk); });
+    child.stderr?.on('data', (chunk: Buffer) => { process.stderr.write(chunk); });
     child.on('exit', (code, signal) => {
       if (signal) res(128 + (process.platform === 'win32' ? 1 : 0));
       else res(typeof code === 'number' ? code : 2);
@@ -160,4 +167,90 @@ export async function invokeBySpawn(pluginPath: string, argv: string[]): Promise
       res(2);
     });
   });
+}
+
+const RESERVED_FLAGS = new Set(['--help', '-h', '--version', '-V']);
+const RESERVED_NAMES = new Set(['help', 'version']);
+
+const getDispatcherVersion = (): string => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pkg = require('../../../package.json');
+    return pkg.version ?? '0.0.0';
+  } catch {
+    return '0.0.0';
+  }
+};
+
+const printDispatcherHelp = (): void => {
+  process.stdout.write(`fsl — finite-state language toolchain dispatcher
+
+Usage:
+  fsl <subcommand> [options] [args...]
+  fsl [--help|--version]
+
+Built-in subcommands (resolved via PATH):
+  render    Render FSL machines to SVG, DOT, PNG, JPEG, or HTML
+
+Discovery:
+  Any \`fsl-<name>\` executable on PATH is dispatched when you run
+  \`fsl <name>\`. Third-party plugins follow the same contract as
+  first-party ones.
+
+  See: notes/superpowers/specs/2026-05-12-fsl-cli-design.md
+`);
+};
+
+/**
+ * Top-level dispatcher entry point.
+ *
+ * - Handles reserved flags (--help, --version) on the dispatcher itself.
+ * - Resolves the first positional as a subcommand and forwards the rest.
+ * - In-processes Node-resolvable plugins, spawns the rest.
+ *
+ * @param argv - The args passed to `fsl` (already stripped of node binary
+ *   and the dispatcher's own script path).
+ * @returns Exit code.
+ *
+ * @example
+ * ```ts
+ * const code = await dispatch(['--help']);
+ * // code === 0, and help text written to stdout
+ *
+ * const code2 = await dispatch(['unknown-cmd']);
+ * // code2 === 1, error written to stderr
+ * ```
+ */
+export async function dispatch(argv: string[]): Promise<number> {
+  if (argv.length === 0 || RESERVED_FLAGS.has(argv[0])) {
+    if (argv[0] === '--version' || argv[0] === '-V') {
+      process.stdout.write(`fsl ${getDispatcherVersion()}\n`);
+      return 0;
+    }
+    printDispatcherHelp();
+    return 0;
+  }
+
+  const subcommand = argv[0];
+  const rest = argv.slice(1);
+
+  if (RESERVED_NAMES.has(subcommand)) {
+    if (subcommand === 'version') {
+      process.stdout.write(`fsl ${getDispatcherVersion()}\n`);
+      return 0;
+    }
+    printDispatcherHelp();
+    return 0;
+  }
+
+  const pluginPath = await findPluginOnPath(subcommand);
+  if (!pluginPath) {
+    process.stderr.write(`fsl: '${subcommand}' is not a known subcommand and no \`fsl-${subcommand}\` was found on PATH\n`);
+    return 1;
+  }
+
+  if (isInProcessEligible(pluginPath)) {
+    return invokeInProcess(pluginPath, rest);
+  }
+  return invokeBySpawn(pluginPath, rest);
 }
