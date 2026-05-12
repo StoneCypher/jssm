@@ -201,7 +201,7 @@ jobs:
     # package settings page matching org=StoneCypher, repo=jssm,
     # workflow=nodejs.yml.
     permissions:
-      contents: read    # for actions/checkout
+      contents: write   # for actions/checkout, git push --tags, and create-release
       id-token: write   # for OIDC token issuance to npm
 
     steps:
@@ -223,13 +223,9 @@ jobs:
       run: git push origin --tags
 
     - name: Create the release
-      uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.TAG }}
-        release_name: ${{ env.TAG }}
-        body_path: CHANGELOG.md
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release create "${{ env.TAG }}" --title "${{ env.TAG }}" --notes-file CHANGELOG.md
 
     - name: Publish to npm
       run: |
