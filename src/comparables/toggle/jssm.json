@@ -1,0 +1,15 @@
+{
+  "library": {
+    "name": "jssm",
+    "npm": "jssm",
+    "homepage": "https://stonecypher.github.io/jssm/",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "lines": 1,
+  "official": true,
+  "canImplement": true,
+  "code": "export const toggleMachine = sm`active 'TOGGLE' <=> 'TOGGLE' inactive;`;",
+  "formattedWith": "prettier"
+}
