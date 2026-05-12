@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1250 merges; 222 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1266 merges; 222 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,46 +22,35 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 11:05:13 PM
+## [Untagged] - 5/12/2026 7:14:03 AM
 
-Commit [a89b151a2de671f6ec7015a47d6f8642d86748c9](https://github.com/StoneCypher/jssm/commit/a89b151a2de671f6ec7015a47d6f8642d86748c9)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [2f0e562, 0d5bfd2]
-
-  * Merge pull request #588 from StoneCypher/dependabot/npm_and_yarn/fast-uri-3.1.2
-  * build(deps): bump fast-uri from 3.1.0 to 3.1.2
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/11/2026 11:03:02 PM
-
-Commit [2f0e562b92ee385eb75b025aa0758601b643489c](https://github.com/StoneCypher/jssm/commit/2f0e562b92ee385eb75b025aa0758601b643489c)
+Commit [9276011491437258fbde3e919ec657d29f4ea62e](https://github.com/StoneCypher/jssm/commit/9276011491437258fbde3e919ec657d29f4ea62e)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(fsl.tools): integrate cookbook build, publish to docs/fsl.tools
-  * Adds two npm scripts (make_cookbook, site_fsl_tools) that regenerate
-the recipe-driven cookbook and copy the output to
-docs/fsl.tools/cookbook/ as part of the main `build` chain. Stops
-tracking the generated src/fsl.tools/site/cookbook/ directory so it
-never goes stale against its source recipes.
-  * Renames src/fsl.tools/site/scripts/build.js and the 18 recipes under
-recipes/ from .js to .cjs. The package's "type": "module" made plain
-.js files default to ESM, which broke both the build script (uses
-require) and the recipes (use module.exports). The script's filename
-filter, slug regex, and validation error messages all updated to
-match; AGENTS.md updated to document the new convention.
-  * Adds five todo items: replace the bespoke renderer widget with the
-official one, build a Web Components renderer, centralize
-examples/demos/shootouts for cross-site reuse, sweep the GitHub
-issue list, and write a gitbook for SEO.
+  * fix(grammar): integer literals capture all digits, not just the first
+  * Three PEG rules — IntegerLiteral, Stripe, Cycle — captured only the
+first digit of multi-digit input.  Root cause: PEG.js's default
+return value for a `NonZeroDigit DecimalDigit*` sequence is an array
+of matches, which stringifies with commas at parseInt time (e.g.
+`["1", ["2","3"]].toString() === "1,2,3"` → parseInt stops at the
+comma → returns 1).  Switched all three rules to `$(...)` text
+capture so they return the matched substring directly.
+  * Visible impact:
+- `fsl_version: 10.0.0;` returned `{major:1, full:"10.0.0"}`;
+  now correctly `{major:10, full:"10.0.0"}`.
+- `+|123` returned `{key:'stripe', value:12}`; now `{value:123}`.
+- `+1234` returned `{key:'cycle', value:12}`; now `{value:1234}`.
+  * Also adds:
+- src/ts/tests/numeric.stoch.ts: 35 property-based tests for §3
+  (Numeric layer) plus the §6 Stripe/Cycle integer-literal slice.
+  Lifts grammar stoch coverage from 1/14 sections to 2/14.  Surfaced
+  the two bugs fixed in this commit.
+- testPathIgnorePatterns in each jest-*.config.cjs to exclude
+  `.claude/worktrees/` so concurrent agent worktrees don't
+  contaminate the host's test runs.
+- notes/dragons-egg.md: entry for numeric.stoch.ts with bug-fix
+  narrative.
 
 
 
@@ -70,18 +59,21 @@ issue list, and write a gitbook for SEO.
 
 &nbsp;
 
-<a name="5__110__1" />
+## [Untagged] - 5/12/2026 6:52:39 AM
 
-## [5.110.1] - 5/11/2026 10:11:45 PM
-
-Commit [99fdc29ae42cff6817fd2efae6a2f8461dfccb1f](https://github.com/StoneCypher/jssm/commit/99fdc29ae42cff6817fd2efae6a2f8461dfccb1f)
+Commit [a253dd558bdb6e82020b069daaba9e222e4cb355](https://github.com/StoneCypher/jssm/commit/a253dd558bdb6e82020b069daaba9e222e4cb355)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fa766c2, ba485c6]
-
-  * Merge pull request #589 from StoneCypher/DescribeAndRepairGrammar
-  * Describe and repair grammar
+  * chore(test): remove jest, @swc/jest, @types/jest, jest-json-reporter2, jest configs and scripts
+  * All test suites are running on vitest.  Drop:
+- the four `jest-*.config.cjs` files
+- the eleven `jest-*` npm scripts
+- devDependencies `jest`, `@swc/jest`, `@swc/core` (only used by
+  @swc/jest), `@types/jest`, `jest-json-reporter2`, and
+  `jest-environment-jsdom`.  jsdom itself is kept since vitest uses it
+  directly for `// @vitest-environment jsdom` blocks.
+  * npm install reports 296 packages removed.
 
 
 
@@ -90,13 +82,13 @@ Merges [fa766c2, ba485c6]
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 10:04:20 PM
+## [Untagged] - 5/12/2026 6:52:15 AM
 
-Commit [ba485c650a01e90439fe5e7e6692d542fafb32d4](https://github.com/StoneCypher/jssm/commit/ba485c650a01e90439fe5e7e6692d542fafb32d4)
+Commit [c6d821b33b3d6269ab6569a0c2e7ec7ef40637d8](https://github.com/StoneCypher/jssm/commit/c6d821b33b3d6269ab6569a0c2e7ec7ef40637d8)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * .npmrc was meant to be local-only to fix a shell issue; removed
+  * docs(progress): scaffold weekly investor-facing progress log
 
 
 
@@ -105,15 +97,17 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 9:57:18 PM
+## [Untagged] - 5/12/2026 6:50:41 AM
 
-Commit [ece8a2eaa5c14188c63bfa5ddf69f9378d81543c](https://github.com/StoneCypher/jssm/commit/ece8a2eaa5c14188c63bfa5ddf69f9378d81543c)
+Commit [af56aae6dc85ec5306bbd6d7e0098b963fce86a8](https://github.com/StoneCypher/jssm/commit/af56aae6dc85ec5306bbd6d7e0098b963fce86a8)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0b444a4, 4bd10e8]
-
-  * Merge branch 'main' into DescribeAndRepairGrammar
+  * ci(workflow): switch unicode jobs to vitest
+  * Updates each `unicode-*` job in nodejs.yml to invoke the new
+`vitest-unicode-*` scripts instead of `jest-unicode-*`.  The main
+`build` job goes through `npm run ci_build` -> `npm run test`, which
+already calls the new `vitest` script, so no change is needed there.
 
 
 
@@ -122,13 +116,22 @@ Merges [0b444a4, 4bd10e8]
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 9:57:07 PM
+## [Untagged] - 5/12/2026 6:50:08 AM
 
-Commit [4bd10e8b876c6361594fc4ad9312aab396d9200b](https://github.com/StoneCypher/jssm/commit/4bd10e8b876c6361594fc4ad9312aab396d9200b)
+Commit [83aaf720e938e7494788b55123a703c3d981a026](https://github.com/StoneCypher/jssm/commit/83aaf720e938e7494788b55123a703c3d981a026)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * .npmrc
+  * feat(test): port jest-unicode to vitest.unicode.config.ts
+  * Adds vitest.unicode.config.ts mirroring jest-unicode.config.cjs.  The
+five npm scripts (`vitest-unicode-atom`, `-string`, `-atom-label`,
+`-string-label`, `-action`) each invoke `vitest run` against a single
+`*.uspec.ts` file, matching the equivalent jest-unicode-* scripts.
+  * Note: the old jest-unicode-atom-label and -string-label scripts both
+incorrectly pointed at unicode-atoms.uspec.ts (a pre-existing bug from
+when the unicode suites were split).  The new vitest scripts route each
+script to its correctly named file.
+  * Sample run: vitest-unicode-atom -> 320 tests pass, ~260s wall.
 
 
 
@@ -137,55 +140,20 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2026 6:03:34 PM
+## [Untagged] - 5/12/2026 6:49:56 AM
 
-Commit [0d5bfd21683258bfb195702d4825aa6cc4ee5d97](https://github.com/StoneCypher/jssm/commit/0d5bfd21683258bfb195702d4825aa6cc4ee5d97)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * build(deps): bump fast-uri from 3.1.0 to 3.1.2
-  * Bumps [fast-uri](https://github.com/fastify/fast-uri) from 3.1.0 to 3.1.2.
-- [Release notes](https://github.com/fastify/fast-uri/releases)
-- [Commits](https://github.com/fastify/fast-uri/compare/v3.1.0...v3.1.2)
-  * ---
-updated-dependencies:
-- dependency-name: fast-uri
-  dependency-version: 3.1.2
-  dependency-type: indirect
-...
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/7/2026 10:02:30 AM
-
-Commit [0b444a40187877a41192df44c225b0d95d47cdd8](https://github.com/StoneCypher/jssm/commit/0b444a40187877a41192df44c225b0d95d47cdd8)
+Commit [7773fa1da33821c898627e44ba682eb26c3bf625](https://github.com/StoneCypher/jssm/commit/7773fa1da33821c898627e44ba682eb26c3bf625)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(grammar): four bugs flagged in the grammar reference
-  * Four small bugs surfaced by the cataloguing pass in
-notes/fsl-grammar-reference.md, all now repaired:
-  * - `OctalDigit` was `[0-1]` (copy-paste from `BinaryDigit`); now `[0-7]`,
-  so `0o27` and friends parse correctly.
-- `MachineReference` was defined but missing from `MachineAttribute`'s
-  alternation, so `machine_reference: foo;` produced a parse error
-  despite the AST node being constructed.  Wired up.
-- The orphan `Whitespace` rule (no callers) was removed.
-- `SdStateLabel "color"` corrected to `SdStateLabel "label"`, so parse
-  errors on a malformed state-block `label:` field name the right
-  field instead of saying "expected color".
-  * Adds src/ts/tests/grammar_regressions.spec.ts pinning down each fix
-with positive, negative, and edge-case tests (19 tests total).
-  * Tooling: a fixparser pass that marks pegjs's generated `error()` and
-`expected()` `location` parameter optional, so grammar action blocks
-can use the one-arg form without strict-TS errors.  Also adds a
-gitignored project-local .npmrc for Windows script-shell setup.
+  * feat(test): port jest-dragon to vitest.dragon.config.ts
+  * Mirrors jest-dragon.config.cjs: glob `**/*.maximal.ts`, coverage to
+coverage/ksd/, metrics.json via the vitest reporter.
+  * Note: the only `*.maximal.ts` file (kitchen_sink_dragon.maximal.ts)
+references `make_mulberry_rand` from `jssm_util`, which was renamed to
+splitmix32 in commit 1401a08 and never updated.  The suite already
+failed at collection time under jest; vitest preserves the same failure
+mode.  The dragon suite predates this conversion and is left as-is.
 
 
 
@@ -194,21 +162,25 @@ gitignored project-local .npmrc for Windows script-shell setup.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 6:24:53 PM
+## [Untagged] - 5/12/2026 6:49:44 AM
 
-Commit [1acbc62c46b9b09b71674f628955d7b0d9ca8ac0](https://github.com/StoneCypher/jssm/commit/1acbc62c46b9b09b71674f628955d7b0d9ca8ac0)
+Commit [8255702d4820e6afcecc9b240a1aed591c7ad02c](https://github.com/StoneCypher/jssm/commit/8255702d4820e6afcecc9b240a1aed591c7ad02c)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(grammar): allow arrow decorations in any order
-  * Subexp's pre- and post-arrow decorations (after, action, probability,
-brace-block) may now appear in any order.  The previous fixed-order
-rule rejected swaps with no semantic justification.  Existing programs
-parse to identical ASTs; previously-rejected orderings now succeed.
-Each kind may still appear at most once per side; duplicates raise a
-parse-time SyntaxError.
-  * Adds 32 decoration-order spec tests and notes/fsl-grammar-reference.md
-(a feature-by-feature reference for the FSL grammar).
+  * feat(test): port jest-stoch to vitest.stoch.config.ts
+  * - Adds vitest.stoch.config.ts mirroring jest-stoch.config.cjs (same
+  coverage ignores, zero thresholds, metrics.json into coverage/stoch/).
+- Fixes seq.stoch.ts: fast-check@2's `Property.run` treats any predicate
+  return value that is not `null`, `undefined`, or `true` as failure.
+  Under jest `expect(...).toBe(...)` returned `undefined`; under vitest
+  the same chain returns the assertion-chain object, which fast-check
+  then reports as `Property failed by returning false`.  Prefix each
+  predicate `expect()` with `void` so the implicit return is undefined
+  on both runners.
+  * After:
+  jest-stoch:   9 tests / ~12s self
+  vitest-stoch: 9 tests / <1s self / ~6s wall
 
 
 
@@ -217,13 +189,75 @@ parse-time SyntaxError.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 3:13:21 AM
+## [Untagged] - 5/12/2026 6:49:28 AM
 
-Commit [fa766c2e092b5af4d7ce34117b357939b3a277b2](https://github.com/StoneCypher/jssm/commit/fa766c2e092b5af4d7ce34117b357939b3a277b2)
+Commit [b8f224a863c9862fea06999fc2efefbfcb399a71](https://github.com/StoneCypher/jssm/commit/b8f224a863c9862fea06999fc2efefbfcb399a71)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [63709bf, 43aee18]
+  * feat(test): port jest-spec to vitest.spec.config.ts
+  * - Adds vitest.spec.config.ts mirroring jest-spec.config.cjs (same coverage
+  ignores, same 100% thresholds, same metrics.json output via the new
+  reporter).
+- Adds vitest.setup.ts that aliases `jest` -> `vi` on globalThis so the
+  existing `jest.fn(...)` calls in hooks.spec.ts / posthooks.spec.ts keep
+  working unchanged.
+- Adds src/buildjs/vitest_metrics_reporter.cjs, a small custom reporter
+  that emits the same `metrics.json` shape jest-json-reporter2 did so
+  make_readme.cjs keeps working.
+- viz_svg_element.spec.ts pragma swapped to @vitest-environment.
+- properties.spec.ts had four `describe()` blocks containing only
+  `expect()` calls (no `test()`).  Jest accidentally ran those at
+  collection time, interleaved with the surrounding `traffic_light.go()`
+  calls.  Vitest defers the describe body, so all of the go()s ran first
+  and every assertion saw the terminal state.  Snapshot state/props at
+  collection time, then assert the snapshot inside real `test()` calls.
+- after_mapping.spec.ts had two more orphan describes with the same
+  issue; promoted to `test()`.
+  * After the conversion:
+  jest-spec:    5285 tests (5251 pass + 34 todo), ~41s self
+  vitest-spec:  5291 tests (5257 pass + 34 todo), ~14s self / ~38s wall
 
-  * Merge pull request #587 from StoneCypher/SwitchToSwc
-  * Switch to swc
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:48:42 AM
+
+Commit [22db66d28fbd1e5f8ef6a8ddcc853a0ff9c85dcf](https://github.com/StoneCypher/jssm/commit/22db66d28fbd1e5f8ef6a8ddcc853a0ff9c85dcf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(test): add vitest and @vitest/coverage-v8 as devDependencies
+  * First step of the Jest -> Vitest conversion.  Adds vitest@^2.1.9 and the
+v8 coverage adapter so both runners can coexist while the rest of the
+configs are migrated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:22:05 AM
+
+Commit [bd1be3bf09a533b11e5ed3e6fa29f9e8db90d560](https://github.com/StoneCypher/jssm/commit/bd1be3bf09a533b11e5ed3e6fa29f9e8db90d560)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): add arrow_decorations coverage + dragons-egg tracker
+  * 11 property-based tests asserting the free-ordered arrow-decoration
+grammar (commit 1acbc62) is permutation-invariant on both sides of
+an arrow and rejects per-kind duplicates.  Lifts grammar stoch
+coverage from 0/14 sections to 1/14.
+  * - notes/dragons-egg.md: living tracker so each new stoch test is
+  documented for the future dragon-tier pass.
+- src/buildjs/ci_profile.cjs (+ ci_profile npm script): measure
+  wall-clock per CI phase for data-driven test-runner decisions.
+- src/doc_md/todo.md: LLM-consumer instructions + image-CLI gallery
+  entries.
+- .github/workflows/nodejs.yml: align unicode-atoms job to Node 24.
