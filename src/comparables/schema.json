@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stonecypher.github.io/jssm/comparables/schema.json",
+  "title": "Comparable",
+  "description": "A single (machine, library) FSM example for cross-library comparison.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["library", "machine", "language", "lines", "official", "canImplement", "code"],
+  "properties": {
+    "library": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "npm", "homepage", "languages"],
+      "properties": {
+        "name":      { "type": "string", "minLength": 1 },
+        "npm":       { "type": "string", "minLength": 1 },
+        "homepage":  { "type": "string", "format": "uri" },
+        "languages": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["javascript", "typescript", "webassembly"] }
+        },
+        "typesSource": { "type": "string", "minLength": 1 }
+      }
+    },
+    "machine":  { "enum": ["toggle", "traffic-light", "matter"] },
+    "language": { "enum": ["javascript", "typescript", "webassembly"] },
+    "lines":    { "type": "integer", "minimum": 1 },
+    "official":     { "type": "boolean" },
+    "canImplement": { "type": "boolean" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url":  { "type": "string", "format": "uri" },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "code": { "type": "string", "minLength": 1 },
+    "formattedWith": { "type": ["string", "null"] }
+  }
+}
