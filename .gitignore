@@ -64,3 +64,6 @@ fsl-issues.json
 # derived analysis artifacts from the issue tracker (regenerable via Node scripts)
 lang-issues-open.json
 all-open-issues.txt
+easy-issues-labelled.json
+easy-issues-labelled.txt
+notes/easy-issues.md

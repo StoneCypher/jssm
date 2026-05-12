@@ -194,6 +194,16 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # npm Trusted Publishing via OIDC.  Replaces the long-lived
+    # NPM_TOKEN secret with short-lived tokens that GitHub Actions
+    # exchanges with npm at publish time, scoped to this specific
+    # workflow run.  Requires a Trusted Publisher entry on the npm
+    # package settings page matching org=StoneCypher, repo=jssm,
+    # workflow=nodejs.yml.
+    permissions:
+      contents: read    # for actions/checkout
+      id-token: write   # for OIDC token issuance to npm
+
     steps:
     - uses: actions/checkout@v5
 
@@ -223,9 +233,7 @@ jobs:
 
     - name: Publish to npm
       run: |
-        npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
+        npm publish --provenance --access public
 
     # - name: Tweet notice
     #   run: |
