@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1256 merges; 222 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1265 merges; 222 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,6 +22,216 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - 5/12/2026 6:52:39 AM
+
+Commit [a253dd558bdb6e82020b069daaba9e222e4cb355](https://github.com/StoneCypher/jssm/commit/a253dd558bdb6e82020b069daaba9e222e4cb355)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(test): remove jest, @swc/jest, @types/jest, jest-json-reporter2, jest configs and scripts
+  * All test suites are running on vitest.  Drop:
+- the four `jest-*.config.cjs` files
+- the eleven `jest-*` npm scripts
+- devDependencies `jest`, `@swc/jest`, `@swc/core` (only used by
+  @swc/jest), `@types/jest`, `jest-json-reporter2`, and
+  `jest-environment-jsdom`.  jsdom itself is kept since vitest uses it
+  directly for `// @vitest-environment jsdom` blocks.
+  * npm install reports 296 packages removed.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:52:15 AM
+
+Commit [c6d821b33b3d6269ab6569a0c2e7ec7ef40637d8](https://github.com/StoneCypher/jssm/commit/c6d821b33b3d6269ab6569a0c2e7ec7ef40637d8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(progress): scaffold weekly investor-facing progress log
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:50:41 AM
+
+Commit [af56aae6dc85ec5306bbd6d7e0098b963fce86a8](https://github.com/StoneCypher/jssm/commit/af56aae6dc85ec5306bbd6d7e0098b963fce86a8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci(workflow): switch unicode jobs to vitest
+  * Updates each `unicode-*` job in nodejs.yml to invoke the new
+`vitest-unicode-*` scripts instead of `jest-unicode-*`.  The main
+`build` job goes through `npm run ci_build` -> `npm run test`, which
+already calls the new `vitest` script, so no change is needed there.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:50:08 AM
+
+Commit [83aaf720e938e7494788b55123a703c3d981a026](https://github.com/StoneCypher/jssm/commit/83aaf720e938e7494788b55123a703c3d981a026)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(test): port jest-unicode to vitest.unicode.config.ts
+  * Adds vitest.unicode.config.ts mirroring jest-unicode.config.cjs.  The
+five npm scripts (`vitest-unicode-atom`, `-string`, `-atom-label`,
+`-string-label`, `-action`) each invoke `vitest run` against a single
+`*.uspec.ts` file, matching the equivalent jest-unicode-* scripts.
+  * Note: the old jest-unicode-atom-label and -string-label scripts both
+incorrectly pointed at unicode-atoms.uspec.ts (a pre-existing bug from
+when the unicode suites were split).  The new vitest scripts route each
+script to its correctly named file.
+  * Sample run: vitest-unicode-atom -> 320 tests pass, ~260s wall.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:49:56 AM
+
+Commit [7773fa1da33821c898627e44ba682eb26c3bf625](https://github.com/StoneCypher/jssm/commit/7773fa1da33821c898627e44ba682eb26c3bf625)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(test): port jest-dragon to vitest.dragon.config.ts
+  * Mirrors jest-dragon.config.cjs: glob `**/*.maximal.ts`, coverage to
+coverage/ksd/, metrics.json via the vitest reporter.
+  * Note: the only `*.maximal.ts` file (kitchen_sink_dragon.maximal.ts)
+references `make_mulberry_rand` from `jssm_util`, which was renamed to
+splitmix32 in commit 1401a08 and never updated.  The suite already
+failed at collection time under jest; vitest preserves the same failure
+mode.  The dragon suite predates this conversion and is left as-is.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:49:44 AM
+
+Commit [8255702d4820e6afcecc9b240a1aed591c7ad02c](https://github.com/StoneCypher/jssm/commit/8255702d4820e6afcecc9b240a1aed591c7ad02c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(test): port jest-stoch to vitest.stoch.config.ts
+  * - Adds vitest.stoch.config.ts mirroring jest-stoch.config.cjs (same
+  coverage ignores, zero thresholds, metrics.json into coverage/stoch/).
+- Fixes seq.stoch.ts: fast-check@2's `Property.run` treats any predicate
+  return value that is not `null`, `undefined`, or `true` as failure.
+  Under jest `expect(...).toBe(...)` returned `undefined`; under vitest
+  the same chain returns the assertion-chain object, which fast-check
+  then reports as `Property failed by returning false`.  Prefix each
+  predicate `expect()` with `void` so the implicit return is undefined
+  on both runners.
+  * After:
+  jest-stoch:   9 tests / ~12s self
+  vitest-stoch: 9 tests / <1s self / ~6s wall
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:49:28 AM
+
+Commit [b8f224a863c9862fea06999fc2efefbfcb399a71](https://github.com/StoneCypher/jssm/commit/b8f224a863c9862fea06999fc2efefbfcb399a71)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(test): port jest-spec to vitest.spec.config.ts
+  * - Adds vitest.spec.config.ts mirroring jest-spec.config.cjs (same coverage
+  ignores, same 100% thresholds, same metrics.json output via the new
+  reporter).
+- Adds vitest.setup.ts that aliases `jest` -> `vi` on globalThis so the
+  existing `jest.fn(...)` calls in hooks.spec.ts / posthooks.spec.ts keep
+  working unchanged.
+- Adds src/buildjs/vitest_metrics_reporter.cjs, a small custom reporter
+  that emits the same `metrics.json` shape jest-json-reporter2 did so
+  make_readme.cjs keeps working.
+- viz_svg_element.spec.ts pragma swapped to @vitest-environment.
+- properties.spec.ts had four `describe()` blocks containing only
+  `expect()` calls (no `test()`).  Jest accidentally ran those at
+  collection time, interleaved with the surrounding `traffic_light.go()`
+  calls.  Vitest defers the describe body, so all of the go()s ran first
+  and every assertion saw the terminal state.  Snapshot state/props at
+  collection time, then assert the snapshot inside real `test()` calls.
+- after_mapping.spec.ts had two more orphan describes with the same
+  issue; promoted to `test()`.
+  * After the conversion:
+  jest-spec:    5285 tests (5251 pass + 34 todo), ~41s self
+  vitest-spec:  5291 tests (5257 pass + 34 todo), ~14s self / ~38s wall
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:48:42 AM
+
+Commit [22db66d28fbd1e5f8ef6a8ddcc853a0ff9c85dcf](https://github.com/StoneCypher/jssm/commit/22db66d28fbd1e5f8ef6a8ddcc853a0ff9c85dcf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(test): add vitest and @vitest/coverage-v8 as devDependencies
+  * First step of the Jest -> Vitest conversion.  Adds vitest@^2.1.9 and the
+v8 coverage adapter so both runners can coexist while the rest of the
+configs are migrated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 6:22:05 AM
+
+Commit [bd1be3bf09a533b11e5ed3e6fa29f9e8db90d560](https://github.com/StoneCypher/jssm/commit/bd1be3bf09a533b11e5ed3e6fa29f9e8db90d560)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): add arrow_decorations coverage + dragons-egg tracker
+  * 11 property-based tests asserting the free-ordered arrow-decoration
+grammar (commit 1acbc62) is permutation-invariant on both sides of
+an arrow and rejects per-kind duplicates.  Lifts grammar stoch
+coverage from 0/14 sections to 1/14.
+  * - notes/dragons-egg.md: living tracker so each new stoch test is
+  documented for the future dragon-tier pass.
+- src/buildjs/ci_profile.cjs (+ ci_profile npm script): measure
+  wall-clock per CI phase for data-driven test-runner decisions.
+- src/doc_md/todo.md: LLM-consumer instructions + image-CLI gallery
+  entries.
+- .github/workflows/nodejs.yml: align unicode-atoms job to Node 24.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - 5/12/2026 5:40:56 AM
 
 Commit [093f713fdc82794b023196d8d0a11da6c8d8b757](https://github.com/StoneCypher/jssm/commit/093f713fdc82794b023196d8d0a11da6c8d8b757)
@@ -31,268 +241,3 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 Merges [4c1b786, b0681f0]
 
   * Merge branch 'main' into GetSeriousAboutStochastics
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 5:38:58 AM
-
-Commit [b0681f049856285bd3129f539f601a3e8bec758f](https://github.com/StoneCypher/jssm/commit/b0681f049856285bd3129f539f601a3e8bec758f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * ci(release): make release-create and npm-publish idempotent
-  * Prior runs that failed mid-pipeline (e.g. at npm publish after the
-release object was created) blocked all subsequent re-runs because
-`gh release create` 422s on an existing tag and `npm publish` errors
-on an already-published version. Switch both steps to
-check-then-create-or-update: `gh release view` gates create vs edit,
-and `npm view <pkg>@<ver>` gates publish vs skip. Re-running a
-partially-failed release pipeline now resumes cleanly from wherever
-it last stopped.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 5:38:58 AM
-
-Commit [4c1b78640c8c26b4dd643f951ad4a2f3341e02dc](https://github.com/StoneCypher/jssm/commit/4c1b78640c8c26b4dd643f951ad4a2f3341e02dc)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * ci(release): make release-create and npm-publish idempotent
-  * Prior runs that failed mid-pipeline (e.g. at npm publish after the
-release object was created) blocked all subsequent re-runs because
-`gh release create` 422s on an existing tag and `npm publish` errors
-on an already-published version. Switch both steps to
-check-then-create-or-update: `gh release view` gates create vs edit,
-and `npm view <pkg>@<ver>` gates publish vs skip. Re-running a
-partially-failed release pipeline now resumes cleanly from wherever
-it last stopped.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 3:30:12 AM
-
-Commit [8298e592f9c214d3c95cd343ac5778eb9dae3ff2](https://github.com/StoneCypher/jssm/commit/8298e592f9c214d3c95cd343ac5778eb9dae3ff2)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix tags auth under permissions, modernize release behavior
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 2:29:32 AM
-
-Commit [aa01a95a888d54b7d15112badaebaac6f623daf9](https://github.com/StoneCypher/jssm/commit/aa01a95a888d54b7d15112badaebaac6f623daf9)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(ci): switch to npm trusted publishing (OIDC)
-  * Replaces the long-lived `NPM_TOKEN` auth path with npm's
-Trusted Publisher / OIDC flow.  The release job now exchanges
-a short-lived GitHub-issued OIDC token with npm at publish
-time, scoped to this specific workflow run.
-  * Workflow changes:
-- Add `permissions: id-token: write` on the release job so
-  GitHub Actions issues the OIDC token for npm to verify.
-- Switch `npm publish` to `npm publish --provenance --access
-  public`.  `--provenance` triggers the OIDC code path and
-  emits a signed attestation linking the published tarball
-  to the exact GitHub Actions run that built it (visible as
-  the Provenance badge on the npm package page).
-- Remove the `env: NODE_AUTH_TOKEN` block.  The token is no
-  longer used by `npm publish`.
-  * Required npm-side configuration (one-time, manual UI work):
-- npmjs.com -> jssm package settings -> Trusted Publishers ->
-  Add Publisher: GitHub Actions, org `StoneCypher`,
-  repo `jssm`, workflow filename `nodejs.yml`, environment
-  blank.
-- Toggle "Disallow token access" to closed.  Closes the
-  parallel long-lived-token attack surface entirely.
-  * Follow-up tasks once the first OIDC-authenticated publish
-succeeds:
-- Delete the `JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD` automation
-  token on npm (Account -> Access Tokens).
-- Delete the `JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD` secret in
-  this repo's Settings -> Secrets and variables -> Actions.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 2:02:54 AM
-
-Commit [01d371a91aa6b74edf3333685ee67d0de8accb77](https://github.com/StoneCypher/jssm/commit/01d371a91aa6b74edf3333685ee67d0de8accb77)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(viz): theme-aware style routing, state-kind classification fix, perf
-  * Visualization (src/ts/jssm_viz.ts):
-- All style reads route through `u_jssm.style_for(state)` so theme-
-  supplied corners, lineStyle, image, and shape are honoured uniformly
-  alongside colour fields. Previously these four fields bypassed themes
-  by reading raw `_state_declarations`.
-- Long-standing classification bug fixed: `final` / `complete` /
-  `terminal` styling buckets are now mutually distinct. The historical
-  code checked `state_is_final` first, which (since the jssm core
-  defines final = terminal || complete) made the other two branches
-  structurally unreachable. The fix checks the underlying predicates
-  directly: `final` now means terminal AND complete, `complete` means
-  complete-not-terminal, `terminal` means terminal-not-complete.
-- Perf: precompute state-index `Map<state, number>` once per render
-  (replacing O(n) `indexOf` in node_of). Convert `strike` accumulator
-  from `[string, string][]` to `Set<string>` keyed by "from|to". Pre-
-  compute state-kind classification once per render (replacing per-edge
-  `state_is_terminal` calls that rebuild `list_exits` arrays).
-- `dot()` is no longer a no-op: delegates to `machine_to_dot` so old
-  jssm-viz callers get the dot string they expect.
-- TypeScript: `JssmStateConfig` imported directly from `./jssm_types`.
-  * TODO (src/doc_md/todo.md): substantial expansion across many sections:
-- New Tooling-architecture entry: unified CLI with constellation
-  library API, paired single/set functions for multi-machine input,
-  REPL mode, plugin discovery.
-- New Integration-targets section: ~110 consuming environments across
-  six categories (browser-DOM frameworks, SSR/headless, SSGs, embedded
-  WebViews, game engines, terminal rendering), plus AI hosts and AI
-  agents/coding harnesses.
-- Code-generation-targets subsection (renamed from artifact-generation;
-  cross-language codegen promoted from speculative): 10 items including
-  website, README, npm package, Storybook, devcontainer, CI/CD YAML,
-  schema/API spec, Docker image, shareable playground (multi-machine),
-  shareable URL (compressed URI).
-- Render-targets expansion: 11 new items (WebP/AVIF, EPS/TikZ, D2/
-  Excalidraw/tldraw, GraphML/GEXF, document/office/slide/data formats,
-  animation, HDL, game-engine native).
-- Display/rendering options: short-names flag, custom chain delimiter,
-  image backgrounds (nodes/groups/graphs), SVG post-processor pipeline.
-- Edges-and-tagging: first-class guards in FSL syntax via sensors.
-- Architectural tier: overlapping state groups (with notation rec),
-  FSMs-as-machine-data-members. Demoted Multiple-concurrent-states.
-- Language tooling additions: FSL → TypeScript type inference, jssm/
-  lite subpath under 2KB, VS Code extension (LSP client), Formatter
-  plugins for Prettier / Biome / dprint, enhanced LSP and Test items.
-- Marketing/SEO additions: canonical comparison piece, vivid-claim
-  pinning, AI/agent flag-planting, bundled starter templates, Awesome
-  Lists, sponsor article authors, i18n, gitbook, OG cards, XState v4→v5
-  transition window.
-- Project maintenance: stochastic test coverage gap.
-  * Plans:
-- notes/superpowers/plans/2026-05-12-overlapping-state-groups.md:
-  full execution plan (grammar, compile, runtime, viz, docs, final).
-  ~10-17 working-day estimate.
-  * Notes:
-- notes/language-features-from-issues.md: 18-category inventory of
-  language features from the StoneCypher/fsl issue tracker, plus
-  conversation-sourced additions, separated.
-- notes/issues-recommended-for-closure.md: 48 close candidates across
-  six tiers, 18 borderline, ~50 umbrellas to keep open.
-  * Build:
-- package.json site_fsl_tools: post-copy cleanup removes recipes/ and
-  scripts/ from docs/fsl.tools/.
-  * Chore:
-- .gitignore: fsl-issues.json, lang-issues-open.json, all-open-issues.txt.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/11/2026 11:05:13 PM
-
-Commit [a89b151a2de671f6ec7015a47d6f8642d86748c9](https://github.com/StoneCypher/jssm/commit/a89b151a2de671f6ec7015a47d6f8642d86748c9)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [2f0e562, 0d5bfd2]
-
-  * Merge pull request #588 from StoneCypher/dependabot/npm_and_yarn/fast-uri-3.1.2
-  * build(deps): bump fast-uri from 3.1.0 to 3.1.2
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/11/2026 11:03:02 PM
-
-Commit [2f0e562b92ee385eb75b025aa0758601b643489c](https://github.com/StoneCypher/jssm/commit/2f0e562b92ee385eb75b025aa0758601b643489c)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fsl.tools): integrate cookbook build, publish to docs/fsl.tools
-  * Adds two npm scripts (make_cookbook, site_fsl_tools) that regenerate
-the recipe-driven cookbook and copy the output to
-docs/fsl.tools/cookbook/ as part of the main `build` chain. Stops
-tracking the generated src/fsl.tools/site/cookbook/ directory so it
-never goes stale against its source recipes.
-  * Renames src/fsl.tools/site/scripts/build.js and the 18 recipes under
-recipes/ from .js to .cjs. The package's "type": "module" made plain
-.js files default to ESM, which broke both the build script (uses
-require) and the recipes (use module.exports). The script's filename
-filter, slug regex, and validation error messages all updated to
-match; AGENTS.md updated to document the new convention.
-  * Adds five todo items: replace the bespoke renderer widget with the
-official one, build a Web Components renderer, centralize
-examples/demos/shootouts for cross-site reuse, sweep the GitHub
-issue list, and write a gitbook for SEO.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__110__1" />
-
-## [5.110.1] - 5/11/2026 10:11:45 PM
-
-Commit [99fdc29ae42cff6817fd2efae6a2f8461dfccb1f](https://github.com/StoneCypher/jssm/commit/99fdc29ae42cff6817fd2efae6a2f8461dfccb1f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [fa766c2, ba485c6]
-
-  * Merge pull request #589 from StoneCypher/DescribeAndRepairGrammar
-  * Describe and repair grammar
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/11/2026 10:04:20 PM
-
-Commit [ba485c650a01e90439fe5e7e6692d542fafb32d4](https://github.com/StoneCypher/jssm/commit/ba485c650a01e90439fe5e7e6692d542fafb32d4)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * .npmrc was meant to be local-only to fix a shell issue; removed
