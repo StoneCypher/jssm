@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs';
 import { join, extname } from 'path';
+import { spawn } from 'child_process';
 
 const IS_WINDOWS = process.platform === 'win32';
 const PATH_SEP   = IS_WINDOWS ? ';' : ':';
@@ -76,4 +77,87 @@ export function isInProcessEligible(resolvedPath: string): boolean {
   if (ext !== '.js' && ext !== '.mjs' && ext !== '.cjs') return false;
   const norm = resolvedPath.replace(/\\/g, '/');
   return norm.includes('/node_modules/');
+}
+
+/**
+ * Invoke a plugin in-process via dynamic import.
+ *
+ * Safety wrappers:
+ *   - Intercepts `process.exit()` calls by replacing the function temporarily;
+ *     the intercepted exit code becomes the return value.
+ *   - Restores `process.argv` after the call.
+ *   - Catches thrown errors and converts to exit code 2.
+ *
+ * @param pluginPath - Absolute path to the plugin module
+ * @param argv - Args to forward (already stripped of dispatcher prefix)
+ * @returns Plugin's exit code (0 = success, 1 = user error, 2 = internal)
+ *
+ * @example
+ * ```ts
+ * const code = await invokeInProcess('/proj/node_modules/fsl-render/cli.cjs', ['--format', 'svg']);
+ * // code === 0  (on success)
+ * ```
+ */
+export async function invokeInProcess(pluginPath: string, argv: string[]): Promise<number> {
+  const originalExit = process.exit;
+  const originalArgv = process.argv;
+
+  let interceptedExit: number | null = null;
+
+  const ExitInterception = Symbol('ExitInterception');
+  (process as any).exit = (code?: number) => {
+    interceptedExit = typeof code === 'number' ? code : 0;
+    throw ExitInterception;
+  };
+  process.argv = [originalArgv[0], pluginPath, ...argv];
+
+  try {
+    const mod = await import(pluginPath);
+    const cli = (mod && (mod.default ?? mod)) as ((argv: string[]) => Promise<number>) | undefined;
+    if (typeof cli !== 'function') {
+      process.stderr.write(`fsl: error: plugin ${pluginPath} is missing default cli() export\n`);
+      return 2;
+    }
+    const result = await cli(argv);
+    return typeof result === 'number' ? result : 0;
+  } catch (e) {
+    if (e === ExitInterception && interceptedExit !== null) {
+      return interceptedExit;
+    }
+    process.stderr.write(`fsl: error: plugin threw: ${(e as Error).message ?? String(e)}\n`);
+    return 2;
+  } finally {
+    process.exit = originalExit;
+    process.argv = originalArgv;
+  }
+}
+
+/**
+ * Invoke a plugin as a subprocess.
+ *
+ * Forwards stdin / stdout / stderr to the child. Passes through env.
+ *
+ * @param pluginPath - Absolute path to the binary (or interpreter path
+ *   if you want to specify, e.g., `node` for explicit Node spawn)
+ * @param argv - Args to forward
+ * @returns Subprocess exit code
+ *
+ * @example
+ * ```ts
+ * const code = await invokeBySpawn('/usr/local/bin/fsl-render', ['--format', 'png']);
+ * // code === 0  (on success)
+ * ```
+ */
+export async function invokeBySpawn(pluginPath: string, argv: string[]): Promise<number> {
+  return new Promise<number>((res) => {
+    const child = spawn(pluginPath, argv, { stdio: 'inherit' });
+    child.on('exit', (code, signal) => {
+      if (signal) res(128 + (process.platform === 'win32' ? 1 : 0));
+      else res(typeof code === 'number' ? code : 2);
+    });
+    child.on('error', (err) => {
+      process.stderr.write(`fsl: error: failed to spawn plugin: ${err.message}\n`);
+      res(2);
+    });
+  });
 }
