@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>{{PAGE_TITLE}}</title>
+<meta name="description" content="{{DESCRIPTION}}"/>
+<link rel="stylesheet" href="cookbook.css"/>
+</head>
+<body>
+
+<header class="cb-nav-bar"><div class="cb-nav-inner">
+  <a class="cb-brand" href="../index.html">fsl<span class="dot">.</span>tools</a>
+  <nav class="cb-nav-links">
+    <a href="../index.html#install">Install</a>
+    <a href="index.html">Cookbook</a>
+    <a href="../index.html#learn">Learn</a>
+    <a href="../index.html#community">Community</a>
+  </nav>
+</div></header>
+
+<div class="cb-page">
+  <article>
+    <div class="cb-eyebrow">
+      <span class="cat">// {{CATEGORY}}</span>
+      <span class="num">r{{NUMBER}}</span>
+    </div>
+    <h1 class="cb-title">{{TITLE}}</h1>
+    <p class="cb-problem">{{PROBLEM}}</p>
+    {{TAGS}}
+    {{TRIPLE}}
+
+    <section id="sec-blocks" class="cb-section">
+      <h2>Code</h2>
+      {{BLOCKS}}
+    </section>
+
+    {{GRAPH}}
+    {{NOTE}}
+
+    <nav class="cb-prevnext">
+      {{PREV}}
+      {{NEXT}}
+    </nav>
+  </article>
+
+  <aside class="cb-toc">
+    <div class="cb-toc-head">// on this page</div>
+    <ul>{{TOC}}</ul>
+  </aside>
+</div>
+
+<footer class="cb-footer">
+  <a href="index.html">← All recipes</a>
+</footer>
+
+<script>
+  // Sticky-TOC active link based on scroll position.
+  (function () {
+    const links = [...document.querySelectorAll('.cb-toc a')];
+    const targets = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    function onScroll() {
+      let cur = targets[0];
+      for (const t of targets) if (t.getBoundingClientRect().top < 140) cur = t;
+      links.forEach(a => a.classList.toggle('active', cur && a.getAttribute('href') === '#' + cur.id));
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>

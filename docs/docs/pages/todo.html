@@ -2,6 +2,14 @@
 <a href="#todo" id="todo" style="color: inherit; text-decoration: none;">
   <h1>todo</h1>
 </a>
+<p>Complexity tags: <code>[trivial]</code> (under a day), <code>[straightforward]</code> (1–3 days,
+well-bounded), <code>[medium]</code> (multi-day, design choices needed), <code>[hard]</code>
+(substantial design + implementation), <code>[architectural]</code> (months, breaking
+changes), <code>[done]</code>.</p>
+
+<a href="#test-data" id="test-data" style="color: inherit; text-decoration: none;">
+  <h2>Test data</h2>
+</a>
 <ul>
 <li><input disabled="" type="checkbox"> Have Claude generate language test data for the languages currently
 missing from <code>src/ts/tests/language_data/</code> — the README claims
@@ -11,4 +19,290 @@ Existing files (<code>english.json</code>, <code>german.json</code>, <code>frenc
 <code>belarussian.json</code>, <code>bengali.json</code>, <code>portuguese.json</code>, <code>emoji.json</code>)
 define the expected schema.</li>
 </ul>
+
+<a href="#language-tooling" id="language-tooling" style="color: inherit; text-decoration: none;">
+  <h2>Language tooling</h2>
+</a>
+<p>The full toolchain for treating FSL as a first-class language. Worked one
+at a time.</p>
+
+<a href="#committed" id="committed" style="color: inherit; text-decoration: none;">
+  <h3>Committed</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Machine CLI</strong> <code>[medium]</code> — run/inspect machines from the shell;
+load <code>.fsl</code> files, step through transitions interactively, dump
+current state and available transitions, support non-interactive
+scripted runs from a stdin event stream.</li>
+<li><input disabled="" type="checkbox"> <strong>Visualization CLI</strong> <code>[straightforward]</code> — render machines to
+image/SVG; reuse the embedded <code>/viz</code> subpath that was just folded in.
+Should also offer format converters for Mermaid, PlantUML, DOT,
+and SCXML export.</li>
+<li><input disabled="" type="checkbox"> <strong>Formatter</strong> <code>[straightforward]</code> — auto-fix style; canonical
+whitespace/ordering/alignment, <code>--check</code> mode for CI, stdin/stdout
+for editor integration. Ships paired with the linter.</li>
+<li><input disabled="" type="checkbox"> <strong>Linter</strong> <code>[medium]</code> — surfaces style and simple-correctness
+issues; rule plugin/extension hook; shared config file format.</li>
+<li><input disabled="" type="checkbox"> <strong>Static analyzer</strong> <code>[medium]</code> — reachability of every declared
+state, dead/orphan state detection, hook signature validation
+against machine data.</li>
+<li><input disabled="" type="checkbox"> <strong>TextMate grammar</strong> <code>[straightforward]</code> — syntax highlighting on
+GitHub, VS Code, and most editors. Publish as a VS Code extension
+and submit to github-linguist for native GitHub highlighting.</li>
+<li><input disabled="" type="checkbox"> <strong>MCP server</strong> <code>[medium]</code> — expose machines and tooling to AI
+agents.</li>
+<li><input disabled="" type="checkbox"> <strong>LSP server</strong> <code>[hard]</code> — editor integration; depends on linter,
+analyzer, and formatter being usable as libraries first.</li>
+</ul>
+
+<a href="#proposed--high-value-modest-scope" id="proposed--high-value-modest-scope" style="color: inherit; text-decoration: none;">
+  <h3>Proposed — high value, modest scope</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Tree-sitter grammar</strong> <code>[medium]</code> — incremental parsing for
+Neovim, Helix, and GitHub code search.</li>
+<li><input disabled="" type="checkbox"> <strong>Test framework for machines</strong> <code>[medium]</code> — assertions over
+reachability, transition coverage, hook behaviour, property-based
+input sequences. Likely the most distinctive piece of FSL tooling.</li>
+<li><input disabled="" type="checkbox"> <strong>Doc generator</strong> <code>[medium]</code> — extract machine definitions, render
+a navigable site (states, transitions, invariants, hooks).
+&quot;rustdoc for state machines.&quot;</li>
+<li><input disabled="" type="checkbox"> <strong>Project scaffolder</strong> <code>[straightforward]</code> — <code>jssm new &lt;name&gt;</code>
+bootstrap with tsconfig, tests, viz output.</li>
+<li><input disabled="" type="checkbox"> <strong>Format-converter library</strong> <code>[straightforward]</code> — round-trip
+between FSL and Mermaid/PlantUML/DOT/SCXML. Subsumes part of the
+visualization CLI.</li>
+</ul>
+
+<a href="#proposed--high-value-larger-scope" id="proposed--high-value-larger-scope" style="color: inherit; text-decoration: none;">
+  <h3>Proposed — high value, larger scope</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Web playground</strong> <code>[medium]</code> — paste FSL, see viz, drive
+transitions in-browser.</li>
+<li><input disabled="" type="checkbox"> <strong>Debugger</strong> <code>[hard]</code> — step through transitions, breakpoints on
+states/hooks, inspect data. Consider DAP (Debug Adapter Protocol)
+for editor reuse.</li>
+<li><input disabled="" type="checkbox"> <strong>Model checker</strong> <code>[hard]</code> — formal property verification
+(deadlock-free, liveness, etc.). Distinct from the static analyzer:
+looks at all reachable behaviour, not single-pass structural rules.</li>
+<li><input disabled="" type="checkbox"> <strong>Coverage tool</strong> <code>[straightforward]</code> — which states/transitions
+did the test suite exercise?</li>
+<li><input disabled="" type="checkbox"> <strong>Standard library / pattern catalog</strong> <code>[medium]</code> — reusable
+machines (timeout, retry, circuit breaker, auth flow, wizard,
+etc.). Lowers the &quot;what do I write?&quot; barrier for newcomers.</li>
+</ul>
+
+<a href="#proposed--speculative-or-lower-priority" id="proposed--speculative-or-lower-priority" style="color: inherit; text-decoration: none;">
+  <h3>Proposed — speculative or lower priority</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Fuzzer</strong> <code>[medium]</code> — random transition sequences to find
+unreachable-but-claimed states.</li>
+<li><input disabled="" type="checkbox"> <strong>Profiler</strong> <code>[straightforward]</code> — transition timing, hot states.
+Probably premature; JS profilers already work on machine code.</li>
+<li><input disabled="" type="checkbox"> <strong>Code generators</strong> <code>[hard]</code> — emit Python/Go/Rust state machines
+from FSL.</li>
+<li><input disabled="" type="checkbox"> <strong>Semantic diff / bisect tool</strong> <code>[medium]</code> — structural changes
+between two machine versions.</li>
+</ul>
+
+<a href="#boring-but-essential-infrastructure" id="boring-but-essential-infrastructure" style="color: inherit; text-decoration: none;">
+  <h3>Boring-but-essential infrastructure</h3>
+</a>
+<ul>
+<li>[~] <strong>Language specification document</strong> <code>[straightforward]</code> — human-
+readable grammar reference. The <code>.peg</code> file is the de facto spec
+but a written version helps adoption. <strong>Partially done:</strong>
+<code>notes/fsl-grammar-reference.md</code> is a complete feature-by-feature
+catalogue of the syntax (all 14 areas: lexical, numeric, colours,
+arrows, transitions, states, configs, attributes, properties,
+named lists, arrange, cheat sheet, quirks). Explicitly out of
+scope there: runtime semantics — what each construct <em>means</em> once
+parsed. A second &quot;Runtime Semantics&quot; companion is the missing half.</li>
+<li><input disabled="" type="checkbox"> <strong>Style guide</strong> <code>[straightforward]</code> — community naming/layout
+conventions.</li>
+<li><input disabled="" type="checkbox"> <strong>Build-tool integrations</strong> <code>[medium]</code> — Vite/Webpack/Rollup/
+esbuild plugins for importing <code>.fsl</code> files directly. Only if real
+demand surfaces.</li>
+</ul>
+
+<a href="#core-machine-features" id="core-machine-features" style="color: inherit; text-decoration: none;">
+  <h2>Core machine features</h2>
+</a>
+<p>Items previously tracked in <code>notes/do want.md</code>. Several are good
+candidates as quick credibility wins alongside the larger tooling work.</p>
+
+<a href="#trivial--quick-wins" id="trivial--quick-wins" style="color: inherit; text-decoration: none;">
+  <h3>Trivial / quick wins</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong><code>is_changing</code></strong> <code>[trivial]</code> — there&#39;s a commented-out reference
+at <code>jssm.ts:1281</code>. Add a private flag set during transition
+execution, expose as a getter. ~10–20 LoC plus tests.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong><code>initial_state</code> must be a valid state</strong> <code>[done]</code> — already
+enforced at <code>jssm.ts:748</code>.</li>
+</ul>
+
+<a href="#graph-and-analysis" id="graph-and-analysis" style="color: inherit; text-decoration: none;">
+  <h3>Graph and analysis</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Tolerate-islands check</strong> <code>[straightforward]</code> — graph
+connectivity sanity check (warn or error if the machine has more
+than one weakly-connected component). Natural fit as a static-
+analyzer rule once that tool exists.</li>
+<li><input disabled="" type="checkbox"> <strong>Compare two state machines</strong> <code>[medium]</code> — depends entirely on
+what &quot;compare&quot; means. Structural diff is straightforward; semantic
+equivalence (do they accept the same inputs?) is a model-checking
+problem. Brainstorm scope before writing code.</li>
+</ul>
+
+<a href="#history-and-introspection" id="history-and-introspection" style="color: inherit; text-decoration: none;">
+  <h3>History and introspection</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Rewind state history</strong> <code>[straightforward]</code> — history exists as a
+circular buffer at <code>jssm.ts:377</code>; what&#39;s missing is a <code>.rewind()</code> /
+<code>.go_back(n)</code> method that replays state from history. ~30–50 LoC.
+Originally requested by <code>@kz</code>.</li>
+<li><input disabled="" type="checkbox"> <strong>Transition probability long-term measurement</strong> <code>[straightforward]</code>
+— counters on transition, expose as ratios. Behind a config flag.</li>
+<li><input disabled="" type="checkbox"> <strong>State probability long-term measurement</strong> <code>[straightforward]</code> —
+counters on state entry, expose as ratios. Pairs with above; ~100
+LoC for both.</li>
+</ul>
+
+<a href="#api-ergonomics" id="api-ergonomics" style="color: inherit; text-decoration: none;">
+  <h3>API ergonomics</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Autocreate API from action names</strong> <code>[straightforward]</code> — an
+action <code>melt</code> becomes a <code>.melt()</code> method on the instance. Runtime
+via <code>Object.defineProperty</code>; the type side needs mapped types over
+the action union. With optional prefixes as a config option.</li>
+<li><input disabled="" type="checkbox"> <strong>Fluent API for creation</strong> <code>[straightforward]</code> — builder-pattern
+wrapper over the existing config object. No semantic changes; pure
+ergonomics.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong>DOT-like string API for creation</strong> <code>[done]</code> — the FSL string
+syntax fills this role.</li>
+</ul>
+
+<a href="#edges-and-tagging" id="edges-and-tagging" style="color: inherit; text-decoration: none;">
+  <h3>Edges and tagging</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Describe edges as members of groups</strong> <code>[straightforward]</code> —
+small grammar addition for tags, plus query API. Grammar change is
+the longest part.</li>
+</ul>
+
+<a href="#render-targets" id="render-targets" style="color: inherit; text-decoration: none;">
+  <h3>Render targets</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>UML statechart representation</strong> <code>[straightforward]</code> — render-
+format addition to the viz pipeline.</li>
+<li><input disabled="" type="checkbox"> <strong>SDL representation</strong> <code>[straightforward]</code> — render-format
+addition.</li>
+<li><input disabled="" type="checkbox"> <strong>Drakon representation</strong> <code>[medium]</code> — Drakon is unusual
+(vertical-flow visual language); rendering probably needs a custom
+layout engine, not graphviz. Sub-question: render from within
+gviz/viz.js or out-of-band?</li>
+<li><input disabled="" type="checkbox"> <strong>Harel statechart representation</strong> <code>[hard]</code> — depends on
+hierarchical states existing (see Architectural). Cannot do until
+that lands.</li>
+</ul>
+
+<a href="#input-formats" id="input-formats" style="color: inherit; text-decoration: none;">
+  <h3>Input formats</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Consume <code>.dfa</code> files</strong> <code>[medium]</code> — depends which DFA dialect
+(JFLAP, FAdo, Grail, custom). Once decided, parse-and-build.</li>
+</ul>
+
+<a href="#async-and-control-flow" id="async-and-control-flow" style="color: inherit; text-decoration: none;">
+  <h3>Async and control flow</h3>
+</a>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Promise / async-await support</strong> <code>[medium]</code> — these are the same
+mechanism. Real question: does an async transition block other
+transitions until resolved? What happens on rejection? Design
+first.</li>
+<li><input disabled="" type="checkbox"> <strong>Generator support</strong> <code>[hard]</code> — different control-flow model
+than promises; needs to define what a &quot;generator-driven transition&quot;
+means semantically.</li>
+<li><input disabled="" type="checkbox"> <strong>Observable support</strong> <code>[hard]</code> — implies a streaming model where
+machines react to event streams. Affects the public API
+significantly.</li>
+</ul>
+
+<a href="#architectural--months-breaking-changes" id="architectural--months-breaking-changes" style="color: inherit; text-decoration: none;">
+  <h3>Architectural — months, breaking changes</h3>
+</a>
+<p>These four are one project, not four. Touches every file. The current
+<code>string</code>-typed state is woven through types, parser, comparison, history,
+and viz. Worth doing eventually for a &quot;mature&quot; FSL but should be a major
+version with its own plan.</p>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>States as objects rather than strings</strong> <code>[architectural]</code> —
+makes inheritance, hierarchy, and state-associated data (e.g.
+walking-state with frame#) easier; makes the underlying impl much
+harder. Per <code>@burny</code>&#39;s original suggestion.</li>
+<li><input disabled="" type="checkbox"> <strong>State subtypes</strong> <code>[architectural]</code> — depends on states-as-
+objects.</li>
+<li><input disabled="" type="checkbox"> <strong>Hierarchical states</strong> <code>[architectural]</code> — triggered by
+subordinate on transfer callback to superior, or polling. Required
+for Harel rendering.</li>
+<li><input disabled="" type="checkbox"> <strong>Multiple concurrent states</strong> <code>[architectural]</code> — orthogonal
+regions, AND-states. The hardest of the four.</li>
+</ul>
+
+<a href="#grammar-bugs" id="grammar-bugs" style="color: inherit; text-decoration: none;">
+  <h2>Grammar bugs</h2>
+</a>
+<p>Surfaced by <code>notes/fsl-grammar-reference.md</code> while cataloguing the
+parser. Each is concrete and isolated.</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> <strong><code>OctalDigit</code> accepts only <code>[0-1]</code></strong> <code>[done]</code> — fixed; now
+<code>[0-7]</code>. Regression tests in
+<code>src/ts/tests/grammar_regressions.spec.ts</code> verify <code>0o27 === 23</code>
+and that <code>0o8</code>/<code>0o9</code> are still rejected.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong><code>machine_reference</code> is parsed but unwired</strong> <code>[done]</code> — added
+to the <code>MachineAttribute</code> alternation. Surprise: the runtime was
+already fully wired (<code>jssm_compiler.ts:297, 385, 417, 481</code>), so
+only the grammar exposure was missing. Regression tests cover
+single-label, label-list, and quoted-string forms.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong><code>Whitespace</code> named rule is dead code</strong> <code>[done]</code> — pruned.
+Regression test asserts the orphan rule cannot return.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong><code>SdStateLabel</code> mislabeled in error messages</strong> <code>[done]</code> —
+display name corrected from <code>&quot;color&quot;</code> to <code>&quot;label&quot;</code>. Regression
+test asserts the correct <code>.peg</code> source label.</li>
+</ul>
+
+<a href="#notes" id="notes" style="color: inherit; text-decoration: none;">
+  <h2>Notes</h2>
+</a>
+<ul>
+<li>Difference between event and action: if an action isn&#39;t handled, it&#39;s
+an error; if an event, meh. (Carried forward from <code>notes/do want.md</code>
+for context — informs the test framework and language-spec items.)</li>
+</ul>
+
+<a href="#ordering-rationale" id="ordering-rationale" style="color: inherit; text-decoration: none;">
+  <h2>Ordering rationale</h2>
+</a>
+<p>Rough credibility-per-effort ranking if starting over with no prior
+commitments. Descriptive, not prescriptive — the Committed list above
+reflects the actually-chosen order.</p>
+<ol>
+<li>Formatter — regret-avoidance; wanted on every contribution</li>
+<li>TextMate grammar — cheapest visibility multiplier in the toolchain</li>
+<li>Machine CLI + Visualization CLI — usable end-to-end story</li>
+<li>Linter + Static analyzer — quality floor</li>
+<li>Doc generator + Web playground — ecosystem amplifiers</li>
+<li>Test framework for machines — the differentiating capability</li>
+<li>MCP and LSP last — both benefit from having the other tools to expose</li>
+</ol>
 </div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class=""><a href="../modules.html">Modules</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-0"><a>Tutorials</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="WhatAreStateMachines.html">What are state machines?</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="GettingStarted.html">☕ <wbr/>Quick <wbr/>Start</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="LanguageReference.html">Language reference</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="todo.html">API reference</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="ExampleMachines.html">Example machines</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Howtos and <wbr/>Recipes</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-2"><a>Frameworks</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">React</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Vue</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Angular</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Node</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-2"><a>Environments</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Node</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Typescript</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">The browser</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="Environments_Deno.html">Deno</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">AWS <wbr/>Lambda</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">SQL</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-2"><a>Bundling</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Rollup</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Webpack</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">CDN</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-3"><a href="todo.html">Local files</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Let&#39;s make a large machine</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="todo.html">Publishing</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="Styling.html">Theme, style, color</a></li><li class=" pages-entry pages-entry-menu pages-entry-depth-1"><a>Comparisons</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="FeatureComparison.html">Feature comparison</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-2"><a href="Shootout.html">LOC <wbr/>Shootout</a></li><li class="current pages-entry pages-entry-menu pages-entry-depth-0"><a>Tools</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="live_editor.html">Live <wbr/>Editor</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="Visualization.html">Visualization</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-1"><a href="todo.html">Github <wbr/>Action</a></li><li class="current pages-entry pages-entry-page pages-entry-depth-1"><a href="todo.html">CLI</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="community.html">Community</a></li><li class=" pages-entry pages-entry-page pages-entry-depth-0"><a href="CHANGELOG.long.html">Changelog</a></li><li class=" tsd-kind-module"><a href="../modules/jssm.html">jssm</a></li><li class=" tsd-kind-module"><a href="../modules/jssm_constants.html">jssm_<wbr/>constants</a></li><li class=" tsd-kind-module"><a href="../modules/jssm_error.html">jssm_<wbr/>error</a></li><li class=" tsd-kind-module"><a href="../modules/jssm_types.html">jssm_<wbr/>types</a></li><li class=" tsd-kind-module"><a href="../modules/jssm_util.html">jssm_<wbr/>util</a></li><li class=" tsd-kind-module"><a href="../modules/jssm_viz.html">jssm_<wbr/>viz</a></li><li class=" tsd-kind-module"><a href="../modules/version.html">version</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li><li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li><li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li><li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li><li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li><li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li><li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="../assets/main.js"></script></body></html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Cycle · fsl.tools cookbook</title>
+<meta name="description" content="A linear loop with one shared verb. Every state is reachable from every other state, in order, by repeatedly firing the same action."/>
+<link rel="stylesheet" href="cookbook.css"/>
+</head>
+<body>
+
+<header class="cb-nav-bar"><div class="cb-nav-inner">
+  <a class="cb-brand" href="../index.html">fsl<span class="dot">.</span>tools</a>
+  <nav class="cb-nav-links">
+    <a href="../index.html#install">Install</a>
+    <a href="index.html">Cookbook</a>
+    <a href="../index.html#learn">Learn</a>
+    <a href="../index.html#community">Community</a>
+  </nav>
+</div></header>
+
+<div class="cb-page">
+  <article>
+    <div class="cb-eyebrow">
+      <span class="cat">// Patterns</span>
+      <span class="num">r09</span>
+    </div>
+    <h1 class="cb-title">Cycle</h1>
+    <p class="cb-problem">A linear loop with one shared verb. Every state is reachable from every other state, in order, by repeatedly firing the same action.</p>
+    <nav class="cb-tags"><a class="cb-tag" href="index.html?tag=loop">loop</a><a class="cb-tag" href="index.html?tag=shared-action">shared-action</a><a class="cb-tag" href="index.html?tag=beginner">beginner</a></nav>
+    
+
+    <section id="sec-blocks" class="cb-section">
+      <h2>Code</h2>
+      <figure class="cb-block"><figcaption class="cb-block-head"><span>light.fsl</span></figcaption><pre class="cb-pre"><code><span style="color:#c4ae5a">const</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">light</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">=</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">sm</span><span style="color:#c9cfde">`</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">red</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c4ae5a">&#39;next&#39;</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">→</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">green</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">green</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c4ae5a">&#39;next&#39;</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">→</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">yellow</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">yellow</span><span style="color:#c9cfde"> </span><span style="color:#c4ae5a">&#39;next&#39;</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">→</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">red</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde">`</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span></code></pre></figure>
+    </section>
+
+    <section id="sec-graph" class="cb-section"><h2>Graph</h2><div class="cb-graph"><svg viewBox="0 0 560 180" style="display:block;width:100%"><defs><marker id="cb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--rule-2)"/></marker></defs><path d="M 152 70 L 228 70" stroke="var(--rule-2)" stroke-width="1.25" fill="none" marker-end="url(#cb-arrow)"/><text x="190" y="85" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--fg-3)">next</text><path d="M 332 70 L 408 70" stroke="var(--rule-2)" stroke-width="1.25" fill="none" marker-end="url(#cb-arrow)"/><text x="370" y="85" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--fg-3)">next</text><path d="M 408 70 Q 280 140, 152 70" stroke="var(--rule-2)" stroke-width="1.25" fill="none" marker-end="url(#cb-arrow)"/><text x="280" y="144" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--fg-3)">next</text><rect x="48" y="48" width="104" height="44" rx="8" fill="rgb(40 122 112 / 18%)" stroke="var(--accent)" stroke-width="1"/><text x="100" y="75" text-anchor="middle" font-family="var(--font-mono)" font-size="13" fill="var(--accent)">red</text><rect x="228" y="48" width="104" height="44" rx="8" fill="var(--bg-2)" stroke="var(--rule-2)" stroke-width="1"/><text x="280" y="75" text-anchor="middle" font-family="var(--font-mono)" font-size="13" fill="var(--fg-1)">green</text><rect x="408" y="48" width="104" height="44" rx="8" fill="var(--bg-2)" stroke="var(--rule-2)" stroke-width="1"/><text x="460" y="75" text-anchor="middle" font-family="var(--font-mono)" font-size="13" fill="var(--fg-1)">yellow</text></svg></div></section>
+    <section id="sec-note" class="cb-section"><h2>Notes</h2><p class="cb-note">Cycles fall apart when you reach for an enum and a counter. Modeled this way, the machine guarantees you can&#39;t skip a state — and adding a fourth phase is a one-line edit.</p></section>
+
+    <nav class="cb-prevnext">
+      <a class="cb-nav prev" href="patterns-branch.html"><span class="cb-nav-label">← Previous</span><span class="cb-nav-title">Optional branch</span></a>
+      <a class="cb-nav next" href="patterns-fetch.html"><span class="cb-nav-label">Next →</span><span class="cb-nav-title">Data fetch</span></a>
+    </nav>
+  </article>
+
+  <aside class="cb-toc">
+    <div class="cb-toc-head">// on this page</div>
+    <ul><li><a href="#sec-blocks">Code</a></li><li><a href="#sec-graph">Graph</a></li><li><a href="#sec-note">Notes</a></li></ul>
+  </aside>
+</div>
+
+<footer class="cb-footer">
+  <a href="index.html">← All recipes</a>
+</footer>
+
+<script>
+  // Sticky-TOC active link based on scroll position.
+  (function () {
+    const links = [...document.querySelectorAll('.cb-toc a')];
+    const targets = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    function onScroll() {
+      let cur = targets[0];
+      for (const t of targets) if (t.getBoundingClientRect().top < 140) cur = t;
+      links.forEach(a => a.classList.toggle('active', cur && a.getAttribute('href') === '#' + cur.id));
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>

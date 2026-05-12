@@ -51,3 +51,6 @@ docs/docs/*.css.map
 .superpowers
 
 .worktrees
+
+# npm config (script-shell path is machine-specific; keep local)
+.npmrc
