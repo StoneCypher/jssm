@@ -641,7 +641,8 @@ ArrowItem
   = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? { return {key:key, value:value}; }
 
 SingleEdgeColor "single edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
+  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
+  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
 
 TransitionLineStyle "transition line style"
   = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
@@ -916,7 +917,8 @@ TransitionItems
   / TransitionItem+
 
 GraphDefaultEdgeColor "graph default edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
+  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
+  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
 
 ConfigTransition
   = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
