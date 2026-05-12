@@ -33,11 +33,15 @@ declare function configure(opts: {
  */
 declare function vc(col: string): string;
 /**
- *  Build a graphviz-safe node identifier for a state, by index.
+ *  Build a graphviz-safe node identifier for a state, by index.  Accepts
+ *  either a `string[]` (used historically; O(n) per call) or a
+ *  precomputed `Map<state, index>` (used by rendering hot paths; O(1)
+ *  per call).  The map form is used during dot generation; the array
+ *  form is retained for direct test access via `_test`.
  *
  *  @internal
  */
-declare function node_of(state: string, l_states: string[]): string;
+declare function node_of(state: string, state_index: string[] | Map<string, number>): string;
 /**
  *  Convert an 8-channel hex color (`#RRGGBBAA`) to a 6-channel hex color
  *  (`#RRGGBB`), discarding the alpha channel.  Throws if the input is not
@@ -55,45 +59,28 @@ declare function color8to6(color8: string): string;
  */
 declare function u_color8to6(color8?: string): string | undefined;
 /**
- *  Read the border color from a state declaration, projecting from
- *  `#RRGGBBAA` to `#RRGGBB`.  Returns `undefined` if not declared.
- *
- *  @internal
- */
-declare function border_color_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined;
-/**
- *  Read the text color from a state declaration.  Returns `undefined` if
- *  not declared.
- *
- *  @internal
- */
-declare function text_color_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined;
-/**
- *  Read the background color from a state declaration.  Returns `undefined`
- *  if not declared.
- *
- *  @internal
- */
-declare function background_color_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined;
-/**
- *  Read the graphviz shape for a state declaration.  Returns `undefined` if
- *  not declared.
+ *  Read the graphviz shape for a state through {@link jssm.Machine.style_for},
+ *  so theme-supplied shapes are honoured along with per-state declarations.
+ *  Returns `undefined` if neither a theme nor a state declaration supplies a
+ *  shape.
  *
  *  @internal
  */
 declare function shape_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined;
 /**
- *  Read the image filename for a state declaration.  Returns `undefined` if
- *  not declared.  Wired into dot output via `states_to_nodes_string`; the
- *  `image` property was added to jssm in commit `a045569`.
+ *  Read the image filename for a state through {@link jssm.Machine.style_for},
+ *  so theme-supplied images are honoured along with per-state declarations.
+ *  Returns `undefined` if neither a theme nor a state declaration supplies an
+ *  image.
  *
  *  @internal
  */
 declare function image_for_state<T>(u_jssm: jssm.Machine<T>, state: string): string | undefined;
 /**
- *  Compose a graphviz `style` string for a state, combining `corners` and
- *  `line-style` declarations.  Returns either the empty string or a
- *  `corners,line,filled`-shape string.
+ *  Compose a graphviz `style` string for a state by looking up its merged
+ *  style via {@link jssm.Machine.style_for}, then delegating to
+ *  {@link compose_style_string}.  Theme-supplied `corners` and `lineStyle`
+ *  are honoured along with per-state declarations.
  *
  *  @internal
  */
@@ -169,12 +156,12 @@ declare function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement>;
  */
 declare function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>): Promise<SVGSVGElement>;
 /**
- *  Deprecated, no-op compat alias retained from jssm-viz.  Does nothing.
- *  Will be removed in the next major.
+ *  Compatibility wrapper for {@link machine_to_dot}, retained from
+ *  jssm-viz.  Will be removed in the next major.
  *
  *  @deprecated Use {@link machine_to_dot} instead.
  */
-declare function dot<T>(_machine: jssm.Machine<T>): void;
+declare function dot<T>(machine: jssm.Machine<T>): string;
 export { configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_string, fsl_to_svg_element, machine_to_dot, machine_to_svg_string, machine_to_svg_element, version, build_time };
 /** @internal — test-only access to private helpers. */
 export declare const _test: {
@@ -182,9 +169,6 @@ export declare const _test: {
     u_color8to6: typeof u_color8to6;
     vc: typeof vc;
     node_of: typeof node_of;
-    border_color_for_state: typeof border_color_for_state;
-    text_color_for_state: typeof text_color_for_state;
-    background_color_for_state: typeof background_color_for_state;
     shape_for_state: typeof shape_for_state;
     image_for_state: typeof image_for_state;
     style_for_state: typeof style_for_state;

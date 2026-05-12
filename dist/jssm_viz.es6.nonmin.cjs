@@ -20804,7 +20804,7 @@ theme_mapping.set('ocean', ocean_theme);
 theme_mapping.set('plain', plain_theme);
 theme_mapping.set('bold', bold_theme);
 
-const version = "5.111.0", build_time = 1778565434054;
+const version = "5.112.0", build_time = 1778576310751;
 
 // whargarbl lots of these return arrays could/should be sets
 /*********
@@ -24095,12 +24095,18 @@ function vc(col) {
     return (_a = default_viz_colors[col]) !== null && _a !== void 0 ? _a : '';
 }
 /**
- *  Build a graphviz-safe node identifier for a state, by index.
+ *  Build a graphviz-safe node identifier for a state, by index.  Accepts
+ *  either a `string[]` (used historically; O(n) per call) or a
+ *  precomputed `Map<state, index>` (used by rendering hot paths; O(1)
+ *  per call).  The map form is used during dot generation; the array
+ *  form is retained for direct test access via `_test`.
  *
  *  @internal
  */
-function node_of(state, l_states) {
-    return `n${l_states.indexOf(state)}`;
+function node_of(state, state_index) {
+    return Array.isArray(state_index)
+        ? `n${state_index.indexOf(state)}`
+        : `n${state_index.get(state)}`;
 }
 /**
  *  Convert an 8-channel hex color (`#RRGGBBAA`) to a 6-channel hex color
@@ -24112,10 +24118,7 @@ function node_of(state, l_states) {
  *  @internal
  */
 function color8to6(color8) {
-    if (color8.length !== 9) {
-        throw new JssmError(undefined, `not a color8: ${color8}`);
-    }
-    if (color8[0] !== '#') {
+    if ((color8.length !== 9) || (color8[0] !== '#')) {
         throw new JssmError(undefined, `not a color8: ${color8}`);
     }
     return `#${color8.substring(1, 7)}`;
@@ -24126,128 +24129,64 @@ function color8to6(color8) {
  *  @internal
  */
 function u_color8to6(color8) {
-    if (color8 === undefined) {
-        return undefined;
-    }
-    return color8to6(color8);
+    return color8 === undefined ? undefined : color8to6(color8);
 }
 /**
- *  Read the border color from a state declaration, projecting from
- *  `#RRGGBBAA` to `#RRGGBB`.  Returns `undefined` if not declared.
- *
- *  @internal
- */
-function border_color_for_state(u_jssm, state) {
-    const decls = u_jssm._state_declarations;
-    if (!decls) {
-        return undefined;
-    }
-    const state_decl = decls.get(state);
-    if (!state_decl) {
-        return undefined;
-    }
-    return u_color8to6(state_decl.borderColor);
-}
-/**
- *  Read the text color from a state declaration.  Returns `undefined` if
- *  not declared.
- *
- *  @internal
- */
-function text_color_for_state(u_jssm, state) {
-    const decls = u_jssm._state_declarations;
-    if (!decls) {
-        return undefined;
-    }
-    const state_decl = decls.get(state);
-    if (!state_decl) {
-        return undefined;
-    }
-    return u_color8to6(state_decl.textColor);
-}
-/**
- *  Read the background color from a state declaration.  Returns `undefined`
- *  if not declared.
- *
- *  @internal
- */
-function background_color_for_state(u_jssm, state) {
-    const decls = u_jssm._state_declarations;
-    if (!decls) {
-        return undefined;
-    }
-    const state_decl = decls.get(state);
-    if (!state_decl) {
-        return undefined;
-    }
-    return u_color8to6(state_decl.backgroundColor);
-}
-/**
- *  Read the graphviz shape for a state declaration.  Returns `undefined` if
- *  not declared.
+ *  Read the graphviz shape for a state through {@link jssm.Machine.style_for},
+ *  so theme-supplied shapes are honoured along with per-state declarations.
+ *  Returns `undefined` if neither a theme nor a state declaration supplies a
+ *  shape.
  *
  *  @internal
  */
 function shape_for_state(u_jssm, state) {
-    const decls = u_jssm._state_declarations;
-    if (!decls) {
-        return undefined;
-    }
-    const state_decl = decls.get(state);
-    if (!state_decl) {
-        return undefined;
-    }
-    return state_decl.shape;
+    return u_jssm.style_for(state).shape;
 }
 /**
- *  Read the image filename for a state declaration.  Returns `undefined` if
- *  not declared.  Wired into dot output via `states_to_nodes_string`; the
- *  `image` property was added to jssm in commit `a045569`.
+ *  Read the image filename for a state through {@link jssm.Machine.style_for},
+ *  so theme-supplied images are honoured along with per-state declarations.
+ *  Returns `undefined` if neither a theme nor a state declaration supplies an
+ *  image.
  *
  *  @internal
  */
 function image_for_state(u_jssm, state) {
-    const decls = u_jssm._state_declarations;
-    if (!decls) {
-        return undefined;
-    }
-    const state_decl = decls.get(state);
-    if (!state_decl) {
-        return undefined;
-    }
-    return state_decl.image;
+    return u_jssm.style_for(state).image;
 }
 /**
- *  Compose a graphviz `style` string for a state, combining `corners` and
- *  `line-style` declarations.  Returns either the empty string or a
- *  `corners,line,filled`-shape string.
+ *  Compose a graphviz `style` string from a pre-computed
+ *  {@link jssm.JssmStateConfig}, combining its `corners` and `lineStyle`
+ *  fields.  Returns either the empty string (when neither field is set
+ *  anywhere — state declaration nor theme) or a `corners,line,filled`-shape
+ *  string.
+ *
+ *  Production callers should pass the result of `u_jssm.style_for(state)`
+ *  so theme-supplied values are honoured uniformly with the rest of the
+ *  rendering pipeline.
+ *
+ *  @internal
+ */
+function compose_style_string(style) {
+    var _a, _b;
+    if (style.corners === undefined && style.lineStyle === undefined) {
+        return '';
+    }
+    const corners_map = { rounded: 'rounded', lined: 'diagonals', regular: 'regular' };
+    const lines_map = { dashed: 'dashed', dotted: 'dotted', solid: 'solid' };
+    const corners = corners_map[(_a = style.corners) !== null && _a !== void 0 ? _a : 'regular'];
+    const lines = lines_map[(_b = style.lineStyle) !== null && _b !== void 0 ? _b : 'solid'];
+    return `${corners},${lines},filled`;
+}
+/**
+ *  Compose a graphviz `style` string for a state by looking up its merged
+ *  style via {@link jssm.Machine.style_for}, then delegating to
+ *  {@link compose_style_string}.  Theme-supplied `corners` and `lineStyle`
+ *  are honoured along with per-state declarations.
  *
  *  @internal
  */
 function style_for_state(u_jssm, state) {
-    var _a, _b;
-    const decls = u_jssm._state_declarations;
-    if (!decls) {
-        return '';
-    }
-    const state_decl = decls.get(state);
-    if (!state_decl) {
-        return '';
-    }
-    const corners = {
-        rounded: 'rounded',
-        lined: 'diagonals',
-        regular: 'regular'
-    }[(_a = state_decl.corners) !== null && _a !== void 0 ? _a : 'regular'];
-    const lines = {
-        dashed: 'dashed',
-        dotted: 'dotted',
-        solid: 'solid'
-    }[(_b = state_decl.lineStyle) !== null && _b !== void 0 ? _b : 'solid'];
-    const style = [corners, lines]
-        .filter(f => f !== '')
-        .join(',');
-    return style ? `${style},filled` : '';
+    return compose_style_string(u_jssm.style_for(state));
 }
 /**
  *  Convert an FSL flow direction (`up`/`right`/`down`/`left`) to a graphviz
@@ -24288,109 +24227,211 @@ ${arranges}
 }`;
 }
 /**
- *  Render the node-feature list for one machine, one node per state.
+ *  Compute state-kind classification for every state once per render.
+ *  Replaces per-edge calls to `state_is_complete` / `state_is_terminal`
+ *  (the latter rebuilds a fresh `list_exits` array each call) with O(1)
+ *  Map lookups.  Significant win on machines with many edges.
+ *
+ *  The conjunction (`final` = complete AND terminal) is computed directly
+ *  rather than via `state_is_final`, which returns the disjunction
+ *  (terminal OR complete) and would collapse the three named buckets
+ *  into two — see the type docstring above.
  *
  *  @internal
  */
-function states_to_nodes_string(u_jssm, l_states) {
+function classify_states(u_jssm, l_states) {
+    const kinds = new Map();
+    for (const s of l_states) {
+        const is_complete = u_jssm.state_is_complete(s);
+        const is_terminal = u_jssm.state_is_terminal(s);
+        if (is_complete && is_terminal) {
+            kinds.set(s, 'final');
+        }
+        else if (is_complete) {
+            kinds.set(s, 'complete');
+        }
+        else if (is_terminal) {
+            kinds.set(s, 'terminal');
+        }
+        else {
+            kinds.set(s, 'base');
+        }
+    }
+    return kinds;
+}
+/**
+ *  Pick the default fill color for a state, by state-kind precedence
+ *  (final > complete > terminal > none).  Returns empty string if no
+ *  kind applies.
+ *
+ *  @internal
+ */
+function default_fillcolor_for(kind) {
+    switch (kind) {
+        case 'final': return vc('fill_final');
+        case 'complete': return vc('fill_complete');
+        case 'terminal': return vc('fill_terminal');
+        default: return '';
+    }
+}
+/**
+ *  Render the node-feature list for one machine, one node per state.
+ *  All style reads route through {@link jssm.Machine.style_for} so that
+ *  theme-supplied values (corners, lineStyle, image, shape, colours) are
+ *  honoured uniformly.  A single `style_for` call per state — downstream
+ *  helpers operate on the cached result rather than re-querying.
+ *
+ *  @internal
+ */
+function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds) {
     return l_states.map((s) => {
+        var _a;
         const style = u_jssm.style_for(s);
-        const border_color = style.borderColor;
-        const bgcolor = style.backgroundColor;
-        const fgcolor = style.textColor;
-        const terminal = u_jssm.state_is_terminal(s);
-        const final_ = u_jssm.state_is_final(s);
-        const complete = u_jssm.state_is_complete(s);
-        const use_label = u_jssm.display_text(s);
-        const image = image_for_state(u_jssm, s);
+        const fillcolor = style.backgroundColor || default_fillcolor_for((_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base');
         const features = [
-            ['label', use_label],
+            ['label', u_jssm.display_text(s)],
             ['shape', style.shape || ''],
-            ['color', border_color || ''],
-            ['style', style_for_state(u_jssm, s) || ''],
-            ['fontcolor', fgcolor || ''],
-            ['image', image || ''],
-            ['fillcolor', bgcolor ? bgcolor :
-                    (final_ ? vc('fill_final') :
-                        (complete ? vc('fill_complete') :
-                            (terminal ? vc('fill_terminal') : '')))]
+            ['color', style.borderColor || ''],
+            ['style', compose_style_string(style)],
+            ['fontcolor', style.textColor || ''],
+            ['image', style.image || ''],
+            ['fillcolor', fillcolor]
         ]
             .filter(r => r[1])
             .map(r => `${r[0]}="${r[1]}"`)
             .join(' ');
-        return `${node_of(s, l_states)} [${features}];`;
+        return `${node_of(s, state_index)} [${features}];`;
     }).join(' ');
 }
 /**
- *  Render the edge-feature list, including bidirectional fold-up and
- *  per-direction action / probability labels.  Pushed strikes prevent
- *  duplicate emission of bidirectional edges.
+ *  Compose a multi-line `action\nprobability` label for a transition.
+ *  Returns `undefined` when both fields are absent, so callers can skip
+ *  emitting the attribute entirely.
  *
  *  @internal
  */
-function states_to_edges_string(u_jssm, l_states, strike) {
-    return u_jssm.states().map((s) => u_jssm.list_exits(s).map((ex) => {
-        if (strike.find(row => (row[0] === s) && (row[1] == ex))) {
+function transition_label(tr) {
+    if (!tr) {
+        return undefined;
+    }
+    const parts = [`${tr.action || ''}`, `${tr.probability || ''}`].filter(x => x !== '');
+    return parts.length ? parts.join('\n') : undefined;
+}
+/**
+ *  Pick the graphviz arrowhead style for a transition, by transition kind
+ *  (forced > main > normal).
+ *
+ *  @internal
+ */
+function arrow_for(tr) {
+    if (!tr) {
+        return '';
+    }
+    if (tr.forced_only) {
+        return 'ediamond';
+    }
+    if (tr.main_path) {
+        return 'normal;weight=5';
+    }
+    return 'empty';
+}
+/**
+ *  Pick the line color for a transition end-position from a precomputed
+ *  state-kind classification (final > complete > terminal > base).
+ *
+ *  @internal
+ */
+function line_color(kind, lkind, suffix) {
+    switch (kind) {
+        case 'final': return vc(`${lkind}_final${suffix}`);
+        case 'complete': return vc(`${lkind}_complete${suffix}`);
+        case 'terminal': return vc(`${lkind}_terminal${suffix}`);
+        default: return vc(`${lkind}${suffix}`);
+    }
+}
+/**
+ *  Pick the text color for a transition label end-position from a precomputed
+ *  state-kind classification (final > complete > terminal > none).
+ *
+ *  @internal
+ */
+function text_color(kind, suffix) {
+    switch (kind) {
+        case 'final': return vc(`text_final${suffix}`);
+        case 'complete': return vc(`text_complete${suffix}`);
+        case 'terminal': return vc(`text_terminal${suffix}`);
+        default: return '';
+    }
+}
+/**
+ *  Build the colored-HTML `headlabel=` / `taillabel=` fragment for a
+ *  transition end, concatenating `name`, `probability`, and `action`
+ *  fields when present.  Returns the empty string when nothing should
+ *  be emitted.
+ *
+ *  Historical note: the original jssm-viz code passed `JssmTransitionList`
+ *  wrappers to this builder by mistake, so this colored-HTML label path
+ *  silently produced empty strings for years; only the simpler
+ *  `taillabel="..."` form below kept user-visible labels rendering.
+ *  Fixed during the merge.
+ *
+ *  @internal
+ */
+function colored_label(tr, which, color) {
+    if (!tr) {
+        return '';
+    }
+    const text = [tr.name, tr.probability, tr.action].filter(q => q).join('<br/>');
+    if (!text) {
+        return '';
+    }
+    const body = color ? `<<font color="${color}">${text}</font>>` : `"${text}"`;
+    return `${which}=${body};`;
+}
+/**
+ *  Render the edge-feature list, including bidirectional fold-up and
+ *  per-direction action / probability labels.  Suppressed-edge tracking
+ *  uses an internally-owned `Set<string>` keyed by `"from|to"` for O(1)
+ *  duplicate detection, replacing the previous `[string, string][]`
+ *  accumulator and O(n) `find` probe.
+ *
+ *  @internal
+ */
+function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
+    const doublequote = (txt) => txt.replace(/"/g, '\\"');
+    const strike = new Set();
+    const kind_of = (s) => { var _a; return (_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base'; };
+    return l_states.map((s) => u_jssm.list_exits(s).map((ex) => {
+        if (strike.has(`${s}|${ex}`)) {
             return '';
         }
-        const doublequote = (txt) => txt.replace(/"/g, '\\"');
         const edge_tr = u_jssm.lookup_transition_for(s, ex);
         if (!edge_tr) {
             return '';
         } // belt-and-suspenders; list_exits should always have a corresponding transition
-        const pair_id = u_jssm.get_transition_by_state_names(ex, s);
         const pair_tr = u_jssm.lookup_transition_for(ex, s);
-        const double = (pair_id !== undefined) && (s !== ex);
-        const if_obj_field = (obj, field) => { var _a; return obj ? ((_a = obj[field]) !== null && _a !== void 0 ? _a : '') : ''; };
-        const h_final = u_jssm.state_is_final(s);
-        const h_complete = u_jssm.state_is_complete(s);
-        const h_terminal = u_jssm.state_is_terminal(s);
-        const t_final = u_jssm.state_is_final(ex);
-        const t_complete = u_jssm.state_is_complete(ex);
-        const t_terminal = u_jssm.state_is_terminal(ex);
-        const lineColor = (final_, complete, terminal, lkind, suffix = '_solo') => final_ ? vc(`${lkind}_final${suffix}`) :
-            complete ? vc(`${lkind}_complete${suffix}`) :
-                terminal ? vc(`${lkind}_terminal${suffix}`) :
-                    vc(`${lkind}${suffix}`);
-        const textColor = (final_, complete, terminal, suffix = '_solo') => final_ ? vc(`text_final${suffix}`) :
-            complete ? vc(`text_complete${suffix}`) :
-                terminal ? vc(`text_terminal${suffix}`) :
-                    '';
-        const headColor = textColor(h_final, h_complete, h_terminal, double ? '_1' : '_solo');
-        const tailColor = textColor(t_final, t_complete, t_terminal, double ? '_2' : '_solo');
-        // The labelInline rows take the actual JssmTransition objects (edge_tr, pair_tr),
-        // not the JssmTransitionList wrappers from list_transitions.  The original
-        // jssm-viz code passed the lists by mistake, so this colored-HTML label path
-        // silently produced empty strings for years; only the simpler `taillabel="..."`
-        // form below kept user-visible labels rendering.  Fixed during the merge.
-        const labelInline = [
-            [pair_tr, 'probability', 'headlabel', 'name', 'action', double, headColor],
-            [edge_tr, 'probability', 'taillabel', 'name', 'action', true, tailColor]
-        ]
-            .map((r) => ({
-            which: r[2],
-            whether: (r[5] ? ([(if_obj_field(r[0], r[5])), (if_obj_field(r[0], r[1])), (if_obj_field(r[0], r[3]))].filter(q => q).join('<br/>') || '') : ''),
-            color: r[6]
-        }))
-            .filter(present => present.whether)
-            .map(r => `${r.which}=${r.color ? `<<font color="${r.color}">${r.whether}</font>>` : `"${r.whether}"`};`)
-            .join(' ');
-        const label = ([`${(edge_tr.action || '')}`, `${(edge_tr.probability || '')}`].filter(x => x !== '').join('\n') || undefined);
+        const double = (pair_tr !== undefined) && (s !== ex);
+        const s_kind = kind_of(s);
+        const ex_kind = kind_of(ex);
+        // colored-HTML labels (per-direction, with text colors)
+        const headColor = text_color(s_kind, double ? '_1' : '_solo');
+        const tailColor = text_color(ex_kind, double ? '_2' : '_solo');
+        const labelInline = colored_label(double ? pair_tr : undefined, 'headlabel', headColor) +
+            colored_label(edge_tr, 'taillabel', tailColor);
+        // plain `headlabel="..."` / `taillabel="..."` fallback
+        const label = transition_label(edge_tr);
+        const rlabel = transition_label(pair_tr);
         const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
-        const rlabel = pair_tr ? ([`${(pair_tr.action || '')}`, `${(pair_tr.probability || '')}`].filter(x => x !== '').join('\n') || undefined) : undefined;
         const maybeRLabel = rlabel ? `headlabel="${doublequote(rlabel)}";` : '';
-        const tc1 = lineColor(t_final, t_complete, t_terminal, edge_tr.kind, '_1');
-        const tc2 = lineColor(h_final, h_complete, h_terminal, (pair_tr || { kind: 'legal' }).kind, '_2');
-        const tcd = lineColor(t_final, t_complete, t_terminal, edge_tr.kind, '_solo');
-        const arrowHead = edge_tr.forced_only ? 'ediamond' : (edge_tr.main_path ? 'normal;weight=5' : 'empty');
-        const arrowTail = pair_tr ? (pair_tr.forced_only ? 'ediamond' : (pair_tr.main_path ? 'normal;weight=5' : 'empty')) : '';
+        const arrowHead = arrow_for(edge_tr);
+        const arrowTail = arrow_for(pair_tr);
         const edgeInline = double
-            ? `${maybeLabel}${maybeRLabel}arrowhead=${arrowHead};arrowtail=${arrowTail};dir=both;color="${tc1}:${tc2}"`
-            : `${maybeLabel}arrowhead=${arrowHead};color="${tcd}"`;
+            ? `${maybeLabel}${maybeRLabel}arrowhead=${arrowHead};arrowtail=${arrowTail};dir=both;color="${line_color(ex_kind, edge_tr.kind, '_1')}:${line_color(s_kind, (pair_tr !== null && pair_tr !== void 0 ? pair_tr : { kind: 'legal' }).kind, '_2')}"`
+            : `${maybeLabel}arrowhead=${arrowHead};color="${line_color(ex_kind, edge_tr.kind, '_solo')}"`;
         if (pair_tr) {
-            strike.push([ex, s]);
+            strike.add(`${ex}|${s}`);
         }
-        return `${node_of(s, l_states)}->${node_of(ex, l_states)} [${labelInline}${edgeInline}];`;
+        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
     }).join(' ')).join(' ');
 }
 /**
@@ -24399,18 +24440,13 @@ function states_to_edges_string(u_jssm, l_states, strike) {
  *
  *  @internal
  */
-function arranges_for(u_jssm, l_states) {
-    let decl = '';
-    if (u_jssm._arrange_declaration) {
-        decl += u_jssm._arrange_declaration.map(d => `{rank=same; ${d.map(di => node_of(di, l_states)).join('; ')};};`).join('\n');
-    }
-    if (u_jssm._arrange_start_declaration) {
-        decl += u_jssm._arrange_start_declaration.map(d => `{rank=min; ${d.map(di => node_of(di, l_states)).join('; ')};};`).join('\n');
-    }
-    if (u_jssm._arrange_end_declaration) {
-        decl += u_jssm._arrange_end_declaration.map(d => `{rank=max; ${d.map(di => node_of(di, l_states)).join('; ')};};`).join('\n');
-    }
-    return decl;
+function arranges_for(u_jssm, state_index) {
+    const group = (decls, rank) => decls
+        ? decls.map(d => `{rank=${rank}; ${d.map(di => node_of(di, state_index)).join('; ')};};`).join('\n')
+        : '';
+    return group(u_jssm._arrange_declaration, 'same')
+        + group(u_jssm._arrange_start_declaration, 'min')
+        + group(u_jssm._arrange_end_declaration, 'max');
 }
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
@@ -24428,10 +24464,11 @@ function arranges_for(u_jssm, l_states) {
  */
 function machine_to_dot(u_jssm) {
     const l_states = u_jssm.states();
-    const nodes = states_to_nodes_string(u_jssm, l_states);
-    const strike = [];
-    const edges = states_to_edges_string(u_jssm, l_states, strike);
-    const arranges = arranges_for(u_jssm, l_states);
+    const state_index = new Map(l_states.map((s, i) => [s, i]));
+    const state_kinds = classify_states(u_jssm, l_states);
+    const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds);
+    const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
+    const arranges = arranges_for(u_jssm, state_index);
     const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
     const preamble = u_jssm.dot_preamble() || '';
     return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
@@ -24536,18 +24573,17 @@ async function machine_to_svg_element(u_jssm) {
     return dot_to_svg_element(machine_to_dot(u_jssm));
 }
 /**
- *  Deprecated, no-op compat alias retained from jssm-viz.  Does nothing.
- *  Will be removed in the next major.
+ *  Compatibility wrapper for {@link machine_to_dot}, retained from
+ *  jssm-viz.  Will be removed in the next major.
  *
  *  @deprecated Use {@link machine_to_dot} instead.
  */
-function dot(_machine) {
-    // intentionally no-op; preserved for binary compat with old jssm-viz
+function dot(machine) {
+    return machine_to_dot(machine);
 }
 /** @internal — test-only access to private helpers. */
 const _test = {
     color8to6, u_color8to6, vc, node_of,
-    border_color_for_state, text_color_for_state, background_color_for_state,
     shape_for_state, image_for_state, style_for_state
 };
 

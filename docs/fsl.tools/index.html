@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>fsl.tools — finite state language</title>
+  <link rel="stylesheet" href="colors_and_type.css"/>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg); color: var(--fg-1);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    html { scroll-behavior: smooth; }
+    a { color: inherit; }
+    /* hairline section dividers between major sections */
+    main > section + section::before {
+      content: '';
+      display: block;
+      height: 1px;
+      background: var(--rule);
+      max-width: 1136px;
+      margin: 0 auto;
+    }
+  </style>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" src="components/Nav.jsx"></script>
+  <script type="text/babel" src="components/Hero.jsx"></script>
+  <script type="text/babel" src="components/FeatureGrid.jsx"></script>
+  <script type="text/babel" src="components/Install.jsx"></script>
+  <script type="text/babel" src="components/Examples.jsx"></script>
+  <script type="text/babel" src="components/Learn.jsx"></script>
+  <script type="text/babel" src="components/DiagnosticPanel.jsx"></script>
+  <script type="text/babel" src="components/Community.jsx"></script>
+  <script type="text/babel" src="components/Footer.jsx"></script>
+  <script type="text/babel">
+    function App() {
+      return (
+        <div>
+          <Nav/>
+          <main>
+            <Hero/>
+            <FeatureGrid/>
+            <Install/>
+            <Examples/>
+            <Learn/>
+            <DiagnosticPanel/>
+            <Community/>
+          </main>
+          <Footer/>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
