@@ -48,9 +48,25 @@
     ]
   },
   "type": "module",
+  "files": [
+    "dist/jssm.es5.cjs",
+    "dist/jssm.es5.iife.js",
+    "dist/jssm.es6.mjs",
+    "dist/jssm_viz.cjs",
+    "dist/jssm_viz.iife.cjs",
+    "dist/jssm_viz.mjs",
+    "dist/deno/jssm.js",
+    "dist/deno/*.d.ts",
+    "dist/deno/README.md",
+    "jssm.es5.d.cts",
+    "jssm.es6.d.ts",
+    "jssm_viz.es5.d.cts",
+    "jssm_viz.es6.d.ts",
+    "MIGRATING-jssm-viz.md"
+  ],
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
   "main": "dist/jssm.es5.cjs",
-  "module": "dist/jssm.es6.js",
+  "module": "dist/jssm.es6.mjs",
   "browser": "dist/jssm.es5.iife.js",
   "types": "./jssm.es5.d.cts",
   "scripts": {
