@@ -2013,9 +2013,22 @@ class Machine<mDT> {
   */
 
   /** List all action names available as exits from a given state.
+   *
+   *  Returns the empty array (does not throw) when `whichState` exists but has
+   *  no action-named exits — including terminal states, states whose only
+   *  exits are plain `->` transitions, and states in machines that use no
+   *  actions at all.  Only nonexistent states cause a throw.
+   *
    *  @param whichState - The state to inspect.  Defaults to the current state.
-   *  @returns An array of action name strings.
+   *  @returns An array of action name strings, possibly empty.
    *  @throws {JssmError} If the state does not exist.
+   *
+   *  @example
+   *    const m = sm`a 'go' -> b; b -> c;`;
+   *    m.list_exit_actions('a');  // ['go']
+   *    m.list_exit_actions('b');  // []        (action-less exit)
+   *    m.list_exit_actions('c');  // []        (terminal)
+   *    m.list_exit_actions('z');  // throws    (no such state)
    */
   list_exit_actions(whichState: StateType = this.state()): Array<StateType> { // these are mNT, not ?mNT
 
