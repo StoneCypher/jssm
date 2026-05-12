@@ -565,7 +565,7 @@ Followed by fall-through to a generic `Label` or `LabelList`.
 
 ### `Theme` / `ThemeOrThemeList`
 
-`Theme` is an enum: `none`, `default`, `modern`, `ocean`, `bold`.
+`Theme` is an enum: `default`, `ocean`, `modern`, `plain`, `bold`.
 `theme:` accepts either a single theme or a bracketed list of themes
 (layered in stacking order).
 
