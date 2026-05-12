@@ -19,6 +19,11 @@ export declare const NegInfinity: number, PosInfinity: number, Epsilon: number, 
  *
  */
 declare const gviz_shapes: string[];
+/**
+ *  Public alias for {@link gviz_shapes}.  The list of node shapes supported
+ *  by Graphviz that jssm-viz accepts in FSL `state ... : { shape: ... }`
+ *  declarations.
+ */
 declare const shapes: string[];
 /*******
  *

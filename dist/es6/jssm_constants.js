@@ -80,6 +80,11 @@ const gviz_shapes = [
     "lpromoter",
     "record"
 ];
+/**
+ *  Public alias for {@link gviz_shapes}.  The list of node shapes supported
+ *  by Graphviz that jssm-viz accepts in FSL `state ... : { shape: ... }`
+ *  declarations.
+ */
 const shapes = gviz_shapes;
 /*******
  *
