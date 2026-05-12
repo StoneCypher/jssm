@@ -1,0 +1,28 @@
+{
+  "projectTitle": "jssm Progress Log",
+  "titleUrl": "https://stonecypher.github.io/jssm/",
+  "weeks": [
+    {
+      "sundayDate": "2026-05-10",
+      "label": "Week of May 10, 2026",
+      "entries": [
+        {
+          "title": "Tougher tests",
+          "body": "Began a serious upgrade in how the parser is tested: it now faces hundreds of randomly generated inputs per run, hunting for edge cases that fixed tests can never reach. This approach has already turned up real bugs that earlier coverage missed, and it lays the groundwork for an even more aggressive testing tier planned next."
+        },
+        {
+          "title": "Diagram polish",
+          "body": "State diagrams now adapt automatically to light and dark themes, classify each kind of state more accurately, and render noticeably faster. The result is sharper, more readable visuals out of the box with no extra configuration on the user's part."
+        },
+        {
+          "title": "Pattern cookbook",
+          "body": "Published an online cookbook of state-machine patterns and recipes that users can browse, learn from, and copy directly into their projects. This makes the library substantially easier to adopt for newcomers who would otherwise face a blank page."
+        },
+        {
+          "title": "Hardened releases",
+          "body": "Modernized how the project publishes new versions so the process no longer relies on stored credentials that could be stolen or misused. Releases are now verified cryptographically at the source, reducing tampering risk and bringing the project in line with current industry security practices."
+        }
+      ]
+    }
+  ]
+}

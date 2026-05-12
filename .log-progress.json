@@ -1,0 +1,9 @@
+{
+  "data_path": "./log-progress.data.json",
+  "output_path": "./src/site/log_progress.html",
+  "transform_script": null,
+  "css_path": null,
+  "suppress_base_css": false,
+  "project_title": "jssm Progress Log",
+  "title_url": "https://stonecypher.github.io/jssm/"
+}
