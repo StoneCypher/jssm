@@ -11,8 +11,7 @@
   "official": false,
   "canImplement": true,
   "source": {
-    "url": "https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js",
-    "note": "xstate did not have a states of matter example. I made this, following this unrelated machine and this one (https://xstate.js.org/docs/guides/states.html#state-methods-and-properties), and also this one (https://xstate.js.org/docs/guides/events.html#sending-events) as style guides."
+    "note": "xstate did not have a states of matter example. I made this, following this unrelated machine (https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js) and this one (https://xstate.js.org/docs/guides/states.html#state-methods-and-properties), and also this one (https://xstate.js.org/docs/guides/events.html#sending-events) as style guides."
   },
   "code": "export const matter = createMachine({\n  initial: \"solid\",\n  states: {\n    solid: {\n      on: {\n        melt: {\n          target: \"liquid\",\n          actions: () => console.log(\"I melted\"),\n        },\n      },\n    },\n    liquid: {\n      on: {\n        freeze: {\n          target: \"solid\",\n          actions: () => console.log(\"I froze\"),\n        },\n        vaporize: {\n          target: \"gas\",\n          actions: () => console.log(\"I vaporized\"),\n        },\n      },\n    },\n    gas: {\n      on: {\n        condense: {\n          target: \"liquid\",\n          actions: () => console.log(\"I condensed\"),\n        },\n      },\n    },\n  },\n});",
   "formattedWith": "prettier"
