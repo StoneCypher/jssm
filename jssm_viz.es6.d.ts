@@ -546,7 +546,18 @@ declare type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
  */
 declare type JssmRng = () => number;
 
+/**
+ *  The published semantic version of the jssm package this build was cut from.
+ *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
+ *  Useful for runtime diagnostics and for embedding in serialized machine
+ *  snapshots so that deserializers can detect version-skew.
+ */
 declare const version: string;
+/**
+ *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
+ *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
+ *  with the same `version` string during development, and for diagnostic logs.
+ */
 declare const build_time: number;
 
 declare type StateType = string;
@@ -1177,6 +1188,49 @@ declare class Machine<mDT> {
      *  @returns An array of theme name strings.
      */
     all_themes(): FslTheme[];
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
