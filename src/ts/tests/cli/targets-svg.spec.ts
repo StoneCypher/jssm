@@ -11,7 +11,7 @@ describe('svgTarget', () => {
 
   it('returns an SVG string with the SVG envelope', async () => {
     const out = await svgTarget(trafficLight);
-    expect(out).toMatch(/^<\?xml[^>]+\?>\s*<svg/);
+    expect(out).toMatch(/^<\?xml[^>]+\?>[\s\S]*?<svg/);
     expect(out).toContain('</svg>');
   });
 

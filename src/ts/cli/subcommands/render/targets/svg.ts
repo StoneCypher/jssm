@@ -14,10 +14,7 @@ import { RenderError } from '../../../types';
  */
 export async function svgTarget(fsl: string): Promise<string> {
   try {
-    const raw = await fsl_to_svg_string(fsl);
-    // Remove DOCTYPE and comments between XML declaration and <svg> to match expected format
-    const cleaned = raw.replace(/^(<\?xml[^>]+\?>)\s*[\s\S]*?(<svg)/m, '$1\n$2');
-    return cleaned;
+    return await fsl_to_svg_string(fsl);
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     throw new RenderError(`SVG render failed: ${msg}`);
