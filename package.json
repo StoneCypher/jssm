@@ -189,6 +189,7 @@
     "reduce-to-639-1": "^1.1.0"
   },
   "optionalDependencies": {
-    "@viz-js/viz": "^3.26.0"
+    "@viz-js/viz": "^3.26.0",
+    "@resvg/resvg-wasm": "^2.6.0"
   }
 }
