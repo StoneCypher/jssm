@@ -1304,6 +1304,190 @@ parser. Each is concrete and isolated.
       already in place; the work is content depth and breadth,
       plus a concept-led categorisation/learning-path overlay.
 
+- [ ] **Move the jssm website to `fsl.tools/jssm`** `[medium]`
+      — consolidate the URL story so `fsl.tools/` is the
+      umbrella language site and `fsl.tools/jssm/` hosts the
+      JS-implementation documentation specifically. The
+      current arrangement has the ecosystem hierarchy
+      inverted: the jssm site lives at
+      `stonecypher.github.io/jssm/`, with the fsl.tools site
+      currently at `stonecypher.github.io/jssm/fsl.tools/` —
+      meaning the *language brand* (`fsl`) is a sub-path of
+      *one specific implementation* (`jssm`), when
+      conceptually the implementation should sit under the
+      language.
+
+      Target URL hierarchy:
+      ```
+      fsl.tools/                  — umbrella landing for the
+                                    FSL language ecosystem
+      fsl.tools/jssm/             — current jssm site,
+                                    moved here
+      fsl.tools/cookbook/         — already at this path;
+                                    no move needed
+      fsl.tools/jssm-py/          — future Python port
+      fsl.tools/jssm-rs/          — future Rust port
+      fsl.tools/jssm-go/          — future Go port
+      fsl.tools/jssm-cpp/         — future C++ port
+      ```
+
+      Implementation work:
+      - Restructure the `site` and `docs` npm-script
+        outputs so docs land in `docs/fsl.tools/jssm/`
+        rather than `docs/`. The CloudFront origin then
+        serves `fsl.tools/` from the new root.
+      - Set up 301 redirects from `stonecypher.github.io/
+        jssm/*` to `fsl.tools/jssm/*` so existing inbound
+        links survive (Google Search Console results, blog
+        references, npm-package "homepage" links, etc.).
+      - Update `package.json#homepage` to point at the new
+        canonical location.
+      - Update README badges and links throughout.
+      - Generate a unified sitemap covering the umbrella
+        site.
+      - Add `<link rel="canonical">` tags to migrated
+        pages so search engines transfer SEO equity to the
+        new URLs.
+
+      SEO concerns:
+      - Existing jssm SEO equity transfers via 301 redirects;
+        Google handles the move cleanly if redirects are in
+        place at crawl time. Submit an updated sitemap via
+        Search Console to accelerate.
+      - The XState-comparison and other inbound search
+        traffic flows mostly via README → npm → site, so
+        update each link surface in coordinated order to
+        keep the funnel intact.
+      - Some inbound blog posts permanent-link the old
+        URLs; the 301s handle them indefinitely.
+
+      Strategic implications:
+      - Reinforces the "FSL is the portable lingua franca"
+        story. New users land on `fsl.tools/` and see the
+        language first, then pick an implementation.
+      - Unblocks the per-language-port architecture: the
+        `jssm-py` / `jssm-rs` / etc. ports each get a
+        natural URL sub-path without re-debating the URL
+        question per port.
+      - Cookbook URL stays unchanged (`fsl.tools/cookbook/`),
+        so existing cookbook bookmarks survive without
+        redirects.
+
+      Pairs with:
+      - The cross-language codegen targets under Code-
+        generation-targets — those ports are the consumers
+        of the per-port URL sub-paths.
+      - The "Centralize examples, demos, and shootouts for
+        cross-site reuse" item under Shared content
+        infrastructure — centralized examples render
+        differently under each per-port sub-path.
+      - The "Begin to internationalize the websites" item
+        under Marketing and SEO — the i18n directory
+        structure (`fsl.tools/<lang>/jssm/`) interacts with
+        the per-port structure and is cheaper to design
+        once than retrofit twice.
+
+## In-GitHub support
+
+Making jssm and FSL feel native within GitHub's surfaces —
+syntax highlighting in repos, auto-rendering in markdown,
+linter bots in pull requests, Actions for CI workflows.
+Each is a discrete integration with GitHub's platform; the
+leverage is high because GitHub is the dominant source of
+FSL code (in repos), of FSL prose (in READMEs, issues, PR
+descriptions), and of FSL discovery (via Code Search,
+trending, etc.). Cross-references issue #15 ("Try to get
+into GitHub both as a source and as a rendered language")
+and #409 ("Github Linguist") in the StoneCypher/fsl
+tracker.
+
+- [ ] **Get FSL into github-linguist** `[medium]` —
+      register FSL as a recognized language with
+      github-linguist so `.fsl` files get syntax
+      highlighting in repo views, PR diffs, gists, GitHub
+      Code Search, file tree icons, and the language-
+      breakdown bar on repo home pages. Requires a
+      submission to the `github/linguist` repo with: a
+      TextMate grammar (already in the TODO under Language
+      tooling → Committed), sample `.fsl` files at
+      multiple complexity levels, and demonstration of
+      sufficient usage (Linguist's threshold is
+      historically ~200 unique repositories with the
+      language; reach this organically via the Get-bundled
+      and starter-template items, or surge via outreach).
+      Once accepted, FSL appears in GitHub's language
+      dropdowns, file pickers, and Code Search filters.
+      Pairs with the TextMate grammar work (same artifact
+      consumed by Linguist).
+
+- [ ] **Get FSL into GitHub's renderable-block whitelist**
+      `[hard]` — pursue Mermaid-style auto-rendering of
+      FSL code blocks in markdown so every \`\`\`fsl block
+      in any README, issue, PR comment, or discussion
+      renders as a state-machine diagram automatically.
+      GitHub adds new renderable languages slowly and
+      selectively (mermaid 2022, geojson ~2014, mathjax/
+      latex 2022, ascii-stl earlier); requires
+      demonstrating substantial real usage first, then
+      formal outreach. Long-term goal that compounds when
+      achieved — every shared FSL machine becomes
+      self-documenting in any GitHub context, which is
+      transformational for discovery and onboarding.
+      Realistic timeline: after the in-linguist work
+      lands plus a year or two of organic adoption.
+
+- [ ] **GitHub App: FSL bot for PR linting and rendering**
+      `[medium]` — a GitHub App that, when installed on a
+      repo, watches PRs for `.fsl` files or `sm\`...\``
+      template literals, lints them via fsl-lint, comments
+      with rendered SVG diagrams via jssm/viz, flags
+      broken transitions, and surfaces lint warnings
+      inline as PR review comments. Distinct from
+      jssm-viz-action (which runs on every commit and
+      writes back to the repo); the App runs on PR open /
+      synchronize / reopen and posts as a bot user. Builds
+      visibility every time a contributor encounters an
+      FSL change in a PR they're reviewing. Ships either
+      as a public app on the GitHub Marketplace or as a
+      self-hosted reference implementation.
+
+- [ ] **GitHub Actions ecosystem for FSL** `[medium]` —
+      a coherent collection of actions covering common
+      FSL workflows:
+      - `jssm-viz-action` — render diagrams on commit
+        (already exists; needs continued maintenance,
+        see related items in the issue tracker #227, #228,
+        #233).
+      - `fsl-lint-action` — lint FSL files on PR; fail
+        the build on lint errors.
+      - `fsl-test-action` — run model-based tests
+        (depends on the Test framework for machines
+        item under Language tooling).
+      - `fsl-codegen-action` — run cross-language codegen
+        to emit target-language source files (depends on
+        the cross-language codegen item under Code-
+        generation targets).
+      - **Starter workflow template** — a one-click
+        "Add jssm CI" entry in GitHub's New Workflow
+        page under the Suggested for this repo section.
+        Requires submitting a starter workflow YAML to
+        `actions/starter-workflows`.
+
+      Each action is small in isolation; their value is
+      cumulative — a repo with all four can ship FSL with
+      lint, test, viz, and codegen running on every PR.
+
+- [ ] **Native rendering in GitHub Issues and Discussions**
+      `[straightforward]` — separate from the
+      markdown-block whitelist (the bigger goal): support
+      FSL via the *Bot-comment-with-rendered-image*
+      pattern as a stopgap. The bot watches Issues and
+      Discussions for `\`\`\`fsl` blocks, posts a follow-up
+      comment with the rendered SVG (or PNG), and updates
+      its own comment on edits. Lower bar to ship than the
+      whitelist; covers the same visibility win for the
+      Issues / Discussions / Wiki surfaces specifically.
+
 ## Shared content infrastructure
 
 - [ ] **Centralize examples, demos, and shootouts for cross-site
@@ -1575,6 +1759,22 @@ engine-port items below.
       ones, label and prioritize the rest, and roll anything still
       live into this TODO so it's not invisible.
 
+- [ ] **Render the in-repo example machines via the image CLI**
+      `[trivial]` — once the Visualization CLI lands, dogfood it on
+      the `src/machines/*.fsl` examples (`issue trees.how a company
+      can show profitability`, `extensive states of matter`,
+      `problem_solving_flowchart`, `sequential_function_chart`,
+      `should_you_use_twitter`, `why_i_broke_my_wrist`, etc.).
+      Outputs become a "gallery" page on fsl.tools showing what
+      real-world FSL machines look like rendered. Free content,
+      dogfoods the CLI on machines that already exist in the repo,
+      and surfaces the issue-tree examples as a distinct sub-genre
+      worth naming and promoting separately — issue trees are a
+      named consulting/strategy technique and FSL is unusually
+      well-suited to writing them as text, which is a discovery
+      angle the README doesn't currently mention. Pairs with the
+      Visualization CLI item under Language tooling → Committed.
+
 - [ ] **Build out stochastic / property-based test coverage**
       `[medium]` — the project's stochastic test infrastructure
       is set up (`jest-stoch.config.cjs` runs, `fast-check` is
@@ -1673,6 +1873,25 @@ engine-port items below.
       proposes a new transition, generates the FSL, validates
       it, and hot-loads it. Pair the technical work with a
       dedicated section in the eventual gitbook.
+
+- [ ] **Write LLM-consumer instructions** `[straightforward]` —
+      curate a canonical set of instructions that LLMs consume
+      when working with jssm/FSL, so models produce clean
+      idiomatic FSL on first try rather than approximating
+      with XState or hand-rolling switch statements. Likely
+      surfaces: `llms.txt` at the site root (the emerging
+      convention for LLM-discoverable site context),
+      `llms-full.txt` with the full grammar + canonical
+      patterns, an `AGENTS.md` at the repo root mirroring the
+      one already in `src/fsl.tools/`, a curated "writing FSL
+      with an LLM" cookbook recipe, and a short system-prompt
+      snippet users can paste into Claude/Copilot/Gemini
+      project settings. Open questions: whether to publish a
+      Claude Code skill / Cursor rule / Continue config as
+      first-class artifacts, and how to keep the instructions
+      synchronized with the grammar reference automatically.
+      Pairs with the AI/agent tooling positioning above and
+      with the MCP server item under Language tooling.
 
 - [ ] **Get jssm bundled into a high-traffic starter template**
       `[medium]` — one distribution placement is worth roughly a

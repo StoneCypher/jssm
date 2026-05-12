@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.112.0",
+  "version": "5.112.3",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -97,6 +97,7 @@
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
+    "ci_profile": "node ./src/buildjs/ci_profile.cjs",
     "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",

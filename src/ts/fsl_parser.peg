@@ -287,8 +287,7 @@ Label "label"
   / string:String
 
 IntegerLiteral
-  = "0"
-  / NonZeroDigit DecimalDigit*
+  = $("0" / NonZeroDigit DecimalDigit*)
 
 DecimalDigit
   = [0-9]
@@ -713,13 +712,13 @@ LabelOrLabelList
   / Label
 
 Stripe
-  = '+|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value:      parseInt(`${nzd}${dd}`, 10) }; }
-  / '-|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
+  = '+|' n:$(NonZeroDigit DecimalDigit*) { return { key: 'stripe', value:      parseInt(n, 10) }; }
+  / '-|' n:$(NonZeroDigit DecimalDigit*) { return { key: 'stripe', value: -1 * parseInt(n, 10) }; }
 
 Cycle
-  = '+' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value:      parseInt(`${nzd}${dd}`, 10) }; }
-  / '-' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
-  / '+0'                                  { return { key: 'cycle', value: 0                                }; }
+  = '+' n:$(NonZeroDigit DecimalDigit*) { return { key: 'cycle', value:      parseInt(n, 10) }; }
+  / '-' n:$(NonZeroDigit DecimalDigit*) { return { key: 'cycle', value: -1 * parseInt(n, 10) }; }
+  / '+0'                                 { return { key: 'cycle', value: 0                  }; }
 
 ArrowTarget
   = Stripe
