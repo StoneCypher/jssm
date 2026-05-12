@@ -5,7 +5,16 @@ import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
-declare const shapes: string[], gviz_shapes: string[], named_colors: string[];
+declare const shapes: string[], gviz_shapes: string[], named_colors: string[], state_name_chars: readonly {
+    from: string;
+    to: string;
+}[], state_name_first_chars: readonly {
+    from: string;
+    to: string;
+}[], action_label_chars: readonly {
+    from: string;
+    to: string;
+}[];
 import { version, build_time } from './version';
 /*********
  *
@@ -686,6 +695,49 @@ declare class Machine<mDT> {
      *  @returns An array of theme name strings.
      */
     all_themes(): FslTheme[];
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -1872,4 +1924,4 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  * const restored = jssm.deserialize("a -> b;", serialized);
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections };
+export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections };
