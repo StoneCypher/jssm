@@ -4,7 +4,7 @@ Output of plan Task 5. Subsequent per-library tasks (6-15) read `languages`, `ho
 
 | library | npm name | homepage | languages | typesSource (if any) | evidence / notes |
 | --- | --- | --- | --- | --- | --- |
-| jssm | jssm | https://stonecypher.github.io/jssm/ | javascript, typescript, deno | — | package.json: `"types": "./jssm.es5.d.cts"`; published files include `dist/deno/jssm.js`, `dist/deno/*.d.ts`, `dist/deno/README.md` — Deno is a first-class distribution target (SURPRISE: contradicts prior that no non-JS hosts expected) |
+| jssm | jssm | https://stonecypher.github.io/jssm/ | javascript, typescript | — | package.json: `"types": "./jssm.es5.d.cts"`; published files include `dist/deno/jssm.js`, `dist/deno/*.d.ts`, `dist/deno/README.md` — Deno is a first-class distribution target (note: Deno is a runtime, not a language) |
 | xstate | xstate | https://github.com/statelyai/xstate/tree/main/packages/core#readme | javascript, typescript | — | package.json: `"types":"./dist/xstate.cjs.d.ts"` |
 | javascript-state-machine | javascript-state-machine | https://github.com/jakesgordon/javascript-state-machine | javascript, typescript | @types/javascript-state-machine | No `types`/`typings` field in package.json; `@types/javascript-state-machine` v2.4.6 published 2023-11-07T08:16:32.536Z |
 | state-machine | state-machine | https://github.com/davestewart/javascript-state-machine | javascript | — | No `types`/`typings` field; `@types/state-machine` v2.3.30 exists but is **deprecated** with notice "now '@types/javascript-state-machine'" — refers to a different package (jakesgordon's), not this one (davestewart's); no viable @types for this package |
@@ -27,7 +27,6 @@ Output of plan Task 5. Subsequent per-library tasks (6-15) read `languages`, `ho
 
 | library | prior expectation | actual |
 | --- | --- | --- |
-| jssm | javascript, typescript | javascript, typescript, **deno** |
 | machina | javascript only | javascript, **typescript** (ships `"types":"dist/index.d.mts"`) |
 | finity | javascript only | javascript, **typescript** (ships `"types":"index.d.ts"`) |
 | all others | matches prior | confirmed |
