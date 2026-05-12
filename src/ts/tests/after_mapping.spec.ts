@@ -109,68 +109,60 @@ describe('after mapping runs normally with very short time', () => {
 
   describe('by machine', () => {
 
-    test('2 milliseconds', () => {
+    test('2 milliseconds', async () => {
       const m = sm`a after 2ms -> b;`;
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
-    test('5 milliseconds', () => {
+    test('5 milliseconds', async () => {
       const m = sm`a after 5ms -> b;`;
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
-    test('10 milliseconds', () => {
+    test('10 milliseconds', async () => {
       const m = sm`a after 10ms -> b;`;
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
-    test('25 milliseconds', () => {
+    test('25 milliseconds', async () => {
       const m = sm`a after 25ms -> b;`;
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
   });
 
   describe('by api', () => {
 
-    test('2 milliseconds', () => {
+    test('2 milliseconds', async () => {
       const m = sm`a -> b;`;
       m.set_state_timeout('b', 2);
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
-    test('5 milliseconds', () => {
+    test('5 milliseconds', async () => {
       const m = sm`a -> b;`;
       m.set_state_timeout('b', 5);
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
-    test('10 milliseconds', () => {
+    test('10 milliseconds', async () => {
       const m = sm`a -> b;`;
       m.set_state_timeout('b', 10);
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
-    test('25 milliseconds', () => {
+    test('25 milliseconds', async () => {
       const m = sm`a -> b;`;
       m.set_state_timeout('b', 25);
-      setTimeout( () => {
-        expect(m.state()).toBe('b');
-      }, 100);
+      await delay(100);
+      expect(m.state()).toBe('b');
     });
 
   });
