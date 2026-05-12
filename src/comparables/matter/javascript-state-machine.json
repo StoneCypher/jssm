@@ -8,7 +8,6 @@
   },
   "machine": "matter",
   "language": "javascript",
-  "lines": 23,
   "official": true,
   "canImplement": true,
   "source": {

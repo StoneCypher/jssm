@@ -7,7 +7,6 @@
   },
   "machine": "toggle",
   "language": "javascript",
-  "lines": 8,
   "official": false,
   "canImplement": true,
   "source": {

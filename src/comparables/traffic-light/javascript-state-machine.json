@@ -8,7 +8,6 @@
   },
   "machine": "traffic-light",
   "language": "javascript",
-  "lines": 13,
   "official": false,
   "canImplement": true,
   "source": {

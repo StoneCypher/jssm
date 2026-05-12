@@ -7,7 +7,6 @@
   },
   "machine": "matter",
   "language": "javascript",
-  "lines": 14,
   "official": false,
   "canImplement": true,
   "source": {

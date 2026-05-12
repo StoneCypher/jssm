@@ -7,7 +7,6 @@
   },
   "machine": "matter",
   "language": "javascript",
-  "lines": 5,
   "official": true,
   "canImplement": true,
   "code": "export const matter = sm`solid 'melt' <=> 'freeze' liquid 'vaporize' <=> 'condense' gas`;\ntrafficLight.hook_global_action('melt', () => console.log('I melted'));\ntrafficLight.hook_global_action('freeze', () => console.log('I froze'));\ntrafficLight.hook_global_action('vaporize', () => console.log('I vaporized'));\ntrafficLight.hook_global_action('condense', () => console.log('I condensed'));",
