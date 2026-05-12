@@ -1,0 +1,19 @@
+{
+  "library": {
+    "name": "xstate",
+    "npm": "xstate",
+    "homepage": "https://xstate.js.org",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "lines": 36,
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://xstate.js.org/docs/guides/machines.html#options",
+    "note": "There's most of a traffic light between their documentation here and also here (https://xstate.js.org/docs/guides/states.html#state-methods-and-properties), and it seems to piece together into this"
+  },
+  "code": "export const trafficLight = createMachine(\n  {\n    initial: \"green\",\n    states: {\n      green: {\n        on: {\n          next: {\n            target: \"yellow\",\n          },\n        },\n      },\n      yellow: {\n        on: {\n          next: {\n            target: \"red\",\n          },\n        },\n      },\n      red: {\n        entry: \"alertRed\",\n        on: {\n          next: {\n            target: \"green\",\n          },\n        },\n      },\n    },\n  },\n  {\n    actions: {\n      alertGreen: (context, event) => {\n        alert(\"Green!\");\n      },\n    },\n  }\n);",
+  "formattedWith": "prettier"
+}

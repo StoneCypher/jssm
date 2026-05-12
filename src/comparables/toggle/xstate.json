@@ -1,0 +1,19 @@
+{
+  "library": {
+    "name": "xstate",
+    "npm": "xstate",
+    "homepage": "https://xstate.js.org",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "lines": 16,
+  "official": true,
+  "canImplement": true,
+  "source": {
+    "url": "https://xstate.js.org/docs/recipes/svelte.html#machine-js",
+    "note": "From their documentation"
+  },
+  "code": "export const toggleMachine = createMachine({\n  id: \"toggle\",\n  initial: \"inactive\",\n  states: {\n    inactive: {\n      on: {\n        TOGGLE: \"active\",\n      },\n    },\n    active: {\n      on: {\n        TOGGLE: \"inactive\",\n      },\n    },\n  },\n});",
+  "formattedWith": "prettier"
+}
