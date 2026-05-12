@@ -4,6 +4,49 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { fsl_to_svg_string } from '../jssm_viz.js';
 
 /**
+ * Shape of the `viz-error` `CustomEvent.detail` payload.  `message` is
+ * always a string; `location` is whatever the renderer attached to the
+ * thrown error (typically a parser-supplied source position), or
+ * `undefined` if no such field was present.
+ */
+export interface JssmVizErrorDetail {
+  message  : string;
+  location?: unknown;
+}
+
+/**
+ * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
+ * Accepts anything (Error instances, JssmErrors with `.location`, plain
+ * strings, etc.) and always produces a string `message`.
+ *
+ * ```typescript
+ * normalize_viz_error(new Error('boom'));
+ * // => { message: 'boom', location: undefined }
+ *
+ * normalize_viz_error({ message: 'parse failed', location: { line: 1 } });
+ * // => { message: 'parse failed', location: { line: 1 } }
+ *
+ * normalize_viz_error('bare string failure');
+ * // => { message: 'bare string failure', location: undefined }
+ * ```
+ *
+ * @param e The thrown value to normalize.
+ * @returns A `{ message, location }` object suitable for use as the
+ * `detail` of a `viz-error` `CustomEvent`.
+ */
+export function normalize_viz_error(e: unknown): JssmVizErrorDetail {
+  if (typeof e === 'object' && e !== null) {
+    const rec = e as Record<string, unknown>;
+    const raw_message = rec.message;
+    const message = (typeof raw_message === 'string' && raw_message.length > 0)
+      ? raw_message
+      : String(e);
+    return { message, location: rec.location };
+  }
+  return { message: String(e), location: undefined };
+}
+
+/**
  * Web component that renders a jssm machine as inline SVG.
  *
  * @element jssm-viz
@@ -58,15 +101,15 @@ export class JssmViz extends LitElement {
       return;
     }
     try {
-      const result = await fsl_to_svg_string(source);
+      const result = await fsl_to_svg_string(source, this.engine ? { engine: this.engine } : undefined);
       // Guard against stale results: only commit if fsl has not changed since this render started.
       if (this.fsl === source) {
         this._svg = result;
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       this._svg = '';
       this.dispatchEvent(new CustomEvent('viz-error', {
-        detail   : { message: String(e?.message ?? e), location: e?.location },
+        detail   : normalize_viz_error(e),
         bubbles  : true,
         composed : true,
       }));

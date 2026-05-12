@@ -646,14 +646,19 @@ function fsl_to_dot(fsl: string, opts?: { footer?: string }): string {
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
  *
  *  @param dot Graphviz dot source.
+ *  @param options Optional renderer overrides.
+ *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
+ *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
+ *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function dot_to_svg(dot: string): Promise<string> {
+async function dot_to_svg(dot: string, options?: { engine?: string }): Promise<string> {
   const viz = await get_viz();
-  return viz.renderString(dot, { format: 'svg' });
+  return viz.renderString(dot, { format: 'svg', ...(options ?? {}) });
 }
 
 
@@ -662,13 +667,20 @@ async function dot_to_svg(dot: string): Promise<string> {
 /**
  *  Render an FSL string directly to SVG.
  *
+ *  ```typescript
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  ```
+ *
  *  @param fsl The FSL source.
  *  @param opts Optional rendering options.
  *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
+ *  @param opts.engine Graphviz layout engine to use (e.g. `'dot'`, `'neato'`, `'circo'`).
+ *  Unrecognized engine names cause `@viz-js/viz` to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl: string, opts?: { footer?: string }): Promise<string> {
-  return dot_to_svg(fsl_to_dot(fsl, opts));
+async function fsl_to_svg_string(fsl: string, opts?: { footer?: string; engine?: string }): Promise<string> {
+  return dot_to_svg(fsl_to_dot(fsl, opts), opts);
 }
 
 
