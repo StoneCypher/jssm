@@ -183,7 +183,13 @@ describe('after mapping runs normally with very short time', () => {
 
 describe('after mapping general topics', () => {
 
-  describe('If you set an after in the machine, clear it in the api, leave, and return, it is set anew', () => {
+  // Note: these were previously orphan `describe()` blocks with no inner
+  // `test()`.  Under jest the `expect` calls in their bodies fired at
+  // collection time and were attributed to the enclosing suite.  Under vitest
+  // a `describe` with no `test` is reported as `No test found in suite`.
+  // Wrap as `test()` so the assertions run inside a real test.
+
+  test('If you set an after in the machine, clear it in the api, leave, and return, it is set anew', () => {
 
     const m = sm`a after 1000 -> b -> c -> a;`;
     expect(m.current_state_timeout()).not.toBe(undefined);
@@ -202,7 +208,7 @@ describe('after mapping general topics', () => {
   });
 
 
-  describe('If you set an after in the machine, and clear it in the api, looking up that state should give a mapping but current should not', () => {
+  test('If you set an after in the machine, and clear it in the api, looking up that state should give a mapping but current should not', () => {
 
     const m = sm`a after 1000 -> b;`;
     expect(m.current_state_timeout()).not.toBe(undefined);
