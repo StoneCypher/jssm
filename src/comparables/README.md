@@ -24,7 +24,6 @@ See `schema.json`. Required fields:
 - `library.name`, `library.npm`, `library.homepage`, `library.languages`
 - `machine` (must match the parent directory name)
 - `language` (must be a member of `library.languages`)
-- `lines` (must equal `code.split('\n').length`; renderer cross-checks)
 - `official` — `true` if drawn from the library's docs; `false` if synthesized
 - `canImplement` — `false` if the library cannot correctly implement this machine
 - `code` — the example, newlines as `\n`
