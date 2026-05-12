@@ -5,7 +5,7 @@
   "description": "A single (machine, library) FSM example for cross-library comparison.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["library", "machine", "language", "lines", "official", "canImplement", "code"],
+  "required": ["library", "machine", "language", "official", "canImplement", "code"],
   "properties": {
     "library": {
       "type": "object",
@@ -26,7 +26,6 @@
     },
     "machine":  { "enum": ["toggle", "traffic-light", "matter"] },
     "language": { "enum": ["javascript", "typescript", "webassembly"] },
-    "lines":    { "type": "integer", "minimum": 1 },
     "official":     { "type": "boolean" },
     "canImplement": { "type": "boolean" },
     "source": {
