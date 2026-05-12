@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1286 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1309 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,28 +22,13 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:12:01 AM
+## [Untagged] - 5/12/2026 12:21:06 PM
 
-Commit [3317cc0eef1af9e268459caf5742fafc8fad8389](https://github.com/StoneCypher/jssm/commit/3317cc0eef1af9e268459caf5742fafc8fad8389)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli/render): PNG target
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 11:07:00 AM
-
-Commit [2f00709c7dec4dc11f78a1d6e2072d567422061b](https://github.com/StoneCypher/jssm/commit/2f00709c7dec4dc11f78a1d6e2072d567422061b)
+Commit [3060678d02d847eeb15a7b60d9a11d0875146c5f](https://github.com/StoneCypher/jssm/commit/3060678d02d847eeb15a7b60d9a11d0875146c5f)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): add JSON Schema for per-library FSM examples
+  * feat(wc): scaffold JssmViz Lit element with class/define split
 
 
 
@@ -52,13 +37,20 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:02:00 AM
+## [Untagged] - 5/12/2026 12:20:53 PM
 
-Commit [cdd7d307e7c43fe79c611b9dfd91f8ebfa381090](https://github.com/StoneCypher/jssm/commit/cdd7d307e7c43fe79c611b9dfd91f8ebfa381090)
+Commit [f0f99dd4d643d6fc5925a0d1be02db2d70763a8a](https://github.com/StoneCypher/jssm/commit/f0f99dd4d643d6fc5925a0d1be02db2d70763a8a)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): rasterize via feature-detected OffscreenCanvas + resvg-wasm
+  * build(wc): teach jest-wc about ESM .js suffix imports and Lit ESM
+  * - moduleNameMapper strips trailing .js from relative imports so TS
+  sources can use modern ESM-style import specifiers (e.g.
+  './foo.js') that resolve to .ts during Jest's resolution.
+- transformIgnorePatterns allows lit, lit-html, lit-element, and
+  @lit packages through the SWC transform (they ship as native
+  ESM and Jest's CJS host needs them transpiled).
+- Adds a .js transform entry so SWC handles the de-ignored lit JS.
 
 
 
@@ -67,21 +59,32 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:49:41 AM
+## [Untagged] - 5/12/2026 12:20:20 PM
 
-Commit [20b2ad64633df88815cdc676c4a00feafbc832b8](https://github.com/StoneCypher/jssm/commit/20b2ad64633df88815cdc676c4a00feafbc832b8)
+Commit [63c4d392d5cc6f0d102c8e6187da0bf6e2818941](https://github.com/StoneCypher/jssm/commit/63c4d392d5cc6f0d102c8e6187da0bf6e2818941)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(sketch): import CodeMirror 6 editor sketch from worktree
-  * Brings in the redistributable cm6-lang-fsl language package
-(StreamLanguage tokenizer for FSL) and the standalone editor demo
-(importmap with deduped @codemirror/state singleton, fsl_parser linter)
-from the worktree-cm6-editor-sketch branch.
-  * The cm6-lang-fsl package is the seed for the future jssm/cm6 subpath
-export per the editor-widget packaging spec.
-  * Dropped from the import: PNG screenshots, .playwright-mcp/ cache, and
-the servehere devDependency change.
+  * feat(viz): slug-based SVG/dot node IDs replace index scheme
+  * Replaces the index-based `n0`/`n1`/... node identifier scheme used in
+dot/SVG output with human-readable slugs derived from state names.
+Each state gets a deterministic, URL-safe slug used as the dot node
+identifier (and therefore as the basis for the SVG `<title>` and the
+generated SVG element `id`).
+  * Slug rules:
+  - lowercase
+  - non-`[a-z0-9]` runs collapsed to single `-`
+  - leading/trailing `-` trimmed
+  - empty result falls back to `node-N` (1-based declaration index)
+  - collisions resolved deterministically with `-2`, `-3`, ... suffixes
+    in declaration order
+  * The state's original name is still emitted as the `label=` attribute,
+so user-visible rendering is unchanged. Only the underlying node
+identifier scheme changes.
+  * This is a behavior change visible to anyone selecting graph nodes by
+the old `n0`/`n1` identifiers in their own CSS/JS over the rendered
+SVG. Such consumers must migrate to the slug-based IDs.
+  * Closes StoneCypher/fsl#316
 
 
 
@@ -90,13 +93,13 @@ the servehere devDependency change.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:43:17 AM
+## [Untagged] - 5/12/2026 12:18:12 PM
 
-Commit [c20806be39fd1c91a50291d692c51303f3aa7ee3](https://github.com/StoneCypher/jssm/commit/c20806be39fd1c91a50291d692c51303f3aa7ee3)
+Commit [664d7bba106952369e55a891e69ecc01f351623e](https://github.com/StoneCypher/jssm/commit/664d7bba106952369e55a891e69ecc01f351623e)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): HTML wrapper target
+  * feat(comparables): extract javascript-state-machine examples
 
 
 
@@ -105,13 +108,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:28:50 AM
+## [Untagged] - 5/12/2026 12:15:46 PM
 
-Commit [2bb1bc76d915cf05d2d121a3a5060c3928892e02](https://github.com/StoneCypher/jssm/commit/2bb1bc76d915cf05d2d121a3a5060c3928892e02)
+Commit [b0e4de6d647503a6e8655ce6b8ccda1cf981cdea](https://github.com/StoneCypher/jssm/commit/b0e4de6d647503a6e8655ce6b8ccda1cf981cdea)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): DOT target
+  * feat(cli/render): renderSet() with per-input error capture
 
 
 
@@ -120,13 +123,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 9:40:50 AM
+## [Untagged] - 5/12/2026 12:10:34 PM
 
-Commit [fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76](https://github.com/StoneCypher/jssm/commit/fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76)
+Commit [aa3807f06718637159c00531cd3624a1d39a388b](https://github.com/StoneCypher/jssm/commit/aa3807f06718637159c00531cd3624a1d39a388b)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(cli/render): revert svg.ts to thin wrapper, loosen test regex
+  * fix(comparables): drop misleading source.url on xstate matter (no single source URL)
 
 
 
@@ -135,13 +138,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 9:38:39 AM
+## [Untagged] - 5/12/2026 12:09:16 PM
 
-Commit [adbbaedb1862498cf7cf54f7644a92dd9b48fed2](https://github.com/StoneCypher/jssm/commit/adbbaedb1862498cf7cf54f7644a92dd9b48fed2)
+Commit [ee334baad2e20ef847bb104b579668ed708ef03c](https://github.com/StoneCypher/jssm/commit/ee334baad2e20ef847bb104b579668ed708ef03c)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): SVG target
+  * feat(comparables): extract xstate examples (toggle, traffic light, matter)
 
 
 
@@ -150,30 +153,33 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:36:35 AM
+## [Untagged] - 5/12/2026 12:06:41 PM
 
-Commit [b91876f86307dac2cc90e07841e64080a7d1e451](https://github.com/StoneCypher/jssm/commit/b91876f86307dac2cc90e07841e64080a7d1e451)
+Commit [0f5e97f57168c188f91f5187ab7c01b966550f65](https://github.com/StoneCypher/jssm/commit/0f5e97f57168c188f91f5187ab7c01b966550f65)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(test): make timer-using after_mapping tests properly async
-  * Eight tests in src/ts/tests/after_mapping.spec.ts wrapped an
-`expect()` call in `setTimeout(..., 100)` without returning a
-Promise or awaiting, so the assertion fired AFTER the test had
-already resolved.  Jest silently swallowed the deferred assertion;
-vitest reports it as an "Unhandled Error" because expect happens
-outside the test's lifetime.  Converted each to async with
-`await delay(100)` using the file's existing `delay()` helper.
-  * Also:
-- .eslintrc: add "root": true to prevent eslint from walking up
-  the directory tree and finding the parent repo's plugin
-  installation when running from a worktree nested inside the
-  parent.  No-op on a top-level checkout.
-- package.json: bump 5.112.3 -> 5.113.0 (MINOR) for the
-  jest -> vitest test runner switch this branch is preparing.
-  * Full build deferred — typedoc hits a similar worktree-traversal
-plugin-double-load issue that will be solved by moving the
-worktree out of the parent repo's tree.
+  * test(stoch): lexical.stoch.ts (§2); fix empty action labels and falsy decoration values dropped by parser+compiler
+  * Adds 47 fast-check tests covering §2 Lexical layer of the FSL grammar
+reference: whitespace invariance over `a->b;`, block/line comments
+and terminator vocabulary (LF / CR / U+2028 / U+2029 / EOF), String
+and ActionLabel escape vocabularies plus \uXXXX, atom first/rest
+character classes (including Unicode), Label-form equivalence, and
+LabelList shapes.
+  * Property-based testing surfaced an over-broad truthy guard in the
+parser: empty action labels (`a '' -> b;`) were parseable but the
+empty string was suppressed alongside null/undefined from empty
+brace blocks. Fixed at:
+  *   - src/ts/fsl_parser.peg — eight decoration-assignment lines now
+    check `d.v != null` instead of `d.v`, preserving the original
+    intent (suppress missing-value sentinels) while letting
+    legitimately-empty primitives through.
+  - src/ts/jssm_compiler.ts — same null-aware check on action and
+    probability so the fix carries end-to-end to the compiled edge.
+  * Side effect: `after 0` decorations now produce `r_after`/`l_after`
+of 0 in the AST rather than being suppressed. No existing tests
+regress; full spec suite (5251 tests) and full stoch suite (138
+tests, +47 new) pass.
 
 
 
@@ -182,10 +188,43 @@ worktree out of the parent repo's tree.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:36:32 AM
+## [Untagged] - 5/12/2026 12:06:23 PM
 
-Commit [6c89f0952c6900b6b55a73096081ffb5f13b5094](https://github.com/StoneCypher/jssm/commit/6c89f0952c6900b6b55a73096081ffb5f13b5094)
+Commit [8b02846d147409303e2f47586fc06858f61e8b12](https://github.com/StoneCypher/jssm/commit/8b02846d147409303e2f47586fc06858f61e8b12)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli): add parseFslArgs helper with full flag parsing
+  * feat(comparables): extract jssm examples (toggle, traffic light, matter)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:58:59 AM
+
+Commit [bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568](https://github.com/StoneCypher/jssm/commit/bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(machine): expose grammar charset ranges for state names and action labels
+  * Adds three frozen `ReadonlyArray<{from, to}>` constants — `state_name_chars`,
+`state_name_first_chars`, and `action_label_chars` — derived from the PEG
+rules `AtomLetter`, `AtomFirstLetter`, and `ActionLabelUnescaped`.  Each
+constant carries a `keep in sync` comment pointing at the source line in
+`fsl_parser.peg` so the data and the grammar can't drift silently.
+  * Re-exports the constants from `jssm.ts` alongside `shapes`/`named_colors`,
+and adds three matching `Machine` instance methods — `all_state_name_chars`,
+`all_state_name_first_chars`, `all_action_label_chars` — mirroring the
+existing `all_themes()` exposition shape from issues #540/#541.
+  * Tooling that needs to know which characters are legal in a given FSL token
+position (editors, validators, linters) can now read these without
+re-parsing the PEG grammar.
+  * Adds `src/ts/tests/characterset.spec.ts` with 27 tests covering range
+membership for ASCII letters/digits, the `+` distinction between first and
+non-first atom positions, space inclusion and apostrophe exclusion in
+action labels, and identity of the constants returned by the three
+`Machine` methods.
+  * Closes fsl#542.
