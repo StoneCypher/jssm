@@ -2208,15 +2208,85 @@ declare function configure(opts: {
  */
 declare function vc(col: string): string;
 /**
- *  Build a graphviz-safe node identifier for a state, by index.  Accepts
- *  either a `string[]` (used historically; O(n) per call) or a
- *  precomputed `Map<state, index>` (used by rendering hot paths; O(1)
- *  per call).  The map form is used during dot generation; the array
- *  form is retained for direct test access via `_test`.
+ *  Convert a state name into a URL-friendly slug suitable for use as the
+ *  body of a dot/SVG node identifier.  The transformation is:
+ *
+ *  1. Lowercase
+ *  2. Any run of characters outside `[a-z0-9]` (after lowercasing) becomes
+ *     a single `-`
+ *  3. Leading and trailing `-` are trimmed
+ *
+ *  If the result is empty (e.g. for a state named `"!!!"`), the empty
+ *  string is returned — callers are expected to fall back to an indexed
+ *  placeholder like `node-N`.  See {@link slug_states} for the collision-
+ *  resolving wrapper that consumes this helper.
+ *
+ *  ```typescript
+ *  slug_for('Green Light');  // 'green-light'
+ *  slug_for('!!!');          // ''
+ *  slug_for('  Foo  Bar  '); // 'foo-bar'
+ *  ```
+ *
+ *  @param state The state name to slugify.
+ *  @returns The lowercase hyphen-separated slug, or empty string if none of
+ *  the characters were retainable.
  *
  *  @internal
  */
-declare function node_of(state: string, state_index: string[] | Map<string, number>): string;
+declare function slug_for(state: string): string;
+/**
+ *  Build a `Map<state, slug>` assigning every state in `states` a unique,
+ *  deterministic, URL-safe slug used as its dot/SVG node identifier.
+ *
+ *  Algorithm:
+ *
+ *  1. Slug each state via {@link slug_for}.  States whose slug comes out
+ *     empty fall back to `node-N`, where `N` is the state's declaration
+ *     index (1-based, to match user-visible numbering).
+ *  2. Walk the state list in declaration order, tracking how many times
+ *     each base slug has already been used.  The first occurrence keeps
+ *     the base slug; subsequent collisions get `-2`, `-3`, … suffixes.
+ *     If the proposed suffixed slug itself collides with a base slug
+ *     used later, the counter advances until a free slot is found.
+ *
+ *  This yields a deterministic mapping given the state-declaration order,
+ *  so output is stable across runs.
+ *
+ *  ```typescript
+ *  slug_states(['Red Light', 'red-light']);
+ *  // Map { 'Red Light' => 'red-light', 'red-light' => 'red-light-2' }
+ *
+ *  slug_states(['!!!', '???']);
+ *  // Map { '!!!' => 'node-1', '???' => 'node-2' }
+ *  ```
+ *
+ *  @param states States in declaration order.
+ *  @returns A `Map` from each state name to its unique slug.
+ *
+ *  @internal
+ */
+declare function slug_states(states: string[]): Map<string, string>;
+/**
+ *  Build a graphviz-safe node identifier for a state.  Accepts either a
+ *  `string[]` (legacy test-only path; returns an index-based `n0`/`n1`
+ *  identifier via `indexOf`), or a precomputed `Map<state, slug>` produced
+ *  by {@link slug_states} (used by all rendering hot paths).
+ *
+ *  When a slug map is supplied, the identifier is the slug wrapped in
+ *  double quotes — dot allows quoted identifiers, and the slug alphabet
+ *  (lowercase alphanumerics + `-`) requires quoting because bare dot IDs
+ *  may not contain `-`.  Graphviz round-trips the quoted form through to
+ *  the SVG `<title>` element and uses the slug as a stable basis for the
+ *  generated SVG element `id` attribute.
+ *
+ *  ```typescript
+ *  node_of('Red Light', new Map([['Red Light', 'red-light']]));
+ *  // '"red-light"'
+ *  ```
+ *
+ *  @internal
+ */
+declare function node_of(state: string, state_index: string[] | Map<string, number> | Map<string, string>): string;
 /**
  *  Convert an 8-channel hex color (`#RRGGBBAA`) to a 6-channel hex color
  *  (`#RRGGBB`), discarding the alpha channel.  Throws if the input is not
@@ -2344,6 +2414,8 @@ declare const _test: {
     u_color8to6: typeof u_color8to6;
     vc: typeof vc;
     node_of: typeof node_of;
+    slug_for: typeof slug_for;
+    slug_states: typeof slug_states;
     shape_for_state: typeof shape_for_state;
     image_for_state: typeof image_for_state;
     style_for_state: typeof style_for_state;
