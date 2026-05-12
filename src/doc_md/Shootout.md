@@ -25,6 +25,8 @@ that comparative test correctly due to a missing feature.
 Libraries are sorted shortest-average first, with failing libraries sorted to
 the end.
 
+<!-- COMPARABLES:GENERATED-START — do not edit by hand; regenerated from src/comparables/ -->
+
 <span id="quicktab">
 
 | Library | Tog | Traf | Matt | Avg |
@@ -954,3 +956,5 @@ export const matter = new machina.Fsm({
   },
 });
 ```
+
+<!-- COMPARABLES:GENERATED-END -->
