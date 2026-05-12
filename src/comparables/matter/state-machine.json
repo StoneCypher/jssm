@@ -1,0 +1,19 @@
+{
+  "library": {
+    "name": "state-machine",
+    "npm": "state-machine",
+    "homepage": "https://github.com/davestewart/javascript-state-machine",
+    "languages": ["javascript"]
+  },
+  "machine": "matter",
+  "language": "javascript",
+  "lines": 14,
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/davestewart/javascript-state-machine/blob/d390627b384b30605b5ee90a70bae713e8b09002/docs/main/usage.md",
+    "note": "No states of matter example was available; wrote from scratch and used the docs for usage guidelines."
+  },
+  "code": "export const matter = new StateMachine({\n  transitions: [\n    \"melt     : solid > liquid\",\n    \"freeze   : solid < liquid\",\n    \"vaporize : liquid > gas\",\n    \"condense : liquid < gas\",\n  ],\n  handlers: {\n    \"@melt\": () => console.log(\"I melted\"),\n    \"@freeze\": () => console.log(\"I froze\"),\n    \"@vaporize\": () => console.log(\"I vaporized\"),\n    \"@condense\": () => console.log(\"I condensed\"),\n  },\n});",
+  "formattedWith": "prettier"
+}
