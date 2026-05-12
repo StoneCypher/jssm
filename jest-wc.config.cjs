@@ -1,0 +1,33 @@
+module.exports = {
+
+  testEnvironment            : 'jsdom',
+
+  coverageProvider           : 'v8',
+
+  moduleFileExtensions       : ['js', 'ts'],
+  coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/wc/tests/"],
+  testPathIgnorePatterns     : ["/node_modules/"],
+  testMatch                  : ['**/src/ts/wc/**/*.spec.ts'],
+
+  transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript', decorators: true }, target: 'es2020' } }] },
+
+  verbose                    : false,
+  collectCoverage            : true,
+  coverageDirectory          : "coverage/wc/",
+
+  coverageThreshold : {
+    global : {
+      branches   : 100,
+      functions  : 100,
+      lines      : 100,
+      statements : 100,
+    },
+  },
+
+  collectCoverageFrom        : ["src/ts/wc/**/{!(tests),}.{js,ts}"],
+
+  reporters : [
+    ['default', {}],
+  ],
+
+};
