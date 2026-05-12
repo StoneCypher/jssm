@@ -1,0 +1,19 @@
+{
+  "library": {
+    "name": "javascript-state-machine",
+    "npm": "javascript-state-machine",
+    "homepage": "https://github.com/jakesgordon/javascript-state-machine",
+    "languages": ["javascript", "typescript"],
+    "typesSource": "@types/javascript-state-machine"
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "lines": 7,
+  "official": true,
+  "canImplement": true,
+  "source": {
+    "note": "Exported and consted."
+  },
+  "code": "export const toggleMachine = new StateMachine({\n  init: \"inactive\",\n  transitions: [\n    { name: \"toggle\", from: \"inactive\", to: \"active\" },\n    { name: \"toggle\", from: \"active\", to: \"inactive\" },\n  ]\n});",
+  "formattedWith": "prettier"
+}

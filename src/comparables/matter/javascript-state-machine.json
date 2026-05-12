@@ -1,0 +1,20 @@
+{
+  "library": {
+    "name": "javascript-state-machine",
+    "npm": "javascript-state-machine",
+    "homepage": "https://github.com/jakesgordon/javascript-state-machine",
+    "languages": ["javascript", "typescript"],
+    "typesSource": "@types/javascript-state-machine"
+  },
+  "machine": "matter",
+  "language": "javascript",
+  "lines": 23,
+  "official": true,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/jakesgordon/javascript-state-machine#usage",
+    "note": "Changed the variable name, exported, and consted."
+  },
+  "code": "export const matter = new StateMachine({\n  init: \"solid\",\n  transitions: [\n    { name: \"melt\", from: \"solid\", to: \"liquid\" },\n    { name: \"freeze\", from: \"liquid\", to: \"solid\" },\n    { name: \"vaporize\", from: \"liquid\", to: \"gas\" },\n    { name: \"condense\", from: \"gas\", to: \"liquid\" },\n  ],\n  methods: {\n    onMelt: function () {\n      console.log(\"I melted\");\n    },\n    onFreeze: function () {\n      console.log(\"I froze\");\n    },\n    onVaporize: function () {\n      console.log(\"I vaporized\");\n    },\n    onCondense: function () {\n      console.log(\"I condensed\");\n    },\n  },\n});",
+  "formattedWith": "prettier"
+}

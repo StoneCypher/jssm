@@ -1,0 +1,19 @@
+{
+  "library": {
+    "name": "javascript-state-machine",
+    "npm": "javascript-state-machine",
+    "homepage": "https://github.com/jakesgordon/javascript-state-machine",
+    "languages": ["javascript", "typescript"],
+    "typesSource": "@types/javascript-state-machine"
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "lines": 13,
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "note": "javascript-state-machine did not have a traffic light example. Made from scratch."
+  },
+  "code": "export const matter = new StateMachine({\n  init: \"red\",\n  transitions: [\n    { name: \"next\", from: \"red\", to: \"green\" },\n    { name: \"next\", from: \"green\", to: \"yellow\" },\n    { name: \"next\", from: \"yellow\", to: \"red\" },\n  ],\n  methods: {\n    onRed: function () {\n      console.log(\"Red light!\");\n    },\n  },\n});",
+  "formattedWith": "prettier"
+}
