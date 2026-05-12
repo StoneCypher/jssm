@@ -13,6 +13,8 @@ const trafficLight = readFileSync(
 
 describe('jpegTarget', () => {
 
+  const realTextDecoder = (globalThis as any).TextDecoder;
+
   beforeAll(() => {
     // Provide TextDecoder for jsdom if not present
     if (typeof (globalThis as any).TextDecoder === 'undefined') {
@@ -60,6 +62,8 @@ describe('jpegTarget', () => {
 
   afterAll(() => {
     delete (globalThis as any).OffscreenCanvas;
+    delete (globalThis as any).Image;
+    (globalThis as any).TextDecoder = realTextDecoder;
   });
 
   it('produces JPEG bytes with the SOI marker', async () => {
