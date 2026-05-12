@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1286 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1300 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,28 +22,31 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:12:01 AM
+## [Untagged] - 5/12/2026 11:58:59 AM
 
-Commit [3317cc0eef1af9e268459caf5742fafc8fad8389](https://github.com/StoneCypher/jssm/commit/3317cc0eef1af9e268459caf5742fafc8fad8389)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli/render): PNG target
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 11:07:00 AM
-
-Commit [2f00709c7dec4dc11f78a1d6e2072d567422061b](https://github.com/StoneCypher/jssm/commit/2f00709c7dec4dc11f78a1d6e2072d567422061b)
+Commit [bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568](https://github.com/StoneCypher/jssm/commit/bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): add JSON Schema for per-library FSM examples
+  * feat(machine): expose grammar charset ranges for state names and action labels
+  * Adds three frozen `ReadonlyArray<{from, to}>` constants — `state_name_chars`,
+`state_name_first_chars`, and `action_label_chars` — derived from the PEG
+rules `AtomLetter`, `AtomFirstLetter`, and `ActionLabelUnescaped`.  Each
+constant carries a `keep in sync` comment pointing at the source line in
+`fsl_parser.peg` so the data and the grammar can't drift silently.
+  * Re-exports the constants from `jssm.ts` alongside `shapes`/`named_colors`,
+and adds three matching `Machine` instance methods — `all_state_name_chars`,
+`all_state_name_first_chars`, `all_action_label_chars` — mirroring the
+existing `all_themes()` exposition shape from issues #540/#541.
+  * Tooling that needs to know which characters are legal in a given FSL token
+position (editors, validators, linters) can now read these without
+re-parsing the PEG grammar.
+  * Adds `src/ts/tests/characterset.spec.ts` with 27 tests covering range
+membership for ASCII letters/digits, the `+` distinction between first and
+non-first atom positions, space inclusion and apostrophe exclusion in
+action labels, and identity of the constants returned by the three
+`Machine` methods.
+  * Closes fsl#542.
 
 
 
@@ -52,13 +55,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:02:00 AM
+## [Untagged] - 5/12/2026 11:58:54 AM
 
-Commit [cdd7d307e7c43fe79c611b9dfd91f8ebfa381090](https://github.com/StoneCypher/jssm/commit/cdd7d307e7c43fe79c611b9dfd91f8ebfa381090)
+Commit [5199feaf81dc72e6df9a99d51fa48b1812b36dae](https://github.com/StoneCypher/jssm/commit/5199feaf81dc72e6df9a99d51fa48b1812b36dae)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): rasterize via feature-detected OffscreenCanvas + resvg-wasm
+  * feat(cli/render): single-machine render() with target dispatch
 
 
 
@@ -67,21 +70,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:49:41 AM
+## [Untagged] - 5/12/2026 11:57:55 AM
 
-Commit [20b2ad64633df88815cdc676c4a00feafbc832b8](https://github.com/StoneCypher/jssm/commit/20b2ad64633df88815cdc676c4a00feafbc832b8)
+Commit [aaaf6b69d1bd320fff606e243ac9cbcd713253de](https://github.com/StoneCypher/jssm/commit/aaaf6b69d1bd320fff606e243ac9cbcd713253de)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(sketch): import CodeMirror 6 editor sketch from worktree
-  * Brings in the redistributable cm6-lang-fsl language package
-(StreamLanguage tokenizer for FSL) and the standalone editor demo
-(importmap with deduped @codemirror/state singleton, fsl_parser linter)
-from the worktree-cm6-editor-sketch branch.
-  * The cm6-lang-fsl package is the seed for the future jssm/cm6 subpath
-export per the editor-widget packaging spec.
-  * Dropped from the import: PNG screenshots, .playwright-mcp/ cache, and
-the servehere devDependency change.
+  * chore(comparables): drop deno from research note languages (runtime, not language)
 
 
 
@@ -90,90 +85,31 @@ the servehere devDependency change.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:43:17 AM
+## [Untagged] - 5/12/2026 11:57:32 AM
 
-Commit [c20806be39fd1c91a50291d692c51303f3aa7ee3](https://github.com/StoneCypher/jssm/commit/c20806be39fd1c91a50291d692c51303f3aa7ee3)
+Commit [042394b0b7e574a70464dd118c255bb48cc15bf7](https://github.com/StoneCypher/jssm/commit/042394b0b7e574a70464dd118c255bb48cc15bf7)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): HTML wrapper target
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 10:28:50 AM
-
-Commit [2bb1bc76d915cf05d2d121a3a5060c3928892e02](https://github.com/StoneCypher/jssm/commit/2bb1bc76d915cf05d2d121a3a5060c3928892e02)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli/render): DOT target
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 9:40:50 AM
-
-Commit [fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76](https://github.com/StoneCypher/jssm/commit/fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(cli/render): revert svg.ts to thin wrapper, loosen test regex
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 9:38:39 AM
-
-Commit [adbbaedb1862498cf7cf54f7644a92dd9b48fed2](https://github.com/StoneCypher/jssm/commit/adbbaedb1862498cf7cf54f7644a92dd9b48fed2)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli/render): SVG target
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 8:36:35 AM
-
-Commit [b91876f86307dac2cc90e07841e64080a7d1e451](https://github.com/StoneCypher/jssm/commit/b91876f86307dac2cc90e07841e64080a7d1e451)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(test): make timer-using after_mapping tests properly async
-  * Eight tests in src/ts/tests/after_mapping.spec.ts wrapped an
-`expect()` call in `setTimeout(..., 100)` without returning a
-Promise or awaiting, so the assertion fired AFTER the test had
-already resolved.  Jest silently swallowed the deferred assertion;
-vitest reports it as an "Unhandled Error" because expect happens
-outside the test's lifetime.  Converted each to async with
-`await delay(100)` using the file's existing `delay()` helper.
+  * fix(grammar): replace theme 'none' with 'plain' to match FslThemes registry (fsl#1328)
+  * The PEG grammar's Theme rule listed `none | default | modern | ocean | bold`
+while FslThemes (and theme_mapping) registered `default | ocean | modern |
+plain | bold`.  Two symmetric bugs followed:
+  * - `theme: none;` parsed, pushed `'none'` into the machine's _themes list,
+  then `theme_mapping.get('none')` returned undefined, forcing the
+  defensive filter in `style_for` to paper over the mismatch.
+- `theme: plain;` was rejected by the parser despite `plain_theme` being
+  defined and registered.
+  * Grammar rule reordered to match FslThemes exactly.  Parser regenerated.
   * Also:
-- .eslintrc: add "root": true to prevent eslint from walking up
-  the directory tree and finding the parent repo's plugin
-  installation when running from a worktree nested inside the
-  parent.  No-op on a top-level checkout.
-- package.json: bump 5.112.3 -> 5.113.0 (MINOR) for the
-  jest -> vitest test runner switch this branch is preparing.
-  * Full build deferred — typedoc hits a similar worktree-traversal
-plugin-double-load issue that will be solved by moving the
-worktree out of the parent repo's tree.
+- src/ts/tests/constants.spec.ts: `Themes` list synced (`none` -> `plain`).
+- notes/fsl-grammar-reference.md: enum list corrected.
+- src/ts/tests/theme.spec.ts: regression suite `fsl#1328 - grammar and
+  theme_mapping agree` asserts `theme: plain;` parses, `theme: none;` is
+  rejected, every FslTheme resolves to a defined theme_mapping entry, and
+  every FslTheme parses round-trip into machine.themes.
+  * Spec suite: 63 suites / 5265 tests pass, 100% coverage.
+Stoch suite: 5 suites / 91 tests pass.
 
 
 
@@ -182,10 +118,93 @@ worktree out of the parent repo's tree.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:36:32 AM
+## [Untagged] - 5/12/2026 11:56:13 AM
 
-Commit [6c89f0952c6900b6b55a73096081ffb5f13b5094](https://github.com/StoneCypher/jssm/commit/6c89f0952c6900b6b55a73096081ffb5f13b5094)
+Commit [3808115eca3b5c0d7366e19c82c37ac7f37501bb](https://github.com/StoneCypher/jssm/commit/3808115eca3b5c0d7366e19c82c37ac7f37501bb)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli): add parseFslArgs helper with full flag parsing
+  * feat(viz): add optional dot footer arg to render entry points
+  * Adds an `opts.footer` parameter to `machine_to_dot`, `fsl_to_dot`, and
+the four SVG variants (`fsl_to_svg_string`, `machine_to_svg_string`,
+`fsl_to_svg_element`, `machine_to_svg_element`), plus a trailing
+`footer` parameter to the internal `dot_template`. The footer is
+emitted verbatim just before the closing `}` of the dot source,
+mirroring the existing `preamble` slot. All existing call sites
+compile unchanged (parameter is optional).
+  * Closes fsl#332.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:55:38 AM
+
+Commit [b0a2e00dd585e03adeef6dc7b0912e843b612764](https://github.com/StoneCypher/jssm/commit/b0a2e00dd585e03adeef6dc7b0912e843b612764)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(comparables): record library language-target research findings
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:54:31 AM
+
+Commit [31f14eaa9d9bb8e01c563822500a83a5c0c239ff](https://github.com/StoneCypher/jssm/commit/31f14eaa9d9bb8e01c563822500a83a5c0c239ff)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(cli/render): clean up Image global in jpeg test afterAll
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:48:06 AM
+
+Commit [98ef0f447d6a5d294fbc27aa4b92c5fe3d611417](https://github.com/StoneCypher/jssm/commit/98ef0f447d6a5d294fbc27aa4b92c5fe3d611417)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: add jsdom Jest config for web-component tests
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:43:08 AM
+
+Commit [2dd99cb7518fbfe59c021fb17ca166fd4d1a64cf](https://github.com/StoneCypher/jssm/commit/2dd99cb7518fbfe59c021fb17ca166fd4d1a64cf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(comparables): mark Shootout.md generation zone with comment markers
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:40:28 AM
+
+Commit [a83330479e3fa610028e31e70ac119161ecb8194](https://github.com/StoneCypher/jssm/commit/a83330479e3fa610028e31e70ac119161ecb8194)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cli/render): JPEG target (OffscreenCanvas-only in v1)
