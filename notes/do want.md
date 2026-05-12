@@ -12,7 +12,7 @@
         - [ ] from within gviz/viz.js?
     - [ ] harel statecharts?
 - [ ] the ability to
-    - [ ] keep and rewind a state history (thanks @kz),
+    - [x] keep and rewind a state history (thanks @kz),
     - [ ] autocreate an api (that is, action "melt" on machine auto-gets api method equiv `.melt()`)
         - [ ] with optional prefixes
     - [ ] consume `.dfa` files?
@@ -20,16 +20,16 @@
     - [ ] check `is_changing`
     - [ ] describe edges as members of groups
 - [ ] improved nature of states (all thanks burny who isn't on gh zomg)
-    - [ ] states as objects rather than strings
-        - [ ] makes inheritance easier
-        - [ ] makes heirarachy easier
-        - [ ] makes state-associated data easier (eg walking state now has frame#)
-        - [ ] makes underlying impl much harder
-    - [ ] state subtypes
-    - [ ] heirarchal states
-        - [ ] triggered by subordinate on transfer callback to superior
-        - [ ] "or polling"
-    - [ ] multiple concurrent states (keanu mind blown.gif)
+    - [/] states as objects rather than strings
+        - [/] makes inheritance easier
+        - [/] makes heirarachy easier
+        - [x] makes state-associated data easier (eg walking state now has frame#)
+        - [?] makes underlying impl much harder
+    - [x] state subtypes
+    - [x] heirarchal states
+        - [x] triggered by subordinate on transfer callback to superior
+        - [x] "or polling"
+    - [/] multiple concurrent states (keanu mind blown.gif)
 - [ ] for convenience,
     - [ ] a fluent api for creation
     - [x] a DOT-like string api for creation,
