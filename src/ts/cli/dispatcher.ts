@@ -33,7 +33,10 @@ export async function findPluginOnPath(
   if (!pathEnv) return null;
   const dirs = pathEnv.split(PATH_SEP).filter(d => d.length > 0);
   const baseName = `fsl-${subcommand}`;
-  const exts = IS_WINDOWS ? PATHEXT : [''];
+  const NODE_EXTS = ['.cjs', '.mjs', '.js'];
+  const exts = IS_WINDOWS
+    ? [...PATHEXT, ...NODE_EXTS]
+    : ['', ...NODE_EXTS];
 
   for (const dir of dirs) {
     for (const ext of exts) {
@@ -152,9 +155,12 @@ export async function invokeBySpawn(pluginPath: string, argv: string[]): Promise
   return new Promise<number>((res) => {
     const ext = extname(pluginPath).toLowerCase();
     const isCmdScript = IS_WINDOWS && (ext === '.cmd' || ext === '.bat');
+    const isNodeScript = (ext === '.cjs' || ext === '.mjs' || ext === '.js');
     const [spawnCmd, spawnArgs] = isCmdScript
       ? ['cmd.exe', ['/c', pluginPath, ...argv]]
-      : [pluginPath, argv];
+      : isNodeScript
+        ? [process.execPath, [pluginPath, ...argv]]
+        : [pluginPath, argv];
     const child = spawn(spawnCmd, spawnArgs, { stdio: 'inherit' });
     child.on('exit', (code, signal) => {
       if (signal) res(128 + (process.platform === 'win32' ? 1 : 0));

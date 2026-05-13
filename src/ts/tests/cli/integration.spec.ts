@@ -29,15 +29,18 @@ async function run(cmd: string, args: string[], env: Record<string, string> = {}
 describe('integration: fsl + fsl-render spawned', () => {
 
   it('fsl --version exits 0 with version text', async () => {
-    const r = await run('node', [fslBin, '--version']);
+    const r = await run(process.execPath, [fslBin, '--version']);
     expect(r.code).toBe(0);
     expect(r.stdout).toMatch(/^fsl\s+\S/);
   }, 15000);
 
   it('fsl render <fsl> --stdout produces SVG identical to direct fsl-render invocation', async () => {
     const src = join(fixturesMachines, 'traffic-light.fsl');
-    const direct = await run('node', [fslRenderBin, src, '--target=dot', '--stdout']);
-    const viaDispatch = await run('node', [fslBin, 'render', src, '--target=dot', '--stdout']);
+    const sep = process.platform === 'win32' ? ';' : ':';
+    const distCli = join(repoRoot, 'dist', 'cli');
+    const augmentedPath = `${distCli}${sep}${process.env.PATH}`;
+    const direct = await run(process.execPath, [fslRenderBin, src, '--target=dot', '--stdout']);
+    const viaDispatch = await run(process.execPath, [fslBin, 'render', src, '--target=dot', '--stdout'], { PATH: augmentedPath });
     expect(viaDispatch.code).toBe(direct.code);
     expect(viaDispatch.code).toBe(0);
     expect(viaDispatch.stdout).toBe(direct.stdout);
@@ -47,8 +50,11 @@ describe('integration: fsl + fsl-render spawned', () => {
   it('fsl render writes sibling SVG by default', async () => {
     const work = await fs.mkdtemp(join(tmpdir(), 'fsl-int-test-'));
     const src = join(work, 'traffic-light.fsl');
+    const sep = process.platform === 'win32' ? ';' : ':';
+    const distCli = join(repoRoot, 'dist', 'cli');
+    const augmentedPath = `${distCli}${sep}${process.env.PATH}`;
     await fs.copyFile(join(fixturesMachines, 'traffic-light.fsl'), src);
-    const r = await run('node', [fslBin, 'render', src]);
+    const r = await run(process.execPath, [fslBin, 'render', src], { PATH: augmentedPath });
     expect(r.code).toBe(0);
     const expected = join(work, 'traffic-light.svg');
     const content = await fs.readFile(expected, 'utf8');
@@ -56,7 +62,7 @@ describe('integration: fsl + fsl-render spawned', () => {
   }, 30000);
 
   it('fsl with unknown subcommand exits 1 with helpful error', async () => {
-    const r = await run('node', [fslBin, 'definitely-not-a-real-cmd'], { PATH: '/no/such/dir' });
+    const r = await run(process.execPath, [fslBin, 'definitely-not-a-real-cmd'], { PATH: '' });
     expect(r.code).toBe(1);
     expect(r.stderr).toContain('not a known subcommand');
   }, 15000);
@@ -64,7 +70,7 @@ describe('integration: fsl + fsl-render spawned', () => {
   it('dispatches to non-node fixture plugin via spawn fallback', async () => {
     const sep = process.platform === 'win32' ? ';' : ':';
     const augmentedPath = `${fixturesPlugins}${sep}${process.env.PATH}`;
-    const r = await run('node', [fslBin, 'non-node', 'hello', 'world'], { PATH: augmentedPath });
+    const r = await run(process.execPath, [fslBin, 'non-node', 'hello', 'world'], { PATH: augmentedPath });
     expect(r.code).toBe(0);
     expect(r.stdout).toContain('spawned non-node plugin received: hello world');
   }, 15000);
