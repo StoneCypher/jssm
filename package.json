@@ -7,6 +7,11 @@
   "publishConfig": {
     "access": "public"
   },
+  "bin": {
+    "fsl": "./dist/cli/fsl.cjs",
+    "jssm": "./dist/cli/fsl.cjs",
+    "fsl-render": "./dist/cli/fsl-render.cjs"
+  },
   "exports": {
     ".": {
       "require": {
@@ -33,6 +38,16 @@
         "default": "./dist/jssm_viz.mjs"
       },
       "browser": "./dist/jssm_viz.iife.cjs"
+    },
+    "./cli": {
+      "require": {
+        "types": "./jssm.cli.d.cts",
+        "default": "./dist/cli/lib.cjs"
+      },
+      "import": {
+        "types": "./jssm.cli.d.ts",
+        "default": "./dist/cli/lib.mjs"
+      }
     }
   },
   "autoupdate": {
@@ -63,7 +78,10 @@
     "jest-stoch": "jest -c jest-stoch.config.cjs --color --verbose",
     "jest-dragon": "jest -c jest-dragon.config.cjs --color --verbose",
     "jest-spec": "jest -c jest-spec.config.cjs --color --verbose",
-    "jest": "npm run jest-stoch && npm run jest-spec",
+    "jest-cli": "jest -c jest-cli.config.cjs --color --verbose",
+    "make_cli": "rollup -c rollup.config.cli.cjs.js && rollup -c rollup.config.cli.esm.js",
+    "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
+    "jest": "npm run jest-stoch && npm run jest-spec && npm run jest-cli",
     "test": "npm run make && npm run jest",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
@@ -76,7 +94,7 @@
     "make_viz_iife": "rollup -c rollup.config.viz.iife.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
-    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_es6 && npm run make_deno && npm run make_cjs && npm run make_viz_iife && npm run make_viz_es6 && npm run make_viz_cjs && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && rm ./dist/es6/*.nonmin.js",
+    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_es6 && npm run make_deno && npm run make_cjs && npm run make_viz_iife && npm run make_viz_es6 && npm run make_viz_cjs && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
