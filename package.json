@@ -34,6 +34,15 @@
       },
       "browser": "./dist/jssm_viz.iife.cjs"
     },
+    "./wc/viz": {
+      "import": "./dist/wc/viz.js",
+      "default": "./dist/wc/viz.js"
+    },
+    "./wc/viz/define": {
+      "import": "./dist/wc/viz.define.js",
+      "default": "./dist/wc/viz.define.js"
+    },
+    "./cdn/viz": "./dist/cdn/viz.js",
     "./custom-elements.json": "./custom-elements.json"
   },
   "autoupdate": {
@@ -60,6 +69,9 @@
     "dist/jssm_viz.cjs",
     "dist/jssm_viz.iife.cjs",
     "dist/jssm_viz.mjs",
+    "dist/wc/viz.js",
+    "dist/wc/viz.define.js",
+    "dist/cdn/viz.js",
     "dist/deno/jssm.js",
     "dist/deno/*.d.ts",
     "dist/deno/README.md",

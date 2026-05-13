@@ -78,3 +78,47 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
   });
 
 });
+
+describe('package.json exposure', () => {
+
+  const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../../../package.json'), 'utf8'));
+
+  it('exposes the wc/viz subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/viz');
+    expect(json).toContain('./dist/wc/viz.js');
+  });
+
+  it('exposes the wc/viz/define subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/viz/define');
+    expect(json).toContain('./dist/wc/viz.define.js');
+  });
+
+  it('exposes the cdn/viz subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./cdn/viz');
+    expect(json).toContain('./dist/cdn/viz.js');
+  });
+
+  it('declares the sideEffects whitelist', () => {
+    expect(Array.isArray(pkg.sideEffects)).toBe(true);
+    const json = JSON.stringify(pkg.sideEffects);
+    expect(json).toContain('*.define.js');
+    expect(json).toContain('dist/cdn');
+  });
+
+  it('declares lit as an optional peer', () => {
+    expect(pkg.peerDependencies?.lit).toBeDefined();
+    expect(pkg.peerDependenciesMeta?.lit?.optional).toBe(true);
+  });
+
+  it('lists the new wc and cdn dist files for publication', () => {
+    const json = JSON.stringify(pkg.files);
+    expect(json).toContain('dist/wc/viz.js');
+    expect(json).toContain('dist/wc/viz.define.js');
+    expect(json).toContain('dist/cdn/viz.js');
+    expect(json).toContain('custom-elements.json');
+  });
+
+});
