@@ -1,0 +1,426 @@
+{
+  "$schema_version": 1,
+  "title": "FSL Editor / Visualizer — feature inventory for rewrite",
+  "source_repo": "../jssm-viz-demo",
+  "generated": "2026-05-12",
+  "status_legend": {
+    "existing": "Present and working in jssm-viz-demo today",
+    "broken": "Exists in the UI but does not function (or is wired to nothing)",
+    "dead": "DOM element / code path exists but is unreferenced / unreachable",
+    "new": "Not in jssm-viz-demo today; proposed for the rewrite"
+  },
+  "groups": [
+    {
+      "id": "graph_explorer__editor_pane",
+      "title": "Graph Explorer — Editor Pane",
+      "items": [
+        {
+          "id": "live_fsl_editor",
+          "title": "Live FSL code editor",
+          "status": "existing",
+          "notes": "Ace editor occupying one half of the viewport, currently fixed 50/50 split."
+        },
+        {
+          "id": "fsl_syntax_highlighting",
+          "title": "FSL syntax highlighting",
+          "status": "existing",
+          "notes": "Provided by Ace's mode-fsl.js. Rewrite will need an equivalent grammar definition for the chosen editor."
+        },
+        {
+          "id": "live_autocomplete",
+          "title": "Live autocomplete",
+          "status": "existing",
+          "notes": "Ace's enableLiveAutocompletion: true."
+        },
+        {
+          "id": "tab_size_2",
+          "title": "Tab size = 2",
+          "status": "existing"
+        },
+        {
+          "id": "editor_font_size_buttons",
+          "title": "Editor font-size up / down buttons (T ↑ / T ↓)",
+          "status": "existing",
+          "notes": "Floor of 3px; starts at 21px; no explicit upper cap."
+        },
+        {
+          "id": "editor_theme_picker",
+          "title": "Editor color theme picker",
+          "status": "existing",
+          "notes": "~38 Ace themes; default solarized_dark; persisted to localStorage as PrevTheme."
+        },
+        {
+          "id": "browser_shortcut_passthrough",
+          "title": "Browser shortcut passthrough (Ctrl/Cmd-R, T, L)",
+          "status": "existing",
+          "notes": "Intentionally unbinds Ace's bindings for these keys on the FSL editor and on the read-only SVG/DOT panes so browser refresh, new tab, and address bar focus work."
+        },
+        {
+          "id": "editor_focus_on_load",
+          "title": "Editor receives focus and cursor at end on load",
+          "status": "existing"
+        }
+      ]
+    },
+    {
+      "id": "graph_explorer__render_pane",
+      "title": "Graph Explorer — Render Pane",
+      "items": [
+        {
+          "id": "live_svg_render",
+          "title": "Live SVG rendering of the FSL",
+          "status": "existing",
+          "notes": "Uses jssm_viz.fsl_to_svg_string."
+        },
+        {
+          "id": "engine_auto_selection",
+          "title": "Layout engine auto-selection",
+          "status": "existing",
+          "notes": "Uses the FSL's graph_layout attribute; defaults to dot."
+        },
+        {
+          "id": "zoom_control",
+          "title": "Zoom control",
+          "status": "existing",
+          "notes": "Number input; scales #svg_target width/height as percent (min 1, step 10, default 100)."
+        },
+        {
+          "id": "view_mode_buttons",
+          "title": "View-mode buttons: Vis / Tree / SVG / DOT",
+          "status": "existing",
+          "notes": "Vis = rendered SVG, Tree = parse tree JSON in read-only Ace, SVG = raw SVG source in read-only Ace, DOT = generated Graphviz DOT in read-only Ace. Active button highlighted."
+        },
+        {
+          "id": "export_png_button",
+          "title": "Export PNG button",
+          "status": "broken",
+          "notes": "Button #png_btn exists in the DOM but is not wired to any handler."
+        },
+        {
+          "id": "palette_button",
+          "title": "Palette button (🎨)",
+          "status": "dead",
+          "notes": "Button #addPalette exists in the DOM but is not wired to any handler. Intent unclear."
+        }
+      ]
+    },
+    {
+      "id": "graph_explorer__layout_chrome",
+      "title": "Graph Explorer — Layout / Chrome",
+      "items": [
+        {
+          "id": "editor_rotation_button",
+          "title": "Editor rotation button (🔄)",
+          "status": "existing",
+          "notes": "Cycles six layouts: edRight (default) -> edBottom -> edLeft -> edTop -> edOnly (editor only) -> edOff (viz only). Persisted to localStorage as PrevRot."
+        },
+        {
+          "id": "add_header_button",
+          "title": "Add Header button (☰)",
+          "status": "existing",
+          "notes": "Prepends a canonical FSL header block (machine_name, machine_author, machine_license, machine_comment, machine_language, machine_version, fsl_version, start_states, end_states) to the editor content."
+        },
+        {
+          "id": "help_button",
+          "title": "Help button (?)",
+          "status": "existing",
+          "notes": "Slides in a right-side help panel."
+        },
+        {
+          "id": "help_panel_folding",
+          "title": "Foldable help-panel sections",
+          "status": "existing",
+          "notes": "Clicking an h1 collapses its dl; arrow glyph toggles. Sections start folded."
+        },
+        {
+          "id": "help_panel_topics",
+          "title": "Help panel topic content",
+          "status": "existing",
+          "notes": "Active topics: Transitions, Actions, Spread, Machine Attributes. Commented out in HTML: Probability, Named Ordered Sets, Stripes, Cycles, Timeouts."
+        }
+      ]
+    },
+    {
+      "id": "graph_explorer__examples",
+      "title": "Graph Explorer — Examples Menu",
+      "items": [
+        {
+          "id": "examples_picker",
+          "title": "Built-in example machines picker",
+          "status": "existing",
+          "notes": "Traffic Light, Sequential Function Chart, Unit Chains, TCP/IP. Each is inlined as a JS string with a url pointer to the canonical .fsl in the jssm repo."
+        },
+        {
+          "id": "example_load_replaces_editor",
+          "title": "Selecting an example replaces editor contents and re-renders",
+          "status": "existing"
+        }
+      ]
+    },
+    {
+      "id": "graph_explorer__sharing",
+      "title": "Graph Explorer — Sharing / URL",
+      "items": [
+        {
+          "id": "url_share_load",
+          "title": "URL-based load of FSL source",
+          "status": "existing",
+          "notes": "?s=<lzstring-base64> decompresses via LZString.decompressFromEncodedURIComponent on cold start. Falls back to the Traffic Light example."
+        },
+        {
+          "id": "view_link",
+          "title": "View link (🌎)",
+          "status": "existing",
+          "notes": "Opens https://fsl.tools/viewer/?z=<compressed>. Updated on every edit."
+        },
+        {
+          "id": "editor_link",
+          "title": "Editor link (👨🏽‍💻)",
+          "status": "existing",
+          "notes": "Opens ?s=<compressed> on the same editor. Updated on every edit."
+        }
+      ]
+    },
+    {
+      "id": "graph_explorer__status_errors",
+      "title": "Graph Explorer — Status / Errors",
+      "items": [
+        {
+          "id": "status_readout_bar",
+          "title": "Status readout bar",
+          "status": "existing",
+          "notes": "Bottom strip: 'Line N col M out of L lines    N states; M transitions; K actions'. Updates on cursor move and after every successful parse."
+        },
+        {
+          "id": "error_display",
+          "title": "Error display",
+          "status": "existing",
+          "notes": "Parse failure shows message + start:col -> end:col in the bottom bar; bar turns red via the showError class."
+        },
+        {
+          "id": "inline_error_markers",
+          "title": "Inline error markers in the editor",
+          "status": "existing",
+          "notes": "Red errorRange underline at the failing span via Ace markers and annotations; cleared on successful parse."
+        }
+      ]
+    },
+    {
+      "id": "graph_explorer__version_readout",
+      "title": "Graph Explorer — Version Readout",
+      "items": [
+        {
+          "id": "console_version_log",
+          "title": "Console version log on load",
+          "status": "existing",
+          "notes": "Prints jssm, jssm-viz, and jssm-viz-demo versions and build timestamps to console.log."
+        }
+      ]
+    },
+    {
+      "id": "graph_explorer__persistence",
+      "title": "Graph Explorer — Persistence",
+      "items": [
+        {
+          "id": "persist_theme",
+          "title": "localStorage.PrevTheme — editor color theme",
+          "status": "existing"
+        },
+        {
+          "id": "persist_rotation",
+          "title": "localStorage.PrevRot — layout rotation",
+          "status": "existing"
+        },
+        {
+          "id": "fsl_not_persisted",
+          "title": "FSL source is NOT persisted across reloads",
+          "status": "broken",
+          "notes": "Only the URL share mechanism preserves work; reloading without ?s= loses the editor contents. Strong candidate to fix in the rewrite (see new__autosave_fsl)."
+        }
+      ]
+    },
+    {
+      "id": "language_explorer",
+      "title": "Secondary entry: language_explorer.html",
+      "items": [
+        {
+          "id": "language_explorer_layout",
+          "title": "Five-pane layout: SVG | PNG | Parse Tree | JSON(make) | DOT",
+          "status": "broken",
+          "notes": "Uses require() and references jssm.es5.cjs.min.js + jssm-viz.es5.cjs.js which are NOT copied by npm run clone, so the page does not function as deployed."
+        },
+        {
+          "id": "language_explorer_plain_textarea",
+          "title": "Plain <textarea> editor (no Ace), live-updating on keyup",
+          "status": "broken"
+        },
+        {
+          "id": "language_explorer_default_machine",
+          "title": "Loads the traffic-light cycle as default",
+          "status": "broken"
+        }
+      ]
+    },
+    {
+      "id": "graphist",
+      "title": "Secondary entry: graphist.html / graphist_.html",
+      "items": [
+        {
+          "id": "graphist_png_only",
+          "title": "Side-by-side PNG-only renderer with Ace editor",
+          "status": "broken",
+          "notes": "Ace is loaded in monokai theme and javascript mode (not FSL) — appears unintentional. Same missing-file problem as language_explorer.html."
+        },
+        {
+          "id": "graphist__stub",
+          "title": "graphist_.html — minimal Ace stub, no rendering",
+          "status": "dead",
+          "notes": "Looks like a sketch / WIP that never finished."
+        }
+      ]
+    },
+    {
+      "id": "build_packaging",
+      "title": "Build / packaging (today)",
+      "items": [
+        {
+          "id": "build_clean",
+          "title": "npm run clean — wipes docs/",
+          "status": "existing"
+        },
+        {
+          "id": "build_cloneace",
+          "title": "npm run cloneace — copies Ace runtime, modes (fsl, javascript, svg, dot), every theme, and workers from node_modules",
+          "status": "existing"
+        },
+        {
+          "id": "build_clonejs",
+          "title": "npm run clonejs — copies jssm-viz.iife.js",
+          "status": "existing"
+        },
+        {
+          "id": "build_clonehtml",
+          "title": "npm run clonehtml — copies src/html/*",
+          "status": "existing"
+        },
+        {
+          "id": "build_version",
+          "title": "npm run version — generates docs/version.js with version + build_time",
+          "status": "existing"
+        },
+        {
+          "id": "build_changelog",
+          "title": "npm run changelog — regenerates CHANGELOG.md via better_git_changelog",
+          "status": "existing"
+        },
+        {
+          "id": "build_gh_pages",
+          "title": "GitHub Pages deployment from docs/",
+          "status": "existing",
+          "notes": "Deployed at https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html"
+        }
+      ]
+    },
+    {
+      "id": "new_features",
+      "title": "Proposed new features for the rewrite (NEW)",
+      "items": [
+        {
+          "id": "new__autosave_fsl",
+          "title": "Auto-save FSL to localStorage",
+          "status": "new",
+          "notes": "Survives reload without depending on the URL share mechanism."
+        },
+        {
+          "id": "new__working_png_export",
+          "title": "Working PNG export",
+          "status": "new",
+          "notes": "Wire up (or replace) the existing button."
+        },
+        {
+          "id": "new__svg_download",
+          "title": "SVG download (save current diagram as .svg)",
+          "status": "new"
+        },
+        {
+          "id": "new__copy_buttons",
+          "title": "Copy buttons for share URL, SVG source, DOT source, parse tree",
+          "status": "new"
+        },
+        {
+          "id": "new__open_save_fsl_file",
+          "title": "Open / save .fsl file from / to disk",
+          "status": "new"
+        },
+        {
+          "id": "new__resizable_splitter",
+          "title": "Resizable splitter between editor and viz",
+          "status": "new",
+          "notes": "Today the editor/viz split is fixed 50/50 per layout mode."
+        },
+        {
+          "id": "new__modern_editor",
+          "title": "Modern editor: CodeMirror 6 (decided 2026-05-12)",
+          "status": "new",
+          "notes": "Decided CM6 after a survey of Monaco / CM5 / Ace / Lexical / TipTap / Slate / CodeJar+Shiki / Theia / Sandpack. Rationale: bundle size irrelevant (viz.js WASM already multi-MB), strongest custom-language story via Lezer for future grammar work, best a11y/mobile story. Working sketch at sketch/cm6-editor/ and sketch/cm6-lang-fsl/ (StreamLanguage tokenizer + fsl_parser linter)."
+        },
+        {
+          "id": "new__cm6_lang_fsl_package",
+          "title": "Publish cm6-lang-fsl as the jssm/cm6 subpath",
+          "status": "new",
+          "notes": "Reuse the StreamLanguage tokenizer from sketch/cm6-lang-fsl/ as the jssm/cm6 subpath export. Exports fslLanguage and fsl(). Shape matches standard @codemirror/lang-* packages so any CM6 consumer can `import { fsl } from 'jssm/cm6'`. Future escalation path: hand-written tokenizer -> auto-derived from PEG terminals -> full Lezer grammar."
+        },
+        {
+          "id": "new__cm6_importmap_pattern",
+          "title": "Ship CM6 importmap pattern for CDN consumers",
+          "status": "new",
+          "notes": "Document and bake the pinned-version + ?external= chain importmap pattern into the CDN docs for <jssm-editor>. Two real bugs to avoid: (1) the `codemirror` meta package on esm.sh drops re-exports — compose basicSetup manually; (2) jsdelivr's +esm shortcut inlines @codemirror/state in each package, breaking instanceof. Reference sketch HTML at sketch/cm6-editor/index.html."
+        },
+        {
+          "id": "new__chrome_dark_light_theme",
+          "title": "Dark/light chrome theme (not just the editor)",
+          "status": "new"
+        },
+        {
+          "id": "new__examples_loaded_dynamically",
+          "title": "Examples loaded from jssm/src/machines/*.fsl dynamically",
+          "status": "new",
+          "notes": "Fewer drift opportunities than inlined JS strings."
+        },
+        {
+          "id": "new__format_prettify",
+          "title": "Format / prettify command for FSL",
+          "status": "new"
+        },
+        {
+          "id": "new__keyboard_shortcut_help",
+          "title": "Keyboard-shortcut help dialog",
+          "status": "new"
+        },
+        {
+          "id": "new__interactive_playback",
+          "title": "Interactive playback / step-through",
+          "status": "new",
+          "notes": "Pick a start state, click actions/transitions to step; current state highlighted in the SVG."
+        },
+        {
+          "id": "new__outline_panel",
+          "title": "Outline panel of states / actions / transitions, click-to-jump",
+          "status": "new"
+        },
+        {
+          "id": "new__mobile_layout",
+          "title": "Mobile / narrow-viewport layout",
+          "status": "new",
+          "notes": "Current app assumes desktop width."
+        },
+        {
+          "id": "new__decide_secondary_entries",
+          "title": "Decide the fate of language_explorer and graphist",
+          "status": "new",
+          "notes": "Either fix as a unified 'Inspector' tab in the main app or drop entirely."
+        }
+      ]
+    }
+  ]
+}
