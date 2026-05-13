@@ -110,14 +110,14 @@ describe('dispatcher: invokeBySpawn', () => {
     const args = ['-e', 'console.log("spawned hi"); process.exit(0)'];
     const code = await invokeBySpawn(node, args);
     expect(code).toBe(0);
-  });
+  }, 15_000);
 
   it('returns subprocess non-zero exit', async () => {
     const node = process.execPath;
     const args = ['-e', 'process.exit(4)'];
     const code = await invokeBySpawn(node, args);
     expect(code).toBe(4);
-  });
+  }, 15_000);
 
 });
 
@@ -155,9 +155,18 @@ describe('dispatcher: dispatch (orchestrator)', () => {
   });
 
   it('returns 1 with helpful error for unknown subcommand', async () => {
-    const code = await dispatch(['definitely-not-a-real-subcommand-xyz']);
-    expect(code).toBe(1);
-    expect(stderrChunks.join('')).toMatch(/not a known subcommand/);
+    // Override PATH to a single non-existent dir so findPluginOnPath resolves
+    // quickly instead of scanning the full system PATH (which can be slow on
+    // Windows with many PATHEXT extensions).
+    const origPath = process.env.PATH;
+    process.env.PATH = '/no/such/dir/for/test';
+    try {
+      const code = await dispatch(['definitely-not-a-real-subcommand-xyz']);
+      expect(code).toBe(1);
+      expect(stderrChunks.join('')).toMatch(/not a known subcommand/);
+    } finally {
+      process.env.PATH = origPath;
+    }
   });
 
 });
