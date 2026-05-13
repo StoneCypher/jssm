@@ -1110,6 +1110,9 @@ SdStateLineStyle "linestyle"
 SdStateImage "image"
   = WS? "image"            WS? ":" WS? value:String    WS? ";" WS? { return { key:'image', value }; }
 
+SdStateUrl "url"
+  = WS? "url"              WS? ":" WS? value:String    WS? ";" WS? { return { key:'url', value }; }
+
 
 SdStateProperty "state property"
   = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
@@ -1130,6 +1133,7 @@ StateDeclarationItem
   / SdStateCorners
   / SdStateLineStyle
   / SdStateImage
+  / SdStateUrl
   / SdStateProperty
 
 StateDeclarationDesc
