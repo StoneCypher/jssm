@@ -102,8 +102,8 @@ function makeTransition<StateType, mDT>(
   const action      : string = isRight ? 'r_action'      : 'l_action',
         probability : string = isRight ? 'r_probability' : 'l_probability';
 
-  if (this_se[action])      { edge.action      = this_se[action]; }
-  if (this_se[probability]) { edge.probability = this_se[probability]; }
+  if (this_se[action]      != null) { edge.action      = this_se[action]; }
+  if (this_se[probability] != null) { edge.probability = this_se[probability]; }
 
   return edge;
 

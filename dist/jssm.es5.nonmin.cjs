@@ -406,26 +406,26 @@ function peg$parse(input, options) {
         // fixed-order rule:
         //   pre-arrow:  after→r_after  action→r_action  prob→r_probability  desc→l_desc
         //   post-arrow: after→l_after  action→l_action  prob→l_probability  desc→r_desc
-        // The truthy `if (d.v)` guard mirrors the legacy `if (var)`
-        // checks: it suppresses falsy values (notably `null` from an
-        // empty `{}` brace block) so the AST shape stays compatible
-        // with the original fixed-order rule.
+        // The `!= null` guard suppresses missing-value sentinels (the
+        // `null` returned by an empty `{}` brace block) while letting
+        // legitimately-empty primitives through — notably the empty
+        // string from an empty action label `''`.
         const seen = {};
         for (const d of pre) {
             if (seen['pre:' + d._kind]) {
                 error('duplicate ' + d._kind + ' decoration before arrow', location());
             }
             seen['pre:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.r_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.r_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.r_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.l_desc = d.v;
             }
         }
@@ -434,16 +434,16 @@ function peg$parse(input, options) {
                 error('duplicate ' + d._kind + ' decoration after arrow', location());
             }
             seen['post:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.l_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.l_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.l_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.r_desc = d.v;
             }
         }
@@ -20358,10 +20358,10 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
       }
     */
     const action = isRight ? 'r_action' : 'l_action', probability = isRight ? 'r_probability' : 'l_probability';
-    if (this_se[action]) {
+    if (this_se[action] != null) {
         edge.action = this_se[action];
     }
-    if (this_se[probability]) {
+    if (this_se[probability] != null) {
         edge.probability = this_se[probability];
     }
     return edge;
@@ -21175,7 +21175,19 @@ var constants = /*#__PURE__*/Object.freeze({
     shapes: shapes$1
 });
 
-const version = "5.112.4", build_time = 1778609230339;
+/**
+ *  The published semantic version of the jssm package this build was cut from.
+ *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
+ *  Useful for runtime diagnostics and for embedding in serialized machine
+ *  snapshots so that deserializers can detect version-skew.
+ */
+const version = "5.112.8";
+/**
+ *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
+ *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
+ *  with the same `version` string during development, and for diagnostic logs.
+ */
+const build_time = 1778615523578;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors } = constants;
