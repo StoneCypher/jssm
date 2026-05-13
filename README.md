@@ -18,17 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-<<<<<<< HEAD
-* Generated for version 5.113.0 at 5/13/2026, 8:45:15 AM
-
--->
-# jssm 5.113.0
-=======
-* Generated for version 5.118.0 at 5/13/2026, 7:36:40 AM
+* Generated for version 5.118.0 at 5/13/2026, 1:37:15 PM
 
 -->
 # jssm 5.118.0
->>>>>>> 9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -205,11 +198,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-<<<<<<< HEAD
-  library.**  5,709 tests at 100.0% line coverage
-=======
-  library.**  5,385 tests at 100.0% line coverage
->>>>>>> 9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0
+  library.**  5,716 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -342,19 +331,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-<<<<<<< HEAD
-***5,709 tests***, run 47,487 times.
-
-- 5,287 specs with 100.0% coverage
-- 422 fuzz tests with 62.5% coverage
-- 3,517 TypeScript lines - 1.6 tests per line, 13.5 generated tests per line
-=======
-***5,385 tests***, run 14,394 times.
+***5,716 tests***, run 47,494 times.
 
 - 5,294 specs with 100.0% coverage
-- 91 fuzz tests with 62.5% coverage
-- 3,521 TypeScript lines - 1.5 tests per line, 4.1 generated tests per line
->>>>>>> 9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0
+- 422 fuzz tests with 62.5% coverage
+- 3,521 TypeScript lines - 1.6 tests per line, 13.5 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
