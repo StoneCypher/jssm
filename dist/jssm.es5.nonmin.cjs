@@ -21150,6 +21150,93 @@ const named_colors$1 = [
     "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
     "Yellow", "YellowGreen"
 ];
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ */
+// keep in sync with src/ts/fsl_parser.peg:278
+const state_name_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '+', to: '+' },
+    { from: '_', to: '_' },
+    { from: '^', to: '^' },
+    { from: '(', to: '(' },
+    { from: ')', to: ')' },
+    { from: '*', to: '*' },
+    { from: '&', to: '&' },
+    { from: '$', to: '$' },
+    { from: '#', to: '#' },
+    { from: '@', to: '@' },
+    { from: '!', to: '!' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:275
+const state_name_first_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '_', to: '_' },
+    { from: '!', to: '!' },
+    { from: '$', to: '$' },
+    { from: '^', to: '^' },
+    { from: '*', to: '*' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$1 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\uFFFF' },
+]);
 
 var constants = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -21170,9 +21257,12 @@ var constants = /*#__PURE__*/Object.freeze({
     PosInfinity: PosInfinity,
     Root2: Root2,
     RootHalf: RootHalf,
+    action_label_chars: action_label_chars$1,
     gviz_shapes: gviz_shapes$1,
     named_colors: named_colors$1,
-    shapes: shapes$1
+    shapes: shapes$1,
+    state_name_chars: state_name_chars$1,
+    state_name_first_chars: state_name_first_chars$1
 });
 
 /**
@@ -21181,16 +21271,16 @@ var constants = /*#__PURE__*/Object.freeze({
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.112.8";
+const version = "5.118.0";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778615523578;
+const build_time = 1778660102735;
 
 // whargarbl lots of these return arrays could/should be sets
-const { shapes, gviz_shapes, named_colors } = constants;
+const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -22335,6 +22425,46 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
+    }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -22460,10 +22590,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -22471,11 +22614,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
@@ -24498,6 +24648,7 @@ exports.FslDirections = FslDirections;
 exports.Machine = Machine;
 exports.abstract_everything_hook_step = abstract_everything_hook_step;
 exports.abstract_hook_step = abstract_hook_step;
+exports.action_label_chars = action_label_chars;
 exports.arrow_direction = arrow_direction;
 exports.arrow_left_kind = arrow_left_kind;
 exports.arrow_right_kind = arrow_right_kind;
@@ -24519,6 +24670,8 @@ exports.seq = seq;
 exports.shapes = shapes;
 exports.sleep = sleep;
 exports.sm = sm;
+exports.state_name_chars = state_name_chars;
+exports.state_name_first_chars = state_name_first_chars;
 exports.state_style_condense = state_style_condense;
 exports.transfer_state_properties = transfer_state_properties;
 exports.unique = unique;

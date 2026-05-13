@@ -20875,21 +20875,128 @@ theme_mapping.set('ocean', ocean_theme);
 theme_mapping.set('plain', plain_theme);
 theme_mapping.set('bold', bold_theme);
 
+/*******
+ *
+ *  Convenience aliases for common mathematical and numeric constants from
+ *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
+ *  can reference them without importing `Math` directly.
+ *
+ *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
+ *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
+ *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
+ *
+ */
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ */
+// keep in sync with src/ts/fsl_parser.peg:278
+const state_name_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '+', to: '+' },
+    { from: '_', to: '_' },
+    { from: '^', to: '^' },
+    { from: '(', to: '(' },
+    { from: ')', to: ')' },
+    { from: '*', to: '*' },
+    { from: '&', to: '&' },
+    { from: '$', to: '$' },
+    { from: '#', to: '#' },
+    { from: '@', to: '@' },
+    { from: '!', to: '!' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:275
+const state_name_first_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '_', to: '_' },
+    { from: '!', to: '!' },
+    { from: '$', to: '$' },
+    { from: '^', to: '^' },
+    { from: '*', to: '*' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$1 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\uFFFF' },
+]);
+
+var constants = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    action_label_chars: action_label_chars$1,
+    state_name_chars: state_name_chars$1,
+    state_name_first_chars: state_name_first_chars$1
+});
+
 /**
  *  The published semantic version of the jssm package this build was cut from.
  *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.112.8";
+const version = "5.118.0";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778615523578;
+const build_time = 1778660102735;
 
 // whargarbl lots of these return arrays could/should be sets
+const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -22034,6 +22141,46 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
+    }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -22159,10 +22306,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -22170,11 +22330,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
@@ -24289,9 +24456,24 @@ function flow_direction_to_rankdir(flow_direction) {
 /**
  *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
  *
+ *  The optional `preamble` is inlined just after `digraph G {`, before any
+ *  graph attributes; the optional `footer` is inlined just before the closing
+ *  `}`, after all arrange declarations.  Both are emitted verbatim, separated
+ *  from surrounding content by a blank line so that empty strings render
+ *  cleanly (no stray whitespace artifacts in the output).
+ *
+ *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
+ *  @param graph_bg_color CSS-style color string for `bgcolor`.
+ *  @param nodes Rendered node-declaration block.
+ *  @param edges Rendered edge-declaration block.
+ *  @param arranges Rendered rank-arrangement block.
+ *  @param preamble Optional verbatim dot source inserted just after `digraph G {`.
+ *  @param footer Optional verbatim dot source inserted just before the closing `}`.
+ *  @returns A complete graphviz dot source string.
+ *
  *  @internal
  */
-function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '') {
+function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '', footer = '') {
     return `digraph G {
 ${preamble}
 
@@ -24307,6 +24489,8 @@ ${nodes}
 ${edges}
 
 ${arranges}
+
+${footer}
 }`;
 }
 /**
@@ -24534,18 +24718,29 @@ function arranges_for(u_jssm, state_index) {
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
+ *
  *  ```typescript
  *  import { sm } from 'jssm';
  *  import { machine_to_dot } from 'jssm/viz';
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function machine_to_dot(u_jssm) {
+function machine_to_dot(u_jssm, opts) {
+    var _a;
     const l_states = u_jssm.states();
     const state_index = new Map(l_states.map((s, i) => [s, i]));
     const state_kinds = classify_states(u_jssm, l_states);
@@ -24554,7 +24749,8 @@ function machine_to_dot(u_jssm) {
     const arranges = arranges_for(u_jssm, state_index);
     const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
     const preamble = u_jssm.dot_preamble() || '';
-    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
+    const footer = (_a = opts === null || opts === void 0 ? void 0 : opts.footer) !== null && _a !== void 0 ? _a : '';
+    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble, footer);
 }
 /**
  *  Render an FSL string directly to graphviz dot source.
@@ -24562,13 +24758,18 @@ function machine_to_dot(u_jssm) {
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function fsl_to_dot(fsl) {
-    return machine_to_dot(sm `${fsl}`);
+function fsl_to_dot(fsl, opts) {
+    return machine_to_dot(sm `${fsl}`, opts);
 }
 /**
  *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
@@ -24590,19 +24791,23 @@ async function dot_to_svg(dot) {
  *  Render an FSL string directly to SVG.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl) {
-    return dot_to_svg(fsl_to_dot(fsl));
+async function fsl_to_svg_string(fsl, opts) {
+    return dot_to_svg(fsl_to_dot(fsl, opts));
 }
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function machine_to_svg_string(u_jssm) {
-    return dot_to_svg(machine_to_dot(u_jssm));
+async function machine_to_svg_string(u_jssm, opts) {
+    return dot_to_svg(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Resolve a `DOMParser` constructor: prefer `globalThis.DOMParser` (browsers,
@@ -24639,21 +24844,25 @@ async function dot_to_svg_element(dot) {
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function fsl_to_svg_element(fsl) {
-    return dot_to_svg_element(fsl_to_dot(fsl));
+async function fsl_to_svg_element(fsl, opts) {
+    return dot_to_svg_element(fsl_to_dot(fsl, opts));
 }
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function machine_to_svg_element(u_jssm) {
-    return dot_to_svg_element(machine_to_dot(u_jssm));
+async function machine_to_svg_element(u_jssm, opts) {
+    return dot_to_svg_element(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
