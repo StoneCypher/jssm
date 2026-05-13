@@ -33,7 +33,17 @@
         "default": "./dist/jssm_viz.mjs"
       },
       "browser": "./dist/jssm_viz.iife.cjs"
-    }
+    },
+    "./wc/viz": {
+      "import": "./dist/wc/viz.js",
+      "default": "./dist/wc/viz.js"
+    },
+    "./wc/viz/define": {
+      "import": "./dist/wc/viz.define.js",
+      "default": "./dist/wc/viz.define.js"
+    },
+    "./cdn/viz": "./dist/cdn/viz.js",
+    "./custom-elements.json": "./custom-elements.json"
   },
   "autoupdate": {
     "source": "git",
@@ -48,6 +58,10 @@
     ]
   },
   "type": "module",
+  "sideEffects": [
+    "./dist/wc/*.define.js",
+    "./dist/cdn/**"
+  ],
   "files": [
     "dist/jssm.es5.cjs",
     "dist/jssm.es5.iife.js",
@@ -55,6 +69,9 @@
     "dist/jssm_viz.cjs",
     "dist/jssm_viz.iife.cjs",
     "dist/jssm_viz.mjs",
+    "dist/wc/viz.js",
+    "dist/wc/viz.define.js",
+    "dist/cdn/viz.js",
     "dist/deno/jssm.js",
     "dist/deno/*.d.ts",
     "dist/deno/README.md",
@@ -62,7 +79,8 @@
     "jssm.es6.d.ts",
     "jssm_viz.es5.d.cts",
     "jssm_viz.es6.d.ts",
-    "MIGRATING-jssm-viz.md"
+    "MIGRATING-jssm-viz.md",
+    "custom-elements.json"
   ],
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
   "main": "dist/jssm.es5.cjs",
@@ -79,20 +97,24 @@
     "jest-stoch": "jest -c jest-stoch.config.cjs --color --verbose",
     "jest-dragon": "jest -c jest-dragon.config.cjs --color --verbose",
     "jest-spec": "jest -c jest-spec.config.cjs --color --verbose",
-    "jest": "npm run jest-stoch && npm run jest-spec",
+    "jest-wc": "jest -c jest-wc.config.cjs --color --verbose",
+    "jest": "npm run jest-stoch && npm run jest-spec && npm run jest-wc",
     "test": "npm run make && npm run jest",
-    "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
+    "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && cd dist && mkdir wc && mkdir cdn && cd .. && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
+    "build:cem": "custom-elements-manifest analyze --config custom-elements-manifest.config.mjs",
     "make_cjs": "rollup -c rollup.config.es5.js",
     "make_es6": "rollup -c rollup.config.es6.js",
     "make_iife": "rollup -c rollup.config.iife.js",
     "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno",
     "make_viz_cjs": "rollup -c rollup.config.viz.es5.js",
     "make_viz_es6": "rollup -c rollup.config.viz.es6.js",
+    "make_wc_viz_es6": "rollup -c rollup.config.wc.viz.es6.js",
+    "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
     "make_viz_iife": "rollup -c rollup.config.viz.iife.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
-    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_es6 && npm run make_deno && npm run make_cjs && npm run make_viz_iife && npm run make_viz_es6 && npm run make_viz_cjs && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && rm ./dist/es6/*.nonmin.js",
+    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_iife && npm run make_es6 && npm run make_deno && npm run make_cjs && npm run make_viz_iife && npm run make_viz_es6 && npm run make_viz_cjs && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && rm ./dist/es6/*.nonmin.js",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
@@ -161,6 +183,7 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.10.4",
     "@knodes/typedoc-plugin-pages": "^0.22.5",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
@@ -187,6 +210,7 @@
     "jest-environment-jsdom": "^30.3.0",
     "jest-json-reporter2": "^1.1.0",
     "jsdom": "^24.1.0",
+    "lit": "^3.2.1",
     "pegjs": "^0.10.0",
     "picocolors": "^1.0.0",
     "rollup": "^4.24.0",
@@ -204,6 +228,12 @@
     "better_git_changelog": "^1.6.1",
     "circular_buffer_js": "^1.10.0",
     "reduce-to-639-1": "^1.1.0"
+  },
+  "peerDependencies": {
+    "lit": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "lit": { "optional": true }
   },
   "optionalDependencies": {
     "@viz-js/viz": "^3.26.0"
