@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "machina",
+    "npm": "machina",
+    "homepage": "http://machina-js.org/",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "http://machina-js.org/",
+    "note": "No toggle machine example was available; wrote from scratch and used the pedestrianSignal example on their landing page for usage guidelines."
+  },
+  "code": "export const matter = new machina.Fsm({\n  initialState: \"inactive\",\n  states: {\n    uninitialized: {\n      \"*\": function () {\n        this.deferUntilTransition();\n        this.transition(\"inactive\");\n      },\n    },\n    inactive: {\n      _toggle: \"active\",\n    },\n    active: {\n      _toggle: \"inactive\",\n    },\n  },\n  toggle: function () {\n    this.handle(\"_toggle\");\n  },\n});",
+  "formattedWith": "prettier"
+}
