@@ -33,4 +33,12 @@ describe('dist/wc/viz.js — bundler-friendly build', () => {
     expect(lit_element_hits).toBeLessThan(20);
   });
 
+  it('is reasonably small with jssm core externalized', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    // < 50 KB is generous; with jssm core, lit, and viz.js all external,
+    // the actual size should be well under 10 KB. Treat this as a regression
+    // guard against accidental inlining of large dependencies.
+    expect(built.length).toBeLessThan(50_000);
+  });
+
 });
