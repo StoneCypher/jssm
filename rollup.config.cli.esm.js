@@ -1,5 +1,9 @@
 import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import { readFileSync } from 'fs';
+
+const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 
 const external = [
   '@viz-js/viz',
@@ -15,5 +19,11 @@ export default {
   plugins: [
     typescript({ tsconfig: './tsconfig.cli.json', outputToFilesystem: false }),
     resolve({ preferBuiltins: true, extensions: ['.ts', '.js', '.json'] }),
+    replace({
+      preventAssignment: true,
+      values: {
+        '__JSSM_VERSION__': pkg.version,
+      },
+    }),
   ],
 };

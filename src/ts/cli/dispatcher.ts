@@ -180,15 +180,7 @@ export async function invokeBySpawn(pluginPath: string, argv: string[]): Promise
 const RESERVED_FLAGS = new Set(['--help', '-h', '--version', '-V']);
 const RESERVED_NAMES = new Set(['help', 'version']);
 
-const getDispatcherVersion = (): string => {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pkg = require('../../../package.json');
-    return pkg.version ?? '0.0.0';
-  } catch {
-    return '0.0.0';
-  }
-};
+const getDispatcherVersion = (): string => '__JSSM_VERSION__';
 
 const printDispatcherHelp = (): void => {
   process.stdout.write(`fsl — finite-state language toolchain dispatcher
@@ -205,7 +197,7 @@ Discovery:
   \`fsl <name>\`. Third-party plugins follow the same contract as
   first-party ones.
 
-  See: notes/superpowers/specs/2026-05-12-fsl-cli-design.md
+  See: https://github.com/StoneCypher/jssm
 `);
 };
 
@@ -230,6 +222,12 @@ Discovery:
  * ```
  */
 export async function dispatch(argv: string[]): Promise<number> {
+  let verbose = false;
+  if (argv[0] === '--verbose') {
+    verbose = true;
+    argv = argv.slice(1);
+  }
+
   if (argv.length === 0 || RESERVED_FLAGS.has(argv[0])) {
     if (argv[0] === '--version' || argv[0] === '-V') {
       process.stdout.write(`fsl ${getDispatcherVersion()}\n`);
@@ -255,6 +253,10 @@ export async function dispatch(argv: string[]): Promise<number> {
   if (!pluginPath) {
     process.stderr.write(`fsl: '${subcommand}' is not a known subcommand and no \`fsl-${subcommand}\` was found on PATH\n`);
     return 1;
+  }
+
+  if (verbose) {
+    process.stderr.write(`fsl: resolved '${subcommand}' to ${pluginPath}\n`);
   }
 
   if (isInProcessEligible(pluginPath)) {

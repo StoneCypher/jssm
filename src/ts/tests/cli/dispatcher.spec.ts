@@ -169,4 +169,17 @@ describe('dispatcher: dispatch (orchestrator)', () => {
     }
   });
 
+  it('--verbose prints plugin resolution to stderr', async () => {
+    const originalPath = process.env.PATH;
+    const sep = process.platform === 'win32' ? ';' : ':';
+    process.env.PATH = `${fixturePluginsDir}${sep}${originalPath}`;
+    try {
+      const code = await dispatch(['--verbose', 'good']);
+      expect(code).toBe(0);
+      expect(stderrChunks.join('')).toMatch(/resolved 'good' to/);
+    } finally {
+      process.env.PATH = originalPath;
+    }
+  });
+
 });

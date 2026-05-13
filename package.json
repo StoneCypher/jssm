@@ -79,7 +79,7 @@
     "jest-dragon": "jest -c jest-dragon.config.cjs --color --verbose",
     "jest-spec": "jest -c jest-spec.config.cjs --color --verbose",
     "jest-cli": "jest -c jest-cli.config.cjs --color --verbose",
-    "make_cli": "rollup -c rollup.config.cli.cjs.js && rollup -c rollup.config.cli.esm.js",
+    "make_cli": "rollup -c rollup.config.cli.cjs.js && rollup -c rollup.config.cli.esm.js && rollup -c rollup.config.cli.dts.js",
     "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
     "jest": "npm run jest-stoch && npm run jest-spec && npm run jest-cli",
     "test": "npm run make && npm run jest",
