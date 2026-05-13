@@ -323,7 +323,7 @@ function peg$parse(input, options) {
         return `#${r}${r}${g}${g}${b}${b}${a}${a}`;
     }, peg$c1198 = function (r1, r2, g1, g2, b1, b2, a1, a2) {
         return `#${r1}${r2}${g1}${g2}${b1}${b2}${a1}${a2}`;
-    }, peg$c1199 = peg$otherExpectation("color"), peg$c1200 = "arc_label", peg$c1201 = peg$literalExpectation("arc_label", false), peg$c1202 = "head_label", peg$c1203 = peg$literalExpectation("head_label", false), peg$c1204 = "tail_label", peg$c1205 = peg$literalExpectation("tail_label", false), peg$c1206 = ":", peg$c1207 = peg$literalExpectation(":", false), peg$c1208 = ";", peg$c1209 = peg$literalExpectation(";", false), peg$c1210 = function (key, value) { return { key: key, value: value }; }, peg$c1211 = peg$otherExpectation("single edge color"), peg$c1212 = "edge_color", peg$c1213 = peg$literalExpectation("edge_color", false), peg$c1214 = function (value) { return { key: 'single_edge_color', value: value }; }, peg$c1215 = peg$otherExpectation("transition line style"), peg$c1216 = "line-style", peg$c1217 = peg$literalExpectation("line-style", false), peg$c1218 = function (value) { return { key: 'transition_line_style', value: value }; }, peg$c1219 = "{", peg$c1220 = peg$literalExpectation("{", false), peg$c1221 = "}", peg$c1222 = peg$literalExpectation("}", false), peg$c1223 = function (items) { return items; }, peg$c1224 = "%", peg$c1225 = peg$literalExpectation("%", false), peg$c1226 = function (value) { return { key: 'arrow probability', value: value }; }, peg$c1227 = "milliseconds", peg$c1228 = peg$literalExpectation("milliseconds", false), peg$c1229 = function () { return 1; }, peg$c1230 = "millisecond", peg$c1231 = peg$literalExpectation("millisecond", false), peg$c1232 = "msecs", peg$c1233 = peg$literalExpectation("msecs", false), peg$c1234 = "msec", peg$c1235 = peg$literalExpectation("msec", false), peg$c1236 = "ms", peg$c1237 = peg$literalExpectation("ms", false), peg$c1238 = "seconds", peg$c1239 = peg$literalExpectation("seconds", false), peg$c1240 = function () { return 1000; }, peg$c1241 = "second", peg$c1242 = peg$literalExpectation("second", false), peg$c1243 = "secs", peg$c1244 = peg$literalExpectation("secs", false), peg$c1245 = "sec", peg$c1246 = peg$literalExpectation("sec", false), peg$c1247 = "s", peg$c1248 = peg$literalExpectation("s", false), peg$c1249 = "minutes", peg$c1250 = peg$literalExpectation("minutes", false), peg$c1251 = function () { return 1000 * 60; }, peg$c1252 = "minute", peg$c1253 = peg$literalExpectation("minute", false), peg$c1254 = "mins", peg$c1255 = peg$literalExpectation("mins", false), peg$c1256 = "min", peg$c1257 = peg$literalExpectation("min", false), peg$c1258 = "m", peg$c1259 = peg$literalExpectation("m", false), peg$c1260 = "hours", peg$c1261 = peg$literalExpectation("hours", false), peg$c1262 = function () { return 1000 * 60 * 60; }, peg$c1263 = "hour", peg$c1264 = peg$literalExpectation("hour", false), peg$c1265 = "hrs", peg$c1266 = peg$literalExpectation("hrs", false), peg$c1267 = "hr", peg$c1268 = peg$literalExpectation("hr", false), peg$c1269 = "h", peg$c1270 = peg$literalExpectation("h", false), peg$c1271 = "days", peg$c1272 = peg$literalExpectation("days", false), peg$c1273 = function () { return 1000 * 60 * 60 * 24; }, peg$c1274 = "day", peg$c1275 = peg$literalExpectation("day", false), peg$c1276 = "d", peg$c1277 = peg$literalExpectation("d", false), peg$c1278 = "weeks", peg$c1279 = peg$literalExpectation("weeks", false), peg$c1280 = function () { return 1000 * 60 * 60 * 24 * 7; }, peg$c1281 = "week", peg$c1282 = peg$literalExpectation("week", false), peg$c1283 = "wks", peg$c1284 = peg$literalExpectation("wks", false), peg$c1285 = "wk", peg$c1286 = peg$literalExpectation("wk", false), peg$c1287 = "w", peg$c1288 = peg$literalExpectation("w", false), peg$c1289 = "after", peg$c1290 = peg$literalExpectation("after", false), peg$c1291 = function (value, timescale) { return value * (timescale || 1000); }, peg$c1292 = function (names) { return names.map(i => i[0]); }, peg$c1293 = "+|", peg$c1294 = peg$literalExpectation("+|", false), peg$c1295 = function (nzd, dd) { return { key: 'stripe', value: parseInt(`${nzd}${dd}`, 10) }; }, peg$c1296 = "-|", peg$c1297 = peg$literalExpectation("-|", false), peg$c1298 = function (nzd, dd) { return { key: 'stripe', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }, peg$c1299 = "+", peg$c1300 = peg$literalExpectation("+", false), peg$c1301 = function (nzd, dd) { return { key: 'cycle', value: parseInt(`${nzd}${dd}`, 10) }; }, peg$c1302 = "-", peg$c1303 = peg$literalExpectation("-", false), peg$c1304 = function (nzd, dd) { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }, peg$c1305 = "+0", peg$c1306 = peg$literalExpectation("+0", false), peg$c1307 = function () { return { key: 'cycle', value: 0 }; }, peg$c1308 = function (v) { return { _kind: 'after', v: v }; }, peg$c1309 = function (v) { return { _kind: 'action', v: v }; }, peg$c1310 = function (v) { return { _kind: 'prob', v: v }; }, peg$c1311 = function (v) { return { _kind: 'desc', v: v }; }, peg$c1312 = function (d) { return d; }, peg$c1313 = function (pre, arrow, post, label, tail) {
+    }, peg$c1199 = peg$otherExpectation("color"), peg$c1200 = "arc_label", peg$c1201 = peg$literalExpectation("arc_label", false), peg$c1202 = "head_label", peg$c1203 = peg$literalExpectation("head_label", false), peg$c1204 = "tail_label", peg$c1205 = peg$literalExpectation("tail_label", false), peg$c1206 = ":", peg$c1207 = peg$literalExpectation(":", false), peg$c1208 = ";", peg$c1209 = peg$literalExpectation(";", false), peg$c1210 = function (key, value) { return { key: key, value: value }; }, peg$c1211 = peg$otherExpectation("single edge color"), peg$c1212 = "edge_color", peg$c1213 = peg$literalExpectation("edge_color", false), peg$c1214 = function (value) { return { key: 'single_edge_color', value: value }; }, peg$c1215 = peg$otherExpectation("transition line style"), peg$c1216 = "line-style", peg$c1217 = peg$literalExpectation("line-style", false), peg$c1218 = function (value) { return { key: 'transition_line_style', value: value }; }, peg$c1219 = "{", peg$c1220 = peg$literalExpectation("{", false), peg$c1221 = "}", peg$c1222 = peg$literalExpectation("}", false), peg$c1223 = function (items) { return items; }, peg$c1224 = "%", peg$c1225 = peg$literalExpectation("%", false), peg$c1226 = function (value) { return { key: 'arrow probability', value: value }; }, peg$c1227 = "milliseconds", peg$c1228 = peg$literalExpectation("milliseconds", false), peg$c1229 = function () { return 1; }, peg$c1230 = "millisecond", peg$c1231 = peg$literalExpectation("millisecond", false), peg$c1232 = "msecs", peg$c1233 = peg$literalExpectation("msecs", false), peg$c1234 = "msec", peg$c1235 = peg$literalExpectation("msec", false), peg$c1236 = "ms", peg$c1237 = peg$literalExpectation("ms", false), peg$c1238 = "seconds", peg$c1239 = peg$literalExpectation("seconds", false), peg$c1240 = function () { return 1000; }, peg$c1241 = "second", peg$c1242 = peg$literalExpectation("second", false), peg$c1243 = "secs", peg$c1244 = peg$literalExpectation("secs", false), peg$c1245 = "sec", peg$c1246 = peg$literalExpectation("sec", false), peg$c1247 = "s", peg$c1248 = peg$literalExpectation("s", false), peg$c1249 = "minutes", peg$c1250 = peg$literalExpectation("minutes", false), peg$c1251 = function () { return 1000 * 60; }, peg$c1252 = "minute", peg$c1253 = peg$literalExpectation("minute", false), peg$c1254 = "mins", peg$c1255 = peg$literalExpectation("mins", false), peg$c1256 = "min", peg$c1257 = peg$literalExpectation("min", false), peg$c1258 = "m", peg$c1259 = peg$literalExpectation("m", false), peg$c1260 = "hours", peg$c1261 = peg$literalExpectation("hours", false), peg$c1262 = function () { return 1000 * 60 * 60; }, peg$c1263 = "hour", peg$c1264 = peg$literalExpectation("hour", false), peg$c1265 = "hrs", peg$c1266 = peg$literalExpectation("hrs", false), peg$c1267 = "hr", peg$c1268 = peg$literalExpectation("hr", false), peg$c1269 = "h", peg$c1270 = peg$literalExpectation("h", false), peg$c1271 = "days", peg$c1272 = peg$literalExpectation("days", false), peg$c1273 = function () { return 1000 * 60 * 60 * 24; }, peg$c1274 = "day", peg$c1275 = peg$literalExpectation("day", false), peg$c1276 = "d", peg$c1277 = peg$literalExpectation("d", false), peg$c1278 = "weeks", peg$c1279 = peg$literalExpectation("weeks", false), peg$c1280 = function () { return 1000 * 60 * 60 * 24 * 7; }, peg$c1281 = "week", peg$c1282 = peg$literalExpectation("week", false), peg$c1283 = "wks", peg$c1284 = peg$literalExpectation("wks", false), peg$c1285 = "wk", peg$c1286 = peg$literalExpectation("wk", false), peg$c1287 = "w", peg$c1288 = peg$literalExpectation("w", false), peg$c1289 = "after", peg$c1290 = peg$literalExpectation("after", false), peg$c1291 = function (value, timescale) { return value * (timescale || 1000); }, peg$c1292 = function (names) { return names.map(i => i[0]); }, peg$c1293 = "+|", peg$c1294 = peg$literalExpectation("+|", false), peg$c1295 = function (n) { return { key: 'stripe', value: parseInt(n, 10) }; }, peg$c1296 = "-|", peg$c1297 = peg$literalExpectation("-|", false), peg$c1298 = function (n) { return { key: 'stripe', value: -1 * parseInt(n, 10) }; }, peg$c1299 = "+", peg$c1300 = peg$literalExpectation("+", false), peg$c1301 = function (n) { return { key: 'cycle', value: parseInt(n, 10) }; }, peg$c1302 = "-", peg$c1303 = peg$literalExpectation("-", false), peg$c1304 = function (n) { return { key: 'cycle', value: -1 * parseInt(n, 10) }; }, peg$c1305 = "+0", peg$c1306 = peg$literalExpectation("+0", false), peg$c1307 = function () { return { key: 'cycle', value: 0 }; }, peg$c1308 = function (v) { return { _kind: 'after', v: v }; }, peg$c1309 = function (v) { return { _kind: 'action', v: v }; }, peg$c1310 = function (v) { return { _kind: 'prob', v: v }; }, peg$c1311 = function (v) { return { _kind: 'desc', v: v }; }, peg$c1312 = function (d) { return d; }, peg$c1313 = function (pre, arrow, post, label, tail) {
         // Reminder: remove this type and the one in Exp if you want to work in pegjs online
         // TODO: properly type this
         const base = { kind: arrow, to: label };
@@ -331,26 +331,26 @@ function peg$parse(input, options) {
         // fixed-order rule:
         //   pre-arrow:  after→r_after  action→r_action  prob→r_probability  desc→l_desc
         //   post-arrow: after→l_after  action→l_action  prob→l_probability  desc→r_desc
-        // The truthy `if (d.v)` guard mirrors the legacy `if (var)`
-        // checks: it suppresses falsy values (notably `null` from an
-        // empty `{}` brace block) so the AST shape stays compatible
-        // with the original fixed-order rule.
+        // The `!= null` guard suppresses missing-value sentinels (the
+        // `null` returned by an empty `{}` brace block) while letting
+        // legitimately-empty primitives through — notably the empty
+        // string from an empty action label `''`.
         const seen = {};
         for (const d of pre) {
             if (seen['pre:' + d._kind]) {
                 error('duplicate ' + d._kind + ' decoration before arrow', location());
             }
             seen['pre:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.r_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.r_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.r_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.l_desc = d.v;
             }
         }
@@ -359,16 +359,16 @@ function peg$parse(input, options) {
                 error('duplicate ' + d._kind + ' decoration after arrow', location());
             }
             seen['post:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.l_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.l_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.l_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.r_desc = d.v;
             }
         }
@@ -3279,40 +3279,47 @@ function peg$parse(input, options) {
         return s0;
     }
     function peg$parseIntegerLiteral() {
-        var s0, s1, s2, s3;
+        var s0, s1, s2, s3, s4;
+        s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 48) {
-            s0 = peg$c312;
+            s1 = peg$c312;
             peg$currPos++;
         }
         else {
-            s0 = peg$FAILED;
+            s1 = peg$FAILED;
             if (peg$silentFails === 0) {
                 peg$fail(peg$c313);
             }
         }
-        if (s0 === peg$FAILED) {
-            s0 = peg$currPos;
-            s1 = peg$parseNonZeroDigit();
-            if (s1 !== peg$FAILED) {
-                s2 = [];
-                s3 = peg$parseDecimalDigit();
-                while (s3 !== peg$FAILED) {
-                    s2.push(s3);
-                    s3 = peg$parseDecimalDigit();
+        if (s1 === peg$FAILED) {
+            s1 = peg$currPos;
+            s2 = peg$parseNonZeroDigit();
+            if (s2 !== peg$FAILED) {
+                s3 = [];
+                s4 = peg$parseDecimalDigit();
+                while (s4 !== peg$FAILED) {
+                    s3.push(s4);
+                    s4 = peg$parseDecimalDigit();
                 }
-                if (s2 !== peg$FAILED) {
-                    s1 = [s1, s2];
-                    s0 = s1;
+                if (s3 !== peg$FAILED) {
+                    s2 = [s2, s3];
+                    s1 = s2;
                 }
                 else {
-                    peg$currPos = s0;
-                    s0 = peg$FAILED;
+                    peg$currPos = s1;
+                    s1 = peg$FAILED;
                 }
             }
             else {
-                peg$currPos = s0;
-                s0 = peg$FAILED;
+                peg$currPos = s1;
+                s1 = peg$FAILED;
             }
+        }
+        if (s1 !== peg$FAILED) {
+            s0 = input.substring(s0, peg$currPos);
+        }
+        else {
+            s0 = s1;
         }
         return s0;
     }
@@ -11635,7 +11642,7 @@ function peg$parse(input, options) {
         return s0;
     }
     function peg$parseStripe() {
-        var s0, s1, s2, s3, s4;
+        var s0, s1, s2, s3, s4, s5, s6;
         s0 = peg$currPos;
         if (input.substr(peg$currPos, 2) === peg$c1293) {
             s1 = peg$c1293;
@@ -11648,23 +11655,39 @@ function peg$parse(input, options) {
             }
         }
         if (s1 !== peg$FAILED) {
-            s2 = peg$parseNonZeroDigit();
-            if (s2 !== peg$FAILED) {
-                s3 = [];
-                s4 = peg$parseDecimalDigit();
-                while (s4 !== peg$FAILED) {
-                    s3.push(s4);
-                    s4 = peg$parseDecimalDigit();
+            s2 = peg$currPos;
+            s3 = peg$currPos;
+            s4 = peg$parseNonZeroDigit();
+            if (s4 !== peg$FAILED) {
+                s5 = [];
+                s6 = peg$parseDecimalDigit();
+                while (s6 !== peg$FAILED) {
+                    s5.push(s6);
+                    s6 = peg$parseDecimalDigit();
                 }
-                if (s3 !== peg$FAILED) {
-                    peg$savedPos = s0;
-                    s1 = peg$c1295(s2, s3);
-                    s0 = s1;
+                if (s5 !== peg$FAILED) {
+                    s4 = [s4, s5];
+                    s3 = s4;
                 }
                 else {
-                    peg$currPos = s0;
-                    s0 = peg$FAILED;
+                    peg$currPos = s3;
+                    s3 = peg$FAILED;
                 }
+            }
+            else {
+                peg$currPos = s3;
+                s3 = peg$FAILED;
+            }
+            if (s3 !== peg$FAILED) {
+                s2 = input.substring(s2, peg$currPos);
+            }
+            else {
+                s2 = s3;
+            }
+            if (s2 !== peg$FAILED) {
+                peg$savedPos = s0;
+                s1 = peg$c1295(s2);
+                s0 = s1;
             }
             else {
                 peg$currPos = s0;
@@ -11688,23 +11711,39 @@ function peg$parse(input, options) {
                 }
             }
             if (s1 !== peg$FAILED) {
-                s2 = peg$parseNonZeroDigit();
-                if (s2 !== peg$FAILED) {
-                    s3 = [];
-                    s4 = peg$parseDecimalDigit();
-                    while (s4 !== peg$FAILED) {
-                        s3.push(s4);
-                        s4 = peg$parseDecimalDigit();
+                s2 = peg$currPos;
+                s3 = peg$currPos;
+                s4 = peg$parseNonZeroDigit();
+                if (s4 !== peg$FAILED) {
+                    s5 = [];
+                    s6 = peg$parseDecimalDigit();
+                    while (s6 !== peg$FAILED) {
+                        s5.push(s6);
+                        s6 = peg$parseDecimalDigit();
                     }
-                    if (s3 !== peg$FAILED) {
-                        peg$savedPos = s0;
-                        s1 = peg$c1298(s2, s3);
-                        s0 = s1;
+                    if (s5 !== peg$FAILED) {
+                        s4 = [s4, s5];
+                        s3 = s4;
                     }
                     else {
-                        peg$currPos = s0;
-                        s0 = peg$FAILED;
+                        peg$currPos = s3;
+                        s3 = peg$FAILED;
                     }
+                }
+                else {
+                    peg$currPos = s3;
+                    s3 = peg$FAILED;
+                }
+                if (s3 !== peg$FAILED) {
+                    s2 = input.substring(s2, peg$currPos);
+                }
+                else {
+                    s2 = s3;
+                }
+                if (s2 !== peg$FAILED) {
+                    peg$savedPos = s0;
+                    s1 = peg$c1298(s2);
+                    s0 = s1;
                 }
                 else {
                     peg$currPos = s0;
@@ -11719,7 +11758,7 @@ function peg$parse(input, options) {
         return s0;
     }
     function peg$parseCycle() {
-        var s0, s1, s2, s3, s4;
+        var s0, s1, s2, s3, s4, s5, s6;
         s0 = peg$currPos;
         if (input.charCodeAt(peg$currPos) === 43) {
             s1 = peg$c1299;
@@ -11732,23 +11771,39 @@ function peg$parse(input, options) {
             }
         }
         if (s1 !== peg$FAILED) {
-            s2 = peg$parseNonZeroDigit();
-            if (s2 !== peg$FAILED) {
-                s3 = [];
-                s4 = peg$parseDecimalDigit();
-                while (s4 !== peg$FAILED) {
-                    s3.push(s4);
-                    s4 = peg$parseDecimalDigit();
+            s2 = peg$currPos;
+            s3 = peg$currPos;
+            s4 = peg$parseNonZeroDigit();
+            if (s4 !== peg$FAILED) {
+                s5 = [];
+                s6 = peg$parseDecimalDigit();
+                while (s6 !== peg$FAILED) {
+                    s5.push(s6);
+                    s6 = peg$parseDecimalDigit();
                 }
-                if (s3 !== peg$FAILED) {
-                    peg$savedPos = s0;
-                    s1 = peg$c1301(s2, s3);
-                    s0 = s1;
+                if (s5 !== peg$FAILED) {
+                    s4 = [s4, s5];
+                    s3 = s4;
                 }
                 else {
-                    peg$currPos = s0;
-                    s0 = peg$FAILED;
+                    peg$currPos = s3;
+                    s3 = peg$FAILED;
                 }
+            }
+            else {
+                peg$currPos = s3;
+                s3 = peg$FAILED;
+            }
+            if (s3 !== peg$FAILED) {
+                s2 = input.substring(s2, peg$currPos);
+            }
+            else {
+                s2 = s3;
+            }
+            if (s2 !== peg$FAILED) {
+                peg$savedPos = s0;
+                s1 = peg$c1301(s2);
+                s0 = s1;
             }
             else {
                 peg$currPos = s0;
@@ -11772,23 +11827,39 @@ function peg$parse(input, options) {
                 }
             }
             if (s1 !== peg$FAILED) {
-                s2 = peg$parseNonZeroDigit();
-                if (s2 !== peg$FAILED) {
-                    s3 = [];
-                    s4 = peg$parseDecimalDigit();
-                    while (s4 !== peg$FAILED) {
-                        s3.push(s4);
-                        s4 = peg$parseDecimalDigit();
+                s2 = peg$currPos;
+                s3 = peg$currPos;
+                s4 = peg$parseNonZeroDigit();
+                if (s4 !== peg$FAILED) {
+                    s5 = [];
+                    s6 = peg$parseDecimalDigit();
+                    while (s6 !== peg$FAILED) {
+                        s5.push(s6);
+                        s6 = peg$parseDecimalDigit();
                     }
-                    if (s3 !== peg$FAILED) {
-                        peg$savedPos = s0;
-                        s1 = peg$c1304(s2, s3);
-                        s0 = s1;
+                    if (s5 !== peg$FAILED) {
+                        s4 = [s4, s5];
+                        s3 = s4;
                     }
                     else {
-                        peg$currPos = s0;
-                        s0 = peg$FAILED;
+                        peg$currPos = s3;
+                        s3 = peg$FAILED;
                     }
+                }
+                else {
+                    peg$currPos = s3;
+                    s3 = peg$FAILED;
+                }
+                if (s3 !== peg$FAILED) {
+                    s2 = input.substring(s2, peg$currPos);
+                }
+                else {
+                    s2 = s3;
+                }
+                if (s2 !== peg$FAILED) {
+                    peg$savedPos = s0;
+                    s1 = peg$c1304(s2);
+                    s0 = s1;
                 }
                 else {
                     peg$currPos = s0;
@@ -20137,10 +20208,10 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
       }
     */
     const action = isRight ? 'r_action' : 'l_action', probability = isRight ? 'r_probability' : 'l_probability';
-    if (this_se[action]) {
+    if (this_se[action] != null) {
         edge.action = this_se[action];
     }
-    if (this_se[probability]) {
+    if (this_se[probability] != null) {
         edge.probability = this_se[probability];
     }
     return edge;
@@ -20804,9 +20875,128 @@ theme_mapping.set('ocean', ocean_theme);
 theme_mapping.set('plain', plain_theme);
 theme_mapping.set('bold', bold_theme);
 
-const version = "5.112.0", build_time = 1778576310751;
+/*******
+ *
+ *  Convenience aliases for common mathematical and numeric constants from
+ *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
+ *  can reference them without importing `Math` directly.
+ *
+ *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
+ *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
+ *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
+ *
+ */
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ */
+// keep in sync with src/ts/fsl_parser.peg:278
+const state_name_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '+', to: '+' },
+    { from: '_', to: '_' },
+    { from: '^', to: '^' },
+    { from: '(', to: '(' },
+    { from: ')', to: ')' },
+    { from: '*', to: '*' },
+    { from: '&', to: '&' },
+    { from: '$', to: '$' },
+    { from: '#', to: '#' },
+    { from: '@', to: '@' },
+    { from: '!', to: '!' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:275
+const state_name_first_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '_', to: '_' },
+    { from: '!', to: '!' },
+    { from: '$', to: '$' },
+    { from: '^', to: '^' },
+    { from: '*', to: '*' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$1 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\uFFFF' },
+]);
+
+var constants = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    action_label_chars: action_label_chars$1,
+    state_name_chars: state_name_chars$1,
+    state_name_first_chars: state_name_first_chars$1
+});
+
+/**
+ *  The published semantic version of the jssm package this build was cut from.
+ *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
+ *  Useful for runtime diagnostics and for embedding in serialized machine
+ *  snapshots so that deserializers can detect version-skew.
+ */
+const version = "5.119.0";
+/**
+ *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
+ *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
+ *  with the same `version` string during development, and for diagnostic logs.
+ */
+const build_time = 1778713155622;
 
 // whargarbl lots of these return arrays could/should be sets
+const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -21951,6 +22141,46 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
+    }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -22076,10 +22306,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -22087,11 +22330,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
@@ -24206,9 +24456,24 @@ function flow_direction_to_rankdir(flow_direction) {
 /**
  *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
  *
+ *  The optional `preamble` is inlined just after `digraph G {`, before any
+ *  graph attributes; the optional `footer` is inlined just before the closing
+ *  `}`, after all arrange declarations.  Both are emitted verbatim, separated
+ *  from surrounding content by a blank line so that empty strings render
+ *  cleanly (no stray whitespace artifacts in the output).
+ *
+ *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
+ *  @param graph_bg_color CSS-style color string for `bgcolor`.
+ *  @param nodes Rendered node-declaration block.
+ *  @param edges Rendered edge-declaration block.
+ *  @param arranges Rendered rank-arrangement block.
+ *  @param preamble Optional verbatim dot source inserted just after `digraph G {`.
+ *  @param footer Optional verbatim dot source inserted just before the closing `}`.
+ *  @returns A complete graphviz dot source string.
+ *
  *  @internal
  */
-function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '') {
+function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '', footer = '') {
     return `digraph G {
 ${preamble}
 
@@ -24224,6 +24489,8 @@ ${nodes}
 ${edges}
 
 ${arranges}
+
+${footer}
 }`;
 }
 /**
@@ -24451,18 +24718,29 @@ function arranges_for(u_jssm, state_index) {
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
+ *
  *  ```typescript
  *  import { sm } from 'jssm';
  *  import { machine_to_dot } from 'jssm/viz';
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function machine_to_dot(u_jssm) {
+function machine_to_dot(u_jssm, opts) {
+    var _a;
     const l_states = u_jssm.states();
     const state_index = new Map(l_states.map((s, i) => [s, i]));
     const state_kinds = classify_states(u_jssm, l_states);
@@ -24471,7 +24749,8 @@ function machine_to_dot(u_jssm) {
     const arranges = arranges_for(u_jssm, state_index);
     const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
     const preamble = u_jssm.dot_preamble() || '';
-    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
+    const footer = (_a = opts === null || opts === void 0 ? void 0 : opts.footer) !== null && _a !== void 0 ? _a : '';
+    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble, footer);
 }
 /**
  *  Render an FSL string directly to graphviz dot source.
@@ -24479,13 +24758,18 @@ function machine_to_dot(u_jssm) {
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function fsl_to_dot(fsl) {
-    return machine_to_dot(sm `${fsl}`);
+function fsl_to_dot(fsl, opts) {
+    return machine_to_dot(sm `${fsl}`, opts);
 }
 /**
  *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
@@ -24494,32 +24778,48 @@ function fsl_to_dot(fsl) {
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
  *
  *  @param dot Graphviz dot source.
+ *  @param options Optional renderer overrides.
+ *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
+ *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
+ *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function dot_to_svg(dot) {
+async function dot_to_svg(dot, options) {
     const viz = await get_viz();
-    return viz.renderString(dot, { format: 'svg' });
+    return viz.renderString(dot, Object.assign({ format: 'svg' }, (options !== null && options !== void 0 ? options : {})));
 }
 /**
  *  Render an FSL string directly to SVG.
  *
+ *  ```typescript
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  ```
+ *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
+ *  @param opts.engine Graphviz layout engine to use (e.g. `'dot'`, `'neato'`, `'circo'`).
+ *  Unrecognized engine names cause `@viz-js/viz` to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl) {
-    return dot_to_svg(fsl_to_dot(fsl));
+async function fsl_to_svg_string(fsl, opts) {
+    return dot_to_svg(fsl_to_dot(fsl, opts), opts);
 }
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function machine_to_svg_string(u_jssm) {
-    return dot_to_svg(machine_to_dot(u_jssm));
+async function machine_to_svg_string(u_jssm, opts) {
+    return dot_to_svg(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Resolve a `DOMParser` constructor: prefer `globalThis.DOMParser` (browsers,
@@ -24556,21 +24856,25 @@ async function dot_to_svg_element(dot) {
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function fsl_to_svg_element(fsl) {
-    return dot_to_svg_element(fsl_to_dot(fsl));
+async function fsl_to_svg_element(fsl, opts) {
+    return dot_to_svg_element(fsl_to_dot(fsl, opts));
 }
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function machine_to_svg_element(u_jssm) {
-    return dot_to_svg_element(machine_to_dot(u_jssm));
+async function machine_to_svg_element(u_jssm, opts) {
+    return dot_to_svg_element(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from

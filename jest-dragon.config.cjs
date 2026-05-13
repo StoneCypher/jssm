@@ -7,6 +7,7 @@ module.exports = {
 
   moduleFileExtensions       : ['js', 'ts'],
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/"],
+  testPathIgnorePatterns     : ["/node_modules/", "\\.claude/worktrees/"],
   testMatch                  : ['**/*.maximal.ts'],
 
   transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript' }, target: 'es2020' } }] },

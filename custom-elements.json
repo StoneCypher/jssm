@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/jssm_viz_wc.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "normalize_viz_error",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "e",
+              "type": {
+                "text": "unknown"
+              },
+              "description": "The thrown value to normalize."
+            }
+          ],
+          "description": "Normalize an arbitrary thrown value into a JssmVizErrorDetail.\r\nAccepts anything (Error instances, JssmErrors with `.location`, plain\r\nstrings, etc.) and always produces a string `message`.\r\n\r\n```typescript\r\nnormalize_viz_error(new Error('boom'));\r\n// => { message: 'boom', location: undefined }\r\n\r\nnormalize_viz_error({ message: 'parse failed', location: { line: 1 } });\r\n// => { message: 'parse failed', location: { line: 1 } }\r\n\r\nnormalize_viz_error('bare string failure');\r\n// => { message: 'bare string failure', location: undefined }\r\n```"
+        },
+        {
+          "kind": "class",
+          "description": "Web component that renders a jssm machine as inline SVG.",
+          "name": "JssmViz",
+          "cssProperties": [
+            {
+              "description": "Minimum height of the rendered SVG container.",
+              "name": "--jssm-viz-min-height",
+              "default": "100px"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "FSL source to render.",
+              "attribute": "fsl"
+            },
+            {
+              "kind": "field",
+              "name": "engine",
+              "type": {
+                "text": "string | undefined"
+              },
+              "default": "undefined",
+              "description": "Optional Graphviz layout engine override (e.g. 'dot', 'neato').",
+              "attribute": "engine"
+            },
+            {
+              "kind": "field",
+              "name": "_svg",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "method",
+              "name": "_renderSvg",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "description": "Render the current `fsl` source to an SVG string via the headless\r\n`fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a\r\n`viz-error` `CustomEvent` on failure. Guards against stale results\r\nwhen `fsl` changes mid-flight."
+            }
+          ],
+          "events": [
+            {
+              "name": "viz-error",
+              "type": {
+                "text": "CustomEvent<{ message: string; location?: unknown }>"
+              },
+              "description": "Fires when the FSL source fails to parse or render."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "FSL source to render.",
+              "fieldName": "fsl"
+            },
+            {
+              "name": "engine",
+              "type": {
+                "text": "string | undefined"
+              },
+              "default": "undefined",
+              "description": "Optional Graphviz layout engine override (e.g. 'dot', 'neato').",
+              "fieldName": "engine"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "jssm-viz",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "normalize_viz_error",
+          "declaration": {
+            "name": "normalize_viz_error",
+            "module": "src/ts/wc/jssm_viz_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "JssmViz",
+          "declaration": {
+            "name": "JssmViz",
+            "module": "src/ts/wc/jssm_viz_wc.ts"
+          }
+        }
+      ]
+    }
+  ]
+}

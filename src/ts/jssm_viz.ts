@@ -241,9 +241,24 @@ function flow_direction_to_rankdir(flow_direction: string): string {
 /**
  *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
  *
+ *  The optional `preamble` is inlined just after `digraph G {`, before any
+ *  graph attributes; the optional `footer` is inlined just before the closing
+ *  `}`, after all arrange declarations.  Both are emitted verbatim, separated
+ *  from surrounding content by a blank line so that empty strings render
+ *  cleanly (no stray whitespace artifacts in the output).
+ *
+ *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
+ *  @param graph_bg_color CSS-style color string for `bgcolor`.
+ *  @param nodes Rendered node-declaration block.
+ *  @param edges Rendered edge-declaration block.
+ *  @param arranges Rendered rank-arrangement block.
+ *  @param preamble Optional verbatim dot source inserted just after `digraph G {`.
+ *  @param footer Optional verbatim dot source inserted just before the closing `}`.
+ *  @returns A complete graphviz dot source string.
+ *
  *  @internal
  */
-function dot_template(rank_dir: string, graph_bg_color: string, nodes: string, edges: string, arranges: string, preamble = ''): string {
+function dot_template(rank_dir: string, graph_bg_color: string, nodes: string, edges: string, arranges: string, preamble = '', footer = ''): string {
   return `digraph G {
 ${preamble}
 
@@ -259,6 +274,8 @@ ${nodes}
 ${edges}
 
 ${arranges}
+
+${footer}
 }`;
 }
 
@@ -557,18 +574,28 @@ function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, numbe
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
+ *
  *  ```typescript
  *  import { sm } from 'jssm';
  *  import { machine_to_dot } from 'jssm/viz';
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function machine_to_dot<T>(u_jssm: jssm.Machine<T>): string {
+function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts?: { footer?: string }): string {
 
   const l_states    = u_jssm.states();
   const state_index = new Map<string, number>(l_states.map((s, i) => [s, i] as [string, number]));
@@ -580,8 +607,9 @@ function machine_to_dot<T>(u_jssm: jssm.Machine<T>): string {
 
   const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
   const preamble = u_jssm.dot_preamble() || '';
+  const footer   = opts?.footer ?? '';
 
-  return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
+  return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble, footer);
 
 }
 
@@ -594,13 +622,18 @@ function machine_to_dot<T>(u_jssm: jssm.Machine<T>): string {
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function fsl_to_dot(fsl: string): string {
-  return machine_to_dot(jssm.sm`${fsl}`);
+function fsl_to_dot(fsl: string, opts?: { footer?: string }): string {
+  return machine_to_dot(jssm.sm`${fsl}`, opts);
 }
 
 
@@ -613,14 +646,19 @@ function fsl_to_dot(fsl: string): string {
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
  *
  *  @param dot Graphviz dot source.
+ *  @param options Optional renderer overrides.
+ *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
+ *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
+ *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function dot_to_svg(dot: string): Promise<string> {
+async function dot_to_svg(dot: string, options?: { engine?: string }): Promise<string> {
   const viz = await get_viz();
-  return viz.renderString(dot, { format: 'svg' });
+  return viz.renderString(dot, { format: 'svg', ...(options ?? {}) });
 }
 
 
@@ -629,11 +667,20 @@ async function dot_to_svg(dot: string): Promise<string> {
 /**
  *  Render an FSL string directly to SVG.
  *
+ *  ```typescript
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  ```
+ *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
+ *  @param opts.engine Graphviz layout engine to use (e.g. `'dot'`, `'neato'`, `'circo'`).
+ *  Unrecognized engine names cause `@viz-js/viz` to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl: string): Promise<string> {
-  return dot_to_svg(fsl_to_dot(fsl));
+async function fsl_to_svg_string(fsl: string, opts?: { footer?: string; engine?: string }): Promise<string> {
+  return dot_to_svg(fsl_to_dot(fsl, opts), opts);
 }
 
 
@@ -643,10 +690,12 @@ async function fsl_to_svg_string(fsl: string): Promise<string> {
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>): Promise<string> {
-  return dot_to_svg(machine_to_dot(u_jssm));
+async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts?: { footer?: string }): Promise<string> {
+  return dot_to_svg(machine_to_dot(u_jssm, opts));
 }
 
 
@@ -692,11 +741,13 @@ async function dot_to_svg_element(dot: string): Promise<SVGSVGElement> {
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement> {
-  return dot_to_svg_element(fsl_to_dot(fsl));
+async function fsl_to_svg_element(fsl: string, opts?: { footer?: string }): Promise<SVGSVGElement> {
+  return dot_to_svg_element(fsl_to_dot(fsl, opts));
 }
 
 
@@ -706,11 +757,13 @@ async function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement> {
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>): Promise<SVGSVGElement> {
-  return dot_to_svg_element(machine_to_dot(u_jssm));
+async function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>, opts?: { footer?: string }): Promise<SVGSVGElement> {
+  return dot_to_svg_element(machine_to_dot(u_jssm, opts));
 }
 
 

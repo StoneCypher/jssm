@@ -158,6 +158,30 @@ if (result.kind === 'text') console.log(result.content);
 
 <br/>
 
+## Web Components
+
+`jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
+
+CDN one-liner (with an import map for `@viz-js/viz`):
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
+<jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+```
+
+npm one-liner:
+
+```ts
+import 'jssm/wc/viz/define';
+// then use <jssm-viz fsl="..."> anywhere
+```
+
+Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).
+
+
+
+<br/>
+
 ## 60-second tour
 
 **Actions** let a machine advance without the caller knowing the next state:

@@ -6,9 +6,9 @@ module.exports = {
   coverageProvider           : 'v8',
 
   moduleFileExtensions       : ['js', 'ts'],
-  coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/", "/src/ts/jssm_viz.ts", "/src/ts/jssm_viz_colors.ts", "/src/ts/cli/"],
+  coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/", "/src/ts/jssm_viz.ts", "/src/ts/jssm_viz_colors.ts", "/src/ts/cli/", "/src/ts/wc/", "/src/ts/wc/tests/"],
   testMatch                  : ['**/*.spec.ts'],
-  testPathIgnorePatterns     : ['/node_modules/', '/src/ts/tests/cli/'],
+  testPathIgnorePatterns     : ["/node_modules/", "\\.claude/worktrees/", "/src/ts/wc/tests/", "/src/ts/tests/cli/"],
 
   transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript' }, target: 'es2020' } }] },
 
