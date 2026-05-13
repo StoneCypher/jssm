@@ -131,3 +131,56 @@ describe('build_shootout: validation failures', () => {
     await expect(loadAll(dir)).rejects.toThrow(/schema/i);
   });
 });
+
+describe('build_shootout: renderEntry', () => {
+  const baseEntry = {
+    library: {
+      name: 'xstate',
+      npm: 'xstate',
+      homepage: 'https://xstate.js.org',
+      languages: ['javascript', 'typescript'],
+    },
+    machine: 'toggle',
+    language: 'javascript',
+    official: true,
+    canImplement: true,
+    code: 'export const x = 1;',
+  };
+
+  it('emits an official entry without the (created) prefix', async () => {
+    const { renderEntry } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderEntry(baseEntry, { title: 'Toggle machine' });
+    expect(md).toMatch(/^### `xstate` Toggle machine, 1 line/m);
+    expect(md).not.toMatch(/\(created\)/);
+  });
+
+  it('emits a synthesized entry with the (created) prefix', async () => {
+    const { renderEntry } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderEntry({ ...baseEntry, official: false }, { title: 'Toggle machine' });
+    expect(md).toMatch(/^### \(created\) `xstate` Toggle machine, 1 line/m);
+  });
+
+  it('pluralizes line count in the heading', async () => {
+    const { renderEntry } = await import('../../buildjs/build_shootout.mjs');
+    const md1 = renderEntry(baseEntry, { title: 'Toggle machine' });
+    const md5 = renderEntry({ ...baseEntry, code: 'a\nb\nc\nd\ne' }, { title: 'Toggle machine' });
+    expect(md1).toMatch(/, 1 line$/m);
+    expect(md5).toMatch(/, 5 lines$/m);
+  });
+
+  it('emits the source note and source url when present', async () => {
+    const { renderEntry } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderEntry(
+      { ...baseEntry, source: { url: 'https://example.test/docs', note: 'From their documentation' } },
+      { title: 'Toggle machine' }
+    );
+    expect(md).toContain('From their documentation');
+    expect(md).toContain('https://example.test/docs');
+  });
+
+  it('emits a fenced code block tagged with the entry language', async () => {
+    const { renderEntry } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderEntry(baseEntry, { title: 'Toggle machine' });
+    expect(md).toMatch(/```javascript\nexport const x = 1;\n```/);
+  });
+});

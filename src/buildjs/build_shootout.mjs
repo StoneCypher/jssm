@@ -68,3 +68,37 @@ export async function loadAll(dir = defaultComparablesDir) {
 export function lineCount(code) {
   return code.split('\n').length;
 }
+
+function pluralize(n, word) {
+  return `${n} ${word}${n === 1 ? '' : 's'}`;
+}
+
+/**
+ * Render one (library, machine) entry as a markdown section.
+ *
+ * Heading format:
+ *   ### `<lib>` <machineTitle>, N line[s]
+ *   ### (created) `<lib>` <machineTitle>, N line[s]    // if !entry.official
+ *
+ * Followed by optional source note/url, then a fenced code block tagged with entry.language.
+ *
+ * @param {object} entry - A validated entry from loadAll().entries.
+ * @param {{ title: string, blurb?: string }} machineMeta - The machines.json entry for entry.machine.
+ * @returns {string} markdown
+ */
+export function renderEntry(entry, machineMeta) {
+  const createdPrefix = entry.official ? '' : '(created) ';
+  const heading = `### ${createdPrefix}\`${entry.library.name}\` ${machineMeta.title}, ${pluralize(lineCount(entry.code), 'line')}`;
+
+  const parts = [heading, ''];
+
+  if (entry.source?.note) parts.push(entry.source.note);
+  if (entry.source?.url)  parts.push(`Source: <${entry.source.url}>`);
+  if (entry.source?.note || entry.source?.url) parts.push('');
+
+  parts.push('```' + entry.language);
+  parts.push(entry.code);
+  parts.push('```');
+
+  return parts.join('\n');
+}
