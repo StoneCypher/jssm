@@ -20881,13 +20881,13 @@ theme_mapping.set('bold', bold_theme);
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.112.8";
+const version = "5.113.0";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778615523578;
+const build_time = 1778655866696;
 
 // whargarbl lots of these return arrays could/should be sets
 /*********
@@ -24364,15 +24364,21 @@ function default_fillcolor_for(kind) {
  *  honoured uniformly.  A single `style_for` call per state — downstream
  *  helpers operate on the cached result rather than re-querying.
  *
+ *  When `hide_state_labels` is true, the `label=` attribute is omitted from
+ *  every state's node line; Graphviz then renders the node box without any
+ *  text inside.  Useful for diagrams where the state shape carries meaning
+ *  on its own (e.g. a tutorial graphic, an icon-only diagram, or a
+ *  presentation slide).
+ *
  *  @internal
  */
-function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds) {
+function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide_state_labels = false) {
     return l_states.map((s) => {
         var _a;
         const style = u_jssm.style_for(s);
         const fillcolor = style.backgroundColor || default_fillcolor_for((_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base');
         const features = [
-            ['label', u_jssm.display_text(s)],
+            ['label', hide_state_labels ? '' : u_jssm.display_text(s)],
             ['shape', style.shape || ''],
             ['color', style.borderColor || ''],
             ['style', compose_style_string(style)],
@@ -24540,16 +24546,20 @@ function arranges_for(u_jssm, state_index) {
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  // suppress state-name labels (boxes only, no text inside)
+ *  const dot2 = machine_to_dot(sm`a -> b;`, { hide_state_labels: true });
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-function machine_to_dot(u_jssm) {
+function machine_to_dot(u_jssm, opts = {}) {
     const l_states = u_jssm.states();
     const state_index = new Map(l_states.map((s, i) => [s, i]));
     const state_kinds = classify_states(u_jssm, l_states);
-    const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds);
+    const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, opts.hide_state_labels === true);
     const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
     const arranges = arranges_for(u_jssm, state_index);
     const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
@@ -24562,13 +24572,17 @@ function machine_to_dot(u_jssm) {
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  // suppress state-name labels
+ *  const dot2 = fsl_to_dot('a -> b;', { hide_state_labels: true });
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-function fsl_to_dot(fsl) {
-    return machine_to_dot(sm `${fsl}`);
+function fsl_to_dot(fsl, opts = {}) {
+    return machine_to_dot(sm `${fsl}`, opts);
 }
 /**
  *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
@@ -24590,19 +24604,21 @@ async function dot_to_svg(dot) {
  *  Render an FSL string directly to SVG.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl) {
-    return dot_to_svg(fsl_to_dot(fsl));
+async function fsl_to_svg_string(fsl, opts = {}) {
+    return dot_to_svg(fsl_to_dot(fsl, opts));
 }
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function machine_to_svg_string(u_jssm) {
-    return dot_to_svg(machine_to_dot(u_jssm));
+async function machine_to_svg_string(u_jssm, opts = {}) {
+    return dot_to_svg(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Resolve a `DOMParser` constructor: prefer `globalThis.DOMParser` (browsers,
@@ -24639,21 +24655,23 @@ async function dot_to_svg_element(dot) {
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function fsl_to_svg_element(fsl) {
-    return dot_to_svg_element(fsl_to_dot(fsl));
+async function fsl_to_svg_element(fsl, opts = {}) {
+    return dot_to_svg_element(fsl_to_dot(fsl, opts));
 }
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function machine_to_svg_element(u_jssm) {
-    return dot_to_svg_element(machine_to_dot(u_jssm));
+async function machine_to_svg_element(u_jssm, opts = {}) {
+    return dot_to_svg_element(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from

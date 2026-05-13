@@ -2261,6 +2261,18 @@ declare function image_for_state<T>(u_jssm: Machine<T>, state: string): string |
  */
 declare function style_for_state<T>(u_jssm: Machine<T>, state: string): string;
 /**
+ *  Options for the dot/SVG render entry points.
+ *
+ *  - `hide_state_labels` (default `false`) — when `true`, the rendered dot
+ *    output omits the `label=` attribute on every state's node line.
+ *    Graphviz then draws the box without any text inside.  Useful for
+ *    diagrams where shape, color, or layout alone carry the meaning
+ *    (icon-only diagrams, tutorial graphics, presentation slides).
+ */
+declare type VizRenderOpts = {
+    hide_state_labels?: boolean;
+};
+/**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
  *  ```typescript
@@ -2269,24 +2281,32 @@ declare function style_for_state<T>(u_jssm: Machine<T>, state: string): string;
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  // suppress state-name labels (boxes only, no text inside)
+ *  const dot2 = machine_to_dot(sm`a -> b;`, { hide_state_labels: true });
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-declare function machine_to_dot<T>(u_jssm: Machine<T>): string;
+declare function machine_to_dot<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): string;
 /**
  *  Render an FSL string directly to graphviz dot source.
  *
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  // suppress state-name labels
+ *  const dot2 = fsl_to_dot('a -> b;', { hide_state_labels: true });
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-declare function fsl_to_dot(fsl: string): string;
+declare function fsl_to_dot(fsl: string, opts?: VizRenderOpts): string;
 /**
  *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
  *  underlying viz instance is lazy-initialized on first call and cached for
@@ -2304,32 +2324,36 @@ declare function dot_to_svg(dot: string): Promise<string>;
  *  Render an FSL string directly to SVG.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-declare function fsl_to_svg_string(fsl: string): Promise<string>;
+declare function fsl_to_svg_string(fsl: string, opts?: VizRenderOpts): Promise<string>;
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-declare function machine_to_svg_string<T>(u_jssm: Machine<T>): Promise<string>;
+declare function machine_to_svg_string<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): Promise<string>;
 /**
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-declare function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement>;
+declare function fsl_to_svg_element(fsl: string, opts?: VizRenderOpts): Promise<SVGSVGElement>;
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-declare function machine_to_svg_element<T>(u_jssm: Machine<T>): Promise<SVGSVGElement>;
+declare function machine_to_svg_element<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): Promise<SVGSVGElement>;
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
  *  jssm-viz.  Will be removed in the next major.
@@ -2350,3 +2374,4 @@ declare const _test: {
 };
 
 export { _test, build_time, configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_element, fsl_to_svg_string, machine_to_dot, machine_to_svg_element, machine_to_svg_string, version };
+export type { VizRenderOpts };
