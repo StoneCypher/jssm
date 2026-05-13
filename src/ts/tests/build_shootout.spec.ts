@@ -248,3 +248,65 @@ describe('build_shootout: renderQuickTab', () => {
     expect(jssmIdx).toBeLessThan(nanostateIdx);
   });
 });
+
+describe('build_shootout: renderMachineSection', () => {
+  let machines: any;
+  let entries: any[];
+
+  beforeAll(async () => {
+    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
+    const result = await loadAll();
+    machines = result.machines;
+    entries = result.entries;
+  });
+
+  it('emits the ## title, the blurb, a per-machine table, and each entry', async () => {
+    const { renderMachineSection } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderMachineSection('toggle', machines.toggle, entries);
+    expect(md).toMatch(/^## Toggle machine/m);
+    expect(md).toContain(machines.toggle.blurb.split('\n')[0]);
+    expect(md).toMatch(/\| lib \| length \|/);
+    const toggleEntries = entries.filter(e => e.machine === 'toggle');
+    for (const e of toggleEntries) {
+      const re = new RegExp(`### .*\`${e.library.name}\` Toggle machine`);
+      expect(md).toMatch(re);
+    }
+  });
+
+  it('sorts the per-machine table rows ascending by line count, fails last', async () => {
+    const { renderMachineSection } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderMachineSection('matter', machines.matter, entries);
+    const jssmTableIdx     = md.indexOf('| jssm |');
+    const machinaTableIdx  = md.indexOf('<fail>machina</fail>');
+    const nanostateTableIdx = md.indexOf('<fail>nanostate</fail>');
+    expect(jssmTableIdx).toBeGreaterThan(-1);
+    expect(machinaTableIdx).toBeGreaterThan(-1);
+    expect(nanostateTableIdx).toBeGreaterThan(-1);
+    expect(jssmTableIdx).toBeLessThan(machinaTableIdx);
+    expect(jssmTableIdx).toBeLessThan(nanostateTableIdx);
+  });
+});
+
+describe('build_shootout: renderGenerated', () => {
+  let machines: any;
+  let entries: any[];
+
+  beforeAll(async () => {
+    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
+    const result = await loadAll();
+    machines = result.machines;
+    entries = result.entries;
+  });
+
+  it('emits the quicktab span, then each machine section in machines.json order', async () => {
+    const { renderGenerated } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderGenerated(machines, entries);
+    expect(md).toContain('<span id="quicktab">');
+    const toggleIdx = md.indexOf('## Toggle machine');
+    const trafficIdx = md.indexOf('## Traffic light');
+    const matterIdx = md.indexOf('## States of Matter');
+    expect(toggleIdx).toBeGreaterThan(-1);
+    expect(trafficIdx).toBeGreaterThan(toggleIdx);
+    expect(matterIdx).toBeGreaterThan(trafficIdx);
+  });
+});

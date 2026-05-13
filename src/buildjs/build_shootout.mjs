@@ -209,3 +209,73 @@ export function renderQuickTab(machines, entries) {
     '</span>',
   ].join('\n');
 }
+
+/**
+ * Render one machine's section: heading, blurb, per-machine summary table, all entries.
+ *
+ * @param {string} slug - Machine slug (must be a key in `machines.json`).
+ * @param {{ title: string, blurb: string }} machineMeta
+ * @param {Array<object>} entries - All loaded entries; filtered internally to this machine.
+ * @returns {string} markdown
+ *
+ * @example
+ * const { machines, entries } = await loadAll();
+ * const md = renderMachineSection('toggle', machines.toggle, entries);
+ * // => '## Toggle machine\n\n...'
+ */
+export function renderMachineSection(slug, machineMeta, entries) {
+  const own = entries.filter(e => e.machine === slug);
+
+  const sorted = [...own].sort((a, b) => {
+    if (a.canImplement !== b.canImplement) return a.canImplement ? -1 : 1;
+    return lineCount(a.code) - lineCount(b.code);
+  });
+
+  const tableRows = sorted.map(e => {
+    const n = lineCount(e.code);
+    const anchor = anchorFor(e, machineMeta);
+    const libCell = e.canImplement ? e.library.name : `<fail>${e.library.name}</fail>`;
+    const numLink = e.official ? `**[${n}](#${anchor})**` : `[${n}](#${anchor})`;
+    const lenCell = e.canImplement ? numLink : `<fail>${numLink}</fail>`;
+    return `| ${libCell} | ${lenCell} |`;
+  }).join('\n');
+
+  const sections = sorted.map(e => renderEntry(e, machineMeta)).join('\n\n&nbsp;\n\n');
+
+  return [
+    `## ${machineMeta.title}`,
+    '',
+    machineMeta.blurb,
+    '',
+    '| lib | length |',
+    '| ---- | ---- |',
+    tableRows,
+    '',
+    '&nbsp;',
+    '',
+    sections,
+  ].join('\n');
+}
+
+/**
+ * Render the entire generated zone of Shootout.md: quicktab + each machine section.
+ *
+ * @param {object} machines - The machines.json object (insertion-ordered).
+ * @param {Array<object>} entries - Validated entries from loadAll().
+ * @returns {string} markdown
+ *
+ * @example
+ * const { machines, entries } = await loadAll();
+ * const md = renderGenerated(machines, entries);
+ * // => '<span id="quicktab">...\n\n## Toggle machine\n\n...'
+ */
+export function renderGenerated(machines, entries) {
+  const parts = [renderQuickTab(machines, entries), '', '&nbsp;', ''];
+  for (const slug of Object.keys(machines)) {
+    parts.push(renderMachineSection(slug, machines[slug], entries));
+    parts.push('');
+    parts.push('&nbsp;');
+    parts.push('');
+  }
+  return parts.join('\n');
+}
