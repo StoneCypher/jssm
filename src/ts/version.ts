@@ -5,7 +5,7 @@
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version    : string = "5.113.1";
+const version    : string = "5.118.0";
 
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,

@@ -53,10 +53,10 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
       }
     */
     const action = isRight ? 'r_action' : 'l_action', probability = isRight ? 'r_probability' : 'l_probability';
-    if (this_se[action]) {
+    if (this_se[action] != null) {
         edge.action = this_se[action];
     }
-    if (this_se[probability]) {
+    if (this_se[probability] != null) {
         edge.probability = this_se[probability];
     }
     return edge;
