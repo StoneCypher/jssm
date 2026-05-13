@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1384 merges; 228 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1405 merges; 228 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,13 +22,47 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 8:34:20 AM
+## [Untagged] - 5/13/2026 3:03:00 PM
 
-Commit [456e346c16fe12cf48d49781fadd2a05da2aa44b](https://github.com/StoneCypher/jssm/commit/456e346c16fe12cf48d49781fadd2a05da2aa44b)
+Commit [33afb27bf66b91ac2b540bfb7f16ff4beb415aa0](https://github.com/StoneCypher/jssm/commit/33afb27bf66b91ac2b540bfb7f16ff4beb415aa0)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): render per-machine sections and full generated body
+Merges [a8c58a2, dacf2bc]
+
+  * merging main
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 1:37:56 PM
+
+Commit [dacf2bc8ef30e88f9ede21e9459602c2f441765f](https://github.com/StoneCypher/jssm/commit/dacf2bc8ef30e88f9ede21e9459602c2f441765f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * normalize
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 1:28:55 PM
+
+Commit [89ff3d9bfb496ae7117d3cf9ffe241096464cce9](https://github.com/StoneCypher/jssm/commit/89ff3d9bfb496ae7117d3cf9ffe241096464cce9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [f6139f5, 9184abf]
+
+  * merge
 
 
 
@@ -39,7 +73,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 ## [Untagged] - 5/13/2026 8:34:05 AM
 
-Commit [8b52e8551e6bbb796188d4eda5422d7e76c027e2](https://github.com/StoneCypher/jssm/commit/8b52e8551e6bbb796188d4eda5422d7e76c027e2)
+Commit [ddcaf3ed15778a6a7932b02a0b7f597ec29157b7](https://github.com/StoneCypher/jssm/commit/ddcaf3ed15778a6a7932b02a0b7f597ec29157b7)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
@@ -52,28 +86,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 8:32:38 AM
+## [Untagged] - 5/13/2026 8:04:30 AM
 
-Commit [e927766a61ffceae5b657fc8d637181b3cf64dfc](https://github.com/StoneCypher/jssm/commit/e927766a61ffceae5b657fc8d637181b3cf64dfc)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(cli): persist CLI section in README source file
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/13/2026 8:31:38 AM
-
-Commit [128b800831d9530b4d57929dc4407ff51db59047](https://github.com/StoneCypher/jssm/commit/128b800831d9530b4d57929dc4407ff51db59047)
+Commit [4b105daa9c22b10ee460c8fb4bd213bfc2382103](https://github.com/StoneCypher/jssm/commit/4b105daa9c22b10ee460c8fb4bd213bfc2382103)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#1328
+  * build(wc): wire wc/viz and cdn/viz subpath exports
 
 
 
@@ -82,13 +101,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 8:28:13 AM
+## [Untagged] - 5/12/2026 8:20:48 PM
 
-Commit [92ef5203c99905c52804611b9346f0fcb266a804](https://github.com/StoneCypher/jssm/commit/92ef5203c99905c52804611b9346f0fcb266a804)
+Commit [bb3adb34ecfd539cf66d41d423290aba4ae268a2](https://github.com/StoneCypher/jssm/commit/bb3adb34ecfd539cf66d41d423290aba4ae268a2)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * stray uncommitted test sets
+  * build(wc): generate custom-elements.json from CEM analyzer
 
 
 
@@ -97,13 +116,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 8:27:54 AM
+## [Untagged] - 5/12/2026 11:56:45 PM
 
-Commit [b58194bd05ea3e675c2e919cad43e10cc4ad0f43](https://github.com/StoneCypher/jssm/commit/b58194bd05ea3e675c2e919cad43e10cc4ad0f43)
+Commit [23cf754abef46753048a1e9538f8147df4ab703e](https://github.com/StoneCypher/jssm/commit/23cf754abef46753048a1e9538f8147df4ab703e)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): render top summary table from entry data
+  * build(wc): bundler-friendly Rollup config for jssm-viz; chain build:cem into make
 
 
 
@@ -112,13 +131,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 8:27:19 AM
+## [Untagged] - 5/13/2026 12:27:31 AM
 
-Commit [87453dc8f3ec1d31fe918fb21240611f6144d07b](https://github.com/StoneCypher/jssm/commit/87453dc8f3ec1d31fe918fb21240611f6144d07b)
+Commit [2e5fd648a154e99a15eb484507b272805b859f21](https://github.com/StoneCypher/jssm/commit/2e5fd648a154e99a15eb484507b272805b859f21)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(cli): add Command-line interface section to README
+  * fix(wc): externalize jssm core in bundler build; fix define import path
 
 
 
@@ -127,13 +146,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 8:27:04 AM
+## [Untagged] - 5/13/2026 7:44:01 AM
 
-Commit [a8c58a2f029bb6a998b7014883db0e60409cc80b](https://github.com/StoneCypher/jssm/commit/a8c58a2f029bb6a998b7014883db0e60409cc80b)
+Commit [7246e105ce9f1f8e7d6f1eed5c4a8a91c00707da](https://github.com/StoneCypher/jssm/commit/7246e105ce9f1f8e7d6f1eed5c4a8a91c00707da)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * version bumped
+  * build(wc): CDN-friendly Rollup config for jssm-viz web component
 
 
 
@@ -142,25 +161,17 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 8:18:11 AM
+## [Untagged] - 5/12/2026 1:00:13 PM
 
-Commit [1dd81929f66da2b869bffece65a98216d4ba88b5](https://github.com/StoneCypher/jssm/commit/1dd81929f66da2b869bffece65a98216d4ba88b5)
+Commit [07e2c2488121414cd4493a96706f30399f8a0210](https://github.com/StoneCypher/jssm/commit/07e2c2488121414cd4493a96706f30399f8a0210)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#316
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/13/2026 8:15:52 AM
-
-Commit [26f1aec9e5947bcb23b8381cd05759df8f5fae4b](https://github.com/StoneCypher/jssm/commit/26f1aec9e5947bcb23b8381cd05759df8f5fae4b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(comparables): render per-library entry as markdown section
+  * feat(viz): thread engine option through fsl_to_svg_string
+  * Restores the {engine} options parameter to fsl_to_svg_string that the
+legacy jssm-viz-demo used. Wires JssmViz's engine prop through to the
+underlying renderer; tightens the WC engine-prop test now that the
+prop actually does something.
+  * Also extracts viz-error detail normalization into a tested helper
+(normalize_viz_error) so the WC has 100% branch coverage on the
+error path.

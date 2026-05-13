@@ -13,3 +13,5 @@ When you alter a function, please keep the code documentation docblock up to dat
 Please do not attempt to change the package version unless you have been asked to.  Being in /sc-commit counts as being asked to.
 
 Please do not attempt to push code unless you have been asked to.  Always ask before pushing code, even if you have been instructed to.
+
+do not git config without permission
