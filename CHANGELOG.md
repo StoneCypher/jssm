@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1286 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+1326 merges; 225 releases; Changlogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,28 +22,13 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:12:01 AM
+## [Untagged] - 5/12/2026 12:51:27 PM
 
-Commit [3317cc0eef1af9e268459caf5742fafc8fad8389](https://github.com/StoneCypher/jssm/commit/3317cc0eef1af9e268459caf5742fafc8fad8389)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli/render): PNG target
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 11:07:00 AM
-
-Commit [2f00709c7dec4dc11f78a1d6e2072d567422061b](https://github.com/StoneCypher/jssm/commit/2f00709c7dec4dc11f78a1d6e2072d567422061b)
+Commit [499d4318b3d63b4361be90b362668a25f2726c38](https://github.com/StoneCypher/jssm/commit/499d4318b3d63b4361be90b362668a25f2726c38)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(comparables): add JSON Schema for per-library FSM examples
+  * build: rebuild dist after merge of main into stonecypher/fsl#316
 
 
 
@@ -52,13 +37,31 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:02:00 AM
+## [Untagged] - 5/12/2026 12:48:15 PM
 
-Commit [cdd7d307e7c43fe79c611b9dfd91f8ebfa381090](https://github.com/StoneCypher/jssm/commit/cdd7d307e7c43fe79c611b9dfd91f8ebfa381090)
+Commit [e72f83ba5f0efeb8674f27920bc4e39b01087ff1](https://github.com/StoneCypher/jssm/commit/e72f83ba5f0efeb8674f27920bc4e39b01087ff1)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): rasterize via feature-detected OffscreenCanvas + resvg-wasm
+Merges [63c4d39, b4befd1]
+
+  * Merge branch 'main' into stonecypher/fsl#316
+  * # Conflicts:
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
 
 
 
@@ -67,21 +70,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:49:41 AM
+## [Untagged] - 5/12/2026 12:47:25 PM
 
-Commit [20b2ad64633df88815cdc676c4a00feafbc832b8](https://github.com/StoneCypher/jssm/commit/20b2ad64633df88815cdc676c4a00feafbc832b8)
+Commit [b0e741c62f1f81a1036db9cebb8da480a3ebbcd0](https://github.com/StoneCypher/jssm/commit/b0e741c62f1f81a1036db9cebb8da480a3ebbcd0)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(sketch): import CodeMirror 6 editor sketch from worktree
-  * Brings in the redistributable cm6-lang-fsl language package
-(StreamLanguage tokenizer for FSL) and the standalone editor demo
-(importmap with deduped @codemirror/state singleton, fsl_parser linter)
-from the worktree-cm6-editor-sketch branch.
-  * The cm6-lang-fsl package is the seed for the future jssm/cm6 subpath
-export per the editor-widget packaging spec.
-  * Dropped from the import: PNG screenshots, .playwright-mcp/ cache, and
-the servehere devDependency change.
+  * feat(cli): in-process plugin invocation with exit/argv safety + spawn fallback
 
 
 
@@ -90,13 +85,43 @@ the servehere devDependency change.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:43:17 AM
+## [Untagged] - 5/12/2026 12:44:43 PM
 
-Commit [c20806be39fd1c91a50291d692c51303f3aa7ee3](https://github.com/StoneCypher/jssm/commit/c20806be39fd1c91a50291d692c51303f3aa7ee3)
+Commit [b4befd1c7b9575023cbe4432fbbfa26b019226eb](https://github.com/StoneCypher/jssm/commit/b4befd1c7b9575023cbe4432fbbfa26b019226eb)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): HTML wrapper target
+  * test(stoch): §1 document, §7 state declarations, §9 machine attributes; doc: URL footgun + machine_reference
+  * Adds three more stoch files covering the next round of grammar
+sections, and syncs `notes/fsl-grammar-reference.md` with two
+findings the new tests surfaced.
+  *   - document.stoch.ts          (§1)  12 tests — empty/WS-only/
+    comment-only sources parse to empty term lists, single-term and
+    multi-term sequencing, mixed-kind interleaving with arbitrary
+    whitespace and comments between terms.
+  *   - state_declaration.stoch.ts (§7)  99 tests — outer state-decl
+    shape, item-key contracts for all 11 StateDeclarationItem kinds
+    (including the `state-label` / `line-style` AST-key surprises),
+    full 60-name GvizShape enumeration with prefix-pair longer-match
+    precedence, corners/line-style/linestyle vocabularies, property
+    items with and without `required`, random body shuffles preserve
+    item order.
+  *   - machine_attributes.stoch.ts (§9) 50 tests — AST-key contract for
+    each of the 14 attribute keywords (including `machine_reference`,
+    previously undocumented in §9), SemVer structured-value shape,
+    Theme always-wrapped-in-an-array invariant, Direction and
+    HookDefinition enums (with `hooks` → key `hook_definition`
+    surprise), LicenseOrLabelOrList shortlist + Label fallthrough,
+    URL with the WS-before-`;` workaround, dot_preamble round-trip.
+  * Grammar reference updates:
+  *   - §9 table — adds the missing `machine_reference` keyword to the
+    attribute → value-type table.
+  *   - §14 Quirks — adds an entry for the URL `;` footgun
+    (`machine_definition: <url> ;` requires whitespace before the
+    terminator because the URL char class includes `;` per RFC 3986
+    but FSL uses `;` as the statement terminator).
+  * Stoch suite grows from 208 to 369 tests (+161); full spec suite
+(5251) and full stoch suite both green.
 
 
 
@@ -105,13 +130,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:28:50 AM
+## [Untagged] - 5/12/2026 12:44:23 PM
 
-Commit [2bb1bc76d915cf05d2d121a3a5060c3928892e02](https://github.com/StoneCypher/jssm/commit/2bb1bc76d915cf05d2d121a3a5060c3928892e02)
+Commit [85d72ce7dcf844a3c80526bf8151045bfe0337ca](https://github.com/StoneCypher/jssm/commit/85d72ce7dcf844a3c80526bf8151045bfe0337ca)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): DOT target
+  * test(wc): cover JssmViz viz-error event for bad fsl
 
 
 
@@ -120,13 +145,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 9:40:50 AM
+## [Untagged] - 5/12/2026 12:41:10 PM
 
-Commit [fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76](https://github.com/StoneCypher/jssm/commit/fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76)
+Commit [215cad3ab26f0fffc4734b11f0e06bf1add9f684](https://github.com/StoneCypher/jssm/commit/215cad3ab26f0fffc4734b11f0e06bf1add9f684)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(cli/render): revert svg.ts to thin wrapper, loosen test regex
+  * build: rebuild dist after merge of main into stonecypher/fsl#1328
 
 
 
@@ -135,13 +160,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 9:38:39 AM
+## [Untagged] - 5/12/2026 12:41:09 PM
 
-Commit [adbbaedb1862498cf7cf54f7644a92dd9b48fed2](https://github.com/StoneCypher/jssm/commit/adbbaedb1862498cf7cf54f7644a92dd9b48fed2)
+Commit [88f3dc67d5595f0b02a2e2a41010a2488d10ba29](https://github.com/StoneCypher/jssm/commit/88f3dc67d5595f0b02a2e2a41010a2488d10ba29)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/render): SVG target
+  * feat(cli): dispatcher PATH probe and in-process eligibility
 
 
 
@@ -150,30 +175,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:36:35 AM
+## [Untagged] - 5/12/2026 12:40:30 PM
 
-Commit [b91876f86307dac2cc90e07841e64080a7d1e451](https://github.com/StoneCypher/jssm/commit/b91876f86307dac2cc90e07841e64080a7d1e451)
+Commit [86bb09a622f48414e855cb19f5080e88c7101283](https://github.com/StoneCypher/jssm/commit/86bb09a622f48414e855cb19f5080e88c7101283)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(test): make timer-using after_mapping tests properly async
-  * Eight tests in src/ts/tests/after_mapping.spec.ts wrapped an
-`expect()` call in `setTimeout(..., 100)` without returning a
-Promise or awaiting, so the assertion fired AFTER the test had
-already resolved.  Jest silently swallowed the deferred assertion;
-vitest reports it as an "Unhandled Error" because expect happens
-outside the test's lifetime.  Converted each to async with
-`await delay(100)` using the file's existing `delay()` helper.
-  * Also:
-- .eslintrc: add "root": true to prevent eslint from walking up
-  the directory tree and finding the parent repo's plugin
-  installation when running from a worktree nested inside the
-  parent.  No-op on a top-level checkout.
-- package.json: bump 5.112.3 -> 5.113.0 (MINOR) for the
-  jest -> vitest test runner switch this branch is preparing.
-  * Full build deferred — typedoc hits a similar worktree-traversal
-plugin-double-load issue that will be solved by moving the
-worktree out of the parent repo's tree.
+  * fix(comparables): correct nanostate matter line count (heading drift)
 
 
 
@@ -182,10 +190,45 @@ worktree out of the parent repo's tree.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:36:32 AM
+## [Untagged] - 5/12/2026 12:39:20 PM
 
-Commit [6c89f0952c6900b6b55a73096081ffb5f13b5094](https://github.com/StoneCypher/jssm/commit/6c89f0952c6900b6b55a73096081ffb5f13b5094)
+Commit [a8a9c2bb0e7959b2f1be0c925e1dfb51a71b576b](https://github.com/StoneCypher/jssm/commit/a8a9c2bb0e7959b2f1be0c925e1dfb51a71b576b)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli): add parseFslArgs helper with full flag parsing
+  * feat(comparables): extract nanostate examples
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:36:28 PM
+
+Commit [6104fbea313fbcd0e42d92a4f567ed5b945ff883](https://github.com/StoneCypher/jssm/commit/6104fbea313fbcd0e42d92a4f567ed5b945ff883)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [042394b, 17bb265]
+
+  * Merge branch 'main' into worktree-agent-a8562119fe10fe2f0
+  * # Conflicts:
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/fsl_parser.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
