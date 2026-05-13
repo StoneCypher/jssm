@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1329 merges; 225 releases
+1353 merges; 227 releases
 
 
 
@@ -12,8 +12,563 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:29:59 AM
+
+Commit [760aff871b4df125c2013224642c9d9a989b8e55](https://github.com/StoneCypher/jssm/commit/760aff871b4df125c2013224642c9d9a989b8e55)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): extract faste examples
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:27:50 AM
+
+Commit [a458bee0b19c11eac635c319b675e60e987cf5bd](https://github.com/StoneCypher/jssm/commit/a458bee0b19c11eac635c319b675e60e987cf5bd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [d37fd52, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#1326
+  * # Conflicts:
+#       package.json
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:27:31 AM
+
+Commit [e3fc3b23b6065caf537c5b02d6708d7a307c78e4](https://github.com/StoneCypher/jssm/commit/e3fc3b23b6065caf537c5b02d6708d7a307c78e4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): externalize jssm core in bundler build; fix define import path
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:23:50 AM
+
+Commit [cc776c1ed0e82772704fc5d22fa9c954ad6bafff](https://github.com/StoneCypher/jssm/commit/cc776c1ed0e82772704fc5d22fa9c954ad6bafff)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: rebuild dist after merge of main into stonecypher/fsl#358
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:18:47 AM
+
+Commit [fb29236c79645714ba57d0664534f152e4902957](https://github.com/StoneCypher/jssm/commit/fb29236c79645714ba57d0664534f152e4902957)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [5d9dfb1, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#358
+  * # Conflicts:
+#       dist/deno/jssm.js
+#       dist/es6/fsl_parser.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:11:42 AM
+
+Commit [819324b2431ceada0bf5a391f759d20fa6dcf689](https://github.com/StoneCypher/jssm/commit/819324b2431ceada0bf5a391f759d20fa6dcf689)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(cli): add jest-cli.config.cjs and exclude cli from spec suite
+  * - Create jest-cli.config.cjs with coverage reporting to coverage/cli/
+- Add testPathIgnorePatterns to jest-spec.config.cjs to exclude cli tests
+- Add /src/ts/cli/ to spec suite coveragePathIgnorePatterns
+- Fix dispatcher.spec.ts PATH-override for slow Windows PATH scan test
+- Add per-test timeouts (15s) to invokeBySpawn spawn tests
+- Coverage thresholds: statements/functions/lines 80%, branches 70% (v1 bar)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:08:37 AM
+
+Commit [bed923de19db471eae7bf51a37cf717a05af1f94](https://github.com/StoneCypher/jssm/commit/bed923de19db471eae7bf51a37cf717a05af1f94)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: rebuild dist after merge of main into stonecypher/fsl#427
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:03:59 AM
+
+Commit [7bc7770247b722d7d7ff02f55d1f2d12fb2cbaba](https://github.com/StoneCypher/jssm/commit/7bc7770247b722d7d7ff02f55d1f2d12fb2cbaba)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [b5062d5, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#427
+  * # Conflicts:
+#       package.json
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:56:45 PM
+
+Commit [98bff07c6e827b3cda59f7e66558326e21de6485](https://github.com/StoneCypher/jssm/commit/98bff07c6e827b3cda59f7e66558326e21de6485)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): bundler-friendly Rollup config for jssm-viz; chain build:cem into make
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:49:08 PM
+
+Commit [28f3c49d0323df25d345946bda2da1c5a8f1eaff](https://github.com/StoneCypher/jssm/commit/28f3c49d0323df25d345946bda2da1c5a8f1eaff)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): §6 transition expressions (split into 4 files)
+  * §6 is the biggest grammar section by surface area — `Exp`,
+`Subexp`, four ArrowDecoration kinds, four ArrowTarget shapes, the
+TimeType unit vocabulary, the ArrowDesc brace block, and the r_/l_
+AST mapping with its asymmetric desc-row swap.  Split into four
+focused files rather than one monster:
+  *   - transition_targets.stoch.ts   17 tests — ArrowTarget shapes:
+    Stripe `+|N`/`-|N`, Cycle `+N`/`-N`/`+0` (and the documented
+    `-0` rejection), LabelList `[a b c]`, bare Label.  Pins the
+    PEG ordering invariant `Stripe / Cycle / LabelList / Label`.
+  *   - transition_after.stoch.ts     35 tests — full TimeType unit
+    vocabulary (28 aliases across 6 unit families), bare-number
+    defaults to seconds (×1000), random value×unit combinations
+    yield value×multiplier in milliseconds, fractional values
+    via NonNegNumber.
+  *   - transition_desc.stoch.ts      19 tests — ArrowDesc brace
+    block items (arc_label / head_label / tail_label as a
+    repeatable list; edge_color / line-style as exclusive
+    single-item forms with their distinct AST keys
+    `single_edge_color` / `transition_line_style`).  Pins the
+    desc-row swap: pre-arrow `{...}` → l_desc, post-arrow → r_desc
+    (opposite to the after/action/probability mapping).  Empty
+    `{}` is silently suppressed via the parser's `!= null` guard
+    (commit 0f5e97f).
+  *   - transition_chain.stoch.ts     20 tests — Subexp recursive
+    chaining via nested se.se.se, mixed arrow kinds per link,
+    full r_/l_ AST mapping for after/action/probability,
+    per-side independent metadata on `<->` two-way arrows,
+    duplicate-decoration errors for all four kinds with the
+    documented `duplicate <kind> decoration before|after arrow`
+    messages.
+  * Existing `arrow_decorations.stoch.ts` already covered the
+free-ordering property and isn't duplicated here.
+  * Stoch suite grows from 422 to 513 tests (+91); full spec suite
+(5251) and full stoch suite both green.
+  * dist/docs intentionally excluded from this commit — the working
+tree contained source modifications from outside this session
+(jssm.ts, jssm_constants.ts, jssm_viz.ts, two new spec files,
+.claire/), so the regenerated artifacts would mix attributions.
+A fresh build with a clean working tree will regenerate them.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:46:50 PM
+
+Commit [d0675ea5749a8e2b081e1afc8211957d41b03c86](https://github.com/StoneCypher/jssm/commit/d0675ea5749a8e2b081e1afc8211957d41b03c86)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): extract robot examples
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:46:50 PM
+
+Commit [39283afc3993a2a5ced0fabeab4b23b38194de78](https://github.com/StoneCypher/jssm/commit/39283afc3993a2a5ced0fabeab4b23b38194de78)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(stoch): probable_exits_for filters out non-probability and forced-only exits
+  * Fixes StoneCypher/fsl#1325.  `probable_exits_for` previously returned every
+exit from a state, including exits with no `probability` decoration and
+forced-only (`~>`) exits.  The docblock claimed the result was "filtered to
+those with probability data", but no such filter existed.
+  * The result distorted `probabilistic_transition`'s distribution: a peer edge
+without a `probability` was given default weight 1 by `weighted_rand_select`
+alongside its declared-probability siblings, and forced-only edges (which
+cannot be reached by `transition()`) could be selected and then silently
+rejected.
+  * New behavior: if any legal exit declares a `probability`, only those exits
+are returned; otherwise every legal exit is returned (default equal weight).
+Forced-only exits are always excluded.  Docblock updated to match.
+  * New tests in src/ts/tests/probability.spec.ts cover mixed-decoration exits,
+no-decoration fallback, forced-only exclusion (with and without probability),
+the deterministic probabilistic_transition outcome, and the unknown-state
+error path.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:44:41 PM
+
+Commit [f3977b3e3d0165140e58cfe17ecf366e78099b37](https://github.com/StoneCypher/jssm/commit/f3977b3e3d0165140e58cfe17ecf366e78099b37)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(viz): regenerate dist + parser, add url to types and grammar ref
+  * Follow-up to f4474e2 (URL decoration for states, StoneCypher/fsl#420).
+The feat commit landed source changes to .peg, jssm.ts, and jssm_viz.ts,
+but did not include:
+  * - `src/ts/fsl_parser.ts` regenerated from the updated PEG grammar
+- `src/ts/jssm_types.ts` additions (`url` field on `JssmStateDeclaration`,
+  new `JssmStateStyleUrl` discriminant in the `JssmStateStyleKey` union)
+- `notes/fsl-grammar-reference.md` entry documenting `url : <String>;`
+- Rebuilt `dist/` artifacts so the published bundles match the 5.114.0
+  source
+  * No behavior change beyond what was already committed in f4474e2 — this
+just brings the rest of the tree up to date.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:39:46 PM
+
+Commit [0a6a4eb54e86a6a672a563cb8b8c4d401fb00c11](https://github.com/StoneCypher/jssm/commit/0a6a4eb54e86a6a672a563cb8b8c4d401fb00c11)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(version): bump to 5.114.0 for StoneCypher/fsl#420
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:37:22 PM
+
+Commit [138c14acdb4c35a9ad4e57f8f6f5e56702bbc75a](https://github.com/StoneCypher/jssm/commit/138c14acdb4c35a9ad4e57f8f6f5e56702bbc75a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(hooks): regression suite for is_hook_complex_result null handling (StoneCypher/fsl#1324)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:29:46 PM
+
+Commit [f4474e2a01a7c718f10bd5d4d27b8376c98b8c12](https://github.com/StoneCypher/jssm/commit/f4474e2a01a7c718f10bd5d4d27b8376c98b8c12)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(grammar,viz): URL decoration for states (StoneCypher/fsl#420)
+  * Adds a `url:` property to state declarations. When set, the value
+is emitted as Graphviz' uppercase `URL=` node attribute, which
+becomes an `xlink:href` on the rendered SVG node — giving
+click-through navigation from state shapes in diagrams.
+  * - Grammar: new `SdStateUrl` rule, added to `StateDeclarationItem`
+- Compile: wired through `transfer_state_properties` and
+  `state_style_condense`
+- Viz: `URL=` row added to per-state attribute table in
+  `states_to_nodes_string`
+- 11 tests in src/ts/tests/state_url.spec.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:25:30 PM
+
+Commit [57b7cf155b7536922e5186687a83f95c874fe91b](https://github.com/StoneCypher/jssm/commit/57b7cf155b7536922e5186687a83f95c874fe91b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): extract stately examples
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:21:44 PM
+
+Commit [a52b3abf351c7499139778c7059254daa509c158](https://github.com/StoneCypher/jssm/commit/a52b3abf351c7499139778c7059254daa509c158)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cli): jssm/cli subpath re-exports for library consumers
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:20:48 PM
+
+Commit [b611671c3bd481e26e1b7819e2e65ddc4cecec7e](https://github.com/StoneCypher/jssm/commit/b611671c3bd481e26e1b7819e2e65ddc4cecec7e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): generate custom-elements.json from CEM analyzer
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:14:59 PM
+
+Commit [b38f7a3925d10def5328b84eb6d44606a60c8547](https://github.com/StoneCypher/jssm/commit/b38f7a3925d10def5328b84eb6d44606a60c8547)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): extract finity examples (formattedWith: null)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:07:56 PM
+
+Commit [5d46ea93ee791ac389ce579894b88d5d8868b856](https://github.com/StoneCypher/jssm/commit/5d46ea93ee791ac389ce579894b88d5d8868b856)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): extract machina examples
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 1:04:02 PM
+
+Commit [d37fd524e319cdeecd8228b80c63d744062892f7](https://github.com/StoneCypher/jssm/commit/d37fd524e319cdeecd8228b80c63d744062892f7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(actions): regression for list_exit_actions on actionless states
+  * Adds src/ts/tests/list_exit_actions.spec.ts to pin the contract of
+`Machine.list_exit_actions` against StoneCypher/fsl#1326
+("list_exit_actions throws for actionless states").
+  * Verified the fix from prior work: the guard at jssm.ts ~2024 already
+returns [] when a state exists but has no entry in `_reverse_actions`,
+and the .filter(o => o.from === whichState) chain naturally returns []
+for destination-only states. Only nonexistent states throw.
+  * Coverage in the new spec:
+- mixed machine: state with two action exits, state with plain '->' exit
+  only, terminal state, nonexistent state
+- machine with no actions at all: every state returns []
+- default-argument variant on actionless current state returns []
+- destination-only state (matches no `from` in filter) returns []
+  * Also tightens the docblock on list_exit_actions to spell out the
+empty-array-for-actionless contract and the throw-only-for-nonexistent
+contract, with worked examples.
+  * No runtime behavior change.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 1:00:13 PM
+
+Commit [055c7ddc4175dc9b3ff27fdc3cffa5aba517dc63](https://github.com/StoneCypher/jssm/commit/055c7ddc4175dc9b3ff27fdc3cffa5aba517dc63)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(viz): thread engine option through fsl_to_svg_string
+  * Restores the {engine} options parameter to fsl_to_svg_string that the
+legacy jssm-viz-demo used. Wires JssmViz's engine prop through to the
+underlying renderer; tightens the WC engine-prop test now that the
+prop actually does something.
+  * Also extracts viz-error detail normalization into a tested helper
+(normalize_viz_error) so the WC has 100% branch coverage on the
+error path.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:59:49 PM
+
+Commit [4f5265f1a3de1cedb20cde9a4da50e8e7166a122](https://github.com/StoneCypher/jssm/commit/4f5265f1a3de1cedb20cde9a4da50e8e7166a122)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): revert invokeBySpawn to stdio inherit; remove misplaced spawn-path test
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:59:36 PM
+
+Commit [a0d0e54b3b76301488f78284850f2bc531c8e1d9](https://github.com/StoneCypher/jssm/commit/a0d0e54b3b76301488f78284850f2bc531c8e1d9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): §8 configuration blocks, §10 properties
+  * Adds two more stoch files covering the medium-size remaining
+grammar sections.  §6 (transition expressions) is intentionally
+left for a focused session of its own since it'll need splitting
+into multiple files.
+  *   - config.stoch.ts      (§8)  29 tests — six state-defaults block
+    keywords (state / start_state / end_state / active_state /
+    terminal_state / hooked_state) each emit a
+    `default_<keyword>_config` AST node and reuse the §7
+    StateDeclarationItem body; three placeholder blocks
+    (transition / action / validation) emit a
+    `config_kind`/`config_items` shape (distinct from the
+    `key`/`value` shape used everywhere else); the `transition:`
+    block's special-case `edge_color:` branch returns a single
+    config_items object rather than an array (pinned because it's
+    an asymmetry future code might assume away); all five
+    single-value configs (graph_layout / start_states / end_states
+    / graph_bg_color / allows_override) parse with documented
+    semantics including the `allows_override: undefined` form.
+  *   - properties.stoch.ts  (§10) 24 tests — the four-shape matrix of
+    top-level `property` declarations (default × required), Label
+    equivalence in the name position, PropertyVal vocabulary
+    threading through default_value (String / Boolean /
+    JsNumericLiteral including hex / binary / octal / scientific /
+    Null / Undefined), six named numeric constants verified at the
+    default position (Pi, Phi, EulerNumber, Epsilon, Root2,
+    MaxSafeInt), and required-ness composing with every
+    PropertyVal kind.
+  * Stoch suite grows from 369 to 422 tests (+53); full spec suite
+(5251) and full stoch suite both green.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:57:04 PM
+
+Commit [674180a699997ddbc8db17861af73e3c7601409b](https://github.com/StoneCypher/jssm/commit/674180a699997ddbc8db17861af73e3c7601409b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cli): fsl dispatcher entry with reserved-name and subcommand routing
+  * Adds dispatch() orchestrator to dispatcher.ts, the fsl.ts binary entry,
+and cross-platform fixture helpers; also pipes spawn stdout/stderr through
+process.write so test mocks capture subprocess output.
 
 
 
@@ -387,6 +942,44 @@ Commit [dff205bff292e4263ca69b1fee67d1894ac4c00a](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * feat(comparables): extract state-machine examples
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__113__0" />
+
+## [5.113.0] - 5/12/2026 12:25:38 PM
+
+Commit [d793d93bed495af0a295c634d1a4229c0dce7010](https://github.com/StoneCypher/jssm/commit/d793d93bed495af0a295c634d1a4229c0dce7010)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [2335885, bf07df4]
+
+  * Merge pull request #592 from StoneCypher/worktree-agent-a8f7f97a2228b321b
+  * feat(machine): expose grammar charset ranges for state names and action labels
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:25:17 PM
+
+Commit [2335885be44d938826839af7ab4583786cccc6d6](https://github.com/StoneCypher/jssm/commit/2335885be44d938826839af7ab4583786cccc6d6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [2003941, 3808115]
+
+  * Merge pull request #591 from StoneCypher/worktree-agent-a1ccd7b21aa5d435d
+  * feat(viz): add optional dot footer arg to render entry points
 
 
 
@@ -890,7 +1483,9 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:17:10 AM
+<a name="5__112__4" />
+
+## [5.112.4] - 5/12/2026 11:17:10 AM
 
 Commit [2003941787daa7bdb037413ab31bda0d71d8944e](https://github.com/StoneCypher/jssm/commit/2003941787daa7bdb037413ab31bda0d71d8944e)
 
@@ -3027,128 +3622,6 @@ only handled 2 of 4 for each combination. This caused a throw on mixed-notation
 arrows that arrow_direction accepted.
   * Adds 12 missing case arms (4 per arrow-kind group × 3 groups) to each function.
   * Fixes @stonecypher/fsl#1311, @stonecypher/fsl#1312
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 3/25/2026 2:57:18 PM
-
-Commit [ec27de1205e01203dddadedd0d421037d909d898](https://github.com/StoneCypher/jssm/commit/ec27de1205e01203dddadedd0d421037d909d898)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump picomatch
-  * Bumps  and [picomatch](https://github.com/micromatch/picomatch). These dependencies needed to be updated together.
-  * Updates `picomatch` from 2.3.1 to 2.3.2
-- [Release notes](https://github.com/micromatch/picomatch/releases)
-- [Changelog](https://github.com/micromatch/picomatch/blob/master/CHANGELOG.md)
-- [Commits](https://github.com/micromatch/picomatch/compare/2.3.1...2.3.2)
-  * Updates `picomatch` from 4.0.2 to 4.0.4
-- [Release notes](https://github.com/micromatch/picomatch/releases)
-- [Changelog](https://github.com/micromatch/picomatch/blob/master/CHANGELOG.md)
-- [Commits](https://github.com/micromatch/picomatch/compare/2.3.1...2.3.2)
-  * ---
-updated-dependencies:
-- dependency-name: picomatch
-  dependency-version: 2.3.2
-  dependency-type: indirect
-- dependency-name: picomatch
-  dependency-version: 4.0.4
-  dependency-type: indirect
-...
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 3/19/2026 10:46:01 AM
-
-Commit [960020f04c4fc87eded14c66148ddb47e69f1c33](https://github.com/StoneCypher/jssm/commit/960020f04c4fc87eded14c66148ddb47e69f1c33)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump flatted from 3.2.7 to 3.4.2
-  * Bumps [flatted](https://github.com/WebReflection/flatted) from 3.2.7 to 3.4.2.
-- [Commits](https://github.com/WebReflection/flatted/compare/v3.2.7...v3.4.2)
-  * ---
-updated-dependencies:
-- dependency-name: flatted
-  dependency-version: 3.4.2
-  dependency-type: indirect
-...
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 2/27/2026 6:55:01 PM
-
-Commit [6084ca8ca19e416828d1db3ee0424e1147dcab08](https://github.com/StoneCypher/jssm/commit/6084ca8ca19e416828d1db3ee0424e1147dcab08)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump minimatch
-  * Bumps  and [minimatch](https://github.com/isaacs/minimatch). These dependencies needed to be updated together.
-  * Updates `minimatch` from 5.1.0 to 5.1.9
-- [Changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md)
-- [Commits](https://github.com/isaacs/minimatch/compare/v5.1.0...v5.1.9)
-  * Updates `minimatch` from 3.1.2 to 3.1.5
-- [Changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md)
-- [Commits](https://github.com/isaacs/minimatch/compare/v5.1.0...v5.1.9)
-  * Updates `minimatch` from 5.1.6 to 5.1.9
-- [Changelog](https://github.com/isaacs/minimatch/blob/main/changelog.md)
-- [Commits](https://github.com/isaacs/minimatch/compare/v5.1.0...v5.1.9)
-  * ---
-updated-dependencies:
-- dependency-name: minimatch
-  dependency-version: 5.1.9
-  dependency-type: indirect
-- dependency-name: minimatch
-  dependency-version: 3.1.5
-  dependency-type: indirect
-- dependency-name: minimatch
-  dependency-version: 5.1.9
-  dependency-type: indirect
-...
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 2/26/2026 2:55:38 AM
-
-Commit [039e26a0a2516b99a8b758dd819f09347b212608](https://github.com/StoneCypher/jssm/commit/039e26a0a2516b99a8b758dd819f09347b212608)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * Bump rollup from 4.24.0 to 4.59.0
-  * Bumps [rollup](https://github.com/rollup/rollup) from 4.24.0 to 4.59.0.
-- [Release notes](https://github.com/rollup/rollup/releases)
-- [Changelog](https://github.com/rollup/rollup/blob/master/CHANGELOG.md)
-- [Commits](https://github.com/rollup/rollup/compare/v4.24.0...v4.59.0)
-  * ---
-updated-dependencies:
-- dependency-name: rollup
-  dependency-version: 4.59.0
-  dependency-type: direct:development
-...
-  * Signed-off-by: dependabot[bot] <support@github.com>
 
 
 
