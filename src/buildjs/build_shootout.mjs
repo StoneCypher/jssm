@@ -74,6 +74,50 @@ function pluralize(n, word) {
 }
 
 /**
+ * Generate a stable anchor slug for a (library, machine) cell.
+ *
+ * Mirrors the format that GitHub/typedoc would produce from the heading
+ * emitted by renderEntry: lowercase, non-alphanumeric runs collapsed to `-`,
+ * leading/trailing `-` stripped.
+ *
+ * @param {object} entry - A validated entry from loadAll().entries.
+ * @param {{ title: string }} machineMeta - The machines.json entry for entry.machine.
+ * @returns {string} anchor slug (no leading `#`)
+ *
+ * @example
+ * anchorFor({ library: { name: 'jssm' }, official: true, code: 'x' }, { title: 'Toggle machine' })
+ * // => 'jssm-toggle-machine-1-line'
+ */
+function anchorFor(entry, machineMeta) {
+  const prefix = entry.official ? '' : 'created-';
+  const slug = `${prefix}${entry.library.name}-${machineMeta.title}-${pluralize(lineCount(entry.code), 'line')}`
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  return slug;
+}
+
+/**
+ * Format an average line count for the Avg column.
+ *
+ * Two decimal places, trailing zeros and trailing dot trimmed.
+ * Returns `—` for non-finite values.
+ *
+ * @param {number} n
+ * @returns {string}
+ *
+ * @example
+ * formatAvg(2.666666) // => '2.67'
+ * formatAvg(9)        // => '9'
+ * formatAvg(Infinity) // => '—'
+ */
+function formatAvg(n) {
+  if (!Number.isFinite(n)) return '—';
+  return n.toFixed(2).replace(/\.?0+$/, '');
+}
+
+/**
  * Render one (library, machine) entry as a markdown section.
  *
  * Heading format:
@@ -101,4 +145,67 @@ export function renderEntry(entry, machineMeta) {
   parts.push('```');
 
   return parts.join('\n');
+}
+
+/**
+ * Render the top summary table (the `quicktab` span) of Shootout.md.
+ *
+ * One column per machine (using `machineMeta.title.split(' ')[0]` as a short
+ * abbreviation), one row per library.  Libraries with no `canImplement:false`
+ * cells are sorted first (ascending average line count); libraries with at
+ * least one failing cell are sorted last (also ascending average).
+ *
+ * @param {object} machines - The machines.json object (insertion-ordered).
+ * @param {Array<object>} entries - Validated entries from loadAll().
+ * @returns {string} markdown block wrapped in `<span id="quicktab">...</span>`
+ *
+ * @example
+ * const { machines, entries } = await loadAll();
+ * const md = renderQuickTab(machines, entries);
+ * // => '<span id="quicktab">\n\n| Library | Toggle | Traffic | States | Avg |\n...\n</span>'
+ */
+export function renderQuickTab(machines, entries) {
+  const machineSlugs = Object.keys(machines);
+  const libraries = [...new Set(entries.map(e => e.library.name))];
+
+  const rows = libraries.map(libName => {
+    const cells = machineSlugs.map(slug => entries.find(e => e.library.name === libName && e.machine === slug));
+    const anyFail = cells.some(c => c && !c.canImplement);
+    const nameCell = anyFail ? `<fail>${libName}</fail>` : libName;
+
+    const counts = cells.map(c => {
+      if (!c) return { text: '', value: null };
+      const n = lineCount(c.code);
+      const anchor = anchorFor(c, machines[c.machine]);
+      const linked = c.official ? `**[${n}](#${anchor})**` : `[${n}](#${anchor})`;
+      const wrapped = c.canImplement ? linked : `<fail>${linked}</fail>`;
+      return { text: wrapped, value: n };
+    });
+
+    const knownValues = counts.filter(x => x.value !== null).map(x => x.value);
+    const avg = knownValues.length ? (knownValues.reduce((a, b) => a + b, 0) / knownValues.length) : Infinity;
+    const avgText = formatAvg(avg);
+    const avgCell = anyFail ? `<fail>${avgText}</fail>` : avgText;
+
+    return { libName, nameCell, counts, avg, anyFail, avgCell };
+  });
+
+  rows.sort((a, b) => {
+    if (a.anyFail !== b.anyFail) return a.anyFail ? 1 : -1;
+    return a.avg - b.avg;
+  });
+
+  const header  = `| Library | ${machineSlugs.map(s => machines[s].title.split(' ')[0]).join(' | ')} | Avg |`;
+  const divider = `| ---- | ${machineSlugs.map(() => '----').join(' | ')} | ---- |`;
+  const body    = rows.map(r => `| ${r.nameCell} | ${r.counts.map(c => c.text).join(' | ')} | ${r.avgCell} |`).join('\n');
+
+  return [
+    '<span id="quicktab">',
+    '',
+    header,
+    divider,
+    body,
+    '',
+    '</span>',
+  ].join('\n');
 }

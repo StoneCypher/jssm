@@ -184,3 +184,67 @@ describe('build_shootout: renderEntry', () => {
     expect(md).toMatch(/```javascript\nexport const x = 1;\n```/);
   });
 });
+
+describe('build_shootout: renderQuickTab', () => {
+  let machines: any;
+  let entries: any[];
+
+  beforeAll(async () => {
+    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
+    const result = await loadAll();
+    machines = result.machines;
+    entries = result.entries;
+  });
+
+  it('opens with <span id="quicktab"> and closes with </span>', async () => {
+    const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderQuickTab(machines, entries);
+    expect(md).toMatch(/^<span id="quicktab">/);
+    expect(md.trim().endsWith('</span>')).toBe(true);
+  });
+
+  it('lists every library as a row with one cell per machine plus an Avg column', async () => {
+    const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderQuickTab(machines, entries);
+    for (const slug of Object.keys(machines)) {
+      const colHead = machines[slug].title.split(' ')[0];
+      expect(md).toContain(colHead);
+    }
+    expect(md).toContain('Avg');
+    const libs = new Set<string>(entries.map(e => e.library.name));
+    for (const lib of libs) {
+      // The lib name appears in some cell — either plain or wrapped in <fail>
+      const escaped = lib.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`(\\| ${escaped} \\|)|(<fail>${escaped}</fail>)`);
+      expect(md).toMatch(re);
+    }
+  });
+
+  it('wraps a library with any canImplement:false cell in <fail>', async () => {
+    const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderQuickTab(machines, entries);
+    // nanostate and machina both have canImplement:false on their matter entries
+    expect(md).toMatch(/<fail>nanostate<\/fail>/);
+    expect(md).toMatch(/<fail>machina<\/fail>/);
+  });
+
+  it('bolds official-upstream line counts', async () => {
+    const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderQuickTab(machines, entries);
+    // jssm is official on all three machines, so jssm's row should contain **[N]
+    expect(md).toMatch(/\| jssm \| \*\*\[1\]/);
+  });
+
+  it('sorts libraries by ascending average, with any-fail libraries last', async () => {
+    const { renderQuickTab } = await import('../../buildjs/build_shootout.mjs');
+    const md = renderQuickTab(machines, entries);
+    const jssmIdx       = md.indexOf('| jssm ');
+    const machinaIdx    = md.indexOf('<fail>machina</fail>');
+    const nanostateIdx  = md.indexOf('<fail>nanostate</fail>');
+    expect(jssmIdx).toBeGreaterThan(-1);
+    expect(machinaIdx).toBeGreaterThan(-1);
+    expect(nanostateIdx).toBeGreaterThan(-1);
+    expect(jssmIdx).toBeLessThan(machinaIdx);
+    expect(jssmIdx).toBeLessThan(nanostateIdx);
+  });
+});
