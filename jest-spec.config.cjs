@@ -7,7 +7,7 @@ module.exports = {
 
   moduleFileExtensions       : ['js', 'mjs', 'ts'],
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/", "/src/ts/jssm_viz.ts", "/src/ts/jssm_viz_colors.ts"],
-  testPathIgnorePatterns     : ["/node_modules/"],
+  testPathIgnorePatterns     : ["/node_modules/", "<rootDir>/\\.claude/worktrees/"],
   testMatch                  : ['**/*.spec.ts'],
 
   transform                  : {
