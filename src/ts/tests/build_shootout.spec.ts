@@ -1,3 +1,20 @@
+import { mkdtemp, mkdir, writeFile, copyFile } from 'node:fs/promises';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
+async function tmpComparables(perLibraryFiles: Record<string, unknown>): Promise<string> {
+  const realRoot = path.resolve(__dirname, '..', '..', 'comparables');
+  const root = await mkdtemp(path.join(os.tmpdir(), 'cmp-'));
+  await copyFile(path.join(realRoot, 'schema.json'),   path.join(root, 'schema.json'));
+  await copyFile(path.join(realRoot, 'machines.json'), path.join(root, 'machines.json'));
+  for (const [relPath, body] of Object.entries(perLibraryFiles)) {
+    const full = path.join(root, relPath);
+    await mkdir(path.dirname(full), { recursive: true });
+    await writeFile(full, typeof body === 'string' ? body : JSON.stringify(body));
+  }
+  return root;
+}
+
 describe('build_shootout: loadAll', () => {
   let machines: any;
   let entries: any[];
@@ -49,5 +66,68 @@ describe('build_shootout: lineCount', () => {
   it('counts a trailing newline as creating an extra empty line', async () => {
     const { lineCount } = await import('../../buildjs/build_shootout.mjs');
     expect(lineCount('a\n')).toBe(2);
+  });
+});
+
+describe('build_shootout: validation failures', () => {
+  it('rejects file whose machine field disagrees with parent directory', async () => {
+    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
+    const dir = await tmpComparables({
+      'toggle/jssm.json': {
+        library: { name: 'jssm', npm: 'jssm', homepage: 'https://x.test', languages: ['javascript'] },
+        machine: 'matter',
+        language: 'javascript',
+        official: true,
+        canImplement: true,
+        code: 'x',
+      },
+    });
+    await expect(loadAll(dir)).rejects.toThrow(/machine field "matter" does not match directory "toggle"/);
+  });
+
+  it('rejects file whose language is not in library.languages', async () => {
+    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
+    const dir = await tmpComparables({
+      'toggle/jssm.json': {
+        library: { name: 'jssm', npm: 'jssm', homepage: 'https://x.test', languages: ['javascript'] },
+        machine: 'toggle',
+        language: 'typescript',
+        official: true,
+        canImplement: true,
+        code: 'x',
+      },
+    });
+    await expect(loadAll(dir)).rejects.toThrow(/language "typescript" not in library.languages/);
+  });
+
+  it('rejects file with schema violation: missing required field', async () => {
+    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
+    const dir = await tmpComparables({
+      // Missing required `code` field
+      'toggle/jssm.json': {
+        library: { name: 'jssm', npm: 'jssm', homepage: 'https://x.test', languages: ['javascript'] },
+        machine: 'toggle',
+        language: 'javascript',
+        official: true,
+        canImplement: true,
+      },
+    });
+    await expect(loadAll(dir)).rejects.toThrow(/schema/i);
+  });
+
+  it('rejects file with schema violation: unknown extra field', async () => {
+    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
+    const dir = await tmpComparables({
+      'toggle/jssm.json': {
+        library: { name: 'jssm', npm: 'jssm', homepage: 'https://x.test', languages: ['javascript'] },
+        machine: 'toggle',
+        language: 'javascript',
+        official: true,
+        canImplement: true,
+        code: 'x',
+        bogusField: 'should fail',
+      },
+    });
+    await expect(loadAll(dir)).rejects.toThrow(/schema/i);
   });
 });
