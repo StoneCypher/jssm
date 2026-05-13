@@ -33,7 +33,8 @@
         "default": "./dist/jssm_viz.mjs"
       },
       "browser": "./dist/jssm_viz.iife.cjs"
-    }
+    },
+    "./custom-elements.json": "./custom-elements.json"
   },
   "autoupdate": {
     "source": "git",
@@ -66,7 +67,8 @@
     "jssm.es6.d.ts",
     "jssm_viz.es5.d.cts",
     "jssm_viz.es6.d.ts",
-    "MIGRATING-jssm-viz.md"
+    "MIGRATING-jssm-viz.md",
+    "custom-elements.json"
   ],
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
   "main": "dist/jssm.es5.cjs",
@@ -88,6 +90,7 @@
     "test": "npm run make && npm run jest",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
+    "build:cem": "custom-elements-manifest analyze --config custom-elements-manifest.config.mjs",
     "make_cjs": "rollup -c rollup.config.es5.js",
     "make_es6": "rollup -c rollup.config.es6.js",
     "make_iife": "rollup -c rollup.config.iife.js",
