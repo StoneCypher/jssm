@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "stately",
+    "npm": "stately.js",
+    "homepage": "https://github.com/fschaefer/Stately.js",
+    "languages": ["javascript"]
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/fschaefer/Stately.js#examples",
+    "note": "stately did not have a traffic light example. I made this, following this unrelated machine as a style guide."
+  },
+  "code": "export const matter = Stately.machine({\n  red: {\n    onEnter: () => console.log(\"Red light!\"),\n    next: () => {\n      return this.green;\n    },\n  },\n  green: {\n    next: () => {\n      return this.yellow;\n    },\n  },\n  gas: {\n    next: () => {\n      return this.red;\n    },\n  },\n});",
+  "formattedWith": "prettier"
+}
