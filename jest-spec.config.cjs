@@ -5,12 +5,15 @@ module.exports = {
 
   coverageProvider           : 'v8',
 
-  moduleFileExtensions       : ['js', 'ts'],
+  moduleFileExtensions       : ['js', 'mjs', 'ts'],
   coveragePathIgnorePatterns : ["/node_modules/", "/src/ts/tests/", "/src/ts/jssm_viz.ts", "/src/ts/jssm_viz_colors.ts"],
-  testPathIgnorePatterns     : ["/node_modules/", "\\.claude/worktrees/"],
+  testPathIgnorePatterns     : ["/node_modules/"],
   testMatch                  : ['**/*.spec.ts'],
 
-  transform                  : { '^.+\\.ts$': ['@swc/jest', { jsc: { parser: { syntax: 'typescript' }, target: 'es2020' } }] },
+  transform                  : {
+    '^.+\\.ts$':  ['@swc/jest', { jsc: { parser: { syntax: 'typescript' }, target: 'es2020' } }],
+    '^.+\\.mjs$': ['@swc/jest', { jsc: { parser: { syntax: 'ecmascript' }, target: 'es2020' } }],
+  },
 
   verbose                    : false,
   collectCoverage            : true,
