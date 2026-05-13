@@ -366,6 +366,7 @@ type JssmStateDeclaration = {
   borderColor?     : JssmColor,
 
   image?           : string,
+  url?             : string,
 
   state            : StateType,
   property?        : { name: string, value: unknown }
@@ -388,6 +389,7 @@ type JssmStateStyleStateLabel      = { key: 'state-label',      value: string   
 type JssmStateStyleBackgroundColor = { key: 'background-color', value: JssmColor     };
 type JssmStateStyleBorderColor     = { key: 'border-color',     value: JssmColor     };
 type JssmStateStyleImage           = { key: 'image',            value: string        };
+type JssmStateStyleUrl             = { key: 'url',              value: string        };
 
 /**
  *  Tagged union of all individual style key/value pairs that may appear in
@@ -398,7 +400,7 @@ type JssmStateStyleKey     = JssmStateStyleShape | JssmStateStyleColor
                            | JssmStateStyleTextColor | JssmStateStyleCorners
                            | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor
                            | JssmStateStyleStateLabel | JssmStateStyleBorderColor
-                           | JssmStateStyleImage;
+                           | JssmStateStyleImage | JssmStateStyleUrl;
 
 /**
  *  An ordered list of {@link JssmStateStyleKey} entries.  Used by the
