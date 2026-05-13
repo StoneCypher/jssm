@@ -406,26 +406,26 @@ function peg$parse(input, options) {
         // fixed-order rule:
         //   pre-arrow:  after→r_after  action→r_action  prob→r_probability  desc→l_desc
         //   post-arrow: after→l_after  action→l_action  prob→l_probability  desc→r_desc
-        // The truthy `if (d.v)` guard mirrors the legacy `if (var)`
-        // checks: it suppresses falsy values (notably `null` from an
-        // empty `{}` brace block) so the AST shape stays compatible
-        // with the original fixed-order rule.
+        // The `!= null` guard suppresses missing-value sentinels (the
+        // `null` returned by an empty `{}` brace block) while letting
+        // legitimately-empty primitives through — notably the empty
+        // string from an empty action label `''`.
         const seen = {};
         for (const d of pre) {
             if (seen['pre:' + d._kind]) {
                 error('duplicate ' + d._kind + ' decoration before arrow', location());
             }
             seen['pre:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.r_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.r_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.r_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.l_desc = d.v;
             }
         }
@@ -434,16 +434,16 @@ function peg$parse(input, options) {
                 error('duplicate ' + d._kind + ' decoration after arrow', location());
             }
             seen['post:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.l_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.l_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.l_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.r_desc = d.v;
             }
         }
@@ -20358,10 +20358,10 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
       }
     */
     const action = isRight ? 'r_action' : 'l_action', probability = isRight ? 'r_probability' : 'l_probability';
-    if (this_se[action]) {
+    if (this_se[action] != null) {
         edge.action = this_se[action];
     }
-    if (this_se[probability]) {
+    if (this_se[probability] != null) {
         edge.probability = this_se[probability];
     }
     return edge;
@@ -21271,13 +21271,13 @@ var constants = /*#__PURE__*/Object.freeze({
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.113.0";
+const version = "5.118.0";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778611992592;
+const build_time = 1778660102735;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
@@ -22590,10 +22590,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -22601,11 +22614,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
