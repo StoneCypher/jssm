@@ -279,3 +279,46 @@ export function renderGenerated(machines, entries) {
   }
   return parts.join('\n');
 }
+
+/**
+ * Splice `generated` content into the marker-delimited zone of `existing`.
+ *
+ * Locates the START and END markers; everything outside them is preserved
+ * verbatim. Throws if either marker is missing.
+ *
+ * @param {string} existing - The current contents of Shootout.md.
+ * @param {string} generated - Output of renderGenerated().
+ * @returns {string} The new file content.
+ *
+ * @example
+ * const doc = '# Title\n<!-- COMPARABLES:GENERATED-START -->\nold\n<!-- COMPARABLES:GENERATED-END -->\nbye';
+ * const out = spliceMarkers(doc, 'new content');
+ * // out contains '# Title', 'new content', and 'bye'; 'old' is gone
+ */
+export function spliceMarkers(existing, generated) {
+  const startIdx = existing.indexOf(START_MARKER);
+  const endIdx   = existing.indexOf(END_MARKER);
+  if (startIdx === -1 || endIdx === -1) {
+    throw new Error(`markers missing from Shootout.md (looked for "${START_MARKER}" and "${END_MARKER}")`);
+  }
+  const startLineEnd = existing.indexOf('\n', startIdx);
+  const before = existing.slice(0, startLineEnd + 1);
+  const after  = existing.slice(endIdx);
+  return `${before}\n${generated}\n\n${after}`;
+}
+
+// CLI entry point — only runs when this module is invoked directly as a script.
+(async () => {
+  const thisFile = fileURLToPath(import.meta.url).replace(/\\/g, '/');
+  const argvFile = (process.argv[1] || '').replace(/\\/g, '/');
+  if (thisFile === argvFile) {
+    const shootoutPath = path.resolve(repoRoot, 'src', 'doc_md', 'Shootout.md');
+    const { machines, entries } = await loadAll();
+    const existing  = await readFile(shootoutPath, 'utf8');
+    const generated = renderGenerated(machines, entries);
+    const next      = spliceMarkers(existing, generated);
+    const { writeFile } = await import('node:fs/promises');
+    await writeFile(shootoutPath, next, 'utf8');
+    console.log(`Wrote ${shootoutPath} (${entries.length} entries, ${Object.keys(machines).length} machines)`);
+  }
+})();

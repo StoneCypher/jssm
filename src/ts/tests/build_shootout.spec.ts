@@ -310,3 +310,48 @@ describe('build_shootout: renderGenerated', () => {
     expect(matterIdx).toBeGreaterThan(trafficIdx);
   });
 });
+
+describe('build_shootout: spliceMarkers', () => {
+  it('replaces content between START and END markers, preserving outside text', async () => {
+    const { spliceMarkers } = await import('../../buildjs/build_shootout.mjs');
+    const before = [
+      '# Title',
+      'Intro prose',
+      '',
+      '<!-- COMPARABLES:GENERATED-START — annotation -->',
+      '',
+      'OLD CONTENT',
+      '',
+      '<!-- COMPARABLES:GENERATED-END -->',
+      'After',
+    ].join('\n');
+    const out = spliceMarkers(before, 'NEW CONTENT');
+    expect(out).toContain('# Title');
+    expect(out).toContain('Intro prose');
+    expect(out).toContain('NEW CONTENT');
+    expect(out).not.toContain('OLD CONTENT');
+    expect(out).toContain('After');
+    // The annotation on the start marker line should be preserved verbatim
+    expect(out).toContain('<!-- COMPARABLES:GENERATED-START — annotation -->');
+    expect(out).toContain('<!-- COMPARABLES:GENERATED-END -->');
+  });
+
+  it('throws if the start marker is missing', async () => {
+    const { spliceMarkers } = await import('../../buildjs/build_shootout.mjs');
+    expect(() => spliceMarkers('no markers here', 'x')).toThrow(/markers missing/i);
+  });
+
+  it('throws if the end marker is missing', async () => {
+    const { spliceMarkers } = await import('../../buildjs/build_shootout.mjs');
+    const onlyStart = '<!-- COMPARABLES:GENERATED-START -->\nSomething';
+    expect(() => spliceMarkers(onlyStart, 'x')).toThrow(/markers missing/i);
+  });
+
+  it('is idempotent: splicing the same generated content twice yields identical output', async () => {
+    const { spliceMarkers } = await import('../../buildjs/build_shootout.mjs');
+    const before = '# T\n<!-- COMPARABLES:GENERATED-START -->\nold\n<!-- COMPARABLES:GENERATED-END -->\nbye';
+    const once = spliceMarkers(before, 'GENERATED');
+    const twice = spliceMarkers(once, 'GENERATED');
+    expect(twice).toBe(once);
+  });
+});
