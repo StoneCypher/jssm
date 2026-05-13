@@ -543,6 +543,7 @@ Each is a `keyword : value;` line at top level.
 | `machine_contributor`  | `LabelOrLabelList`    |
 | `machine_comment`      | `LabelOrLabelList`    |
 | `machine_definition`   | `URL` (`http`/`https` only) |
+| `machine_reference`    | `LabelOrLabelList`    |
 | `machine_version`      | `SemVer`              |
 | `machine_license`      | `LicenseOrLabelOrList` |
 | `machine_language`     | `Label`               |
@@ -698,3 +699,12 @@ hyphenated forms aren't shadowed.
   consumes it today; only `SemVer` is referenced.  Range-aware
   version handling appears to be partially scaffolded for future
   work.
+
+- **URL char class includes `;`.** The `URL` production
+  (`UrlProtocol [a-zA-Z0-9!*'():;@&=+$,/?#[]_.~-]+`) accepts `;` as
+  a URL-safe character per RFC 3986.  In FSL that conflicts with
+  the statement terminator: `machine_definition: https://x.com;`
+  fails because the URL eats the trailing `;`.  Workaround used by
+  the existing tests and conventional in practice: leave one
+  whitespace character between the URL and the terminator
+  (`machine_definition: https://x.com ;`).
