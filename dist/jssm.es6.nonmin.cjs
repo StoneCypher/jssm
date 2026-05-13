@@ -21148,6 +21148,93 @@ const named_colors$1 = [
     "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
     "Yellow", "YellowGreen"
 ];
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ */
+// keep in sync with src/ts/fsl_parser.peg:278
+const state_name_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '+', to: '+' },
+    { from: '_', to: '_' },
+    { from: '^', to: '^' },
+    { from: '(', to: '(' },
+    { from: ')', to: ')' },
+    { from: '*', to: '*' },
+    { from: '&', to: '&' },
+    { from: '$', to: '$' },
+    { from: '#', to: '#' },
+    { from: '@', to: '@' },
+    { from: '!', to: '!' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:275
+const state_name_first_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '_', to: '_' },
+    { from: '!', to: '!' },
+    { from: '$', to: '$' },
+    { from: '^', to: '^' },
+    { from: '*', to: '*' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$1 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\uFFFF' },
+]);
 
 var constants = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -21168,9 +21255,12 @@ var constants = /*#__PURE__*/Object.freeze({
     PosInfinity: PosInfinity,
     Root2: Root2,
     RootHalf: RootHalf,
+    action_label_chars: action_label_chars$1,
     gviz_shapes: gviz_shapes$1,
     named_colors: named_colors$1,
-    shapes: shapes$1
+    shapes: shapes$1,
+    state_name_chars: state_name_chars$1,
+    state_name_first_chars: state_name_first_chars$1
 });
 
 /**
@@ -21179,16 +21269,16 @@ var constants = /*#__PURE__*/Object.freeze({
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.112.8";
+const version = "5.113.0";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778615523578;
+const build_time = 1778686467893;
 
 // whargarbl lots of these return arrays could/should be sets
-const { shapes, gviz_shapes, named_colors } = constants;
+const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -22332,6 +22422,46 @@ class Machine {
      */
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
+    }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
     }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
@@ -24492,4 +24622,4 @@ function deserialize(machine_string, ser) {
     return machine;
 }
 
-export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };

@@ -973,6 +973,63 @@ declare const shapes$1: string[];
  *
  */
 declare const named_colors$1: string[];
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ */
+declare const state_name_chars$1: ReadonlyArray<{
+    from: string;
+    to: string;
+}>;
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ */
+declare const state_name_first_chars$1: ReadonlyArray<{
+    from: string;
+    to: string;
+}>;
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ */
+declare const action_label_chars$1: ReadonlyArray<{
+    from: string;
+    to: string;
+}>;
 
 declare const jssm_constants_d_E: typeof E;
 declare const jssm_constants_d_Epsilon: typeof Epsilon;
@@ -1010,9 +1067,12 @@ declare namespace jssm_constants_d {
     jssm_constants_d_PosInfinity as PosInfinity,
     jssm_constants_d_Root2 as Root2,
     jssm_constants_d_RootHalf as RootHalf,
+    action_label_chars$1 as action_label_chars,
     gviz_shapes$1 as gviz_shapes,
     named_colors$1 as named_colors,
     shapes$1 as shapes,
+    state_name_chars$1 as state_name_chars,
+    state_name_first_chars$1 as state_name_first_chars,
   };
 }
 
@@ -1035,6 +1095,18 @@ declare type StateType = string;
 declare const shapes: string[];
 declare const gviz_shapes: string[];
 declare const named_colors: string[];
+declare const state_name_chars: readonly {
+    from: string;
+    to: string;
+}[];
+declare const state_name_first_chars: readonly {
+    from: string;
+    to: string;
+}[];
+declare const action_label_chars: readonly {
+    from: string;
+    to: string;
+}[];
 
 /*********
  *
@@ -1715,6 +1787,49 @@ declare class Machine<mDT> {
      *  @returns An array of theme name strings.
      */
     all_themes(): FslTheme[];
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -2902,4 +3017,4 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };

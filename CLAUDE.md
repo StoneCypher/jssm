@@ -1,5 +1,9 @@
 This is a typescript project that creates a library with a function, as well as a CLI.
 
+Do not use compound commands.  They cause permissions dialogs which stop work.
+
+When using git -C, ignore the canonical form, and write the verb before the -C, so that I can gate those through permissions
+
 Please write your code documentation in DocBlock.
 
 When you create a function, please also create tests and code documentation, and update the base_README.

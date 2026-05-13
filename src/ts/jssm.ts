@@ -59,7 +59,8 @@ import {
 
 
 import * as constants from './jssm_constants';
-const { shapes, gviz_shapes, named_colors } = constants;
+const { shapes, gviz_shapes, named_colors,
+        state_name_chars, state_name_first_chars, action_label_chars } = constants;
 
 
 
@@ -1686,6 +1687,49 @@ class Machine<mDT> {
    */
   all_themes(): FslTheme[] {
     return [... theme_mapping.keys()];     // constructor sets this to "default" otherwise
+  }
+
+  /** List the character ranges accepted by the FSL grammar in any but the
+   *  first position of a state name (atom).  Each entry is an inclusive
+   *  `{from, to}` range of single Unicode characters.
+   *
+   *  @returns An array of `{from, to}` inclusive character ranges.
+   *
+   *  @example
+   *  const m = sm`a -> b;`;
+   *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+   */
+  all_state_name_chars(): ReadonlyArray<{ from: string, to: string }> {
+    return state_name_chars;
+  }
+
+  /** List the character ranges accepted by the FSL grammar in the first
+   *  position of a state name (atom).  Narrower than
+   *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+   *
+   *  @returns An array of `{from, to}` inclusive character ranges.
+   *
+   *  @example
+   *  const m = sm`a -> b;`;
+   *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+   */
+  all_state_name_first_chars(): ReadonlyArray<{ from: string, to: string }> {
+    return state_name_first_chars;
+  }
+
+  /** List the character ranges accepted inside a single-quoted FSL action
+   *  label without escaping.  Space is allowed; the apostrophe `'` is
+   *  explicitly excluded since it terminates the label.
+   *
+   *  @returns An array of `{from, to}` inclusive character ranges.
+   *
+   *  @example
+   *  const m = sm`a -> b;`;
+   *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+   *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+   */
+  all_action_label_chars(): ReadonlyArray<{ from: string, to: string }> {
+    return action_label_chars;
   }
 
   /** Get the active theme(s) for this machine.  Always stored as an array
@@ -4430,6 +4474,10 @@ export {
   shapes,
   gviz_shapes,
   named_colors,
+
+  state_name_chars,
+  state_name_first_chars,
+  action_label_chars,
 
   is_hook_rejection,
     is_hook_complex_result,

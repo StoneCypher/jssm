@@ -88,30 +88,49 @@ declare function style_for_state<T>(u_jssm: jssm.Machine<T>, state: string): str
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
+ *
  *  ```typescript
  *  import { sm } from 'jssm';
  *  import { machine_to_dot } from 'jssm/viz';
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-declare function machine_to_dot<T>(u_jssm: jssm.Machine<T>): string;
+declare function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts?: {
+    footer?: string;
+}): string;
 /**
  *  Render an FSL string directly to graphviz dot source.
  *
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-declare function fsl_to_dot(fsl: string): string;
+declare function fsl_to_dot(fsl: string, opts?: {
+    footer?: string;
+}): string;
 /**
  *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
  *  underlying viz instance is lazy-initialized on first call and cached for
@@ -129,32 +148,48 @@ declare function dot_to_svg(dot: string): Promise<string>;
  *  Render an FSL string directly to SVG.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-declare function fsl_to_svg_string(fsl: string): Promise<string>;
+declare function fsl_to_svg_string(fsl: string, opts?: {
+    footer?: string;
+}): Promise<string>;
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-declare function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>): Promise<string>;
+declare function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts?: {
+    footer?: string;
+}): Promise<string>;
 /**
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-declare function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement>;
+declare function fsl_to_svg_element(fsl: string, opts?: {
+    footer?: string;
+}): Promise<SVGSVGElement>;
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-declare function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>): Promise<SVGSVGElement>;
+declare function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>, opts?: {
+    footer?: string;
+}): Promise<SVGSVGElement>;
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
  *  jssm-viz.  Will be removed in the next major.
