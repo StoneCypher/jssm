@@ -1891,10 +1891,23 @@ class Machine<mDT> {
 
 
 
-  /** Get the transitions available from a state, filtered to those with
-   *  probability data.  Used by the probabilistic walk system.
+  /** Get the transitions available from a state for use by the probabilistic
+   *  walk system.
+   *
+   *  If any exit declares a `probability`, only those probability-bearing
+   *  exits are returned, so that non-probability peers cannot dilute the
+   *  declared distribution.  If no exit declares a `probability`, every
+   *  legal (non-forced) exit is returned, which `weighted_rand_select`
+   *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+   *  since they cannot be taken by an ordinary `transition()` call.
+   *
+   *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+   *  every exit unconditionally — including forced-only exits and exits
+   *  with no `probability`, which distorted the weighted distribution.
+   *
    *  @param whichState - The state to inspect.
-   *  @returns An array of {@link JssmTransition} edges exiting the state.
+   *  @returns An array of {@link JssmTransition} edges exiting the state,
+   *  filtered as described above.  May be empty.
    *  @throws {JssmError} If the state does not exist.
    */
   probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>> {
@@ -1904,12 +1917,23 @@ class Machine<mDT> {
 
     const wstate_to: Array<StateType> = wstate.to,
 
-      wtf: Array<JssmTransition<StateType, mDT>> // wstate_to_filtered -> wtf
+      // every transition that exits whichState
+      all_exits: Array<JssmTransition<StateType, mDT>>
         = wstate_to
           .map((ws): JssmTransition<StateType, mDT> => this.lookup_transition_for(whichState, ws))
-          .filter(Boolean);
+          .filter(Boolean),
 
-    return wtf;
+      // forced-only exits cannot be reached by transition(), so they are
+      // never legal probabilistic outcomes
+      legal_exits: Array<JssmTransition<StateType, mDT>>
+        = all_exits.filter((e): boolean => !e.forced_only),
+
+      // if any legal exit declares a probability, filter to those only so
+      // that probability-bearing edges are not diluted by their peers
+      probability_bearing: Array<JssmTransition<StateType, mDT>>
+        = legal_exits.filter((e): boolean => e.probability !== undefined);
+
+    return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
 
   }
 
