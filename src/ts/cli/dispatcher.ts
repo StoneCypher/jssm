@@ -11,8 +11,12 @@ const PATHEXT    = IS_WINDOWS
 /**
  * Look for a plugin binary on PATH.
  *
- * Searches each PATH directory in order. On Windows, also probes
- * `name.cmd`, `name.bat`, etc., per `PATHEXT`. Returns the first match.
+ * Searches each PATH directory in order. Probes for `fsl-<subcommand>` with
+ * the following extension fallbacks:
+ *   - On all platforms: `.cjs`, `.mjs`, `.js` (Node script files)
+ *   - On Windows additionally: per `PATHEXT` (`.cmd`, `.bat`, etc.)
+ *   - On Unix-likes: also the no-extension form (for shell scripts).
+ * Returns the first match.
  *
  * @param subcommand - The subcommand name (e.g., 'render'). The probed
  *   binary name is `fsl-<subcommand>`.
