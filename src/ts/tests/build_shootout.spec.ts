@@ -1,18 +1,20 @@
-import * as path from 'node:path';
-
-const comparablesDir = path.resolve(__dirname, '..', '..', 'comparables');
-
 describe('build_shootout: loadAll', () => {
-  it('loads all 30 entries across the 3 machines', async () => {
+  let machines: any;
+  let entries: any[];
+
+  beforeAll(async () => {
     const { loadAll } = await import('../../buildjs/build_shootout.mjs');
-    const { machines, entries } = await loadAll(comparablesDir);
+    const result = await loadAll();
+    machines = result.machines;
+    entries = result.entries;
+  });
+
+  it('loads all 30 entries across the 3 machines', () => {
     expect(Object.keys(machines)).toEqual(['toggle', 'traffic-light', 'matter']);
     expect(entries.length).toBe(30);
   });
 
-  it('every entry has a library object with name, npm, homepage, languages', async () => {
-    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
-    const { entries } = await loadAll(comparablesDir);
+  it('every entry has a library object with name, npm, homepage, languages', () => {
     for (const e of entries) {
       expect(typeof e.library.name).toBe('string');
       expect(typeof e.library.npm).toBe('string');
@@ -22,15 +24,11 @@ describe('build_shootout: loadAll', () => {
     }
   });
 
-  it('every example currently has language "javascript"', async () => {
-    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
-    const { entries } = await loadAll(comparablesDir);
+  it('every example currently has language "javascript"', () => {
     for (const e of entries) expect(e.language).toBe('javascript');
   });
 
-  it('no entry has a `lines` field (it is derived, not stored)', async () => {
-    const { loadAll } = await import('../../buildjs/build_shootout.mjs');
-    const { entries } = await loadAll(comparablesDir);
+  it('no entry has a `lines` field (it is derived, not stored)', () => {
     for (const e of entries) {
       expect(e).not.toHaveProperty('lines');
     }
