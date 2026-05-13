@@ -18,7 +18,7 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.119.0 at 5/13/2026, 3:09:14 PM
+* Generated for version 5.119.0 at 5/13/2026, 4:03:07 PM
 
 -->
 # jssm 5.119.0
@@ -122,6 +122,30 @@ usage patterns.
 
 <br/>
 
+## Web Components
+
+`jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
+
+CDN one-liner (with an import map for `@viz-js/viz`):
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
+<jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+```
+
+npm one-liner:
+
+```ts
+import 'jssm/wc/viz/define';
+// then use <jssm-viz fsl="..."> anywhere
+```
+
+Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).
+
+
+
+<br/>
+
 ## 60-second tour
 
 **Actions** let a machine advance without the caller knowing the next state:
@@ -198,7 +222,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  5,807 tests at 100.0% line coverage
+  library.**  5,809 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -331,11 +355,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***5,807 tests***, run 56,594 times.
+***5,809 tests***, run 56,596 times.
 
-- 5,294 specs with 100.0% coverage
-- 513 fuzz tests with 62.5% coverage
-- 3,521 TypeScript lines - 1.6 tests per line, 16.1 generated tests per line
+- 5,296 specs with 100.0% coverage
+- 513 fuzz tests with 59.2% coverage
+- 3,593 TypeScript lines - 1.6 tests per line, 15.8 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
