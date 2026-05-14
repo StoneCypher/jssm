@@ -1,5 +1,10 @@
 import { RasterizationUnsupportedError, RenderError } from '../../types';
 
+// `OffscreenCanvas` lives in the DOM lib, which the CLI's tsconfig doesn't
+// pull in (CLI tooling targets Node primarily). At runtime we feature-detect
+// it; for the TypeScript compile we declare a permissive ambient symbol.
+declare const OffscreenCanvas: any;
+
 export interface RasterOptions {
   width?: number;
   quality?: number;

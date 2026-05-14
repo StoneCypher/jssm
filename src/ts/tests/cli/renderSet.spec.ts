@@ -26,8 +26,9 @@ describe('renderSet', () => {
     expect(results[0].ok).toBe(true);
     expect(results[1].ok).toBe(false);
     expect(results[2].ok).toBe(true);
-    if (!results[1].ok) {
-      expect(results[1].error.message).toMatch(/render failed|parse/i);
+    const failure = results[1];
+    if (!failure.ok) {
+      expect(failure.error.message).toMatch(/render failed|parse/i);
     }
   });
 

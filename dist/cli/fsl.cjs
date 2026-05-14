@@ -1,8 +1,271 @@
 #!/usr/bin/env node
-"use strict";var fs=require("fs");var path=require("path");var child_process=require("child_process");var _a;const IS_WINDOWS=process.platform==="win32";const PATH_SEP=IS_WINDOWS?";":":";const PATHEXT=IS_WINDOWS?((_a=process.env.PATHEXT)!==null&&_a!==void 0?_a:".COM;.EXE;.BAT;.CMD").split(";").map(s=>s.toLowerCase()):[""];async function findPluginOnPath(subcommand,pathEnv=process.env.PATH){if(!pathEnv)return null;const dirs=pathEnv.split(PATH_SEP).filter(d=>d.length>0);const baseName=`fsl-${subcommand}`;const NODE_EXTS=[".cjs",".mjs",".js"];const exts=IS_WINDOWS?[...PATHEXT,...NODE_EXTS]:["",...NODE_EXTS];for(const dir of dirs){for(const ext of exts){const candidate=path.join(dir,baseName+ext);try{const st=await fs.promises.stat(candidate);if(st.isFile())return candidate}catch(_a){}}}return null}function isInProcessEligible(resolvedPath){const ext=path.extname(resolvedPath).toLowerCase();if(ext!==".js"&&ext!==".mjs"&&ext!==".cjs")return false;const norm=resolvedPath.replace(/\\/g,"/");return norm.includes("/node_modules/")}async function invokeInProcess(pluginPath,argv){var _a,_b;const originalExit=process.exit;const originalArgv=process.argv;let interceptedExit=null;const ExitInterception=Symbol("ExitInterception");process.exit=code=>{interceptedExit=typeof code==="number"?code:0;throw ExitInterception};process.argv=[originalArgv[0],pluginPath,...argv];try{const mod=await import(pluginPath);const cli=mod&&((_a=mod.default)!==null&&_a!==void 0?_a:mod);if(typeof cli!=="function"){process.stderr.write(`fsl: error: plugin ${pluginPath} is missing default cli() export\n`);return 2}const result=await cli(argv);return typeof result==="number"?result:0}catch(e){if(e===ExitInterception&&interceptedExit!==null){return interceptedExit}process.stderr.write(`fsl: error: plugin threw: ${(_b=e.message)!==null&&_b!==void 0?_b:String(e)}\n`);return 2}finally{process.exit=originalExit;process.argv=originalArgv}}async function invokeBySpawn(pluginPath,argv){return new Promise(res=>{const ext=path.extname(pluginPath).toLowerCase();const isCmdScript=IS_WINDOWS&&(ext===".cmd"||ext===".bat");const isNodeScript=ext===".cjs"||ext===".mjs"||ext===".js";const[spawnCmd,spawnArgs]=isCmdScript?["cmd.exe",["/c",pluginPath,...argv]]:isNodeScript?[process.execPath,[pluginPath,...argv]]:[pluginPath,argv];const child=child_process.spawn(spawnCmd,spawnArgs,{stdio:"inherit"});child.on("exit",(code,signal)=>{if(signal)res(128+(process.platform==="win32"?1:0));else res(typeof code==="number"?code:2)});child.on("error",err=>{process.stderr.write(`fsl: error: failed to spawn plugin: ${err.message}\n`);res(2)})})}const RESERVED_FLAGS=new Set(["--help","-h","--version","-V"]);const RESERVED_NAMES=new Set(["help","version"]);const getDispatcherVersion=()=>"5.120.0";const printDispatcherHelp=()=>{process.stdout.write(`fsl — finite-state language toolchain dispatcher\n\nUsage:\n  fsl <subcommand> [options] [args...]\n  fsl [--help|--version]\n\nBuilt-in subcommands (resolved via PATH):\n  render    Render FSL machines to SVG, DOT, PNG, JPEG, or HTML\n\nDiscovery:\n  Any \`fsl-<name>\` executable on PATH is dispatched when you run\n  \`fsl <name>\`. Third-party plugins follow the same contract as\n  first-party ones.\n\n  See: https://github.com/StoneCypher/jssm\n`)};async function dispatch(argv){let verbose=false;if(argv[0]==="--verbose"){verbose=true;argv=argv.slice(1)}if(argv.length===0||RESERVED_FLAGS.has(argv[0])){if(argv[0]==="--version"||argv[0]==="-V"){process.stdout.write(`fsl ${getDispatcherVersion()}\n`);return 0}printDispatcherHelp();return 0}const subcommand=argv[0];const rest=argv.slice(1);if(RESERVED_NAMES.has(subcommand)){if(subcommand==="version"){process.stdout.write(`fsl ${getDispatcherVersion()}\n`);return 0}printDispatcherHelp();return 0}const pluginPath=await findPluginOnPath(subcommand);if(!pluginPath){process.stderr.write(`fsl: '${subcommand}' is not a known subcommand and no \`fsl-${subcommand}\` was found on PATH\n`);return 1}if(verbose){process.stderr.write(`fsl: resolved '${subcommand}' to ${pluginPath}\n`)}if(isInProcessEligible(pluginPath)){return invokeInProcess(pluginPath,rest)}return invokeBySpawn(pluginPath,rest)}
+'use strict';
+
+var fs = require('fs');
+var path = require('path');
+var child_process = require('child_process');
+
+var _a;
+const IS_WINDOWS = process.platform === 'win32';
+const PATH_SEP = IS_WINDOWS ? ';' : ':';
+const PATHEXT = IS_WINDOWS
+    ? ((_a = process.env.PATHEXT) !== null && _a !== void 0 ? _a : '.COM;.EXE;.BAT;.CMD').split(';').map(s => s.toLowerCase())
+    : [''];
+/**
+ * Look for a plugin binary on PATH.
+ *
+ * Searches each PATH directory in order. Probes for `fsl-<subcommand>` with
+ * the following extension fallbacks:
+ *   - On all platforms: `.cjs`, `.mjs`, `.js` (Node script files)
+ *   - On Windows additionally: per `PATHEXT` (`.cmd`, `.bat`, etc.)
+ *   - On Unix-likes: also the no-extension form (for shell scripts).
+ * Returns the first match.
+ *
+ * @param subcommand - The subcommand name (e.g., 'render'). The probed
+ *   binary name is `fsl-<subcommand>`.
+ * @param pathEnv - The PATH string to search (default `process.env.PATH`)
+ * @returns Absolute path to the binary, or null if not found.
+ *
+ * @example
+ * ```ts
+ * const found = await findPluginOnPath('render', '/usr/local/bin:/usr/bin');
+ * // found === '/usr/local/bin/fsl-render'  (if it exists)
+ * // found === null                          (if not found)
+ * ```
+ */
+async function findPluginOnPath(subcommand, pathEnv = process.env.PATH) {
+    if (!pathEnv)
+        return null;
+    const dirs = pathEnv.split(PATH_SEP).filter(d => d.length > 0);
+    const baseName = `fsl-${subcommand}`;
+    const NODE_EXTS = ['.cjs', '.mjs', '.js'];
+    const exts = IS_WINDOWS
+        ? [...PATHEXT, ...NODE_EXTS]
+        : ['', ...NODE_EXTS];
+    for (const dir of dirs) {
+        for (const ext of exts) {
+            const candidate = path.join(dir, baseName + ext);
+            try {
+                const st = await fs.promises.stat(candidate);
+                if (st.isFile())
+                    return candidate;
+            }
+            catch (_a) {
+                // not found in this location, keep looking
+            }
+        }
+    }
+    return null;
+}
+/**
+ * Decide whether a resolved plugin path is safe to load in-process via
+ * dynamic `import()` rather than spawning as a subprocess.
+ *
+ * Heuristic for v1:
+ *   - File extension is .js, .mjs, or .cjs
+ *   - File path is inside a `node_modules` directory
+ *
+ * Anything else (shell scripts, non-JS files, files outside node_modules)
+ * falls back to spawn.
+ *
+ * @param resolvedPath - Absolute path to the plugin binary
+ * @returns true if in-process load is appropriate, false to use spawn
+ *
+ * @example
+ * ```ts
+ * isInProcessEligible('/proj/node_modules/.bin/fsl-render.cjs');
+ * // true
+ *
+ * isInProcessEligible('/usr/local/bin/fsl-render');
+ * // false  (no JS extension, outside node_modules)
+ * ```
+ */
+function isInProcessEligible(resolvedPath) {
+    const ext = path.extname(resolvedPath).toLowerCase();
+    if (ext !== '.js' && ext !== '.mjs' && ext !== '.cjs')
+        return false;
+    const norm = resolvedPath.replace(/\\/g, '/');
+    return norm.includes('/node_modules/');
+}
+/**
+ * Invoke a plugin in-process via dynamic import.
+ *
+ * Safety wrappers:
+ *   - Intercepts `process.exit()` calls by replacing the function temporarily;
+ *     the intercepted exit code becomes the return value.
+ *   - Restores `process.argv` after the call.
+ *   - Catches thrown errors and converts to exit code 2.
+ *
+ * @param pluginPath - Absolute path to the plugin module
+ * @param argv - Args to forward (already stripped of dispatcher prefix)
+ * @returns Plugin's exit code (0 = success, 1 = user error, 2 = internal)
+ *
+ * @example
+ * ```ts
+ * const code = await invokeInProcess('/proj/node_modules/fsl-render/cli.cjs', ['--format', 'svg']);
+ * // code === 0  (on success)
+ * ```
+ */
+async function invokeInProcess(pluginPath, argv) {
+    var _a, _b;
+    const originalExit = process.exit;
+    const originalArgv = process.argv;
+    let interceptedExit = null;
+    const ExitInterception = Symbol('ExitInterception');
+    process.exit = (code) => {
+        interceptedExit = typeof code === 'number' ? code : 0;
+        throw ExitInterception;
+    };
+    process.argv = [originalArgv[0], pluginPath, ...argv];
+    try {
+        const mod = await import(pluginPath);
+        const cli = (mod && ((_a = mod.default) !== null && _a !== void 0 ? _a : mod));
+        if (typeof cli !== 'function') {
+            process.stderr.write(`fsl: error: plugin ${pluginPath} is missing default cli() export\n`);
+            return 2;
+        }
+        const result = await cli(argv);
+        return typeof result === 'number' ? result : 0;
+    }
+    catch (e) {
+        if (e === ExitInterception && interceptedExit !== null) {
+            return interceptedExit;
+        }
+        process.stderr.write(`fsl: error: plugin threw: ${(_b = e.message) !== null && _b !== void 0 ? _b : String(e)}\n`);
+        return 2;
+    }
+    finally {
+        process.exit = originalExit;
+        process.argv = originalArgv;
+    }
+}
+/**
+ * Invoke a plugin as a subprocess.
+ *
+ * Forwards stdin / stdout / stderr to the child. Passes through env.
+ *
+ * @param pluginPath - Absolute path to the binary (or interpreter path
+ *   if you want to specify, e.g., `node` for explicit Node spawn)
+ * @param argv - Args to forward
+ * @returns Subprocess exit code
+ *
+ * @example
+ * ```ts
+ * const code = await invokeBySpawn('/usr/local/bin/fsl-render', ['--format', 'png']);
+ * // code === 0  (on success)
+ * ```
+ */
+async function invokeBySpawn(pluginPath, argv) {
+    return new Promise((res) => {
+        const ext = path.extname(pluginPath).toLowerCase();
+        const isCmdScript = IS_WINDOWS && (ext === '.cmd' || ext === '.bat');
+        const isNodeScript = (ext === '.cjs' || ext === '.mjs' || ext === '.js');
+        const [spawnCmd, spawnArgs] = isCmdScript
+            ? ['cmd.exe', ['/c', pluginPath, ...argv]]
+            : isNodeScript
+                ? [process.execPath, [pluginPath, ...argv]]
+                : [pluginPath, argv];
+        const child = child_process.spawn(spawnCmd, spawnArgs, { stdio: 'inherit' });
+        child.on('exit', (code, signal) => {
+            if (signal)
+                res(128 + (process.platform === 'win32' ? 1 : 0));
+            else
+                res(typeof code === 'number' ? code : 2);
+        });
+        child.on('error', (err) => {
+            process.stderr.write(`fsl: error: failed to spawn plugin: ${err.message}\n`);
+            res(2);
+        });
+    });
+}
+const RESERVED_FLAGS = new Set(['--help', '-h', '--version', '-V']);
+const RESERVED_NAMES = new Set(['help', 'version']);
+const getDispatcherVersion = () => '5.120.0';
+const printDispatcherHelp = () => {
+    process.stdout.write(`fsl — finite-state language toolchain dispatcher
+
+Usage:
+  fsl <subcommand> [options] [args...]
+  fsl [--help|--version]
+
+Built-in subcommands (resolved via PATH):
+  render    Render FSL machines to SVG, DOT, PNG, JPEG, or HTML
+
+Discovery:
+  Any \`fsl-<name>\` executable on PATH is dispatched when you run
+  \`fsl <name>\`. Third-party plugins follow the same contract as
+  first-party ones.
+
+  See: https://github.com/StoneCypher/jssm
+`);
+};
+/**
+ * Top-level dispatcher entry point.
+ *
+ * - Handles reserved flags (--help, --version) on the dispatcher itself.
+ * - Resolves the first positional as a subcommand and forwards the rest.
+ * - In-processes Node-resolvable plugins, spawns the rest.
+ *
+ * @param argv - The args passed to `fsl` (already stripped of node binary
+ *   and the dispatcher's own script path).
+ * @returns Exit code.
+ *
+ * @example
+ * ```ts
+ * const code = await dispatch(['--help']);
+ * // code === 0, and help text written to stdout
+ *
+ * const code2 = await dispatch(['unknown-cmd']);
+ * // code2 === 1, error written to stderr
+ * ```
+ */
+async function dispatch(argv) {
+    let verbose = false;
+    if (argv[0] === '--verbose') {
+        verbose = true;
+        argv = argv.slice(1);
+    }
+    if (argv.length === 0 || RESERVED_FLAGS.has(argv[0])) {
+        if (argv[0] === '--version' || argv[0] === '-V') {
+            process.stdout.write(`fsl ${getDispatcherVersion()}\n`);
+            return 0;
+        }
+        printDispatcherHelp();
+        return 0;
+    }
+    const subcommand = argv[0];
+    const rest = argv.slice(1);
+    if (RESERVED_NAMES.has(subcommand)) {
+        if (subcommand === 'version') {
+            process.stdout.write(`fsl ${getDispatcherVersion()}\n`);
+            return 0;
+        }
+        printDispatcherHelp();
+        return 0;
+    }
+    const pluginPath = await findPluginOnPath(subcommand);
+    if (!pluginPath) {
+        process.stderr.write(`fsl: '${subcommand}' is not a known subcommand and no \`fsl-${subcommand}\` was found on PATH\n`);
+        return 1;
+    }
+    if (verbose) {
+        process.stderr.write(`fsl: resolved '${subcommand}' to ${pluginPath}\n`);
+    }
+    if (isInProcessEligible(pluginPath)) {
+        return invokeInProcess(pluginPath, rest);
+    }
+    return invokeBySpawn(pluginPath, rest);
+}
+
 /**
  * Binary entry for `fsl` (and its alias `jssm`). Forwards argv to
  * `dispatch()` and exits with the returned code.
  *
  * The shebang (`#!/usr/bin/env node`) is added by rollup at build time.
- */async function main(){const argv=process.argv.slice(2);const code=await dispatch(argv);process.exit(code)}void main();
+ */
+async function main() {
+    const argv = process.argv.slice(2);
+    const code = await dispatch(argv);
+    process.exit(code);
+}
+void main();
