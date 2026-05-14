@@ -18,7 +18,7 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.119.0 at 5/13/2026, 4:03:07 PM
+* Generated for version 5.119.0 at 5/13/2026, 4:32:50 PM
 
 -->
 # jssm 5.119.0
@@ -117,6 +117,65 @@ const svg = await fsl_to_svg_string('a -> b;');
 The viz subpath is opt-in - importing only from `jssm` does not pull in
 `@viz-js/viz`. See the Visualization doc page for browser, ESM, and IIFE
 usage patterns.
+
+
+
+<br/>
+
+## Command-line interface
+
+`jssm` ships a CLI for rendering FSL machines to images and other formats.
+
+### Installation
+
+```sh
+npm install -g jssm
+```
+
+This installs three binaries: `fsl` (the dispatcher), `jssm` (alias for `fsl`), and `fsl-render` (the render plugin).
+
+### Render
+
+Render a single machine to SVG (default):
+
+```sh
+fsl render machine.fsl
+# → machine.svg next to input
+```
+
+Specify a format:
+
+```sh
+fsl render machine.fsl --target=png --width=800
+fsl render machine.fsl --target=dot --stdout > machine.dot
+```
+
+Render multiple machines:
+
+```sh
+fsl render *.fsl --target=svg --out-dir=./diagrams
+```
+
+Pipe FSL via stdin:
+
+```sh
+cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
+```
+
+### Plugin architecture
+
+Every `fsl-<name>` executable on PATH is dispatched when you run `fsl <name>`. Third-party plugins follow the same contract as first-party `fsl-render`. See `notes/superpowers/specs/2026-05-12-fsl-cli-design.md` for the contract.
+
+### Library API
+
+The same render functions are available programmatically:
+
+```js
+import { render, renderSet } from 'jssm/cli';
+
+const result = await render(fslText, { target: 'svg' });
+if (result.kind === 'text') console.log(result.content);
+```
 
 
 

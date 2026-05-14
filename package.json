@@ -1,11 +1,16 @@
 {
   "name": "jssm",
-  "version": "5.119.0",
+  "version": "5.120.0",
   "engines": {
     "node": ">=10.0.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "bin": {
+    "fsl": "./dist/cli/fsl.cjs",
+    "jssm": "./dist/cli/fsl.cjs",
+    "fsl-render": "./dist/cli/fsl-render.cjs"
   },
   "exports": {
     ".": {
@@ -33,6 +38,16 @@
         "default": "./dist/jssm_viz.mjs"
       },
       "browser": "./dist/jssm_viz.iife.cjs"
+    },
+    "./cli": {
+      "require": {
+        "types": "./jssm.cli.d.cts",
+        "default": "./dist/cli/lib.cjs"
+      },
+      "import": {
+        "types": "./jssm.cli.d.ts",
+        "default": "./dist/cli/lib.mjs"
+      }
     },
     "./wc/viz": {
       "import": "./dist/wc/viz.js",
@@ -97,8 +112,11 @@
     "jest-stoch": "jest -c jest-stoch.config.cjs --color --verbose",
     "jest-dragon": "jest -c jest-dragon.config.cjs --color --verbose",
     "jest-spec": "jest -c jest-spec.config.cjs --color --verbose",
+    "jest-cli": "jest -c jest-cli.config.cjs --color --verbose",
     "jest-wc": "jest -c jest-wc.config.cjs --color --verbose",
-    "jest": "npm run jest-stoch && npm run jest-spec && npm run jest-wc",
+    "make_cli": "rollup -c rollup.config.cli.cjs.js && rollup -c rollup.config.cli.esm.js && rollup -c rollup.config.cli.dts.js",
+    "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
+    "jest": "npm run jest-stoch && npm run jest-spec && npm run jest-cli && npm run jest-wc",
     "test": "npm run make && npm run jest",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && cd dist && mkdir wc && mkdir cdn && cd .. && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
@@ -114,7 +132,7 @@
     "make_viz_iife": "rollup -c rollup.config.viz.iife.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
-    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_iife && npm run make_es6 && npm run make_deno && npm run make_cjs && npm run make_viz_iife && npm run make_viz_es6 && npm run make_viz_cjs && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && rm ./dist/es6/*.nonmin.js",
+    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_iife && npm run make_es6 && npm run make_deno && npm run make_cjs && npm run make_viz_iife && npm run make_viz_es6 && npm run make_viz_cjs && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
@@ -188,6 +206,7 @@
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-replace": "^6.0.1",
+    "@rollup/plugin-typescript": "^12.3.0",
     "@swc/core": "^1.15.33",
     "@swc/jest": "^0.2.39",
     "@types/chalk": "^2.2.0",
@@ -218,6 +237,7 @@
     "semver": "^7.5.4",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
+    "tslib": "^2.8.1",
     "twitter-api-client": "^1.6.0",
     "typedoc": "^0.22.18",
     "typedoc-plugin-missing-exports": "^0.23.0",
@@ -236,6 +256,7 @@
     "lit": { "optional": true }
   },
   "optionalDependencies": {
+    "@resvg/resvg-wasm": "^2.6.0",
     "@viz-js/viz": "^3.26.0"
   }
 }
