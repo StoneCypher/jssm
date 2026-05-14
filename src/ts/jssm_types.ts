@@ -11,18 +11,51 @@ type StateType = string;
 
 
 
-type JssmSuccess        = { success: true };                          /** Composite type indicating success as part of a result */
-type JssmFailure        = { success: false, error: any };             /** Composite type indicating an error, and why, as part of a result */
-type JssmIncomplete     = { success: 'incomplete' };                  /** Composite type indicating that a result isn't finished */
-type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete; /** Composite type composing whether or not a result was successful */
+/** Composite type indicating success as part of a result. */
+type JssmSuccess        = { success: true };
 
+/** Composite type indicating an error, and the reason for it, as part of a result. */
+type JssmFailure        = { success: false, error: any };
+
+/** Composite type indicating that a result isn't finished yet. */
+type JssmIncomplete     = { success: 'incomplete' };
+
+/**
+ *  Discriminated union representing the outcome of an operation: either
+ *  success, failure (with an `error`), or incomplete.  Used as the return
+ *  shape for operations that may need to report partial progress.
+ */
+type JssmResult         = JssmSuccess | JssmFailure | JssmIncomplete;
+
+/**
+ *  A color value accepted by jssm-viz for state and arrow styling.  Currently
+ *  any string, validated downstream by Graphviz / the named-colors list.
+ *  Intended to be narrowed to `#RRGGBB` / `#RRGGBBAA` and CSS named colors
+ *  in a future release.
+ */
 type JssmColor          = string;  // TODO FIXME constrain to #RRGGBBAA later // whargarbl
 
 
 
+/**
+ *  Two-state policy flag: a feature is either `'required'` or `'disallowed'`.
+ *  Used by machine configuration where the option must take a definite stance.
+ */
 type JssmPermitted      = 'required' | 'disallowed';
+
+/**
+ *  Three-state policy flag: `'required'`, `'disallowed'`, or `'optional'`.
+ *  Used by machine configuration where a default-permissive middle ground
+ *  is meaningful (for example, the `actions` config key).
+ */
 type JssmPermittedOpt   = 'required' | 'disallowed' | 'optional';
 
+/**
+ *  The set of ASCII arrow tokens recognized by the FSL grammar.  Each arrow
+ *  encodes a direction (one-way left/right, or two-way) and a "kind" for
+ *  each direction (`-` legal, `=` main path, `~` forced-only).  See the
+ *  Language Reference docs for the full semantic table.
+ */
 type JssmArrow          = '->' | '<-' | '<->' | '<=->' | '<~->'
                         | '=>' | '<=' | '<=>' | '<-=>' | '<~=>'
                         | '~>' | '<~' | '<~>' | '<-~>' | '<=~>';
@@ -45,30 +78,80 @@ type JssmShape          = "box" | "polygon" | "ellipse" | "oval" | "circle" | "p
                         | "signature" | "insulator" | "ribosite" | "rnastab" | "proteasesite" | "proteinstab"
                         | "rpromoter" | "rarrow" | "larrow" | "lpromoter" | "record";
 
+/**
+ *  Direction polarity of an arrow: pointing only `'left'`, only `'right'`,
+ *  or `'both'` (a bidirectional arrow).
+ */
 type JssmArrowDirection = 'left' | 'right' | 'both';
+
+/**
+ *  Semantic category of an arrow's transition.  `'legal'` is a normal
+ *  transition, `'main'` is part of the machine's primary path, `'forced'`
+ *  may only be taken via {@link Machine.force_transition}, and `'none'`
+ *  means no transition exists in that direction.
+ */
 type JssmArrowKind      = 'none' | 'legal' | 'main' | 'forced';
 
+/**
+ *  Graphviz layout engine selector.  Controls how jssm-viz lays out the
+ *  rendered diagram; `'dot'` is the default and most useful for state
+ *  machines.  See the Graphviz documentation for the differences.
+ */
 type JssmLayout         = 'dot' | 'circo' | 'twopi' | 'fdp' | 'neato';  // todo add the rest
 
 type JssmCorner         = 'regular' | 'rounded' | 'lined';
 type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
 
+/**
+ *  Tristate flag for whether a property may be overridden at runtime.
+ *  `true` permits overrides, `false` forbids them, and `undefined` defers
+ *  the decision to the surrounding configuration's default.
+ */
 type JssmAllowsOverride = true | false | undefined;
 
 
 
 
 
+/**
+ *  Runtime-iterable list of valid `flow` directions for FSL diagrams.
+ *  Use this when you need to enumerate directions; for the type itself
+ *  see {@link FslDirection}.
+ */
 const FslDirections     = ['up', 'right', 'down', 'left'] as const;
+
+/**
+ *  String literal type of the four supported FSL flow directions.  This is
+ *  the type of the `flow` config key on a machine.
+ */
 type  FslDirection      = typeof FslDirections[number];
 
+/**
+ *  Runtime-iterable list of the built-in theme names that ship with jssm-viz.
+ *  Use this when you need to enumerate themes; for the type itself see
+ *  {@link FslTheme}.
+ */
 const FslThemes         = ['default', 'ocean', 'modern', 'plain', 'bold'] as const;
+
+/**
+ *  String literal type of the built-in theme names.  This is the element
+ *  type of the `theme` config key (which accepts an array so that themes
+ *  can be layered).
+ */
 type  FslTheme          = typeof FslThemes[number];
 
 
 
 
 
+/**
+ *  Persistable snapshot of a Machine produced by {@link Machine.serialize}
+ *  and consumed by {@link deserialize}.  Carries the current state, the
+ *  associated machine data, the recent history (subject to the configured
+ *  capacity), and metadata to detect version-skew on rehydration.
+ *
+ *  @typeParam DataType - The type of the user-supplied data payload (`mDT`).
+ */
 type JssmSerialization<DataType> = {
 
   jssm_version     : string,
@@ -85,6 +168,11 @@ type JssmSerialization<DataType> = {
 
 
 
+/**
+ *  Declaration of a named property that a machine's states may carry.
+ *  Set `required: true` to force every state to define the property, or
+ *  provide `default_value` to fall back when the state does not specify it.
+ */
 type JssmPropertyDefinition = {
   name           : string,
   default_value? : any,
@@ -106,6 +194,17 @@ type JssmTransitionPermitterMaybeArray<DataType> =
 
 
 
+/**
+ *  A single directed transition (edge) within a state machine.  Captures
+ *  both the topology (`from` / `to`), the FSL semantics (`kind`,
+ *  `forced_only`, `main_path`), and any optional metadata such as a
+ *  per-edge `name`, an action label, a guard `check`, a transition
+ *  `probability` for stochastic models, and an `after_time` for timed
+ *  transitions.
+ *
+ *  @typeParam StateType - The state-name type (usually `string`).
+ *  @typeParam DataType  - The machine's data payload type (`mDT`).
+ */
 type JssmTransition<StateType, DataType> = {
 
   from          : StateType,
@@ -122,19 +221,33 @@ type JssmTransition<StateType, DataType> = {
 
 };
 
+/** A list of {@link JssmTransition}s — the edge set of a machine. */
 type JssmTransitions<StateType, DataType> =
   JssmTransition<StateType, DataType>[];
 
+/**
+ *  The set of states that can immediately precede or follow a given state.
+ *  Returned by jssm helpers that report a state's connectivity in the graph.
+ */
 type JssmTransitionList = {
   entrances : Array<StateType>,
   exits     : Array<StateType>
 };
 
+/**
+ *  Internal marker used by the compiler to indicate a cycle declaration in
+ *  the parse stream, rather than a literal state name.  See
+ *  {@link JssmTransitionRule}.
+ */
 type JssmTransitionCycle = {
   key   : 'cycle',
   value : StateType
 };
 
+/**
+ *  An entry produced while parsing a transition rule: either a literal
+ *  state name (`StateType`) or a {@link JssmTransitionCycle} marker.
+ */
 type JssmTransitionRule =
   StateType
 | JssmTransitionCycle;
@@ -143,6 +256,11 @@ type JssmTransitionRule =
 
 
 
+/**
+ *  Topology record for one node in a compiled machine: its name, the set of
+ *  states it can be reached from, the set of states it can transition to,
+ *  and whether reaching it constitutes "completing" the machine.
+ */
 type JssmGenericState = {
 
   from     : Array< StateType > ,
@@ -156,6 +274,13 @@ type JssmGenericState = {
 
 
 
+/**
+ *  The full internal bookkeeping snapshot of a {@link Machine}, exposed for
+ *  advanced introspection.  Contains the current state, the state map, the
+ *  edge map and reverse-action map, and the original edge list.  The
+ *  `internal_state_impl_version` field exists so that consumers can detect
+ *  shape changes if this representation evolves.
+ */
 type JssmMachineInternalState<DataType> = {
 
   internal_state_impl_version : 1,
@@ -180,6 +305,11 @@ type JssmStatePermitter<DataType> =
 type JssmStatePermitterMaybeArray<DataType> =
   JssmStatePermitter<DataType> | Array< JssmStatePermitter<DataType> >;
 
+/**
+ *  Minimal machine description used internally and accepted by some
+ *  lower-level constructors.  Most callers should use the richer
+ *  {@link JssmGenericConfig} instead.
+ */
 type JssmGenericMachine<DataType> = {
 
   name?            : string,
@@ -204,12 +334,22 @@ type JssmGenericMachine<DataType> = {
 
 
 
+/**
+ *  A single key/value pair from an FSL `state X: { ... };` block, in the
+ *  raw form produced by the parser before being condensed into a
+ *  {@link JssmStateDeclaration}.
+ */
 type JssmStateDeclarationRule = {
   key       : string,
   value     : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
   name?     : string
 };
 
+/**
+ *  The fully-condensed declaration for a single state, including its raw
+ *  rule list (`declarations`) and the well-known styling fields jssm-viz
+ *  understands.  Returned by {@link Machine.state_declaration}.
+ */
 type JssmStateDeclaration = {
 
   declarations     : Array<JssmStateDeclarationRule>,
@@ -232,6 +372,11 @@ type JssmStateDeclaration = {
 
 };
 
+/**
+ *  A loosened version of {@link JssmStateDeclaration} where every field is
+ *  optional.  Used as the value type for theme entries and for default
+ *  state configuration where most fields will be inherited or merged.
+ */
 type JssmStateConfig = Partial<JssmStateDeclaration>;
 
 type JssmStateStyleShape           = { key: 'shape',            value: JssmShape     };
@@ -244,18 +389,39 @@ type JssmStateStyleBackgroundColor = { key: 'background-color', value: JssmColor
 type JssmStateStyleBorderColor     = { key: 'border-color',     value: JssmColor     };
 type JssmStateStyleImage           = { key: 'image',            value: string        };
 
+/**
+ *  Tagged union of all individual style key/value pairs that may appear in
+ *  a state's style configuration.  The `key` discriminator selects which
+ *  member, and the `value` is typed accordingly.
+ */
 type JssmStateStyleKey     = JssmStateStyleShape | JssmStateStyleColor
                            | JssmStateStyleTextColor | JssmStateStyleCorners
                            | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor
                            | JssmStateStyleStateLabel | JssmStateStyleBorderColor
                            | JssmStateStyleImage;
 
+/**
+ *  An ordered list of {@link JssmStateStyleKey} entries.  Used by the
+ *  `default_*_state_config` machine config options to provide a fallback
+ *  style stack.
+ */
 type JssmStateStyleKeyList = JssmStateStyleKey[];
 
 
 
 
 
+/**
+ *  Complete shape of a jssm-viz theme.  A theme provides a style block for
+ *  each kind of state (`state`, `hooked`, `start`, `end`, `terminal`) as
+ *  well as a matching `active_*` variant used while that state is current.
+ *
+ *  The `graph`, `legal`, `main`, `forced`, `action`, and `title` slots are
+ *  reserved for future use and currently typed as `undefined`.
+ *
+ *  Most user-defined themes should be typed as {@link JssmTheme} (the
+ *  `Partial` of this) so that omitted fields fall back to the base theme.
+ */
 type JssmBaseTheme = {
 
   name            : string,
@@ -283,12 +449,30 @@ type JssmBaseTheme = {
 
 };
 
+/**
+ *  A user-supplied theme.  Identical in shape to {@link JssmBaseTheme}, but
+ *  every field is optional so themes can be layered: omitted slots fall
+ *  through to the underlying base theme.
+ */
 type JssmTheme = Partial<JssmBaseTheme>;
 
 
 
 
 
+/**
+ *  Full configuration object accepted by the {@link Machine} constructor and
+ *  by {@link from}.  Carries the transition list and the optional knobs
+ *  governing layout, theming, history, start/end states, property
+ *  definitions, machine metadata (author, license, version, ...) and the
+ *  runtime hook surfaces (`time_source`, `timeout_source`, ...).
+ *
+ *  Most users never construct one of these directly — the `sm` tagged
+ *  template literal and {@link from} produce one from FSL source.
+ *
+ *  @typeParam StateType - The state-name type (usually `string`).
+ *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
+ */
 type JssmGenericConfig<StateType, DataType> = {
 
   graph_layout?                  : JssmLayout,
@@ -365,6 +549,13 @@ type JssmGenericConfig<StateType, DataType> = {
 
 
 
+/**
+ *  Internal compiler intermediate: a single aggregated rule produced while
+ *  folding a parse tree into a machine configuration.  Not intended for
+ *  end-user code.
+ *
+ *  @internal
+ */
 type JssmCompileRule<StateType> = {
 
   agg_as : string,
@@ -376,6 +567,15 @@ type JssmCompileRule<StateType> = {
 
 
 
+/**
+ *  Internal compiler intermediate: one link in a chained transition
+ *  expression (an "s-expression" segment).  Carries both directions of an
+ *  arrow with optional per-direction action labels, probabilities, and
+ *  after-times.  The recursive `se` field allows the parser to chain
+ *  arrows of the form `A -> B -> C`.  Not intended for end-user code.
+ *
+ *  @internal
+ */
 type JssmCompileSe<StateType, mDT> = {
 
   to              : StateType,
@@ -394,6 +594,15 @@ type JssmCompileSe<StateType, mDT> = {
 
 
 
+/**
+ *  Internal compiler intermediate: the root of a chained transition
+ *  expression, anchored at a `from` state.  Also doubles as the carrier
+ *  for non-transition rules (state declarations, property definitions,
+ *  machine metadata) via its `key`/`value`/`name`/`state` fields.  Not
+ *  intended for end-user code.
+ *
+ *  @internal
+ */
 type JssmCompileSeStart<StateType, DataType> = {
 
   from           : StateType,
@@ -411,6 +620,13 @@ type JssmCompileSeStart<StateType, DataType> = {
 
 
 
+/**
+ *  The output shape of the FSL parser: a flat array of
+ *  {@link JssmCompileSeStart} entries, one per top-level rule in the
+ *  source.  Consumed by the compiler to build a machine configuration.
+ *
+ *  @internal
+ */
 type JssmParseTree<StateType, mDT> =
 
   Array< JssmCompileSeStart<StateType, mDT> >;
@@ -419,6 +635,11 @@ type JssmParseTree<StateType, mDT> =
 
 
 
+/**
+ *  Signature of an FSL parse function: takes a source string and returns a
+ *  {@link JssmParseTree}.  Used to type the parser export so consumers can
+ *  swap in alternative parser implementations.
+ */
 type JssmParseFunctionType<StateType, mDT> =
 
   (string) => JssmParseTree<StateType, mDT>;
@@ -575,6 +796,20 @@ type PostEverythingHook<mDT> = {
 
 
 
+/**
+ *  Discriminated union of every kind of hook registration jssm understands,
+ *  pre-transition and post-transition.  The `kind` field selects the
+ *  variant; remaining fields describe which transitions / states / actions
+ *  the hook is bound to and supply the {@link HookHandler} or
+ *  {@link PostHookHandler} to invoke.
+ *
+ *  Pre-transition variants (`'hook'`, `'named'`, `'standard transition'`,
+ *  `'main transition'`, `'forced transition'`, `'any transition'`,
+ *  `'global action'`, `'any action'`, `'entry'`, `'exit'`, `'after'`)
+ *  may return a falsy value to veto a transition.  Post-transition
+ *  variants (`'post *'`) cannot veto and are invoked only after a
+ *  successful transition.
+ */
 type HookDescription<mDT>
   = BasicHookDescription<mDT>
   | HookDescriptionWithAction<mDT>
@@ -606,7 +841,14 @@ type HookDescription<mDT>
 
 
 
-/* Governs the return value from a hook when non-trivial; potentially carries final state, data; definitely carries whether passed */
+/**
+ *  Richer hook return value used when a hook needs to do more than just
+ *  accept or veto a transition.  `pass` is the required accept/veto flag
+ *  (kept non-optional so that returning a stray object doesn't accidentally
+ *  veto everything).  The optional `state` overrides the destination state,
+ *  `data` overrides the data observed by other hooks in the same chain,
+ *  and `next_data` overrides the data committed after the transition.
+ */
 type HookComplexResult<mDT> = {
   pass       : boolean,    // DO NOT MAKE OPTIONAL, prevents accidental other objects
   state?     : StateType,
@@ -614,17 +856,36 @@ type HookComplexResult<mDT> = {
   next_data? : mDT
 };
 
-type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;  /** Documents whether a hook succeeded, either with a primitive or a reference to the hook complex object */
+/**
+ *  Return value from a {@link HookHandler}.  May be a plain boolean to
+ *  accept (`true`/`undefined`/`void`) or veto (`false`) the transition, or
+ *  a {@link HookComplexResult} that additionally rewrites the next state
+ *  and/or the next data payload.
+ */
+type HookResult<mDT> = true | false | undefined | void | HookComplexResult<mDT>;
 
 
 
 
 
+/**
+ *  Context object passed to every {@link HookHandler}.  `data` is the
+ *  data payload as it stands before the transition, and `next_data` is
+ *  the payload that will be committed if the transition is accepted —
+ *  handlers may inspect or mutate the latter via a
+ *  {@link HookComplexResult} return value.
+ */
 type HookContext<mDT> = {
   data      : mDT,
   next_data : mDT
 };
 
+/**
+ *  Context object passed to "everything" hooks ({@link EverythingHookHandler}
+ *  and {@link PostEverythingHookHandler}).  Extends the usual
+ *  {@link HookContext} with `hook_name`, which identifies which specific
+ *  hook fired so a single handler can route on it.
+ */
 type EverythingHookContext<mDT> = HookContext<mDT> & {
   hook_name : string
 };
@@ -633,15 +894,37 @@ type EverythingHookContext<mDT> = HookContext<mDT> & {
 
 
 
+/**
+ *  Signature of a pre-transition hook handler.  Receives the current and
+ *  proposed-next data payloads via a {@link HookContext} and returns a
+ *  {@link HookResult}: a falsy result vetoes the transition, a truthy
+ *  result allows it, and a {@link HookComplexResult} can additionally
+ *  rewrite the next state or next data.
+ */
 type HookHandler<mDT> = (hook_context: HookContext<mDT>) =>
   HookResult<mDT>;
 
+/**
+ *  Signature of a post-transition hook handler.  Invoked after a successful
+ *  transition has been committed; the return value is ignored (the
+ *  transition cannot be undone).
+ */
 type PostHookHandler<mDT> = (hook_context: HookContext<mDT>) =>
   void;
 
+/**
+ *  Signature of an "everything" pre-transition hook handler.  Like
+ *  {@link HookHandler} but receives an {@link EverythingHookContext} so the
+ *  handler can dispatch on `hook_name`.
+ */
 type EverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) =>
   HookResult<mDT>;
 
+/**
+ *  Signature of an "everything" post-transition hook handler.  Like
+ *  {@link PostHookHandler} but receives an {@link EverythingHookContext}.
+ *  The return value is ignored.
+ */
 type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>) =>
   void;
 
@@ -649,6 +932,11 @@ type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>)
 
 
 
+/**
+ *  Extra diagnostic information attached to a {@link JssmError} when it
+ *  carries machine-relative context — most often the state name a caller
+ *  asked about when the error was raised.
+ */
 type JssmErrorExtendedInfo = {
   requested_state? : StateType | undefined
 };
@@ -657,8 +945,19 @@ type JssmErrorExtendedInfo = {
 
 
 
+/**
+ *  Bounded history of recently-visited states paired with the data payload
+ *  observed in each.  Backed by `circular_buffer_js`, so the oldest entry
+ *  is dropped silently once the configured capacity is exceeded.
+ */
 type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
 
+/**
+ *  Pluggable random-number-generator function shape.  Must return a value
+ *  in `[0, 1)` exactly as `Math.random` does.  Supplied via the
+ *  `rng_seed`-aware machine configuration so that stochastic models can be
+ *  made reproducible.
+ */
 type JssmRng = () => number;
 
 

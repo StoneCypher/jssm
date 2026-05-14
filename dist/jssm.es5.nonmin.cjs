@@ -2,6 +2,11 @@
 
 class circular_buffer{constructor(uCapacity){if(!Number.isInteger(uCapacity)){throw new RangeError(`Capacity must be an integer, received ${uCapacity}`)}if(uCapacity<0){throw new RangeError(`Capacity must be a non-negative integer, received ${uCapacity}`)}this._values=new Array(uCapacity);this._capacity=uCapacity;this._cursor=0;this._offset=0;this._length=0;}get capacity(){return this._capacity}set capacity(newSize){this.resize(newSize);}get length(){return this._length}set length(newLength){if(newLength>this._capacity){throw new RangeError(`Requested new length [${newLength}] exceeds container capacity [${this._capacity}]`)}if(newLength<0){throw new RangeError(`Requested new length [${newLength}] cannot be negative`)}if(!Number.isInteger(newLength)){throw new RangeError(`Requested new length [${newLength}] must be an integer`)}if(this._length<=newLength){return}this._length=newLength;}get available(){return this._capacity-this._length}get isEmpty(){return this._length===0}get isFull(){return this._length===this._capacity}get first(){if(this.isEmpty){throw new RangeError("Cannot return first element of an empty container")}return this.at(0)}get last(){if(this.isEmpty){throw new RangeError("Cannot return last element of an empty container")}return this.at(this.length-1)}static from(i,map_fn,t){const new_array=map_fn?Array.from(i,map_fn,t):Array.from(i);const target_length=new_array.length;const ncb=new circular_buffer(target_length);ncb._values=new_array;ncb._length=target_length;return ncb}push(v){if(this.isFull){throw new RangeError(`Cannot push, structure is full to capacity`)}this._values[(this._cursor+this._length++)%this._capacity]=v;return v}shove(v){let shoved;if(this._capacity===0){throw new RangeError(`Cannot shove, structure is zero-capacity`)}if(this.isFull){shoved=this.pop();}this.push(v);return shoved}fill(x){for(let i=0;i<this._capacity;i++){this._values[i]=x;}this._length=this._capacity;return this._values}indexOf(searchElement,fromIndex){const normalized=this.toArray();return normalized.indexOf(searchElement,fromIndex)}find(predicate,thisArg){return this.toArray().find(predicate,thisArg)}every(functor,thisArg){const normalized=this.toArray(),res=normalized.every(functor,thisArg);this._values=normalized;this._values.length=this._capacity;this._cursor=0;return res}some(functor,thisArg){const normalized=this.toArray(),res=normalized.some(functor,thisArg);this._values=normalized;this._values.length=this._capacity;this._cursor=0;return res}reverse(){const normalized=this.toArray();this._values=normalized.reverse();this._values.length=this._capacity;this._cursor=0;return this}clear(){const old=this.toArray();this._length=0;return old}pop(){if(this._length<=0){throw new RangeError(`Cannot pop, structure is empty`)}const cache=this.at(0);--this._length;++this._offset;++this._cursor;if(this._cursor>=this._capacity){this._cursor-=this._capacity;}return cache}at(i){if(i<0){throw new RangeError(`circular_buffer does not support negative traversals; called at(${i})`)}if(!Number.isInteger(i)){throw new RangeError(`Accessors must be non-negative integers; called at(${i})`)}if(i>=this._capacity){throw new RangeError(`Requested cell ${i} exceeds container permanent capacity`)}if(i>=this._length){throw new RangeError(`Requested cell ${i} exceeds container current length`)}return this._values[(this._cursor+i)%this._capacity]}pos(i){return this.at(i-this.offset())}offset(){return this._offset}resize(newSize,preferEnd=false){this._values=this.toArray();this._cursor=0;const oldSize=this._length;this._length=Math.min(this._length,newSize);this._capacity=newSize;if(newSize>=oldSize){this._values.length=newSize;}else {if(preferEnd){const tmp=this._values.slice(oldSize-newSize);this._values=tmp;}else {this._values.length=newSize;}}}toArray(){const startPoint=this._cursor%this._capacity;if(this._capacity>startPoint+this._length){return this._values.slice(startPoint,startPoint+this._length)}else {const base=this._values.slice(startPoint,this._capacity);base.push(...this._values.slice(0,this.length-(this._capacity-startPoint)));return base}}}
 
+/**
+ *  Runtime-iterable list of valid `flow` directions for FSL diagrams.
+ *  Use this when you need to enumerate directions; for the type itself
+ *  see {@link FslDirection}.
+ */
 const FslDirections = ['up', 'right', 'down', 'left'];
 
 /*******
@@ -401,26 +406,26 @@ function peg$parse(input, options) {
         // fixed-order rule:
         //   pre-arrow:  after→r_after  action→r_action  prob→r_probability  desc→l_desc
         //   post-arrow: after→l_after  action→l_action  prob→l_probability  desc→r_desc
-        // The truthy `if (d.v)` guard mirrors the legacy `if (var)`
-        // checks: it suppresses falsy values (notably `null` from an
-        // empty `{}` brace block) so the AST shape stays compatible
-        // with the original fixed-order rule.
+        // The `!= null` guard suppresses missing-value sentinels (the
+        // `null` returned by an empty `{}` brace block) while letting
+        // legitimately-empty primitives through — notably the empty
+        // string from an empty action label `''`.
         const seen = {};
         for (const d of pre) {
             if (seen['pre:' + d._kind]) {
                 error('duplicate ' + d._kind + ' decoration before arrow', location());
             }
             seen['pre:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.r_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.r_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.r_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.l_desc = d.v;
             }
         }
@@ -429,16 +434,16 @@ function peg$parse(input, options) {
                 error('duplicate ' + d._kind + ' decoration after arrow', location());
             }
             seen['post:' + d._kind] = true;
-            if (d._kind === 'after' && d.v) {
+            if (d._kind === 'after' && d.v != null) {
                 base.l_after = d.v;
             }
-            if (d._kind === 'action' && d.v) {
+            if (d._kind === 'action' && d.v != null) {
                 base.l_action = d.v;
             }
-            if (d._kind === 'prob' && d.v) {
+            if (d._kind === 'prob' && d.v != null) {
                 base.l_probability = d.v.value;
             }
-            if (d._kind === 'desc' && d.v) {
+            if (d._kind === 'desc' && d.v != null) {
                 base.r_desc = d.v;
             }
         }
@@ -20353,10 +20358,10 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
       }
     */
     const action = isRight ? 'r_action' : 'l_action', probability = isRight ? 'r_probability' : 'l_probability';
-    if (this_se[action]) {
+    if (this_se[action] != null) {
         edge.action = this_se[action];
     }
-    if (this_se[probability]) {
+    if (this_se[probability] != null) {
         edge.probability = this_se[probability];
     }
     return edge;
@@ -21102,6 +21107,11 @@ const gviz_shapes$1 = [
     "lpromoter",
     "record"
 ];
+/**
+ *  Public alias for {@link gviz_shapes}.  The list of node shapes supported
+ *  by Graphviz that jssm-viz accepts in FSL `state ... : { shape: ... }`
+ *  declarations.
+ */
 const shapes$1 = gviz_shapes$1;
 /*******
  *
@@ -21140,6 +21150,93 @@ const named_colors$1 = [
     "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
     "Yellow", "YellowGreen"
 ];
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ */
+// keep in sync with src/ts/fsl_parser.peg:278
+const state_name_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '+', to: '+' },
+    { from: '_', to: '_' },
+    { from: '^', to: '^' },
+    { from: '(', to: '(' },
+    { from: ')', to: ')' },
+    { from: '*', to: '*' },
+    { from: '&', to: '&' },
+    { from: '$', to: '$' },
+    { from: '#', to: '#' },
+    { from: '@', to: '@' },
+    { from: '!', to: '!' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:275
+const state_name_first_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '_', to: '_' },
+    { from: '!', to: '!' },
+    { from: '$', to: '$' },
+    { from: '^', to: '^' },
+    { from: '*', to: '*' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$1 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\uFFFF' },
+]);
 
 var constants = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -21160,15 +21257,30 @@ var constants = /*#__PURE__*/Object.freeze({
     PosInfinity: PosInfinity,
     Root2: Root2,
     RootHalf: RootHalf,
+    action_label_chars: action_label_chars$1,
     gviz_shapes: gviz_shapes$1,
     named_colors: named_colors$1,
-    shapes: shapes$1
+    shapes: shapes$1,
+    state_name_chars: state_name_chars$1,
+    state_name_first_chars: state_name_first_chars$1
 });
 
-const version = "5.112.3", build_time = 1778596930078;
+/**
+ *  The published semantic version of the jssm package this build was cut from.
+ *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
+ *  Useful for runtime diagnostics and for embedding in serialized machine
+ *  snapshots so that deserializers can detect version-skew.
+ */
+const version = "5.120.0";
+/**
+ *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
+ *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
+ *  with the same `version` string during development, and for diagnostic logs.
+ */
+const build_time = 1778718736290;
 
 // whargarbl lots of these return arrays could/should be sets
-const { shapes, gviz_shapes, named_colors } = constants;
+const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -22313,6 +22425,46 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
+    }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -22438,10 +22590,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -22449,11 +22614,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
@@ -24476,6 +24648,7 @@ exports.FslDirections = FslDirections;
 exports.Machine = Machine;
 exports.abstract_everything_hook_step = abstract_everything_hook_step;
 exports.abstract_hook_step = abstract_hook_step;
+exports.action_label_chars = action_label_chars;
 exports.arrow_direction = arrow_direction;
 exports.arrow_left_kind = arrow_left_kind;
 exports.arrow_right_kind = arrow_right_kind;
@@ -24497,6 +24670,8 @@ exports.seq = seq;
 exports.shapes = shapes;
 exports.sleep = sleep;
 exports.sm = sm;
+exports.state_name_chars = state_name_chars;
+exports.state_name_first_chars = state_name_first_chars;
 exports.state_style_condense = state_style_condense;
 exports.transfer_state_properties = transfer_state_properties;
 exports.unique = unique;
