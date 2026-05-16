@@ -11,6 +11,13 @@ import {
 
 const fixturePluginsDir = resolve(__dirname, 'fixtures/plugins');
 
+// A *relative* fixtures path, for findPluginOnPath calls made under a
+// mocked platform. findPluginOnPath splits pathEnv on the platform PATH
+// separator; under linux-mocked that's ':', and an absolute Windows path
+// (`C:\...`) would split on its drive-letter colon. A relative path has no
+// colon and resolves against the test cwd (the repo root).
+const fixturePluginsRel = 'src/ts/tests/cli/fixtures/plugins';
+
 describe('dispatcher: findPluginOnPath', () => {
 
   it('returns null when the plugin name is not on PATH', async () => {
@@ -343,12 +350,18 @@ describe('dispatcher: invokeBySpawn extension routing', () => {
   }, 15_000);
 
   it.runIf(process.platform === 'win32')(
-    'routes a .cmd plugin through cmd.exe (isCmdScript branch, Windows-only)',
+    'routes a .cmd plugin through cmd.exe and runs it (Windows-only)',
     async () => {
-      const work   = await fs.mkdtemp(join(tmpdir(), 'fsl-spawn-test-'));
-      const script = join(work, 'mock.cmd');
-      await fs.writeFile(script, '@echo off\r\nexit /b 0\r\n');
-      const code = await invokeBySpawn(script, []);
+      const code = await invokeBySpawn(`${fixturePluginsDir}/fsl-cmd-fixture.cmd`, []);
+      expect(code).toBe(0);
+    },
+    15_000,
+  );
+
+  it.runIf(process.platform === 'win32')(
+    'routes a .bat plugin through cmd.exe and runs it (Windows-only)',
+    async () => {
+      const code = await invokeBySpawn(`${fixturePluginsDir}/fsl-bat-fixture.bat`, []);
       expect(code).toBe(0);
     },
     15_000,
@@ -383,20 +396,22 @@ describe('dispatcher: module-load behavior under PATHEXT fallback', () => {
 
 describe('dispatcher: module-load behavior under non-Windows platform (mocked)', () => {
 
-  it('loads correctly with Unix conventions when process.platform is mocked to "linux"', async () => {
-    // dispatcher.ts computes IS_WINDOWS, PATH_SEP, and PATHEXT at module
-    // load time. Those constants gate Unix-vs-Windows branches in
-    // findPluginOnPath. To exercise the Unix branches on a Windows CI
-    // host (and vice versa), we re-import the module with platform mocked.
+  it('discovers an extensionless plugin with Unix conventions (platform mocked to "linux")', async () => {
+    // dispatcher.ts computes IS_WINDOWS / PATH_SEP / PATHEXT at module
+    // load time, gating the Unix-vs-Windows branches in findPluginOnPath.
+    // Re-importing with platform mocked exercises the Unix branches on a
+    // Windows CI host. The committed `fsl-non-node` fixture (no extension)
+    // is genuinely resolved via the Unix '' extension probe.
     vi.resetModules();
     const realPlatform = process.platform;
     Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
     try {
       const mod = await import('../../cli/dispatcher');
-      // Use a clearly bogus PATH so findPluginOnPath traverses but finds
-      // nothing — that's enough to exercise the module-level Unix branches.
-      const found = await mod.findPluginOnPath('not-a-real-plugin-xyz', '/no/such/dir/a:/no/such/dir/b');
-      expect(found).toBeNull();
+      const found = await mod.findPluginOnPath('non-node', fixturePluginsRel);
+      expect(found).not.toBeNull();
+      expect(found?.endsWith('fsl-non-node')).toBe(true);
+      // A name with no matching file still returns null.
+      expect(await mod.findPluginOnPath('definitely-absent-xyz', fixturePluginsRel)).toBeNull();
     } finally {
       Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
     }
@@ -415,23 +430,21 @@ describe('dispatcher: module-load behavior under non-Windows platform (mocked)',
     (process.stderr as any).write = () => true;
     try {
       const mod = await import('../../cli/dispatcher');
-      // findPluginOnPath under win32: exercises the PATHEXT branch (module
-      // load) and the Windows extension-list branch.
-      const found = await mod.findPluginOnPath(
-        'not-a-real-plugin-xyz',
-        'C:\\no\\such\\dir\\a;C:\\no\\such\\dir\\b',
-      );
-      expect(found).toBeNull();
-      // invokeBySpawn with a .cmd path under win32: exercises the
-      // isCmdScript -> cmd.exe routing branch. On a non-Windows runner the
-      // cmd.exe spawn ENOENTs and resolves non-zero; what matters here is
-      // that the routing branch executes.
-      const cmdCode = await mod.invokeBySpawn('C:\\no\\such\\dir\\bogus.cmd', []);
+      // findPluginOnPath under win32: PATHEXT probing genuinely resolves
+      // the committed fsl-cmd-fixture.cmd by its `cmd-fixture` name — the
+      // fixture file exists on disk regardless of the host OS.
+      const found = await mod.findPluginOnPath('cmd-fixture', fixturePluginsRel);
+      expect(found).not.toBeNull();
+      expect(found?.endsWith('fsl-cmd-fixture.cmd')).toBe(true);
+      // invokeBySpawn with the .cmd / .bat fixtures under win32 exercises
+      // the isCmdScript -> cmd.exe routing and both operands of
+      // `ext === '.cmd' || ext === '.bat'` (the .bat path makes the left
+      // operand false, so the right one is evaluated). On a non-Windows
+      // runner cmd.exe is absent so the spawn resolves non-zero; the
+      // routing branch still executes. On Windows the fixtures run for real.
+      const cmdCode = await mod.invokeBySpawn(`${fixturePluginsDir}/fsl-cmd-fixture.cmd`, []);
       expect(typeof cmdCode).toBe('number');
-      // A .bat path makes `ext === '.cmd'` false, so the right operand of
-      // `ext === '.cmd' || ext === '.bat'` is evaluated — the .cmd call
-      // above short-circuits it.
-      const batCode = await mod.invokeBySpawn('C:\\no\\such\\dir\\bogus.bat', []);
+      const batCode = await mod.invokeBySpawn(`${fixturePluginsDir}/fsl-bat-fixture.bat`, []);
       expect(typeof batCode).toBe('number');
     } finally {
       Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
