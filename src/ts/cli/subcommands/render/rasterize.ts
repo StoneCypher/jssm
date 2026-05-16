@@ -84,6 +84,12 @@ async function rasterizeViaCanvas(
   return new Uint8Array(ab);
 }
 
+// Module-level init-once flag for the resvg-wasm runtime. We can't store
+// this on the imported namespace itself: ES module namespace objects are
+// sealed by spec and reject property mutation. Jest's CJS-style import
+// proxy hid this; vitest's real ESM imports surface it as TypeError.
+let wasmInited = false;
+
 async function rasterizeViaResvgWasm(
   svg: string,
   target: RasterTarget,
@@ -98,7 +104,7 @@ async function rasterizeViaResvgWasm(
     );
   }
 
-  if (typeof mod.initWasm === 'function' && !(mod as any).__inited) {
+  if (typeof mod.initWasm === 'function' && !wasmInited) {
     try {
       const { readFileSync } = await import('fs');
       const { resolve } = await import('path');
@@ -107,9 +113,9 @@ async function rasterizeViaResvgWasm(
       const wasmPath = resolve(req.resolve('@resvg/resvg-wasm'), '../index_bg.wasm');
       const wasmBuffer = readFileSync(wasmPath);
       await mod.initWasm(wasmBuffer);
-      (mod as any).__inited = true;
+      wasmInited = true;
     } catch (e) {
-      (mod as any).__inited = true;
+      wasmInited = true;
     }
   }
 

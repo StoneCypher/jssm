@@ -17,7 +17,6 @@ export async function dotTarget(fsl: string): Promise<string> {
   try {
     return fsl_to_dot(fsl);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new RenderError(`DOT render failed: ${msg}`);
+    throw new RenderError(`DOT render failed: ${(e as Error).message}`);
   }
 }

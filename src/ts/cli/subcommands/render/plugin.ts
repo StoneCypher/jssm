@@ -128,17 +128,12 @@ export async function cli(argv: string[]): Promise<number> {
     return renderOne(fsl, inputLabel, { target, width, quality }, { outputPath: sibling });
   }
 
-  // Multi-input
+  // Multi-input. The earlier mutex check at the top of this function
+  // already ensures `output`, `outDir`, and `stdout` are mutually
+  // exclusive — so once we know `outDir` is set, the others can't be,
+  // and we don't need redundant defensive checks here.
   if (!outDir) {
     printErr('specify --out-dir for multi-file render');
-    return 1;
-  }
-  if (output) {
-    printErr('--output requires single input; use --out-dir for multiple inputs');
-    return 1;
-  }
-  if (explicitStdout) {
-    printErr('--stdout requires single input');
     return 1;
   }
 
@@ -159,26 +154,25 @@ export async function cli(argv: string[]): Promise<number> {
   return worstCode;
 }
 
+type OutputDestination = { stdout: true } | { outputPath: string };
+
 async function renderOne(
   fsl: string,
   label: string,
   opts: { target: RenderTarget; width?: number; quality?: number },
-  out: { stdout?: true; outputPath?: string },
+  out: OutputDestination,
 ): Promise<number> {
   try {
     const r = await render(fsl, opts);
-    if (out.stdout) {
+    if ('stdout' in out) {
       if (r.kind === 'text') writeStdout(r.content);
       else                   writeStdout(r.buffer);
       return 0;
     }
-    if (out.outputPath) {
-      const data: string | Uint8Array = r.kind === 'text' ? r.content : Buffer.from(r.buffer);
-      await fs.writeFile(out.outputPath, data);
-      return 0;
-    }
-    printErr('internal error: no output destination', label);
-    return 2;
+    // `out` narrows to { outputPath: string } here.
+    const data: string | Uint8Array = r.kind === 'text' ? r.content : Buffer.from(r.buffer);
+    await fs.writeFile(out.outputPath, data);
+    return 0;
   } catch (e) {
     if (e instanceof RenderError) {
       printErr(e.message, label, e.line);

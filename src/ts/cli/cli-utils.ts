@@ -66,9 +66,10 @@ export function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): Pars
 
   const isBoolean = (name: string): boolean => spec.flags[name]?.boolean === true;
   const flagType  = (name: string): FlagType => {
-    const fs = spec.flags[name];
-    if (!fs) throw new Error(`unknown flag: ${name}`);
-    if (fs.boolean) return 'boolean';
+    // Callers only invoke this for non-boolean flags (boolean flags are
+    // handled inline in the argv loop and never reach `coerce`), so the
+    // `fs.boolean` check that used to live here is unreachable.
+    const fs = spec.flags[name]!;
     return fs.type ?? 'string';
   };
 

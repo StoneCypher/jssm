@@ -14,7 +14,7 @@ export default defineConfig({
     globals           : true,
     environment       : 'node',
     include           : ['**/*.maximal.ts'],
-    exclude           : ['**/node_modules/**', '**/dist/**'],
+    exclude           : ['**/node_modules/**', '**/dist/**', '.claude/**'],
 
     setupFiles        : ['./vitest.setup.ts'],
 
@@ -37,6 +37,7 @@ export default defineConfig({
       exclude           : [
         'node_modules/**',
         'src/ts/tests/**',
+        'src/ts/wc/tests/**',
         'src/ts/fsl_parser.ts',
         'src/ts/fsl_parser.js'
       ],

@@ -43,6 +43,42 @@ describe('render', () => {
     }
   });
 
+  it('dispatches target=jpeg to raster result (via OffscreenCanvas mock)', async () => {
+    // Stub OffscreenCanvas + Image so jpegTarget's canvas path succeeds.
+    // Without this, the WASM fallback runs and rejects with
+    // RasterizationUnsupportedError — exercising the throw branch but not
+    // the successful `return { ... }` on the line itself.
+    const realOffscreen = (globalThis as any).OffscreenCanvas;
+    const realImage     = (globalThis as any).Image;
+    (globalThis as any).Image = class FakeImage {
+      src = '';
+      width = 100;
+      height = 60;
+      decode() { return Promise.resolve(); }
+    };
+    (globalThis as any).OffscreenCanvas = class FakeOffscreen {
+      width: number;
+      height: number;
+      constructor(w: number, h: number) { this.width = w; this.height = h; }
+      getContext() { return { drawImage: () => {} }; }
+      async convertToBlob() {
+        const bytes = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0, 0, 0]);
+        return { arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) };
+      }
+    };
+    try {
+      const r = await render(trafficLight, { target: 'jpeg', width: 400, quality: 90 });
+      expect(r.kind).toBe('raster');
+      expect(r.target).toBe('jpeg');
+      if (r.kind === 'raster') {
+        expect(Array.from(r.buffer.subarray(0, 2))).toEqual([0xFF, 0xD8]);
+      }
+    } finally {
+      (globalThis as any).OffscreenCanvas = realOffscreen;
+      (globalThis as any).Image           = realImage;
+    }
+  });
+
   it('throws RenderError for invalid FSL', async () => {
     const { RenderError } = await import('../../cli/types');
     await expect(render('not valid fsl !!', { target: 'svg' })).rejects.toBeInstanceOf(RenderError);

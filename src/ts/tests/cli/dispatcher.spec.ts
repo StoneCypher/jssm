@@ -18,6 +18,12 @@ describe('dispatcher: findPluginOnPath', () => {
     expect(found).toBeNull();
   });
 
+  it('returns null when pathEnv is empty/undefined', async () => {
+    // Covers the `if (!pathEnv) return null;` short-circuit.
+    expect(await findPluginOnPath('xyz', '')).toBeNull();
+    expect(await findPluginOnPath('xyz', undefined)).toBeNull();
+  });
+
   it('finds a plugin executable in a PATH directory', async () => {
     const work = await fs.mkdtemp(join(tmpdir(), 'fsl-dispatch-test-'));
     const plugin = process.platform === 'win32' ? 'fsl-foo.cmd' : 'fsl-foo';
@@ -101,6 +107,99 @@ describe('dispatcher: invokeInProcess', () => {
     expect(code).toBe(2);
   });
 
+  it('falls back to the module namespace when there is no default export (?? mod branch)', async () => {
+    // An .mjs with only named exports has no `default` key on its namespace,
+    // exercising the right-hand side of `mod.default ?? mod`. The result
+    // is still not a function so we report missing-default + exit 2.
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-mjs-test-'));
+    const pluginPath = join(work, 'fsl-named.mjs');
+    await fs.writeFile(pluginPath, 'export const someName = "value";\n');
+    const realStderr = process.stderr.write.bind(process.stderr);
+    (process.stderr as any).write = () => true;
+    try {
+      const code = await invokeInProcess(pluginPath, []);
+      expect(code).toBe(2);
+    } finally {
+      (process.stderr as any).write = realStderr;
+    }
+  });
+
+  it('returns exit 2 and stderrs the message when a plugin throws an unintercepted error', async () => {
+    // Build a tmp plugin that throws synchronously inside its default export.
+    // Exercises the "plugin threw" catch branch in invokeInProcess that's
+    // separate from the ExitInterception path.
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-throwy-test-'));
+    const pluginPath = join(work, 'fsl-throwy.cjs');
+    await fs.writeFile(
+      pluginPath,
+      'module.exports = async function() { throw new Error("synthetic plugin failure"); };'
+    );
+    const realStderr = process.stderr.write.bind(process.stderr);
+    const stderrCaught: string[] = [];
+    (process.stderr as any).write = (chunk: any) => { stderrCaught.push(String(chunk)); return true; };
+    try {
+      const code = await invokeInProcess(pluginPath, []);
+      expect(code).toBe(2);
+      expect(stderrCaught.join('')).toContain('synthetic plugin failure');
+    } finally {
+      (process.stderr as any).write = realStderr;
+    }
+  });
+
+  it('treats a plugin that returns a non-number as exit 0', async () => {
+    // Exercises the `typeof result === 'number' ? result : 0` ternary's else branch.
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-nonnum-test-'));
+    const pluginPath = join(work, 'fsl-nonnumeric.cjs');
+    await fs.writeFile(
+      pluginPath,
+      'module.exports = async function() { return "not-a-number"; };'
+    );
+    const code = await invokeInProcess(pluginPath, []);
+    expect(code).toBe(0);
+  });
+
+  it('treats plugin calling process.exit() with no argument as exit 0', async () => {
+    // Covers the `typeof code === 'number' ? code : 0` ternary's else branch
+    // inside the process.exit interceptor. fsl-bad-exits passes a number;
+    // this fixture passes no argument.
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-exit-no-arg-'));
+    const pluginPath = join(work, 'fsl-exits-no-arg.cjs');
+    await fs.writeFile(
+      pluginPath,
+      'module.exports = async function() { process.exit(); };'
+    );
+    const realStdout = process.stdout.write.bind(process.stdout);
+    (process.stdout as any).write = () => true;
+    try {
+      const code = await invokeInProcess(pluginPath, []);
+      expect(code).toBe(0);
+    } finally {
+      (process.stdout as any).write = realStdout;
+    }
+  });
+
+  it('handles plugin that throws a non-Error (uses String() fallback in message)', async () => {
+    // Covers the `(e as Error).message ?? String(e)` ?? fallback branch in
+    // the invokeInProcess catch — the other Error-with-message branch is
+    // covered by the previous test.
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-throwy-nonerr-'));
+    const pluginPath = join(work, 'fsl-throwy.cjs');
+    await fs.writeFile(
+      pluginPath,
+      'module.exports = async function() { throw 42; };'  // throws a plain number
+    );
+    const realStderr = process.stderr.write.bind(process.stderr);
+    const stderrCaught: string[] = [];
+    (process.stderr as any).write = (chunk: any) => { stderrCaught.push(String(chunk)); return true; };
+    try {
+      const code = await invokeInProcess(pluginPath, []);
+      expect(code).toBe(2);
+      expect(stderrCaught.join('')).toContain('plugin threw: 42');
+    } finally {
+      (process.stderr as any).write = realStderr;
+    }
+  });
+
 });
 
 describe('dispatcher: invokeBySpawn', () => {
@@ -181,5 +280,151 @@ describe('dispatcher: dispatch (orchestrator)', () => {
       process.env.PATH = originalPath;
     }
   });
+
+  it('-h short flag is treated as --help', async () => {
+    const code = await dispatch(['-h']);
+    expect(code).toBe(0);
+    expect(stdoutChunks.join('')).toContain('Usage:');
+  });
+
+  it('-V short flag is treated as --version', async () => {
+    const code = await dispatch(['-V']);
+    expect(code).toBe(0);
+    expect(stdoutChunks.join('')).toMatch(/fsl\s+\S/);
+  });
+
+  it('bare-word "version" subcommand prints version', async () => {
+    const code = await dispatch(['version']);
+    expect(code).toBe(0);
+    expect(stdoutChunks.join('')).toMatch(/fsl\s+\S/);
+  });
+
+  it('bare-word "help" subcommand prints usage', async () => {
+    const code = await dispatch(['help']);
+    expect(code).toBe(0);
+    expect(stdoutChunks.join('')).toContain('Usage:');
+  });
+
+  it('invokes plugin in-process when resolved inside node_modules', async () => {
+    // Build a fake node_modules/.bin/fsl-mock.cjs so isInProcessEligible
+    // returns true and dispatch takes the in-process branch (vs spawn).
+    const work    = await fs.mkdtemp(join(tmpdir(), 'fsl-inproc-'));
+    const binDir  = join(work, 'node_modules', '.bin');
+    await fs.mkdir(binDir, { recursive: true });
+    const pluginPath = join(binDir, 'fsl-mock.cjs');
+    await fs.writeFile(
+      pluginPath,
+      'module.exports = async function(argv) { process.stdout.write("inproc:" + argv.join(",")); return 0; };'
+    );
+    const originalPath = process.env.PATH;
+    process.env.PATH = binDir;
+    try {
+      const code = await dispatch(['mock', 'a', 'b']);
+      expect(code).toBe(0);
+      expect(stdoutChunks.join('')).toContain('inproc:a,b');
+    } finally {
+      process.env.PATH = originalPath;
+    }
+  });
+
+});
+
+describe('dispatcher: invokeBySpawn extension routing', () => {
+
+  it('routes a .cjs plugin through process.execPath (isNodeScript branch)', async () => {
+    // The .cjs extension takes the isNodeScript branch which wraps in
+    // `[process.execPath, [pluginPath, ...]]`. Without this routing on
+    // Windows, a bare .cjs without shebang wouldn't be directly runnable.
+    const work   = await fs.mkdtemp(join(tmpdir(), 'fsl-spawn-test-'));
+    const script = join(work, 'mock.cjs');
+    await fs.writeFile(script, 'process.exit(0);');
+    const code = await invokeBySpawn(script, []);
+    expect(code).toBe(0);
+  }, 15_000);
+
+  it.runIf(process.platform === 'win32')(
+    'routes a .cmd plugin through cmd.exe (isCmdScript branch, Windows-only)',
+    async () => {
+      const work   = await fs.mkdtemp(join(tmpdir(), 'fsl-spawn-test-'));
+      const script = join(work, 'mock.cmd');
+      await fs.writeFile(script, '@echo off\r\nexit /b 0\r\n');
+      const code = await invokeBySpawn(script, []);
+      expect(code).toBe(0);
+    },
+    15_000,
+  );
+
+});
+
+describe('dispatcher: module-load behavior under PATHEXT fallback', () => {
+
+  it.runIf(process.platform === 'win32')(
+    'loads with the .COM/.EXE/.BAT/.CMD fallback when PATHEXT env var is unset',
+    async () => {
+      // Covers the `?? '.COM;.EXE;.BAT;.CMD'` fallback on line 8 — under
+      // normal Windows operation PATHEXT is always set.
+      vi.resetModules();
+      const realPathExt = process.env.PATHEXT;
+      delete process.env.PATHEXT;
+      try {
+        const mod = await import('../../cli/dispatcher');
+        expect(typeof mod.findPluginOnPath).toBe('function');
+        // Sanity-check: looking for a non-existent plugin returns null
+        // (using the freshly-loaded module instance).
+        const found = await mod.findPluginOnPath('not-a-real-plugin', '/no/such/dir');
+        expect(found).toBeNull();
+      } finally {
+        if (realPathExt !== undefined) process.env.PATHEXT = realPathExt;
+      }
+    },
+  );
+
+});
+
+describe('dispatcher: module-load behavior under non-Windows platform (mocked)', () => {
+
+  it('loads correctly with Unix conventions when process.platform is mocked to "linux"', async () => {
+    // dispatcher.ts computes IS_WINDOWS, PATH_SEP, and PATHEXT at module
+    // load time. Those constants gate Unix-vs-Windows branches in
+    // findPluginOnPath. To exercise the Unix branches on a Windows CI
+    // host (and vice versa), we re-import the module with platform mocked.
+    vi.resetModules();
+    const realPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+    try {
+      const mod = await import('../../cli/dispatcher');
+      // Use a clearly bogus PATH so findPluginOnPath traverses but finds
+      // nothing — that's enough to exercise the module-level Unix branches.
+      const found = await mod.findPluginOnPath('not-a-real-plugin-xyz', '/no/such/dir/a:/no/such/dir/b');
+      expect(found).toBeNull();
+    } finally {
+      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+    }
+  });
+
+});
+
+describe('dispatcher: invokeBySpawn error paths', () => {
+
+  it('returns exit code 2 when the spawn target does not exist', async () => {
+    // Use a bogus, non-existent absolute path so spawn emits an 'error'
+    // event rather than running anything. Per the dispatcher contract,
+    // that maps to exit 2.
+    const realStderrWrite = process.stderr.write.bind(process.stderr);
+    (process.stderr as any).write = () => true;
+    try {
+      // The `.exe` extension keeps us in the direct-spawn branch (not the
+      // cmd.exe-wrapped `.cmd`/`.bat` branch). With a bogus absolute path,
+      // node's spawn emits an 'error' event with ENOENT, which the dispatcher
+      // maps to exit 2.
+      const bogus = process.platform === 'win32'
+        ? 'C:\\no\\such\\dir\\no-such-binary-xyz.exe'
+        : '/no/such/dir/no-such-binary-xyz';
+      const code = await invokeBySpawn(bogus, []);
+      expect(code).toBe(2);
+    } finally {
+      (process.stderr as any).write = realStderrWrite;
+    }
+  }, 15_000);
 
 });

@@ -15,7 +15,7 @@ export default defineConfig({
     globals           : true,
     environment       : 'node',
     include           : ['**/*.spec.ts'],
-    exclude           : ['**/node_modules/**', '**/dist/**'],
+    exclude           : ['**/node_modules/**', '**/dist/**', '.claude/**'],
 
     // The lone `viz_svg_element.spec.ts` uses `// @vitest-environment jsdom`
     // (added during the conversion).  No other per-file env overrides are
@@ -44,6 +44,7 @@ export default defineConfig({
       exclude           : [
         'node_modules/**',
         'src/ts/tests/**',
+        'src/ts/wc/tests/**',
         'src/ts/jssm_viz.ts',
         'src/ts/jssm_viz_colors.ts',
         'src/ts/fsl_parser.ts',

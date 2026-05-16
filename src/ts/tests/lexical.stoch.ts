@@ -290,9 +290,9 @@ describe('§2 LineComment — terminators', () => {
   test('LF (\\n) ends the line comment', () => {
 
     fc.assert(
-      fc.property(body_arb, (body) =>
-        expect(jssm.parse(`//${body}\na->b;`)).toEqual(BASE)
-      ),
+      fc.property(body_arb, (body) => {
+        expect(jssm.parse(`//${body}\na->b;`)).toEqual(BASE);
+      }),
       { numRuns: RUNS }
     );
 
@@ -301,9 +301,9 @@ describe('§2 LineComment — terminators', () => {
   test('CR (\\r) ends the line comment', () => {
 
     fc.assert(
-      fc.property(body_arb, (body) =>
-        expect(jssm.parse(`//${body}\ra->b;`)).toEqual(BASE)
-      ),
+      fc.property(body_arb, (body) => {
+        expect(jssm.parse(`//${body}\ra->b;`)).toEqual(BASE);
+      }),
       { numRuns: RUNS }
     );
 
@@ -312,9 +312,9 @@ describe('§2 LineComment — terminators', () => {
   test('U+2028 (LINE SEPARATOR) ends the line comment', () => {
 
     fc.assert(
-      fc.property(body_arb, (body) =>
-        expect(jssm.parse(`//${body}\u2028a->b;`)).toEqual(BASE)
-      ),
+      fc.property(body_arb, (body) => {
+        expect(jssm.parse(`//${body}\u2028a->b;`)).toEqual(BASE);
+      }),
       { numRuns: RUNS }
     );
 
@@ -323,9 +323,9 @@ describe('§2 LineComment — terminators', () => {
   test('U+2029 (PARAGRAPH SEPARATOR) ends the line comment', () => {
 
     fc.assert(
-      fc.property(body_arb, (body) =>
-        expect(jssm.parse(`//${body}\u2029a->b;`)).toEqual(BASE)
-      ),
+      fc.property(body_arb, (body) => {
+        expect(jssm.parse(`//${body}\u2029a->b;`)).toEqual(BASE);
+      }),
       { numRuns: RUNS }
     );
 
@@ -334,9 +334,9 @@ describe('§2 LineComment — terminators', () => {
   test('EOF ends a trailing line comment (no terminator needed)', () => {
 
     fc.assert(
-      fc.property(body_arb, (body) =>
-        expect(jssm.parse(`a->b;//${body}`)).toEqual(BASE)
-      ),
+      fc.property(body_arb, (body) => {
+        expect(jssm.parse(`a->b;//${body}`)).toEqual(BASE);
+      }),
       { numRuns: RUNS }
     );
 
