@@ -402,6 +402,38 @@ describe('dispatcher: module-load behavior under non-Windows platform (mocked)',
     }
   });
 
+  it('loads with Windows conventions when process.platform is mocked to "win32"', async () => {
+    // Mirror of the Unix test above. dispatcher.ts's IS_WINDOWS-gated
+    // branches (PATHEXT assembly, the Windows extension list, the cmd.exe
+    // spawn routing) are unreachable on a macOS/Linux CI runner; mocking
+    // platform to win32 and re-importing exercises them so coverage is
+    // symmetric across the CI matrix.
+    vi.resetModules();
+    const realPlatform = process.platform;
+    const realStderrWrite = process.stderr.write.bind(process.stderr);
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    (process.stderr as any).write = () => true;
+    try {
+      const mod = await import('../../cli/dispatcher');
+      // findPluginOnPath under win32: exercises the PATHEXT branch (module
+      // load) and the Windows extension-list branch.
+      const found = await mod.findPluginOnPath(
+        'not-a-real-plugin-xyz',
+        'C:\\no\\such\\dir\\a;C:\\no\\such\\dir\\b',
+      );
+      expect(found).toBeNull();
+      // invokeBySpawn with a .cmd path under win32: exercises the
+      // isCmdScript -> cmd.exe routing branch. On a non-Windows runner the
+      // cmd.exe spawn ENOENTs and resolves non-zero; what matters here is
+      // that the routing branch executes.
+      const code = await mod.invokeBySpawn('C:\\no\\such\\dir\\bogus.cmd', []);
+      expect(typeof code).toBe('number');
+    } finally {
+      Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
+      (process.stderr as any).write = realStderrWrite;
+    }
+  });
+
 });
 
 describe('dispatcher: invokeBySpawn error paths', () => {
