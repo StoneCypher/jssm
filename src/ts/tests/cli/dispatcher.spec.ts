@@ -426,8 +426,13 @@ describe('dispatcher: module-load behavior under non-Windows platform (mocked)',
       // isCmdScript -> cmd.exe routing branch. On a non-Windows runner the
       // cmd.exe spawn ENOENTs and resolves non-zero; what matters here is
       // that the routing branch executes.
-      const code = await mod.invokeBySpawn('C:\\no\\such\\dir\\bogus.cmd', []);
-      expect(typeof code).toBe('number');
+      const cmdCode = await mod.invokeBySpawn('C:\\no\\such\\dir\\bogus.cmd', []);
+      expect(typeof cmdCode).toBe('number');
+      // A .bat path makes `ext === '.cmd'` false, so the right operand of
+      // `ext === '.cmd' || ext === '.bat'` is evaluated — the .cmd call
+      // above short-circuits it.
+      const batCode = await mod.invokeBySpawn('C:\\no\\such\\dir\\bogus.bat', []);
+      expect(typeof batCode).toBe('number');
     } finally {
       Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
       (process.stderr as any).write = realStderrWrite;
