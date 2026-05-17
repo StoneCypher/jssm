@@ -16,7 +16,6 @@ export async function svgTarget(fsl: string): Promise<string> {
   try {
     return await fsl_to_svg_string(fsl);
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    throw new RenderError(`SVG render failed: ${msg}`);
+    throw new RenderError(`SVG render failed: ${(e as Error).message}`);
   }
 }

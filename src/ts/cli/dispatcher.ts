@@ -118,25 +118,29 @@ export async function invokeInProcess(pluginPath: string, argv: string[]): Promi
   };
   process.argv = [originalArgv[0], pluginPath, ...argv];
 
+  let result: number;
   try {
     const mod = await import(pluginPath);
     const cli = (mod && (mod.default ?? mod)) as ((argv: string[]) => Promise<number>) | undefined;
     if (typeof cli !== 'function') {
       process.stderr.write(`fsl: error: plugin ${pluginPath} is missing default cli() export\n`);
-      return 2;
+      result = 2;
+    } else {
+      const r = await cli(argv);
+      result = typeof r === 'number' ? r : 0;
     }
-    const result = await cli(argv);
-    return typeof result === 'number' ? result : 0;
   } catch (e) {
-    if (e === ExitInterception && interceptedExit !== null) {
-      return interceptedExit;
+    if (e === ExitInterception) {
+      result = interceptedExit as number; // always set just before throwing
+    } else {
+      process.stderr.write(`fsl: error: plugin threw: ${(e as Error).message ?? String(e)}\n`);
+      result = 2;
     }
-    process.stderr.write(`fsl: error: plugin threw: ${(e as Error).message ?? String(e)}\n`);
-    return 2;
-  } finally {
-    process.exit = originalExit;
-    process.argv = originalArgv;
   }
+
+  process.exit = originalExit;
+  process.argv = originalArgv;
+  return result;
 }
 
 /**
@@ -166,10 +170,11 @@ export async function invokeBySpawn(pluginPath: string, argv: string[]): Promise
         ? [process.execPath, [pluginPath, ...argv]]
         : [pluginPath, argv];
     const child = spawn(spawnCmd, spawnArgs, { stdio: 'inherit' });
-    child.on('exit', (code, signal) => {
-      if (signal) res(128 + (process.platform === 'win32' ? 1 : 0));
-      else res(typeof code === 'number' ? code : 2);
-    });
+    // Pass the child's exit code through verbatim. Node passes `null` on
+    // signal-kill; for a CLI dispatcher the parent is almost always also
+    // dying from the same signal in that case, so we don't try to invent
+    // a synthetic code.
+    child.on('exit', (code) => res(code as number));
     child.on('error', (err) => {
       process.stderr.write(`fsl: error: failed to spawn plugin: ${err.message}\n`);
       res(2);

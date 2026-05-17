@@ -8,6 +8,9 @@
     "src/ts/**/*"
   ],
   "exclude": [
-    "src/ts/tests/**/*"
+    "src/ts/tests/**/*",
+    "src/ts/wc/tests/**/*",
+    "**/*.spec.ts",
+    "**/*.uspec.ts"
   ]
 }

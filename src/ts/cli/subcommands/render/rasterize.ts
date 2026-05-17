@@ -84,6 +84,12 @@ async function rasterizeViaCanvas(
   return new Uint8Array(ab);
 }
 
+// Module-level init-once flag for the resvg-wasm runtime. We can't store
+// this on the imported namespace itself: ES module namespace objects are
+// sealed by spec and reject property mutation. Jest's CJS-style import
+// proxy hid this; vitest's real ESM imports surface it as TypeError.
+let wasmInited = false;
+
 async function rasterizeViaResvgWasm(
   svg: string,
   target: RasterTarget,
@@ -98,7 +104,7 @@ async function rasterizeViaResvgWasm(
     );
   }
 
-  if (typeof mod.initWasm === 'function' && !(mod as any).__inited) {
+  if (typeof mod.initWasm === 'function' && !wasmInited) {
     try {
       const { readFileSync } = await import('fs');
       const { resolve } = await import('path');
@@ -107,19 +113,30 @@ async function rasterizeViaResvgWasm(
       const wasmPath = resolve(req.resolve('@resvg/resvg-wasm'), '../index_bg.wasm');
       const wasmBuffer = readFileSync(wasmPath);
       await mod.initWasm(wasmBuffer);
-      (mod as any).__inited = true;
+      wasmInited = true;
     } catch (e) {
-      (mod as any).__inited = true;
+      wasmInited = true;
     }
   }
 
   const Resvg = mod.Resvg;
   const resvg = new Resvg(svg, opts.width ? { fitTo: { mode: 'width', value: opts.width } } : {});
-  const pngData = resvg.render().asPng();
+  let rendered: any;
+  try {
+    rendered = resvg.render();
+    const pngData = rendered.asPng();
 
-  if (target === 'png') return new Uint8Array(pngData);
+    if (target === 'png') return new Uint8Array(pngData);
 
-  throw new RasterizationUnsupportedError(
-    'JPEG output in a non-Canvas runtime is not supported in v1; use --target=png instead'
-  );
+    throw new RasterizationUnsupportedError(
+      'JPEG output in a non-Canvas runtime is not supported in v1; use --target=png instead'
+    );
+  } finally {
+    // Free the wasm-backed objects deterministically. Left to the GC
+    // finalizer, their cleanup races the shared wasm instance and
+    // intermittently throws "recursive use of an object detected" from an
+    // unrelated later render.
+    rendered?.free();
+    resvg.free();
+  }
 }

@@ -9,13 +9,23 @@ const rand_cap = 10_000;
 
 
 
+// Note on `void`:
+//
+// fast-check@2's `Property.run` considers a predicate "failed" unless it
+// returns `null`, `undefined`, or boolean `true`.  `expect(...).toBe(...)`
+// in vitest returns an object (the assertion chain), which fast-check then
+// treats as failure even when the assertion itself succeeded.  Under jest
+// the same chain returned `undefined`, hiding the issue.  Wrapping the
+// predicate in `void <expr>` ensures it always returns `undefined`, which
+// fast-check accepts.
+
 describe(`seq/1 over random sizes 0 - ${rand_cap.toLocaleString()}`, () => {
 
   test(`Any non-negative size will create safely`, () => {
 
      fc.assert(
        fc.property(fc.integer(0, rand_cap), Size =>
-         expect( () => jssm.seq(Size) ).not.toThrow()
+         void expect( () => jssm.seq(Size) ).not.toThrow()
        )
      );
 
@@ -25,7 +35,7 @@ describe(`seq/1 over random sizes 0 - ${rand_cap.toLocaleString()}`, () => {
 
      fc.assert(
        fc.property(fc.integer(0, rand_cap), Size =>
-         expect( jssm.seq(Size).length ).toBe(Size)
+         void expect( jssm.seq(Size).length ).toBe(Size)
        )
      );
 
@@ -35,7 +45,7 @@ describe(`seq/1 over random sizes 0 - ${rand_cap.toLocaleString()}`, () => {
 
      fc.assert(
        fc.property(fc.integer(0, rand_cap), Size =>
-         expect( typeof jssm.seq(Size) ).toBe('object')
+         void expect( typeof jssm.seq(Size) ).toBe('object')
        )
      );
 
@@ -45,7 +55,7 @@ describe(`seq/1 over random sizes 0 - ${rand_cap.toLocaleString()}`, () => {
 
      fc.assert(
        fc.property(fc.integer(0, rand_cap), Size =>
-         expect( Array.isArray(jssm.seq(Size)) ).toBe(true)
+         void expect( Array.isArray(jssm.seq(Size)) ).toBe(true)
        )
      );
 
@@ -64,7 +74,7 @@ describe('seq/1 over wrong sizes', () => {
      fc.assert(
        fc.property(fc.nat(), Size => {
          const useSize = Number.isInteger(Size)? Size + 0.5 : Size;
-         expect( () => jssm.seq(useSize) ).toThrow()
+         expect( () => jssm.seq(useSize) ).toThrow();
        } )
      );
 
@@ -74,7 +84,7 @@ describe('seq/1 over wrong sizes', () => {
 
      fc.assert(
        fc.property(fc.integer(-1 * rand_cap, -1), Size => {
-         expect( () => jssm.seq(Size) ).toThrow()
+         expect( () => jssm.seq(Size) ).toThrow();
        } )
      );
 
@@ -93,7 +103,7 @@ describe('seq/1 over wrong arguments', () => {
      fc.assert(
        fc.property(fc.nat(), Size => {
          const useSize = Number.isInteger(Size)? Size + 0.5 : Size;
-         expect( () => jssm.seq(useSize) ).toThrow()
+         expect( () => jssm.seq(useSize) ).toThrow();
        } )
      );
 
@@ -103,7 +113,7 @@ describe('seq/1 over wrong arguments', () => {
 
      fc.assert(
        fc.property(fc.integer(-1 * rand_cap, -1), Size => {
-         expect( () => jssm.seq(Size) ).toThrow()
+         expect( () => jssm.seq(Size) ).toThrow();
        } )
      );
 

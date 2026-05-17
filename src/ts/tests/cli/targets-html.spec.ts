@@ -32,9 +32,30 @@ describe('htmlTarget', () => {
     expect(out).toMatch(/<title>[^<]+<\/title>/);
   });
 
+  it('uses opts.title when provided (HTML-escaped)', async () => {
+    const out = await htmlTarget(trafficLight, { title: 'My <Custom> "Title"' });
+    // Escaped form must appear; raw < and " must not appear inside <title>.
+    expect(out).toContain('<title>My &lt;Custom&gt; &quot;Title&quot;</title>');
+  });
+
   it('throws RenderError for invalid FSL', async () => {
     const { RenderError } = await import('../../cli/types');
     await expect(htmlTarget('not valid fsl at all !!')).rejects.toBeInstanceOf(RenderError);
+  });
+
+  it('wraps non-RenderError throws from svgTarget in new RenderError', async () => {
+    // svgTarget contractually throws RenderError; this guards the fallback
+    // branch in html.ts that wraps anything else. Mock svg locally so other
+    // tests in this file keep using the real implementation.
+    vi.resetModules();
+    vi.doMock('../../cli/subcommands/render/targets/svg', () => ({
+      svgTarget: async () => { throw new Error('synthetic non-RenderError'); },
+    }));
+    const { htmlTarget: mockedHtmlTarget } = await import('../../cli/subcommands/render/targets/html');
+    const { RenderError } = await import('../../cli/types');
+    await expect(mockedHtmlTarget('a -> b;')).rejects.toBeInstanceOf(RenderError);
+    await expect(mockedHtmlTarget('a -> b;')).rejects.toThrow(/HTML render failed.*synthetic non-RenderError/);
+    vi.doUnmock('../../cli/subcommands/render/targets/svg');
   });
 
 });

@@ -44,7 +44,7 @@ export async function renderSet(
         return {
           ok: false,
           index,
-          error: e instanceof Error ? e : new Error(String(e)),
+          error: e as Error,
         };
       }
     })
