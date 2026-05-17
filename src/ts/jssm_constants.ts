@@ -178,7 +178,7 @@ const named_colors = [
  *  plus the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  import { state_name_chars } from './jssm_constants';
+ *  import { state_name_chars } from 'jssm';
  *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
  */
 // keep in sync with src/ts/fsl_parser.peg:278
@@ -212,7 +212,7 @@ const state_name_chars: ReadonlyArray<{ from: string, to: string }> = Object.fre
  *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  import { state_name_first_chars } from './jssm_constants';
+ *  import { state_name_first_chars } from 'jssm';
  *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
  */
 // keep in sync with src/ts/fsl_parser.peg:275
@@ -240,7 +240,7 @@ const state_name_first_chars: ReadonlyArray<{ from: string, to: string }> = Obje
  *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
  *
  *  @example
- *  import { action_label_chars } from './jssm_constants';
+ *  import { action_label_chars } from 'jssm';
  *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
  *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
  */
