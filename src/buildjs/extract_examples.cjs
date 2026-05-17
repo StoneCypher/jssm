@@ -16,8 +16,13 @@ const ts   = require('typescript');
 /**
  *  Derive the documented symbol's name from the AST node carrying the JSDoc.
  *
- *  @param {import('typescript').Node} node - a declaration node.
+ *  @param {import('typescript').Node} node - a declaration node (function,
+ *         class, method, variable statement, etc.).
  *  @returns {string} the symbol name, or `'(anonymous)'` if none is found.
+ *
+ *  @example
+ *  // for the declaration `export const FOO = 7;`, given its VariableStatement node:
+ *  nodeName(variableStatementNode)  // => 'FOO'
  */
 function nodeName(node) {
   if (ts.isVariableStatement(node)) {
@@ -31,11 +36,20 @@ function nodeName(node) {
 }
 
 /**
- *  Flatten a JSDoc tag comment (which TypeScript models as either a string or
- *  a node array) into a plain string.
+ *  Flatten a JSDoc tag comment — which TypeScript models as either a string or
+ *  a node array — into a plain string. Returns the concatenated text content;
+ *  inline `{@link}` targets, if any, are not expanded (they never appear in an
+ *  `@example` body, which is this extractor's only use).
  *
- *  @param {string | import('typescript').NodeArray | undefined} comment
- *  @returns {string}
+ *  @param {string | import('typescript').NodeArray | undefined} comment - a
+ *         JSDoc tag's `comment` field.
+ *  @returns {string} the flattened comment text, or `''` when there is none.
+ *
+ *  @example
+ *  commentText('add(2, 3);  // => 5')  // => 'add(2, 3);  // => 5'
+ *
+ *  @example
+ *  commentText(undefined)  // => ''
  */
 function commentText(comment) {
   if (comment == null)            { return ''; }

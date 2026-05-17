@@ -17,7 +17,7 @@ describe('extractExamples', () => {
 
     expect(got).toHaveLength(1);
     expect(got[0].symbol).toBe('add');
-    expect(got[0].body.trim()).toBe('add(2, 3);  // => 5');
+    expect(got[0].body).toBe('add(2, 3);  // => 5');
   });
 
   it('extracts the example from a const docblock and reports its 1-based line', () => {
@@ -48,7 +48,10 @@ describe('extractExamples', () => {
       'export function f(n: number) { return n; }'
     ].join('\n');
 
-    expect(extractExamples(src, 'demo.ts')).toHaveLength(2);
+    const got = extractExamples(src, 'demo.ts');
+    expect(got).toHaveLength(2);
+    expect(got[0].body).toBe('f(1);  // => 1');
+    expect(got[1].body).toBe('f(2);  // => 2');
   });
 
   it('returns an empty array when there are no examples', () => {
