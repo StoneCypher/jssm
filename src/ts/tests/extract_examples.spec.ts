@@ -103,3 +103,46 @@ describe('rewriteOutputComments', () => {
   });
 
 });
+
+const { buildTestFile } = require('../../buildjs/extract_examples.cjs');
+
+describe('buildTestFile', () => {
+
+  it('hoists imports, dedupes them, and emits one it() per example', () => {
+    const records = [
+      { symbol: 'add', line: 10, body:
+        "import { add } from 'jssm';\nadd(2, 3);  // => 5" },
+      { symbol: 'add', line: 20, body:
+        "import { add } from 'jssm';\nadd(0, 0);  // => 0" }
+    ];
+
+    const text = buildTestFile(records, 'jssm');
+
+    // import hoisted exactly once, specifier rewritten
+    expect(text.split("import { add } from '../../jssm';")).toHaveLength(2);
+    // both examples present, each named with its source line
+    expect(text).toContain("it('add (jssm.ts:10)'");
+    expect(text).toContain("it('add (jssm.ts:20)'");
+    expect(text).toContain('expect(add(2, 3)).toStrictEqual(5);');
+  });
+
+  it('emits a failing test for an example with no verifiable assertion', () => {
+    const records = [
+      { symbol: 'noop', line: 5, body: "import { noop } from 'jssm';\nnoop();" }
+    ];
+
+    const text = buildTestFile(records, 'jssm');
+
+    expect(text).toContain('no verifiable assertion');
+  });
+
+  it('keeps an example that already uses expect() verbatim', () => {
+    const records = [
+      { symbol: 'add', line: 7, body:
+        "import { add } from 'jssm';\nexpect(add(1, 1)).toBe(2);" }
+    ];
+
+    expect(buildTestFile(records, 'jssm')).toContain('expect(add(1, 1)).toBe(2);');
+  });
+
+});
