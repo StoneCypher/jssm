@@ -993,7 +993,8 @@ declare const named_colors$1: string[];
  *  plus the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ *  import { state_name_chars } from 'jssm';
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
  */
 declare const state_name_chars$1: ReadonlyArray<{
     from: string;
@@ -1008,7 +1009,8 @@ declare const state_name_chars$1: ReadonlyArray<{
  *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ *  import { state_name_first_chars } from 'jssm';
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
  */
 declare const state_name_first_chars$1: ReadonlyArray<{
     from: string;
@@ -1023,8 +1025,9 @@ declare const state_name_first_chars$1: ReadonlyArray<{
  *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
  *
  *  @example
- *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
- *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ *  import { action_label_chars } from 'jssm';
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
  */
 declare const action_label_chars$1: ReadonlyArray<{
     from: string;
@@ -1794,8 +1797,9 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
      */
     all_state_name_chars(): ReadonlyArray<{
         from: string;
@@ -1808,8 +1812,9 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars(): ReadonlyArray<{
         from: string;
@@ -1822,9 +1827,10 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
-     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
      */
     all_action_label_chars(): ReadonlyArray<{
         from: string;
@@ -3008,6 +3014,27 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  */
 declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT>;
 /**
+ * Compares two semantic version strings.
+ *
+ * @param {string} v1 - First version string (e.g., "5.104.2")
+ * @param {string} v2 - Second version string (e.g., "5.103.1")
+ *
+ * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
+ */
+declare function compareVersions(v1: string, v2: string): number;
+/**
  * Deserializes a previously serialized machine state.
  *
  * This function recreates a machine from a serialization object, restoring its
@@ -3024,10 +3051,12 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  * @throws {Error} If the serialization is from a future version
  *
  * @example
- * const machine = jssm.from("a -> b;");
+ * import { from, deserialize } from 'jssm';
+ * const machine    = from("a -> b;");
  * const serialized = machine.serialize();
- * const restored = jssm.deserialize("a -> b;", serialized);
+ * const restored   = deserialize("a -> b;", serialized);
+ * restored.state();  // => 'a'
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
