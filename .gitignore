@@ -52,6 +52,8 @@ docs/docs/*.css.map
 
 .worktrees
 
+tmp
+
 # npm config (script-shell path is machine-specific; keep local)
 .npmrc
 
