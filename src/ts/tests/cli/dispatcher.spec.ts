@@ -41,6 +41,34 @@ describe('dispatcher: findPluginOnPath', () => {
     expect(found).toContain('fsl-foo');
   });
 
+  it('skips a PATH entry named like the plugin that is a directory, not a file', async () => {
+    // Covers the `if (st.isFile())` false path: a filesystem entry whose name
+    // matches the plugin (`fsl-foo`) but is a directory must not be resolved.
+    // findPluginOnPath stats it, sees it is not a file, and keeps looking.
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-dir-skip-test-'));
+    // On Windows the resolver probes `fsl-foo` + each PATHEXT/NODE ext; create
+    // the directory under the bare name (matched by the '' probe under Unix)
+    // and also under the .cmd name so the Windows probe hits the directory.
+    await fs.mkdir(join(work, 'fsl-foo'));
+    await fs.mkdir(join(work, 'fsl-foo.cmd'));
+    const found = await findPluginOnPath('foo', work);
+    expect(found).toBeNull();
+  });
+
+  it('skips a directory entry and still finds a real plugin file later on PATH', async () => {
+    // The directory shadows the name in the first PATH dir; the resolver must
+    // skip it (isFile() false) and resolve the genuine file in the next dir.
+    const dirOnly  = await fs.mkdtemp(join(tmpdir(), 'fsl-dir-only-'));
+    const fileDir  = await fs.mkdtemp(join(tmpdir(), 'fsl-real-file-'));
+    await fs.mkdir(join(dirOnly, 'fsl-foo'));
+    await fs.mkdir(join(dirOnly, 'fsl-foo.cmd'));
+    const realFile = join(fileDir, 'fsl-foo' + (process.platform === 'win32' ? '.cmd' : ''));
+    await fs.writeFile(realFile, '', { mode: 0o755 });
+    const sep = process.platform === 'win32' ? ';' : ':';
+    const found = await findPluginOnPath('foo', `${dirOnly}${sep}${fileDir}`);
+    expect(found?.startsWith(fileDir)).toBe(true);
+  });
+
   it('with multiple PATH dirs, returns first match (PATH order)', async () => {
     const a = await fs.mkdtemp(join(tmpdir(), 'fsl-dispatch-test-a-'));
     const b = await fs.mkdtemp(join(tmpdir(), 'fsl-dispatch-test-b-'));

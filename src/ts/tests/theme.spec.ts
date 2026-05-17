@@ -3,6 +3,8 @@ import { Themes }             from './constants.spec';
 
 import { sm, compile, parse } from '../jssm';
 import { FslThemes }          from '../jssm_types';
+import type { JssmTheme }     from '../jssm_types';
+import { theme_mapping }      from '../jssm_theme';
 
 
 
@@ -93,5 +95,107 @@ test('Theme change', () => {
 
   foo.themes = ['ocean', 'default'];
   expect(foo.themes).toStrictEqual(['ocean', 'default']);
+
+});
+
+
+
+
+
+describe('style_for theme layering edge cases', () => {
+
+  // style_for() walks `_themes`, looks each name up in `theme_mapping`, and
+  // for every registered theme conditionally pushes its per-category
+  // sub-styles. These tests exercise the *false* arms of those guards:
+  //
+  //  - a theme name set on the machine that is NOT in theme_mapping
+  //  - a registered theme object that omits a per-category sub-style
+  //
+  // theme_mapping.set(name, theme) is the documented theme-registration
+  // mechanism (see jssm_theme.ts). The partial theme registered below is a
+  // genuine JssmTheme (Partial<JssmBaseTheme>) — themes are allowed to omit
+  // slots so they fall through to the base theme.
+
+  test('an unregistered theme name is silently skipped during layering', () => {
+    // `themes` setter does no validation, so a name absent from theme_mapping
+    // can land in `_themes`. style_for must look it up, get undefined, and
+    // skip it — never throwing. The resulting style still resolves from the
+    // base theme.
+    const foo = sm`start_states: [a]; a -> b;`;
+    foo.themes = ['this-theme-is-not-registered'] as any;
+
+    expect( () => foo.style_for('a') ).not.toThrow();
+    const style = foo.style_for('a');
+    expect(typeof style).toBe('object');
+    // The unregistered name contributes no layer; styling still resolves
+    // from the base theme (start state 'a' is also the active state, so its
+    // background is the base active color).
+    expect(style.backgroundColor).toBe('dodgerblue4');
+  });
+
+
+  describe('a registered theme that omits per-category sub-styles', () => {
+
+    // A deliberately minimal theme: it carries a `name` only, omitting
+    // `state`, `terminal`, `start`, `end`, and `active`. Each omission
+    // exercises the false arm of the matching `if (theme.X)` guard in
+    // style_for.
+    const sparse_theme_name = 'spec-sparse-theme';
+    const sparse_theme: JssmTheme = { name: sparse_theme_name };
+
+    beforeAll(() => {
+      theme_mapping.set(sparse_theme_name as any, sparse_theme as any);
+    });
+
+    afterAll(() => {
+      theme_mapping.delete(sparse_theme_name as any);
+    });
+
+    test('omitted .state sub-style is skipped for a standard state', () => {
+      const foo = sm`start_states: [a]; end_states: [d]; a -> b -> c -> d;`;
+      foo.themes = [sparse_theme_name] as any;
+      // 'b' is a plain standard state; the sparse theme contributes no
+      // .state layer, so styling falls through to the base theme.
+      expect( () => foo.style_for('b') ).not.toThrow();
+      expect(foo.style_for('b').backgroundColor).toBe('white');
+    });
+
+    test('omitted .start sub-style is skipped for a start state', () => {
+      // Start at 'a', advance to 'c' so 'a' is a start state that is NOT the
+      // active state — its background reflects start styling, not active.
+      const foo = sm`start_states: [a b]; [a b] -> c;`;
+      foo.themes = [sparse_theme_name] as any;
+      foo.go('c');
+      expect( () => foo.style_for('a') ).not.toThrow();
+      expect(foo.style_for('a').backgroundColor).toBe('yellow');
+    });
+
+    test('omitted .end sub-style is skipped for an end state', () => {
+      const foo = sm`start_states: [a]; end_states: [b]; a -> b;`;
+      foo.themes = [sparse_theme_name] as any;
+      expect( () => foo.style_for('b') ).not.toThrow();
+      expect(foo.style_for('b').backgroundColor).toBe('darkolivegreen');
+    });
+
+    test('omitted .terminal sub-style is skipped for a terminal state', () => {
+      // 'b' has no outbound edges and is not declared an end state, so it is
+      // terminal.
+      const foo = sm`start_states: [a]; a -> b;`;
+      foo.themes = [sparse_theme_name] as any;
+      expect( () => foo.style_for('b') ).not.toThrow();
+      expect(foo.style_for('b').backgroundColor).toBe('crimson');
+    });
+
+    test('omitted .active sub-style is skipped for the active state', () => {
+      const foo = sm`start_states: [a]; a -> b -> c;`;
+      foo.themes = [sparse_theme_name] as any;
+      foo.go('b');
+      // 'b' is the current (active) state; the sparse theme contributes no
+      // .active layer.
+      expect( () => foo.style_for('b') ).not.toThrow();
+      expect(foo.style_for('b').backgroundColor).toBe('dodgerblue4');
+    });
+
+  });
 
 });

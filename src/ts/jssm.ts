@@ -764,12 +764,18 @@ class Machine<mDT> {
     // done building, do checks
 
     // assert all props are valid
+    // _state_properties keys are always JSON.stringify([string, string]),
+    // built by name_bind_prop_and_state which throws on non-strings — so the
+    // non-array / non-string else-arms below are unreachable, not untested.
     this._state_properties.forEach( (_value, key) => {
       const inside = JSON.parse(key);
+      /* v8 ignore else */
       if (Array.isArray(inside)) {
         const j_property = inside[0];
+        /* v8 ignore else */
         if (typeof j_property === 'string') {
           const j_state = inside[1];
+          /* v8 ignore else */
           if (typeof j_state === 'string') {
             if (!(this.known_prop(j_property))) {
               throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
@@ -3616,7 +3622,7 @@ class Machine<mDT> {
       if (theme.state) { layers.push(theme.state); }
     });
 
-    if (this._state_style) { layers.push(this._state_style); }
+    layers.push(this._state_style);
 
 
     // hooked state style
@@ -3635,7 +3641,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.terminal) { layers.push(theme.terminal); }
       });
-      if (this._terminal_state_style) { layers.push(this._terminal_state_style); }
+      layers.push(this._terminal_state_style);
     }
 
 
@@ -3645,7 +3651,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.start) { layers.push(theme.start); }
       });
-      if (this._start_state_style) { layers.push(this._start_state_style); }
+      layers.push(this._start_state_style);
     }
 
 
@@ -3655,7 +3661,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.end) { layers.push(theme.end); }
       });
-      if (this._end_state_style) { layers.push(this._end_state_style); }
+      layers.push(this._end_state_style);
     }
 
 
@@ -3665,7 +3671,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.active) { layers.push(theme.active); }
       });
-      if (this._active_state_style) { layers.push(this._active_state_style); }
+      layers.push(this._active_state_style);
     }
 
 
