@@ -4,7 +4,7 @@
 // also lets `lib` emit both module formats from one build (one tsc pass)
 // and the type declarations emit both formats from one dts build.
 
-import typescript from '@rollup/plugin-typescript';
+import esbuild    from 'rollup-plugin-esbuild';
 import resolve    from '@rollup/plugin-node-resolve';
 import commonjs   from '@rollup/plugin-commonjs';
 import replace    from '@rollup/plugin-replace';
@@ -20,10 +20,12 @@ const external = [
   'module',
 ];
 
-// Fresh plugin instances per build — @rollup/plugin-typescript holds
-// per-build compiler state, so array entries must not share instances.
+// The JS builds transpile only — esbuild strips TypeScript types per-file
+// without whole-program type-checking. Type-checking is done once by
+// `npm run typecheck_cli` (tsc --noEmit) rather than three times here, one
+// per build. esbuild reads tsconfig.cli.json for target / decorator config.
 const jsPlugins = () => [
-  typescript({ tsconfig: './tsconfig.cli.json', outputToFilesystem: false }),
+  esbuild({ tsconfig: './tsconfig.cli.json' }),
   resolve({ preferBuiltins: true, extensions: ['.ts', '.js', '.json'] }),
   commonjs(),
   replace({
