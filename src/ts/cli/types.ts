@@ -1,0 +1,63 @@
+/**
+ * Render targets supported in v1. Future targets (mermaid, plantuml, scxml,
+ * ascii, fsl) will be added in v0.2+.
+ */
+export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
+
+/**
+ * Options accepted by `render()` and `renderSet()`.
+ */
+export interface RenderOptions {
+  target: RenderTarget;
+  width?: number;
+  quality?: number;
+}
+
+/**
+ * A text-shaped render result (svg / dot / html).
+ */
+export interface TextResult {
+  target: Extract<RenderTarget, 'svg' | 'dot' | 'html'>;
+  kind: 'text';
+  content: string;
+}
+
+/**
+ * A raster-shaped render result (png / jpeg).
+ */
+export interface RasterResult {
+  target: Extract<RenderTarget, 'png' | 'jpeg'>;
+  kind: 'raster';
+  buffer: Uint8Array;
+}
+
+export type RenderResult = TextResult | RasterResult;
+
+/**
+ * Base error class for render-time failures.
+ */
+export class RenderError extends Error {
+  public readonly path?: string;
+  public readonly line?: number;
+  public readonly column?: number;
+
+  constructor(message: string, opts: { path?: string; line?: number; column?: number } = {}) {
+    super(message);
+    this.name = 'RenderError';
+    this.path = opts.path;
+    this.line = opts.line;
+    this.column = opts.column;
+  }
+}
+
+/**
+ * Thrown when raster output is requested in a runtime that supports neither
+ * native OffscreenCanvas nor `@resvg/resvg-wasm`.
+ */
+export class RasterizationUnsupportedError extends RenderError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RasterizationUnsupportedError';
+    Object.setPrototypeOf(this, RasterizationUnsupportedError.prototype);
+  }
+}

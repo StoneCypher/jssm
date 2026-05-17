@@ -1,0 +1,10 @@
+Idle 'Insert Card' -> CardInserted 'Enter PIN' -> AuthenticatingPin;
+
+AuthenticatingPin 'PIN OK' -> Authenticated;
+AuthenticatingPin 'PIN bad' -> Idle;
+
+Authenticated 'Withdraw' -> Dispensing 'Cash Out' -> ReturnCard;
+Authenticated 'Check Balance' -> ShowBalance 'OK' -> Authenticated;
+Authenticated 'Cancel' -> ReturnCard;
+
+ReturnCard 'Card Taken' -> Idle;

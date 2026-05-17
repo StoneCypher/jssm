@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1356 merges; 227 releases
+1415 merges; 231 releases
 
 
 
@@ -12,8 +12,1422 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 7:53:45 PM
+
+Commit [36a0a332bea94fc3a2af9c367a68f9523ea70fce](https://github.com/StoneCypher/jssm/commit/36a0a332bea94fc3a2af9c367a68f9523ea70fce)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: ignore tmp/ and remove Claude Code workflow
+  * Adds `tmp` to .gitignore and removes the unused .github/workflows/claude.yml.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 7:38:11 PM
+
+Commit [e6597ed54c214679c692a1981200aa07b40d0352](https://github.com/StoneCypher/jssm/commit/e6597ed54c214679c692a1981200aa07b40d0352)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps): bump vite, vitest and @vitest/coverage-v8
+  * Bumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) to 8.0.13 and updates ancestor dependencies [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite), [vitest](https://github.com/vitest-dev/vitest/tree/HEAD/packages/vitest) and [@vitest/coverage-v8](https://github.com/vitest-dev/vitest/tree/HEAD/packages/coverage-v8). These dependencies need to be updated together.
+  * 
+Updates `vite` from 5.4.21 to 8.0.13
+- [Release notes](https://github.com/vitejs/vite/releases)
+- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)
+- [Commits](https://github.com/vitejs/vite/commits/v8.0.13/packages/vite)
+  * Updates `vitest` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/vitest)
+  * Updates `@vitest/coverage-v8` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/coverage-v8)
+  * ---
+updated-dependencies:
+- dependency-name: vite
+  dependency-version: 8.0.13
+  dependency-type: indirect
+- dependency-name: vitest
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+- dependency-name: "@vitest/coverage-v8"
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 7:38:08 PM
+
+Commit [3921c822f7b5edbc3f5686453becf9bfa9540cba](https://github.com/StoneCypher/jssm/commit/3921c822f7b5edbc3f5686453becf9bfa9540cba)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps): bump esbuild, vitest and @vitest/coverage-v8
+  * Removes [esbuild](https://github.com/evanw/esbuild). It's no longer used after updating ancestor dependencies [esbuild](https://github.com/evanw/esbuild), [vitest](https://github.com/vitest-dev/vitest/tree/HEAD/packages/vitest) and [@vitest/coverage-v8](https://github.com/vitest-dev/vitest/tree/HEAD/packages/coverage-v8). These dependencies need to be updated together.
+  * 
+Removes `esbuild`
+  * Updates `vitest` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/vitest)
+  * Updates `@vitest/coverage-v8` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/coverage-v8)
+  * ---
+updated-dependencies:
+- dependency-name: esbuild
+  dependency-version:
+  dependency-type: indirect
+- dependency-name: vitest
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+- dependency-name: "@vitest/coverage-v8"
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__120__2" />
+
+## [5.120.2] - 5/16/2026 7:36:55 PM
+
+Commit [115cddc8bf70863376c37ea95f467616834e7909](https://github.com/StoneCypher/jssm/commit/115cddc8bf70863376c37ea95f467616834e7909)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a7dc057, 45ecff2]
+
+  * Merge pull request #606 from StoneCypher/ConvertToVitest
+  * Convert to vitest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 5:14:00 PM
+
+Commit [45ecff2a8799518913bba1e6c787470f1de8161a](https://github.com/StoneCypher/jssm/commit/45ecff2a8799518913bba1e6c787470f1de8161a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): free resvg-wasm objects to avoid GC-finalizer crashes
+  * rasterizeViaResvgWasm created Resvg / RenderedImage wasm-bindgen objects
+and left them to the GC FinalizationRegistry to free. That finalizer
+runs at non-deterministic GC time and can fire while the shared wasm
+instance is mid-render, throwing "recursive use of an object detected
+which would lead to unsafe aliasing in rust" as an unhandled error that
+intermittently fails the test run.
+  * Capture both objects and free() them in a finally block so cleanup is
+deterministic and no finalizer is left to race. Added a test asserting
+both free() calls happen.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 4:54:38 PM
+
+Commit [5c1f69635c3f351bd02639c1413b6a13b42e9623](https://github.com/StoneCypher/jssm/commit/5c1f69635c3f351bd02639c1413b6a13b42e9623)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: use committed .cmd/.bat plugin fixtures for dispatcher tests
+  * The dispatcher's invokeBySpawn / findPluginOnPath tests under win32-mock
+used bogus non-existent paths and asserted only that calls returned a
+number — verifying no real behavior.
+  * Added committed fixture plugins (fsl-cmd-fixture.cmd, fsl-bat-fixture.bat).
+findPluginOnPath now genuinely resolves a real fixture via PATHEXT
+probing — a real assertion on every platform, since the files exist on
+disk regardless of host OS. The win32-only runIf tests now actually run
+the .cmd / .bat plugins through cmd.exe and assert exit 0.
+  * Also passes a relative fixtures path to findPluginOnPath under the
+mocked platforms: an absolute Windows path can't survive a Unix-style
+PATH split on ':'.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 4:36:08 PM
+
+Commit [6672d1db62930809eb8038dcdbc88db445b8eb97](https://github.com/StoneCypher/jssm/commit/6672d1db62930809eb8038dcdbc88db445b8eb97)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: cover the .bat operand of dispatcher's isCmdScript check
+  * Follow-up to b8db51b. The mock-to-win32 test exercised invokeBySpawn
+with a .cmd path only, so `ext === '.cmd'` short-circuited the
+`|| ext === '.bat'` and left that operand uncovered on macOS/Linux
+(branch coverage 99.91%). Added a .bat call so both operands run.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 12:59:37 PM
+
+Commit [b8db51b4d20448cd070cb92c8d37f426cb75f092](https://github.com/StoneCypher/jssm/commit/b8db51b4d20448cd070cb92c8d37f426cb75f092)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: fix unicode-label assertions and cover dispatcher's Windows branches
+  * CI on PR #606 surfaced two test defects on 6055f69:
+  * - unicode-atom-labels / unicode-string-labels asserted
+  actions().includes(cp) for a machine whose state carries cp as a
+  *label*. Actions and state labels are unrelated, so the assertion was
+  always false. Corrected to label_for('source'), the actual accessor.
+- dispatcher.ts's IS_WINDOWS-gated branches (PATHEXT, the Windows
+  extension list, cmd.exe routing) are unreachable on a macOS/Linux CI
+  runner, dropping spec coverage to 99.9%/99.55% there. Added a
+  mock-to-win32 test mirroring the existing mock-to-linux one.
+  * Test-only; no source or version change.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/16/2026 10:51:27 AM
+
+Commit [6055f69b42fee7b483d344034676814c3e29f43f](https://github.com/StoneCypher/jssm/commit/6055f69b42fee7b483d344034676814c3e29f43f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix: repair jest→vitest migration defects and reach 100% spec coverage
+  * The jest→vitest migration left latent defects that surfaced once the
+suites ran cleanly under vitest's stricter ESM and expect() semantics:
+  * - rasterize.ts wrote an init-once flag onto the @resvg/resvg-wasm import
+  namespace. ESM namespaces are sealed; jest's CJS-proxy imports masked
+  this, vitest's real ESM imports throw. Flag moved to module scope.
+- lexical.stoch.ts §2 LineComment property tests used expression-body
+  arrow predicates returning expect()'s result. jest's expect() returns
+  undefined (fast-check pass), vitest's returns a truthy Assertion
+  (fast-check fail). Converted to block-body arrows.
+- The four vitest configs scanned sibling .claude/worktrees, executing
+  other branches' specs; the spec config also measured coverage on CLI
+  and WC source the old jest config split out. Added the missing excludes.
+  * Also removed unreachable defensive branches (dead instanceof-Error arms
+in svg/dot/renderSet, redundant CLI flag and output-destination guards)
+and added ~30 CLI tests. The spec suite now reports 100% statements,
+branches, functions, and lines.
+  * Refs #605
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 6:55:14 PM
+
+Commit [1f86b79b9204e0e07708fe194437f26fe51723a4](https://github.com/StoneCypher/jssm/commit/1f86b79b9204e0e07708fe194437f26fe51723a4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [b91876f, a7dc057]
+
+  * Merge branch 'main' into ConvertToVitest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 6:55:14 PM
+
+Commit [2c307b2dfe5e275d7f9d723424b01e98363d1f46](https://github.com/StoneCypher/jssm/commit/2c307b2dfe5e275d7f9d723424b01e98363d1f46)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [b91876f, a7dc057]
+
+  * Merge branch 'main' into ConvertToVitest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 6:41:06 PM
+
+Commit [a7dc0576bcc9bb77d106527068a5f06ab9e8b8ec](https://github.com/StoneCypher/jssm/commit/a7dc0576bcc9bb77d106527068a5f06ab9e8b8ec)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: regenerate build artifacts and generated docs
+  * Updates the tracked artifacts to reflect the current source tree after
+pulling main (which merged PR #604, the unified fsl CLI) and running
+the full build pipeline. No source code changed in this commit; only
+generated content that the build pipeline owns.
+  * Files updated:
+  * Bundles (rebuilt via rollup + terser):
+- dist/jssm.es5.cjs, .iife.js, .nonmin.cjs
+- dist/jssm.es6.mjs, .nonmin.cjs
+- dist/jssm_viz.cjs, .iife.cjs, .mjs, .es5/.es6.nonmin.cjs variants
+- dist/deno/jssm.js
+- dist/es6/version.js (version sync)
+- docs/demo/jssm.es5.iife.js (matches dist iife)
+  * Generated documentation (regenerated via typedoc + cookbook build):
+- docs/docs/classes/jssm.Machine.html
+- docs/docs/classes/jssm_error.JssmError.html
+- docs/docs/modules/jssm.html
+- docs/docs/modules/jssm_constants.html
+- docs/docs/modules/jssm_types.html, jssm_types._internal_.html
+- docs/docs/modules/jssm_util.html
+- docs/docs/modules/jssm_viz.html
+- docs/docs/modules/version.html
+- docs/docs/pages/CHANGELOG.long.html
+- docs/fsl.tools/cookbook/manifest.json
+  * Changelog (regenerated via better_git_changelog):
+- CHANGELOG.md, CHANGELOG.long.md
+- src/doc_md/CHANGELOG.md, CHANGELOG.long.md (mirror copies)
+  * Documentation mirrors:
+- README.md (regenerated from src/md/README_base.md)
+- dist/deno/README.md (copied from README.md by `npm run readme`)
+  * Source metadata:
+- src/ts/version.ts (auto-generated by `npm run makever`)
+  * Verification: `npm run make_cli` produces zero warnings (per prior
+commit 8b82620). All 87 CLI tests pass. Full build pipeline completes
+end-to-end including typedoc HTML and cookbook regeneration.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 5:48:33 PM
+
+Commit [8b82620de5cbd9fb7389de5619e13a02593dead8](https://github.com/StoneCypher/jssm/commit/8b82620de5cbd9fb7389de5619e13a02593dead8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(cli): silence all CLI build warnings
+  * Three targeted changes eliminate every warning from `npm run make_cli`:
+  * 1. tsconfig.cli.json: exclude `src/ts/tests/**/*` from the CLI compile.
+   The previous include `src/ts/**/*` was picking up two pre-existing
+   sequestered test files that are intentionally broken:
+   - `arbitraries.ts` (uses fast-check's removed `NextArbitrary` API)
+   - `kitchen_sink_dragon.maximal.ts` (imports a `make_mulberry_rand`
+     that was removed)
+   These files have their own jest config and are not part of the CLI;
+   excluding them from the CLI tsconfig leaves them in place for their
+   intended runner.
+  * 2. src/ts/cli/subcommands/render/rasterize.ts: add an ambient
+   `declare const OffscreenCanvas: any` because the CLI's tsconfig
+   doesn't pull in the DOM lib (CLI targets Node primarily). At runtime
+   we feature-detect OffscreenCanvas; the declaration just keeps
+   TypeScript happy without changing emitted code.
+  * 3. src/ts/tests/cli/renderSet.spec.ts: hoist `results[1]` into a local
+   variable `failure` so TypeScript's discriminated-union narrowing
+   follows through. The runtime check was already correct
+   (`if (!failure.ok)` narrows to `RenderSetItemErr` with `.error`);
+   this is purely a type-narrowing cleanup.
+  * Verification: `npm run make_cli` now emits zero `(!)` warnings.
+All 87 CLI tests still pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__120__0" />
+
+## [5.120.0] - 5/13/2026 5:31:36 PM
+
+Commit [e27d126bf5f0e06bb6f9d8fe8c2334525f7d4ec8](https://github.com/StoneCypher/jssm/commit/e27d126bf5f0e06bb6f9d8fe8c2334525f7d4ec8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [aef8e2b, 703d171]
+
+  * Merge pull request #604 from StoneCypher/worktree-BuildUnifiedFslCli
+  * Add unified fsl CLI with constellation library API (v1)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 5:27:29 PM
+
+Commit [703d17164b7d63ad8c122aac36eee52f252e83ed](https://github.com/StoneCypher/jssm/commit/703d17164b7d63ad8c122aac36eee52f252e83ed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * stop running test runner on ubuntu node 17 over png support
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 5:21:09 PM
+
+Commit [82419f69e4fafeeb6ae64e799fa8ad18b87e4e41](https://github.com/StoneCypher/jssm/commit/82419f69e4fafeeb6ae64e799fa8ad18b87e4e41)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): rename fsl-non-node fixture to drop .sh extension
+  * The dispatcher's PATH probe on Unix tries: no-extension, .cjs, .mjs,
+.js. The fixture `fsl-non-node.sh` matched none of these, causing
+the integration test "dispatches to non-node fixture plugin via
+spawn fallback" to fail on Linux/macOS CI with exit 1.
+  * Windows worked because PATHEXT includes .CMD, matching the sibling
+`fsl-non-node.cmd` fixture.
+  * Fix: rename `fsl-non-node.sh` to `fsl-non-node` (no extension) and
+mark it executable in the git index (mode 100755). The shebang
+`#!/bin/sh` still routes execution to the shell. Windows continues
+to use the `.cmd` variant via PATHEXT.
+  * No production code changed.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 5:09:35 PM
+
+Commit [24ef07bd6bdfbed4036e6655eb8165633a462f0d](https://github.com/StoneCypher/jssm/commit/24ef07bd6bdfbed4036e6655eb8165633a462f0d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cli): unified `fsl` CLI with constellation library (v5.120.0)
+  * Introduces the v1 of the unified `fsl` CLI: a dispatcher binary
+(`fsl`, aliased as `jssm`) plus the first plugin (`fsl-render`)
+that renders FSL machines to SVG, DOT, PNG, JPEG, or HTML.
+  * Architecture:
+- Plugin contract: `default async cli(argv): Promise<number>`. No
+  process.exit calls, no global handler registration. Dispatcher
+  in-processes Node-resolvable plugins via dynamic import, spawns
+  the rest. Cross-platform PATH probing for `fsl-<name>` with
+  Node-script extension fallbacks on all platforms plus PATHEXT
+  on Windows.
+- Constellation library: `import { render, renderSet, parseFslArgs }
+  from 'jssm/cli'` with full type declarations published as
+  `jssm.cli.d.ts` and `jssm.cli.d.cts`.
+- Cross-runtime rasterization: feature-detected via `OffscreenCanvas`
+  for browsers, Deno, Bun, mobile WebViews, and Unity WebGL, with
+  `@resvg/resvg-wasm` fallback for Node and other non-Canvas
+  runtimes.
+- Safety: dispatcher intercepts `process.exit()` from misbehaving
+  in-process plugins via a Symbol-thrown sentinel, restores
+  `process.argv` in finally, and converts unhandled throws to
+  exit code 2.
+  * Package shape:
+- Three new bin entries: `fsl`, `jssm` (alias for `fsl`), and
+  `fsl-render`.
+- New `./cli` subpath export with both ESM and CJS variants plus
+  matching .d.ts/.d.cts declarations.
+- New optional dependency `@resvg/resvg-wasm` (~5MB, lazy-loaded
+  only on first PNG/JPEG render in Node).
+- Build pipeline: new `make_cli`, `min_cli` scripts wired into
+  the umbrella `make`; new `jest-cli` config and script wired
+  into the umbrella `jest`.
+- Version injection at build time via rollup-plugin-replace
+  (avoids a runtime require() that broke after compilation).
+  * User-visible surface:
+- `fsl render machine.fsl` writes a sibling SVG by default.
+- `fsl render *.fsl --target=png --out-dir=./diagrams` for batch.
+- `cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png`
+  for pipelines.
+- `fsl --verbose render m.fsl` prints plugin-resolution info to
+  stderr.
+- Conflict rules: `--output`, `--out-dir`, `--stdout` are
+  mutually exclusive; multi-input requires `--out-dir`.
+  * Testing:
+- 87 new tests across 13 suites covering types, argv parsing,
+  every render target, rasterization paths (real WASM and mocked
+  Canvas), the plugin's full command surface, dispatcher PATH
+  probing, in-process invocation safety, spawn fallback, and
+  spawned end-to-end integration through the built binaries.
+- Coverage: 92% statements / 75% branches on the new code.
+  v1 threshold set at 80%/70% to accommodate hard-to-test
+  defensive guards (jest stdin TTY, missing package.json
+  fallback). Will tighten in v0.2.
+  * Compatibility:
+- Fully backwards compatible. Every existing export, type, and
+  function signature is unchanged.
+- No `engines.node` bump. The CLI uses custom argv parsing
+  rather than `util.parseArgs` specifically to avoid forcing
+  consumers onto Node 18+.
+- Coexists cleanly with the web-components feature merged in
+  parallel: both `./cli` and `./wc/viz` exports are available;
+  jest umbrella runs all four suites (stoch + spec + cli + wc);
+  build pipeline produces both `dist/cli/` and `dist/wc/` /
+  `dist/cdn/` artifact sets.
+  * Reference:
+- Design spec: notes/superpowers/specs/2026-05-12-fsl-cli-design.md
+- Implementation plan: notes/superpowers/plans/2026-05-12-fsl-cli.md
+- Closes umbrella tracker #1090
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 4:35:08 PM
+
+Commit [98650dd63fd2f679283bd4aaa30fbe990dbaa150](https://github.com/StoneCypher/jssm/commit/98650dd63fd2f679283bd4aaa30fbe990dbaa150)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [6d082f9, aef8e2b]
+
+  * Merge branch 'main' into worktree-BuildUnifiedFslCli
+  * Combines the unified fsl CLI work with main's web-components additions.
+Both feature sets coexist: ./cli and ./wc/viz exports, jest-cli and jest-wc
+suites, make_cli and make_wc_viz_es6 build steps. README and CHANGELOG
+regenerated from sources after merge.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 4:12:53 PM
+
+Commit [aef8e2b47e9b5b40421207ded9dd36f612ee3d48](https://github.com/StoneCypher/jssm/commit/aef8e2b47e9b5b40421207ded9dd36f612ee3d48)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a01b024, dd3f570]
+
+  * Merge pull request #603 from StoneCypher/worktree-lit-wc-foundation
+  * feat(wc): Lit web component foundation; ship <jssm-viz>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 4:06:24 PM
+
+Commit [dd3f5701b80d1eefe9718990a2a7dfcd075e023e](https://github.com/StoneCypher/jssm/commit/dd3f5701b80d1eefe9718990a2a7dfcd075e023e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * merge with main
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 3:54:44 PM
+
+Commit [bec1fbb2085656954b6c90d6203831270751d70e](https://github.com/StoneCypher/jssm/commit/bec1fbb2085656954b6c90d6203831270751d70e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [ddcaf3e, a01b024]
+
+  * Merge branch 'main' into worktree-lit-wc-foundation
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 3:14:56 PM
+
+Commit [6d082f95c5bce1ba0631317e48e89dafdf67f638](https://github.com/StoneCypher/jssm/commit/6d082f95c5bce1ba0631317e48e89dafdf67f638)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): inject version at build time, generate type decls, public help link, --verbose mode
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__119__0" />
+
+## [5.119.0] - 5/13/2026 3:10:17 PM
+
+Commit [a01b024d317b3ff1f1161cd0f82ec63831d1d542](https://github.com/StoneCypher/jssm/commit/a01b024d317b3ff1f1161cd0f82ec63831d1d542)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * merge the stochastics
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 3:03:00 PM
+
+Commit [33afb27bf66b91ac2b540bfb7f16ff4beb415aa0](https://github.com/StoneCypher/jssm/commit/33afb27bf66b91ac2b540bfb7f16ff4beb415aa0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a8c58a2, dacf2bc]
+
+  * merging main
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 1:37:56 PM
+
+Commit [dacf2bc8ef30e88f9ede21e9459602c2f441765f](https://github.com/StoneCypher/jssm/commit/dacf2bc8ef30e88f9ede21e9459602c2f441765f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * normalize
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 1:28:55 PM
+
+Commit [89ff3d9bfb496ae7117d3cf9ffe241096464cce9](https://github.com/StoneCypher/jssm/commit/89ff3d9bfb496ae7117d3cf9ffe241096464cce9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [f6139f5, 9184abf]
+
+  * merge
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:34:05 AM
+
+Commit [ddcaf3ed15778a6a7932b02a0b7f597ec29157b7](https://github.com/StoneCypher/jssm/commit/ddcaf3ed15778a6a7932b02a0b7f597ec29157b7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(wc): user-facing guide for jssm-viz web component
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:04:30 AM
+
+Commit [4b105daa9c22b10ee460c8fb4bd213bfc2382103](https://github.com/StoneCypher/jssm/commit/4b105daa9c22b10ee460c8fb4bd213bfc2382103)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): wire wc/viz and cdn/viz subpath exports
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 7:44:01 AM
+
+Commit [7246e105ce9f1f8e7d6f1eed5c4a8a91c00707da](https://github.com/StoneCypher/jssm/commit/7246e105ce9f1f8e7d6f1eed5c4a8a91c00707da)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): CDN-friendly Rollup config for jssm-viz web component
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:27:31 AM
+
+Commit [2e5fd648a154e99a15eb484507b272805b859f21](https://github.com/StoneCypher/jssm/commit/2e5fd648a154e99a15eb484507b272805b859f21)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): externalize jssm core in bundler build; fix define import path
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:56:45 PM
+
+Commit [23cf754abef46753048a1e9538f8147df4ab703e](https://github.com/StoneCypher/jssm/commit/23cf754abef46753048a1e9538f8147df4ab703e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): bundler-friendly Rollup config for jssm-viz; chain build:cem into make
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 8:20:48 PM
+
+Commit [bb3adb34ecfd539cf66d41d423290aba4ae268a2](https://github.com/StoneCypher/jssm/commit/bb3adb34ecfd539cf66d41d423290aba4ae268a2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): generate custom-elements.json from CEM analyzer
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 1:00:13 PM
+
+Commit [07e2c2488121414cd4493a96706f30399f8a0210](https://github.com/StoneCypher/jssm/commit/07e2c2488121414cd4493a96706f30399f8a0210)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(viz): thread engine option through fsl_to_svg_string
+  * Restores the {engine} options parameter to fsl_to_svg_string that the
+legacy jssm-viz-demo used. Wires JssmViz's engine prop through to the
+underlying renderer; tightens the WC engine-prop test now that the
+prop actually does something.
+  * Also extracts viz-error detail normalization into a tested helper
+(normalize_viz_error) so the WC has 100% branch coverage on the
+error path.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:44:23 PM
+
+Commit [29033a8ad126a007a2b04a0b581a738675bf1bf2](https://github.com/StoneCypher/jssm/commit/29033a8ad126a007a2b04a0b581a738675bf1bf2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(wc): cover JssmViz viz-error event for bad fsl
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:34:21 PM
+
+Commit [edf3f56b0b2812bd6e8408acdb9bb272d14836e2](https://github.com/StoneCypher/jssm/commit/edf3f56b0b2812bd6e8408acdb9bb272d14836e2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): JssmViz renders SVG on fsl prop change
+  * Wires real Graphviz rendering into the JssmViz Lit element via
+`fsl_to_svg_string` from `jssm/viz`. The async render runs on every
+`fsl`/`engine` change via `willUpdate`, with a stale-result guard, and
+the SVG string is injected through Lit's `unsafeHTML` directive.
+  * Two test-infrastructure fixes shipped with this change:
+  * - `jest-wc.config.cjs`: switch @swc/jest to `legacyDecorator: true`
+  with `useDefineForClassFields: false`. Without this, swc emits
+  `_define_property(this, "fsl", "")` in the constructor, which
+  overwrites Lit's prototype accessor with a plain own property —
+  meaning `el.fsl = ...` never invokes Lit's setter and `willUpdate`
+  never sees the change.
+- `src/ts/wc/tests/jest.setup.cjs`: polyfill `TextDecoder` /
+  `TextEncoder` from `util` onto `globalThis` before any test runs.
+  jsdom does not expose them, but the `@viz-js/viz` WASM module
+  imported transitively through `fsl_to_svg_string` requires them.
+  * Note: the `fsl_to_svg_string` signature in this repo is
+`(fsl: string) => Promise<string>` — it does not accept an options
+object — so the `engine` prop is reactive but its value does not
+yet reach the renderer. Task 6 will add real engine threading.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:21:06 PM
+
+Commit [1754c13f444acbbfad807ac67af6610f702eea87](https://github.com/StoneCypher/jssm/commit/1754c13f444acbbfad807ac67af6610f702eea87)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): scaffold JssmViz Lit element with class/define split
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 12:20:53 PM
+
+Commit [2496c9c47d19c4a9e7448b79305ec387082e90e3](https://github.com/StoneCypher/jssm/commit/2496c9c47d19c4a9e7448b79305ec387082e90e3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): teach jest-wc about ESM .js suffix imports and Lit ESM
+  * - moduleNameMapper strips trailing .js from relative imports so TS
+  sources can use modern ESM-style import specifiers (e.g.
+  './foo.js') that resolve to .ts during Jest's resolution.
+- transformIgnorePatterns allows lit, lit-html, lit-element, and
+  @lit packages through the SWC transform (they ship as native
+  ESM and Jest's CJS host needs them transpiled).
+- Adds a .js transform entry so SWC handles the de-ignored lit JS.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:48:06 AM
+
+Commit [9ec2e23f525f089f8c4f7ba37a2f8ce886d4512a](https://github.com/StoneCypher/jssm/commit/9ec2e23f525f089f8c4f7ba37a2f8ce886d4512a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: add jsdom Jest config for web-component tests
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/12/2026 11:31:10 AM
+
+Commit [dd4418d0efd6cd8340dad5d0c3cf754cc99a638c](https://github.com/StoneCypher/jssm/commit/dd4418d0efd6cd8340dad5d0c3cf754cc99a638c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: add Lit 3 and CEM analyzer for web-component foundation
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 9:47:36 AM
+
+Commit [8090f5e9216ef70556e73e48ecb02d155bc3f32f](https://github.com/StoneCypher/jssm/commit/8090f5e9216ef70556e73e48ecb02d155bc3f32f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(changelog): regenerate after cli v1 work
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 9:46:50 AM
+
+Commit [9edd415b6e06ef5626c942b3135f37079b1b869f](https://github.com/StoneCypher/jssm/commit/9edd415b6e06ef5626c942b3135f37079b1b869f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(comparables): drop docs:full script (no compounds per project policy)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:50:25 AM
+
+Commit [f6139f53c28f608e3517df78314a251bad44e8e7](https://github.com/StoneCypher/jssm/commit/f6139f53c28f608e3517df78314a251bad44e8e7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(grammar,viz): expose FSL character ranges; viz footer option
+  * New API surface (additive, backward-compatible):
+  * - Export three Unicode character-range tables from jssm_constants:
+  `state_name_chars`, `state_name_first_chars`, `action_label_chars`.
+  Each is a frozen array of `{from, to}` inclusive ranges, kept in
+  sync with the PEG grammar so tooling can validate identifiers and
+  labels without re-parsing the grammar.
+  * - Add matching Machine instance methods: `all_state_name_chars()`,
+  `all_state_name_first_chars()`, `all_action_label_chars()`.
+  * - Add optional `footer` parameter to `machine_to_dot`, `fsl_to_dot`,
+  `machine_to_svg_string`, `fsl_to_svg_string`, `machine_to_svg_element`,
+  `fsl_to_svg_element`. Emitted verbatim just before the closing `}` of
+  the generated dot source, after all arrange declarations. Existing
+  callers are unaffected (parameter is optional).
+  * Also includes:
+  * - chore: add `delete-merged-branches.ps1` for repo branch maintenance
+- chore: ignore `.claire` and `tmp` directories
+- docs: CLAUDE.md adds no-compound-commands and git-verb-before-flag rules
+- notes: design specs and plans for comparables extraction, editor-widget
+  packaging, and Lit web-component foundation
+- build: version bump 5.112.8 -> 5.113.0; regenerated dist/, docs/,
+  CHANGELOG.md, CHANGELOG.long.md, README.md
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:48:54 AM
+
+Commit [bf5837b300ee8d2b673221908422e958e1566e2d](https://github.com/StoneCypher/jssm/commit/bf5837b300ee8d2b673221908422e958e1566e2d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): wire build:shootout; regenerate Shootout.md from JSON
+  * Adds build:shootout (node src/buildjs/build_shootout.mjs) and docs:full
+(build:shootout then docs) npm scripts; regenerates Shootout.md from the
+comparables JSON store (30 entries, 3 machines).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:45:02 AM
+
+Commit [f92dbc3069a019bd83d181f978df562697fc0ee8](https://github.com/StoneCypher/jssm/commit/f92dbc3069a019bd83d181f978df562697fc0ee8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): splice generated content into Shootout.md markers
+  * Adds spliceMarkers(existing, generated) which locates the START/END
+marker pair in Shootout.md and replaces the zone between them, preserving
+all text outside the markers verbatim. Adds a CLI entry point (async IIFE,
+gated on import.meta.url === argv[1]) that loads all entries, renders
+generated content, splices it in, and writes the file. 28 tests passing.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:34:20 AM
+
+Commit [456e346c16fe12cf48d49781fadd2a05da2aa44b](https://github.com/StoneCypher/jssm/commit/456e346c16fe12cf48d49781fadd2a05da2aa44b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): render per-machine sections and full generated body
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:32:38 AM
+
+Commit [e927766a61ffceae5b657fc8d637181b3cf64dfc](https://github.com/StoneCypher/jssm/commit/e927766a61ffceae5b657fc8d637181b3cf64dfc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(cli): persist CLI section in README source file
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:31:38 AM
+
+Commit [128b800831d9530b4d57929dc4407ff51db59047](https://github.com/StoneCypher/jssm/commit/128b800831d9530b4d57929dc4407ff51db59047)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#1328
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:28:13 AM
+
+Commit [92ef5203c99905c52804611b9346f0fcb266a804](https://github.com/StoneCypher/jssm/commit/92ef5203c99905c52804611b9346f0fcb266a804)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * stray uncommitted test sets
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:27:54 AM
+
+Commit [b58194bd05ea3e675c2e919cad43e10cc4ad0f43](https://github.com/StoneCypher/jssm/commit/b58194bd05ea3e675c2e919cad43e10cc4ad0f43)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): render top summary table from entry data
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:27:19 AM
+
+Commit [87453dc8f3ec1d31fe918fb21240611f6144d07b](https://github.com/StoneCypher/jssm/commit/87453dc8f3ec1d31fe918fb21240611f6144d07b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(cli): add Command-line interface section to README
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:27:04 AM
+
+Commit [a8c58a2f029bb6a998b7014883db0e60409cc80b](https://github.com/StoneCypher/jssm/commit/a8c58a2f029bb6a998b7014883db0e60409cc80b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * version bumped
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:18:11 AM
+
+Commit [1dd81929f66da2b869bffece65a98216d4ba88b5](https://github.com/StoneCypher/jssm/commit/1dd81929f66da2b869bffece65a98216d4ba88b5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#316
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:15:52 AM
+
+Commit [26f1aec9e5947bcb23b8381cd05759df8f5fae4b](https://github.com/StoneCypher/jssm/commit/26f1aec9e5947bcb23b8381cd05759df8f5fae4b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): render per-library entry as markdown section
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:13:02 AM
+
+Commit [1e7a0fdf16e448bf1ba9b7b07f70a855f9a4b6b8](https://github.com/StoneCypher/jssm/commit/1e7a0fdf16e448bf1ba9b7b07f70a855f9a4b6b8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(cli): update findPluginOnPath JSDoc to reflect cross-platform Node-script probing
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:12:24 AM
+
+Commit [6c0a53050517dd63a34dc9441df3e857859b67a0](https://github.com/StoneCypher/jssm/commit/6c0a53050517dd63a34dc9441df3e857859b67a0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(comparables): cover validation failure modes (machine, language, schema)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:10:02 AM
+
+Commit [e508350e30cb33dbb415a797a525dd0de7dfa278](https://github.com/StoneCypher/jssm/commit/e508350e30cb33dbb415a797a525dd0de7dfa278)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(comparables): cache loadAll result in beforeAll; drop __dirname dep
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:09:16 AM
+
+Commit [1b773f7c55325f0bf9a597315659fa530ce923a1](https://github.com/StoneCypher/jssm/commit/1b773f7c55325f0bf9a597315659fa530ce923a1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#358
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:06:36 AM
+
+Commit [193c307a17c466783f89f8f62bfa69eec0492fab](https://github.com/StoneCypher/jssm/commit/193c307a17c466783f89f8f62bfa69eec0492fab)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(comparables): restore worktree testPathIgnorePatterns with rootDir anchor
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 8:05:29 AM
+
+Commit [964f7af9a2127c392568bbe7b4d78fe59248c90f](https://github.com/StoneCypher/jssm/commit/964f7af9a2127c392568bbe7b4d78fe59248c90f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): probe Node-script extensions cross-platform; use execPath in integration tests
+  * - dispatcher: add .cjs/.mjs/.js to extension probe list on all platforms
+- dispatcher: invokeBySpawn wraps .cjs/.mjs/.js plugins with process.execPath
+  so Windows can execute Node-script plugins without EFTYPE errors
+- integration tests: use process.execPath instead of 'node' (PATH-independent)
+- integration tests: augment PATH with dist/cli/ for render subcommand tests
+- integration tests: use empty PATH string for unknown-subcommand test
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 7:56:47 AM
+
+Commit [5f107eb426b8f0c1afde41547d69863362ae835e](https://github.com/StoneCypher/jssm/commit/5f107eb426b8f0c1afde41547d69863362ae835e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): add renderer scaffold with loadAll + validation; add ajv dep
+  * - Install ajv (2020-12 dialect) and ajv-formats as devDependencies
+- Create src/buildjs/build_shootout.mjs with loadAll() and lineCount()
+- Create src/ts/tests/build_shootout.spec.ts with 7 passing tests
+- jest-spec.config.cjs: add mjs to moduleFileExtensions, add mjs swc transform, remove worktree from testPathIgnorePatterns
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__118__0" />
+
+## [5.118.0] - 5/13/2026 7:53:49 AM
+
+Commit [9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0](https://github.com/StoneCypher/jssm/commit/9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [d793d93, 622f5d0]
+
+  * Merge pull request #598 from StoneCypher/stonecypher/fsl#1325
+  * fix(stoch): probable_exits_for filters out non-probability and forced-only exits
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 7:53:28 AM
+
+Commit [fa37bb71c0ab67ff35354197aa3ea63c4cb9a37a](https://github.com/StoneCypher/jssm/commit/fa37bb71c0ab67ff35354197aa3ea63c4cb9a37a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#427
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 7:48:28 AM
+
+Commit [c36633396a458236fcc5ef86e2db809877878d8a](https://github.com/StoneCypher/jssm/commit/c36633396a458236fcc5ef86e2db809877878d8a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(cli): integration tests for dispatcher + plugin spawn fallback
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 7:37:51 AM
+
+Commit [622f5d017de60b2258d42e8bfae11c136bc93c34](https://github.com/StoneCypher/jssm/commit/622f5d017de60b2258d42e8bfae11c136bc93c34)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: full rebuild after merge of main into stonecypher/fsl#1325
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 7:37:21 AM
+
+Commit [9a455d669118652f8598b874f86b64441c4c5651](https://github.com/StoneCypher/jssm/commit/9a455d669118652f8598b874f86b64441c4c5651)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(cli): wire bin, exports.cli, make_cli, min_cli, jest-cli into pipelines
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 1:14:46 AM
+
+Commit [f43b765aa84d9ad3133b2f8f71f27b036e2882ed](https://github.com/StoneCypher/jssm/commit/f43b765aa84d9ad3133b2f8f71f27b036e2882ed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [39283af, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#1325
+  * # Conflicts:
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 1:11:22 AM
+
+Commit [006b9b3a36992762edacab6929c2f8cdd5d36bb4](https://github.com/StoneCypher/jssm/commit/006b9b3a36992762edacab6929c2f8cdd5d36bb4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: full rebuild after merge of main into stonecypher/fsl#420
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 1:04:08 AM
+
+Commit [e501db802c7db250681f6f868909f446b05a3d91](https://github.com/StoneCypher/jssm/commit/e501db802c7db250681f6f868909f446b05a3d91)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [f3977b3, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#420
+  * # Conflicts:
+#       dist/deno/jssm.js
+#       dist/es6/fsl_parser.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - 5/13/2026 12:59:56 AM
+
+Commit [0e5178535dd2496219d1e92f00a9aaa824c261c4](https://github.com/StoneCypher/jssm/commit/0e5178535dd2496219d1e92f00a9aaa824c261c4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: full rebuild after merge of main into stonecypher/fsl#1324
 
 
 
@@ -103,21 +1517,6 @@ Merges [d37fd52, a0d0e54]
   * Merge branch 'main' into stonecypher/fsl#1326
   * # Conflicts:
 #       package.json
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/13/2026 12:27:31 AM
-
-Commit [e3fc3b23b6065caf537c5b02d6708d7a307c78e4](https://github.com/StoneCypher/jssm/commit/e3fc3b23b6065caf537c5b02d6708d7a307c78e4)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(wc): externalize jssm core in bundler build; fix define import path
 
 
 
@@ -222,21 +1621,6 @@ Merges [b5062d5, a0d0e54]
   * Merge branch 'main' into stonecypher/fsl#427
   * # Conflicts:
 #       package.json
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 11:56:45 PM
-
-Commit [98bff07c6e827b3cda59f7e66558326e21de6485](https://github.com/StoneCypher/jssm/commit/98bff07c6e827b3cda59f7e66558326e21de6485)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(wc): bundler-friendly Rollup config for jssm-viz; chain build:cem into make
 
 
 
@@ -456,21 +1840,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:20:48 PM
-
-Commit [b611671c3bd481e26e1b7819e2e65ddc4cecec7e](https://github.com/StoneCypher/jssm/commit/b611671c3bd481e26e1b7819e2e65ddc4cecec7e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(wc): generate custom-elements.json from CEM analyzer
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 5/12/2026 8:14:59 PM
 
 Commit [b38f7a3925d10def5328b84eb6d44606a60c8547](https://github.com/StoneCypher/jssm/commit/b38f7a3925d10def5328b84eb6d44606a60c8547)
@@ -525,28 +1894,6 @@ for destination-only states. Only nonexistent states throw.
 empty-array-for-actionless contract and the throw-only-for-nonexistent
 contract, with worked examples.
   * No runtime behavior change.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 1:00:13 PM
-
-Commit [055c7ddc4175dc9b3ff27fdc3cffa5aba517dc63](https://github.com/StoneCypher/jssm/commit/055c7ddc4175dc9b3ff27fdc3cffa5aba517dc63)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(viz): thread engine option through fsl_to_svg_string
-  * Restores the {engine} options parameter to fsl_to_svg_string that the
-legacy jssm-viz-demo used. Wires JssmViz's engine prop through to the
-underlying renderer; tightens the WC engine-prop test now that the
-prop actually does something.
-  * Also extracts viz-error detail normalization into a tested helper
-(normalize_viz_error) so the WC has 100% branch coverage on the
-error path.
 
 
 
@@ -785,21 +2132,6 @@ findings the new tests surfaced.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:44:23 PM
-
-Commit [85d72ce7dcf844a3c80526bf8151045bfe0337ca](https://github.com/StoneCypher/jssm/commit/85d72ce7dcf844a3c80526bf8151045bfe0337ca)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(wc): cover JssmViz viz-error event for bad fsl
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 5/12/2026 12:41:10 PM
 
 Commit [215cad3ab26f0fffc4734b11f0e06bf1add9f684](https://github.com/StoneCypher/jssm/commit/215cad3ab26f0fffc4734b11f0e06bf1add9f684)
@@ -902,40 +2234,6 @@ Commit [012340bd5b4922815c6d304d5a5343c48a41248a](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * feat(cli): fsl-render binary entry
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:34:21 PM
-
-Commit [6b1c76e0dfdce25b2be930a302bfdced0994a38b](https://github.com/StoneCypher/jssm/commit/6b1c76e0dfdce25b2be930a302bfdced0994a38b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(wc): JssmViz renders SVG on fsl prop change
-  * Wires real Graphviz rendering into the JssmViz Lit element via
-`fsl_to_svg_string` from `jssm/viz`. The async render runs on every
-`fsl`/`engine` change via `willUpdate`, with a stale-result guard, and
-the SVG string is injected through Lit's `unsafeHTML` directive.
-  * Two test-infrastructure fixes shipped with this change:
-  * - `jest-wc.config.cjs`: switch @swc/jest to `legacyDecorator: true`
-  with `useDefineForClassFields: false`. Without this, swc emits
-  `_define_property(this, "fsl", "")` in the constructor, which
-  overwrites Lit's prototype accessor with a plain own property —
-  meaning `el.fsl = ...` never invokes Lit's setter and `willUpdate`
-  never sees the change.
-- `src/ts/wc/tests/jest.setup.cjs`: polyfill `TextDecoder` /
-  `TextEncoder` from `util` onto `globalThis` before any test runs.
-  jsdom does not expose them, but the `@viz-js/viz` WASM module
-  imported transitively through `fsl_to_svg_string` requires them.
-  * Note: the `fsl_to_svg_string` signature in this repo is
-`(fsl: string) => Promise<string>` — it does not accept an options
-object — so the `engine` prop is reactive but its value does not
-yet reach the renderer. Task 6 will add real engine threading.
 
 
 
@@ -1110,43 +2408,6 @@ attribute so Graphviz draws empty boxes.
   * - New exported `VizRenderOpts` type
 - Threaded through machine_to_dot, fsl_to_dot, and the four SVG variants
 - 14 tests in src/ts/tests/hide_state_labels.spec.ts
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:21:06 PM
-
-Commit [3060678d02d847eeb15a7b60d9a11d0875146c5f](https://github.com/StoneCypher/jssm/commit/3060678d02d847eeb15a7b60d9a11d0875146c5f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(wc): scaffold JssmViz Lit element with class/define split
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:20:53 PM
-
-Commit [f0f99dd4d643d6fc5925a0d1be02db2d70763a8a](https://github.com/StoneCypher/jssm/commit/f0f99dd4d643d6fc5925a0d1be02db2d70763a8a)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(wc): teach jest-wc about ESM .js suffix imports and Lit ESM
-  * - moduleNameMapper strips trailing .js from relative imports so TS
-  sources can use modern ESM-style import specifiers (e.g.
-  './foo.js') that resolve to .ts during Jest's resolution.
-- transformIgnorePatterns allows lit, lit-html, lit-element, and
-  @lit packages through the SWC transform (they ship as native
-  ESM and Jest's CJS host needs them transpiled).
-- Adds a .js transform entry so SWC handles the de-ignored lit JS.
 
 
 
@@ -1448,21 +2709,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:48:06 AM
-
-Commit [98ef0f447d6a5d294fbc27aa4b92c5fe3d611417](https://github.com/StoneCypher/jssm/commit/98ef0f447d6a5d294fbc27aa4b92c5fe3d611417)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build: add jsdom Jest config for web-component tests
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - 5/12/2026 11:43:08 AM
 
 Commit [2dd99cb7518fbfe59c021fb17ca166fd4d1a64cf](https://github.com/StoneCypher/jssm/commit/2dd99cb7518fbfe59c021fb17ca166fd4d1a64cf)
@@ -1515,21 +2761,6 @@ Commit [3e4f36f9c8081a144dcc29ab668ad26bb802072d](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * feat(comparables): add machine metadata (titles, blurbs, display order)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 11:31:10 AM
-
-Commit [d92ceb80c8e28ba1b92ddfe14c3329b67a74a392](https://github.com/StoneCypher/jssm/commit/d92ceb80c8e28ba1b92ddfe14c3329b67a74a392)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore: add Lit 3 and CEM analyzer for web-component foundation
 
 
 

@@ -49,8 +49,9 @@ docs/docs/*.css.map
 
 .claude
 .superpowers
-
+.claire
 .worktrees
+tmp
 
 tmp
 
