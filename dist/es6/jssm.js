@@ -436,12 +436,18 @@ class Machine {
         }
         // done building, do checks
         // assert all props are valid
+        // _state_properties keys are always JSON.stringify([string, string]),
+        // built by name_bind_prop_and_state which throws on non-strings — so the
+        // non-array / non-string else-arms below are unreachable, not untested.
         this._state_properties.forEach((_value, key) => {
             const inside = JSON.parse(key);
+            /* v8 ignore else */
             if (Array.isArray(inside)) {
                 const j_property = inside[0];
+                /* v8 ignore else */
                 if (typeof j_property === 'string') {
                     const j_state = inside[1];
+                    /* v8 ignore else */
                     if (typeof j_state === 'string') {
                         if (!(this.known_prop(j_property))) {
                             throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
@@ -2691,9 +2697,7 @@ class Machine {
                 layers.push(theme.state);
             }
         });
-        if (this._state_style) {
-            layers.push(this._state_style);
-        }
+        layers.push(this._state_style);
         // hooked state style
         // if (this.has_hooks(state)) {
         //   layers.push(base_theme.hooked);
@@ -2710,9 +2714,7 @@ class Machine {
                     layers.push(theme.terminal);
                 }
             });
-            if (this._terminal_state_style) {
-                layers.push(this._terminal_state_style);
-            }
+            layers.push(this._terminal_state_style);
         }
         // start state style
         if (this.is_start_state(state)) {
@@ -2722,9 +2724,7 @@ class Machine {
                     layers.push(theme.start);
                 }
             });
-            if (this._start_state_style) {
-                layers.push(this._start_state_style);
-            }
+            layers.push(this._start_state_style);
         }
         // end state style
         if (this.is_end_state(state)) {
@@ -2734,9 +2734,7 @@ class Machine {
                     layers.push(theme.end);
                 }
             });
-            if (this._end_state_style) {
-                layers.push(this._end_state_style);
-            }
+            layers.push(this._end_state_style);
         }
         // active state style
         if (this.state() === state) {
@@ -2746,9 +2744,7 @@ class Machine {
                     layers.push(theme.active);
                 }
             });
-            if (this._active_state_style) {
-                layers.push(this._active_state_style);
-            }
+            layers.push(this._active_state_style);
         }
         const individual_style = {}, decl = this._state_declarations.get(state);
         individual_style.color = decl === null || decl === void 0 ? void 0 : decl.color;
