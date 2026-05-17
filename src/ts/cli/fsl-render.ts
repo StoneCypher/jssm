@@ -5,7 +5,7 @@ import { cli } from './subcommands/render/plugin';
  * exits with the returned code.
  *
  * The shebang (`#!/usr/bin/env node`) is added by rollup at build time via
- * the `output.banner` option in `rollup.config.cli.cjs.js`.
+ * the `output.banner` option in `rollup.config.cli.js`.
  */
 async function main(): Promise<void> {
   // process.argv shape: ['node', '/path/to/fsl-render.cjs', ...userArgs]

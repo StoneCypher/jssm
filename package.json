@@ -114,7 +114,7 @@
     "vitest-spec": "vitest run --config vitest.spec.config.ts",
     "vitest": "npm run vitest-stoch && npm run vitest-spec",
     "test": "npm run make && npm run vitest",
-    "make_cli": "rollup -c rollup.config.cli.cjs.js && rollup -c rollup.config.cli.esm.js && rollup -c rollup.config.cli.dts.js",
+    "make_cli": "rollup -c rollup.config.cli.js",
     "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && cd dist && mkdir wc && mkdir cdn && cd .. && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
