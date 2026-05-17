@@ -256,4 +256,46 @@ function buildTestFile(records, moduleBasename) {
   );
 }
 
-module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, buildTestFile };
+// The 7 TypeDoc entry points, by basename, in `src/ts/`.
+const ENTRY_POINTS = [
+  'jssm', 'jssm_viz', 'jssm_types', 'jssm_constants',
+  'jssm_error', 'jssm_util', 'version'
+];
+
+const SRC_TS_DIR = path.join(__dirname, '..', 'ts');
+const OUT_DIR    = path.join(SRC_TS_DIR, 'tests', 'generated');
+
+/**
+ *  Generate one `.docex.ts` test file per entry point that carries
+ *  `@example` blocks.  Entry points with no examples produce no file.
+ *
+ *  @returns {void}
+ *
+ *  @example
+ *  // run directly: `node src/buildjs/extract_examples.cjs`
+ *  main();  // writes src/ts/tests/generated/<module>.docex.ts files
+ */
+function main() {
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+
+  let total = 0;
+  for (const base of ENTRY_POINTS) {
+    const srcPath = path.join(SRC_TS_DIR, `${base}.ts`);
+    if (!fs.existsSync(srcPath)) { continue; }
+
+    const records = extractExamples(fs.readFileSync(srcPath, 'utf8'), `${base}.ts`);
+    if (records.length === 0) { continue; }
+
+    fs.writeFileSync(
+      path.join(OUT_DIR, `${base}.docex.ts`),
+      buildTestFile(records, base)
+    );
+    total += records.length;
+    console.log(`extract_examples: ${base}.ts -> ${records.length} example(s)`);
+  }
+  console.log(`extract_examples: ${total} example(s) total`);
+}
+
+if (require.main === module) { main(); }
+
+module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments, splitExample, buildTestFile, main };
