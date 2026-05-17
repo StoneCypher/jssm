@@ -59,3 +59,26 @@ describe('extractExamples', () => {
   });
 
 });
+
+const { rewriteImportSpecifier } = require('../../buildjs/extract_examples.cjs');
+
+describe('rewriteImportSpecifier', () => {
+
+  it('maps bare "jssm" to the relative source module', () => {
+    expect(rewriteImportSpecifier('jssm', 'jssm.ts')).toBe('../../jssm');
+  });
+
+  it('maps "jssm/viz" to the viz source module', () => {
+    expect(rewriteImportSpecifier('jssm/viz', 'jssm.ts')).toBe('../../jssm_viz');
+  });
+
+  it('resolves a relative specifier against the defining module', () => {
+    expect(rewriteImportSpecifier('./jssm_constants', 'jssm_constants.ts'))
+      .toBe('../../jssm_constants');
+  });
+
+  it('leaves an unrelated third-party specifier untouched', () => {
+    expect(rewriteImportSpecifier('vitest', 'jssm.ts')).toBe('vitest');
+  });
+
+});

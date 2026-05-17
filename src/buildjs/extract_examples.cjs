@@ -101,4 +101,46 @@ function extractExamples(sourceText, fileLabel) {
   return out;
 }
 
-module.exports = { extractExamples, nodeName, commentText };
+// Bare package specifiers an example author may use, mapped to the
+// `src/ts/` module basename that actually defines the symbols.
+const PKG_SPECIFIERS = {
+  'jssm'     : 'jssm',
+  'jssm/viz' : 'jssm_viz',
+  'jssm/cli' : 'jssm.cli'
+};
+
+// All generated files live here; relative imports are expressed from it.
+const GENERATED_REL_TO_SRC_TS = '../..';
+
+/**
+ *  Rewrite the module specifier of an import written inside an `@example` so
+ *  the generated test (which lives in `src/ts/tests/generated/`) resolves to
+ *  jssm source rather than built `dist/` output.
+ *
+ *  @param {string} specifier      - the specifier as written in the example.
+ *  @param {string} definingModule - basename of the file the example lives in
+ *                                   (e.g. `'jssm_constants.ts'`).
+ *  @returns {string} the rewritten specifier, or the original if it does not
+ *           refer to jssm source.
+ *
+ *  @example
+ *  rewriteImportSpecifier('jssm', 'jssm.ts')  // => '../../jssm'
+ *
+ *  @example
+ *  rewriteImportSpecifier('vitest', 'jssm.ts')  // => 'vitest'
+ */
+function rewriteImportSpecifier(specifier, definingModule) {
+  if (Object.prototype.hasOwnProperty.call(PKG_SPECIFIERS, specifier)) {
+    return `${GENERATED_REL_TO_SRC_TS}/${PKG_SPECIFIERS[specifier]}`;
+  }
+  if (specifier.startsWith('.')) {
+    const fromDir  = path.dirname(definingModule);   // '.' for entry points
+    const resolved = path.posix.normalize(
+      path.posix.join(fromDir, specifier)
+    ).replace(/\.ts$/, '');
+    return `${GENERATED_REL_TO_SRC_TS}/${resolved}`;
+  }
+  return specifier;
+}
+
+module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier };
