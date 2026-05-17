@@ -121,11 +121,22 @@ async function rasterizeViaResvgWasm(
 
   const Resvg = mod.Resvg;
   const resvg = new Resvg(svg, opts.width ? { fitTo: { mode: 'width', value: opts.width } } : {});
-  const pngData = resvg.render().asPng();
+  let rendered: any;
+  try {
+    rendered = resvg.render();
+    const pngData = rendered.asPng();
 
-  if (target === 'png') return new Uint8Array(pngData);
+    if (target === 'png') return new Uint8Array(pngData);
 
-  throw new RasterizationUnsupportedError(
-    'JPEG output in a non-Canvas runtime is not supported in v1; use --target=png instead'
-  );
+    throw new RasterizationUnsupportedError(
+      'JPEG output in a non-Canvas runtime is not supported in v1; use --target=png instead'
+    );
+  } finally {
+    // Free the wasm-backed objects deterministically. Left to the GC
+    // finalizer, their cleanup races the shared wasm instance and
+    // intermittently throws "recursive use of an object detected" from an
+    // unrelated later render.
+    rendered?.free();
+    resvg.free();
+  }
 }

@@ -88,6 +88,35 @@ describe('rasterize', () => {
         .rejects.toThrow(/downstream-marker/);
     });
 
+    it('frees the Resvg and RenderedImage wasm objects after rendering', async () => {
+      // resvg-wasm's Resvg / RenderedImage are wasm-bindgen objects. Left to
+      // the GC finalizer, their cleanup races the shared wasm instance and
+      // intermittently throws "recursive use of an object detected". rasterize
+      // must free them deterministically — this test asserts both .free()s run.
+      const renderedFree = vi.fn();
+      const resvgFree    = vi.fn();
+      vi.doMock('@resvg/resvg-wasm', () => ({
+        // rasterize.ts reads `mod.initWasm`; vitest's strict mock throws on
+        // access to an undeclared export, so declare it. Left undefined so
+        // the init-once block is skipped.
+        initWasm: undefined,
+        Resvg: class FakeResvg {
+          free = resvgFree;
+          render() {
+            return {
+              asPng: () => new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
+              free: renderedFree,
+            };
+          }
+        },
+      }));
+      const { rasterize: mockedRasterize } = await import('../../cli/subcommands/render/rasterize');
+      const buf = await mockedRasterize('<svg/>', 'png', { width: 100 });
+      expect(Array.from(buf.subarray(0, 4))).toEqual([0x89, 0x50, 0x4E, 0x47]);
+      expect(renderedFree).toHaveBeenCalledTimes(1);
+      expect(resvgFree).toHaveBeenCalledTimes(1);
+    });
+
   });
 
   describe('Browser path (OffscreenCanvas, mocked)', () => {
