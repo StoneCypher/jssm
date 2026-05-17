@@ -1195,8 +1195,9 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
      */
     all_state_name_chars(): ReadonlyArray<{
         from: string;
@@ -1209,8 +1210,9 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars(): ReadonlyArray<{
         from: string;
@@ -1223,9 +1225,10 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
-     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
      */
     all_action_label_chars(): ReadonlyArray<{
         from: string;
