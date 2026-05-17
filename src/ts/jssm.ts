@@ -1696,8 +1696,9 @@ class Machine<mDT> {
    *  @returns An array of `{from, to}` inclusive character ranges.
    *
    *  @example
+   *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
-   *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+   *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
    */
   all_state_name_chars(): ReadonlyArray<{ from: string, to: string }> {
     return state_name_chars;
@@ -1710,8 +1711,9 @@ class Machine<mDT> {
    *  @returns An array of `{from, to}` inclusive character ranges.
    *
    *  @example
+   *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
-   *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+   *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
    */
   all_state_name_first_chars(): ReadonlyArray<{ from: string, to: string }> {
     return state_name_first_chars;
@@ -1724,9 +1726,10 @@ class Machine<mDT> {
    *  @returns An array of `{from, to}` inclusive character ranges.
    *
    *  @example
+   *  import { sm } from 'jssm';
    *  const m = sm`a -> b;`;
-   *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
-   *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+   *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+   *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
    */
   all_action_label_chars(): ReadonlyArray<{ from: string, to: string }> {
     return action_label_chars;
@@ -4383,13 +4386,16 @@ function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mD
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
  *
  * @example
- * compareVersions("5.104.2", "5.103.1") // returns 1 (v1 is newer)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
  *
  * @example
- * compareVersions("5.104.2", "6.0.0")   // returns -1 (v1 is older)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
  *
  * @example
- * compareVersions("5.104.2", "5.104.2") // returns 0 (equal)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
  */
 
 function compareVersions(v1: string, v2: string): number {
@@ -4431,9 +4437,11 @@ function compareVersions(v1: string, v2: string): number {
  * @throws {Error} If the serialization is from a future version
  *
  * @example
- * const machine = jssm.from("a -> b;");
+ * import { from, deserialize } from 'jssm';
+ * const machine    = from("a -> b;");
  * const serialized = machine.serialize();
- * const restored = jssm.deserialize("a -> b;", serialized);
+ * const restored   = deserialize("a -> b;", serialized);
+ * restored.state();  // => 'a'
  */
 
 function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT> {
@@ -4470,6 +4478,7 @@ export {
 
   Machine,
   deserialize,
+  compareVersions,
 
   make,
   wrap_parse as parse,
