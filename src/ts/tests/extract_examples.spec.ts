@@ -124,6 +124,7 @@ describe('buildTestFile', () => {
     expect(text).toContain("it('add (jssm.ts:10)'");
     expect(text).toContain("it('add (jssm.ts:20)'");
     expect(text).toContain('expect(add(2, 3)).toStrictEqual(5);');
+    expect(text).toContain('expect(add(0, 0)).toStrictEqual(0);');
   });
 
   it('emits a failing test for an example with no verifiable assertion', () => {
@@ -143,6 +144,40 @@ describe('buildTestFile', () => {
     ];
 
     expect(buildTestFile(records, 'jssm')).toContain('expect(add(1, 1)).toBe(2);');
+  });
+
+});
+
+const { splitExample } = require('../../buildjs/extract_examples.cjs');
+
+describe('splitExample', () => {
+
+  it('separates a rewritten import from the code lines', () => {
+    expect(splitExample("import { x } from 'jssm';\nx();", 'jssm.ts'))
+      .toEqual({ imports: ["import { x } from '../../jssm';"], code: ['x();'] });
+  });
+
+  it('returns no imports when the body has none', () => {
+    expect(splitExample('a();\nb();', 'jssm.ts'))
+      .toEqual({ imports: [], code: ['a();', 'b();'] });
+  });
+
+  it('skips blank and whitespace-only lines', () => {
+    expect(splitExample('a();\n\n   \nb();', 'jssm.ts'))
+      .toEqual({ imports: [], code: ['a();', 'b();'] });
+  });
+
+  it('rewrites multiple imports from different specifiers', () => {
+    expect(splitExample(
+      "import { a } from 'jssm';\nimport { b } from 'jssm/viz';\na();",
+      'jssm.ts'
+    )).toEqual({
+      imports: [
+        "import { a } from '../../jssm';",
+        "import { b } from '../../jssm_viz';"
+      ],
+      code: ['a();']
+    });
   });
 
 });

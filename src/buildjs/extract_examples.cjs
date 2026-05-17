@@ -207,8 +207,12 @@ function splitExample(body, definingModule) {
  *  @returns {string} the full text of the generated `.docex.ts` file.
  *
  *  @example
- *  buildTestFile([{ symbol: 'f', line: 3, body: "import { f } from 'jssm';\nf();  // => 1" }], 'jssm')
- *  // => a string containing "it('f (jssm.ts:3)'" and "expect(f()).toStrictEqual(1);"
+ *  // Returns the text of a .docex.ts file that contains an
+ *  // it('f (jssm.ts:3)', ...) whose body asserts expect(f()).toStrictEqual(1);
+ *  const text = buildTestFile(
+ *    [{ symbol: 'f', line: 3, body: "import { f } from 'jssm';\nf();  // => 1" }],
+ *    'jssm'
+ *  );
  */
 function buildTestFile(records, moduleBasename) {
   const definingModule = `${moduleBasename}.ts`;
@@ -217,7 +221,7 @@ function buildTestFile(records, moduleBasename) {
 
   for (const rec of records) {
     const { imports, code } = splitExample(rec.body, definingModule);
-    imports.forEach(i => allImports.add(i));
+    for (const i of imports) { allImports.add(i); }
 
     const hasExpect = code.some(l => l.includes('expect('));
     const hasMarker = code.some(l => l.includes('// =>'));
