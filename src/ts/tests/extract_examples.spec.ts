@@ -82,3 +82,24 @@ describe('rewriteImportSpecifier', () => {
   });
 
 });
+
+const { rewriteOutputComments } = require('../../buildjs/extract_examples.cjs');
+
+describe('rewriteOutputComments', () => {
+
+  it('converts an EXPR; // => VALUE line into an assertion', () => {
+    expect(rewriteOutputComments("m.state();  // => 'a'"))
+      .toBe("expect(m.state()).toStrictEqual('a');");
+  });
+
+  it('tolerates a missing trailing semicolon', () => {
+    expect(rewriteOutputComments('add(2, 3)  // => 5'))
+      .toBe('expect(add(2, 3)).toStrictEqual(5);');
+  });
+
+  it('leaves a setup line without a marker unchanged', () => {
+    expect(rewriteOutputComments('const m = sm`a -> b;`;'))
+      .toBe('const m = sm`a -> b;`;');
+  });
+
+});

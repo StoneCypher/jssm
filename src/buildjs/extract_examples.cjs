@@ -143,4 +143,25 @@ function rewriteImportSpecifier(specifier, definingModule) {
   return specifier;
 }
 
-module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier };
+/**
+ *  Rewrite a single example code line.  A line of the form `EXPR; // => VALUE`
+ *  becomes `expect(EXPR).toStrictEqual(VALUE);`.  Lines without the `// =>`
+ *  marker are returned unchanged (they are example setup, e.g. `const ...`).
+ *
+ *  @param {string} codeLine - one line of example code.
+ *  @returns {string} the rewritten line.
+ *
+ *  @example
+ *  rewriteOutputComments('add(2, 3)  // => 5')
+ *  // => 'expect(add(2, 3)).toStrictEqual(5);'
+ */
+function rewriteOutputComments(codeLine) {
+  const marker = codeLine.indexOf('// =>');
+  if (marker === -1) { return codeLine; }
+
+  const expr  = codeLine.slice(0, marker).trim().replace(/;\s*$/, '');
+  const value = codeLine.slice(marker + '// =>'.length).trim();
+  return `expect(${expr}).toStrictEqual(${value});`;
+}
+
+module.exports = { extractExamples, nodeName, commentText, rewriteImportSpecifier, rewriteOutputComments };
