@@ -1,4 +1,9 @@
+import { readdirSync, readFileSync } from 'fs';
+import type { Dirent } from 'fs';
+import { join } from 'path';
+import { homedir } from 'os';
 import { RasterizationUnsupportedError, RenderError } from '../../types';
+import { fallbackFontBytes } from './fallback-font';
 
 // `OffscreenCanvas` lives in the DOM lib, which the CLI's tsconfig doesn't
 // pull in (CLI tooling targets Node primarily). At runtime we feature-detect
@@ -90,6 +95,123 @@ async function rasterizeViaCanvas(
 // proxy hid this; vitest's real ESM imports surface it as TypeError.
 let wasmInited = false;
 
+// --- Font supply for the resvg-wasm path -----------------------------------
+//
+// `@resvg/resvg-wasm` ships no fonts and cannot reach OS-installed fonts from
+// inside its wasm sandbox: handed no font, it renders every `<text>` element
+// blank. We discover the host OS's fonts and, only when none are found, fall
+// back to an embedded font so rasterized text is never silently dropped.
+
+const FONT_FILE = /\.(ttf|ttc|otf)$/i;
+
+// resvg re-parses every supplied font on each render, so discovery is kept
+// deliberately small: enough fonts that text resolves (resvg falls back
+// across whatever subset is loaded), few enough that the parse stays cheap.
+const FONT_DISCOVERY_BUDGET = 1.5 * 1024 * 1024;  // total font bytes to load
+const MAX_FONT_FILE_BYTES   = 1.5 * 1024 * 1024;  // skip oversized single fonts
+
+let cachedFontBuffers: Uint8Array[] | null = null;
+
+/** Standard font directories for the current operating system. */
+function osFontDirs(): string[] {
+  const home = homedir();
+  if (process.platform === 'win32') {
+    return [
+      'C:\\Windows\\Fonts',
+      join(home, 'AppData', 'Local', 'Microsoft', 'Windows', 'Fonts'),
+    ];
+  }
+  if (process.platform === 'darwin') {
+    return [
+      '/System/Library/Fonts',
+      '/Library/Fonts',
+      join(home, 'Library', 'Fonts'),
+    ];
+  }
+  return [
+    '/usr/share/fonts',
+    '/usr/local/share/fonts',
+    join(home, '.fonts'),
+    join(home, '.local', 'share', 'fonts'),
+  ];
+}
+
+/** Recursively collect font-file paths under `dir`; a missing dir yields none. */
+function fontFilesIn(dir: string): string[] {
+  let entries: Dirent[];
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  const found: string[] = [];
+  for (const entry of entries) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      found.push(...fontFilesIn(full));
+    } else if (FONT_FILE.test(entry.name)) {
+      found.push(full);
+    }
+  }
+  return found;
+}
+
+/**
+ * Discover fonts installed on the host OS and read their raw bytes.
+ *
+ * Walks the standard OS font directories, reading font files in discovery
+ * order until {@link FONT_DISCOVERY_BUDGET} bytes have been collected.
+ * Best-effort: missing directories and unreadable files are skipped silently.
+ *
+ * @param dirs - directories to search; defaults to the running OS's standard
+ *   font locations
+ * @returns one buffer per font file read; empty when the host has no
+ *   accessible fonts (e.g. a stripped container image)
+ *
+ * @example
+ *   const fonts = discoverOsFontBuffers();
+ *   const usable = fonts.length > 0 ? fonts : [fallbackFontBytes()];
+ */
+export function discoverOsFontBuffers(dirs: string[] = osFontDirs()): Uint8Array[] {
+  const buffers: Uint8Array[] = [];
+  let remaining = FONT_DISCOVERY_BUDGET;
+  for (const dir of dirs) {
+    for (const file of fontFilesIn(dir)) {
+      if (remaining <= 0) return buffers;
+      let bytes: Buffer;
+      try {
+        bytes = readFileSync(file);
+      } catch {
+        // Font file vanished or became unreadable between listing and read.
+        continue;
+      }
+      if (bytes.length > MAX_FONT_FILE_BYTES) continue;
+      buffers.push(new Uint8Array(bytes));
+      remaining -= bytes.length;
+    }
+  }
+  return buffers;
+}
+
+/**
+ * The font buffers to hand resvg for the wasm rasterization path.
+ *
+ * Prefers fonts discovered on the host OS; when none are available it returns
+ * the embedded fallback font so text never rasterizes blank. Computed once
+ * and cached for the lifetime of the process.
+ *
+ * @returns a non-empty array of font byte buffers
+ *
+ * @example
+ *   new Resvg(svg, { font: { fontBuffers: collectFontBuffers() } });
+ */
+export function collectFontBuffers(): Uint8Array[] {
+  if (cachedFontBuffers !== null) return cachedFontBuffers;
+  const discovered = discoverOsFontBuffers();
+  cachedFontBuffers = discovered.length > 0 ? discovered : [fallbackFontBytes()];
+  return cachedFontBuffers;
+}
+
 async function rasterizeViaResvgWasm(
   svg: string,
   target: RasterTarget,
@@ -120,7 +242,14 @@ async function rasterizeViaResvgWasm(
   }
 
   const Resvg = mod.Resvg;
-  const resvg = new Resvg(svg, opts.width ? { fitTo: { mode: 'width', value: opts.width } } : {});
+  // resvg-wasm has no fonts of its own — without `font.fontBuffers` every
+  // `<text>` rasterizes blank. `loadSystemFonts` is left off because it is a
+  // no-op inside the wasm sandbox; `collectFontBuffers` supplies them instead.
+  const resvgOptions: any = {
+    font: { fontBuffers: collectFontBuffers(), loadSystemFonts: false },
+  };
+  if (opts.width) resvgOptions.fitTo = { mode: 'width', value: opts.width };
+  const resvg = new Resvg(svg, resvgOptions);
   let rendered: any;
   try {
     rendered = resvg.render();
