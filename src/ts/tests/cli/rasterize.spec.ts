@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { rasterize } from '../../cli/subcommands/render/rasterize';
+import { rasterize, collectFontBuffers, discoverOsFontBuffers } from '../../cli/subcommands/render/rasterize';
 import { svgTarget } from '../../cli/subcommands/render/targets/svg';
+import { fallbackFontBytes } from '../../cli/subcommands/render/fallback-font';
 // Statically imported (rather than dynamic) so module identity matches the
 // rasterize module above — vi.resetModules() in the WASM-init describe
 // below would otherwise produce a different class instance on dynamic
@@ -314,6 +315,149 @@ describe('rasterize', () => {
       } finally {
         (globalThis as any).btoa = realBtoa;
       }
+    });
+
+  });
+
+  describe('font discovery for the resvg-wasm path', () => {
+
+    it('discovers fonts installed on the host OS', () => {
+      const fonts = discoverOsFontBuffers();
+      expect(fonts.length).toBeGreaterThan(0);
+      expect(fonts[0]).toBeInstanceOf(Uint8Array);
+    });
+
+    it('returns nothing when the searched directories hold no fonts', () => {
+      const missing = resolve(__dirname, 'fixtures/no-such-font-directory');
+      expect(discoverOsFontBuffers([missing])).toEqual([]);
+    });
+
+    it('finds font files recursively and ignores non-font files', () => {
+      // fixtures/fonts holds two .ttf files (one nested in a subdirectory)
+      // alongside one .txt file, which discovery must skip.
+      const fontsDir = resolve(__dirname, 'fixtures/fonts');
+      expect(discoverOsFontBuffers([fontsDir]).length).toBe(2);
+    });
+
+    it('collectFontBuffers returns a non-empty, cached set', () => {
+      const first = collectFontBuffers();
+      expect(first.length).toBeGreaterThan(0);
+      expect(collectFontBuffers()).toBe(first);
+    });
+
+    it('builds font directories for every supported platform', () => {
+      const original = process.platform;
+      try {
+        for (const platform of ['darwin', 'linux', 'win32']) {
+          Object.defineProperty(process, 'platform', { value: platform, configurable: true });
+          // The platform-specific directories need not exist on this host;
+          // this only exercises every branch of the directory builder.
+          expect(Array.isArray(discoverOsFontBuffers())).toBe(true);
+        }
+      } finally {
+        Object.defineProperty(process, 'platform', { value: original, configurable: true });
+      }
+    });
+
+    it('rasterized text actually renders — output is not a blank image', async () => {
+      const textSvg  = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="90">'
+                     + '<text x="14" y="58" font-family="Arial" font-size="44">Rendered</text></svg>';
+      const emptySvg = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="90"></svg>';
+      const withText = await rasterize(textSvg, 'png', { width: 320 });
+      const blank    = await rasterize(emptySvg, 'png', { width: 320 });
+      // With no font supplied the <text> rasterizes to nothing and the two
+      // PNGs are near-identical; a real glyph run adds substantial image data.
+      expect(withText.length).toBeGreaterThan(blank.length + 200);
+    });
+
+  });
+
+  describe('font supply wiring (mocked resvg)', () => {
+
+    beforeEach(() => { vi.resetModules(); });
+    afterEach(() => { vi.doUnmock('@resvg/resvg-wasm'); });
+
+    it('hands the discovered font buffers to the Resvg constructor', async () => {
+      let received: any;
+      vi.doMock('@resvg/resvg-wasm', () => ({
+        initWasm: undefined,
+        Resvg: class FakeResvg {
+          constructor(_svg: string, options: any) { received = options; }
+          render() {
+            return {
+              asPng: () => new Uint8Array([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]),
+              free: () => {},
+            };
+          }
+          free() {}
+        },
+      }));
+      const { rasterize: mockedRasterize } = await import('../../cli/subcommands/render/rasterize');
+      await mockedRasterize('<svg/>', 'png', { width: 100 });
+      expect(Array.isArray(received.font.fontBuffers)).toBe(true);
+      expect(received.font.fontBuffers.length).toBeGreaterThan(0);
+    });
+
+  });
+
+  describe('font fallback (mocked fs)', () => {
+
+    beforeEach(() => { vi.resetModules(); });
+    afterEach(() => { vi.doUnmock('fs'); });
+
+    it('falls back to the embedded font when the host has no readable fonts', async () => {
+      // readdir always yields a font name; readFile always fails — so OS
+      // discovery collects nothing and the bundled fallback must take over.
+      vi.doMock('fs', () => ({
+        readdirSync: () => [{ name: 'ghost.ttf', isDirectory: () => false }],
+        readFileSync: () => { throw new Error('unreadable'); },
+      }));
+      const { collectFontBuffers: mockedCollect } = await import('../../cli/subcommands/render/rasterize');
+      const buffers = mockedCollect();
+      expect(buffers.length).toBe(1);
+      expect(buffers[0].length).toBe(fallbackFontBytes().length);
+    });
+
+    it('stops reading fonts once the discovery budget is exhausted', async () => {
+      const halfMB = new Uint8Array(0.5 * 1024 * 1024);
+      vi.doMock('fs', () => ({
+        readdirSync: () => [
+          { name: 'a.ttf', isDirectory: () => false },
+          { name: 'b.ttf', isDirectory: () => false },
+          { name: 'c.ttf', isDirectory: () => false },
+          { name: 'd.ttf', isDirectory: () => false },
+        ],
+        readFileSync: () => halfMB,
+      }));
+      const { discoverOsFontBuffers: mockedDiscover } = await import('../../cli/subcommands/render/rasterize');
+      // The 1.5 MB budget is exhausted after the third 0.5 MB font is read.
+      expect(mockedDiscover(['/fake-font-dir']).length).toBe(3);
+    });
+
+    it('skips font files larger than the per-file size cap', async () => {
+      const twoMB = new Uint8Array(2 * 1024 * 1024);
+      vi.doMock('fs', () => ({
+        readdirSync: () => [{ name: 'huge.ttf', isDirectory: () => false }],
+        readFileSync: () => twoMB,
+      }));
+      const { discoverOsFontBuffers: mockedDiscover } = await import('../../cli/subcommands/render/rasterize');
+      // 2 MB exceeds the 1.5 MB per-file cap, so the font is skipped entirely.
+      expect(mockedDiscover(['/fake-font-dir'])).toEqual([]);
+    });
+
+  });
+
+  describe('embedded fallback font', () => {
+
+    it('decodes to a valid TrueType font', () => {
+      const bytes = fallbackFontBytes();
+      expect(bytes.length).toBeGreaterThan(1000);
+      // sfnt version for a TrueType-outline font is 0x00010000.
+      expect(Array.from(bytes.subarray(0, 4))).toEqual([0x00, 0x01, 0x00, 0x00]);
+    });
+
+    it('returns an independent copy on each call', () => {
+      expect(fallbackFontBytes()).not.toBe(fallbackFontBytes());
     });
 
   });

@@ -1,1 +1,2 @@
 ./src/ts/fsl_parser.ts
+./src/ts/cli/subcommands/render/fallback-font.ts
