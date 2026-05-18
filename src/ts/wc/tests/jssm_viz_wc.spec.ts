@@ -18,6 +18,25 @@ describe('JssmViz registration', () => {
 
 });
 
+describe('JssmViz re-registration', () => {
+
+  it('does not re-define or throw when the define module is re-evaluated', async () => {
+    // Covers the `if (!customElements.get('jssm-viz'))` false path: the import
+    // at the top of this file already registered the element, so re-evaluating
+    // the define module must find it present and skip customElements.define
+    // (a second define of the same name would throw a NotSupportedError).
+    const before = customElements.get('jssm-viz');
+    expect(before).toBe(JssmViz);
+
+    vi.resetModules();
+    await expect(import('../jssm_viz_wc.define')).resolves.toBeDefined();
+
+    // Still the same constructor; nothing was re-registered or clobbered.
+    expect(customElements.get('jssm-viz')).toBe(before);
+  });
+
+});
+
 describe('normalize_viz_error', () => {
 
   it('passes Error.message through and reports no location', () => {
@@ -150,6 +169,32 @@ describe('JssmViz rendering', () => {
     await (el as any).updateComplete;
     expect(el.shadowRoot!.innerHTML).not.toContain('<svg');
     expect(saw_error).toBe(false);
+
+    document.body.removeChild(el);
+  });
+
+  it('discards a stale render result when fsl changes mid-flight', async () => {
+    // Covers the `if (this.fsl === source)` false path in _renderSvg: a render
+    // is started for one fsl value, then fsl is changed before the async
+    // fsl_to_svg_string resolves. The stale result must NOT be committed to
+    // _svg — only the value matching the current fsl survives.
+    const el = document.createElement('jssm-viz') as any;
+    document.body.appendChild(el);
+
+    // Start a render for the first source, but do not await it yet.
+    el.fsl = 'StaleStart -> StaleEnd;';
+    const staleRender: Promise<void> = el._renderSvg();
+
+    // Change fsl before the in-flight render resolves. This makes
+    // `this.fsl === source` false when the stale render finally settles.
+    el.fsl = '';
+
+    // Let the stale render finish. Its result targets the old fsl and must
+    // be dropped on the floor.
+    await staleRender;
+
+    expect(el._svg).not.toContain('StaleStart');
+    expect(el._svg).not.toContain('<svg');
 
     document.body.removeChild(el);
   });

@@ -3,7 +3,7 @@
 
 import * as jssm              from '../jssm';
 import * as fc                from 'fast-check';
-import { make_mulberry_rand } from '../jssm_util';
+import { gen_splitmix32 } from '../jssm_util';
 
 const sm = jssm.sm;
 
@@ -55,8 +55,8 @@ describe('Test all the things', () => {
 
       (shouldHalt: boolean, gen_seed: number) => {
 
-        const mulberry = make_mulberry_rand(gen_seed),  // these giant consts are library defaults, see readme
-              r_int    = (n: number) => Math.trunc(mulberry() * n);
+        const rand  = gen_splitmix32(gen_seed),
+              r_int = (n: number) => Math.trunc(rand() * n);
 
         function choose(arr) {
           if (!(Array.isArray(arr))) { throw new TypeError(`choose only takes arrays, not '${typeof arr}'s`); }
@@ -76,42 +76,49 @@ describe('Test all the things', () => {
         const has_nodes: string[] = [];
 
         let node_cursor = 0;
-        function n() { return `n${node_cursor++}`; }
+        const n = () => `n${node_cursor++}`;
 
-        const root1     = n(),
-              root2     = n(),
-              root_edge = shouldHalt? `${r_edgetype_1way()}>` : `<${r_edgetype_2way()}>`,
-              [wsl,wsr] = [ ws(), ws() ];
+        const root1 = n(),
+              root2 = n();
 
-        has_nodes.push(root1);
-        has_nodes.push(root2);
+        has_nodes.push(root1, root2);
 
-        let machine_string = `${root1}${wsl}${root_edge}${wsr}${root2};`,
-            nodes_left     = nodes_added;
+        // One-way root edge for the halting (semi-star) case keeps the graph
+        // a DAG; two-way for the non-halting (loopable) case gives both roots
+        // an out-edge from the start.
+        const edges: string[] = [
+          shouldHalt
+            ? `${root1}${ws()}${r_edgetype_1way()}>${ws()}${root2};`
+            : `${root1}${ws()}<${r_edgetype_2way()}>${ws()}${root2};`,
+        ];
 
-        let this_loop = '';
+        let nodes_left = nodes_added;
         while (nodes_left) {
 
-          const left         = choose(has_nodes),
-                right        = choose(has_nodes);
+          const chain_len = r_int(nodes_left - 1) + 1;
+          nodes_left -= chain_len;
 
-          let this_count  = r_int(nodes_left-1) + 1,
-              prev        = left;
-
-          nodes_left -= this_count;
-
-          while (this_count--) {
-            const should_chain = this_count? choose([true, true, false]) : false,
-                  new_node     = n(),
-                  [wsl,wsr]    = [ ws(), ws() ],
-                  arrow        = r_edgetype_1way() + '>';
-            this_loop += `${prev}${wsl}${arrow}${wsr}`;
-            if (should_chain === false) { this_loop += `${new_node};`; }
-            prev       = new_node;
+          let prev = choose(has_nodes);
+          const fresh: string[] = [];
+          for (let c = 0; c < chain_len; c++) {
+            const node = n();
+            fresh.push(node);
+            edges.push(`${prev}${ws()}${r_edgetype_1way()}>${ws()}${node};`);
+            prev = node;
           }
-          machine_string += this_loop;
+
+          // loopable: close back to an existing node so no new node is a
+          // sink — every node keeps an exit and the walk cannot halt.
+          // semi-star: leave the last new node hanging as a terminal sink.
+          if (!shouldHalt) {
+            edges.push(`${prev}${ws()}${r_edgetype_1way()}>${ws()}${choose(has_nodes)};`);
+          }
+
+          has_nodes.push(...fresh);
 
         }
+
+        const machine_string = edges.join('');
 
         let machine;
         try {

@@ -113,13 +113,7 @@ jobs:
             os: macos-latest
           - node-version: 23.x   # check newest non-lts too
             os: windows-latest
-          - node-version: 18.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
-            os: ubuntu-latest
-          - node-version: 19.x
-            os: ubuntu-latest
-          - node-version: 20.x
-            os: ubuntu-latest
-          - node-version: 21.x
+          - node-version: 20.x   # vitest 4 / rolldown require Node ^20.19 || >=22.12 — that engine gap is why 21.x is absent
             os: ubuntu-latest
           - node-version: 22.x
             os: ubuntu-latest

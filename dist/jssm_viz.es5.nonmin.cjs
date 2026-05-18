@@ -20992,13 +20992,13 @@ var constants = /*#__PURE__*/Object.freeze({
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.121.1";
+const version = "5.122.2";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1779040659839;
+const build_time = 1779076918176;
 
 // whargarbl lots of these return arrays could/should be sets
 const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
@@ -21427,12 +21427,18 @@ class Machine {
         }
         // done building, do checks
         // assert all props are valid
+        // _state_properties keys are always JSON.stringify([string, string]),
+        // built by name_bind_prop_and_state which throws on non-strings — so the
+        // non-array / non-string else-arms below are unreachable, not untested.
         this._state_properties.forEach((_value, key) => {
             const inside = JSON.parse(key);
+            /* v8 ignore else */
             if (Array.isArray(inside)) {
                 const j_property = inside[0];
+                /* v8 ignore else */
                 if (typeof j_property === 'string') {
                     const j_state = inside[1];
+                    /* v8 ignore else */
                     if (typeof j_state === 'string') {
                         if (!(this.known_prop(j_property))) {
                             throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
@@ -23685,9 +23691,7 @@ class Machine {
                 layers.push(theme.state);
             }
         });
-        if (this._state_style) {
-            layers.push(this._state_style);
-        }
+        layers.push(this._state_style);
         // hooked state style
         // if (this.has_hooks(state)) {
         //   layers.push(base_theme.hooked);
@@ -23704,9 +23708,7 @@ class Machine {
                     layers.push(theme.terminal);
                 }
             });
-            if (this._terminal_state_style) {
-                layers.push(this._terminal_state_style);
-            }
+            layers.push(this._terminal_state_style);
         }
         // start state style
         if (this.is_start_state(state)) {
@@ -23716,9 +23718,7 @@ class Machine {
                     layers.push(theme.start);
                 }
             });
-            if (this._start_state_style) {
-                layers.push(this._start_state_style);
-            }
+            layers.push(this._start_state_style);
         }
         // end state style
         if (this.is_end_state(state)) {
@@ -23728,9 +23728,7 @@ class Machine {
                     layers.push(theme.end);
                 }
             });
-            if (this._end_state_style) {
-                layers.push(this._end_state_style);
-            }
+            layers.push(this._end_state_style);
         }
         // active state style
         if (this.state() === state) {
@@ -23740,9 +23738,7 @@ class Machine {
                     layers.push(theme.active);
                 }
             });
-            if (this._active_state_style) {
-                layers.push(this._active_state_style);
-            }
+            layers.push(this._active_state_style);
         }
         const individual_style = {}, decl = this._state_declarations.get(state);
         individual_style.color = decl === null || decl === void 0 ? void 0 : decl.color;
