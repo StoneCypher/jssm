@@ -702,8 +702,9 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
      */
     all_state_name_chars(): ReadonlyArray<{
         from: string;
@@ -716,8 +717,9 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars(): ReadonlyArray<{
         from: string;
@@ -730,9 +732,10 @@ declare class Machine<mDT> {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
-     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
      */
     all_action_label_chars(): ReadonlyArray<{
         from: string;
@@ -1916,6 +1919,27 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  */
 declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT>;
 /**
+ * Compares two semantic version strings.
+ *
+ * @param {string} v1 - First version string (e.g., "5.104.2")
+ * @param {string} v2 - Second version string (e.g., "5.103.1")
+ *
+ * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
+ */
+declare function compareVersions(v1: string, v2: string): number;
+/**
  * Deserializes a previously serialized machine state.
  *
  * This function recreates a machine from a serialization object, restoring its
@@ -1932,9 +1956,11 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  * @throws {Error} If the serialization is from a future version
  *
  * @example
- * const machine = jssm.from("a -> b;");
+ * import { from, deserialize } from 'jssm';
+ * const machine    = from("a -> b;");
  * const serialized = machine.serialize();
- * const restored = jssm.deserialize("a -> b;", serialized);
+ * const restored   = deserialize("a -> b;", serialized);
+ * restored.state();  // => 'a'
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections };
+export { version, build_time, transfer_state_properties, Machine, deserialize, compareVersions, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections };

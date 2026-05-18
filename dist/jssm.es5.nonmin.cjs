@@ -21170,7 +21170,8 @@ const named_colors$1 = [
  *  plus the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ *  import { state_name_chars } from 'jssm';
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
  */
 // keep in sync with src/ts/fsl_parser.peg:278
 const state_name_chars$1 = Object.freeze([
@@ -21202,7 +21203,8 @@ const state_name_chars$1 = Object.freeze([
  *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ *  import { state_name_first_chars } from 'jssm';
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
  */
 // keep in sync with src/ts/fsl_parser.peg:275
 const state_name_first_chars$1 = Object.freeze([
@@ -21228,8 +21230,9 @@ const state_name_first_chars$1 = Object.freeze([
  *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
  *
  *  @example
- *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
- *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ *  import { action_label_chars } from 'jssm';
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
  */
 // keep in sync with src/ts/fsl_parser.peg:240
 const action_label_chars$1 = Object.freeze([
@@ -21271,13 +21274,13 @@ var constants = /*#__PURE__*/Object.freeze({
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.121.0";
+const version = "5.121.1";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778988485112;
+const build_time = 1779040659839;
 
 // whargarbl lots of these return arrays could/should be sets
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
@@ -22432,8 +22435,9 @@ class Machine {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
      */
     all_state_name_chars() {
         return state_name_chars;
@@ -22445,8 +22449,9 @@ class Machine {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars() {
         return state_name_first_chars;
@@ -22458,9 +22463,10 @@ class Machine {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
-     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
      */
     all_action_label_chars() {
         return action_label_chars;
@@ -24590,13 +24596,16 @@ function abstract_everything_hook_step(maybe_hook, hook_args) {
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
  *
  * @example
- * compareVersions("5.104.2", "5.103.1") // returns 1 (v1 is newer)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
  *
  * @example
- * compareVersions("5.104.2", "6.0.0")   // returns -1 (v1 is older)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
  *
  * @example
- * compareVersions("5.104.2", "5.104.2") // returns 0 (equal)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
  */
 function compareVersions(v1, v2) {
     var _a, _b;
@@ -24628,9 +24637,11 @@ function compareVersions(v1, v2) {
  * @throws {Error} If the serialization is from a future version
  *
  * @example
- * const machine = jssm.from("a -> b;");
+ * import { from, deserialize } from 'jssm';
+ * const machine    = from("a -> b;");
  * const serialized = machine.serialize();
- * const restored = jssm.deserialize("a -> b;", serialized);
+ * const restored   = deserialize("a -> b;", serialized);
+ * restored.state();  // => 'a'
  */
 function deserialize(machine_string, ser) {
     // Refuse to deserialize data from future versions
@@ -24653,6 +24664,7 @@ exports.arrow_direction = arrow_direction;
 exports.arrow_left_kind = arrow_left_kind;
 exports.arrow_right_kind = arrow_right_kind;
 exports.build_time = build_time;
+exports.compareVersions = compareVersions;
 exports.compile = compile;
 exports.constants = constants;
 exports.deserialize = deserialize;
