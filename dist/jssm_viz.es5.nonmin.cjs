@@ -20908,7 +20908,8 @@ theme_mapping.set('bold', bold_theme);
  *  plus the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // true
+ *  import { state_name_chars } from 'jssm';
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
  */
 // keep in sync with src/ts/fsl_parser.peg:278
 const state_name_chars$1 = Object.freeze([
@@ -20940,7 +20941,8 @@ const state_name_chars$1 = Object.freeze([
  *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
  *
  *  @example
- *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // false
+ *  import { state_name_first_chars } from 'jssm';
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
  */
 // keep in sync with src/ts/fsl_parser.peg:275
 const state_name_first_chars$1 = Object.freeze([
@@ -20966,8 +20968,9 @@ const state_name_first_chars$1 = Object.freeze([
  *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
  *
  *  @example
- *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // true
- *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // false
+ *  import { action_label_chars } from 'jssm';
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
  */
 // keep in sync with src/ts/fsl_parser.peg:240
 const action_label_chars$1 = Object.freeze([
@@ -20995,7 +20998,7 @@ const version = "5.122.1";
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1779062004734;
+const build_time = 1779075405237;
 
 // whargarbl lots of these return arrays could/should be sets
 const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
@@ -22156,8 +22159,9 @@ class Machine {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // true
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
      */
     all_state_name_chars() {
         return state_name_chars;
@@ -22169,8 +22173,9 @@ class Machine {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // false
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
      */
     all_state_name_first_chars() {
         return state_name_first_chars;
@@ -22182,9 +22187,10 @@ class Machine {
      *  @returns An array of `{from, to}` inclusive character ranges.
      *
      *  @example
+     *  import { sm } from 'jssm';
      *  const m = sm`a -> b;`;
-     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // true
-     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // false
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
      */
     all_action_label_chars() {
         return action_label_chars;
