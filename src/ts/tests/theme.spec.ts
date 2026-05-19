@@ -102,6 +102,35 @@ test('Theme change', () => {
 
 
 
+/* Regression: fsl#1328 — the grammar formerly listed `none` and lacked
+   `plain`, so `theme: plain;` was rejected and `theme: none;` slipped past
+   the parser only to vanish at `theme_mapping.get('none') === undefined`.
+   The grammar now matches `FslThemes` exactly. */
+
+describe('fsl#1328 — grammar and theme_mapping agree', () => {
+
+  test('`theme: plain;` parses', () =>
+    expect( () => { const _foo = sm`theme: plain; a -> b;`; } ).not.toThrow() );
+
+  test('`theme: plain;` puts "plain" into the machine themes list', () =>
+    expect( sm`theme: plain; a -> b;`.themes ).toStrictEqual(['plain']) );
+
+  test('`theme_mapping.get("plain")` is defined', () =>
+    expect( theme_mapping.get('plain') ).toBeDefined() );
+
+  test('`theme: none;` is rejected by the parser', () =>
+    expect( () => { const _foo = sm`theme: none; a -> b;`; } ).toThrow() );
+
+  FslThemes.forEach(themeName =>
+    test(`FslTheme "${themeName}" resolves to a defined theme_mapping entry`, () =>
+      expect( theme_mapping.get(themeName) ).toBeDefined() ) );
+
+  FslThemes.forEach(themeName =>
+    test(`FslTheme "${themeName}" parses and lands in machine.themes`, () =>
+      expect( sm`theme: ${themeName}; a -> b;`.themes ).toStrictEqual([themeName]) ) );
+
+});
+
 describe('style_for theme layering edge cases', () => {
 
   // style_for() walks `_themes`, looks each name up in `theme_mapping`, and
