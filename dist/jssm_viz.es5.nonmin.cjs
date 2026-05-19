@@ -20877,21 +20877,131 @@ theme_mapping.set('ocean', ocean_theme);
 theme_mapping.set('plain', plain_theme);
 theme_mapping.set('bold', bold_theme);
 
+/*******
+ *
+ *  Convenience aliases for common mathematical and numeric constants from
+ *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
+ *  can reference them without importing `Math` directly.
+ *
+ *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
+ *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
+ *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
+ *
+ */
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  import { state_name_chars } from 'jssm';
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
+ */
+// keep in sync with src/ts/fsl_parser.peg:278
+const state_name_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '+', to: '+' },
+    { from: '_', to: '_' },
+    { from: '^', to: '^' },
+    { from: '(', to: '(' },
+    { from: ')', to: ')' },
+    { from: '*', to: '*' },
+    { from: '&', to: '&' },
+    { from: '$', to: '$' },
+    { from: '#', to: '#' },
+    { from: '@', to: '@' },
+    { from: '!', to: '!' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  import { state_name_first_chars } from 'jssm';
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
+ */
+// keep in sync with src/ts/fsl_parser.peg:275
+const state_name_first_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '_', to: '_' },
+    { from: '!', to: '!' },
+    { from: '$', to: '$' },
+    { from: '^', to: '^' },
+    { from: '*', to: '*' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  import { action_label_chars } from 'jssm';
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$1 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\uFFFF' },
+]);
+
+var constants = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    action_label_chars: action_label_chars$1,
+    state_name_chars: state_name_chars$1,
+    state_name_first_chars: state_name_first_chars$1
+});
+
 /**
  *  The published semantic version of the jssm package this build was cut from.
  *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.113.0";
+const version = "5.123.0";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778655866696;
+const build_time = 1779171417341;
 
 // whargarbl lots of these return arrays could/should be sets
+const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -21317,12 +21427,18 @@ class Machine {
         }
         // done building, do checks
         // assert all props are valid
+        // _state_properties keys are always JSON.stringify([string, string]),
+        // built by name_bind_prop_and_state which throws on non-strings — so the
+        // non-array / non-string else-arms below are unreachable, not untested.
         this._state_properties.forEach((_value, key) => {
             const inside = JSON.parse(key);
+            /* v8 ignore else */
             if (Array.isArray(inside)) {
                 const j_property = inside[0];
+                /* v8 ignore else */
                 if (typeof j_property === 'string') {
                     const j_state = inside[1];
+                    /* v8 ignore else */
                     if (typeof j_state === 'string') {
                         if (!(this.known_prop(j_property))) {
                             throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
@@ -22036,6 +22152,49 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
+    }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -22161,10 +22320,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -22172,11 +22344,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
@@ -23512,9 +23691,7 @@ class Machine {
                 layers.push(theme.state);
             }
         });
-        if (this._state_style) {
-            layers.push(this._state_style);
-        }
+        layers.push(this._state_style);
         // hooked state style
         // if (this.has_hooks(state)) {
         //   layers.push(base_theme.hooked);
@@ -23531,9 +23708,7 @@ class Machine {
                     layers.push(theme.terminal);
                 }
             });
-            if (this._terminal_state_style) {
-                layers.push(this._terminal_state_style);
-            }
+            layers.push(this._terminal_state_style);
         }
         // start state style
         if (this.is_start_state(state)) {
@@ -23543,9 +23718,7 @@ class Machine {
                     layers.push(theme.start);
                 }
             });
-            if (this._start_state_style) {
-                layers.push(this._start_state_style);
-            }
+            layers.push(this._start_state_style);
         }
         // end state style
         if (this.is_end_state(state)) {
@@ -23555,9 +23728,7 @@ class Machine {
                     layers.push(theme.end);
                 }
             });
-            if (this._end_state_style) {
-                layers.push(this._end_state_style);
-            }
+            layers.push(this._end_state_style);
         }
         // active state style
         if (this.state() === state) {
@@ -23567,9 +23738,7 @@ class Machine {
                     layers.push(theme.active);
                 }
             });
-            if (this._active_state_style) {
-                layers.push(this._active_state_style);
-            }
+            layers.push(this._active_state_style);
         }
         const individual_style = {}, decl = this._state_declarations.get(state);
         individual_style.color = decl === null || decl === void 0 ? void 0 : decl.color;
@@ -24291,9 +24460,24 @@ function flow_direction_to_rankdir(flow_direction) {
 /**
  *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
  *
+ *  The optional `preamble` is inlined just after `digraph G {`, before any
+ *  graph attributes; the optional `footer` is inlined just before the closing
+ *  `}`, after all arrange declarations.  Both are emitted verbatim, separated
+ *  from surrounding content by a blank line so that empty strings render
+ *  cleanly (no stray whitespace artifacts in the output).
+ *
+ *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
+ *  @param graph_bg_color CSS-style color string for `bgcolor`.
+ *  @param nodes Rendered node-declaration block.
+ *  @param edges Rendered edge-declaration block.
+ *  @param arranges Rendered rank-arrangement block.
+ *  @param preamble Optional verbatim dot source inserted just after `digraph G {`.
+ *  @param footer Optional verbatim dot source inserted just before the closing `}`.
+ *  @returns A complete graphviz dot source string.
+ *
  *  @internal
  */
-function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '') {
+function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '', footer = '') {
     return `digraph G {
 ${preamble}
 
@@ -24309,6 +24493,8 @@ ${nodes}
 ${edges}
 
 ${arranges}
+
+${footer}
 }`;
 }
 /**
@@ -24366,21 +24552,15 @@ function default_fillcolor_for(kind) {
  *  honoured uniformly.  A single `style_for` call per state — downstream
  *  helpers operate on the cached result rather than re-querying.
  *
- *  When `hide_state_labels` is true, the `label=` attribute is omitted from
- *  every state's node line; Graphviz then renders the node box without any
- *  text inside.  Useful for diagrams where the state shape carries meaning
- *  on its own (e.g. a tutorial graphic, an icon-only diagram, or a
- *  presentation slide).
- *
  *  @internal
  */
-function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide_state_labels = false) {
+function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds) {
     return l_states.map((s) => {
         var _a;
         const style = u_jssm.style_for(s);
         const fillcolor = style.backgroundColor || default_fillcolor_for((_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base');
         const features = [
-            ['label', hide_state_labels ? '' : u_jssm.display_text(s)],
+            ['label', u_jssm.display_text(s)],
             ['shape', style.shape || ''],
             ['color', style.borderColor || ''],
             ['style', compose_style_string(style)],
@@ -24542,6 +24722,11 @@ function arranges_for(u_jssm, state_index) {
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
+ *
  *  ```typescript
  *  import { sm } from 'jssm';
  *  import { machine_to_dot } from 'jssm/viz';
@@ -24549,24 +24734,27 @@ function arranges_for(u_jssm, state_index) {
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
  *
- *  // suppress state-name labels (boxes only, no text inside)
- *  const dot2 = machine_to_dot(sm`a -> b;`, { hide_state_labels: true });
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function machine_to_dot(u_jssm, opts = {}) {
+function machine_to_dot(u_jssm, opts) {
+    var _a;
     const l_states = u_jssm.states();
     const state_index = new Map(l_states.map((s, i) => [s, i]));
     const state_kinds = classify_states(u_jssm, l_states);
-    const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, opts.hide_state_labels === true);
+    const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds);
     const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
     const arranges = arranges_for(u_jssm, state_index);
     const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
     const preamble = u_jssm.dot_preamble() || '';
-    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
+    const footer = (_a = opts === null || opts === void 0 ? void 0 : opts.footer) !== null && _a !== void 0 ? _a : '';
+    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble, footer);
 }
 /**
  *  Render an FSL string directly to graphviz dot source.
@@ -24575,15 +24763,16 @@ function machine_to_dot(u_jssm, opts = {}) {
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
  *
- *  // suppress state-name labels
- *  const dot2 = fsl_to_dot('a -> b;', { hide_state_labels: true });
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-function fsl_to_dot(fsl, opts = {}) {
+function fsl_to_dot(fsl, opts) {
     return machine_to_dot(sm `${fsl}`, opts);
 }
 /**
@@ -24593,33 +24782,47 @@ function fsl_to_dot(fsl, opts = {}) {
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
  *
  *  @param dot Graphviz dot source.
+ *  @param options Optional renderer overrides.
+ *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
+ *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
+ *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function dot_to_svg(dot) {
+async function dot_to_svg(dot, options) {
     const viz = await get_viz();
-    return viz.renderString(dot, { format: 'svg' });
+    return viz.renderString(dot, Object.assign({ format: 'svg' }, (options !== null && options !== void 0 ? options : {})));
 }
 /**
  *  Render an FSL string directly to SVG.
  *
+ *  ```typescript
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  ```
+ *
  *  @param fsl The FSL source.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
+ *  @param opts.engine Graphviz layout engine to use (e.g. `'dot'`, `'neato'`, `'circo'`).
+ *  Unrecognized engine names cause `@viz-js/viz` to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl, opts = {}) {
-    return dot_to_svg(fsl_to_dot(fsl, opts));
+async function fsl_to_svg_string(fsl, opts) {
+    return dot_to_svg(fsl_to_dot(fsl, opts), opts);
 }
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function machine_to_svg_string(u_jssm, opts = {}) {
+async function machine_to_svg_string(u_jssm, opts) {
     return dot_to_svg(machine_to_dot(u_jssm, opts));
 }
 /**
@@ -24657,22 +24860,24 @@ async function dot_to_svg_element(dot) {
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function fsl_to_svg_element(fsl, opts = {}) {
+async function fsl_to_svg_element(fsl, opts) {
     return dot_to_svg_element(fsl_to_dot(fsl, opts));
 }
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function machine_to_svg_element(u_jssm, opts = {}) {
+async function machine_to_svg_element(u_jssm, opts) {
     return dot_to_svg_element(machine_to_dot(u_jssm, opts));
 }
 /**

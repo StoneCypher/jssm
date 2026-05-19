@@ -1188,6 +1188,52 @@ declare class Machine<mDT> {
      *  @returns An array of theme name strings.
      */
     all_themes(): FslTheme[];
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     */
+    all_state_name_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+     */
+    all_state_name_first_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+     */
+    all_action_label_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -1281,10 +1327,23 @@ declare class Machine<mDT> {
      *
      */
     list_exits(whichState?: StateType): Array<StateType>;
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>>;
@@ -2261,19 +2320,12 @@ declare function image_for_state<T>(u_jssm: Machine<T>, state: string): string |
  */
 declare function style_for_state<T>(u_jssm: Machine<T>, state: string): string;
 /**
- *  Options for the dot/SVG render entry points.
- *
- *  - `hide_state_labels` (default `false`) — when `true`, the rendered dot
- *    output omits the `label=` attribute on every state's node line.
- *    Graphviz then draws the box without any text inside.  Useful for
- *    diagrams where shape, color, or layout alone carry the meaning
- *    (icon-only diagrams, tutorial graphics, presentation slides).
- */
-declare type VizRenderOpts = {
-    hide_state_labels?: boolean;
-};
-/**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
+ *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
  *
  *  ```typescript
  *  import { sm } from 'jssm';
@@ -2282,15 +2334,18 @@ declare type VizRenderOpts = {
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
  *
- *  // suppress state-name labels (boxes only, no text inside)
- *  const dot2 = machine_to_dot(sm`a -> b;`, { hide_state_labels: true });
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-declare function machine_to_dot<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): string;
+declare function machine_to_dot<T>(u_jssm: Machine<T>, opts?: {
+    footer?: string;
+}): string;
 /**
  *  Render an FSL string directly to graphviz dot source.
  *
@@ -2298,15 +2353,18 @@ declare function machine_to_dot<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): st
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
  *
- *  // suppress state-name labels
- *  const dot2 = fsl_to_dot('a -> b;', { hide_state_labels: true });
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}`.
  *  @returns A complete graphviz dot source string.
  */
-declare function fsl_to_dot(fsl: string, opts?: VizRenderOpts): string;
+declare function fsl_to_dot(fsl: string, opts?: {
+    footer?: string;
+}): string;
 /**
  *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
  *  underlying viz instance is lazy-initialized on first call and cached for
@@ -2314,46 +2372,73 @@ declare function fsl_to_dot(fsl: string, opts?: VizRenderOpts): string;
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
  *
  *  @param dot Graphviz dot source.
+ *  @param options Optional renderer overrides.
+ *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
+ *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
+ *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-declare function dot_to_svg(dot: string): Promise<string>;
+declare function dot_to_svg(dot: string, options?: {
+    engine?: string;
+}): Promise<string>;
 /**
  *  Render an FSL string directly to SVG.
  *
+ *  ```typescript
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  ```
+ *
  *  @param fsl The FSL source.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
+ *  @param opts.engine Graphviz layout engine to use (e.g. `'dot'`, `'neato'`, `'circo'`).
+ *  Unrecognized engine names cause `@viz-js/viz` to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-declare function fsl_to_svg_string(fsl: string, opts?: VizRenderOpts): Promise<string>;
+declare function fsl_to_svg_string(fsl: string, opts?: {
+    footer?: string;
+    engine?: string;
+}): Promise<string>;
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to an SVG XML string.
  */
-declare function machine_to_svg_string<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): Promise<string>;
+declare function machine_to_svg_string<T>(u_jssm: Machine<T>, opts?: {
+    footer?: string;
+}): Promise<string>;
 /**
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-declare function fsl_to_svg_element(fsl: string, opts?: VizRenderOpts): Promise<SVGSVGElement>;
+declare function fsl_to_svg_element(fsl: string, opts?: {
+    footer?: string;
+}): Promise<SVGSVGElement>;
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
- *  @param opts Optional render flags.  See {@link VizRenderOpts}.
+ *  @param opts Optional rendering options.
+ *  @param opts.footer Optional verbatim dot source inserted just before the closing `}` of the intermediate dot source.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-declare function machine_to_svg_element<T>(u_jssm: Machine<T>, opts?: VizRenderOpts): Promise<SVGSVGElement>;
+declare function machine_to_svg_element<T>(u_jssm: Machine<T>, opts?: {
+    footer?: string;
+}): Promise<SVGSVGElement>;
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
  *  jssm-viz.  Will be removed in the next major.
@@ -2374,4 +2459,3 @@ declare const _test: {
 };
 
 export { _test, build_time, configure, dot, dot_to_svg, fsl_to_dot, fsl_to_svg_element, fsl_to_svg_string, machine_to_dot, machine_to_svg_element, machine_to_svg_string, version };
-export type { VizRenderOpts };

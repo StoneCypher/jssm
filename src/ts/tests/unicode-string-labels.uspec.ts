@@ -21,7 +21,7 @@ const atom_test = (idx: number): boolean => {
       throw new Error(`Broke on ${idx} "${cp}"`);
     }
 
-    expect( test.actions().includes(cp) ).toBe(true);
+    expect( test.label_for('source') ).toBe(cp);
 
   }
 

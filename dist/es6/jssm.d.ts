@@ -5,7 +5,16 @@ import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
-declare const shapes: string[], gviz_shapes: string[], named_colors: string[];
+declare const shapes: string[], gviz_shapes: string[], named_colors: string[], state_name_chars: readonly {
+    from: string;
+    to: string;
+}[], state_name_first_chars: readonly {
+    from: string;
+    to: string;
+}[], action_label_chars: readonly {
+    from: string;
+    to: string;
+}[];
 import { version, build_time } from './version';
 /*********
  *
@@ -686,6 +695,52 @@ declare class Machine<mDT> {
      *  @returns An array of theme name strings.
      */
     all_themes(): FslTheme[];
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     */
+    all_state_name_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+     */
+    all_state_name_first_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+     */
+    all_action_label_chars(): ReadonlyArray<{
+        from: string;
+        to: string;
+    }>;
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -779,10 +834,23 @@ declare class Machine<mDT> {
      *
      */
     list_exits(whichState?: StateType): Array<StateType>;
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>>;
@@ -1851,6 +1919,27 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  */
 declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT>;
 /**
+ * Compares two semantic version strings.
+ *
+ * @param {string} v1 - First version string (e.g., "5.104.2")
+ * @param {string} v2 - Second version string (e.g., "5.103.1")
+ *
+ * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
+ */
+declare function compareVersions(v1: string, v2: string): number;
+/**
  * Deserializes a previously serialized machine state.
  *
  * This function recreates a machine from a serialization object, restoring its
@@ -1867,9 +1956,11 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  * @throws {Error} If the serialization is from a future version
  *
  * @example
- * const machine = jssm.from("a -> b;");
+ * import { from, deserialize } from 'jssm';
+ * const machine    = from("a -> b;");
  * const serialized = machine.serialize();
- * const restored = jssm.deserialize("a -> b;", serialized);
+ * const restored   = deserialize("a -> b;", serialized);
+ * restored.state();  // => 'a'
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
-export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections };
+export { version, build_time, transfer_state_properties, Machine, deserialize, compareVersions, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections };
