@@ -241,9 +241,24 @@ function flow_direction_to_rankdir(flow_direction: string): string {
 /**
  *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
  *
+ *  The optional `preamble` is inlined just after `digraph G {`, before any
+ *  graph attributes; the optional `footer` is inlined just before the closing
+ *  `}`, after all arrange declarations.  Both are emitted verbatim, separated
+ *  from surrounding content by a blank line so that empty strings render
+ *  cleanly (no stray whitespace artifacts in the output).
+ *
+ *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
+ *  @param graph_bg_color CSS-style color string for `bgcolor`.
+ *  @param nodes Rendered node-declaration block.
+ *  @param edges Rendered edge-declaration block.
+ *  @param arranges Rendered rank-arrangement block.
+ *  @param preamble Optional verbatim dot source inserted just after `digraph G {`.
+ *  @param footer Optional verbatim dot source inserted just before the closing `}`.
+ *  @returns A complete graphviz dot source string.
+ *
  *  @internal
  */
-function dot_template(rank_dir: string, graph_bg_color: string, nodes: string, edges: string, arranges: string, preamble = ''): string {
+function dot_template(rank_dir: string, graph_bg_color: string, nodes: string, edges: string, arranges: string, preamble = '', footer = ''): string {
   return `digraph G {
 ${preamble}
 
@@ -259,6 +274,8 @@ ${nodes}
 ${edges}
 
 ${arranges}
+
+${footer}
 }`;
 }
 
@@ -344,9 +361,15 @@ function default_fillcolor_for(kind: StateKind): string {
  *  honoured uniformly.  A single `style_for` call per state — downstream
  *  helpers operate on the cached result rather than re-querying.
  *
+ *  When `hide_state_labels` is true, the `label=` attribute is omitted from
+ *  every state's node line; Graphviz then renders the node box without any
+ *  text inside.  Useful for diagrams where the state shape carries meaning
+ *  on its own (e.g. a tutorial graphic, an icon-only diagram, or a
+ *  presentation slide).
+ *
  *  @internal
  */
-function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, number>, state_kinds: Map<string, StateKind>): string {
+function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, number>, state_kinds: Map<string, StateKind>, hide_state_labels = false): string {
 
   return l_states.map((s) => {
 
@@ -354,7 +377,7 @@ function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
     const fillcolor = style.backgroundColor || default_fillcolor_for(state_kinds.get(s) ?? 'base');
 
     const features = [
-      ['label',     u_jssm.display_text(s)],
+      ['label',     hide_state_labels ? '' : u_jssm.display_text(s)],
       ['shape',     style.shape       || ''],
       ['color',     style.borderColor || ''],
       ['style',     compose_style_string(style)],
@@ -555,7 +578,31 @@ function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, numbe
 
 
 /**
+ *  Options for the dot/SVG render entry points.
+ *
+ *  - `hide_state_labels` (default `false`) — when `true`, the rendered dot
+ *    output omits the `label=` attribute on every state's node line.
+ *    Graphviz then draws the box without any text inside.  Useful for
+ *    diagrams where shape, color, or layout alone carry the meaning
+ *    (icon-only diagrams, tutorial graphics, presentation slides).
+ *  - `footer` — verbatim dot source inserted just before the closing `}`
+ *    of the generated dot source (e.g. `labelloc="b"; label="caption";`).
+ *  - `engine` — graphviz layout engine for the SVG render path (e.g.
+ *    `dot`, `neato`, `circo`); honored by `fsl_to_svg_string`.
+ */
+type VizRenderOpts = {
+  hide_state_labels?: boolean,
+  footer?: string,
+  engine?: string
+};
+
+/**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
+ *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
  *
  *  ```typescript
  *  import { sm } from 'jssm';
@@ -563,25 +610,33 @@ function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, numbe
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  // suppress state-name labels (boxes only, no text inside)
+ *  const dot2 = machine_to_dot(sm`a -> b;`, { hide_state_labels: true });
+ *
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-function machine_to_dot<T>(u_jssm: jssm.Machine<T>): string {
+function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): string {
 
   const l_states    = u_jssm.states();
   const state_index = new Map<string, number>(l_states.map((s, i) => [s, i] as [string, number]));
   const state_kinds = classify_states(u_jssm, l_states);
 
-  const nodes    = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds);
+  const nodes    = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, opts.hide_state_labels === true);
   const edges    = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
   const arranges = arranges_for(u_jssm, state_index);
 
   const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
   const preamble = u_jssm.dot_preamble() || '';
+  const footer   = opts?.footer ?? '';
 
-  return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
+  return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble, footer);
 
 }
 
@@ -594,13 +649,20 @@ function machine_to_dot<T>(u_jssm: jssm.Machine<T>): string {
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  // suppress state-name labels
+ *  const dot2 = fsl_to_dot('a -> b;', { hide_state_labels: true });
+ *
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-function fsl_to_dot(fsl: string): string {
-  return machine_to_dot(jssm.sm`${fsl}`);
+function fsl_to_dot(fsl: string, opts: VizRenderOpts = {}): string {
+  return machine_to_dot(jssm.sm`${fsl}`, opts);
 }
 
 
@@ -613,14 +675,19 @@ function fsl_to_dot(fsl: string): string {
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
  *
  *  @param dot Graphviz dot source.
+ *  @param options Optional renderer overrides.
+ *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
+ *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
+ *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function dot_to_svg(dot: string): Promise<string> {
+async function dot_to_svg(dot: string, options?: { engine?: string }): Promise<string> {
   const viz = await get_viz();
-  return viz.renderString(dot, { format: 'svg' });
+  return viz.renderString(dot, { format: 'svg', ...(options ?? {}) });
 }
 
 
@@ -629,11 +696,17 @@ async function dot_to_svg(dot: string): Promise<string> {
 /**
  *  Render an FSL string directly to SVG.
  *
+ *  ```typescript
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  ```
+ *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl: string): Promise<string> {
-  return dot_to_svg(fsl_to_dot(fsl));
+async function fsl_to_svg_string(fsl: string, opts: VizRenderOpts = {}): Promise<string> {
+  return dot_to_svg(fsl_to_dot(fsl, opts), opts);
 }
 
 
@@ -643,10 +716,11 @@ async function fsl_to_svg_string(fsl: string): Promise<string> {
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>): Promise<string> {
-  return dot_to_svg(machine_to_dot(u_jssm));
+async function machine_to_svg_string<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<string> {
+  return dot_to_svg(machine_to_dot(u_jssm, opts));
 }
 
 
@@ -692,11 +766,12 @@ async function dot_to_svg_element(dot: string): Promise<SVGSVGElement> {
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement> {
-  return dot_to_svg_element(fsl_to_dot(fsl));
+async function fsl_to_svg_element(fsl: string, opts: VizRenderOpts = {}): Promise<SVGSVGElement> {
+  return dot_to_svg_element(fsl_to_dot(fsl, opts));
 }
 
 
@@ -706,11 +781,12 @@ async function fsl_to_svg_element(fsl: string): Promise<SVGSVGElement> {
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>): Promise<SVGSVGElement> {
-  return dot_to_svg_element(machine_to_dot(u_jssm));
+async function machine_to_svg_element<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): Promise<SVGSVGElement> {
+  return dot_to_svg_element(machine_to_dot(u_jssm, opts));
 }
 
 
@@ -736,6 +812,8 @@ export {
   machine_to_dot, machine_to_svg_string, machine_to_svg_element,
   version, build_time
 };
+
+export type { VizRenderOpts };
 
 /** @internal — test-only access to private helpers. */
 export const _test = {

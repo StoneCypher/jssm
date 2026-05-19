@@ -59,7 +59,8 @@ import {
 
 
 import * as constants from './jssm_constants';
-const { shapes, gviz_shapes, named_colors } = constants;
+const { shapes, gviz_shapes, named_colors,
+        state_name_chars, state_name_first_chars, action_label_chars } = constants;
 
 
 
@@ -763,12 +764,18 @@ class Machine<mDT> {
     // done building, do checks
 
     // assert all props are valid
+    // _state_properties keys are always JSON.stringify([string, string]),
+    // built by name_bind_prop_and_state which throws on non-strings — so the
+    // non-array / non-string else-arms below are unreachable, not untested.
     this._state_properties.forEach( (_value, key) => {
       const inside = JSON.parse(key);
+      /* v8 ignore else */
       if (Array.isArray(inside)) {
         const j_property = inside[0];
+        /* v8 ignore else */
         if (typeof j_property === 'string') {
           const j_state = inside[1];
+          /* v8 ignore else */
           if (typeof j_state === 'string') {
             if (!(this.known_prop(j_property))) {
               throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
@@ -1688,6 +1695,52 @@ class Machine<mDT> {
     return [... theme_mapping.keys()];     // constructor sets this to "default" otherwise
   }
 
+  /** List the character ranges accepted by the FSL grammar in any but the
+   *  first position of a state name (atom).  Each entry is an inclusive
+   *  `{from, to}` range of single Unicode characters.
+   *
+   *  @returns An array of `{from, to}` inclusive character ranges.
+   *
+   *  @example
+   *  import { sm } from 'jssm';
+   *  const m = sm`a -> b;`;
+   *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+   */
+  all_state_name_chars(): ReadonlyArray<{ from: string, to: string }> {
+    return state_name_chars;
+  }
+
+  /** List the character ranges accepted by the FSL grammar in the first
+   *  position of a state name (atom).  Narrower than
+   *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+   *
+   *  @returns An array of `{from, to}` inclusive character ranges.
+   *
+   *  @example
+   *  import { sm } from 'jssm';
+   *  const m = sm`a -> b;`;
+   *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+   */
+  all_state_name_first_chars(): ReadonlyArray<{ from: string, to: string }> {
+    return state_name_first_chars;
+  }
+
+  /** List the character ranges accepted inside a single-quoted FSL action
+   *  label without escaping.  Space is allowed; the apostrophe `'` is
+   *  explicitly excluded since it terminates the label.
+   *
+   *  @returns An array of `{from, to}` inclusive character ranges.
+   *
+   *  @example
+   *  import { sm } from 'jssm';
+   *  const m = sm`a -> b;`;
+   *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+   *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+   */
+  all_action_label_chars(): ReadonlyArray<{ from: string, to: string }> {
+    return action_label_chars;
+  }
+
   /** Get the active theme(s) for this machine.  Always stored as an array
    *  internally; the union return type exists for setter compatibility.
    *  @returns The current theme or array of themes.
@@ -1847,10 +1900,23 @@ class Machine<mDT> {
 
 
 
-  /** Get the transitions available from a state, filtered to those with
-   *  probability data.  Used by the probabilistic walk system.
+  /** Get the transitions available from a state for use by the probabilistic
+   *  walk system.
+   *
+   *  If any exit declares a `probability`, only those probability-bearing
+   *  exits are returned, so that non-probability peers cannot dilute the
+   *  declared distribution.  If no exit declares a `probability`, every
+   *  legal (non-forced) exit is returned, which `weighted_rand_select`
+   *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+   *  since they cannot be taken by an ordinary `transition()` call.
+   *
+   *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+   *  every exit unconditionally — including forced-only exits and exits
+   *  with no `probability`, which distorted the weighted distribution.
+   *
    *  @param whichState - The state to inspect.
-   *  @returns An array of {@link JssmTransition} edges exiting the state.
+   *  @returns An array of {@link JssmTransition} edges exiting the state,
+   *  filtered as described above.  May be empty.
    *  @throws {JssmError} If the state does not exist.
    */
   probable_exits_for(whichState: StateType): Array<JssmTransition<StateType, mDT>> {
@@ -1860,12 +1926,23 @@ class Machine<mDT> {
 
     const wstate_to: Array<StateType> = wstate.to,
 
-      wtf: Array<JssmTransition<StateType, mDT>> // wstate_to_filtered -> wtf
+      // every transition that exits whichState
+      all_exits: Array<JssmTransition<StateType, mDT>>
         = wstate_to
           .map((ws): JssmTransition<StateType, mDT> => this.lookup_transition_for(whichState, ws))
-          .filter(Boolean);
+          .filter(Boolean),
 
-    return wtf;
+      // forced-only exits cannot be reached by transition(), so they are
+      // never legal probabilistic outcomes
+      legal_exits: Array<JssmTransition<StateType, mDT>>
+        = all_exits.filter((e): boolean => !e.forced_only),
+
+      // if any legal exit declares a probability, filter to those only so
+      // that probability-bearing edges are not diluted by their peers
+      probability_bearing: Array<JssmTransition<StateType, mDT>>
+        = legal_exits.filter((e): boolean => e.probability !== undefined);
+
+    return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
 
   }
 
@@ -3548,7 +3625,7 @@ class Machine<mDT> {
       if (theme.state) { layers.push(theme.state); }
     });
 
-    if (this._state_style) { layers.push(this._state_style); }
+    layers.push(this._state_style);
 
 
     // hooked state style
@@ -3567,7 +3644,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.terminal) { layers.push(theme.terminal); }
       });
-      if (this._terminal_state_style) { layers.push(this._terminal_state_style); }
+      layers.push(this._terminal_state_style);
     }
 
 
@@ -3577,7 +3654,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.start) { layers.push(theme.start); }
       });
-      if (this._start_state_style) { layers.push(this._start_state_style); }
+      layers.push(this._start_state_style);
     }
 
 
@@ -3587,7 +3664,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.end) { layers.push(theme.end); }
       });
-      if (this._end_state_style) { layers.push(this._end_state_style); }
+      layers.push(this._end_state_style);
     }
 
 
@@ -3597,7 +3674,7 @@ class Machine<mDT> {
       themes.map(theme => {
         if (theme.active) { layers.push(theme.active); }
       });
-      if (this._active_state_style) { layers.push(this._active_state_style); }
+      layers.push(this._active_state_style);
     }
 
 
@@ -4315,13 +4392,16 @@ function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mD
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
  *
  * @example
- * compareVersions("5.104.2", "5.103.1") // returns 1 (v1 is newer)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
  *
  * @example
- * compareVersions("5.104.2", "6.0.0")   // returns -1 (v1 is older)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
  *
  * @example
- * compareVersions("5.104.2", "5.104.2") // returns 0 (equal)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
  */
 
 function compareVersions(v1: string, v2: string): number {
@@ -4363,9 +4443,11 @@ function compareVersions(v1: string, v2: string): number {
  * @throws {Error} If the serialization is from a future version
  *
  * @example
- * const machine = jssm.from("a -> b;");
+ * import { from, deserialize } from 'jssm';
+ * const machine    = from("a -> b;");
  * const serialized = machine.serialize();
- * const restored = jssm.deserialize("a -> b;", serialized);
+ * const restored   = deserialize("a -> b;", serialized);
+ * restored.state();  // => 'a'
  */
 
 function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT> {
@@ -4402,6 +4484,7 @@ export {
 
   Machine,
   deserialize,
+  compareVersions,
 
   make,
   wrap_parse as parse,
@@ -4430,6 +4513,10 @@ export {
   shapes,
   gviz_shapes,
   named_colors,
+
+  state_name_chars,
+  state_name_first_chars,
+  action_label_chars,
 
   is_hook_rejection,
     is_hook_complex_result,

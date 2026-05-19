@@ -6,7 +6,7 @@ import { compile, make, wrap_parse } from './jssm_compiler';
 import { theme_mapping, base_theme } from './jssm_theme';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
-const { shapes, gviz_shapes, named_colors } = constants;
+const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 import { version, build_time } from './version'; // replaced from package.js in build
 import { JssmError } from './jssm_error';
 /*********
@@ -436,12 +436,18 @@ class Machine {
         }
         // done building, do checks
         // assert all props are valid
+        // _state_properties keys are always JSON.stringify([string, string]),
+        // built by name_bind_prop_and_state which throws on non-strings — so the
+        // non-array / non-string else-arms below are unreachable, not untested.
         this._state_properties.forEach((_value, key) => {
             const inside = JSON.parse(key);
+            /* v8 ignore else */
             if (Array.isArray(inside)) {
                 const j_property = inside[0];
+                /* v8 ignore else */
                 if (typeof j_property === 'string') {
                     const j_state = inside[1];
+                    /* v8 ignore else */
                     if (typeof j_state === 'string') {
                         if (!(this.known_prop(j_property))) {
                             throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
@@ -1155,6 +1161,49 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
+    }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -1280,10 +1329,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -1291,11 +1353,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
@@ -2631,9 +2700,7 @@ class Machine {
                 layers.push(theme.state);
             }
         });
-        if (this._state_style) {
-            layers.push(this._state_style);
-        }
+        layers.push(this._state_style);
         // hooked state style
         // if (this.has_hooks(state)) {
         //   layers.push(base_theme.hooked);
@@ -2650,9 +2717,7 @@ class Machine {
                     layers.push(theme.terminal);
                 }
             });
-            if (this._terminal_state_style) {
-                layers.push(this._terminal_state_style);
-            }
+            layers.push(this._terminal_state_style);
         }
         // start state style
         if (this.is_start_state(state)) {
@@ -2662,9 +2727,7 @@ class Machine {
                     layers.push(theme.start);
                 }
             });
-            if (this._start_state_style) {
-                layers.push(this._start_state_style);
-            }
+            layers.push(this._start_state_style);
         }
         // end state style
         if (this.is_end_state(state)) {
@@ -2674,9 +2737,7 @@ class Machine {
                     layers.push(theme.end);
                 }
             });
-            if (this._end_state_style) {
-                layers.push(this._end_state_style);
-            }
+            layers.push(this._end_state_style);
         }
         // active state style
         if (this.state() === state) {
@@ -2686,9 +2747,7 @@ class Machine {
                     layers.push(theme.active);
                 }
             });
-            if (this._active_state_style) {
-                layers.push(this._active_state_style);
-            }
+            layers.push(this._active_state_style);
         }
         const individual_style = {}, decl = this._state_declarations.get(state);
         individual_style.color = decl === null || decl === void 0 ? void 0 : decl.color;
@@ -3260,13 +3319,16 @@ function abstract_everything_hook_step(maybe_hook, hook_args) {
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
  *
  * @example
- * compareVersions("5.104.2", "5.103.1") // returns 1 (v1 is newer)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.103.1");  // => 1
  *
  * @example
- * compareVersions("5.104.2", "6.0.0")   // returns -1 (v1 is older)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "6.0.0");  // => -1
  *
  * @example
- * compareVersions("5.104.2", "5.104.2") // returns 0 (equal)
+ * import { compareVersions } from 'jssm';
+ * compareVersions("5.104.2", "5.104.2");  // => 0
  */
 function compareVersions(v1, v2) {
     var _a, _b;
@@ -3298,9 +3360,11 @@ function compareVersions(v1, v2) {
  * @throws {Error} If the serialization is from a future version
  *
  * @example
- * const machine = jssm.from("a -> b;");
+ * import { from, deserialize } from 'jssm';
+ * const machine    = from("a -> b;");
  * const serialized = machine.serialize();
- * const restored = jssm.deserialize("a -> b;", serialized);
+ * const restored   = deserialize("a -> b;", serialized);
+ * restored.state();  // => 'a'
  */
 function deserialize(machine_string, ser) {
     // Refuse to deserialize data from future versions
@@ -3313,8 +3377,8 @@ function deserialize(machine_string, ser) {
     ser.history.forEach(history_item => machine._history.push(history_item));
     return machine;
 }
-export { version, build_time, transfer_state_properties, Machine, deserialize, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
+export { version, build_time, transfer_state_properties, Machine, deserialize, compareVersions, make, wrap_parse as parse, compile, sm, from, arrow_direction, arrow_left_kind, arrow_right_kind, 
 // WHARGARBL TODO these should be exported to a utility library
-seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections
+seq, unique, find_repeated, weighted_rand_select, histograph, weighted_sample_select, weighted_histo_key, gen_splitmix32, sleep, constants, shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars, is_hook_rejection, is_hook_complex_result, abstract_hook_step, abstract_everything_hook_step, state_style_condense, FslDirections
 //  FslThemes
  };
