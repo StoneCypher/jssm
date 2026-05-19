@@ -1,9 +1,5 @@
-import { readdirSync, readFileSync } from 'fs';
-import type { Dirent } from 'fs';
-import { join } from 'path';
-import { homedir } from 'os';
 import { RasterizationUnsupportedError, RenderError } from '../../types';
-import { fallbackFontBytes } from './fallback-font';
+import { bundledFontBytes } from './bundled-font';
 
 // `OffscreenCanvas` lives in the DOM lib, which the CLI's tsconfig doesn't
 // pull in (CLI tooling targets Node primarily). At runtime we feature-detect
@@ -12,6 +8,8 @@ declare const OffscreenCanvas: any;
 
 export interface RasterOptions {
   width?: number;
+  height?: number;
+  scale?: number;
   quality?: number;
 }
 
@@ -19,6 +17,46 @@ type RasterTarget = 'png' | 'jpeg';
 
 const mimeOf = (target: RasterTarget): string =>
   target === 'jpeg' ? 'image/jpeg' : 'image/png';
+
+// A `--scale` of 100 (percent) renders at this multiple of the SVG's natural
+// size. jssm's SVGs use ~6px edge labels — unreadably small at 1:1 — so the
+// default render is enlarged.
+const DEFAULT_SCALE_ZOOM = 3;
+
+/**
+ * Resolve `opts.scale` (a percentage, where 100 is the default) to a zoom
+ * multiple of the SVG's natural size. Applied when neither `width` nor
+ * `height` is given.
+ *
+ * @param opts - raster options; only `scale` is consulted
+ * @returns the zoom multiple (e.g. scale 100 -> 3, scale 200 -> 6)
+ *
+ * @example
+ *   zoomFor({ scale: 200 })  // 6
+ *   zoomFor({})              // 3
+ */
+function zoomFor(opts: RasterOptions): number {
+  return ((opts.scale ?? 100) / 100) * DEFAULT_SCALE_ZOOM;
+}
+
+/**
+ * Build the resvg `fitTo` directive from the sizing options. `width` and
+ * `height` fit the render to an exact pixel extent; otherwise `scale`
+ * (default 100%) applies a uniform zoom. `width` wins over `height`, which
+ * wins over `scale` — the CLI keeps them mutually exclusive regardless.
+ *
+ * @param opts - raster sizing options
+ * @returns a resvg `fitTo` object
+ *
+ * @example
+ *   resvgFitTo({ width: 800 })  // { mode: 'width', value: 800 }
+ *   resvgFitTo({})              // { mode: 'zoom', value: 3 }
+ */
+function resvgFitTo(opts: RasterOptions): { mode: string; value: number } {
+  if (opts.width  !== undefined) return { mode: 'width',  value: opts.width  };
+  if (opts.height !== undefined) return { mode: 'height', value: opts.height };
+  return { mode: 'zoom', value: zoomFor(opts) };
+}
 
 /**
  * Rasterize an SVG string to PNG or JPEG bytes.
@@ -29,14 +67,17 @@ const mimeOf = (target: RasterTarget): string =>
  *
  * @param svg - SVG source string
  * @param target - 'png' or 'jpeg'
- * @param opts.width - Pixel width; height is derived from the SVG's aspect ratio
+ * @param opts.width - Fit output to this pixel width
+ * @param opts.height - Fit output to this pixel height (ignored if `width` set)
+ * @param opts.scale - Zoom percentage; 100 renders at 3x the SVG's natural
+ *   size (ignored if `width` or `height` is set; default 100)
  * @param opts.quality - JPEG quality 1-100 (default 85; ignored for PNG)
  * @returns Uint8Array of rasterized bytes
  * @throws RasterizationUnsupportedError if neither backend is available
  * @throws RenderError on backend failures
  *
  * @example
- *   const png = await rasterize(svgString, 'png', { width: 800 });
+ *   const png = await rasterize(svgString, 'png', { scale: 100 });
  *   await writeFile('out.png', png);
  */
 export async function rasterize(
@@ -73,8 +114,21 @@ async function rasterizeViaCanvas(
     await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(new Error('image load failed')); });
   }
 
-  const width  = opts.width ?? (img as any).width  ?? 800;
-  const height = Math.round(width * ((img as any).height ?? 600) / ((img as any).width ?? 800));
+  const natW = (img as any).width  ?? 800;
+  const natH = (img as any).height ?? 600;
+  let width: number;
+  let height: number;
+  if (opts.width !== undefined) {
+    width  = opts.width;
+    height = Math.round(width * natH / natW);
+  } else if (opts.height !== undefined) {
+    height = opts.height;
+    width  = Math.round(height * natW / natH);
+  } else {
+    const zoom = zoomFor(opts);
+    width  = Math.round(natW * zoom);
+    height = Math.round(natH * zoom);
+  }
 
   const canvas = new OffscreenCanvas(width, height);
   const ctx = canvas.getContext('2d') as any;
@@ -94,123 +148,6 @@ async function rasterizeViaCanvas(
 // sealed by spec and reject property mutation. Jest's CJS-style import
 // proxy hid this; vitest's real ESM imports surface it as TypeError.
 let wasmInited = false;
-
-// --- Font supply for the resvg-wasm path -----------------------------------
-//
-// `@resvg/resvg-wasm` ships no fonts and cannot reach OS-installed fonts from
-// inside its wasm sandbox: handed no font, it renders every `<text>` element
-// blank. We discover the host OS's fonts and, only when none are found, fall
-// back to an embedded font so rasterized text is never silently dropped.
-
-const FONT_FILE = /\.(ttf|ttc|otf)$/i;
-
-// resvg re-parses every supplied font on each render, so discovery is kept
-// deliberately small: enough fonts that text resolves (resvg falls back
-// across whatever subset is loaded), few enough that the parse stays cheap.
-const FONT_DISCOVERY_BUDGET = 1.5 * 1024 * 1024;  // total font bytes to load
-const MAX_FONT_FILE_BYTES   = 1.5 * 1024 * 1024;  // skip oversized single fonts
-
-let cachedFontBuffers: Uint8Array[] | null = null;
-
-/** Standard font directories for the current operating system. */
-function osFontDirs(): string[] {
-  const home = homedir();
-  if (process.platform === 'win32') {
-    return [
-      'C:\\Windows\\Fonts',
-      join(home, 'AppData', 'Local', 'Microsoft', 'Windows', 'Fonts'),
-    ];
-  }
-  if (process.platform === 'darwin') {
-    return [
-      '/System/Library/Fonts',
-      '/Library/Fonts',
-      join(home, 'Library', 'Fonts'),
-    ];
-  }
-  return [
-    '/usr/share/fonts',
-    '/usr/local/share/fonts',
-    join(home, '.fonts'),
-    join(home, '.local', 'share', 'fonts'),
-  ];
-}
-
-/** Recursively collect font-file paths under `dir`; a missing dir yields none. */
-function fontFilesIn(dir: string): string[] {
-  let entries: Dirent[];
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-  const found: string[] = [];
-  for (const entry of entries) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      found.push(...fontFilesIn(full));
-    } else if (FONT_FILE.test(entry.name)) {
-      found.push(full);
-    }
-  }
-  return found;
-}
-
-/**
- * Discover fonts installed on the host OS and read their raw bytes.
- *
- * Walks the standard OS font directories, reading font files in discovery
- * order until {@link FONT_DISCOVERY_BUDGET} bytes have been collected.
- * Best-effort: missing directories and unreadable files are skipped silently.
- *
- * @param dirs - directories to search; defaults to the running OS's standard
- *   font locations
- * @returns one buffer per font file read; empty when the host has no
- *   accessible fonts (e.g. a stripped container image)
- *
- * @example
- *   const fonts = discoverOsFontBuffers();
- *   const usable = fonts.length > 0 ? fonts : [fallbackFontBytes()];
- */
-export function discoverOsFontBuffers(dirs: string[] = osFontDirs()): Uint8Array[] {
-  const buffers: Uint8Array[] = [];
-  let remaining = FONT_DISCOVERY_BUDGET;
-  for (const dir of dirs) {
-    for (const file of fontFilesIn(dir)) {
-      if (remaining <= 0) return buffers;
-      let bytes: Buffer;
-      try {
-        bytes = readFileSync(file);
-      } catch {
-        // Font file vanished or became unreadable between listing and read.
-        continue;
-      }
-      if (bytes.length > MAX_FONT_FILE_BYTES) continue;
-      buffers.push(new Uint8Array(bytes));
-      remaining -= bytes.length;
-    }
-  }
-  return buffers;
-}
-
-/**
- * The font buffers to hand resvg for the wasm rasterization path.
- *
- * Prefers fonts discovered on the host OS; when none are available it returns
- * the embedded fallback font so text never rasterizes blank. Computed once
- * and cached for the lifetime of the process.
- *
- * @returns a non-empty array of font byte buffers
- *
- * @example
- *   new Resvg(svg, { font: { fontBuffers: collectFontBuffers() } });
- */
-export function collectFontBuffers(): Uint8Array[] {
-  if (cachedFontBuffers !== null) return cachedFontBuffers;
-  const discovered = discoverOsFontBuffers();
-  cachedFontBuffers = discovered.length > 0 ? discovered : [fallbackFontBytes()];
-  return cachedFontBuffers;
-}
 
 async function rasterizeViaResvgWasm(
   svg: string,
@@ -243,13 +180,17 @@ async function rasterizeViaResvgWasm(
 
   const Resvg = mod.Resvg;
   // resvg-wasm has no fonts of its own — without `font.fontBuffers` every
-  // `<text>` rasterizes blank. `loadSystemFonts` is left off because it is a
-  // no-op inside the wasm sandbox; `collectFontBuffers` supplies them instead.
-  const resvgOptions: any = {
-    font: { fontBuffers: collectFontBuffers(), loadSystemFonts: false },
-  };
-  if (opts.width) resvgOptions.fitTo = { mode: 'width', value: opts.width };
-  const resvg = new Resvg(svg, resvgOptions);
+  // `<text>` rasterizes blank. The bundled Open Sans is supplied as the only
+  // font and the default family, so every label renders in it whatever family
+  // the SVG requests. `loadSystemFonts` is a no-op in the wasm sandbox.
+  const resvg = new Resvg(svg, {
+    font: {
+      fontBuffers: [bundledFontBytes()],
+      defaultFontFamily: 'Open Sans',
+      loadSystemFonts: false,
+    },
+    fitTo: resvgFitTo(opts),
+  });
   let rendered: any;
   try {
     rendered = resvg.render();

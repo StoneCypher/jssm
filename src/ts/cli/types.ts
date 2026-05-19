@@ -6,10 +6,17 @@ export type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
 
 /**
  * Options accepted by `render()` and `renderSet()`.
+ *
+ * `width`, `height`, and `scale` size raster output and are mutually
+ * exclusive: `width`/`height` fit to an exact pixel extent, `scale` is a
+ * zoom percentage (100 = 3x the SVG's natural size). They are silently
+ * ignored for text targets (svg/dot/html).
  */
 export interface RenderOptions {
   target: RenderTarget;
   width?: number;
+  height?: number;
+  scale?: number;
   quality?: number;
 }
 
