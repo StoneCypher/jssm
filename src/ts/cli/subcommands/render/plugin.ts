@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { parseFslArgs } from '../../cli-utils';
 import { render } from './render';
-import type { RenderTarget } from '../../types';
+import type { RenderTarget, RenderOptions } from '../../types';
 import { RenderError } from '../../types';
 
 const getVersion = (): string => '__JSSM_VERSION__';
@@ -14,6 +14,8 @@ const SPEC = {
     'out-dir': {},
     stdout:   { boolean: true as const },
     width:    { type: 'number' as const },
+    height:   { type: 'number' as const },
+    scale:    { type: 'number' as const },
     quality:  { type: 'number' as const, default: 85 },
     help:     { short: 'h' as const, boolean: true as const },
     version:  { short: 'V' as const, boolean: true as const },
@@ -79,6 +81,8 @@ export async function cli(argv: string[]): Promise<number> {
   const outDir  = parsed.flags['out-dir'] as string | undefined;
   const stdout  = parsed.flags.stdout === true;
   const width   = parsed.flags.width as number | undefined;
+  const height  = parsed.flags.height as number | undefined;
+  const scale   = parsed.flags.scale as number | undefined;
   const quality = parsed.flags.quality as number | undefined;
 
   // Conflict rules
@@ -88,6 +92,14 @@ export async function cli(argv: string[]): Promise<number> {
     return 1;
   }
 
+  const sizeFlags = [width, height, scale].filter(x => x !== undefined);
+  if (sizeFlags.length > 1) {
+    printErr('--width, --height, and --scale are mutually exclusive');
+    return 1;
+  }
+
+  const renderOpts: RenderOptions = { target, width, height, scale, quality };
+
   const inputs = parsed.positional;
   if (inputs.length === 0) {
     if (process.stdin.isTTY) {
@@ -95,7 +107,7 @@ export async function cli(argv: string[]): Promise<number> {
       return 1;
     }
     const fsl = await readStream(process.stdin);
-    return await renderOne(fsl, '<stdin>', { target, width, quality }, { stdout: true });
+    return await renderOne(fsl, '<stdin>', renderOpts, { stdout: true });
   }
 
   const explicitStdout = stdout || output === '-';
@@ -112,20 +124,20 @@ export async function cli(argv: string[]): Promise<number> {
     const inputLabel = path === '-' ? '<stdin>' : path;
 
     if (explicitStdout) {
-      return renderOne(fsl, inputLabel, { target, width, quality }, { stdout: true });
+      return renderOne(fsl, inputLabel, renderOpts, { stdout: true });
     }
     if (output) {
-      return renderOne(fsl, inputLabel, { target, width, quality }, { outputPath: output });
+      return renderOne(fsl, inputLabel, renderOpts, { outputPath: output });
     }
     if (outDir) {
       const outPath = join(outDir, basename(path, extname(path)) + '.' + extOf(target));
-      return renderOne(fsl, inputLabel, { target, width, quality }, { outputPath: outPath });
+      return renderOne(fsl, inputLabel, renderOpts, { outputPath: outPath });
     }
     if (path === '-') {
-      return renderOne(fsl, inputLabel, { target, width, quality }, { stdout: true });
+      return renderOne(fsl, inputLabel, renderOpts, { stdout: true });
     }
     const sibling = join(dirname(path), basename(path, extname(path)) + '.' + extOf(target));
-    return renderOne(fsl, inputLabel, { target, width, quality }, { outputPath: sibling });
+    return renderOne(fsl, inputLabel, renderOpts, { outputPath: sibling });
   }
 
   // Multi-input. The earlier mutex check at the top of this function
@@ -148,7 +160,7 @@ export async function cli(argv: string[]): Promise<number> {
       continue;
     }
     const outPath = join(outDir, basename(path, extname(path)) + '.' + extOf(target));
-    const code = await renderOne(fsl, path, { target, width, quality }, { outputPath: outPath });
+    const code = await renderOne(fsl, path, renderOpts, { outputPath: outPath });
     worstCode = Math.max(worstCode, code);
   }
   return worstCode;
@@ -159,7 +171,7 @@ type OutputDestination = { stdout: true } | { outputPath: string };
 async function renderOne(
   fsl: string,
   label: string,
-  opts: { target: RenderTarget; width?: number; quality?: number },
+  opts: RenderOptions,
   out: OutputDestination,
 ): Promise<number> {
   try {

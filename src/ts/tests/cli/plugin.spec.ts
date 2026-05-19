@@ -102,6 +102,13 @@ describe('fsl-render plugin cli()', () => {
     expect(stderrChunks.join('')).toMatch(/mutually exclusive|conflict/i);
   });
 
+  it('mutually exclusive sizing flags error', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--target=png', '--width=100', '--scale=200']);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/--width, --height, and --scale are mutually exclusive/);
+  });
+
   it('reads FSL from piped stdin when no input path is given', async () => {
     const { Readable } = await import('stream');
     const realStdin = process.stdin;

@@ -5,10 +5,17 @@
 declare type RenderTarget = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
 /**
  * Options accepted by `render()` and `renderSet()`.
+ *
+ * `width`, `height`, and `scale` size raster output and are mutually
+ * exclusive: `width`/`height` fit to an exact pixel extent, `scale` is a
+ * zoom percentage (100 = 3x the SVG's natural size). They are silently
+ * ignored for text targets (svg/dot/html).
  */
 interface RenderOptions {
     target: RenderTarget;
     width?: number;
+    height?: number;
+    scale?: number;
     quality?: number;
 }
 /**
@@ -58,7 +65,9 @@ declare class RasterizationUnsupportedError extends RenderError {
  *
  * @param fsl - FSL source text
  * @param opts.target - Output format ('svg' | 'dot' | 'png' | 'jpeg' | 'html')
- * @param opts.width - Pixel width (raster targets only; silently ignored otherwise)
+ * @param opts.width - Fit raster output to this pixel width (raster only)
+ * @param opts.height - Fit raster output to this pixel height (raster only)
+ * @param opts.scale - Raster zoom percentage; 100 = 3x natural size (raster only)
  * @param opts.quality - JPEG quality 1-100 (silently ignored for non-jpeg)
  * @returns RenderResult, discriminated by `kind`
  * @throws RenderError on parse, render, or target-dispatch failures
