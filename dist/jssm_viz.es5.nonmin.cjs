@@ -20992,13 +20992,13 @@ var constants = /*#__PURE__*/Object.freeze({
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.125.0";
+const version = "5.125.1";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1779238845737;
+const build_time = 1779316815788;
 
 // whargarbl lots of these return arrays could/should be sets
 const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
@@ -22479,9 +22479,22 @@ class Machine {
       }
     */
     /** List all action names available as exits from a given state.
+     *
+     *  Returns the empty array (does not throw) when `whichState` exists but has
+     *  no action-named exits — including terminal states, states whose only
+     *  exits are plain `->` transitions, and states in machines that use no
+     *  actions at all.  Only nonexistent states cause a throw.
+     *
      *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of action name strings.
+     *  @returns An array of action name strings, possibly empty.
      *  @throws {JssmError} If the state does not exist.
+     *
+     *  @example
+     *    const m = sm`a 'go' -> b; b -> c;`;
+     *    m.list_exit_actions('a');  // => ['go']
+     *    m.list_exit_actions('b');  // => []
+     *    m.list_exit_actions('c');  // => []
+     *    expect(() => m.list_exit_actions('z')).toThrow();
      */
     list_exit_actions(whichState = this.state()) {
         const ra_base = this._reverse_actions.get(whichState);

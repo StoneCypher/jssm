@@ -1500,10 +1500,10 @@ class Machine {
      *
      *  @example
      *    const m = sm`a 'go' -> b; b -> c;`;
-     *    m.list_exit_actions('a');  // ['go']
-     *    m.list_exit_actions('b');  // []        (action-less exit)
-     *    m.list_exit_actions('c');  // []        (terminal)
-     *    m.list_exit_actions('z');  // throws    (no such state)
+     *    m.list_exit_actions('a');  // => ['go']
+     *    m.list_exit_actions('b');  // => []
+     *    m.list_exit_actions('c');  // => []
+     *    expect(() => m.list_exit_actions('z')).toThrow();
      */
     list_exit_actions(whichState = this.state()) {
         const ra_base = this._reverse_actions.get(whichState);
