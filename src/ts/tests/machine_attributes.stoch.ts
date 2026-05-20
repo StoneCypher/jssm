@@ -173,7 +173,7 @@ describe('§9 MachineAttribute — theme (always wrapped in an array)', () => {
   // — worth pinning so a future grammar tweak (e.g. unwrapping
   // singletons) is a deliberate decision.
 
-  const THEMES = ['none', 'default', 'modern', 'ocean', 'bold'] as const;
+  const THEMES = ['plain', 'default', 'modern', 'ocean', 'bold'] as const;
 
   for (const theme of THEMES) {
     test(`\`theme: ${theme};\` wraps the single theme in a one-element array`, () => {
