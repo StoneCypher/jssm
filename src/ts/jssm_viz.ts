@@ -96,18 +96,117 @@ function vc(col: string): string {
 
 
 /**
- *  Build a graphviz-safe node identifier for a state, by index.  Accepts
- *  either a `string[]` (used historically; O(n) per call) or a
- *  precomputed `Map<state, index>` (used by rendering hot paths; O(1)
- *  per call).  The map form is used during dot generation; the array
- *  form is retained for direct test access via `_test`.
+ *  Convert a state name into a URL-friendly slug suitable for use as the
+ *  body of a dot/SVG node identifier.  The transformation is:
+ *
+ *  1. Lowercase
+ *  2. Any run of characters outside `[a-z0-9]` (after lowercasing) becomes
+ *     a single `-`
+ *  3. Leading and trailing `-` are trimmed
+ *
+ *  If the result is empty (e.g. for a state named `"!!!"`), the empty
+ *  string is returned — callers are expected to fall back to an indexed
+ *  placeholder like `node-N`.  See {@link slug_states} for the collision-
+ *  resolving wrapper that consumes this helper.
+ *
+ *  ```typescript
+ *  slug_for('Green Light');  // 'green-light'
+ *  slug_for('!!!');          // ''
+ *  slug_for('  Foo  Bar  '); // 'foo-bar'
+ *  ```
+ *
+ *  @param state The state name to slugify.
+ *  @returns The lowercase hyphen-separated slug, or empty string if none of
+ *  the characters were retainable.
  *
  *  @internal
  */
-function node_of(state: string, state_index: string[] | Map<string, number>): string {
-  return Array.isArray(state_index)
-    ? `n${state_index.indexOf(state)}`
-    : `n${state_index.get(state)}`;
+function slug_for(state: string): string {
+  return state
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+
+
+
+/**
+ *  Build a `Map<state, slug>` assigning every state in `states` a unique,
+ *  deterministic, URL-safe slug used as its dot/SVG node identifier.
+ *
+ *  Algorithm:
+ *
+ *  1. Slug each state via {@link slug_for}.  States whose slug comes out
+ *     empty fall back to `node-N`, where `N` is the state's declaration
+ *     index (1-based, to match user-visible numbering).
+ *  2. Walk the state list in declaration order, tracking how many times
+ *     each base slug has already been used.  The first occurrence keeps
+ *     the base slug; subsequent collisions get `-2`, `-3`, … suffixes.
+ *     If the proposed suffixed slug itself collides with a base slug
+ *     used later, the counter advances until a free slot is found.
+ *
+ *  This yields a deterministic mapping given the state-declaration order,
+ *  so output is stable across runs.
+ *
+ *  ```typescript
+ *  slug_states(['Red Light', 'red-light']);
+ *  // Map { 'Red Light' => 'red-light', 'red-light' => 'red-light-2' }
+ *
+ *  slug_states(['!!!', '???']);
+ *  // Map { '!!!' => 'node-1', '???' => 'node-2' }
+ *  ```
+ *
+ *  @param states States in declaration order.
+ *  @returns A `Map` from each state name to its unique slug.
+ *
+ *  @internal
+ */
+function slug_states(states: string[]): Map<string, string> {
+  const used = new Set<string>();
+  const out  = new Map<string, string>();
+  states.forEach((s, i) => {
+    const base = slug_for(s) || `node-${i + 1}`;
+    let candidate = base;
+    let n = 2;
+    while (used.has(candidate)) {
+      candidate = `${base}-${n}`;
+      n += 1;
+    }
+    used.add(candidate);
+    out.set(s, candidate);
+  });
+  return out;
+}
+
+
+
+
+/**
+ *  Build a graphviz-safe node identifier for a state.  Accepts either a
+ *  `string[]` (legacy test-only path; returns an index-based `n0`/`n1`
+ *  identifier via `indexOf`), or a precomputed `Map<state, slug>` produced
+ *  by {@link slug_states} (used by all rendering hot paths).
+ *
+ *  When a slug map is supplied, the identifier is the slug wrapped in
+ *  double quotes — dot allows quoted identifiers, and the slug alphabet
+ *  (lowercase alphanumerics + `-`) requires quoting because bare dot IDs
+ *  may not contain `-`.  Graphviz round-trips the quoted form through to
+ *  the SVG `<title>` element and uses the slug as a stable basis for the
+ *  generated SVG element `id` attribute.
+ *
+ *  ```typescript
+ *  node_of('Red Light', new Map([['Red Light', 'red-light']]));
+ *  // '"red-light"'
+ *  ```
+ *
+ *  @internal
+ */
+function node_of(state: string, state_index: string[] | Map<string, number> | Map<string, string>): string {
+  if (Array.isArray(state_index)) { return `n${state_index.indexOf(state)}`; }
+  const v = state_index.get(state);
+  if (typeof v === 'string') { return `"${v}"`; }
+  return `n${v}`;
 }
 
 
@@ -369,7 +468,7 @@ function default_fillcolor_for(kind: StateKind): string {
  *
  *  @internal
  */
-function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, number>, state_kinds: Map<string, StateKind>, hide_state_labels = false): string {
+function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_state_labels = false): string {
 
   return l_states.map((s) => {
 
@@ -500,7 +599,7 @@ function colored_label<T>(tr: JssmTransition<string, T> | undefined, which: 'hea
  *
  *  @internal
  */
-function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, number>, state_kinds: Map<string, StateKind>): string {
+function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>): string {
 
   const doublequote = (txt: string) => txt.replace(/"/g, '\\"');
   const strike      = new Set<string>();
@@ -561,7 +660,7 @@ function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], 
  *
  *  @internal
  */
-function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, number>): string {
+function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, string>): string {
 
   const group = (decls: string[][] | undefined, rank: string): string =>
     decls
@@ -625,7 +724,7 @@ type VizRenderOpts = {
 function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): string {
 
   const l_states    = u_jssm.states();
-  const state_index = new Map<string, number>(l_states.map((s, i) => [s, i] as [string, number]));
+  const state_index = slug_states(l_states);
   const state_kinds = classify_states(u_jssm, l_states);
 
   const nodes    = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, opts.hide_state_labels === true);
@@ -818,5 +917,6 @@ export type { VizRenderOpts };
 /** @internal — test-only access to private helpers. */
 export const _test = {
   color8to6, u_color8to6, vc, node_of,
+  slug_for, slug_states,
   shape_for_state, image_for_state, style_for_state
 };
