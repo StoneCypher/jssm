@@ -20990,13 +20990,13 @@ var constants = /*#__PURE__*/Object.freeze({
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.124.1";
+const version = "5.125.0";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1779220984984;
+const build_time = 1779238845737;
 
 // whargarbl lots of these return arrays could/should be sets
 const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
@@ -24347,18 +24347,113 @@ function vc(col) {
     return (_a = default_viz_colors[col]) !== null && _a !== void 0 ? _a : '';
 }
 /**
- *  Build a graphviz-safe node identifier for a state, by index.  Accepts
- *  either a `string[]` (used historically; O(n) per call) or a
- *  precomputed `Map<state, index>` (used by rendering hot paths; O(1)
- *  per call).  The map form is used during dot generation; the array
- *  form is retained for direct test access via `_test`.
+ *  Convert a state name into a URL-friendly slug suitable for use as the
+ *  body of a dot/SVG node identifier.  The transformation is:
+ *
+ *  1. Lowercase
+ *  2. Any run of characters outside `[a-z0-9]` (after lowercasing) becomes
+ *     a single `-`
+ *  3. Leading and trailing `-` are trimmed
+ *
+ *  If the result is empty (e.g. for a state named `"!!!"`), the empty
+ *  string is returned — callers are expected to fall back to an indexed
+ *  placeholder like `node-N`.  See {@link slug_states} for the collision-
+ *  resolving wrapper that consumes this helper.
+ *
+ *  ```typescript
+ *  slug_for('Green Light');  // 'green-light'
+ *  slug_for('!!!');          // ''
+ *  slug_for('  Foo  Bar  '); // 'foo-bar'
+ *  ```
+ *
+ *  @param state The state name to slugify.
+ *  @returns The lowercase hyphen-separated slug, or empty string if none of
+ *  the characters were retainable.
+ *
+ *  @internal
+ */
+function slug_for(state) {
+    return state
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+/**
+ *  Build a `Map<state, slug>` assigning every state in `states` a unique,
+ *  deterministic, URL-safe slug used as its dot/SVG node identifier.
+ *
+ *  Algorithm:
+ *
+ *  1. Slug each state via {@link slug_for}.  States whose slug comes out
+ *     empty fall back to `node-N`, where `N` is the state's declaration
+ *     index (1-based, to match user-visible numbering).
+ *  2. Walk the state list in declaration order, tracking how many times
+ *     each base slug has already been used.  The first occurrence keeps
+ *     the base slug; subsequent collisions get `-2`, `-3`, … suffixes.
+ *     If the proposed suffixed slug itself collides with a base slug
+ *     used later, the counter advances until a free slot is found.
+ *
+ *  This yields a deterministic mapping given the state-declaration order,
+ *  so output is stable across runs.
+ *
+ *  ```typescript
+ *  slug_states(['Red Light', 'red-light']);
+ *  // Map { 'Red Light' => 'red-light', 'red-light' => 'red-light-2' }
+ *
+ *  slug_states(['!!!', '???']);
+ *  // Map { '!!!' => 'node-1', '???' => 'node-2' }
+ *  ```
+ *
+ *  @param states States in declaration order.
+ *  @returns A `Map` from each state name to its unique slug.
+ *
+ *  @internal
+ */
+function slug_states(states) {
+    const used = new Set();
+    const out = new Map();
+    states.forEach((s, i) => {
+        const base = slug_for(s) || `node-${i + 1}`;
+        let candidate = base;
+        let n = 2;
+        while (used.has(candidate)) {
+            candidate = `${base}-${n}`;
+            n += 1;
+        }
+        used.add(candidate);
+        out.set(s, candidate);
+    });
+    return out;
+}
+/**
+ *  Build a graphviz-safe node identifier for a state.  Accepts either a
+ *  `string[]` (legacy test-only path; returns an index-based `n0`/`n1`
+ *  identifier via `indexOf`), or a precomputed `Map<state, slug>` produced
+ *  by {@link slug_states} (used by all rendering hot paths).
+ *
+ *  When a slug map is supplied, the identifier is the slug wrapped in
+ *  double quotes — dot allows quoted identifiers, and the slug alphabet
+ *  (lowercase alphanumerics + `-`) requires quoting because bare dot IDs
+ *  may not contain `-`.  Graphviz round-trips the quoted form through to
+ *  the SVG `<title>` element and uses the slug as a stable basis for the
+ *  generated SVG element `id` attribute.
+ *
+ *  ```typescript
+ *  node_of('Red Light', new Map([['Red Light', 'red-light']]));
+ *  // '"red-light"'
+ *  ```
  *
  *  @internal
  */
 function node_of(state, state_index) {
-    return Array.isArray(state_index)
-        ? `n${state_index.indexOf(state)}`
-        : `n${state_index.get(state)}`;
+    if (Array.isArray(state_index)) {
+        return `n${state_index.indexOf(state)}`;
+    }
+    const v = state_index.get(state);
+    if (typeof v === 'string') {
+        return `"${v}"`;
+    }
+    return `n${v}`;
 }
 /**
  *  Convert an 8-channel hex color (`#RRGGBBAA`) to a 6-channel hex color
@@ -24752,7 +24847,7 @@ function arranges_for(u_jssm, state_index) {
 function machine_to_dot(u_jssm, opts = {}) {
     var _a;
     const l_states = u_jssm.states();
-    const state_index = new Map(l_states.map((s, i) => [s, i]));
+    const state_index = slug_states(l_states);
     const state_kinds = classify_states(u_jssm, l_states);
     const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, opts.hide_state_labels === true);
     const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
@@ -24894,6 +24989,7 @@ function dot(machine) {
 /** @internal — test-only access to private helpers. */
 const _test = {
     color8to6, u_color8to6, vc, node_of,
+    slug_for, slug_states,
     shape_for_state, image_for_state, style_for_state
 };
 

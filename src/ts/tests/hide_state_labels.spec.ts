@@ -40,7 +40,7 @@ describe('hide_state_labels option (StoneCypher/fsl#427)', () => {
 
     test('hide_state_labels: true preserves edge structure', () => {
       const dot = jv.machine_to_dot(sm`alpha -> beta;`, { hide_state_labels: true });
-      expect(dot).toMatch(/alpha\s*->\s*beta/);
+      expect(dot).toMatch(/"alpha"\s*->\s*"beta"/);
     });
 
     test('hide_state_labels: true preserves shape attribute', () => {

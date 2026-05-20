@@ -24,8 +24,9 @@ describe('dotTarget', () => {
 
   it('contains transition edges', async () => {
     const out = await dotTarget(trafficLight);
-    // Edges use state-name-derived slugs since PR #594 (slug-based node IDs).
-    expect(out).toMatch(/\w+\s*->\s*\w+/);
+    // Edges use quoted state-name-derived slugs since PR #594
+    // (slug-based node IDs) — e.g. "red"->"green".
+    expect(out).toMatch(/"[^"]+"\s*->\s*"[^"]+"/);
   });
 
   it('throws RenderError for invalid FSL', async () => {
