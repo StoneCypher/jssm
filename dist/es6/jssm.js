@@ -1488,9 +1488,22 @@ class Machine {
       }
     */
     /** List all action names available as exits from a given state.
+     *
+     *  Returns the empty array (does not throw) when `whichState` exists but has
+     *  no action-named exits — including terminal states, states whose only
+     *  exits are plain `->` transitions, and states in machines that use no
+     *  actions at all.  Only nonexistent states cause a throw.
+     *
      *  @param whichState - The state to inspect.  Defaults to the current state.
-     *  @returns An array of action name strings.
+     *  @returns An array of action name strings, possibly empty.
      *  @throws {JssmError} If the state does not exist.
+     *
+     *  @example
+     *    const m = sm`a 'go' -> b; b -> c;`;
+     *    m.list_exit_actions('a');  // => ['go']
+     *    m.list_exit_actions('b');  // => []
+     *    m.list_exit_actions('c');  // => []
+     *    expect(() => m.list_exit_actions('z')).toThrow();
      */
     list_exit_actions(whichState = this.state()) {
         const ra_base = this._reverse_actions.get(whichState);
