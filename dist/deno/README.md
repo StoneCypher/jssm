@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.113.0 at 5/13/2026, 8:17:03 AM
+* Generated for version 5.124.1 at 5/19/2026, 1:07:52 PM
 
 -->
-# jssm 5.113.0
+# jssm 5.124.1
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -122,6 +122,89 @@ usage patterns.
 
 <br/>
 
+## Command-line interface
+
+`jssm` ships a CLI for rendering FSL machines to images and other formats.
+
+### Installation
+
+```sh
+npm install -g jssm
+```
+
+This installs three binaries: `fsl` (the dispatcher), `jssm` (alias for `fsl`), and `fsl-render` (the render plugin).
+
+### Render
+
+Render a single machine to SVG (default):
+
+```sh
+fsl render machine.fsl
+# → machine.svg next to input
+```
+
+Specify a format:
+
+```sh
+fsl render machine.fsl --target=png --width=800
+fsl render machine.fsl --target=dot --stdout > machine.dot
+```
+
+Render multiple machines:
+
+```sh
+fsl render *.fsl --target=svg --out-dir=./diagrams
+```
+
+Pipe FSL via stdin:
+
+```sh
+cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
+```
+
+### Plugin architecture
+
+Every `fsl-<name>` executable on PATH is dispatched when you run `fsl <name>`. Third-party plugins follow the same contract as first-party `fsl-render`. See `notes/superpowers/specs/2026-05-12-fsl-cli-design.md` for the contract.
+
+### Library API
+
+The same render functions are available programmatically:
+
+```js
+import { render, renderSet } from 'jssm/cli';
+
+const result = await render(fslText, { target: 'svg' });
+if (result.kind === 'text') console.log(result.content);
+```
+
+
+
+<br/>
+
+## Web Components
+
+`jssm` ships Lit-based web components for use in plain HTML or as a base for framework wrappers.
+
+CDN one-liner (with an import map for `@viz-js/viz`):
+
+```html
+<script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
+<jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+```
+
+npm one-liner:
+
+```ts
+import 'jssm/wc/viz/define';
+// then use <jssm-viz fsl="..."> anywhere
+```
+
+Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).
+
+
+
+<br/>
+
 ## 60-second tour
 
 **Actions** let a machine advance without the caller knowing the next state:
@@ -198,7 +281,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  5,637 tests at 100.0% line coverage
+  library.**  6,078 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -331,11 +414,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***5,637 tests***, run 42,168 times.
+***6,078 tests***, run 56,865 times.
 
-- 5,268 specs with 100.0% coverage
-- 369 fuzz tests with 61.5% coverage
-- 3,484 TypeScript lines - 1.6 tests per line, 12.1 generated tests per line
+- 5,565 specs with 100.0% coverage
+- 513 fuzz tests with 4.5% coverage
+- 4,331 TypeScript lines - 1.4 tests per line, 13.1 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

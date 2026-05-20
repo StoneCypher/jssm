@@ -20,10 +20,10 @@ Document
 
 
 Theme
-  = "none"
-  / "default"
-  / "modern"
+  = "default"
   / "ocean"
+  / "modern"
+  / "plain"
   / "bold"
 
 ThemeOrThemeList

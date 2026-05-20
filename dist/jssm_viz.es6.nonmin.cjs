@@ -297,8 +297,8 @@ peg$SyntaxError.buildMessage = function (expected, found) {
 };
 function peg$parse(input, options) {
     options = options !== void 0 ? options : {};
-    var peg$FAILED = {}, peg$startRuleFunctions = { Document: peg$parseDocument }, peg$startRuleFunction = peg$parseDocument, peg$c0 = function (e) { return e; }, peg$c1 = "none", peg$c2 = peg$literalExpectation("none", false), peg$c3 = "default", peg$c4 = peg$literalExpectation("default", false), peg$c5 = "modern", peg$c6 = peg$literalExpectation("modern", false), peg$c7 = "ocean", peg$c8 = peg$literalExpectation("ocean", false), peg$c9 = "bold", peg$c10 = peg$literalExpectation("bold", false), peg$c11 = "[", peg$c12 = peg$literalExpectation("[", false), peg$c13 = "]", peg$c14 = peg$literalExpectation("]", false), peg$c15 = function (ths, th) { const themes = ths.map(t => t[0]); if (th)
-        themes.push(th); return themes; }, peg$c16 = function (th) { return [th]; }, peg$c17 = "box3d", peg$c18 = peg$literalExpectation("box3d", false), peg$c19 = "polygon", peg$c20 = peg$literalExpectation("polygon", false), peg$c21 = "ellipse", peg$c22 = peg$literalExpectation("ellipse", false), peg$c23 = "oval", peg$c24 = peg$literalExpectation("oval", false), peg$c25 = "circle", peg$c26 = peg$literalExpectation("circle", false), peg$c27 = "point", peg$c28 = peg$literalExpectation("point", false), peg$c29 = "egg", peg$c30 = peg$literalExpectation("egg", false), peg$c31 = "triangle", peg$c32 = peg$literalExpectation("triangle", false), peg$c33 = "plaintext", peg$c34 = peg$literalExpectation("plaintext", false), peg$c35 = "plain", peg$c36 = peg$literalExpectation("plain", false), peg$c37 = "diamond", peg$c38 = peg$literalExpectation("diamond", false), peg$c39 = "trapezium", peg$c40 = peg$literalExpectation("trapezium", false), peg$c41 = "parallelogram", peg$c42 = peg$literalExpectation("parallelogram", false), peg$c43 = "house", peg$c44 = peg$literalExpectation("house", false), peg$c45 = "pentagon", peg$c46 = peg$literalExpectation("pentagon", false), peg$c47 = "hexagon", peg$c48 = peg$literalExpectation("hexagon", false), peg$c49 = "septagon", peg$c50 = peg$literalExpectation("septagon", false), peg$c51 = "octagon", peg$c52 = peg$literalExpectation("octagon", false), peg$c53 = "doublecircle", peg$c54 = peg$literalExpectation("doublecircle", false), peg$c55 = "doubleoctagon", peg$c56 = peg$literalExpectation("doubleoctagon", false), peg$c57 = "tripleoctagon", peg$c58 = peg$literalExpectation("tripleoctagon", false), peg$c59 = "invtriangle", peg$c60 = peg$literalExpectation("invtriangle", false), peg$c61 = "invtrapezium", peg$c62 = peg$literalExpectation("invtrapezium", false), peg$c63 = "invhouse", peg$c64 = peg$literalExpectation("invhouse", false), peg$c65 = "Mdiamond", peg$c66 = peg$literalExpectation("Mdiamond", false), peg$c67 = "Msquare", peg$c68 = peg$literalExpectation("Msquare", false), peg$c69 = "Mcircle", peg$c70 = peg$literalExpectation("Mcircle", false), peg$c71 = "rectangle", peg$c72 = peg$literalExpectation("rectangle", false), peg$c73 = "rect", peg$c74 = peg$literalExpectation("rect", false), peg$c75 = "square", peg$c76 = peg$literalExpectation("square", false), peg$c77 = "star", peg$c78 = peg$literalExpectation("star", false), peg$c79 = "underline", peg$c80 = peg$literalExpectation("underline", false), peg$c81 = "cylinder", peg$c82 = peg$literalExpectation("cylinder", false), peg$c83 = "note", peg$c84 = peg$literalExpectation("note", false), peg$c85 = "tab", peg$c86 = peg$literalExpectation("tab", false), peg$c87 = "folder", peg$c88 = peg$literalExpectation("folder", false), peg$c89 = "box", peg$c90 = peg$literalExpectation("box", false), peg$c91 = "component", peg$c92 = peg$literalExpectation("component", false), peg$c93 = "promoter", peg$c94 = peg$literalExpectation("promoter", false), peg$c95 = "cds", peg$c96 = peg$literalExpectation("cds", false), peg$c97 = "terminator", peg$c98 = peg$literalExpectation("terminator", false), peg$c99 = "utr", peg$c100 = peg$literalExpectation("utr", false), peg$c101 = "primersite", peg$c102 = peg$literalExpectation("primersite", false), peg$c103 = "restrictionsite", peg$c104 = peg$literalExpectation("restrictionsite", false), peg$c105 = "fivepoverhang", peg$c106 = peg$literalExpectation("fivepoverhang", false), peg$c107 = "threepoverhang", peg$c108 = peg$literalExpectation("threepoverhang", false), peg$c109 = "noverhang", peg$c110 = peg$literalExpectation("noverhang", false), peg$c111 = "assembly", peg$c112 = peg$literalExpectation("assembly", false), peg$c113 = "signature", peg$c114 = peg$literalExpectation("signature", false), peg$c115 = "insulator", peg$c116 = peg$literalExpectation("insulator", false), peg$c117 = "ribosite", peg$c118 = peg$literalExpectation("ribosite", false), peg$c119 = "rnastab", peg$c120 = peg$literalExpectation("rnastab", false), peg$c121 = "proteasesite", peg$c122 = peg$literalExpectation("proteasesite", false), peg$c123 = "proteinstab", peg$c124 = peg$literalExpectation("proteinstab", false), peg$c125 = "rpromoter", peg$c126 = peg$literalExpectation("rpromoter", false), peg$c127 = "rarrow", peg$c128 = peg$literalExpectation("rarrow", false), peg$c129 = "larrow", peg$c130 = peg$literalExpectation("larrow", false), peg$c131 = "lpromoter", peg$c132 = peg$literalExpectation("lpromoter", false), peg$c133 = "record", peg$c134 = peg$literalExpectation("record", false), peg$c135 = peg$otherExpectation("forward light arrow ->"), peg$c136 = "->", peg$c137 = peg$literalExpectation("->", false), peg$c138 = "\u2192", peg$c139 = peg$literalExpectation("\u2192", false), peg$c140 = function () { return "->"; }, peg$c141 = peg$otherExpectation("two way light arrow <->"), peg$c142 = "<->", peg$c143 = peg$literalExpectation("<->", false), peg$c144 = "\u2194", peg$c145 = peg$literalExpectation("\u2194", false), peg$c146 = function () { return "<->"; }, peg$c147 = peg$otherExpectation("back light arrow <-"), peg$c148 = "<-", peg$c149 = peg$literalExpectation("<-", false), peg$c150 = "\u2190", peg$c151 = peg$literalExpectation("\u2190", false), peg$c152 = function () { return "<-"; }, peg$c153 = peg$otherExpectation("forward fat arrow =>"), peg$c154 = "=>", peg$c155 = peg$literalExpectation("=>", false), peg$c156 = "\u21D2", peg$c157 = peg$literalExpectation("\u21D2", false), peg$c158 = function () { return "=>"; }, peg$c159 = peg$otherExpectation("two way fat arrow <=>"), peg$c160 = "<=>", peg$c161 = peg$literalExpectation("<=>", false), peg$c162 = "\u21D4", peg$c163 = peg$literalExpectation("\u21D4", false), peg$c164 = function () { return "<=>"; }, peg$c165 = peg$otherExpectation("back fat arrow <="), peg$c166 = "<=", peg$c167 = peg$literalExpectation("<=", false), peg$c168 = "\u21D0", peg$c169 = peg$literalExpectation("\u21D0", false), peg$c170 = function () { return "<="; }, peg$c171 = peg$otherExpectation("forward tilde arrow ~>"), peg$c172 = "~>", peg$c173 = peg$literalExpectation("~>", false), peg$c174 = "\u219B", peg$c175 = peg$literalExpectation("\u219B", false), peg$c176 = function () { return "~>"; }, peg$c177 = peg$otherExpectation("two way tilde arrow <~>"), peg$c178 = "<~>", peg$c179 = peg$literalExpectation("<~>", false), peg$c180 = "\u21AE", peg$c181 = peg$literalExpectation("\u21AE", false), peg$c182 = function () { return "<~>"; }, peg$c183 = peg$otherExpectation("back tilde arrow <~"), peg$c184 = "<~", peg$c185 = peg$literalExpectation("<~", false), peg$c186 = "\u219A", peg$c187 = peg$literalExpectation("\u219A", false), peg$c188 = function () { return "<~"; }, peg$c189 = peg$otherExpectation("light fat arrow <-=>"), peg$c190 = "<-=>", peg$c191 = peg$literalExpectation("<-=>", false), peg$c192 = "\u2190\u21D2", peg$c193 = peg$literalExpectation("\u2190\u21D2", false), peg$c194 = function () { return "<-=>"; }, peg$c195 = peg$otherExpectation("light tilde arrow <-~>"), peg$c196 = "<-~>", peg$c197 = peg$literalExpectation("<-~>", false), peg$c198 = "\u2190\u219B", peg$c199 = peg$literalExpectation("\u2190\u219B", false), peg$c200 = function () { return "<-~>"; }, peg$c201 = peg$otherExpectation("fat light arrow <=->"), peg$c202 = "<=->", peg$c203 = peg$literalExpectation("<=->", false), peg$c204 = "\u21D0\u2192", peg$c205 = peg$literalExpectation("\u21D0\u2192", false), peg$c206 = function () { return "<=->"; }, peg$c207 = peg$otherExpectation("fat tilde arrow <=~>"), peg$c208 = "<=~>", peg$c209 = peg$literalExpectation("<=~>", false), peg$c210 = "\u21D0\u219B", peg$c211 = peg$literalExpectation("\u21D0\u219B", false), peg$c212 = function () { return "<=~>"; }, peg$c213 = peg$otherExpectation("tilde light arrow <~->"), peg$c214 = "<~->", peg$c215 = peg$literalExpectation("<~->", false), peg$c216 = "\u219A\u2192", peg$c217 = peg$literalExpectation("\u219A\u2192", false), peg$c218 = function () { return "<~->"; }, peg$c219 = peg$otherExpectation("tilde fat arrow <~=>"), peg$c220 = "<~=>", peg$c221 = peg$literalExpectation("<~=>", false), peg$c222 = "\u219A\u21D2", peg$c223 = peg$literalExpectation("\u219A\u21D2", false), peg$c224 = function () { return "<~=>"; }, peg$c225 = peg$otherExpectation("light arrow"), peg$c226 = peg$otherExpectation("fat arrow"), peg$c227 = peg$otherExpectation("tilde arrow"), peg$c228 = peg$otherExpectation("mixed arrow"), peg$c229 = peg$otherExpectation("arrow"), peg$c230 = "true", peg$c231 = peg$literalExpectation("true", false), peg$c232 = function () { return true; }, peg$c233 = "false", peg$c234 = peg$literalExpectation("false", false), peg$c235 = function () { return false; }, peg$c236 = "regular", peg$c237 = peg$literalExpectation("regular", false), peg$c238 = "rounded", peg$c239 = peg$literalExpectation("rounded", false), peg$c240 = "lined", peg$c241 = peg$literalExpectation("lined", false), peg$c242 = "solid", peg$c243 = peg$literalExpectation("solid", false), peg$c244 = "dotted", peg$c245 = peg$literalExpectation("dotted", false), peg$c246 = "dashed", peg$c247 = peg$literalExpectation("dashed", false), peg$c248 = "\"", peg$c249 = peg$literalExpectation("\"", false), peg$c250 = "\\", peg$c251 = peg$literalExpectation("\\", false), peg$c252 = "/", peg$c253 = peg$literalExpectation("/", false), peg$c254 = "b", peg$c255 = peg$literalExpectation("b", false), peg$c256 = function () { return "\b"; }, peg$c257 = "f", peg$c258 = peg$literalExpectation("f", false), peg$c259 = function () { return "\f"; }, peg$c260 = "n", peg$c261 = peg$literalExpectation("n", false), peg$c262 = function () { return "\n"; }, peg$c263 = "r", peg$c264 = peg$literalExpectation("r", false), peg$c265 = function () { return "\r"; }, peg$c266 = "t", peg$c267 = peg$literalExpectation("t", false), peg$c268 = function () { return "\t"; }, peg$c269 = "v", peg$c270 = peg$literalExpectation("v", false), peg$c271 = function () { return "\v"; }, peg$c272 = "u", peg$c273 = peg$literalExpectation("u", false), peg$c274 = function (digits) {
+    var peg$FAILED = {}, peg$startRuleFunctions = { Document: peg$parseDocument }, peg$startRuleFunction = peg$parseDocument, peg$c0 = function (e) { return e; }, peg$c1 = "default", peg$c2 = peg$literalExpectation("default", false), peg$c3 = "ocean", peg$c4 = peg$literalExpectation("ocean", false), peg$c5 = "modern", peg$c6 = peg$literalExpectation("modern", false), peg$c7 = "plain", peg$c8 = peg$literalExpectation("plain", false), peg$c9 = "bold", peg$c10 = peg$literalExpectation("bold", false), peg$c11 = "[", peg$c12 = peg$literalExpectation("[", false), peg$c13 = "]", peg$c14 = peg$literalExpectation("]", false), peg$c15 = function (ths, th) { const themes = ths.map(t => t[0]); if (th)
+        themes.push(th); return themes; }, peg$c16 = function (th) { return [th]; }, peg$c17 = "box3d", peg$c18 = peg$literalExpectation("box3d", false), peg$c19 = "polygon", peg$c20 = peg$literalExpectation("polygon", false), peg$c21 = "ellipse", peg$c22 = peg$literalExpectation("ellipse", false), peg$c23 = "oval", peg$c24 = peg$literalExpectation("oval", false), peg$c25 = "circle", peg$c26 = peg$literalExpectation("circle", false), peg$c27 = "point", peg$c28 = peg$literalExpectation("point", false), peg$c29 = "egg", peg$c30 = peg$literalExpectation("egg", false), peg$c31 = "triangle", peg$c32 = peg$literalExpectation("triangle", false), peg$c33 = "plaintext", peg$c34 = peg$literalExpectation("plaintext", false), peg$c35 = "diamond", peg$c36 = peg$literalExpectation("diamond", false), peg$c37 = "trapezium", peg$c38 = peg$literalExpectation("trapezium", false), peg$c39 = "parallelogram", peg$c40 = peg$literalExpectation("parallelogram", false), peg$c41 = "house", peg$c42 = peg$literalExpectation("house", false), peg$c43 = "pentagon", peg$c44 = peg$literalExpectation("pentagon", false), peg$c45 = "hexagon", peg$c46 = peg$literalExpectation("hexagon", false), peg$c47 = "septagon", peg$c48 = peg$literalExpectation("septagon", false), peg$c49 = "octagon", peg$c50 = peg$literalExpectation("octagon", false), peg$c51 = "doublecircle", peg$c52 = peg$literalExpectation("doublecircle", false), peg$c53 = "doubleoctagon", peg$c54 = peg$literalExpectation("doubleoctagon", false), peg$c55 = "tripleoctagon", peg$c56 = peg$literalExpectation("tripleoctagon", false), peg$c57 = "invtriangle", peg$c58 = peg$literalExpectation("invtriangle", false), peg$c59 = "invtrapezium", peg$c60 = peg$literalExpectation("invtrapezium", false), peg$c61 = "invhouse", peg$c62 = peg$literalExpectation("invhouse", false), peg$c63 = "Mdiamond", peg$c64 = peg$literalExpectation("Mdiamond", false), peg$c65 = "Msquare", peg$c66 = peg$literalExpectation("Msquare", false), peg$c67 = "Mcircle", peg$c68 = peg$literalExpectation("Mcircle", false), peg$c69 = "rectangle", peg$c70 = peg$literalExpectation("rectangle", false), peg$c71 = "rect", peg$c72 = peg$literalExpectation("rect", false), peg$c73 = "square", peg$c74 = peg$literalExpectation("square", false), peg$c75 = "star", peg$c76 = peg$literalExpectation("star", false), peg$c77 = "none", peg$c78 = peg$literalExpectation("none", false), peg$c79 = "underline", peg$c80 = peg$literalExpectation("underline", false), peg$c81 = "cylinder", peg$c82 = peg$literalExpectation("cylinder", false), peg$c83 = "note", peg$c84 = peg$literalExpectation("note", false), peg$c85 = "tab", peg$c86 = peg$literalExpectation("tab", false), peg$c87 = "folder", peg$c88 = peg$literalExpectation("folder", false), peg$c89 = "box", peg$c90 = peg$literalExpectation("box", false), peg$c91 = "component", peg$c92 = peg$literalExpectation("component", false), peg$c93 = "promoter", peg$c94 = peg$literalExpectation("promoter", false), peg$c95 = "cds", peg$c96 = peg$literalExpectation("cds", false), peg$c97 = "terminator", peg$c98 = peg$literalExpectation("terminator", false), peg$c99 = "utr", peg$c100 = peg$literalExpectation("utr", false), peg$c101 = "primersite", peg$c102 = peg$literalExpectation("primersite", false), peg$c103 = "restrictionsite", peg$c104 = peg$literalExpectation("restrictionsite", false), peg$c105 = "fivepoverhang", peg$c106 = peg$literalExpectation("fivepoverhang", false), peg$c107 = "threepoverhang", peg$c108 = peg$literalExpectation("threepoverhang", false), peg$c109 = "noverhang", peg$c110 = peg$literalExpectation("noverhang", false), peg$c111 = "assembly", peg$c112 = peg$literalExpectation("assembly", false), peg$c113 = "signature", peg$c114 = peg$literalExpectation("signature", false), peg$c115 = "insulator", peg$c116 = peg$literalExpectation("insulator", false), peg$c117 = "ribosite", peg$c118 = peg$literalExpectation("ribosite", false), peg$c119 = "rnastab", peg$c120 = peg$literalExpectation("rnastab", false), peg$c121 = "proteasesite", peg$c122 = peg$literalExpectation("proteasesite", false), peg$c123 = "proteinstab", peg$c124 = peg$literalExpectation("proteinstab", false), peg$c125 = "rpromoter", peg$c126 = peg$literalExpectation("rpromoter", false), peg$c127 = "rarrow", peg$c128 = peg$literalExpectation("rarrow", false), peg$c129 = "larrow", peg$c130 = peg$literalExpectation("larrow", false), peg$c131 = "lpromoter", peg$c132 = peg$literalExpectation("lpromoter", false), peg$c133 = "record", peg$c134 = peg$literalExpectation("record", false), peg$c135 = peg$otherExpectation("forward light arrow ->"), peg$c136 = "->", peg$c137 = peg$literalExpectation("->", false), peg$c138 = "\u2192", peg$c139 = peg$literalExpectation("\u2192", false), peg$c140 = function () { return "->"; }, peg$c141 = peg$otherExpectation("two way light arrow <->"), peg$c142 = "<->", peg$c143 = peg$literalExpectation("<->", false), peg$c144 = "\u2194", peg$c145 = peg$literalExpectation("\u2194", false), peg$c146 = function () { return "<->"; }, peg$c147 = peg$otherExpectation("back light arrow <-"), peg$c148 = "<-", peg$c149 = peg$literalExpectation("<-", false), peg$c150 = "\u2190", peg$c151 = peg$literalExpectation("\u2190", false), peg$c152 = function () { return "<-"; }, peg$c153 = peg$otherExpectation("forward fat arrow =>"), peg$c154 = "=>", peg$c155 = peg$literalExpectation("=>", false), peg$c156 = "\u21D2", peg$c157 = peg$literalExpectation("\u21D2", false), peg$c158 = function () { return "=>"; }, peg$c159 = peg$otherExpectation("two way fat arrow <=>"), peg$c160 = "<=>", peg$c161 = peg$literalExpectation("<=>", false), peg$c162 = "\u21D4", peg$c163 = peg$literalExpectation("\u21D4", false), peg$c164 = function () { return "<=>"; }, peg$c165 = peg$otherExpectation("back fat arrow <="), peg$c166 = "<=", peg$c167 = peg$literalExpectation("<=", false), peg$c168 = "\u21D0", peg$c169 = peg$literalExpectation("\u21D0", false), peg$c170 = function () { return "<="; }, peg$c171 = peg$otherExpectation("forward tilde arrow ~>"), peg$c172 = "~>", peg$c173 = peg$literalExpectation("~>", false), peg$c174 = "\u219B", peg$c175 = peg$literalExpectation("\u219B", false), peg$c176 = function () { return "~>"; }, peg$c177 = peg$otherExpectation("two way tilde arrow <~>"), peg$c178 = "<~>", peg$c179 = peg$literalExpectation("<~>", false), peg$c180 = "\u21AE", peg$c181 = peg$literalExpectation("\u21AE", false), peg$c182 = function () { return "<~>"; }, peg$c183 = peg$otherExpectation("back tilde arrow <~"), peg$c184 = "<~", peg$c185 = peg$literalExpectation("<~", false), peg$c186 = "\u219A", peg$c187 = peg$literalExpectation("\u219A", false), peg$c188 = function () { return "<~"; }, peg$c189 = peg$otherExpectation("light fat arrow <-=>"), peg$c190 = "<-=>", peg$c191 = peg$literalExpectation("<-=>", false), peg$c192 = "\u2190\u21D2", peg$c193 = peg$literalExpectation("\u2190\u21D2", false), peg$c194 = function () { return "<-=>"; }, peg$c195 = peg$otherExpectation("light tilde arrow <-~>"), peg$c196 = "<-~>", peg$c197 = peg$literalExpectation("<-~>", false), peg$c198 = "\u2190\u219B", peg$c199 = peg$literalExpectation("\u2190\u219B", false), peg$c200 = function () { return "<-~>"; }, peg$c201 = peg$otherExpectation("fat light arrow <=->"), peg$c202 = "<=->", peg$c203 = peg$literalExpectation("<=->", false), peg$c204 = "\u21D0\u2192", peg$c205 = peg$literalExpectation("\u21D0\u2192", false), peg$c206 = function () { return "<=->"; }, peg$c207 = peg$otherExpectation("fat tilde arrow <=~>"), peg$c208 = "<=~>", peg$c209 = peg$literalExpectation("<=~>", false), peg$c210 = "\u21D0\u219B", peg$c211 = peg$literalExpectation("\u21D0\u219B", false), peg$c212 = function () { return "<=~>"; }, peg$c213 = peg$otherExpectation("tilde light arrow <~->"), peg$c214 = "<~->", peg$c215 = peg$literalExpectation("<~->", false), peg$c216 = "\u219A\u2192", peg$c217 = peg$literalExpectation("\u219A\u2192", false), peg$c218 = function () { return "<~->"; }, peg$c219 = peg$otherExpectation("tilde fat arrow <~=>"), peg$c220 = "<~=>", peg$c221 = peg$literalExpectation("<~=>", false), peg$c222 = "\u219A\u21D2", peg$c223 = peg$literalExpectation("\u219A\u21D2", false), peg$c224 = function () { return "<~=>"; }, peg$c225 = peg$otherExpectation("light arrow"), peg$c226 = peg$otherExpectation("fat arrow"), peg$c227 = peg$otherExpectation("tilde arrow"), peg$c228 = peg$otherExpectation("mixed arrow"), peg$c229 = peg$otherExpectation("arrow"), peg$c230 = "true", peg$c231 = peg$literalExpectation("true", false), peg$c232 = function () { return true; }, peg$c233 = "false", peg$c234 = peg$literalExpectation("false", false), peg$c235 = function () { return false; }, peg$c236 = "regular", peg$c237 = peg$literalExpectation("regular", false), peg$c238 = "rounded", peg$c239 = peg$literalExpectation("rounded", false), peg$c240 = "lined", peg$c241 = peg$literalExpectation("lined", false), peg$c242 = "solid", peg$c243 = peg$literalExpectation("solid", false), peg$c244 = "dotted", peg$c245 = peg$literalExpectation("dotted", false), peg$c246 = "dashed", peg$c247 = peg$literalExpectation("dashed", false), peg$c248 = "\"", peg$c249 = peg$literalExpectation("\"", false), peg$c250 = "\\", peg$c251 = peg$literalExpectation("\\", false), peg$c252 = "/", peg$c253 = peg$literalExpectation("/", false), peg$c254 = "b", peg$c255 = peg$literalExpectation("b", false), peg$c256 = function () { return "\b"; }, peg$c257 = "f", peg$c258 = peg$literalExpectation("f", false), peg$c259 = function () { return "\f"; }, peg$c260 = "n", peg$c261 = peg$literalExpectation("n", false), peg$c262 = function () { return "\n"; }, peg$c263 = "r", peg$c264 = peg$literalExpectation("r", false), peg$c265 = function () { return "\r"; }, peg$c266 = "t", peg$c267 = peg$literalExpectation("t", false), peg$c268 = function () { return "\t"; }, peg$c269 = "v", peg$c270 = peg$literalExpectation("v", false), peg$c271 = function () { return "\v"; }, peg$c272 = "u", peg$c273 = peg$literalExpectation("u", false), peg$c274 = function (digits) {
         return String.fromCharCode(parseInt(digits, 16));
     }, peg$c275 = function (Sequence) { return Sequence; }, peg$c276 = "null", peg$c277 = peg$literalExpectation("null", false), peg$c278 = function () { return null; }, peg$c279 = "undefined", peg$c280 = peg$literalExpectation("undefined", false), peg$c281 = function () { return undefined; }, peg$c282 = /^[\0-!#-[\]-\uFFFF]/, peg$c283 = peg$classExpectation([["\0", "!"], ["#", "["], ["]", "\uFFFF"]], false, false), peg$c284 = "'", peg$c285 = peg$literalExpectation("'", false), peg$c286 = /^[ -&(-[\]-\uFFFF]/, peg$c287 = peg$classExpectation([[" ", "&"], ["(", "["], ["]", "\uFFFF"]], false, false), peg$c288 = peg$otherExpectation("action label"), peg$c289 = function (chars) { return chars.join(""); }, peg$c290 = /^[\n\r\u2028\u2029]/, peg$c291 = peg$classExpectation(["\n", "\r", "\u2028", "\u2029"], false, false), peg$c292 = "*/", peg$c293 = peg$literalExpectation("*/", false), peg$c294 = peg$anyExpectation(), peg$c295 = peg$otherExpectation("block comment"), peg$c296 = "/*", peg$c297 = peg$literalExpectation("/*", false), peg$c298 = peg$otherExpectation("line comment"), peg$c299 = "//", peg$c300 = peg$literalExpectation("//", false), peg$c301 = peg$otherExpectation("whitespace"), peg$c302 = /^[ \t\r\n\x0B]/, peg$c303 = peg$classExpectation([" ", "\t", "\r", "\n", "\x0B"], false, false), peg$c304 = peg$otherExpectation("string"), peg$c305 = /^[0-9a-zA-Z._!$\^*!?,\x80-\uFFFF]/, peg$c306 = peg$classExpectation([["0", "9"], ["a", "z"], ["A", "Z"], ".", "_", "!", "$", "^", "*", "!", "?", ",", ["\x80", "\uFFFF"]], false, false), peg$c307 = /^[0-9a-zA-Z.+_\^()*&$#@!?,\x80-\uFFFF]/, peg$c308 = peg$classExpectation([["0", "9"], ["a", "z"], ["A", "Z"], ".", "+", "_", "^", "(", ")", "*", "&", "$", "#", "@", "!", "?", ",", ["\x80", "\uFFFF"]], false, false), peg$c309 = peg$otherExpectation("atom"), peg$c310 = function (firstletter, text) {
         return firstletter + ((text || []).join(''));
@@ -535,9 +535,9 @@ function peg$parse(input, options) {
     }
     function peg$parseTheme() {
         var s0;
-        if (input.substr(peg$currPos, 4) === peg$c1) {
+        if (input.substr(peg$currPos, 7) === peg$c1) {
             s0 = peg$c1;
-            peg$currPos += 4;
+            peg$currPos += 7;
         }
         else {
             s0 = peg$FAILED;
@@ -546,9 +546,9 @@ function peg$parse(input, options) {
             }
         }
         if (s0 === peg$FAILED) {
-            if (input.substr(peg$currPos, 7) === peg$c3) {
+            if (input.substr(peg$currPos, 5) === peg$c3) {
                 s0 = peg$c3;
-                peg$currPos += 7;
+                peg$currPos += 5;
             }
             else {
                 s0 = peg$FAILED;
@@ -809,256 +809,256 @@ function peg$parse(input, options) {
                                             }
                                         }
                                         if (s0 === peg$FAILED) {
-                                            if (input.substr(peg$currPos, 5) === peg$c35) {
-                                                s0 = peg$c35;
+                                            if (input.substr(peg$currPos, 5) === peg$c7) {
+                                                s0 = peg$c7;
                                                 peg$currPos += 5;
                                             }
                                             else {
                                                 s0 = peg$FAILED;
                                                 if (peg$silentFails === 0) {
-                                                    peg$fail(peg$c36);
+                                                    peg$fail(peg$c8);
                                                 }
                                             }
                                             if (s0 === peg$FAILED) {
-                                                if (input.substr(peg$currPos, 7) === peg$c37) {
-                                                    s0 = peg$c37;
+                                                if (input.substr(peg$currPos, 7) === peg$c35) {
+                                                    s0 = peg$c35;
                                                     peg$currPos += 7;
                                                 }
                                                 else {
                                                     s0 = peg$FAILED;
                                                     if (peg$silentFails === 0) {
-                                                        peg$fail(peg$c38);
+                                                        peg$fail(peg$c36);
                                                     }
                                                 }
                                                 if (s0 === peg$FAILED) {
-                                                    if (input.substr(peg$currPos, 9) === peg$c39) {
-                                                        s0 = peg$c39;
+                                                    if (input.substr(peg$currPos, 9) === peg$c37) {
+                                                        s0 = peg$c37;
                                                         peg$currPos += 9;
                                                     }
                                                     else {
                                                         s0 = peg$FAILED;
                                                         if (peg$silentFails === 0) {
-                                                            peg$fail(peg$c40);
+                                                            peg$fail(peg$c38);
                                                         }
                                                     }
                                                     if (s0 === peg$FAILED) {
-                                                        if (input.substr(peg$currPos, 13) === peg$c41) {
-                                                            s0 = peg$c41;
+                                                        if (input.substr(peg$currPos, 13) === peg$c39) {
+                                                            s0 = peg$c39;
                                                             peg$currPos += 13;
                                                         }
                                                         else {
                                                             s0 = peg$FAILED;
                                                             if (peg$silentFails === 0) {
-                                                                peg$fail(peg$c42);
+                                                                peg$fail(peg$c40);
                                                             }
                                                         }
                                                         if (s0 === peg$FAILED) {
-                                                            if (input.substr(peg$currPos, 5) === peg$c43) {
-                                                                s0 = peg$c43;
+                                                            if (input.substr(peg$currPos, 5) === peg$c41) {
+                                                                s0 = peg$c41;
                                                                 peg$currPos += 5;
                                                             }
                                                             else {
                                                                 s0 = peg$FAILED;
                                                                 if (peg$silentFails === 0) {
-                                                                    peg$fail(peg$c44);
+                                                                    peg$fail(peg$c42);
                                                                 }
                                                             }
                                                             if (s0 === peg$FAILED) {
-                                                                if (input.substr(peg$currPos, 8) === peg$c45) {
-                                                                    s0 = peg$c45;
+                                                                if (input.substr(peg$currPos, 8) === peg$c43) {
+                                                                    s0 = peg$c43;
                                                                     peg$currPos += 8;
                                                                 }
                                                                 else {
                                                                     s0 = peg$FAILED;
                                                                     if (peg$silentFails === 0) {
-                                                                        peg$fail(peg$c46);
+                                                                        peg$fail(peg$c44);
                                                                     }
                                                                 }
                                                                 if (s0 === peg$FAILED) {
-                                                                    if (input.substr(peg$currPos, 7) === peg$c47) {
-                                                                        s0 = peg$c47;
+                                                                    if (input.substr(peg$currPos, 7) === peg$c45) {
+                                                                        s0 = peg$c45;
                                                                         peg$currPos += 7;
                                                                     }
                                                                     else {
                                                                         s0 = peg$FAILED;
                                                                         if (peg$silentFails === 0) {
-                                                                            peg$fail(peg$c48);
+                                                                            peg$fail(peg$c46);
                                                                         }
                                                                     }
                                                                     if (s0 === peg$FAILED) {
-                                                                        if (input.substr(peg$currPos, 8) === peg$c49) {
-                                                                            s0 = peg$c49;
+                                                                        if (input.substr(peg$currPos, 8) === peg$c47) {
+                                                                            s0 = peg$c47;
                                                                             peg$currPos += 8;
                                                                         }
                                                                         else {
                                                                             s0 = peg$FAILED;
                                                                             if (peg$silentFails === 0) {
-                                                                                peg$fail(peg$c50);
+                                                                                peg$fail(peg$c48);
                                                                             }
                                                                         }
                                                                         if (s0 === peg$FAILED) {
-                                                                            if (input.substr(peg$currPos, 7) === peg$c51) {
-                                                                                s0 = peg$c51;
+                                                                            if (input.substr(peg$currPos, 7) === peg$c49) {
+                                                                                s0 = peg$c49;
                                                                                 peg$currPos += 7;
                                                                             }
                                                                             else {
                                                                                 s0 = peg$FAILED;
                                                                                 if (peg$silentFails === 0) {
-                                                                                    peg$fail(peg$c52);
+                                                                                    peg$fail(peg$c50);
                                                                                 }
                                                                             }
                                                                             if (s0 === peg$FAILED) {
-                                                                                if (input.substr(peg$currPos, 12) === peg$c53) {
-                                                                                    s0 = peg$c53;
+                                                                                if (input.substr(peg$currPos, 12) === peg$c51) {
+                                                                                    s0 = peg$c51;
                                                                                     peg$currPos += 12;
                                                                                 }
                                                                                 else {
                                                                                     s0 = peg$FAILED;
                                                                                     if (peg$silentFails === 0) {
-                                                                                        peg$fail(peg$c54);
+                                                                                        peg$fail(peg$c52);
                                                                                     }
                                                                                 }
                                                                                 if (s0 === peg$FAILED) {
-                                                                                    if (input.substr(peg$currPos, 13) === peg$c55) {
-                                                                                        s0 = peg$c55;
+                                                                                    if (input.substr(peg$currPos, 13) === peg$c53) {
+                                                                                        s0 = peg$c53;
                                                                                         peg$currPos += 13;
                                                                                     }
                                                                                     else {
                                                                                         s0 = peg$FAILED;
                                                                                         if (peg$silentFails === 0) {
-                                                                                            peg$fail(peg$c56);
+                                                                                            peg$fail(peg$c54);
                                                                                         }
                                                                                     }
                                                                                     if (s0 === peg$FAILED) {
-                                                                                        if (input.substr(peg$currPos, 13) === peg$c57) {
-                                                                                            s0 = peg$c57;
+                                                                                        if (input.substr(peg$currPos, 13) === peg$c55) {
+                                                                                            s0 = peg$c55;
                                                                                             peg$currPos += 13;
                                                                                         }
                                                                                         else {
                                                                                             s0 = peg$FAILED;
                                                                                             if (peg$silentFails === 0) {
-                                                                                                peg$fail(peg$c58);
+                                                                                                peg$fail(peg$c56);
                                                                                             }
                                                                                         }
                                                                                         if (s0 === peg$FAILED) {
-                                                                                            if (input.substr(peg$currPos, 11) === peg$c59) {
-                                                                                                s0 = peg$c59;
+                                                                                            if (input.substr(peg$currPos, 11) === peg$c57) {
+                                                                                                s0 = peg$c57;
                                                                                                 peg$currPos += 11;
                                                                                             }
                                                                                             else {
                                                                                                 s0 = peg$FAILED;
                                                                                                 if (peg$silentFails === 0) {
-                                                                                                    peg$fail(peg$c60);
+                                                                                                    peg$fail(peg$c58);
                                                                                                 }
                                                                                             }
                                                                                             if (s0 === peg$FAILED) {
-                                                                                                if (input.substr(peg$currPos, 12) === peg$c61) {
-                                                                                                    s0 = peg$c61;
+                                                                                                if (input.substr(peg$currPos, 12) === peg$c59) {
+                                                                                                    s0 = peg$c59;
                                                                                                     peg$currPos += 12;
                                                                                                 }
                                                                                                 else {
                                                                                                     s0 = peg$FAILED;
                                                                                                     if (peg$silentFails === 0) {
-                                                                                                        peg$fail(peg$c62);
+                                                                                                        peg$fail(peg$c60);
                                                                                                     }
                                                                                                 }
                                                                                                 if (s0 === peg$FAILED) {
-                                                                                                    if (input.substr(peg$currPos, 8) === peg$c63) {
-                                                                                                        s0 = peg$c63;
+                                                                                                    if (input.substr(peg$currPos, 8) === peg$c61) {
+                                                                                                        s0 = peg$c61;
                                                                                                         peg$currPos += 8;
                                                                                                     }
                                                                                                     else {
                                                                                                         s0 = peg$FAILED;
                                                                                                         if (peg$silentFails === 0) {
-                                                                                                            peg$fail(peg$c64);
+                                                                                                            peg$fail(peg$c62);
                                                                                                         }
                                                                                                     }
                                                                                                     if (s0 === peg$FAILED) {
-                                                                                                        if (input.substr(peg$currPos, 8) === peg$c65) {
-                                                                                                            s0 = peg$c65;
+                                                                                                        if (input.substr(peg$currPos, 8) === peg$c63) {
+                                                                                                            s0 = peg$c63;
                                                                                                             peg$currPos += 8;
                                                                                                         }
                                                                                                         else {
                                                                                                             s0 = peg$FAILED;
                                                                                                             if (peg$silentFails === 0) {
-                                                                                                                peg$fail(peg$c66);
+                                                                                                                peg$fail(peg$c64);
                                                                                                             }
                                                                                                         }
                                                                                                         if (s0 === peg$FAILED) {
-                                                                                                            if (input.substr(peg$currPos, 7) === peg$c67) {
-                                                                                                                s0 = peg$c67;
+                                                                                                            if (input.substr(peg$currPos, 7) === peg$c65) {
+                                                                                                                s0 = peg$c65;
                                                                                                                 peg$currPos += 7;
                                                                                                             }
                                                                                                             else {
                                                                                                                 s0 = peg$FAILED;
                                                                                                                 if (peg$silentFails === 0) {
-                                                                                                                    peg$fail(peg$c68);
+                                                                                                                    peg$fail(peg$c66);
                                                                                                                 }
                                                                                                             }
                                                                                                             if (s0 === peg$FAILED) {
-                                                                                                                if (input.substr(peg$currPos, 7) === peg$c69) {
-                                                                                                                    s0 = peg$c69;
+                                                                                                                if (input.substr(peg$currPos, 7) === peg$c67) {
+                                                                                                                    s0 = peg$c67;
                                                                                                                     peg$currPos += 7;
                                                                                                                 }
                                                                                                                 else {
                                                                                                                     s0 = peg$FAILED;
                                                                                                                     if (peg$silentFails === 0) {
-                                                                                                                        peg$fail(peg$c70);
+                                                                                                                        peg$fail(peg$c68);
                                                                                                                     }
                                                                                                                 }
                                                                                                                 if (s0 === peg$FAILED) {
-                                                                                                                    if (input.substr(peg$currPos, 9) === peg$c71) {
-                                                                                                                        s0 = peg$c71;
+                                                                                                                    if (input.substr(peg$currPos, 9) === peg$c69) {
+                                                                                                                        s0 = peg$c69;
                                                                                                                         peg$currPos += 9;
                                                                                                                     }
                                                                                                                     else {
                                                                                                                         s0 = peg$FAILED;
                                                                                                                         if (peg$silentFails === 0) {
-                                                                                                                            peg$fail(peg$c72);
+                                                                                                                            peg$fail(peg$c70);
                                                                                                                         }
                                                                                                                     }
                                                                                                                     if (s0 === peg$FAILED) {
-                                                                                                                        if (input.substr(peg$currPos, 4) === peg$c73) {
-                                                                                                                            s0 = peg$c73;
+                                                                                                                        if (input.substr(peg$currPos, 4) === peg$c71) {
+                                                                                                                            s0 = peg$c71;
                                                                                                                             peg$currPos += 4;
                                                                                                                         }
                                                                                                                         else {
                                                                                                                             s0 = peg$FAILED;
                                                                                                                             if (peg$silentFails === 0) {
-                                                                                                                                peg$fail(peg$c74);
+                                                                                                                                peg$fail(peg$c72);
                                                                                                                             }
                                                                                                                         }
                                                                                                                         if (s0 === peg$FAILED) {
-                                                                                                                            if (input.substr(peg$currPos, 6) === peg$c75) {
-                                                                                                                                s0 = peg$c75;
+                                                                                                                            if (input.substr(peg$currPos, 6) === peg$c73) {
+                                                                                                                                s0 = peg$c73;
                                                                                                                                 peg$currPos += 6;
                                                                                                                             }
                                                                                                                             else {
                                                                                                                                 s0 = peg$FAILED;
                                                                                                                                 if (peg$silentFails === 0) {
-                                                                                                                                    peg$fail(peg$c76);
+                                                                                                                                    peg$fail(peg$c74);
                                                                                                                                 }
                                                                                                                             }
                                                                                                                             if (s0 === peg$FAILED) {
-                                                                                                                                if (input.substr(peg$currPos, 4) === peg$c77) {
-                                                                                                                                    s0 = peg$c77;
+                                                                                                                                if (input.substr(peg$currPos, 4) === peg$c75) {
+                                                                                                                                    s0 = peg$c75;
                                                                                                                                     peg$currPos += 4;
                                                                                                                                 }
                                                                                                                                 else {
                                                                                                                                     s0 = peg$FAILED;
                                                                                                                                     if (peg$silentFails === 0) {
-                                                                                                                                        peg$fail(peg$c78);
+                                                                                                                                        peg$fail(peg$c76);
                                                                                                                                     }
                                                                                                                                 }
                                                                                                                                 if (s0 === peg$FAILED) {
-                                                                                                                                    if (input.substr(peg$currPos, 4) === peg$c1) {
-                                                                                                                                        s0 = peg$c1;
+                                                                                                                                    if (input.substr(peg$currPos, 4) === peg$c77) {
+                                                                                                                                        s0 = peg$c77;
                                                                                                                                         peg$currPos += 4;
                                                                                                                                     }
                                                                                                                                     else {
                                                                                                                                         s0 = peg$FAILED;
                                                                                                                                         if (peg$silentFails === 0) {
-                                                                                                                                            peg$fail(peg$c2);
+                                                                                                                                            peg$fail(peg$c78);
                                                                                                                                         }
                                                                                                                                     }
                                                                                                                                     if (s0 === peg$FAILED) {
@@ -18337,14 +18337,14 @@ function peg$parse(input, options) {
                     if (s4 !== peg$FAILED) {
                         s5 = peg$parseWS();
                         if (s5 !== peg$FAILED) {
-                            if (input.substr(peg$currPos, 7) === peg$c3) {
-                                s6 = peg$c3;
+                            if (input.substr(peg$currPos, 7) === peg$c1) {
+                                s6 = peg$c1;
                                 peg$currPos += 7;
                             }
                             else {
                                 s6 = peg$FAILED;
                                 if (peg$silentFails === 0) {
-                                    peg$fail(peg$c4);
+                                    peg$fail(peg$c2);
                                 }
                             }
                             if (s6 !== peg$FAILED) {
@@ -18582,14 +18582,14 @@ function peg$parse(input, options) {
                             if (s4 !== peg$FAILED) {
                                 s5 = peg$parseWS();
                                 if (s5 !== peg$FAILED) {
-                                    if (input.substr(peg$currPos, 7) === peg$c3) {
-                                        s6 = peg$c3;
+                                    if (input.substr(peg$currPos, 7) === peg$c1) {
+                                        s6 = peg$c1;
                                         peg$currPos += 7;
                                     }
                                     else {
                                         s6 = peg$FAILED;
                                         if (peg$silentFails === 0) {
-                                            peg$fail(peg$c4);
+                                            peg$fail(peg$c2);
                                         }
                                     }
                                     if (s6 !== peg$FAILED) {
@@ -20875,21 +20875,131 @@ theme_mapping.set('ocean', ocean_theme);
 theme_mapping.set('plain', plain_theme);
 theme_mapping.set('bold', bold_theme);
 
+/*******
+ *
+ *  Convenience aliases for common mathematical and numeric constants from
+ *  `Number` and `Math`.  Re-exported so that FSL data expressions and tests
+ *  can reference them without importing `Math` directly.
+ *
+ *  Includes: `NegInfinity`, `PosInfinity`, `Epsilon`, `Pi`, `E`, `Root2`,
+ *  `RootHalf`, `Ln2`, `Ln10`, `Log2E`, `Log10E`, `MaxSafeInt`, `MinSafeInt`,
+ *  `MaxPosNum`, `MinPosNum`, `Phi` (golden ratio), `EulerC` (Euler–Mascheroni).
+ *
+ */
+/*******
+ *
+ *  Character ranges accepted by the FSL grammar for identifier and label
+ *  tokens.  Each entry is an inclusive `{from, to}` range of single Unicode
+ *  characters.  Single-character entries (e.g. `.`) appear with `from === to`.
+ *
+ *  These are intended for tooling, validators, and editors that need to know
+ *  which characters are legal in a given FSL token position without re-parsing
+ *  the PEG grammar.
+ *
+ */
+/**
+ *  Inclusive character ranges accepted by `AtomLetter` — i.e., the characters
+ *  legal in any but the first position of an FSL state name (atom).
+ *
+ *  Includes ASCII digits/letters and the symbols
+ *  `.`, `+`, `_`, `^`, `(`, `)`, `*`, `&`, `$`, `#`, `@`, `!`, `?`, `,`,
+ *  plus the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  import { state_name_chars } from 'jssm';
+ *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
+ */
+// keep in sync with src/ts/fsl_parser.peg:278
+const state_name_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '+', to: '+' },
+    { from: '_', to: '_' },
+    { from: '^', to: '^' },
+    { from: '(', to: '(' },
+    { from: ')', to: ')' },
+    { from: '*', to: '*' },
+    { from: '&', to: '&' },
+    { from: '$', to: '$' },
+    { from: '#', to: '#' },
+    { from: '@', to: '@' },
+    { from: '!', to: '!' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `AtomFirstLetter` — i.e., the
+ *  characters legal in the first position of an FSL state name (atom).
+ *
+ *  Notably narrower than {@link state_name_chars}: omits `+`, `(`, `)`, `&`,
+ *  `#`, `@`.  Includes ASCII digits/letters, `.`, `_`, `!`, `$`, `^`, `*`,
+ *  `?`, `,`, and the high-Unicode range `U+0080`–`U+FFFF`.
+ *
+ *  @example
+ *  import { state_name_first_chars } from 'jssm';
+ *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
+ */
+// keep in sync with src/ts/fsl_parser.peg:275
+const state_name_first_chars$1 = Object.freeze([
+    { from: '0', to: '9' },
+    { from: 'a', to: 'z' },
+    { from: 'A', to: 'Z' },
+    { from: '.', to: '.' },
+    { from: '_', to: '_' },
+    { from: '!', to: '!' },
+    { from: '$', to: '$' },
+    { from: '^', to: '^' },
+    { from: '*', to: '*' },
+    { from: '?', to: '?' },
+    { from: ',', to: ',' },
+    { from: '\u0080', to: '\uFFFF' },
+]);
+/**
+ *  Inclusive character ranges accepted by `ActionLabelUnescaped` — i.e., the
+ *  characters legal inside a single-quoted action label without escaping.
+ *  Space (`U+0020`) is included; the apostrophe `'` (`U+0027`) is explicitly
+ *  excluded since it terminates the label.
+ *
+ *  Three ranges: `U+0020`–`U+0026`, `U+0028`–`U+005B`, `U+005D`–`U+FFFF`.
+ *
+ *  @example
+ *  import { action_label_chars } from 'jssm';
+ *  action_label_chars.some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+ *  action_label_chars.some(r => "'" >= r.from && "'" <= r.to);   // => false
+ */
+// keep in sync with src/ts/fsl_parser.peg:240
+const action_label_chars$1 = Object.freeze([
+    { from: ' ', to: '&' },
+    { from: '(', to: '[' },
+    { from: ']', to: '\uFFFF' },
+]);
+
+var constants = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    action_label_chars: action_label_chars$1,
+    state_name_chars: state_name_chars$1,
+    state_name_first_chars: state_name_first_chars$1
+});
+
 /**
  *  The published semantic version of the jssm package this build was cut from.
  *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.113.0";
+const version = "5.124.1";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1778615314608;
+const build_time = 1779220984984;
 
 // whargarbl lots of these return arrays could/should be sets
+const { state_name_chars, state_name_first_chars, action_label_chars } = constants;
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into
@@ -21315,12 +21425,18 @@ class Machine {
         }
         // done building, do checks
         // assert all props are valid
+        // _state_properties keys are always JSON.stringify([string, string]),
+        // built by name_bind_prop_and_state which throws on non-strings — so the
+        // non-array / non-string else-arms below are unreachable, not untested.
         this._state_properties.forEach((_value, key) => {
             const inside = JSON.parse(key);
+            /* v8 ignore else */
             if (Array.isArray(inside)) {
                 const j_property = inside[0];
+                /* v8 ignore else */
                 if (typeof j_property === 'string') {
                     const j_state = inside[1];
+                    /* v8 ignore else */
                     if (typeof j_state === 'string') {
                         if (!(this.known_prop(j_property))) {
                             throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
@@ -22034,6 +22150,49 @@ class Machine {
     all_themes() {
         return [...theme_mapping.keys()]; // constructor sets this to "default" otherwise
     }
+    /** List the character ranges accepted by the FSL grammar in any but the
+     *  first position of a state name (atom).  Each entry is an inclusive
+     *  `{from, to}` range of single Unicode characters.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_chars().some(r => '+' >= r.from && '+' <= r.to);  // => true
+     */
+    all_state_name_chars() {
+        return state_name_chars;
+    }
+    /** List the character ranges accepted by the FSL grammar in the first
+     *  position of a state name (atom).  Narrower than
+     *  {@link all_state_name_chars}: notably omits `+`, `(`, `)`, `&`, `#`, `@`.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_state_name_first_chars().some(r => '+' >= r.from && '+' <= r.to);  // => false
+     */
+    all_state_name_first_chars() {
+        return state_name_first_chars;
+    }
+    /** List the character ranges accepted inside a single-quoted FSL action
+     *  label without escaping.  Space is allowed; the apostrophe `'` is
+     *  explicitly excluded since it terminates the label.
+     *
+     *  @returns An array of `{from, to}` inclusive character ranges.
+     *
+     *  @example
+     *  import { sm } from 'jssm';
+     *  const m = sm`a -> b;`;
+     *  m.all_action_label_chars().some(r => ' ' >= r.from && ' ' <= r.to);   // => true
+     *  m.all_action_label_chars().some(r => "'" >= r.from && "'" <= r.to);   // => false
+     */
+    all_action_label_chars() {
+        return action_label_chars;
+    }
     /** Get the active theme(s) for this machine.  Always stored as an array
      *  internally; the union return type exists for setter compatibility.
      *  @returns The current theme or array of themes.
@@ -22159,10 +22318,23 @@ class Machine {
         const guaranteed = ((_a = this._states.get(whichState)) !== null && _a !== void 0 ? _a : { to: undefined });
         return (_b = guaranteed.to) !== null && _b !== void 0 ? _b : [];
     }
-    /** Get the transitions available from a state, filtered to those with
-     *  probability data.  Used by the probabilistic walk system.
+    /** Get the transitions available from a state for use by the probabilistic
+     *  walk system.
+     *
+     *  If any exit declares a `probability`, only those probability-bearing
+     *  exits are returned, so that non-probability peers cannot dilute the
+     *  declared distribution.  If no exit declares a `probability`, every
+     *  legal (non-forced) exit is returned, which `weighted_rand_select`
+     *  treats as equal weight.  Forced-only exits (`~>`) are always excluded,
+     *  since they cannot be taken by an ordinary `transition()` call.
+     *
+     *  Fixes StoneCypher/fsl#1325, in which the function previously returned
+     *  every exit unconditionally — including forced-only exits and exits
+     *  with no `probability`, which distorted the weighted distribution.
+     *
      *  @param whichState - The state to inspect.
-     *  @returns An array of {@link JssmTransition} edges exiting the state.
+     *  @returns An array of {@link JssmTransition} edges exiting the state,
+     *  filtered as described above.  May be empty.
      *  @throws {JssmError} If the state does not exist.
      */
     probable_exits_for(whichState) {
@@ -22170,11 +22342,18 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, wtf // wstate_to_filtered -> wtf
-         = wstate_to
+        const wstate_to = wstate.to, 
+        // every transition that exits whichState
+        all_exits = wstate_to
             .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean);
-        return wtf;
+            .filter(Boolean), 
+        // forced-only exits cannot be reached by transition(), so they are
+        // never legal probabilistic outcomes
+        legal_exits = all_exits.filter((e) => !e.forced_only), 
+        // if any legal exit declares a probability, filter to those only so
+        // that probability-bearing edges are not diluted by their peers
+        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
      *  edge probabilities.
@@ -23510,9 +23689,7 @@ class Machine {
                 layers.push(theme.state);
             }
         });
-        if (this._state_style) {
-            layers.push(this._state_style);
-        }
+        layers.push(this._state_style);
         // hooked state style
         // if (this.has_hooks(state)) {
         //   layers.push(base_theme.hooked);
@@ -23529,9 +23706,7 @@ class Machine {
                     layers.push(theme.terminal);
                 }
             });
-            if (this._terminal_state_style) {
-                layers.push(this._terminal_state_style);
-            }
+            layers.push(this._terminal_state_style);
         }
         // start state style
         if (this.is_start_state(state)) {
@@ -23541,9 +23716,7 @@ class Machine {
                     layers.push(theme.start);
                 }
             });
-            if (this._start_state_style) {
-                layers.push(this._start_state_style);
-            }
+            layers.push(this._start_state_style);
         }
         // end state style
         if (this.is_end_state(state)) {
@@ -23553,9 +23726,7 @@ class Machine {
                     layers.push(theme.end);
                 }
             });
-            if (this._end_state_style) {
-                layers.push(this._end_state_style);
-            }
+            layers.push(this._end_state_style);
         }
         // active state style
         if (this.state() === state) {
@@ -23565,9 +23736,7 @@ class Machine {
                     layers.push(theme.active);
                 }
             });
-            if (this._active_state_style) {
-                layers.push(this._active_state_style);
-            }
+            layers.push(this._active_state_style);
         }
         const individual_style = {}, decl = this._state_declarations.get(state);
         individual_style.color = decl === null || decl === void 0 ? void 0 : decl.color;
@@ -24178,113 +24347,18 @@ function vc(col) {
     return (_a = default_viz_colors[col]) !== null && _a !== void 0 ? _a : '';
 }
 /**
- *  Convert a state name into a URL-friendly slug suitable for use as the
- *  body of a dot/SVG node identifier.  The transformation is:
- *
- *  1. Lowercase
- *  2. Any run of characters outside `[a-z0-9]` (after lowercasing) becomes
- *     a single `-`
- *  3. Leading and trailing `-` are trimmed
- *
- *  If the result is empty (e.g. for a state named `"!!!"`), the empty
- *  string is returned — callers are expected to fall back to an indexed
- *  placeholder like `node-N`.  See {@link slug_states} for the collision-
- *  resolving wrapper that consumes this helper.
- *
- *  ```typescript
- *  slug_for('Green Light');  // 'green-light'
- *  slug_for('!!!');          // ''
- *  slug_for('  Foo  Bar  '); // 'foo-bar'
- *  ```
- *
- *  @param state The state name to slugify.
- *  @returns The lowercase hyphen-separated slug, or empty string if none of
- *  the characters were retainable.
- *
- *  @internal
- */
-function slug_for(state) {
-    return state
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-}
-/**
- *  Build a `Map<state, slug>` assigning every state in `states` a unique,
- *  deterministic, URL-safe slug used as its dot/SVG node identifier.
- *
- *  Algorithm:
- *
- *  1. Slug each state via {@link slug_for}.  States whose slug comes out
- *     empty fall back to `node-N`, where `N` is the state's declaration
- *     index (1-based, to match user-visible numbering).
- *  2. Walk the state list in declaration order, tracking how many times
- *     each base slug has already been used.  The first occurrence keeps
- *     the base slug; subsequent collisions get `-2`, `-3`, … suffixes.
- *     If the proposed suffixed slug itself collides with a base slug
- *     used later, the counter advances until a free slot is found.
- *
- *  This yields a deterministic mapping given the state-declaration order,
- *  so output is stable across runs.
- *
- *  ```typescript
- *  slug_states(['Red Light', 'red-light']);
- *  // Map { 'Red Light' => 'red-light', 'red-light' => 'red-light-2' }
- *
- *  slug_states(['!!!', '???']);
- *  // Map { '!!!' => 'node-1', '???' => 'node-2' }
- *  ```
- *
- *  @param states States in declaration order.
- *  @returns A `Map` from each state name to its unique slug.
- *
- *  @internal
- */
-function slug_states(states) {
-    const used = new Set();
-    const out = new Map();
-    states.forEach((s, i) => {
-        const base = slug_for(s) || `node-${i + 1}`;
-        let candidate = base;
-        let n = 2;
-        while (used.has(candidate)) {
-            candidate = `${base}-${n}`;
-            n += 1;
-        }
-        used.add(candidate);
-        out.set(s, candidate);
-    });
-    return out;
-}
-/**
- *  Build a graphviz-safe node identifier for a state.  Accepts either a
- *  `string[]` (legacy test-only path; returns an index-based `n0`/`n1`
- *  identifier via `indexOf`), or a precomputed `Map<state, slug>` produced
- *  by {@link slug_states} (used by all rendering hot paths).
- *
- *  When a slug map is supplied, the identifier is the slug wrapped in
- *  double quotes — dot allows quoted identifiers, and the slug alphabet
- *  (lowercase alphanumerics + `-`) requires quoting because bare dot IDs
- *  may not contain `-`.  Graphviz round-trips the quoted form through to
- *  the SVG `<title>` element and uses the slug as a stable basis for the
- *  generated SVG element `id` attribute.
- *
- *  ```typescript
- *  node_of('Red Light', new Map([['Red Light', 'red-light']]));
- *  // '"red-light"'
- *  ```
+ *  Build a graphviz-safe node identifier for a state, by index.  Accepts
+ *  either a `string[]` (used historically; O(n) per call) or a
+ *  precomputed `Map<state, index>` (used by rendering hot paths; O(1)
+ *  per call).  The map form is used during dot generation; the array
+ *  form is retained for direct test access via `_test`.
  *
  *  @internal
  */
 function node_of(state, state_index) {
-    if (Array.isArray(state_index)) {
-        return `n${state_index.indexOf(state)}`;
-    }
-    const v = state_index.get(state);
-    if (typeof v === 'string') {
-        return `"${v}"`;
-    }
-    return `n${v}`;
+    return Array.isArray(state_index)
+        ? `n${state_index.indexOf(state)}`
+        : `n${state_index.get(state)}`;
 }
 /**
  *  Convert an 8-channel hex color (`#RRGGBBAA`) to a 6-channel hex color
@@ -24384,9 +24458,24 @@ function flow_direction_to_rankdir(flow_direction) {
 /**
  *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
  *
+ *  The optional `preamble` is inlined just after `digraph G {`, before any
+ *  graph attributes; the optional `footer` is inlined just before the closing
+ *  `}`, after all arrange declarations.  Both are emitted verbatim, separated
+ *  from surrounding content by a blank line so that empty strings render
+ *  cleanly (no stray whitespace artifacts in the output).
+ *
+ *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
+ *  @param graph_bg_color CSS-style color string for `bgcolor`.
+ *  @param nodes Rendered node-declaration block.
+ *  @param edges Rendered edge-declaration block.
+ *  @param arranges Rendered rank-arrangement block.
+ *  @param preamble Optional verbatim dot source inserted just after `digraph G {`.
+ *  @param footer Optional verbatim dot source inserted just before the closing `}`.
+ *  @returns A complete graphviz dot source string.
+ *
  *  @internal
  */
-function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '') {
+function dot_template(rank_dir, graph_bg_color, nodes, edges, arranges, preamble = '', footer = '') {
     return `digraph G {
 ${preamble}
 
@@ -24402,6 +24491,8 @@ ${nodes}
 ${edges}
 
 ${arranges}
+
+${footer}
 }`;
 }
 /**
@@ -24459,15 +24550,21 @@ function default_fillcolor_for(kind) {
  *  honoured uniformly.  A single `style_for` call per state — downstream
  *  helpers operate on the cached result rather than re-querying.
  *
+ *  When `hide_state_labels` is true, the `label=` attribute is omitted from
+ *  every state's node line; Graphviz then renders the node box without any
+ *  text inside.  Useful for diagrams where the state shape carries meaning
+ *  on its own (e.g. a tutorial graphic, an icon-only diagram, or a
+ *  presentation slide).
+ *
  *  @internal
  */
-function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds) {
+function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide_state_labels = false) {
     return l_states.map((s) => {
         var _a;
         const style = u_jssm.style_for(s);
         const fillcolor = style.backgroundColor || default_fillcolor_for((_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base');
         const features = [
-            ['label', u_jssm.display_text(s)],
+            ['label', hide_state_labels ? '' : u_jssm.display_text(s)],
             ['shape', style.shape || ''],
             ['color', style.borderColor || ''],
             ['style', compose_style_string(style)],
@@ -24629,27 +24726,41 @@ function arranges_for(u_jssm, state_index) {
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
  *
+ *  An optional `footer` may be supplied via `opts.footer`; it is emitted
+ *  verbatim just before the closing `}` of the dot source, after all
+ *  arrange declarations.  This is a function-argument-only feature for
+ *  the moment — a machine-attribute equivalent is planned as a follow-up.
+ *
  *  ```typescript
  *  import { sm } from 'jssm';
  *  import { machine_to_dot } from 'jssm/viz';
  *
  *  const dot = machine_to_dot(sm`a -> b;`);
  *  // 'digraph G { ... }'
+ *
+ *  // suppress state-name labels (boxes only, no text inside)
+ *  const dot2 = machine_to_dot(sm`a -> b;`, { hide_state_labels: true });
+ *
+ *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
+ *  // 'digraph G { ... labelloc="b"; label="caption"; }'
  *  ```
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-function machine_to_dot(u_jssm) {
+function machine_to_dot(u_jssm, opts = {}) {
+    var _a;
     const l_states = u_jssm.states();
-    const state_index = slug_states(l_states);
+    const state_index = new Map(l_states.map((s, i) => [s, i]));
     const state_kinds = classify_states(u_jssm, l_states);
-    const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds);
+    const nodes = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, opts.hide_state_labels === true);
     const edges = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
     const arranges = arranges_for(u_jssm, state_index);
     const rank_dir = flow_direction_to_rankdir(u_jssm.flow() || 'down');
     const preamble = u_jssm.dot_preamble() || '';
-    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble);
+    const footer = (_a = opts === null || opts === void 0 ? void 0 : opts.footer) !== null && _a !== void 0 ? _a : '';
+    return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble, footer);
 }
 /**
  *  Render an FSL string directly to graphviz dot source.
@@ -24657,13 +24768,20 @@ function machine_to_dot(u_jssm) {
  *  ```typescript
  *  import { fsl_to_dot } from 'jssm/viz';
  *  const dot = fsl_to_dot('a -> b;');
+ *
+ *  // suppress state-name labels
+ *  const dot2 = fsl_to_dot('a -> b;', { hide_state_labels: true });
+ *
+ *  const dot_with_footer = fsl_to_dot('a -> b;', { footer: 'label="caption";' });
+ *  // 'digraph G { ... label="caption"; }'
  *  ```
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A complete graphviz dot source string.
  */
-function fsl_to_dot(fsl) {
-    return machine_to_dot(sm `${fsl}`);
+function fsl_to_dot(fsl, opts = {}) {
+    return machine_to_dot(sm `${fsl}`, opts);
 }
 /**
  *  Render a graphviz dot source string to SVG using `@viz-js/viz`.  The
@@ -24672,32 +24790,44 @@ function fsl_to_dot(fsl) {
  *
  *  ```typescript
  *  const svg = await dot_to_svg('digraph G { a -> b }');
+ *  const svg_neato = await dot_to_svg('digraph G { a -> b }', { engine: 'neato' });
  *  ```
  *
  *  @param dot Graphviz dot source.
+ *  @param options Optional renderer overrides.
+ *  @param options.engine Graphviz layout engine to use (e.g. `'dot'`,
+ *  `'neato'`, `'circo'`).  Unrecognized engine names cause `@viz-js/viz`
+ *  to throw at render time.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function dot_to_svg(dot) {
+async function dot_to_svg(dot, options) {
     const viz = await get_viz();
-    return viz.renderString(dot, { format: 'svg' });
+    return viz.renderString(dot, Object.assign({ format: 'svg' }, (options !== null && options !== void 0 ? options : {})));
 }
 /**
  *  Render an FSL string directly to SVG.
  *
+ *  ```typescript
+ *  const svg = await fsl_to_svg_string('a -> b;');
+ *  const svg_neato = await fsl_to_svg_string('a -> b;', { engine: 'neato' });
+ *  ```
+ *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function fsl_to_svg_string(fsl) {
-    return dot_to_svg(fsl_to_dot(fsl));
+async function fsl_to_svg_string(fsl, opts = {}) {
+    return dot_to_svg(fsl_to_dot(fsl, opts), opts);
 }
 /**
  *  Render a {@link jssm.Machine} to SVG.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to an SVG XML string.
  */
-async function machine_to_svg_string(u_jssm) {
-    return dot_to_svg(machine_to_dot(u_jssm));
+async function machine_to_svg_string(u_jssm, opts = {}) {
+    return dot_to_svg(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Resolve a `DOMParser` constructor: prefer `globalThis.DOMParser` (browsers,
@@ -24734,21 +24864,23 @@ async function dot_to_svg_element(dot) {
  *  Render an FSL string directly to a parsed `SVGSVGElement`.
  *
  *  @param fsl The FSL source.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function fsl_to_svg_element(fsl) {
-    return dot_to_svg_element(fsl_to_dot(fsl));
+async function fsl_to_svg_element(fsl, opts = {}) {
+    return dot_to_svg_element(fsl_to_dot(fsl, opts));
 }
 /**
  *  Render a {@link jssm.Machine} to a parsed `SVGSVGElement`.
  *
  *  @param u_jssm The machine to render.
+ *  @param opts Optional render flags.  See {@link VizRenderOpts}.
  *  @returns A promise resolving to a parsed `SVGSVGElement`.
  *  @throws {JssmError} if no `DOMParser` is available (Node without `configure`).
  */
-async function machine_to_svg_element(u_jssm) {
-    return dot_to_svg_element(machine_to_dot(u_jssm));
+async function machine_to_svg_element(u_jssm, opts = {}) {
+    return dot_to_svg_element(machine_to_dot(u_jssm, opts));
 }
 /**
  *  Compatibility wrapper for {@link machine_to_dot}, retained from
@@ -24762,7 +24894,6 @@ function dot(machine) {
 /** @internal — test-only access to private helpers. */
 const _test = {
     color8to6, u_color8to6, vc, node_of,
-    slug_for, slug_states,
     shape_for_state, image_for_state, style_for_state
 };
 
