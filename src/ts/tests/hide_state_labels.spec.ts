@@ -27,8 +27,9 @@ describe('hide_state_labels option (StoneCypher/fsl#427)', () => {
 
     test('hide_state_labels: true still emits node identifiers', () => {
       const dot = jv.machine_to_dot(sm`alpha -> beta;`, { hide_state_labels: true });
-      expect(dot).toMatch(/n0/);
-      expect(dot).toMatch(/n1/);
+      // PR #594 replaced n0/n1 index IDs with state-name-derived slugs.
+      expect(dot).toMatch(/\balpha\b/);
+      expect(dot).toMatch(/\bbeta\b/);
     });
 
     test('hide_state_labels: false renders identically to default', () => {
@@ -39,7 +40,7 @@ describe('hide_state_labels option (StoneCypher/fsl#427)', () => {
 
     test('hide_state_labels: true preserves edge structure', () => {
       const dot = jv.machine_to_dot(sm`alpha -> beta;`, { hide_state_labels: true });
-      expect(dot).toMatch(/n0->n1/);
+      expect(dot).toMatch(/alpha\s*->\s*beta/);
     });
 
     test('hide_state_labels: true preserves shape attribute', () => {
