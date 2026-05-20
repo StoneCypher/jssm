@@ -293,6 +293,90 @@ describe('Basic posthooks on API callpoint', () => {
 
 
 
+describe('Posthook category flag set but specific lookup misses', () => {
+
+  // These exercise the false arm of the per-category lookup guards in the
+  // post-transition hook dispatcher: the category flag (_has_post_*_hooks) is
+  // true because a hook of that kind exists somewhere, but THIS transition's
+  // from/to/edge does not match a registered hook, so the lookup returns
+  // undefined and the hook does not fire.
+
+  test('exit-hook category set, but the transitioning from-state has no exit hook', () => {
+
+    const hooked   = jest.fn(x => true),
+          uncalled = jest.fn(x => true);
+
+    const foo = sm`a -> b -> c;`;
+    // Registering an exit hook on 'b' flips _has_post_exit_hooks true.
+    foo.set_hook({ handler: hooked, from: 'b', kind: 'post exit' });
+    // Also register a basic hook so the transition we make actually does
+    // something observable; assert the exit hook stays uncalled.
+    foo.set_hook({ handler: () => true, from: 'a', to: 'b', kind: 'post hook' });
+
+    // Transition a -> b: 'a' has no exit hook, so the exit-hook lookup misses.
+    foo.transition('b');
+    expect(hooked.mock.calls.length).toBe(0);
+    expect(uncalled.mock.calls.length).toBe(0);
+
+  });
+
+
+  test('basic-hook category set, but the transitioned edge has no basic hook', () => {
+
+    const hooked = jest.fn(x => true);
+
+    const foo = sm`a -> b -> c;`;
+    // Registering a basic hook on b->c flips _has_post_basic_hooks true.
+    foo.set_hook({ handler: hooked, from: 'b', to: 'c', kind: 'post hook' });
+
+    // Transition a -> b: the b->c basic hook does not match this edge.
+    foo.transition('b');
+    expect(hooked.mock.calls.length).toBe(0);
+
+  });
+
+
+  test('main-type transition with no post-main hook registered', () => {
+
+    const standard_hook = jest.fn(x => true);
+
+    // Machine with a 'main' transition (=>). Register a *standard*-transition
+    // post-hook: that sets _has_post_transition_hooks, which makes
+    // transition_impl compute trans_type for a plain transition. With a main
+    // edge, trans_type === 'main' is true — but _post_main_transition_hook
+    // was never registered, so the post-main lookup takes its false arm.
+    const foo = sm`a => b;`;
+    foo.set_hook({ handler: standard_hook, kind: 'post standard transition' });
+
+    expect( () => { foo.transition('b'); } ).not.toThrow();
+    // The edge is 'main', not 'legal', so the standard-transition hook does
+    // not fire — confirming we crossed a genuine main edge.
+    expect(standard_hook.mock.calls.length).toBe(0);
+    expect(foo.state()).toBe('b');
+
+  });
+
+
+  test('entry-hook category set, but the transitioned to-state has no entry hook', () => {
+
+    const hooked = jest.fn(x => true);
+
+    const foo = sm`a -> b -> c;`;
+    // Registering an entry hook on 'c' flips _has_post_entry_hooks true.
+    foo.set_hook({ handler: hooked, to: 'c', kind: 'post entry' });
+
+    // Transition a -> b: 'b' has no entry hook, so the entry-hook lookup misses.
+    foo.transition('b');
+    expect(hooked.mock.calls.length).toBe(0);
+
+  });
+
+});
+
+
+
+
+
 describe('Basic posthooks on fluent callpoint', () => {
 
 

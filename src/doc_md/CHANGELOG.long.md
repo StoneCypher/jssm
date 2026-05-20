@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-1353 merges; 227 releases
+1469 merges; 239 releases
 
 
 
@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
 
 
@@ -22,7 +22,2562 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 12:29:59 AM
+## [Untagged] - May 19, 2026 5:52:48 PM
+
+Commit [af3ad31b240cb1291cc0ceda2e82d2e154b63927](https://github.com/StoneCypher/jssm/commit/af3ad31b240cb1291cc0ceda2e82d2e154b63927)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(test): update n0/n1 expectations to slug-based node IDs
+  * PR #594 replaces the n0/n1 index-based node ID scheme with state-name
+slugs in dot output. hide_state_labels.spec.ts (added later by #596)
+and the CLI's targets-dot.spec.ts hardcoded /n0/, /n1/, /n[0-3]/
+expectations that this PR didn't anticipate; updated to match the new
+slug output.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 19, 2026 5:42:22 PM
+
+Commit [6a2431016297b4aadae943fb90949d3e5db758cb](https://github.com/StoneCypher/jssm/commit/6a2431016297b4aadae943fb90949d3e5db758cb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [1dd8192, 280f50a]
+
+  * Merge origin/main into stonecypher/fsl#316 (PR #594); union states_to_nodes_string signature (slug-based state_index + hide_state_labels); bump to 5.125.0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__124__1" />
+
+## [5.124.1] - May 19, 2026 1:24:43 PM
+
+Commit [280f50a4d1cac4b292d6b63f1e6af73eadd87028](https://github.com/StoneCypher/jssm/commit/280f50a4d1cac4b292d6b63f1e6af73eadd87028)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [aaf4a4a, 4e70602]
+
+  * Merge pull request #593 from StoneCypher/worktree-agent-a8562119fe10fe2f0
+  * fix(grammar): replace theme 'none' with 'plain' to match FslThemes registry (fsl#1328)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 19, 2026 1:08:48 PM
+
+Commit [4e706021133b8bd84a9f172e1f9c528904abef35](https://github.com/StoneCypher/jssm/commit/4e706021133b8bd84a9f172e1f9c528904abef35)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.124.1
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 19, 2026 1:02:07 PM
+
+Commit [da22fa5b883e6f8b1744bf86db4c95325dc3e9ed](https://github.com/StoneCypher/jssm/commit/da22fa5b883e6f8b1744bf86db4c95325dc3e9ed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(test): update machine_attributes stoch theme list for the none-to-plain grammar change
+  * PR #593 reworked the grammar so 'theme: none;' is rejected and
+'theme: plain;' accepted, and updated the spec-suite theme tests — but
+machine_attributes.stoch.ts still hard-coded the old THEMES list with
+'none', so every stoch run hit a parser SyntaxError. Swapped 'none' for
+'plain' to match the corrected FslThemes registry.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 19, 2026 12:47:20 PM
+
+Commit [1f084d7252f19bc2114ffb53ae27ac16b7b64c86](https://github.com/StoneCypher/jssm/commit/1f084d7252f19bc2114ffb53ae27ac16b7b64c86)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [042394b, aaf4a4a]
+
+  * Merge origin/main into worktree-agent-a8562119fe10fe2f0 (PR #593); resolve theme.spec.ts (keep both fsl#1328 and style_for suites); bump to 5.124.1
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__124__0" />
+
+## [5.124.0] - May 19, 2026 9:22:59 AM
+
+Commit [aaf4a4ac280cfe4518cfd02a94ad32e79c819281](https://github.com/StoneCypher/jssm/commit/aaf4a4ac280cfe4518cfd02a94ad32e79c819281)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [8b54c14, 7a3c129]
+
+  * Merge pull request #596 from StoneCypher/stonecypher/fsl#427
+  * feat(viz): add hide_state_labels render option (StoneCypher/fsl#427)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 19, 2026 9:08:30 AM
+
+Commit [7a3c12929fc02885731f891a5a2002f9e4ab4e5d](https://github.com/StoneCypher/jssm/commit/7a3c12929fc02885731f891a5a2002f9e4ab4e5d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.124.0
+  * Regenerates dist/, docs/, CHANGELOG, README, and version.ts after
+merging origin/main into the hide_state_labels branch.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 19, 2026 8:50:25 AM
+
+Commit [540023fccec85ad02409f824a48fa3c7e527d408](https://github.com/StoneCypher/jssm/commit/540023fccec85ad02409f824a48fa3c7e527d408)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [fa37bb7, 8b54c14]
+
+  * Merge origin/main into stonecypher/fsl#427
+  * Resolves the jssm_viz.ts collision between this branch's
+`hide_state_labels` option and main's `footer`/`engine` options: the
+`VizRenderOpts` type now carries all three, and every dot/SVG render
+entry point accepts the unified type. Remaining conflicts were all
+regenerated artifacts. Version bumped to 5.124.0 (main released 5.123.0).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__123__0" />
+
+## [5.123.0] - May 19, 2026 7:29:21 AM
+
+Commit [8b54c14f574f50b71d8622e5540af2a09295d032](https://github.com/StoneCypher/jssm/commit/8b54c14f574f50b71d8622e5540af2a09295d032)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [29abac6, 0d2d0ee]
+
+  * Merge pull request #618 from StoneCypher/feat_26-05-18_open-sans-and-render-sizing
+  * feat: bundle Open Sans, render 3x by default, add --scale/--height
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 19, 2026 7:19:12 AM
+
+Commit [0d2d0ee92908dca9a442368788ace0df1972433b](https://github.com/StoneCypher/jssm/commit/0d2d0ee92908dca9a442368788ace0df1972433b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: bundle Open Sans, render 3x by default, add --scale/--height
+  * CLI raster (PNG/JPEG) output now renders every label in a bundled Open
+Sans (Apache-2.0), replacing the OS-font discovery that substituted
+whatever font the host had installed first. Rendering is now
+deterministic on every platform and no longer reads or parses system
+fonts on each render.
+  * Raster output also defaults to 3x the SVG's natural size — jssm
+diagrams use ~6px edge labels that were unreadably small at 1:1. Three
+mutually exclusive sizing modes are now supported:
+  *   --scale N   zoom percentage; 100 (the default) renders at 3x
+  --width N   fit output to N pixels wide
+  --height N  fit output to N pixels tall
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__122__4" />
+
+## [5.122.4] - May 18, 2026 4:40:39 PM
+
+Commit [29abac69d41556aa714ccada76d0c2e87f628184](https://github.com/StoneCypher/jssm/commit/29abac69d41556aa714ccada76d0c2e87f628184)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [886d8c6, 12bdfe3]
+
+  * Merge pull request #617 from StoneCypher/fix_26-05-17_cli-render-missing-text_615
+  * fix: render text labels in CLI raster (PNG/JPEG) output
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 18, 2026 3:52:48 PM
+
+Commit [12bdfe3ef72cccbf7525755ff013c19e189b961c](https://github.com/StoneCypher/jssm/commit/12bdfe3ef72cccbf7525755ff013c19e189b961c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.122.4
+  * Regenerates dist/, docs/, CHANGELOG, README, and version.ts from the
+merged source after merging origin/main.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 18, 2026 3:37:32 PM
+
+Commit [a7336dc68b27aa5ca4240594eb383297c605a954](https://github.com/StoneCypher/jssm/commit/a7336dc68b27aa5ca4240594eb383297c605a954)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [fd6fdd6, 886d8c6]
+
+  * Merge origin/main into fix_26-05-17_cli-render-missing-text_615
+  * main released 5.122.3 while this PR was open, so this branch is bumped
+to 5.122.4. All merge conflicts were in generated artifacts (dist/,
+docs/, CHANGELOG, README, version.ts); they are regenerated by the
+rebuild commit that follows.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__122__3" />
+
+## [5.122.3] - May 18, 2026 7:18:31 AM
+
+Commit [886d8c6a066eff42a7cf1b6120a7b9f4c4383960](https://github.com/StoneCypher/jssm/commit/886d8c6a066eff42a7cf1b6120a7b9f4c4383960)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [eb2f308, 97d428d]
+
+  * Merge pull request #616 from StoneCypher/upgrade-better-git-changelog
+  * Upgrade better_git_changelog to 1.6.5
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 18, 2026 12:34:07 AM
+
+Commit [fd6fdd6297006ddb36df993103077fe44da00b34](https://github.com/StoneCypher/jssm/commit/fd6fdd6297006ddb36df993103077fe44da00b34)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix: render text labels in CLI raster (PNG/JPEG) output
+  * The CLI's Node rasterization path produced images with shapes and
+arrows but every text label blank. @resvg/resvg-wasm ships no fonts and
+cannot read OS-installed fonts from inside its wasm sandbox, so it
+rasterized the SVG with no font available and silently dropped every
+<text> element.
+  * rasterize.ts now discovers fonts from the host OS's standard font
+directories and passes them to resvg via font.fontBuffers, falling back
+to an embedded Ubuntu Sans subset when the host has no usable fonts
+(minimal containers, stripped CI images). Discovery is bounded to a
+small byte budget because resvg re-parses every supplied font on each
+render.
+  * Reported in #615.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 10:30:16 PM
+
+Commit [97d428d3ccf7ef37be743082389a10d48a62e871](https://github.com/StoneCypher/jssm/commit/97d428d3ccf7ef37be743082389a10d48a62e871)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: upgrade better_git_changelog to 1.6.5
+  * Bumps the changelog generator from 1.6.1 to 1.6.5 and rebuilds at
+5.122.3. The full `npm run build` — including the `changelog` step
+that better_git_changelog drives — passes. npm also dropped a stray
+duplicate `better_git_changelog` entry from `dependencies` (it belongs
+only in `devDependencies`).
+  * Part of #613.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__122__2" />
+
+## [5.122.2] - May 17, 2026 9:41:34 PM
+
+Commit [eb2f308eb9762084b20a27369f4161dd97d0c893](https://github.com/StoneCypher/jssm/commit/eb2f308eb9762084b20a27369f4161dd97d0c893)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [5ecda2b, 08148c8]
+
+  * Merge pull request #611 from StoneCypher/SpeedUpBuild
+  * build(cli): merge the three CLI rollup configs into one
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 9:36:29 PM
+
+Commit [08148c8c28bc7ed928ad5b843048d305e042e8a2](https://github.com/StoneCypher/jssm/commit/08148c8c28bc7ed928ad5b843048d305e042e8a2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci: drop Node 21 from the test matrix; revert the npm pin
+  * The "Cannot find native binding" failure was misdiagnosed as npm bug
+npm/cli#4828. The real cause: rolldown's native binding declares
+`engines: ^20.19.0 || >=22.12.0`, and Node 21 satisfies neither bound.
+npm therefore *correctly* skips the optional binding on Node 21 — no
+npm version can install a package whose engines exclude the running
+Node, so the npm@10 pin (bb00e69) could never have helped.
+  * Node 21 simply cannot run vitest 4. Removed it from the matrix and
+reverted the npm pin. The matrix floor is now Node 20.x (which resolves
+to >=20.19); 22.x / 23.x / 24.x all satisfy >=22.12.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 9:21:12 PM
+
+Commit [bb00e69b377da287ba6553d58fb57122c45e721c](https://github.com/StoneCypher/jssm/commit/bb00e69b377da287ba6553d58fb57122c45e721c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci: pin npm 10 in the build job to dodge npm's optional-dep bug
+  * Node 21's bundled npm (10.2.x) carries npm/cli#4828, the optional-
+dependency resolution bug that fails to install rolldown's platform-
+native binding ("Cannot find native binding"). The build job now
+upgrades to a fixed npm 10.x before installing. npm 11 / npm@latest
+won't run on Node 21, so the pin is to npm@10 (10.9.x), which is the
+same npm the passing Node 22 job already uses.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 9:10:34 PM
+
+Commit [a4e59f36eb71f8ffda745da8531bbe884ee7ccae](https://github.com/StoneCypher/jssm/commit/a4e59f36eb71f8ffda745da8531bbe884ee7ccae)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.122.2
+  * Full `npm run build` at the bumped version, regenerating the dist
+bundles, generated docs, CHANGELOG, and README. No source changes —
+the CI matrix fix landed separately in 80b6e4f.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 8:56:17 PM
+
+Commit [80b6e4f3c84d048be1b6267f73c8648e790fc59a](https://github.com/StoneCypher/jssm/commit/80b6e4f3c84d048be1b6267f73c8648e790fc59a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci: drop Node 18.x and 19.x from the test matrix
+  * vitest 4 (via rolldown) statically imports `styleText` from `node:util`,
+which only exists in Node 20.12+. On Node 18 and 19 that import fails to
+link — a SyntaxError before any test runs — so those matrix entries
+could never pass. The build job now floors at Node 20.x.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 8:42:55 PM
+
+Commit [c92d3ecb987b657aa18cd9d39066374b2fada3e9](https://github.com/StoneCypher/jssm/commit/c92d3ecb987b657aa18cd9d39066374b2fada3e9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [14ebda6, 7d87a68]
+
+  * Merge branch 'main' into SpeedUpBuild
+  * Resolved package.json: combined SpeedUpBuild's consolidated rollup
+build (make_core / make_viz / typecheck_cli) with main's new
+make_doctests step, and kept the higher version (5.122.1).
+  * All build artifacts were regenerated from the merged source rather than
+hand-merged. The merged build passes — including main's doctest suite
+running under SpeedUpBuild's vitest 4.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 5:04:10 PM
+
+Commit [7d87a680a73e272d5e273b1b6e17c7449337d484](https://github.com/StoneCypher/jssm/commit/7d87a680a73e272d5e273b1b6e17c7449337d484)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [d6eb354, 5ecda2b]
+
+  * Merge branch 'main' of github.com:StoneCypher/jssm
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 4:58:51 PM
+
+Commit [14ebda62a213824ac05f9e05498515d9e63dd10f](https://github.com/StoneCypher/jssm/commit/14ebda62a213824ac05f9e05498515d9e63dd10f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.122.1
+  * Full `npm run build` at the bumped version. Regenerates the dist
+bundles, generated docs, CHANGELOG, and README so the committed
+artifacts reflect the already-committed vitest 4 migration work.
+No source changes in this commit.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 4:38:24 PM
+
+Commit [075c21d1386e4158a074678763e0017c345fefed](https://github.com/StoneCypher/jssm/commit/075c21d1386e4158a074678763e0017c345fefed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: revive the dead kitchen-sink dragon suite
+  * This property suite had been failing at collection since the
+make_mulberry_rand -> splitmix32 rename, so its body had not run in a
+long time. Fixing the stale import surfaced two deeper problems:
+  * - The FSL generator re-emitted each chain on every outer iteration,
+  producing duplicate edges the parser now rejects.
+- The generator never matched its documented loopable / semi-star
+  design: new nodes were unreachable as chain endpoints and every chain
+  dead-ended, so even a "no-halt" machine was full of terminal sinks the
+  random walk fell into, and `halted === shouldHalt` failed on roughly
+  half of all runs.
+  * Rewrote the generator. The non-halting (loopable) case closes every
+chain back to an existing node, so no node is a sink and the walk
+cannot terminate. The halting (semi-star) case leaves chains hanging,
+producing a DAG in which every walk reaches a sink. All 100 property
+runs now pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 4:06:32 PM
+
+Commit [5d3ebba01e4d36e4ae0b310602f1b0c3714afb73](https://github.com/StoneCypher/jssm/commit/5d3ebba01e4d36e4ae0b310602f1b0c3714afb73)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix: port the vitest metrics reporter to vitest 4's reporter API
+  * vitest 4 removed the legacy `onFinished(files)` reporter hook that
+vitest_metrics_reporter.cjs relied on, so it silently stopped writing
+coverage/*/metrics.json — the file the readme build consumes.
+  * Rewrote it against vitest 4's reporter API: `onTestRunEnd` plus the
+TestModule / TestCase "Reported Tasks" API. Verified — spec and unicode
+runs now emit metrics.json with correct counts (spec 5510/34/83/1).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 2:36:58 PM
+
+Commit [57a3f63de879929bddbaed298e56adadbce6f4cb](https://github.com/StoneCypher/jssm/commit/57a3f63de879929bddbaed298e56adadbce6f4cb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: restore 100% branch coverage under vitest 4
+  * vitest 4's v8 coverage counts branches more accurately than vitest 2,
+whose leniency had reported a false 100%. The stricter count exposed 21
+genuinely-uncovered branches.
+  * - Add 14 tests for the real gaps: a directory shadowing a plugin name on
+  PATH (dispatcher), post-transition hooks whose category flag is set
+  but whose specific lookup misses, theme/style layering with a partial
+  theme, and the web component's already-registered and stale-render
+  guards.
+- Remove 5 vestigial `if (this._*_state_style)` guards in jssm.ts:
+  state_style_condense always returns an object, so the field is never
+  falsy and the guard guarded nothing.
+- Mark 3 type-narrowing guards in the constructor property-validation
+  loop with `/* v8 ignore else */`: _state_properties keys are always
+  JSON [string, string] pairs, so the non-array / non-string else-arms
+  are unreachable.
+  * Branch coverage is an honest 100% (925/925); 5510 spec tests pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 11:14:43 AM
+
+Commit [815e00262a88bb4610180e6ad061e4c18075e986](https://github.com/StoneCypher/jssm/commit/815e00262a88bb4610180e6ad061e4c18075e986)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps): bump vite, vitest and @vitest/coverage-v8
+  * Bumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) to 8.0.13 and updates ancestor dependencies [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite), [vitest](https://github.com/vitest-dev/vitest/tree/HEAD/packages/vitest) and [@vitest/coverage-v8](https://github.com/vitest-dev/vitest/tree/HEAD/packages/coverage-v8). These dependencies need to be updated together.
+  * 
+Updates `vite` from 5.4.21 to 8.0.13
+- [Release notes](https://github.com/vitejs/vite/releases)
+- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)
+- [Commits](https://github.com/vitejs/vite/commits/v8.0.13/packages/vite)
+  * Updates `vitest` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/vitest)
+  * Updates `@vitest/coverage-v8` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/coverage-v8)
+  * ---
+updated-dependencies:
+- dependency-name: "@vitest/coverage-v8"
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+- dependency-name: vite
+  dependency-version: 8.0.13
+  dependency-type: indirect
+- dependency-name: vitest
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 11:14:37 AM
+
+Commit [fe9ded40bd5930ad5873bee25ac83b65603cc483](https://github.com/StoneCypher/jssm/commit/fe9ded40bd5930ad5873bee25ac83b65603cc483)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps): bump esbuild, vitest and @vitest/coverage-v8
+  * Removes [esbuild](https://github.com/evanw/esbuild). It's no longer used after updating ancestor dependencies [esbuild](https://github.com/evanw/esbuild), [vitest](https://github.com/vitest-dev/vitest/tree/HEAD/packages/vitest) and [@vitest/coverage-v8](https://github.com/vitest-dev/vitest/tree/HEAD/packages/coverage-v8). These dependencies need to be updated together.
+  * 
+Removes `esbuild`
+  * Updates `vitest` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/vitest)
+  * Updates `@vitest/coverage-v8` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/coverage-v8)
+  * ---
+updated-dependencies:
+- dependency-name: "@vitest/coverage-v8"
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+- dependency-name: esbuild
+  dependency-version:
+  dependency-type: indirect
+- dependency-name: vitest
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__121__1" />
+
+## [5.121.1] - May 17, 2026 11:12:12 AM
+
+Commit [5ecda2b593d03c94bab338e559344dda2c3d7c02](https://github.com/StoneCypher/jssm/commit/5ecda2b593d03c94bab338e559344dda2c3d7c02)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [99b5a63, 6c288dd]
+
+  * Merge pull request #612 from StoneCypher/executable-docblock-examples
+  * feat: run docblock @example blocks as an executable test suite
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 11:06:57 AM
+
+Commit [bffd182b6c2350ac4af01066be26161c8aa465e6](https://github.com/StoneCypher/jssm/commit/bffd182b6c2350ac4af01066be26161c8aa465e6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: upgrade vitest to 4.1.6 to fix Node 24 coverage-v8 segfaults
+  * vitest and @vitest/coverage-v8 were pinned at 2.1.9, a release predating
+Node 24. Its v8 coverage provider reaches into V8's native inspector
+API, and against Node 24's newer V8 that intermittently crashed test
+workers ("Worker exited unexpectedly", sometimes a hard SIGSEGV) — which
+can silently drop tests. Upgrading to 4.1.6, built for current Node,
+resolves it: the full spec suite now runs clean.
+  * Also bumps the package version to 5.122.0.
+  * Note: vitest 4's more accurate v8 branch counting reports branch
+coverage at 97.76% (statements, functions, and lines remain 100%);
+restoring 100% branches is a follow-up.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 11:03:52 AM
+
+Commit [6c288dd6b2fc51457a72149b4240c220f0f51d90](https://github.com/StoneCypher/jssm/commit/6c288dd6b2fc51457a72149b4240c220f0f51d90)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.121.1
+  * Rebuilds dist, docs, type declarations, and changelogs at 5.121.1.
+This release ships the executable docblock-example suite — @example
+blocks in jssm.ts and jssm_constants.ts now run as generated vitest
+tests via the new make_doctests build step.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 10:29:10 AM
+
+Commit [11b204d907733cbb89ac24ffcc191e7553ca2361](https://github.com/StoneCypher/jssm/commit/11b204d907733cbb89ac24ffcc191e7553ca2361)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [c9f4d88, d6eb354]
+
+  * Merge branch 'main' into SpeedUpBuild
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 10:13:06 AM
+
+Commit [d6eb3543299504620078b19dd43538aea62de9fe](https://github.com/StoneCypher/jssm/commit/d6eb3543299504620078b19dd43538aea62de9fe)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * claudefile contents moved to user claudefile
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 2:02:17 AM
+
+Commit [4f339c546a594bb862f3117b95090e77bf4148d7](https://github.com/StoneCypher/jssm/commit/4f339c546a594bb862f3117b95090e77bf4148d7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add the docs vitest suite and wire make_doctests into the build
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 12:26:06 AM
+
+Commit [aed047485c2c75826b154990e9946bcf8137cef0](https://github.com/StoneCypher/jssm/commit/aed047485c2c75826b154990e9946bcf8137cef0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: import jssm_constants examples from the jssm package, not the internal module
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 12:22:09 AM
+
+Commit [796a80b5e1f6dd22294ee586f068f1befe49a25b](https://github.com/StoneCypher/jssm/commit/796a80b5e1f6dd22294ee586f068f1befe49a25b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: migrate jssm_constants.ts @example blocks to the // => doctest marker
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 12:17:53 AM
+
+Commit [9229143f01ccee593adadf30664b54daff66ac3e](https://github.com/StoneCypher/jssm/commit/9229143f01ccee593adadf30664b54daff66ac3e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: migrate jssm.ts @example blocks to the // => doctest marker
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 12:12:14 AM
+
+Commit [2fef07f37243819360da647d06679eeaa2704fa6](https://github.com/StoneCypher/jssm/commit/2fef07f37243819360da647d06679eeaa2704fa6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add make_doctests cli entry walking the typedoc entry points
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 12:10:10 AM
+
+Commit [c30138d05b8a7fc7d0aaed1dbed01d55061e0b2f](https://github.com/StoneCypher/jssm/commit/c30138d05b8a7fc7d0aaed1dbed01d55061e0b2f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: add direct splitExample tests; tidy buildTestFile docs and style
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 17, 2026 12:04:57 AM
+
+Commit [02dfdb4de966cc9bcbcadac22fbe4f7b4c40b428](https://github.com/StoneCypher/jssm/commit/02dfdb4de966cc9bcbcadac22fbe4f7b4c40b428)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: assemble generated docblock-example test files
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 11:59:13 PM
+
+Commit [1e51cb936225adb8ff480107eb91550f04a3420b](https://github.com/StoneCypher/jssm/commit/1e51cb936225adb8ff480107eb91550f04a3420b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: rewrite // => output comments into strict-equal assertions
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 11:51:51 PM
+
+Commit [4b574f40940f46b5774e5c31944b0f04a11282b6](https://github.com/StoneCypher/jssm/commit/4b574f40940f46b5774e5c31944b0f04a11282b6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: rewrite example import specifiers to jssm source paths
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 11:49:13 PM
+
+Commit [df869c4285720d85229ee495ca69d37b30b8fcb3](https://github.com/StoneCypher/jssm/commit/df869c4285720d85229ee495ca69d37b30b8fcb3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add examples to extractor helper docblocks; tighten extractor tests
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 11:20:19 PM
+
+Commit [46c5d7e53da96cae82c8ea79121082ffc569a84a](https://github.com/StoneCypher/jssm/commit/46c5d7e53da96cae82c8ea79121082ffc569a84a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: extract @example records from docblocks via the ts compiler api
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 10:49:25 PM
+
+Commit [584b06b2dd4aa88a1cbb9073b67c09d754732330](https://github.com/StoneCypher/jssm/commit/584b06b2dd4aa88a1cbb9073b67c09d754732330)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: reserve src/ts/tests/generated for docblock-example tests
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 10:42:46 PM
+
+Commit [c2a32639b7c63555f4eeb44454a7f6d8806fe4d9](https://github.com/StoneCypher/jssm/commit/c2a32639b7c63555f4eeb44454a7f6d8806fe4d9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add executable-docblock-examples design spec and implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 10:30:42 PM
+
+Commit [c9f4d88b6cd0151fdfc9de143e8e5bd61e22fe5f](https://github.com/StoneCypher/jssm/commit/c9f4d88b6cd0151fdfc9de143e8e5bd61e22fe5f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: consolidate rollup configs and make CLI builds transpile-only
+  * Consolidate the core and viz rollup configs and switch the CLI builds
+to transpile-only, cutting repeated type-checking out of the build.
+  * - rollup.config.core.js replaces rollup.config.{es5,es6,iife}.js: one
+  JS build emits cjs/es/iife and one dts build emits both declaration
+  formats, parsing each module graph once instead of three times.
+- rollup.config.viz.js replaces rollup.config.viz.{es5,es6,iife}.js:
+  the es and iife builds are merged; the cjs build stays separate
+  because it resolves with browser:false where es/iife use browser:true.
+- rollup.config.cli.js now uses rollup-plugin-esbuild instead of
+  @rollup/plugin-typescript, so the three CLI JS builds transpile
+  without type-checking. Type-checking moves to a single typecheck_cli
+  step (tsc --noEmit -p tsconfig.cli.json) run before make_cli.
+  * make_cli drops from ~41s to ~13s; the core/viz rollup count drops from
+six builds to three.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 9:11:27 PM
+
+Commit [0298d119c8c89992ea18543a632fca92c5c0a981](https://github.com/StoneCypher/jssm/commit/0298d119c8c89992ea18543a632fca92c5c0a981)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(cli): merge the three CLI rollup configs into one
+  * make_cli previously ran three separate `rollup -c` invocations against
+rollup.config.cli.{cjs,esm,dts}.js. They are now a single
+rollup.config.cli.js exporting a four-entry array, built by one
+`rollup -c rollup.config.cli.js`.
+  * Two consolidations beyond merely combining the files:
+  * - The jssm/cli library built lib.cjs and lib.mjs as two separate rollup
+  builds, each running a full @rollup/plugin-typescript pass over
+  tsconfig.cli.json. They are now one build with output: [cjs, esm] —
+  one TypeScript compile, two rendered formats.
+- The .d.ts / .d.cts declarations likewise build from one
+  rollup-plugin-dts build with two outputs instead of two builds.
+  * fsl.cjs and fsl-render.cjs stay separate builds (distinct entry points)
+but now run in the same rollup process.
+  * Net effect: one fewer full tsc pass, one fewer dts pass, and one rollup
+process instead of three — strictly less work. A clean wall-clock figure
+isn't measurable on this Windows host (build-time variance is ~+/-35s,
+likely Defender scanning the rollup outputs), but the work reduction is
+deterministic. Verified correct: all six artifacts build, `fsl --version`
+runs, and the CLI integration tests pass against the merged-build
+binaries.
+  * The esm build previously omitted @rollup/plugin-commonjs; the merged lib
+build applies it uniformly. The lib module graph is all-ESM/external, so
+commonjs() is a no-op there — lib.mjs is unchanged.
+  * Also bumps the package version to 5.121.0.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 8:41:43 PM
+
+Commit [b1ce8375d9a30177e175eb7249c338be2365b6f2](https://github.com/StoneCypher/jssm/commit/b1ce8375d9a30177e175eb7249c338be2365b6f2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * gitignore
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__121__0" />
+
+## [5.121.0] - May 16, 2026 8:40:19 PM
+
+Commit [99b5a63172234e286229e30a3a61aa084250787d](https://github.com/StoneCypher/jssm/commit/99b5a63172234e286229e30a3a61aa084250787d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [115cddc, 990ab60]
+
+  * Merge pull request #600 from StoneCypher/stonecypher/fsl#1324
+  * Stonecypher/fsl#1324
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 8:36:03 PM
+
+Commit [990ab60cafbb6eb51feb569dc79336a59798ef42](https://github.com/StoneCypher/jssm/commit/990ab60cafbb6eb51feb569dc79336a59798ef42)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * version bump
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 8:07:28 PM
+
+Commit [b5a71a2f40349002b1da36f351b5ebc7eb59d78d](https://github.com/StoneCypher/jssm/commit/b5a71a2f40349002b1da36f351b5ebc7eb59d78d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [36a0a33, 115cddc]
+
+  * merge
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 7:53:45 PM
+
+Commit [36a0a332bea94fc3a2af9c367a68f9523ea70fce](https://github.com/StoneCypher/jssm/commit/36a0a332bea94fc3a2af9c367a68f9523ea70fce)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: ignore tmp/ and remove Claude Code workflow
+  * Adds `tmp` to .gitignore and removes the unused .github/workflows/claude.yml.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 7:38:11 PM
+
+Commit [e6597ed54c214679c692a1981200aa07b40d0352](https://github.com/StoneCypher/jssm/commit/e6597ed54c214679c692a1981200aa07b40d0352)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps): bump vite, vitest and @vitest/coverage-v8
+  * Bumps [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite) to 8.0.13 and updates ancestor dependencies [vite](https://github.com/vitejs/vite/tree/HEAD/packages/vite), [vitest](https://github.com/vitest-dev/vitest/tree/HEAD/packages/vitest) and [@vitest/coverage-v8](https://github.com/vitest-dev/vitest/tree/HEAD/packages/coverage-v8). These dependencies need to be updated together.
+  * 
+Updates `vite` from 5.4.21 to 8.0.13
+- [Release notes](https://github.com/vitejs/vite/releases)
+- [Changelog](https://github.com/vitejs/vite/blob/main/packages/vite/CHANGELOG.md)
+- [Commits](https://github.com/vitejs/vite/commits/v8.0.13/packages/vite)
+  * Updates `vitest` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/vitest)
+  * Updates `@vitest/coverage-v8` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/coverage-v8)
+  * ---
+updated-dependencies:
+- dependency-name: vite
+  dependency-version: 8.0.13
+  dependency-type: indirect
+- dependency-name: vitest
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+- dependency-name: "@vitest/coverage-v8"
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 7:38:08 PM
+
+Commit [3921c822f7b5edbc3f5686453becf9bfa9540cba](https://github.com/StoneCypher/jssm/commit/3921c822f7b5edbc3f5686453becf9bfa9540cba)
+
+Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
+
+  * build(deps): bump esbuild, vitest and @vitest/coverage-v8
+  * Removes [esbuild](https://github.com/evanw/esbuild). It's no longer used after updating ancestor dependencies [esbuild](https://github.com/evanw/esbuild), [vitest](https://github.com/vitest-dev/vitest/tree/HEAD/packages/vitest) and [@vitest/coverage-v8](https://github.com/vitest-dev/vitest/tree/HEAD/packages/coverage-v8). These dependencies need to be updated together.
+  * 
+Removes `esbuild`
+  * Updates `vitest` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/vitest)
+  * Updates `@vitest/coverage-v8` from 2.1.9 to 4.1.6
+- [Release notes](https://github.com/vitest-dev/vitest/releases)
+- [Commits](https://github.com/vitest-dev/vitest/commits/v4.1.6/packages/coverage-v8)
+  * ---
+updated-dependencies:
+- dependency-name: esbuild
+  dependency-version:
+  dependency-type: indirect
+- dependency-name: vitest
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+- dependency-name: "@vitest/coverage-v8"
+  dependency-version: 4.1.6
+  dependency-type: direct:development
+...
+  * Signed-off-by: dependabot[bot] <support@github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__120__2" />
+
+## [5.120.2] - May 16, 2026 7:36:55 PM
+
+Commit [115cddc8bf70863376c37ea95f467616834e7909](https://github.com/StoneCypher/jssm/commit/115cddc8bf70863376c37ea95f467616834e7909)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a7dc057, 45ecff2]
+
+  * Merge pull request #606 from StoneCypher/ConvertToVitest
+  * Convert to vitest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 5:14:00 PM
+
+Commit [45ecff2a8799518913bba1e6c787470f1de8161a](https://github.com/StoneCypher/jssm/commit/45ecff2a8799518913bba1e6c787470f1de8161a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): free resvg-wasm objects to avoid GC-finalizer crashes
+  * rasterizeViaResvgWasm created Resvg / RenderedImage wasm-bindgen objects
+and left them to the GC FinalizationRegistry to free. That finalizer
+runs at non-deterministic GC time and can fire while the shared wasm
+instance is mid-render, throwing "recursive use of an object detected
+which would lead to unsafe aliasing in rust" as an unhandled error that
+intermittently fails the test run.
+  * Capture both objects and free() them in a finally block so cleanup is
+deterministic and no finalizer is left to race. Added a test asserting
+both free() calls happen.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 4:54:38 PM
+
+Commit [5c1f69635c3f351bd02639c1413b6a13b42e9623](https://github.com/StoneCypher/jssm/commit/5c1f69635c3f351bd02639c1413b6a13b42e9623)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: use committed .cmd/.bat plugin fixtures for dispatcher tests
+  * The dispatcher's invokeBySpawn / findPluginOnPath tests under win32-mock
+used bogus non-existent paths and asserted only that calls returned a
+number — verifying no real behavior.
+  * Added committed fixture plugins (fsl-cmd-fixture.cmd, fsl-bat-fixture.bat).
+findPluginOnPath now genuinely resolves a real fixture via PATHEXT
+probing — a real assertion on every platform, since the files exist on
+disk regardless of host OS. The win32-only runIf tests now actually run
+the .cmd / .bat plugins through cmd.exe and assert exit 0.
+  * Also passes a relative fixtures path to findPluginOnPath under the
+mocked platforms: an absolute Windows path can't survive a Unix-style
+PATH split on ':'.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 4:36:08 PM
+
+Commit [6672d1db62930809eb8038dcdbc88db445b8eb97](https://github.com/StoneCypher/jssm/commit/6672d1db62930809eb8038dcdbc88db445b8eb97)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: cover the .bat operand of dispatcher's isCmdScript check
+  * Follow-up to b8db51b. The mock-to-win32 test exercised invokeBySpawn
+with a .cmd path only, so `ext === '.cmd'` short-circuited the
+`|| ext === '.bat'` and left that operand uncovered on macOS/Linux
+(branch coverage 99.91%). Added a .bat call so both operands run.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 12:59:37 PM
+
+Commit [b8db51b4d20448cd070cb92c8d37f426cb75f092](https://github.com/StoneCypher/jssm/commit/b8db51b4d20448cd070cb92c8d37f426cb75f092)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: fix unicode-label assertions and cover dispatcher's Windows branches
+  * CI on PR #606 surfaced two test defects on 6055f69:
+  * - unicode-atom-labels / unicode-string-labels asserted
+  actions().includes(cp) for a machine whose state carries cp as a
+  *label*. Actions and state labels are unrelated, so the assertion was
+  always false. Corrected to label_for('source'), the actual accessor.
+- dispatcher.ts's IS_WINDOWS-gated branches (PATHEXT, the Windows
+  extension list, cmd.exe routing) are unreachable on a macOS/Linux CI
+  runner, dropping spec coverage to 99.9%/99.55% there. Added a
+  mock-to-win32 test mirroring the existing mock-to-linux one.
+  * Test-only; no source or version change.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 16, 2026 10:51:27 AM
+
+Commit [6055f69b42fee7b483d344034676814c3e29f43f](https://github.com/StoneCypher/jssm/commit/6055f69b42fee7b483d344034676814c3e29f43f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix: repair jest→vitest migration defects and reach 100% spec coverage
+  * The jest→vitest migration left latent defects that surfaced once the
+suites ran cleanly under vitest's stricter ESM and expect() semantics:
+  * - rasterize.ts wrote an init-once flag onto the @resvg/resvg-wasm import
+  namespace. ESM namespaces are sealed; jest's CJS-proxy imports masked
+  this, vitest's real ESM imports throw. Flag moved to module scope.
+- lexical.stoch.ts §2 LineComment property tests used expression-body
+  arrow predicates returning expect()'s result. jest's expect() returns
+  undefined (fast-check pass), vitest's returns a truthy Assertion
+  (fast-check fail). Converted to block-body arrows.
+- The four vitest configs scanned sibling .claude/worktrees, executing
+  other branches' specs; the spec config also measured coverage on CLI
+  and WC source the old jest config split out. Added the missing excludes.
+  * Also removed unreachable defensive branches (dead instanceof-Error arms
+in svg/dot/renderSet, redundant CLI flag and output-destination guards)
+and added ~30 CLI tests. The spec suite now reports 100% statements,
+branches, functions, and lines.
+  * Refs #605
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 6:55:14 PM
+
+Commit [1f86b79b9204e0e07708fe194437f26fe51723a4](https://github.com/StoneCypher/jssm/commit/1f86b79b9204e0e07708fe194437f26fe51723a4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [b91876f, a7dc057]
+
+  * Merge branch 'main' into ConvertToVitest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 6:55:14 PM
+
+Commit [2c307b2dfe5e275d7f9d723424b01e98363d1f46](https://github.com/StoneCypher/jssm/commit/2c307b2dfe5e275d7f9d723424b01e98363d1f46)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [b91876f, a7dc057]
+
+  * Merge branch 'main' into ConvertToVitest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 6:41:06 PM
+
+Commit [a7dc0576bcc9bb77d106527068a5f06ab9e8b8ec](https://github.com/StoneCypher/jssm/commit/a7dc0576bcc9bb77d106527068a5f06ab9e8b8ec)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: regenerate build artifacts and generated docs
+  * Updates the tracked artifacts to reflect the current source tree after
+pulling main (which merged PR #604, the unified fsl CLI) and running
+the full build pipeline. No source code changed in this commit; only
+generated content that the build pipeline owns.
+  * Files updated:
+  * Bundles (rebuilt via rollup + terser):
+- dist/jssm.es5.cjs, .iife.js, .nonmin.cjs
+- dist/jssm.es6.mjs, .nonmin.cjs
+- dist/jssm_viz.cjs, .iife.cjs, .mjs, .es5/.es6.nonmin.cjs variants
+- dist/deno/jssm.js
+- dist/es6/version.js (version sync)
+- docs/demo/jssm.es5.iife.js (matches dist iife)
+  * Generated documentation (regenerated via typedoc + cookbook build):
+- docs/docs/classes/jssm.Machine.html
+- docs/docs/classes/jssm_error.JssmError.html
+- docs/docs/modules/jssm.html
+- docs/docs/modules/jssm_constants.html
+- docs/docs/modules/jssm_types.html, jssm_types._internal_.html
+- docs/docs/modules/jssm_util.html
+- docs/docs/modules/jssm_viz.html
+- docs/docs/modules/version.html
+- docs/docs/pages/CHANGELOG.long.html
+- docs/fsl.tools/cookbook/manifest.json
+  * Changelog (regenerated via better_git_changelog):
+- CHANGELOG.md, CHANGELOG.long.md
+- src/doc_md/CHANGELOG.md, CHANGELOG.long.md (mirror copies)
+  * Documentation mirrors:
+- README.md (regenerated from src/md/README_base.md)
+- dist/deno/README.md (copied from README.md by `npm run readme`)
+  * Source metadata:
+- src/ts/version.ts (auto-generated by `npm run makever`)
+  * Verification: `npm run make_cli` produces zero warnings (per prior
+commit 8b82620). All 87 CLI tests pass. Full build pipeline completes
+end-to-end including typedoc HTML and cookbook regeneration.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 5:48:33 PM
+
+Commit [8b82620de5cbd9fb7389de5619e13a02593dead8](https://github.com/StoneCypher/jssm/commit/8b82620de5cbd9fb7389de5619e13a02593dead8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(cli): silence all CLI build warnings
+  * Three targeted changes eliminate every warning from `npm run make_cli`:
+  * 1. tsconfig.cli.json: exclude `src/ts/tests/**/*` from the CLI compile.
+   The previous include `src/ts/**/*` was picking up two pre-existing
+   sequestered test files that are intentionally broken:
+   - `arbitraries.ts` (uses fast-check's removed `NextArbitrary` API)
+   - `kitchen_sink_dragon.maximal.ts` (imports a `make_mulberry_rand`
+     that was removed)
+   These files have their own jest config and are not part of the CLI;
+   excluding them from the CLI tsconfig leaves them in place for their
+   intended runner.
+  * 2. src/ts/cli/subcommands/render/rasterize.ts: add an ambient
+   `declare const OffscreenCanvas: any` because the CLI's tsconfig
+   doesn't pull in the DOM lib (CLI targets Node primarily). At runtime
+   we feature-detect OffscreenCanvas; the declaration just keeps
+   TypeScript happy without changing emitted code.
+  * 3. src/ts/tests/cli/renderSet.spec.ts: hoist `results[1]` into a local
+   variable `failure` so TypeScript's discriminated-union narrowing
+   follows through. The runtime check was already correct
+   (`if (!failure.ok)` narrows to `RenderSetItemErr` with `.error`);
+   this is purely a type-narrowing cleanup.
+  * Verification: `npm run make_cli` now emits zero `(!)` warnings.
+All 87 CLI tests still pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__120__0" />
+
+## [5.120.0] - May 13, 2026 5:31:36 PM
+
+Commit [e27d126bf5f0e06bb6f9d8fe8c2334525f7d4ec8](https://github.com/StoneCypher/jssm/commit/e27d126bf5f0e06bb6f9d8fe8c2334525f7d4ec8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [aef8e2b, 703d171]
+
+  * Merge pull request #604 from StoneCypher/worktree-BuildUnifiedFslCli
+  * Add unified fsl CLI with constellation library API (v1)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 5:27:29 PM
+
+Commit [703d17164b7d63ad8c122aac36eee52f252e83ed](https://github.com/StoneCypher/jssm/commit/703d17164b7d63ad8c122aac36eee52f252e83ed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * stop running test runner on ubuntu node 17 over png support
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 5:21:09 PM
+
+Commit [82419f69e4fafeeb6ae64e799fa8ad18b87e4e41](https://github.com/StoneCypher/jssm/commit/82419f69e4fafeeb6ae64e799fa8ad18b87e4e41)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): rename fsl-non-node fixture to drop .sh extension
+  * The dispatcher's PATH probe on Unix tries: no-extension, .cjs, .mjs,
+.js. The fixture `fsl-non-node.sh` matched none of these, causing
+the integration test "dispatches to non-node fixture plugin via
+spawn fallback" to fail on Linux/macOS CI with exit 1.
+  * Windows worked because PATHEXT includes .CMD, matching the sibling
+`fsl-non-node.cmd` fixture.
+  * Fix: rename `fsl-non-node.sh` to `fsl-non-node` (no extension) and
+mark it executable in the git index (mode 100755). The shebang
+`#!/bin/sh` still routes execution to the shell. Windows continues
+to use the `.cmd` variant via PATHEXT.
+  * No production code changed.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 5:09:35 PM
+
+Commit [24ef07bd6bdfbed4036e6655eb8165633a462f0d](https://github.com/StoneCypher/jssm/commit/24ef07bd6bdfbed4036e6655eb8165633a462f0d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cli): unified `fsl` CLI with constellation library (v5.120.0)
+  * Introduces the v1 of the unified `fsl` CLI: a dispatcher binary
+(`fsl`, aliased as `jssm`) plus the first plugin (`fsl-render`)
+that renders FSL machines to SVG, DOT, PNG, JPEG, or HTML.
+  * Architecture:
+- Plugin contract: `default async cli(argv): Promise<number>`. No
+  process.exit calls, no global handler registration. Dispatcher
+  in-processes Node-resolvable plugins via dynamic import, spawns
+  the rest. Cross-platform PATH probing for `fsl-<name>` with
+  Node-script extension fallbacks on all platforms plus PATHEXT
+  on Windows.
+- Constellation library: `import { render, renderSet, parseFslArgs }
+  from 'jssm/cli'` with full type declarations published as
+  `jssm.cli.d.ts` and `jssm.cli.d.cts`.
+- Cross-runtime rasterization: feature-detected via `OffscreenCanvas`
+  for browsers, Deno, Bun, mobile WebViews, and Unity WebGL, with
+  `@resvg/resvg-wasm` fallback for Node and other non-Canvas
+  runtimes.
+- Safety: dispatcher intercepts `process.exit()` from misbehaving
+  in-process plugins via a Symbol-thrown sentinel, restores
+  `process.argv` in finally, and converts unhandled throws to
+  exit code 2.
+  * Package shape:
+- Three new bin entries: `fsl`, `jssm` (alias for `fsl`), and
+  `fsl-render`.
+- New `./cli` subpath export with both ESM and CJS variants plus
+  matching .d.ts/.d.cts declarations.
+- New optional dependency `@resvg/resvg-wasm` (~5MB, lazy-loaded
+  only on first PNG/JPEG render in Node).
+- Build pipeline: new `make_cli`, `min_cli` scripts wired into
+  the umbrella `make`; new `jest-cli` config and script wired
+  into the umbrella `jest`.
+- Version injection at build time via rollup-plugin-replace
+  (avoids a runtime require() that broke after compilation).
+  * User-visible surface:
+- `fsl render machine.fsl` writes a sibling SVG by default.
+- `fsl render *.fsl --target=png --out-dir=./diagrams` for batch.
+- `cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png`
+  for pipelines.
+- `fsl --verbose render m.fsl` prints plugin-resolution info to
+  stderr.
+- Conflict rules: `--output`, `--out-dir`, `--stdout` are
+  mutually exclusive; multi-input requires `--out-dir`.
+  * Testing:
+- 87 new tests across 13 suites covering types, argv parsing,
+  every render target, rasterization paths (real WASM and mocked
+  Canvas), the plugin's full command surface, dispatcher PATH
+  probing, in-process invocation safety, spawn fallback, and
+  spawned end-to-end integration through the built binaries.
+- Coverage: 92% statements / 75% branches on the new code.
+  v1 threshold set at 80%/70% to accommodate hard-to-test
+  defensive guards (jest stdin TTY, missing package.json
+  fallback). Will tighten in v0.2.
+  * Compatibility:
+- Fully backwards compatible. Every existing export, type, and
+  function signature is unchanged.
+- No `engines.node` bump. The CLI uses custom argv parsing
+  rather than `util.parseArgs` specifically to avoid forcing
+  consumers onto Node 18+.
+- Coexists cleanly with the web-components feature merged in
+  parallel: both `./cli` and `./wc/viz` exports are available;
+  jest umbrella runs all four suites (stoch + spec + cli + wc);
+  build pipeline produces both `dist/cli/` and `dist/wc/` /
+  `dist/cdn/` artifact sets.
+  * Reference:
+- Design spec: notes/superpowers/specs/2026-05-12-fsl-cli-design.md
+- Implementation plan: notes/superpowers/plans/2026-05-12-fsl-cli.md
+- Closes umbrella tracker #1090
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 4:35:08 PM
+
+Commit [98650dd63fd2f679283bd4aaa30fbe990dbaa150](https://github.com/StoneCypher/jssm/commit/98650dd63fd2f679283bd4aaa30fbe990dbaa150)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [6d082f9, aef8e2b]
+
+  * Merge branch 'main' into worktree-BuildUnifiedFslCli
+  * Combines the unified fsl CLI work with main's web-components additions.
+Both feature sets coexist: ./cli and ./wc/viz exports, jest-cli and jest-wc
+suites, make_cli and make_wc_viz_es6 build steps. README and CHANGELOG
+regenerated from sources after merge.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 4:12:53 PM
+
+Commit [aef8e2b47e9b5b40421207ded9dd36f612ee3d48](https://github.com/StoneCypher/jssm/commit/aef8e2b47e9b5b40421207ded9dd36f612ee3d48)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a01b024, dd3f570]
+
+  * Merge pull request #603 from StoneCypher/worktree-lit-wc-foundation
+  * feat(wc): Lit web component foundation; ship <jssm-viz>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 4:06:24 PM
+
+Commit [dd3f5701b80d1eefe9718990a2a7dfcd075e023e](https://github.com/StoneCypher/jssm/commit/dd3f5701b80d1eefe9718990a2a7dfcd075e023e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * merge with main
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 3:54:44 PM
+
+Commit [bec1fbb2085656954b6c90d6203831270751d70e](https://github.com/StoneCypher/jssm/commit/bec1fbb2085656954b6c90d6203831270751d70e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [ddcaf3e, a01b024]
+
+  * Merge branch 'main' into worktree-lit-wc-foundation
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 3:14:56 PM
+
+Commit [6d082f95c5bce1ba0631317e48e89dafdf67f638](https://github.com/StoneCypher/jssm/commit/6d082f95c5bce1ba0631317e48e89dafdf67f638)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): inject version at build time, generate type decls, public help link, --verbose mode
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__119__0" />
+
+## [5.119.0] - May 13, 2026 3:10:17 PM
+
+Commit [a01b024d317b3ff1f1161cd0f82ec63831d1d542](https://github.com/StoneCypher/jssm/commit/a01b024d317b3ff1f1161cd0f82ec63831d1d542)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * merge the stochastics
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 3:03:00 PM
+
+Commit [33afb27bf66b91ac2b540bfb7f16ff4beb415aa0](https://github.com/StoneCypher/jssm/commit/33afb27bf66b91ac2b540bfb7f16ff4beb415aa0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a8c58a2, dacf2bc]
+
+  * merging main
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 1:37:56 PM
+
+Commit [dacf2bc8ef30e88f9ede21e9459602c2f441765f](https://github.com/StoneCypher/jssm/commit/dacf2bc8ef30e88f9ede21e9459602c2f441765f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * normalize
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 1:28:55 PM
+
+Commit [89ff3d9bfb496ae7117d3cf9ffe241096464cce9](https://github.com/StoneCypher/jssm/commit/89ff3d9bfb496ae7117d3cf9ffe241096464cce9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [f6139f5, 9184abf]
+
+  * merge
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:34:05 AM
+
+Commit [ddcaf3ed15778a6a7932b02a0b7f597ec29157b7](https://github.com/StoneCypher/jssm/commit/ddcaf3ed15778a6a7932b02a0b7f597ec29157b7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(wc): user-facing guide for jssm-viz web component
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:04:30 AM
+
+Commit [4b105daa9c22b10ee460c8fb4bd213bfc2382103](https://github.com/StoneCypher/jssm/commit/4b105daa9c22b10ee460c8fb4bd213bfc2382103)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): wire wc/viz and cdn/viz subpath exports
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 7:44:01 AM
+
+Commit [7246e105ce9f1f8e7d6f1eed5c4a8a91c00707da](https://github.com/StoneCypher/jssm/commit/7246e105ce9f1f8e7d6f1eed5c4a8a91c00707da)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): CDN-friendly Rollup config for jssm-viz web component
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 12:27:31 AM
+
+Commit [2e5fd648a154e99a15eb484507b272805b859f21](https://github.com/StoneCypher/jssm/commit/2e5fd648a154e99a15eb484507b272805b859f21)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): externalize jssm core in bundler build; fix define import path
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 11:56:45 PM
+
+Commit [23cf754abef46753048a1e9538f8147df4ab703e](https://github.com/StoneCypher/jssm/commit/23cf754abef46753048a1e9538f8147df4ab703e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): bundler-friendly Rollup config for jssm-viz; chain build:cem into make
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 8:20:48 PM
+
+Commit [bb3adb34ecfd539cf66d41d423290aba4ae268a2](https://github.com/StoneCypher/jssm/commit/bb3adb34ecfd539cf66d41d423290aba4ae268a2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): generate custom-elements.json from CEM analyzer
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 1:00:13 PM
+
+Commit [07e2c2488121414cd4493a96706f30399f8a0210](https://github.com/StoneCypher/jssm/commit/07e2c2488121414cd4493a96706f30399f8a0210)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(viz): thread engine option through fsl_to_svg_string
+  * Restores the {engine} options parameter to fsl_to_svg_string that the
+legacy jssm-viz-demo used. Wires JssmViz's engine prop through to the
+underlying renderer; tightens the WC engine-prop test now that the
+prop actually does something.
+  * Also extracts viz-error detail normalization into a tested helper
+(normalize_viz_error) so the WC has 100% branch coverage on the
+error path.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 12:44:23 PM
+
+Commit [29033a8ad126a007a2b04a0b581a738675bf1bf2](https://github.com/StoneCypher/jssm/commit/29033a8ad126a007a2b04a0b581a738675bf1bf2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(wc): cover JssmViz viz-error event for bad fsl
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 12:34:21 PM
+
+Commit [edf3f56b0b2812bd6e8408acdb9bb272d14836e2](https://github.com/StoneCypher/jssm/commit/edf3f56b0b2812bd6e8408acdb9bb272d14836e2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): JssmViz renders SVG on fsl prop change
+  * Wires real Graphviz rendering into the JssmViz Lit element via
+`fsl_to_svg_string` from `jssm/viz`. The async render runs on every
+`fsl`/`engine` change via `willUpdate`, with a stale-result guard, and
+the SVG string is injected through Lit's `unsafeHTML` directive.
+  * Two test-infrastructure fixes shipped with this change:
+  * - `jest-wc.config.cjs`: switch @swc/jest to `legacyDecorator: true`
+  with `useDefineForClassFields: false`. Without this, swc emits
+  `_define_property(this, "fsl", "")` in the constructor, which
+  overwrites Lit's prototype accessor with a plain own property —
+  meaning `el.fsl = ...` never invokes Lit's setter and `willUpdate`
+  never sees the change.
+- `src/ts/wc/tests/jest.setup.cjs`: polyfill `TextDecoder` /
+  `TextEncoder` from `util` onto `globalThis` before any test runs.
+  jsdom does not expose them, but the `@viz-js/viz` WASM module
+  imported transitively through `fsl_to_svg_string` requires them.
+  * Note: the `fsl_to_svg_string` signature in this repo is
+`(fsl: string) => Promise<string>` — it does not accept an options
+object — so the `engine` prop is reactive but its value does not
+yet reach the renderer. Task 6 will add real engine threading.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 12:21:06 PM
+
+Commit [1754c13f444acbbfad807ac67af6610f702eea87](https://github.com/StoneCypher/jssm/commit/1754c13f444acbbfad807ac67af6610f702eea87)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): scaffold JssmViz Lit element with class/define split
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 12:20:53 PM
+
+Commit [2496c9c47d19c4a9e7448b79305ec387082e90e3](https://github.com/StoneCypher/jssm/commit/2496c9c47d19c4a9e7448b79305ec387082e90e3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): teach jest-wc about ESM .js suffix imports and Lit ESM
+  * - moduleNameMapper strips trailing .js from relative imports so TS
+  sources can use modern ESM-style import specifiers (e.g.
+  './foo.js') that resolve to .ts during Jest's resolution.
+- transformIgnorePatterns allows lit, lit-html, lit-element, and
+  @lit packages through the SWC transform (they ship as native
+  ESM and Jest's CJS host needs them transpiled).
+- Adds a .js transform entry so SWC handles the de-ignored lit JS.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 11:48:06 AM
+
+Commit [9ec2e23f525f089f8c4f7ba37a2f8ce886d4512a](https://github.com/StoneCypher/jssm/commit/9ec2e23f525f089f8c4f7ba37a2f8ce886d4512a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: add jsdom Jest config for web-component tests
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 12, 2026 11:31:10 AM
+
+Commit [dd4418d0efd6cd8340dad5d0c3cf754cc99a638c](https://github.com/StoneCypher/jssm/commit/dd4418d0efd6cd8340dad5d0c3cf754cc99a638c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: add Lit 3 and CEM analyzer for web-component foundation
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 9:47:36 AM
+
+Commit [8090f5e9216ef70556e73e48ecb02d155bc3f32f](https://github.com/StoneCypher/jssm/commit/8090f5e9216ef70556e73e48ecb02d155bc3f32f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(changelog): regenerate after cli v1 work
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 9:46:50 AM
+
+Commit [9edd415b6e06ef5626c942b3135f37079b1b869f](https://github.com/StoneCypher/jssm/commit/9edd415b6e06ef5626c942b3135f37079b1b869f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(comparables): drop docs:full script (no compounds per project policy)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:50:25 AM
+
+Commit [f6139f53c28f608e3517df78314a251bad44e8e7](https://github.com/StoneCypher/jssm/commit/f6139f53c28f608e3517df78314a251bad44e8e7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(grammar,viz): expose FSL character ranges; viz footer option
+  * New API surface (additive, backward-compatible):
+  * - Export three Unicode character-range tables from jssm_constants:
+  `state_name_chars`, `state_name_first_chars`, `action_label_chars`.
+  Each is a frozen array of `{from, to}` inclusive ranges, kept in
+  sync with the PEG grammar so tooling can validate identifiers and
+  labels without re-parsing the grammar.
+  * - Add matching Machine instance methods: `all_state_name_chars()`,
+  `all_state_name_first_chars()`, `all_action_label_chars()`.
+  * - Add optional `footer` parameter to `machine_to_dot`, `fsl_to_dot`,
+  `machine_to_svg_string`, `fsl_to_svg_string`, `machine_to_svg_element`,
+  `fsl_to_svg_element`. Emitted verbatim just before the closing `}` of
+  the generated dot source, after all arrange declarations. Existing
+  callers are unaffected (parameter is optional).
+  * Also includes:
+  * - chore: add `delete-merged-branches.ps1` for repo branch maintenance
+- chore: ignore `.claire` and `tmp` directories
+- docs: CLAUDE.md adds no-compound-commands and git-verb-before-flag rules
+- notes: design specs and plans for comparables extraction, editor-widget
+  packaging, and Lit web-component foundation
+- build: version bump 5.112.8 -> 5.113.0; regenerated dist/, docs/,
+  CHANGELOG.md, CHANGELOG.long.md, README.md
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:48:54 AM
+
+Commit [bf5837b300ee8d2b673221908422e958e1566e2d](https://github.com/StoneCypher/jssm/commit/bf5837b300ee8d2b673221908422e958e1566e2d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): wire build:shootout; regenerate Shootout.md from JSON
+  * Adds build:shootout (node src/buildjs/build_shootout.mjs) and docs:full
+(build:shootout then docs) npm scripts; regenerates Shootout.md from the
+comparables JSON store (30 entries, 3 machines).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:45:02 AM
+
+Commit [f92dbc3069a019bd83d181f978df562697fc0ee8](https://github.com/StoneCypher/jssm/commit/f92dbc3069a019bd83d181f978df562697fc0ee8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): splice generated content into Shootout.md markers
+  * Adds spliceMarkers(existing, generated) which locates the START/END
+marker pair in Shootout.md and replaces the zone between them, preserving
+all text outside the markers verbatim. Adds a CLI entry point (async IIFE,
+gated on import.meta.url === argv[1]) that loads all entries, renders
+generated content, splices it in, and writes the file. 28 tests passing.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:34:20 AM
+
+Commit [456e346c16fe12cf48d49781fadd2a05da2aa44b](https://github.com/StoneCypher/jssm/commit/456e346c16fe12cf48d49781fadd2a05da2aa44b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): render per-machine sections and full generated body
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:32:38 AM
+
+Commit [e927766a61ffceae5b657fc8d637181b3cf64dfc](https://github.com/StoneCypher/jssm/commit/e927766a61ffceae5b657fc8d637181b3cf64dfc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(cli): persist CLI section in README source file
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:31:38 AM
+
+Commit [128b800831d9530b4d57929dc4407ff51db59047](https://github.com/StoneCypher/jssm/commit/128b800831d9530b4d57929dc4407ff51db59047)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#1328
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:28:13 AM
+
+Commit [92ef5203c99905c52804611b9346f0fcb266a804](https://github.com/StoneCypher/jssm/commit/92ef5203c99905c52804611b9346f0fcb266a804)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * stray uncommitted test sets
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:27:54 AM
+
+Commit [b58194bd05ea3e675c2e919cad43e10cc4ad0f43](https://github.com/StoneCypher/jssm/commit/b58194bd05ea3e675c2e919cad43e10cc4ad0f43)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): render top summary table from entry data
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:27:19 AM
+
+Commit [87453dc8f3ec1d31fe918fb21240611f6144d07b](https://github.com/StoneCypher/jssm/commit/87453dc8f3ec1d31fe918fb21240611f6144d07b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(cli): add Command-line interface section to README
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:27:04 AM
+
+Commit [a8c58a2f029bb6a998b7014883db0e60409cc80b](https://github.com/StoneCypher/jssm/commit/a8c58a2f029bb6a998b7014883db0e60409cc80b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * version bumped
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:18:11 AM
+
+Commit [1dd81929f66da2b869bffece65a98216d4ba88b5](https://github.com/StoneCypher/jssm/commit/1dd81929f66da2b869bffece65a98216d4ba88b5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#316
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:15:52 AM
+
+Commit [26f1aec9e5947bcb23b8381cd05759df8f5fae4b](https://github.com/StoneCypher/jssm/commit/26f1aec9e5947bcb23b8381cd05759df8f5fae4b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): render per-library entry as markdown section
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:13:02 AM
+
+Commit [1e7a0fdf16e448bf1ba9b7b07f70a855f9a4b6b8](https://github.com/StoneCypher/jssm/commit/1e7a0fdf16e448bf1ba9b7b07f70a855f9a4b6b8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(cli): update findPluginOnPath JSDoc to reflect cross-platform Node-script probing
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:12:24 AM
+
+Commit [6c0a53050517dd63a34dc9441df3e857859b67a0](https://github.com/StoneCypher/jssm/commit/6c0a53050517dd63a34dc9441df3e857859b67a0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(comparables): cover validation failure modes (machine, language, schema)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:10:02 AM
+
+Commit [e508350e30cb33dbb415a797a525dd0de7dfa278](https://github.com/StoneCypher/jssm/commit/e508350e30cb33dbb415a797a525dd0de7dfa278)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(comparables): cache loadAll result in beforeAll; drop __dirname dep
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:09:16 AM
+
+Commit [1b773f7c55325f0bf9a597315659fa530ce923a1](https://github.com/StoneCypher/jssm/commit/1b773f7c55325f0bf9a597315659fa530ce923a1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#358
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:06:36 AM
+
+Commit [193c307a17c466783f89f8f62bfa69eec0492fab](https://github.com/StoneCypher/jssm/commit/193c307a17c466783f89f8f62bfa69eec0492fab)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(comparables): restore worktree testPathIgnorePatterns with rootDir anchor
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 8:05:29 AM
+
+Commit [964f7af9a2127c392568bbe7b4d78fe59248c90f](https://github.com/StoneCypher/jssm/commit/964f7af9a2127c392568bbe7b4d78fe59248c90f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): probe Node-script extensions cross-platform; use execPath in integration tests
+  * - dispatcher: add .cjs/.mjs/.js to extension probe list on all platforms
+- dispatcher: invokeBySpawn wraps .cjs/.mjs/.js plugins with process.execPath
+  so Windows can execute Node-script plugins without EFTYPE errors
+- integration tests: use process.execPath instead of 'node' (PATH-independent)
+- integration tests: augment PATH with dist/cli/ for render subcommand tests
+- integration tests: use empty PATH string for unknown-subcommand test
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 7:56:47 AM
+
+Commit [5f107eb426b8f0c1afde41547d69863362ae835e](https://github.com/StoneCypher/jssm/commit/5f107eb426b8f0c1afde41547d69863362ae835e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(comparables): add renderer scaffold with loadAll + validation; add ajv dep
+  * - Install ajv (2020-12 dialect) and ajv-formats as devDependencies
+- Create src/buildjs/build_shootout.mjs with loadAll() and lineCount()
+- Create src/ts/tests/build_shootout.spec.ts with 7 passing tests
+- jest-spec.config.cjs: add mjs to moduleFileExtensions, add mjs swc transform, remove worktree from testPathIgnorePatterns
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__118__0" />
+
+## [5.118.0] - May 13, 2026 7:53:49 AM
+
+Commit [9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0](https://github.com/StoneCypher/jssm/commit/9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [d793d93, 622f5d0]
+
+  * Merge pull request #598 from StoneCypher/stonecypher/fsl#1325
+  * fix(stoch): probable_exits_for filters out non-probability and forced-only exits
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 7:53:28 AM
+
+Commit [fa37bb71c0ab67ff35354197aa3ea63c4cb9a37a](https://github.com/StoneCypher/jssm/commit/fa37bb71c0ab67ff35354197aa3ea63c4cb9a37a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: site/docs/changelog/readme/cloc artifacts for stonecypher/fsl#427
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 7:48:28 AM
+
+Commit [c36633396a458236fcc5ef86e2db809877878d8a](https://github.com/StoneCypher/jssm/commit/c36633396a458236fcc5ef86e2db809877878d8a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(cli): integration tests for dispatcher + plugin spawn fallback
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 7:37:51 AM
+
+Commit [622f5d017de60b2258d42e8bfae11c136bc93c34](https://github.com/StoneCypher/jssm/commit/622f5d017de60b2258d42e8bfae11c136bc93c34)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: full rebuild after merge of main into stonecypher/fsl#1325
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 7:37:21 AM
+
+Commit [9a455d669118652f8598b874f86b64441c4c5651](https://github.com/StoneCypher/jssm/commit/9a455d669118652f8598b874f86b64441c4c5651)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(cli): wire bin, exports.cli, make_cli, min_cli, jest-cli into pipelines
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 1:14:46 AM
+
+Commit [f43b765aa84d9ad3133b2f8f71f27b036e2882ed](https://github.com/StoneCypher/jssm/commit/f43b765aa84d9ad3133b2f8f71f27b036e2882ed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [39283af, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#1325
+  * # Conflicts:
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 1:11:22 AM
+
+Commit [006b9b3a36992762edacab6929c2f8cdd5d36bb4](https://github.com/StoneCypher/jssm/commit/006b9b3a36992762edacab6929c2f8cdd5d36bb4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: full rebuild after merge of main into stonecypher/fsl#420
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 1:04:08 AM
+
+Commit [e501db802c7db250681f6f868909f446b05a3d91](https://github.com/StoneCypher/jssm/commit/e501db802c7db250681f6f868909f446b05a3d91)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [f3977b3, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#420
+  * # Conflicts:
+#       dist/deno/jssm.js
+#       dist/es6/fsl_parser.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 12:59:56 AM
+
+Commit [0e5178535dd2496219d1e92f00a9aaa824c261c4](https://github.com/StoneCypher/jssm/commit/0e5178535dd2496219d1e92f00a9aaa824c261c4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: full rebuild after merge of main into stonecypher/fsl#1324
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 12:53:32 AM
+
+Commit [94ee05385c77f5e936fdbd565d69720e036ca4dc](https://github.com/StoneCypher/jssm/commit/94ee05385c77f5e936fdbd565d69720e036ca4dc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [138c14a, a0d0e54]
+
+  * Merge branch 'main' into stonecypher/fsl#1324
+  * # Conflicts:
+#       package.json
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 12:47:33 AM
+
+Commit [54c84936e7f0ed6685f4d4c3d2cd0f00fe862ad3](https://github.com/StoneCypher/jssm/commit/54c84936e7f0ed6685f4d4c3d2cd0f00fe862ad3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(cli): rollup configs for fsl + fsl-render binaries and lib subpath
+  * - Add rollup.config.cli.cjs.js (fsl.cjs, fsl-render.cjs, lib.cjs)
+- Add rollup.config.cli.esm.js (lib.mjs)
+- Add tsconfig.cli.json extending tsconfig.json with src/ts/**/* include and outDir=dist/cli
+- Install @rollup/plugin-typescript + tslib (needed by CLI configs)
+- jssm/jssm_viz bundled into CLI binaries; @viz-js/viz and @resvg/resvg-wasm remain external
+- import.meta.url in rasterize.ts replaced by rollup with CJS-safe shim (__filename + pathToFileURL)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 12:44:37 AM
+
+Commit [c63e6e801aba7cc3d7279da5a74f9740e767fec3](https://github.com/StoneCypher/jssm/commit/c63e6e801aba7cc3d7279da5a74f9740e767fec3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: full rebuild (make+site+docs+changelog+readme+cloc) after merge of main into stonecypher/fsl#1326
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 13, 2026 12:29:59 AM
 
 Commit [760aff871b4df125c2013224642c9d9a989b8e55](https://github.com/StoneCypher/jssm/commit/760aff871b4df125c2013224642c9d9a989b8e55)
 
@@ -37,7 +2592,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 12:27:50 AM
+## [Untagged] - May 13, 2026 12:27:50 AM
 
 Commit [a458bee0b19c11eac635c319b675e60e987cf5bd](https://github.com/StoneCypher/jssm/commit/a458bee0b19c11eac635c319b675e60e987cf5bd)
 
@@ -56,22 +2611,7 @@ Merges [d37fd52, a0d0e54]
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 12:27:31 AM
-
-Commit [e3fc3b23b6065caf537c5b02d6708d7a307c78e4](https://github.com/StoneCypher/jssm/commit/e3fc3b23b6065caf537c5b02d6708d7a307c78e4)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(wc): externalize jssm core in bundler build; fix define import path
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/13/2026 12:23:50 AM
+## [Untagged] - May 13, 2026 12:23:50 AM
 
 Commit [cc776c1ed0e82772704fc5d22fa9c954ad6bafff](https://github.com/StoneCypher/jssm/commit/cc776c1ed0e82772704fc5d22fa9c954ad6bafff)
 
@@ -86,7 +2626,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 12:18:47 AM
+## [Untagged] - May 13, 2026 12:18:47 AM
 
 Commit [fb29236c79645714ba57d0664534f152e4902957](https://github.com/StoneCypher/jssm/commit/fb29236c79645714ba57d0664534f152e4902957)
 
@@ -120,7 +2660,7 @@ Merges [5d9dfb1, a0d0e54]
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 12:11:42 AM
+## [Untagged] - May 13, 2026 12:11:42 AM
 
 Commit [819324b2431ceada0bf5a391f759d20fa6dcf689](https://github.com/StoneCypher/jssm/commit/819324b2431ceada0bf5a391f759d20fa6dcf689)
 
@@ -141,7 +2681,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 12:08:37 AM
+## [Untagged] - May 13, 2026 12:08:37 AM
 
 Commit [bed923de19db471eae7bf51a37cf717a05af1f94](https://github.com/StoneCypher/jssm/commit/bed923de19db471eae7bf51a37cf717a05af1f94)
 
@@ -156,7 +2696,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2026 12:03:59 AM
+## [Untagged] - May 13, 2026 12:03:59 AM
 
 Commit [7bc7770247b722d7d7ff02f55d1f2d12fb2cbaba](https://github.com/StoneCypher/jssm/commit/7bc7770247b722d7d7ff02f55d1f2d12fb2cbaba)
 
@@ -175,22 +2715,7 @@ Merges [b5062d5, a0d0e54]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:56:45 PM
-
-Commit [98bff07c6e827b3cda59f7e66558326e21de6485](https://github.com/StoneCypher/jssm/commit/98bff07c6e827b3cda59f7e66558326e21de6485)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(wc): bundler-friendly Rollup config for jssm-viz; chain build:cem into make
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 11:49:08 PM
+## [Untagged] - May 12, 2026 11:49:08 PM
 
 Commit [28f3c49d0323df25d345946bda2da1c5a8f1eaff](https://github.com/StoneCypher/jssm/commit/28f3c49d0323df25d345946bda2da1c5a8f1eaff)
 
@@ -244,7 +2769,7 @@ A fresh build with a clean working tree will regenerate them.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:46:50 PM
+## [Untagged] - May 12, 2026 11:46:50 PM
 
 Commit [d0675ea5749a8e2b081e1afc8211957d41b03c86](https://github.com/StoneCypher/jssm/commit/d0675ea5749a8e2b081e1afc8211957d41b03c86)
 
@@ -259,7 +2784,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:46:50 PM
+## [Untagged] - May 12, 2026 8:46:50 PM
 
 Commit [39283afc3993a2a5ced0fabeab4b23b38194de78](https://github.com/StoneCypher/jssm/commit/39283afc3993a2a5ced0fabeab4b23b38194de78)
 
@@ -290,7 +2815,7 @@ error path.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:44:41 PM
+## [Untagged] - May 12, 2026 8:44:41 PM
 
 Commit [f3977b3e3d0165140e58cfe17ecf366e78099b37](https://github.com/StoneCypher/jssm/commit/f3977b3e3d0165140e58cfe17ecf366e78099b37)
 
@@ -316,7 +2841,7 @@ just brings the rest of the tree up to date.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:39:46 PM
+## [Untagged] - May 12, 2026 8:39:46 PM
 
 Commit [0a6a4eb54e86a6a672a563cb8b8c4d401fb00c11](https://github.com/StoneCypher/jssm/commit/0a6a4eb54e86a6a672a563cb8b8c4d401fb00c11)
 
@@ -331,7 +2856,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:37:22 PM
+## [Untagged] - May 12, 2026 8:37:22 PM
 
 Commit [138c14acdb4c35a9ad4e57f8f6f5e56702bbc75a](https://github.com/StoneCypher/jssm/commit/138c14acdb4c35a9ad4e57f8f6f5e56702bbc75a)
 
@@ -346,7 +2871,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:29:46 PM
+## [Untagged] - May 12, 2026 8:29:46 PM
 
 Commit [f4474e2a01a7c718f10bd5d4d27b8376c98b8c12](https://github.com/StoneCypher/jssm/commit/f4474e2a01a7c718f10bd5d4d27b8376c98b8c12)
 
@@ -371,7 +2896,7 @@ click-through navigation from state shapes in diagrams.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:25:30 PM
+## [Untagged] - May 12, 2026 8:25:30 PM
 
 Commit [57b7cf155b7536922e5186687a83f95c874fe91b](https://github.com/StoneCypher/jssm/commit/57b7cf155b7536922e5186687a83f95c874fe91b)
 
@@ -386,7 +2911,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:21:44 PM
+## [Untagged] - May 12, 2026 8:21:44 PM
 
 Commit [a52b3abf351c7499139778c7059254daa509c158](https://github.com/StoneCypher/jssm/commit/a52b3abf351c7499139778c7059254daa509c158)
 
@@ -401,22 +2926,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:20:48 PM
-
-Commit [b611671c3bd481e26e1b7819e2e65ddc4cecec7e](https://github.com/StoneCypher/jssm/commit/b611671c3bd481e26e1b7819e2e65ddc4cecec7e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(wc): generate custom-elements.json from CEM analyzer
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 8:14:59 PM
+## [Untagged] - May 12, 2026 8:14:59 PM
 
 Commit [b38f7a3925d10def5328b84eb6d44606a60c8547](https://github.com/StoneCypher/jssm/commit/b38f7a3925d10def5328b84eb6d44606a60c8547)
 
@@ -431,7 +2941,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:07:56 PM
+## [Untagged] - May 12, 2026 8:07:56 PM
 
 Commit [5d46ea93ee791ac389ce579894b88d5d8868b856](https://github.com/StoneCypher/jssm/commit/5d46ea93ee791ac389ce579894b88d5d8868b856)
 
@@ -446,7 +2956,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 1:04:02 PM
+## [Untagged] - May 12, 2026 1:04:02 PM
 
 Commit [d37fd524e319cdeecd8228b80c63d744062892f7](https://github.com/StoneCypher/jssm/commit/d37fd524e319cdeecd8228b80c63d744062892f7)
 
@@ -478,29 +2988,7 @@ contract, with worked examples.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 1:00:13 PM
-
-Commit [055c7ddc4175dc9b3ff27fdc3cffa5aba517dc63](https://github.com/StoneCypher/jssm/commit/055c7ddc4175dc9b3ff27fdc3cffa5aba517dc63)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(viz): thread engine option through fsl_to_svg_string
-  * Restores the {engine} options parameter to fsl_to_svg_string that the
-legacy jssm-viz-demo used. Wires JssmViz's engine prop through to the
-underlying renderer; tightens the WC engine-prop test now that the
-prop actually does something.
-  * Also extracts viz-error detail normalization into a tested helper
-(normalize_viz_error) so the WC has 100% branch coverage on the
-error path.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:59:49 PM
+## [Untagged] - May 12, 2026 12:59:49 PM
 
 Commit [4f5265f1a3de1cedb20cde9a4da50e8e7166a122](https://github.com/StoneCypher/jssm/commit/4f5265f1a3de1cedb20cde9a4da50e8e7166a122)
 
@@ -515,7 +3003,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:59:36 PM
+## [Untagged] - May 12, 2026 12:59:36 PM
 
 Commit [a0d0e54b3b76301488f78284850f2bc531c8e1d9](https://github.com/StoneCypher/jssm/commit/a0d0e54b3b76301488f78284850f2bc531c8e1d9)
 
@@ -559,7 +3047,7 @@ into multiple files.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:57:04 PM
+## [Untagged] - May 12, 2026 12:57:04 PM
 
 Commit [674180a699997ddbc8db17861af73e3c7601409b](https://github.com/StoneCypher/jssm/commit/674180a699997ddbc8db17861af73e3c7601409b)
 
@@ -577,7 +3065,7 @@ process.write so test mocks capture subprocess output.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:56:55 PM
+## [Untagged] - May 12, 2026 12:56:55 PM
 
 Commit [0ec99f4882df92e59fd0ea88b6f606ae98836125](https://github.com/StoneCypher/jssm/commit/0ec99f4882df92e59fd0ea88b6f606ae98836125)
 
@@ -592,7 +3080,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:56:44 PM
+## [Untagged] - May 12, 2026 12:56:44 PM
 
 Commit [269b8f97fdc32b475acf6c6e0c5b9d0bf1a4acdc](https://github.com/StoneCypher/jssm/commit/269b8f97fdc32b475acf6c6e0c5b9d0bf1a4acdc)
 
@@ -607,7 +3095,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:56:34 PM
+## [Untagged] - May 12, 2026 12:56:34 PM
 
 Commit [52bee74cf18c0da44fc07d654efb46bd8970a3b6](https://github.com/StoneCypher/jssm/commit/52bee74cf18c0da44fc07d654efb46bd8970a3b6)
 
@@ -622,7 +3110,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:51:27 PM
+## [Untagged] - May 12, 2026 12:51:27 PM
 
 Commit [499d4318b3d63b4361be90b362668a25f2726c38](https://github.com/StoneCypher/jssm/commit/499d4318b3d63b4361be90b362668a25f2726c38)
 
@@ -637,7 +3125,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:48:15 PM
+## [Untagged] - May 12, 2026 12:48:15 PM
 
 Commit [e72f83ba5f0efeb8674f27920bc4e39b01087ff1](https://github.com/StoneCypher/jssm/commit/e72f83ba5f0efeb8674f27920bc4e39b01087ff1)
 
@@ -670,7 +3158,7 @@ Merges [63c4d39, b4befd1]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:47:25 PM
+## [Untagged] - May 12, 2026 12:47:25 PM
 
 Commit [b0e741c62f1f81a1036db9cebb8da480a3ebbcd0](https://github.com/StoneCypher/jssm/commit/b0e741c62f1f81a1036db9cebb8da480a3ebbcd0)
 
@@ -685,7 +3173,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:44:43 PM
+## [Untagged] - May 12, 2026 12:44:43 PM
 
 Commit [b4befd1c7b9575023cbe4432fbbfa26b019226eb](https://github.com/StoneCypher/jssm/commit/b4befd1c7b9575023cbe4432fbbfa26b019226eb)
 
@@ -730,22 +3218,7 @@ findings the new tests surfaced.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:44:23 PM
-
-Commit [85d72ce7dcf844a3c80526bf8151045bfe0337ca](https://github.com/StoneCypher/jssm/commit/85d72ce7dcf844a3c80526bf8151045bfe0337ca)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(wc): cover JssmViz viz-error event for bad fsl
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:41:10 PM
+## [Untagged] - May 12, 2026 12:41:10 PM
 
 Commit [215cad3ab26f0fffc4734b11f0e06bf1add9f684](https://github.com/StoneCypher/jssm/commit/215cad3ab26f0fffc4734b11f0e06bf1add9f684)
 
@@ -760,7 +3233,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:41:09 PM
+## [Untagged] - May 12, 2026 12:41:09 PM
 
 Commit [88f3dc67d5595f0b02a2e2a41010a2488d10ba29](https://github.com/StoneCypher/jssm/commit/88f3dc67d5595f0b02a2e2a41010a2488d10ba29)
 
@@ -775,7 +3248,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:40:30 PM
+## [Untagged] - May 12, 2026 12:40:30 PM
 
 Commit [86bb09a622f48414e855cb19f5080e88c7101283](https://github.com/StoneCypher/jssm/commit/86bb09a622f48414e855cb19f5080e88c7101283)
 
@@ -790,7 +3263,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:39:20 PM
+## [Untagged] - May 12, 2026 12:39:20 PM
 
 Commit [a8a9c2bb0e7959b2f1be0c925e1dfb51a71b576b](https://github.com/StoneCypher/jssm/commit/a8a9c2bb0e7959b2f1be0c925e1dfb51a71b576b)
 
@@ -805,7 +3278,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:36:28 PM
+## [Untagged] - May 12, 2026 12:36:28 PM
 
 Commit [6104fbea313fbcd0e42d92a4f567ed5b945ff883](https://github.com/StoneCypher/jssm/commit/6104fbea313fbcd0e42d92a4f567ed5b945ff883)
 
@@ -840,7 +3313,7 @@ Merges [042394b, 17bb265]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:35:40 PM
+## [Untagged] - May 12, 2026 12:35:40 PM
 
 Commit [012340bd5b4922815c6d304d5a5343c48a41248a](https://github.com/StoneCypher/jssm/commit/012340bd5b4922815c6d304d5a5343c48a41248a)
 
@@ -855,41 +3328,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:34:21 PM
-
-Commit [6b1c76e0dfdce25b2be930a302bfdced0994a38b](https://github.com/StoneCypher/jssm/commit/6b1c76e0dfdce25b2be930a302bfdced0994a38b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(wc): JssmViz renders SVG on fsl prop change
-  * Wires real Graphviz rendering into the JssmViz Lit element via
-`fsl_to_svg_string` from `jssm/viz`. The async render runs on every
-`fsl`/`engine` change via `willUpdate`, with a stale-result guard, and
-the SVG string is injected through Lit's `unsafeHTML` directive.
-  * Two test-infrastructure fixes shipped with this change:
-  * - `jest-wc.config.cjs`: switch @swc/jest to `legacyDecorator: true`
-  with `useDefineForClassFields: false`. Without this, swc emits
-  `_define_property(this, "fsl", "")` in the constructor, which
-  overwrites Lit's prototype accessor with a plain own property —
-  meaning `el.fsl = ...` never invokes Lit's setter and `willUpdate`
-  never sees the change.
-- `src/ts/wc/tests/jest.setup.cjs`: polyfill `TextDecoder` /
-  `TextEncoder` from `util` onto `globalThis` before any test runs.
-  jsdom does not expose them, but the `@viz-js/viz` WASM module
-  imported transitively through `fsl_to_svg_string` requires them.
-  * Note: the `fsl_to_svg_string` signature in this repo is
-`(fsl: string) => Promise<string>` — it does not accept an options
-object — so the `engine` prop is reactive but its value does not
-yet reach the renderer. Task 6 will add real engine threading.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:32:05 PM
+## [Untagged] - May 12, 2026 12:32:05 PM
 
 Commit [5d9dfb1d0092634bb8a27e82ab1b2bbdcee05a58](https://github.com/StoneCypher/jssm/commit/5d9dfb1d0092634bb8a27e82ab1b2bbdcee05a58)
 
@@ -935,7 +3374,7 @@ Stoch suite: 5 suites / 91 tests pass.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:28:21 PM
+## [Untagged] - May 12, 2026 12:28:21 PM
 
 Commit [dff205bff292e4263ca69b1fee67d1894ac4c00a](https://github.com/StoneCypher/jssm/commit/dff205bff292e4263ca69b1fee67d1894ac4c00a)
 
@@ -952,7 +3391,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__113__0" />
 
-## [5.113.0] - 5/12/2026 12:25:38 PM
+## [5.113.0] - May 12, 2026 12:25:38 PM
 
 Commit [d793d93bed495af0a295c634d1a4229c0dce7010](https://github.com/StoneCypher/jssm/commit/d793d93bed495af0a295c634d1a4229c0dce7010)
 
@@ -970,7 +3409,7 @@ Merges [2335885, bf07df4]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:25:17 PM
+## [Untagged] - May 12, 2026 12:25:17 PM
 
 Commit [2335885be44d938826839af7ab4583786cccc6d6](https://github.com/StoneCypher/jssm/commit/2335885be44d938826839af7ab4583786cccc6d6)
 
@@ -988,7 +3427,7 @@ Merges [2003941, 3808115]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:24:50 PM
+## [Untagged] - May 12, 2026 12:24:50 PM
 
 Commit [17bb2657421d355ea19ce51629e8e7af8060d039](https://github.com/StoneCypher/jssm/commit/17bb2657421d355ea19ce51629e8e7af8060d039)
 
@@ -1027,7 +3466,7 @@ grammar sections:
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:24:41 PM
+## [Untagged] - May 12, 2026 12:24:41 PM
 
 Commit [025d821b24d757325a094881d31c2abe6f39ea02](https://github.com/StoneCypher/jssm/commit/025d821b24d757325a094881d31c2abe6f39ea02)
 
@@ -1042,7 +3481,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:22:14 PM
+## [Untagged] - May 12, 2026 12:22:14 PM
 
 Commit [b5062d53f1609fdae5cfd3eeee4274f4baca01d2](https://github.com/StoneCypher/jssm/commit/b5062d53f1609fdae5cfd3eeee4274f4baca01d2)
 
@@ -1063,44 +3502,7 @@ attribute so Graphviz draws empty boxes.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:21:06 PM
-
-Commit [3060678d02d847eeb15a7b60d9a11d0875146c5f](https://github.com/StoneCypher/jssm/commit/3060678d02d847eeb15a7b60d9a11d0875146c5f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(wc): scaffold JssmViz Lit element with class/define split
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:20:53 PM
-
-Commit [f0f99dd4d643d6fc5925a0d1be02db2d70763a8a](https://github.com/StoneCypher/jssm/commit/f0f99dd4d643d6fc5925a0d1be02db2d70763a8a)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(wc): teach jest-wc about ESM .js suffix imports and Lit ESM
-  * - moduleNameMapper strips trailing .js from relative imports so TS
-  sources can use modern ESM-style import specifiers (e.g.
-  './foo.js') that resolve to .ts during Jest's resolution.
-- transformIgnorePatterns allows lit, lit-html, lit-element, and
-  @lit packages through the SWC transform (they ship as native
-  ESM and Jest's CJS host needs them transpiled).
-- Adds a .js transform entry so SWC handles the de-ignored lit JS.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 12:20:20 PM
+## [Untagged] - May 12, 2026 12:20:20 PM
 
 Commit [63c4d392d5cc6f0d102c8e6187da0bf6e2818941](https://github.com/StoneCypher/jssm/commit/63c4d392d5cc6f0d102c8e6187da0bf6e2818941)
 
@@ -1134,7 +3536,7 @@ SVG. Such consumers must migrate to the slug-based IDs.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:18:12 PM
+## [Untagged] - May 12, 2026 12:18:12 PM
 
 Commit [664d7bba106952369e55a891e69ecc01f351623e](https://github.com/StoneCypher/jssm/commit/664d7bba106952369e55a891e69ecc01f351623e)
 
@@ -1149,7 +3551,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:15:46 PM
+## [Untagged] - May 12, 2026 12:15:46 PM
 
 Commit [b0e4de6d647503a6e8655ce6b8ccda1cf981cdea](https://github.com/StoneCypher/jssm/commit/b0e4de6d647503a6e8655ce6b8ccda1cf981cdea)
 
@@ -1164,7 +3566,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:10:34 PM
+## [Untagged] - May 12, 2026 12:10:34 PM
 
 Commit [aa3807f06718637159c00531cd3624a1d39a388b](https://github.com/StoneCypher/jssm/commit/aa3807f06718637159c00531cd3624a1d39a388b)
 
@@ -1179,7 +3581,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:09:16 PM
+## [Untagged] - May 12, 2026 12:09:16 PM
 
 Commit [ee334baad2e20ef847bb104b579668ed708ef03c](https://github.com/StoneCypher/jssm/commit/ee334baad2e20ef847bb104b579668ed708ef03c)
 
@@ -1194,7 +3596,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:06:41 PM
+## [Untagged] - May 12, 2026 12:06:41 PM
 
 Commit [0f5e97f57168c188f91f5187ab7c01b966550f65](https://github.com/StoneCypher/jssm/commit/0f5e97f57168c188f91f5187ab7c01b966550f65)
 
@@ -1229,7 +3631,7 @@ tests, +47 new) pass.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 12:06:23 PM
+## [Untagged] - May 12, 2026 12:06:23 PM
 
 Commit [8b02846d147409303e2f47586fc06858f61e8b12](https://github.com/StoneCypher/jssm/commit/8b02846d147409303e2f47586fc06858f61e8b12)
 
@@ -1244,7 +3646,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:58:59 AM
+## [Untagged] - May 12, 2026 11:58:59 AM
 
 Commit [bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568](https://github.com/StoneCypher/jssm/commit/bf07df4e9caac9c4b8f83aee9bfe3a1dd9fc9568)
 
@@ -1277,7 +3679,7 @@ action labels, and identity of the constants returned by the three
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:58:54 AM
+## [Untagged] - May 12, 2026 11:58:54 AM
 
 Commit [5199feaf81dc72e6df9a99d51fa48b1812b36dae](https://github.com/StoneCypher/jssm/commit/5199feaf81dc72e6df9a99d51fa48b1812b36dae)
 
@@ -1292,7 +3694,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:57:55 AM
+## [Untagged] - May 12, 2026 11:57:55 AM
 
 Commit [aaaf6b69d1bd320fff606e243ac9cbcd713253de](https://github.com/StoneCypher/jssm/commit/aaaf6b69d1bd320fff606e243ac9cbcd713253de)
 
@@ -1307,7 +3709,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:57:32 AM
+## [Untagged] - May 12, 2026 11:57:32 AM
 
 Commit [042394b0b7e574a70464dd118c255bb48cc15bf7](https://github.com/StoneCypher/jssm/commit/042394b0b7e574a70464dd118c255bb48cc15bf7)
 
@@ -1340,7 +3742,7 @@ Stoch suite: 5 suites / 91 tests pass.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:56:13 AM
+## [Untagged] - May 12, 2026 11:56:13 AM
 
 Commit [3808115eca3b5c0d7366e19c82c37ac7f37501bb](https://github.com/StoneCypher/jssm/commit/3808115eca3b5c0d7366e19c82c37ac7f37501bb)
 
@@ -1363,7 +3765,7 @@ compile unchanged (parameter is optional).
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:55:38 AM
+## [Untagged] - May 12, 2026 11:55:38 AM
 
 Commit [b0a2e00dd585e03adeef6dc7b0912e843b612764](https://github.com/StoneCypher/jssm/commit/b0a2e00dd585e03adeef6dc7b0912e843b612764)
 
@@ -1378,7 +3780,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:54:31 AM
+## [Untagged] - May 12, 2026 11:54:31 AM
 
 Commit [31f14eaa9d9bb8e01c563822500a83a5c0c239ff](https://github.com/StoneCypher/jssm/commit/31f14eaa9d9bb8e01c563822500a83a5c0c239ff)
 
@@ -1393,22 +3795,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:48:06 AM
-
-Commit [98ef0f447d6a5d294fbc27aa4b92c5fe3d611417](https://github.com/StoneCypher/jssm/commit/98ef0f447d6a5d294fbc27aa4b92c5fe3d611417)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build: add jsdom Jest config for web-component tests
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - 5/12/2026 11:43:08 AM
+## [Untagged] - May 12, 2026 11:43:08 AM
 
 Commit [2dd99cb7518fbfe59c021fb17ca166fd4d1a64cf](https://github.com/StoneCypher/jssm/commit/2dd99cb7518fbfe59c021fb17ca166fd4d1a64cf)
 
@@ -1423,7 +3810,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:40:28 AM
+## [Untagged] - May 12, 2026 11:40:28 AM
 
 Commit [a83330479e3fa610028e31e70ac119161ecb8194](https://github.com/StoneCypher/jssm/commit/a83330479e3fa610028e31e70ac119161ecb8194)
 
@@ -1438,7 +3825,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:40:02 AM
+## [Untagged] - May 12, 2026 11:40:02 AM
 
 Commit [b7f48c7d485814cd114201f762adc53242874a3d](https://github.com/StoneCypher/jssm/commit/b7f48c7d485814cd114201f762adc53242874a3d)
 
@@ -1453,7 +3840,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:35:05 AM
+## [Untagged] - May 12, 2026 11:35:05 AM
 
 Commit [3e4f36f9c8081a144dcc29ab668ad26bb802072d](https://github.com/StoneCypher/jssm/commit/3e4f36f9c8081a144dcc29ab668ad26bb802072d)
 
@@ -1468,24 +3855,9 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:31:10 AM
-
-Commit [d92ceb80c8e28ba1b92ddfe14c3329b67a74a392](https://github.com/StoneCypher/jssm/commit/d92ceb80c8e28ba1b92ddfe14c3329b67a74a392)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore: add Lit 3 and CEM analyzer for web-component foundation
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 <a name="5__112__4" />
 
-## [5.112.4] - 5/12/2026 11:17:10 AM
+## [5.112.4] - May 12, 2026 11:17:10 AM
 
 Commit [2003941787daa7bdb037413ab31bda0d71d8944e](https://github.com/StoneCypher/jssm/commit/2003941787daa7bdb037413ab31bda0d71d8944e)
 
@@ -1515,7 +3887,7 @@ intentionally.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:12:01 AM
+## [Untagged] - May 12, 2026 11:12:01 AM
 
 Commit [3317cc0eef1af9e268459caf5742fafc8fad8389](https://github.com/StoneCypher/jssm/commit/3317cc0eef1af9e268459caf5742fafc8fad8389)
 
@@ -1530,7 +3902,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:07:00 AM
+## [Untagged] - May 12, 2026 11:07:00 AM
 
 Commit [2f00709c7dec4dc11f78a1d6e2072d567422061b](https://github.com/StoneCypher/jssm/commit/2f00709c7dec4dc11f78a1d6e2072d567422061b)
 
@@ -1545,7 +3917,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 11:02:00 AM
+## [Untagged] - May 12, 2026 11:02:00 AM
 
 Commit [cdd7d307e7c43fe79c611b9dfd91f8ebfa381090](https://github.com/StoneCypher/jssm/commit/cdd7d307e7c43fe79c611b9dfd91f8ebfa381090)
 
@@ -1560,7 +3932,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:49:41 AM
+## [Untagged] - May 12, 2026 10:49:41 AM
 
 Commit [20b2ad64633df88815cdc676c4a00feafbc832b8](https://github.com/StoneCypher/jssm/commit/20b2ad64633df88815cdc676c4a00feafbc832b8)
 
@@ -1583,7 +3955,7 @@ the servehere devDependency change.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:43:17 AM
+## [Untagged] - May 12, 2026 10:43:17 AM
 
 Commit [c20806be39fd1c91a50291d692c51303f3aa7ee3](https://github.com/StoneCypher/jssm/commit/c20806be39fd1c91a50291d692c51303f3aa7ee3)
 
@@ -1598,7 +3970,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 10:28:50 AM
+## [Untagged] - May 12, 2026 10:28:50 AM
 
 Commit [2bb1bc76d915cf05d2d121a3a5060c3928892e02](https://github.com/StoneCypher/jssm/commit/2bb1bc76d915cf05d2d121a3a5060c3928892e02)
 
@@ -1613,7 +3985,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 9:40:50 AM
+## [Untagged] - May 12, 2026 9:40:50 AM
 
 Commit [fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76](https://github.com/StoneCypher/jssm/commit/fc49dc6e1a82ebf714f1a5f7efbf8de2afd9de76)
 
@@ -1628,7 +4000,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 9:38:39 AM
+## [Untagged] - May 12, 2026 9:38:39 AM
 
 Commit [adbbaedb1862498cf7cf54f7644a92dd9b48fed2](https://github.com/StoneCypher/jssm/commit/adbbaedb1862498cf7cf54f7644a92dd9b48fed2)
 
@@ -1643,7 +4015,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:36:35 AM
+## [Untagged] - May 12, 2026 8:36:35 AM
 
 Commit [b91876f86307dac2cc90e07841e64080a7d1e451](https://github.com/StoneCypher/jssm/commit/b91876f86307dac2cc90e07841e64080a7d1e451)
 
@@ -1675,7 +4047,7 @@ worktree out of the parent repo's tree.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:36:32 AM
+## [Untagged] - May 12, 2026 8:36:32 AM
 
 Commit [6c89f0952c6900b6b55a73096081ffb5f13b5094](https://github.com/StoneCypher/jssm/commit/6c89f0952c6900b6b55a73096081ffb5f13b5094)
 
@@ -1690,7 +4062,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:25:37 AM
+## [Untagged] - May 12, 2026 8:25:37 AM
 
 Commit [eb2a9b7be9ea9b0480bfcee1d01c9dafa33652e7](https://github.com/StoneCypher/jssm/commit/eb2a9b7be9ea9b0480bfcee1d01c9dafa33652e7)
 
@@ -1705,7 +4077,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:19:13 AM
+## [Untagged] - May 12, 2026 8:19:13 AM
 
 Commit [1515ced5c41598a213d9065fbfc4bc7529d1c9dc](https://github.com/StoneCypher/jssm/commit/1515ced5c41598a213d9065fbfc4bc7529d1c9dc)
 
@@ -1722,7 +4094,7 @@ Merges [06552da, d3af969]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:19:05 AM
+## [Untagged] - May 12, 2026 8:19:05 AM
 
 Commit [06552da1791d132d86e34c941c9730c29468cf92](https://github.com/StoneCypher/jssm/commit/06552da1791d132d86e34c941c9730c29468cf92)
 
@@ -1737,7 +4109,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:18:20 AM
+## [Untagged] - May 12, 2026 8:18:20 AM
 
 Commit [51c7895cede9ca511731c9321bd61a95c26f234f](https://github.com/StoneCypher/jssm/commit/51c7895cede9ca511731c9321bd61a95c26f234f)
 
@@ -1752,7 +4124,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:12:24 AM
+## [Untagged] - May 12, 2026 8:12:24 AM
 
 Commit [86bb9b4729863ad3d632e7766a616e44baf554b2](https://github.com/StoneCypher/jssm/commit/86bb9b4729863ad3d632e7766a616e44baf554b2)
 
@@ -1767,7 +4139,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:04:36 AM
+## [Untagged] - May 12, 2026 8:04:36 AM
 
 Commit [3ec9a9cd6266b0d1b9b13e1289a940372f428e43](https://github.com/StoneCypher/jssm/commit/3ec9a9cd6266b0d1b9b13e1289a940372f428e43)
 
@@ -1782,7 +4154,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 8:02:34 AM
+## [Untagged] - May 12, 2026 8:02:34 AM
 
 Commit [aa6d9c0f70c9cbcbb8aef0fcf0f04b88d2869bad](https://github.com/StoneCypher/jssm/commit/aa6d9c0f70c9cbcbb8aef0fcf0f04b88d2869bad)
 
@@ -1822,7 +4194,7 @@ respects .gitignore-shaped semantics for unbundled directories.
 
 <a name="5__112__3" />
 
-## [5.112.3] - 5/12/2026 7:53:22 AM
+## [5.112.3] - May 12, 2026 7:53:22 AM
 
 Commit [d3af9691d1db5f6e921e6c751da102bc406a2e03](https://github.com/StoneCypher/jssm/commit/d3af9691d1db5f6e921e6c751da102bc406a2e03)
 
@@ -1840,7 +4212,7 @@ Merges [b0681f0, 0afd600]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 7:49:19 AM
+## [Untagged] - May 12, 2026 7:49:19 AM
 
 Commit [0afd600ab09b8ced6a34e187cf2aba8bdfa35acf](https://github.com/StoneCypher/jssm/commit/0afd600ab09b8ced6a34e187cf2aba8bdfa35acf)
 
@@ -1882,7 +4254,7 @@ difference.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 7:47:23 AM
+## [Untagged] - May 12, 2026 7:47:23 AM
 
 Commit [8e9e33c34358e3b567e3f65ecbc97c743cad66a6](https://github.com/StoneCypher/jssm/commit/8e9e33c34358e3b567e3f65ecbc97c743cad66a6)
 
@@ -1897,7 +4269,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 7:14:03 AM
+## [Untagged] - May 12, 2026 7:14:03 AM
 
 Commit [9276011491437258fbde3e919ec657d29f4ea62e](https://github.com/StoneCypher/jssm/commit/9276011491437258fbde3e919ec657d29f4ea62e)
 
@@ -1934,7 +4306,7 @@ capture so they return the matched substring directly.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:52:39 AM
+## [Untagged] - May 12, 2026 6:52:39 AM
 
 Commit [a253dd558bdb6e82020b069daaba9e222e4cb355](https://github.com/StoneCypher/jssm/commit/a253dd558bdb6e82020b069daaba9e222e4cb355)
 
@@ -1957,7 +4329,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:52:15 AM
+## [Untagged] - May 12, 2026 6:52:15 AM
 
 Commit [c6d821b33b3d6269ab6569a0c2e7ec7ef40637d8](https://github.com/StoneCypher/jssm/commit/c6d821b33b3d6269ab6569a0c2e7ec7ef40637d8)
 
@@ -1972,7 +4344,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:50:41 AM
+## [Untagged] - May 12, 2026 6:50:41 AM
 
 Commit [af56aae6dc85ec5306bbd6d7e0098b963fce86a8](https://github.com/StoneCypher/jssm/commit/af56aae6dc85ec5306bbd6d7e0098b963fce86a8)
 
@@ -1991,7 +4363,7 @@ already calls the new `vitest` script, so no change is needed there.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:50:08 AM
+## [Untagged] - May 12, 2026 6:50:08 AM
 
 Commit [83aaf720e938e7494788b55123a703c3d981a026](https://github.com/StoneCypher/jssm/commit/83aaf720e938e7494788b55123a703c3d981a026)
 
@@ -2015,7 +4387,7 @@ script to its correctly named file.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:49:56 AM
+## [Untagged] - May 12, 2026 6:49:56 AM
 
 Commit [7773fa1da33821c898627e44ba682eb26c3bf625](https://github.com/StoneCypher/jssm/commit/7773fa1da33821c898627e44ba682eb26c3bf625)
 
@@ -2037,7 +4409,7 @@ mode.  The dragon suite predates this conversion and is left as-is.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:49:44 AM
+## [Untagged] - May 12, 2026 6:49:44 AM
 
 Commit [8255702d4820e6afcecc9b240a1aed591c7ad02c](https://github.com/StoneCypher/jssm/commit/8255702d4820e6afcecc9b240a1aed591c7ad02c)
 
@@ -2064,7 +4436,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:49:28 AM
+## [Untagged] - May 12, 2026 6:49:28 AM
 
 Commit [b8f224a863c9862fea06999fc2efefbfcb399a71](https://github.com/StoneCypher/jssm/commit/b8f224a863c9862fea06999fc2efefbfcb399a71)
 
@@ -2100,7 +4472,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:48:42 AM
+## [Untagged] - May 12, 2026 6:48:42 AM
 
 Commit [22db66d28fbd1e5f8ef6a8ddcc853a0ff9c85dcf](https://github.com/StoneCypher/jssm/commit/22db66d28fbd1e5f8ef6a8ddcc853a0ff9c85dcf)
 
@@ -2118,7 +4490,7 @@ configs are migrated.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 6:22:05 AM
+## [Untagged] - May 12, 2026 6:22:05 AM
 
 Commit [bd1be3bf09a533b11e5ed3e6fa29f9e8db90d560](https://github.com/StoneCypher/jssm/commit/bd1be3bf09a533b11e5ed3e6fa29f9e8db90d560)
 
@@ -2144,7 +4516,7 @@ coverage from 0/14 sections to 1/14.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 5:40:56 AM
+## [Untagged] - May 12, 2026 5:40:56 AM
 
 Commit [093f713fdc82794b023196d8d0a11da6c8d8b757](https://github.com/StoneCypher/jssm/commit/093f713fdc82794b023196d8d0a11da6c8d8b757)
 
@@ -2161,7 +4533,7 @@ Merges [4c1b786, b0681f0]
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 5:38:58 AM
+## [Untagged] - May 12, 2026 5:38:58 AM
 
 Commit [b0681f049856285bd3129f539f601a3e8bec758f](https://github.com/StoneCypher/jssm/commit/b0681f049856285bd3129f539f601a3e8bec758f)
 
@@ -2184,7 +4556,7 @@ it last stopped.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 5:38:58 AM
+## [Untagged] - May 12, 2026 5:38:58 AM
 
 Commit [4c1b78640c8c26b4dd643f951ad4a2f3341e02dc](https://github.com/StoneCypher/jssm/commit/4c1b78640c8c26b4dd643f951ad4a2f3341e02dc)
 
@@ -2207,7 +4579,7 @@ it last stopped.
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 3:30:12 AM
+## [Untagged] - May 12, 2026 3:30:12 AM
 
 Commit [8298e592f9c214d3c95cd343ac5778eb9dae3ff2](https://github.com/StoneCypher/jssm/commit/8298e592f9c214d3c95cd343ac5778eb9dae3ff2)
 
@@ -2222,7 +4594,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2026 2:29:32 AM
+## [Untagged] - May 12, 2026 2:29:32 AM
 
 Commit [aa01a95a888d54b7d15112badaebaac6f623daf9](https://github.com/StoneCypher/jssm/commit/aa01a95a888d54b7d15112badaebaac6f623daf9)
 
@@ -2266,7 +4638,7 @@ succeeds:
 
 <a name="5__112__0" />
 
-## [5.112.0] - 5/12/2026 2:02:54 AM
+## [5.112.0] - May 12, 2026 2:02:54 AM
 
 Commit [01d371a91aa6b74edf3333685ee67d0de8accb77](https://github.com/StoneCypher/jssm/commit/01d371a91aa6b74edf3333685ee67d0de8accb77)
 
@@ -2345,7 +4717,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 11:05:13 PM
+## [Untagged] - May 11, 2026 11:05:13 PM
 
 Commit [a89b151a2de671f6ec7015a47d6f8642d86748c9](https://github.com/StoneCypher/jssm/commit/a89b151a2de671f6ec7015a47d6f8642d86748c9)
 
@@ -2365,7 +4737,7 @@ Merges [2f0e562, 0d5bfd2]
 
 <a name="5__111__0" />
 
-## [5.111.0] - 5/11/2026 11:03:02 PM
+## [5.111.0] - May 11, 2026 11:03:02 PM
 
 Commit [2f0e562b92ee385eb75b025aa0758601b643489c](https://github.com/StoneCypher/jssm/commit/2f0e562b92ee385eb75b025aa0758601b643489c)
 
@@ -2397,7 +4769,7 @@ issue list, and write a gitbook for SEO.
 
 <a name="5__110__1" />
 
-## [5.110.1] - 5/11/2026 10:11:45 PM
+## [5.110.1] - May 11, 2026 10:11:45 PM
 
 Commit [99fdc29ae42cff6817fd2efae6a2f8461dfccb1f](https://github.com/StoneCypher/jssm/commit/99fdc29ae42cff6817fd2efae6a2f8461dfccb1f)
 
@@ -2415,7 +4787,7 @@ Merges [fa766c2, ba485c6]
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 10:04:20 PM
+## [Untagged] - May 11, 2026 10:04:20 PM
 
 Commit [ba485c650a01e90439fe5e7e6692d542fafb32d4](https://github.com/StoneCypher/jssm/commit/ba485c650a01e90439fe5e7e6692d542fafb32d4)
 
@@ -2430,7 +4802,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 9:57:18 PM
+## [Untagged] - May 11, 2026 9:57:18 PM
 
 Commit [ece8a2eaa5c14188c63bfa5ddf69f9378d81543c](https://github.com/StoneCypher/jssm/commit/ece8a2eaa5c14188c63bfa5ddf69f9378d81543c)
 
@@ -2447,7 +4819,7 @@ Merges [0b444a4, 4bd10e8]
 
 &nbsp;
 
-## [Untagged] - 5/11/2026 9:57:07 PM
+## [Untagged] - May 11, 2026 9:57:07 PM
 
 Commit [4bd10e8b876c6361594fc4ad9312aab396d9200b](https://github.com/StoneCypher/jssm/commit/4bd10e8b876c6361594fc4ad9312aab396d9200b)
 
@@ -2462,7 +4834,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2026 6:03:34 PM
+## [Untagged] - May 8, 2026 6:03:34 PM
 
 Commit [0d5bfd21683258bfb195702d4825aa6cc4ee5d97](https://github.com/StoneCypher/jssm/commit/0d5bfd21683258bfb195702d4825aa6cc4ee5d97)
 
@@ -2487,7 +4859,7 @@ updated-dependencies:
 
 &nbsp;
 
-## [Untagged] - 5/7/2026 10:02:30 AM
+## [Untagged] - May 7, 2026 10:02:30 AM
 
 Commit [0b444a40187877a41192df44c225b0d95d47cdd8](https://github.com/StoneCypher/jssm/commit/0b444a40187877a41192df44c225b0d95d47cdd8)
 
@@ -2519,7 +4891,7 @@ gitignored project-local .npmrc for Windows script-shell setup.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 6:24:53 PM
+## [Untagged] - May 5, 2026 6:24:53 PM
 
 Commit [1acbc62c46b9b09b71674f628955d7b0d9ca8ac0](https://github.com/StoneCypher/jssm/commit/1acbc62c46b9b09b71674f628955d7b0d9ca8ac0)
 
@@ -2542,7 +4914,7 @@ parse-time SyntaxError.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 3:13:21 AM
+## [Untagged] - May 5, 2026 3:13:21 AM
 
 Commit [fa766c2e092b5af4d7ce34117b357939b3a277b2](https://github.com/StoneCypher/jssm/commit/fa766c2e092b5af4d7ce34117b357939b3a277b2)
 
@@ -2560,7 +4932,7 @@ Merges [63709bf, 43aee18]
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 2:46:07 AM
+## [Untagged] - May 5, 2026 2:46:07 AM
 
 Commit [43aee18fa46a11373288433ddf7191a33aa0c72f](https://github.com/StoneCypher/jssm/commit/43aee18fa46a11373288433ddf7191a33aa0c72f)
 
@@ -2594,7 +4966,7 @@ get caught.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 2:35:12 AM
+## [Untagged] - May 5, 2026 2:35:12 AM
 
 Commit [128b4932d4cab5ebf77858082e92b47840ba602b](https://github.com/StoneCypher/jssm/commit/128b4932d4cab5ebf77858082e92b47840ba602b)
 
@@ -2609,7 +4981,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 2:32:57 AM
+## [Untagged] - May 5, 2026 2:32:57 AM
 
 Commit [2e61a6cce06168b19cbbbe1f6fc104eef0bdbf46](https://github.com/StoneCypher/jssm/commit/2e61a6cce06168b19cbbbe1f6fc104eef0bdbf46)
 
@@ -2640,7 +5012,7 @@ in case you want to compare; safe to drop in a follow-up.
 
 <a name="5__109__0" />
 
-## [5.109.0] - 5/5/2026 2:22:57 AM
+## [5.109.0] - May 5, 2026 2:22:57 AM
 
 Commit [63709bffe7ff6fc77b34e20b5c90b79a72689391](https://github.com/StoneCypher/jssm/commit/63709bffe7ff6fc77b34e20b5c90b79a72689391)
 
@@ -2658,7 +5030,7 @@ Merges [7c02c18, beca91d]
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 2:16:01 AM
+## [Untagged] - May 5, 2026 2:16:01 AM
 
 Commit [beca91d2da9fc4c176f239394bf5a6048f42c395](https://github.com/StoneCypher/jssm/commit/beca91d2da9fc4c176f239394bf5a6048f42c395)
 
@@ -2675,7 +5047,7 @@ Merges [3d1a61e, 7c02c18]
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 2:13:06 AM
+## [Untagged] - May 5, 2026 2:13:06 AM
 
 Commit [3d1a61eae3522f09687e0430a4c6c48abb9afa9c](https://github.com/StoneCypher/jssm/commit/3d1a61eae3522f09687e0430a4c6c48abb9afa9c)
 
@@ -2690,7 +5062,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 2:11:48 AM
+## [Untagged] - May 5, 2026 2:11:48 AM
 
 Commit [e015f6ef52a600b7d943c713b733c5de67ad8185](https://github.com/StoneCypher/jssm/commit/e015f6ef52a600b7d943c713b733c5de67ad8185)
 
@@ -2761,7 +5133,7 @@ jssm/viz; existing installs keep working. See MIGRATING-jssm-viz.md.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:21:15 AM
+## [Untagged] - May 5, 2026 1:21:15 AM
 
 Commit [28400fbcbf93091504754d91e9094c7c1c90ce27](https://github.com/StoneCypher/jssm/commit/28400fbcbf93091504754d91e9094c7c1c90ce27)
 
@@ -2776,7 +5148,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:20:04 AM
+## [Untagged] - May 5, 2026 1:20:04 AM
 
 Commit [66406a443ac29a3a11f47001bd02c5fff65ce713](https://github.com/StoneCypher/jssm/commit/66406a443ac29a3a11f47001bd02c5fff65ce713)
 
@@ -2791,7 +5163,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:15:48 AM
+## [Untagged] - May 5, 2026 1:15:48 AM
 
 Commit [f31a9e929ce7d2645a3a9f4c5cc7191a275bd975](https://github.com/StoneCypher/jssm/commit/f31a9e929ce7d2645a3a9f4c5cc7191a275bd975)
 
@@ -2806,7 +5178,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:15:23 AM
+## [Untagged] - May 5, 2026 1:15:23 AM
 
 Commit [414e1464a3c0cc165869bbc6f32eaee73b978986](https://github.com/StoneCypher/jssm/commit/414e1464a3c0cc165869bbc6f32eaee73b978986)
 
@@ -2821,7 +5193,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:12:14 AM
+## [Untagged] - May 5, 2026 1:12:14 AM
 
 Commit [28a77e29b4140b334b82d71a81fcbeb84124b5a1](https://github.com/StoneCypher/jssm/commit/28a77e29b4140b334b82d71a81fcbeb84124b5a1)
 
@@ -2836,7 +5208,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:09:39 AM
+## [Untagged] - May 5, 2026 1:09:39 AM
 
 Commit [7ec1781cd2a4af821346f0133f67ce2ada035092](https://github.com/StoneCypher/jssm/commit/7ec1781cd2a4af821346f0133f67ce2ada035092)
 
@@ -2851,7 +5223,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:08:04 AM
+## [Untagged] - May 5, 2026 1:08:04 AM
 
 Commit [1602bec1f353142c6dae1ff72f14b515d50d3dc7](https://github.com/StoneCypher/jssm/commit/1602bec1f353142c6dae1ff72f14b515d50d3dc7)
 
@@ -2871,7 +5243,7 @@ with a TextDecoder/TextEncoder polyfill for @viz-js/viz WebAssembly loader.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 1:00:04 AM
+## [Untagged] - May 5, 2026 1:00:04 AM
 
 Commit [fe74896506bad35ba70f6ce3d2a615d055c9c730](https://github.com/StoneCypher/jssm/commit/fe74896506bad35ba70f6ce3d2a615d055c9c730)
 
@@ -2886,7 +5258,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:57:28 AM
+## [Untagged] - May 5, 2026 12:57:28 AM
 
 Commit [030c21888f729ae502ea13638be23920cd7d241c](https://github.com/StoneCypher/jssm/commit/030c21888f729ae502ea13638be23920cd7d241c)
 
@@ -2919,7 +5291,7 @@ guard that's redundant after the edge_tr early return.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:54:43 AM
+## [Untagged] - May 5, 2026 12:54:43 AM
 
 Commit [886d4979ad18743bf2ebb6c1f04a3fba7176a28e](https://github.com/StoneCypher/jssm/commit/886d4979ad18743bf2ebb6c1f04a3fba7176a28e)
 
@@ -2934,7 +5306,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:50:34 AM
+## [Untagged] - May 5, 2026 12:50:34 AM
 
 Commit [2e1f0fc0a9504489ef4a05f11900ab6bb1cda469](https://github.com/StoneCypher/jssm/commit/2e1f0fc0a9504489ef4a05f11900ab6bb1cda469)
 
@@ -2949,7 +5321,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:44:38 AM
+## [Untagged] - May 5, 2026 12:44:38 AM
 
 Commit [24ec86a4e151a6641b1d33be1bdb78863e6fb45d](https://github.com/StoneCypher/jssm/commit/24ec86a4e151a6641b1d33be1bdb78863e6fb45d)
 
@@ -2968,7 +5340,7 @@ so callers with Machine<unknown> need no cast.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:41:45 AM
+## [Untagged] - May 5, 2026 12:41:45 AM
 
 Commit [c4dd9cbb2dd55252a8f13dd4d0be1844ba312a35](https://github.com/StoneCypher/jssm/commit/c4dd9cbb2dd55252a8f13dd4d0be1844ba312a35)
 
@@ -2991,7 +5363,7 @@ it against regression.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:39:17 AM
+## [Untagged] - May 5, 2026 12:39:17 AM
 
 Commit [e8da7eb09e849dfc80261151b501d2c4ff862f70](https://github.com/StoneCypher/jssm/commit/e8da7eb09e849dfc80261151b501d2c4ff862f70)
 
@@ -3014,7 +5386,7 @@ the per-file declarations are no longer needed at root — they live in
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:30:26 AM
+## [Untagged] - May 5, 2026 12:30:26 AM
 
 Commit [75ec505e0e935fbe699b58e113f8494a6fe35593](https://github.com/StoneCypher/jssm/commit/75ec505e0e935fbe699b58e113f8494a6fe35593)
 
@@ -3029,7 +5401,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:26:27 AM
+## [Untagged] - May 5, 2026 12:26:27 AM
 
 Commit [65fda6ce7df08e350412212277faad90867e2940](https://github.com/StoneCypher/jssm/commit/65fda6ce7df08e350412212277faad90867e2940)
 
@@ -3044,7 +5416,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:23:14 AM
+## [Untagged] - May 5, 2026 12:23:14 AM
 
 Commit [d7dfe36723c8656ff57cc07531db150f4b1f18a7](https://github.com/StoneCypher/jssm/commit/d7dfe36723c8656ff57cc07531db150f4b1f18a7)
 
@@ -3062,7 +5434,7 @@ for unit testing private internals. All 4 new tests pass.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:20:47 AM
+## [Untagged] - May 5, 2026 12:20:47 AM
 
 Commit [fdc8677796edb7d76d7fddaec24a3cbdd8500837](https://github.com/StoneCypher/jssm/commit/fdc8677796edb7d76d7fddaec24a3cbdd8500837)
 
@@ -3081,7 +5453,7 @@ Viz makes the intent explicit and the type-vs-runtime alignment clean.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:17:09 AM
+## [Untagged] - May 5, 2026 12:17:09 AM
 
 Commit [8a0870f04b2c7e90ecaa91e18c4caa00adfc2898](https://github.com/StoneCypher/jssm/commit/8a0870f04b2c7e90ecaa91e18c4caa00adfc2898)
 
@@ -3106,7 +5478,7 @@ test (and the plan file) accordingly.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:10:37 AM
+## [Untagged] - May 5, 2026 12:10:37 AM
 
 Commit [7c02c18d5286e4c0154f5ea47c4fcdd6a0709c3e](https://github.com/StoneCypher/jssm/commit/7c02c18d5286e4c0154f5ea47c4fcdd6a0709c3e)
 
@@ -3124,7 +5496,7 @@ Merges [df00005, 8f5cf8d]
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:07:15 AM
+## [Untagged] - May 5, 2026 12:07:15 AM
 
 Commit [8f5cf8d9b64f7ffd48bb8daf3e59ab98a5c99a9c](https://github.com/StoneCypher/jssm/commit/8f5cf8d9b64f7ffd48bb8daf3e59ab98a5c99a9c)
 
@@ -3145,7 +5517,7 @@ the next reader can distinguish U+03B3 from U+1D6FE at a glance.
 
 &nbsp;
 
-## [Untagged] - 5/5/2026 12:02:23 AM
+## [Untagged] - May 5, 2026 12:02:23 AM
 
 Commit [91e012bd2915248574ab0f53b944a1060a4e7771](https://github.com/StoneCypher/jssm/commit/91e012bd2915248574ab0f53b944a1060a4e7771)
 
@@ -3160,7 +5532,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2026 11:57:13 PM
+## [Untagged] - May 4, 2026 11:57:13 PM
 
 Commit [906e887b53cc334598429b5321c1208625c1a47e](https://github.com/StoneCypher/jssm/commit/906e887b53cc334598429b5321c1208625c1a47e)
 
@@ -3202,7 +5574,7 @@ walkthroughs into their own files in src/doc_md/.
 
 &nbsp;
 
-## [Untagged] - 5/4/2026 11:41:06 PM
+## [Untagged] - May 4, 2026 11:41:06 PM
 
 Commit [79dd5195ead685cc68063713e731e7f9b4374a7b](https://github.com/StoneCypher/jssm/commit/79dd5195ead685cc68063713e731e7f9b4374a7b)
 
@@ -3217,7 +5589,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2026 11:17:56 PM
+## [Untagged] - May 4, 2026 11:17:56 PM
 
 Commit [577d0d38d1cf1b7dd91645376af83fec02245099](https://github.com/StoneCypher/jssm/commit/577d0d38d1cf1b7dd91645376af83fec02245099)
 
@@ -3237,7 +5609,7 @@ and migration documentation. Excludes version bump (per CLAUDE.md).
 
 &nbsp;
 
-## [Untagged] - 5/4/2026 11:09:44 PM
+## [Untagged] - May 4, 2026 11:09:44 PM
 
 Commit [505cef82f193f8672e72ce885f9508993e9d93b3](https://github.com/StoneCypher/jssm/commit/505cef82f193f8672e72ce885f9508993e9d93b3)
 
@@ -3256,7 +5628,7 @@ deprecating the standalone jssm-viz package via a shim release.
 
 &nbsp;
 
-## [Untagged] - 5/3/2026 6:45:27 PM
+## [Untagged] - May 3, 2026 6:45:27 PM
 
 Commit [df00005d96a5b701494163078f1cdeace11704d5](https://github.com/StoneCypher/jssm/commit/df00005d96a5b701494163078f1cdeace11704d5)
 
@@ -3271,7 +5643,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/8/2026 10:15:09 AM
+## [Untagged] - Apr 8, 2026 10:15:09 AM
 
 Commit [a04556949a6f5c93f9ac9ce03c1d2a456b4c3f14](https://github.com/StoneCypher/jssm/commit/a04556949a6f5c93f9ac9ce03c1d2a456b4c3f14)
 
@@ -3295,7 +5667,7 @@ for version strings with more segments than current.
 
 <a name="5__108__0" />
 
-## [5.108.0] - 4/6/2026 6:34:32 PM
+## [5.108.0] - Apr 6, 2026 6:34:32 PM
 
 Commit [4ca12c1a285b173aceb96e2f446525122322f44b](https://github.com/StoneCypher/jssm/commit/4ca12c1a285b173aceb96e2f446525122322f44b)
 
@@ -3310,7 +5682,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 3:51:14 PM
+## [Untagged] - Apr 6, 2026 3:51:14 PM
 
 Commit [cbf9656d136b7b3cc85240e7f5b025fc6b00892f](https://github.com/StoneCypher/jssm/commit/cbf9656d136b7b3cc85240e7f5b025fc6b00892f)
 
@@ -3330,7 +5702,7 @@ all artifacts up to date for 5.107.3.
 
 <a name="5__107__2" />
 
-## [5.107.2] - 4/6/2026 3:31:35 PM
+## [5.107.2] - Apr 6, 2026 3:31:35 PM
 
 Commit [7546aa25e32842364f514a11844974868abbf43e](https://github.com/StoneCypher/jssm/commit/7546aa25e32842364f514a11844974868abbf43e)
 
@@ -3350,7 +5722,7 @@ calls matching Shootout.md). Skip blank lines in line count.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 1:58:00 PM
+## [Untagged] - Apr 6, 2026 1:58:00 PM
 
 Commit [fe0acfd765d8d88eafd3cde4fe71acbe93291bf7](https://github.com/StoneCypher/jssm/commit/fe0acfd765d8d88eafd3cde4fe71acbe93291bf7)
 
@@ -3372,7 +5744,7 @@ size) via compare-lib-name class.
 
 <a name="5__107__0" />
 
-## [5.107.0] - 4/6/2026 1:46:20 PM
+## [5.107.0] - Apr 6, 2026 1:46:20 PM
 
 Commit [2b8dfc94e6bbee473d5872b65eeb9873cf6335e2](https://github.com/StoneCypher/jssm/commit/2b8dfc94e6bbee473d5872b65eeb9873cf6335e2)
 
@@ -3399,7 +5771,7 @@ and all hook combinations. 5152 tests pass at 100% coverage.
 
 <a name="5__106__0" />
 
-## [5.106.0] - 4/6/2026 10:38:57 AM
+## [5.106.0] - Apr 6, 2026 10:38:57 AM
 
 Commit [4fc6a80e607ee9ad4c59aa6b57093e3b088adbf4](https://github.com/StoneCypher/jssm/commit/4fc6a80e607ee9ad4c59aa6b57093e3b088adbf4)
 
@@ -3414,7 +5786,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 10:37:11 AM
+## [Untagged] - Apr 6, 2026 10:37:11 AM
 
 Commit [55d70400c90aebc7c1e82d75d5958452f5a3371d](https://github.com/StoneCypher/jssm/commit/55d70400c90aebc7c1e82d75d5958452f5a3371d)
 
@@ -3436,7 +5808,7 @@ feature grid, visual diagram section, and community links.
 
 <a name="5__105__6" />
 
-## [5.105.6] - 4/6/2026 8:42:09 AM
+## [5.105.6] - Apr 6, 2026 8:42:09 AM
 
 Commit [dde6b7b30b6db70ead47157fc5fc78d6ed612ddf](https://github.com/StoneCypher/jssm/commit/dde6b7b30b6db70ead47157fc5fc78d6ed612ddf)
 
@@ -3456,7 +5828,7 @@ current state in their messages.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 8:23:11 AM
+## [Untagged] - Apr 6, 2026 8:23:11 AM
 
 Commit [9b7a57da85c324be22020a55d1ebf50482e78999](https://github.com/StoneCypher/jssm/commit/9b7a57da85c324be22020a55d1ebf50482e78999)
 
@@ -3487,7 +5859,7 @@ stonecypher/fsl#1326, stonecypher/fsl#1327, stonecypher/fsl#1328
 
 <a name="5__105__4" />
 
-## [5.105.4] - 4/6/2026 7:44:35 AM
+## [5.105.4] - Apr 6, 2026 7:44:35 AM
 
 Commit [38de3e9532d3636c2afea3eae2ac11a2f360abaa](https://github.com/StoneCypher/jssm/commit/38de3e9532d3636c2afea3eae2ac11a2f360abaa)
 
@@ -3505,7 +5877,7 @@ strings have fewer segments than the current version (e.g. "0.1" vs "5.105.3").
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 7:31:07 AM
+## [Untagged] - Apr 6, 2026 7:31:07 AM
 
 Commit [0bbb3f4cfcd47c53adfaf1e85346f8feb3a4f1f3](https://github.com/StoneCypher/jssm/commit/0bbb3f4cfcd47c53adfaf1e85346f8feb3a4f1f3)
 
@@ -3522,7 +5894,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__105__3" />
 
-## [5.105.3] - 4/6/2026 7:22:53 AM
+## [5.105.3] - Apr 6, 2026 7:22:53 AM
 
 Commit [7f4349a419caf989e121a1dea34a8d2083811fa1](https://github.com/StoneCypher/jssm/commit/7f4349a419caf989e121a1dea34a8d2083811fa1)
 
@@ -3547,7 +5919,7 @@ when determining trans_type, so posthooks still fire correctly.
 
 <a name="5__105__2" />
 
-## [5.105.2] - 4/6/2026 7:10:00 AM
+## [5.105.2] - Apr 6, 2026 7:10:00 AM
 
 Commit [321d422a65db9c58bffadc16df160e278ddc5d66](https://github.com/StoneCypher/jssm/commit/321d422a65db9c58bffadc16df160e278ddc5d66)
 
@@ -3571,7 +5943,7 @@ to be optional; removed the ? to catch misuse at compile time.
 
 <a name="5__105__1" />
 
-## [5.105.1] - 4/6/2026 6:52:29 AM
+## [5.105.1] - Apr 6, 2026 6:52:29 AM
 
 Commit [5b3396918ef669ad1bf2248240e871e3f8ad621c](https://github.com/StoneCypher/jssm/commit/5b3396918ef669ad1bf2248240e871e3f8ad621c)
 
@@ -3592,7 +5964,7 @@ weighted_histo_key, and exports gen_splitmix32 for external use.
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 6:40:09 AM
+## [Untagged] - Apr 6, 2026 6:40:09 AM
 
 Commit [e30eff0fe6b41c249bfdc7b6651885e52c956a71](https://github.com/StoneCypher/jssm/commit/e30eff0fe6b41c249bfdc7b6651885e52c956a71)
 
@@ -3609,7 +5981,7 @@ Merges [086557c, e416b8f]
 
 &nbsp;
 
-## [Untagged] - 4/6/2026 6:30:23 AM
+## [Untagged] - Apr 6, 2026 6:30:23 AM
 
 Commit [086557cd10fda0b0849591a8f8d316e5ec4ea46d](https://github.com/StoneCypher/jssm/commit/086557cd10fda0b0849591a8f8d316e5ec4ea46d)
 
@@ -3630,7 +6002,7 @@ arrows that arrow_direction accepted.
 
 &nbsp;
 
-## [Untagged] - 1/28/2026 9:23:19 PM
+## [Untagged] - Jan 28, 2026 9:23:19 PM
 
 Commit [e416b8fae907b64681e6bb449b612fbfcb9fbf62](https://github.com/StoneCypher/jssm/commit/e416b8fae907b64681e6bb449b612fbfcb9fbf62)
 
@@ -3648,7 +6020,7 @@ Merges [ab6395f, 962b666]
 
 &nbsp;
 
-## [Untagged] - 1/28/2026 9:22:15 PM
+## [Untagged] - Jan 28, 2026 9:22:15 PM
 
 Commit [ab6395fcd9a831f56890013107eb08d0e0a513cc](https://github.com/StoneCypher/jssm/commit/ab6395fcd9a831f56890013107eb08d0e0a513cc)
 
@@ -3663,7 +6035,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/21/2026 3:33:24 PM
+## [Untagged] - Jan 21, 2026 3:33:24 PM
 
 Commit [962b666b0752aca06c2c826d90af269dc46d62b1](https://github.com/StoneCypher/jssm/commit/962b666b0752aca06c2c826d90af269dc46d62b1)
 
@@ -3690,7 +6062,7 @@ updated-dependencies:
 
 <a name="5__105__0" />
 
-## [5.105.0] - 1/8/2026 7:12:03 PM
+## [5.105.0] - Jan 8, 2026 7:12:03 PM
 
 Commit [53af77fef01bdf609c03efa2fbc7e368711dffa5](https://github.com/StoneCypher/jssm/commit/53af77fef01bdf609c03efa2fbc7e368711dffa5)
 
@@ -3708,7 +6080,7 @@ Merges [464d03b, bebbaa7]
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 6:09:27 PM
+## [Untagged] - Jan 8, 2026 6:09:27 PM
 
 Commit [d748bce20850adfaaa56f854a1bc5bd9a707c398](https://github.com/StoneCypher/jssm/commit/d748bce20850adfaaa56f854a1bc5bd9a707c398)
 
@@ -3723,7 +6095,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 6:06:11 PM
+## [Untagged] - Jan 8, 2026 6:06:11 PM
 
 Commit [bebbaa7721789d9a778814693224c24bb298d202](https://github.com/StoneCypher/jssm/commit/bebbaa7721789d9a778814693224c24bb298d202)
 
@@ -3738,7 +6110,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 5:15:50 PM
+## [Untagged] - Jan 8, 2026 5:15:50 PM
 
 Commit [5465a4c0c4a04bc22b1ac991c8132badaaac791f](https://github.com/StoneCypher/jssm/commit/5465a4c0c4a04bc22b1ac991c8132badaaac791f)
 
@@ -3753,7 +6125,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 5:08:43 PM
+## [Untagged] - Jan 8, 2026 5:08:43 PM
 
 Commit [94065656f6892f7ebb2e65b990ce334cdef6c8e6](https://github.com/StoneCypher/jssm/commit/94065656f6892f7ebb2e65b990ce334cdef6c8e6)
 
@@ -3798,7 +6170,7 @@ understand, while clearly communicating what the user needs to do (upgrade).
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 4:53:35 PM
+## [Untagged] - Jan 8, 2026 4:53:35 PM
 
 Commit [464d03b0c0e0141c6e64018155438cb79c276527](https://github.com/StoneCypher/jssm/commit/464d03b0c0e0141c6e64018155438cb79c276527)
 
@@ -3813,7 +6185,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 4:48:33 PM
+## [Untagged] - Jan 8, 2026 4:48:33 PM
 
 Commit [068f45100fd21b8612e74873067df0739ea95960](https://github.com/StoneCypher/jssm/commit/068f45100fd21b8612e74873067df0739ea95960)
 
@@ -3830,7 +6202,7 @@ Merges [02e7ae7, 1df01b2]
 
 &nbsp;
 
-## [Untagged] - 1/8/2026 4:48:18 PM
+## [Untagged] - Jan 8, 2026 4:48:18 PM
 
 Commit [02e7ae7253e4ddb73931ca019e1c9895ab031277](https://github.com/StoneCypher/jssm/commit/02e7ae7253e4ddb73931ca019e1c9895ab031277)
 
@@ -3845,7 +6217,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/4/2026 5:12:34 PM
+## [Untagged] - Jan 4, 2026 5:12:34 PM
 
 Commit [1df01b29861af4aac17124d5240af38eaba2686e](https://github.com/StoneCypher/jssm/commit/1df01b29861af4aac17124d5240af38eaba2686e)
 
@@ -3863,7 +6235,7 @@ Merges [eed2dad, 3585cb1]
 
 &nbsp;
 
-## [Untagged] - 11/21/2025 1:55:20 PM
+## [Untagged] - Nov 21, 2025 1:55:20 PM
 
 Commit [3585cb120f240940a9fb6348b099bbb48dd865e6](https://github.com/StoneCypher/jssm/commit/3585cb120f240940a9fb6348b099bbb48dd865e6)
 
@@ -3890,7 +6262,7 @@ updated-dependencies:
 
 <a name="5__104__2" />
 
-## [5.104.2] - 9/2/2025 6:39:31 AM
+## [5.104.2] - Sep 2, 2025 6:39:31 AM
 
 Commit [eed2dad1aaf3aa384efc501ff94c7898d9529eac](https://github.com/StoneCypher/jssm/commit/eed2dad1aaf3aa384efc501ff94c7898d9529eac)
 
@@ -3905,7 +6277,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/4/2025 1:21:48 AM
+## [Untagged] - Apr 4, 2025 1:21:48 AM
 
 Commit [03dda20b684b8614caa993ac796f95d6bfabd74e](https://github.com/StoneCypher/jssm/commit/03dda20b684b8614caa993ac796f95d6bfabd74e)
 
@@ -3923,7 +6295,7 @@ Merges [31dfb9c, 51d8ae4]
 
 &nbsp;
 
-## [Untagged] - 4/3/2025 7:56:09 AM
+## [Untagged] - Apr 3, 2025 7:56:09 AM
 
 Commit [51d8ae4581a9c2b851fdd441c3c51e89353e2fd2](https://github.com/StoneCypher/jssm/commit/51d8ae4581a9c2b851fdd441c3c51e89353e2fd2)
 
@@ -3940,7 +6312,7 @@ Author: `MRR <miguelrios@Miguels-MacBook-Air.local>`
 
 <a name="5__104__1" />
 
-## [5.104.1] - 10/28/2024 2:26:03 AM
+## [5.104.1] - Oct 28, 2024 2:26:03 AM
 
 Commit [31dfb9c1f14c6de3cf9ba7773273164c675567c4](https://github.com/StoneCypher/jssm/commit/31dfb9c1f14c6de3cf9ba7773273164c675567c4)
 
@@ -3955,7 +6327,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/28/2024 2:20:09 AM
+## [Untagged] - Oct 28, 2024 2:20:09 AM
 
 Commit [c2c93ee920f462610d3c7e6d336845c3ff714978](https://github.com/StoneCypher/jssm/commit/c2c93ee920f462610d3c7e6d336845c3ff714978)
 
@@ -3972,7 +6344,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__103__0" />
 
-## [5.103.0] - 10/20/2024 1:24:40 PM
+## [5.103.0] - Oct 20, 2024 1:24:40 PM
 
 Commit [e2a01ddfc21abc4b0a0f142178e726fc86360d4a](https://github.com/StoneCypher/jssm/commit/e2a01ddfc21abc4b0a0f142178e726fc86360d4a)
 
@@ -3989,7 +6361,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__102__1" />
 
-## [5.102.1] - 10/20/2024 1:17:22 PM
+## [5.102.1] - Oct 20, 2024 1:17:22 PM
 
 Commit [5c4c9ae8e6553078ffe3dc9a762f45e061fa78ac](https://github.com/StoneCypher/jssm/commit/5c4c9ae8e6553078ffe3dc9a762f45e061fa78ac)
 
@@ -4007,7 +6379,7 @@ Merges [5b8ecee, da15bd2]
 
 &nbsp;
 
-## [Untagged] - 10/20/2024 1:12:51 PM
+## [Untagged] - Oct 20, 2024 1:12:51 PM
 
 Commit [da15bd291c9cbcc90521b41b0a60e4ff74435dc9](https://github.com/StoneCypher/jssm/commit/da15bd291c9cbcc90521b41b0a60e4ff74435dc9)
 
@@ -4022,7 +6394,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/20/2024 1:09:57 PM
+## [Untagged] - Oct 20, 2024 1:09:57 PM
 
 Commit [439e4e831293d7db416e23b3ed404f14c7cf547e](https://github.com/StoneCypher/jssm/commit/439e4e831293d7db416e23b3ed404f14c7cf547e)
 
@@ -4037,7 +6409,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/20/2024 1:06:45 PM
+## [Untagged] - Oct 20, 2024 1:06:45 PM
 
 Commit [3b5681cb78461189a4b0b8ff493e4318072f1ad2](https://github.com/StoneCypher/jssm/commit/3b5681cb78461189a4b0b8ff493e4318072f1ad2)
 
@@ -4054,7 +6426,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__101__0" />
 
-## [5.101.0] - 10/20/2024 12:48:49 PM
+## [5.101.0] - Oct 20, 2024 12:48:49 PM
 
 Commit [5b8eceeda70dbcc8a76b7f4fc7750fd355072960](https://github.com/StoneCypher/jssm/commit/5b8eceeda70dbcc8a76b7f4fc7750fd355072960)
 
@@ -4071,7 +6443,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__100__0" />
 
-## [5.100.0] - 10/20/2024 11:13:49 AM
+## [5.100.0] - Oct 20, 2024 11:13:49 AM
 
 Commit [ffd807a9024771b7c41b498af871e211d95d1ca5](https://github.com/StoneCypher/jssm/commit/ffd807a9024771b7c41b498af871e211d95d1ca5)
 
@@ -4089,7 +6461,7 @@ Merges [1241e0f, cbb3d68]
 
 &nbsp;
 
-## [Untagged] - 10/20/2024 11:11:03 AM
+## [Untagged] - Oct 20, 2024 11:11:03 AM
 
 Commit [cbb3d689578b29108c483132721c596637e7af61](https://github.com/StoneCypher/jssm/commit/cbb3d689578b29108c483132721c596637e7af61)
 
@@ -4104,7 +6476,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/10/2024 12:42:37 PM
+## [Untagged] - Oct 10, 2024 12:42:37 PM
 
 Commit [8c3ea00087f1af7322c262e2556cf5a13a1d6567](https://github.com/StoneCypher/jssm/commit/8c3ea00087f1af7322c262e2556cf5a13a1d6567)
 
@@ -4119,7 +6491,7 @@ Author: `Tyler Butler <tyler@tylerbutler.com>`
 
 &nbsp;
 
-## [Untagged] - 10/10/2024 12:05:11 PM
+## [Untagged] - Oct 10, 2024 12:05:11 PM
 
 Commit [93419aceb06cd1f7b9dd79ee2a8e93b349eab486](https://github.com/StoneCypher/jssm/commit/93419aceb06cd1f7b9dd79ee2a8e93b349eab486)
 
@@ -4138,7 +6510,7 @@ Merges [9015165, 1241e0f]
 
 <a name="5__99__0" />
 
-## [5.99.0] - 7/6/2024 6:13:49 PM
+## [5.99.0] - Jul 6, 2024 6:13:49 PM
 
 Commit [1241e0f32ace7b3f1854383d8c6106d02f7105be](https://github.com/StoneCypher/jssm/commit/1241e0f32ace7b3f1854383d8c6106d02f7105be)
 
@@ -4156,7 +6528,7 @@ Merges [76daa94, 5bad1e6]
 
 &nbsp;
 
-## [Untagged] - 7/6/2024 6:10:16 PM
+## [Untagged] - Jul 6, 2024 6:10:16 PM
 
 Commit [5bad1e6e470e67f2e60aa4fa21dd3a36a7f20308](https://github.com/StoneCypher/jssm/commit/5bad1e6e470e67f2e60aa4fa21dd3a36a7f20308)
 
@@ -4171,7 +6543,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/6/2024 5:43:39 PM
+## [Untagged] - Jul 6, 2024 5:43:39 PM
 
 Commit [f820f8d0dcc226a6cbe227e16d6e250a3c298be8](https://github.com/StoneCypher/jssm/commit/f820f8d0dcc226a6cbe227e16d6e250a3c298be8)
 
@@ -4188,7 +6560,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__98__8" />
 
-## [5.98.8] - 7/6/2024 12:45:09 PM
+## [5.98.8] - Jul 6, 2024 12:45:09 PM
 
 Commit [76daa940129b760f10032250ac482974ce1a9339](https://github.com/StoneCypher/jssm/commit/76daa940129b760f10032250ac482974ce1a9339)
 
@@ -4205,7 +6577,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__98__7" />
 
-## [5.98.7] - 7/6/2024 12:35:59 PM
+## [5.98.7] - Jul 6, 2024 12:35:59 PM
 
 Commit [6fe0e82f5d442504e97061e739bbacc1e110740a](https://github.com/StoneCypher/jssm/commit/6fe0e82f5d442504e97061e739bbacc1e110740a)
 
@@ -4220,7 +6592,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/6/2024 12:29:29 PM
+## [Untagged] - Jul 6, 2024 12:29:29 PM
 
 Commit [79624fe28c4096a3fa1b97e01829a949e3c26b6b](https://github.com/StoneCypher/jssm/commit/79624fe28c4096a3fa1b97e01829a949e3c26b6b)
 
@@ -4235,7 +6607,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/6/2024 12:23:37 PM
+## [Untagged] - Jul 6, 2024 12:23:37 PM
 
 Commit [ad22d350f0b2e431d8e1ecf9c5a7ccf942b4eb3f](https://github.com/StoneCypher/jssm/commit/ad22d350f0b2e431d8e1ecf9c5a7ccf942b4eb3f)
 
@@ -4250,7 +6622,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/6/2024 12:00:00 PM
+## [Untagged] - Jul 6, 2024 12:00:00 PM
 
 Commit [84fb0da36c3cb4c7b6aaab527a3a38cb37ba5bc5](https://github.com/StoneCypher/jssm/commit/84fb0da36c3cb4c7b6aaab527a3a38cb37ba5bc5)
 
@@ -4265,7 +6637,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/6/2024 11:48:48 AM
+## [Untagged] - Jul 6, 2024 11:48:48 AM
 
 Commit [e0fb09207dbeb470471adcfc2cec6c228c3338a7](https://github.com/StoneCypher/jssm/commit/e0fb09207dbeb470471adcfc2cec6c228c3338a7)
 
@@ -4280,7 +6652,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/23/2024 2:33:06 PM
+## [Untagged] - May 23, 2024 2:33:06 PM
 
 Commit [9015165cde9f4a6121bc41a5cc3317555eafb8e9](https://github.com/StoneCypher/jssm/commit/9015165cde9f4a6121bc41a5cc3317555eafb8e9)
 
@@ -4295,7 +6667,7 @@ Author: `Tyler Butler <tyler@tylerbutler.com>`
 
 &nbsp;
 
-## [Untagged] - 5/23/2024 1:12:00 PM
+## [Untagged] - May 23, 2024 1:12:00 PM
 
 Commit [7760167b881f347fc69cce4995bedff54d4ea8ea](https://github.com/StoneCypher/jssm/commit/7760167b881f347fc69cce4995bedff54d4ea8ea)
 
@@ -4310,7 +6682,7 @@ Author: `Tyler Butler <tyler@tylerbutler.com>`
 
 &nbsp;
 
-## [Untagged] - 5/23/2024 1:11:06 PM
+## [Untagged] - May 23, 2024 1:11:06 PM
 
 Commit [7fec533cf256de2311a86b95eceaf67f1d6ae888](https://github.com/StoneCypher/jssm/commit/7fec533cf256de2311a86b95eceaf67f1d6ae888)
 
@@ -4325,7 +6697,7 @@ Author: `Tyler Butler <tyler@tylerbutler.com>`
 
 &nbsp;
 
-## [Untagged] - 5/23/2024 9:55:17 AM
+## [Untagged] - May 23, 2024 9:55:17 AM
 
 Commit [57bc696736992d1aa45b9a4371f306b49f5f6d81](https://github.com/StoneCypher/jssm/commit/57bc696736992d1aa45b9a4371f306b49f5f6d81)
 
@@ -4342,7 +6714,7 @@ Author: `Tyler Butler <tylerbu@microsoft.com>`
 
 <a name="5__98__2" />
 
-## [5.98.2] - 4/25/2024 11:44:27 AM
+## [5.98.2] - Apr 25, 2024 11:44:27 AM
 
 Commit [c0d61bace970d9b32d37366c5c6997faf265cce5](https://github.com/StoneCypher/jssm/commit/c0d61bace970d9b32d37366c5c6997faf265cce5)
 
@@ -4357,7 +6729,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/25/2024 8:32:09 AM
+## [Untagged] - Apr 25, 2024 8:32:09 AM
 
 Commit [04c9032fc215d1cef254ddfefb31a9ff89134a41](https://github.com/StoneCypher/jssm/commit/04c9032fc215d1cef254ddfefb31a9ff89134a41)
 
@@ -4374,7 +6746,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__98__0" />
 
-## [5.98.0] - 3/26/2024 8:24:29 PM
+## [5.98.0] - Mar 26, 2024 8:24:29 PM
 
 Commit [b2d953d915b12e5831a3d1ad87c5e09747787997](https://github.com/StoneCypher/jssm/commit/b2d953d915b12e5831a3d1ad87c5e09747787997)
 
@@ -4392,7 +6764,7 @@ Merges [e642702, 9f66ad0]
 
 &nbsp;
 
-## [Untagged] - 3/25/2024 7:18:17 PM
+## [Untagged] - Mar 25, 2024 7:18:17 PM
 
 Commit [9f66ad098eebac8e268b57e951ac4b9edf315c1f](https://github.com/StoneCypher/jssm/commit/9f66ad098eebac8e268b57e951ac4b9edf315c1f)
 
@@ -4407,7 +6779,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 3/25/2024 6:28:53 PM
+## [Untagged] - Mar 25, 2024 6:28:53 PM
 
 Commit [2a1093e60b014bded73359d7a001381c18670c2c](https://github.com/StoneCypher/jssm/commit/2a1093e60b014bded73359d7a001381c18670c2c)
 
@@ -4422,7 +6794,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 3/25/2024 6:24:49 PM
+## [Untagged] - Mar 25, 2024 6:24:49 PM
 
 Commit [d6570a279f57cdac528644cac12598ef07b4ed3e](https://github.com/StoneCypher/jssm/commit/d6570a279f57cdac528644cac12598ef07b4ed3e)
 
@@ -4437,7 +6809,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 3/25/2024 6:17:07 PM
+## [Untagged] - Mar 25, 2024 6:17:07 PM
 
 Commit [8041dead456406cfd3175be4d1ccd48f06a17eb7](https://github.com/StoneCypher/jssm/commit/8041dead456406cfd3175be4d1ccd48f06a17eb7)
 
@@ -4452,7 +6824,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 3/25/2024 6:13:51 PM
+## [Untagged] - Mar 25, 2024 6:13:51 PM
 
 Commit [1c179a55323cc50c5223c6db768ea00ca834d230](https://github.com/StoneCypher/jssm/commit/1c179a55323cc50c5223c6db768ea00ca834d230)
 
@@ -4467,7 +6839,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 3/25/2024 6:06:56 PM
+## [Untagged] - Mar 25, 2024 6:06:56 PM
 
 Commit [256c8d4732af7fa4baaba31535f060b6066a7e44](https://github.com/StoneCypher/jssm/commit/256c8d4732af7fa4baaba31535f060b6066a7e44)
 
@@ -4482,7 +6854,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 3/25/2024 5:56:56 PM
+## [Untagged] - Mar 25, 2024 5:56:56 PM
 
 Commit [6f4d1466508c3c3cd5bcc469dbb2428cef0f721a](https://github.com/StoneCypher/jssm/commit/6f4d1466508c3c3cd5bcc469dbb2428cef0f721a)
 
@@ -4499,7 +6871,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__97__1" />
 
-## [5.97.1] - 2/5/2024 2:59:16 PM
+## [5.97.1] - Feb 5, 2024 2:59:16 PM
 
 Commit [e6427024141b584079a6e92f5a4ab776135cc6f3](https://github.com/StoneCypher/jssm/commit/e6427024141b584079a6e92f5a4ab776135cc6f3)
 
@@ -4517,7 +6889,7 @@ Merges [c14a348, e55cc60]
 
 &nbsp;
 
-## [Untagged] - 2/5/2024 2:56:32 PM
+## [Untagged] - Feb 5, 2024 2:56:32 PM
 
 Commit [e55cc60bf0d56c04b18813b3329d3edb868ef3a7](https://github.com/StoneCypher/jssm/commit/e55cc60bf0d56c04b18813b3329d3edb868ef3a7)
 
@@ -4534,7 +6906,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__97__0" />
 
-## [5.97.0] - 2/5/2024 2:41:20 PM
+## [5.97.0] - Feb 5, 2024 2:41:20 PM
 
 Commit [c14a348ebd08fd5732a0316e89ab9e746f0dc317](https://github.com/StoneCypher/jssm/commit/c14a348ebd08fd5732a0316e89ab9e746f0dc317)
 
@@ -4552,7 +6924,7 @@ Merges [f834994, 28efd03]
 
 &nbsp;
 
-## [Untagged] - 2/5/2024 2:30:02 PM
+## [Untagged] - Feb 5, 2024 2:30:02 PM
 
 Commit [28efd039469d4c7e6605532a8405e66392e8ff57](https://github.com/StoneCypher/jssm/commit/28efd039469d4c7e6605532a8405e66392e8ff57)
 
@@ -4569,7 +6941,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__96__1" />
 
-## [5.96.1] - 1/6/2024 11:51:08 AM
+## [5.96.1] - Jan 6, 2024 11:51:08 AM
 
 Commit [f8349947c678e830384d7b4bae6c0d69e9df1f85](https://github.com/StoneCypher/jssm/commit/f8349947c678e830384d7b4bae6c0d69e9df1f85)
 
@@ -4587,7 +6959,7 @@ Merges [b80c8de, 0248775]
 
 &nbsp;
 
-## [Untagged] - 1/6/2024 11:47:50 AM
+## [Untagged] - Jan 6, 2024 11:47:50 AM
 
 Commit [02487756f7578dc9961cf90c79251bdc090b139d](https://github.com/StoneCypher/jssm/commit/02487756f7578dc9961cf90c79251bdc090b139d)
 
@@ -4604,7 +6976,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__96__0" />
 
-## [5.96.0] - 1/1/2024 1:31:07 AM
+## [5.96.0] - Jan 1, 2024 1:31:07 AM
 
 Commit [b80c8de3a3e841b5dbc60240fd87eea1d9ff5182](https://github.com/StoneCypher/jssm/commit/b80c8de3a3e841b5dbc60240fd87eea1d9ff5182)
 
@@ -4622,7 +6994,7 @@ Merges [fa2a33b, 0a29c9e]
 
 &nbsp;
 
-## [Untagged] - 1/1/2024 1:27:07 AM
+## [Untagged] - Jan 1, 2024 1:27:07 AM
 
 Commit [0a29c9e01a23816a4c5398d7710fd3049a68c93d](https://github.com/StoneCypher/jssm/commit/0a29c9e01a23816a4c5398d7710fd3049a68c93d)
 
@@ -4639,7 +7011,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__95__0" />
 
-## [5.95.0] - 1/1/2024 12:48:25 AM
+## [5.95.0] - Jan 1, 2024 12:48:25 AM
 
 Commit [fa2a33bed95ff83fb9ae300e4da019a7f7e185a0](https://github.com/StoneCypher/jssm/commit/fa2a33bed95ff83fb9ae300e4da019a7f7e185a0)
 
@@ -4657,7 +7029,7 @@ Merges [85b6857, cf27223]
 
 &nbsp;
 
-## [Untagged] - 1/1/2024 12:45:02 AM
+## [Untagged] - Jan 1, 2024 12:45:02 AM
 
 Commit [cf2722346bc15a6d1c450448f35843897b9ec75e](https://github.com/StoneCypher/jssm/commit/cf2722346bc15a6d1c450448f35843897b9ec75e)
 
@@ -4674,7 +7046,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__94__0" />
 
-## [5.94.0] - 12/30/2023 3:39:35 PM
+## [5.94.0] - Dec 30, 2023 3:39:35 PM
 
 Commit [85b68576ed93c1a20e943dc6aa189f2587e1a12d](https://github.com/StoneCypher/jssm/commit/85b68576ed93c1a20e943dc6aa189f2587e1a12d)
 
@@ -4692,7 +7064,7 @@ Merges [b2e0742, 0faf24b]
 
 &nbsp;
 
-## [Untagged] - 12/30/2023 3:36:17 PM
+## [Untagged] - Dec 30, 2023 3:36:17 PM
 
 Commit [0faf24be50fcdd60de92f96fc5abc831879adb27](https://github.com/StoneCypher/jssm/commit/0faf24be50fcdd60de92f96fc5abc831879adb27)
 
@@ -4707,7 +7079,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/29/2023 8:29:22 PM
+## [Untagged] - Dec 29, 2023 8:29:22 PM
 
 Commit [6a09b44c3e1bfc0e8045909e88895091d3c7af0f](https://github.com/StoneCypher/jssm/commit/6a09b44c3e1bfc0e8045909e88895091d3c7af0f)
 
@@ -4722,7 +7094,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/29/2023 8:18:30 PM
+## [Untagged] - Dec 29, 2023 8:18:30 PM
 
 Commit [d3f1d1cc62c50f65d352d962fbd699477cec571f](https://github.com/StoneCypher/jssm/commit/d3f1d1cc62c50f65d352d962fbd699477cec571f)
 
@@ -4737,7 +7109,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/29/2023 1:06:19 AM
+## [Untagged] - Dec 29, 2023 1:06:19 AM
 
 Commit [a80dd4607d5dcc95e09c83513add210c02258199](https://github.com/StoneCypher/jssm/commit/a80dd4607d5dcc95e09c83513add210c02258199)
 
@@ -4752,7 +7124,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/28/2023 11:30:02 PM
+## [Untagged] - Dec 28, 2023 11:30:02 PM
 
 Commit [58a6388b0b090ed8b44e8592a857ba535b1364a9](https://github.com/StoneCypher/jssm/commit/58a6388b0b090ed8b44e8592a857ba535b1364a9)
 
@@ -4769,7 +7141,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__93__0" />
 
-## [5.93.0] - 12/27/2023 4:39:49 PM
+## [5.93.0] - Dec 27, 2023 4:39:49 PM
 
 Commit [b2e0742a97f02ada0429c3db7a0cf9f7ceba012e](https://github.com/StoneCypher/jssm/commit/b2e0742a97f02ada0429c3db7a0cf9f7ceba012e)
 
@@ -4787,7 +7159,7 @@ Merges [12dcaf4, a06de9e]
 
 &nbsp;
 
-## [Untagged] - 12/27/2023 4:36:17 PM
+## [Untagged] - Dec 27, 2023 4:36:17 PM
 
 Commit [a06de9e3120fe1db8f380f2a0e123aeaf76bdbf7](https://github.com/StoneCypher/jssm/commit/a06de9e3120fe1db8f380f2a0e123aeaf76bdbf7)
 
@@ -4802,7 +7174,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/27/2023 4:29:57 PM
+## [Untagged] - Dec 27, 2023 4:29:57 PM
 
 Commit [1698fece5cf68984f23ec571c60bc4a49b34f1e6](https://github.com/StoneCypher/jssm/commit/1698fece5cf68984f23ec571c60bc4a49b34f1e6)
 
@@ -4819,7 +7191,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__91__1" />
 
-## [5.91.1] - 12/26/2023 3:30:57 PM
+## [5.91.1] - Dec 26, 2023 3:30:57 PM
 
 Commit [12dcaf494225ab8295e5ac4b356c64d242399e14](https://github.com/StoneCypher/jssm/commit/12dcaf494225ab8295e5ac4b356c64d242399e14)
 
@@ -4837,7 +7209,7 @@ Merges [09a1713, 437e132]
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 3:27:43 PM
+## [Untagged] - Dec 26, 2023 3:27:43 PM
 
 Commit [437e132701d7351b840110f24ad05b26ae2f4a0c](https://github.com/StoneCypher/jssm/commit/437e132701d7351b840110f24ad05b26ae2f4a0c)
 
@@ -4854,7 +7226,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__91__0" />
 
-## [5.91.0] - 12/26/2023 2:01:42 PM
+## [5.91.0] - Dec 26, 2023 2:01:42 PM
 
 Commit [09a17139998d3aee6149d0e50ee1e4441509209a](https://github.com/StoneCypher/jssm/commit/09a17139998d3aee6149d0e50ee1e4441509209a)
 
@@ -4872,7 +7244,7 @@ Merges [7de448c, 3b3a998]
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 1:57:30 PM
+## [Untagged] - Dec 26, 2023 1:57:30 PM
 
 Commit [3b3a9984650cd1757e1a5162ac64e03f63236edb](https://github.com/StoneCypher/jssm/commit/3b3a9984650cd1757e1a5162ac64e03f63236edb)
 
@@ -4887,7 +7259,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 1:20:37 PM
+## [Untagged] - Dec 26, 2023 1:20:37 PM
 
 Commit [b9eb3cb281bc1c5fec710e0c95bab540df1f119e](https://github.com/StoneCypher/jssm/commit/b9eb3cb281bc1c5fec710e0c95bab540df1f119e)
 
@@ -4902,7 +7274,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 12:03:24 PM
+## [Untagged] - Dec 26, 2023 12:03:24 PM
 
 Commit [46668fad8dfb547a0520a765a44181947b26ea54](https://github.com/StoneCypher/jssm/commit/46668fad8dfb547a0520a765a44181947b26ea54)
 
@@ -4917,7 +7289,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 11:59:09 AM
+## [Untagged] - Dec 26, 2023 11:59:09 AM
 
 Commit [7506dede45ac1d8745109d7d998bcd54421af38a](https://github.com/StoneCypher/jssm/commit/7506dede45ac1d8745109d7d998bcd54421af38a)
 
@@ -4932,7 +7304,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 11:52:10 AM
+## [Untagged] - Dec 26, 2023 11:52:10 AM
 
 Commit [eae31306383e982cbaf2a76c6bd276835a88c670](https://github.com/StoneCypher/jssm/commit/eae31306383e982cbaf2a76c6bd276835a88c670)
 
@@ -4947,7 +7319,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 11:43:35 AM
+## [Untagged] - Dec 26, 2023 11:43:35 AM
 
 Commit [8957655fb3f79a9e4c548b3e011d7927516e0750](https://github.com/StoneCypher/jssm/commit/8957655fb3f79a9e4c548b3e011d7927516e0750)
 
@@ -4962,7 +7334,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 11:34:22 AM
+## [Untagged] - Dec 26, 2023 11:34:22 AM
 
 Commit [2bd0149354e3cc5235d378761ef75e981059b1de](https://github.com/StoneCypher/jssm/commit/2bd0149354e3cc5235d378761ef75e981059b1de)
 
@@ -4977,7 +7349,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 11:15:30 AM
+## [Untagged] - Dec 26, 2023 11:15:30 AM
 
 Commit [f805fa5ca95edd1927dd7241bee7a00813dacfe3](https://github.com/StoneCypher/jssm/commit/f805fa5ca95edd1927dd7241bee7a00813dacfe3)
 
@@ -4992,7 +7364,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/26/2023 11:08:54 AM
+## [Untagged] - Dec 26, 2023 11:08:54 AM
 
 Commit [c081751106ec607385bc8086d7c7c6a0046fb172](https://github.com/StoneCypher/jssm/commit/c081751106ec607385bc8086d7c7c6a0046fb172)
 
@@ -5009,7 +7381,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__90__1" />
 
-## [5.90.1] - 10/25/2023 12:51:12 PM
+## [5.90.1] - Oct 25, 2023 12:51:12 PM
 
 Commit [7de448cb8c28aea5001342fc10eae4e88636ecc5](https://github.com/StoneCypher/jssm/commit/7de448cb8c28aea5001342fc10eae4e88636ecc5)
 
@@ -5026,7 +7398,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__90__0" />
 
-## [5.90.0] - 10/25/2023 12:33:52 PM
+## [5.90.0] - Oct 25, 2023 12:33:52 PM
 
 Commit [e88d784320e4d3bfbabfe9365578d32b869b6831](https://github.com/StoneCypher/jssm/commit/e88d784320e4d3bfbabfe9365578d32b869b6831)
 
@@ -5041,7 +7413,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/25/2023 11:31:11 AM
+## [Untagged] - Oct 25, 2023 11:31:11 AM
 
 Commit [966c142a44db8c5f890b2cc4edadca9faee2d625](https://github.com/StoneCypher/jssm/commit/966c142a44db8c5f890b2cc4edadca9faee2d625)
 
@@ -5060,7 +7432,7 @@ Merges [9944585, bba1f0a]
 
 <a name="5__89__6" />
 
-## [5.89.6] - 10/25/2023 11:29:11 AM
+## [5.89.6] - Oct 25, 2023 11:29:11 AM
 
 Commit [bba1f0a273ca73ffe105eed27619fc6b31247568](https://github.com/StoneCypher/jssm/commit/bba1f0a273ca73ffe105eed27619fc6b31247568)
 
@@ -5075,7 +7447,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/25/2023 11:23:28 AM
+## [Untagged] - Oct 25, 2023 11:23:28 AM
 
 Commit [21be69d4b3e592534342a113d259f59bbea4e23b](https://github.com/StoneCypher/jssm/commit/21be69d4b3e592534342a113d259f59bbea4e23b)
 
@@ -5092,7 +7464,7 @@ Merges [1401a08, a0fa6f3]
 
 &nbsp;
 
-## [Untagged] - 10/25/2023 11:21:44 AM
+## [Untagged] - Oct 25, 2023 11:21:44 AM
 
 Commit [1401a08396ff0f47bf67f52f8895a513513b3c17](https://github.com/StoneCypher/jssm/commit/1401a08396ff0f47bf67f52f8895a513513b3c17)
 
@@ -5109,7 +7481,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__89__3" />
 
-## [5.89.3] - 10/25/2023 10:58:24 AM
+## [5.89.3] - Oct 25, 2023 10:58:24 AM
 
 Commit [e1ef14c5268547a18010d378267f7196e186a08c](https://github.com/StoneCypher/jssm/commit/e1ef14c5268547a18010d378267f7196e186a08c)
 
@@ -5124,7 +7496,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/25/2023 10:48:13 AM
+## [Untagged] - Oct 25, 2023 10:48:13 AM
 
 Commit [a0fa6f3a6f58169ae45ed294c4fd7ae1d1f84a26](https://github.com/StoneCypher/jssm/commit/a0fa6f3a6f58169ae45ed294c4fd7ae1d1f84a26)
 
@@ -5139,7 +7511,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/25/2023 10:47:08 AM
+## [Untagged] - Oct 25, 2023 10:47:08 AM
 
 Commit [99445857bb32492c06ef0d766177260b3221bb70](https://github.com/StoneCypher/jssm/commit/99445857bb32492c06ef0d766177260b3221bb70)
 
@@ -5156,7 +7528,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__89__2" />
 
-## [5.89.2] - 6/6/2023 12:30:48 AM
+## [5.89.2] - Jun 6, 2023 12:30:48 AM
 
 Commit [66725ae01f4692e7720a6b7a0add6cd71b77ce85](https://github.com/StoneCypher/jssm/commit/66725ae01f4692e7720a6b7a0add6cd71b77ce85)
 
@@ -5172,7 +7544,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2023 12:29:53 AM
+## [Untagged] - Jun 6, 2023 12:29:53 AM
 
 Commit [e04f055eec397f7c1679579caec8c4565dd993a4](https://github.com/StoneCypher/jssm/commit/e04f055eec397f7c1679579caec8c4565dd993a4)
 
@@ -5193,7 +7565,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__89__1" />
 
-## [5.89.1] - 5/13/2023 11:42:13 PM
+## [5.89.1] - May 13, 2023 11:42:13 PM
 
 Commit [7fb4622f3b8651ea259f8a785210810bd0ae328a](https://github.com/StoneCypher/jssm/commit/7fb4622f3b8651ea259f8a785210810bd0ae328a)
 
@@ -5211,7 +7583,7 @@ Merges [d04a575, 6337159]
 
 &nbsp;
 
-## [Untagged] - 5/13/2023 11:35:56 PM
+## [Untagged] - May 13, 2023 11:35:56 PM
 
 Commit [6337159890e2a5f96af18a926096d82876660903](https://github.com/StoneCypher/jssm/commit/6337159890e2a5f96af18a926096d82876660903)
 
@@ -5228,7 +7600,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__89__0" />
 
-## [5.89.0] - 5/7/2023 12:34:42 PM
+## [5.89.0] - May 7, 2023 12:34:42 PM
 
 Commit [d04a57542edb377085437d38e31d13a65fccdce8](https://github.com/StoneCypher/jssm/commit/d04a57542edb377085437d38e31d13a65fccdce8)
 
@@ -5246,7 +7618,7 @@ Merges [ef4285a, 2a87cf1]
 
 &nbsp;
 
-## [Untagged] - 5/7/2023 12:28:52 PM
+## [Untagged] - May 7, 2023 12:28:52 PM
 
 Commit [2a87cf16db9631a4cb35bcff98e1bda51e19486f](https://github.com/StoneCypher/jssm/commit/2a87cf16db9631a4cb35bcff98e1bda51e19486f)
 
@@ -5263,7 +7635,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__88__4" />
 
-## [5.88.4] - 2/7/2023 3:52:11 PM
+## [5.88.4] - Feb 7, 2023 3:52:11 PM
 
 Commit [ef4285a2699696409cfd36f3ed5b63f67f568f34](https://github.com/StoneCypher/jssm/commit/ef4285a2699696409cfd36f3ed5b63f67f568f34)
 
@@ -5278,7 +7650,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/3/2023 3:22:19 PM
+## [Untagged] - Feb 3, 2023 3:22:19 PM
 
 Commit [9e15545284b1dcfaa413486da1d12e02294c149b](https://github.com/StoneCypher/jssm/commit/9e15545284b1dcfaa413486da1d12e02294c149b)
 
@@ -5296,7 +7668,7 @@ Merges [3a9eb49, f9cfa61]
 
 &nbsp;
 
-## [Untagged] - 1/8/2023 9:23:01 AM
+## [Untagged] - Jan 8, 2023 9:23:01 AM
 
 Commit [f9cfa618b8ca48d0a8681c4e200390ed935e66b0](https://github.com/StoneCypher/jssm/commit/f9cfa618b8ca48d0a8681c4e200390ed935e66b0)
 
@@ -5323,7 +7695,7 @@ updated-dependencies:
 
 <a name="5__88__3" />
 
-## [5.88.3] - 12/18/2022 7:17:47 PM
+## [5.88.3] - Dec 18, 2022 7:17:47 PM
 
 Commit [3a9eb49d5f26b2c879bdaf43f12048009c086443](https://github.com/StoneCypher/jssm/commit/3a9eb49d5f26b2c879bdaf43f12048009c086443)
 
@@ -5340,7 +7712,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__88__2" />
 
-## [5.88.2] - 12/4/2022 7:58:35 PM
+## [5.88.2] - Dec 4, 2022 7:58:35 PM
 
 Commit [2bbed0db313c8c7abc6be14c9982390abfa9a4d9](https://github.com/StoneCypher/jssm/commit/2bbed0db313c8c7abc6be14c9982390abfa9a4d9)
 
@@ -5358,7 +7730,7 @@ Merges [67a08bf, 0adcdd5]
 
 &nbsp;
 
-## [Untagged] - 12/4/2022 7:57:53 PM
+## [Untagged] - Dec 4, 2022 7:57:53 PM
 
 Commit [0adcdd539f874d19477d9a6725b1cf5d2a2a39ee](https://github.com/StoneCypher/jssm/commit/0adcdd539f874d19477d9a6725b1cf5d2a2a39ee)
 
@@ -5375,7 +7747,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__88__1" />
 
-## [5.88.1] - 12/4/2022 7:24:38 PM
+## [5.88.1] - Dec 4, 2022 7:24:38 PM
 
 Commit [67a08bfd7f88444125ae08a6f475fe356b3a2923](https://github.com/StoneCypher/jssm/commit/67a08bfd7f88444125ae08a6f475fe356b3a2923)
 
@@ -5393,7 +7765,7 @@ Merges [e8ad4b9, 373b64a]
 
 &nbsp;
 
-## [Untagged] - 12/4/2022 7:17:19 PM
+## [Untagged] - Dec 4, 2022 7:17:19 PM
 
 Commit [373b64acbc6b5714e175f24660d2bc50e14af8c3](https://github.com/StoneCypher/jssm/commit/373b64acbc6b5714e175f24660d2bc50e14af8c3)
 
@@ -5410,7 +7782,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__88__0" />
 
-## [5.88.0] - 12/4/2022 11:45:39 AM
+## [5.88.0] - Dec 4, 2022 11:45:39 AM
 
 Commit [e8ad4b953a81db1836d2b6a034fdb39ba552263d](https://github.com/StoneCypher/jssm/commit/e8ad4b953a81db1836d2b6a034fdb39ba552263d)
 
@@ -5428,7 +7800,7 @@ Merges [85963d8, a6733d4]
 
 &nbsp;
 
-## [Untagged] - 12/4/2022 11:45:25 AM
+## [Untagged] - Dec 4, 2022 11:45:25 AM
 
 Commit [a6733d4140c1b7ac86c6e706d40e859150c36f94](https://github.com/StoneCypher/jssm/commit/a6733d4140c1b7ac86c6e706d40e859150c36f94)
 
@@ -5443,7 +7815,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/4/2022 11:38:18 AM
+## [Untagged] - Dec 4, 2022 11:38:18 AM
 
 Commit [80bac8b00a875e2ce5386cea8f21efe59db5ccf6](https://github.com/StoneCypher/jssm/commit/80bac8b00a875e2ce5386cea8f21efe59db5ccf6)
 
@@ -5458,7 +7830,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/4/2022 9:34:08 AM
+## [Untagged] - Dec 4, 2022 9:34:08 AM
 
 Commit [f19fd1f83037dc5c06fb13c46594f0091895be2c](https://github.com/StoneCypher/jssm/commit/f19fd1f83037dc5c06fb13c46594f0091895be2c)
 
@@ -5473,7 +7845,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/3/2022 11:33:28 PM
+## [Untagged] - Dec 3, 2022 11:33:28 PM
 
 Commit [7cfc1473e96944c1e52c05d0a2da4564342d3e94](https://github.com/StoneCypher/jssm/commit/7cfc1473e96944c1e52c05d0a2da4564342d3e94)
 
@@ -5492,7 +7864,7 @@ Merges [d29b224, 85963d8]
 
 <a name="5__87__0" />
 
-## [5.87.0] - 12/3/2022 8:18:35 PM
+## [5.87.0] - Dec 3, 2022 8:18:35 PM
 
 Commit [85963d8c154225916ec9bf1f494c480ca033dec9](https://github.com/StoneCypher/jssm/commit/85963d8c154225916ec9bf1f494c480ca033dec9)
 
@@ -5510,7 +7882,7 @@ Merges [dbb82ae, d6f77d1]
 
 &nbsp;
 
-## [Untagged] - 12/3/2022 7:40:06 PM
+## [Untagged] - Dec 3, 2022 7:40:06 PM
 
 Commit [d6f77d1be4cf107f2eda1cfddca81d4ebcfc7c99](https://github.com/StoneCypher/jssm/commit/d6f77d1be4cf107f2eda1cfddca81d4ebcfc7c99)
 
@@ -5525,7 +7897,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/3/2022 7:32:06 PM
+## [Untagged] - Dec 3, 2022 7:32:06 PM
 
 Commit [e6227e3d26828277c002ff0dd67899ab89771fc2](https://github.com/StoneCypher/jssm/commit/e6227e3d26828277c002ff0dd67899ab89771fc2)
 
@@ -5540,7 +7912,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/2/2022 10:48:55 PM
+## [Untagged] - Dec 2, 2022 10:48:55 PM
 
 Commit [5fa6e48645cb75fcd5fe38e6ff08c0d5d64a7a23](https://github.com/StoneCypher/jssm/commit/5fa6e48645cb75fcd5fe38e6ff08c0d5d64a7a23)
 
@@ -5557,7 +7929,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__86__3" />
 
-## [5.86.3] - 11/12/2022 6:09:16 PM
+## [5.86.3] - Nov 12, 2022 6:09:16 PM
 
 Commit [dbb82aefc2744729fd17108d33d19f504dc1783e](https://github.com/StoneCypher/jssm/commit/dbb82aefc2744729fd17108d33d19f504dc1783e)
 
@@ -5575,7 +7947,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__86__2" />
 
-## [5.86.2] - 11/12/2022 12:49:23 PM
+## [5.86.2] - Nov 12, 2022 12:49:23 PM
 
 Commit [a033eb38e784cbc5c6bf15bef576b69bb935f9b2](https://github.com/StoneCypher/jssm/commit/a033eb38e784cbc5c6bf15bef576b69bb935f9b2)
 
@@ -5593,7 +7965,7 @@ Merges [48b4f92, 99a5fd6]
 
 &nbsp;
 
-## [Untagged] - 11/12/2022 12:44:20 PM
+## [Untagged] - Nov 12, 2022 12:44:20 PM
 
 Commit [99a5fd66ee5a342814cf34d89fb6dccc2f4ac7e9](https://github.com/StoneCypher/jssm/commit/99a5fd66ee5a342814cf34d89fb6dccc2f4ac7e9)
 
@@ -5611,7 +7983,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__86__1" />
 
-## [5.86.1] - 11/11/2022 6:41:15 PM
+## [5.86.1] - Nov 11, 2022 6:41:15 PM
 
 Commit [48b4f928eb1a4597122b64e6eea38a57c19a112f](https://github.com/StoneCypher/jssm/commit/48b4f928eb1a4597122b64e6eea38a57c19a112f)
 
@@ -5628,7 +8000,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__86__0" />
 
-## [5.86.0] - 11/11/2022 6:22:48 PM
+## [5.86.0] - Nov 11, 2022 6:22:48 PM
 
 Commit [31077c9256ee31f80398460b3af95bc65a8dbc3a](https://github.com/StoneCypher/jssm/commit/31077c9256ee31f80398460b3af95bc65a8dbc3a)
 
@@ -5646,7 +8018,7 @@ Merges [793f2fc, 3941c30]
 
 &nbsp;
 
-## [Untagged] - 11/11/2022 6:16:32 PM
+## [Untagged] - Nov 11, 2022 6:16:32 PM
 
 Commit [3941c3000e8544e6b674b4a060abb93a8f5c3455](https://github.com/StoneCypher/jssm/commit/3941c3000e8544e6b674b4a060abb93a8f5c3455)
 
@@ -5663,7 +8035,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__11" />
 
-## [5.85.11] - 9/16/2022 11:15:38 PM
+## [5.85.11] - Sep 16, 2022 11:15:38 PM
 
 Commit [793f2fcba840f39cb7442f6be54b0c272caad6ba](https://github.com/StoneCypher/jssm/commit/793f2fcba840f39cb7442f6be54b0c272caad6ba)
 
@@ -5681,7 +8053,7 @@ Merges [ab43e02, 03790c9]
 
 &nbsp;
 
-## [Untagged] - 9/16/2022 11:15:13 PM
+## [Untagged] - Sep 16, 2022 11:15:13 PM
 
 Commit [03790c9fc38db0ed5cb0ba35d50c4d5d820aafcc](https://github.com/StoneCypher/jssm/commit/03790c9fc38db0ed5cb0ba35d50c4d5d820aafcc)
 
@@ -5699,7 +8071,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__10" />
 
-## [5.85.10] - 9/16/2022 5:34:40 PM
+## [5.85.10] - Sep 16, 2022 5:34:40 PM
 
 Commit [ab43e02152256d19579efdb73c9fa6cb04d1b2b3](https://github.com/StoneCypher/jssm/commit/ab43e02152256d19579efdb73c9fa6cb04d1b2b3)
 
@@ -5717,7 +8089,7 @@ Merges [c0c574b, a6026d0]
 
 &nbsp;
 
-## [Untagged] - 9/16/2022 5:30:09 PM
+## [Untagged] - Sep 16, 2022 5:30:09 PM
 
 Commit [a6026d0bdbec44c03303950130ed34df3a78576e](https://github.com/StoneCypher/jssm/commit/a6026d0bdbec44c03303950130ed34df3a78576e)
 
@@ -5735,7 +8107,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__9" />
 
-## [5.85.9] - 9/12/2022 9:15:59 PM
+## [5.85.9] - Sep 12, 2022 9:15:59 PM
 
 Commit [c0c574b694f1d0511190be139135cdf745f476b7](https://github.com/StoneCypher/jssm/commit/c0c574b694f1d0511190be139135cdf745f476b7)
 
@@ -5753,7 +8125,7 @@ Merges [c047caa, 090db83]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 9:06:27 PM
+## [Untagged] - Sep 12, 2022 9:06:27 PM
 
 Commit [090db831d8df370b0937d2d37e6372b6df030481](https://github.com/StoneCypher/jssm/commit/090db831d8df370b0937d2d37e6372b6df030481)
 
@@ -5771,7 +8143,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__8" />
 
-## [5.85.8] - 9/12/2022 8:26:10 PM
+## [5.85.8] - Sep 12, 2022 8:26:10 PM
 
 Commit [c047caac3f9d9bb24a9c0b517983088eb8ee2e4a](https://github.com/StoneCypher/jssm/commit/c047caac3f9d9bb24a9c0b517983088eb8ee2e4a)
 
@@ -5789,7 +8161,7 @@ Merges [581fd8d, 013999a]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 8:18:05 PM
+## [Untagged] - Sep 12, 2022 8:18:05 PM
 
 Commit [013999a77ce43ceed5eb982754ffe480fdddf159](https://github.com/StoneCypher/jssm/commit/013999a77ce43ceed5eb982754ffe480fdddf159)
 
@@ -5807,7 +8179,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__7" />
 
-## [5.85.7] - 9/12/2022 7:24:25 PM
+## [5.85.7] - Sep 12, 2022 7:24:25 PM
 
 Commit [581fd8dc33c4eb2ce190b696d952471abec192ef](https://github.com/StoneCypher/jssm/commit/581fd8dc33c4eb2ce190b696d952471abec192ef)
 
@@ -5825,7 +8197,7 @@ Merges [7d741ba, 771f4c8]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 7:19:21 PM
+## [Untagged] - Sep 12, 2022 7:19:21 PM
 
 Commit [771f4c8d67274b40451ae6dfef168fe3c15949df](https://github.com/StoneCypher/jssm/commit/771f4c8d67274b40451ae6dfef168fe3c15949df)
 
@@ -5841,7 +8213,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 6:52:26 PM
+## [Untagged] - Sep 12, 2022 6:52:26 PM
 
 Commit [3eb246ddb992372ceca4c0adc9dc45295a0a7177](https://github.com/StoneCypher/jssm/commit/3eb246ddb992372ceca4c0adc9dc45295a0a7177)
 
@@ -5858,7 +8230,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__6" />
 
-## [5.85.6] - 9/12/2022 6:43:57 PM
+## [5.85.6] - Sep 12, 2022 6:43:57 PM
 
 Commit [7d741ba17ccee77138537f732b833efa028dbda7](https://github.com/StoneCypher/jssm/commit/7d741ba17ccee77138537f732b833efa028dbda7)
 
@@ -5876,7 +8248,7 @@ Merges [4b9fefd, 37c0bdf]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 6:39:19 PM
+## [Untagged] - Sep 12, 2022 6:39:19 PM
 
 Commit [37c0bdf33263bf4b9dd60ba329108297cf5ea68f](https://github.com/StoneCypher/jssm/commit/37c0bdf33263bf4b9dd60ba329108297cf5ea68f)
 
@@ -5892,7 +8264,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 3:27:58 PM
+## [Untagged] - Sep 12, 2022 3:27:58 PM
 
 Commit [4b9fefde004f1c1ac5f36ad760105109475af95a](https://github.com/StoneCypher/jssm/commit/4b9fefde004f1c1ac5f36ad760105109475af95a)
 
@@ -5909,7 +8281,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__5" />
 
-## [5.85.5] - 9/12/2022 3:10:10 PM
+## [5.85.5] - Sep 12, 2022 3:10:10 PM
 
 Commit [35ad7228d5bb15d963a2e4d9e6e35721cce36b33](https://github.com/StoneCypher/jssm/commit/35ad7228d5bb15d963a2e4d9e6e35721cce36b33)
 
@@ -5926,7 +8298,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__4" />
 
-## [5.85.4] - 9/12/2022 1:55:57 PM
+## [5.85.4] - Sep 12, 2022 1:55:57 PM
 
 Commit [293e2cb9c07734fef562b455d786b7c63ea7647b](https://github.com/StoneCypher/jssm/commit/293e2cb9c07734fef562b455d786b7c63ea7647b)
 
@@ -5943,7 +8315,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__3" />
 
-## [5.85.3] - 9/12/2022 11:25:36 AM
+## [5.85.3] - Sep 12, 2022 11:25:36 AM
 
 Commit [87ec233d3511d30358660ad161f932e13eb1738e](https://github.com/StoneCypher/jssm/commit/87ec233d3511d30358660ad161f932e13eb1738e)
 
@@ -5961,7 +8333,7 @@ Merges [98b7b14, 6475296]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 11:24:38 AM
+## [Untagged] - Sep 12, 2022 11:24:38 AM
 
 Commit [6475296d979dab3d227828b80319d60c4f6ab2f5](https://github.com/StoneCypher/jssm/commit/6475296d979dab3d227828b80319d60c4f6ab2f5)
 
@@ -5978,7 +8350,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__2" />
 
-## [5.85.2] - 9/12/2022 10:03:27 AM
+## [5.85.2] - Sep 12, 2022 10:03:27 AM
 
 Commit [98b7b14217ea7e83550e4ed15b6b6be80799e246](https://github.com/StoneCypher/jssm/commit/98b7b14217ea7e83550e4ed15b6b6be80799e246)
 
@@ -5996,7 +8368,7 @@ Merges [461a287, 0f3025a]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 9:59:52 AM
+## [Untagged] - Sep 12, 2022 9:59:52 AM
 
 Commit [0f3025ae2e484afbda57b5f39f5485c4831e7ce7](https://github.com/StoneCypher/jssm/commit/0f3025ae2e484afbda57b5f39f5485c4831e7ce7)
 
@@ -6013,7 +8385,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__1" />
 
-## [5.85.1] - 9/12/2022 9:49:05 AM
+## [5.85.1] - Sep 12, 2022 9:49:05 AM
 
 Commit [461a2874583d08da6db68e40b75047682625c73d](https://github.com/StoneCypher/jssm/commit/461a2874583d08da6db68e40b75047682625c73d)
 
@@ -6031,7 +8403,7 @@ Merges [2eec2c8, 76d6729]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 9:35:11 AM
+## [Untagged] - Sep 12, 2022 9:35:11 AM
 
 Commit [76d6729a35a3f4eba666ff2d78cd284ed0668edd](https://github.com/StoneCypher/jssm/commit/76d6729a35a3f4eba666ff2d78cd284ed0668edd)
 
@@ -6048,7 +8420,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__85__0" />
 
-## [5.85.0] - 9/12/2022 9:22:37 AM
+## [5.85.0] - Sep 12, 2022 9:22:37 AM
 
 Commit [2eec2c8b69d3e59cb06d7b0efc34b336e9ecc29a](https://github.com/StoneCypher/jssm/commit/2eec2c8b69d3e59cb06d7b0efc34b336e9ecc29a)
 
@@ -6066,7 +8438,7 @@ Merges [a7b92f9, a0b9fb5]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 9:17:28 AM
+## [Untagged] - Sep 12, 2022 9:17:28 AM
 
 Commit [a0b9fb59c5dc92c94738a6d456ef5e5514a48d1f](https://github.com/StoneCypher/jssm/commit/a0b9fb59c5dc92c94738a6d456ef5e5514a48d1f)
 
@@ -6084,7 +8456,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__84__1" />
 
-## [5.84.1] - 9/12/2022 8:30:09 AM
+## [5.84.1] - Sep 12, 2022 8:30:09 AM
 
 Commit [a7b92f9b1e94dcab843ab588d83d0c5f8eb9ca18](https://github.com/StoneCypher/jssm/commit/a7b92f9b1e94dcab843ab588d83d0c5f8eb9ca18)
 
@@ -6102,7 +8474,7 @@ Merges [d4e6196, eedb4a7]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 8:26:02 AM
+## [Untagged] - Sep 12, 2022 8:26:02 AM
 
 Commit [eedb4a7d6ea5392a252cf6dbe5bc2e6e3239591c](https://github.com/StoneCypher/jssm/commit/eedb4a7d6ea5392a252cf6dbe5bc2e6e3239591c)
 
@@ -6119,7 +8491,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__84__0" />
 
-## [5.84.0] - 9/12/2022 7:41:49 AM
+## [5.84.0] - Sep 12, 2022 7:41:49 AM
 
 Commit [d4e619611a04f24b76ad783a9b0f34393e45840a](https://github.com/StoneCypher/jssm/commit/d4e619611a04f24b76ad783a9b0f34393e45840a)
 
@@ -6137,7 +8509,7 @@ Merges [cdaa32e, 9193c2d]
 
 &nbsp;
 
-## [Untagged] - 9/12/2022 7:35:32 AM
+## [Untagged] - Sep 12, 2022 7:35:32 AM
 
 Commit [9193c2d1f27f1c80ed4a3bfb41e586f5da24179a](https://github.com/StoneCypher/jssm/commit/9193c2d1f27f1c80ed4a3bfb41e586f5da24179a)
 
@@ -6154,7 +8526,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__83__2" />
 
-## [5.83.2] - 9/11/2022 3:39:14 PM
+## [5.83.2] - Sep 11, 2022 3:39:14 PM
 
 Commit [cdaa32e418ddf2f094fe5ab2adbc1a0a0b65a2d7](https://github.com/StoneCypher/jssm/commit/cdaa32e418ddf2f094fe5ab2adbc1a0a0b65a2d7)
 
@@ -6171,7 +8543,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__83__1" />
 
-## [5.83.1] - 9/11/2022 2:24:06 PM
+## [5.83.1] - Sep 11, 2022 2:24:06 PM
 
 Commit [c46d677560dc06baf33c2088205051fedaf5be04](https://github.com/StoneCypher/jssm/commit/c46d677560dc06baf33c2088205051fedaf5be04)
 
@@ -6189,7 +8561,7 @@ Merges [3256f05, 991d2dc]
 
 &nbsp;
 
-## [Untagged] - 9/11/2022 2:19:28 PM
+## [Untagged] - Sep 11, 2022 2:19:28 PM
 
 Commit [991d2dcf113bd19026f037e6eb22f46eacde57aa](https://github.com/StoneCypher/jssm/commit/991d2dcf113bd19026f037e6eb22f46eacde57aa)
 
@@ -6206,7 +8578,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__83__0" />
 
-## [5.83.0] - 9/3/2022 5:34:01 PM
+## [5.83.0] - Sep 3, 2022 5:34:01 PM
 
 Commit [3256f05a4f2b5c5d6e05c2eeba091899e73ef327](https://github.com/StoneCypher/jssm/commit/3256f05a4f2b5c5d6e05c2eeba091899e73ef327)
 
@@ -6224,7 +8596,7 @@ Merges [51ebcfc, 216dc9c]
 
 &nbsp;
 
-## [Untagged] - 9/3/2022 5:30:23 PM
+## [Untagged] - Sep 3, 2022 5:30:23 PM
 
 Commit [216dc9cb659d634a6be9510264f48c26e8a471c0](https://github.com/StoneCypher/jssm/commit/216dc9cb659d634a6be9510264f48c26e8a471c0)
 
@@ -6239,7 +8611,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2022 5:27:18 PM
+## [Untagged] - Sep 3, 2022 5:27:18 PM
 
 Commit [7878070213ea189def19419eefa4a37ceff701c1](https://github.com/StoneCypher/jssm/commit/7878070213ea189def19419eefa4a37ceff701c1)
 
@@ -6254,7 +8626,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2022 5:25:50 PM
+## [Untagged] - Sep 3, 2022 5:25:50 PM
 
 Commit [ead26fe40eeb115a87de151b6d91fc83e9aab2b9](https://github.com/StoneCypher/jssm/commit/ead26fe40eeb115a87de151b6d91fc83e9aab2b9)
 
@@ -6269,7 +8641,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2022 5:21:12 PM
+## [Untagged] - Sep 3, 2022 5:21:12 PM
 
 Commit [4deaa1ebabb4bbc3604103a3bcdde77259247fe7](https://github.com/StoneCypher/jssm/commit/4deaa1ebabb4bbc3604103a3bcdde77259247fe7)
 
@@ -6284,7 +8656,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2022 5:16:16 PM
+## [Untagged] - Sep 3, 2022 5:16:16 PM
 
 Commit [72c4ac7e754ab32fe3ca2372fff1733ba8363b27](https://github.com/StoneCypher/jssm/commit/72c4ac7e754ab32fe3ca2372fff1733ba8363b27)
 
@@ -6299,7 +8671,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2022 3:23:46 PM
+## [Untagged] - Sep 3, 2022 3:23:46 PM
 
 Commit [54adb9e46e56254596ca0a710492d3ecf633ea85](https://github.com/StoneCypher/jssm/commit/54adb9e46e56254596ca0a710492d3ecf633ea85)
 
@@ -6314,7 +8686,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 7:14:42 PM
+## [Untagged] - Sep 1, 2022 7:14:42 PM
 
 Commit [51ebcfc1ec163b8590d1a1a2065dcd8ad0458cc9](https://github.com/StoneCypher/jssm/commit/51ebcfc1ec163b8590d1a1a2065dcd8ad0458cc9)
 
@@ -6332,7 +8704,7 @@ Merges [94c4f37, 3557437]
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 7:13:51 PM
+## [Untagged] - Sep 1, 2022 7:13:51 PM
 
 Commit [35574377c523d8f48198b30ef77b12a5efe72b6c](https://github.com/StoneCypher/jssm/commit/35574377c523d8f48198b30ef77b12a5efe72b6c)
 
@@ -6347,7 +8719,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 7:05:32 PM
+## [Untagged] - Sep 1, 2022 7:05:32 PM
 
 Commit [c7bb4b01d3b5475d9ccb91ff7999556ef39e8805](https://github.com/StoneCypher/jssm/commit/c7bb4b01d3b5475d9ccb91ff7999556ef39e8805)
 
@@ -6362,7 +8734,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 6:59:27 PM
+## [Untagged] - Sep 1, 2022 6:59:27 PM
 
 Commit [d916b2fe3b67c66ad6c47eef1df6dcfd9863d247](https://github.com/StoneCypher/jssm/commit/d916b2fe3b67c66ad6c47eef1df6dcfd9863d247)
 
@@ -6377,7 +8749,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 6:56:09 PM
+## [Untagged] - Sep 1, 2022 6:56:09 PM
 
 Commit [50b5d8b1a4efce1c7359f713a02cb0477abd7d4a](https://github.com/StoneCypher/jssm/commit/50b5d8b1a4efce1c7359f713a02cb0477abd7d4a)
 
@@ -6396,7 +8768,7 @@ Merges [9e18022, 94c4f37]
 
 <a name="5__82__5" />
 
-## [5.82.5] - 9/1/2022 6:44:36 PM
+## [5.82.5] - Sep 1, 2022 6:44:36 PM
 
 Commit [94c4f37805eea9179474c66011155368e6c4ed31](https://github.com/StoneCypher/jssm/commit/94c4f37805eea9179474c66011155368e6c4ed31)
 
@@ -6414,7 +8786,7 @@ Merges [a307163, cf1cb12]
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 6:41:25 PM
+## [Untagged] - Sep 1, 2022 6:41:25 PM
 
 Commit [cf1cb122a9f86e943258ce58ffe490e27d401319](https://github.com/StoneCypher/jssm/commit/cf1cb122a9f86e943258ce58ffe490e27d401319)
 
@@ -6431,7 +8803,7 @@ Merges [1f69c53, a307163]
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 6:08:10 PM
+## [Untagged] - Sep 1, 2022 6:08:10 PM
 
 Commit [1f69c53f4d3851f205896c446c65e9ecdbf26bbc](https://github.com/StoneCypher/jssm/commit/1f69c53f4d3851f205896c446c65e9ecdbf26bbc)
 
@@ -6448,7 +8820,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 <a name="5__82__4" />
 
-## [5.82.4] - 9/1/2022 6:04:35 PM
+## [5.82.4] - Sep 1, 2022 6:04:35 PM
 
 Commit [a307163e979abf8af53e4936f972c017f91198ba](https://github.com/StoneCypher/jssm/commit/a307163e979abf8af53e4936f972c017f91198ba)
 
@@ -6465,7 +8837,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__82__3" />
 
-## [5.82.3] - 9/1/2022 5:26:59 PM
+## [5.82.3] - Sep 1, 2022 5:26:59 PM
 
 Commit [58751e614c6f3f9223239af91f44079ee3a1f045](https://github.com/StoneCypher/jssm/commit/58751e614c6f3f9223239af91f44079ee3a1f045)
 
@@ -6483,7 +8855,7 @@ Merges [da69e65, a824b2f]
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 5:06:20 PM
+## [Untagged] - Sep 1, 2022 5:06:20 PM
 
 Commit [a824b2fea98113f5c1ff04227ff4261a41e8634e](https://github.com/StoneCypher/jssm/commit/a824b2fea98113f5c1ff04227ff4261a41e8634e)
 
@@ -6498,7 +8870,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 4:53:34 PM
+## [Untagged] - Sep 1, 2022 4:53:34 PM
 
 Commit [07e19355674ecf8c44ceb54f31cafebefdf08921](https://github.com/StoneCypher/jssm/commit/07e19355674ecf8c44ceb54f31cafebefdf08921)
 
@@ -6515,7 +8887,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 <a name="5__82__2" />
 
-## [5.82.2] - 9/1/2022 4:17:04 PM
+## [5.82.2] - Sep 1, 2022 4:17:04 PM
 
 Commit [da69e65ee5a1567825b011d3e17655c2dbd6261d](https://github.com/StoneCypher/jssm/commit/da69e65ee5a1567825b011d3e17655c2dbd6261d)
 
@@ -6530,7 +8902,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/1/2022 3:57:04 PM
+## [Untagged] - Sep 1, 2022 3:57:04 PM
 
 Commit [9e18022f7b474f06e30df55df254f01a0bf6ceb6](https://github.com/StoneCypher/jssm/commit/9e18022f7b474f06e30df55df254f01a0bf6ceb6)
 
@@ -6547,7 +8919,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 <a name="5__82__1" />
 
-## [5.82.1] - 8/20/2022 11:19:53 AM
+## [5.82.1] - Aug 20, 2022 11:19:53 AM
 
 Commit [27480ec9b23dc281db0212e68f53aabcdc8b946f](https://github.com/StoneCypher/jssm/commit/27480ec9b23dc281db0212e68f53aabcdc8b946f)
 
@@ -6565,7 +8937,7 @@ Merges [5278df4, 03e1ad3]
 
 &nbsp;
 
-## [Untagged] - 8/20/2022 11:16:34 AM
+## [Untagged] - Aug 20, 2022 11:16:34 AM
 
 Commit [03e1ad3acf5074dd570eb9a2e2001abab10fb923](https://github.com/StoneCypher/jssm/commit/03e1ad3acf5074dd570eb9a2e2001abab10fb923)
 
@@ -6582,7 +8954,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__82__0" />
 
-## [5.82.0] - 8/19/2022 11:11:19 PM
+## [5.82.0] - Aug 19, 2022 11:11:19 PM
 
 Commit [5278df4d94a347b37da6cdca2a64a6ca85665b42](https://github.com/StoneCypher/jssm/commit/5278df4d94a347b37da6cdca2a64a6ca85665b42)
 
@@ -6600,7 +8972,7 @@ Merges [72d6ef7, 88d7309]
 
 &nbsp;
 
-## [Untagged] - 8/19/2022 11:04:20 PM
+## [Untagged] - Aug 19, 2022 11:04:20 PM
 
 Commit [88d7309bfd2217fe9aeae3be681ae1f520542365](https://github.com/StoneCypher/jssm/commit/88d7309bfd2217fe9aeae3be681ae1f520542365)
 
@@ -6615,7 +8987,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2022 8:44:55 PM
+## [Untagged] - Aug 19, 2022 8:44:55 PM
 
 Commit [2cf5a3f8121a68db58bba992e85b95a8b0e6315e](https://github.com/StoneCypher/jssm/commit/2cf5a3f8121a68db58bba992e85b95a8b0e6315e)
 
@@ -6630,7 +9002,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/18/2022 10:12:07 PM
+## [Untagged] - Aug 18, 2022 10:12:07 PM
 
 Commit [2f81a2682202a239acc8acbefe0360e3481c8ca9](https://github.com/StoneCypher/jssm/commit/2f81a2682202a239acc8acbefe0360e3481c8ca9)
 
@@ -6645,7 +9017,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/17/2022 10:02:39 PM
+## [Untagged] - Aug 17, 2022 10:02:39 PM
 
 Commit [9209392cd7e025b365da88aa29649c63b241074d](https://github.com/StoneCypher/jssm/commit/9209392cd7e025b365da88aa29649c63b241074d)
 
@@ -6662,7 +9034,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__81__2" />
 
-## [5.81.2] - 8/14/2022 4:22:34 PM
+## [5.81.2] - Aug 14, 2022 4:22:34 PM
 
 Commit [72d6ef77839234d9763ba3c5e667f0eb5ef43951](https://github.com/StoneCypher/jssm/commit/72d6ef77839234d9763ba3c5e667f0eb5ef43951)
 
@@ -6677,7 +9049,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/11/2022 9:01:49 PM
+## [Untagged] - Aug 11, 2022 9:01:49 PM
 
 Commit [df1dd4c1d190b6571cf43637183b831229793eba](https://github.com/StoneCypher/jssm/commit/df1dd4c1d190b6571cf43637183b831229793eba)
 
@@ -6694,7 +9066,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__81__0" />
 
-## [5.81.0] - 8/10/2022 11:32:42 PM
+## [5.81.0] - Aug 10, 2022 11:32:42 PM
 
 Commit [5162f2299530514aecba1bf78fbfe77910e3a417](https://github.com/StoneCypher/jssm/commit/5162f2299530514aecba1bf78fbfe77910e3a417)
 
@@ -6709,7 +9081,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/10/2022 10:25:03 PM
+## [Untagged] - Aug 10, 2022 10:25:03 PM
 
 Commit [bab9f160ae1dab672a2800c175c21fed2e74f48e](https://github.com/StoneCypher/jssm/commit/bab9f160ae1dab672a2800c175c21fed2e74f48e)
 
@@ -6726,7 +9098,7 @@ Merges [59e95d8, c3939c3]
 
 &nbsp;
 
-## [Untagged] - 8/10/2022 10:24:55 PM
+## [Untagged] - Aug 10, 2022 10:24:55 PM
 
 Commit [59e95d8d4c06a63fb51b0c886d23612a4835ccfc](https://github.com/StoneCypher/jssm/commit/59e95d8d4c06a63fb51b0c886d23612a4835ccfc)
 
@@ -6743,7 +9115,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__80__1" />
 
-## [5.80.1] - 8/7/2022 11:57:01 PM
+## [5.80.1] - Aug 7, 2022 11:57:01 PM
 
 Commit [c3939c3486d8ae2338385de375d753ef5a38673d](https://github.com/StoneCypher/jssm/commit/c3939c3486d8ae2338385de375d753ef5a38673d)
 
@@ -6761,7 +9133,7 @@ Merges [6cb2816, b59b5b5]
 
 &nbsp;
 
-## [Untagged] - 8/7/2022 11:52:57 PM
+## [Untagged] - Aug 7, 2022 11:52:57 PM
 
 Commit [b59b5b530de566d82b6fa707d66f9b5ceb2037e8](https://github.com/StoneCypher/jssm/commit/b59b5b530de566d82b6fa707d66f9b5ceb2037e8)
 
@@ -6778,7 +9150,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__80__0" />
 
-## [5.80.0] - 8/4/2022 9:37:11 PM
+## [5.80.0] - Aug 4, 2022 9:37:11 PM
 
 Commit [6cb281616eaa3d70bc0ff4e14410c5caa07f70f2](https://github.com/StoneCypher/jssm/commit/6cb281616eaa3d70bc0ff4e14410c5caa07f70f2)
 
@@ -6796,7 +9168,7 @@ Merges [4d79b09, ed398d3]
 
 &nbsp;
 
-## [Untagged] - 8/4/2022 9:29:52 PM
+## [Untagged] - Aug 4, 2022 9:29:52 PM
 
 Commit [ed398d3627e63b7b64d009acb42779b814e2f6da](https://github.com/StoneCypher/jssm/commit/ed398d3627e63b7b64d009acb42779b814e2f6da)
 
@@ -6811,7 +9183,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/4/2022 9:15:50 PM
+## [Untagged] - Aug 4, 2022 9:15:50 PM
 
 Commit [63304cd9d1dd4ea5801edb6437f361023e3d6c32](https://github.com/StoneCypher/jssm/commit/63304cd9d1dd4ea5801edb6437f361023e3d6c32)
 
@@ -6826,7 +9198,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/4/2022 1:50:52 AM
+## [Untagged] - Aug 4, 2022 1:50:52 AM
 
 Commit [89948de7b9857909a6132c95cd6019be08e82d18](https://github.com/StoneCypher/jssm/commit/89948de7b9857909a6132c95cd6019be08e82d18)
 
@@ -6841,7 +9213,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/2/2022 3:50:45 PM
+## [Untagged] - Aug 2, 2022 3:50:45 PM
 
 Commit [9001216af66f3fc719a406402d1d07f66cea465c](https://github.com/StoneCypher/jssm/commit/9001216af66f3fc719a406402d1d07f66cea465c)
 
@@ -6856,7 +9228,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/1/2022 12:08:55 PM
+## [Untagged] - Aug 1, 2022 12:08:55 PM
 
 Commit [1c4fcaaf1b15087b8d2aaa4fcf08ee386fb7c90c](https://github.com/StoneCypher/jssm/commit/1c4fcaaf1b15087b8d2aaa4fcf08ee386fb7c90c)
 
@@ -6873,7 +9245,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__18" />
 
-## [5.79.18] - 7/28/2022 11:21:27 PM
+## [5.79.18] - Jul 28, 2022 11:21:27 PM
 
 Commit [4d79b09ceed3385fbfd237092c5befd0b120f589](https://github.com/StoneCypher/jssm/commit/4d79b09ceed3385fbfd237092c5befd0b120f589)
 
@@ -6890,7 +9262,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__17" />
 
-## [5.79.17] - 7/28/2022 10:21:48 PM
+## [5.79.17] - Jul 28, 2022 10:21:48 PM
 
 Commit [80a5f0821ce4e866bfdb6ed9123ee3e409fdfd99](https://github.com/StoneCypher/jssm/commit/80a5f0821ce4e866bfdb6ed9123ee3e409fdfd99)
 
@@ -6907,7 +9279,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__16" />
 
-## [5.79.16] - 7/28/2022 7:04:27 PM
+## [5.79.16] - Jul 28, 2022 7:04:27 PM
 
 Commit [a76a9d87b7f1d691e982d9b5da8a5bc0d68fc1ea](https://github.com/StoneCypher/jssm/commit/a76a9d87b7f1d691e982d9b5da8a5bc0d68fc1ea)
 
@@ -6925,7 +9297,7 @@ Merges [3cceb0a, 3363432]
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 7:01:10 PM
+## [Untagged] - Jul 28, 2022 7:01:10 PM
 
 Commit [3363432b1abe446798ca41beff6ce7a9f3b6cee6](https://github.com/StoneCypher/jssm/commit/3363432b1abe446798ca41beff6ce7a9f3b6cee6)
 
@@ -6942,7 +9314,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__15" />
 
-## [5.79.15] - 7/28/2022 3:47:24 PM
+## [5.79.15] - Jul 28, 2022 3:47:24 PM
 
 Commit [3cceb0ab8a9d56f7f3cd79b6ff64beb882e7bc86](https://github.com/StoneCypher/jssm/commit/3cceb0ab8a9d56f7f3cd79b6ff64beb882e7bc86)
 
@@ -6960,7 +9332,7 @@ Merges [bc39f54, 3ace82f]
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 3:37:38 PM
+## [Untagged] - Jul 28, 2022 3:37:38 PM
 
 Commit [3ace82f3e03403765c72ffda4e4e8819bcd1e1ca](https://github.com/StoneCypher/jssm/commit/3ace82f3e03403765c72ffda4e4e8819bcd1e1ca)
 
@@ -6975,7 +9347,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 3:28:23 PM
+## [Untagged] - Jul 28, 2022 3:28:23 PM
 
 Commit [bc39f54865c2eb421261ee1a6ff9e3f6cc3f0b66](https://github.com/StoneCypher/jssm/commit/bc39f54865c2eb421261ee1a6ff9e3f6cc3f0b66)
 
@@ -6993,7 +9365,7 @@ Merges [98eb7eb, 6324d89]
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 3:25:12 PM
+## [Untagged] - Jul 28, 2022 3:25:12 PM
 
 Commit [6483abdffc869f010f866110c55295da1bee022d](https://github.com/StoneCypher/jssm/commit/6483abdffc869f010f866110c55295da1bee022d)
 
@@ -7010,7 +9382,7 @@ Merges [6324d89, 98eb7eb]
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 3:24:41 PM
+## [Untagged] - Jul 28, 2022 3:24:41 PM
 
 Commit [6324d89f41053d8129df931d56ef4a0fdf499500](https://github.com/StoneCypher/jssm/commit/6324d89f41053d8129df931d56ef4a0fdf499500)
 
@@ -7025,7 +9397,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 3:19:37 PM
+## [Untagged] - Jul 28, 2022 3:19:37 PM
 
 Commit [915482bf57474c05cb0b8722e89d782eda4ea61c](https://github.com/StoneCypher/jssm/commit/915482bf57474c05cb0b8722e89d782eda4ea61c)
 
@@ -7040,7 +9412,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 1:46:09 PM
+## [Untagged] - Jul 28, 2022 1:46:09 PM
 
 Commit [98eb7eb745ed5b8593e7695764ddee37eb8ecf9e](https://github.com/StoneCypher/jssm/commit/98eb7eb745ed5b8593e7695764ddee37eb8ecf9e)
 
@@ -7058,7 +9430,7 @@ Merges [66cbb1d, 16920b1]
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 1:45:17 PM
+## [Untagged] - Jul 28, 2022 1:45:17 PM
 
 Commit [16920b102b96a8cc4e3db44abb5b17b716940090](https://github.com/StoneCypher/jssm/commit/16920b102b96a8cc4e3db44abb5b17b716940090)
 
@@ -7073,7 +9445,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 1:02:26 PM
+## [Untagged] - Jul 28, 2022 1:02:26 PM
 
 Commit [6a7684e3a0b665e3c7b7f38e6adda08c09d18c1c](https://github.com/StoneCypher/jssm/commit/6a7684e3a0b665e3c7b7f38e6adda08c09d18c1c)
 
@@ -7088,7 +9460,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2022 12:52:20 PM
+## [Untagged] - Jul 28, 2022 12:52:20 PM
 
 Commit [b49af31975f4424923024f2cef459a975240a98e](https://github.com/StoneCypher/jssm/commit/b49af31975f4424923024f2cef459a975240a98e)
 
@@ -7105,7 +9477,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__11" />
 
-## [5.79.11] - 7/28/2022 8:22:55 AM
+## [5.79.11] - Jul 28, 2022 8:22:55 AM
 
 Commit [66cbb1d35679c7271a08bc31ab3a7b2557a15f3e](https://github.com/StoneCypher/jssm/commit/66cbb1d35679c7271a08bc31ab3a7b2557a15f3e)
 
@@ -7122,7 +9494,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__10" />
 
-## [5.79.10] - 7/27/2022 11:44:10 PM
+## [5.79.10] - Jul 27, 2022 11:44:10 PM
 
 Commit [aa5e666f5f02e5fc0c6818dd7fb84dd689dc0448](https://github.com/StoneCypher/jssm/commit/aa5e666f5f02e5fc0c6818dd7fb84dd689dc0448)
 
@@ -7137,7 +9509,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/27/2022 10:21:23 PM
+## [Untagged] - Jul 27, 2022 10:21:23 PM
 
 Commit [2f548fc2c2c8e02d9ac5da5279a6c8d69130316f](https://github.com/StoneCypher/jssm/commit/2f548fc2c2c8e02d9ac5da5279a6c8d69130316f)
 
@@ -7152,7 +9524,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/25/2022 11:11:11 AM
+## [Untagged] - Jul 25, 2022 11:11:11 AM
 
 Commit [d0a4b3e731b887da477f2dde109a5d57b39522b3](https://github.com/StoneCypher/jssm/commit/d0a4b3e731b887da477f2dde109a5d57b39522b3)
 
@@ -7167,7 +9539,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/25/2022 11:09:21 AM
+## [Untagged] - Jul 25, 2022 11:09:21 AM
 
 Commit [572a8a1e14f4b29a1bb021e9b76124d74959e59b](https://github.com/StoneCypher/jssm/commit/572a8a1e14f4b29a1bb021e9b76124d74959e59b)
 
@@ -7182,7 +9554,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/25/2022 11:09:07 AM
+## [Untagged] - Jul 25, 2022 11:09:07 AM
 
 Commit [7379b2324c15a44ca98311121408b771d165b68a](https://github.com/StoneCypher/jssm/commit/7379b2324c15a44ca98311121408b771d165b68a)
 
@@ -7197,7 +9569,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/25/2022 11:08:28 AM
+## [Untagged] - Jul 25, 2022 11:08:28 AM
 
 Commit [412cabb32d87ffd91752ba5006c59e4b1867a469](https://github.com/StoneCypher/jssm/commit/412cabb32d87ffd91752ba5006c59e4b1867a469)
 
@@ -7214,7 +9586,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__9" />
 
-## [5.79.9] - 7/25/2022 5:41:07 AM
+## [5.79.9] - Jul 25, 2022 5:41:07 AM
 
 Commit [014cafc52c34afb19f50e8ab60741ee8585b1213](https://github.com/StoneCypher/jssm/commit/014cafc52c34afb19f50e8ab60741ee8585b1213)
 
@@ -7231,7 +9603,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__8" />
 
-## [5.79.8] - 7/22/2022 12:23:51 AM
+## [5.79.8] - Jul 22, 2022 12:23:51 AM
 
 Commit [2c1ab4f936b061a7ffe46187f45fdc3949b3eb1f](https://github.com/StoneCypher/jssm/commit/2c1ab4f936b061a7ffe46187f45fdc3949b3eb1f)
 
@@ -7248,7 +9620,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__6" />
 
-## [5.79.6] - 7/21/2022 11:56:00 PM
+## [5.79.6] - Jul 21, 2022 11:56:00 PM
 
 Commit [e91095dc64dacebab0dafe96180219998e0d2891](https://github.com/StoneCypher/jssm/commit/e91095dc64dacebab0dafe96180219998e0d2891)
 
@@ -7263,7 +9635,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/21/2022 11:03:43 PM
+## [Untagged] - Jul 21, 2022 11:03:43 PM
 
 Commit [a2a45dbfda6df7012651a55aa65f8e606c0a8768](https://github.com/StoneCypher/jssm/commit/a2a45dbfda6df7012651a55aa65f8e606c0a8768)
 
@@ -7281,7 +9653,7 @@ Merges [3bf5c1d, 277683b]
 
 &nbsp;
 
-## [Untagged] - 7/21/2022 10:58:51 PM
+## [Untagged] - Jul 21, 2022 10:58:51 PM
 
 Commit [277683b9ba40288005a0bf2d7044dea84696ac01](https://github.com/StoneCypher/jssm/commit/277683b9ba40288005a0bf2d7044dea84696ac01)
 
@@ -7298,7 +9670,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__4" />
 
-## [5.79.4] - 7/21/2022 10:39:56 PM
+## [5.79.4] - Jul 21, 2022 10:39:56 PM
 
 Commit [3bf5c1d061d67524c5f97279a854473d9989e92b](https://github.com/StoneCypher/jssm/commit/3bf5c1d061d67524c5f97279a854473d9989e92b)
 
@@ -7316,7 +9688,7 @@ Merges [02bf1ff, 39f3906]
 
 &nbsp;
 
-## [Untagged] - 7/21/2022 10:35:56 PM
+## [Untagged] - Jul 21, 2022 10:35:56 PM
 
 Commit [39f390677155346d07f55264f006c1067932670f](https://github.com/StoneCypher/jssm/commit/39f390677155346d07f55264f006c1067932670f)
 
@@ -7331,7 +9703,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/21/2022 10:33:47 PM
+## [Untagged] - Jul 21, 2022 10:33:47 PM
 
 Commit [03f81a35f2c158b1139589bb67fd230fa46be3be](https://github.com/StoneCypher/jssm/commit/03f81a35f2c158b1139589bb67fd230fa46be3be)
 
@@ -7348,7 +9720,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__3" />
 
-## [5.79.3] - 7/18/2022 6:41:12 PM
+## [5.79.3] - Jul 18, 2022 6:41:12 PM
 
 Commit [02bf1ff5ef650323c2ad5d4a54d2c21caf0f272a](https://github.com/StoneCypher/jssm/commit/02bf1ff5ef650323c2ad5d4a54d2c21caf0f272a)
 
@@ -7365,7 +9737,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__2" />
 
-## [5.79.2] - 7/14/2022 11:39:18 PM
+## [5.79.2] - Jul 14, 2022 11:39:18 PM
 
 Commit [9f4e86c883c6bb776817da84ba3fe77473f47427](https://github.com/StoneCypher/jssm/commit/9f4e86c883c6bb776817da84ba3fe77473f47427)
 
@@ -7383,7 +9755,7 @@ Merges [f756f21, 3a127c6]
 
 &nbsp;
 
-## [Untagged] - 7/14/2022 11:31:58 PM
+## [Untagged] - Jul 14, 2022 11:31:58 PM
 
 Commit [3a127c6201604ec2323d72adabf72c07dd1425e3](https://github.com/StoneCypher/jssm/commit/3a127c6201604ec2323d72adabf72c07dd1425e3)
 
@@ -7398,7 +9770,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/14/2022 11:26:20 PM
+## [Untagged] - Jul 14, 2022 11:26:20 PM
 
 Commit [0a97cd4664b15047b265bd0bf72fd7da79b2d528](https://github.com/StoneCypher/jssm/commit/0a97cd4664b15047b265bd0bf72fd7da79b2d528)
 
@@ -7415,7 +9787,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__1" />
 
-## [5.79.1] - 7/14/2022 2:45:12 PM
+## [5.79.1] - Jul 14, 2022 2:45:12 PM
 
 Commit [f756f219a0b8ca95feae287a110261dc364030cc](https://github.com/StoneCypher/jssm/commit/f756f219a0b8ca95feae287a110261dc364030cc)
 
@@ -7433,7 +9805,7 @@ Merges [ed93695, e2cc7d1]
 
 &nbsp;
 
-## [Untagged] - 7/14/2022 2:37:44 PM
+## [Untagged] - Jul 14, 2022 2:37:44 PM
 
 Commit [e2cc7d1c49c6507572d26c30ff069aee19167eec](https://github.com/StoneCypher/jssm/commit/e2cc7d1c49c6507572d26c30ff069aee19167eec)
 
@@ -7450,7 +9822,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__79__0" />
 
-## [5.79.0] - 7/13/2022 9:32:13 PM
+## [5.79.0] - Jul 13, 2022 9:32:13 PM
 
 Commit [ed936950b132042aeb299c02ad199fe84d5f41f5](https://github.com/StoneCypher/jssm/commit/ed936950b132042aeb299c02ad199fe84d5f41f5)
 
@@ -7468,7 +9840,7 @@ Merges [7e9fc0d, d28ab5a]
 
 &nbsp;
 
-## [Untagged] - 7/13/2022 6:41:37 PM
+## [Untagged] - Jul 13, 2022 6:41:37 PM
 
 Commit [d28ab5a2a576d25bf45d5fd2f55895441a10cd99](https://github.com/StoneCypher/jssm/commit/d28ab5a2a576d25bf45d5fd2f55895441a10cd99)
 
@@ -7483,7 +9855,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/13/2022 2:23:16 PM
+## [Untagged] - Jul 13, 2022 2:23:16 PM
 
 Commit [ef4f483808e5aff64c4dee0ffac1472ac9202c4b](https://github.com/StoneCypher/jssm/commit/ef4f483808e5aff64c4dee0ffac1472ac9202c4b)
 
@@ -7498,7 +9870,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/13/2022 2:20:10 PM
+## [Untagged] - Jul 13, 2022 2:20:10 PM
 
 Commit [7814c864c7bffeeb755bc0f3d7ec1faf8e4a965d](https://github.com/StoneCypher/jssm/commit/7814c864c7bffeeb755bc0f3d7ec1faf8e4a965d)
 
@@ -7513,7 +9885,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/13/2022 9:06:10 AM
+## [Untagged] - Jul 13, 2022 9:06:10 AM
 
 Commit [1349b752fd40db754dfa760bfb60b16646ef5108](https://github.com/StoneCypher/jssm/commit/1349b752fd40db754dfa760bfb60b16646ef5108)
 
@@ -7528,7 +9900,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/13/2022 8:14:19 AM
+## [Untagged] - Jul 13, 2022 8:14:19 AM
 
 Commit [c7191c8ba796bd21cb2ba123038b9c6b5b274057](https://github.com/StoneCypher/jssm/commit/c7191c8ba796bd21cb2ba123038b9c6b5b274057)
 
@@ -7543,7 +9915,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2022 10:05:06 AM
+## [Untagged] - Jul 12, 2022 10:05:06 AM
 
 Commit [1629741f34d564706e6c91f8cfc60edcfdd379bb](https://github.com/StoneCypher/jssm/commit/1629741f34d564706e6c91f8cfc60edcfdd379bb)
 
@@ -7558,7 +9930,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/11/2022 10:38:54 PM
+## [Untagged] - Jul 11, 2022 10:38:54 PM
 
 Commit [fd306ed88144815a2d2fb26250709d4fba8f99fe](https://github.com/StoneCypher/jssm/commit/fd306ed88144815a2d2fb26250709d4fba8f99fe)
 
@@ -7573,7 +9945,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/11/2022 10:10:29 PM
+## [Untagged] - Jul 11, 2022 10:10:29 PM
 
 Commit [400cbe62582aa2261b694f01e0d04704a76a12ef](https://github.com/StoneCypher/jssm/commit/400cbe62582aa2261b694f01e0d04704a76a12ef)
 
@@ -7588,7 +9960,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/11/2022 9:55:08 PM
+## [Untagged] - Jul 11, 2022 9:55:08 PM
 
 Commit [31425dd227fa0811e387d96f89e40e2c0e148df3](https://github.com/StoneCypher/jssm/commit/31425dd227fa0811e387d96f89e40e2c0e148df3)
 
@@ -7605,7 +9977,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__78__0" />
 
-## [5.78.0] - 7/9/2022 4:22:51 PM
+## [5.78.0] - Jul 9, 2022 4:22:51 PM
 
 Commit [7e9fc0d832e0e46b477e27758183cc6ffc288916](https://github.com/StoneCypher/jssm/commit/7e9fc0d832e0e46b477e27758183cc6ffc288916)
 
@@ -7623,7 +9995,7 @@ Merges [6497ed4, 1e742f0]
 
 &nbsp;
 
-## [Untagged] - 7/9/2022 3:50:44 PM
+## [Untagged] - Jul 9, 2022 3:50:44 PM
 
 Commit [1e742f089c9d0d012691abe9cc6db82d54925469](https://github.com/StoneCypher/jssm/commit/1e742f089c9d0d012691abe9cc6db82d54925469)
 
@@ -7638,7 +10010,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/9/2022 1:00:20 PM
+## [Untagged] - Jul 9, 2022 1:00:20 PM
 
 Commit [05c1f81f02406cb3211e3d2bd84eefb2da201b3e](https://github.com/StoneCypher/jssm/commit/05c1f81f02406cb3211e3d2bd84eefb2da201b3e)
 
@@ -7655,7 +10027,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__77__1" />
 
-## [5.77.1] - 7/7/2022 10:36:21 PM
+## [5.77.1] - Jul 7, 2022 10:36:21 PM
 
 Commit [6497ed49a6a7dbe55509ac552cc30adb9ee19c9c](https://github.com/StoneCypher/jssm/commit/6497ed49a6a7dbe55509ac552cc30adb9ee19c9c)
 
@@ -7673,7 +10045,7 @@ Merges [e9400bd, 4623580]
 
 &nbsp;
 
-## [Untagged] - 7/7/2022 10:18:20 PM
+## [Untagged] - Jul 7, 2022 10:18:20 PM
 
 Commit [462358017970f5d968d8309ba8ee96d74648ec03](https://github.com/StoneCypher/jssm/commit/462358017970f5d968d8309ba8ee96d74648ec03)
 
@@ -7690,7 +10062,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__77__0" />
 
-## [5.77.0] - 7/7/2022 10:18:06 PM
+## [5.77.0] - Jul 7, 2022 10:18:06 PM
 
 Commit [e9400bd62c93201bcc34a002469e21910979cb2e](https://github.com/StoneCypher/jssm/commit/e9400bd62c93201bcc34a002469e21910979cb2e)
 
@@ -7708,7 +10080,7 @@ Merges [d1b55ae, 2c633a6]
 
 &nbsp;
 
-## [Untagged] - 7/7/2022 10:11:44 PM
+## [Untagged] - Jul 7, 2022 10:11:44 PM
 
 Commit [2c633a61b2ee0f13583ddc85923596f6b473abe6](https://github.com/StoneCypher/jssm/commit/2c633a61b2ee0f13583ddc85923596f6b473abe6)
 
@@ -7723,7 +10095,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/7/2022 12:29:56 PM
+## [Untagged] - Jul 7, 2022 12:29:56 PM
 
 Commit [d29b22488e10f3ee798b7ecb23598654fe987fb8](https://github.com/StoneCypher/jssm/commit/d29b22488e10f3ee798b7ecb23598654fe987fb8)
 
@@ -7740,7 +10112,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__76__2" />
 
-## [5.76.2] - 7/6/2022 8:27:33 AM
+## [5.76.2] - Jul 6, 2022 8:27:33 AM
 
 Commit [d1b55ae8944031677c228f06eec6a5a28eb695ac](https://github.com/StoneCypher/jssm/commit/d1b55ae8944031677c228f06eec6a5a28eb695ac)
 
@@ -7758,7 +10130,7 @@ Merges [813d866, 40677c7]
 
 &nbsp;
 
-## [Untagged] - 7/5/2022 1:24:10 PM
+## [Untagged] - Jul 5, 2022 1:24:10 PM
 
 Commit [40677c744241e590d901c317cdcc0046833a5257](https://github.com/StoneCypher/jssm/commit/40677c744241e590d901c317cdcc0046833a5257)
 
@@ -7775,7 +10147,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__76__0" />
 
-## [5.76.0] - 7/5/2022 1:02:57 PM
+## [5.76.0] - Jul 5, 2022 1:02:57 PM
 
 Commit [813d8668300b88e72c0598ec9b5b19fce777d05e](https://github.com/StoneCypher/jssm/commit/813d8668300b88e72c0598ec9b5b19fce777d05e)
 
@@ -7793,7 +10165,7 @@ Merges [bdea503, 1cc0629]
 
 &nbsp;
 
-## [Untagged] - 7/5/2022 12:58:07 PM
+## [Untagged] - Jul 5, 2022 12:58:07 PM
 
 Commit [1cc0629fd1afa845b074c7f6dd2fa3ae16284429](https://github.com/StoneCypher/jssm/commit/1cc0629fd1afa845b074c7f6dd2fa3ae16284429)
 
@@ -7808,7 +10180,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/5/2022 8:08:12 AM
+## [Untagged] - Jul 5, 2022 8:08:12 AM
 
 Commit [6ea28bad46da225e3593c294837d397234e0a84d](https://github.com/StoneCypher/jssm/commit/6ea28bad46da225e3593c294837d397234e0a84d)
 
@@ -7823,7 +10195,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2022 11:08:37 PM
+## [Untagged] - Jul 4, 2022 11:08:37 PM
 
 Commit [86706ce989f8651b79f58dce6cf2511f43fa0629](https://github.com/StoneCypher/jssm/commit/86706ce989f8651b79f58dce6cf2511f43fa0629)
 
@@ -7838,7 +10210,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2022 2:16:27 PM
+## [Untagged] - Jul 3, 2022 2:16:27 PM
 
 Commit [604f0dda3438d81a9209013d77caccc3b89cdd20](https://github.com/StoneCypher/jssm/commit/604f0dda3438d81a9209013d77caccc3b89cdd20)
 
@@ -7855,7 +10227,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__75__1" />
 
-## [5.75.1] - 7/3/2022 1:49:19 PM
+## [5.75.1] - Jul 3, 2022 1:49:19 PM
 
 Commit [bdea50316e8e826af73a4e6ab39f925492328c51](https://github.com/StoneCypher/jssm/commit/bdea50316e8e826af73a4e6ab39f925492328c51)
 
@@ -7873,7 +10245,7 @@ Merges [cb76475, f084d51]
 
 &nbsp;
 
-## [Untagged] - 7/3/2022 1:44:42 PM
+## [Untagged] - Jul 3, 2022 1:44:42 PM
 
 Commit [f084d5194d6ab414934daa4ca693107bfee80ac4](https://github.com/StoneCypher/jssm/commit/f084d5194d6ab414934daa4ca693107bfee80ac4)
 
@@ -7890,7 +10262,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__75__0" />
 
-## [5.75.0] - 7/3/2022 11:46:27 AM
+## [5.75.0] - Jul 3, 2022 11:46:27 AM
 
 Commit [cb76475847c87d1e222896b194da9d139b15c21e](https://github.com/StoneCypher/jssm/commit/cb76475847c87d1e222896b194da9d139b15c21e)
 
@@ -7908,7 +10280,7 @@ Merges [3940ac2, 840dcb9]
 
 &nbsp;
 
-## [Untagged] - 7/3/2022 11:42:38 AM
+## [Untagged] - Jul 3, 2022 11:42:38 AM
 
 Commit [840dcb95c04c49e04e92cd5564a09b18cd755ea4](https://github.com/StoneCypher/jssm/commit/840dcb95c04c49e04e92cd5564a09b18cd755ea4)
 
@@ -7923,7 +10295,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2022 11:41:18 AM
+## [Untagged] - Jul 3, 2022 11:41:18 AM
 
 Commit [bed41d9f0a3d18c7d7cfc4b28e96e92702b854eb](https://github.com/StoneCypher/jssm/commit/bed41d9f0a3d18c7d7cfc4b28e96e92702b854eb)
 
@@ -7938,7 +10310,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2022 10:40:28 AM
+## [Untagged] - Jul 3, 2022 10:40:28 AM
 
 Commit [2526a1be2684b58e56fa44d28090a756e330b495](https://github.com/StoneCypher/jssm/commit/2526a1be2684b58e56fa44d28090a756e330b495)
 
@@ -7953,7 +10325,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2022 10:08:02 AM
+## [Untagged] - Jul 3, 2022 10:08:02 AM
 
 Commit [99ef3d9866ff6830528005c9196456e2b766dc09](https://github.com/StoneCypher/jssm/commit/99ef3d9866ff6830528005c9196456e2b766dc09)
 
@@ -7970,7 +10342,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__74__0" />
 
-## [5.74.0] - 7/2/2022 11:38:27 AM
+## [5.74.0] - Jul 2, 2022 11:38:27 AM
 
 Commit [3940ac2b520c843153af11b2c67b0e8915ede619](https://github.com/StoneCypher/jssm/commit/3940ac2b520c843153af11b2c67b0e8915ede619)
 
@@ -7988,7 +10360,7 @@ Merges [89b9c2c, 9543655]
 
 &nbsp;
 
-## [Untagged] - 7/2/2022 11:35:19 AM
+## [Untagged] - Jul 2, 2022 11:35:19 AM
 
 Commit [95436551d075df2f4bb2c4baea55d9f1132e90a6](https://github.com/StoneCypher/jssm/commit/95436551d075df2f4bb2c4baea55d9f1132e90a6)
 
@@ -8003,7 +10375,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/2/2022 11:04:51 AM
+## [Untagged] - Jul 2, 2022 11:04:51 AM
 
 Commit [0222ce4624e1463b875bbb68292a39b438f267a3](https://github.com/StoneCypher/jssm/commit/0222ce4624e1463b875bbb68292a39b438f267a3)
 
@@ -8018,7 +10390,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/1/2022 4:56:32 PM
+## [Untagged] - Jul 1, 2022 4:56:32 PM
 
 Commit [99847f8ef8c60b521c6d3e979bcf07dd60125a56](https://github.com/StoneCypher/jssm/commit/99847f8ef8c60b521c6d3e979bcf07dd60125a56)
 
@@ -8033,7 +10405,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/1/2022 4:03:56 PM
+## [Untagged] - Jul 1, 2022 4:03:56 PM
 
 Commit [e5bfa2acf8edefe9322bd17540307ffb1f9eeb4d](https://github.com/StoneCypher/jssm/commit/e5bfa2acf8edefe9322bd17540307ffb1f9eeb4d)
 
@@ -8048,7 +10420,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/30/2022 6:03:58 PM
+## [Untagged] - Jun 30, 2022 6:03:58 PM
 
 Commit [bb3c0014580c940b1294e19e64ac432c44bb7081](https://github.com/StoneCypher/jssm/commit/bb3c0014580c940b1294e19e64ac432c44bb7081)
 
@@ -8065,7 +10437,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__73__1" />
 
-## [5.73.1] - 6/27/2022 2:54:25 AM
+## [5.73.1] - Jun 27, 2022 2:54:25 AM
 
 Commit [89b9c2cecceee0ea04471c7c406ece82ff115555](https://github.com/StoneCypher/jssm/commit/89b9c2cecceee0ea04471c7c406ece82ff115555)
 
@@ -8082,7 +10454,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__73__0" />
 
-## [5.73.0] - 6/27/2022 2:36:36 AM
+## [5.73.0] - Jun 27, 2022 2:36:36 AM
 
 Commit [39f9a8671a45e1e9a903289431bc3bc7a1e292e5](https://github.com/StoneCypher/jssm/commit/39f9a8671a45e1e9a903289431bc3bc7a1e292e5)
 
@@ -8100,7 +10472,7 @@ Merges [f1a61f1, c494012]
 
 &nbsp;
 
-## [Untagged] - 6/27/2022 2:30:06 AM
+## [Untagged] - Jun 27, 2022 2:30:06 AM
 
 Commit [c494012f33a608ae32bc31581549281abc98f120](https://github.com/StoneCypher/jssm/commit/c494012f33a608ae32bc31581549281abc98f120)
 
@@ -8117,7 +10489,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__72__5" />
 
-## [5.72.5] - 6/25/2022 11:07:29 AM
+## [5.72.5] - Jun 25, 2022 11:07:29 AM
 
 Commit [f1a61f1e967df66b87f2b6b39f75636659f496e9](https://github.com/StoneCypher/jssm/commit/f1a61f1e967df66b87f2b6b39f75636659f496e9)
 
@@ -8135,7 +10507,7 @@ Merges [dc3096f, 751c5fd]
 
 &nbsp;
 
-## [Untagged] - 6/25/2022 11:04:20 AM
+## [Untagged] - Jun 25, 2022 11:04:20 AM
 
 Commit [751c5fd0cc8c9751331e664e8f51af34f736ce31](https://github.com/StoneCypher/jssm/commit/751c5fd0cc8c9751331e664e8f51af34f736ce31)
 
@@ -8152,7 +10524,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__72__4" />
 
-## [5.72.4] - 6/25/2022 8:12:11 AM
+## [5.72.4] - Jun 25, 2022 8:12:11 AM
 
 Commit [dc3096f064e58ea616899b12d3d25c973f326c1c](https://github.com/StoneCypher/jssm/commit/dc3096f064e58ea616899b12d3d25c973f326c1c)
 
@@ -8170,7 +10542,7 @@ Merges [a184324, 8762d17]
 
 &nbsp;
 
-## [Untagged] - 6/25/2022 8:08:38 AM
+## [Untagged] - Jun 25, 2022 8:08:38 AM
 
 Commit [8762d17bd69cdf48f522dbd6ee188f46e29a0c06](https://github.com/StoneCypher/jssm/commit/8762d17bd69cdf48f522dbd6ee188f46e29a0c06)
 
@@ -8185,7 +10557,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2022 7:15:46 AM
+## [Untagged] - Jun 25, 2022 7:15:46 AM
 
 Commit [fb82aff27a911a29304c8b7c211e48c1b6ac454e](https://github.com/StoneCypher/jssm/commit/fb82aff27a911a29304c8b7c211e48c1b6ac454e)
 
@@ -8200,7 +10572,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2022 7:05:36 AM
+## [Untagged] - Jun 25, 2022 7:05:36 AM
 
 Commit [3ffc6c2a0b76d1a4870cd80a0f94d745e1c976c9](https://github.com/StoneCypher/jssm/commit/3ffc6c2a0b76d1a4870cd80a0f94d745e1c976c9)
 
@@ -8215,7 +10587,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2022 6:50:50 AM
+## [Untagged] - Jun 25, 2022 6:50:50 AM
 
 Commit [e74cb836ae9c06a3261658ee969506c8dd3c9a24](https://github.com/StoneCypher/jssm/commit/e74cb836ae9c06a3261658ee969506c8dd3c9a24)
 
@@ -8230,7 +10602,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/24/2022 9:24:32 PM
+## [Untagged] - Jun 24, 2022 9:24:32 PM
 
 Commit [df34e0fd36d969bcb80488c6609d6bf4140b89a4](https://github.com/StoneCypher/jssm/commit/df34e0fd36d969bcb80488c6609d6bf4140b89a4)
 
@@ -8245,7 +10617,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/24/2022 8:34:59 PM
+## [Untagged] - Jun 24, 2022 8:34:59 PM
 
 Commit [8db075dcd9a135e6757a11c5e497130bb3edb6a9](https://github.com/StoneCypher/jssm/commit/8db075dcd9a135e6757a11c5e497130bb3edb6a9)
 
@@ -8262,7 +10634,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__72__3" />
 
-## [5.72.3] - 6/24/2022 7:48:13 PM
+## [5.72.3] - Jun 24, 2022 7:48:13 PM
 
 Commit [a1843247eb5c063910643f675f0a85764f3f3683](https://github.com/StoneCypher/jssm/commit/a1843247eb5c063910643f675f0a85764f3f3683)
 
@@ -8280,7 +10652,7 @@ Merges [b0cbe1c, d52217a]
 
 &nbsp;
 
-## [Untagged] - 6/24/2022 7:44:55 PM
+## [Untagged] - Jun 24, 2022 7:44:55 PM
 
 Commit [d52217ab9dde2a5746cd0704597d337362057024](https://github.com/StoneCypher/jssm/commit/d52217ab9dde2a5746cd0704597d337362057024)
 
@@ -8295,7 +10667,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/24/2022 7:36:27 PM
+## [Untagged] - Jun 24, 2022 7:36:27 PM
 
 Commit [adfa9069ba5e78d8a227896a5f7e14a8f4b80117](https://github.com/StoneCypher/jssm/commit/adfa9069ba5e78d8a227896a5f7e14a8f4b80117)
 
@@ -8312,7 +10684,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__72__2" />
 
-## [5.72.2] - 6/24/2022 5:49:06 PM
+## [5.72.2] - Jun 24, 2022 5:49:06 PM
 
 Commit [b0cbe1c1ae0199c8d78a82f624e8ee94b344cf71](https://github.com/StoneCypher/jssm/commit/b0cbe1c1ae0199c8d78a82f624e8ee94b344cf71)
 
@@ -8329,7 +10701,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__72__1" />
 
-## [5.72.1] - 6/24/2022 4:55:33 PM
+## [5.72.1] - Jun 24, 2022 4:55:33 PM
 
 Commit [547e35599ed312bf5300d3f1685e2cb16b80a73e](https://github.com/StoneCypher/jssm/commit/547e35599ed312bf5300d3f1685e2cb16b80a73e)
 
@@ -8346,7 +10718,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__72__0" />
 
-## [5.72.0] - 6/24/2022 4:08:35 PM
+## [5.72.0] - Jun 24, 2022 4:08:35 PM
 
 Commit [a1c43e9f65f2fd8e856a2544f7c3056b4c06d9d3](https://github.com/StoneCypher/jssm/commit/a1c43e9f65f2fd8e856a2544f7c3056b4c06d9d3)
 
@@ -8363,7 +10735,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__71__1" />
 
-## [5.71.1] - 6/23/2022 6:34:38 PM
+## [5.71.1] - Jun 23, 2022 6:34:38 PM
 
 Commit [1dc7c24bfb651eec57fddc902f78db796f71a6c5](https://github.com/StoneCypher/jssm/commit/1dc7c24bfb651eec57fddc902f78db796f71a6c5)
 
@@ -8380,7 +10752,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__71__0" />
 
-## [5.71.0] - 6/23/2022 1:41:18 PM
+## [5.71.0] - Jun 23, 2022 1:41:18 PM
 
 Commit [67c3240798d31933413aab27db7ea9fbb5de3b2a](https://github.com/StoneCypher/jssm/commit/67c3240798d31933413aab27db7ea9fbb5de3b2a)
 
@@ -8397,7 +10769,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__36" />
 
-## [5.70.36] - 6/21/2022 6:53:36 PM
+## [5.70.36] - Jun 21, 2022 6:53:36 PM
 
 Commit [093db23b719161e35e477cc0fe7d9f1132bc28b8](https://github.com/StoneCypher/jssm/commit/093db23b719161e35e477cc0fe7d9f1132bc28b8)
 
@@ -8414,7 +10786,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__35" />
 
-## [5.70.35] - 6/19/2022 10:56:41 AM
+## [5.70.35] - Jun 19, 2022 10:56:41 AM
 
 Commit [13ee9eb71ca9ab868699e535abf6ba30c8ad5829](https://github.com/StoneCypher/jssm/commit/13ee9eb71ca9ab868699e535abf6ba30c8ad5829)
 
@@ -8429,7 +10801,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/19/2022 10:37:04 AM
+## [Untagged] - Jun 19, 2022 10:37:04 AM
 
 Commit [b3e69d9745b92d845bedcfbc08f342997137af3d](https://github.com/StoneCypher/jssm/commit/b3e69d9745b92d845bedcfbc08f342997137af3d)
 
@@ -8446,7 +10818,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__34" />
 
-## [5.70.34] - 6/18/2022 9:40:31 PM
+## [5.70.34] - Jun 18, 2022 9:40:31 PM
 
 Commit [a0f295f060c7f08a8b10b2208dd1c95dc7f3c97a](https://github.com/StoneCypher/jssm/commit/a0f295f060c7f08a8b10b2208dd1c95dc7f3c97a)
 
@@ -8463,7 +10835,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__33" />
 
-## [5.70.33] - 6/18/2022 8:57:42 PM
+## [5.70.33] - Jun 18, 2022 8:57:42 PM
 
 Commit [ca254f455f2c19f21e77834e993c310e05272822](https://github.com/StoneCypher/jssm/commit/ca254f455f2c19f21e77834e993c310e05272822)
 
@@ -8480,7 +10852,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__32" />
 
-## [5.70.32] - 6/18/2022 8:48:07 PM
+## [5.70.32] - Jun 18, 2022 8:48:07 PM
 
 Commit [8115e8b62d8ac1cff3c7eb07afabced097f1be42](https://github.com/StoneCypher/jssm/commit/8115e8b62d8ac1cff3c7eb07afabced097f1be42)
 
@@ -8497,7 +10869,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__31" />
 
-## [5.70.31] - 6/18/2022 8:00:06 PM
+## [5.70.31] - Jun 18, 2022 8:00:06 PM
 
 Commit [de3d8a105aa85045a9f19ed46b4b3c5e5fb1e235](https://github.com/StoneCypher/jssm/commit/de3d8a105aa85045a9f19ed46b4b3c5e5fb1e235)
 
@@ -8514,7 +10886,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__30" />
 
-## [5.70.30] - 6/18/2022 10:54:02 AM
+## [5.70.30] - Jun 18, 2022 10:54:02 AM
 
 Commit [3211f94bb943a63ae07f202eb168916d73f94f90](https://github.com/StoneCypher/jssm/commit/3211f94bb943a63ae07f202eb168916d73f94f90)
 
@@ -8531,7 +10903,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__29" />
 
-## [5.70.29] - 6/18/2022 8:40:30 AM
+## [5.70.29] - Jun 18, 2022 8:40:30 AM
 
 Commit [7373cfa90383dc2adbe0649be86cb89bef1c0518](https://github.com/StoneCypher/jssm/commit/7373cfa90383dc2adbe0649be86cb89bef1c0518)
 
@@ -8548,7 +10920,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__28" />
 
-## [5.70.28] - 6/18/2022 8:21:21 AM
+## [5.70.28] - Jun 18, 2022 8:21:21 AM
 
 Commit [9a95a6b865b1d517859c45f0b525bbebed6af5e3](https://github.com/StoneCypher/jssm/commit/9a95a6b865b1d517859c45f0b525bbebed6af5e3)
 
@@ -8565,7 +10937,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__27" />
 
-## [5.70.27] - 6/18/2022 8:05:30 AM
+## [5.70.27] - Jun 18, 2022 8:05:30 AM
 
 Commit [5cb795f450f141c3f743b6583d7a22495e945864](https://github.com/StoneCypher/jssm/commit/5cb795f450f141c3f743b6583d7a22495e945864)
 
@@ -8582,7 +10954,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__26" />
 
-## [5.70.26] - 6/18/2022 12:30:33 AM
+## [5.70.26] - Jun 18, 2022 12:30:33 AM
 
 Commit [58ae08abf0b5f62c375a93a15397d026aa427067](https://github.com/StoneCypher/jssm/commit/58ae08abf0b5f62c375a93a15397d026aa427067)
 
@@ -8599,7 +10971,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__25" />
 
-## [5.70.25] - 6/18/2022 12:13:48 AM
+## [5.70.25] - Jun 18, 2022 12:13:48 AM
 
 Commit [cbf80320d60307321deeb1ee6c69c99eda0396f4](https://github.com/StoneCypher/jssm/commit/cbf80320d60307321deeb1ee6c69c99eda0396f4)
 
@@ -8616,7 +10988,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__24" />
 
-## [5.70.24] - 6/17/2022 11:59:55 PM
+## [5.70.24] - Jun 17, 2022 11:59:55 PM
 
 Commit [aa94a8998f4e3c06b6dea36af21e6184368db0cd](https://github.com/StoneCypher/jssm/commit/aa94a8998f4e3c06b6dea36af21e6184368db0cd)
 
@@ -8633,7 +11005,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__23" />
 
-## [5.70.23] - 6/17/2022 11:39:28 PM
+## [5.70.23] - Jun 17, 2022 11:39:28 PM
 
 Commit [5c39bf1ecfa91af74794b153181c13823ca60806](https://github.com/StoneCypher/jssm/commit/5c39bf1ecfa91af74794b153181c13823ca60806)
 
@@ -8650,7 +11022,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__22" />
 
-## [5.70.22] - 6/17/2022 11:16:45 PM
+## [5.70.22] - Jun 17, 2022 11:16:45 PM
 
 Commit [2d23c3b2fcd31e6a6e9d1744b24cb688f344efb5](https://github.com/StoneCypher/jssm/commit/2d23c3b2fcd31e6a6e9d1744b24cb688f344efb5)
 
@@ -8667,7 +11039,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__21" />
 
-## [5.70.21] - 6/17/2022 7:06:38 AM
+## [5.70.21] - Jun 17, 2022 7:06:38 AM
 
 Commit [0612e2a46b9701eb2222cdb38bb9c2eb4a9f3e1d](https://github.com/StoneCypher/jssm/commit/0612e2a46b9701eb2222cdb38bb9c2eb4a9f3e1d)
 
@@ -8684,7 +11056,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__20" />
 
-## [5.70.20] - 6/17/2022 6:08:07 AM
+## [5.70.20] - Jun 17, 2022 6:08:07 AM
 
 Commit [70be907be736a36d61efde959249923f47c6db64](https://github.com/StoneCypher/jssm/commit/70be907be736a36d61efde959249923f47c6db64)
 
@@ -8699,7 +11071,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/16/2022 8:58:23 PM
+## [Untagged] - Jun 16, 2022 8:58:23 PM
 
 Commit [56ff662bbcdd138c2f8631ff427b921816b0a5f6](https://github.com/StoneCypher/jssm/commit/56ff662bbcdd138c2f8631ff427b921816b0a5f6)
 
@@ -8716,7 +11088,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__19" />
 
-## [5.70.19] - 6/14/2022 10:17:50 PM
+## [5.70.19] - Jun 14, 2022 10:17:50 PM
 
 Commit [3e9590c7bf93bc04bb474870c6bdd3910b08494d](https://github.com/StoneCypher/jssm/commit/3e9590c7bf93bc04bb474870c6bdd3910b08494d)
 
@@ -8733,7 +11105,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__18" />
 
-## [5.70.18] - 6/12/2022 10:23:56 PM
+## [5.70.18] - Jun 12, 2022 10:23:56 PM
 
 Commit [1b55b081409efc11ec4b4cfd87f19c46577c0458](https://github.com/StoneCypher/jssm/commit/1b55b081409efc11ec4b4cfd87f19c46577c0458)
 
@@ -8750,7 +11122,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__16" />
 
-## [5.70.16] - 6/11/2022 8:33:18 PM
+## [5.70.16] - Jun 11, 2022 8:33:18 PM
 
 Commit [17f14450b659277dd0130a633b65b6648209cd34](https://github.com/StoneCypher/jssm/commit/17f14450b659277dd0130a633b65b6648209cd34)
 
@@ -8767,7 +11139,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__15" />
 
-## [5.70.15] - 6/11/2022 4:45:42 PM
+## [5.70.15] - Jun 11, 2022 4:45:42 PM
 
 Commit [3f5440d176bf9b8e52a9aac3d3558b86b00335c5](https://github.com/StoneCypher/jssm/commit/3f5440d176bf9b8e52a9aac3d3558b86b00335c5)
 
@@ -8784,7 +11156,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__14" />
 
-## [5.70.14] - 6/11/2022 8:01:44 AM
+## [5.70.14] - Jun 11, 2022 8:01:44 AM
 
 Commit [fcf214210e8c9ab43176453711db8759d3b13402](https://github.com/StoneCypher/jssm/commit/fcf214210e8c9ab43176453711db8759d3b13402)
 
@@ -8801,7 +11173,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__13" />
 
-## [5.70.13] - 6/10/2022 10:47:40 PM
+## [5.70.13] - Jun 10, 2022 10:47:40 PM
 
 Commit [b6805a6d6f87139839aff6542212fb5176e9859d](https://github.com/StoneCypher/jssm/commit/b6805a6d6f87139839aff6542212fb5176e9859d)
 
@@ -8818,7 +11190,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__12" />
 
-## [5.70.12] - 6/10/2022 10:25:34 PM
+## [5.70.12] - Jun 10, 2022 10:25:34 PM
 
 Commit [0fe3acc4e95251cc359778779af4f114c36442db](https://github.com/StoneCypher/jssm/commit/0fe3acc4e95251cc359778779af4f114c36442db)
 
@@ -8835,7 +11207,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__11" />
 
-## [5.70.11] - 6/10/2022 9:50:31 PM
+## [5.70.11] - Jun 10, 2022 9:50:31 PM
 
 Commit [c74103eacaf6b256157c29805d36589f1058dbfb](https://github.com/StoneCypher/jssm/commit/c74103eacaf6b256157c29805d36589f1058dbfb)
 
@@ -8852,7 +11224,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__10" />
 
-## [5.70.10] - 6/10/2022 9:43:13 PM
+## [5.70.10] - Jun 10, 2022 9:43:13 PM
 
 Commit [ed49199ea740b7716ca13f5ca81d40fbcac52c18](https://github.com/StoneCypher/jssm/commit/ed49199ea740b7716ca13f5ca81d40fbcac52c18)
 
@@ -8869,7 +11241,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__9" />
 
-## [5.70.9] - 6/10/2022 9:34:03 PM
+## [5.70.9] - Jun 10, 2022 9:34:03 PM
 
 Commit [34ef1e50580606e642dfc88cd34a4237dc0f7548](https://github.com/StoneCypher/jssm/commit/34ef1e50580606e642dfc88cd34a4237dc0f7548)
 
@@ -8886,7 +11258,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__8" />
 
-## [5.70.8] - 6/10/2022 8:39:37 AM
+## [5.70.8] - Jun 10, 2022 8:39:37 AM
 
 Commit [0cb00f7598bc44c300d69e78e50bc2b1f4d13e88](https://github.com/StoneCypher/jssm/commit/0cb00f7598bc44c300d69e78e50bc2b1f4d13e88)
 
@@ -8903,7 +11275,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__7" />
 
-## [5.70.7] - 6/9/2022 11:53:28 PM
+## [5.70.7] - Jun 9, 2022 11:53:28 PM
 
 Commit [20ae8b19fdf9b576d4d81508ab6a0cfa75a9770a](https://github.com/StoneCypher/jssm/commit/20ae8b19fdf9b576d4d81508ab6a0cfa75a9770a)
 
@@ -8920,7 +11292,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__6" />
 
-## [5.70.6] - 6/9/2022 10:32:05 PM
+## [5.70.6] - Jun 9, 2022 10:32:05 PM
 
 Commit [5b8973e584a47b21164d6c75636dc218ac03680f](https://github.com/StoneCypher/jssm/commit/5b8973e584a47b21164d6c75636dc218ac03680f)
 
@@ -8937,7 +11309,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__5" />
 
-## [5.70.5] - 6/9/2022 10:20:44 PM
+## [5.70.5] - Jun 9, 2022 10:20:44 PM
 
 Commit [4bc2a6a73d2709e8ebb6be74fe431b33e250a049](https://github.com/StoneCypher/jssm/commit/4bc2a6a73d2709e8ebb6be74fe431b33e250a049)
 
@@ -8954,7 +11326,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__4" />
 
-## [5.70.4] - 6/9/2022 9:49:04 PM
+## [5.70.4] - Jun 9, 2022 9:49:04 PM
 
 Commit [f1b76c594ac3c311d2567441f01517b1342a5a1d](https://github.com/StoneCypher/jssm/commit/f1b76c594ac3c311d2567441f01517b1342a5a1d)
 
@@ -8969,7 +11341,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/9/2022 9:37:46 PM
+## [Untagged] - Jun 9, 2022 9:37:46 PM
 
 Commit [f95e2d836dec42e93031a09260447bf1c60c2643](https://github.com/StoneCypher/jssm/commit/f95e2d836dec42e93031a09260447bf1c60c2643)
 
@@ -8986,7 +11358,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__3" />
 
-## [5.70.3] - 6/9/2022 8:29:39 PM
+## [5.70.3] - Jun 9, 2022 8:29:39 PM
 
 Commit [9da2770dc47d3c2e99b9b95a56f1ae447d7ee2b7](https://github.com/StoneCypher/jssm/commit/9da2770dc47d3c2e99b9b95a56f1ae447d7ee2b7)
 
@@ -9004,7 +11376,7 @@ Merges [c48f55d, ab559f1]
 
 &nbsp;
 
-## [Untagged] - 6/9/2022 8:15:26 PM
+## [Untagged] - Jun 9, 2022 8:15:26 PM
 
 Commit [ab559f18da3ee21500a34aa99d23c0433ea0e226](https://github.com/StoneCypher/jssm/commit/ab559f18da3ee21500a34aa99d23c0433ea0e226)
 
@@ -9023,7 +11395,7 @@ Merges [a0db9ad, c48f55d]
 
 <a name="5__70__2" />
 
-## [5.70.2] - 6/8/2022 8:43:12 PM
+## [5.70.2] - Jun 8, 2022 8:43:12 PM
 
 Commit [c48f55d02b6b52c57bf494549423df60f45bb393](https://github.com/StoneCypher/jssm/commit/c48f55d02b6b52c57bf494549423df60f45bb393)
 
@@ -9041,7 +11413,7 @@ Merges [e7a09e7, 575db4a]
 
 &nbsp;
 
-## [Untagged] - 6/8/2022 7:57:47 PM
+## [Untagged] - Jun 8, 2022 7:57:47 PM
 
 Commit [575db4a067c163829f33790538858b43c469ea55](https://github.com/StoneCypher/jssm/commit/575db4a067c163829f33790538858b43c469ea55)
 
@@ -9058,7 +11430,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__1" />
 
-## [5.70.1] - 6/7/2022 11:59:22 PM
+## [5.70.1] - Jun 7, 2022 11:59:22 PM
 
 Commit [e7a09e7cffc7782781843a106789acbeb6ceba12](https://github.com/StoneCypher/jssm/commit/e7a09e7cffc7782781843a106789acbeb6ceba12)
 
@@ -9076,7 +11448,7 @@ Merges [5246c9e, 9bb5cd8]
 
 &nbsp;
 
-## [Untagged] - 6/7/2022 11:28:45 PM
+## [Untagged] - Jun 7, 2022 11:28:45 PM
 
 Commit [9bb5cd89eccc48f267a5997559998b55fe21ded9](https://github.com/StoneCypher/jssm/commit/9bb5cd89eccc48f267a5997559998b55fe21ded9)
 
@@ -9093,7 +11465,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__70__0" />
 
-## [5.70.0] - 6/7/2022 10:53:31 PM
+## [5.70.0] - Jun 7, 2022 10:53:31 PM
 
 Commit [5246c9eae2d41efaa49196c24d5a89647c2eae0d](https://github.com/StoneCypher/jssm/commit/5246c9eae2d41efaa49196c24d5a89647c2eae0d)
 
@@ -9111,7 +11483,7 @@ Merges [fd7acd5, 512332c]
 
 &nbsp;
 
-## [Untagged] - 6/7/2022 10:49:31 PM
+## [Untagged] - Jun 7, 2022 10:49:31 PM
 
 Commit [512332c813e25ff2c4f5fe21181a0a62743002b2](https://github.com/StoneCypher/jssm/commit/512332c813e25ff2c4f5fe21181a0a62743002b2)
 
@@ -9126,7 +11498,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/7/2022 10:40:17 PM
+## [Untagged] - Jun 7, 2022 10:40:17 PM
 
 Commit [a0db9ad15ab9391fd75425d9541b767049964f43](https://github.com/StoneCypher/jssm/commit/a0db9ad15ab9391fd75425d9541b767049964f43)
 
@@ -9143,7 +11515,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__69__4" />
 
-## [5.69.4] - 6/7/2022 1:13:40 PM
+## [5.69.4] - Jun 7, 2022 1:13:40 PM
 
 Commit [fd7acd54951bac115616ea74ed61081121aa133b](https://github.com/StoneCypher/jssm/commit/fd7acd54951bac115616ea74ed61081121aa133b)
 
@@ -9160,7 +11532,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__69__3" />
 
-## [5.69.3] - 6/6/2022 11:00:48 PM
+## [5.69.3] - Jun 6, 2022 11:00:48 PM
 
 Commit [379a021325ca39e24e2604d2c79046b89cabac9b](https://github.com/StoneCypher/jssm/commit/379a021325ca39e24e2604d2c79046b89cabac9b)
 
@@ -9177,7 +11549,7 @@ Merges [445bed8, 737e3f0]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 11:00:09 PM
+## [Untagged] - Jun 6, 2022 11:00:09 PM
 
 Commit [445bed8c7b5f805236cc6999a84f6fd5e11ae29a](https://github.com/StoneCypher/jssm/commit/445bed8c7b5f805236cc6999a84f6fd5e11ae29a)
 
@@ -9194,7 +11566,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__69__2" />
 
-## [5.69.2] - 6/6/2022 10:50:37 PM
+## [5.69.2] - Jun 6, 2022 10:50:37 PM
 
 Commit [737e3f0377ae6dfcd1a6c482c90244fe7d4c0eb9](https://github.com/StoneCypher/jssm/commit/737e3f0377ae6dfcd1a6c482c90244fe7d4c0eb9)
 
@@ -9212,7 +11584,7 @@ Merges [b0fe5d4, 9403681]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:49:00 PM
+## [Untagged] - Jun 6, 2022 10:49:00 PM
 
 Commit [9403681c28a5c55e6fc5e296602ac2d497429bd8](https://github.com/StoneCypher/jssm/commit/9403681c28a5c55e6fc5e296602ac2d497429bd8)
 
@@ -9227,7 +11599,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:39:46 PM
+## [Untagged] - Jun 6, 2022 10:39:46 PM
 
 Commit [19b57adbb571d5b22a843f7d23d4cf9db9eac0c2](https://github.com/StoneCypher/jssm/commit/19b57adbb571d5b22a843f7d23d4cf9db9eac0c2)
 
@@ -9244,7 +11616,7 @@ Merges [570555e, b0fe5d4]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:39:30 PM
+## [Untagged] - Jun 6, 2022 10:39:30 PM
 
 Commit [570555ea0c4dcc36e50358152401f7055012b011](https://github.com/StoneCypher/jssm/commit/570555ea0c4dcc36e50358152401f7055012b011)
 
@@ -9261,7 +11633,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__69__0" />
 
-## [5.69.0] - 6/6/2022 10:29:57 PM
+## [5.69.0] - Jun 6, 2022 10:29:57 PM
 
 Commit [b0fe5d467f6571fa5c9bf19805c3d43cf5a8fc0a](https://github.com/StoneCypher/jssm/commit/b0fe5d467f6571fa5c9bf19805c3d43cf5a8fc0a)
 
@@ -9279,7 +11651,7 @@ Merges [ea3e310, 5950672]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:26:13 PM
+## [Untagged] - Jun 6, 2022 10:26:13 PM
 
 Commit [5950672faaa4406176b19936974626cc7367f41f](https://github.com/StoneCypher/jssm/commit/5950672faaa4406176b19936974626cc7367f41f)
 
@@ -9294,7 +11666,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:21:02 PM
+## [Untagged] - Jun 6, 2022 10:21:02 PM
 
 Commit [ea3e3102212df5439c10895f01e72c53b1b6b1a2](https://github.com/StoneCypher/jssm/commit/ea3e3102212df5439c10895f01e72c53b1b6b1a2)
 
@@ -9309,7 +11681,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:19:45 PM
+## [Untagged] - Jun 6, 2022 10:19:45 PM
 
 Commit [da9057d5db5bfc317f5a521073353f295407bf16](https://github.com/StoneCypher/jssm/commit/da9057d5db5bfc317f5a521073353f295407bf16)
 
@@ -9324,7 +11696,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:18:47 PM
+## [Untagged] - Jun 6, 2022 10:18:47 PM
 
 Commit [9a98000ae2a31b25447cb36f2dab1960b086fadf](https://github.com/StoneCypher/jssm/commit/9a98000ae2a31b25447cb36f2dab1960b086fadf)
 
@@ -9339,7 +11711,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:16:17 PM
+## [Untagged] - Jun 6, 2022 10:16:17 PM
 
 Commit [c8454ba282de3e45db7e6cce48f09f50f27e9cda](https://github.com/StoneCypher/jssm/commit/c8454ba282de3e45db7e6cce48f09f50f27e9cda)
 
@@ -9357,7 +11729,7 @@ Merges [45c333b, c9c06ad]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 10:15:52 PM
+## [Untagged] - Jun 6, 2022 10:15:52 PM
 
 Commit [c9c06adef180fc2ecef7fc4ef77f20e991b914bb](https://github.com/StoneCypher/jssm/commit/c9c06adef180fc2ecef7fc4ef77f20e991b914bb)
 
@@ -9374,7 +11746,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__68__0" />
 
-## [5.68.0] - 6/6/2022 9:07:55 PM
+## [5.68.0] - Jun 6, 2022 9:07:55 PM
 
 Commit [45c333b9bc363a9052b896f678e6720528b7d41a](https://github.com/StoneCypher/jssm/commit/45c333b9bc363a9052b896f678e6720528b7d41a)
 
@@ -9392,7 +11764,7 @@ Merges [210a326, 2095310]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 8:49:29 PM
+## [Untagged] - Jun 6, 2022 8:49:29 PM
 
 Commit [20953101c01e46562b538581d08eeea9822441d6](https://github.com/StoneCypher/jssm/commit/20953101c01e46562b538581d08eeea9822441d6)
 
@@ -9409,7 +11781,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__67__2" />
 
-## [5.67.2] - 6/6/2022 5:58:47 PM
+## [5.67.2] - Jun 6, 2022 5:58:47 PM
 
 Commit [210a3261fef18f00a01c52c77e2a4f5eb02a486d](https://github.com/StoneCypher/jssm/commit/210a3261fef18f00a01c52c77e2a4f5eb02a486d)
 
@@ -9427,7 +11799,7 @@ Merges [cfd38c2, 8379506]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 5:39:43 PM
+## [Untagged] - Jun 6, 2022 5:39:43 PM
 
 Commit [837950689491eb333670a9f028b3668351c9bef1](https://github.com/StoneCypher/jssm/commit/837950689491eb333670a9f028b3668351c9bef1)
 
@@ -9442,7 +11814,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 3:41:07 PM
+## [Untagged] - Jun 6, 2022 3:41:07 PM
 
 Commit [91e2c2f27ec0b200380b8871bacd2d6476e1ab4e](https://github.com/StoneCypher/jssm/commit/91e2c2f27ec0b200380b8871bacd2d6476e1ab4e)
 
@@ -9459,7 +11831,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__67__0" />
 
-## [5.67.0] - 6/6/2022 2:49:25 PM
+## [5.67.0] - Jun 6, 2022 2:49:25 PM
 
 Commit [cfd38c2d2d3ca7f4e3874cc6cfc71d2cfb5922db](https://github.com/StoneCypher/jssm/commit/cfd38c2d2d3ca7f4e3874cc6cfc71d2cfb5922db)
 
@@ -9477,7 +11849,7 @@ Merges [ff99397, 7f475f2]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 2:47:14 PM
+## [Untagged] - Jun 6, 2022 2:47:14 PM
 
 Commit [7f475f2a684856889fa56317ce30d5296ca2a47d](https://github.com/StoneCypher/jssm/commit/7f475f2a684856889fa56317ce30d5296ca2a47d)
 
@@ -9494,7 +11866,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__66__0" />
 
-## [5.66.0] - 6/6/2022 12:31:58 PM
+## [5.66.0] - Jun 6, 2022 12:31:58 PM
 
 Commit [ff99397e5e6bc96f5fc1e419a44d1382f49923c5](https://github.com/StoneCypher/jssm/commit/ff99397e5e6bc96f5fc1e419a44d1382f49923c5)
 
@@ -9512,7 +11884,7 @@ Merges [bcb1eda, 6f51f09]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 12:24:27 PM
+## [Untagged] - Jun 6, 2022 12:24:27 PM
 
 Commit [6f51f095fc292fc44c8c02daf8d976bdec49d4f0](https://github.com/StoneCypher/jssm/commit/6f51f095fc292fc44c8c02daf8d976bdec49d4f0)
 
@@ -9527,7 +11899,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 11:20:01 AM
+## [Untagged] - Jun 6, 2022 11:20:01 AM
 
 Commit [bcb1edaf59fbbd0a9fcfbb293d3ba1cfca129aa0](https://github.com/StoneCypher/jssm/commit/bcb1edaf59fbbd0a9fcfbb293d3ba1cfca129aa0)
 
@@ -9544,7 +11916,7 @@ Merges [d19a094, 966e56b]
 
 &nbsp;
 
-## [Untagged] - 6/6/2022 11:19:47 AM
+## [Untagged] - Jun 6, 2022 11:19:47 AM
 
 Commit [d19a0949fdb44e76f946cf0f06020e9a497e8732](https://github.com/StoneCypher/jssm/commit/d19a0949fdb44e76f946cf0f06020e9a497e8732)
 
@@ -9559,7 +11931,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/2/2022 7:14:41 PM
+## [Untagged] - Jun 2, 2022 7:14:41 PM
 
 Commit [966e56b5db15b792ee8efc648f76c279dd1c8b0c](https://github.com/StoneCypher/jssm/commit/966e56b5db15b792ee8efc648f76c279dd1c8b0c)
 
@@ -9576,7 +11948,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__14" />
 
-## [5.65.14] - 5/25/2022 10:01:42 PM
+## [5.65.14] - May 25, 2022 10:01:42 PM
 
 Commit [1c597f900bb8daa127d1ec490f1277db0dfc822e](https://github.com/StoneCypher/jssm/commit/1c597f900bb8daa127d1ec490f1277db0dfc822e)
 
@@ -9594,7 +11966,7 @@ Merges [6a6f1c8, 4c2e830]
 
 &nbsp;
 
-## [Untagged] - 5/25/2022 9:57:42 PM
+## [Untagged] - May 25, 2022 9:57:42 PM
 
 Commit [4c2e830a1a4cfc8f808a67a04cfb0efe7e6993c8](https://github.com/StoneCypher/jssm/commit/4c2e830a1a4cfc8f808a67a04cfb0efe7e6993c8)
 
@@ -9609,7 +11981,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2022 9:51:54 PM
+## [Untagged] - May 25, 2022 9:51:54 PM
 
 Commit [6353caf50948fc5985e1603fc06673add48bc376](https://github.com/StoneCypher/jssm/commit/6353caf50948fc5985e1603fc06673add48bc376)
 
@@ -9626,7 +11998,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__12" />
 
-## [5.65.12] - 5/22/2022 4:28:55 PM
+## [5.65.12] - May 22, 2022 4:28:55 PM
 
 Commit [6a6f1c8a256f2f943c3230ec32dd32d2c2344927](https://github.com/StoneCypher/jssm/commit/6a6f1c8a256f2f943c3230ec32dd32d2c2344927)
 
@@ -9644,7 +12016,7 @@ Merges [e084bf4, f0f3961]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 4:24:24 PM
+## [Untagged] - May 22, 2022 4:24:24 PM
 
 Commit [f0f3961d25dc11cfb547eca55c7e3a65b9cf3ccf](https://github.com/StoneCypher/jssm/commit/f0f3961d25dc11cfb547eca55c7e3a65b9cf3ccf)
 
@@ -9661,7 +12033,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__11" />
 
-## [5.65.11] - 5/22/2022 3:54:12 PM
+## [5.65.11] - May 22, 2022 3:54:12 PM
 
 Commit [e084bf4a0936d419b5a9921e746a707644ad263f](https://github.com/StoneCypher/jssm/commit/e084bf4a0936d419b5a9921e746a707644ad263f)
 
@@ -9679,7 +12051,7 @@ Merges [a7d9fba, b2558b2]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 3:44:19 PM
+## [Untagged] - May 22, 2022 3:44:19 PM
 
 Commit [b2558b2457dfaf6cb61782d0c758cf1ad043149b](https://github.com/StoneCypher/jssm/commit/b2558b2457dfaf6cb61782d0c758cf1ad043149b)
 
@@ -9694,7 +12066,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 3:41:50 PM
+## [Untagged] - May 22, 2022 3:41:50 PM
 
 Commit [b3155ba56af766456f250e61906e92e648a44b46](https://github.com/StoneCypher/jssm/commit/b3155ba56af766456f250e61906e92e648a44b46)
 
@@ -9709,7 +12081,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 3:38:01 PM
+## [Untagged] - May 22, 2022 3:38:01 PM
 
 Commit [86eeb1e7f51e30a7a16da03e697d8630b6a7b10a](https://github.com/StoneCypher/jssm/commit/86eeb1e7f51e30a7a16da03e697d8630b6a7b10a)
 
@@ -9726,7 +12098,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__10" />
 
-## [5.65.10] - 5/22/2022 3:30:25 PM
+## [5.65.10] - May 22, 2022 3:30:25 PM
 
 Commit [a7d9fba39b0772cc1ff2ab685bfad47c8ce4be2e](https://github.com/StoneCypher/jssm/commit/a7d9fba39b0772cc1ff2ab685bfad47c8ce4be2e)
 
@@ -9744,7 +12116,7 @@ Merges [605f414, 8809458]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 3:05:26 PM
+## [Untagged] - May 22, 2022 3:05:26 PM
 
 Commit [88094584ff08b1ec24dee69ca9ecc7547217c586](https://github.com/StoneCypher/jssm/commit/88094584ff08b1ec24dee69ca9ecc7547217c586)
 
@@ -9761,7 +12133,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__9" />
 
-## [5.65.9] - 5/22/2022 2:59:09 PM
+## [5.65.9] - May 22, 2022 2:59:09 PM
 
 Commit [605f414b3e815e2baaa7f8c7888a0478fec9ff2a](https://github.com/StoneCypher/jssm/commit/605f414b3e815e2baaa7f8c7888a0478fec9ff2a)
 
@@ -9779,7 +12151,7 @@ Merges [48f1e98, 75f33eb]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 2:44:19 PM
+## [Untagged] - May 22, 2022 2:44:19 PM
 
 Commit [75f33ebba2446c48990e268a8a8e5f28bdd62efb](https://github.com/StoneCypher/jssm/commit/75f33ebba2446c48990e268a8a8e5f28bdd62efb)
 
@@ -9796,7 +12168,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__8" />
 
-## [5.65.8] - 5/22/2022 1:09:26 PM
+## [5.65.8] - May 22, 2022 1:09:26 PM
 
 Commit [48f1e984eb79d1b0ebd0cfb91621628d13f4032f](https://github.com/StoneCypher/jssm/commit/48f1e984eb79d1b0ebd0cfb91621628d13f4032f)
 
@@ -9814,7 +12186,7 @@ Merges [7705f10, 022ff38]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 10:39:40 AM
+## [Untagged] - May 22, 2022 10:39:40 AM
 
 Commit [022ff389c8d6fd6791a370acb0b48601a7a103f2](https://github.com/StoneCypher/jssm/commit/022ff389c8d6fd6791a370acb0b48601a7a103f2)
 
@@ -9831,7 +12203,7 @@ Merges [d4e8bbb, 7705f10]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 10:35:12 AM
+## [Untagged] - May 22, 2022 10:35:12 AM
 
 Commit [d4e8bbb38e2ed7a42c2eab83d994d43494ea9380](https://github.com/StoneCypher/jssm/commit/d4e8bbb38e2ed7a42c2eab83d994d43494ea9380)
 
@@ -9848,7 +12220,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__7" />
 
-## [5.65.7] - 5/22/2022 9:27:34 AM
+## [5.65.7] - May 22, 2022 9:27:34 AM
 
 Commit [7705f10269f39cab9ee5cbfb28d76cf739c3edb7](https://github.com/StoneCypher/jssm/commit/7705f10269f39cab9ee5cbfb28d76cf739c3edb7)
 
@@ -9866,7 +12238,7 @@ Merges [d486935, 7e3e2e9]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 9:23:53 AM
+## [Untagged] - May 22, 2022 9:23:53 AM
 
 Commit [7e3e2e9e20bdacbf66bf47b971620c595eeacf2c](https://github.com/StoneCypher/jssm/commit/7e3e2e9e20bdacbf66bf47b971620c595eeacf2c)
 
@@ -9883,7 +12255,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__5" />
 
-## [5.65.5] - 5/22/2022 9:11:05 AM
+## [5.65.5] - May 22, 2022 9:11:05 AM
 
 Commit [d4869358e9fb7b92769020d5c6832c8063201383](https://github.com/StoneCypher/jssm/commit/d4869358e9fb7b92769020d5c6832c8063201383)
 
@@ -9901,7 +12273,7 @@ Merges [208ad8e, 7c337af]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 9:07:03 AM
+## [Untagged] - May 22, 2022 9:07:03 AM
 
 Commit [7c337af4305c6947944d09df54356dd72fcdfbd4](https://github.com/StoneCypher/jssm/commit/7c337af4305c6947944d09df54356dd72fcdfbd4)
 
@@ -9918,7 +12290,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__4" />
 
-## [5.65.4] - 5/22/2022 8:52:51 AM
+## [5.65.4] - May 22, 2022 8:52:51 AM
 
 Commit [208ad8ebb2b315090407b9b4626cfa31b8feac34](https://github.com/StoneCypher/jssm/commit/208ad8ebb2b315090407b9b4626cfa31b8feac34)
 
@@ -9936,7 +12308,7 @@ Merges [fdb3369, bc9f107]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 8:41:28 AM
+## [Untagged] - May 22, 2022 8:41:28 AM
 
 Commit [bc9f10712955eb32f2eff9fda7a5236d877ef02c](https://github.com/StoneCypher/jssm/commit/bc9f10712955eb32f2eff9fda7a5236d877ef02c)
 
@@ -9953,7 +12325,7 @@ Merges [7473afd, fdb3369]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 8:18:43 AM
+## [Untagged] - May 22, 2022 8:18:43 AM
 
 Commit [fdb3369ce4983580b69fbf80f1bd839e45cc0973](https://github.com/StoneCypher/jssm/commit/fdb3369ce4983580b69fbf80f1bd839e45cc0973)
 
@@ -9971,7 +12343,7 @@ Merges [eac57da, 22230f0]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 8:15:13 AM
+## [Untagged] - May 22, 2022 8:15:13 AM
 
 Commit [22230f02097b344f15301e68f1384a4351a2a1a5](https://github.com/StoneCypher/jssm/commit/22230f02097b344f15301e68f1384a4351a2a1a5)
 
@@ -9986,7 +12358,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 7:57:33 AM
+## [Untagged] - May 22, 2022 7:57:33 AM
 
 Commit [7473afdf4caa6cc41abcca9fd88b4b718d714ea2](https://github.com/StoneCypher/jssm/commit/7473afdf4caa6cc41abcca9fd88b4b718d714ea2)
 
@@ -10003,7 +12375,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__3" />
 
-## [5.65.3] - 5/22/2022 7:33:18 AM
+## [5.65.3] - May 22, 2022 7:33:18 AM
 
 Commit [eac57da67490d9d54ed374cbc6bbf1bb8fc32cce](https://github.com/StoneCypher/jssm/commit/eac57da67490d9d54ed374cbc6bbf1bb8fc32cce)
 
@@ -10021,7 +12393,7 @@ Merges [0fd6005, 539f203]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 7:29:57 AM
+## [Untagged] - May 22, 2022 7:29:57 AM
 
 Commit [539f203cf4ee7c5cc124152a2c95b4f3696e7e55](https://github.com/StoneCypher/jssm/commit/539f203cf4ee7c5cc124152a2c95b4f3696e7e55)
 
@@ -10038,7 +12410,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__2" />
 
-## [5.65.2] - 5/22/2022 6:40:28 AM
+## [5.65.2] - May 22, 2022 6:40:28 AM
 
 Commit [0fd6005e7e39e3d0b0c6c7789743ca0fbf1e9b79](https://github.com/StoneCypher/jssm/commit/0fd6005e7e39e3d0b0c6c7789743ca0fbf1e9b79)
 
@@ -10056,7 +12428,7 @@ Merges [c9b40b1, 63bb525]
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 6:40:05 AM
+## [Untagged] - May 22, 2022 6:40:05 AM
 
 Commit [63bb52566b530ee36c0d8182a32356e45a2533a0](https://github.com/StoneCypher/jssm/commit/63bb52566b530ee36c0d8182a32356e45a2533a0)
 
@@ -10071,7 +12443,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2022 6:34:53 AM
+## [Untagged] - May 22, 2022 6:34:53 AM
 
 Commit [27112f0cb739a4b5a9351369d7c9da61d58df27a](https://github.com/StoneCypher/jssm/commit/27112f0cb739a4b5a9351369d7c9da61d58df27a)
 
@@ -10088,7 +12460,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__1" />
 
-## [5.65.1] - 5/21/2022 9:20:45 PM
+## [5.65.1] - May 21, 2022 9:20:45 PM
 
 Commit [c9b40b1f065690554fabdc1cef6baea5d540a04d](https://github.com/StoneCypher/jssm/commit/c9b40b1f065690554fabdc1cef6baea5d540a04d)
 
@@ -10106,7 +12478,7 @@ Merges [e337e6a, d30bbdd]
 
 &nbsp;
 
-## [Untagged] - 5/21/2022 9:17:31 PM
+## [Untagged] - May 21, 2022 9:17:31 PM
 
 Commit [d30bbddb3579128f20034ea475880b8293ff8997](https://github.com/StoneCypher/jssm/commit/d30bbddb3579128f20034ea475880b8293ff8997)
 
@@ -10123,7 +12495,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__65__0" />
 
-## [5.65.0] - 5/20/2022 9:16:30 PM
+## [5.65.0] - May 20, 2022 9:16:30 PM
 
 Commit [e337e6aa086b761a9c47cf682f070fb2ec3ad3a7](https://github.com/StoneCypher/jssm/commit/e337e6aa086b761a9c47cf682f070fb2ec3ad3a7)
 
@@ -10141,7 +12513,7 @@ Merges [9480ef7, 3a527ad]
 
 &nbsp;
 
-## [Untagged] - 5/20/2022 6:05:47 PM
+## [Untagged] - May 20, 2022 6:05:47 PM
 
 Commit [3a527ada63bc49b5d688805f59f60a8f457a3d7c](https://github.com/StoneCypher/jssm/commit/3a527ada63bc49b5d688805f59f60a8f457a3d7c)
 
@@ -10156,7 +12528,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/20/2022 6:00:35 PM
+## [Untagged] - May 20, 2022 6:00:35 PM
 
 Commit [2f9c60bc853919cc52b0705cda617caa62b02e00](https://github.com/StoneCypher/jssm/commit/2f9c60bc853919cc52b0705cda617caa62b02e00)
 
@@ -10173,7 +12545,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__64__2" />
 
-## [5.64.2] - 5/19/2022 8:40:36 PM
+## [5.64.2] - May 19, 2022 8:40:36 PM
 
 Commit [9480ef7818a4695100a1742cbcb24f67dc998b7d](https://github.com/StoneCypher/jssm/commit/9480ef7818a4695100a1742cbcb24f67dc998b7d)
 
@@ -10191,7 +12563,7 @@ Merges [71d7cc6, aee8181]
 
 &nbsp;
 
-## [Untagged] - 5/19/2022 8:37:01 PM
+## [Untagged] - May 19, 2022 8:37:01 PM
 
 Commit [aee81818bb51a0912e8270973fe8d8cfada195e3](https://github.com/StoneCypher/jssm/commit/aee81818bb51a0912e8270973fe8d8cfada195e3)
 
@@ -10208,7 +12580,7 @@ Merges [8e60b80, 71d7cc6]
 
 &nbsp;
 
-## [Untagged] - 5/19/2022 8:01:33 PM
+## [Untagged] - May 19, 2022 8:01:33 PM
 
 Commit [8e60b80d62d215ef5ef184f5fff0828644e439d4](https://github.com/StoneCypher/jssm/commit/8e60b80d62d215ef5ef184f5fff0828644e439d4)
 
@@ -10225,7 +12597,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__64__1" />
 
-## [5.64.1] - 5/19/2022 7:58:31 PM
+## [5.64.1] - May 19, 2022 7:58:31 PM
 
 Commit [71d7cc69b5afd67fe678472ad68cf8e68b263b00](https://github.com/StoneCypher/jssm/commit/71d7cc69b5afd67fe678472ad68cf8e68b263b00)
 
@@ -10243,7 +12615,7 @@ Merges [2b72a30, 7424e53]
 
 &nbsp;
 
-## [Untagged] - 5/19/2022 7:51:46 PM
+## [Untagged] - May 19, 2022 7:51:46 PM
 
 Commit [7424e53deeaf8e7161b442bcaf85b9e7df251fa2](https://github.com/StoneCypher/jssm/commit/7424e53deeaf8e7161b442bcaf85b9e7df251fa2)
 
@@ -10260,7 +12632,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__64__0" />
 
-## [5.64.0] - 5/19/2022 7:08:49 PM
+## [5.64.0] - May 19, 2022 7:08:49 PM
 
 Commit [2b72a30cd1d2c49bb6502bebec274544db37c589](https://github.com/StoneCypher/jssm/commit/2b72a30cd1d2c49bb6502bebec274544db37c589)
 
@@ -10278,7 +12650,7 @@ Merges [9cbc5d7, 07cf833]
 
 &nbsp;
 
-## [Untagged] - 5/19/2022 7:02:53 PM
+## [Untagged] - May 19, 2022 7:02:53 PM
 
 Commit [07cf833a15d46a6a5590fedd30d63558a0719dfa](https://github.com/StoneCypher/jssm/commit/07cf833a15d46a6a5590fedd30d63558a0719dfa)
 
@@ -10295,7 +12667,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__63__0" />
 
-## [5.63.0] - 5/15/2022 10:37:03 PM
+## [5.63.0] - May 15, 2022 10:37:03 PM
 
 Commit [9cbc5d72246d160c9568abcfcca42db7eb393efb](https://github.com/StoneCypher/jssm/commit/9cbc5d72246d160c9568abcfcca42db7eb393efb)
 
@@ -10313,7 +12685,7 @@ Merges [4c208fc, 53e9566]
 
 &nbsp;
 
-## [Untagged] - 5/15/2022 10:31:17 PM
+## [Untagged] - May 15, 2022 10:31:17 PM
 
 Commit [53e95660d5dd587109acd91c7875192dd443ff57](https://github.com/StoneCypher/jssm/commit/53e95660d5dd587109acd91c7875192dd443ff57)
 
@@ -10328,7 +12700,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/15/2022 7:25:27 AM
+## [Untagged] - May 15, 2022 7:25:27 AM
 
 Commit [9db9bad5242f635d4a69db3dca4caeeb6013af1e](https://github.com/StoneCypher/jssm/commit/9db9bad5242f635d4a69db3dca4caeeb6013af1e)
 
@@ -10345,7 +12717,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__62__0" />
 
-## [5.62.0] - 5/14/2022 8:23:45 PM
+## [5.62.0] - May 14, 2022 8:23:45 PM
 
 Commit [4c208fcbdea83eaf336e8c154946dc0d633a7e9c](https://github.com/StoneCypher/jssm/commit/4c208fcbdea83eaf336e8c154946dc0d633a7e9c)
 
@@ -10363,7 +12735,7 @@ Merges [6e2e7f8, 94a26af]
 
 &nbsp;
 
-## [Untagged] - 5/14/2022 8:15:13 PM
+## [Untagged] - May 14, 2022 8:15:13 PM
 
 Commit [94a26af4e85c6d39aab1252b588796c02d72c64b](https://github.com/StoneCypher/jssm/commit/94a26af4e85c6d39aab1252b588796c02d72c64b)
 
@@ -10378,7 +12750,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2022 7:54:15 PM
+## [Untagged] - May 14, 2022 7:54:15 PM
 
 Commit [2f7e8cb441419f67073b2cf65606469f4e018ff1](https://github.com/StoneCypher/jssm/commit/2f7e8cb441419f67073b2cf65606469f4e018ff1)
 
@@ -10395,7 +12767,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__61__4" />
 
-## [5.61.4] - 5/13/2022 11:20:56 AM
+## [5.61.4] - May 13, 2022 11:20:56 AM
 
 Commit [6e2e7f84f4e2633eeac53891cc88c6fb61799725](https://github.com/StoneCypher/jssm/commit/6e2e7f84f4e2633eeac53891cc88c6fb61799725)
 
@@ -10413,7 +12785,7 @@ Merges [cba8919, 2d2385e]
 
 &nbsp;
 
-## [Untagged] - 5/13/2022 11:10:06 AM
+## [Untagged] - May 13, 2022 11:10:06 AM
 
 Commit [2d2385e13b83c49185a02991fc7be530e030ddec](https://github.com/StoneCypher/jssm/commit/2d2385e13b83c49185a02991fc7be530e030ddec)
 
@@ -10428,7 +12800,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2022 10:54:54 AM
+## [Untagged] - May 13, 2022 10:54:54 AM
 
 Commit [46c5ab4b5e375ddd2b15ee39e5ac5ee4620791cd](https://github.com/StoneCypher/jssm/commit/46c5ab4b5e375ddd2b15ee39e5ac5ee4620791cd)
 
@@ -10445,7 +12817,7 @@ Merges [ee39784, cba8919]
 
 &nbsp;
 
-## [Untagged] - 5/13/2022 10:46:20 AM
+## [Untagged] - May 13, 2022 10:46:20 AM
 
 Commit [ee397849215258b5630370c3e6ace9d11678d193](https://github.com/StoneCypher/jssm/commit/ee397849215258b5630370c3e6ace9d11678d193)
 
@@ -10462,7 +12834,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__61__3" />
 
-## [5.61.3] - 5/13/2022 8:52:49 AM
+## [5.61.3] - May 13, 2022 8:52:49 AM
 
 Commit [cba89193f5bada368acb6cbe37db9b6f3f7e6263](https://github.com/StoneCypher/jssm/commit/cba89193f5bada368acb6cbe37db9b6f3f7e6263)
 
@@ -10480,7 +12852,7 @@ Merges [f41d7b6, 0e3e3f4]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 9:23:49 PM
+## [Untagged] - May 12, 2022 9:23:49 PM
 
 Commit [0e3e3f48d710fb3ad80ce808c05caf00c6c660c0](https://github.com/StoneCypher/jssm/commit/0e3e3f48d710fb3ad80ce808c05caf00c6c660c0)
 
@@ -10495,7 +12867,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 9:01:05 PM
+## [Untagged] - May 12, 2022 9:01:05 PM
 
 Commit [024f2e2944f0b888c6cbd9f287df7296abcaedd4](https://github.com/StoneCypher/jssm/commit/024f2e2944f0b888c6cbd9f287df7296abcaedd4)
 
@@ -10512,7 +12884,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__61__2" />
 
-## [5.61.2] - 5/12/2022 6:51:45 PM
+## [5.61.2] - May 12, 2022 6:51:45 PM
 
 Commit [f41d7b68925539eb82141dfe97e7141cd76f6f9b](https://github.com/StoneCypher/jssm/commit/f41d7b68925539eb82141dfe97e7141cd76f6f9b)
 
@@ -10530,7 +12902,7 @@ Merges [0f1535b, 6dbad3d]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 6:46:05 PM
+## [Untagged] - May 12, 2022 6:46:05 PM
 
 Commit [6dbad3d4a1a6e04a7b4ce409f2e3b324dcecdcdc](https://github.com/StoneCypher/jssm/commit/6dbad3d4a1a6e04a7b4ce409f2e3b324dcecdcdc)
 
@@ -10545,7 +12917,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 6:36:24 PM
+## [Untagged] - May 12, 2022 6:36:24 PM
 
 Commit [9f3fa470bcccfdee0db090be545f738cc0846b9c](https://github.com/StoneCypher/jssm/commit/9f3fa470bcccfdee0db090be545f738cc0846b9c)
 
@@ -10562,7 +12934,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__61__1" />
 
-## [5.61.1] - 5/12/2022 5:03:08 PM
+## [5.61.1] - May 12, 2022 5:03:08 PM
 
 Commit [0f1535bb1d5be22817f6a09da4ae992dd552aa50](https://github.com/StoneCypher/jssm/commit/0f1535bb1d5be22817f6a09da4ae992dd552aa50)
 
@@ -10580,7 +12952,7 @@ Merges [c61e59e, bca3384]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 4:57:37 PM
+## [Untagged] - May 12, 2022 4:57:37 PM
 
 Commit [bca33843abdc3c360a7b754451f00ffa16458257](https://github.com/StoneCypher/jssm/commit/bca33843abdc3c360a7b754451f00ffa16458257)
 
@@ -10597,7 +12969,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__60__4" />
 
-## [5.60.4] - 5/12/2022 2:27:53 PM
+## [5.60.4] - May 12, 2022 2:27:53 PM
 
 Commit [c61e59ecb5a2d75900593b6dfc6bd6481b70105a](https://github.com/StoneCypher/jssm/commit/c61e59ecb5a2d75900593b6dfc6bd6481b70105a)
 
@@ -10615,7 +12987,7 @@ Merges [aab4f29, f2c361e]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 2:22:30 PM
+## [Untagged] - May 12, 2022 2:22:30 PM
 
 Commit [f2c361ea7c04fcd22ee37193a2c9b903c46758cc](https://github.com/StoneCypher/jssm/commit/f2c361ea7c04fcd22ee37193a2c9b903c46758cc)
 
@@ -10632,7 +13004,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__60__3" />
 
-## [5.60.3] - 5/12/2022 2:21:45 PM
+## [5.60.3] - May 12, 2022 2:21:45 PM
 
 Commit [aab4f29a49f8b1d25c5d11aec536ba76e46d4c54](https://github.com/StoneCypher/jssm/commit/aab4f29a49f8b1d25c5d11aec536ba76e46d4c54)
 
@@ -10650,7 +13022,7 @@ Merges [bd28733, f7371c9]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 2:04:02 PM
+## [Untagged] - May 12, 2022 2:04:02 PM
 
 Commit [f7371c97fc72d2cd367a958bd014bb8cc048c4fd](https://github.com/StoneCypher/jssm/commit/f7371c97fc72d2cd367a958bd014bb8cc048c4fd)
 
@@ -10665,7 +13037,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 1:54:55 PM
+## [Untagged] - May 12, 2022 1:54:55 PM
 
 Commit [ceb93d5920113d309409f75f12ddcfb7fc6ceb90](https://github.com/StoneCypher/jssm/commit/ceb93d5920113d309409f75f12ddcfb7fc6ceb90)
 
@@ -10682,7 +13054,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__60__0" />
 
-## [5.60.0] - 5/12/2022 1:42:37 PM
+## [5.60.0] - May 12, 2022 1:42:37 PM
 
 Commit [bd2873347d5c49850979fa686339586e490dc795](https://github.com/StoneCypher/jssm/commit/bd2873347d5c49850979fa686339586e490dc795)
 
@@ -10700,7 +13072,7 @@ Merges [5f75d87, 3584702]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 1:28:16 PM
+## [Untagged] - May 12, 2022 1:28:16 PM
 
 Commit [35847022e67dd34ee24dccac6c1d3a44f323bbf5](https://github.com/StoneCypher/jssm/commit/35847022e67dd34ee24dccac6c1d3a44f323bbf5)
 
@@ -10715,7 +13087,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 12:41:29 PM
+## [Untagged] - May 12, 2022 12:41:29 PM
 
 Commit [4efc8227a41e3cbf7a9f0e3e1c0b75d169d90cf5](https://github.com/StoneCypher/jssm/commit/4efc8227a41e3cbf7a9f0e3e1c0b75d169d90cf5)
 
@@ -10730,7 +13102,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 11:30:14 AM
+## [Untagged] - May 12, 2022 11:30:14 AM
 
 Commit [56e3433e2a45913a6ea03c07e321c404bd67ce04](https://github.com/StoneCypher/jssm/commit/56e3433e2a45913a6ea03c07e321c404bd67ce04)
 
@@ -10747,7 +13119,7 @@ Merges [7c6fff9, 5f75d87]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 11:29:48 AM
+## [Untagged] - May 12, 2022 11:29:48 AM
 
 Commit [7c6fff914710157222e844e68b5aa5f7126f34fe](https://github.com/StoneCypher/jssm/commit/7c6fff914710157222e844e68b5aa5f7126f34fe)
 
@@ -10764,7 +13136,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__59__1" />
 
-## [5.59.1] - 5/12/2022 11:01:20 AM
+## [5.59.1] - May 12, 2022 11:01:20 AM
 
 Commit [5f75d87f6a114dd2f8d877c432f17c40d17c8465](https://github.com/StoneCypher/jssm/commit/5f75d87f6a114dd2f8d877c432f17c40d17c8465)
 
@@ -10782,7 +13154,7 @@ Merges [fa860a6, 3c0d18c]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 10:55:48 AM
+## [Untagged] - May 12, 2022 10:55:48 AM
 
 Commit [3c0d18cade8ea76d5411d15f3a2f1950ad3c4f9d](https://github.com/StoneCypher/jssm/commit/3c0d18cade8ea76d5411d15f3a2f1950ad3c4f9d)
 
@@ -10799,7 +13171,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__59__0" />
 
-## [5.59.0] - 5/12/2022 10:54:43 AM
+## [5.59.0] - May 12, 2022 10:54:43 AM
 
 Commit [fa860a6b17b256da2550599c5c79445f46b82041](https://github.com/StoneCypher/jssm/commit/fa860a6b17b256da2550599c5c79445f46b82041)
 
@@ -10817,7 +13189,7 @@ Merges [1c18d04, d269d66]
 
 &nbsp;
 
-## [Untagged] - 5/12/2022 10:46:40 AM
+## [Untagged] - May 12, 2022 10:46:40 AM
 
 Commit [d269d66f287adfeee5bedc8cdcb723e33d78313f](https://github.com/StoneCypher/jssm/commit/d269d66f287adfeee5bedc8cdcb723e33d78313f)
 
@@ -10834,7 +13206,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__58__1" />
 
-## [5.58.1] - 5/11/2022 9:02:39 PM
+## [5.58.1] - May 11, 2022 9:02:39 PM
 
 Commit [1c18d04480200ace12515d3ae536d8033bf9c0a0](https://github.com/StoneCypher/jssm/commit/1c18d04480200ace12515d3ae536d8033bf9c0a0)
 
@@ -10854,7 +13226,7 @@ Merges [4840482, 1b8acfb]
 
 <a name="5__58__0" />
 
-## [5.58.0] - 5/11/2022 9:02:22 PM
+## [5.58.0] - May 11, 2022 9:02:22 PM
 
 Commit [48404829adac76e51a7f1ee6fa1de2fe9cf5bb75](https://github.com/StoneCypher/jssm/commit/48404829adac76e51a7f1ee6fa1de2fe9cf5bb75)
 
@@ -10872,7 +13244,7 @@ Merges [3840469, 3b54f74]
 
 &nbsp;
 
-## [Untagged] - 5/11/2022 8:50:43 PM
+## [Untagged] - May 11, 2022 8:50:43 PM
 
 Commit [1b8acfb37f74654c12f266f96f7a2df8aa0b6d8b](https://github.com/StoneCypher/jssm/commit/1b8acfb37f74654c12f266f96f7a2df8aa0b6d8b)
 
@@ -10887,7 +13259,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/11/2022 8:44:51 PM
+## [Untagged] - May 11, 2022 8:44:51 PM
 
 Commit [3b54f74d27dbb7199d1b10571b194bf271777c95](https://github.com/StoneCypher/jssm/commit/3b54f74d27dbb7199d1b10571b194bf271777c95)
 
@@ -10904,7 +13276,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__57__1" />
 
-## [5.57.1] - 5/9/2022 10:10:11 AM
+## [5.57.1] - May 9, 2022 10:10:11 AM
 
 Commit [3840469f34e4c6075d044d04023520eb4206704e](https://github.com/StoneCypher/jssm/commit/3840469f34e4c6075d044d04023520eb4206704e)
 
@@ -10922,7 +13294,7 @@ Merges [99fccf0, 63d5b33]
 
 &nbsp;
 
-## [Untagged] - 5/9/2022 10:04:48 AM
+## [Untagged] - May 9, 2022 10:04:48 AM
 
 Commit [63d5b33632a1ab99aafe7058ad3068654d8dd692](https://github.com/StoneCypher/jssm/commit/63d5b33632a1ab99aafe7058ad3068654d8dd692)
 
@@ -10939,7 +13311,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__57__0" />
 
-## [5.57.0] - 5/9/2022 10:03:44 AM
+## [5.57.0] - May 9, 2022 10:03:44 AM
 
 Commit [99fccf02531d82d83ff6aceecd2c0c394169fa05](https://github.com/StoneCypher/jssm/commit/99fccf02531d82d83ff6aceecd2c0c394169fa05)
 
@@ -10957,7 +13329,7 @@ Merges [e7fdb06, 4ce87db]
 
 &nbsp;
 
-## [Untagged] - 5/9/2022 9:56:57 AM
+## [Untagged] - May 9, 2022 9:56:57 AM
 
 Commit [4ce87db80807f10fb16a6f9f679223f07a99a6fd](https://github.com/StoneCypher/jssm/commit/4ce87db80807f10fb16a6f9f679223f07a99a6fd)
 
@@ -10974,7 +13346,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__56__2" />
 
-## [5.56.2] - 5/9/2022 9:31:42 AM
+## [5.56.2] - May 9, 2022 9:31:42 AM
 
 Commit [e7fdb06e01b2e12b7cd275a079856cc22ed5ef17](https://github.com/StoneCypher/jssm/commit/e7fdb06e01b2e12b7cd275a079856cc22ed5ef17)
 
@@ -10992,7 +13364,7 @@ Merges [c6438ab, 06f3709]
 
 &nbsp;
 
-## [Untagged] - 5/9/2022 9:14:38 AM
+## [Untagged] - May 9, 2022 9:14:38 AM
 
 Commit [06f3709f24d082e67fab67f2250fa17533924bbd](https://github.com/StoneCypher/jssm/commit/06f3709f24d082e67fab67f2250fa17533924bbd)
 
@@ -11007,7 +13379,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2022 9:07:27 AM
+## [Untagged] - May 9, 2022 9:07:27 AM
 
 Commit [af441da35ad44264579808e12137acd1e96bcb41](https://github.com/StoneCypher/jssm/commit/af441da35ad44264579808e12137acd1e96bcb41)
 
@@ -11024,7 +13396,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__56__1" />
 
-## [5.56.1] - 5/9/2022 9:07:22 AM
+## [5.56.1] - May 9, 2022 9:07:22 AM
 
 Commit [c6438ab7b286fc3d7c9b822ca4bc17854d8286a2](https://github.com/StoneCypher/jssm/commit/c6438ab7b286fc3d7c9b822ca4bc17854d8286a2)
 
@@ -11042,7 +13414,7 @@ Merges [63736ef, 8e20d05]
 
 &nbsp;
 
-## [Untagged] - 5/9/2022 9:02:21 AM
+## [Untagged] - May 9, 2022 9:02:21 AM
 
 Commit [8e20d056aa82a08268fcf32d22b1fe5cb4d559ab](https://github.com/StoneCypher/jssm/commit/8e20d056aa82a08268fcf32d22b1fe5cb4d559ab)
 
@@ -11057,7 +13429,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2022 8:59:25 AM
+## [Untagged] - May 9, 2022 8:59:25 AM
 
 Commit [d965a37532755373e3647e925e8664bd36ae3585](https://github.com/StoneCypher/jssm/commit/d965a37532755373e3647e925e8664bd36ae3585)
 
@@ -11074,7 +13446,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__55__0" />
 
-## [5.55.0] - 5/8/2022 2:52:41 PM
+## [5.55.0] - May 8, 2022 2:52:41 PM
 
 Commit [63736ef83bb21ac838deca66a334bd82aa66a52a](https://github.com/StoneCypher/jssm/commit/63736ef83bb21ac838deca66a334bd82aa66a52a)
 
@@ -11092,7 +13464,7 @@ Merges [d9853ee, c7b93af]
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:46:28 PM
+## [Untagged] - May 8, 2022 2:46:28 PM
 
 Commit [c7b93afa237222022dc1e24eb8f8f123871d986e](https://github.com/StoneCypher/jssm/commit/c7b93afa237222022dc1e24eb8f8f123871d986e)
 
@@ -11107,7 +13479,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:43:30 PM
+## [Untagged] - May 8, 2022 2:43:30 PM
 
 Commit [7b4c2bad6cb3f3d609ca66b597bbaedef606683c](https://github.com/StoneCypher/jssm/commit/7b4c2bad6cb3f3d609ca66b597bbaedef606683c)
 
@@ -11122,7 +13494,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:37:53 PM
+## [Untagged] - May 8, 2022 2:37:53 PM
 
 Commit [5d08dc6919b53f215b525c5458732b95b1230763](https://github.com/StoneCypher/jssm/commit/5d08dc6919b53f215b525c5458732b95b1230763)
 
@@ -11137,7 +13509,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:19:59 PM
+## [Untagged] - May 8, 2022 2:19:59 PM
 
 Commit [6bf62167e0b79834f7e0bdffad5af4ff47c60f9d](https://github.com/StoneCypher/jssm/commit/6bf62167e0b79834f7e0bdffad5af4ff47c60f9d)
 
@@ -11152,7 +13524,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:13:51 PM
+## [Untagged] - May 8, 2022 2:13:51 PM
 
 Commit [20f2ddbd395d3580a971fcb6512041cc1653f7b4](https://github.com/StoneCypher/jssm/commit/20f2ddbd395d3580a971fcb6512041cc1653f7b4)
 
@@ -11169,7 +13541,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__54__0" />
 
-## [5.54.0] - 5/8/2022 1:42:23 PM
+## [5.54.0] - May 8, 2022 1:42:23 PM
 
 Commit [d9853ee28881b7ec98648631d168f56a6c3d0446](https://github.com/StoneCypher/jssm/commit/d9853ee28881b7ec98648631d168f56a6c3d0446)
 
@@ -11187,7 +13559,7 @@ Merges [f4c8e35, dc6557f]
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 1:38:28 PM
+## [Untagged] - May 8, 2022 1:38:28 PM
 
 Commit [dc6557f2bbe1c09421f2e0b0a374d0c70f0f4801](https://github.com/StoneCypher/jssm/commit/dc6557f2bbe1c09421f2e0b0a374d0c70f0f4801)
 
@@ -11204,7 +13576,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__53__0" />
 
-## [5.53.0] - 5/8/2022 3:11:52 AM
+## [5.53.0] - May 8, 2022 3:11:52 AM
 
 Commit [f4c8e35705c7dea556a7f492cbdb9acd000536fc](https://github.com/StoneCypher/jssm/commit/f4c8e35705c7dea556a7f492cbdb9acd000536fc)
 
@@ -11222,7 +13594,7 @@ Merges [e993d6b, 23c50e2]
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 3:07:48 AM
+## [Untagged] - May 8, 2022 3:07:48 AM
 
 Commit [23c50e205b2ced7236af859487e1b086ebddd8d7](https://github.com/StoneCypher/jssm/commit/23c50e205b2ced7236af859487e1b086ebddd8d7)
 
@@ -11239,7 +13611,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__52__0" />
 
-## [5.52.0] - 5/8/2022 2:46:51 AM
+## [5.52.0] - May 8, 2022 2:46:51 AM
 
 Commit [e993d6b1f4d0d5ab18d015b88e87674c62e649fe](https://github.com/StoneCypher/jssm/commit/e993d6b1f4d0d5ab18d015b88e87674c62e649fe)
 
@@ -11257,7 +13629,7 @@ Merges [4d31172, 1e3d722]
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:42:42 AM
+## [Untagged] - May 8, 2022 2:42:42 AM
 
 Commit [1e3d722ec81ed45e87528b3a993f5e5776ee047d](https://github.com/StoneCypher/jssm/commit/1e3d722ec81ed45e87528b3a993f5e5776ee047d)
 
@@ -11272,7 +13644,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:39:59 AM
+## [Untagged] - May 8, 2022 2:39:59 AM
 
 Commit [9be7e046e5918d2bb042b5d2e2f97c82a1d8690c](https://github.com/StoneCypher/jssm/commit/9be7e046e5918d2bb042b5d2e2f97c82a1d8690c)
 
@@ -11289,7 +13661,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__51__0" />
 
-## [5.51.0] - 5/8/2022 2:35:14 AM
+## [5.51.0] - May 8, 2022 2:35:14 AM
 
 Commit [4d311729dc4ec58f0f5a56c7a5ccea91f1799c56](https://github.com/StoneCypher/jssm/commit/4d311729dc4ec58f0f5a56c7a5ccea91f1799c56)
 
@@ -11307,7 +13679,7 @@ Merges [7a17ace, ab5836a]
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 2:28:05 AM
+## [Untagged] - May 8, 2022 2:28:05 AM
 
 Commit [ab5836a28c5f67eab17dc55c5a3488131b02977b](https://github.com/StoneCypher/jssm/commit/ab5836a28c5f67eab17dc55c5a3488131b02977b)
 
@@ -11324,7 +13696,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__50__0" />
 
-## [5.50.0] - 5/8/2022 2:05:05 AM
+## [5.50.0] - May 8, 2022 2:05:05 AM
 
 Commit [7a17acea1058691b3ff925add727f3b77b59f1ec](https://github.com/StoneCypher/jssm/commit/7a17acea1058691b3ff925add727f3b77b59f1ec)
 
@@ -11342,7 +13714,7 @@ Merges [191ce28, 8b8e675]
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 1:48:38 AM
+## [Untagged] - May 8, 2022 1:48:38 AM
 
 Commit [8b8e675b2175a8bc561f91b254d81a7f8750a77d](https://github.com/StoneCypher/jssm/commit/8b8e675b2175a8bc561f91b254d81a7f8750a77d)
 
@@ -11357,7 +13729,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 1:45:27 AM
+## [Untagged] - May 8, 2022 1:45:27 AM
 
 Commit [c89d67e0d732c6a3ad764d79d5511d6689392c9e](https://github.com/StoneCypher/jssm/commit/c89d67e0d732c6a3ad764d79d5511d6689392c9e)
 
@@ -11374,7 +13746,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__49__0" />
 
-## [5.49.0] - 5/8/2022 1:09:05 AM
+## [5.49.0] - May 8, 2022 1:09:05 AM
 
 Commit [191ce281b56673005e6e07572d2a70bfdc0523df](https://github.com/StoneCypher/jssm/commit/191ce281b56673005e6e07572d2a70bfdc0523df)
 
@@ -11392,7 +13764,7 @@ Merges [c1200b9, ec455c7]
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 1:05:27 AM
+## [Untagged] - May 8, 2022 1:05:27 AM
 
 Commit [ec455c72ef81b7b3977936ea60077e4503a5fa1d](https://github.com/StoneCypher/jssm/commit/ec455c72ef81b7b3977936ea60077e4503a5fa1d)
 
@@ -11407,7 +13779,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2022 12:37:39 AM
+## [Untagged] - May 8, 2022 12:37:39 AM
 
 Commit [d5cc00ee73b211e09f2afc243c76da639cd595d1](https://github.com/StoneCypher/jssm/commit/d5cc00ee73b211e09f2afc243c76da639cd595d1)
 
@@ -11422,7 +13794,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2022 10:20:40 PM
+## [Untagged] - May 7, 2022 10:20:40 PM
 
 Commit [508a5eb13b7a840de8e615dae860364894944070](https://github.com/StoneCypher/jssm/commit/508a5eb13b7a840de8e615dae860364894944070)
 
@@ -11441,7 +13813,7 @@ Merges [bdaa94c, c1200b9]
 
 <a name="5__48__0" />
 
-## [5.48.0] - 5/7/2022 10:20:00 PM
+## [5.48.0] - May 7, 2022 10:20:00 PM
 
 Commit [c1200b987f345ce9eab936e01a660ee0c5cb2d09](https://github.com/StoneCypher/jssm/commit/c1200b987f345ce9eab936e01a660ee0c5cb2d09)
 
@@ -11459,7 +13831,7 @@ Merges [29e6d6f, bc63923]
 
 &nbsp;
 
-## [Untagged] - 5/7/2022 10:05:00 PM
+## [Untagged] - May 7, 2022 10:05:00 PM
 
 Commit [bc63923dd19af7fe452c035ec9c90a041590ba95](https://github.com/StoneCypher/jssm/commit/bc63923dd19af7fe452c035ec9c90a041590ba95)
 
@@ -11474,7 +13846,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2022 10:00:54 PM
+## [Untagged] - May 7, 2022 10:00:54 PM
 
 Commit [bdaa94cd43af8387833e40ddf8a6c5487306f15e](https://github.com/StoneCypher/jssm/commit/bdaa94cd43af8387833e40ddf8a6c5487306f15e)
 
@@ -11491,7 +13863,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__47__0" />
 
-## [5.47.0] - 5/5/2022 2:09:38 PM
+## [5.47.0] - May 5, 2022 2:09:38 PM
 
 Commit [29e6d6fce841cb59180d0915f93e1125c692557b](https://github.com/StoneCypher/jssm/commit/29e6d6fce841cb59180d0915f93e1125c692557b)
 
@@ -11509,7 +13881,7 @@ Merges [a72652c, 4f44dff]
 
 &nbsp;
 
-## [Untagged] - 5/5/2022 1:59:47 PM
+## [Untagged] - May 5, 2022 1:59:47 PM
 
 Commit [4f44dff471dc0e73d6edd110841048adfa87b3b6](https://github.com/StoneCypher/jssm/commit/4f44dff471dc0e73d6edd110841048adfa87b3b6)
 
@@ -11526,7 +13898,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__46__0" />
 
-## [5.46.0] - 5/5/2022 1:08:00 PM
+## [5.46.0] - May 5, 2022 1:08:00 PM
 
 Commit [a72652c31d93173c454db80328936eae13843b3e](https://github.com/StoneCypher/jssm/commit/a72652c31d93173c454db80328936eae13843b3e)
 
@@ -11544,7 +13916,7 @@ Merges [bd684b2, fa1bf46]
 
 &nbsp;
 
-## [Untagged] - 5/5/2022 1:00:06 PM
+## [Untagged] - May 5, 2022 1:00:06 PM
 
 Commit [fa1bf463cfe39f0c97e1008faf14f4b6c331b944](https://github.com/StoneCypher/jssm/commit/fa1bf463cfe39f0c97e1008faf14f4b6c331b944)
 
@@ -11559,7 +13931,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2022 12:59:23 PM
+## [Untagged] - May 5, 2022 12:59:23 PM
 
 Commit [40caf515b66807719e240cb6c778be6461d44fc0](https://github.com/StoneCypher/jssm/commit/40caf515b66807719e240cb6c778be6461d44fc0)
 
@@ -11576,7 +13948,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__45__2" />
 
-## [5.45.2] - 5/4/2022 1:31:54 PM
+## [5.45.2] - May 4, 2022 1:31:54 PM
 
 Commit [bd684b210c19752665824bea584849db68144ff3](https://github.com/StoneCypher/jssm/commit/bd684b210c19752665824bea584849db68144ff3)
 
@@ -11594,7 +13966,7 @@ Merges [b5389e3, c346541]
 
 &nbsp;
 
-## [Untagged] - 5/4/2022 1:22:46 PM
+## [Untagged] - May 4, 2022 1:22:46 PM
 
 Commit [c346541bd314df9edd7dae91b70ee2e80648de20](https://github.com/StoneCypher/jssm/commit/c346541bd314df9edd7dae91b70ee2e80648de20)
 
@@ -11609,7 +13981,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2022 8:46:48 PM
+## [Untagged] - May 3, 2022 8:46:48 PM
 
 Commit [8ed642e9a90fa04edf1dcd0155b668325270134f](https://github.com/StoneCypher/jssm/commit/8ed642e9a90fa04edf1dcd0155b668325270134f)
 
@@ -11624,7 +13996,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2022 8:37:14 PM
+## [Untagged] - May 3, 2022 8:37:14 PM
 
 Commit [9531ff4df6308d79fdfa9f5d1e5a45d24c8f9aff](https://github.com/StoneCypher/jssm/commit/9531ff4df6308d79fdfa9f5d1e5a45d24c8f9aff)
 
@@ -11641,7 +14013,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__45__0" />
 
-## [5.45.0] - 5/3/2022 5:51:11 PM
+## [5.45.0] - May 3, 2022 5:51:11 PM
 
 Commit [b5389e3b905559dbdee13cabb2f1b20c6f58298b](https://github.com/StoneCypher/jssm/commit/b5389e3b905559dbdee13cabb2f1b20c6f58298b)
 
@@ -11659,7 +14031,7 @@ Merges [5e0a801, 3041204]
 
 &nbsp;
 
-## [Untagged] - 5/3/2022 5:40:22 PM
+## [Untagged] - May 3, 2022 5:40:22 PM
 
 Commit [30412045f8f1444594a965f18a5140048a11312e](https://github.com/StoneCypher/jssm/commit/30412045f8f1444594a965f18a5140048a11312e)
 
@@ -11674,7 +14046,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2022 4:15:27 PM
+## [Untagged] - May 3, 2022 4:15:27 PM
 
 Commit [58f4df20b9ca9d24da525a49c231b7cf7e1f048e](https://github.com/StoneCypher/jssm/commit/58f4df20b9ca9d24da525a49c231b7cf7e1f048e)
 
@@ -11689,7 +14061,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2022 12:20:21 PM
+## [Untagged] - May 3, 2022 12:20:21 PM
 
 Commit [f7e0dd94d368fdbd918b55311e5b53bdf830a2cd](https://github.com/StoneCypher/jssm/commit/f7e0dd94d368fdbd918b55311e5b53bdf830a2cd)
 
@@ -11704,7 +14076,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2022 12:01:52 PM
+## [Untagged] - May 3, 2022 12:01:52 PM
 
 Commit [f1534eeae47b10c7847762f560de25cfee5813e9](https://github.com/StoneCypher/jssm/commit/f1534eeae47b10c7847762f560de25cfee5813e9)
 
@@ -11719,7 +14091,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2022 10:39:05 PM
+## [Untagged] - May 2, 2022 10:39:05 PM
 
 Commit [c95411f2a86da0857f7927fa0fc63a7256b0f296](https://github.com/StoneCypher/jssm/commit/c95411f2a86da0857f7927fa0fc63a7256b0f296)
 
@@ -11734,7 +14106,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/25/2022 11:52:03 PM
+## [Untagged] - Apr 25, 2022 11:52:03 PM
 
 Commit [5e0a8011521db098fdbb0d10ec8f741a8b7ac496](https://github.com/StoneCypher/jssm/commit/5e0a8011521db098fdbb0d10ec8f741a8b7ac496)
 
@@ -11751,7 +14123,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__44__0" />
 
-## [5.44.0] - 4/25/2022 11:38:12 PM
+## [5.44.0] - Apr 25, 2022 11:38:12 PM
 
 Commit [e282c60fa77e9a48ea0e0b1c8d935587a6bb1c90](https://github.com/StoneCypher/jssm/commit/e282c60fa77e9a48ea0e0b1c8d935587a6bb1c90)
 
@@ -11769,7 +14141,7 @@ Merges [e0045ef, 4fea20f]
 
 &nbsp;
 
-## [Untagged] - 4/25/2022 11:32:19 PM
+## [Untagged] - Apr 25, 2022 11:32:19 PM
 
 Commit [4fea20f7072d64dfcdaf9a71634c06fc204ab41f](https://github.com/StoneCypher/jssm/commit/4fea20f7072d64dfcdaf9a71634c06fc204ab41f)
 
@@ -11784,7 +14156,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/25/2022 11:29:40 PM
+## [Untagged] - Apr 25, 2022 11:29:40 PM
 
 Commit [35cda8b77fb99a039665f0c33736d6e4d54844e5](https://github.com/StoneCypher/jssm/commit/35cda8b77fb99a039665f0c33736d6e4d54844e5)
 
@@ -11803,7 +14175,7 @@ Merges [e2cacd2, e0045ef]
 
 <a name="5__43__2" />
 
-## [5.43.2] - 4/19/2022 1:21:40 PM
+## [5.43.2] - Apr 19, 2022 1:21:40 PM
 
 Commit [e0045ef686797f0d49ff7a1e522cb9edf7d15599](https://github.com/StoneCypher/jssm/commit/e0045ef686797f0d49ff7a1e522cb9edf7d15599)
 
@@ -11818,7 +14190,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 1:14:37 PM
+## [Untagged] - Apr 19, 2022 1:14:37 PM
 
 Commit [9933f5d94f899ef251b3175a332f3d8a8dd18179](https://github.com/StoneCypher/jssm/commit/9933f5d94f899ef251b3175a332f3d8a8dd18179)
 
@@ -11836,7 +14208,7 @@ Merges [74c9526, c2a50d0]
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 12:52:10 PM
+## [Untagged] - Apr 19, 2022 12:52:10 PM
 
 Commit [c2a50d0577e5202c067f1d6d61b12b71343dc3d2](https://github.com/StoneCypher/jssm/commit/c2a50d0577e5202c067f1d6d61b12b71343dc3d2)
 
@@ -11851,7 +14223,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 12:46:15 PM
+## [Untagged] - Apr 19, 2022 12:46:15 PM
 
 Commit [0c883301122ed58ed7fc5395d9162adbb07315c6](https://github.com/StoneCypher/jssm/commit/0c883301122ed58ed7fc5395d9162adbb07315c6)
 
@@ -11866,7 +14238,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 12:16:17 PM
+## [Untagged] - Apr 19, 2022 12:16:17 PM
 
 Commit [7d12c2fdd60b152518e1214b79dd2e6a60682f2e](https://github.com/StoneCypher/jssm/commit/7d12c2fdd60b152518e1214b79dd2e6a60682f2e)
 
@@ -11881,7 +14253,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 11:59:15 AM
+## [Untagged] - Apr 19, 2022 11:59:15 AM
 
 Commit [74c952634a3ed06ff2306e0540714a826f95bc78](https://github.com/StoneCypher/jssm/commit/74c952634a3ed06ff2306e0540714a826f95bc78)
 
@@ -11899,7 +14271,7 @@ Merges [bf49490, ecffd4f]
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 11:54:46 AM
+## [Untagged] - Apr 19, 2022 11:54:46 AM
 
 Commit [ecffd4feb56f405862217ecc65288163accf2f24](https://github.com/StoneCypher/jssm/commit/ecffd4feb56f405862217ecc65288163accf2f24)
 
@@ -11914,7 +14286,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 11:50:52 AM
+## [Untagged] - Apr 19, 2022 11:50:52 AM
 
 Commit [e2cacd293ccafe98431ecd9ae016703959713498](https://github.com/StoneCypher/jssm/commit/e2cacd293ccafe98431ecd9ae016703959713498)
 
@@ -11929,7 +14301,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 11:50:39 AM
+## [Untagged] - Apr 19, 2022 11:50:39 AM
 
 Commit [660d34f48de8139e6593fd941513314e30c3435e](https://github.com/StoneCypher/jssm/commit/660d34f48de8139e6593fd941513314e30c3435e)
 
@@ -11946,7 +14318,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__42__0" />
 
-## [v5.42.0] - 4/19/2022 11:31:40 AM
+## [v5.42.0] - Apr 19, 2022 11:31:40 AM
 
 Commit [1d15b0c87fd14ef94a7037041cae070c5302b752](https://github.com/StoneCypher/jssm/commit/1d15b0c87fd14ef94a7037041cae070c5302b752)
 
@@ -11961,7 +14333,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 9:31:42 AM
+## [Untagged] - Apr 19, 2022 9:31:42 AM
 
 Commit [32c93dac533547dbce9c30085b431a40657711c8](https://github.com/StoneCypher/jssm/commit/32c93dac533547dbce9c30085b431a40657711c8)
 
@@ -11976,7 +14348,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 9:26:25 AM
+## [Untagged] - Apr 19, 2022 9:26:25 AM
 
 Commit [c0e5d9ea644d6437ce90327d231431cfd830ce31](https://github.com/StoneCypher/jssm/commit/c0e5d9ea644d6437ce90327d231431cfd830ce31)
 
@@ -11991,7 +14363,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/19/2022 9:08:33 AM
+## [Untagged] - Apr 19, 2022 9:08:33 AM
 
 Commit [bcbc03e4817178b9c3dfb25f9cce771b9f1d1203](https://github.com/StoneCypher/jssm/commit/bcbc03e4817178b9c3dfb25f9cce771b9f1d1203)
 
@@ -12010,7 +14382,7 @@ Merges [fbe88ef, bf49490]
 
 <a name="v5__41__15" />
 
-## [v5.41.15] - 4/18/2022 3:47:38 PM
+## [v5.41.15] - Apr 18, 2022 3:47:38 PM
 
 Commit [bf494900b7b47560ed8dd801fab089a57e743b1d](https://github.com/StoneCypher/jssm/commit/bf494900b7b47560ed8dd801fab089a57e743b1d)
 
@@ -12027,7 +14399,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__41__14" />
 
-## [v5.41.14] - 4/18/2022 3:07:01 PM
+## [v5.41.14] - Apr 18, 2022 3:07:01 PM
 
 Commit [e4992995d55f1d640f31bfdefc337ad3c9a32629](https://github.com/StoneCypher/jssm/commit/e4992995d55f1d640f31bfdefc337ad3c9a32629)
 
@@ -12044,7 +14416,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__41__12" />
 
-## [v5.41.12] - 4/18/2022 3:00:51 PM
+## [v5.41.12] - Apr 18, 2022 3:00:51 PM
 
 Commit [b20c3da50d6c69d2af0a1e3e3883767d4d6d9d67](https://github.com/StoneCypher/jssm/commit/b20c3da50d6c69d2af0a1e3e3883767d4d6d9d67)
 
@@ -12059,7 +14431,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 2:55:31 PM
+## [Untagged] - Apr 18, 2022 2:55:31 PM
 
 Commit [e155cd8eb6494ff37387561d800355a3118496ce](https://github.com/StoneCypher/jssm/commit/e155cd8eb6494ff37387561d800355a3118496ce)
 
@@ -12074,7 +14446,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 2:53:44 PM
+## [Untagged] - Apr 18, 2022 2:53:44 PM
 
 Commit [7887a77c6c65be7363ea889268e6947a4cec7b3a](https://github.com/StoneCypher/jssm/commit/7887a77c6c65be7363ea889268e6947a4cec7b3a)
 
@@ -12091,7 +14463,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__41__10" />
 
-## [v5.41.10] - 4/18/2022 1:36:02 PM
+## [v5.41.10] - Apr 18, 2022 1:36:02 PM
 
 Commit [b7265f28765b21ce3def37470ba2517fb33e7ff8](https://github.com/StoneCypher/jssm/commit/b7265f28765b21ce3def37470ba2517fb33e7ff8)
 
@@ -12108,7 +14480,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__41__9" />
 
-## [v5.41.9] - 4/18/2022 1:27:16 PM
+## [v5.41.9] - Apr 18, 2022 1:27:16 PM
 
 Commit [515b271be5011f31abf570d464f55d4a8f98ca7e](https://github.com/StoneCypher/jssm/commit/515b271be5011f31abf570d464f55d4a8f98ca7e)
 
@@ -12125,7 +14497,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__41__8" />
 
-## [v5.41.8] - 4/18/2022 1:04:47 PM
+## [v5.41.8] - Apr 18, 2022 1:04:47 PM
 
 Commit [6cd5b8bbf4d0eb515c6989859f2b8e70ae5f4afa](https://github.com/StoneCypher/jssm/commit/6cd5b8bbf4d0eb515c6989859f2b8e70ae5f4afa)
 
@@ -12142,7 +14514,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__41__7" />
 
-## [v5.41.7] - 4/18/2022 12:10:47 PM
+## [v5.41.7] - Apr 18, 2022 12:10:47 PM
 
 Commit [3d8f9e47c6816cd80ea120a0456338f6c7b8c85f](https://github.com/StoneCypher/jssm/commit/3d8f9e47c6816cd80ea120a0456338f6c7b8c85f)
 
@@ -12157,7 +14529,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 11:42:43 AM
+## [Untagged] - Apr 18, 2022 11:42:43 AM
 
 Commit [10003babdd88b4c50f5706f416d008ba6499b0d9](https://github.com/StoneCypher/jssm/commit/10003babdd88b4c50f5706f416d008ba6499b0d9)
 
@@ -12172,7 +14544,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 11:38:55 AM
+## [Untagged] - Apr 18, 2022 11:38:55 AM
 
 Commit [583762c2b1244a46c80969b75e57b8b49aaea6bb](https://github.com/StoneCypher/jssm/commit/583762c2b1244a46c80969b75e57b8b49aaea6bb)
 
@@ -12187,7 +14559,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 11:32:10 AM
+## [Untagged] - Apr 18, 2022 11:32:10 AM
 
 Commit [775829affb743e82172667eb1afeabe907aaef62](https://github.com/StoneCypher/jssm/commit/775829affb743e82172667eb1afeabe907aaef62)
 
@@ -12202,7 +14574,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 11:05:22 AM
+## [Untagged] - Apr 18, 2022 11:05:22 AM
 
 Commit [4e5a72ede9184c7d02f49c67b70a1edaacebded7](https://github.com/StoneCypher/jssm/commit/4e5a72ede9184c7d02f49c67b70a1edaacebded7)
 
@@ -12217,7 +14589,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 11:00:05 AM
+## [Untagged] - Apr 18, 2022 11:00:05 AM
 
 Commit [14cf8f85ffab48e386664f2e9686a986f4e98e04](https://github.com/StoneCypher/jssm/commit/14cf8f85ffab48e386664f2e9686a986f4e98e04)
 
@@ -12232,7 +14604,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2022 12:03:21 AM
+## [Untagged] - Apr 18, 2022 12:03:21 AM
 
 Commit [1fc7bea94aac655098944f69c6b43c2ef1b6a3c8](https://github.com/StoneCypher/jssm/commit/1fc7bea94aac655098944f69c6b43c2ef1b6a3c8)
 
@@ -12247,7 +14619,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 11:59:35 PM
+## [Untagged] - Apr 17, 2022 11:59:35 PM
 
 Commit [91b66521f9b2ba8cbf9154a6616f2134e6bfcc0b](https://github.com/StoneCypher/jssm/commit/91b66521f9b2ba8cbf9154a6616f2134e6bfcc0b)
 
@@ -12262,7 +14634,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 11:43:22 PM
+## [Untagged] - Apr 17, 2022 11:43:22 PM
 
 Commit [26879647120567e37c932c55eafb536d572a4264](https://github.com/StoneCypher/jssm/commit/26879647120567e37c932c55eafb536d572a4264)
 
@@ -12277,7 +14649,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 11:38:15 PM
+## [Untagged] - Apr 17, 2022 11:38:15 PM
 
 Commit [8aba7402976218bb634a18cb75d4ff612d818d7e](https://github.com/StoneCypher/jssm/commit/8aba7402976218bb634a18cb75d4ff612d818d7e)
 
@@ -12292,7 +14664,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 11:29:48 PM
+## [Untagged] - Apr 17, 2022 11:29:48 PM
 
 Commit [bcc126d9ff7ea1a31d57a961dcf74d669a087ce7](https://github.com/StoneCypher/jssm/commit/bcc126d9ff7ea1a31d57a961dcf74d669a087ce7)
 
@@ -12307,7 +14679,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 11:27:19 PM
+## [Untagged] - Apr 17, 2022 11:27:19 PM
 
 Commit [824475829668b88c1cc87fb9014d5da11cca314d](https://github.com/StoneCypher/jssm/commit/824475829668b88c1cc87fb9014d5da11cca314d)
 
@@ -12324,7 +14696,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__41__2" />
 
-## [v5.41.2] - 4/17/2022 10:59:56 PM
+## [v5.41.2] - Apr 17, 2022 10:59:56 PM
 
 Commit [aeaf6a5ff73b8d268fc440f2493125ea6a66a43a](https://github.com/StoneCypher/jssm/commit/aeaf6a5ff73b8d268fc440f2493125ea6a66a43a)
 
@@ -12339,7 +14711,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 10:15:25 PM
+## [Untagged] - Apr 17, 2022 10:15:25 PM
 
 Commit [5454fdba5cc0a4f0cd493766331ede43be8c71bd](https://github.com/StoneCypher/jssm/commit/5454fdba5cc0a4f0cd493766331ede43be8c71bd)
 
@@ -12354,7 +14726,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 10:06:25 PM
+## [Untagged] - Apr 17, 2022 10:06:25 PM
 
 Commit [d50ba6895529b9fd7f30a4e1ba8c233b6691c4f2](https://github.com/StoneCypher/jssm/commit/d50ba6895529b9fd7f30a4e1ba8c233b6691c4f2)
 
@@ -12371,7 +14743,7 @@ Merges [e94598e, 1b9f4a0]
 
 &nbsp;
 
-## [Untagged] - 4/17/2022 10:05:35 PM
+## [Untagged] - Apr 17, 2022 10:05:35 PM
 
 Commit [1b9f4a01143e2e7bcea1c4b88fedb1b0d9ac1427](https://github.com/StoneCypher/jssm/commit/1b9f4a01143e2e7bcea1c4b88fedb1b0d9ac1427)
 
@@ -12386,7 +14758,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/15/2022 7:34:18 PM
+## [Untagged] - Apr 15, 2022 7:34:18 PM
 
 Commit [e94598e5478a12da748a28860ff6862e74103dd7](https://github.com/StoneCypher/jssm/commit/e94598e5478a12da748a28860ff6862e74103dd7)
 
@@ -12404,7 +14776,7 @@ Merges [06f486f, 40c22f0]
 
 &nbsp;
 
-## [Untagged] - 4/15/2022 7:34:10 PM
+## [Untagged] - Apr 15, 2022 7:34:10 PM
 
 Commit [06f486f49aa5756810038bdc94d58806d9860aa5](https://github.com/StoneCypher/jssm/commit/06f486f49aa5756810038bdc94d58806d9860aa5)
 
@@ -12422,7 +14794,7 @@ Merges [f4d79c3, db72fff]
 
 &nbsp;
 
-## [Untagged] - 4/15/2022 7:18:10 PM
+## [Untagged] - Apr 15, 2022 7:18:10 PM
 
 Commit [f4d79c38e5d09b446afc015475453cee4cc09bcc](https://github.com/StoneCypher/jssm/commit/f4d79c38e5d09b446afc015475453cee4cc09bcc)
 
@@ -12440,7 +14812,7 @@ Merges [ea88820, 81b3226]
 
 &nbsp;
 
-## [Untagged] - 4/15/2022 1:06:24 PM
+## [Untagged] - Apr 15, 2022 1:06:24 PM
 
 Commit [40c22f0a3218fc5475f20fd1c20eff17a124f106](https://github.com/StoneCypher/jssm/commit/40c22f0a3218fc5475f20fd1c20eff17a124f106)
 
@@ -12464,7 +14836,7 @@ updated-dependencies:
 
 &nbsp;
 
-## [Untagged] - 4/15/2022 1:06:18 PM
+## [Untagged] - Apr 15, 2022 1:06:18 PM
 
 Commit [81b322645cf6b15dfba36829f7d2b817a01a9214](https://github.com/StoneCypher/jssm/commit/81b322645cf6b15dfba36829f7d2b817a01a9214)
 
@@ -12489,7 +14861,7 @@ updated-dependencies:
 
 &nbsp;
 
-## [Untagged] - 4/15/2022 1:05:45 PM
+## [Untagged] - Apr 15, 2022 1:05:45 PM
 
 Commit [ea888208e6a78d80aca2cdaba96f46a3c992aee8](https://github.com/StoneCypher/jssm/commit/ea888208e6a78d80aca2cdaba96f46a3c992aee8)
 
@@ -12507,7 +14879,7 @@ Merges [0c9eb40, 1e63533]
 
 &nbsp;
 
-## [Untagged] - 4/12/2022 5:06:48 PM
+## [Untagged] - Apr 12, 2022 5:06:48 PM
 
 Commit [1e6353393a08be0528c312c247c4e0b1e13bab79](https://github.com/StoneCypher/jssm/commit/1e6353393a08be0528c312c247c4e0b1e13bab79)
 
@@ -12532,7 +14904,7 @@ updated-dependencies:
 
 &nbsp;
 
-## [Untagged] - 4/8/2022 3:31:10 PM
+## [Untagged] - Apr 8, 2022 3:31:10 PM
 
 Commit [db72fffa827ed106b115b67ff78d9e3bf917eb55](https://github.com/StoneCypher/jssm/commit/db72fffa827ed106b115b67ff78d9e3bf917eb55)
 
@@ -12556,7 +14928,7 @@ updated-dependencies:
 
 &nbsp;
 
-## [Untagged] - 3/15/2022 10:17:01 AM
+## [Untagged] - Mar 15, 2022 10:17:01 AM
 
 Commit [0c9eb403afe116744b4fbe3b42845b0db7b97fc2](https://github.com/StoneCypher/jssm/commit/0c9eb403afe116744b4fbe3b42845b0db7b97fc2)
 
@@ -12571,7 +14943,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/28/2021 12:11:34 PM
+## [Untagged] - Nov 28, 2021 12:11:34 PM
 
 Commit [4be74ac799167a2f79df3e6785a042608dd23166](https://github.com/StoneCypher/jssm/commit/4be74ac799167a2f79df3e6785a042608dd23166)
 
@@ -12589,7 +14961,7 @@ Merges [50ea9f6, 952072e]
 
 &nbsp;
 
-## [Untagged] - 11/13/2021 10:38:04 AM
+## [Untagged] - Nov 13, 2021 10:38:04 AM
 
 Commit [50ea9f66f3a6cd4a55cdeba18d274ab89ce52fe0](https://github.com/StoneCypher/jssm/commit/50ea9f66f3a6cd4a55cdeba18d274ab89ce52fe0)
 
@@ -12604,7 +14976,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/13/2021 10:37:38 AM
+## [Untagged] - Nov 13, 2021 10:37:38 AM
 
 Commit [efc9c99ec88c0fbcba5e4b5baface91e225a529b](https://github.com/StoneCypher/jssm/commit/efc9c99ec88c0fbcba5e4b5baface91e225a529b)
 
@@ -12619,7 +14991,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/13/2021 10:36:43 AM
+## [Untagged] - Nov 13, 2021 10:36:43 AM
 
 Commit [88e03669004b61d1541442e7c2d8d2279397c474](https://github.com/StoneCypher/jssm/commit/88e03669004b61d1541442e7c2d8d2279397c474)
 
@@ -12634,7 +15006,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/13/2021 10:36:09 AM
+## [Untagged] - Nov 13, 2021 10:36:09 AM
 
 Commit [f23e0de7ccf6069dbfe63b4b33feae51eab5354c](https://github.com/StoneCypher/jssm/commit/f23e0de7ccf6069dbfe63b4b33feae51eab5354c)
 
@@ -12649,7 +15021,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/29/2021 1:47:58 PM
+## [Untagged] - Oct 29, 2021 1:47:58 PM
 
 Commit [952072e8ce281bedf6ad2042fe888db7af2352b8](https://github.com/StoneCypher/jssm/commit/952072e8ce281bedf6ad2042fe888db7af2352b8)
 
@@ -12664,7 +15036,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/29/2021 12:04:11 AM
+## [Untagged] - Oct 29, 2021 12:04:11 AM
 
 Commit [302646ac3039a8b3ad43db7f8befa2b97efe6719](https://github.com/StoneCypher/jssm/commit/302646ac3039a8b3ad43db7f8befa2b97efe6719)
 
@@ -12682,7 +15054,7 @@ Merges [d078888, f0869e0]
 
 &nbsp;
 
-## [Untagged] - 10/28/2021 11:55:21 PM
+## [Untagged] - Oct 28, 2021 11:55:21 PM
 
 Commit [f0869e0de60bd5711144c132063aa42f396b6a2e](https://github.com/StoneCypher/jssm/commit/f0869e0de60bd5711144c132063aa42f396b6a2e)
 
@@ -12697,7 +15069,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/20/2021 1:48:21 PM
+## [Untagged] - Oct 20, 2021 1:48:21 PM
 
 Commit [d07888857d95df81fac0f3d039a39dde2812874e](https://github.com/StoneCypher/jssm/commit/d07888857d95df81fac0f3d039a39dde2812874e)
 
@@ -12715,7 +15087,7 @@ Merges [50eb6f8, 8ee2796]
 
 &nbsp;
 
-## [Untagged] - 10/20/2021 1:44:13 PM
+## [Untagged] - Oct 20, 2021 1:44:13 PM
 
 Commit [8ee279641b6bf9ce587c2ad4a4c5fa50ce62c6ee](https://github.com/StoneCypher/jssm/commit/8ee279641b6bf9ce587c2ad4a4c5fa50ce62c6ee)
 
@@ -12730,7 +15102,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/20/2021 1:38:02 PM
+## [Untagged] - Oct 20, 2021 1:38:02 PM
 
 Commit [e4d3752f4b8f2fee5813e5a61a299a797af1dd76](https://github.com/StoneCypher/jssm/commit/e4d3752f4b8f2fee5813e5a61a299a797af1dd76)
 
@@ -12745,7 +15117,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/19/2021 11:20:03 AM
+## [Untagged] - Oct 19, 2021 11:20:03 AM
 
 Commit [6809964ac88c82808d285864dd1f5db5f98d8072](https://github.com/StoneCypher/jssm/commit/6809964ac88c82808d285864dd1f5db5f98d8072)
 
@@ -12760,7 +15132,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/19/2021 11:07:09 AM
+## [Untagged] - Oct 19, 2021 11:07:09 AM
 
 Commit [50eb6f8c06d937c04b8b76e79883251a405ccb4f](https://github.com/StoneCypher/jssm/commit/50eb6f8c06d937c04b8b76e79883251a405ccb4f)
 
@@ -12777,7 +15149,7 @@ Merges [dd472db, cdedc1e]
 
 &nbsp;
 
-## [Untagged] - 10/19/2021 11:07:02 AM
+## [Untagged] - Oct 19, 2021 11:07:02 AM
 
 Commit [dd472db88e66f3093cd29b1de86dbb2f1caaff10](https://github.com/StoneCypher/jssm/commit/dd472db88e66f3093cd29b1de86dbb2f1caaff10)
 
@@ -12794,7 +15166,7 @@ Merges [53f01ab, 15d06a6]
 
 &nbsp;
 
-## [Untagged] - 10/19/2021 10:55:51 AM
+## [Untagged] - Oct 19, 2021 10:55:51 AM
 
 Commit [cdedc1e270b9ad678f16e54d1b0f4357b500f764](https://github.com/StoneCypher/jssm/commit/cdedc1e270b9ad678f16e54d1b0f4357b500f764)
 
@@ -12809,7 +15181,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/19/2021 12:11:56 AM
+## [Untagged] - Oct 19, 2021 12:11:56 AM
 
 Commit [15d06a6e9541c0cfdaf8075e1b8dbe9841e281ce](https://github.com/StoneCypher/jssm/commit/15d06a6e9541c0cfdaf8075e1b8dbe9841e281ce)
 
@@ -12824,7 +15196,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/29/2021 10:55:57 AM
+## [Untagged] - Aug 29, 2021 10:55:57 AM
 
 Commit [53f01abed397540a31c14d131e32a2ebf2cc0ce9](https://github.com/StoneCypher/jssm/commit/53f01abed397540a31c14d131e32a2ebf2cc0ce9)
 
@@ -12839,7 +15211,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/29/2021 10:52:38 AM
+## [Untagged] - Aug 29, 2021 10:52:38 AM
 
 Commit [ea4767de2a309ddd9977295fb872ae6b92ef8231](https://github.com/StoneCypher/jssm/commit/ea4767de2a309ddd9977295fb872ae6b92ef8231)
 
@@ -12857,7 +15229,7 @@ Merges [f74f12c, 7b72373]
 
 &nbsp;
 
-## [Untagged] - 8/29/2021 10:49:30 AM
+## [Untagged] - Aug 29, 2021 10:49:30 AM
 
 Commit [7b723733ad86de55e9ca93854114932f4d4a98c8](https://github.com/StoneCypher/jssm/commit/7b723733ad86de55e9ca93854114932f4d4a98c8)
 
@@ -12872,7 +15244,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/27/2021 1:04:27 PM
+## [Untagged] - Apr 27, 2021 1:04:27 PM
 
 Commit [f74f12cbcc6355a73239ef6e6e3a401a0ec37f97](https://github.com/StoneCypher/jssm/commit/f74f12cbcc6355a73239ef6e6e3a401a0ec37f97)
 
@@ -12887,7 +15259,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/18/2021 3:51:46 PM
+## [Untagged] - Apr 18, 2021 3:51:46 PM
 
 Commit [871753e71ccaf49682b6fa4b5d5f45c251c5dbae](https://github.com/StoneCypher/jssm/commit/871753e71ccaf49682b6fa4b5d5f45c251c5dbae)
 
@@ -12905,7 +15277,7 @@ Merges [1d0e38e, 0fd677b]
 
 &nbsp;
 
-## [Untagged] - 4/18/2021 3:32:09 PM
+## [Untagged] - Apr 18, 2021 3:32:09 PM
 
 Commit [0fd677b8c0a62c568017e0109affcef050b5fd20](https://github.com/StoneCypher/jssm/commit/0fd677b8c0a62c568017e0109affcef050b5fd20)
 
@@ -12920,7 +15292,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/14/2021 3:26:21 PM
+## [Untagged] - Apr 14, 2021 3:26:21 PM
 
 Commit [1d0e38e4cb945e67631880246a07cbb705b8fe37](https://github.com/StoneCypher/jssm/commit/1d0e38e4cb945e67631880246a07cbb705b8fe37)
 
@@ -12938,7 +15310,7 @@ Merges [b557a87, 49415ad]
 
 &nbsp;
 
-## [Untagged] - 4/14/2021 3:22:27 PM
+## [Untagged] - Apr 14, 2021 3:22:27 PM
 
 Commit [49415ad91484d21637e81014019285b3f2827d84](https://github.com/StoneCypher/jssm/commit/49415ad91484d21637e81014019285b3f2827d84)
 
@@ -12953,7 +15325,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/14/2021 3:21:52 PM
+## [Untagged] - Apr 14, 2021 3:21:52 PM
 
 Commit [e391c46259380cdf6ac7f2d97fc0cf8415a8ece2](https://github.com/StoneCypher/jssm/commit/e391c46259380cdf6ac7f2d97fc0cf8415a8ece2)
 
@@ -12968,7 +15340,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2021 3:24:40 PM
+## [Untagged] - Apr 12, 2021 3:24:40 PM
 
 Commit [b557a87ec0148da47ae232797a96234e89012b5a](https://github.com/StoneCypher/jssm/commit/b557a87ec0148da47ae232797a96234e89012b5a)
 
@@ -12986,7 +15358,7 @@ Merges [24ce4f1, bc2ca51]
 
 &nbsp;
 
-## [Untagged] - 4/12/2021 3:23:42 PM
+## [Untagged] - Apr 12, 2021 3:23:42 PM
 
 Commit [bc2ca51e2313195ed80e3296cb06507b18025178](https://github.com/StoneCypher/jssm/commit/bc2ca51e2313195ed80e3296cb06507b18025178)
 
@@ -13001,7 +15373,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2021 3:11:37 PM
+## [Untagged] - Apr 12, 2021 3:11:37 PM
 
 Commit [24ce4f1c7d8685485a559643570f7617e2a6c06a](https://github.com/StoneCypher/jssm/commit/24ce4f1c7d8685485a559643570f7617e2a6c06a)
 
@@ -13019,7 +15391,7 @@ Merges [715a1b4, c1c1cff]
 
 &nbsp;
 
-## [Untagged] - 4/12/2021 2:56:38 PM
+## [Untagged] - Apr 12, 2021 2:56:38 PM
 
 Commit [c1c1cff6face8dc212b6aef0630ac41500bfc333](https://github.com/StoneCypher/jssm/commit/c1c1cff6face8dc212b6aef0630ac41500bfc333)
 
@@ -13034,7 +15406,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2021 2:09:01 PM
+## [Untagged] - Apr 12, 2021 2:09:01 PM
 
 Commit [990363e32a7d27877f17ffe0a8057f8fbf1ce6d5](https://github.com/StoneCypher/jssm/commit/990363e32a7d27877f17ffe0a8057f8fbf1ce6d5)
 
@@ -13049,7 +15421,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/8/2021 3:07:34 PM
+## [Untagged] - Apr 8, 2021 3:07:34 PM
 
 Commit [715a1b461f232541c38aeaecbbdb11c6f4cacdb5](https://github.com/StoneCypher/jssm/commit/715a1b461f232541c38aeaecbbdb11c6f4cacdb5)
 
@@ -13067,7 +15439,7 @@ Merges [b69d705, c149f25]
 
 &nbsp;
 
-## [Untagged] - 4/7/2021 2:43:24 PM
+## [Untagged] - Apr 7, 2021 2:43:24 PM
 
 Commit [c149f259fa6d8dc112c01cf921cb9b1bb58e0cf0](https://github.com/StoneCypher/jssm/commit/c149f259fa6d8dc112c01cf921cb9b1bb58e0cf0)
 
@@ -13082,7 +15454,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/7/2021 1:23:39 PM
+## [Untagged] - Apr 7, 2021 1:23:39 PM
 
 Commit [b69d70575742a22956c3bbe374cb870214a33ea4](https://github.com/StoneCypher/jssm/commit/b69d70575742a22956c3bbe374cb870214a33ea4)
 
@@ -13100,7 +15472,7 @@ Merges [8c3d261, c7da077]
 
 &nbsp;
 
-## [Untagged] - 4/7/2021 11:59:01 AM
+## [Untagged] - Apr 7, 2021 11:59:01 AM
 
 Commit [c7da077acbca0d2b071125a334a244f0b7a1c43c](https://github.com/StoneCypher/jssm/commit/c7da077acbca0d2b071125a334a244f0b7a1c43c)
 
@@ -13115,7 +15487,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/7/2021 11:10:11 AM
+## [Untagged] - Apr 7, 2021 11:10:11 AM
 
 Commit [31b5f5b9e71acebe02facd2039d25111004c0f1d](https://github.com/StoneCypher/jssm/commit/31b5f5b9e71acebe02facd2039d25111004c0f1d)
 
@@ -13130,7 +15502,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/6/2021 11:37:31 PM
+## [Untagged] - Apr 6, 2021 11:37:31 PM
 
 Commit [8c3d26196f78e4c300fd8531cb7233d7b572a771](https://github.com/StoneCypher/jssm/commit/8c3d26196f78e4c300fd8531cb7233d7b572a771)
 
@@ -13148,7 +15520,7 @@ Merges [5a4f8b7, ef5b954]
 
 &nbsp;
 
-## [Untagged] - 4/6/2021 11:24:05 PM
+## [Untagged] - Apr 6, 2021 11:24:05 PM
 
 Commit [ef5b954e0604ab5f63f9fcafeb457d7b77e522a5](https://github.com/StoneCypher/jssm/commit/ef5b954e0604ab5f63f9fcafeb457d7b77e522a5)
 
@@ -13163,7 +15535,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 3/4/2021 7:30:38 AM
+## [Untagged] - Mar 4, 2021 7:30:38 AM
 
 Commit [fbe88ef08bb9880cb0f4edd810993656c8f496bb](https://github.com/StoneCypher/jssm/commit/fbe88ef08bb9880cb0f4edd810993656c8f496bb)
 
@@ -13178,7 +15550,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/24/2021 4:02:23 PM
+## [Untagged] - Jan 24, 2021 4:02:23 PM
 
 Commit [5a4f8b7d898b52bc4680aa49dd466dcb40ab86e9](https://github.com/StoneCypher/jssm/commit/5a4f8b7d898b52bc4680aa49dd466dcb40ab86e9)
 
@@ -13196,7 +15568,7 @@ Merges [909ccaf, 5e9b93d]
 
 &nbsp;
 
-## [Untagged] - 1/23/2021 6:45:06 PM
+## [Untagged] - Jan 23, 2021 6:45:06 PM
 
 Commit [5e9b93d0ccf1c0a87833461bab26586cd1d80fb2](https://github.com/StoneCypher/jssm/commit/5e9b93d0ccf1c0a87833461bab26586cd1d80fb2)
 
@@ -13211,7 +15583,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/21/2021 12:36:47 PM
+## [Untagged] - Jan 21, 2021 12:36:47 PM
 
 Commit [909ccaf6f0e88cafa66c8790edcd2ca3abcc6b41](https://github.com/StoneCypher/jssm/commit/909ccaf6f0e88cafa66c8790edcd2ca3abcc6b41)
 
@@ -13226,7 +15598,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 11:56:13 AM
+## [Untagged] - Jan 19, 2021 11:56:13 AM
 
 Commit [2e4f599175c0cce540bae3427d94ccacb5dca4cc](https://github.com/StoneCypher/jssm/commit/2e4f599175c0cce540bae3427d94ccacb5dca4cc)
 
@@ -13241,7 +15613,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 11:02:53 AM
+## [Untagged] - Jan 19, 2021 11:02:53 AM
 
 Commit [19cd4a3b69fd9fe54dcf0f79803848a2a3bcbea1](https://github.com/StoneCypher/jssm/commit/19cd4a3b69fd9fe54dcf0f79803848a2a3bcbea1)
 
@@ -13256,7 +15628,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 10:23:37 AM
+## [Untagged] - Jan 19, 2021 10:23:37 AM
 
 Commit [baf1ff610f7ccf248f7aef2387a33beae5ccf905](https://github.com/StoneCypher/jssm/commit/baf1ff610f7ccf248f7aef2387a33beae5ccf905)
 
@@ -13274,7 +15646,7 @@ Merges [32a4e2b, 90efa97]
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 10:22:37 AM
+## [Untagged] - Jan 19, 2021 10:22:37 AM
 
 Commit [90efa977049dd8c0b4bd817e9773c57a6bbe5e2c](https://github.com/StoneCypher/jssm/commit/90efa977049dd8c0b4bd817e9773c57a6bbe5e2c)
 
@@ -13289,7 +15661,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 9:22:31 AM
+## [Untagged] - Jan 19, 2021 9:22:31 AM
 
 Commit [32a4e2b66b36a49c9505aa5a5b26329920509c1c](https://github.com/StoneCypher/jssm/commit/32a4e2b66b36a49c9505aa5a5b26329920509c1c)
 
@@ -13307,7 +15679,7 @@ Merges [3db22c2, 5f1d7b6]
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 8:57:49 AM
+## [Untagged] - Jan 19, 2021 8:57:49 AM
 
 Commit [5f1d7b63c37b4fe014787379e7e564d08e4d6246](https://github.com/StoneCypher/jssm/commit/5f1d7b63c37b4fe014787379e7e564d08e4d6246)
 
@@ -13322,7 +15694,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 8:49:01 AM
+## [Untagged] - Jan 19, 2021 8:49:01 AM
 
 Commit [3db22c2d28ed21590b3f8b6b36a7543039414899](https://github.com/StoneCypher/jssm/commit/3db22c2d28ed21590b3f8b6b36a7543039414899)
 
@@ -13340,7 +15712,7 @@ Merges [18b0113, bbd99f5]
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 8:32:39 AM
+## [Untagged] - Jan 19, 2021 8:32:39 AM
 
 Commit [bbd99f50e2281fd1b4d3d9a3d77973eaf0f8cbb7](https://github.com/StoneCypher/jssm/commit/bbd99f50e2281fd1b4d3d9a3d77973eaf0f8cbb7)
 
@@ -13355,7 +15727,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/19/2021 8:16:22 AM
+## [Untagged] - Jan 19, 2021 8:16:22 AM
 
 Commit [18b0113f0f79ffbf5b2edf8649c1d9ee56df35a5](https://github.com/StoneCypher/jssm/commit/18b0113f0f79ffbf5b2edf8649c1d9ee56df35a5)
 
@@ -13370,7 +15742,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/18/2021 11:45:05 PM
+## [Untagged] - Jan 18, 2021 11:45:05 PM
 
 Commit [fe14695a0cefbb1caa6421c9d64c7221c38a1868](https://github.com/StoneCypher/jssm/commit/fe14695a0cefbb1caa6421c9d64c7221c38a1868)
 
@@ -13388,7 +15760,7 @@ Merges [99bd09e, f8016ad]
 
 &nbsp;
 
-## [Untagged] - 1/18/2021 11:44:42 PM
+## [Untagged] - Jan 18, 2021 11:44:42 PM
 
 Commit [f8016ad1e280169f1f7013df852da308e78c4dbc](https://github.com/StoneCypher/jssm/commit/f8016ad1e280169f1f7013df852da308e78c4dbc)
 
@@ -13405,7 +15777,7 @@ Merges [a92e1df, 99bd09e]
 
 &nbsp;
 
-## [Untagged] - 1/18/2021 11:34:15 PM
+## [Untagged] - Jan 18, 2021 11:34:15 PM
 
 Commit [a92e1df97011c344568b0d83f825034e52c3c098](https://github.com/StoneCypher/jssm/commit/a92e1df97011c344568b0d83f825034e52c3c098)
 
@@ -13420,7 +15792,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/18/2021 11:26:47 PM
+## [Untagged] - Jan 18, 2021 11:26:47 PM
 
 Commit [7487820c1732737d08e6719ead015dc43d17669c](https://github.com/StoneCypher/jssm/commit/7487820c1732737d08e6719ead015dc43d17669c)
 
@@ -13435,7 +15807,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/18/2021 11:12:29 PM
+## [Untagged] - Jan 18, 2021 11:12:29 PM
 
 Commit [640e85da092d82be2458ea513b05baf23af90426](https://github.com/StoneCypher/jssm/commit/640e85da092d82be2458ea513b05baf23af90426)
 
@@ -13450,7 +15822,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/18/2021 11:08:49 PM
+## [Untagged] - Jan 18, 2021 11:08:49 PM
 
 Commit [f96c7ec7193a5964019b60d1eef7c7eacd2a786a](https://github.com/StoneCypher/jssm/commit/f96c7ec7193a5964019b60d1eef7c7eacd2a786a)
 
@@ -13465,7 +15837,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/18/2021 10:56:36 PM
+## [Untagged] - Jan 18, 2021 10:56:36 PM
 
 Commit [6c88875931c10f7a77e1ab52499ea254e7c6bc55](https://github.com/StoneCypher/jssm/commit/6c88875931c10f7a77e1ab52499ea254e7c6bc55)
 
@@ -13480,7 +15852,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 4:51:24 PM
+## [Untagged] - Jan 16, 2021 4:51:24 PM
 
 Commit [a5de9cb06582f302a6da48bbc57aff8c33dc0c60](https://github.com/StoneCypher/jssm/commit/a5de9cb06582f302a6da48bbc57aff8c33dc0c60)
 
@@ -13495,7 +15867,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 3:53:05 PM
+## [Untagged] - Jan 16, 2021 3:53:05 PM
 
 Commit [2965bff17a8396b03fdf3ea10d7c7e8727d612d8](https://github.com/StoneCypher/jssm/commit/2965bff17a8396b03fdf3ea10d7c7e8727d612d8)
 
@@ -13510,7 +15882,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 3:30:29 PM
+## [Untagged] - Jan 16, 2021 3:30:29 PM
 
 Commit [17c16604962c573975f848e3831186a03d28fa0e](https://github.com/StoneCypher/jssm/commit/17c16604962c573975f848e3831186a03d28fa0e)
 
@@ -13525,7 +15897,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 3:29:11 PM
+## [Untagged] - Jan 16, 2021 3:29:11 PM
 
 Commit [0f3d5ec140980bc124a3d1d9c5c01a610eca2ee6](https://github.com/StoneCypher/jssm/commit/0f3d5ec140980bc124a3d1d9c5c01a610eca2ee6)
 
@@ -13540,7 +15912,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 2:45:29 PM
+## [Untagged] - Jan 16, 2021 2:45:29 PM
 
 Commit [516499488cd6854b121369b8f931628ad1179ca3](https://github.com/StoneCypher/jssm/commit/516499488cd6854b121369b8f931628ad1179ca3)
 
@@ -13555,7 +15927,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 2:45:11 PM
+## [Untagged] - Jan 16, 2021 2:45:11 PM
 
 Commit [24a08b2402e52a379fb4a5db451b10a82718cbf8](https://github.com/StoneCypher/jssm/commit/24a08b2402e52a379fb4a5db451b10a82718cbf8)
 
@@ -13570,7 +15942,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 1:39:26 PM
+## [Untagged] - Jan 16, 2021 1:39:26 PM
 
 Commit [fa8385cb70a48095b0a1b9d0ad2ae6d0caa03f06](https://github.com/StoneCypher/jssm/commit/fa8385cb70a48095b0a1b9d0ad2ae6d0caa03f06)
 
@@ -13585,7 +15957,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 11:30:28 AM
+## [Untagged] - Jan 16, 2021 11:30:28 AM
 
 Commit [d625d360882d4fbd42e2abfd01fe41979a39b7e1](https://github.com/StoneCypher/jssm/commit/d625d360882d4fbd42e2abfd01fe41979a39b7e1)
 
@@ -13600,7 +15972,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 8:12:57 AM
+## [Untagged] - Jan 16, 2021 8:12:57 AM
 
 Commit [e625face346bbb9ab35f559e60e59ba73ca284eb](https://github.com/StoneCypher/jssm/commit/e625face346bbb9ab35f559e60e59ba73ca284eb)
 
@@ -13615,7 +15987,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2021 8:12:06 AM
+## [Untagged] - Jan 16, 2021 8:12:06 AM
 
 Commit [99bd09ecbd4c2a12435a235098aeba6698fbdae8](https://github.com/StoneCypher/jssm/commit/99bd09ecbd4c2a12435a235098aeba6698fbdae8)
 
@@ -13630,7 +16002,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/15/2021 8:14:56 PM
+## [Untagged] - Jan 15, 2021 8:14:56 PM
 
 Commit [9152701bd8ae10af59d81d8d2040aa7c21baafe6](https://github.com/StoneCypher/jssm/commit/9152701bd8ae10af59d81d8d2040aa7c21baafe6)
 
@@ -13645,7 +16017,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/15/2021 8:14:29 PM
+## [Untagged] - Jan 15, 2021 8:14:29 PM
 
 Commit [0915833bf1c004a161b42056343264c24e562454](https://github.com/StoneCypher/jssm/commit/0915833bf1c004a161b42056343264c24e562454)
 
@@ -13660,7 +16032,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/15/2021 5:52:13 PM
+## [Untagged] - Jan 15, 2021 5:52:13 PM
 
 Commit [54a51fdfc2482d688ab880594d5f4819a0fc0ac3](https://github.com/StoneCypher/jssm/commit/54a51fdfc2482d688ab880594d5f4819a0fc0ac3)
 
@@ -13675,7 +16047,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/15/2021 4:20:23 PM
+## [Untagged] - Jan 15, 2021 4:20:23 PM
 
 Commit [f3def9813c824a7a9ce9fdb56e7b464fc8b364bf](https://github.com/StoneCypher/jssm/commit/f3def9813c824a7a9ce9fdb56e7b464fc8b364bf)
 
@@ -13690,7 +16062,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/15/2021 2:10:03 PM
+## [Untagged] - Jan 15, 2021 2:10:03 PM
 
 Commit [185f17805fc604d7e4e442a28aa2840d78214324](https://github.com/StoneCypher/jssm/commit/185f17805fc604d7e4e442a28aa2840d78214324)
 
@@ -13705,7 +16077,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/15/2021 1:38:26 PM
+## [Untagged] - Jan 15, 2021 1:38:26 PM
 
 Commit [0f8674df71a410bbfe632f373686a04aadb69a21](https://github.com/StoneCypher/jssm/commit/0f8674df71a410bbfe632f373686a04aadb69a21)
 
@@ -13720,7 +16092,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 6:53:10 PM
+## [Untagged] - Jan 14, 2021 6:53:10 PM
 
 Commit [f8442a20dfabd3467ebfc7136567682e8863c328](https://github.com/StoneCypher/jssm/commit/f8442a20dfabd3467ebfc7136567682e8863c328)
 
@@ -13735,7 +16107,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 6:11:10 PM
+## [Untagged] - Jan 14, 2021 6:11:10 PM
 
 Commit [bdc5a4b29b73d0c89c3427cd466d308ae2571c05](https://github.com/StoneCypher/jssm/commit/bdc5a4b29b73d0c89c3427cd466d308ae2571c05)
 
@@ -13750,7 +16122,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 5:31:08 PM
+## [Untagged] - Jan 14, 2021 5:31:08 PM
 
 Commit [833ccdaaa84e10e8dbefef80e1ff06bcaf07c790](https://github.com/StoneCypher/jssm/commit/833ccdaaa84e10e8dbefef80e1ff06bcaf07c790)
 
@@ -13765,7 +16137,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 4:51:01 PM
+## [Untagged] - Jan 14, 2021 4:51:01 PM
 
 Commit [dd8b528d3cfcdc1cf9b7761b2c4ca561acc5b157](https://github.com/StoneCypher/jssm/commit/dd8b528d3cfcdc1cf9b7761b2c4ca561acc5b157)
 
@@ -13780,7 +16152,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 4:03:08 PM
+## [Untagged] - Jan 14, 2021 4:03:08 PM
 
 Commit [a2b70f9f0ce3543bd49c087400029998d17df823](https://github.com/StoneCypher/jssm/commit/a2b70f9f0ce3543bd49c087400029998d17df823)
 
@@ -13795,7 +16167,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 3:25:05 PM
+## [Untagged] - Jan 14, 2021 3:25:05 PM
 
 Commit [fb301b6e1c987cebce479de59016b3a4c55ecd1c](https://github.com/StoneCypher/jssm/commit/fb301b6e1c987cebce479de59016b3a4c55ecd1c)
 
@@ -13810,7 +16182,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 3:18:25 PM
+## [Untagged] - Jan 14, 2021 3:18:25 PM
 
 Commit [54e44a47b4ee17a8b4ef6f155c2376d61894e23d](https://github.com/StoneCypher/jssm/commit/54e44a47b4ee17a8b4ef6f155c2376d61894e23d)
 
@@ -13825,7 +16197,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:41:54 PM
+## [Untagged] - Jan 14, 2021 2:41:54 PM
 
 Commit [35de413b4da3228cdf82894eb5d246ab1f018fbc](https://github.com/StoneCypher/jssm/commit/35de413b4da3228cdf82894eb5d246ab1f018fbc)
 
@@ -13843,7 +16215,7 @@ Merges [8559a76, 77c5fb9]
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:41:44 PM
+## [Untagged] - Jan 14, 2021 2:41:44 PM
 
 Commit [8559a768c9eb9ce4ecf81b44bc83ccb811c820fc](https://github.com/StoneCypher/jssm/commit/8559a768c9eb9ce4ecf81b44bc83ccb811c820fc)
 
@@ -13861,7 +16233,7 @@ Merges [262f795, 58c9a84]
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:34:38 PM
+## [Untagged] - Jan 14, 2021 2:34:38 PM
 
 Commit [58c9a8458cebc8f3403bf2651a8f9f2320a05583](https://github.com/StoneCypher/jssm/commit/58c9a8458cebc8f3403bf2651a8f9f2320a05583)
 
@@ -13876,7 +16248,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:31:56 PM
+## [Untagged] - Jan 14, 2021 2:31:56 PM
 
 Commit [e3d8652eb9de73acea49ebe82d72db0dfca1a545](https://github.com/StoneCypher/jssm/commit/e3d8652eb9de73acea49ebe82d72db0dfca1a545)
 
@@ -13891,7 +16263,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:30:49 PM
+## [Untagged] - Jan 14, 2021 2:30:49 PM
 
 Commit [a58272fa6facf7908e80ae5badf7a2cfe0f6c87d](https://github.com/StoneCypher/jssm/commit/a58272fa6facf7908e80ae5badf7a2cfe0f6c87d)
 
@@ -13906,7 +16278,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:25:14 PM
+## [Untagged] - Jan 14, 2021 2:25:14 PM
 
 Commit [3364804edaefd4e3a43fa867fd07c2aa8fd0af34](https://github.com/StoneCypher/jssm/commit/3364804edaefd4e3a43fa867fd07c2aa8fd0af34)
 
@@ -13921,7 +16293,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:19:25 PM
+## [Untagged] - Jan 14, 2021 2:19:25 PM
 
 Commit [77c5fb9cde854ab644f5eabe2f3a791171f508be](https://github.com/StoneCypher/jssm/commit/77c5fb9cde854ab644f5eabe2f3a791171f508be)
 
@@ -13936,7 +16308,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:16:48 PM
+## [Untagged] - Jan 14, 2021 2:16:48 PM
 
 Commit [262f7951481f4f1994f5d15ae6dd70e1330f195d](https://github.com/StoneCypher/jssm/commit/262f7951481f4f1994f5d15ae6dd70e1330f195d)
 
@@ -13954,7 +16326,7 @@ Merges [40616d1, 87e6ee0]
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:09:10 PM
+## [Untagged] - Jan 14, 2021 2:09:10 PM
 
 Commit [87e6ee0286314acab087a892e83e6e12ebe77ca6](https://github.com/StoneCypher/jssm/commit/87e6ee0286314acab087a892e83e6e12ebe77ca6)
 
@@ -13969,7 +16341,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:05:42 PM
+## [Untagged] - Jan 14, 2021 2:05:42 PM
 
 Commit [5ebff61ecdf3aed91a5d993dcfcd27a92b2541e0](https://github.com/StoneCypher/jssm/commit/5ebff61ecdf3aed91a5d993dcfcd27a92b2541e0)
 
@@ -13984,7 +16356,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 2:02:41 PM
+## [Untagged] - Jan 14, 2021 2:02:41 PM
 
 Commit [309af55c98d912d8c14382c31b3fa28fc82aa4f6](https://github.com/StoneCypher/jssm/commit/309af55c98d912d8c14382c31b3fa28fc82aa4f6)
 
@@ -14001,7 +16373,7 @@ Merges [f19deb1, 40616d1]
 
 &nbsp;
 
-## [Untagged] - 1/14/2021 1:59:21 PM
+## [Untagged] - Jan 14, 2021 1:59:21 PM
 
 Commit [f19deb1e0583fffc52890801e6d5771b71a7c6a9](https://github.com/StoneCypher/jssm/commit/f19deb1e0583fffc52890801e6d5771b71a7c6a9)
 
@@ -14016,7 +16388,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/12/2020 12:12:47 AM
+## [Untagged] - Dec 12, 2020 12:12:47 AM
 
 Commit [40616d156e4a26e4f84e01984fcaf5487754e696](https://github.com/StoneCypher/jssm/commit/40616d156e4a26e4f84e01984fcaf5487754e696)
 
@@ -14034,7 +16406,7 @@ Merges [52c6b10, 965ee9e]
 
 &nbsp;
 
-## [Untagged] - 12/12/2020 12:12:33 AM
+## [Untagged] - Dec 12, 2020 12:12:33 AM
 
 Commit [52c6b10ec64938bf3ea3c088eb642aa62394bddd](https://github.com/StoneCypher/jssm/commit/52c6b10ec64938bf3ea3c088eb642aa62394bddd)
 
@@ -14052,7 +16424,7 @@ Merges [542f2b9, e7fe1b6]
 
 &nbsp;
 
-## [Untagged] - 12/11/2020 11:39:24 PM
+## [Untagged] - Dec 11, 2020 11:39:24 PM
 
 Commit [e7fe1b6d96fe53a85128d20a98c1aad8dba71ca4](https://github.com/StoneCypher/jssm/commit/e7fe1b6d96fe53a85128d20a98c1aad8dba71ca4)
 
@@ -14071,7 +16443,7 @@ Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
 
 &nbsp;
 
-## [Untagged] - 12/11/2020 11:38:26 PM
+## [Untagged] - Dec 11, 2020 11:38:26 PM
 
 Commit [542f2b9f5ef41c46dddc2cd95fec0a0290e41b38](https://github.com/StoneCypher/jssm/commit/542f2b9f5ef41c46dddc2cd95fec0a0290e41b38)
 
@@ -14089,7 +16461,7 @@ Merges [8e844fa, 681ff85]
 
 &nbsp;
 
-## [Untagged] - 12/11/2020 11:38:17 PM
+## [Untagged] - Dec 11, 2020 11:38:17 PM
 
 Commit [8e844fabf8ba02e8b8f8975cd158d229b693c5d4](https://github.com/StoneCypher/jssm/commit/8e844fabf8ba02e8b8f8975cd158d229b693c5d4)
 
@@ -14107,7 +16479,7 @@ Merges [081372b, 5ab1d44]
 
 &nbsp;
 
-## [Untagged] - 12/11/2020 11:20:09 PM
+## [Untagged] - Dec 11, 2020 11:20:09 PM
 
 Commit [081372bf499b751f504a03bf2eba355d059733cd](https://github.com/StoneCypher/jssm/commit/081372bf499b751f504a03bf2eba355d059733cd)
 
@@ -14125,7 +16497,7 @@ Merges [9befda9, 5bf6c07]
 
 &nbsp;
 
-## [Untagged] - 12/11/2020 11:18:35 PM
+## [Untagged] - Dec 11, 2020 11:18:35 PM
 
 Commit [9befda958152b1b15791cb3bf94d679debcb26b7](https://github.com/StoneCypher/jssm/commit/9befda958152b1b15791cb3bf94d679debcb26b7)
 
@@ -14143,7 +16515,7 @@ Merges [bc81825, e4ea71d]
 
 &nbsp;
 
-## [Untagged] - 12/10/2020 9:23:46 AM
+## [Untagged] - Dec 10, 2020 9:23:46 AM
 
 Commit [e4ea71d6fdf1b3c92e1bb1e64894b0ce03b517b7](https://github.com/StoneCypher/jssm/commit/e4ea71d6fdf1b3c92e1bb1e64894b0ce03b517b7)
 
@@ -14162,7 +16534,7 @@ Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
 
 &nbsp;
 
-## [Untagged] - 11/24/2020 3:10:57 PM
+## [Untagged] - Nov 24, 2020 3:10:57 PM
 
 Commit [965ee9e06b19594140bca2873e3b4e366a008cd8](https://github.com/StoneCypher/jssm/commit/965ee9e06b19594140bca2873e3b4e366a008cd8)
 
@@ -14182,7 +16554,7 @@ Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
 
 &nbsp;
 
-## [Untagged] - 11/1/2020 3:01:48 PM
+## [Untagged] - Nov 1, 2020 3:01:48 PM
 
 Commit [bc81825847eea5d03bcd353a074feadaac3542c2](https://github.com/StoneCypher/jssm/commit/bc81825847eea5d03bcd353a074feadaac3542c2)
 
@@ -14197,7 +16569,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/1/2020 2:59:02 PM
+## [Untagged] - Nov 1, 2020 2:59:02 PM
 
 Commit [cb8dfc477f3b11ad401507cf2508fc07587b893f](https://github.com/StoneCypher/jssm/commit/cb8dfc477f3b11ad401507cf2508fc07587b893f)
 
@@ -14212,7 +16584,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/1/2020 2:53:03 PM
+## [Untagged] - Nov 1, 2020 2:53:03 PM
 
 Commit [b0ac58a8542619ef6d65f87fee89afb01eac62ea](https://github.com/StoneCypher/jssm/commit/b0ac58a8542619ef6d65f87fee89afb01eac62ea)
 
@@ -14227,7 +16599,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/1/2020 2:52:55 PM
+## [Untagged] - Nov 1, 2020 2:52:55 PM
 
 Commit [681ff85350f19317eab3d2db3029fc47cfa19521](https://github.com/StoneCypher/jssm/commit/681ff85350f19317eab3d2db3029fc47cfa19521)
 
@@ -14246,7 +16618,7 @@ Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
 
 &nbsp;
 
-## [Untagged] - 11/1/2020 2:52:31 PM
+## [Untagged] - Nov 1, 2020 2:52:31 PM
 
 Commit [b2c0dabfce6625efbc45243b6022656c7b9770a2](https://github.com/StoneCypher/jssm/commit/b2c0dabfce6625efbc45243b6022656c7b9770a2)
 
@@ -14261,7 +16633,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/1/2020 2:52:07 PM
+## [Untagged] - Nov 1, 2020 2:52:07 PM
 
 Commit [147efd39c45fa6172cdfda1b167e9c32a530d792](https://github.com/StoneCypher/jssm/commit/147efd39c45fa6172cdfda1b167e9c32a530d792)
 
@@ -14276,7 +16648,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/16/2020 11:52:15 PM
+## [Untagged] - Sep 16, 2020 11:52:15 PM
 
 Commit [230864ac6115f0f256d3c934e004a3d0d257f5f9](https://github.com/StoneCypher/jssm/commit/230864ac6115f0f256d3c934e004a3d0d257f5f9)
 
@@ -14294,7 +16666,7 @@ Merges [bc60d8c, 17a8b4f]
 
 &nbsp;
 
-## [Untagged] - 8/19/2020 10:29:50 AM
+## [Untagged] - Aug 19, 2020 10:29:50 AM
 
 Commit [17a8b4f3b8e67e409a7fe9e7e812b5c72882f803](https://github.com/StoneCypher/jssm/commit/17a8b4f3b8e67e409a7fe9e7e812b5c72882f803)
 
@@ -14310,7 +16682,7 @@ Author: `Jeff Katz <github@kraln.com>`
 
 &nbsp;
 
-## [Untagged] - 7/15/2020 2:06:07 PM
+## [Untagged] - Jul 15, 2020 2:06:07 PM
 
 Commit [5bf6c0736fc4a91924575e068f40b35b07896979](https://github.com/StoneCypher/jssm/commit/5bf6c0736fc4a91924575e068f40b35b07896979)
 
@@ -14329,7 +16701,7 @@ Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
 
 &nbsp;
 
-## [Untagged] - 6/5/2020 11:51:54 PM
+## [Untagged] - Jun 5, 2020 11:51:54 PM
 
 Commit [5ab1d444fd4e33c32516ffc8f760e7d4248e7ad0](https://github.com/StoneCypher/jssm/commit/5ab1d444fd4e33c32516ffc8f760e7d4248e7ad0)
 
@@ -14349,7 +16721,7 @@ Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
 
 &nbsp;
 
-## [Untagged] - 4/24/2020 9:44:34 PM
+## [Untagged] - Apr 24, 2020 9:44:34 PM
 
 Commit [bc60d8cf68d1ed7cf465384afd72ed69933e4770](https://github.com/StoneCypher/jssm/commit/bc60d8cf68d1ed7cf465384afd72ed69933e4770)
 
@@ -14364,7 +16736,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/24/2020 1:38:50 PM
+## [Untagged] - Apr 24, 2020 1:38:50 PM
 
 Commit [e8fa0b0a9e93cfc0b91a798b5e823e54a0b6fad5](https://github.com/StoneCypher/jssm/commit/e8fa0b0a9e93cfc0b91a798b5e823e54a0b6fad5)
 
@@ -14379,7 +16751,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/24/2020 1:31:35 PM
+## [Untagged] - Apr 24, 2020 1:31:35 PM
 
 Commit [a252cfc3fe8fc3a849ce84af5d77607a2aea6298](https://github.com/StoneCypher/jssm/commit/a252cfc3fe8fc3a849ce84af5d77607a2aea6298)
 
@@ -14394,7 +16766,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/24/2020 1:21:01 PM
+## [Untagged] - Apr 24, 2020 1:21:01 PM
 
 Commit [b6783c37f32bb74ac54d5399b22873d0624669af](https://github.com/StoneCypher/jssm/commit/b6783c37f32bb74ac54d5399b22873d0624669af)
 
@@ -14409,7 +16781,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 8:25:50 PM
+## [Untagged] - Apr 12, 2020 8:25:50 PM
 
 Commit [476072553d8eba0389a0fdbae4c9ea7791f1881b](https://github.com/StoneCypher/jssm/commit/476072553d8eba0389a0fdbae4c9ea7791f1881b)
 
@@ -14424,7 +16796,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 7:36:02 PM
+## [Untagged] - Apr 12, 2020 7:36:02 PM
 
 Commit [9ee168039607290669289ac6c2c76e2911697444](https://github.com/StoneCypher/jssm/commit/9ee168039607290669289ac6c2c76e2911697444)
 
@@ -14441,7 +16813,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="v5__32__14" />
 
-## [v5.32.14] - 4/12/2020 6:04:39 PM
+## [v5.32.14] - Apr 12, 2020 6:04:39 PM
 
 Commit [74cec294bb969cef454e197896cfa39a507d64c2](https://github.com/StoneCypher/jssm/commit/74cec294bb969cef454e197896cfa39a507d64c2)
 
@@ -14456,7 +16828,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 5:52:20 PM
+## [Untagged] - Apr 12, 2020 5:52:20 PM
 
 Commit [1c51d966c3ca60db51d18026f8c9e5d9eebe5afb](https://github.com/StoneCypher/jssm/commit/1c51d966c3ca60db51d18026f8c9e5d9eebe5afb)
 
@@ -14471,7 +16843,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 5:45:45 PM
+## [Untagged] - Apr 12, 2020 5:45:45 PM
 
 Commit [de64553c1a6a4f646380fd467818f174226bb08e](https://github.com/StoneCypher/jssm/commit/de64553c1a6a4f646380fd467818f174226bb08e)
 
@@ -14486,7 +16858,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 5:44:07 PM
+## [Untagged] - Apr 12, 2020 5:44:07 PM
 
 Commit [47107ac1f73cb43527338cc18c20b5add457f7bf](https://github.com/StoneCypher/jssm/commit/47107ac1f73cb43527338cc18c20b5add457f7bf)
 
@@ -14501,7 +16873,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 5:32:11 PM
+## [Untagged] - Apr 12, 2020 5:32:11 PM
 
 Commit [01258132c016fed2a793966e89720a633a3c3549](https://github.com/StoneCypher/jssm/commit/01258132c016fed2a793966e89720a633a3c3549)
 
@@ -14516,7 +16888,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 4:57:46 PM
+## [Untagged] - Apr 12, 2020 4:57:46 PM
 
 Commit [f4224bde89559fb3a0492d0f5c4599b2e83d6830](https://github.com/StoneCypher/jssm/commit/f4224bde89559fb3a0492d0f5c4599b2e83d6830)
 
@@ -14531,7 +16903,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 4:36:17 PM
+## [Untagged] - Apr 12, 2020 4:36:17 PM
 
 Commit [607f8b1c197cd8b05d0db5edf4dd95c906b25a9d](https://github.com/StoneCypher/jssm/commit/607f8b1c197cd8b05d0db5edf4dd95c906b25a9d)
 
@@ -14546,7 +16918,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 4:05:18 PM
+## [Untagged] - Apr 12, 2020 4:05:18 PM
 
 Commit [6e8c0d55e60734f04c66a421807e3cb2fa9881a7](https://github.com/StoneCypher/jssm/commit/6e8c0d55e60734f04c66a421807e3cb2fa9881a7)
 
@@ -14561,7 +16933,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 4:03:32 PM
+## [Untagged] - Apr 12, 2020 4:03:32 PM
 
 Commit [d64fe65ebe9de3390ddd15991de0dc1f35ca9315](https://github.com/StoneCypher/jssm/commit/d64fe65ebe9de3390ddd15991de0dc1f35ca9315)
 
@@ -14579,7 +16951,7 @@ Merges [642fd8a, f22d422]
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 4:02:22 PM
+## [Untagged] - Apr 12, 2020 4:02:22 PM
 
 Commit [f22d422dcf2899a72549c119d6c200ece9c98be1](https://github.com/StoneCypher/jssm/commit/f22d422dcf2899a72549c119d6c200ece9c98be1)
 
@@ -14594,7 +16966,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 3:36:32 PM
+## [Untagged] - Apr 12, 2020 3:36:32 PM
 
 Commit [430161f5c61f3b459530ef40e01316891cf3393f](https://github.com/StoneCypher/jssm/commit/430161f5c61f3b459530ef40e01316891cf3393f)
 
@@ -14609,7 +16981,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 3:33:34 PM
+## [Untagged] - Apr 12, 2020 3:33:34 PM
 
 Commit [520658963bc2061462db2800301a27b507645fa6](https://github.com/StoneCypher/jssm/commit/520658963bc2061462db2800301a27b507645fa6)
 
@@ -14624,7 +16996,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 2:38:31 PM
+## [Untagged] - Apr 12, 2020 2:38:31 PM
 
 Commit [642fd8a9b49350c8c3b8170c4a26198c16a172a2](https://github.com/StoneCypher/jssm/commit/642fd8a9b49350c8c3b8170c4a26198c16a172a2)
 
@@ -14639,7 +17011,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 1:50:16 PM
+## [Untagged] - Apr 12, 2020 1:50:16 PM
 
 Commit [ed2d21b8a597371b9b81bbadf445e16e4b2726f6](https://github.com/StoneCypher/jssm/commit/ed2d21b8a597371b9b81bbadf445e16e4b2726f6)
 
@@ -14654,7 +17026,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 1:46:41 PM
+## [Untagged] - Apr 12, 2020 1:46:41 PM
 
 Commit [59a47b5fccf80603bb0af8ed1ebfb45f0473d4da](https://github.com/StoneCypher/jssm/commit/59a47b5fccf80603bb0af8ed1ebfb45f0473d4da)
 
@@ -14669,7 +17041,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/12/2020 1:44:33 PM
+## [Untagged] - Apr 12, 2020 1:44:33 PM
 
 Commit [42f6af2a29d224ef86ff9434eb44fd254ad78671](https://github.com/StoneCypher/jssm/commit/42f6af2a29d224ef86ff9434eb44fd254ad78671)
 
@@ -14684,7 +17056,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/11/2020 11:01:35 PM
+## [Untagged] - Apr 11, 2020 11:01:35 PM
 
 Commit [dd529cd78d17fd2dea654d0912396bbecfffacb4](https://github.com/StoneCypher/jssm/commit/dd529cd78d17fd2dea654d0912396bbecfffacb4)
 
@@ -14699,7 +17071,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/11/2020 10:56:02 PM
+## [Untagged] - Apr 11, 2020 10:56:02 PM
 
 Commit [fae52c7b8a524a6d589002ca6855b2b3108c4ace](https://github.com/StoneCypher/jssm/commit/fae52c7b8a524a6d589002ca6855b2b3108c4ace)
 
@@ -14714,7 +17086,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/11/2020 10:13:39 PM
+## [Untagged] - Apr 11, 2020 10:13:39 PM
 
 Commit [b946832d139a7b49dc755b8f1d34e5bae769ec9b](https://github.com/StoneCypher/jssm/commit/b946832d139a7b49dc755b8f1d34e5bae769ec9b)
 
@@ -14729,7 +17101,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/11/2020 9:25:36 PM
+## [Untagged] - Apr 11, 2020 9:25:36 PM
 
 Commit [a27de349c4cb14daf75613dc3efd6f1fe25e32f5](https://github.com/StoneCypher/jssm/commit/a27de349c4cb14daf75613dc3efd6f1fe25e32f5)
 
@@ -14744,7 +17116,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 4/11/2020 9:08:07 PM
+## [Untagged] - Apr 11, 2020 9:08:07 PM
 
 Commit [a45f4f00b31948beac8a4b7dfd64fe686ea720cd](https://github.com/StoneCypher/jssm/commit/a45f4f00b31948beac8a4b7dfd64fe686ea720cd)
 
@@ -14761,7 +17133,7 @@ Merges [360aff6, 2c1b541]
 
 &nbsp;
 
-## [Untagged] - 4/11/2020 9:07:41 PM
+## [Untagged] - Apr 11, 2020 9:07:41 PM
 
 Commit [360aff67bb69a07a9a1c8c9a1218befe750a8ad2](https://github.com/StoneCypher/jssm/commit/360aff67bb69a07a9a1c8c9a1218befe750a8ad2)
 
@@ -14776,7 +17148,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/17/2020 2:43:25 PM
+## [Untagged] - Feb 17, 2020 2:43:25 PM
 
 Commit [2c1b54182af3f20ca56d69a6126de279953e85d3](https://github.com/StoneCypher/jssm/commit/2c1b54182af3f20ca56d69a6126de279953e85d3)
 
@@ -14791,7 +17163,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/17/2020 2:42:35 PM
+## [Untagged] - Feb 17, 2020 2:42:35 PM
 
 Commit [554a15b8cdbcea4f35f345f015650f92071f78e1](https://github.com/StoneCypher/jssm/commit/554a15b8cdbcea4f35f345f015650f92071f78e1)
 
@@ -14806,7 +17178,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/17/2020 2:36:36 PM
+## [Untagged] - Feb 17, 2020 2:36:36 PM
 
 Commit [4ffea7539f2a4d4976744f21b9b1c6a4d94c76fe](https://github.com/StoneCypher/jssm/commit/4ffea7539f2a4d4976744f21b9b1c6a4d94c76fe)
 
@@ -14821,7 +17193,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/2/2020 5:30:45 PM
+## [Untagged] - Feb 2, 2020 5:30:45 PM
 
 Commit [0b7f120c18dc0c56be00fc938aff61e6d8a44b2d](https://github.com/StoneCypher/jssm/commit/0b7f120c18dc0c56be00fc938aff61e6d8a44b2d)
 
@@ -14836,7 +17208,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 3:10:16 PM
+## [Untagged] - Feb 1, 2020 3:10:16 PM
 
 Commit [2c72b3c2d1390dc62170f9226c17449a269adf60](https://github.com/StoneCypher/jssm/commit/2c72b3c2d1390dc62170f9226c17449a269adf60)
 
@@ -14854,7 +17226,7 @@ Merges [3047b38, b797c1e]
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 3:06:51 PM
+## [Untagged] - Feb 1, 2020 3:06:51 PM
 
 Commit [b797c1ec3f5734d474594a9ef91b276b9cead382](https://github.com/StoneCypher/jssm/commit/b797c1ec3f5734d474594a9ef91b276b9cead382)
 
@@ -14869,7 +17241,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 2:28:17 PM
+## [Untagged] - Feb 1, 2020 2:28:17 PM
 
 Commit [3047b388b97ffbb853054207e8b9d38fe0a07c33](https://github.com/StoneCypher/jssm/commit/3047b388b97ffbb853054207e8b9d38fe0a07c33)
 
@@ -14887,7 +17259,7 @@ Merges [cc39df4, 44c69de]
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 2:24:37 PM
+## [Untagged] - Feb 1, 2020 2:24:37 PM
 
 Commit [44c69de2cdacddb72bdb37a9e6e8e1141db281c6](https://github.com/StoneCypher/jssm/commit/44c69de2cdacddb72bdb37a9e6e8e1141db281c6)
 
@@ -14902,7 +17274,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 2:21:04 PM
+## [Untagged] - Feb 1, 2020 2:21:04 PM
 
 Commit [f528dafa9fb1afe69a47783e3df780f671a93f3d](https://github.com/StoneCypher/jssm/commit/f528dafa9fb1afe69a47783e3df780f671a93f3d)
 
@@ -14917,7 +17289,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 2:18:56 PM
+## [Untagged] - Feb 1, 2020 2:18:56 PM
 
 Commit [8a535bfc471c973c58ba9143213a70d274000d4d](https://github.com/StoneCypher/jssm/commit/8a535bfc471c973c58ba9143213a70d274000d4d)
 
@@ -14932,7 +17304,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 2:08:05 PM
+## [Untagged] - Feb 1, 2020 2:08:05 PM
 
 Commit [7f6f5970444465fad42a4ffe7f6ab9aad07d48cc](https://github.com/StoneCypher/jssm/commit/7f6f5970444465fad42a4ffe7f6ab9aad07d48cc)
 
@@ -14947,7 +17319,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 1:59:47 PM
+## [Untagged] - Feb 1, 2020 1:59:47 PM
 
 Commit [76352f8fc86de10d9adb3a4ecf27d0f3741379d7](https://github.com/StoneCypher/jssm/commit/76352f8fc86de10d9adb3a4ecf27d0f3741379d7)
 
@@ -14962,7 +17334,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/1/2020 11:22:58 AM
+## [Untagged] - Feb 1, 2020 11:22:58 AM
 
 Commit [a3ebea3dc6e1a1d100ddbb37977fab34d33af3c5](https://github.com/StoneCypher/jssm/commit/a3ebea3dc6e1a1d100ddbb37977fab34d33af3c5)
 
@@ -14977,7 +17349,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/28/2020 8:54:08 PM
+## [Untagged] - Jan 28, 2020 8:54:08 PM
 
 Commit [c7335a9e9915a566e9b0b68427d5418ed91c5e1a](https://github.com/StoneCypher/jssm/commit/c7335a9e9915a566e9b0b68427d5418ed91c5e1a)
 
@@ -14992,7 +17364,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/28/2020 8:30:23 PM
+## [Untagged] - Jan 28, 2020 8:30:23 PM
 
 Commit [cc39df41a5002c7200a601e498cb5080fb8fbb9f](https://github.com/StoneCypher/jssm/commit/cc39df41a5002c7200a601e498cb5080fb8fbb9f)
 
@@ -15010,7 +17382,7 @@ Merges [de1fea7, 751cde5]
 
 &nbsp;
 
-## [Untagged] - 1/28/2020 8:23:27 PM
+## [Untagged] - Jan 28, 2020 8:23:27 PM
 
 Commit [751cde589f17eb03072ceb9f98447c7e82ec1acc](https://github.com/StoneCypher/jssm/commit/751cde589f17eb03072ceb9f98447c7e82ec1acc)
 
@@ -15025,7 +17397,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/28/2020 6:29:42 PM
+## [Untagged] - Jan 28, 2020 6:29:42 PM
 
 Commit [f96df2623dbf62da492622514be5f3a3bd909750](https://github.com/StoneCypher/jssm/commit/f96df2623dbf62da492622514be5f3a3bd909750)
 
@@ -15040,7 +17412,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 9:49:48 PM
+## [Untagged] - Jan 26, 2020 9:49:48 PM
 
 Commit [de1fea7329cb2c68cd7078b7b4ffcc2f1f19196b](https://github.com/StoneCypher/jssm/commit/de1fea7329cb2c68cd7078b7b4ffcc2f1f19196b)
 
@@ -15055,7 +17427,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 9:38:23 PM
+## [Untagged] - Jan 26, 2020 9:38:23 PM
 
 Commit [e0a395bb33909afde3c65734d29a100535acf694](https://github.com/StoneCypher/jssm/commit/e0a395bb33909afde3c65734d29a100535acf694)
 
@@ -15070,7 +17442,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 9:09:57 PM
+## [Untagged] - Jan 26, 2020 9:09:57 PM
 
 Commit [3aa55887b66ab05714fb5734330082bc5eb7e5f6](https://github.com/StoneCypher/jssm/commit/3aa55887b66ab05714fb5734330082bc5eb7e5f6)
 
@@ -15088,7 +17460,7 @@ Merges [7e9d25a, 7345a14]
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 8:51:57 PM
+## [Untagged] - Jan 26, 2020 8:51:57 PM
 
 Commit [7345a14e1457bd39b78c93c5c43560dcbf6c9ee0](https://github.com/StoneCypher/jssm/commit/7345a14e1457bd39b78c93c5c43560dcbf6c9ee0)
 
@@ -15103,7 +17475,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 7:56:06 PM
+## [Untagged] - Jan 26, 2020 7:56:06 PM
 
 Commit [7e9d25aea17d91e3ee07362c6fd6dd325e37457b](https://github.com/StoneCypher/jssm/commit/7e9d25aea17d91e3ee07362c6fd6dd325e37457b)
 
@@ -15121,7 +17493,7 @@ Merges [4b42bd5, de75a04]
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 7:46:21 PM
+## [Untagged] - Jan 26, 2020 7:46:21 PM
 
 Commit [de75a0417dee9d0bc6d3b7fa60578a08094f4bbe](https://github.com/StoneCypher/jssm/commit/de75a0417dee9d0bc6d3b7fa60578a08094f4bbe)
 
@@ -15136,7 +17508,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 4:14:44 PM
+## [Untagged] - Jan 26, 2020 4:14:44 PM
 
 Commit [4b42bd549337d746aae532490e04e14c888924cd](https://github.com/StoneCypher/jssm/commit/4b42bd549337d746aae532490e04e14c888924cd)
 
@@ -15154,7 +17526,7 @@ Merges [28d9b10, c0456fe]
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 4:06:03 PM
+## [Untagged] - Jan 26, 2020 4:06:03 PM
 
 Commit [c0456fefed177e86c700661f12f54983c6187dd2](https://github.com/StoneCypher/jssm/commit/c0456fefed177e86c700661f12f54983c6187dd2)
 
@@ -15169,7 +17541,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 3:46:11 PM
+## [Untagged] - Jan 26, 2020 3:46:11 PM
 
 Commit [e4e3c2569777ff0fd718fdd4c6727073e029d553](https://github.com/StoneCypher/jssm/commit/e4e3c2569777ff0fd718fdd4c6727073e029d553)
 
@@ -15184,7 +17556,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 1:14:41 PM
+## [Untagged] - Jan 26, 2020 1:14:41 PM
 
 Commit [28d9b1022a7687038aa7a4505abec9465ac2ef29](https://github.com/StoneCypher/jssm/commit/28d9b1022a7687038aa7a4505abec9465ac2ef29)
 
@@ -15201,7 +17573,7 @@ Merges [0c05c76, 48bbea4]
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 1:13:39 PM
+## [Untagged] - Jan 26, 2020 1:13:39 PM
 
 Commit [0c05c761008347f479ddd481a950434c2415c2bf](https://github.com/StoneCypher/jssm/commit/0c05c761008347f479ddd481a950434c2415c2bf)
 
@@ -15216,7 +17588,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 1:04:49 PM
+## [Untagged] - Jan 26, 2020 1:04:49 PM
 
 Commit [cf2e912cd29a6130c83a3c509045a348cd932a37](https://github.com/StoneCypher/jssm/commit/cf2e912cd29a6130c83a3c509045a348cd932a37)
 
@@ -15231,7 +17603,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 1:04:41 PM
+## [Untagged] - Jan 26, 2020 1:04:41 PM
 
 Commit [fcaf9b73bab6f65953a157646da65d10de8a4b2f](https://github.com/StoneCypher/jssm/commit/fcaf9b73bab6f65953a157646da65d10de8a4b2f)
 
@@ -15246,7 +17618,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/26/2020 9:41:29 AM
+## [Untagged] - Jan 26, 2020 9:41:29 AM
 
 Commit [48bbea4944c2f9c66bb1718b89fc56907400c861](https://github.com/StoneCypher/jssm/commit/48bbea4944c2f9c66bb1718b89fc56907400c861)
 
@@ -15264,7 +17636,7 @@ Merges [45ac5ae, 906a6ea]
 
 &nbsp;
 
-## [Untagged] - 1/25/2020 10:53:28 PM
+## [Untagged] - Jan 25, 2020 10:53:28 PM
 
 Commit [45ac5ae743333d169abe4a00d9e1874c2fb17143](https://github.com/StoneCypher/jssm/commit/45ac5ae743333d169abe4a00d9e1874c2fb17143)
 
@@ -15279,7 +17651,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/25/2020 10:47:22 PM
+## [Untagged] - Jan 25, 2020 10:47:22 PM
 
 Commit [f3e54b99991d1629adaa2b139bb22e41a1345d69](https://github.com/StoneCypher/jssm/commit/f3e54b99991d1629adaa2b139bb22e41a1345d69)
 
@@ -15296,7 +17668,7 @@ Merges [76422f5, 2c9f568]
 
 &nbsp;
 
-## [Untagged] - 1/25/2020 10:47:12 PM
+## [Untagged] - Jan 25, 2020 10:47:12 PM
 
 Commit [76422f54e741172bba0a054b885169475ff79e64](https://github.com/StoneCypher/jssm/commit/76422f54e741172bba0a054b885169475ff79e64)
 
@@ -15311,7 +17683,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/23/2020 7:50:07 PM
+## [Untagged] - Jan 23, 2020 7:50:07 PM
 
 Commit [906a6ea8628e508c7b913eb51c34a63565d96f76](https://github.com/StoneCypher/jssm/commit/906a6ea8628e508c7b913eb51c34a63565d96f76)
 
@@ -15326,7 +17698,7 @@ Author: `Vat Raghavan <machinshin@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2020 6:37:32 PM
+## [Untagged] - Jan 16, 2020 6:37:32 PM
 
 Commit [2c9f568be4bde0dcc1136af71d8a67140238dc12](https://github.com/StoneCypher/jssm/commit/2c9f568be4bde0dcc1136af71d8a67140238dc12)
 
@@ -15341,7 +17713,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2020 6:36:22 PM
+## [Untagged] - Jan 16, 2020 6:36:22 PM
 
 Commit [298cb1c13d66b8bd4b3274ac0191b476d5c6af86](https://github.com/StoneCypher/jssm/commit/298cb1c13d66b8bd4b3274ac0191b476d5c6af86)
 
@@ -15358,7 +17730,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2020 6:18:52 PM
+## [Untagged] - Jan 16, 2020 6:18:52 PM
 
 Commit [8c20f9dde73080238ebffd54a82fa9b6b8f9aebf](https://github.com/StoneCypher/jssm/commit/8c20f9dde73080238ebffd54a82fa9b6b8f9aebf)
 
@@ -15373,7 +17745,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/16/2020 6:17:22 PM
+## [Untagged] - Jan 16, 2020 6:17:22 PM
 
 Commit [07f502f29f9998614f744dcd18c2a37defd933d4](https://github.com/StoneCypher/jssm/commit/07f502f29f9998614f744dcd18c2a37defd933d4)
 
@@ -15388,7 +17760,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/12/2020 9:41:32 PM
+## [Untagged] - Jan 12, 2020 9:41:32 PM
 
 Commit [eb3669a23701b082a493c6c3948ebaf5b2e1d225](https://github.com/StoneCypher/jssm/commit/eb3669a23701b082a493c6c3948ebaf5b2e1d225)
 
@@ -15403,7 +17775,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/12/2020 9:38:45 PM
+## [Untagged] - Jan 12, 2020 9:38:45 PM
 
 Commit [3b730895558bf3d04d31d49b2154944488b7aa15](https://github.com/StoneCypher/jssm/commit/3b730895558bf3d04d31d49b2154944488b7aa15)
 
@@ -15418,7 +17790,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/11/2020 10:39:26 AM
+## [Untagged] - Jan 11, 2020 10:39:26 AM
 
 Commit [de88e4d6474512f38975b0b2a50d625440f8e7dd](https://github.com/StoneCypher/jssm/commit/de88e4d6474512f38975b0b2a50d625440f8e7dd)
 
@@ -15433,7 +17805,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/10/2020 10:51:25 PM
+## [Untagged] - Jan 10, 2020 10:51:25 PM
 
 Commit [920c8622c266379762b86606e511460af055412f](https://github.com/StoneCypher/jssm/commit/920c8622c266379762b86606e511460af055412f)
 
@@ -15448,7 +17820,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/10/2020 9:52:45 PM
+## [Untagged] - Jan 10, 2020 9:52:45 PM
 
 Commit [e6653bd93050097a7a66c45635cfdf0ab3901dea](https://github.com/StoneCypher/jssm/commit/e6653bd93050097a7a66c45635cfdf0ab3901dea)
 
@@ -15463,7 +17835,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/10/2020 9:10:13 PM
+## [Untagged] - Jan 10, 2020 9:10:13 PM
 
 Commit [c2c345f2a2cd947e0fd1ac8cc48bd1098c05b2f6](https://github.com/StoneCypher/jssm/commit/c2c345f2a2cd947e0fd1ac8cc48bd1098c05b2f6)
 
@@ -15478,7 +17850,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/10/2020 8:52:55 PM
+## [Untagged] - Jan 10, 2020 8:52:55 PM
 
 Commit [7dce5fe051628fb6104ade0de0b0e6eabbe48e7e](https://github.com/StoneCypher/jssm/commit/7dce5fe051628fb6104ade0de0b0e6eabbe48e7e)
 
@@ -15493,7 +17865,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/10/2020 8:44:51 PM
+## [Untagged] - Jan 10, 2020 8:44:51 PM
 
 Commit [e18d4913e0d2bab62c6d44b171cc063a99c7a5b1](https://github.com/StoneCypher/jssm/commit/e18d4913e0d2bab62c6d44b171cc063a99c7a5b1)
 
@@ -15508,7 +17880,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/9/2020 8:54:22 PM
+## [Untagged] - Jan 9, 2020 8:54:22 PM
 
 Commit [aa350a8305026b867af86cee3bba045b71a18c61](https://github.com/StoneCypher/jssm/commit/aa350a8305026b867af86cee3bba045b71a18c61)
 
@@ -15523,7 +17895,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/9/2020 8:43:37 PM
+## [Untagged] - Jan 9, 2020 8:43:37 PM
 
 Commit [d248df76eefea8f419a3515bc585f6c2408dd795](https://github.com/StoneCypher/jssm/commit/d248df76eefea8f419a3515bc585f6c2408dd795)
 
@@ -15538,7 +17910,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/8/2020 10:04:27 PM
+## [Untagged] - Jan 8, 2020 10:04:27 PM
 
 Commit [635e9809527ca1e37019262baf242c5981e9d24a](https://github.com/StoneCypher/jssm/commit/635e9809527ca1e37019262baf242c5981e9d24a)
 
@@ -15553,7 +17925,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/8/2020 10:01:58 PM
+## [Untagged] - Jan 8, 2020 10:01:58 PM
 
 Commit [15d72028c725d3d8c27672d391df00140d23feae](https://github.com/StoneCypher/jssm/commit/15d72028c725d3d8c27672d391df00140d23feae)
 
@@ -15571,7 +17943,7 @@ Merges [dce8174, ae2b2fc]
 
 &nbsp;
 
-## [Untagged] - 1/8/2020 9:23:39 PM
+## [Untagged] - Jan 8, 2020 9:23:39 PM
 
 Commit [ae2b2fcfd89989a9e679045cbf312edfd8704839](https://github.com/StoneCypher/jssm/commit/ae2b2fcfd89989a9e679045cbf312edfd8704839)
 
@@ -15586,7 +17958,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/8/2020 7:53:51 PM
+## [Untagged] - Jan 8, 2020 7:53:51 PM
 
 Commit [6bc16b6cff1a8bc39fd65ca19bb92071e8961d4f](https://github.com/StoneCypher/jssm/commit/6bc16b6cff1a8bc39fd65ca19bb92071e8961d4f)
 
@@ -15603,7 +17975,7 @@ Merges [9f9d02d, dce8174]
 
 &nbsp;
 
-## [Untagged] - 1/4/2020 5:16:11 PM
+## [Untagged] - Jan 4, 2020 5:16:11 PM
 
 Commit [9f9d02d22867a77d95be2ea40d2d5ae779372cd6](https://github.com/StoneCypher/jssm/commit/9f9d02d22867a77d95be2ea40d2d5ae779372cd6)
 
@@ -15618,7 +17990,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/4/2020 5:15:36 PM
+## [Untagged] - Jan 4, 2020 5:15:36 PM
 
 Commit [f99017834df0f0c31c5fa59f03fdfc9a2c0c116c](https://github.com/StoneCypher/jssm/commit/f99017834df0f0c31c5fa59f03fdfc9a2c0c116c)
 
@@ -15633,7 +18005,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/4/2020 4:41:31 PM
+## [Untagged] - Jan 4, 2020 4:41:31 PM
 
 Commit [134c18638997a1fc45ba6082a9ed439a26449aed](https://github.com/StoneCypher/jssm/commit/134c18638997a1fc45ba6082a9ed439a26449aed)
 
@@ -15648,7 +18020,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/28/2019 1:27:23 PM
+## [Untagged] - Dec 28, 2019 1:27:23 PM
 
 Commit [dce81744353bbd7d6b59fa8525f1c49ab2cd3b60](https://github.com/StoneCypher/jssm/commit/dce81744353bbd7d6b59fa8525f1c49ab2cd3b60)
 
@@ -15663,7 +18035,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/28/2019 12:24:50 PM
+## [Untagged] - Dec 28, 2019 12:24:50 PM
 
 Commit [3fb6134b80ccf84dd5df49dfbccbe2d672bd3b2f](https://github.com/StoneCypher/jssm/commit/3fb6134b80ccf84dd5df49dfbccbe2d672bd3b2f)
 
@@ -15678,7 +18050,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/28/2019 11:40:27 AM
+## [Untagged] - Dec 28, 2019 11:40:27 AM
 
 Commit [7845b0f62c3050a9100923489be718b8bc34d8f9](https://github.com/StoneCypher/jssm/commit/7845b0f62c3050a9100923489be718b8bc34d8f9)
 
@@ -15694,7 +18066,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/28/2019 11:39:03 AM
+## [Untagged] - Dec 28, 2019 11:39:03 AM
 
 Commit [afbd96094e20cfea569cf56f58f15c8259d17b02](https://github.com/StoneCypher/jssm/commit/afbd96094e20cfea569cf56f58f15c8259d17b02)
 
@@ -15709,7 +18081,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/24/2019 1:09:32 PM
+## [Untagged] - Dec 24, 2019 1:09:32 PM
 
 Commit [b45738cea7ef36586bff0e6cd5d9b5bbf12a62bf](https://github.com/StoneCypher/jssm/commit/b45738cea7ef36586bff0e6cd5d9b5bbf12a62bf)
 
@@ -15724,7 +18096,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/24/2019 12:08:08 PM
+## [Untagged] - Dec 24, 2019 12:08:08 PM
 
 Commit [71148158e100d7dd5afd5b1dc38eb13c5bc68b1c](https://github.com/StoneCypher/jssm/commit/71148158e100d7dd5afd5b1dc38eb13c5bc68b1c)
 
@@ -15739,7 +18111,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/18/2019 1:30:16 AM
+## [Untagged] - Oct 18, 2019 1:30:16 AM
 
 Commit [c39ec14c04674b9907b48c0144d6532bb1ab37c3](https://github.com/StoneCypher/jssm/commit/c39ec14c04674b9907b48c0144d6532bb1ab37c3)
 
@@ -15754,7 +18126,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/18/2019 1:09:40 AM
+## [Untagged] - Oct 18, 2019 1:09:40 AM
 
 Commit [5ba3f2244062c1b2173075bdee77c9dd061ce5b7](https://github.com/StoneCypher/jssm/commit/5ba3f2244062c1b2173075bdee77c9dd061ce5b7)
 
@@ -15769,7 +18141,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/18/2019 1:03:48 AM
+## [Untagged] - Oct 18, 2019 1:03:48 AM
 
 Commit [518be0962dd166ce4ad1f74b7ed606b7fa776d15](https://github.com/StoneCypher/jssm/commit/518be0962dd166ce4ad1f74b7ed606b7fa776d15)
 
@@ -15784,7 +18156,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/18/2019 1:00:37 AM
+## [Untagged] - Oct 18, 2019 1:00:37 AM
 
 Commit [c9601c843ccacf0e913bcd320652c814e64e263e](https://github.com/StoneCypher/jssm/commit/c9601c843ccacf0e913bcd320652c814e64e263e)
 
@@ -15799,7 +18171,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/18/2019 12:55:24 AM
+## [Untagged] - Oct 18, 2019 12:55:24 AM
 
 Commit [fd231d5fcca5f7b2303a207d6293d6a5e2473b7b](https://github.com/StoneCypher/jssm/commit/fd231d5fcca5f7b2303a207d6293d6a5e2473b7b)
 
@@ -15814,7 +18186,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/18/2019 12:50:26 AM
+## [Untagged] - Oct 18, 2019 12:50:26 AM
 
 Commit [5f615d37882367586c0cbd1faa4f71bbd7a77aef](https://github.com/StoneCypher/jssm/commit/5f615d37882367586c0cbd1faa4f71bbd7a77aef)
 
@@ -15829,7 +18201,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/18/2019 12:00:30 AM
+## [Untagged] - Oct 18, 2019 12:00:30 AM
 
 Commit [dd4649930b512837b6014d7b98f7c2b1af979b7a](https://github.com/StoneCypher/jssm/commit/dd4649930b512837b6014d7b98f7c2b1af979b7a)
 
@@ -15844,7 +18216,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/17/2019 11:56:17 PM
+## [Untagged] - Oct 17, 2019 11:56:17 PM
 
 Commit [c6dd3d9ac99c59effe4b18d8d079a3fb8cb60254](https://github.com/StoneCypher/jssm/commit/c6dd3d9ac99c59effe4b18d8d079a3fb8cb60254)
 
@@ -15859,7 +18231,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/17/2019 11:50:46 PM
+## [Untagged] - Oct 17, 2019 11:50:46 PM
 
 Commit [71ab9d7a44184629a5480335f897a247ec0ad00c](https://github.com/StoneCypher/jssm/commit/71ab9d7a44184629a5480335f897a247ec0ad00c)
 
@@ -15874,7 +18246,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/16/2019 7:00:19 PM
+## [Untagged] - Oct 16, 2019 7:00:19 PM
 
 Commit [633dc03e4cf31557ac80a42930674e45d92846ee](https://github.com/StoneCypher/jssm/commit/633dc03e4cf31557ac80a42930674e45d92846ee)
 
@@ -15889,7 +18261,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2019 7:13:53 PM
+## [Untagged] - Jul 3, 2019 7:13:53 PM
 
 Commit [ef5ac209f314b8eabc99970b68cd61b44f46870e](https://github.com/StoneCypher/jssm/commit/ef5ac209f314b8eabc99970b68cd61b44f46870e)
 
@@ -15904,7 +18276,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2019 6:50:30 PM
+## [Untagged] - Jul 3, 2019 6:50:30 PM
 
 Commit [599632e2baea1bda13b6797fa6a0f4dc59663436](https://github.com/StoneCypher/jssm/commit/599632e2baea1bda13b6797fa6a0f4dc59663436)
 
@@ -15919,7 +18291,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2019 6:15:52 PM
+## [Untagged] - Jul 3, 2019 6:15:52 PM
 
 Commit [24918e96dabc00c997ab5879a7924a209647937e](https://github.com/StoneCypher/jssm/commit/24918e96dabc00c997ab5879a7924a209647937e)
 
@@ -15934,7 +18306,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2019 6:08:50 PM
+## [Untagged] - Jul 3, 2019 6:08:50 PM
 
 Commit [bda3d652f0d92fdcdaf8867b477fbee54c54f0c9](https://github.com/StoneCypher/jssm/commit/bda3d652f0d92fdcdaf8867b477fbee54c54f0c9)
 
@@ -15951,7 +18323,7 @@ Merges [943f5f4, 3e88f7a]
 
 &nbsp;
 
-## [Untagged] - 7/3/2019 6:08:38 PM
+## [Untagged] - Jul 3, 2019 6:08:38 PM
 
 Commit [943f5f4b24fc7c55f82635e2272ccbea887f288d](https://github.com/StoneCypher/jssm/commit/943f5f4b24fc7c55f82635e2272ccbea887f288d)
 
@@ -15966,7 +18338,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2019 10:57:56 AM
+## [Untagged] - Jun 6, 2019 10:57:56 AM
 
 Commit [3e88f7a40560f9e2dbe06a37df7ba2685177cebc](https://github.com/StoneCypher/jssm/commit/3e88f7a40560f9e2dbe06a37df7ba2685177cebc)
 
@@ -15984,7 +18356,7 @@ Merges [c2d4d36, 9c5f203]
 
 &nbsp;
 
-## [Untagged] - 6/6/2019 10:48:19 AM
+## [Untagged] - Jun 6, 2019 10:48:19 AM
 
 Commit [9c5f20341711b396829cdebbea93b881620091f2](https://github.com/StoneCypher/jssm/commit/9c5f20341711b396829cdebbea93b881620091f2)
 
@@ -15999,7 +18371,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/5/2019 7:11:53 PM
+## [Untagged] - Jun 5, 2019 7:11:53 PM
 
 Commit [c2d4d36669e37fc4e5ed231d31b3f35e159f1c54](https://github.com/StoneCypher/jssm/commit/c2d4d36669e37fc4e5ed231d31b3f35e159f1c54)
 
@@ -16014,7 +18386,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/5/2019 7:06:41 PM
+## [Untagged] - Jun 5, 2019 7:06:41 PM
 
 Commit [a4d0851f240ac513308c05aaf903d10558f42827](https://github.com/StoneCypher/jssm/commit/a4d0851f240ac513308c05aaf903d10558f42827)
 
@@ -16032,7 +18404,7 @@ Merges [8b70968, 922d679]
 
 &nbsp;
 
-## [Untagged] - 6/5/2019 5:15:09 PM
+## [Untagged] - Jun 5, 2019 5:15:09 PM
 
 Commit [922d679b5fbdd1b80343ea38ee7afa8ba7acb38a](https://github.com/StoneCypher/jssm/commit/922d679b5fbdd1b80343ea38ee7afa8ba7acb38a)
 
@@ -16048,7 +18420,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:27:58 PM
+## [Untagged] - May 14, 2019 10:27:58 PM
 
 Commit [8b70968de3ade3a7404223d5457199fde53fd4ba](https://github.com/StoneCypher/jssm/commit/8b70968de3ade3a7404223d5457199fde53fd4ba)
 
@@ -16066,7 +18438,7 @@ Merges [4707898, 0b96d72]
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:21:26 PM
+## [Untagged] - May 14, 2019 10:21:26 PM
 
 Commit [0b96d7294954a6a44b12f7c06cd924f86607950b](https://github.com/StoneCypher/jssm/commit/0b96d7294954a6a44b12f7c06cd924f86607950b)
 
@@ -16081,7 +18453,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:18:00 PM
+## [Untagged] - May 14, 2019 10:18:00 PM
 
 Commit [ed19cf1ad16f725d980c238499083f96ae19b2f1](https://github.com/StoneCypher/jssm/commit/ed19cf1ad16f725d980c238499083f96ae19b2f1)
 
@@ -16096,7 +18468,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:17:51 PM
+## [Untagged] - May 14, 2019 10:17:51 PM
 
 Commit [7d9963c6cbb5e79c7a9691b332fd413cf9879687](https://github.com/StoneCypher/jssm/commit/7d9963c6cbb5e79c7a9691b332fd413cf9879687)
 
@@ -16111,7 +18483,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:13:35 PM
+## [Untagged] - May 14, 2019 10:13:35 PM
 
 Commit [1686b13815db01ffdb6f9945d671e6406499b955](https://github.com/StoneCypher/jssm/commit/1686b13815db01ffdb6f9945d671e6406499b955)
 
@@ -16126,7 +18498,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:08:44 PM
+## [Untagged] - May 14, 2019 10:08:44 PM
 
 Commit [3b976fdfe647813dd8fdd599ffd549be4a5d02a9](https://github.com/StoneCypher/jssm/commit/3b976fdfe647813dd8fdd599ffd549be4a5d02a9)
 
@@ -16141,7 +18513,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:04:31 PM
+## [Untagged] - May 14, 2019 10:04:31 PM
 
 Commit [92525f3a38cfd0defc5775c88254e72242a4f4ab](https://github.com/StoneCypher/jssm/commit/92525f3a38cfd0defc5775c88254e72242a4f4ab)
 
@@ -16156,7 +18528,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:04:20 PM
+## [Untagged] - May 14, 2019 10:04:20 PM
 
 Commit [92c8c3cab778f0623eaa5624cfdab1877d0bdf7d](https://github.com/StoneCypher/jssm/commit/92c8c3cab778f0623eaa5624cfdab1877d0bdf7d)
 
@@ -16171,7 +18543,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:04:08 PM
+## [Untagged] - May 14, 2019 10:04:08 PM
 
 Commit [0ac15b8ee6cc6732ab11611452e091f6738d1c34](https://github.com/StoneCypher/jssm/commit/0ac15b8ee6cc6732ab11611452e091f6738d1c34)
 
@@ -16186,7 +18558,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:03:54 PM
+## [Untagged] - May 14, 2019 10:03:54 PM
 
 Commit [8c8475febfb7dfef40775918032bc924a8df5843](https://github.com/StoneCypher/jssm/commit/8c8475febfb7dfef40775918032bc924a8df5843)
 
@@ -16201,7 +18573,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:03:44 PM
+## [Untagged] - May 14, 2019 10:03:44 PM
 
 Commit [651135022a90deb48c26c34bc9005205ab8d1664](https://github.com/StoneCypher/jssm/commit/651135022a90deb48c26c34bc9005205ab8d1664)
 
@@ -16216,7 +18588,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:03:33 PM
+## [Untagged] - May 14, 2019 10:03:33 PM
 
 Commit [4eb004322fbf192633ebf7fc92176ed1a07d4bf4](https://github.com/StoneCypher/jssm/commit/4eb004322fbf192633ebf7fc92176ed1a07d4bf4)
 
@@ -16231,7 +18603,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 10:03:10 PM
+## [Untagged] - May 14, 2019 10:03:10 PM
 
 Commit [6bf3770fa316eff74812d34eec2a9344b8a67993](https://github.com/StoneCypher/jssm/commit/6bf3770fa316eff74812d34eec2a9344b8a67993)
 
@@ -16246,7 +18618,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 1:51:12 PM
+## [Untagged] - May 14, 2019 1:51:12 PM
 
 Commit [47078983d97d9ef2fdfdd87561ad81403bade5bf](https://github.com/StoneCypher/jssm/commit/47078983d97d9ef2fdfdd87561ad81403bade5bf)
 
@@ -16264,7 +18636,7 @@ Merges [cd090aa, ef03698]
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 1:39:46 PM
+## [Untagged] - May 14, 2019 1:39:46 PM
 
 Commit [ef03698b33a18a71bc1695ef2cf0fab1681f4b1a](https://github.com/StoneCypher/jssm/commit/ef03698b33a18a71bc1695ef2cf0fab1681f4b1a)
 
@@ -16279,7 +18651,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/14/2019 1:34:48 PM
+## [Untagged] - May 14, 2019 1:34:48 PM
 
 Commit [8a701c147cd3a6f59e8dddaef7a32484d60feabd](https://github.com/StoneCypher/jssm/commit/8a701c147cd3a6f59e8dddaef7a32484d60feabd)
 
@@ -16294,7 +18666,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 9:29:11 PM
+## [Untagged] - May 5, 2019 9:29:11 PM
 
 Commit [be99cf81c1f8881c00cb0d12add0c4e40eca643b](https://github.com/StoneCypher/jssm/commit/be99cf81c1f8881c00cb0d12add0c4e40eca643b)
 
@@ -16309,7 +18681,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 9:11:28 PM
+## [Untagged] - May 5, 2019 9:11:28 PM
 
 Commit [816a498d1ed209ca81e086b59217774c664fdf60](https://github.com/StoneCypher/jssm/commit/816a498d1ed209ca81e086b59217774c664fdf60)
 
@@ -16324,7 +18696,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 3:20:39 PM
+## [Untagged] - May 5, 2019 3:20:39 PM
 
 Commit [226e3f028e73c9dd2a99b4943185031a9745c3c8](https://github.com/StoneCypher/jssm/commit/226e3f028e73c9dd2a99b4943185031a9745c3c8)
 
@@ -16339,7 +18711,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 2:10:50 PM
+## [Untagged] - May 5, 2019 2:10:50 PM
 
 Commit [b55dee6874a28faba5bf2773e6e8b715bc6fef96](https://github.com/StoneCypher/jssm/commit/b55dee6874a28faba5bf2773e6e8b715bc6fef96)
 
@@ -16354,7 +18726,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 2:01:40 PM
+## [Untagged] - May 5, 2019 2:01:40 PM
 
 Commit [0a346f3406172f652165cca34d63e5870efb9013](https://github.com/StoneCypher/jssm/commit/0a346f3406172f652165cca34d63e5870efb9013)
 
@@ -16369,7 +18741,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 1:08:51 PM
+## [Untagged] - May 5, 2019 1:08:51 PM
 
 Commit [01e9b842297c3805e90d64e274efaf698a7d7669](https://github.com/StoneCypher/jssm/commit/01e9b842297c3805e90d64e274efaf698a7d7669)
 
@@ -16384,7 +18756,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 12:37:38 PM
+## [Untagged] - May 5, 2019 12:37:38 PM
 
 Commit [f2670db4601997f49b182e9c34721900174f18ff](https://github.com/StoneCypher/jssm/commit/f2670db4601997f49b182e9c34721900174f18ff)
 
@@ -16399,7 +18771,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 11:32:48 AM
+## [Untagged] - May 5, 2019 11:32:48 AM
 
 Commit [c537441bc665fe63ac47ff1c8db88c0c41cedde0](https://github.com/StoneCypher/jssm/commit/c537441bc665fe63ac47ff1c8db88c0c41cedde0)
 
@@ -16414,7 +18786,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 11:23:24 AM
+## [Untagged] - May 5, 2019 11:23:24 AM
 
 Commit [3f1e2fc8cc316275ca5253e3225028a9a6fd6595](https://github.com/StoneCypher/jssm/commit/3f1e2fc8cc316275ca5253e3225028a9a6fd6595)
 
@@ -16429,7 +18801,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 10:43:04 AM
+## [Untagged] - May 5, 2019 10:43:04 AM
 
 Commit [83d9e0990a9a2230019ea90ee2c990190398599c](https://github.com/StoneCypher/jssm/commit/83d9e0990a9a2230019ea90ee2c990190398599c)
 
@@ -16444,7 +18816,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/5/2019 6:34:52 AM
+## [Untagged] - May 5, 2019 6:34:52 AM
 
 Commit [25cb01aefe0920bc35115ea61cadfaf4be016304](https://github.com/StoneCypher/jssm/commit/25cb01aefe0920bc35115ea61cadfaf4be016304)
 
@@ -16459,7 +18831,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 9:37:05 PM
+## [Untagged] - May 4, 2019 9:37:05 PM
 
 Commit [c9fdc96049ce0ee6297c85758ad3c55bbc53579c](https://github.com/StoneCypher/jssm/commit/c9fdc96049ce0ee6297c85758ad3c55bbc53579c)
 
@@ -16474,7 +18846,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 9:34:19 PM
+## [Untagged] - May 4, 2019 9:34:19 PM
 
 Commit [abecdf18c27d81637cd2c90b58771f950e135c4b](https://github.com/StoneCypher/jssm/commit/abecdf18c27d81637cd2c90b58771f950e135c4b)
 
@@ -16489,7 +18861,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 9:27:52 PM
+## [Untagged] - May 4, 2019 9:27:52 PM
 
 Commit [c557553bb7a34974a4406b714cfc1bfde585dc4b](https://github.com/StoneCypher/jssm/commit/c557553bb7a34974a4406b714cfc1bfde585dc4b)
 
@@ -16504,7 +18876,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 9:19:39 PM
+## [Untagged] - May 4, 2019 9:19:39 PM
 
 Commit [5c821f85c7ffd3c59d6d4e478b398604411ebd28](https://github.com/StoneCypher/jssm/commit/5c821f85c7ffd3c59d6d4e478b398604411ebd28)
 
@@ -16519,7 +18891,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 5:37:28 PM
+## [Untagged] - May 4, 2019 5:37:28 PM
 
 Commit [cd090aa0d041aeaad142f0653152a4bb95184845](https://github.com/StoneCypher/jssm/commit/cd090aa0d041aeaad142f0653152a4bb95184845)
 
@@ -16537,7 +18909,7 @@ Merges [c9bb9e6, b76211e]
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 5:23:00 PM
+## [Untagged] - May 4, 2019 5:23:00 PM
 
 Commit [b76211e7b7abb79ca2556841ab78d4833bf3ed8d](https://github.com/StoneCypher/jssm/commit/b76211e7b7abb79ca2556841ab78d4833bf3ed8d)
 
@@ -16552,7 +18924,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 5:07:52 PM
+## [Untagged] - May 4, 2019 5:07:52 PM
 
 Commit [20f66d87679b9df3bb59c75a71dbeae1fe603f20](https://github.com/StoneCypher/jssm/commit/20f66d87679b9df3bb59c75a71dbeae1fe603f20)
 
@@ -16567,7 +18939,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 4:55:50 PM
+## [Untagged] - May 4, 2019 4:55:50 PM
 
 Commit [7b92287e8921d023a1510553ca655ad712c6c7d2](https://github.com/StoneCypher/jssm/commit/7b92287e8921d023a1510553ca655ad712c6c7d2)
 
@@ -16582,7 +18954,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/4/2019 4:53:15 PM
+## [Untagged] - May 4, 2019 4:53:15 PM
 
 Commit [4d4538e894b15d5501392ddb0a8eef91d4d9f104](https://github.com/StoneCypher/jssm/commit/4d4538e894b15d5501392ddb0a8eef91d4d9f104)
 
@@ -16597,7 +18969,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 2/10/2019 9:46:18 PM
+## [Untagged] - Feb 10, 2019 9:46:18 PM
 
 Commit [c9bb9e669342f905f6672911c3b396a91174c240](https://github.com/StoneCypher/jssm/commit/c9bb9e669342f905f6672911c3b396a91174c240)
 
@@ -16612,7 +18984,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/10/2018 12:27:43 PM
+## [Untagged] - Dec 10, 2018 12:27:43 PM
 
 Commit [c1fd26c41e2a5d25b54a00da6f9bc4fe62e4d685](https://github.com/StoneCypher/jssm/commit/c1fd26c41e2a5d25b54a00da6f9bc4fe62e4d685)
 
@@ -16630,7 +19002,7 @@ Merges [618d9fd, 2942661]
 
 &nbsp;
 
-## [Untagged] - 12/10/2018 12:27:31 PM
+## [Untagged] - Dec 10, 2018 12:27:31 PM
 
 Commit [294266131b6cf7c6a49ff943ab85c6c514df398a](https://github.com/StoneCypher/jssm/commit/294266131b6cf7c6a49ff943ab85c6c514df398a)
 
@@ -16645,7 +19017,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 12/5/2018 10:05:46 AM
+## [Untagged] - Dec 5, 2018 10:05:46 AM
 
 Commit [618d9fdf97a8ad28826fd41cc130cd26b3ab7107](https://github.com/StoneCypher/jssm/commit/618d9fdf97a8ad28826fd41cc130cd26b3ab7107)
 
@@ -16663,7 +19035,7 @@ Merges [3dac8f2, 43e19cd]
 
 &nbsp;
 
-## [Untagged] - 12/5/2018 9:50:21 AM
+## [Untagged] - Dec 5, 2018 9:50:21 AM
 
 Commit [43e19cda25f324b5efc069438360d8bffdcb8f4a](https://github.com/StoneCypher/jssm/commit/43e19cda25f324b5efc069438360d8bffdcb8f4a)
 
@@ -16678,7 +19050,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/19/2018 5:09:49 PM
+## [Untagged] - May 19, 2018 5:09:49 PM
 
 Commit [3dac8f22fe90f68a27a312795dc3a779d45d2325](https://github.com/StoneCypher/jssm/commit/3dac8f22fe90f68a27a312795dc3a779d45d2325)
 
@@ -16693,7 +19065,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/19/2018 5:08:14 PM
+## [Untagged] - May 19, 2018 5:08:14 PM
 
 Commit [06f3d985b8c26adcf599fae2fa4ccf9adad56e92](https://github.com/StoneCypher/jssm/commit/06f3d985b8c26adcf599fae2fa4ccf9adad56e92)
 
@@ -16708,7 +19080,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/19/2018 5:02:15 PM
+## [Untagged] - May 19, 2018 5:02:15 PM
 
 Commit [5d9a3b6d43cc138a8e9eb1815ec1ea7d20696fe0](https://github.com/StoneCypher/jssm/commit/5d9a3b6d43cc138a8e9eb1815ec1ea7d20696fe0)
 
@@ -16723,7 +19095,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/19/2018 2:13:41 PM
+## [Untagged] - May 19, 2018 2:13:41 PM
 
 Commit [b9efaf88890d2dfd419b1dbc769314c1d7a30ae9](https://github.com/StoneCypher/jssm/commit/b9efaf88890d2dfd419b1dbc769314c1d7a30ae9)
 
@@ -16738,7 +19110,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 1/20/2018 9:10:14 PM
+## [Untagged] - Jan 20, 2018 9:10:14 PM
 
 Commit [d4bd4356fb77f559fd188cb1aa8e426a072fdd91](https://github.com/StoneCypher/jssm/commit/d4bd4356fb77f559fd188cb1aa8e426a072fdd91)
 
@@ -16753,7 +19125,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/20/2017 4:41:04 PM
+## [Untagged] - Nov 20, 2017 4:41:04 PM
 
 Commit [a117a2206d501ed10b410b8c0b18146eedfe8009](https://github.com/StoneCypher/jssm/commit/a117a2206d501ed10b410b8c0b18146eedfe8009)
 
@@ -16770,7 +19142,7 @@ Merges [cb31bb5, 9c47476]
 
 &nbsp;
 
-## [Untagged] - 11/20/2017 4:40:11 PM
+## [Untagged] - Nov 20, 2017 4:40:11 PM
 
 Commit [cb31bb54e5a01e0aa7ded8a940a34c2a95628afb](https://github.com/StoneCypher/jssm/commit/cb31bb54e5a01e0aa7ded8a940a34c2a95628afb)
 
@@ -16785,7 +19157,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/18/2017 10:06:02 PM
+## [Untagged] - Nov 18, 2017 10:06:02 PM
 
 Commit [e7b86352c5283f24f0ef899a394011783ad3be0c](https://github.com/StoneCypher/jssm/commit/e7b86352c5283f24f0ef899a394011783ad3be0c)
 
@@ -16800,7 +19172,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/17/2017 11:06:04 PM
+## [Untagged] - Nov 17, 2017 11:06:04 PM
 
 Commit [0a89da995b722feaf7475b6baac4a60fb085c6b6](https://github.com/StoneCypher/jssm/commit/0a89da995b722feaf7475b6baac4a60fb085c6b6)
 
@@ -16815,7 +19187,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 11/16/2017 7:30:18 PM
+## [Untagged] - Nov 16, 2017 7:30:18 PM
 
 Commit [e3cb9f82f6e4d6b5a3b231ed4bf33de4edbb9e82](https://github.com/StoneCypher/jssm/commit/e3cb9f82f6e4d6b5a3b231ed4bf33de4edbb9e82)
 
@@ -16832,7 +19204,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__14__0" />
 
-## [5.14.0] - 10/30/2017 8:45:15 AM
+## [5.14.0] - Oct 30, 2017 8:45:15 AM
 
 Commit [9c4747636ed814ace14b18ec4fc9628467395d9c](https://github.com/StoneCypher/jssm/commit/9c4747636ed814ace14b18ec4fc9628467395d9c)
 
@@ -16849,7 +19221,7 @@ Merges [5967544, de83f77]
 
 &nbsp;
 
-## [Untagged] - 10/30/2017 8:19:09 AM
+## [Untagged] - Oct 30, 2017 8:19:09 AM
 
 Commit [de83f7761b9557e72e7e7b3f44c588150236f6a8](https://github.com/StoneCypher/jssm/commit/de83f7761b9557e72e7e7b3f44c588150236f6a8)
 
@@ -16864,7 +19236,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/29/2017 3:56:21 PM
+## [Untagged] - Oct 29, 2017 3:56:21 PM
 
 Commit [0f4e6520a053cf34f32ce860217e14406a540f8d](https://github.com/StoneCypher/jssm/commit/0f4e6520a053cf34f32ce860217e14406a540f8d)
 
@@ -16879,7 +19251,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/29/2017 3:05:13 PM
+## [Untagged] - Oct 29, 2017 3:05:13 PM
 
 Commit [59675442e3308c0d7ba74f33fe79947f176ff27a](https://github.com/StoneCypher/jssm/commit/59675442e3308c0d7ba74f33fe79947f176ff27a)
 
@@ -16894,7 +19266,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/29/2017 3:03:59 PM
+## [Untagged] - Oct 29, 2017 3:03:59 PM
 
 Commit [1adc251876a2ef8691b26b4ac5d4e8b6049bd37e](https://github.com/StoneCypher/jssm/commit/1adc251876a2ef8691b26b4ac5d4e8b6049bd37e)
 
@@ -16909,7 +19281,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/28/2017 8:55:40 PM
+## [Untagged] - Oct 28, 2017 8:55:40 PM
 
 Commit [04c514f1d127950ecac3ac134d8f8bab4269c347](https://github.com/StoneCypher/jssm/commit/04c514f1d127950ecac3ac134d8f8bab4269c347)
 
@@ -16928,7 +19300,7 @@ Merges [12186d9, 80416cc]
 
 <a name="5__12__0" />
 
-## [5.12.0] - 10/27/2017 1:25:34 AM
+## [5.12.0] - Oct 27, 2017 1:25:34 AM
 
 Commit [80416ccdd5417512ddebe5b5780b938c08f1618d](https://github.com/StoneCypher/jssm/commit/80416ccdd5417512ddebe5b5780b938c08f1618d)
 
@@ -16945,7 +19317,7 @@ Merges [8ac6b35, 38157ab]
 
 &nbsp;
 
-## [Untagged] - 10/27/2017 1:25:05 AM
+## [Untagged] - Oct 27, 2017 1:25:05 AM
 
 Commit [8ac6b354097d51e8827f0f32ae3c00d02d6e4f08](https://github.com/StoneCypher/jssm/commit/8ac6b354097d51e8827f0f32ae3c00d02d6e4f08)
 
@@ -16960,7 +19332,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/26/2017 11:19:54 PM
+## [Untagged] - Oct 26, 2017 11:19:54 PM
 
 Commit [ef6a3e01de6edfa320bd08e1681085662aaf1989](https://github.com/StoneCypher/jssm/commit/ef6a3e01de6edfa320bd08e1681085662aaf1989)
 
@@ -16975,7 +19347,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/26/2017 11:18:26 PM
+## [Untagged] - Oct 26, 2017 11:18:26 PM
 
 Commit [c628ae06ac7aa81ce52b17284171389421622f51](https://github.com/StoneCypher/jssm/commit/c628ae06ac7aa81ce52b17284171389421622f51)
 
@@ -16992,7 +19364,7 @@ Merges [b33aea2, 11fa8ce]
 
 &nbsp;
 
-## [Untagged] - 10/25/2017 10:12:06 PM
+## [Untagged] - Oct 25, 2017 10:12:06 PM
 
 Commit [38157ab7e3f3d55667755c63b48d7fed41c4f5fb](https://github.com/StoneCypher/jssm/commit/38157ab7e3f3d55667755c63b48d7fed41c4f5fb)
 
@@ -17009,7 +19381,7 @@ Merges [15578fa, 11fa8ce]
 
 &nbsp;
 
-## [Untagged] - 10/24/2017 10:10:54 PM
+## [Untagged] - Oct 24, 2017 10:10:54 PM
 
 Commit [15578fab9b7b286d4a4f45aa0c1a05e19cfa5ba0](https://github.com/StoneCypher/jssm/commit/15578fab9b7b286d4a4f45aa0c1a05e19cfa5ba0)
 
@@ -17024,7 +19396,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/22/2017 8:09:55 PM
+## [Untagged] - Oct 22, 2017 8:09:55 PM
 
 Commit [11fa8ce1ee098b1f8b9d1d21fe7e0901175bc061](https://github.com/StoneCypher/jssm/commit/11fa8ce1ee098b1f8b9d1d21fe7e0901175bc061)
 
@@ -17039,7 +19411,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/16/2017 2:03:39 PM
+## [Untagged] - Oct 16, 2017 2:03:39 PM
 
 Commit [f56b0b9f4f25f49ff2418b98cdc517e83957c714](https://github.com/StoneCypher/jssm/commit/f56b0b9f4f25f49ff2418b98cdc517e83957c714)
 
@@ -17054,7 +19426,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/16/2017 12:55:03 PM
+## [Untagged] - Oct 16, 2017 12:55:03 PM
 
 Commit [80ed40e7ec24fa5b88894b4f6725a62d0e2806f0](https://github.com/StoneCypher/jssm/commit/80ed40e7ec24fa5b88894b4f6725a62d0e2806f0)
 
@@ -17069,7 +19441,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/16/2017 12:00:06 PM
+## [Untagged] - Oct 16, 2017 12:00:06 PM
 
 Commit [4bfe33809cb75fc5f5090c16408941bcb37d1226](https://github.com/StoneCypher/jssm/commit/4bfe33809cb75fc5f5090c16408941bcb37d1226)
 
@@ -17084,7 +19456,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/16/2017 11:45:52 AM
+## [Untagged] - Oct 16, 2017 11:45:52 AM
 
 Commit [12f221b9b66b1fa5b72a4688b9a958fcc9fef196](https://github.com/StoneCypher/jssm/commit/12f221b9b66b1fa5b72a4688b9a958fcc9fef196)
 
@@ -17099,7 +19471,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/16/2017 11:44:58 AM
+## [Untagged] - Oct 16, 2017 11:44:58 AM
 
 Commit [b33aea269efa18f6ccbfd94902168dbc97c5b0e0](https://github.com/StoneCypher/jssm/commit/b33aea269efa18f6ccbfd94902168dbc97c5b0e0)
 
@@ -17118,7 +19490,7 @@ Merges [36cd824, 4e2593a]
 
 <a name="5__11__12" />
 
-## [5.11.12] - 10/15/2017 8:15:34 PM
+## [5.11.12] - Oct 15, 2017 8:15:34 PM
 
 Commit [4e2593a3c51dd92e889cacd6ebe129ef1c326c2f](https://github.com/StoneCypher/jssm/commit/4e2593a3c51dd92e889cacd6ebe129ef1c326c2f)
 
@@ -17135,7 +19507,7 @@ Merges [58c0c19, 2a65fbc]
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 8:15:24 PM
+## [Untagged] - Oct 15, 2017 8:15:24 PM
 
 Commit [58c0c19f952ebf89409ba2c2c0aafdb224368b64](https://github.com/StoneCypher/jssm/commit/58c0c19f952ebf89409ba2c2c0aafdb224368b64)
 
@@ -17150,7 +19522,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 8:14:06 PM
+## [Untagged] - Oct 15, 2017 8:14:06 PM
 
 Commit [36cd824acbd6583631073ed8cc0a5aee54b9f235](https://github.com/StoneCypher/jssm/commit/36cd824acbd6583631073ed8cc0a5aee54b9f235)
 
@@ -17165,7 +19537,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 7:50:05 PM
+## [Untagged] - Oct 15, 2017 7:50:05 PM
 
 Commit [7df77bc142914ebc6baeedc8bdeb7971da7c193e](https://github.com/StoneCypher/jssm/commit/7df77bc142914ebc6baeedc8bdeb7971da7c193e)
 
@@ -17182,7 +19554,7 @@ Merges [4bf74b9, 881bba0]
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 7:45:26 PM
+## [Untagged] - Oct 15, 2017 7:45:26 PM
 
 Commit [2a65fbc8416260da85c1e3e9265954145967a6b1](https://github.com/StoneCypher/jssm/commit/2a65fbc8416260da85c1e3e9265954145967a6b1)
 
@@ -17197,7 +19569,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 7:44:33 PM
+## [Untagged] - Oct 15, 2017 7:44:33 PM
 
 Commit [f8b994b2cbb0e36e70e1d35a7cf40c8cb438e17b](https://github.com/StoneCypher/jssm/commit/f8b994b2cbb0e36e70e1d35a7cf40c8cb438e17b)
 
@@ -17214,7 +19586,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__11__1" />
 
-## [5.11.1] - 10/15/2017 7:31:54 PM
+## [5.11.1] - Oct 15, 2017 7:31:54 PM
 
 Commit [881bba05e3fefa1beffee72eb868b1c6088815a0](https://github.com/StoneCypher/jssm/commit/881bba05e3fefa1beffee72eb868b1c6088815a0)
 
@@ -17229,7 +19601,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 6:26:29 PM
+## [Untagged] - Oct 15, 2017 6:26:29 PM
 
 Commit [d0f8c673057e61a99f815c88584521b5a95d7b6e](https://github.com/StoneCypher/jssm/commit/d0f8c673057e61a99f815c88584521b5a95d7b6e)
 
@@ -17244,7 +19616,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 6:25:50 PM
+## [Untagged] - Oct 15, 2017 6:25:50 PM
 
 Commit [4bf74b912c6efec41f6ee641d833b094b21bcd9a](https://github.com/StoneCypher/jssm/commit/4bf74b912c6efec41f6ee641d833b094b21bcd9a)
 
@@ -17259,7 +19631,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 5:19:49 PM
+## [Untagged] - Oct 15, 2017 5:19:49 PM
 
 Commit [8cc09988f82f18c6538e99707b763e4de384ecbc](https://github.com/StoneCypher/jssm/commit/8cc09988f82f18c6538e99707b763e4de384ecbc)
 
@@ -17274,7 +19646,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 4:24:34 PM
+## [Untagged] - Oct 15, 2017 4:24:34 PM
 
 Commit [de4e409ee8b0ad891c801a234ce4ca99d825aa6f](https://github.com/StoneCypher/jssm/commit/de4e409ee8b0ad891c801a234ce4ca99d825aa6f)
 
@@ -17289,7 +19661,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/15/2017 4:26:34 PM
+## [Untagged] - Oct 15, 2017 4:26:34 PM
 
 Commit [6fdf7aa4c2b983f1f0d8ce70d6592e97f7bcb4af](https://github.com/StoneCypher/jssm/commit/6fdf7aa4c2b983f1f0d8ce70d6592e97f7bcb4af)
 
@@ -17307,7 +19679,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 <a name="5__11__0" />
 
-## [5.11.0] - 10/14/2017 11:05:37 PM
+## [5.11.0] - Oct 14, 2017 11:05:37 PM
 
 Commit [f529dd05d80927a44f33b3971f62650c7bc9f6f3](https://github.com/StoneCypher/jssm/commit/f529dd05d80927a44f33b3971f62650c7bc9f6f3)
 
@@ -17322,7 +19694,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/11/2017 11:58:05 PM
+## [Untagged] - Oct 11, 2017 11:58:05 PM
 
 Commit [17b9d18031a2b8b7f44cbcb55dcf07fe1c32e053](https://github.com/StoneCypher/jssm/commit/17b9d18031a2b8b7f44cbcb55dcf07fe1c32e053)
 
@@ -17337,7 +19709,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/8/2017 5:27:11 PM
+## [Untagged] - Oct 8, 2017 5:27:11 PM
 
 Commit [90dc197268968e1c3d8676bb91ddfdddb9aa8fa0](https://github.com/StoneCypher/jssm/commit/90dc197268968e1c3d8676bb91ddfdddb9aa8fa0)
 
@@ -17352,7 +19724,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/2/2017 11:54:59 PM
+## [Untagged] - Oct 2, 2017 11:54:59 PM
 
 Commit [f0144e00d50a0e0c7137c3fd152ebb56512cdd0d](https://github.com/StoneCypher/jssm/commit/f0144e00d50a0e0c7137c3fd152ebb56512cdd0d)
 
@@ -17367,7 +19739,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 10/1/2017 9:21:17 PM
+## [Untagged] - Oct 1, 2017 9:21:17 PM
 
 Commit [d08392bc341a01aeea00739b6f52e812eebe19c4](https://github.com/StoneCypher/jssm/commit/d08392bc341a01aeea00739b6f52e812eebe19c4)
 
@@ -17382,7 +19754,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/27/2017 8:37:58 PM
+## [Untagged] - Sep 27, 2017 8:37:58 PM
 
 Commit [9277224ca26e2e1d700081c481a9d1736bc7febc](https://github.com/StoneCypher/jssm/commit/9277224ca26e2e1d700081c481a9d1736bc7febc)
 
@@ -17397,7 +19769,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/26/2017 1:42:09 PM
+## [Untagged] - Sep 26, 2017 1:42:09 PM
 
 Commit [9c9d052ee8eba006417dbaba51cebbc08ec4e212](https://github.com/StoneCypher/jssm/commit/9c9d052ee8eba006417dbaba51cebbc08ec4e212)
 
@@ -17412,7 +19784,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/24/2017 1:32:01 PM
+## [Untagged] - Sep 24, 2017 1:32:01 PM
 
 Commit [12186d91983ef8fb96a57a2bfb5b0fa635bd1128](https://github.com/StoneCypher/jssm/commit/12186d91983ef8fb96a57a2bfb5b0fa635bd1128)
 
@@ -17427,7 +19799,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/23/2017 6:01:33 PM
+## [Untagged] - Sep 23, 2017 6:01:33 PM
 
 Commit [d2cc76503087b91b714d906c63d2bc500a76203d](https://github.com/StoneCypher/jssm/commit/d2cc76503087b91b714d906c63d2bc500a76203d)
 
@@ -17442,7 +19814,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/22/2017 11:17:01 PM
+## [Untagged] - Sep 22, 2017 11:17:01 PM
 
 Commit [c794f7ba5c0773f9518e15e51748e13748199416](https://github.com/StoneCypher/jssm/commit/c794f7ba5c0773f9518e15e51748e13748199416)
 
@@ -17457,7 +19829,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/22/2017 11:10:27 PM
+## [Untagged] - Sep 22, 2017 11:10:27 PM
 
 Commit [d1abf9799bb4133599cb56dfc4c2660a5ae6f897](https://github.com/StoneCypher/jssm/commit/d1abf9799bb4133599cb56dfc4c2660a5ae6f897)
 
@@ -17472,7 +19844,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/22/2017 9:14:39 PM
+## [Untagged] - Sep 22, 2017 9:14:39 PM
 
 Commit [4ba92631ff5c637609b198e1aeb3aa07728a016e](https://github.com/StoneCypher/jssm/commit/4ba92631ff5c637609b198e1aeb3aa07728a016e)
 
@@ -17487,7 +19859,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/19/2017 8:34:01 AM
+## [Untagged] - Sep 19, 2017 8:34:01 AM
 
 Commit [994bfdf2244a98ac5ff71395eaecc0844867d2c4](https://github.com/StoneCypher/jssm/commit/994bfdf2244a98ac5ff71395eaecc0844867d2c4)
 
@@ -17502,7 +19874,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/18/2017 10:37:28 AM
+## [Untagged] - Sep 18, 2017 10:37:28 AM
 
 Commit [ed78d312f19187f05779404df2994cc70d004f67](https://github.com/StoneCypher/jssm/commit/ed78d312f19187f05779404df2994cc70d004f67)
 
@@ -17517,7 +19889,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/18/2017 10:30:49 AM
+## [Untagged] - Sep 18, 2017 10:30:49 AM
 
 Commit [a6a0748357f279fb9367a7d035a642ffa279e79f](https://github.com/StoneCypher/jssm/commit/a6a0748357f279fb9367a7d035a642ffa279e79f)
 
@@ -17532,7 +19904,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/16/2017 7:49:23 PM
+## [Untagged] - Sep 16, 2017 7:49:23 PM
 
 Commit [b20fc79410591947e06f8d066f1309c196eb7728](https://github.com/StoneCypher/jssm/commit/b20fc79410591947e06f8d066f1309c196eb7728)
 
@@ -17547,7 +19919,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/11/2017 5:24:19 PM
+## [Untagged] - Sep 11, 2017 5:24:19 PM
 
 Commit [cf7fccd0626da8b42120a068dd4b7ad29343d14b](https://github.com/StoneCypher/jssm/commit/cf7fccd0626da8b42120a068dd4b7ad29343d14b)
 
@@ -17562,7 +19934,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/11/2017 10:55:14 AM
+## [Untagged] - Sep 11, 2017 10:55:14 AM
 
 Commit [8c592ae448ed63857e1a5a37873bf231e783e40b](https://github.com/StoneCypher/jssm/commit/8c592ae448ed63857e1a5a37873bf231e783e40b)
 
@@ -17577,7 +19949,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 4:17:44 PM
+## [Untagged] - Sep 10, 2017 4:17:44 PM
 
 Commit [7113970c70f7b0ef0a313016391aa9e9f2e5d038](https://github.com/StoneCypher/jssm/commit/7113970c70f7b0ef0a313016391aa9e9f2e5d038)
 
@@ -17595,7 +19967,7 @@ Merges [b026e00, 7f4f13a]
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 3:59:57 PM
+## [Untagged] - Sep 10, 2017 3:59:57 PM
 
 Commit [7f4f13a1d30e5743e839033a989f48d981307750](https://github.com/StoneCypher/jssm/commit/7f4f13a1d30e5743e839033a989f48d981307750)
 
@@ -17610,7 +19982,7 @@ Author: `tanvirrb <tanvir.rb@outlook.com>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 1:35:24 PM
+## [Untagged] - Sep 10, 2017 1:35:24 PM
 
 Commit [b026e0071a33f6fd79065a1183b821a5fe6853d9](https://github.com/StoneCypher/jssm/commit/b026e0071a33f6fd79065a1183b821a5fe6853d9)
 
@@ -17628,7 +20000,7 @@ Merges [302f451, c106194]
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 1:28:53 PM
+## [Untagged] - Sep 10, 2017 1:28:53 PM
 
 Commit [c106194087ce8a1e7c5355f9b81842e2c00f71ed](https://github.com/StoneCypher/jssm/commit/c106194087ce8a1e7c5355f9b81842e2c00f71ed)
 
@@ -17643,7 +20015,7 @@ Author: `daviddelapena <david@delapena.eu>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 12:35:42 PM
+## [Untagged] - Sep 10, 2017 12:35:42 PM
 
 Commit [302f451cd32472951706e16919365ab340e3d4fb](https://github.com/StoneCypher/jssm/commit/302f451cd32472951706e16919365ab340e3d4fb)
 
@@ -17658,7 +20030,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 12:18:30 PM
+## [Untagged] - Sep 10, 2017 12:18:30 PM
 
 Commit [c5ebbc271400fe48354dd96fc421374a629723f8](https://github.com/StoneCypher/jssm/commit/c5ebbc271400fe48354dd96fc421374a629723f8)
 
@@ -17673,7 +20045,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 10:55:34 AM
+## [Untagged] - Sep 10, 2017 10:55:34 AM
 
 Commit [46353c1a9db166dd7c9abb8e4754fc03da8073b6](https://github.com/StoneCypher/jssm/commit/46353c1a9db166dd7c9abb8e4754fc03da8073b6)
 
@@ -17691,7 +20063,7 @@ Merges [2d966c5, 7bb8aa9]
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 10:54:49 AM
+## [Untagged] - Sep 10, 2017 10:54:49 AM
 
 Commit [7bb8aa96aa2bedb8d371fcf72ac08b1c00ffcd35](https://github.com/StoneCypher/jssm/commit/7bb8aa96aa2bedb8d371fcf72ac08b1c00ffcd35)
 
@@ -17706,7 +20078,7 @@ Author: `Alex Cresswell <alex@cresswell.org>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 10:52:08 AM
+## [Untagged] - Sep 10, 2017 10:52:08 AM
 
 Commit [ddc1fc6c7a5a5d66e2b1180322cde90e9bf6c96d](https://github.com/StoneCypher/jssm/commit/ddc1fc6c7a5a5d66e2b1180322cde90e9bf6c96d)
 
@@ -17721,7 +20093,7 @@ Author: `Alex Cresswell <alex@cresswell.org>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 10:26:17 AM
+## [Untagged] - Sep 10, 2017 10:26:17 AM
 
 Commit [2d966c53f33c9692f897dbef23ed1948bd0c855c](https://github.com/StoneCypher/jssm/commit/2d966c53f33c9692f897dbef23ed1948bd0c855c)
 
@@ -17736,7 +20108,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 10:18:00 AM
+## [Untagged] - Sep 10, 2017 10:18:00 AM
 
 Commit [c63cf2eb0e9cc59eb341430e3dca37ad291d2c9a](https://github.com/StoneCypher/jssm/commit/c63cf2eb0e9cc59eb341430e3dca37ad291d2c9a)
 
@@ -17754,7 +20126,7 @@ Merges [978458a, 689c733]
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 10:03:38 AM
+## [Untagged] - Sep 10, 2017 10:03:38 AM
 
 Commit [689c7336b8a402173deebe9293a8454489eb62c4](https://github.com/StoneCypher/jssm/commit/689c7336b8a402173deebe9293a8454489eb62c4)
 
@@ -17769,7 +20141,7 @@ Author: `Dvir Cohen <dvir@honeybook.com>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 10:01:29 AM
+## [Untagged] - Sep 10, 2017 10:01:29 AM
 
 Commit [fefacccf6473c24885a092a70e92e193abf474c6](https://github.com/StoneCypher/jssm/commit/fefacccf6473c24885a092a70e92e193abf474c6)
 
@@ -17784,7 +20156,7 @@ Author: `Dvir Cohen <dvir@honeybook.com>`
 
 &nbsp;
 
-## [Untagged] - 9/10/2017 8:24:57 AM
+## [Untagged] - Sep 10, 2017 8:24:57 AM
 
 Commit [978458a9b7b99871fcbcc324492fff31736366d1](https://github.com/StoneCypher/jssm/commit/978458a9b7b99871fcbcc324492fff31736366d1)
 
@@ -17799,7 +20171,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/9/2017 5:53:22 PM
+## [Untagged] - Sep 9, 2017 5:53:22 PM
 
 Commit [387da4f427a7c5c6100ec347e2023b7dcb647136](https://github.com/StoneCypher/jssm/commit/387da4f427a7c5c6100ec347e2023b7dcb647136)
 
@@ -17814,7 +20186,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/9/2017 4:10:53 PM
+## [Untagged] - Sep 9, 2017 4:10:53 PM
 
 Commit [51f594446a104428b639f1a09efbaea75286ab42](https://github.com/StoneCypher/jssm/commit/51f594446a104428b639f1a09efbaea75286ab42)
 
@@ -17829,7 +20201,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/9/2017 12:24:28 PM
+## [Untagged] - Sep 9, 2017 12:24:28 PM
 
 Commit [fea6f7b909ae062a3450c10885040befeaa7407f](https://github.com/StoneCypher/jssm/commit/fea6f7b909ae062a3450c10885040befeaa7407f)
 
@@ -17844,7 +20216,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/9/2017 10:42:15 AM
+## [Untagged] - Sep 9, 2017 10:42:15 AM
 
 Commit [f2890e47937493e2c936a8bb0eb72abca1a64fc7](https://github.com/StoneCypher/jssm/commit/f2890e47937493e2c936a8bb0eb72abca1a64fc7)
 
@@ -17859,7 +20231,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/9/2017 10:12:39 AM
+## [Untagged] - Sep 9, 2017 10:12:39 AM
 
 Commit [e85442bcf2da0c9d16890b2cda65cc0e7c752fa2](https://github.com/StoneCypher/jssm/commit/e85442bcf2da0c9d16890b2cda65cc0e7c752fa2)
 
@@ -17874,7 +20246,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/8/2017 3:15:14 PM
+## [Untagged] - Sep 8, 2017 3:15:14 PM
 
 Commit [15bfb56849895d1f12d55e6ae89701c4d53f13f6](https://github.com/StoneCypher/jssm/commit/15bfb56849895d1f12d55e6ae89701c4d53f13f6)
 
@@ -17889,7 +20261,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/5/2017 10:29:02 PM
+## [Untagged] - Sep 5, 2017 10:29:02 PM
 
 Commit [c2d7f1e5a2a7f0600c79069a2155ca27d9f89f62](https://github.com/StoneCypher/jssm/commit/c2d7f1e5a2a7f0600c79069a2155ca27d9f89f62)
 
@@ -17904,7 +20276,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/4/2017 6:26:39 PM
+## [Untagged] - Sep 4, 2017 6:26:39 PM
 
 Commit [aa43171c64000b2c00dbc6c8b8d48b475023424b](https://github.com/StoneCypher/jssm/commit/aa43171c64000b2c00dbc6c8b8d48b475023424b)
 
@@ -17919,7 +20291,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/4/2017 6:13:04 PM
+## [Untagged] - Sep 4, 2017 6:13:04 PM
 
 Commit [4305f3633939b7e2d25fec55a13b9c83e9873d2a](https://github.com/StoneCypher/jssm/commit/4305f3633939b7e2d25fec55a13b9c83e9873d2a)
 
@@ -17934,7 +20306,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2017 9:38:26 PM
+## [Untagged] - Sep 3, 2017 9:38:26 PM
 
 Commit [f5c9f6a3630dad363616404965cc43771659244b](https://github.com/StoneCypher/jssm/commit/f5c9f6a3630dad363616404965cc43771659244b)
 
@@ -17949,7 +20321,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2017 7:06:58 PM
+## [Untagged] - Sep 3, 2017 7:06:58 PM
 
 Commit [631c5c6e6ccf6bf011e19e9811e75b8b4d355355](https://github.com/StoneCypher/jssm/commit/631c5c6e6ccf6bf011e19e9811e75b8b4d355355)
 
@@ -17964,7 +20336,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2017 7:05:46 PM
+## [Untagged] - Sep 3, 2017 7:05:46 PM
 
 Commit [25a9bb839143f790a728a3e1a3281b06fcd75d41](https://github.com/StoneCypher/jssm/commit/25a9bb839143f790a728a3e1a3281b06fcd75d41)
 
@@ -17979,7 +20351,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2017 6:29:26 PM
+## [Untagged] - Sep 3, 2017 6:29:26 PM
 
 Commit [124c2654c79103f328649ecf835e6a4177c4b7c1](https://github.com/StoneCypher/jssm/commit/124c2654c79103f328649ecf835e6a4177c4b7c1)
 
@@ -17997,7 +20369,7 @@ Merges [d1cac9b, 8fc2911]
 
 &nbsp;
 
-## [Untagged] - 9/3/2017 6:17:55 PM
+## [Untagged] - Sep 3, 2017 6:17:55 PM
 
 Commit [8fc29115f581b51986b20064d8c079b6d516a5c4](https://github.com/StoneCypher/jssm/commit/8fc29115f581b51986b20064d8c079b6d516a5c4)
 
@@ -18012,7 +20384,7 @@ Author: `Michael Morgan <morgan.michael@me.com>`
 
 &nbsp;
 
-## [Untagged] - 9/3/2017 5:39:49 PM
+## [Untagged] - Sep 3, 2017 5:39:49 PM
 
 Commit [d1cac9b592d742181e9356f1e768b4cd7a8f118a](https://github.com/StoneCypher/jssm/commit/d1cac9b592d742181e9356f1e768b4cd7a8f118a)
 
@@ -18029,7 +20401,7 @@ Merges [e87f48c, 406d01d]
 
 &nbsp;
 
-## [Untagged] - 9/3/2017 5:39:40 PM
+## [Untagged] - Sep 3, 2017 5:39:40 PM
 
 Commit [e87f48c1a1fca247e685b09b2768ad1eb9510ed7](https://github.com/StoneCypher/jssm/commit/e87f48c1a1fca247e685b09b2768ad1eb9510ed7)
 
@@ -18044,7 +20416,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 9/2/2017 8:53:22 PM
+## [Untagged] - Sep 2, 2017 8:53:22 PM
 
 Commit [406d01dff7b1f31cb1ffcbcda8f14aa1fbcd97ff](https://github.com/StoneCypher/jssm/commit/406d01dff7b1f31cb1ffcbcda8f14aa1fbcd97ff)
 
@@ -18059,7 +20431,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/31/2017 9:08:12 PM
+## [Untagged] - Aug 31, 2017 9:08:12 PM
 
 Commit [3e34c40ce4f2537ff68c7c8306fdff089bdc6102](https://github.com/StoneCypher/jssm/commit/3e34c40ce4f2537ff68c7c8306fdff089bdc6102)
 
@@ -18074,7 +20446,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/31/2017 8:23:44 PM
+## [Untagged] - Aug 31, 2017 8:23:44 PM
 
 Commit [b31b7b3a891d103e2a29b0835f04941d8c46f536](https://github.com/StoneCypher/jssm/commit/b31b7b3a891d103e2a29b0835f04941d8c46f536)
 
@@ -18089,7 +20461,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/31/2017 8:22:05 PM
+## [Untagged] - Aug 31, 2017 8:22:05 PM
 
 Commit [b96cda04cc7611fe1e2e85f670c101aa20a205cb](https://github.com/StoneCypher/jssm/commit/b96cda04cc7611fe1e2e85f670c101aa20a205cb)
 
@@ -18104,7 +20476,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/28/2017 11:29:37 PM
+## [Untagged] - Aug 28, 2017 11:29:37 PM
 
 Commit [ad162ed3d320c93ef0153b0652a2cdf561af2c1e](https://github.com/StoneCypher/jssm/commit/ad162ed3d320c93ef0153b0652a2cdf561af2c1e)
 
@@ -18119,7 +20491,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 10:11:23 PM
+## [Untagged] - Aug 20, 2017 10:11:23 PM
 
 Commit [7fdbf0b3f6708cafc24b674ff3c3e77ce549763c](https://github.com/StoneCypher/jssm/commit/7fdbf0b3f6708cafc24b674ff3c3e77ce549763c)
 
@@ -18134,7 +20506,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 9:18:40 PM
+## [Untagged] - Aug 20, 2017 9:18:40 PM
 
 Commit [5a4be411bd39cc61043d567dab34ddf4360d76c4](https://github.com/StoneCypher/jssm/commit/5a4be411bd39cc61043d567dab34ddf4360d76c4)
 
@@ -18149,7 +20521,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 8:54:53 PM
+## [Untagged] - Aug 20, 2017 8:54:53 PM
 
 Commit [5d672bfee59f43d1ca46d14c65ec60afc2ee4822](https://github.com/StoneCypher/jssm/commit/5d672bfee59f43d1ca46d14c65ec60afc2ee4822)
 
@@ -18164,7 +20536,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 6:19:07 PM
+## [Untagged] - Aug 20, 2017 6:19:07 PM
 
 Commit [ae27c896c7474b0a61c17d291aee34bd24620964](https://github.com/StoneCypher/jssm/commit/ae27c896c7474b0a61c17d291aee34bd24620964)
 
@@ -18179,7 +20551,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 3:10:47 PM
+## [Untagged] - Aug 20, 2017 3:10:47 PM
 
 Commit [b71c0bb642d1790e1d0cbd1e29323d010077000c](https://github.com/StoneCypher/jssm/commit/b71c0bb642d1790e1d0cbd1e29323d010077000c)
 
@@ -18194,7 +20566,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 3:08:26 PM
+## [Untagged] - Aug 20, 2017 3:08:26 PM
 
 Commit [e2c91f3f4885258513eb22f6399391fcfe9d0c99](https://github.com/StoneCypher/jssm/commit/e2c91f3f4885258513eb22f6399391fcfe9d0c99)
 
@@ -18209,7 +20581,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 3:07:24 PM
+## [Untagged] - Aug 20, 2017 3:07:24 PM
 
 Commit [829128488dc1e555feabff1f47c9a38fe8237b1f](https://github.com/StoneCypher/jssm/commit/829128488dc1e555feabff1f47c9a38fe8237b1f)
 
@@ -18224,7 +20596,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 2:43:05 PM
+## [Untagged] - Aug 20, 2017 2:43:05 PM
 
 Commit [d374aa08d5667f29f5bd5b3a1d9ed39b5c8ccf9a](https://github.com/StoneCypher/jssm/commit/d374aa08d5667f29f5bd5b3a1d9ed39b5c8ccf9a)
 
@@ -18239,7 +20611,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 2:12:58 PM
+## [Untagged] - Aug 20, 2017 2:12:58 PM
 
 Commit [83a7ae4e7f7a626f1b85f0715e716fecd789b59c](https://github.com/StoneCypher/jssm/commit/83a7ae4e7f7a626f1b85f0715e716fecd789b59c)
 
@@ -18254,7 +20626,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 12:08:46 PM
+## [Untagged] - Aug 20, 2017 12:08:46 PM
 
 Commit [167c11697c779f5d164cfbe9ff0a12e9272e072b](https://github.com/StoneCypher/jssm/commit/167c11697c779f5d164cfbe9ff0a12e9272e072b)
 
@@ -18269,7 +20641,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 10:09:10 AM
+## [Untagged] - Aug 20, 2017 10:09:10 AM
 
 Commit [dc02895bc4e294fa3b45e28510463c9b44aa0eb3](https://github.com/StoneCypher/jssm/commit/dc02895bc4e294fa3b45e28510463c9b44aa0eb3)
 
@@ -18284,7 +20656,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 9:52:06 AM
+## [Untagged] - Aug 20, 2017 9:52:06 AM
 
 Commit [2da94f73fdb95bc7384f96a7d08f9cf0d8c7cb11](https://github.com/StoneCypher/jssm/commit/2da94f73fdb95bc7384f96a7d08f9cf0d8c7cb11)
 
@@ -18299,7 +20671,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 9:51:16 AM
+## [Untagged] - Aug 20, 2017 9:51:16 AM
 
 Commit [0c6083f06aa94851e48da070f25fef5ebda98f45](https://github.com/StoneCypher/jssm/commit/0c6083f06aa94851e48da070f25fef5ebda98f45)
 
@@ -18314,7 +20686,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 9:38:02 AM
+## [Untagged] - Aug 20, 2017 9:38:02 AM
 
 Commit [096e1b28213ed52eec356555250ed465379e425c](https://github.com/StoneCypher/jssm/commit/096e1b28213ed52eec356555250ed465379e425c)
 
@@ -18329,7 +20701,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 9:22:40 AM
+## [Untagged] - Aug 20, 2017 9:22:40 AM
 
 Commit [5f69be243b8bbdcce1ff531de06a5afed364d445](https://github.com/StoneCypher/jssm/commit/5f69be243b8bbdcce1ff531de06a5afed364d445)
 
@@ -18344,7 +20716,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/20/2017 9:19:29 AM
+## [Untagged] - Aug 20, 2017 9:19:29 AM
 
 Commit [4a9409eaddce79778116b35a64d5bb666ab9fe5b](https://github.com/StoneCypher/jssm/commit/4a9409eaddce79778116b35a64d5bb666ab9fe5b)
 
@@ -18359,7 +20731,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 9:40:24 PM
+## [Untagged] - Aug 19, 2017 9:40:24 PM
 
 Commit [35f33d63bbf98ffd7def1a9d3a6bf6851dd72df3](https://github.com/StoneCypher/jssm/commit/35f33d63bbf98ffd7def1a9d3a6bf6851dd72df3)
 
@@ -18374,7 +20746,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 9:03:07 PM
+## [Untagged] - Aug 19, 2017 9:03:07 PM
 
 Commit [8b3c43fd830dd8caa3dc83d3eea5913b76f451d5](https://github.com/StoneCypher/jssm/commit/8b3c43fd830dd8caa3dc83d3eea5913b76f451d5)
 
@@ -18389,7 +20761,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 8:48:30 PM
+## [Untagged] - Aug 19, 2017 8:48:30 PM
 
 Commit [74d8484e595efc44b35e229e320807ec968f4d16](https://github.com/StoneCypher/jssm/commit/74d8484e595efc44b35e229e320807ec968f4d16)
 
@@ -18404,7 +20776,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 8:32:47 PM
+## [Untagged] - Aug 19, 2017 8:32:47 PM
 
 Commit [5180b36c6441957c96af38dc5846eb04d5f71bd5](https://github.com/StoneCypher/jssm/commit/5180b36c6441957c96af38dc5846eb04d5f71bd5)
 
@@ -18419,7 +20791,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 5:25:15 PM
+## [Untagged] - Aug 19, 2017 5:25:15 PM
 
 Commit [f32d2feae136ea4c0dbdf4d52defa6a01106e53e](https://github.com/StoneCypher/jssm/commit/f32d2feae136ea4c0dbdf4d52defa6a01106e53e)
 
@@ -18434,7 +20806,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 3:13:27 PM
+## [Untagged] - Aug 19, 2017 3:13:27 PM
 
 Commit [c50f83a94d1e81f00f94ff651771938a6e0df7c6](https://github.com/StoneCypher/jssm/commit/c50f83a94d1e81f00f94ff651771938a6e0df7c6)
 
@@ -18449,7 +20821,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 1:44:51 PM
+## [Untagged] - Aug 19, 2017 1:44:51 PM
 
 Commit [cc45d91e23ebe102dc57e90ced3b75070742b179](https://github.com/StoneCypher/jssm/commit/cc45d91e23ebe102dc57e90ced3b75070742b179)
 
@@ -18464,7 +20836,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 12:15:42 PM
+## [Untagged] - Aug 19, 2017 12:15:42 PM
 
 Commit [5c1d171fe6be3f2af2b55352a6fd2e2a1c6ecf26](https://github.com/StoneCypher/jssm/commit/5c1d171fe6be3f2af2b55352a6fd2e2a1c6ecf26)
 
@@ -18479,7 +20851,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/19/2017 9:37:40 AM
+## [Untagged] - Aug 19, 2017 9:37:40 AM
 
 Commit [18c4a310dc89b9a5129c333123f2b182e7f1324a](https://github.com/StoneCypher/jssm/commit/18c4a310dc89b9a5129c333123f2b182e7f1324a)
 
@@ -18494,7 +20866,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/18/2017 8:24:18 PM
+## [Untagged] - Aug 18, 2017 8:24:18 PM
 
 Commit [c6993532a3e2bb6e0c9293a8025a2e197b63debb](https://github.com/StoneCypher/jssm/commit/c6993532a3e2bb6e0c9293a8025a2e197b63debb)
 
@@ -18509,7 +20881,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/18/2017 5:14:15 PM
+## [Untagged] - Aug 18, 2017 5:14:15 PM
 
 Commit [71b24113727e1d1c63d5428b569e363352462021](https://github.com/StoneCypher/jssm/commit/71b24113727e1d1c63d5428b569e363352462021)
 
@@ -18526,7 +20898,7 @@ Merges [c681d54, 6ecd6fc]
 
 &nbsp;
 
-## [Untagged] - 8/17/2017 10:44:03 PM
+## [Untagged] - Aug 17, 2017 10:44:03 PM
 
 Commit [c681d54102dadca431889bde7731bf73f96fd1eb](https://github.com/StoneCypher/jssm/commit/c681d54102dadca431889bde7731bf73f96fd1eb)
 
@@ -18541,7 +20913,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/16/2017 8:09:11 PM
+## [Untagged] - Aug 16, 2017 8:09:11 PM
 
 Commit [1c0222bfb1e9bbdcba7b15948295c72b15d9dc04](https://github.com/StoneCypher/jssm/commit/1c0222bfb1e9bbdcba7b15948295c72b15d9dc04)
 
@@ -18556,7 +20928,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/16/2017 8:04:14 PM
+## [Untagged] - Aug 16, 2017 8:04:14 PM
 
 Commit [e7568de1070b074e6b8a0a24d2e4963c7da0bb9f](https://github.com/StoneCypher/jssm/commit/e7568de1070b074e6b8a0a24d2e4963c7da0bb9f)
 
@@ -18571,7 +20943,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/15/2017 5:24:41 PM
+## [Untagged] - Aug 15, 2017 5:24:41 PM
 
 Commit [6ecd6fca990205f3a9ccc378dd7c6868ce4ca9dc](https://github.com/StoneCypher/jssm/commit/6ecd6fca990205f3a9ccc378dd7c6868ce4ca9dc)
 
@@ -18588,7 +20960,7 @@ Merges [98d2f79, b7ebe2b]
 
 &nbsp;
 
-## [Untagged] - 8/15/2017 5:24:29 PM
+## [Untagged] - Aug 15, 2017 5:24:29 PM
 
 Commit [98d2f796c072eb5d3bcb7ba76847ea9a032b0246](https://github.com/StoneCypher/jssm/commit/98d2f796c072eb5d3bcb7ba76847ea9a032b0246)
 
@@ -18603,7 +20975,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/15/2017 5:09:28 PM
+## [Untagged] - Aug 15, 2017 5:09:28 PM
 
 Commit [2e5b697c84e911f32649d8b403fdf198781a4a8b](https://github.com/StoneCypher/jssm/commit/2e5b697c84e911f32649d8b403fdf198781a4a8b)
 
@@ -18618,7 +20990,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/15/2017 4:36:00 PM
+## [Untagged] - Aug 15, 2017 4:36:00 PM
 
 Commit [e40b9f3bf5ca9de4989369803e22e0de35ea9f44](https://github.com/StoneCypher/jssm/commit/e40b9f3bf5ca9de4989369803e22e0de35ea9f44)
 
@@ -18633,7 +21005,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/15/2017 4:16:10 PM
+## [Untagged] - Aug 15, 2017 4:16:10 PM
 
 Commit [2ddb9efa39920b9c3d17cc90ed8f694e96730b5f](https://github.com/StoneCypher/jssm/commit/2ddb9efa39920b9c3d17cc90ed8f694e96730b5f)
 
@@ -18648,7 +21020,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/15/2017 4:14:07 PM
+## [Untagged] - Aug 15, 2017 4:14:07 PM
 
 Commit [b4bfb10e7fdfc6286fe8d526d4e7e3c0a5dd37df](https://github.com/StoneCypher/jssm/commit/b4bfb10e7fdfc6286fe8d526d4e7e3c0a5dd37df)
 
@@ -18663,7 +21035,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 11:40:05 AM
+## [Untagged] - Aug 14, 2017 11:40:05 AM
 
 Commit [b7ebe2b4aef4aa12b6ba059d487c6716d6e87773](https://github.com/StoneCypher/jssm/commit/b7ebe2b4aef4aa12b6ba059d487c6716d6e87773)
 
@@ -18678,7 +21050,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 11:36:35 AM
+## [Untagged] - Aug 14, 2017 11:36:35 AM
 
 Commit [506a7dd1db5c3ec7340798c322b219698760f0e3](https://github.com/StoneCypher/jssm/commit/506a7dd1db5c3ec7340798c322b219698760f0e3)
 
@@ -18693,7 +21065,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 10:32:07 AM
+## [Untagged] - Aug 14, 2017 10:32:07 AM
 
 Commit [6d4164da8fe0d2a27f976cb2c29c0a357b23c355](https://github.com/StoneCypher/jssm/commit/6d4164da8fe0d2a27f976cb2c29c0a357b23c355)
 
@@ -18708,7 +21080,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 10:30:19 AM
+## [Untagged] - Aug 14, 2017 10:30:19 AM
 
 Commit [cba6cd9ff59671bfb20aaafa8fc6067b88281e41](https://github.com/StoneCypher/jssm/commit/cba6cd9ff59671bfb20aaafa8fc6067b88281e41)
 
@@ -18723,7 +21095,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 2:18:18 AM
+## [Untagged] - Aug 14, 2017 2:18:18 AM
 
 Commit [434171eef634b569e7268ec063cd4a8ca87b84c9](https://github.com/StoneCypher/jssm/commit/434171eef634b569e7268ec063cd4a8ca87b84c9)
 
@@ -18738,7 +21110,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 1:57:49 AM
+## [Untagged] - Aug 14, 2017 1:57:49 AM
 
 Commit [846c773e8804e76b3b8496dd9c563575159e1935](https://github.com/StoneCypher/jssm/commit/846c773e8804e76b3b8496dd9c563575159e1935)
 
@@ -18753,7 +21125,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 12:41:20 AM
+## [Untagged] - Aug 14, 2017 12:41:20 AM
 
 Commit [71ec5e4271153695f4a4d151dd598149585cdcd4](https://github.com/StoneCypher/jssm/commit/71ec5e4271153695f4a4d151dd598149585cdcd4)
 
@@ -18768,7 +21140,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/14/2017 12:17:58 AM
+## [Untagged] - Aug 14, 2017 12:17:58 AM
 
 Commit [7f30b4c527ce2c995fa33c538ef56e6b38b8f21a](https://github.com/StoneCypher/jssm/commit/7f30b4c527ce2c995fa33c538ef56e6b38b8f21a)
 
@@ -18783,7 +21155,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/13/2017 9:29:32 PM
+## [Untagged] - Aug 13, 2017 9:29:32 PM
 
 Commit [b1373bb674008e3bb9d53bd11b2a3052a560f9c1](https://github.com/StoneCypher/jssm/commit/b1373bb674008e3bb9d53bd11b2a3052a560f9c1)
 
@@ -18798,7 +21170,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/13/2017 9:16:42 PM
+## [Untagged] - Aug 13, 2017 9:16:42 PM
 
 Commit [12c2e5193717b37174d182abf021fe28f2f5ef72](https://github.com/StoneCypher/jssm/commit/12c2e5193717b37174d182abf021fe28f2f5ef72)
 
@@ -18813,7 +21185,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/13/2017 9:01:58 PM
+## [Untagged] - Aug 13, 2017 9:01:58 PM
 
 Commit [dcf8d0a0a6671aa80c7c5ae6e26273220a1699cf](https://github.com/StoneCypher/jssm/commit/dcf8d0a0a6671aa80c7c5ae6e26273220a1699cf)
 
@@ -18828,7 +21200,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/13/2017 3:02:48 PM
+## [Untagged] - Aug 13, 2017 3:02:48 PM
 
 Commit [f8c96eb3545a701de317f39b7b57044f26940586](https://github.com/StoneCypher/jssm/commit/f8c96eb3545a701de317f39b7b57044f26940586)
 
@@ -18843,7 +21215,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/13/2017 1:30:30 PM
+## [Untagged] - Aug 13, 2017 1:30:30 PM
 
 Commit [c8ac664bd6224b0fc7f720d7b0adcf18d5dd9351](https://github.com/StoneCypher/jssm/commit/c8ac664bd6224b0fc7f720d7b0adcf18d5dd9351)
 
@@ -18858,7 +21230,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/13/2017 12:53:04 PM
+## [Untagged] - Aug 13, 2017 12:53:04 PM
 
 Commit [305e9a002b1a8425a3ff102ed5050bfaa8bdd1e9](https://github.com/StoneCypher/jssm/commit/305e9a002b1a8425a3ff102ed5050bfaa8bdd1e9)
 
@@ -18873,7 +21245,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/12/2017 1:44:58 PM
+## [Untagged] - Aug 12, 2017 1:44:58 PM
 
 Commit [674cd27b61ead12f427411e8a0c023f6aaac065c](https://github.com/StoneCypher/jssm/commit/674cd27b61ead12f427411e8a0c023f6aaac065c)
 
@@ -18888,7 +21260,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/12/2017 1:04:47 PM
+## [Untagged] - Aug 12, 2017 1:04:47 PM
 
 Commit [729be43c41aaae5d7cdd6d900a08277acf704330](https://github.com/StoneCypher/jssm/commit/729be43c41aaae5d7cdd6d900a08277acf704330)
 
@@ -18903,7 +21275,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/12/2017 12:21:22 PM
+## [Untagged] - Aug 12, 2017 12:21:22 PM
 
 Commit [79e5f5c7e79726e38e231f6e223a8bb3a636985b](https://github.com/StoneCypher/jssm/commit/79e5f5c7e79726e38e231f6e223a8bb3a636985b)
 
@@ -18918,7 +21290,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/10/2017 11:11:40 PM
+## [Untagged] - Aug 10, 2017 11:11:40 PM
 
 Commit [85dcf04d0b1ecfbeebfff05b5333a2cba00990e8](https://github.com/StoneCypher/jssm/commit/85dcf04d0b1ecfbeebfff05b5333a2cba00990e8)
 
@@ -18933,7 +21305,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/8/2017 11:38:04 PM
+## [Untagged] - Aug 8, 2017 11:38:04 PM
 
 Commit [d5f78e0075f6b1add67ffeb13afef4b3760465bb](https://github.com/StoneCypher/jssm/commit/d5f78e0075f6b1add67ffeb13afef4b3760465bb)
 
@@ -18948,7 +21320,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/6/2017 5:41:29 PM
+## [Untagged] - Aug 6, 2017 5:41:29 PM
 
 Commit [bfbaa451c14af472551082025aa9b8be3908ef3f](https://github.com/StoneCypher/jssm/commit/bfbaa451c14af472551082025aa9b8be3908ef3f)
 
@@ -18963,7 +21335,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/6/2017 5:33:42 PM
+## [Untagged] - Aug 6, 2017 5:33:42 PM
 
 Commit [5de0202bdc0cb99a0cbe5e1cbce6cc29d74f51d7](https://github.com/StoneCypher/jssm/commit/5de0202bdc0cb99a0cbe5e1cbce6cc29d74f51d7)
 
@@ -18978,7 +21350,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/6/2017 2:59:39 PM
+## [Untagged] - Aug 6, 2017 2:59:39 PM
 
 Commit [11971c97238e3da0fb7595ea0f20f7cfe0747606](https://github.com/StoneCypher/jssm/commit/11971c97238e3da0fb7595ea0f20f7cfe0747606)
 
@@ -18993,7 +21365,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/6/2017 2:16:45 PM
+## [Untagged] - Aug 6, 2017 2:16:45 PM
 
 Commit [49a36b6f018bb668d5a198067ee817e8ddc46fd5](https://github.com/StoneCypher/jssm/commit/49a36b6f018bb668d5a198067ee817e8ddc46fd5)
 
@@ -19008,7 +21380,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/5/2017 3:38:35 PM
+## [Untagged] - Aug 5, 2017 3:38:35 PM
 
 Commit [794170264da608eb96d49bcd2c8965d2c57f5353](https://github.com/StoneCypher/jssm/commit/794170264da608eb96d49bcd2c8965d2c57f5353)
 
@@ -19023,7 +21395,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/5/2017 3:34:13 PM
+## [Untagged] - Aug 5, 2017 3:34:13 PM
 
 Commit [0b8715a777aae672508ad45e653ca9340fb0fb4d](https://github.com/StoneCypher/jssm/commit/0b8715a777aae672508ad45e653ca9340fb0fb4d)
 
@@ -19038,7 +21410,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/5/2017 11:49:21 AM
+## [Untagged] - Aug 5, 2017 11:49:21 AM
 
 Commit [1753f363e548e5b75d1d1923481d015c396aa7e2](https://github.com/StoneCypher/jssm/commit/1753f363e548e5b75d1d1923481d015c396aa7e2)
 
@@ -19053,7 +21425,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/5/2017 11:15:52 AM
+## [Untagged] - Aug 5, 2017 11:15:52 AM
 
 Commit [4b465630afdb7be4758d5c842fcd9b2c67f7b338](https://github.com/StoneCypher/jssm/commit/4b465630afdb7be4758d5c842fcd9b2c67f7b338)
 
@@ -19068,7 +21440,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/5/2017 10:24:33 AM
+## [Untagged] - Aug 5, 2017 10:24:33 AM
 
 Commit [87303334e5a5b97f91e5c90251f6f62d304eecb1](https://github.com/StoneCypher/jssm/commit/87303334e5a5b97f91e5c90251f6f62d304eecb1)
 
@@ -19083,7 +21455,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/5/2017 10:19:23 AM
+## [Untagged] - Aug 5, 2017 10:19:23 AM
 
 Commit [1f59199db6effa174a186f32e00fdd98b05445a2](https://github.com/StoneCypher/jssm/commit/1f59199db6effa174a186f32e00fdd98b05445a2)
 
@@ -19098,7 +21470,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/1/2017 11:31:31 AM
+## [Untagged] - Aug 1, 2017 11:31:31 AM
 
 Commit [e5bec864cb6facebcdc9c6764b7dff3d156e185f](https://github.com/StoneCypher/jssm/commit/e5bec864cb6facebcdc9c6764b7dff3d156e185f)
 
@@ -19113,7 +21485,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 8/1/2017 10:46:25 AM
+## [Untagged] - Aug 1, 2017 10:46:25 AM
 
 Commit [0d9f1db0fef4f06410fe00ef2bb69eb71887c1f4](https://github.com/StoneCypher/jssm/commit/0d9f1db0fef4f06410fe00ef2bb69eb71887c1f4)
 
@@ -19128,7 +21500,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/30/2017 9:08:43 PM
+## [Untagged] - Jul 30, 2017 9:08:43 PM
 
 Commit [2e947ded155da7e1751b15aeb00d96c79be74cb4](https://github.com/StoneCypher/jssm/commit/2e947ded155da7e1751b15aeb00d96c79be74cb4)
 
@@ -19143,7 +21515,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/30/2017 9:00:35 PM
+## [Untagged] - Jul 30, 2017 9:00:35 PM
 
 Commit [e79331235aaa2361b614af01e52af1fb74f201f3](https://github.com/StoneCypher/jssm/commit/e79331235aaa2361b614af01e52af1fb74f201f3)
 
@@ -19158,7 +21530,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/30/2017 11:24:53 AM
+## [Untagged] - Jul 30, 2017 11:24:53 AM
 
 Commit [5a1806d4068203ffb78427cb92a47b42e3cbecc9](https://github.com/StoneCypher/jssm/commit/5a1806d4068203ffb78427cb92a47b42e3cbecc9)
 
@@ -19173,7 +21545,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/30/2017 10:57:46 AM
+## [Untagged] - Jul 30, 2017 10:57:46 AM
 
 Commit [1f4f0303f2c4bf40f3f096da86f1d9d1f9cfdb1d](https://github.com/StoneCypher/jssm/commit/1f4f0303f2c4bf40f3f096da86f1d9d1f9cfdb1d)
 
@@ -19188,7 +21560,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/30/2017 8:33:58 AM
+## [Untagged] - Jul 30, 2017 8:33:58 AM
 
 Commit [724ac7d82c7ebedcbadbce42ae3405f372b7db41](https://github.com/StoneCypher/jssm/commit/724ac7d82c7ebedcbadbce42ae3405f372b7db41)
 
@@ -19203,7 +21575,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/30/2017 8:32:56 AM
+## [Untagged] - Jul 30, 2017 8:32:56 AM
 
 Commit [3343b90d9c787efdd444f25be63cffca6696a312](https://github.com/StoneCypher/jssm/commit/3343b90d9c787efdd444f25be63cffca6696a312)
 
@@ -19218,7 +21590,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/30/2017 8:31:34 AM
+## [Untagged] - Jul 30, 2017 8:31:34 AM
 
 Commit [a0619c160986982a1687910ea2a210759267a0d3](https://github.com/StoneCypher/jssm/commit/a0619c160986982a1687910ea2a210759267a0d3)
 
@@ -19235,7 +21607,7 @@ Merges [84e0bc3, 1f7be82]
 
 &nbsp;
 
-## [Untagged] - 7/29/2017 6:30:49 PM
+## [Untagged] - Jul 29, 2017 6:30:49 PM
 
 Commit [84e0bc30465f538c9b4566d7e04e0e3079ee34b3](https://github.com/StoneCypher/jssm/commit/84e0bc30465f538c9b4566d7e04e0e3079ee34b3)
 
@@ -19250,7 +21622,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2017 5:03:14 PM
+## [Untagged] - Jul 28, 2017 5:03:14 PM
 
 Commit [1f7be825f9981decd56e796bf810fbc251c55aae](https://github.com/StoneCypher/jssm/commit/1f7be825f9981decd56e796bf810fbc251c55aae)
 
@@ -19265,7 +21637,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2017 4:43:19 PM
+## [Untagged] - Jul 28, 2017 4:43:19 PM
 
 Commit [012930fe96396c90cb52427fe5249334d9b9cfc6](https://github.com/StoneCypher/jssm/commit/012930fe96396c90cb52427fe5249334d9b9cfc6)
 
@@ -19280,7 +21652,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2017 4:16:07 PM
+## [Untagged] - Jul 28, 2017 4:16:07 PM
 
 Commit [d2f630296c606c6909fd7a7c0fc4596fc67d2a08](https://github.com/StoneCypher/jssm/commit/d2f630296c606c6909fd7a7c0fc4596fc67d2a08)
 
@@ -19295,7 +21667,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2017 4:11:22 PM
+## [Untagged] - Jul 28, 2017 4:11:22 PM
 
 Commit [9f425bef1f2a0dd36e400004604dd930e03cf5a2](https://github.com/StoneCypher/jssm/commit/9f425bef1f2a0dd36e400004604dd930e03cf5a2)
 
@@ -19310,7 +21682,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2017 3:44:12 PM
+## [Untagged] - Jul 28, 2017 3:44:12 PM
 
 Commit [5ba390de76cb88a8bae60ad98c57b37dc6bf4645](https://github.com/StoneCypher/jssm/commit/5ba390de76cb88a8bae60ad98c57b37dc6bf4645)
 
@@ -19325,7 +21697,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/28/2017 3:05:18 PM
+## [Untagged] - Jul 28, 2017 3:05:18 PM
 
 Commit [4cdfcabeb241dd5a42e621b5f94e6c2d8178de6e](https://github.com/StoneCypher/jssm/commit/4cdfcabeb241dd5a42e621b5f94e6c2d8178de6e)
 
@@ -19340,7 +21712,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/24/2017 11:08:51 AM
+## [Untagged] - Jul 24, 2017 11:08:51 AM
 
 Commit [0093cc87c78dc78d5e99cfb08969bd3b5828f5a8](https://github.com/StoneCypher/jssm/commit/0093cc87c78dc78d5e99cfb08969bd3b5828f5a8)
 
@@ -19358,7 +21730,7 @@ Merges [0f44ceb, d637155]
 
 &nbsp;
 
-## [Untagged] - 7/24/2017 10:59:13 AM
+## [Untagged] - Jul 24, 2017 10:59:13 AM
 
 Commit [d63715516f7c099df0264181da13993383ed08e1](https://github.com/StoneCypher/jssm/commit/d63715516f7c099df0264181da13993383ed08e1)
 
@@ -19375,7 +21747,7 @@ Merges [e51924d, 0f44ceb]
 
 &nbsp;
 
-## [Untagged] - 7/24/2017 10:36:56 AM
+## [Untagged] - Jul 24, 2017 10:36:56 AM
 
 Commit [e51924d3361db2605980c425a19626b9a1ae0541](https://github.com/StoneCypher/jssm/commit/e51924d3361db2605980c425a19626b9a1ae0541)
 
@@ -19390,7 +21762,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/23/2017 5:09:55 PM
+## [Untagged] - Jul 23, 2017 5:09:55 PM
 
 Commit [0f44cebc4a5f3c90a503aa4d86cb587c6af646d5](https://github.com/StoneCypher/jssm/commit/0f44cebc4a5f3c90a503aa4d86cb587c6af646d5)
 
@@ -19405,7 +21777,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/23/2017 5:06:16 PM
+## [Untagged] - Jul 23, 2017 5:06:16 PM
 
 Commit [292c6c89dab9cce99b15975c9dd9c504fcdfe5d0](https://github.com/StoneCypher/jssm/commit/292c6c89dab9cce99b15975c9dd9c504fcdfe5d0)
 
@@ -19420,7 +21792,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/23/2017 5:03:20 PM
+## [Untagged] - Jul 23, 2017 5:03:20 PM
 
 Commit [025e3ef6279e702ea8360f5e64136dfad6cbf5fc](https://github.com/StoneCypher/jssm/commit/025e3ef6279e702ea8360f5e64136dfad6cbf5fc)
 
@@ -19435,7 +21807,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/23/2017 4:34:20 PM
+## [Untagged] - Jul 23, 2017 4:34:20 PM
 
 Commit [f0ebac3b0a836b5825567465ff431614d2d749e6](https://github.com/StoneCypher/jssm/commit/f0ebac3b0a836b5825567465ff431614d2d749e6)
 
@@ -19450,7 +21822,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/23/2017 12:47:06 PM
+## [Untagged] - Jul 23, 2017 12:47:06 PM
 
 Commit [8443ed0b59363e4201cd7248e3172f8e5afef5f6](https://github.com/StoneCypher/jssm/commit/8443ed0b59363e4201cd7248e3172f8e5afef5f6)
 
@@ -19467,7 +21839,7 @@ Merges [c14cde2, 78b891b]
 
 &nbsp;
 
-## [Untagged] - 7/23/2017 12:46:13 PM
+## [Untagged] - Jul 23, 2017 12:46:13 PM
 
 Commit [c14cde2064a7ba4c0c6fe6394abce6b730c54e34](https://github.com/StoneCypher/jssm/commit/c14cde2064a7ba4c0c6fe6394abce6b730c54e34)
 
@@ -19482,7 +21854,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 7:41:04 PM
+## [Untagged] - Jul 12, 2017 7:41:04 PM
 
 Commit [78b891bdb8e20e835a484935e3dcbf7366d24760](https://github.com/StoneCypher/jssm/commit/78b891bdb8e20e835a484935e3dcbf7366d24760)
 
@@ -19497,7 +21869,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 7:11:40 PM
+## [Untagged] - Jul 12, 2017 7:11:40 PM
 
 Commit [2b97049ea32d7c19ff63eee61a9246868e70d266](https://github.com/StoneCypher/jssm/commit/2b97049ea32d7c19ff63eee61a9246868e70d266)
 
@@ -19512,7 +21884,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 7:00:35 PM
+## [Untagged] - Jul 12, 2017 7:00:35 PM
 
 Commit [1d732102fddb79b944424009fd951df8b76ed4fb](https://github.com/StoneCypher/jssm/commit/1d732102fddb79b944424009fd951df8b76ed4fb)
 
@@ -19527,7 +21899,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 5:48:17 PM
+## [Untagged] - Jul 12, 2017 5:48:17 PM
 
 Commit [f4e1bab59ef222f6f126791435ddb3bff0e0273e](https://github.com/StoneCypher/jssm/commit/f4e1bab59ef222f6f126791435ddb3bff0e0273e)
 
@@ -19542,7 +21914,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 5:34:11 PM
+## [Untagged] - Jul 12, 2017 5:34:11 PM
 
 Commit [840d83de7cecf845c9be9622addf2b98999ae9fb](https://github.com/StoneCypher/jssm/commit/840d83de7cecf845c9be9622addf2b98999ae9fb)
 
@@ -19557,7 +21929,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 5:17:55 PM
+## [Untagged] - Jul 12, 2017 5:17:55 PM
 
 Commit [bca7a3906150c7e9da10b6d3fb1b4d2c744b4675](https://github.com/StoneCypher/jssm/commit/bca7a3906150c7e9da10b6d3fb1b4d2c744b4675)
 
@@ -19572,7 +21944,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 4:46:18 PM
+## [Untagged] - Jul 12, 2017 4:46:18 PM
 
 Commit [f4491acc1ce7cc6a3b692283e4e41949637d3757](https://github.com/StoneCypher/jssm/commit/f4491acc1ce7cc6a3b692283e4e41949637d3757)
 
@@ -19587,7 +21959,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/12/2017 4:44:56 PM
+## [Untagged] - Jul 12, 2017 4:44:56 PM
 
 Commit [79b6d286bb5bc79f15138cfcb0b4f0b7fc6864b8](https://github.com/StoneCypher/jssm/commit/79b6d286bb5bc79f15138cfcb0b4f0b7fc6864b8)
 
@@ -19602,7 +21974,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/11/2017 9:16:07 PM
+## [Untagged] - Jul 11, 2017 9:16:07 PM
 
 Commit [b2d63ad058e362514334538f93d4fcd6fa631d5f](https://github.com/StoneCypher/jssm/commit/b2d63ad058e362514334538f93d4fcd6fa631d5f)
 
@@ -19617,7 +21989,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/11/2017 5:38:06 PM
+## [Untagged] - Jul 11, 2017 5:38:06 PM
 
 Commit [93b2432ff35cd273db0b38581fd9a750a349832b](https://github.com/StoneCypher/jssm/commit/93b2432ff35cd273db0b38581fd9a750a349832b)
 
@@ -19632,7 +22004,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/11/2017 4:59:14 PM
+## [Untagged] - Jul 11, 2017 4:59:14 PM
 
 Commit [a1d9e7c0055e6694bde4928d749906fa92486591](https://github.com/StoneCypher/jssm/commit/a1d9e7c0055e6694bde4928d749906fa92486591)
 
@@ -19647,7 +22019,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/5/2017 3:39:24 PM
+## [Untagged] - Jul 5, 2017 3:39:24 PM
 
 Commit [4748e3751a62089949d280a23d9c8115e2a6cfc5](https://github.com/StoneCypher/jssm/commit/4748e3751a62089949d280a23d9c8115e2a6cfc5)
 
@@ -19662,7 +22034,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/5/2017 2:33:31 PM
+## [Untagged] - Jul 5, 2017 2:33:31 PM
 
 Commit [ea9fe406dddb497d53a07da4a67b5ac3355c3717](https://github.com/StoneCypher/jssm/commit/ea9fe406dddb497d53a07da4a67b5ac3355c3717)
 
@@ -19677,7 +22049,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/5/2017 9:07:19 AM
+## [Untagged] - Jul 5, 2017 9:07:19 AM
 
 Commit [6f22cc476a2a24476a10f6d5c8f75bead619f48e](https://github.com/StoneCypher/jssm/commit/6f22cc476a2a24476a10f6d5c8f75bead619f48e)
 
@@ -19692,7 +22064,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/5/2017 8:54:14 AM
+## [Untagged] - Jul 5, 2017 8:54:14 AM
 
 Commit [0ca33e3a612475859aff6eb602b721e7fa56bbc6](https://github.com/StoneCypher/jssm/commit/0ca33e3a612475859aff6eb602b721e7fa56bbc6)
 
@@ -19707,7 +22079,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/5/2017 8:26:36 AM
+## [Untagged] - Jul 5, 2017 8:26:36 AM
 
 Commit [9b461f1052aeba47f5a9958d235ae608fc199eab](https://github.com/StoneCypher/jssm/commit/9b461f1052aeba47f5a9958d235ae608fc199eab)
 
@@ -19722,7 +22094,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/5/2017 7:50:51 AM
+## [Untagged] - Jul 5, 2017 7:50:51 AM
 
 Commit [7e74b21ef0cf5cb2ae479ef80ac0f27d79157d04](https://github.com/StoneCypher/jssm/commit/7e74b21ef0cf5cb2ae479ef80ac0f27d79157d04)
 
@@ -19739,7 +22111,7 @@ Merges [1c8f98e, e8b68ad]
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 11:33:11 PM
+## [Untagged] - Jul 4, 2017 11:33:11 PM
 
 Commit [1c8f98ed0eda80ed727a72bb0439aa91018dbae5](https://github.com/StoneCypher/jssm/commit/1c8f98ed0eda80ed727a72bb0439aa91018dbae5)
 
@@ -19754,7 +22126,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 11:33:11 PM
+## [Untagged] - Jul 4, 2017 11:33:11 PM
 
 Commit [e8b68adc7047111876d805b53341f07153554078](https://github.com/StoneCypher/jssm/commit/e8b68adc7047111876d805b53341f07153554078)
 
@@ -19769,7 +22141,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 11:21:01 PM
+## [Untagged] - Jul 4, 2017 11:21:01 PM
 
 Commit [9b30e347cdf0cf205d6241a15f6d8dae987674d9](https://github.com/StoneCypher/jssm/commit/9b30e347cdf0cf205d6241a15f6d8dae987674d9)
 
@@ -19784,7 +22156,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 11:17:26 PM
+## [Untagged] - Jul 4, 2017 11:17:26 PM
 
 Commit [391b6a5962fff128ee75173177de0ab3045b0806](https://github.com/StoneCypher/jssm/commit/391b6a5962fff128ee75173177de0ab3045b0806)
 
@@ -19799,7 +22171,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 11:09:14 PM
+## [Untagged] - Jul 4, 2017 11:09:14 PM
 
 Commit [4c09b8d40de563142999c7118522507210d77a9a](https://github.com/StoneCypher/jssm/commit/4c09b8d40de563142999c7118522507210d77a9a)
 
@@ -19814,7 +22186,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 10:55:46 PM
+## [Untagged] - Jul 4, 2017 10:55:46 PM
 
 Commit [876168689c8e1768ed836a32036c3a7fd2ff5c6c](https://github.com/StoneCypher/jssm/commit/876168689c8e1768ed836a32036c3a7fd2ff5c6c)
 
@@ -19829,7 +22201,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 10:43:21 PM
+## [Untagged] - Jul 4, 2017 10:43:21 PM
 
 Commit [99c4fc746cdbcb6cae724c07f6f7fb5f0853b8d4](https://github.com/StoneCypher/jssm/commit/99c4fc746cdbcb6cae724c07f6f7fb5f0853b8d4)
 
@@ -19844,7 +22216,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 10:27:40 PM
+## [Untagged] - Jul 4, 2017 10:27:40 PM
 
 Commit [ed3771d93ded350182c7d712fc29d2fb44a62de6](https://github.com/StoneCypher/jssm/commit/ed3771d93ded350182c7d712fc29d2fb44a62de6)
 
@@ -19859,7 +22231,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 9:35:21 PM
+## [Untagged] - Jul 4, 2017 9:35:21 PM
 
 Commit [ebc092d9dc7011757051f88f6933cfa9de918c6e](https://github.com/StoneCypher/jssm/commit/ebc092d9dc7011757051f88f6933cfa9de918c6e)
 
@@ -19874,7 +22246,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 9:09:09 PM
+## [Untagged] - Jul 4, 2017 9:09:09 PM
 
 Commit [f9795799f4c98632e5944dcacd1162c91d06e3b9](https://github.com/StoneCypher/jssm/commit/f9795799f4c98632e5944dcacd1162c91d06e3b9)
 
@@ -19889,7 +22261,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 8:43:42 PM
+## [Untagged] - Jul 4, 2017 8:43:42 PM
 
 Commit [20ef6b74fd7f317a9614563bff0c6d84f6fa7dd8](https://github.com/StoneCypher/jssm/commit/20ef6b74fd7f317a9614563bff0c6d84f6fa7dd8)
 
@@ -19904,7 +22276,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 7:43:23 PM
+## [Untagged] - Jul 4, 2017 7:43:23 PM
 
 Commit [b4844b59761a2fffe09a1a065a0b8e6f5b7fe7fb](https://github.com/StoneCypher/jssm/commit/b4844b59761a2fffe09a1a065a0b8e6f5b7fe7fb)
 
@@ -19919,7 +22291,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 7:42:21 PM
+## [Untagged] - Jul 4, 2017 7:42:21 PM
 
 Commit [9fedbd272860529e752a23156081fb98f1c04c7e](https://github.com/StoneCypher/jssm/commit/9fedbd272860529e752a23156081fb98f1c04c7e)
 
@@ -19934,7 +22306,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 7:38:34 PM
+## [Untagged] - Jul 4, 2017 7:38:34 PM
 
 Commit [f6c188352dd1c06c366b472d6050dee9cb57b752](https://github.com/StoneCypher/jssm/commit/f6c188352dd1c06c366b472d6050dee9cb57b752)
 
@@ -19949,7 +22321,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 7:19:10 PM
+## [Untagged] - Jul 4, 2017 7:19:10 PM
 
 Commit [f27f7b6dd4e8f6cfb02dd518e74f45bd59380339](https://github.com/StoneCypher/jssm/commit/f27f7b6dd4e8f6cfb02dd518e74f45bd59380339)
 
@@ -19964,7 +22336,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 6:42:18 PM
+## [Untagged] - Jul 4, 2017 6:42:18 PM
 
 Commit [e3212a8f7d72462ce49cf3de6499d93cd8cf82cd](https://github.com/StoneCypher/jssm/commit/e3212a8f7d72462ce49cf3de6499d93cd8cf82cd)
 
@@ -19979,7 +22351,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 6:37:30 PM
+## [Untagged] - Jul 4, 2017 6:37:30 PM
 
 Commit [09ed3ccb9a18c55486f998391c4c6a2c4f64ba2e](https://github.com/StoneCypher/jssm/commit/09ed3ccb9a18c55486f998391c4c6a2c4f64ba2e)
 
@@ -19994,7 +22366,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 6:30:22 PM
+## [Untagged] - Jul 4, 2017 6:30:22 PM
 
 Commit [3bbc7681d19bd654fd8515bd136a41acec752850](https://github.com/StoneCypher/jssm/commit/3bbc7681d19bd654fd8515bd136a41acec752850)
 
@@ -20009,7 +22381,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 12:06:45 PM
+## [Untagged] - Jul 4, 2017 12:06:45 PM
 
 Commit [3fd12b6e299e5cee3aaeab62529ff35b2e729c99](https://github.com/StoneCypher/jssm/commit/3fd12b6e299e5cee3aaeab62529ff35b2e729c99)
 
@@ -20024,7 +22396,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 9:14:52 AM
+## [Untagged] - Jul 4, 2017 9:14:52 AM
 
 Commit [b724796e5e37c55c2db5b1739df393ca7d147d6d](https://github.com/StoneCypher/jssm/commit/b724796e5e37c55c2db5b1739df393ca7d147d6d)
 
@@ -20039,7 +22411,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/4/2017 8:55:57 AM
+## [Untagged] - Jul 4, 2017 8:55:57 AM
 
 Commit [93af4fef22d1c8103dff3dece4eb2e3edee5ef7f](https://github.com/StoneCypher/jssm/commit/93af4fef22d1c8103dff3dece4eb2e3edee5ef7f)
 
@@ -20054,7 +22426,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 5:52:04 PM
+## [Untagged] - Jul 3, 2017 5:52:04 PM
 
 Commit [1a2d0c9924708cf9c0fc3bf29f0c54e8dd8d784f](https://github.com/StoneCypher/jssm/commit/1a2d0c9924708cf9c0fc3bf29f0c54e8dd8d784f)
 
@@ -20069,7 +22441,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 5:27:33 PM
+## [Untagged] - Jul 3, 2017 5:27:33 PM
 
 Commit [a1bd797a8106a4955c3fd8eb93d44e6e171deab6](https://github.com/StoneCypher/jssm/commit/a1bd797a8106a4955c3fd8eb93d44e6e171deab6)
 
@@ -20084,7 +22456,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 4:42:45 PM
+## [Untagged] - Jul 3, 2017 4:42:45 PM
 
 Commit [bad6b32a87aa3bc3293a1cd1172dc6c27cb55f54](https://github.com/StoneCypher/jssm/commit/bad6b32a87aa3bc3293a1cd1172dc6c27cb55f54)
 
@@ -20099,7 +22471,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 4:35:40 PM
+## [Untagged] - Jul 3, 2017 4:35:40 PM
 
 Commit [79c2e85bdf7cd57877e14b8d088f4a45af9ee1c1](https://github.com/StoneCypher/jssm/commit/79c2e85bdf7cd57877e14b8d088f4a45af9ee1c1)
 
@@ -20114,7 +22486,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 4:03:15 PM
+## [Untagged] - Jul 3, 2017 4:03:15 PM
 
 Commit [a6076529e180da2f1134ba71bef72637d4a90a89](https://github.com/StoneCypher/jssm/commit/a6076529e180da2f1134ba71bef72637d4a90a89)
 
@@ -20129,7 +22501,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 4:00:31 PM
+## [Untagged] - Jul 3, 2017 4:00:31 PM
 
 Commit [b60e95c4fe492dda39f575deedc91e021943120b](https://github.com/StoneCypher/jssm/commit/b60e95c4fe492dda39f575deedc91e021943120b)
 
@@ -20144,7 +22516,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 3:36:23 PM
+## [Untagged] - Jul 3, 2017 3:36:23 PM
 
 Commit [bf3a538be37e3d6d47252ad011a522ed915883e4](https://github.com/StoneCypher/jssm/commit/bf3a538be37e3d6d47252ad011a522ed915883e4)
 
@@ -20159,7 +22531,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 3:31:06 PM
+## [Untagged] - Jul 3, 2017 3:31:06 PM
 
 Commit [5f18f74b0bca117e939cff0fb342014bd0000e64](https://github.com/StoneCypher/jssm/commit/5f18f74b0bca117e939cff0fb342014bd0000e64)
 
@@ -20174,7 +22546,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 3:18:21 PM
+## [Untagged] - Jul 3, 2017 3:18:21 PM
 
 Commit [64821cd52de55a50b9e11e191b974a1dcba7f8fe](https://github.com/StoneCypher/jssm/commit/64821cd52de55a50b9e11e191b974a1dcba7f8fe)
 
@@ -20189,7 +22561,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 3:16:59 PM
+## [Untagged] - Jul 3, 2017 3:16:59 PM
 
 Commit [fe58795dfc9cd8450f7618c54441cad1d1b919d2](https://github.com/StoneCypher/jssm/commit/fe58795dfc9cd8450f7618c54441cad1d1b919d2)
 
@@ -20204,7 +22576,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 2:49:47 PM
+## [Untagged] - Jul 3, 2017 2:49:47 PM
 
 Commit [27db55f8d8e693841f95e3ef59e36f85f1a16069](https://github.com/StoneCypher/jssm/commit/27db55f8d8e693841f95e3ef59e36f85f1a16069)
 
@@ -20219,7 +22591,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 2:45:40 PM
+## [Untagged] - Jul 3, 2017 2:45:40 PM
 
 Commit [c15c66e7f015b4d1df0901c757bae9c6ad5e649f](https://github.com/StoneCypher/jssm/commit/c15c66e7f015b4d1df0901c757bae9c6ad5e649f)
 
@@ -20234,7 +22606,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 7/3/2017 1:56:54 PM
+## [Untagged] - Jul 3, 2017 1:56:54 PM
 
 Commit [11dd41da13e6c69d7cf84c403b5304e0bf19ca70](https://github.com/StoneCypher/jssm/commit/11dd41da13e6c69d7cf84c403b5304e0bf19ca70)
 
@@ -20249,7 +22621,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 8:10:16 PM
+## [Untagged] - Jun 27, 2017 8:10:16 PM
 
 Commit [02dcc6c6106355ca3cbf9d96dae4a6a6f6fffa93](https://github.com/StoneCypher/jssm/commit/02dcc6c6106355ca3cbf9d96dae4a6a6f6fffa93)
 
@@ -20264,7 +22636,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 8:04:37 PM
+## [Untagged] - Jun 27, 2017 8:04:37 PM
 
 Commit [73e40d9080de9727274e2c96a9671d516c0f327c](https://github.com/StoneCypher/jssm/commit/73e40d9080de9727274e2c96a9671d516c0f327c)
 
@@ -20279,7 +22651,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 6:55:06 PM
+## [Untagged] - Jun 27, 2017 6:55:06 PM
 
 Commit [c4e5fb82c97176b1e8bbeb5ad9bab5846903852e](https://github.com/StoneCypher/jssm/commit/c4e5fb82c97176b1e8bbeb5ad9bab5846903852e)
 
@@ -20294,7 +22666,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 6:31:59 PM
+## [Untagged] - Jun 27, 2017 6:31:59 PM
 
 Commit [2561a66c6f25046e70307c46a80822308988785c](https://github.com/StoneCypher/jssm/commit/2561a66c6f25046e70307c46a80822308988785c)
 
@@ -20309,7 +22681,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 6:12:48 PM
+## [Untagged] - Jun 27, 2017 6:12:48 PM
 
 Commit [fbc4f0bfc9c89a97e5ddb27dda7593159fbad2f0](https://github.com/StoneCypher/jssm/commit/fbc4f0bfc9c89a97e5ddb27dda7593159fbad2f0)
 
@@ -20326,7 +22698,7 @@ Merges [834e385, ac9afdb]
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 6:12:40 PM
+## [Untagged] - Jun 27, 2017 6:12:40 PM
 
 Commit [834e385aef9b685f40d4be0502dcd625e032a1fb](https://github.com/StoneCypher/jssm/commit/834e385aef9b685f40d4be0502dcd625e032a1fb)
 
@@ -20341,7 +22713,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 5:10:06 PM
+## [Untagged] - Jun 27, 2017 5:10:06 PM
 
 Commit [ac9afdba70924b1506d99f93be08fbf05c85fd16](https://github.com/StoneCypher/jssm/commit/ac9afdba70924b1506d99f93be08fbf05c85fd16)
 
@@ -20356,7 +22728,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 2:47:07 PM
+## [Untagged] - Jun 27, 2017 2:47:07 PM
 
 Commit [c2de4d46405ad9936303e6f446187c051b00e2e4](https://github.com/StoneCypher/jssm/commit/c2de4d46405ad9936303e6f446187c051b00e2e4)
 
@@ -20371,7 +22743,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 2:20:05 PM
+## [Untagged] - Jun 27, 2017 2:20:05 PM
 
 Commit [c8bfce82a2c4f832c48bd87b0536076d35b51b35](https://github.com/StoneCypher/jssm/commit/c8bfce82a2c4f832c48bd87b0536076d35b51b35)
 
@@ -20386,7 +22758,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 2:18:53 PM
+## [Untagged] - Jun 27, 2017 2:18:53 PM
 
 Commit [85b3f164777084e2d257db2aa061a86d0f0363cf](https://github.com/StoneCypher/jssm/commit/85b3f164777084e2d257db2aa061a86d0f0363cf)
 
@@ -20401,7 +22773,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 11:38:53 AM
+## [Untagged] - Jun 27, 2017 11:38:53 AM
 
 Commit [0ec645313d499681ea1f307a3fd0ca2ced6f8b86](https://github.com/StoneCypher/jssm/commit/0ec645313d499681ea1f307a3fd0ca2ced6f8b86)
 
@@ -20416,7 +22788,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 11:32:43 AM
+## [Untagged] - Jun 27, 2017 11:32:43 AM
 
 Commit [0400c95dbed8b0e486601d93a796a161bf2f1410](https://github.com/StoneCypher/jssm/commit/0400c95dbed8b0e486601d93a796a161bf2f1410)
 
@@ -20431,7 +22803,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/27/2017 11:24:56 AM
+## [Untagged] - Jun 27, 2017 11:24:56 AM
 
 Commit [f40c6de57989d861033dbdfd66a0e8deaaa54c1a](https://github.com/StoneCypher/jssm/commit/f40c6de57989d861033dbdfd66a0e8deaaa54c1a)
 
@@ -20446,7 +22818,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/26/2017 2:56:49 PM
+## [Untagged] - Jun 26, 2017 2:56:49 PM
 
 Commit [b2806aa785303af098d76828eb7ae2bb8916b62c](https://github.com/StoneCypher/jssm/commit/b2806aa785303af098d76828eb7ae2bb8916b62c)
 
@@ -20461,7 +22833,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/26/2017 2:55:10 PM
+## [Untagged] - Jun 26, 2017 2:55:10 PM
 
 Commit [1c1963a7929ede9ada26b453bd6f53a4afe57793](https://github.com/StoneCypher/jssm/commit/1c1963a7929ede9ada26b453bd6f53a4afe57793)
 
@@ -20476,7 +22848,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/26/2017 1:28:21 PM
+## [Untagged] - Jun 26, 2017 1:28:21 PM
 
 Commit [f3578f5ac47e6b4c49ef4d472a915c30a1e00c51](https://github.com/StoneCypher/jssm/commit/f3578f5ac47e6b4c49ef4d472a915c30a1e00c51)
 
@@ -20491,7 +22863,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/26/2017 8:24:43 AM
+## [Untagged] - Jun 26, 2017 8:24:43 AM
 
 Commit [f6da593f33025989aff68f5bed829fa91b45fa13](https://github.com/StoneCypher/jssm/commit/f6da593f33025989aff68f5bed829fa91b45fa13)
 
@@ -20506,7 +22878,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/26/2017 8:22:39 AM
+## [Untagged] - Jun 26, 2017 8:22:39 AM
 
 Commit [dac225f0802e0f6f0ffdacdfd6b7189c2a22bbde](https://github.com/StoneCypher/jssm/commit/dac225f0802e0f6f0ffdacdfd6b7189c2a22bbde)
 
@@ -20521,7 +22893,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/26/2017 8:21:07 AM
+## [Untagged] - Jun 26, 2017 8:21:07 AM
 
 Commit [33b7e45359e5727d1db796bd03fd77fef607006b](https://github.com/StoneCypher/jssm/commit/33b7e45359e5727d1db796bd03fd77fef607006b)
 
@@ -20536,7 +22908,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2017 11:10:13 PM
+## [Untagged] - Jun 25, 2017 11:10:13 PM
 
 Commit [693bb54b7736250a1d73681af85ad6cd8e1b15e5](https://github.com/StoneCypher/jssm/commit/693bb54b7736250a1d73681af85ad6cd8e1b15e5)
 
@@ -20551,7 +22923,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2017 10:57:54 PM
+## [Untagged] - Jun 25, 2017 10:57:54 PM
 
 Commit [e7e2637bb0e02b496981c3af00209a0ce47755aa](https://github.com/StoneCypher/jssm/commit/e7e2637bb0e02b496981c3af00209a0ce47755aa)
 
@@ -20566,7 +22938,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2017 10:46:49 PM
+## [Untagged] - Jun 25, 2017 10:46:49 PM
 
 Commit [1b53038953d21768d286d632fd50c026eccf179a](https://github.com/StoneCypher/jssm/commit/1b53038953d21768d286d632fd50c026eccf179a)
 
@@ -20581,7 +22953,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2017 10:35:20 PM
+## [Untagged] - Jun 25, 2017 10:35:20 PM
 
 Commit [c9d6f57b9ac422ca852d61f86393f8137b1ac184](https://github.com/StoneCypher/jssm/commit/c9d6f57b9ac422ca852d61f86393f8137b1ac184)
 
@@ -20596,7 +22968,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2017 10:27:01 PM
+## [Untagged] - Jun 25, 2017 10:27:01 PM
 
 Commit [c8fbe9c4ce7355e92db1d6d28e15e15fa8dc7416](https://github.com/StoneCypher/jssm/commit/c8fbe9c4ce7355e92db1d6d28e15e15fa8dc7416)
 
@@ -20611,7 +22983,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2017 10:25:49 PM
+## [Untagged] - Jun 25, 2017 10:25:49 PM
 
 Commit [b3781473907c05fb72eb51082f7456fc56e90cf3](https://github.com/StoneCypher/jssm/commit/b3781473907c05fb72eb51082f7456fc56e90cf3)
 
@@ -20626,7 +22998,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/25/2017 10:08:30 PM
+## [Untagged] - Jun 25, 2017 10:08:30 PM
 
 Commit [534a698fb1c2e1470701a6fe037048a8bab73af9](https://github.com/StoneCypher/jssm/commit/534a698fb1c2e1470701a6fe037048a8bab73af9)
 
@@ -20641,7 +23013,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/24/2017 9:49:12 PM
+## [Untagged] - Jun 24, 2017 9:49:12 PM
 
 Commit [aa875d6f239bc14fe87dfa67edde5738ee317cd4](https://github.com/StoneCypher/jssm/commit/aa875d6f239bc14fe87dfa67edde5738ee317cd4)
 
@@ -20656,7 +23028,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/10/2017 4:25:36 PM
+## [Untagged] - Jun 10, 2017 4:25:36 PM
 
 Commit [2f0420717ad4026445d97e0579f3298362162451](https://github.com/StoneCypher/jssm/commit/2f0420717ad4026445d97e0579f3298362162451)
 
@@ -20673,7 +23045,7 @@ Merges [4144c1f, d9b1050]
 
 &nbsp;
 
-## [Untagged] - 6/7/2017 11:17:10 AM
+## [Untagged] - Jun 7, 2017 11:17:10 AM
 
 Commit [d9b10500fba99ad6305e6b7a16e7c3c77a4e442a](https://github.com/StoneCypher/jssm/commit/d9b10500fba99ad6305e6b7a16e7c3c77a4e442a)
 
@@ -20689,7 +23061,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/6/2017 4:59:39 PM
+## [Untagged] - Jun 6, 2017 4:59:39 PM
 
 Commit [4144c1f902e21909f9590521d743331226baba57](https://github.com/StoneCypher/jssm/commit/4144c1f902e21909f9590521d743331226baba57)
 
@@ -20704,7 +23076,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 9:44:19 PM
+## [Untagged] - Jun 4, 2017 9:44:19 PM
 
 Commit [e5029748bd3d00003fda5cbb10547cbf730812b5](https://github.com/StoneCypher/jssm/commit/e5029748bd3d00003fda5cbb10547cbf730812b5)
 
@@ -20719,7 +23091,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 8:11:40 PM
+## [Untagged] - Jun 4, 2017 8:11:40 PM
 
 Commit [fe1528c9062f6b03815ea33f695c2b606ef7c452](https://github.com/StoneCypher/jssm/commit/fe1528c9062f6b03815ea33f695c2b606ef7c452)
 
@@ -20734,7 +23106,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 7:47:47 PM
+## [Untagged] - Jun 4, 2017 7:47:47 PM
 
 Commit [e7e9cb051296893f9ede67742fe156768c5341a1](https://github.com/StoneCypher/jssm/commit/e7e9cb051296893f9ede67742fe156768c5341a1)
 
@@ -20749,7 +23121,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 7:43:14 PM
+## [Untagged] - Jun 4, 2017 7:43:14 PM
 
 Commit [35a961fca7935982e2bc142675f33af07da0076f](https://github.com/StoneCypher/jssm/commit/35a961fca7935982e2bc142675f33af07da0076f)
 
@@ -20764,7 +23136,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 7:39:04 PM
+## [Untagged] - Jun 4, 2017 7:39:04 PM
 
 Commit [43729ef9a3d5103b2e56835a9a4976e2f686f717](https://github.com/StoneCypher/jssm/commit/43729ef9a3d5103b2e56835a9a4976e2f686f717)
 
@@ -20779,7 +23151,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 7:36:59 PM
+## [Untagged] - Jun 4, 2017 7:36:59 PM
 
 Commit [0676f1f16bfe8f5333b7170b83151886a0e586ed](https://github.com/StoneCypher/jssm/commit/0676f1f16bfe8f5333b7170b83151886a0e586ed)
 
@@ -20794,7 +23166,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 7:12:10 PM
+## [Untagged] - Jun 4, 2017 7:12:10 PM
 
 Commit [687bbacea1ba6a53eea6ed20707190235c4c4a78](https://github.com/StoneCypher/jssm/commit/687bbacea1ba6a53eea6ed20707190235c4c4a78)
 
@@ -20809,7 +23181,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 6:23:26 PM
+## [Untagged] - Jun 4, 2017 6:23:26 PM
 
 Commit [64e3e31f2351244e861f7e1e0f6c1922f2611530](https://github.com/StoneCypher/jssm/commit/64e3e31f2351244e861f7e1e0f6c1922f2611530)
 
@@ -20824,7 +23196,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 6/4/2017 6:10:57 PM
+## [Untagged] - Jun 4, 2017 6:10:57 PM
 
 Commit [607222fec6240066ccce19a1776e1c08ae8c9ffe](https://github.com/StoneCypher/jssm/commit/607222fec6240066ccce19a1776e1c08ae8c9ffe)
 
@@ -20839,7 +23211,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/30/2017 2:40:15 PM
+## [Untagged] - May 30, 2017 2:40:15 PM
 
 Commit [b33c5731f6347a4f0581a94edc8dc6647fcc8ea5](https://github.com/StoneCypher/jssm/commit/b33c5731f6347a4f0581a94edc8dc6647fcc8ea5)
 
@@ -20854,7 +23226,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/29/2017 7:36:26 PM
+## [Untagged] - May 29, 2017 7:36:26 PM
 
 Commit [74e32314828b7cbbdf38a789e7b8c00eca1c31bc](https://github.com/StoneCypher/jssm/commit/74e32314828b7cbbdf38a789e7b8c00eca1c31bc)
 
@@ -20869,7 +23241,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/29/2017 6:21:19 PM
+## [Untagged] - May 29, 2017 6:21:19 PM
 
 Commit [3c9acb6566471effb6e16f543cb5db46ecdef15c](https://github.com/StoneCypher/jssm/commit/3c9acb6566471effb6e16f543cb5db46ecdef15c)
 
@@ -20884,7 +23256,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/29/2017 6:16:47 PM
+## [Untagged] - May 29, 2017 6:16:47 PM
 
 Commit [c410f2773724a8db47fb8478ff27d154163563e7](https://github.com/StoneCypher/jssm/commit/c410f2773724a8db47fb8478ff27d154163563e7)
 
@@ -20899,7 +23271,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/29/2017 6:12:04 PM
+## [Untagged] - May 29, 2017 6:12:04 PM
 
 Commit [324fd613e41f7c1f811ad970d69d367a894e85bc](https://github.com/StoneCypher/jssm/commit/324fd613e41f7c1f811ad970d69d367a894e85bc)
 
@@ -20914,7 +23286,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/29/2017 6:07:37 PM
+## [Untagged] - May 29, 2017 6:07:37 PM
 
 Commit [d4e08dbf17b22492f18fe9985182fbcd76796352](https://github.com/StoneCypher/jssm/commit/d4e08dbf17b22492f18fe9985182fbcd76796352)
 
@@ -20929,7 +23301,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 2:41:08 AM
+## [Untagged] - May 28, 2017 2:41:08 AM
 
 Commit [28d56136bd5d5b41959b05baa6a73405c1660742](https://github.com/StoneCypher/jssm/commit/28d56136bd5d5b41959b05baa6a73405c1660742)
 
@@ -20944,7 +23316,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 2:26:12 AM
+## [Untagged] - May 28, 2017 2:26:12 AM
 
 Commit [2afa4a5f509aabffed25d168dea0f09cc8cdcf1e](https://github.com/StoneCypher/jssm/commit/2afa4a5f509aabffed25d168dea0f09cc8cdcf1e)
 
@@ -20959,7 +23331,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 2:12:13 AM
+## [Untagged] - May 28, 2017 2:12:13 AM
 
 Commit [d4b050823cdc6ec5b9114bd9100dcd836218ad4c](https://github.com/StoneCypher/jssm/commit/d4b050823cdc6ec5b9114bd9100dcd836218ad4c)
 
@@ -20974,7 +23346,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 1:18:13 AM
+## [Untagged] - May 28, 2017 1:18:13 AM
 
 Commit [06cc19bdcca9ec58d543b928e1c9532d23370351](https://github.com/StoneCypher/jssm/commit/06cc19bdcca9ec58d543b928e1c9532d23370351)
 
@@ -20989,7 +23361,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 1:12:17 AM
+## [Untagged] - May 28, 2017 1:12:17 AM
 
 Commit [2c1def6dffce10ba1b99497812dccee7afe6160c](https://github.com/StoneCypher/jssm/commit/2c1def6dffce10ba1b99497812dccee7afe6160c)
 
@@ -21004,7 +23376,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 1:09:14 AM
+## [Untagged] - May 28, 2017 1:09:14 AM
 
 Commit [daf36bd05a7caeaaaf5a2ab8798d7c9ca76806d7](https://github.com/StoneCypher/jssm/commit/daf36bd05a7caeaaaf5a2ab8798d7c9ca76806d7)
 
@@ -21019,7 +23391,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 1:07:46 AM
+## [Untagged] - May 28, 2017 1:07:46 AM
 
 Commit [b2f8bd01f14fabe1ebcb718aec53481799a2c501](https://github.com/StoneCypher/jssm/commit/b2f8bd01f14fabe1ebcb718aec53481799a2c501)
 
@@ -21034,7 +23406,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 1:06:50 AM
+## [Untagged] - May 28, 2017 1:06:50 AM
 
 Commit [413e40d804d498257b581ba49589840c9a62ba6c](https://github.com/StoneCypher/jssm/commit/413e40d804d498257b581ba49589840c9a62ba6c)
 
@@ -21049,7 +23421,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 12:47:45 AM
+## [Untagged] - May 28, 2017 12:47:45 AM
 
 Commit [6303be6df8e896b1e933e6669053b8187dc30788](https://github.com/StoneCypher/jssm/commit/6303be6df8e896b1e933e6669053b8187dc30788)
 
@@ -21064,7 +23436,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 12:41:53 AM
+## [Untagged] - May 28, 2017 12:41:53 AM
 
 Commit [e16ba533fb86b9ed9307c0119492d8b1233ec9e1](https://github.com/StoneCypher/jssm/commit/e16ba533fb86b9ed9307c0119492d8b1233ec9e1)
 
@@ -21079,7 +23451,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 12:36:31 AM
+## [Untagged] - May 28, 2017 12:36:31 AM
 
 Commit [fca89d668ba9ea532fa63ff4b03e68f1a9473f08](https://github.com/StoneCypher/jssm/commit/fca89d668ba9ea532fa63ff4b03e68f1a9473f08)
 
@@ -21094,7 +23466,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 12:23:36 AM
+## [Untagged] - May 28, 2017 12:23:36 AM
 
 Commit [239044f2a2391dd71c4059371b746242afb27e45](https://github.com/StoneCypher/jssm/commit/239044f2a2391dd71c4059371b746242afb27e45)
 
@@ -21109,7 +23481,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 12:19:02 AM
+## [Untagged] - May 28, 2017 12:19:02 AM
 
 Commit [3bb4f908e033767ca193592736efb403795095a5](https://github.com/StoneCypher/jssm/commit/3bb4f908e033767ca193592736efb403795095a5)
 
@@ -21124,7 +23496,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/28/2017 12:10:21 AM
+## [Untagged] - May 28, 2017 12:10:21 AM
 
 Commit [65d106b656e387bb90365eb6043fd2e53ee0461b](https://github.com/StoneCypher/jssm/commit/65d106b656e387bb90365eb6043fd2e53ee0461b)
 
@@ -21139,7 +23511,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 11:57:14 PM
+## [Untagged] - May 27, 2017 11:57:14 PM
 
 Commit [70efba8235137b4390016a389622318126c98574](https://github.com/StoneCypher/jssm/commit/70efba8235137b4390016a389622318126c98574)
 
@@ -21154,7 +23526,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 11:52:27 PM
+## [Untagged] - May 27, 2017 11:52:27 PM
 
 Commit [43d0b6bbb73225f91fc68518714d6e7ccab340f9](https://github.com/StoneCypher/jssm/commit/43d0b6bbb73225f91fc68518714d6e7ccab340f9)
 
@@ -21169,7 +23541,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 10:24:21 PM
+## [Untagged] - May 27, 2017 10:24:21 PM
 
 Commit [add7e0c89d7dbc43e822d234b9fa753bcd1ebe22](https://github.com/StoneCypher/jssm/commit/add7e0c89d7dbc43e822d234b9fa753bcd1ebe22)
 
@@ -21186,7 +23558,7 @@ Merges [80d09be, 33c8b96]
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 10:24:12 PM
+## [Untagged] - May 27, 2017 10:24:12 PM
 
 Commit [80d09be177bc59d76d5f9ee1e835170dc2d54c9e](https://github.com/StoneCypher/jssm/commit/80d09be177bc59d76d5f9ee1e835170dc2d54c9e)
 
@@ -21201,7 +23573,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 10:22:37 PM
+## [Untagged] - May 27, 2017 10:22:37 PM
 
 Commit [33c8b96b3afe7f0d132d835fc845c96abcb11d43](https://github.com/StoneCypher/jssm/commit/33c8b96b3afe7f0d132d835fc845c96abcb11d43)
 
@@ -21216,7 +23588,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 10:15:02 PM
+## [Untagged] - May 27, 2017 10:15:02 PM
 
 Commit [249cbc2be75abbcef4ba7061af4d18ce19aa309a](https://github.com/StoneCypher/jssm/commit/249cbc2be75abbcef4ba7061af4d18ce19aa309a)
 
@@ -21231,7 +23603,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 9:49:13 PM
+## [Untagged] - May 27, 2017 9:49:13 PM
 
 Commit [335e0f73a4a34ce470c133279e1b8c2fb8e199c1](https://github.com/StoneCypher/jssm/commit/335e0f73a4a34ce470c133279e1b8c2fb8e199c1)
 
@@ -21246,7 +23618,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 9:19:28 PM
+## [Untagged] - May 27, 2017 9:19:28 PM
 
 Commit [ba0632b1bc1315d2a3c21c8c7b4a23b8a965dd60](https://github.com/StoneCypher/jssm/commit/ba0632b1bc1315d2a3c21c8c7b4a23b8a965dd60)
 
@@ -21261,7 +23633,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 7:06:07 PM
+## [Untagged] - May 27, 2017 7:06:07 PM
 
 Commit [3b3bbd0ee4f1545468bf21160a15f2564c105c3a](https://github.com/StoneCypher/jssm/commit/3b3bbd0ee4f1545468bf21160a15f2564c105c3a)
 
@@ -21276,7 +23648,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 4:45:48 PM
+## [Untagged] - May 27, 2017 4:45:48 PM
 
 Commit [f5c32a06da15268305c17a60dac5ce7cdea2fa31](https://github.com/StoneCypher/jssm/commit/f5c32a06da15268305c17a60dac5ce7cdea2fa31)
 
@@ -21291,7 +23663,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 4:31:39 PM
+## [Untagged] - May 27, 2017 4:31:39 PM
 
 Commit [31aafd1c424329ef19fc699543f7b9aea987f8c5](https://github.com/StoneCypher/jssm/commit/31aafd1c424329ef19fc699543f7b9aea987f8c5)
 
@@ -21306,7 +23678,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 4:30:43 PM
+## [Untagged] - May 27, 2017 4:30:43 PM
 
 Commit [7a9ec4789485368aca9b6ee3331a8c9c4d2f1608](https://github.com/StoneCypher/jssm/commit/7a9ec4789485368aca9b6ee3331a8c9c4d2f1608)
 
@@ -21321,7 +23693,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 3:01:13 PM
+## [Untagged] - May 27, 2017 3:01:13 PM
 
 Commit [7dd738f4a8d87ef5b93098dbe7acec7f8c0fdd25](https://github.com/StoneCypher/jssm/commit/7dd738f4a8d87ef5b93098dbe7acec7f8c0fdd25)
 
@@ -21338,7 +23710,7 @@ Merges [1a246fa, a9b0e97]
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 3:00:10 PM
+## [Untagged] - May 27, 2017 3:00:10 PM
 
 Commit [1a246fa315f496797c326e42459e90f344b7b3fd](https://github.com/StoneCypher/jssm/commit/1a246fa315f496797c326e42459e90f344b7b3fd)
 
@@ -21355,7 +23727,7 @@ Merges [2f80399, 79e07b7]
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 3:00:10 PM
+## [Untagged] - May 27, 2017 3:00:10 PM
 
 Commit [a9b0e975392ba6d022f72f45d9402b8c9396fee3](https://github.com/StoneCypher/jssm/commit/a9b0e975392ba6d022f72f45d9402b8c9396fee3)
 
@@ -21372,7 +23744,7 @@ Merges [2f80399, 79e07b7]
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 2:23:23 PM
+## [Untagged] - May 27, 2017 2:23:23 PM
 
 Commit [2f8039952f57f428e2d684ebb0681eddb104bae0](https://github.com/StoneCypher/jssm/commit/2f8039952f57f428e2d684ebb0681eddb104bae0)
 
@@ -21387,7 +23759,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/27/2017 2:23:23 PM
+## [Untagged] - May 27, 2017 2:23:23 PM
 
 Commit [79e07b7f0830ac317a6b50768e8dff34bb104a31](https://github.com/StoneCypher/jssm/commit/79e07b7f0830ac317a6b50768e8dff34bb104a31)
 
@@ -21402,7 +23774,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:55:59 PM
+## [Untagged] - May 25, 2017 11:55:59 PM
 
 Commit [c8ff548ada40adbf0bee4681976100bb4c7e995a](https://github.com/StoneCypher/jssm/commit/c8ff548ada40adbf0bee4681976100bb4c7e995a)
 
@@ -21417,7 +23789,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:54:42 PM
+## [Untagged] - May 25, 2017 11:54:42 PM
 
 Commit [d92e6efbf0c2df599cbc1d5988fa800ecdf5c037](https://github.com/StoneCypher/jssm/commit/d92e6efbf0c2df599cbc1d5988fa800ecdf5c037)
 
@@ -21434,7 +23806,7 @@ Merges [0b78992, 738b546]
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:52:45 PM
+## [Untagged] - May 25, 2017 11:52:45 PM
 
 Commit [0b78992d755002fbda486c380f282e41e239b360](https://github.com/StoneCypher/jssm/commit/0b78992d755002fbda486c380f282e41e239b360)
 
@@ -21449,7 +23821,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:52:45 PM
+## [Untagged] - May 25, 2017 11:52:45 PM
 
 Commit [738b546654ed003aa03d53f6580963038ed923d3](https://github.com/StoneCypher/jssm/commit/738b546654ed003aa03d53f6580963038ed923d3)
 
@@ -21464,7 +23836,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:45:57 PM
+## [Untagged] - May 25, 2017 11:45:57 PM
 
 Commit [9e4b298a4693b6718d083b3d2e567b59a14ed137](https://github.com/StoneCypher/jssm/commit/9e4b298a4693b6718d083b3d2e567b59a14ed137)
 
@@ -21479,7 +23851,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:44:05 PM
+## [Untagged] - May 25, 2017 11:44:05 PM
 
 Commit [c9bfc57ee5fd87fd9a705fec0671fff134d1fd73](https://github.com/StoneCypher/jssm/commit/c9bfc57ee5fd87fd9a705fec0671fff134d1fd73)
 
@@ -21494,7 +23866,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:43:03 PM
+## [Untagged] - May 25, 2017 11:43:03 PM
 
 Commit [658f96dedbdf852109cb78132a57debcf6ca8b4f](https://github.com/StoneCypher/jssm/commit/658f96dedbdf852109cb78132a57debcf6ca8b4f)
 
@@ -21509,7 +23881,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/25/2017 11:42:01 PM
+## [Untagged] - May 25, 2017 11:42:01 PM
 
 Commit [7811884f27a667a3085bb61dd57c3583088fc144](https://github.com/StoneCypher/jssm/commit/7811884f27a667a3085bb61dd57c3583088fc144)
 
@@ -21524,7 +23896,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/24/2017 9:26:42 PM
+## [Untagged] - May 24, 2017 9:26:42 PM
 
 Commit [5534309fddc4506e4df26047f1f18b040020e798](https://github.com/StoneCypher/jssm/commit/5534309fddc4506e4df26047f1f18b040020e798)
 
@@ -21539,7 +23911,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/23/2017 11:39:53 PM
+## [Untagged] - May 23, 2017 11:39:53 PM
 
 Commit [bb9ba2bedf3571e4b2bbd826a7d2db50c00f325d](https://github.com/StoneCypher/jssm/commit/bb9ba2bedf3571e4b2bbd826a7d2db50c00f325d)
 
@@ -21554,7 +23926,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2017 2:16:11 PM
+## [Untagged] - May 22, 2017 2:16:11 PM
 
 Commit [9b869557fe80241a11fcfd4628baeb2f27086aa3](https://github.com/StoneCypher/jssm/commit/9b869557fe80241a11fcfd4628baeb2f27086aa3)
 
@@ -21569,7 +23941,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2017 12:36:48 PM
+## [Untagged] - May 22, 2017 12:36:48 PM
 
 Commit [da562b43b97bac4c6fe725f46f312d7debd5be58](https://github.com/StoneCypher/jssm/commit/da562b43b97bac4c6fe725f46f312d7debd5be58)
 
@@ -21584,7 +23956,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2017 12:21:36 PM
+## [Untagged] - May 22, 2017 12:21:36 PM
 
 Commit [8861742bdc89e62e638e9cd65da2ee1b2c461adb](https://github.com/StoneCypher/jssm/commit/8861742bdc89e62e638e9cd65da2ee1b2c461adb)
 
@@ -21599,7 +23971,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2017 11:31:40 AM
+## [Untagged] - May 22, 2017 11:31:40 AM
 
 Commit [d1fb4d935a1b85d9cb440d87d4b06926805e20ce](https://github.com/StoneCypher/jssm/commit/d1fb4d935a1b85d9cb440d87d4b06926805e20ce)
 
@@ -21614,7 +23986,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2017 11:23:01 AM
+## [Untagged] - May 22, 2017 11:23:01 AM
 
 Commit [f81b77c00a84cd5617c194175378e1b39b08cdad](https://github.com/StoneCypher/jssm/commit/f81b77c00a84cd5617c194175378e1b39b08cdad)
 
@@ -21629,7 +24001,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2017 11:14:15 AM
+## [Untagged] - May 22, 2017 11:14:15 AM
 
 Commit [a1552251d96e50a49fe207261650727e78ded6bb](https://github.com/StoneCypher/jssm/commit/a1552251d96e50a49fe207261650727e78ded6bb)
 
@@ -21644,7 +24016,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/22/2017 11:08:56 AM
+## [Untagged] - May 22, 2017 11:08:56 AM
 
 Commit [7419df9467631b9e1015a8bf971cc01aa12134a4](https://github.com/StoneCypher/jssm/commit/7419df9467631b9e1015a8bf971cc01aa12134a4)
 
@@ -21659,7 +24031,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/21/2017 4:33:15 PM
+## [Untagged] - May 21, 2017 4:33:15 PM
 
 Commit [f676303648014be511ae0ad8a46606a5a7156302](https://github.com/StoneCypher/jssm/commit/f676303648014be511ae0ad8a46606a5a7156302)
 
@@ -21674,7 +24046,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/21/2017 4:08:36 PM
+## [Untagged] - May 21, 2017 4:08:36 PM
 
 Commit [21600eb25e328919dfc1d30a6c1f81625a349b04](https://github.com/StoneCypher/jssm/commit/21600eb25e328919dfc1d30a6c1f81625a349b04)
 
@@ -21689,7 +24061,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/21/2017 3:29:51 PM
+## [Untagged] - May 21, 2017 3:29:51 PM
 
 Commit [18d4cf244eaf81a45b359021d7cfd5258db5a79e](https://github.com/StoneCypher/jssm/commit/18d4cf244eaf81a45b359021d7cfd5258db5a79e)
 
@@ -21704,7 +24076,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/21/2017 3:25:26 PM
+## [Untagged] - May 21, 2017 3:25:26 PM
 
 Commit [0f284572ed7f655e1bfad45c421039c1ccd374e5](https://github.com/StoneCypher/jssm/commit/0f284572ed7f655e1bfad45c421039c1ccd374e5)
 
@@ -21719,7 +24091,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/21/2017 2:56:51 PM
+## [Untagged] - May 21, 2017 2:56:51 PM
 
 Commit [36273e946c2a32d5f69bea15e34b44022e5d3ef7](https://github.com/StoneCypher/jssm/commit/36273e946c2a32d5f69bea15e34b44022e5d3ef7)
 
@@ -21734,7 +24106,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 9:23:16 PM
+## [Untagged] - May 18, 2017 9:23:16 PM
 
 Commit [40848f2444ebcd299904e140ccee6b6a4037f643](https://github.com/StoneCypher/jssm/commit/40848f2444ebcd299904e140ccee6b6a4037f643)
 
@@ -21749,7 +24121,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 9:06:56 PM
+## [Untagged] - May 18, 2017 9:06:56 PM
 
 Commit [030c22f18b49143ff9bcc16b3f791d05acf6cf7f](https://github.com/StoneCypher/jssm/commit/030c22f18b49143ff9bcc16b3f791d05acf6cf7f)
 
@@ -21764,7 +24136,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 9:01:59 PM
+## [Untagged] - May 18, 2017 9:01:59 PM
 
 Commit [32bc6688d251935e9eeeb6f414a0a18ef328769e](https://github.com/StoneCypher/jssm/commit/32bc6688d251935e9eeeb6f414a0a18ef328769e)
 
@@ -21779,7 +24151,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 8:40:35 PM
+## [Untagged] - May 18, 2017 8:40:35 PM
 
 Commit [41235c5d10a2d4a948f7cd245c5f3cdd2f8edd64](https://github.com/StoneCypher/jssm/commit/41235c5d10a2d4a948f7cd245c5f3cdd2f8edd64)
 
@@ -21796,7 +24168,7 @@ Merges [dd7b5f6, cb2a6b0]
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 8:40:31 PM
+## [Untagged] - May 18, 2017 8:40:31 PM
 
 Commit [dd7b5f6878b10ef450ed4b00834ac909de4bfeee](https://github.com/StoneCypher/jssm/commit/dd7b5f6878b10ef450ed4b00834ac909de4bfeee)
 
@@ -21811,7 +24183,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 8:37:01 PM
+## [Untagged] - May 18, 2017 8:37:01 PM
 
 Commit [cb2a6b0742e36fa40ea69dce993ebadf634d73a4](https://github.com/StoneCypher/jssm/commit/cb2a6b0742e36fa40ea69dce993ebadf634d73a4)
 
@@ -21828,7 +24200,7 @@ Merges [058398c, edb9906]
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 8:36:54 PM
+## [Untagged] - May 18, 2017 8:36:54 PM
 
 Commit [058398c443f4d429df518f57e4c8593aa9e77f3f](https://github.com/StoneCypher/jssm/commit/058398c443f4d429df518f57e4c8593aa9e77f3f)
 
@@ -21843,7 +24215,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/18/2017 8:30:30 PM
+## [Untagged] - May 18, 2017 8:30:30 PM
 
 Commit [edb9906ab5649fe359d918dd137a327e706f9d01](https://github.com/StoneCypher/jssm/commit/edb9906ab5649fe359d918dd137a327e706f9d01)
 
@@ -21858,7 +24230,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/17/2017 9:15:03 AM
+## [Untagged] - May 17, 2017 9:15:03 AM
 
 Commit [e59ef17d786f02cf2eeb68ea3696366559580e3b](https://github.com/StoneCypher/jssm/commit/e59ef17d786f02cf2eeb68ea3696366559580e3b)
 
@@ -21873,7 +24245,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/17/2017 7:27:58 AM
+## [Untagged] - May 17, 2017 7:27:58 AM
 
 Commit [3b0bdcaa2b1191cefbf8164361cc3b636b3ff47d](https://github.com/StoneCypher/jssm/commit/3b0bdcaa2b1191cefbf8164361cc3b636b3ff47d)
 
@@ -21888,7 +24260,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2017 11:45:38 PM
+## [Untagged] - May 13, 2017 11:45:38 PM
 
 Commit [dd98d63091801242dc46d7ebaf5adad28fc8d055](https://github.com/StoneCypher/jssm/commit/dd98d63091801242dc46d7ebaf5adad28fc8d055)
 
@@ -21903,7 +24275,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/13/2017 11:39:27 PM
+## [Untagged] - May 13, 2017 11:39:27 PM
 
 Commit [39955f3c8f6f2f0a521f0dbf293cbb0f8f3bf689](https://github.com/StoneCypher/jssm/commit/39955f3c8f6f2f0a521f0dbf293cbb0f8f3bf689)
 
@@ -21918,7 +24290,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/10/2017 1:56:16 AM
+## [Untagged] - May 10, 2017 1:56:16 AM
 
 Commit [e0b64b645d083a023d27d1b3d936eb59ae8ec35e](https://github.com/StoneCypher/jssm/commit/e0b64b645d083a023d27d1b3d936eb59ae8ec35e)
 
@@ -21933,7 +24305,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/10/2017 12:00:06 AM
+## [Untagged] - May 10, 2017 12:00:06 AM
 
 Commit [a5e6e608d85f7b997b397deb671cb1dbedb4f29a](https://github.com/StoneCypher/jssm/commit/a5e6e608d85f7b997b397deb671cb1dbedb4f29a)
 
@@ -21948,7 +24320,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 11:39:50 PM
+## [Untagged] - May 9, 2017 11:39:50 PM
 
 Commit [2f9eb45b25369595c87a695ebcad159a627966b9](https://github.com/StoneCypher/jssm/commit/2f9eb45b25369595c87a695ebcad159a627966b9)
 
@@ -21963,7 +24335,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 11:11:17 PM
+## [Untagged] - May 9, 2017 11:11:17 PM
 
 Commit [3d9abb3b9b8cf0e900592da3c506a3775dbd0592](https://github.com/StoneCypher/jssm/commit/3d9abb3b9b8cf0e900592da3c506a3775dbd0592)
 
@@ -21978,7 +24350,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 10:15:35 PM
+## [Untagged] - May 9, 2017 10:15:35 PM
 
 Commit [b2f1cb050d46be5bcb5917f921071bb0f7407297](https://github.com/StoneCypher/jssm/commit/b2f1cb050d46be5bcb5917f921071bb0f7407297)
 
@@ -21993,7 +24365,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 6:14:13 PM
+## [Untagged] - May 9, 2017 6:14:13 PM
 
 Commit [88bd317312a43e05744c1a199dc970a5e0503c35](https://github.com/StoneCypher/jssm/commit/88bd317312a43e05744c1a199dc970a5e0503c35)
 
@@ -22008,7 +24380,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 4:33:52 PM
+## [Untagged] - May 9, 2017 4:33:52 PM
 
 Commit [be73cbb6721276b224cfc01a8e3695cc473db8b9](https://github.com/StoneCypher/jssm/commit/be73cbb6721276b224cfc01a8e3695cc473db8b9)
 
@@ -22023,7 +24395,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 3:30:04 PM
+## [Untagged] - May 9, 2017 3:30:04 PM
 
 Commit [a1bc086ba148dce17d7bcad07c55c2da09059229](https://github.com/StoneCypher/jssm/commit/a1bc086ba148dce17d7bcad07c55c2da09059229)
 
@@ -22038,7 +24410,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 3:11:23 PM
+## [Untagged] - May 9, 2017 3:11:23 PM
 
 Commit [899fef29cbbb3e0ba1d161c855ebe2b524444133](https://github.com/StoneCypher/jssm/commit/899fef29cbbb3e0ba1d161c855ebe2b524444133)
 
@@ -22053,7 +24425,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 2:28:17 PM
+## [Untagged] - May 9, 2017 2:28:17 PM
 
 Commit [94e7405e3b055f7b3b2129cf542e31d7b99f52ed](https://github.com/StoneCypher/jssm/commit/94e7405e3b055f7b3b2129cf542e31d7b99f52ed)
 
@@ -22068,7 +24440,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 1:57:47 PM
+## [Untagged] - May 9, 2017 1:57:47 PM
 
 Commit [69ed67457c08822c24e569fe57970f1607a9126f](https://github.com/StoneCypher/jssm/commit/69ed67457c08822c24e569fe57970f1607a9126f)
 
@@ -22083,7 +24455,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 1:51:55 PM
+## [Untagged] - May 9, 2017 1:51:55 PM
 
 Commit [048649ba2cbd3dfc8874b8a2035fe9f7297b7aca](https://github.com/StoneCypher/jssm/commit/048649ba2cbd3dfc8874b8a2035fe9f7297b7aca)
 
@@ -22098,7 +24470,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 1:50:58 PM
+## [Untagged] - May 9, 2017 1:50:58 PM
 
 Commit [e7f178275ec2e879a124ea8ae2faf745e1886ebb](https://github.com/StoneCypher/jssm/commit/e7f178275ec2e879a124ea8ae2faf745e1886ebb)
 
@@ -22113,7 +24485,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 1:48:43 PM
+## [Untagged] - May 9, 2017 1:48:43 PM
 
 Commit [08ae3b87e062f29d32de9f0cfaa295dfca933523](https://github.com/StoneCypher/jssm/commit/08ae3b87e062f29d32de9f0cfaa295dfca933523)
 
@@ -22128,7 +24500,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 1:10:06 PM
+## [Untagged] - May 9, 2017 1:10:06 PM
 
 Commit [6a801ef06e00716f301b4b5c17565930f946077e](https://github.com/StoneCypher/jssm/commit/6a801ef06e00716f301b4b5c17565930f946077e)
 
@@ -22143,7 +24515,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 12:45:03 PM
+## [Untagged] - May 9, 2017 12:45:03 PM
 
 Commit [5aee8dbc8a9f7591165c747d4af489b2a04a0123](https://github.com/StoneCypher/jssm/commit/5aee8dbc8a9f7591165c747d4af489b2a04a0123)
 
@@ -22158,7 +24530,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/9/2017 12:44:28 PM
+## [Untagged] - May 9, 2017 12:44:28 PM
 
 Commit [f29e2ed218367d37904e0326ed9fe31b3fe3b176](https://github.com/StoneCypher/jssm/commit/f29e2ed218367d37904e0326ed9fe31b3fe3b176)
 
@@ -22173,7 +24545,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/8/2017 10:58:24 AM
+## [Untagged] - May 8, 2017 10:58:24 AM
 
 Commit [926f42f799938d49e3828a62c768a126bdfa331c](https://github.com/StoneCypher/jssm/commit/926f42f799938d49e3828a62c768a126bdfa331c)
 
@@ -22188,7 +24560,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 11:12:02 PM
+## [Untagged] - May 7, 2017 11:12:02 PM
 
 Commit [827aac37c4c0f44b8fd3849b20f7c79db1d911d9](https://github.com/StoneCypher/jssm/commit/827aac37c4c0f44b8fd3849b20f7c79db1d911d9)
 
@@ -22205,7 +24577,7 @@ Merges [571d8e1, 691169c]
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 11:11:54 PM
+## [Untagged] - May 7, 2017 11:11:54 PM
 
 Commit [571d8e1a044d428a7b4c84097874a6b10052cb54](https://github.com/StoneCypher/jssm/commit/571d8e1a044d428a7b4c84097874a6b10052cb54)
 
@@ -22220,7 +24592,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 9:44:25 PM
+## [Untagged] - May 7, 2017 9:44:25 PM
 
 Commit [691169c27185612069ef923b8761a88ad6fd291a](https://github.com/StoneCypher/jssm/commit/691169c27185612069ef923b8761a88ad6fd291a)
 
@@ -22235,7 +24607,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 9:40:25 PM
+## [Untagged] - May 7, 2017 9:40:25 PM
 
 Commit [d13fb5d94d69c749440ed0b191c59682bc6cdd2d](https://github.com/StoneCypher/jssm/commit/d13fb5d94d69c749440ed0b191c59682bc6cdd2d)
 
@@ -22250,7 +24622,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 9:37:45 PM
+## [Untagged] - May 7, 2017 9:37:45 PM
 
 Commit [eb8bd8a238d8c4cc245d31f5cddb876c7c698140](https://github.com/StoneCypher/jssm/commit/eb8bd8a238d8c4cc245d31f5cddb876c7c698140)
 
@@ -22265,7 +24637,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 9:36:44 PM
+## [Untagged] - May 7, 2017 9:36:44 PM
 
 Commit [997d82e960b1e225e697629bd51390275da0e91c](https://github.com/StoneCypher/jssm/commit/997d82e960b1e225e697629bd51390275da0e91c)
 
@@ -22280,7 +24652,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 9:01:31 PM
+## [Untagged] - May 7, 2017 9:01:31 PM
 
 Commit [dce8d966b50abeb95036d48ff2f44cde0f733932](https://github.com/StoneCypher/jssm/commit/dce8d966b50abeb95036d48ff2f44cde0f733932)
 
@@ -22295,7 +24667,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 8:37:33 PM
+## [Untagged] - May 7, 2017 8:37:33 PM
 
 Commit [afad873c277f2d5cfeab29245b797977d1178eae](https://github.com/StoneCypher/jssm/commit/afad873c277f2d5cfeab29245b797977d1178eae)
 
@@ -22310,7 +24682,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 7:35:41 PM
+## [Untagged] - May 7, 2017 7:35:41 PM
 
 Commit [c2f9e34f2046d0fa481ef6ff2e463cb0fbba0166](https://github.com/StoneCypher/jssm/commit/c2f9e34f2046d0fa481ef6ff2e463cb0fbba0166)
 
@@ -22325,7 +24697,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 7:35:15 PM
+## [Untagged] - May 7, 2017 7:35:15 PM
 
 Commit [07234cadc15e0afa249d3eeb781e820b3abc393e](https://github.com/StoneCypher/jssm/commit/07234cadc15e0afa249d3eeb781e820b3abc393e)
 
@@ -22340,7 +24712,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 7:19:11 PM
+## [Untagged] - May 7, 2017 7:19:11 PM
 
 Commit [543aeebec77a3f9d6502b8c92808d58f2991f4b7](https://github.com/StoneCypher/jssm/commit/543aeebec77a3f9d6502b8c92808d58f2991f4b7)
 
@@ -22355,7 +24727,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 6:13:43 PM
+## [Untagged] - May 7, 2017 6:13:43 PM
 
 Commit [236586cc1d175ba6978326f272a7c593aab24493](https://github.com/StoneCypher/jssm/commit/236586cc1d175ba6978326f272a7c593aab24493)
 
@@ -22370,7 +24742,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 3:44:02 PM
+## [Untagged] - May 7, 2017 3:44:02 PM
 
 Commit [eebc78841fafa4774f862ebe4bce77a075ca1ff7](https://github.com/StoneCypher/jssm/commit/eebc78841fafa4774f862ebe4bce77a075ca1ff7)
 
@@ -22385,7 +24757,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 3:25:38 PM
+## [Untagged] - May 7, 2017 3:25:38 PM
 
 Commit [791328b08dbc0fce25435adef4fdd1d3212ecfbc](https://github.com/StoneCypher/jssm/commit/791328b08dbc0fce25435adef4fdd1d3212ecfbc)
 
@@ -22400,7 +24772,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 12:13:55 PM
+## [Untagged] - May 7, 2017 12:13:55 PM
 
 Commit [c1c78f659a04824d0c12e5c00b1b20e6b9e4b3e0](https://github.com/StoneCypher/jssm/commit/c1c78f659a04824d0c12e5c00b1b20e6b9e4b3e0)
 
@@ -22415,7 +24787,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/7/2017 12:13:40 PM
+## [Untagged] - May 7, 2017 12:13:40 PM
 
 Commit [8e6051d53b584221b1a44a4787bf83c4b560a214](https://github.com/StoneCypher/jssm/commit/8e6051d53b584221b1a44a4787bf83c4b560a214)
 
@@ -22430,7 +24802,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/6/2017 9:58:44 AM
+## [Untagged] - May 6, 2017 9:58:44 AM
 
 Commit [9cd518f43a3be77adf010203c4f636ce48307b28](https://github.com/StoneCypher/jssm/commit/9cd518f43a3be77adf010203c4f636ce48307b28)
 
@@ -22445,7 +24817,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2017 9:36:12 AM
+## [Untagged] - May 3, 2017 9:36:12 AM
 
 Commit [288e21b858b0591a7728cba8abc1dac8733b03b7](https://github.com/StoneCypher/jssm/commit/288e21b858b0591a7728cba8abc1dac8733b03b7)
 
@@ -22460,7 +24832,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2017 1:59:56 AM
+## [Untagged] - May 3, 2017 1:59:56 AM
 
 Commit [05a7ba646cc62143c899432c3e92f874a205fd20](https://github.com/StoneCypher/jssm/commit/05a7ba646cc62143c899432c3e92f874a205fd20)
 
@@ -22475,7 +24847,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/3/2017 1:33:11 AM
+## [Untagged] - May 3, 2017 1:33:11 AM
 
 Commit [42fbd576f201d1e108e420429d379173b931c319](https://github.com/StoneCypher/jssm/commit/42fbd576f201d1e108e420429d379173b931c319)
 
@@ -22490,7 +24862,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 11:54:50 PM
+## [Untagged] - May 2, 2017 11:54:50 PM
 
 Commit [9721c4ef7427c5c3e47395963f6be9a138b00ffa](https://github.com/StoneCypher/jssm/commit/9721c4ef7427c5c3e47395963f6be9a138b00ffa)
 
@@ -22505,7 +24877,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 11:28:46 PM
+## [Untagged] - May 2, 2017 11:28:46 PM
 
 Commit [35992a5cef36fc8080a1ac9d21d808f602ed5462](https://github.com/StoneCypher/jssm/commit/35992a5cef36fc8080a1ac9d21d808f602ed5462)
 
@@ -22520,7 +24892,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 11:17:16 PM
+## [Untagged] - May 2, 2017 11:17:16 PM
 
 Commit [28f9a2f12c43e0deef5babcb94f026da4b6a0c8f](https://github.com/StoneCypher/jssm/commit/28f9a2f12c43e0deef5babcb94f026da4b6a0c8f)
 
@@ -22535,7 +24907,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 10:04:51 PM
+## [Untagged] - May 2, 2017 10:04:51 PM
 
 Commit [8b8451d476a0b698538fe369c3d057cd8bbdd7ac](https://github.com/StoneCypher/jssm/commit/8b8451d476a0b698538fe369c3d057cd8bbdd7ac)
 
@@ -22550,7 +24922,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 10:03:34 PM
+## [Untagged] - May 2, 2017 10:03:34 PM
 
 Commit [fe7538c312aa3e105ad7de8459d31216f76be54d](https://github.com/StoneCypher/jssm/commit/fe7538c312aa3e105ad7de8459d31216f76be54d)
 
@@ -22565,7 +24937,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 9:58:37 PM
+## [Untagged] - May 2, 2017 9:58:37 PM
 
 Commit [82b83dcc8d5a5aae34e293dc44b69a9a3e59d3c1](https://github.com/StoneCypher/jssm/commit/82b83dcc8d5a5aae34e293dc44b69a9a3e59d3c1)
 
@@ -22580,7 +24952,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 9:58:20 PM
+## [Untagged] - May 2, 2017 9:58:20 PM
 
 Commit [dc63c392c1395b81a9c0bd2fe3d45b059ee1250b](https://github.com/StoneCypher/jssm/commit/dc63c392c1395b81a9c0bd2fe3d45b059ee1250b)
 
@@ -22595,7 +24967,7 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - 5/2/2017 9:58:10 PM
+## [Untagged] - May 2, 2017 9:58:10 PM
 
 Commit [2fffc7dcb41621a6fed1cffc8972c14b10489453](https://github.com/StoneCypher/jssm/commit/2fffc7dcb41621a6fed1cffc8972c14b10489453)
 
