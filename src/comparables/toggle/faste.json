@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "faste",
+    "npm": "faste",
+    "homepage": "https://github.com/theKashey/faste",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "official": true,
+  "canImplement": true,
+  "source": {
+    "url": "https://www.npmjs.com/package/faste#using-different-handlers-in-different-states",
+    "note": "Taken from the readme. Renamed, bound, and exported the machine result; changed the labels."
+  },
+  "code": "export const toggleMachine = faste()\n .on('toggle', 'inactive', ({transitTo}) => transitTo('enabled'))\n .on('toggle', 'active', ({transitTo}) => transitTo('disabled'))",
+  "formattedWith": "prettier"
+}

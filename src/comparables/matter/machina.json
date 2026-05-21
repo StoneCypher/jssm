@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "machina",
+    "npm": "machina",
+    "homepage": "http://machina-js.org/",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "matter",
+  "language": "javascript",
+  "official": false,
+  "canImplement": false,
+  "source": {
+    "url": "http://machina-js.org/",
+    "note": "No states of matter example was available; wrote from scratch and used the pedestrianSignal example on their landing page for usage guidelines. machina does not support on-action hooks and does not pass the previous state in its global enter hook, making it impossible to distinguish condense-from-gas and melt-from-solid transitions for liquid."
+  },
+  "code": "export const matter = new machina.Fsm({\n  initialState: \"solid\",\n  states: {\n    uninitialized: {\n      \"*\": function () {\n        this.deferUntilTransition();\n        this.transition(\"solid\");\n      },\n    },\n    solid: {\n      _melt: \"liquid\",\n    },\n    liquid: {\n      _freeze: \"solid\",\n      _vaporize: \"gas\",\n    },\n    gas: {\n      _condense: \"liquid\",\n      _onEnter: function () {\n        console.log(\"Red light!\");\n      },\n    },\n  },\n  melt: function () {\n    this.handle(\"_melt\");\n  },\n  freeze: function () {\n    this.handle(\"_freeze\");\n  },\n  vaporize: function () {\n    this.handle(\"_vaporize\");\n  },\n  condense: function () {\n    this.handle(\"_condense\");\n  },\n});",
+  "formattedWith": "prettier"
+}

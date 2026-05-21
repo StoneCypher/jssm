@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "faste",
+    "npm": "faste",
+    "homepage": "https://github.com/theKashey/faste",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "matter",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://www.npmjs.com/package/faste#example",
+    "note": "faste did not have a states of matter example. I made this, following this unrelated machine as a style guide."
+  },
+  "code": "export const matter = faste()\n  .withPhases([\"solid\", \"liquid\", \"gas\"])\n  .withTransitions({\n    solid: [\"liquid\"],\n    liquid: [\"solid\", \"gas\"],\n    gas: [\"liquid\"],\n  })\n  .withMessages([\"melt\", \"freeze\", \"vaporize\", \"condense\"])\n  .on(\"melt\", [\"solid\"], ({ transitTo }) => {\n    console.log(\"I melted\");\n    transitTo(\"liquid\");\n  })\n  .on(\"freeze\", [\"liquid\"], ({ transitTo }) => {\n    console.log(\"I froze\");\n    transitTo(\"solid\");\n  })\n  .on(\"vaporize\", [\"liquid\"], ({ transitTo }) => {\n    console.log(\"I vaporized\");\n    transitTo(\"gas\");\n  })\n  .on(\"condense\", [\"gas\"], ({ transitTo }) => {\n    console.log(\"I condensed\");\n    transitTo(\"liquid\");\n  });",
+  "formattedWith": "prettier"
+}

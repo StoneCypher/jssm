@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "machina",
+    "npm": "machina",
+    "homepage": "http://machina-js.org/",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "http://machina-js.org/",
+    "note": "Adapted from the pedestrianSignal example on their landing page."
+  },
+  "code": "export const trafficLight = new machina.Fsm({\n  initialState: \"red\",\n  states: {\n    uninitialized: {\n      \"*\": function () {\n        this.deferUntilTransition();\n        this.transition(\"red\");\n      },\n    },\n    green: {\n      _next: \"yellow\",\n    },\n    yellow: {\n      _next: \"red\",\n    },\n    red: {\n      _next: \"green\",\n      _onEnter: function () {\n        console.log(\"Red light!\");\n      },\n    },\n  },\n  next: function () {\n    this.handle(\"_next\");\n  },\n});",
+  "formattedWith": "prettier"
+}

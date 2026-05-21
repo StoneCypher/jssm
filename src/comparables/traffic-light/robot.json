@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "robot",
+    "npm": "robot3",
+    "homepage": "https://thisrobot.life/",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://thisrobot.life/api/action.html",
+    "note": "Robot did not have a traffic light example. I made this, following this unrelated machine as a style guide. Robot does not appear to support hooks on nodes, so we've faked it with hooks on transitions."
+  },
+  "code": "export const trafficLight = createMachine(\n  {\n    red: state(\n      transition(\n        \"next\",\n        \"green\"\n      )\n    ),\n    green: state(\n      transition(\n        \"next\",\n        \"yellow\"\n      )\n    ),\n    yellow: state(\n      transition(\n        \"next\",\n        \"red\",\n        action(() => console.log(\"Red light!\"))\n      )\n    ),\n  },\n  () => true\n);",
+  "formattedWith": "prettier"
+}

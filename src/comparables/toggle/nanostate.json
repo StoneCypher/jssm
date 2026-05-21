@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "nanostate",
+    "npm": "nanostate",
+    "homepage": "https://github.com/choojs/nanostate",
+    "languages": ["javascript"]
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/choojs/nanostate/blob/master/README.md",
+    "note": "Robot did not have a toggle example.  I made this, following this unrelated machine as a style guide."
+  },
+  "code": "export const toggleMachine = nanostate(\"inactive\", {\n  inactive: {\n    toggle: \"active\",\n  },\n  active: {\n    toggle: \"inactive\",\n  },\n});",
+  "formattedWith": "prettier"
+}

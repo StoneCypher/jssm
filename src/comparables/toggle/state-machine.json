@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "state-machine",
+    "npm": "state-machine",
+    "homepage": "https://github.com/davestewart/javascript-state-machine",
+    "languages": ["javascript"]
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/davestewart/javascript-state-machine/blob/d390627b384b30605b5ee90a70bae713e8b09002/docs/main/usage.md",
+    "note": "No toggle machine was available; wrote from scratch and used the docs for usage guidelines."
+  },
+  "code": "var toggleMachine = new StateMachine({\n  transitions: [\n    'toggle : inactive > active > inactive'\n  ]\n});",
+  "formattedWith": "prettier"
+}

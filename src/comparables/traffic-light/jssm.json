@@ -1,0 +1,14 @@
+{
+  "library": {
+    "name": "jssm",
+    "npm": "jssm",
+    "homepage": "https://stonecypher.github.io/jssm/",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "official": true,
+  "canImplement": true,
+  "code": "export const trafficLight = sm`red 'next' => green 'next' => yellow 'next' => red;`;\ntrafficLight.hook_global_action(\"next\", () => console.log(\"Red light!\"));",
+  "formattedWith": "prettier"
+}
