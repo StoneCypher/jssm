@@ -424,8 +424,11 @@ A brace block on either side of the arrow holding ArrowItems:
 - `arc_label : Label;`         — caption attached to the arrow itself
 - `head_label : Label;`        — caption near the destination end
 - `tail_label : Label;`        — caption near the source end
-- `edge_color : Color;`        — per-edge colour override
-  (returns key `single_edge_color`)
+- `edge-color : Color;`        — per-edge colour override
+  (returns key `single_edge_color`; the underscored spelling
+  `edge_color` is also accepted for backward compatibility, but
+  the dashed form is preferred for consistency with `line-style`,
+  `text-color`, etc. — see StoneCypher/fsl#358)
 - `line-style : LineStyle;`    — per-edge `solid`/`dotted`/`dashed`
   (returns key `transition_line_style`)
 
@@ -507,10 +510,11 @@ except the four that take a single value plus `;`.
 - **`terminal_state`** — defaults for terminal states
 - **`hooked_state`**   — defaults for states with hooks attached
 - **`transition`**     — global transition defaults (currently
-  accepts either a `GraphDefaultEdgeColor` (`edge_color : <Color>;`)
-  or a list of `TransitionItem+` whose only legal keys are
-  `whargarbl`/`todo` placeholders — i.e. real transition-default
-  surface area is just the edge colour today)
+  accepts either a `GraphDefaultEdgeColor` (`edge-color : <Color>;`,
+  with `edge_color` accepted as a legacy alias — see
+  StoneCypher/fsl#358) or a list of `TransitionItem+` whose only
+  legal keys are `whargarbl`/`todo` placeholders — i.e. real
+  transition-default surface area is just the edge colour today)
 - **`action`**         — same placeholder shape; only `whargarbl`/
   `todo` accepted
 - **`validation`**     — same placeholder shape; only `whargarbl`/
@@ -569,7 +573,7 @@ Followed by fall-through to a generic `Label` or `LabelList`.
 
 ### `Theme` / `ThemeOrThemeList`
 
-`Theme` is an enum: `none`, `default`, `modern`, `ocean`, `bold`.
+`Theme` is an enum: `default`, `ocean`, `modern`, `plain`, `bold`.
 `theme:` accepts either a single theme or a bracketed list of themes
 (layered in stacking order).
 
@@ -652,7 +656,7 @@ hyphenated forms aren't shadowed.
 | Per-arrow event      | `ActionLabel`                                |
 | Per-arrow decoration set | `ArrowDecoration` / `ArrowDecorations`   |
 | Per-arrow caption    | `arc_label` / `head_label` / `tail_label`    |
-| Per-arrow colour     | `edge_color` (inside `ArrowDesc`)            |
+| Per-arrow colour     | `edge-color` / `edge_color` (inside `ArrowDesc`) |
 | Per-arrow line style | `line-style` (inside `ArrowDesc`)            |
 | State declaration    | `StateDeclaration`                           |
 | State default block  | `ConfigState` / `ConfigStartState` / …       |
