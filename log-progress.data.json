@@ -21,6 +21,10 @@
         {
           "title": "Hardened releases",
           "body": "Modernized how the project publishes new versions so the process no longer relies on stored credentials that could be stolen or misused. Releases are now verified cryptographically at the source, reducing tampering risk and bringing the project in line with current industry security practices."
+        },
+        {
+          "title": "Slimmer install",
+          "body": "Cut the published package by roughly 88 percent, from 24 MB down to 3 MB, by trimming out build leftovers and developer-only files that were getting shipped to users by accident. Installs are now faster and use less bandwidth, which matters in particular for the CI systems and build farms that pull this library many times each day."
         }
       ]
     }

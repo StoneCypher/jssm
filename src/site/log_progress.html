@@ -22,6 +22,7 @@ li strong { color: #1a4480; }
 <li><strong>Diagram polish:</strong> State diagrams now adapt automatically to light and dark themes, classify each kind of state more accurately, and render noticeably faster. The result is sharper, more readable visuals out of the box with no extra configuration on the user's part.</li>
 <li><strong>Pattern cookbook:</strong> Published an online cookbook of state-machine patterns and recipes that users can browse, learn from, and copy directly into their projects. This makes the library substantially easier to adopt for newcomers who would otherwise face a blank page.</li>
 <li><strong>Hardened releases:</strong> Modernized how the project publishes new versions so the process no longer relies on stored credentials that could be stolen or misused. Releases are now verified cryptographically at the source, reducing tampering risk and bringing the project in line with current industry security practices.</li>
+<li><strong>Slimmer install:</strong> Cut the published package by roughly 88 percent, from 24 MB down to 3 MB, by trimming out build leftovers and developer-only files that were getting shipped to users by accident. Installs are now faster and use less bandwidth, which matters in particular for the CI systems and build farms that pull this library many times each day.</li>
 </ul>
 </body>
 </html>

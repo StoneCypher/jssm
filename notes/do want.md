@@ -19,7 +19,7 @@
     - [ ] compare two state machines?
     - [ ] check `is_changing`
     - [ ] describe edges as members of groups
-- [ ] improved nature of states (all thanks burny who isn't on gh zomg)
+- [~] improved nature of states (all thanks burny who isn't on gh zomg)
     - [/] states as objects rather than strings
         - [/] makes inheritance easier
         - [/] makes heirarachy easier

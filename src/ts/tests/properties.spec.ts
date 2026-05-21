@@ -165,30 +165,43 @@ describe('Basic usage', () => {
 
   `;
 
-  describe('Off state props', () => {
-    expect(traffic_light.state()).toBe('Off');
-    expect(traffic_light.props()).toStrictEqual({ can_go: true, hesitate: true, stop_first: true });
-  });
+  // Note: these were previously orphan `describe()` blocks containing only
+  // `expect` calls (no `test()`).  Under jest the expects fired at collection
+  // time, interleaved with the `traffic_light.go(...)` calls between them, so
+  // each assertion observed the right state.  Under vitest the describe
+  // bodies were deferred, all the go() calls advanced the machine to Yellow
+  // first, and every assertion saw the terminal state.  Snapshot state and
+  // props at each step at collection time, then assert the snapshot inside a
+  // real `test()` so the behaviour is identical regardless of runner.
 
+  const states: Array<{ name: string; state: string; props: object }> = [];
+
+  states.push({ name: 'Off',    state: traffic_light.state(), props: traffic_light.props() });
   traffic_light.go('Red');
-
-  describe('Red state props', () => {
-    expect(traffic_light.state()).toBe('Red');
-    expect(traffic_light.props()).toStrictEqual({ can_go: false, hesitate: true, stop_first: true });
-  });
-
+  states.push({ name: 'Red',    state: traffic_light.state(), props: traffic_light.props() });
   traffic_light.go('Green');
+  states.push({ name: 'Green',  state: traffic_light.state(), props: traffic_light.props() });
+  traffic_light.go('Yellow');
+  states.push({ name: 'Yellow', state: traffic_light.state(), props: traffic_light.props() });
 
-  describe('Green state props', () => {
-    expect(traffic_light.state()).toBe('Green');
-    expect(traffic_light.props()).toStrictEqual({ can_go: true, hesitate: false, stop_first: false });
+  test('Off state props', () => {
+    expect(states[0].state).toBe('Off');
+    expect(states[0].props).toStrictEqual({ can_go: true, hesitate: true, stop_first: true });
   });
 
-  traffic_light.go('Yellow');
+  test('Red state props', () => {
+    expect(states[1].state).toBe('Red');
+    expect(states[1].props).toStrictEqual({ can_go: false, hesitate: true, stop_first: true });
+  });
 
-  describe('Yellow state props', () => {
-    expect(traffic_light.state()).toBe('Yellow');
-    expect(traffic_light.props()).toStrictEqual({ can_go: true, hesitate: true, stop_first: false });
+  test('Green state props', () => {
+    expect(states[2].state).toBe('Green');
+    expect(states[2].props).toStrictEqual({ can_go: true, hesitate: false, stop_first: false });
+  });
+
+  test('Yellow state props', () => {
+    expect(states[3].state).toBe('Yellow');
+    expect(states[3].props).toStrictEqual({ can_go: true, hesitate: true, stop_first: false });
   });
 
 });

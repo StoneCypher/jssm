@@ -20,10 +20,10 @@ Document
 
 
 Theme
-  = "none"
-  / "default"
-  / "modern"
+  = "default"
   / "ocean"
+  / "modern"
+  / "plain"
   / "bold"
 
 ThemeOrThemeList
@@ -641,7 +641,8 @@ ArrowItem
   = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? { return {key:key, value:value}; }
 
 SingleEdgeColor "single edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
+  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
+  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
 
 TransitionLineStyle "transition line style"
   = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
@@ -760,26 +761,26 @@ Subexp
       // fixed-order rule:
       //   pre-arrow:  after→r_after  action→r_action  prob→r_probability  desc→l_desc
       //   post-arrow: after→l_after  action→l_action  prob→l_probability  desc→r_desc
-      // The truthy `if (d.v)` guard mirrors the legacy `if (var)`
-      // checks: it suppresses falsy values (notably `null` from an
-      // empty `{}` brace block) so the AST shape stays compatible
-      // with the original fixed-order rule.
+      // The `!= null` guard suppresses missing-value sentinels (the
+      // `null` returned by an empty `{}` brace block) while letting
+      // legitimately-empty primitives through — notably the empty
+      // string from an empty action label `''`.
       const seen: any = {};
       for (const d of pre) {
         if (seen['pre:' + d._kind]) { error('duplicate ' + d._kind + ' decoration before arrow', location()); }
         seen['pre:' + d._kind] = true;
-        if (d._kind === 'after'  && d.v) { base.r_after       = d.v;       }
-        if (d._kind === 'action' && d.v) { base.r_action      = d.v;       }
-        if (d._kind === 'prob'   && d.v) { base.r_probability = d.v.value; }
-        if (d._kind === 'desc'   && d.v) { base.l_desc        = d.v;       }
+        if (d._kind === 'after'  && d.v != null) { base.r_after       = d.v;       }
+        if (d._kind === 'action' && d.v != null) { base.r_action      = d.v;       }
+        if (d._kind === 'prob'   && d.v != null) { base.r_probability = d.v.value; }
+        if (d._kind === 'desc'   && d.v != null) { base.l_desc        = d.v;       }
       }
       for (const d of post) {
         if (seen['post:' + d._kind]) { error('duplicate ' + d._kind + ' decoration after arrow', location()); }
         seen['post:' + d._kind] = true;
-        if (d._kind === 'after'  && d.v) { base.l_after       = d.v;       }
-        if (d._kind === 'action' && d.v) { base.l_action      = d.v;       }
-        if (d._kind === 'prob'   && d.v) { base.l_probability = d.v.value; }
-        if (d._kind === 'desc'   && d.v) { base.r_desc        = d.v;       }
+        if (d._kind === 'after'  && d.v != null) { base.l_after       = d.v;       }
+        if (d._kind === 'action' && d.v != null) { base.l_action      = d.v;       }
+        if (d._kind === 'prob'   && d.v != null) { base.l_probability = d.v.value; }
+        if (d._kind === 'desc'   && d.v != null) { base.r_desc        = d.v;       }
       }
 
       if (tail) { base.se = tail; }
@@ -916,7 +917,8 @@ TransitionItems
   / TransitionItem+
 
 GraphDefaultEdgeColor "graph default edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
+  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
+  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
 
 ConfigTransition
   = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
@@ -1110,6 +1112,9 @@ SdStateLineStyle "linestyle"
 SdStateImage "image"
   = WS? "image"            WS? ":" WS? value:String    WS? ";" WS? { return { key:'image', value }; }
 
+SdStateUrl "url"
+  = WS? "url"              WS? ":" WS? value:String    WS? ";" WS? { return { key:'url', value }; }
+
 
 SdStateProperty "state property"
   = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
@@ -1130,6 +1135,7 @@ StateDeclarationItem
   / SdStateCorners
   / SdStateLineStyle
   / SdStateImage
+  / SdStateUrl
   / SdStateProperty
 
 StateDeclarationDesc

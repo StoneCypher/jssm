@@ -112,8 +112,8 @@ describe('machine_to_dot output structure', () => {
 
   test('contains node identifiers for all states', () => {
     const dot = jv.machine_to_dot(sm`alpha -> beta;`);
-    expect(dot).toMatch(/n0/);
-    expect(dot).toMatch(/n1/);
+    expect(dot).toMatch(/"alpha"/);
+    expect(dot).toMatch(/"beta"/);
     expect(dot).toMatch(/label="alpha"/);
     expect(dot).toMatch(/label="beta"/);
   });

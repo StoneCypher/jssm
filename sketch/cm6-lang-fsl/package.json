@@ -1,0 +1,31 @@
+{
+  "name": "codemirror-lang-fsl",
+  "version": "0.0.1",
+  "description": "CodeMirror 6 language support for FSL (the source language of jssm finite-state machines).",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "keywords": [
+    "codemirror",
+    "codemirror6",
+    "fsl",
+    "jssm",
+    "syntax-highlighting",
+    "state-machine"
+  ],
+  "peerDependencies": {
+    "@codemirror/language": "^6.0.0",
+    "@codemirror/state": "^6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StoneCypher/jssm"
+  },
+  "license": "MIT"
+}

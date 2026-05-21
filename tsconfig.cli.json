@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/cli",
+    "declaration": false
+  },
+  "include": [
+    "src/ts/**/*"
+  ],
+  "exclude": [
+    "src/ts/tests/**/*",
+    "src/ts/wc/tests/**/*",
+    "**/*.spec.ts",
+    "**/*.uspec.ts"
+  ]
+}

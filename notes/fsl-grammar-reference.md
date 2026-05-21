@@ -424,8 +424,11 @@ A brace block on either side of the arrow holding ArrowItems:
 - `arc_label : Label;`         — caption attached to the arrow itself
 - `head_label : Label;`        — caption near the destination end
 - `tail_label : Label;`        — caption near the source end
-- `edge_color : Color;`        — per-edge colour override
-  (returns key `single_edge_color`)
+- `edge-color : Color;`        — per-edge colour override
+  (returns key `single_edge_color`; the underscored spelling
+  `edge_color` is also accepted for backward compatibility, but
+  the dashed form is preferred for consistency with `line-style`,
+  `text-color`, etc. — see StoneCypher/fsl#358)
 - `line-style : LineStyle;`    — per-edge `solid`/`dotted`/`dashed`
   (returns key `transition_line_style`)
 
@@ -457,6 +460,9 @@ which can be:
 - `line-style : solid | dotted | dashed;`
   (also accepts `linestyle` without the hyphen)
 - `image : <String>;`
+- `url : <String>;`             — pass-through to Graphviz `URL=`
+  node attribute, becomes an `xlink:href` on the rendered SVG node so
+  the state shape becomes click-through (FSL #420)
 - `property : <Atom> <PropertyVal>;`           — per-state property
 - `property : <Atom> <PropertyVal> required;` — required per-state
   property
@@ -504,10 +510,11 @@ except the four that take a single value plus `;`.
 - **`terminal_state`** — defaults for terminal states
 - **`hooked_state`**   — defaults for states with hooks attached
 - **`transition`**     — global transition defaults (currently
-  accepts either a `GraphDefaultEdgeColor` (`edge_color : <Color>;`)
-  or a list of `TransitionItem+` whose only legal keys are
-  `whargarbl`/`todo` placeholders — i.e. real transition-default
-  surface area is just the edge colour today)
+  accepts either a `GraphDefaultEdgeColor` (`edge-color : <Color>;`,
+  with `edge_color` accepted as a legacy alias — see
+  StoneCypher/fsl#358) or a list of `TransitionItem+` whose only
+  legal keys are `whargarbl`/`todo` placeholders — i.e. real
+  transition-default surface area is just the edge colour today)
 - **`action`**         — same placeholder shape; only `whargarbl`/
   `todo` accepted
 - **`validation`**     — same placeholder shape; only `whargarbl`/
@@ -539,6 +546,7 @@ Each is a `keyword : value;` line at top level.
 | `machine_contributor`  | `LabelOrLabelList`    |
 | `machine_comment`      | `LabelOrLabelList`    |
 | `machine_definition`   | `URL` (`http`/`https` only) |
+| `machine_reference`    | `LabelOrLabelList`    |
 | `machine_version`      | `SemVer`              |
 | `machine_license`      | `LicenseOrLabelOrList` |
 | `machine_language`     | `Label`               |
@@ -565,7 +573,7 @@ Followed by fall-through to a generic `Label` or `LabelList`.
 
 ### `Theme` / `ThemeOrThemeList`
 
-`Theme` is an enum: `none`, `default`, `modern`, `ocean`, `bold`.
+`Theme` is an enum: `default`, `ocean`, `modern`, `plain`, `bold`.
 `theme:` accepts either a single theme or a bracketed list of themes
 (layered in stacking order).
 
@@ -648,7 +656,7 @@ hyphenated forms aren't shadowed.
 | Per-arrow event      | `ActionLabel`                                |
 | Per-arrow decoration set | `ArrowDecoration` / `ArrowDecorations`   |
 | Per-arrow caption    | `arc_label` / `head_label` / `tail_label`    |
-| Per-arrow colour     | `edge_color` (inside `ArrowDesc`)            |
+| Per-arrow colour     | `edge-color` / `edge_color` (inside `ArrowDesc`) |
 | Per-arrow line style | `line-style` (inside `ArrowDesc`)            |
 | State declaration    | `StateDeclaration`                           |
 | State default block  | `ConfigState` / `ConfigStartState` / …       |
@@ -694,3 +702,12 @@ hyphenated forms aren't shadowed.
   consumes it today; only `SemVer` is referenced.  Range-aware
   version handling appears to be partially scaffolded for future
   work.
+
+- **URL char class includes `;`.** The `URL` production
+  (`UrlProtocol [a-zA-Z0-9!*'():;@&=+$,/?#[]_.~-]+`) accepts `;` as
+  a URL-safe character per RFC 3986.  In FSL that conflicts with
+  the statement terminator: `machine_definition: https://x.com;`
+  fails because the URL eats the trailing `;`.  Workaround used by
+  the existing tests and conventional in practice: leave one
+  whitespace character between the URL and the terminator
+  (`machine_definition: https://x.com ;`).
