@@ -48,6 +48,9 @@ function transfer_state_properties(state_decl) {
             case 'image':
                 state_decl.image = d.value;
                 break;
+            case 'url':
+                state_decl.url = d.value;
+                break;
             case 'state_property':
                 state_decl.property = { name: d.name, value: d.value };
                 break;
@@ -153,6 +156,12 @@ function state_style_condense(jssk, machine) {
                         throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
                     }
                     state_style.borderColor = key.value;
+                    break;
+                case 'url':
+                    if (state_style.url !== undefined) {
+                        throw new JssmError(machine, `cannot redefine 'url' in state_style_condense, already defined`);
+                    }
+                    state_style.url = key.value;
                     break;
                 default:
                     // TODO do that <never> trick to assert this list is complete
@@ -2771,6 +2780,7 @@ class Machine {
         individual_style.corners = decl === null || decl === void 0 ? void 0 : decl.corners;
         individual_style.shape = decl === null || decl === void 0 ? void 0 : decl.shape;
         individual_style.image = decl === null || decl === void 0 ? void 0 : decl.image;
+        individual_style.url = decl === null || decl === void 0 ? void 0 : decl.url;
         layers.push(individual_style);
         return layers.reduce((acc, cur) => {
             const composite_state = acc;

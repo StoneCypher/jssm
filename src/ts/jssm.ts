@@ -101,6 +101,7 @@ function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateD
       case 'border-color'     : state_decl.borderColor     = d.value; break;
 
       case 'image'            : state_decl.image           = d.value; break;
+      case 'url'              : state_decl.url             = d.value; break;
 
       case 'state_property'   : state_decl.property        = { name: d.name, value: d.value }; break;
 
@@ -229,6 +230,13 @@ function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmS
             throw new JssmError(machine, `cannot redefine 'border-color' in state_style_condense, already defined`);
           }
           state_style.borderColor = key.value;
+          break;
+
+        case 'url':
+          if (state_style.url !== undefined) {
+            throw new JssmError(machine, `cannot redefine 'url' in state_style_condense, already defined`);
+          }
+          state_style.url = (key as any).value;
           break;
 
         default:
@@ -3702,6 +3710,7 @@ class Machine<mDT> {
     individual_style.corners         = decl?.corners;
     individual_style.shape           = decl?.shape;
     individual_style.image           = decl?.image;
+    individual_style.url             = decl?.url;
 
     layers.push(individual_style);
 

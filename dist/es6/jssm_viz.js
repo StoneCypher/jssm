@@ -360,9 +360,15 @@ function default_fillcolor_for(kind) {
 /**
  *  Render the node-feature list for one machine, one node per state.
  *  All style reads route through {@link jssm.Machine.style_for} so that
- *  theme-supplied values (corners, lineStyle, image, shape, colours) are
- *  honoured uniformly.  A single `style_for` call per state — downstream
- *  helpers operate on the cached result rather than re-querying.
+ *  theme-supplied values (corners, lineStyle, image, shape, colours, url)
+ *  are honoured uniformly.  A single `style_for` call per state —
+ *  downstream helpers operate on the cached result rather than
+ *  re-querying.
+ *
+ *  When a state declares a `url`, that value is emitted as Graphviz'
+ *  uppercase `URL=` node attribute, which becomes an `xlink:href` on the
+ *  rendered SVG node — providing click-through navigation from state
+ *  shapes in diagrams.  See FSL issue StoneCypher/fsl#420.
  *
  *  When `hide_state_labels` is true, the `label=` attribute is omitted from
  *  every state's node line; Graphviz then renders the node box without any
@@ -384,6 +390,7 @@ function states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide
             ['style', compose_style_string(style)],
             ['fontcolor', style.textColor || ''],
             ['image', style.image || ''],
+            ['URL', style.url || ''],
             ['fillcolor', fillcolor]
         ]
             .filter(r => r[1])

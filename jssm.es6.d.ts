@@ -193,6 +193,7 @@ declare type JssmStateDeclaration = {
     backgroundColor?: JssmColor;
     borderColor?: JssmColor;
     image?: string;
+    url?: string;
     state: StateType$1;
     property?: {
         name: string;
@@ -241,12 +242,16 @@ declare type JssmStateStyleImage = {
     key: 'image';
     value: string;
 };
+declare type JssmStateStyleUrl = {
+    key: 'url';
+    value: string;
+};
 /**
  *  Tagged union of all individual style key/value pairs that may appear in
  *  a state's style configuration.  The `key` discriminator selects which
  *  member, and the `value` is typed accordingly.
  */
-declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor | JssmStateStyleImage;
+declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | JssmStateStyleTextColor | JssmStateStyleCorners | JssmStateStyleLineStyle | JssmStateStyleBackgroundColor | JssmStateStyleStateLabel | JssmStateStyleBorderColor | JssmStateStyleImage | JssmStateStyleUrl;
 /**
  *  An ordered list of {@link JssmStateStyleKey} entries.  Used by the
  *  `default_*_state_config` machine config options to provide a fallback

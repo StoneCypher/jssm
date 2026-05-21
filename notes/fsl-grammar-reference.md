@@ -460,6 +460,9 @@ which can be:
 - `line-style : solid | dotted | dashed;`
   (also accepts `linestyle` without the hyphen)
 - `image : <String>;`
+- `url : <String>;`             — pass-through to Graphviz `URL=`
+  node attribute, becomes an `xlink:href` on the rendered SVG node so
+  the state shape becomes click-through (FSL #420)
 - `property : <Atom> <PropertyVal>;`           — per-state property
 - `property : <Atom> <PropertyVal> required;` — required per-state
   property
