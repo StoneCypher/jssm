@@ -9,11 +9,13 @@
  * full architectural design.
  */
 
+import type { RenderTarget } from '../types';
+
 /** Signature for an injected config-file reader (fs.readFile, fetch, etc.). */
 export type Reader = (path: string) => Promise<string>;
 
-/** A `Render` target — must match the union in `src/ts/cli/types.ts`. */
-export type RenderTargetName = 'svg' | 'dot' | 'png' | 'jpeg' | 'html';
+/** A render target alias — re-exports `RenderTarget` from the parent CLI types module so the config types stay in sync automatically. */
+export type RenderTargetName = RenderTarget;
 
 /** Render subcommand configuration; fully populated in v1. */
 export interface RenderConfig {
@@ -21,7 +23,7 @@ export interface RenderConfig {
   defaultTarget?: RenderTargetName;
   /** Output directory for multi-file render. */
   outDir?: string;
-  /** Output zoom scale (100 = 3x SVG natural size). Default: `3`. */
+  /** Output zoom scale. Default: `3`. */
   scale?: number;
   /** Output pixel width (raster). Mutually exclusive with `height` and `scale`. */
   width?: number;
@@ -161,11 +163,11 @@ export class ConfigExtendsError extends ConfigError {
 /** Thrown on filesystem failures (permission denied, etc.). */
 export class ConfigIOError extends ConfigError {
   public readonly kind = 'io' as const;
-  /** The underlying Node errno error. */
-  public readonly cause: NodeJS.ErrnoException;
-  constructor(message: string, opts: { path?: string; cause: NodeJS.ErrnoException }) {
+  /** The underlying Node errno error. (Named `errno` rather than `cause` to avoid shadowing the native ES2022 Error.cause field.) */
+  public readonly errno: NodeJS.ErrnoException;
+  constructor(message: string, opts: { path?: string; errno: NodeJS.ErrnoException }) {
     super(message, { path: opts.path });
-    this.cause = opts.cause;
+    this.errno = opts.errno;
     Object.setPrototypeOf(this, ConfigIOError.prototype);
   }
 }

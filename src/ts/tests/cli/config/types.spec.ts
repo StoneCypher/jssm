@@ -19,7 +19,7 @@ import {
 
 describe('cli/config/types', () => {
 
-  it('ResolvedConfig contains every planned subcommand section', () => {
+  it('ResolvedConfig type-checks with every planned subcommand section populated', () => {
     const r: ResolvedConfig = {
       include: ['**/*.fsl'],
       exclude: [],
@@ -99,9 +99,9 @@ describe('cli/config/types', () => {
 
   it('ConfigIOError carries the underlying errno', () => {
     const cause = Object.assign(new Error('ENOENT'), { code: 'ENOENT', errno: -2 });
-    const e = new ConfigIOError('cannot read', { path: '/x', cause: cause as NodeJS.ErrnoException });
+    const e = new ConfigIOError('cannot read', { path: '/x', errno: cause as NodeJS.ErrnoException });
     expect(e.kind).toBe('io');
-    expect(e.cause.code).toBe('ENOENT');
+    expect(e.errno.code).toBe('ENOENT');
   });
 
 });
