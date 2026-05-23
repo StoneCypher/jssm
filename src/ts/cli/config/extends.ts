@@ -19,22 +19,6 @@ import { validateConfig } from './schema';
 const MAX_DEPTH = 32;
 
 /**
- * Return the last path segment (basename) of a path string.
- * Handles both POSIX `/` and Windows `\` separators.
- *
- * @param path - A file or directory path.
- * @returns The basename, or `path` itself if it contains no separator.
- *
- * @example
- *   basenameOf('/p/.fsl/config.json'); // 'config.json'
- *   basenameOf('/p/.fsl');             // '.fsl'
- */
-const basenameOf = (path: string): string => {
-  const ix = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
-  return ix === -1 ? path : path.slice(ix + 1);
-};
-
-/**
  * Return the directory portion of a file path.
  * Cross-platform-safe; handles both POSIX `/` and Windows `\` separators.
  *
@@ -51,36 +35,10 @@ const dirnameOf = (path: string): string => {
 };
 
 /**
- * Return the directory to use as the base for resolving extends paths in
- * a config file at `filePath`.
- *
- * When the config file lives inside a `.fsl/` directory (e.g.
- * `/project/.fsl/config.json`), extends paths are resolved relative to the
- * directory that *contains* `.fsl/` (the project root), not relative to
- * `.fsl/` itself. This lets users write `"extends": "./base.json"` and have
- * it refer to files in the project root, which is the intuitive expectation.
- *
- * For all other files (base configs reached via extends), the dirname of the
- * file is used directly — standard relative-path semantics.
- *
- * @param filePath - Absolute path of the file whose `extends` key is being resolved.
- * @returns The directory to use for resolving relative extends paths.
- *
- * @example
- *   extendsBaseDir('/p/.fsl/config.json');     // '/p'  (skips the .fsl folder)
- *   extendsBaseDir('/p/base.json');            // '/p'  (normal dirname)
- *   extendsBaseDir('/p/nested/dir/a.json');   // '/p/nested/dir'
- */
-const extendsBaseDir = (filePath: string): string => {
-  const dir = dirnameOf(filePath);
-  return basenameOf(dir) === '.fsl' ? dirnameOf(dir) : dir;
-};
-
-/**
  * Resolve `rel` relative to the directory `dir`, normalising `.` and `..`
  * segments. Returns `rel` unchanged if it looks absolute.
  *
- * @param dir - Base directory (e.g. from `extendsBaseDir`).
+ * @param dir - Base directory (e.g. from `dirnameOf`).
  * @param rel - Relative (or absolute) path to resolve.
  * @returns The resolved absolute-style path.
  *
@@ -169,7 +127,7 @@ export async function resolveExtends(
   }
 
   const extendsList = typeof raw.extends === 'string' ? [raw.extends] : raw.extends;
-  const baseDir = extendsBaseDir(basePath);
+  const baseDir = dirnameOf(basePath);
   const nextVisited = [...visited, basePath];
 
   const bases: PartialConfig[] = [];

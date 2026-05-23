@@ -21,7 +21,7 @@ describe('cli/config/extends', () => {
       '/p/base.json': JSON.stringify({ render: { scale: 2, outDir: 'b' } }),
     });
     const out = await resolveExtends(
-      { extends: './base.json', render: { scale: 9 } },
+      { extends: '../base.json', render: { scale: 9 } },
       '/p/.fsl/config.json',
       reader,
     );
@@ -34,7 +34,7 @@ describe('cli/config/extends', () => {
       '/p/b.json': JSON.stringify({ render: { scale: 2, outDir: 'b' } }),
     });
     const out = await resolveExtends(
-      { extends: ['./a.json', './b.json'], render: { scale: 9 } },
+      { extends: ['../a.json', '../b.json'], render: { scale: 9 } },
       '/p/.fsl/config.json',
       reader,
     );
@@ -46,7 +46,7 @@ describe('cli/config/extends', () => {
       '/p/base.json': JSON.stringify({ render: { scale: 1 } }),
     });
     const out = await resolveExtends(
-      { extends: './base.json' } as PartialConfig,
+      { extends: '../base.json' } as PartialConfig,
       '/p/.fsl/config.json',
       reader,
     );
@@ -58,7 +58,7 @@ describe('cli/config/extends', () => {
       '/p/nested/dir/base.json': JSON.stringify({ render: { scale: 7 } }),
     });
     const out = await resolveExtends(
-      { extends: './base.json' },
+      { extends: '../base.json' },
       '/p/nested/dir/.fsl/config.json',
       reader,
     );
@@ -67,8 +67,8 @@ describe('cli/config/extends', () => {
 
   it('throws ConfigExtendsError on a cycle', async () => {
     const reader = makeReader({
-      '/p/a.json': JSON.stringify({ extends: './b.json' }),
-      '/p/b.json': JSON.stringify({ extends: './a.json' }),
+      '/p/.fsl/a.json': JSON.stringify({ extends: './b.json' }),
+      '/p/.fsl/b.json': JSON.stringify({ extends: './a.json' }),
     });
     await expect(resolveExtends(
       { extends: './a.json' },
@@ -80,9 +80,9 @@ describe('cli/config/extends', () => {
   it('throws ConfigExtendsError when depth exceeds 32', async () => {
     const files: Record<string, string> = {};
     for (let i = 0; i < 33; i++) {
-      files[`/p/n${i}.json`] = JSON.stringify({ extends: `./n${i + 1}.json` });
+      files[`/p/.fsl/n${i}.json`] = JSON.stringify({ extends: `./n${i + 1}.json` });
     }
-    files['/p/n33.json'] = JSON.stringify({ render: { scale: 1 } });
+    files['/p/.fsl/n33.json'] = JSON.stringify({ render: { scale: 1 } });
     const reader = makeReader(files);
     await expect(resolveExtends(
       { extends: './n0.json' },
@@ -94,7 +94,7 @@ describe('cli/config/extends', () => {
   it('propagates the reader error wrapped (e.g. ENOENT)', async () => {
     const reader = makeReader({});
     await expect(resolveExtends(
-      { extends: './missing.json' },
+      { extends: '../missing.json' },
       '/p/.fsl/config.json',
       reader,
     )).rejects.toThrow(/missing\.json|ENOENT/);
@@ -102,9 +102,9 @@ describe('cli/config/extends', () => {
 
   it('resolves nested extends (a extends b extends c)', async () => {
     const reader = makeReader({
-      '/p/c.json': JSON.stringify({ render: { scale: 1, outDir: 'c-dir', quality: 99 } }),
-      '/p/b.json': JSON.stringify({ extends: './c.json', render: { scale: 2, outDir: 'b-dir' } }),
-      '/p/a.json': JSON.stringify({ extends: './b.json', render: { scale: 3 } }),
+      '/p/.fsl/c.json': JSON.stringify({ render: { scale: 1, outDir: 'c-dir', quality: 99 } }),
+      '/p/.fsl/b.json': JSON.stringify({ extends: './c.json', render: { scale: 2, outDir: 'b-dir' } }),
+      '/p/.fsl/a.json': JSON.stringify({ extends: './b.json', render: { scale: 3 } }),
     });
     const out = await resolveExtends(
       { extends: './a.json' },
@@ -120,7 +120,7 @@ describe('cli/config/extends', () => {
       '/p/bad-base.json': JSON.stringify({ render: { defaultTarget: 'tiff' } }),
     });
     await expect(resolveExtends(
-      { extends: './bad-base.json' },
+      { extends: '../bad-base.json' },
       '/p/.fsl/config.json',
       reader,
     )).rejects.toBeInstanceOf(ConfigSchemaError);
@@ -132,7 +132,7 @@ describe('cli/config/extends', () => {
       '/p/bad.json': '{ this is not json',
     });
     await expect(resolveExtends(
-      { extends: './bad.json' },
+      { extends: '../bad.json' },
       '/p/.fsl/config.json',
       reader,
     )).rejects.toBeInstanceOf(ConfigParseError);
