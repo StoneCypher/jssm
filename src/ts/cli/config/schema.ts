@@ -86,7 +86,7 @@ const validator = ajv.compile(CONFIG_SCHEMA as object);
 export function validateConfig(config: unknown, opts: { path?: string } = {}): asserts config is PartialConfig {
   const ok = validator(config);
   if (!ok) {
-    const violations = (validator.errors ?? []) as ErrorObject[];
+    const violations = validator.errors as ErrorObject[];
     const summary = violations.map(v => `${v.instancePath || '/'}: ${v.message}`).join('; ');
     throw new ConfigSchemaError(`config schema violation${opts.path ? ` in ${opts.path}` : ''}: ${summary}`, {
       path: opts.path,

@@ -66,4 +66,16 @@ describe('cli/config/schema', () => {
     }
   });
 
+  it('omits the "in <path>" suffix when no path is provided', () => {
+    try {
+      validateConfig({ render: { scale: 'big' } } as any);
+      throw new Error('should have thrown');
+    } catch (e) {
+      expect(e).toBeInstanceOf(ConfigSchemaError);
+      const err = e as ConfigSchemaError;
+      expect(err.path).toBeUndefined();
+      expect(err.message).not.toContain(' in ');
+    }
+  });
+
 });
