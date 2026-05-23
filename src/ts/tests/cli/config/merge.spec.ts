@@ -85,4 +85,12 @@ describe('cli/config/merge', () => {
     expect(out.render).toEqual({ theme: 'b', outDir: 'x' });
   });
 
+  it('key present in later layer with undefined value, absent from earlier layer, is omitted from output', () => {
+    const out = mergeConfigs([
+      { render: { scale: undefined } },
+      { render: { scale: undefined } },
+    ]);
+    expect('scale' in (out.render ?? {})).toBe(false);
+  });
+
 });
