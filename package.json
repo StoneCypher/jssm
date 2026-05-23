@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.128.0",
+  "version": "5.129.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -215,7 +215,7 @@
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "benny": "^3.7.1",
-    "better_git_changelog": "^1.6.5",
+    "better_git_changelog": "^1.6.16",
     "cloc": "^2.10.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",
