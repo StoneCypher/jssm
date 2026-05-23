@@ -91,7 +91,7 @@ describe('cli/config/extends', () => {
     )).rejects.toBeInstanceOf(ConfigExtendsError);
   });
 
-  it('propagates the reader error wrapped (e.g. ENOENT)', async () => {
+  it('propagates the reader error unwrapped (e.g. ENOENT)', async () => {
     const reader = makeReader({});
     await expect(resolveExtends(
       { extends: '../missing.json' },
@@ -136,6 +136,48 @@ describe('cli/config/extends', () => {
       '/p/.fsl/config.json',
       reader,
     )).rejects.toBeInstanceOf(ConfigParseError);
+  });
+
+  it('extends with an absolute POSIX path returns that path unchanged', async () => {
+    // The reader sees the absolute path verbatim, exercising the absolute-path
+    // early-return branch in joinPath.
+    const reader = makeReader({
+      '/abs/path/base.json': JSON.stringify({ render: { scale: 7 } }),
+    });
+    const out = await resolveExtends(
+      { extends: '/abs/path/base.json' },
+      '/p/.fsl/config.json',
+      reader,
+    );
+    expect(out.render?.scale).toBe(7);
+  });
+
+  it('extends with a Windows-style basePath preserves the drive prefix', async () => {
+    // Both the basePath and the joined extends path are Windows-shaped,
+    // exercising the Windows drive-letter prefix branch in joinPath.
+    const reader = makeReader({
+      'C:/p/base.json': JSON.stringify({ render: { scale: 11 } }),
+    });
+    const out = await resolveExtends(
+      { extends: '../base.json' },
+      'C:/p/.fsl/config.json',
+      reader,
+    );
+    expect(out.render?.scale).toBe(11);
+  });
+
+  it('a bare-filename basePath resolves extends relative to "."', async () => {
+    // basePath has no separator, so dirnameOf returns '.', exercising the
+    // ix === -1 fallback branch.
+    const reader = makeReader({
+      '/sibling.json': JSON.stringify({ render: { scale: 13 } }),
+    });
+    const out = await resolveExtends(
+      { extends: './sibling.json' },
+      'config.json',
+      reader,
+    );
+    expect(out.render?.scale).toBe(13);
   });
 
 });

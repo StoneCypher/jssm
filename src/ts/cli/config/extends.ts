@@ -96,6 +96,7 @@ const omitKey = <T extends Record<string, unknown>>(obj: T, key: string): T => {
  * @throws ConfigExtendsError on cycle or depth overrun.
  * @throws ConfigParseError if a base file is malformed JSON.
  * @throws ConfigSchemaError if a base file violates the schema.
+ * @throws Whatever the `reader` callback rejects with — propagated unwrapped (typically a Node `ErrnoException` from `fs.readFile`).
  *
  * @see mergeConfigs
  * @see validateConfig
