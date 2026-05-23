@@ -10,6 +10,10 @@
 
 import type { ResolvedConfig } from './types';
 
+/**
+ * Recursively freezes an object and all of its nested object values in
+ * place; returns the same reference so the call can be chained inline.
+ */
 const deepFreeze = <T>(o: T): T => {
   if (o && typeof o === 'object') {
     for (const k of Object.keys(o)) {
