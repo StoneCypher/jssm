@@ -22,9 +22,17 @@ describe('cli/config/sources/from-discovery', () => {
       expect(out?.render?.scale).toBe(5);
     });
 
-    it('defaults to os.homedir() when no home option is passed', async () => {
+    it('uses os.homedir() by default when no home option is passed', async () => {
+      // vi.spyOn on os.homedir is not possible in ESM (module namespace is not
+      // configurable). Instead, verify the no-args path: it must not throw and
+      // must return either null or a plain PartialConfig object.
       const out = await discoverUserGlobalConfig();
-      expect(out === null || typeof out === 'object').toBe(true);
+      if (out !== null) {
+        expect(typeof out).toBe('object');
+        expect(Array.isArray(out)).toBe(false);
+      } else {
+        expect(out).toBeNull();
+      }
     });
 
   });
@@ -42,14 +50,19 @@ describe('cli/config/sources/from-discovery', () => {
     });
 
     it('walks up from a child directory and finds an ancestor .fsl/config.json', async () => {
+      // The child directory does not need to exist on disk — discoverProjectConfig
+      // only checks ancestors for `.fsl/config.json`, never the starting `from` itself.
       const childPath = resolve(fixtureRoot, 'projects/basic-config/some/nested/child');
       const out = await discoverProjectConfig({ from: childPath });
       expect(out?.render?.defaultTarget).toBe('png');
     });
 
-    it('stops walking at the filesystem root without throwing', async () => {
+    it('stops walking at the filesystem root and returns null when no ancestor has .fsl/config.json', async () => {
+      // os.tmpdir() is a path with no .fsl/config.json in any ancestor on a
+      // standard runner. The walk must terminate at the filesystem root and
+      // return null without throwing.
       const out = await discoverProjectConfig({ from: os.tmpdir() });
-      expect(out === null || typeof out === 'object').toBe(true);
+      expect(out).toBeNull();
     });
 
   });

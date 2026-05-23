@@ -73,9 +73,7 @@ export async function discoverProjectConfig(opts: { from: string }): Promise<Par
     const candidate = join(cur, CONFIG_BASENAME);
     if (await exists(candidate)) return loadConfigFile(candidate);
     if (cur === root) return null;
-    const parent = dirname(cur);
-    if (parent === cur) return null;
-    cur = parent;
+    cur = dirname(cur);
   }
   return null;
 }
