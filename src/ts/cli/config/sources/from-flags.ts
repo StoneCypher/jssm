@@ -38,6 +38,15 @@ export function flagsToConfig(
   return out as PartialConfig;
 }
 
+/**
+ * Set a value at a dotted path within a nested object, creating
+ * intermediate objects as needed. Mutates the `target` in place.
+ *
+ * @example
+ *   const out = {};
+ *   setDotted(out, 'render.scale', 4);
+ *   // out is now { render: { scale: 4 } }
+ */
 const setDotted = (target: Record<string, unknown>, path: string, value: unknown): void => {
   const parts = path.split('.');
   let cur: Record<string, unknown> = target;
