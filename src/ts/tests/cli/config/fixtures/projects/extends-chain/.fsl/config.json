@@ -1,0 +1,4 @@
+{
+  "extends": "../middle.json",
+  "render": { "scale": 3 }
+}
