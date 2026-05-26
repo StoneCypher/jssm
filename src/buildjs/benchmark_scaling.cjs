@@ -66,7 +66,13 @@ function buildShapeChain(n) {
     cur = (cur + 1) % n;
     seq.push(`s${cur}`);
   }
-  return { name: `chain-${n}`, machine, transitionSeq: seq };
+  const edgePairs = [];
+  for (let k = 0; k < K; ++k) {
+    const i = k % n;
+    const j = (i + 1) % n;
+    edgePairs.push([`s${i}`, `s${j}`]);
+  }
+  return { name: `chain-${n}`, machine, transitionSeq: seq, edgePairs };
 }
 
 function buildShapeDense(n) {
@@ -78,7 +84,13 @@ function buildShapeDense(n) {
     cur = (cur + 1) % n;
     seq.push(`s${cur}`);
   }
-  return { name: `dense-${n}`, machine, transitionSeq: seq };
+  const edgePairs = [];
+  for (let k = 0; k < K; ++k) {
+    const i = k % n;
+    const j = (i + 1) % n;
+    edgePairs.push([`s${i}`, `s${j}`]);
+  }
+  return { name: `dense-${n}`, machine, transitionSeq: seq, edgePairs };
 }
 
 function buildHubTraversal(n) {
@@ -97,12 +109,32 @@ function buildHubTraversal(n) {
 
 function buildShapeHub(n) {
   const machine = sm([buildHubFSL(n)]);
-  return { name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n) };
+  const edgePairs = [];
+  let spoke = 1;
+  for (let k = 0; k < K; ++k) {
+    if (k % 2 === 0) {
+      edgePairs.push(['s0', `s${spoke}`]);
+    } else {
+      edgePairs.push([`s${spoke}`, 's0']);
+      spoke = (spoke % (n - 1)) + 1;
+    }
+  }
+  return { name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs };
 }
 
 function buildShapeHookedHub(n) {
   const machine = buildHookedHub(n);
-  return { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n) };
+  const edgePairs = [];
+  let spoke = 1;
+  for (let k = 0; k < K; ++k) {
+    if (k % 2 === 0) {
+      edgePairs.push(['s0', `s${spoke}`]);
+    } else {
+      edgePairs.push([`s${spoke}`, 's0']);
+      spoke = (spoke % (n - 1)) + 1;
+    }
+  }
+  return { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs };
 }
 
 function loadMessyFixture(n) {
@@ -117,20 +149,24 @@ function buildShapeMessy(n) {
   // For messy: not every (from, to) is valid. Walk by following whatever transitions are
   // available from the current state. Precompute by simulating.
   const seq = [];
+  const edgePairs = [];
   let cur = 's0';
   for (let k = 0; k < K; ++k) {
     const exits = machine.list_exits(cur);
     if (exits.length === 0) {
+      // Dead end - reset to s0 and continue.
       cur = 's0';
       seq.push('s0');
+      edgePairs.push(['s0', 's0']);   // self-pair for dead-end steps; edges_between will just return []
       continue;
     }
     const next = exits[0];
     seq.push(next);
+    edgePairs.push([cur, next]);
     cur = next;
   }
   machine.override('s0');
-  return { name: `messy-${n}`, machine, transitionSeq: seq };
+  return { name: `messy-${n}`, machine, transitionSeq: seq, edgePairs };
 }
 
 const shapes = [
@@ -163,6 +199,27 @@ function transitionCase(shape) {
   });
 }
 
+function edgesBetweenCase(shape) {
+  return b.add(`${shape.name} edges_between()`, () => {
+    for (let k = 0; k < K; ++k) {
+      const [f, t] = shape.edgePairs[k];
+      shape.machine.edges_between(f, t);
+    }
+  });
+}
+
+function hasStateCase(shape) {
+  // Use the transition targets as the state list to probe - they're real states.
+  return b.add(`${shape.name} has_state()`, () => {
+    for (let k = 0; k < K; ++k) shape.machine.has_state(shape.transitionSeq[k]);
+  });
+}
+
+// NOTE: action() is deliberately deferred from this scaling suite. Adding it would require
+// giving every edge in chain/dense/hub a named action, which is a topology choice that
+// would invalidate trend continuity if the naming convention later changes. Pick it up in
+// a follow-up if action() turns out to be on a hot path the scaling diagnostic should cover.
+
 // ----------------------------------------------------------------------------
 // Suite
 // ----------------------------------------------------------------------------
@@ -170,6 +227,8 @@ function transitionCase(shape) {
 b.suite(
   'jssm scaling diagnostic suite',
   ...shapes.map(transitionCase),
+  ...shapes.map(edgesBetweenCase),
+  ...shapes.map(hasStateCase),
   b.cycle(),
   b.complete(),
   b.save({ file: 'scaling', version: pkg.version }),
