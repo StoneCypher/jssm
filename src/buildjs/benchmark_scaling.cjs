@@ -81,9 +81,7 @@ function buildShapeDense(n) {
   return { name: `dense-${n}`, machine, transitionSeq: seq };
 }
 
-function buildShapeHub(n) {
-  const machine = sm([buildHubFSL(n)]);
-  // Hub topology: from s0 -> s_i -> s0 -> s_{i+1} -> s0 ...  Alternates hub and spoke.
+function buildHubTraversal(n) {
   const seq = [];
   let spoke = 1;
   for (let k = 0; k < K; ++k) {
@@ -94,23 +92,17 @@ function buildShapeHub(n) {
       spoke = (spoke % (n - 1)) + 1;               // next time pick a new spoke
     }
   }
-  return { name: `hub-${n}`, machine, transitionSeq: seq };
+  return seq;
+}
+
+function buildShapeHub(n) {
+  const machine = sm([buildHubFSL(n)]);
+  return { name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n) };
 }
 
 function buildShapeHookedHub(n) {
   const machine = buildHookedHub(n);
-  // Same traversal as hub.
-  const seq = [];
-  let spoke = 1;
-  for (let k = 0; k < K; ++k) {
-    if (k % 2 === 0) {
-      seq.push(`s${spoke}`);
-    } else {
-      seq.push('s0');
-      spoke = (spoke % (n - 1)) + 1;
-    }
-  }
-  return { name: `hooked-${n}`, machine, transitionSeq: seq };
+  return { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n) };
 }
 
 const shapes = [
