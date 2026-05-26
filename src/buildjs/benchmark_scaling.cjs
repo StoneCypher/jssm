@@ -210,13 +210,11 @@ function hasStateCase(shape) {
 }
 
 function constructionCase(shape) {
-  // Re-derive the FSL source for each shape so we time the full sm`...` pipeline,
-  // including FSL parse. For structured shapes we re-call the builder; for messy
-  // we re-read the file once outside the timed function and capture the source
-  // string in a closure.
-  // For hooked-* construction we time the underlying hub build, not the hook
-  // attachments — hook setup cost is already implicit in the hooked shape's
-  // transition() measurement, and this case is intentionally a parse-cost probe.
+  // Re-derive the FSL source for each shape at registration time, then time only
+  // sm`...` in the inner loop so we measure full parse + build, including the
+  // FSL grammar pass. For hooked-* we time the underlying hub build, not the hook
+  // attachments — hook setup cost is implicit in the hooked shape's transition()
+  // measurement, and this case is intentionally a parse-cost probe.
   let source;
   switch (true) {
     case shape.name.startsWith('chain-'):  source = buildChainFSL(parseInt(shape.name.slice(6), 10)); break;
@@ -228,7 +226,7 @@ function constructionCase(shape) {
   }
   return b.add(`${shape.name} construct()`, () => {
     const m = sm([source]);
-    if (m === undefined) throw new Error('not defined');   // prevent tree-shaking
+    if (m === undefined) throw 'not defined!';   // prevent tree-shaking
   });
 }
 
