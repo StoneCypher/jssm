@@ -8,6 +8,43 @@ const jssm = require('../../dist/jssm.es5.cjs');
 const sm   = jssm.sm;
 const pkg  = require('../../package.json');
 
+function writeMarkdownPivot() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const mdPath   = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.md');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+
+  // Group results by trailing operation token, e.g. "chain-10 transition()" -> op "transition()".
+  const groups = new Map();
+  for (const r of data.results) {
+    const spaceIdx = r.name.lastIndexOf(' ');
+    const shape    = r.name.slice(0, spaceIdx);
+    const op       = r.name.slice(spaceIdx + 1);
+    if (!groups.has(op)) groups.set(op, []);
+    groups.get(op).push({ shape, ops: r.ops });
+  }
+
+  const lines = [];
+  lines.push('# jssm scaling benchmark results');
+  lines.push('');
+  lines.push(`Generated: ${data.date}  `);
+  lines.push(`jssm version: ${data.version}`);
+  lines.push('');
+
+  for (const [op, rows] of groups) {
+    lines.push(`## ${op}`);
+    lines.push('');
+    lines.push('| shape       | ops/sec     |');
+    lines.push('|-------------|------------:|');
+    for (const row of rows) {
+      lines.push(`| ${row.shape.padEnd(11)} | ${String(row.ops).padStart(11)} |`);
+    }
+    lines.push('');
+  }
+
+  fs.writeFileSync(mdPath, lines.join('\n'));
+  console.log(`wrote ${mdPath}`);
+}
+
 // ----------------------------------------------------------------------------
 // Shape factories (structured topologies — deterministic from N)
 // ----------------------------------------------------------------------------
@@ -246,7 +283,13 @@ b.suite(
   ...shapes.map(hasStateCase),
   ...shapes.map(constructionCase),
   b.cycle(),
-  b.complete(),
+  b.complete(() => {
+    // benny writes scaling.json synchronously during the b.save calls below in this
+    // suite's argument list. Defer with setImmediate so the markdown writer runs
+    // after the save side-effects flush. If a future benny upgrade changes save
+    // ordering, swap to .then(writeMarkdownPivot) on the b.suite() return value.
+    setImmediate(writeMarkdownPivot);
+  }),
   b.save({ file: 'scaling', version: pkg.version }),
   b.save({ file: 'scaling', format: 'chart.html' }),
 );
