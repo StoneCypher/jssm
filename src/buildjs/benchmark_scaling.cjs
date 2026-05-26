@@ -1,8 +1,8 @@
 'use strict';
 
 const b    = require('benny');
-const fs   = require('fs');
-const path = require('path');
+const fs   = require('fs');   // used by loadMessyFixture (Task 4) and writeMarkdownPivot (Task 7)
+const path = require('path'); // used by loadMessyFixture (Task 4) and writeMarkdownPivot (Task 7)
 
 const jssm = require('../../dist/jssm.es5.cjs');
 const sm   = jssm.sm;
@@ -47,7 +47,10 @@ const shapes = [
 
 function transitionCase(shape) {
   return b.add(`${shape.name} transition()`, () => {
-    // Reset machine state to s0 before timed loop so each iteration is comparable.
+    // Reset to s0 each iteration so the precomputed transitionSeq stays valid across
+    // shapes whose cycle length doesn't divide K (chain-200, hub-N, messy-N, ...).
+    // The override adds ~1% to per-iteration time for transition()-style cases; it
+    // is omitted for read-only cases (edges_between, has_state) that don't mutate state.
     shape.machine.override('s0');
     for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
   });
