@@ -209,6 +209,29 @@ function hasStateCase(shape) {
   });
 }
 
+function constructionCase(shape) {
+  // Re-derive the FSL source for each shape so we time the full sm`...` pipeline,
+  // including FSL parse. For structured shapes we re-call the builder; for messy
+  // we re-read the file once outside the timed function and capture the source
+  // string in a closure.
+  // For hooked-* construction we time the underlying hub build, not the hook
+  // attachments — hook setup cost is already implicit in the hooked shape's
+  // transition() measurement, and this case is intentionally a parse-cost probe.
+  let source;
+  switch (true) {
+    case shape.name.startsWith('chain-'):  source = buildChainFSL(parseInt(shape.name.slice(6), 10)); break;
+    case shape.name.startsWith('dense-'):  source = buildDenseFSL(parseInt(shape.name.slice(6), 10)); break;
+    case shape.name.startsWith('hub-'):    source = buildHubFSL(parseInt(shape.name.slice(4), 10));   break;
+    case shape.name.startsWith('hooked-'): source = buildHubFSL(parseInt(shape.name.slice(7), 10));   break;
+    case shape.name.startsWith('messy-'):  source = loadMessyFixture(parseInt(shape.name.slice(6), 10)); break;
+    default: throw new Error(`unknown shape: ${shape.name}`);
+  }
+  return b.add(`${shape.name} construct()`, () => {
+    const m = sm([source]);
+    if (m === undefined) throw new Error('not defined');   // prevent tree-shaking
+  });
+}
+
 // NOTE: action() is deliberately deferred from this scaling suite. Adding it would require
 // giving every edge in chain/dense/hub a named action, which is a topology choice that
 // would invalidate trend continuity if the naming convention later changes. Pick it up in
@@ -223,6 +246,7 @@ b.suite(
   ...shapes.map(transitionCase),
   ...shapes.map(edgesBetweenCase),
   ...shapes.map(hasStateCase),
+  ...shapes.map(constructionCase),
   b.cycle(),
   b.complete(),
   b.save({ file: 'scaling', version: pkg.version }),
