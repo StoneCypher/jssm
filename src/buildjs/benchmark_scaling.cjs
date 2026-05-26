@@ -19,6 +19,38 @@ function buildChainFSL(n) {
   return lines.join('\n');
 }
 
+function buildDenseFSL(n) {
+  const lines = ['allows_override: true;'];
+  for (let i = 0; i < n; ++i) {
+    for (let j = 0; j < n; ++j) {
+      if (i !== j) lines.push(`s${i} -> s${j};`);
+    }
+  }
+  return lines.join('\n');
+}
+
+function buildHubFSL(n) {
+  // s0 is the hub; every other state has edges to and from s0.
+  const lines = ['allows_override: true;'];
+  for (let i = 1; i < n; ++i) {
+    lines.push(`s${i} -> s0;`);
+    lines.push(`s0 -> s${i};`);
+  }
+  return lines.join('\n');
+}
+
+function buildHookedHub(n) {
+  const machine = sm([buildHubFSL(n)]);
+  // One per-edge hook for every edge in the hub topology.
+  for (let i = 1; i < n; ++i) {
+    machine.set_hook({ from: `s${i}`, to: 's0', handler: () => true, kind: 'hook' });
+    machine.set_hook({ from: 's0', to: `s${i}`, handler: () => true, kind: 'hook' });
+  }
+  // Plus one global any-transition hook.
+  machine.set_hook({ handler: () => true, kind: 'any transition' });
+  return machine;
+}
+
 // ----------------------------------------------------------------------------
 // Shape registry — populated below; each entry: { name, machine, transitionSeq }
 // ----------------------------------------------------------------------------
@@ -37,8 +69,61 @@ function buildShapeChain(n) {
   return { name: `chain-${n}`, machine, transitionSeq: seq };
 }
 
+function buildShapeDense(n) {
+  const machine = sm([buildDenseFSL(n)]);
+  // For dense: every (i, j) i!=j is valid.  Walk forward by 1 mod n for K steps from s0.
+  const seq = [];
+  let cur = 0;
+  for (let k = 0; k < K; ++k) {
+    cur = (cur + 1) % n;
+    seq.push(`s${cur}`);
+  }
+  return { name: `dense-${n}`, machine, transitionSeq: seq };
+}
+
+function buildShapeHub(n) {
+  const machine = sm([buildHubFSL(n)]);
+  // Hub topology: from s0 -> s_i -> s0 -> s_{i+1} -> s0 ...  Alternates hub and spoke.
+  const seq = [];
+  let spoke = 1;
+  for (let k = 0; k < K; ++k) {
+    if (k % 2 === 0) {
+      seq.push(`s${spoke}`);                       // hub -> spoke
+    } else {
+      seq.push('s0');                              // spoke -> hub
+      spoke = (spoke % (n - 1)) + 1;               // next time pick a new spoke
+    }
+  }
+  return { name: `hub-${n}`, machine, transitionSeq: seq };
+}
+
+function buildShapeHookedHub(n) {
+  const machine = buildHookedHub(n);
+  // Same traversal as hub.
+  const seq = [];
+  let spoke = 1;
+  for (let k = 0; k < K; ++k) {
+    if (k % 2 === 0) {
+      seq.push(`s${spoke}`);
+    } else {
+      seq.push('s0');
+      spoke = (spoke % (n - 1)) + 1;
+    }
+  }
+  return { name: `hooked-${n}`, machine, transitionSeq: seq };
+}
+
 const shapes = [
   buildShapeChain(10),
+  buildShapeChain(50),
+  buildShapeChain(200),
+  buildShapeChain(1000),
+  buildShapeDense(10),
+  buildShapeDense(50),
+  buildShapeDense(200),
+  buildShapeHub(50),
+  buildShapeHub(200),
+  buildShapeHookedHub(200),
 ];
 
 // ----------------------------------------------------------------------------
