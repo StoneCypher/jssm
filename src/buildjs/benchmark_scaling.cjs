@@ -107,34 +107,28 @@ function buildHubTraversal(n) {
   return seq;
 }
 
-function buildShapeHub(n) {
-  const machine = sm([buildHubFSL(n)]);
-  const edgePairs = [];
+function buildHubEdgePairs(n) {
+  const pairs = [];
   let spoke = 1;
   for (let k = 0; k < K; ++k) {
     if (k % 2 === 0) {
-      edgePairs.push(['s0', `s${spoke}`]);
+      pairs.push(['s0', `s${spoke}`]);
     } else {
-      edgePairs.push([`s${spoke}`, 's0']);
+      pairs.push([`s${spoke}`, 's0']);
       spoke = (spoke % (n - 1)) + 1;
     }
   }
-  return { name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs };
+  return pairs;
+}
+
+function buildShapeHub(n) {
+  const machine = sm([buildHubFSL(n)]);
+  return { name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) };
 }
 
 function buildShapeHookedHub(n) {
   const machine = buildHookedHub(n);
-  const edgePairs = [];
-  let spoke = 1;
-  for (let k = 0; k < K; ++k) {
-    if (k % 2 === 0) {
-      edgePairs.push(['s0', `s${spoke}`]);
-    } else {
-      edgePairs.push([`s${spoke}`, 's0']);
-      spoke = (spoke % (n - 1)) + 1;
-    }
-  }
-  return { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs };
+  return { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) };
 }
 
 function loadMessyFixture(n) {
