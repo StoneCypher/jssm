@@ -24,6 +24,61 @@ Published tags:
 
 ## [Untagged] - May 26, 2026 11:11:10 PM
 
+Commit [8ac21caaf8500851e7771b89261292ccb67c829c](https://github.com/StoneCypher/jssm/commit/8ac21caaf8500851e7771b89261292ccb67c829c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: add outbound adjacency index for O(out-degree) edges_between
+  * Closes #635.
+  * The diagnostic benchmark from PR #634 found that edges_between() was the
+dominant cost on machines with many edges — its per-call cost scaled linearly
+with TOTAL edge count, not with the per-state out-degree the call actually
+needs.  has_state() was already at 10M+ ops/sec across every shape, so the
+bottleneck was algorithmic (linear filter) rather than representational
+(Map<string> lookup).
+  * Adds a new _outbound_edge_ids: Map<from, number[]> populated alongside the
+existing _edge_map during construction.  edges_between(from, to) iterates
+only that state's outbound edges instead of the full _edges array.
+  * Before/after on v5.128.0 baseline (see src/historic_benchmarks/):
+  *   shape           edges_between() ops/sec     factor
+                  before -> after
+  chain-1000      1,212  ->  86,476            71x
+  dense-50          291  ->  11,718            40x
+  dense-200          11  ->   4,150           377x
+  messy-1000        307  -> 104,086           339x
+  messy-5000         21  -> 118,097          5624x
+  * transition() also benefited 1.2-2.0x across most shapes because the transition
+path internally calls edges_between for kind-determination.  has_state() is
+unchanged (noise band).  construct() is slightly slower on chain shapes
+(extra Map.set + Array.push during construction) but faster on hub/hooked.
+  * Tests: spec suite 5642/5642 pass; coverage 100% statements/branches/functions/
+lines.  Adds src/ts/tests/edges_between.spec.ts with 4 cases covering the
+happy path, the terminal-from-state branch, and the unknown-from-state branch.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 27, 2026 11:47:36 AM
+
+Commit [5469f920ee37f00b944073463c6a071b44527d08](https://github.com/StoneCypher/jssm/commit/5469f920ee37f00b944073463c6a071b44527d08)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.129.0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:11:10 PM
+
 Commit [1f171a49f7404559b0931313e419e7df47af5b80](https://github.com/StoneCypher/jssm/commit/1f171a49f7404559b0931313e419e7df47af5b80)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
@@ -173,33 +228,3 @@ Commit [6adecaf5e1e9d471c7cbc304f8cd65c98a3ea63c](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * test(bench): add edges_between and has_state cases (action deferred)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - May 26, 2026 11:02:22 AM
-
-Commit [8e8071a7838463a83c1bbfd5489f6d0dd923a447](https://github.com/StoneCypher/jssm/commit/8e8071a7838463a83c1bbfd5489f6d0dd923a447)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(bench): load messy-1000 and messy-5000 fixtures into scaling suite
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - May 26, 2026 10:59:53 AM
-
-Commit [e045150e358cd897933e64ff4fed267bf8ed8f1f](https://github.com/StoneCypher/jssm/commit/e045150e358cd897933e64ff4fed267bf8ed8f1f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(bench): extract buildHubTraversal to dedupe hub/hooked walks

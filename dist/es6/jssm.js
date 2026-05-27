@@ -207,6 +207,7 @@ class Machine {
         this._state_declarations = new Map();
         this._edges = [];
         this._edge_map = new Map();
+        this._outbound_edge_ids = new Map();
         this._named_transitions = new Map();
         this._actions = new Map();
         this._reverse_actions = new Map();
@@ -372,6 +373,17 @@ class Machine {
             }
             //    const to_mapping = from_mapping.get(tr.to);
             from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
+            // outbound adjacency: every edge originating at tr.from, regardless of action/target.
+            // _edge_map above keys a single edge per (from, to) and overwrites on collision, which
+            // is fine for lookup_transition_for but loses information for edges_between when several
+            // edges share endpoints across distinct actions.  This index preserves every edge id and
+            // lets edges_between scan only one state's exits, not all of _edges.
+            let outbound = this._outbound_edge_ids.get(tr.from);
+            if (!outbound) {
+                outbound = [];
+                this._outbound_edge_ids.set(tr.from, outbound);
+            }
+            outbound.push(thisEdgeId);
             // set up the action mapping, so that actions can be looked up by origin
             if (tr.action) {
                 // forward mapping first by action name
@@ -2045,7 +2057,21 @@ class Machine {
      *  @returns An array of matching {@link JssmTransition} objects.
      */
     edges_between(from, to) {
-        return this._edges.filter(edge => ((edge.from === from) && (edge.to === to)));
+        var _a;
+        // Filter only this state's outbound edges instead of the full _edges array.
+        // For machines with E total edges and average out-degree d, this is O(d)
+        // instead of O(E) — a large win on dense graphs where d << E.  The `?? []`
+        // covers from-states that have no outgoing edges (terminal states) and
+        // states that don't exist at all, both of which return [] without iterating.
+        const outbound = (_a = this._outbound_edge_ids.get(from)) !== null && _a !== void 0 ? _a : [];
+        const result = [];
+        for (const edgeId of outbound) {
+            const edge = this._edges[edgeId];
+            if (edge.to === to) {
+                result.push(edge);
+            }
+        }
+        return result;
     }
     /*********
      *
