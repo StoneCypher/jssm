@@ -3,7 +3,7 @@
   <h1>Changelog</h1>
 </a>
 <p>All notable changes to this project will be documented in this file.</p>
-<p>294 merges; 244 releases</p>
+<p>295 merges; 244 releases</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>Published tags:</p>
@@ -11,7 +11,80 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
+<a href="#untagged---may-27-2026-115458-am" id="untagged---may-27-2026-115458-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - May 27, 2026 11:54:58 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/c00dee32a029c955af9502f7ad5754574dd4043c">c00dee32a029c955af9502f7ad5754574dd4043c</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>chore: rebuild artifacts and docs for 5.130.0</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 <a href="#untagged---may-26-2026-111110-pm" id="untagged---may-26-2026-111110-pm" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - May 26, 2026 11:11:10 PM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/8ac21caaf8500851e7771b89261292ccb67c829c">8ac21caaf8500851e7771b89261292ccb67c829c</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>perf: add outbound adjacency index for O(out-degree) edges_between</li>
+<li>Closes #635.</li>
+<li>The diagnostic benchmark from PR #634 found that edges_between() was the
+dominant cost on machines with many edges — its per-call cost scaled linearly
+with TOTAL edge count, not with the per-state out-degree the call actually
+needs.  has_state() was already at 10M+ ops/sec across every shape, so the
+bottleneck was algorithmic (linear filter) rather than representational
+(Map<string> lookup).</li>
+<li>Adds a new _outbound_edge_ids: Map&lt;from, number[]&gt; populated alongside the
+existing _edge_map during construction.  edges_between(from, to) iterates
+only that state&#39;s outbound edges instead of the full _edges array.</li>
+<li>Before/after on v5.128.0 baseline (see src/historic_benchmarks/):</li>
+<li>shape           edges_between() ops/sec     factor
+        before -&gt; after</li>
+</ul>
+<p>  chain-1000      1,212  -&gt;  86,476            71x
+  dense-50          291  -&gt;  11,718            40x
+  dense-200          11  -&gt;   4,150           377x
+  messy-1000        307  -&gt; 104,086           339x
+  messy-5000         21  -&gt; 118,097          5624x</p>
+<ul>
+<li>transition() also benefited 1.2-2.0x across most shapes because the transition
+path internally calls edges_between for kind-determination.  has_state() is
+unchanged (noise band).  construct() is slightly slower on chain shapes
+(extra Map.set + Array.push during construction) but faster on hub/hooked.</li>
+<li>Tests: spec suite 5642/5642 pass; coverage 100% statements/branches/functions/
+lines.  Adds src/ts/tests/edges_between.spec.ts with 4 cases covering the
+happy path, the terminal-from-state branch, and the unknown-from-state branch.</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---may-27-2026-114736-am" id="untagged---may-27-2026-114736-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - May 27, 2026 11:47:36 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/5469f920ee37f00b944073463c6a071b44527d08">5469f920ee37f00b944073463c6a071b44527d08</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>chore: rebuild artifacts and docs for 5.129.0</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---may-26-2026-111512-pm" id="untagged---may-26-2026-111512-pm" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - May 26, 2026 11:15:12 PM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/7898c7f10adfa9c2ac3c6b787abb406cc74e749a">7898c7f10adfa9c2ac3c6b787abb406cc74e749a</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<p>Merges [aa72b808, 3acfedc7]</p>
+<ul>
+<li>Merge pull request #633 from StoneCypher/ci_26-05-22_split-pr-main_632</li>
+<li>ci: split PR runs from main; restrict full build to one main job</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---may-26-2026-111110-pm-1" id="untagged---may-26-2026-111110-pm-1" style="color: inherit; text-decoration: none;">
   <h2>[Untagged] - May 26, 2026 11:11:10 PM</h2>
 </a>
 <p>Commit <a href="https://github.com/StoneCypher/jssm/commit/1f171a49f7404559b0931313e419e7df47af5b80">1f171a49f7404559b0931313e419e7df47af5b80</a></p>
