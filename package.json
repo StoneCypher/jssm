@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.129.0",
+  "version": "5.130.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -134,6 +134,8 @@
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
+    "benny:scaling": "node ./src/buildjs/benchmark_scaling.cjs",
+    "benny:all": "npm run benny && npm run benny:scaling",
     "ci_profile": "node ./src/buildjs/ci_profile.cjs",
     "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
@@ -215,7 +217,7 @@
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "benny": "^3.7.1",
-    "better_git_changelog": "^1.6.16",
+    "better_git_changelog": "^1.6.20",
     "cloc": "^2.10.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",

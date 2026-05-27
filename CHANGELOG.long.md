@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-294 merges; 244 releases
+295 merges; 244 releases
 
 
 
@@ -14,6 +14,365 @@ Published tags:
 
 <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 27, 2026 11:54:58 AM
+
+Commit [c00dee32a029c955af9502f7ad5754574dd4043c](https://github.com/StoneCypher/jssm/commit/c00dee32a029c955af9502f7ad5754574dd4043c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.130.0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:11:10 PM
+
+Commit [8ac21caaf8500851e7771b89261292ccb67c829c](https://github.com/StoneCypher/jssm/commit/8ac21caaf8500851e7771b89261292ccb67c829c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: add outbound adjacency index for O(out-degree) edges_between
+  * Closes #635.
+  * The diagnostic benchmark from PR #634 found that edges_between() was the
+dominant cost on machines with many edges — its per-call cost scaled linearly
+with TOTAL edge count, not with the per-state out-degree the call actually
+needs.  has_state() was already at 10M+ ops/sec across every shape, so the
+bottleneck was algorithmic (linear filter) rather than representational
+(Map<string> lookup).
+  * Adds a new _outbound_edge_ids: Map<from, number[]> populated alongside the
+existing _edge_map during construction.  edges_between(from, to) iterates
+only that state's outbound edges instead of the full _edges array.
+  * Before/after on v5.128.0 baseline (see src/historic_benchmarks/):
+  *   shape           edges_between() ops/sec     factor
+                  before -> after
+  chain-1000      1,212  ->  86,476            71x
+  dense-50          291  ->  11,718            40x
+  dense-200          11  ->   4,150           377x
+  messy-1000        307  -> 104,086           339x
+  messy-5000         21  -> 118,097          5624x
+  * transition() also benefited 1.2-2.0x across most shapes because the transition
+path internally calls edges_between for kind-determination.  has_state() is
+unchanged (noise band).  construct() is slightly slower on chain shapes
+(extra Map.set + Array.push during construction) but faster on hub/hooked.
+  * Tests: spec suite 5642/5642 pass; coverage 100% statements/branches/functions/
+lines.  Adds src/ts/tests/edges_between.spec.ts with 4 cases covering the
+happy path, the terminal-from-state branch, and the unknown-from-state branch.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 27, 2026 11:47:36 AM
+
+Commit [5469f920ee37f00b944073463c6a071b44527d08](https://github.com/StoneCypher/jssm/commit/5469f920ee37f00b944073463c6a071b44527d08)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.129.0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:15:12 PM
+
+Commit [7898c7f10adfa9c2ac3c6b787abb406cc74e749a](https://github.com/StoneCypher/jssm/commit/7898c7f10adfa9c2ac3c6b787abb406cc74e749a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [aa72b808, 3acfedc7]
+
+  * Merge pull request #633 from StoneCypher/ci_26-05-22_split-pr-main_632
+  * ci: split PR runs from main; restrict full build to one main job
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:11:10 PM
+
+Commit [1f171a49f7404559b0931313e419e7df47af5b80](https://github.com/StoneCypher/jssm/commit/1f171a49f7404559b0931313e419e7df47af5b80)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: add outbound adjacency index for O(out-degree) edges_between
+  * Closes #635.
+  * The diagnostic benchmark from PR #634 found that edges_between() was the
+dominant cost on machines with many edges — its per-call cost scaled linearly
+with TOTAL edge count, not with the per-state out-degree the call actually
+needs.  has_state() was already at 10M+ ops/sec across every shape, so the
+bottleneck was algorithmic (linear filter) rather than representational
+(Map<string> lookup).
+  * Adds a new _outbound_edge_ids: Map<from, number[]> populated alongside the
+existing _edge_map during construction.  edges_between(from, to) iterates
+only that state's outbound edges instead of the full _edges array.
+  * Before/after on v5.128.0 baseline (see src/historic_benchmarks/):
+  *   shape           edges_between() ops/sec     factor
+                  before -> after
+  chain-1000      1,212  ->  86,476            71x
+  dense-50          291  ->  11,718            40x
+  dense-200          11  ->   4,150           377x
+  messy-1000        307  -> 104,086           339x
+  messy-5000         21  -> 118,097          5624x
+  * transition() also benefited 1.2-2.0x across most shapes because the transition
+path internally calls edges_between for kind-determination.  has_state() is
+unchanged (noise band).  construct() is slightly slower on chain shapes
+(extra Map.set + Array.push during construction) but faster on hub/hooked.
+  * Tests: spec suite 5642/5642 pass; coverage 100% statements/branches/functions/
+lines.  Adds src/ts/tests/edges_between.spec.ts with 4 cases covering the
+happy path, the terminal-from-state branch, and the unknown-from-state branch.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:48:44 AM
+
+Commit [a53ef2d378574e71b7dd95619b1101db8eca58ad](https://github.com/StoneCypher/jssm/commit/a53ef2d378574e71b7dd95619b1101db8eca58ad)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(bench): commit diagnostic-benchmark spec, plan, and dated baseline snapshot
+  * - notes/superpowers/specs/2026-05-26-diagnostic-benchmark-design.md
+  the design that drove this PR
+- notes/superpowers/plans/2026-05-26-diagnostic-benchmark.md
+  the implementation plan executed across commits bc481868..47e2e675
+- src/historic_benchmarks/benchmark_2026-05-26.json
+  immutable snapshot of v5.128.0 scaling baseline; future runs overwrite
+  benchmark/results/scaling.json but never touch this archive
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:40:46 AM
+
+Commit [47e2e675272d7b54ac3a01df1f104cc3939f5fd8](https://github.com/StoneCypher/jssm/commit/47e2e675272d7b54ac3a01df1f104cc3939f5fd8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): wire benny:scaling/benny:all and capture v5.128.0 baseline
+  * Diagnostic signals from scaling.md:
+1. chain transition() across N=10..1000: not flat, drops ~45% (137705 -> 75764) across a 100x size growth, i.e. sub-linear but visibly degrading
+2. dense transition() vs chain at same N: dense degrades faster but only modestly - dense-10 is ~25% slower than chain-10, dense-200 ~36% slower than chain-200; not a sharp collapse
+3. edges_between() scaling with edge count: yes, scales with edge count - chain-1000 (~1000 edges) ~1212 ops/s, dense-200 (~40k edges) only 11 ops/s, messy-5000 only 21 ops/s
+4. hooked-200 vs hub-200 transition(): yes, hooked-200 (10624) is ~6.5x slower than hub-200 (68880) - hooks dominate per-transition cost
+5. has_state() flatness: yes, flat across all sizes (~9.6M to ~14.4M ops/s, noise band) regardless of shape or N
+6. messy-1000 vs chain-1000 per op: yes, perceptibly worse on most ops - transition 60156 vs 75764, edges_between 307 vs 1212 (~4x slower), construct 13 vs 93 (~7x slower); has_state alone is comparable
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:31:53 AM
+
+Commit [df924692996fc0ca0a4a74ccf787273d55b9cf60](https://github.com/StoneCypher/jssm/commit/df924692996fc0ca0a4a74ccf787273d55b9cf60)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): emit grouped markdown pivot of scaling results
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:25:26 AM
+
+Commit [de9dc183f646ec13d132737a7982eeeeeca9fd98](https://github.com/StoneCypher/jssm/commit/de9dc183f646ec13d132737a7982eeeeeca9fd98)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): match tree-shaking idiom and tighten construct() comment
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:22:29 AM
+
+Commit [628962d7df3b623008f2dba618fdeaaaf87348c4](https://github.com/StoneCypher/jssm/commit/628962d7df3b623008f2dba618fdeaaaf87348c4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): add construction-time cases to scaling suite
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:15:53 AM
+
+Commit [d79e348f2f17cdcdfccf1c297d712fb78c4044b2](https://github.com/StoneCypher/jssm/commit/d79e348f2f17cdcdfccf1c297d712fb78c4044b2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): extract buildHubEdgePairs for parity with buildHubTraversal
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:09:36 AM
+
+Commit [6adecaf5e1e9d471c7cbc304f8cd65c98a3ea63c](https://github.com/StoneCypher/jssm/commit/6adecaf5e1e9d471c7cbc304f8cd65c98a3ea63c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): add edges_between and has_state cases (action deferred)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:02:22 AM
+
+Commit [8e8071a7838463a83c1bbfd5489f6d0dd923a447](https://github.com/StoneCypher/jssm/commit/8e8071a7838463a83c1bbfd5489f6d0dd923a447)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): load messy-1000 and messy-5000 fixtures into scaling suite
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 10:59:53 AM
+
+Commit [e045150e358cd897933e64ff4fed267bf8ed8f1f](https://github.com/StoneCypher/jssm/commit/e045150e358cd897933e64ff4fed267bf8ed8f1f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): extract buildHubTraversal to dedupe hub/hooked walks
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 10:15:53 AM
+
+Commit [6008d9891dffa1844ec722de8a3a45838957495b](https://github.com/StoneCypher/jssm/commit/6008d9891dffa1844ec722de8a3a45838957495b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): add chain/dense/hub/hooked structured shapes to scaling suite
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 10:13:07 AM
+
+Commit [f0b1adab3fa783ce249e92a919e33247b109bdfe](https://github.com/StoneCypher/jssm/commit/f0b1adab3fa783ce249e92a919e33247b109bdfe)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): document override overhead and staged imports
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 9:52:42 AM
+
+Commit [45cd84cdd51cab1af44e3a3afe78208887ef11e2](https://github.com/StoneCypher/jssm/commit/45cd84cdd51cab1af44e3a3afe78208887ef11e2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): scaffold scaling benchmark with chain-10 transition case
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 9:43:08 AM
+
+Commit [bc4818688779412150d267af82f46b8da00a99ad](https://github.com/StoneCypher/jssm/commit/bc4818688779412150d267af82f46b8da00a99ad)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): add frozen messy-1000 and messy-5000 FSL fixtures
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 23, 2026 12:10:15 AM
+
+Commit [3acfedc7994c44c752fc0413435d3910ceca9a33](https://github.com/StoneCypher/jssm/commit/3acfedc7994c44c752fc0413435d3910ceca9a33)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.129.0
+  * Version bump required for the verify-version-bump CI gate.
+  * Also bumps better_git_changelog 1.6.5 -> 1.6.16. The rebuild had to
+run with GIT_CONFIG_PARAMETERS="'core.abbrev=7'" because 1.6.16 still
+hard-codes 7-char hashes on `Merge:` lines and the repo has crossed
+git's auto-abbrev threshold to 8 chars. Workaround documented for
+follow-up; this commit just carries the artifacts.
+  * Refs #632
 
 
 
@@ -396,7 +755,7 @@ Commit [aa72b808a36178520f0a4713b54e1e33c76128f5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b0eda7b, 4d83728]
+Merges [b0eda7bf, 4d837285]
 
   * Merge pull request #602 from StoneCypher/worktree-comparables-extraction
   * feat(comparables): extract Shootout examples to JSON + renderer
@@ -429,7 +788,7 @@ Commit [6c304e1830baf641e3b34d80f1facf895fcfea48](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [9edd415, b0eda7b]
+Merges [9edd415b, b0eda7bf]
 
   * Merge origin/main into worktree-comparables-extraction (PR #602); accept main's deletion of obsolete jest-spec.config.cjs; bump to 5.128.0
 
@@ -448,7 +807,7 @@ Commit [b0eda7bf371377d5dc6a80813fc1a9499fa6ff92](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3ace706, acf4dab]
+Merges [3ace7069, acf4dabb]
 
   * Merge pull request #599 from StoneCypher/stonecypher/fsl#420
   * Stonecypher/fsl#420
@@ -501,7 +860,7 @@ Commit [a1b56aa8b5bee76580e8a02f8a760ed9a1cbae1e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [006b9b3, 3ace706]
+Merges [006b9b3a, 3ace7069]
 
   * Merge origin/main into stonecypher/fsl#420 (PR #599); generated-artifact conflicts only; bump to 5.127.0
 
@@ -520,7 +879,7 @@ Commit [3ace7069f4f16388de57a1b43acbb5ab0997af84](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [605aca7, 5728093]
+Merges [605aca7f, 57280930]
 
   * Merge pull request #597 from StoneCypher/stonecypher/fsl#358
   * feat(grammar): accept `edge-color` as alias for `edge_color` (StoneCypher/fsl#358)
@@ -553,7 +912,7 @@ Commit [c6d9a84b557bd8460b2ec2d49a468ca02070bb55](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1b773f7, 605aca7]
+Merges [1b773f7c, 605aca7f]
 
   * Merge origin/main into stonecypher/fsl#358 (PR #597); generated-artifact conflicts only; bump to 5.126.0
 
@@ -572,7 +931,7 @@ Commit [605aca7fe1013eb7c2ce42b70fed300cd6f356b2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [40ed803, bc79d5d]
+Merges [40ed8038, bc79d5dc]
 
   * Merge pull request #595 from StoneCypher/stonecypher/fsl#1326
   * test(actions): regression for list_exit_actions on actionless states
@@ -626,7 +985,7 @@ Commit [2809226dbc617b61bd71498c77bc1deebe97f13d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c63e6e8, 40ed803]
+Merges [c63e6e80, 40ed8038]
 
   * Merge origin/main into stonecypher/fsl#1326 (PR #595); resolve generated artifacts to main; bump to 5.125.1
 
@@ -645,7 +1004,7 @@ Commit [40ed8038918bb673cb097477c8da57c8921d1717](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [280f50a, 7f5c829]
+Merges [280f50a4, 7f5c829d]
 
   * Merge pull request #594 from StoneCypher/stonecypher/fsl#316
   * feat(viz): slug-based SVG/dot node IDs replace index scheme
@@ -698,7 +1057,7 @@ Commit [6a2431016297b4aadae943fb90949d3e5db758cb](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1dd8192, 280f50a]
+Merges [1dd81929, 280f50a4]
 
   * Merge origin/main into stonecypher/fsl#316 (PR #594); union states_to_nodes_string signature (slug-based state_index + hide_state_labels); bump to 5.125.0
 
@@ -717,7 +1076,7 @@ Commit [280f50a4d1cac4b292d6b63f1e6af73eadd87028](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [aaf4a4a, 4e70602]
+Merges [aaf4a4ac, 4e706021]
 
   * Merge pull request #593 from StoneCypher/worktree-agent-a8562119fe10fe2f0
   * fix(grammar): replace theme 'none' with 'plain' to match FslThemes registry (fsl#1328)
@@ -770,7 +1129,7 @@ Commit [1f084d7252f19bc2114ffb53ae27ac16b7b64c86](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [042394b, aaf4a4a]
+Merges [042394b0, aaf4a4ac]
 
   * Merge origin/main into worktree-agent-a8562119fe10fe2f0 (PR #593); resolve theme.spec.ts (keep both fsl#1328 and style_for suites); bump to 5.124.1
 
@@ -789,7 +1148,7 @@ Commit [aaf4a4ac280cfe4518cfd02a94ad32e79c819281](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [8b54c14, 7a3c129]
+Merges [8b54c14f, 7a3c1292]
 
   * Merge pull request #596 from StoneCypher/stonecypher/fsl#427
   * feat(viz): add hide_state_labels render option (StoneCypher/fsl#427)
@@ -824,7 +1183,7 @@ Commit [540023fccec85ad02409f824a48fa3c7e527d408](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fa37bb7, 8b54c14]
+Merges [fa37bb71, 8b54c14f]
 
   * Merge origin/main into stonecypher/fsl#427
   * Resolves the jssm_viz.ts collision between this branch's
@@ -848,7 +1207,7 @@ Commit [8b54c14f574f50b71d8622e5540af2a09295d032](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [29abac6, 0d2d0ee]
+Merges [29abac69, 0d2d0ee9]
 
   * Merge pull request #618 from StoneCypher/feat_26-05-18_open-sans-and-render-sizing
   * feat: bundle Open Sans, render 3x by default, add --scale/--height
@@ -894,7 +1253,7 @@ Commit [29abac69d41556aa714ccada76d0c2e87f628184](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [886d8c6, 12bdfe3]
+Merges [886d8c6a, 12bdfe3e]
 
   * Merge pull request #617 from StoneCypher/fix_26-05-17_cli-render-missing-text_615
   * fix: render text labels in CLI raster (PNG/JPEG) output
@@ -929,7 +1288,7 @@ Commit [a7336dc68b27aa5ca4240594eb383297c605a954](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fd6fdd6, 886d8c6]
+Merges [fd6fdd62, 886d8c6a]
 
   * Merge origin/main into fix_26-05-17_cli-render-missing-text_615
   * main released 5.122.3 while this PR was open, so this branch is bumped
@@ -952,7 +1311,7 @@ Commit [886d8c6a066eff42a7cf1b6120a7b9f4c4383960](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [eb2f308, 97d428d]
+Merges [eb2f308e, 97d428d3]
 
   * Merge pull request #616 from StoneCypher/upgrade-better-git-changelog
   * Upgrade better_git_changelog to 1.6.5
@@ -1020,7 +1379,7 @@ Commit [eb2f308eb9762084b20a27369f4161dd97d0c893](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5ecda2b, 08148c8]
+Merges [5ecda2b5, 08148c8c]
 
   * Merge pull request #611 from StoneCypher/SpeedUpBuild
   * build(cli): merge the three CLI rollup configs into one
@@ -1120,7 +1479,7 @@ Commit [c92d3ecb987b657aa18cd9d39066374b2fada3e9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [14ebda6, 7d87a68]
+Merges [14ebda62, 7d87a680]
 
   * Merge branch 'main' into SpeedUpBuild
   * Resolved package.json: combined SpeedUpBuild's consolidated rollup
@@ -1143,7 +1502,7 @@ Commit [7d87a680a73e272d5e273b1b6e17c7449337d484](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d6eb354, 5ecda2b]
+Merges [d6eb3543, 5ecda2b5]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -1340,7 +1699,7 @@ Commit [5ecda2b593d03c94bab338e559344dda2c3d7c02](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [99b5a63, 6c288dd]
+Merges [99b5a631, 6c288dd6]
 
   * Merge pull request #612 from StoneCypher/executable-docblock-examples
   * feat: run docblock @example blocks as an executable test suite
@@ -1402,7 +1761,7 @@ Commit [11b204d907733cbb89ac24ffcc191e7553ca2361](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c9f4d88, d6eb354]
+Merges [c9f4d88b, d6eb3543]
 
   * Merge branch 'main' into SpeedUpBuild
 
@@ -1714,7 +2073,7 @@ Commit [99b5a63172234e286229e30a3a61aa084250787d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [115cddc, 990ab60]
+Merges [115cddc8, 990ab60c]
 
   * Merge pull request #600 from StoneCypher/stonecypher/fsl#1324
   * Stonecypher/fsl#1324
@@ -1747,7 +2106,7 @@ Commit [b5a71a2f40349002b1da36f351b5ebc7eb59d78d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [36a0a33, 115cddc]
+Merges [36a0a332, 115cddc8]
 
   * merge
 
@@ -1859,7 +2218,7 @@ Commit [115cddc8bf70863376c37ea95f467616834e7909](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a7dc057, 45ecff2]
+Merges [a7dc0576, 45ecff2a]
 
   * Merge pull request #606 from StoneCypher/ConvertToVitest
   * Convert to vitest
@@ -2003,7 +2362,7 @@ Commit [1f86b79b9204e0e07708fe194437f26fe51723a4](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b91876f, a7dc057]
+Merges [b91876f8, a7dc0576]
 
   * Merge branch 'main' into ConvertToVitest
 
@@ -2020,7 +2379,7 @@ Commit [2c307b2dfe5e275d7f9d723424b01e98363d1f46](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b91876f, a7dc057]
+Merges [b91876f8, a7dc0576]
 
   * Merge branch 'main' into ConvertToVitest
 
@@ -2125,7 +2484,7 @@ Commit [e27d126bf5f0e06bb6f9d8fe8c2334525f7d4ec8](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [aef8e2b, 703d171]
+Merges [aef8e2b4, 703d1716]
 
   * Merge pull request #604 from StoneCypher/worktree-BuildUnifiedFslCli
   * Add unified fsl CLI with constellation library API (v1)
@@ -2266,7 +2625,7 @@ Commit [98650dd63fd2f679283bd4aaa30fbe990dbaa150](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6d082f9, aef8e2b]
+Merges [6d082f95, aef8e2b4]
 
   * Merge branch 'main' into worktree-BuildUnifiedFslCli
   * Combines the unified fsl CLI work with main's web-components additions.
@@ -2287,7 +2646,7 @@ Commit [aef8e2b47e9b5b40421207ded9dd36f612ee3d48](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a01b024, dd3f570]
+Merges [a01b024d, dd3f5701]
 
   * Merge pull request #603 from StoneCypher/worktree-lit-wc-foundation
   * feat(wc): Lit web component foundation; ship <jssm-viz>
@@ -2320,7 +2679,7 @@ Commit [bec1fbb2085656954b6c90d6203831270751d70e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ddcaf3e, a01b024]
+Merges [ddcaf3ed, a01b024d]
 
   * Merge branch 'main' into worktree-lit-wc-foundation
 
@@ -2369,7 +2728,7 @@ Commit [33afb27bf66b91ac2b540bfb7f16ff4beb415aa0](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a8c58a2, dacf2bc]
+Merges [a8c58a2f, dacf2bc8]
 
   * merging main
 
@@ -2401,7 +2760,7 @@ Commit [89ff3d9bfb496ae7117d3cf9ffe241096464cce9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f6139f5, 9184abf]
+Merges [f6139f53, 9184abfb]
 
   * merge
 
@@ -3002,7 +3361,7 @@ Commit [9184abfbd0deeeb17e77bda12fea7de5ad8e0eb0](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d793d93, 622f5d0]
+Merges [d793d93b, 622f5d01]
 
   * Merge pull request #598 from StoneCypher/stonecypher/fsl#1325
   * fix(stoch): probable_exits_for filters out non-probability and forced-only exits
@@ -3080,7 +3439,7 @@ Commit [f43b765aa84d9ad3133b2f8f71f27b036e2882ed](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [39283af, a0d0e54]
+Merges [39283afc, a0d0e54b]
 
   * Merge branch 'main' into stonecypher/fsl#1325
   * # Conflicts:
@@ -3129,7 +3488,7 @@ Commit [e501db802c7db250681f6f868909f446b05a3d91](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f3977b3, a0d0e54]
+Merges [f3977b3e, a0d0e54b]
 
   * Merge branch 'main' into stonecypher/fsl#420
   * # Conflicts:
@@ -3178,7 +3537,7 @@ Commit [94ee05385c77f5e936fdbd565d69720e036ca4dc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [138c14a, a0d0e54]
+Merges [138c14ac, a0d0e54b]
 
   * Merge branch 'main' into stonecypher/fsl#1324
   * # Conflicts:
@@ -3248,7 +3607,7 @@ Commit [a458bee0b19c11eac635c319b675e60e987cf5bd](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d37fd52, a0d0e54]
+Merges [d37fd524, a0d0e54b]
 
   * Merge branch 'main' into stonecypher/fsl#1326
   * # Conflicts:
@@ -3282,7 +3641,7 @@ Commit [fb29236c79645714ba57d0664534f152e4902957](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5d9dfb1, a0d0e54]
+Merges [5d9dfb1d, a0d0e54b]
 
   * Merge branch 'main' into stonecypher/fsl#358
   * # Conflicts:
@@ -3352,7 +3711,7 @@ Commit [7bc7770247b722d7d7ff02f55d1f2d12fb2cbaba](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b5062d5, a0d0e54]
+Merges [b5062d53, a0d0e54b]
 
   * Merge branch 'main' into stonecypher/fsl#427
   * # Conflicts:
@@ -3781,7 +4140,7 @@ Commit [e72f83ba5f0efeb8674f27920bc4e39b01087ff1](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [63c4d39, b4befd1]
+Merges [63c4d392, b4befd1c]
 
   * Merge branch 'main' into stonecypher/fsl#316
   * # Conflicts:
@@ -3934,7 +4293,7 @@ Commit [6104fbea313fbcd0e42d92a4f567ed5b945ff883](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [042394b, 17bb265]
+Merges [042394b0, 17bb2657]
 
   * Merge branch 'main' into worktree-agent-a8562119fe10fe2f0
   * # Conflicts:
@@ -4047,7 +4406,7 @@ Commit [d793d93bed495af0a295c634d1a4229c0dce7010](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2335885, bf07df4]
+Merges [2335885b, bf07df4e]
 
   * Merge pull request #592 from StoneCypher/worktree-agent-a8f7f97a2228b321b
   * feat(machine): expose grammar charset ranges for state names and action labels
@@ -4065,7 +4424,7 @@ Commit [2335885be44d938826839af7ab4583786cccc6d6](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2003941, 3808115]
+Merges [20039417, 3808115e]
 
   * Merge pull request #591 from StoneCypher/worktree-agent-a1ccd7b21aa5d435d
   * feat(viz): add optional dot footer arg to render entry points
@@ -4733,7 +5092,7 @@ Commit [1515ced5c41598a213d9065fbfc4bc7529d1c9dc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [06552da, d3af969]
+Merges [06552da1, d3af9691]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -4810,7 +5169,7 @@ Commit [aa6d9c0f70c9cbcbb8aef0fcf0f04b88d2869bad](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a253dd5, 0afd600]
+Merges [a253dd55, 0afd600a]
 
   * Merge branch 'GetSeriousAboutStochastics' into ConvertToVitest
   * Brings in:
@@ -4850,7 +5209,7 @@ Commit [d3af9691d1db5f6e921e6c751da102bc406a2e03](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b0681f0, 0afd600]
+Merges [b0681f04, 0afd600a]
 
   * Merge pull request #590 from StoneCypher/GetSeriousAboutStochastics
   * Get serious about stochastics
@@ -5172,7 +5531,7 @@ Commit [093f713fdc82794b023196d8d0a11da6c8d8b757](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4c1b786, b0681f0]
+Merges [4c1b7864, b0681f04]
 
   * Merge branch 'main' into GetSeriousAboutStochastics
 
@@ -5373,7 +5732,7 @@ Commit [a89b151a2de671f6ec7015a47d6f8642d86748c9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2f0e562, 0d5bfd2]
+Merges [2f0e562b, 0d5bfd21]
 
   * Merge pull request #588 from StoneCypher/dependabot/npm_and_yarn/fast-uri-3.1.2
   * build(deps): bump fast-uri from 3.1.0 to 3.1.2
@@ -5425,7 +5784,7 @@ Commit [99fdc29ae42cff6817fd2efae6a2f8461dfccb1f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fa766c2, ba485c6]
+Merges [fa766c2e, ba485c65]
 
   * Merge pull request #589 from StoneCypher/DescribeAndRepairGrammar
   * Describe and repair grammar
@@ -5458,7 +5817,7 @@ Commit [ece8a2eaa5c14188c63bfa5ddf69f9378d81543c](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0b444a4, 4bd10e8]
+Merges [0b444a40, 4bd10e8b]
 
   * Merge branch 'main' into DescribeAndRepairGrammar
 
@@ -5570,7 +5929,7 @@ Commit [fa766c2e092b5af4d7ce34117b357939b3a277b2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [63709bf, 43aee18]
+Merges [63709bff, 43aee18f]
 
   * Merge pull request #587 from StoneCypher/SwitchToSwc
   * Switch to swc
@@ -5668,7 +6027,7 @@ Commit [63709bffe7ff6fc77b34e20b5c90b79a72689391](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7c02c18, beca91d]
+Merges [7c02c18d, beca91d2]
 
   * Merge pull request #586 from StoneCypher/EmbraceJssmViz
   * Embrace jssm viz
@@ -5686,7 +6045,7 @@ Commit [beca91d2da9fc4c176f239394bf5a6048f42c395](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3d1a61e, 7c02c18]
+Merges [3d1a61ea, 7c02c18d]
 
   * Merge branch 'main' into EmbraceJssmViz
 
@@ -6134,7 +6493,7 @@ Commit [7c02c18d5286e4c0154f5ea47c4fcdd6a0709c3e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [df00005, 8f5cf8d]
+Merges [df00005d, 8f5cf8d9]
 
   * Merge pull request #585 from StoneCypher/fix/duplicate-gamma-jsnumericliteral
   * fix: remove duplicate γ alternative in JsNumericLiteral (#584)
@@ -6620,7 +6979,7 @@ Commit [e30eff0fe6b41c249bfdc7b6651885e52c956a71](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [086557c, e416b8f]
+Merges [086557cd, e416b8fa]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -6658,7 +7017,7 @@ Commit [e416b8fae907b64681e6bb449b612fbfcb9fbf62](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ab6395f, 962b666]
+Merges [ab6395fc, 962b666b]
 
   * Merge pull request #579 from StoneCypher/dependabot/npm_and_yarn/lodash-4.17.23
   * Bump lodash from 4.17.21 to 4.17.23
@@ -6718,7 +7077,7 @@ Commit [53af77fef01bdf609c03efa2fbc7e368711dffa5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [464d03b, bebbaa7]
+Merges [464d03b0, bebbaa77]
 
   * Merge pull request #578 from StoneCypher/VersionCheckDeserialize_1010
   * Add version checking to deserialize to refuse future versions
@@ -6841,7 +7200,7 @@ Commit [068f45100fd21b8612e74873067df0739ea95960](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [02e7ae7, 1df01b2]
+Merges [02e7ae72, 1df01b29]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -6873,7 +7232,7 @@ Commit [1df01b29861af4aac17124d5240af38eaba2686e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [eed2dad, 3585cb1]
+Merges [eed2dad1, 3585cb12]
 
   * Merge pull request #577 from StoneCypher/dependabot/npm_and_yarn/js-yaml-3.14.2
   * Bump js-yaml from 3.14.1 to 3.14.2
@@ -6933,7 +7292,7 @@ Commit [03dda20b684b8614caa993ac796f95d6bfabd74e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [31dfb9c, 51d8ae4]
+Merges [31dfb9c1, 51d8ae45]
 
   * Merge pull request #576 from miguel-rios-r/UpdatePackageJsonDefaultExportFileExtension
   * Remove .js in package.json > export > dafault
@@ -7017,7 +7376,7 @@ Commit [5c4c9ae8e6553078ffe3dc9a762f45e061fa78ac](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5b8ecee, da15bd2]
+Merges [5b8eceed, da15bd29]
 
   * Merge pull request #574 from StoneCypher/ModernizeRollup
   * Modernize rollup
@@ -7099,7 +7458,7 @@ Commit [ffd807a9024771b7c41b498af871e211d95d1ca5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1241e0f, cbb3d68]
+Merges [1241e0f3, cbb3d689]
 
   * Merge pull request #573 from StoneCypher/types-fixes-2
   * Types fixes 2
@@ -7147,7 +7506,7 @@ Commit [93419aceb06cd1f7b9dd79ee2a8e93b349eab486](https://github.com/StoneCypher
 
 Author: `Tyler Butler <tyler@tylerbutler.com>`
 
-Merges [9015165, 1241e0f]
+Merges [9015165c, 1241e0f3]
 
   * Merge branch 'main' into types-fixes-2
 
@@ -7166,7 +7525,7 @@ Commit [1241e0f32ace7b3f1854383d8c6106d02f7105be](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [76daa94, 5bad1e6]
+Merges [76daa940, 5bad1e6e]
 
   * Merge pull request #572 from StoneCypher/AddAfterHooks
   * After hook for single node, fixes StoneCypher/fsl#698
@@ -7402,7 +7761,7 @@ Commit [b2d953d915b12e5831a3d1ad87c5e09747787997](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e642702, 9f66ad0]
+Merges [e6427024, 9f66ad09]
 
   * Merge pull request #568 from StoneCypher/SetInitialState
   * Set initial state
@@ -7527,7 +7886,7 @@ Commit [e6427024141b584079a6e92f5a4ab776135cc6f3](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c14a348, e55cc60]
+Merges [c14a348e, e55cc60b]
 
   * Merge pull request #567 from StoneCypher/ExtensionUpdates
   * minor cleanup in the build for .mjs and .cjs extensions
@@ -7562,7 +7921,7 @@ Commit [c14a348ebd08fd5732a0316e89ab9e746f0dc317](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f834994, 28efd03]
+Merges [f8349947, 28efd039]
 
   * Merge pull request #566 from StoneCypher/BundleEs6Export
   * attempt to resolve cjs loader issue
@@ -7597,7 +7956,7 @@ Commit [f8349947c678e830384d7b4bae6c0d69e9df1f85](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b80c8de, 0248775]
+Merges [b80c8de3, 02487756]
 
   * Merge pull request #564 from StoneCypher/FixCarryProblemInTimers
   * Fix problem with timer carryover, fixes StoneCypher/fsl#1268
@@ -7632,7 +7991,7 @@ Commit [b80c8de3a3e841b5dbc60240fd87eea1d9ff5182](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fa2a33b, 0a29c9e]
+Merges [fa2a33be, 0a29c9e0]
 
   * Merge pull request #563 from StoneCypher/FixActionsOnActionlessStates
   * Addresses erroneous .actions behavior on missing action nodes, fixes StoneCypher/fsl#1071, fixes StoneCypher/fsl#1072
@@ -7667,7 +8026,7 @@ Commit [fa2a33bed95ff83fb9ae300e4da019a7f7e185a0](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [85b6857, cf27223]
+Merges [85b68576, cf272234]
 
   * Merge pull request #562 from StoneCypher/PreventArrangeOfNonNodes
   * It is now an error to arrange a node that doesn't exist, fixes StoneCypher/fsl#1267, fixes StoneCypher/fsl#1258
@@ -7702,7 +8061,7 @@ Commit [85b68576ed93c1a20e943dc6aa189f2587e1a12d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b2e0742, 0faf24b]
+Merges [b2e0742a, 0faf24be]
 
   * Merge pull request #561 from StoneCypher/FirstStepsToOperatorAfter
   * First steps to operator after
@@ -7797,7 +8156,7 @@ Commit [b2e0742a97f02ada0429c3db7a0cf9f7ceba012e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [12dcaf4, a06de9e]
+Merges [12dcaf49, a06de9e3]
 
   * Merge pull request #560 from StoneCypher/Fix1259PossibleDataLoss
   * data arg2 wasn't implemted; only data argument in hooks.  implemented; added 26 tests to control.  fixes StoneCypher/jssm#557; fixes StoneCypher/fsl#1259
@@ -7847,7 +8206,7 @@ Commit [12dcaf494225ab8295e5ac4b356c64d242399e14](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [09a1713, 437e132]
+Merges [09a17139, 437e1327]
 
   * Merge pull request #559 from StoneCypher/TwitterStepAndLineRunRatio
   * .cjs blip in twitter script fixes StoneCypher/fsl#1263; line_run_ratio in readme was lost, fixes StoneCypher/fsl#1262
@@ -7882,7 +8241,7 @@ Commit [09a17139998d3aee6149d0e50ee1e4441509209a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7de448c, 3b3a998]
+Merges [7de448cb, 3b3a9984]
 
   * Merge pull request #558 from StoneCypher/MissingModuleTypeInPackage
   * Missing module type in package
@@ -8069,7 +8428,7 @@ Commit [966c142a44db8c5f890b2cc4edadca9faee2d625](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [9944585, bba1f0a]
+Merges [99445857, bba1f0a2]
 
   * Merge branch 'main' into NewGraphicAssets
 
@@ -8103,7 +8462,7 @@ Commit [21be69d4b3e592534342a113d259f59bbea4e23b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1401a08, a0fa6f3]
+Merges [1401a083, a0fa6f3a]
 
   * Merge branch 'UpdateWorkflowNodeVersions'
 
@@ -8221,7 +8580,7 @@ Commit [7fb4622f3b8651ea259f8a785210810bd0ae328a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d04a575, 6337159]
+Merges [d04a5754, 63371598]
 
   * Merge pull request #556 from StoneCypher/FinalizeDenoSupport
   * Standard deno support
@@ -8256,7 +8615,7 @@ Commit [d04a57542edb377085437d38e31d13a65fccdce8](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ef4285a, 2a87cf1]
+Merges [ef4285a2, 2a87cf16]
 
   * Merge pull request #555 from StoneCypher/ReattemptDenoSupport
   * draft support for deno
@@ -8306,7 +8665,7 @@ Commit [9e15545284b1dcfaa413486da1d12e02294c149b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3a9eb49, f9cfa61]
+Merges [3a9eb49d, f9cfa618]
 
   * Merge pull request #553 from StoneCypher/dependabot/npm_and_yarn/json5-2.2.3
   * Bump json5 from 2.2.1 to 2.2.3
@@ -8368,7 +8727,7 @@ Commit [2bbed0db313c8c7abc6be14c9982390abfa9a4d9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [67a08bf, 0adcdd5]
+Merges [67a08bfd, 0adcdd53]
 
   * Merge pull request #552 from StoneCypher/ReAddNode11and12
   * It's the actions, not the version claim, causing that message.  Re-add 11 and 12
@@ -8403,7 +8762,7 @@ Commit [67a08bfd7f88444125ae08a6f475fe356b3a2923](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e8ad4b9, 373b64a]
+Merges [e8ad4b95, 373b64ac]
 
   * Merge pull request #551 from StoneCypher/RemoveNode11and12FromGhActions
   * Removing node 11 and node 12 from the github action over lack of supp…
@@ -8438,7 +8797,7 @@ Commit [e8ad4b953a81db1836d2b6a034fdb39ba552263d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [85963d8, a6733d4]
+Merges [85963d8c, a6733d41]
 
   * Merge pull request #550 from StoneCypher/ReattemptDenoSupport
   * Reattempt deno support
@@ -8501,7 +8860,7 @@ Commit [7cfc1473e96944c1e52c05d0a2da4564342d3e94](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d29b224, 85963d8]
+Merges [d29b2248, 85963d8c]
 
   * Modernize deno support
 
@@ -8520,7 +8879,7 @@ Commit [85963d8c154225916ec9bf1f494c480ca033dec9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [dbb82ae, d6f77d1]
+Merges [dbb82aef, d6f77d1b]
 
   * Merge pull request #549 from StoneCypher/next_data
   * Next data
@@ -8603,7 +8962,7 @@ Commit [a033eb38e784cbc5c6bf15bef576b69bb935f9b2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [48b4f92, 99a5fd6]
+Merges [48b4f928, 99a5fd66]
 
   * Merge pull request #548 from StoneCypher/AllowsOverrideInCompiler
   * allows override in compiler, constructor config to allow/disallow override, getters for override, cfg override, machine override
@@ -8656,7 +9015,7 @@ Commit [31077c9256ee31f80398460b3af95bc65a8dbc3a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [793f2fc, 3941c30]
+Merges [793f2fcb, 3941c300]
 
   * Merge pull request #547 from StoneCypher/allows_override
   * .allows_override fixes StoneCypher/fsl#1224
@@ -8691,7 +9050,7 @@ Commit [793f2fcba840f39cb7442f6be54b0c272caad6ba](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ab43e02, 03790c9]
+Merges [ab43e021, 03790c9f]
 
   * Merge pull request #546 from StoneCypher/uses_forced_transitions
   * Adds getter method uses_forced_transitions
@@ -8727,7 +9086,7 @@ Commit [ab43e02152256d19579efdb73c9fa6cb04d1b2b3](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c0c574b, a6026d0]
+Merges [c0c574b6, a6026d0b]
 
   * Merge pull request #545 from StoneCypher/PullThemesOutIntoModule
   * Pull themes out into module
@@ -8763,7 +9122,7 @@ Commit [c0c574b694f1d0511190be139135cdf745f476b7](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c047caa, 090db83]
+Merges [c047caac, 090db831]
 
   * Merge pull request #544 from StoneCypher/PullCompilerOutIntoModule
   * Pull compiler out into a module
@@ -8799,7 +9158,7 @@ Commit [c047caac3f9d9bb24a9c0b517983088eb8ee2e4a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [581fd8d, 013999a]
+Merges [581fd8dc, 013999a7]
 
   * Merge pull request #543 from StoneCypher/PullArrowsOutIntoModules
   * Pull arrows out into modules
@@ -8835,7 +9194,7 @@ Commit [581fd8dc33c4eb2ce190b696d952471abec192ef](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7d741ba, 771f4c8]
+Merges [7d741ba1, 771f4c8d]
 
   * Merge pull request #542 from StoneCypher/AddUnicodeTestsForLabels
   * Add unicode tests for labels
@@ -8886,7 +9245,7 @@ Commit [7d741ba17ccee77138537f732b833efa028dbda7](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4b9fefd, 37c0bdf]
+Merges [4b9fefde, 37c0bdf3]
 
   * Merge pull request #541 from StoneCypher/StartStateRefining
   * Prevent request of illegal state as start state
@@ -8971,7 +9330,7 @@ Commit [87ec233d3511d30358660ad161f932e13eb1738e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [98b7b14, 6475296]
+Merges [98b7b142, 6475296d]
 
   * Merge pull request #540 from StoneCypher/ReintroduceDisplayText
   * Reintroduce display text, lost in a bad merge
@@ -9006,7 +9365,7 @@ Commit [98b7b14217ea7e83550e4ed15b6b6be80799e246](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [461a287, 0f3025a]
+Merges [461a2874, 0f3025ae]
 
   * Merge pull request #539 from StoneCypher/TrimTweet
   * Shorten the tweet notice
@@ -9041,7 +9400,7 @@ Commit [461a2874583d08da6db68e40b75047682625c73d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2eec2c8, 76d6729]
+Merges [2eec2c8b, 76d6729a]
 
   * Merge pull request #538 from StoneCypher/RemoveYmlEcho
   * Remove noisy echo in the YML
@@ -9076,7 +9435,7 @@ Commit [2eec2c8b69d3e59cb06d7b0efc34b336e9ecc29a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a7b92f9, a0b9fb5]
+Merges [a7b92f9b, a0b9fb59]
 
   * Merge pull request #537 from StoneCypher/DisplayText
   * simple display text function to resolve labels and node names
@@ -9112,7 +9471,7 @@ Commit [a7b92f9b1e94dcab843ab588d83d0c5f8eb9ca18](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d4e6196, eedb4a7]
+Merges [d4e61961, eedb4a7d]
 
   * Merge pull request #536 from StoneCypher/MoreStabsAtTweeting
   * Working on auto-tweeter; no associated issue
@@ -9147,7 +9506,7 @@ Commit [d4e619611a04f24b76ad783a9b0f34393e45840a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [cdaa32e, 9193c2d]
+Merges [cdaa32e4, 9193c2d1]
 
   * Merge pull request #535 from StoneCypher/RenameParserAlready
   * Change parser name to fsl_parser, fixes StoneCypher/fsl#1201; another stab at Twitter
@@ -9199,7 +9558,7 @@ Commit [c46d677560dc06baf33c2088205051fedaf5be04](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3256f05, 991d2dc]
+Merges [3256f05a, 991d2dcf]
 
   * Merge pull request #534 from StoneCypher/BoldTheme
   * Add a bold theme
@@ -9234,7 +9593,7 @@ Commit [3256f05a4f2b5c5d6e05c2eeba091899e73ef327](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [51ebcfc, 216dc9c]
+Merges [51ebcfc1, 216dc9cb]
 
   * Merge pull request #533 from StoneCypher/AttemptToFixAstral
   * Attempt to fix astral
@@ -9342,7 +9701,7 @@ Commit [51ebcfc1ec163b8590d1a1a2065dcd8ad0458cc9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [94c4f37, 3557437]
+Merges [94c4f378, 35574377]
 
   * Merge pull request #530 from machinshin/feature/new-readme
   * more-readable README
@@ -9405,7 +9764,7 @@ Commit [50b5d8b1a4efce1c7359f713a02cb0477abd7d4a](https://github.com/StoneCypher
 
 Author: `Vat Raghavan <machinshin@gmail.com>`
 
-Merges [9e18022, 94c4f37]
+Merges [9e18022f, 94c4f378]
 
   * Merge branch 'main' into feature/new-readme
 
@@ -9424,7 +9783,7 @@ Commit [94c4f37805eea9179474c66011155368e6c4ed31](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a307163, cf1cb12]
+Merges [a307163e, cf1cb122]
 
   * Merge pull request #532 from machinshin/feature/shootout/all-inline
   * all example links are inline-d
@@ -9442,7 +9801,7 @@ Commit [cf1cb122a9f86e943258ce58ffe490e27d401319](https://github.com/StoneCypher
 
 Author: `Vat Raghavan <machinshin@gmail.com>`
 
-Merges [1f69c53, a307163]
+Merges [1f69c53f, a307163e]
 
   * Merge branch 'main' into feature/shootout/all-inline
 
@@ -9493,7 +9852,7 @@ Commit [58751e614c6f3f9223239af91f44079ee3a1f045](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [da69e65, a824b2f]
+Merges [da69e65e, a824b2fe]
 
   * Merge pull request #531 from machinshin/feature/shootout-inline-links
   * relative link to code in Shootout.md
@@ -9575,7 +9934,7 @@ Commit [27480ec9b23dc281db0212e68f53aabcdc8b946f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5278df4, 03e1ad3]
+Merges [5278df4d, 03e1ad3a]
 
   * Merge pull request #529 from StoneCypher/ExposeThemesAndDirections
   * Expose themes and directions; fixes StoneCypher/fsl#540, fixes StoneCypher/fsl#541
@@ -9610,7 +9969,7 @@ Commit [5278df4d94a347b37da6cdca2a64a6ca85665b42](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [72d6ef7, 88d7309]
+Merges [72d6ef77, 88d7309b]
 
   * Merge pull request #528 from StoneCypher/SpinUpThemes
   * Spin up themes
@@ -9737,7 +10096,7 @@ Commit [bab9f160ae1dab672a2800c175c21fed2e74f48e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [59e95d8, c3939c3]
+Merges [59e95d8d, c3939c34]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -9771,7 +10130,7 @@ Commit [c3939c3486d8ae2338385de375d753ef5a38673d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6cb2816, b59b5b5]
+Merges [6cb28161, b59b5b53]
 
   * Merge pull request #527 from StoneCypher/AddInlineStylesToResolver
   * Adds inline styles to resolver, fixes StoneCypher/fsl#1160
@@ -9806,7 +10165,7 @@ Commit [6cb281616eaa3d70bc0ff4e14410c5caa07f70f2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4d79b09, ed398d3]
+Merges [4d79b09c, ed398d36]
 
   * Merge pull request #526 from StoneCypher/SupportForStartAndEndStateStyling
   * Support for start and end state styling
@@ -9935,7 +10294,7 @@ Commit [a76a9d87b7f1d691e982d9b5da8a5bc0d68fc1ea](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3cceb0a, 3363432]
+Merges [3cceb0ab, 3363432b]
 
   * Merge pull request #525 from StoneCypher/FinishComparisonMatrix
   * Adds `stent`, `fsm`, `fsm-event`, `node-state`, `state-machine`, `stately.js` to feature comparison table, fixes StoneCypher/fsl#1118, fixes StoneCypher/fsl#1119, fixes StoneCypher/fsl#1120, fixes StoneCypher/fsl#1121, fixes StoneCypher/fsl#1122, fixes StoneCypher/fsl#1123
@@ -9970,7 +10329,7 @@ Commit [3cceb0ab8a9d56f7f3cd79b6ff64beb882e7bc86](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bc39f54, 3ace82f]
+Merges [bc39f548, 3ace82f3]
 
   * Merge pull request #524 from StoneCypher/MoreTryingToFixTwitterTweeter
   * More trying to fix twitter tweeter
@@ -10003,7 +10362,7 @@ Commit [bc39f54865c2eb421261ee1a6ff9e3f6cc3f0b66](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [98eb7eb, 6324d89]
+Merges [98eb7eb7, 6324d89f]
 
   * Merge pull request #523 from StoneCypher/MoreComparisonChart
   * More comparison chart
@@ -10021,7 +10380,7 @@ Commit [6483abdffc869f010f866110c55295da1bee022d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6324d89, 98eb7eb]
+Merges [6324d89f, 98eb7eb7]
 
   * Merge branch 'main' into MoreComparisonChart
 
@@ -10068,7 +10427,7 @@ Commit [98eb7eb745ed5b8593e7695764ddee37eb8ecf9e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [66cbb1d, 16920b1]
+Merges [66cbb1d3, 16920b10]
 
   * Merge pull request #522 from StoneCypher/MoreComparisonChart
   * More comparison chart
@@ -10291,7 +10650,7 @@ Commit [a2a45dbfda6df7012651a55aa65f8e606c0a8768](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3bf5c1d, 277683b]
+Merges [3bf5c1d0, 277683b9]
 
   * Merge pull request #521 from StoneCypher/StartTweetingInGha
   * improved tweet system, fixed gh action non-install
@@ -10326,7 +10685,7 @@ Commit [3bf5c1d061d67524c5f97279a854473d9989e92b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [02bf1ff, 39f3906]
+Merges [02bf1ff5, 39f39067]
 
   * Merge pull request #520 from StoneCypher/StartTweetingInGha
   * Start tweeting in gha
@@ -10393,7 +10752,7 @@ Commit [9f4e86c883c6bb776817da84ba3fe77473f47427](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f756f21, 3a127c6]
+Merges [f756f219, 3a127c62]
 
   * Merge pull request #518 from StoneCypher/RequiredProperties
   * Property requirement, fixes StoneCypher/fsl#1041
@@ -10443,7 +10802,7 @@ Commit [f756f219a0b8ca95feae287a110261dc364030cc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ed93695, e2cc7d1]
+Merges [ed936950, e2cc7d1c]
 
   * Merge pull request #517 from StoneCypher/StrictProp
   * `.strict_prop`, fixes StoneCypher/fsl#1037; tests to enforce, fixes StoneCypher/fsl#1035
@@ -10478,7 +10837,7 @@ Commit [ed936950b132042aeb299c02ad199fe84d5f41f5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7e9fc0d, d28ab5a]
+Merges [7e9fc0d8, d28ab5a2]
 
   * Merge pull request #516 from StoneCypher/Properties
   * Properties
@@ -10633,7 +10992,7 @@ Commit [7e9fc0d832e0e46b477e27758183cc6ffc288916](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6497ed4, 1e742f0]
+Merges [6497ed49, 1e742f08]
 
   * Merge pull request #514 from StoneCypher/Serialize
   * Serialize
@@ -10683,7 +11042,7 @@ Commit [6497ed49a6a7dbe55509ac552cc30adb9ee19c9c](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e9400bd, 4623580]
+Merges [e9400bd6, 46235801]
 
   * Merge pull request #512 from StoneCypher/SynonymDoForAction
   * Define do/1 to be a synonym for action/1, fixes StoneCypher/fsl#809
@@ -10718,7 +11077,7 @@ Commit [e9400bd62c93201bcc34a002469e21910979cb2e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d1b55ae, 2c633a6]
+Merges [d1b55ae8, 2c633a61]
 
   * Merge pull request #511 from StoneCypher/SynonymGoForTransition
   * Define go/1 to be a synonym for transition/1, fixes StoneCypher/fsl#810
@@ -10768,7 +11127,7 @@ Commit [d1b55ae8944031677c228f06eec6a5a28eb695ac](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [813d866, 40677c7]
+Merges [813d8668, 40677c74]
 
   * Merge pull request #510 from StoneCypher/BumpCloc
   * Bump CLOC, fixes StoneCypher/fsl#995
@@ -10803,7 +11162,7 @@ Commit [813d8668300b88e72c0598ec9b5b19fce777d05e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bdea503, 1cc0629]
+Merges [bdea5031, 1cc0629f]
 
   * Merge pull request #509 from StoneCypher/IntroducingTheKitchenSinkDragon
   * Introducing the kitchen sink dragon
@@ -10883,7 +11242,7 @@ Commit [bdea50316e8e826af73a4e6ab39f925492328c51](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [cb76475, f084d51]
+Merges [cb764758, f084d519]
 
   * Merge pull request #507 from StoneCypher/PutClocMetricsInReadme
   * Cleanup stuff; suppress warnings about non-exported types, fixes StoneCypher/fsl#988
@@ -10918,7 +11277,7 @@ Commit [cb76475847c87d1e222896b194da9d139b15c21e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3940ac2, 840dcb9]
+Merges [3940ac2b, 840dcb95]
 
   * Merge pull request #506 from StoneCypher/PutClocMetricsInReadme
   * Put cloc metrics in readme
@@ -10998,7 +11357,7 @@ Commit [3940ac2b520c843153af11b2c67b0e8915ede619](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [89b9c2c, 9543655]
+Merges [89b9c2ce, 95436551]
 
   * Merge pull request #505 from StoneCypher/PostHooks
   * Post hooks Fixes StoneCypher/fsl#897, StoneCypher/fsl#898, StoneCypher/fsl#899, StoneCypher/fsl#900, StoneCypher/fsl#901, StoneCypher/fsl#902, StoneCypher/fsl#903, StoneCypher/fsl#904, StoneCypher/fsl#905, StoneCypher/fsl#906, StoneCypher/fsl#959, StoneCypher/fsl#960, StoneCypher/fsl#961, StoneCypher/fsl#962, StoneCypher/fsl#963, StoneCypher/fsl#964, StoneCypher/fsl#965, StoneCypher/fsl#966, StoneCypher/fsl#967, StoneCypher/fsl#968, StoneCypher/fsl#969, StoneCypher/fsl#970, StoneCypher/fsl#971, StoneCypher/fsl#972, StoneCypher/fsl#973, StoneCypher/fsl#974, StoneCypher/fsl#976, StoneCypher/fsl#975, StoneCypher/fsl#977
@@ -11110,7 +11469,7 @@ Commit [39f9a8671a45e1e9a903289431bc3bc7a1e292e5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f1a61f1, c494012]
+Merges [f1a61f1e, c494012f]
 
   * Merge pull request #504 from StoneCypher/AddHistoryAndCircularBuffer
   * Working history, fixes StoneCypher/fsl#950, fixes StoneCypher/fsl#951,fixes StoneCypher/fsl#948, fixes StoneCypher/fsl#949, fixes StoneCypher/fsl#947, fixes StoneCypher/fsl#946, fixes StoneCypher/fsl#203
@@ -11145,7 +11504,7 @@ Commit [f1a61f1e967df66b87f2b6b39f75636659f496e9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [dc3096f, 751c5fd]
+Merges [dc3096f0, 751c5fd0]
 
   * Merge pull request #503 from StoneCypher/AttemptToCaptureTestResults
   * Captures test results, fixes StoneCypher/fsl#944, tools readme, fixes StoneCypher/fsl#736
@@ -11180,7 +11539,7 @@ Commit [dc3096f064e58ea616899b12d3d25c973f326c1c](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a184324, 8762d17]
+Merges [a1843247, 8762d17b]
 
   * Merge pull request #502 from StoneCypher/AllowHooksToChangeData
   * Allow hooks to change data
@@ -11290,7 +11649,7 @@ Commit [a1843247eb5c063910643f675f0a85764f3f3683](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b0cbe1c, d52217a]
+Merges [b0cbe1c1, d52217ab]
 
   * Merge pull request #501 from StoneCypher/MovingToAbstractHooks
   * Moving to abstract hooks
@@ -12014,7 +12373,7 @@ Commit [9da2770dc47d3c2e99b9b95a56f1ae447d7ee2b7](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c48f55d, ab559f1]
+Merges [c48f55d0, ab559f18]
 
   * Merge pull request #497 from StoneCypher/LanguageReference
   * More doc stubs, see StoneCypher/fsl#831, see StoneCypher/fsl#832, see StoneCypher/fsl#835, see StoneCypher/fsl#836, see StoneCypher/fsl#837
@@ -12032,7 +12391,7 @@ Commit [ab559f18da3ee21500a34aa99d23c0433ea0e226](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a0db9ad, c48f55d]
+Merges [a0db9ad1, c48f55d0]
 
   * Get the basics of a reference started
 
@@ -12051,7 +12410,7 @@ Commit [c48f55d02b6b52c57bf494549423df60f45bb393](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e7a09e7, 575db4a]
+Merges [e7a09e7c, 575db4a0]
 
   * Merge pull request #500 from StoneCypher/AttemptInterRepoGhaThroughCurl2
   * yet another attempt to chain
@@ -12086,7 +12445,7 @@ Commit [e7a09e7cffc7782781843a106789acbeb6ceba12](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5246c9e, 9bb5cd8]
+Merges [5246c9ea, 9bb5cd89]
 
   * Merge pull request #499 from StoneCypher/AttemptInterRepoGhaThroughCurl2
   * more attempts to tie repos together
@@ -12121,7 +12480,7 @@ Commit [5246c9eae2d41efaa49196c24d5a89647c2eae0d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fd7acd5, 512332c]
+Merges [fd7acd54, 512332c8]
 
   * Merge pull request #498 from StoneCypher/AttemptInterRepoGhaThroughCurl
   * Another attempt at tying repos together
@@ -12188,7 +12547,7 @@ Commit [379a021325ca39e24e2604d2c79046b89cabac9b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [445bed8, 737e3f0]
+Merges [445bed8c, 737e3f03]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -12222,7 +12581,7 @@ Commit [737e3f0377ae6dfcd1a6c482c90244fe7d4c0eb9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b0fe5d4, 9403681]
+Merges [b0fe5d46, 9403681c]
 
   * Merge pull request #496 from StoneCypher/DocStubs
   * Doc stubs
@@ -12255,7 +12614,7 @@ Commit [19b57adbb571d5b22a843f7d23d4cf9db9eac0c2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [570555e, b0fe5d4]
+Merges [570555ea, b0fe5d46]
 
   * Merge branch 'main' into DocStubs
 
@@ -12289,7 +12648,7 @@ Commit [b0fe5d467f6571fa5c9bf19805c3d43cf5a8fc0a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ea3e310, 5950672]
+Merges [ea3e3102, 5950672f]
 
   * Merge pull request #495 from StoneCypher/ExportFieldsForCdnPkg
   * export fields in package.json
@@ -12367,7 +12726,7 @@ Commit [c8454ba282de3e45db7e6cce48f09f50f27e9cda](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [45c333b, c9c06ad]
+Merges [45c333b9, c9c06ade]
 
   * Merge pull request #494 from StoneCypher/attempt-bump-jssm-viz
   * Update nodejs.yml
@@ -12402,7 +12761,7 @@ Commit [45c333b9bc363a9052b896f678e6720528b7d41a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [210a326, 2095310]
+Merges [210a3261, 20953101]
 
   * Merge pull request #493 from StoneCypher/BrowserFieldAndWhatAreSmTutScratch
   * Add browser field, fixes StoneCypher/fsl#827; basics of What Are FSMs tutorial for StoneCypher/fsl#831
@@ -12437,7 +12796,7 @@ Commit [210a3261fef18f00a01c52c77e2a4f5eb02a486d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [cfd38c2, 8379506]
+Merges [cfd38c2d, 83795068]
 
   * Merge pull request #492 from StoneCypher/StillMoreShootout
   * Still more shootout
@@ -12487,7 +12846,7 @@ Commit [cfd38c2d2d3ca7f4e3874cc6cfc71d2cfb5922db](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ff99397, 7f475f2]
+Merges [ff99397e, 7f475f2a]
 
   * Merge pull request #491 from StoneCypher/AddShootout
   * Adds shootout, fixes StoneCypher/fsl#822
@@ -12522,7 +12881,7 @@ Commit [ff99397e5e6bc96f5fc1e419a44d1382f49923c5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bcb1eda, 6f51f09]
+Merges [bcb1edaf, 6f51f095]
 
   * Merge pull request #490 from StoneCypher/FixChangelogAndAddCommunityPage
   * Adds community page to docs; adds short changelog to address block. fixes StoneCypher/fsl#824, fixes StoneCypher/fsl#825
@@ -12555,7 +12914,7 @@ Commit [bcb1edaf59fbbd0a9fcfbb293d3ba1cfca129aa0](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d19a094, 966e56b]
+Merges [d19a0949, 966e56b5]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -12604,7 +12963,7 @@ Commit [1c597f900bb8daa127d1ec490f1277db0dfc822e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6a6f1c8, 4c2e830]
+Merges [6a6f1c8a, 4c2e830a]
 
   * Merge pull request #489 from StoneCypher/ImproveDocumentationLayout
   * Improve documentation layout
@@ -12654,7 +13013,7 @@ Commit [6a6f1c8a256f2f943c3230ec32dd32d2c2344927](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e084bf4, f0f3961]
+Merges [e084bf4a, f0f3961d]
 
   * Merge pull request #488 from StoneCypher/Doc_Action_Transition_ForceTransition
   * Document action, transition, force_transition; fixes StoneCypher/fsl#801, StoneCypher/fsl#802, StoneCypher/fsl#803
@@ -12689,7 +13048,7 @@ Commit [e084bf4a0936d419b5a9921e746a707644ad263f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a7d9fba, b2558b2]
+Merges [a7d9fba3, b2558b24]
 
   * Merge pull request #487 from StoneCypher/Doc_ListEdges_ListTransitions_ListEntrances_ListExits
   * Doc list edges list transitions list entrances list exits
@@ -12754,7 +13113,7 @@ Commit [a7d9fba39b0772cc1ff2ab685bfad47c8ce4be2e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [605f414, 8809458]
+Merges [605f414b, 88094584]
 
   * Merge pull request #486 from StoneCypher/Doc_Actions_ListStatesHavingAction
   * Document actions and list_states_having_action, fixes StoneCypher/fsl#798, fixes StoneCypher/fsl#799
@@ -12789,7 +13148,7 @@ Commit [605f414b3e815e2baaa7f8c7888a0478fec9ff2a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [48f1e98, 75f33eb]
+Merges [48f1e984, 75f33ebb]
 
   * Merge pull request #485 from StoneCypher/DocIsFinalAndStateIsFinal
   * Document is_final and state_is_final, fixes StoneCypher/fsl#796, fixes StoneCypher/fsl#797
@@ -12824,7 +13183,7 @@ Commit [48f1e984eb79d1b0ebd0cfb91621628d13f4032f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7705f10, 022ff38]
+Merges [7705f102, 022ff389]
 
   * Merge pull request #484 from StoneCypher/DocCss
   * Doc css
@@ -12842,7 +13201,7 @@ Commit [022ff389c8d6fd6791a370acb0b48601a7a103f2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d4e8bbb, 7705f10]
+Merges [d4e8bbb3, 7705f102]
 
   * Basic CSS chain for docs, fixes StoneCypher/fsl#794
 
@@ -12876,7 +13235,7 @@ Commit [7705f10269f39cab9ee5cbfb28d76cf739c3edb7](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d486935, 7e3e2e9]
+Merges [d4869358, 7e3e2e9e]
 
   * Merge pull request #483 from StoneCypher/Doc_State_States_HasState
   * Document state, has_state, states; fixes StoneCypher/fsl#791, fixes StoneCypher/fsl#792, fixes StoneCypher/fsl#793
@@ -12911,7 +13270,7 @@ Commit [d4869358e9fb7b92769020d5c6832c8063201383](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [208ad8e, 7c337af]
+Merges [208ad8eb, 7c337af4]
 
   * Merge pull request #482 from StoneCypher/DocArrUniqP
   * Document arr_uniq_p; fix merge mess; fixes StoneCypher/fsl#799
@@ -12946,7 +13305,7 @@ Commit [208ad8ebb2b315090407b9b4626cfa31b8feac34](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fdb3369, bc9f107]
+Merges [fdb3369c, bc9f1071]
 
   * Merge pull request #481 from StoneCypher/MoreDocumentation
   * Document from and sm, fixes StoneCypher/fsl#784, fixes StoneCypher/fsl#785
@@ -12964,7 +13323,7 @@ Commit [bc9f10712955eb32f2eff9fda7a5236d877ef02c](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7473afd, fdb3369]
+Merges [7473afdf, fdb3369c]
 
   * Merge branch 'main' into MoreDocumentation
 
@@ -12981,7 +13340,7 @@ Commit [fdb3369ce4983580b69fbf80f1bd839e45cc0973](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [eac57da, 22230f0]
+Merges [eac57da6, 22230f02]
 
   * Merge pull request #480 from StoneCypher/DocFromSm
   * Document .from and sm, fixes StoneCypher/fsl#784, fixes StoneCypher/fsl#785
@@ -13031,7 +13390,7 @@ Commit [eac57da67490d9d54ed374cbc6bbf1bb8fc32cce](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0fd6005, 539f203]
+Merges [0fd6005e, 539f203c]
 
   * Merge pull request #479 from StoneCypher/MoreDocumentation
   * Document make, compile, transfer_state_properties, compile_rule_handler, compile_rule_handle_transition, compile_rule_transition_step
@@ -13066,7 +13425,7 @@ Commit [0fd6005e7e39e3d0b0c6c7789743ca0fbf1e9b79](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c9b40b1, 63bb525]
+Merges [c9b40b1f, 63bb5256]
 
   * Merge pull request #478 from StoneCypher/DocumentArrowDirection
   * Document arrow direction fixes StoneCypher/fsl#773, arrow_left_kind fixes StoneCypher/fsl#774, arrow_right_kind fixes StoneCypher/fsl#775, wrap_parse fixes StoneCypher/fsl#776, makeTransition fixes StoneCypher/fsl#777
@@ -13116,7 +13475,7 @@ Commit [c9b40b1f065690554fabdc1cef6baea5d540a04d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e337e6a, d30bbdd]
+Merges [e337e6aa, d30bbddb]
 
   * Merge pull request #477 from StoneCypher/PropertiesSupportStringDefaults
   * Add support for string defaults, fixes StoneCypher/fsl#769
@@ -13151,7 +13510,7 @@ Commit [e337e6aa086b761a9c47cf682f070fb2ec3ad3a7](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [9480ef7, 3a527ad]
+Merges [9480ef78, 3a527ada]
 
   * Merge pull request #476 from StoneCypher/PropertiesInGrammar
   * Properties in grammar
@@ -13201,7 +13560,7 @@ Commit [9480ef7818a4695100a1742cbcb24f67dc998b7d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [71d7cc6, aee8181]
+Merges [71d7cc69, aee81818]
 
   * Merge pull request #475 from StoneCypher/ImproveGhActionsParallelism
   * Improve gh actions parallelism
@@ -13219,7 +13578,7 @@ Commit [aee81818bb51a0912e8270973fe8d8cfada195e3](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [8e60b80, 71d7cc6]
+Merges [8e60b80d, 71d7cc69]
 
   * Merge for parallelism cleanup
 
@@ -13253,7 +13612,7 @@ Commit [71d7cc69b5afd67fe678472ad68cf8e68b263b00](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2b72a30, 7424e53]
+Merges [2b72a30c, 7424e53d]
 
   * Merge pull request #474 from StoneCypher/ExposeColors
   * Expose colors, fixes StoneCypher/fsl#539
@@ -13288,7 +13647,7 @@ Commit [2b72a30cd1d2c49bb6502bebec274544db37c589](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [9cbc5d7, 07cf833]
+Merges [9cbc5d72, 07cf833a]
 
   * Merge pull request #473 from StoneCypher/ExposeShapes
   * Shapes are now exposed, fixes StoneCypher/fsl#538
@@ -13323,7 +13682,7 @@ Commit [9cbc5d72246d160c9568abcfcca42db7eb393efb](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4c208fc, 53e9566]
+Merges [4c208fcb, 53e95660]
 
   * Merge pull request #472 from StoneCypher/ErrorObject
   * Error object
@@ -13373,7 +13732,7 @@ Commit [4c208fcbdea83eaf336e8c154946dc0d633a7e9c](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6e2e7f8, 94a26af]
+Merges [6e2e7f84, 94a26af4]
 
   * Merge pull request #471 from StoneCypher/ImproveErrorsAndCreateInstanceNamesAndMakeFrom
   * Adds instance names, fixes StoneCypher/fsl#428; puts them in errors, fixes StoneCypher/fsl#429; multiplexes errors, fixes StoneCypher/fsl#739; makes .from, fixes StoneCypher/fsl#753
@@ -13423,7 +13782,7 @@ Commit [6e2e7f84f4e2633eeac53891cc88c6fb61799725](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [cba8919, 2d2385e]
+Merges [cba89193, 2d2385e1]
 
   * Merge pull request #470 from StoneCypher/AddHooksToReadme
   * Adding hooks to the readme, no big
@@ -13456,7 +13815,7 @@ Commit [46c5ab4b5e375ddd2b15ee39e5ac5ee4620791cd](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ee39784, cba8919]
+Merges [ee397849, cba89193]
 
   * resolve merge conflict
 
@@ -13490,7 +13849,7 @@ Commit [cba89193f5bada368acb6cbe37db9b6f3f7e6263](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f41d7b6, 0e3e3f4]
+Merges [f41d7b68, 0e3e3f48]
 
   * Merge pull request #469 from StoneCypher/AddKitchenSinkBenchmark
   * Kitchen sink benchmark, fixes StoneCypher/fsl#738
@@ -13540,7 +13899,7 @@ Commit [f41d7b68925539eb82141dfe97e7141cd76f6f9b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0f1535b, 6dbad3d]
+Merges [0f1535bb, 6dbad3d4]
 
   * Merge pull request #468 from StoneCypher/ImproveFlagGatingHooks
   * Active flag hooks, fixes StoneCypher/fsl#716
@@ -13590,7 +13949,7 @@ Commit [0f1535bb1d5be22817f6a09da4ae992dd552aa50](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c61e59e, bca3384]
+Merges [c61e59ec, bca33843]
 
   * Merge pull request #467 from StoneCypher/ImproveBenchmark
   * Improve benchmark, fixes StoneCypher/fsl#737
@@ -13625,7 +13984,7 @@ Commit [c61e59ecb5a2d75900593b6dfc6bd6481b70105a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [aab4f29, f2c361e]
+Merges [aab4f29a, f2c361ea]
 
   * Merge pull request #466 from StoneCypher/FluentTransitionHooks
   * Fluent transition hooks, fixes StoneCypher/fsl#684, fixes StoneCypher/fsl#685, fixes StoneCypher/fsl#686
@@ -13660,7 +14019,7 @@ Commit [aab4f29a49f8b1d25c5d11aec536ba76e46d4c54](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bd28733, f7371c9]
+Merges [bd287334, f7371c97]
 
   * Merge pull request #465 from StoneCypher/ApiForcedTransitionHook
   * Api forced transition hook
@@ -13710,7 +14069,7 @@ Commit [bd2873347d5c49850979fa686339586e490dc795](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5f75d87, 3584702]
+Merges [5f75d87f, 35847022]
 
   * Merge pull request #464 from StoneCypher/ApiStandardTransitionHook
   * Api standard transition hook
@@ -13758,7 +14117,7 @@ Commit [56e3433e2a45913a6ea03c07e321c404bd67ce04](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7c6fff9, 5f75d87]
+Merges [7c6fff91, 5f75d87f]
 
   * Merge branch 'main' into FmtAndCleanup
 
@@ -13792,7 +14151,7 @@ Commit [5f75d87f6a114dd2f8d877c432f17c40d17c8465](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fa860a6, 3c0d18c]
+Merges [fa860a6b, 3c0d18ca]
 
   * Merge pull request #463 from StoneCypher/FluentGlobalNamedHooks
   * Fluent global named hooks, fixes StoneCypher/fsl#687
@@ -13827,7 +14186,7 @@ Commit [fa860a6b17b256da2550599c5c79445f46b82041](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1c18d04, d269d66]
+Merges [1c18d044, d269d66f]
 
   * Merge pull request #462 from StoneCypher/ApiGlobalNamedHooks
   * API global named hooks, fixes StoneCypher/fsl#669
@@ -13862,7 +14221,7 @@ Commit [1c18d04480200ace12515d3ae536d8033bf9c0a0](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4840482, 1b8acfb]
+Merges [48404829, 1b8acfb3]
 
   * Merge pull request #461 from StoneCypher/FluentAllActionHook
   * Fluent all action hook
@@ -13882,7 +14241,7 @@ Commit [48404829adac76e51a7f1ee6fa1de2fe9cf5bb75](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3840469, 3b54f74]
+Merges [3840469f, 3b54f74d]
 
   * Merge pull request #460 from StoneCypher/ApiAllActionHook
   * API All-Action hook, fixes StoneCypher/fsl#670
@@ -13932,7 +14291,7 @@ Commit [3840469f34e4c6075d044d04023520eb4206704e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [99fccf0, 63d5b33]
+Merges [99fccf02, 63d5b336]
 
   * Merge pull request #459 from StoneCypher/FluentExitHooks
   * Exit fluent hooks, fixes StoneCypher/fsl#682
@@ -13967,7 +14326,7 @@ Commit [99fccf02531d82d83ff6aceecd2c0c394169fa05](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e7fdb06, 4ce87db]
+Merges [e7fdb06e, 4ce87db8]
 
   * Merge pull request #458 from StoneCypher/ApiExitHooks
   * API exit hooks, fixes StoneCypher/fsl#664
@@ -14002,7 +14361,7 @@ Commit [e7fdb06e01b2e12b7cd275a079856cc22ed5ef17](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c6438ab, 06f3709]
+Merges [c6438ab7, 06f3709f]
 
   * Merge pull request #457 from StoneCypher/FluentEntryHooks
   * Fluent entry hooks
@@ -14052,7 +14411,7 @@ Commit [c6438ab7b286fc3d7c9b822ca4bc17854d8286a2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [63736ef, 8e20d05]
+Merges [63736ef8, 8e20d056]
 
   * Merge pull request #456 from StoneCypher/ApiEntryHooks
   * Api entry hooks
@@ -14102,7 +14461,7 @@ Commit [63736ef83bb21ac838deca66a334bd82aa66a52a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d9853ee, c7b93af]
+Merges [d9853ee2, c7b93afa]
 
   * Merge pull request #454 from StoneCypher/BumpTsAndTooling
   * Bump ts and tooling
@@ -14197,7 +14556,7 @@ Commit [d9853ee28881b7ec98648631d168f56a6c3d0446](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f4c8e35, dc6557f]
+Merges [f4c8e357, dc6557f2]
 
   * Merge pull request #452 from StoneCypher/CleanUpTsConfig
   * Adds export map to package.json, fixes StoneCypher/fsl#713; modernize tsconfig, fixes StoneCypher/#715
@@ -14232,7 +14591,7 @@ Commit [f4c8e35705c7dea556a7f492cbdb9acd000536fc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e993d6b, 23c50e2]
+Merges [e993d6b1, 23c50e20]
 
   * Merge pull request #451 from StoneCypher/AttemptToCorrectQualityDrop2
   * Re-attempt to correct quality drop (managed to lose .npmignore change,) re- fixes StoneCypher/fsl#711
@@ -14267,7 +14626,7 @@ Commit [e993d6b1f4d0d5ab18d015b88e87674c62e649fe](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4d31172, 1e3d722]
+Merges [4d311729, 1e3d722e]
 
   * Merge pull request #450 from StoneCypher/AttemptToCorrectQualityDrop
   * Attempt to correct quality drop
@@ -14317,7 +14676,7 @@ Commit [4d311729dc4ec58f0f5a56c7a5ccea91f1799c56](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7a17ace, ab5836a]
+Merges [7a17acea, ab5836a2]
 
   * Merge pull request #449 from StoneCypher/UnifyTransitionAndAction
   * Unified transition and action, fixes StoneCypher/fsl#709
@@ -14352,7 +14711,7 @@ Commit [7a17acea1058691b3ff925add727f3b77b59f1ec](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [191ce28, 8b8e675]
+Merges [191ce281, 8b8e675b]
 
   * Merge pull request #448 from StoneCypher/UnifyTransitionAndForceTransition
   * Unify transition and force transition
@@ -14402,7 +14761,7 @@ Commit [191ce281b56673005e6e07572d2a70bfdc0523df](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c1200b9, ec455c7]
+Merges [c1200b98, ec455c72]
 
   * Merge pull request #447 from StoneCypher/HookAllTransitions
   * Hook all transitions
@@ -14450,7 +14809,7 @@ Commit [508a5eb13b7a840de8e615dae860364894944070](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bdaa94c, c1200b9]
+Merges [bdaa94cd, c1200b98]
 
   * Merge branch 'main' into HookAllTransitions
 
@@ -14469,7 +14828,7 @@ Commit [c1200b987f345ce9eab936e01a660ee0c5cb2d09](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [29e6d6f, bc63923]
+Merges [29e6d6fc, bc63923d]
 
   * Merge pull request #446 from StoneCypher/HookActionsConvenienceApi
   * Fluent hooking API for actions, fixes StoneCypher/fsl#680
@@ -14519,7 +14878,7 @@ Commit [29e6d6fce841cb59180d0915f93e1125c692557b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a72652c, 4f44dff]
+Merges [a72652c3, 4f44dff4]
 
   * Merge pull request #445 from StoneCypher/HookActionsConvenienceApi
   * Convenience hook action call in fluent api
@@ -14554,7 +14913,7 @@ Commit [a72652c31d93173c454db80328936eae13843b3e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bd684b2, fa1bf46]
+Merges [bd684b21, fa1bf463]
 
   * Merge pull request #444 from StoneCypher/HooksConvenienceApi
   * Hooks convenience api
@@ -14604,7 +14963,7 @@ Commit [bd684b210c19752665824bea584849db68144ff3](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b5389e3, c346541]
+Merges [b5389e3b, c346541b]
 
   * Merge pull request #443 from StoneCypher/CleanupStuff
   * Cleanup stuff
@@ -14669,7 +15028,7 @@ Commit [b5389e3b905559dbdee13cabb2f1b20c6f58298b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5e0a801, 3041204]
+Merges [5e0a8011, 30412045]
 
   * Merge pull request #442 from StoneCypher/SetHooksWithExplicitAction
   * set_hook(...) basics
@@ -14779,7 +15138,7 @@ Commit [e282c60fa77e9a48ea0e0b1c8d935587a6bb1c90](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e0045ef, 4fea20f]
+Merges [e0045ef6, 4fea20f7]
 
   * Merge pull request #441 from StoneCypher/TryBenchingWithBenny
   * Try benching with benny
@@ -14812,7 +15171,7 @@ Commit [35cda8b77fb99a039665f0c33736d6e4d54844e5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e2cacd2, e0045ef]
+Merges [e2cacd29, e0045ef6]
 
   * merged
 
@@ -14846,7 +15205,7 @@ Commit [9933f5d94f899ef251b3175a332f3d8a8dd18179](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [74c9526, c2a50d0]
+Merges [74c95263, c2a50d05]
 
   * Merge pull request #440 from StoneCypher/GateOffBranchDeploy2
   * Gate off branch deploy2
@@ -14909,7 +15268,7 @@ Commit [74c952634a3ed06ff2306e0540714a826f95bc78](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bf49490, ecffd4f]
+Merges [bf494900, ecffd4fe]
 
   * Merge pull request #439 from StoneCypher/GateOffBranchDeploy
   * Gate off branch deploy.  Move main build from 17 to 18.
@@ -15021,7 +15380,7 @@ Commit [bcbc03e4817178b9c3dfb25f9cce771b9f1d1203](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [fbe88ef, bf49490]
+Merges [fbe88ef0, bf494900]
 
   * Pulling the Benny branch back
 
@@ -15398,7 +15757,7 @@ Commit [d50ba6895529b9fd7f30a4e1ba8c233b6691c4f2](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e94598e, 1b9f4a0]
+Merges [e94598e5, 1b9f4a01]
 
   * Merge branch 'UpdateTime'
 
@@ -15430,7 +15789,7 @@ Commit [e94598e5478a12da748a28860ff6862e74103dd7](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [06f486f, 40c22f0]
+Merges [06f486f4, 40c22f0a]
 
   * Merge pull request #438 from StoneCypher/dependabot/npm_and_yarn/node-fetch-2.6.7
   * Bump node-fetch from 2.6.5 to 2.6.7
@@ -15448,7 +15807,7 @@ Commit [06f486f49aa5756810038bdc94d58806d9860aa5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f4d79c3, db72fff]
+Merges [f4d79c38, db72fffa]
 
   * Merge pull request #435 from StoneCypher/dependabot/npm_and_yarn/minimist-1.2.6
   * Bump minimist from 1.2.5 to 1.2.6
@@ -15466,7 +15825,7 @@ Commit [f4d79c38e5d09b446afc015475453cee4cc09bcc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [ea88820, 81b3226]
+Merges [ea888208, 81b32264]
 
   * Merge pull request #437 from StoneCypher/dependabot/npm_and_yarn/shelljs-0.8.5
   * Bump shelljs from 0.8.4 to 0.8.5
@@ -15533,7 +15892,7 @@ Commit [ea888208e6a78d80aca2cdaba96f46a3c992aee8](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0c9eb40, 1e63533]
+Merges [0c9eb403, 1e635339]
 
   * Merge pull request #436 from StoneCypher/dependabot/npm_and_yarn/async-3.2.3
   * Bump async from 3.2.1 to 3.2.3
@@ -15615,7 +15974,7 @@ Commit [4be74ac799167a2f79df3e6785a042608dd23166](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [50ea9f6, 952072e]
+Merges [50ea9f66, 952072e8]
 
   * Merge pull request #433 from StoneCypher/HooksOpenHooksClosedInGrammar
   * Hooks open and hooks closed are in grammar; tests suppressed because they still throw in the compiler.  Fixes StoneCypher/fsl#644
@@ -15708,7 +16067,7 @@ Commit [302646ac3039a8b3ad43db7f8befa2b97efe6719](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d078888, f0869e0]
+Merges [d0788885, f0869e0d]
 
   * Merge pull request #432 from StoneCypher/AddEmptyStateForbiddanceTests
   * Tests to ensure empty state names are forbidden in string and datastr…
@@ -15741,7 +16100,7 @@ Commit [d07888857d95df81fac0f3d039a39dde2812874e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [50eb6f8, 8ee2796]
+Merges [50eb6f8c, 8ee27964]
 
   * Merge pull request #431 from StoneCypher/UpdateToClearSecurityIssues
   * Update to clear security issues
@@ -15804,7 +16163,7 @@ Commit [50eb6f8c06d937c04b8b76e79883251a405ccb4f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [dd472db, cdedc1e]
+Merges [dd472db8, cdedc1e2]
 
   * Merge branch 'BumpTypedocAndBumpCiNodeVersion'
 
@@ -15821,7 +16180,7 @@ Commit [dd472db88e66f3093cd29b1de86dbb2f1caaff10](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [53f01ab, 15d06a6]
+Merges [53f01abe, 15d06a6e]
 
   * Merge branch 'main' of github.com:StoneCypher/jssm
 
@@ -15883,7 +16242,7 @@ Commit [ea4767de2a309ddd9977295fb872ae6b92ef8231](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f74f12c, 7b72373]
+Merges [f74f12cb, 7b723733]
 
   * Merge pull request #430 from StoneCypher/AddLineStyleTests
   * adds tests for line styles
@@ -15931,7 +16290,7 @@ Commit [871753e71ccaf49682b6fa4b5d5f45c251c5dbae](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1d0e38e, 0fd677b]
+Merges [1d0e38e4, 0fd677b8]
 
   * Merge pull request #429 from machinshin/name-theory
   * Punjabi Name Theory;closes StoneCypher/fsl#607
@@ -15964,7 +16323,7 @@ Commit [1d0e38e4cb945e67631880246a07cbb705b8fe37](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b557a87, 49415ad]
+Merges [b557a87e, 49415ad9]
 
   * Merge pull request #428 from machinshin/why_because_analysis
   * Why-because analysis
@@ -16012,7 +16371,7 @@ Commit [b557a87ec0148da47ae232797a96234e89012b5a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [24ce4f1, bc2ca51]
+Merges [24ce4f1c, bc2ca51e]
 
   * Merge pull request #426 from machinshin/think_rhino
   * Unprisoning your Think Rhino; cloes StoneCypher/fsl#502
@@ -16045,7 +16404,7 @@ Commit [24ce4f1c7d8685485a559643570f7617e2a6c06a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [715a1b4, c1c1cff]
+Merges [715a1b46, c1c1cff6]
 
   * Merge pull request #427 from machinshin/unit_chains
   * Unit Chains, closes StoneCypher/fsl#520
@@ -16093,7 +16452,7 @@ Commit [715a1b461f232541c38aeaecbbdb11c6f4cacdb5](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b69d705, c149f25]
+Merges [b69d7057, c149f259]
 
   * Merge pull request #424 from machinshin/seq_function_chart
   * closes StoneCypher/fsl#41
@@ -16126,7 +16485,7 @@ Commit [b69d70575742a22956c3bbe374cb870214a33ea4](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [8c3d261, c7da077]
+Merges [8c3d2619, c7da077a]
 
   * Merge pull request #423 from machinshin/comedy-flowcharts
   * closes StoneCypher/fsl#48
@@ -16174,7 +16533,7 @@ Commit [8c3d26196f78e4c300fd8531cb7233d7b572a771](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5a4f8b7, ef5b954]
+Merges [5a4f8b7d, ef5b954e]
 
   * Merge pull request #422 from machinshin/main
   * partially fixes StoneCypher/fsl#48
@@ -16222,7 +16581,7 @@ Commit [5a4f8b7d898b52bc4680aa49dd466dcb40ab86e9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [909ccaf, 5e9b93d]
+Merges [909ccaf6, 5e9b93d0]
 
   * Merge pull request #421 from StoneCypher/SetUpFastCheck
   * running stoch tests for seq, but not yet part of the mainline build
@@ -16300,7 +16659,7 @@ Commit [baf1ff610f7ccf248f7aef2387a33beae5ccf905](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [32a4e2b, 90efa97]
+Merges [32a4e2b6, 90efa977]
 
   * Merge pull request #420 from StoneCypher/ReadmeImprovementsAgain
   * Some small readme improvements
@@ -16333,7 +16692,7 @@ Commit [32a4e2b66b36a49c9505aa5a5b26329920509c1c](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3db22c2, 5f1d7b6]
+Merges [3db22c2d, 5f1d7b63]
 
   * Merge pull request #419 from StoneCypher/AddTypeDoc
   * Put docgen back in automation, fixes @stonecypher/fsl#544
@@ -16366,7 +16725,7 @@ Commit [3db22c2d28ed21590b3f8b6b36a7543039414899](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [18b0113, bbd99f5]
+Merges [18b0113f, bbd99f50]
 
   * Merge pull request #418 from StoneCypher/AddTypeDoc
   * Better docs with TypeDoc
@@ -16414,7 +16773,7 @@ Commit [fe14695a0cefbb1caa6421c9d64c7221c38a1868](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [99bd09e, f8016ad]
+Merges [99bd09ec, f8016ad1]
 
   * Merge pull request #417 from StoneCypher/MoveFromAvaToJest
   * Move from ava to jest
@@ -16432,7 +16791,7 @@ Commit [f8016ad1e280169f1f7013df852da308e78c4dbc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [a92e1df, 99bd09e]
+Merges [a92e1df9, 99bd09ec]
 
   * resolve gh action, remove node14 macos and node14 windows build
 
@@ -16869,7 +17228,7 @@ Commit [35de413b4da3228cdf82894eb5d246ab1f018fbc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [8559a76, 77c5fb9]
+Merges [8559a768, 77c5fb9c]
 
   * Merge pull request #413 from StoneCypher/RemoveUglify
   * stray old version minifier was still being installed incorrectly
@@ -16887,7 +17246,7 @@ Commit [8559a768c9eb9ce4ecf81b44bc83ccb811c820fc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [262f795, 58c9a84]
+Merges [262f7951, 58c9a845]
 
   * Merge pull request #414 from StoneCypher/UpdateCiVersionClaim
   * Update ci version claim
@@ -16980,7 +17339,7 @@ Commit [262f7951481f4f1994f5d15ae6dd70e1330f195d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [40616d1, 87e6ee0]
+Merges [40616d15, 87e6ee02]
 
   * Merge pull request #412 from StoneCypher/MoveToTS4
   * Move to ts4
@@ -17028,7 +17387,7 @@ Commit [309af55c98d912d8c14382c31b3fa28fc82aa4f6](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f19deb1, 40616d1]
+Merges [f19deb1e, 40616d15]
 
   * Merge branch 'master' into MoveToTS4
 
@@ -17060,7 +17419,7 @@ Commit [40616d156e4a26e4f84e01984fcaf5487754e696](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [52c6b10, 965ee9e]
+Merges [52c6b10e, 965ee9e0]
 
   * Merge pull request #409 from StoneCypher/dependabot/npm_and_yarn/highlight.js-9.18.5
   * Bump highlight.js from 9.18.1 to 9.18.5
@@ -17078,7 +17437,7 @@ Commit [52c6b10ec64938bf3ea3c088eb642aa62394bddd](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [542f2b9, e7fe1b6]
+Merges [542f2b9f, e7fe1b6d]
 
   * Merge pull request #408 from StoneCypher/dependabot/npm_and_yarn/bl-1.2.3
   * Bump bl from 1.2.2 to 1.2.3
@@ -17115,7 +17474,7 @@ Commit [542f2b9f5ef41c46dddc2cd95fec0a0290e41b38](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [8e844fa, 681ff85]
+Merges [8e844fab, 681ff853]
 
   * Merge pull request #407 from StoneCypher/dependabot/npm_and_yarn/dot-prop-4.2.1
   * Bump dot-prop from 4.2.0 to 4.2.1
@@ -17133,7 +17492,7 @@ Commit [8e844fabf8ba02e8b8f8975cd158d229b693c5d4](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [081372b, 5ab1d44]
+Merges [081372bf, 5ab1d444]
 
   * Merge pull request #403 from StoneCypher/dependabot/npm_and_yarn/websocket-extensions-0.1.4
   * Bump websocket-extensions from 0.1.3 to 0.1.4
@@ -17151,7 +17510,7 @@ Commit [081372bf499b751f504a03bf2eba355d059733cd](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [9befda9, 5bf6c07]
+Merges [9befda95, 5bf6c073]
 
   * Merge pull request #405 from StoneCypher/dependabot/npm_and_yarn/lodash-4.17.19
   * Bump lodash from 4.17.15 to 4.17.19
@@ -17169,7 +17528,7 @@ Commit [9befda958152b1b15791cb3bf94d679debcb26b7](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bc81825, e4ea71d]
+Merges [bc818258, e4ea71d6]
 
   * Merge pull request #410 from StoneCypher/dependabot/npm_and_yarn/ini-1.3.7
   * Bump ini from 1.3.5 to 1.3.7
@@ -17320,7 +17679,7 @@ Commit [230864ac6115f0f256d3c934e004a3d0d257f5f9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [bc60d8c, 17a8b4f]
+Merges [bc60d8cf, 17a8b4f3]
 
   * Merge pull request #406 from kraln/patch-1
   * Fix: Update README.md
@@ -17605,7 +17964,7 @@ Commit [d64fe65ebe9de3390ddd15991de0dc1f35ca9315](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [642fd8a, f22d422]
+Merges [642fd8a9, f22d422d]
 
   * Merge pull request #402 from StoneCypher/LetsDoSomeUpgrades
   * Lets do some upgrades
@@ -17788,7 +18147,7 @@ Commit [a45f4f00b31948beac8a4b7dfd64fe686ea720cd](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [360aff6, 2c1b541]
+Merges [360aff67, 2c1b5418]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -17880,7 +18239,7 @@ Commit [2c72b3c2d1390dc62170f9226c17449a269adf60](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3047b38, b797c1e]
+Merges [3047b388, b797c1ec]
 
   * Merge pull request #399 from StoneCypher/AddDTsFiles
   * looks like we have .d.ts
@@ -17913,7 +18272,7 @@ Commit [3047b388b97ffbb853054207e8b9d38fe0a07c33](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [cc39df4, 44c69de]
+Merges [cc39df41, 44c69de2]
 
   * Merge pull request #398 from StoneCypher/InvertRollupAndTypescript
   * Invert rollup and typescript
@@ -18036,7 +18395,7 @@ Commit [cc39df41a5002c7200a601e498cb5080fb8fbb9f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [de1fea7, 751cde5]
+Merges [de1fea73, 751cde58]
 
   * Merge pull request #397 from StoneCypher/ArrangeStartAndEnd
   * Arrange start and end
@@ -18114,7 +18473,7 @@ Commit [3aa55887b66ab05714fb5734330082bc5eb7e5f6](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [7e9d25a, 7345a14]
+Merges [7e9d25ae, 7345a14e]
 
   * Merge pull request #396 from StoneCypher/AddArrange
   * Add arrange, fixes StoneCypher/fsl#267
@@ -18147,7 +18506,7 @@ Commit [7e9d25aea17d91e3ee07362c6fd6dd325e37457b](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4b42bd5, de75a04]
+Merges [4b42bd54, de75a041]
 
   * Merge pull request #395 from StoneCypher/AddRoundingAndDiagonals
   * Adds support for rounding (fixes StoneCypher/fsl#362) and diagonals (fixes StoneCypher/fsl#361)
@@ -18180,7 +18539,7 @@ Commit [4b42bd549337d746aae532490e04e14c888924cd](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [28d9b10, c0456fe]
+Merges [28d9b102, c0456fef]
 
   * Merge pull request #394 from StoneCypher/FixOctothorpeBug
   * Fix octothorpe bug
@@ -18228,7 +18587,7 @@ Commit [28d9b1022a7687038aa7a4505abec9465ac2ef29](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0c05c76, 48bbea4]
+Merges [0c05c761, 48bbea49]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -18290,7 +18649,7 @@ Commit [48bbea4944c2f9c66bb1718b89fc56907400c861](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [45ac5ae, 906a6ea]
+Merges [45ac5ae7, 906a6ea8]
 
   * Merge pull request #393 from machinshin/master
   * Closes https://github.com/StoneCypher/fsl/issues/45 : Issue Trees
@@ -18323,7 +18682,7 @@ Commit [f3e54b99991d1629adaa2b139bb22e41a1345d69](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [76422f5, 2c9f568]
+Merges [76422f54, 2c9f568b]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -18597,7 +18956,7 @@ Commit [15d72028c725d3d8c27672d391df00140d23feae](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [dce8174, ae2b2fc]
+Merges [dce81744, ae2b2fcf]
 
   * Merge pull request #391 from StoneCypher/LetsMakeNodesStyleable
   * Lets make nodes styleable
@@ -18630,7 +18989,7 @@ Commit [6bc16b6cff1a8bc39fd65ca19bb92071e8961d4f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [9f9d02d, dce8174]
+Merges [9f9d02d2, dce81744]
 
   * merge and fix resulting eslint mess
 
@@ -18978,7 +19337,7 @@ Commit [bda3d652f0d92fdcdaf8867b477fbee54c54f0c9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [943f5f4, 3e88f7a]
+Merges [943f5f4b, 3e88f7a4]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -19010,7 +19369,7 @@ Commit [3e88f7a40560f9e2dbe06a37df7ba2685177cebc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c2d4d36, 9c5f203]
+Merges [c2d4d366, 9c5f2034]
 
   * Merge pull request #379 from StoneCypher/StoneCypher-azure-pipelines-nodever-6-7
   * Add node 6, fix 7, open as PR to test GH interface
@@ -19058,7 +19417,7 @@ Commit [a4d0851f240ac513308c05aaf903d10558f42827](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [8b70968, 922d679]
+Merges [8b70968d, 922d679b]
 
   * Merge pull request #378 from StoneCypher/azure-pipelines
   * Set up CI with Azure Pipelines
@@ -19092,7 +19451,7 @@ Commit [8b70968de3ade3a7404223d5457199fde53fd4ba](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4707898, 0b96d72]
+Merges [47078983, 0b96d729]
 
   * Merge pull request #375 from StoneCypher/ModernizeAva
   * Modernize ava
@@ -19290,7 +19649,7 @@ Commit [47078983d97d9ef2fdfdd87561ad81403bade5bf](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [cd090aa, ef03698]
+Merges [cd090aa0, ef03698b]
 
   * Merge pull request #373 from StoneCypher/AttemptTsAndRollup
   * Attempt ts and rollup
@@ -19563,7 +19922,7 @@ Commit [cd090aa0d041aeaad142f0653152a4bb95184845](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c9bb9e6, b76211e]
+Merges [c9bb9e66, b76211e7]
 
   * Merge pull request #372 from StoneCypher/Cleanup
   * Cleanup
@@ -19656,7 +20015,7 @@ Commit [c1fd26c41e2a5d25b54a00da6f9bc4fe62e4d685](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [618d9fd, 2942661]
+Merges [618d9fdf, 29426613]
 
   * Merge pull request #371 from StoneCypher/fsl.tools-mention
   * fsl.tools mention
@@ -19689,7 +20048,7 @@ Commit [618d9fdf97a8ad28826fd41cc130cd26b3ab7107](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [3dac8f2, 43e19cd]
+Merges [3dac8f22, 43e19cda]
 
   * Merge pull request #370 from StoneCypher/nsp-badge-removal
   * Looks like NSP badges are gone
@@ -19797,7 +20156,7 @@ Commit [a117a2206d501ed10b410b8c0b18146eedfe8009](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [cb31bb5, 9c47476]
+Merges [cb31bb54, 9c474763]
 
   * rebased
 
@@ -19876,7 +20235,7 @@ Commit [9c4747636ed814ace14b18ec4fc9628467395d9c](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5967544, de83f77]
+Merges [59675442, de83f776]
 
   * Merge first steps of cycles and stripes
 
@@ -19953,7 +20312,7 @@ Commit [04c514f1d127950ecac3ac134d8f8bab4269c347](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [12186d9, 80416cc]
+Merges [12186d91, 80416ccd]
 
   * Post-merge and mostly done
 
@@ -19972,7 +20331,7 @@ Commit [80416ccdd5417512ddebe5b5780b938c08f1618d](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [8ac6b35, 38157ab]
+Merges [8ac6b354, 38157ab7]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -20019,7 +20378,7 @@ Commit [c628ae06ac7aa81ce52b17284171389421622f51](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b33aea2, 11fa8ce]
+Merges [b33aea26, 11fa8ce1]
 
   * intermediate status before merge
 
@@ -20036,7 +20395,7 @@ Commit [38157ab7e3f3d55667755c63b48d7fed41c4f5fb](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [15578fa, 11fa8ce]
+Merges [15578fab, 11fa8ce1]
 
   * more phrasing
 
@@ -20143,7 +20502,7 @@ Commit [b33aea269efa18f6ccbfd94902168dbc97c5b0e0](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [36cd824, 4e2593a]
+Merges [36cd824a, 4e2593a3]
 
   * underway; committing to see if a mainstream commit changes my testing score
 
@@ -20162,7 +20521,7 @@ Commit [4e2593a3c51dd92e889cacd6ebe129ef1c326c2f](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [58c0c19, 2a65fbc]
+Merges [58c0c19f, 2a65fbc8]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -20209,7 +20568,7 @@ Commit [7df77bc142914ebc6baeedc8bdeb7971da7c193e](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4bf74b9, 881bba0]
+Merges [4bf74b91, 881bba05]
 
   * merge from upstream
 
@@ -20621,7 +20980,7 @@ Commit [7113970c70f7b0ef0a313016391aa9e9f2e5d038](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [b026e00, 7f4f13a]
+Merges [b026e007, 7f4f13a1]
 
   * Merge pull request #328 from tanvirrb/master
   * added Bengali by Tanvir Islam
@@ -20654,7 +21013,7 @@ Commit [b026e0071a33f6fd79065a1183b821a5fe6853d9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [302f451, c106194]
+Merges [302f451c, c1061940]
 
   * Merge pull request #327 from daviddelapena/master
   * French data json language created
@@ -20717,7 +21076,7 @@ Commit [46353c1a9db166dd7c9abb8e4754fc03da8073b6](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2d966c5, 7bb8aa9]
+Merges [2d966c53, 7bb8aa96]
 
   * Merge pull request #326 from technophile77/master
   * spanish
@@ -20780,7 +21139,7 @@ Commit [c63cf2eb0e9cc59eb341430e3dca37ad291d2c9a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [978458a, 689c733]
+Merges [978458a9, 689c7336]
 
   * Merge pull request #325 from cohendvir/patch-1
   * Create hebrew.json
@@ -21023,7 +21382,7 @@ Commit [124c2654c79103f328649ecf835e6a4177c4b7c1](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [d1cac9b, 8fc2911]
+Merges [d1cac9b5, 8fc29115]
 
   * Merge pull request #304 from msmorgan/bugfix/comment-grammar
   * grammar: Fix whitespace and comment rules
@@ -21056,7 +21415,7 @@ Commit [d1cac9b592d742181e9356f1e768b4cd7a8f118a](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e87f48c, 406d01d]
+Merges [e87f48c1, 406d01df]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -21553,7 +21912,7 @@ Commit [71b24113727e1d1c63d5428b569e363352462021](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c681d54, 6ecd6fc]
+Merges [c681d541, 6ecd6fca]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -21615,7 +21974,7 @@ Commit [6ecd6fca990205f3a9ccc378dd7c6868ce4ca9dc](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [98d2f79, b7ebe2b]
+Merges [98d2f796, b7ebe2b4]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -22262,7 +22621,7 @@ Commit [a0619c160986982a1687910ea2a210759267a0d3](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [84e0bc3, 1f7be82]
+Merges [84e0bc30, 1f7be825]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -22384,7 +22743,7 @@ Commit [0093cc87c78dc78d5e99cfb08969bd3b5828f5a8](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0f44ceb, d637155]
+Merges [0f44cebc, d6371551]
 
   * Merge pull request #232 from StoneCypher/CrapThereWasUnpushedWork
   * Crap there was unpushed work
@@ -22402,7 +22761,7 @@ Commit [d63715516f7c099df0264181da13993383ed08e1](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [e51924d, 0f44ceb]
+Merges [e51924d3, 0f44cebc]
 
   * okay is that a merge maybe
 
@@ -22494,7 +22853,7 @@ Commit [8443ed0b59363e4201cd7248e3172f8e5afef5f6](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [c14cde2, 78b891b]
+Merges [c14cde20, 78b891bd]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -22766,7 +23125,7 @@ Commit [7e74b21ef0cf5cb2ae479ef80ac0f27d79157d04](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1c8f98e, e8b68ad]
+Merges [1c8f98ed, e8b68adc]
 
   * closing in on full coverage :D
 
@@ -23353,7 +23712,7 @@ Commit [fbc4f0bfc9c89a97e5ddb27dda7593159fbad2f0](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [834e385, ac9afdb]
+Merges [834e385a, ac9afdba]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -23700,7 +24059,7 @@ Commit [2f0420717ad4026445d97e0579f3298362162451](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4144c1f, d9b1050]
+Merges [4144c1f9, d9b10500]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -24213,7 +24572,7 @@ Commit [add7e0c89d7dbc43e822d234b9fa753bcd1ebe22](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [80d09be, 33c8b96]
+Merges [80d09be1, 33c8b96b]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -24365,7 +24724,7 @@ Commit [7dd738f4a8d87ef5b93098dbe7acec7f8c0fdd25](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [1a246fa, a9b0e97]
+Merges [1a246fa3, a9b0e975]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -24382,7 +24741,7 @@ Commit [1a246fa315f496797c326e42459e90f344b7b3fd](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2f80399, 79e07b7]
+Merges [2f803995, 79e07b7f]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -24399,7 +24758,7 @@ Commit [a9b0e975392ba6d022f72f45d9402b8c9396fee3](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [2f80399, 79e07b7]
+Merges [2f803995, 79e07b7f]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -24461,7 +24820,7 @@ Commit [d92e6efbf0c2df599cbc1d5988fa800ecdf5c037](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [0b78992, 738b546]
+Merges [0b78992d, 738b5466]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -24823,7 +25182,7 @@ Commit [41235c5d10a2d4a948f7cd245c5f3cdd2f8edd64](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [dd7b5f6, cb2a6b0]
+Merges [dd7b5f68, cb2a6b07]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -24855,7 +25214,7 @@ Commit [cb2a6b0742e36fa40ea69dce993ebadf634d73a4](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [058398c, edb9906]
+Merges [058398c4, edb9906a]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 
@@ -25232,7 +25591,7 @@ Commit [827aac37c4c0f44b8fd3849b20f7c79db1d911d9](https://github.com/StoneCypher
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [571d8e1, 691169c]
+Merges [571d8e1a, 691169c2]
 
   * Merge branch 'master' of github.com:StoneCypher/jssm
 

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <title>jssm scaling diagnostic suite</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #ddd;
+      }
+
+      .container {
+        box-sizing: border-box;
+        height: 96vh;
+        width: 96vw;
+        margin: 2vh 2vw;
+        resize: both;
+        overflow: hidden;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 0 15px #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <canvas id="chart1779820808621" width="16" height="9"></canvas>
+    </div>
+    <script>
+      const format = (num) => {
+        const [whole, fraction] = String(num).split('.')
+        const chunked = []
+        whole
+          .split('')
+          .reverse()
+          .forEach((char, index) => {
+            if (index % 3 === 0) {
+              chunked.unshift([char])
+            } else {
+              chunked[0].unshift(char)
+            }
+          })
+
+        const fractionStr = fraction !== undefined ? '.' + fraction : ''
+
+        return (
+          chunked.map((chunk) => chunk.join('')).join(' ') + fractionStr
+        )
+      }
+      const ctx1779820808621 = document
+        .getElementById('chart1779820808621')
+        .getContext('2d')
+      const chart1779820808621 = new Chart(ctx1779820808621, {
+        type: 'bar',
+        data: {
+          labels: ["chain-10 transition()","chain-50 transition()","chain-200 transition()","chain-1000 transition()","dense-10 transition()","dense-50 transition()","dense-200 transition()","hub-50 transition()","hub-200 transition()","hooked-200 transition()","messy-1000 transition()","messy-5000 transition()","chain-10 edges_between()","chain-50 edges_between()","chain-200 edges_between()","chain-1000 edges_between()","dense-10 edges_between()","dense-50 edges_between()","dense-200 edges_between()","hub-50 edges_between()","hub-200 edges_between()","hooked-200 edges_between()","messy-1000 edges_between()","messy-5000 edges_between()","chain-10 has_state()","chain-50 has_state()","chain-200 has_state()","chain-1000 has_state()","dense-10 has_state()","dense-50 has_state()","dense-200 has_state()","hub-50 has_state()","hub-200 has_state()","hooked-200 has_state()","messy-1000 has_state()","messy-5000 has_state()","chain-10 construct()","chain-50 construct()","chain-200 construct()","chain-1000 construct()","dense-10 construct()","dense-50 construct()","dense-200 construct()","hub-50 construct()","hub-200 construct()","hooked-200 construct()","messy-1000 construct()","messy-5000 construct()"],
+          datasets: [
+            {
+              data: [137705,112111,89493,75764,102472,73531,57512,69399,68880,10624,60156,71413,52628,17257,4317,1212,6905,291,11,6683,2290,2621,307,21,9646313,8449577,10390372,13466981,11980982,13721568,5249840,11855610,9304001,10867239,14419948,13945619,5456,1968,359,93,917,23,0,567,170,133,13,2],
+              backgroundColor: ["hsl(1.1400000000000035, 85%, 55%)","hsl(0.9360000000000014, 85%, 55%)","hsl(0.7440000000000055, 85%, 55%)","hsl(0.6360000000000013, 85%, 55%)","hsl(0.8519999999999924, 85%, 55%)","hsl(0.6120000000000062, 85%, 55%)","hsl(0.48000000000000675, 85%, 55%)","hsl(0.5760000000000047, 85%, 55%)","hsl(0.5760000000000047, 85%, 55%)","hsl(0.08399999999999182, 85%, 55%)","hsl(0.504000000000002, 85%, 55%)","hsl(0.6, 85%, 55%)","hsl(0.43199999999999933, 85%, 55%)","hsl(0.14400000000000546, 85%, 55%)","hsl(0.036000000000001364, 85%, 55%)","hsl(0.01200000000000614, 85%, 55%)","hsl(0.05999999999999659, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0.05999999999999659, 85%, 55%)","hsl(0.023999999999995227, 85%, 55%)","hsl(0.023999999999995227, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(80.28, 85%, 55%)","hsl(70.32, 85%, 55%)","hsl(86.47200000000001, 85%, 55%)","hsl(112.068, 85%, 55%)","hsl(99.70800000000001, 85%, 55%)","hsl(114.19200000000001, 85%, 55%)","hsl(43.692, 85%, 55%)","hsl(98.664, 85%, 55%)","hsl(77.424, 85%, 55%)","hsl(90.432, 85%, 55%)","hsl(120, 85%, 55%)","hsl(116.05199999999999, 85%, 55%)","hsl(0.0480000000000075, 85%, 55%)","hsl(0.01200000000000614, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0.01200000000000614, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)"],
+              borderColor: ["hsl(1.1400000000000035, 85%, 55%)","hsl(0.9360000000000014, 85%, 55%)","hsl(0.7440000000000055, 85%, 55%)","hsl(0.6360000000000013, 85%, 55%)","hsl(0.8519999999999924, 85%, 55%)","hsl(0.6120000000000062, 85%, 55%)","hsl(0.48000000000000675, 85%, 55%)","hsl(0.5760000000000047, 85%, 55%)","hsl(0.5760000000000047, 85%, 55%)","hsl(0.08399999999999182, 85%, 55%)","hsl(0.504000000000002, 85%, 55%)","hsl(0.6, 85%, 55%)","hsl(0.43199999999999933, 85%, 55%)","hsl(0.14400000000000546, 85%, 55%)","hsl(0.036000000000001364, 85%, 55%)","hsl(0.01200000000000614, 85%, 55%)","hsl(0.05999999999999659, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0.05999999999999659, 85%, 55%)","hsl(0.023999999999995227, 85%, 55%)","hsl(0.023999999999995227, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(80.28, 85%, 55%)","hsl(70.32, 85%, 55%)","hsl(86.47200000000001, 85%, 55%)","hsl(112.068, 85%, 55%)","hsl(99.70800000000001, 85%, 55%)","hsl(114.19200000000001, 85%, 55%)","hsl(43.692, 85%, 55%)","hsl(98.664, 85%, 55%)","hsl(77.424, 85%, 55%)","hsl(90.432, 85%, 55%)","hsl(120, 85%, 55%)","hsl(116.05199999999999, 85%, 55%)","hsl(0.0480000000000075, 85%, 55%)","hsl(0.01200000000000614, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0.01200000000000614, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)","hsl(0, 85%, 55%)"],
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'jssm scaling diagnostic suite',
+              font: { size: 20 },
+              padding: 20,
+            },
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  return format(context.parsed.y) + ' ops/s'
+                },
+              },
+              displayColors: false,
+              backgroundColor: '#222222',
+              padding: 10,
+              cornerRadius: 5,
+              intersect: false,
+            },
+          },
+          scales: {
+            x: {
+              grid: {
+                color: '#888888',
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Operations per second',
+                padding: 10,
+              },
+              grid: {
+                color: '#888888',
+              },
+            },
+          },
+        },
+      })
+    </script>
+  </body>
+</html>

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-294 merges; 244 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+295 merges; 244 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,31 +22,86 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - May 22, 2026 10:55:36 PM
+## [Untagged] - May 27, 2026 11:54:58 AM
 
-Commit [eb1b9c41bc4dee89b8e37cca34fe6f16f004bc09](https://github.com/StoneCypher/jssm/commit/eb1b9c41bc4dee89b8e37cca34fe6f16f004bc09)
+Commit [c00dee32a029c955af9502f7ad5754574dd4043c](https://github.com/StoneCypher/jssm/commit/c00dee32a029c955af9502f7ad5754574dd4043c)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
+  * chore: rebuild artifacts and docs for 5.130.0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:11:10 PM
+
+Commit [8ac21caaf8500851e7771b89261292ccb67c829c](https://github.com/StoneCypher/jssm/commit/8ac21caaf8500851e7771b89261292ccb67c829c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: add outbound adjacency index for O(out-degree) edges_between
+  * Closes #635.
+  * The diagnostic benchmark from PR #634 found that edges_between() was the
+dominant cost on machines with many edges — its per-call cost scaled linearly
+with TOTAL edge count, not with the per-state out-degree the call actually
+needs.  has_state() was already at 10M+ ops/sec across every shape, so the
+bottleneck was algorithmic (linear filter) rather than representational
+(Map<string> lookup).
+  * Adds a new _outbound_edge_ids: Map<from, number[]> populated alongside the
+existing _edge_map during construction.  edges_between(from, to) iterates
+only that state's outbound edges instead of the full _edges array.
+  * Before/after on v5.128.0 baseline (see src/historic_benchmarks/):
+  *   shape           edges_between() ops/sec     factor
+                  before -> after
+  chain-1000      1,212  ->  86,476            71x
+  dense-50          291  ->  11,718            40x
+  dense-200          11  ->   4,150           377x
+  messy-1000        307  -> 104,086           339x
+  messy-5000         21  -> 118,097          5624x
+  * transition() also benefited 1.2-2.0x across most shapes because the transition
+path internally calls edges_between for kind-determination.  has_state() is
+unchanged (noise band).  construct() is slightly slower on chain shapes
+(extra Map.set + Array.push during construction) but faster on hub/hooked.
+  * Tests: spec suite 5642/5642 pass; coverage 100% statements/branches/functions/
+lines.  Adds src/ts/tests/edges_between.spec.ts with 4 cases covering the
+happy path, the terminal-from-state branch, and the unknown-from-state branch.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 27, 2026 11:47:36 AM
+
+Commit [5469f920ee37f00b944073463c6a071b44527d08](https://github.com/StoneCypher/jssm/commit/5469f920ee37f00b944073463c6a071b44527d08)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.129.0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 26, 2026 11:15:12 PM
+
+Commit [7898c7f10adfa9c2ac3c6b787abb406cc74e749a](https://github.com/StoneCypher/jssm/commit/7898c7f10adfa9c2ac3c6b787abb406cc74e749a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [aa72b808, 3acfedc7]
+
+  * Merge pull request #633 from StoneCypher/ci_26-05-22_split-pr-main_632
   * ci: split PR runs from main; restrict full build to one main job
-  * Adds `pull_request` to the workflow trigger and gates jobs by event
-and ref so each runs exactly once.
-  * PRs now run a single `pr-check` job (ubuntu-latest + node 24.x) that
-executes `npm run ci_build` (vet + test). The full OS/Node matrix,
-unicode-*, benchmark, verify-version-bump, and the release pipeline
-are all skipped on PRs.
-  * Main keeps the full 8-entry OS/Node matrix on `ci_build` and adds a
-new `full-build` job (ubuntu-latest + node 24.x) that runs the full
-`npm run build` (site, docs, cookbook, changelog, cloc, readme), so
-the artifact/doc-producing build only pays its cost once instead of
-eight times across the matrix.
-  * Unicode/benchmark/verify-version-bump remain push-only as before;
-their new `if: github.event_name == 'push'` guards just prevent them
-firing twice on same-repo PRs (which now produce both push and
-pull_request events).
-  * `release.needs` adds `full-build` so the release waits on the
-single full-build job alongside the matrix and unicode jobs.
-  * Refs #632
 
 
 
@@ -55,13 +110,38 @@ single full-build job alongside the matrix and unicode jobs.
 
 &nbsp;
 
-## [Untagged] - May 22, 2026 9:53:32 PM
+## [Untagged] - May 26, 2026 11:11:10 PM
 
-Commit [837e0c0b3152cdc0c041989675eeb9b65facd474](https://github.com/StoneCypher/jssm/commit/837e0c0b3152cdc0c041989675eeb9b65facd474)
+Commit [1f171a49f7404559b0931313e419e7df47af5b80](https://github.com/StoneCypher/jssm/commit/1f171a49f7404559b0931313e419e7df47af5b80)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli): re-export config loader API via jssm/cli subpath
+  * perf: add outbound adjacency index for O(out-degree) edges_between
+  * Closes #635.
+  * The diagnostic benchmark from PR #634 found that edges_between() was the
+dominant cost on machines with many edges — its per-call cost scaled linearly
+with TOTAL edge count, not with the per-state out-degree the call actually
+needs.  has_state() was already at 10M+ ops/sec across every shape, so the
+bottleneck was algorithmic (linear filter) rather than representational
+(Map<string> lookup).
+  * Adds a new _outbound_edge_ids: Map<from, number[]> populated alongside the
+existing _edge_map during construction.  edges_between(from, to) iterates
+only that state's outbound edges instead of the full _edges array.
+  * Before/after on v5.128.0 baseline (see src/historic_benchmarks/):
+  *   shape           edges_between() ops/sec     factor
+                  before -> after
+  chain-1000      1,212  ->  86,476            71x
+  dense-50          291  ->  11,718            40x
+  dense-200          11  ->   4,150           377x
+  messy-1000        307  -> 104,086           339x
+  messy-5000         21  -> 118,097          5624x
+  * transition() also benefited 1.2-2.0x across most shapes because the transition
+path internally calls edges_between for kind-determination.  has_state() is
+unchanged (noise band).  construct() is slightly slower on chain shapes
+(extra Map.set + Array.push during construction) but faster on hub/hooked.
+  * Tests: spec suite 5642/5642 pass; coverage 100% statements/branches/functions/
+lines.  Adds src/ts/tests/edges_between.spec.ts with 4 cases covering the
+happy path, the terminal-from-state branch, and the unknown-from-state branch.
 
 
 
@@ -70,13 +150,20 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - May 22, 2026 9:53:18 PM
+## [Untagged] - May 26, 2026 11:48:44 AM
 
-Commit [cbfb1a7534e8790b9b4051b3de614029fde303a7](https://github.com/StoneCypher/jssm/commit/cbfb1a7534e8790b9b4051b3de614029fde303a7)
+Commit [a53ef2d378574e71b7dd95619b1101db8eca58ad](https://github.com/StoneCypher/jssm/commit/a53ef2d378574e71b7dd95619b1101db8eca58ad)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(cli/config): remove dead walk-up branch; replace tautological discovery tests (code-review)
+  * docs(bench): commit diagnostic-benchmark spec, plan, and dated baseline snapshot
+  * - notes/superpowers/specs/2026-05-26-diagnostic-benchmark-design.md
+  the design that drove this PR
+- notes/superpowers/plans/2026-05-26-diagnostic-benchmark.md
+  the implementation plan executed across commits bc481868..47e2e675
+- src/historic_benchmarks/benchmark_2026-05-26.json
+  immutable snapshot of v5.128.0 scaling baseline; future runs overwrite
+  benchmark/results/scaling.json but never touch this archive
 
 
 
@@ -85,13 +172,20 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - May 22, 2026 9:51:25 PM
+## [Untagged] - May 26, 2026 11:40:46 AM
 
-Commit [675a927eefcd7239e09613fe678cfd0bbc0824ff](https://github.com/StoneCypher/jssm/commit/675a927eefcd7239e09613fe678cfd0bbc0824ff)
+Commit [47e2e675272d7b54ac3a01df1f104cc3939f5fd8](https://github.com/StoneCypher/jssm/commit/47e2e675272d7b54ac3a01df1f104cc3939f5fd8)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/config): loadConfig orchestrator with Action/editor/SSG-friendly options
+  * test(bench): wire benny:scaling/benny:all and capture v5.128.0 baseline
+  * Diagnostic signals from scaling.md:
+1. chain transition() across N=10..1000: not flat, drops ~45% (137705 -> 75764) across a 100x size growth, i.e. sub-linear but visibly degrading
+2. dense transition() vs chain at same N: dense degrades faster but only modestly - dense-10 is ~25% slower than chain-10, dense-200 ~36% slower than chain-200; not a sharp collapse
+3. edges_between() scaling with edge count: yes, scales with edge count - chain-1000 (~1000 edges) ~1212 ops/s, dense-200 (~40k edges) only 11 ops/s, messy-5000 only 21 ops/s
+4. hooked-200 vs hub-200 transition(): yes, hooked-200 (10624) is ~6.5x slower than hub-200 (68880) - hooks dominate per-transition cost
+5. has_state() flatness: yes, flat across all sizes (~9.6M to ~14.4M ops/s, noise band) regardless of shape or N
+6. messy-1000 vs chain-1000 per op: yes, perceptibly worse on most ops - transition 60156 vs 75764, edges_between 307 vs 1212 (~4x slower), construct 13 vs 93 (~7x slower); has_state alone is comparable
 
 
 
@@ -100,17 +194,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - May 22, 2026 9:47:38 PM
+## [Untagged] - May 26, 2026 11:31:53 AM
 
-Commit [333f336fd8cd61d9ad0074b04c5681975a5b8c1a](https://github.com/StoneCypher/jssm/commit/333f336fd8cd61d9ad0074b04c5681975a5b8c1a)
+Commit [df924692996fc0ca0a4a74ccf787273d55b9cf60](https://github.com/StoneCypher/jssm/commit/df924692996fc0ca0a4a74ccf787273d55b9cf60)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/config): user-global + project discovery as two separate exports
-  * Adds discoverUserGlobalConfig and discoverProjectConfig in
-sources/from-discovery.ts; walks the directory tree toward the
-filesystem root with a 64-iteration safety cap. Includes home and
-no-config fixtures; 7 spec tests all green.
+  * test(bench): emit grouped markdown pivot of scaling results
 
 
 
@@ -119,20 +209,13 @@ no-config fixtures; 7 spec tests all green.
 
 &nbsp;
 
-## [Untagged] - May 22, 2026 9:46:01 PM
+## [Untagged] - May 26, 2026 11:25:26 AM
 
-Commit [b4b33597b10793603afa655afbfc5591678addb7](https://github.com/StoneCypher/jssm/commit/b4b33597b10793603afa655afbfc5591678addb7)
+Commit [de9dc183f646ec13d132737a7982eeeeeca9fd98](https://github.com/StoneCypher/jssm/commit/de9dc183f646ec13d132737a7982eeeeeca9fd98)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * test(cli/config): cover joinPath/dirnameOf branches + clarify @throws (code-review)
-  * Adds 3 new tests to cover previously-uncovered code branches:
-- absolute POSIX path early-return in joinPath
-- Windows drive-letter prefix handling in joinPath
-- bare-filename fallback (ix === -1) in dirnameOf
-  * Updates resolveExtends DocBlock to document that reader callback
-rejections propagate unwrapped, and renames existing test for accuracy
-('wrapped' -> 'unwrapped').
+  * test(bench): match tree-shaking idiom and tighten construct() comment
 
 
 
@@ -141,55 +224,10 @@ rejections propagate unwrapped, and renames existing test for accuracy
 
 &nbsp;
 
-## [Untagged] - May 22, 2026 9:44:07 PM
+## [Untagged] - May 26, 2026 11:22:29 AM
 
-Commit [35b60ffe960962e58778d2eb18590ef4913243e3](https://github.com/StoneCypher/jssm/commit/35b60ffe960962e58778d2eb18590ef4913243e3)
+Commit [628962d7df3b623008f2dba618fdeaaaf87348c4](https://github.com/StoneCypher/jssm/commit/628962d7df3b623008f2dba618fdeaaaf87348c4)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(cli/config): file source with fs reader, schema validation, extends chain
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - May 22, 2026 9:40:20 PM
-
-Commit [d727015667be017f7073f4d8a97ced96affadbf1](https://github.com/StoneCypher/jssm/commit/d727015667be017f7073f4d8a97ced96affadbf1)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(cli/config): strict file-relative extends resolution (remove .fsl special-case)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - May 22, 2026 9:39:27 PM
-
-Commit [5cfd667ca4c9cf7785479a041ff873143b9116f1](https://github.com/StoneCypher/jssm/commit/5cfd667ca4c9cf7785479a041ff873143b9116f1)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(cli/config): cover delete-key branch in mergeTwo when both layers have undefined (code-review)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - May 22, 2026 9:37:00 PM
-
-Commit [5a18d98fb901df62135586b0b184029b83b1a8cd](https://github.com/StoneCypher/jssm/commit/5a18d98fb901df62135586b0b184029b83b1a8cd)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli/config): extends resolution with injected reader callback
+  * test(bench): add construction-time cases to scaling suite
