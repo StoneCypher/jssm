@@ -1,12 +1,34 @@
 name: Full publish pipeline
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
 
 
 
+  pr-check:
+
+    if: github.event_name == 'pull_request'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+    - name: npm install and ci_build (vet + test)
+      run: |
+        npm install && npm run ci_build
+      env:
+        CI: true
+
+
+
   unicode-atoms:
+
+    if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
 
@@ -26,6 +48,8 @@ jobs:
 
   unicode-strings:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -43,6 +67,8 @@ jobs:
 
 
   unicode-atom-labels:
+
+    if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
 
@@ -62,6 +88,8 @@ jobs:
 
   unicode-string-labels:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -80,6 +108,8 @@ jobs:
 
   unicode-actions:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
@@ -97,6 +127,8 @@ jobs:
 
 
   build:
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     strategy:
       matrix:
@@ -139,7 +171,29 @@ jobs:
 
 
 
+  full-build:
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+    - name: npm install and full build (site, docs, cookbook, changelog, cloc, readme)
+      run: |
+        npm install && npm run build
+      env:
+        CI: true
+
+
+
   benchmark:
+
+    if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
 
@@ -158,6 +212,8 @@ jobs:
 
 
   verify-version-bump:
+
+    if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
 
@@ -180,9 +236,9 @@ jobs:
 
   release:
 
-    if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
+    if: (github.event_name == 'push') && (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
 
-    needs: [build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
+    needs: [build, full-build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
 
     runs-on: ubuntu-latest
 
