@@ -94,6 +94,7 @@ declare class Machine<mDT> {
     _states: Map<StateType, JssmGenericState>;
     _edges: Array<JssmTransition<StateType, mDT>>;
     _edge_map: Map<StateType, Map<StateType, number>>;
+    _outbound_edge_ids: Map<StateType, Array<number>>;
     _named_transitions: Map<StateType, number>;
     _actions: Map<StateType, Map<StateType, number>>;
     _reverse_actions: Map<StateType, Map<StateType, number>>;
