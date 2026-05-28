@@ -7,6 +7,85 @@
       "path": "src/ts/wc/jssm_instance_wc.ts",
       "declarations": [
         {
+          "kind": "variable",
+          "name": "JSSM_ON_EVENT_NAMES",
+          "default": "new Set<string>([ 'transition', 'rejection', 'action', 'entry', 'exit', 'terminal', 'complete', 'error', 'data-change', 'override', 'timeout', 'hook-registration', 'hook-removal' ])",
+          "description": "Allow-list of event names accepted by `<jssm-on event=\"...\">`.  Must stay\r\nin sync with the `JssmEventName` union in `jssm_types.ts` (the library's\r\n`machine.on(...)` event API, added in #638).  Validating here gives the\r\ndeclarative wiring a clear \"unknown event name\" error at the WC layer\r\ninstead of relying on a downstream library throw whose message would\r\nmention `machine.on(...)` rather than the offending tag."
+        },
+        {
+          "kind": "function",
+          "name": "parse_jssm_on_element",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "el",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The `<jssm-on>` element to parse."
+            }
+          ],
+          "description": "Parse a `<jssm-on>` element into a validated ParsedJssmOn\r\nrecord.  Centralized so the declarative-tag logic is testable without\r\nspinning up the full `<jssm-instance>` lifecycle.\r\n\r\nValidation rules (per #643):\r\n  - `event` is required and must be in JSSM_ON_EVENT_NAMES.\r\n  - Either a `handler=\"name\"` attribute or non-empty `textContent`\r\n    must be supplied, but not both.\r\n  - `state` is only meaningful for `event=\"entry\"` / `event=\"exit\"`;\r\n    it's silently ignored on other events.\r\n  - `from` / `to` are only meaningful for `event=\"transition\"`; they\r\n    are silently ignored on other events.  Both → AND (a specific\r\n    edge).  Neither → unfiltered.\r\n\r\n```typescript\r\nconst el = document.createElement('jssm-on');\r\nel.setAttribute('event', 'entry');\r\nel.setAttribute('state', 'paid');\r\nel.setAttribute('handler', 'onPaid');\r\nparse_jssm_on_element(el);\r\n// => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,\r\n//      once: false, name: undefined, filter: { state: 'paid' } }\r\n```"
+        },
+        {
+          "kind": "variable",
+          "name": "jssm_handler_registry",
+          "type": {
+            "text": "Map<string, (...args: unknown[]) => unknown>"
+          },
+          "default": "new Map()",
+          "description": "Optional global registry that `<jssm-on>` (and, later, `<jssm-hook>`)\r\nconsult first when resolving a `handler=\"name\"` attribute.  Consumers\r\nregister named handlers here in a strict-CSP environment where a stray\r\n`globalThis[name]` isn't acceptable.  Falls through to `globalThis[name]`\r\nif the registry has no entry.\r\n\r\nIntentionally a `Map<string, Function>` rather than a class with methods,\r\nso consumers can use any of `.get`, `.set`, `.delete`, `.clear` directly\r\nwithout a thin wrapper API."
+        },
+        {
+          "kind": "function",
+          "name": "resolve_named_handler",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The handler name as supplied by `handler=\"...\"`."
+            }
+          ],
+          "description": "Resolve a named handler from the registry, then from `globalThis`.\r\nThrows if neither lookup finds a function — earlier failure here is\r\nbetter than a delayed \"is not a function\" at first event delivery."
+        },
+        {
+          "kind": "function",
+          "name": "compile_inline_body",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "body",
+              "type": {
+                "text": "string"
+              },
+              "description": "The inline JS body (function body, not full function)."
+            },
+            {
+              "name": "source_id",
+              "type": {
+                "text": "string"
+              },
+              "description": "A short identifier for the sourceURL pragma."
+            }
+          ],
+          "description": "Compile an inline-body string into a handler function whose single\r\nparameter is `e` (the event detail object).  Uses the same dynamic\r\n`Function(...)` constructor that browsers use internally for inline\r\nevent-handler attributes such as `<a onclick=\"...\">`; the input here\r\nis consumer-authored markup, never network data, so the surface is\r\nexactly that of an inline event-handler attribute and the same CSP\r\ncaveats apply (strict CSP without `'unsafe-eval'` blocks it).  A\r\n`//# sourceURL=jssm-on:N` pragma is appended so devtools stack traces\r\npoint at a meaningful name."
+        },
+        {
           "kind": "function",
           "name": "resolve_fsl_source",
           "return": {
@@ -30,11 +109,11 @@
               "description": "The current value of the host's `fsl` attribute (or property), or empty string."
             }
           ],
-          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\nelement's own text content (after stripping the script and any\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\nnone or more than one is an error.\n\nPulled out as a pure function so it's testable without spinning up a\nLit element.\n\n```typescript\nconst div = document.createElement('div');\ndiv.setAttribute('fsl', 'Off -> On;');\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\n```"
+          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\r\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\r\nelement's own text content (after stripping the script and any\r\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\r\nnone or more than one is an error.\r\n\r\nPulled out as a pure function so it's testable without spinning up a\r\nLit element.\r\n\r\n```typescript\r\nconst div = document.createElement('div');\r\ndiv.setAttribute('fsl', 'Off -> On;');\r\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\r\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\r\n```"
         },
         {
           "kind": "class",
-          "description": "Web component that owns a single `Machine<unknown>` constructed from an\nFSL source supplied via one of three mutually exclusive channels:\n\n  1. The `fsl=\"\"` attribute,\n  2. A child `<script type=\"text/fsl\">`,\n  3. The element's own text content (companion `<jssm-*>` children and\n     any `<script type=\"text/fsl\">` are excluded from this channel).\n\nSupplying zero or more than one channel is a thrown error.\n\nOn every transition the component reflects machine state to its own\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\nand sets a `--current-state` CSS custom property so consumer CSS can\nstyle by state without subclassing.",
+          "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<jssm-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
           "name": "JssmInstance",
           "cssProperties": [
             {
@@ -81,7 +160,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "attribute": "fsl"
             },
             {
@@ -92,7 +171,17 @@
               },
               "privacy": "private",
               "default": "undefined",
-              "description": "The underlying machine instance, constructed at `connectedCallback`.\nExposed raw (not proxied) per the #639/#648 design decision so that\nconsumers can use the full Machine API directly.\n\nMarked optional because Lit will instantiate the element before\n`connectedCallback` runs; the instance is guaranteed present after\nconnection."
+              "description": "The underlying machine instance, constructed at `connectedCallback`.\r\nExposed raw (not proxied) per the #639/#648 design decision so that\r\nconsumers can use the full Machine API directly.\r\n\r\nMarked optional because Lit will instantiate the element before\r\n`connectedCallback` runs; the instance is guaranteed present after\r\nconnection."
+            },
+            {
+              "kind": "field",
+              "name": "_on_unsubscribes",
+              "type": {
+                "text": "Array<() => void>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`\r\nsubscription installed from a `<jssm-on>` child during\r\n`connectedCallback`.  Walked in `disconnectedCallback` so a removed\r\n`<jssm-instance>` doesn't leave dangling handlers on its (now-orphan)\r\nmachine.  Array (insertion order) rather than Set so cleanup order is\r\ndeterministic and easy to reason about."
             },
             {
               "kind": "field",
@@ -128,7 +217,7 @@
                   "description": "Optional data payload to pass to the action."
                 }
               ],
-              "description": "Convenience wrapper for `machine.action(action, data)`.\nAfter the action, reflects updated state to host attributes and the\n`--current-state` CSS custom property, and requests a Lit update so\nthe state-specific `<slot name=\"state-...\">` can re-pick."
+              "description": "Convenience wrapper for `machine.action(action, data)`.\r\nAfter the action, reflects updated state to host attributes and the\r\n`--current-state` CSS custom property, and requests a Lit update so\r\nthe state-specific `<slot name=\"state-...\">` can re-pick."
             },
             {
               "kind": "method",
@@ -138,7 +227,18 @@
                   "text": "string"
                 }
               },
-              "description": "Convenience wrapper for `machine.state()`.  Returns the current\nstate's name."
+              "description": "Convenience wrapper for `machine.state()`.  Returns the current\r\nstate's name."
+            },
+            {
+              "kind": "method",
+              "name": "_install_jssm_on_children",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Discover direct-child `<jssm-on>` elements and install their\r\nsubscriptions on the owned machine.  Per #643:\r\n\r\n- Direct children only (`:scope > jssm-on`).  Deeper nesting is the\r\n  responsibility of a future MutationObserver-driven v2.\r\n- Each `<jssm-on>` is parsed by parse_jssm_on_element, which\r\n  enforces the form / event-name / filter rules.\r\n- Handlers come from resolve_named_handler (form A) or\r\n  compile_inline_body (form B), and the result is installed\r\n  via `machine.on(...)` or `machine.once(...)` depending on the\r\n  element's `once` attribute.\r\n- Every returned unsubscribe is tracked in _on_unsubscribes\r\n  so disconnectedCallback can release them all.\r\n\r\nCalled once from `connectedCallback` after the machine has been\r\nconstructed.  Any error thrown by parsing or resolution propagates\r\nout so it surfaces via jsdom's error event (matching the rest of\r\n`<jssm-instance>`'s \"fail loud at connect\" policy)."
             },
             {
               "kind": "method",
@@ -149,7 +249,7 @@
                   "text": "void"
                 }
               },
-              "description": "Reflect machine state onto host attributes and CSS custom properties.\nCalled after every transition and once during `connectedCallback`.\n\nMechanism 1 (#639): writes to host attributes.\nMechanism 3 (#639): writes to host inline-style custom properties."
+              "description": "Reflect machine state onto host attributes and CSS custom properties.\r\nCalled after every transition and once during `connectedCallback`.\r\n\r\nMechanism 1 (#639): writes to host attributes.\r\nMechanism 3 (#639): writes to host inline-style custom properties."
             }
           ],
           "attributes": [
@@ -159,7 +259,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "fieldName": "fsl"
             }
           ],
@@ -172,6 +272,46 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "JSSM_ON_EVENT_NAMES",
+          "declaration": {
+            "name": "JSSM_ON_EVENT_NAMES",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "parse_jssm_on_element",
+          "declaration": {
+            "name": "parse_jssm_on_element",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "jssm_handler_registry",
+          "declaration": {
+            "name": "jssm_handler_registry",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_named_handler",
+          "declaration": {
+            "name": "resolve_named_handler",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "compile_inline_body",
+          "declaration": {
+            "name": "compile_inline_body",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "resolve_fsl_source",

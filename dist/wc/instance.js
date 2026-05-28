@@ -2,6 +2,177 @@ import { css, LitElement, html } from 'lit';
 import { sm } from 'jssm';
 
 /**
+ * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
+ * in sync with the `JssmEventName` union in `jssm_types.ts` (the library's
+ * `machine.on(...)` event API, added in #638).  Validating here gives the
+ * declarative wiring a clear "unknown event name" error at the WC layer
+ * instead of relying on a downstream library throw whose message would
+ * mention `machine.on(...)` rather than the offending tag.
+ */
+const JSSM_ON_EVENT_NAMES = new Set([
+    'transition',
+    'rejection',
+    'action',
+    'entry',
+    'exit',
+    'terminal',
+    'complete',
+    'error',
+    'data-change',
+    'override',
+    'timeout',
+    'hook-registration',
+    'hook-removal'
+]);
+/**
+ * Parse a `<jssm-on>` element into a validated {@link ParsedJssmOn}
+ * record.  Centralized so the declarative-tag logic is testable without
+ * spinning up the full `<jssm-instance>` lifecycle.
+ *
+ * Validation rules (per #643):
+ *   - `event` is required and must be in {@link JSSM_ON_EVENT_NAMES}.
+ *   - Either a `handler="name"` attribute or non-empty `textContent`
+ *     must be supplied, but not both.
+ *   - `state` is only meaningful for `event="entry"` / `event="exit"`;
+ *     it's silently ignored on other events.
+ *   - `from` / `to` are only meaningful for `event="transition"`; they
+ *     are silently ignored on other events.  Both → AND (a specific
+ *     edge).  Neither → unfiltered.
+ *
+ * ```typescript
+ * const el = document.createElement('jssm-on');
+ * el.setAttribute('event', 'entry');
+ * el.setAttribute('state', 'paid');
+ * el.setAttribute('handler', 'onPaid');
+ * parse_jssm_on_element(el);
+ * // => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,
+ * //      once: false, name: undefined, filter: { state: 'paid' } }
+ * ```
+ *
+ * @param el - The `<jssm-on>` element to parse.
+ * @returns A validated {@link ParsedJssmOn} record.
+ * @throws If `event` is missing, unknown, both handler forms are
+ *         supplied, or neither handler form is supplied.
+ */
+function parse_jssm_on_element(el) {
+    const event_attr = el.getAttribute('event');
+    if (event_attr === null || event_attr.trim().length === 0) {
+        throw new Error('<jssm-on>: missing required `event` attribute');
+    }
+    const event = event_attr.trim();
+    if (!JSSM_ON_EVENT_NAMES.has(event)) {
+        throw new Error(`<jssm-on>: unknown event "${event}"`);
+    }
+    const handler_attr = el.getAttribute('handler');
+    const handler_name = (handler_attr !== null && handler_attr.trim().length > 0)
+        ? handler_attr.trim()
+        : undefined;
+    // textContent on a connected HTMLElement is always a string, so the
+    // historical `?? ''` fallback never executed.  Use a direct cast here
+    // and let test cases that supply a literal `null` (defensive coverage)
+    // hit the `=== null` branch instead — that branch is reachable via
+    // Object.defineProperty in tests, where the `??` form would be a dead
+    // operator.
+    const body_text = el.textContent;
+    const inline_body = (body_text !== null && body_text.trim().length > 0) ? body_text : undefined;
+    if (handler_name !== undefined && inline_body !== undefined) {
+        throw new Error('<jssm-on>: specify handler="name" OR inline body, not both');
+    }
+    if (handler_name === undefined && inline_body === undefined) {
+        throw new Error('<jssm-on>: must specify handler="name" or an inline body');
+    }
+    const once_attr = el.hasAttribute('once');
+    const name_attr = el.getAttribute('name');
+    const name = (name_attr !== null && name_attr.trim().length > 0) ? name_attr.trim() : undefined;
+    // Build the filter, but only honour attributes that apply to this event.
+    // Unknown filter attributes for an event are silently ignored, matching
+    // the documented semantics in the issue.
+    let filter;
+    if (event === 'entry' || event === 'exit') {
+        const state_attr = el.getAttribute('state');
+        if (state_attr !== null && state_attr.length > 0) {
+            filter = { state: state_attr };
+        }
+    }
+    else if (event === 'transition') {
+        const from_attr = el.getAttribute('from');
+        const to_attr = el.getAttribute('to');
+        const candidate = {};
+        if (from_attr !== null && from_attr.length > 0) {
+            candidate.from = from_attr;
+        }
+        if (to_attr !== null && to_attr.length > 0) {
+            candidate.to = to_attr;
+        }
+        if (Object.keys(candidate).length > 0) {
+            filter = candidate;
+        }
+    }
+    return {
+        event,
+        handler_name,
+        inline_body,
+        once: once_attr,
+        name,
+        filter
+    };
+}
+/**
+ * Optional global registry that `<jssm-on>` (and, later, `<jssm-hook>`)
+ * consult first when resolving a `handler="name"` attribute.  Consumers
+ * register named handlers here in a strict-CSP environment where a stray
+ * `globalThis[name]` isn't acceptable.  Falls through to `globalThis[name]`
+ * if the registry has no entry.
+ *
+ * Intentionally a `Map<string, Function>` rather than a class with methods,
+ * so consumers can use any of `.get`, `.set`, `.delete`, `.clear` directly
+ * without a thin wrapper API.
+ */
+const jssm_handler_registry = new Map();
+/**
+ * Resolve a named handler from the registry, then from `globalThis`.
+ * Throws if neither lookup finds a function — earlier failure here is
+ * better than a delayed "is not a function" at first event delivery.
+ *
+ * @param name - The handler name as supplied by `handler="..."`.
+ * @returns The resolved function.
+ * @throws If no function is registered under `name`.
+ */
+function resolve_named_handler(name) {
+    const from_registry = jssm_handler_registry.get(name);
+    if (typeof from_registry === 'function') {
+        return from_registry;
+    }
+    const from_global = globalThis[name];
+    if (typeof from_global === 'function') {
+        return from_global;
+    }
+    throw new Error(`<jssm-on>: handler "${name}" not found in registry or globalThis`);
+}
+/**
+ * Compile an inline-body string into a handler function whose single
+ * parameter is `e` (the event detail object).  Uses the same dynamic
+ * `Function(...)` constructor that browsers use internally for inline
+ * event-handler attributes such as `<a onclick="...">`; the input here
+ * is consumer-authored markup, never network data, so the surface is
+ * exactly that of an inline event-handler attribute and the same CSP
+ * caveats apply (strict CSP without `'unsafe-eval'` blocks it).  A
+ * `//# sourceURL=jssm-on:N` pragma is appended so devtools stack traces
+ * point at a meaningful name.
+ *
+ * @param body - The inline JS body (function body, not full function).
+ * @param source_id - A short identifier for the sourceURL pragma.
+ * @returns The compiled handler.
+ */
+function compile_inline_body(body, source_id) {
+    const wrapped = `${body}\n//# sourceURL=jssm-on:${source_id}`;
+    // The Function constructor is intentional here — see the docblock above
+    // for the rationale and the CSP caveat.  Equivalent to how browsers wire
+    // up inline event handlers; the input is consumer-authored markup.
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+    return new Function('e', wrapped); // skipcq: JS-0086
+}
+/**
  * Resolve a `<jssm-instance>`'s FSL source from the three legal channels:
  * the `fsl=""` attribute, a child `<script type="text/fsl">`, and the
  * element's own text content (after stripping the script and any
@@ -116,6 +287,15 @@ class JssmInstance extends LitElement {
          * connection.
          */
         this._machine = undefined;
+        /**
+         * Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`
+         * subscription installed from a `<jssm-on>` child during
+         * `connectedCallback`.  Walked in `disconnectedCallback` so a removed
+         * `<jssm-instance>` doesn't leave dangling handlers on its (now-orphan)
+         * machine.  Array (insertion order) rather than Set so cleanup order is
+         * deterministic and easy to reason about.
+         */
+        this._on_unsubscribes = [];
     }
     /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
@@ -181,9 +361,50 @@ class JssmInstance extends LitElement {
         // TODO #638: subscribe to machine.on('transition', ...) once available
         //            and dispatch DOM CustomEvents from this element.
         // TODO #641: <jssm-hook> discovery happens here.
-        // TODO #643: <jssm-on> discovery happens here.
+        this._install_jssm_on_children();
         // TODO #640: <jssm-action> discovery happens here.
         // TODO #645: <jssm-bind> discovery happens here.
+    }
+    /**
+     * Discover direct-child `<jssm-on>` elements and install their
+     * subscriptions on the owned machine.  Per #643:
+     *
+     * - Direct children only (`:scope > jssm-on`).  Deeper nesting is the
+     *   responsibility of a future MutationObserver-driven v2.
+     * - Each `<jssm-on>` is parsed by {@link parse_jssm_on_element}, which
+     *   enforces the form / event-name / filter rules.
+     * - Handlers come from {@link resolve_named_handler} (form A) or
+     *   {@link compile_inline_body} (form B), and the result is installed
+     *   via `machine.on(...)` or `machine.once(...)` depending on the
+     *   element's `once` attribute.
+     * - Every returned unsubscribe is tracked in {@link _on_unsubscribes}
+     *   so {@link disconnectedCallback} can release them all.
+     *
+     * Called once from `connectedCallback` after the machine has been
+     * constructed.  Any error thrown by parsing or resolution propagates
+     * out so it surfaces via jsdom's error event (matching the rest of
+     * `<jssm-instance>`'s "fail loud at connect" policy).
+     */
+    _install_jssm_on_children() {
+        const machine = this._machine;
+        const on_nodes = this.querySelectorAll(':scope > jssm-on');
+        let index = 0;
+        for (const el of Array.from(on_nodes)) {
+            index += 1;
+            const parsed = parse_jssm_on_element(el);
+            const handler = parsed.handler_name !== undefined
+                ? resolve_named_handler(parsed.handler_name)
+                : compile_inline_body(parsed.inline_body, String(index));
+            // Argument shape: machine.on(name, handler) when no filter, or
+            // machine.on(name, filter, handler) when filtered.  Same for once.
+            // `as any` collapses the per-event detail typing — the WC is a
+            // schema-erased entry point and the type-safety belongs upstream.
+            const subscribe = parsed.once ? machine.once.bind(machine) : machine.on.bind(machine);
+            const unsubscribe = parsed.filter === undefined
+                ? subscribe(parsed.event, handler)
+                : subscribe(parsed.event, parsed.filter, handler);
+            this._on_unsubscribes.push(unsubscribe);
+        }
     }
     /**
      * Lifecycle hook.  Cleans up any installed subscriptions.  Currently a
@@ -193,9 +414,17 @@ class JssmInstance extends LitElement {
      */
     disconnectedCallback() {
         super.disconnectedCallback();
-        // TODO #638: unsubscribe from machine.on(...) handlers.
+        // TODO #638: unsubscribe from machine.on(...) handlers added by the host.
         // TODO #641: remove installed hooks.
-        // TODO #643/#645: remove installed listeners / bindings.
+        // #643: release every subscription installed from a <jssm-on> child.
+        for (const off of this._on_unsubscribes) {
+            try {
+                off();
+            }
+            catch ( /* swallow — cleanup must not throw past us */_a) { /* swallow — cleanup must not throw past us */ }
+        }
+        this._on_unsubscribes = [];
+        // TODO #645: remove installed bindings.
     }
     /**
      * Reflect machine state onto host attributes and CSS custom properties.
@@ -285,4 +514,4 @@ JssmInstance.properties = {
     fsl: { type: String, reflect: false },
 };
 
-export { JssmInstance, resolve_fsl_source };
+export { JSSM_ON_EVENT_NAMES, JssmInstance, compile_inline_body, jssm_handler_registry, parse_jssm_on_element, resolve_fsl_source, resolve_named_handler };
