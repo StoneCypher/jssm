@@ -2,8 +2,10 @@
  * @jest-environment jsdom
  */
 
+import '../jssm_instance_wc.define';
 import { FslViz, JssmViz as JssmVizFromDefine } from '../jssm_viz_wc.define';
 import { JssmViz, normalize_viz_error } from '../jssm_viz_wc';
+import type { JssmInstance } from '../jssm_instance_wc';
 
 describe('JssmViz registration', () => {
 
@@ -301,6 +303,322 @@ describe('JssmViz rendering', () => {
     expect(tree_html).toContain('<svg');
 
     document.body.removeChild(el);
+  });
+
+});
+
+/**
+ * Helper: wait for an attached `<jssm-viz>` element to finish its
+ * `connectedCallback` deferred `whenDefined().then(...)` chain and the
+ * subsequent async SVG render.  jsdom resolves microtasks immediately, but
+ * the `machine_to_svg_string` pipeline awaits the viz-js WASM module, so
+ * a generous timeout is needed.
+ *
+ * @param el - The viz element to wait on.
+ */
+async function settle_viz(el: HTMLElement): Promise<void> {
+  await (el as any).updateComplete;
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  await (el as any).updateComplete;
+}
+
+describe('JssmViz parent-context binding', () => {
+
+  it('binds to parent <jssm-instance> machine and renders the parent\'s states', async () => {
+    // Nested mode: drop a <jssm-viz> inside <jssm-instance>; the viz must
+    // render the parent's machine (not its own fsl) and show the parent's
+    // state names in the SVG.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'ParentRed -> ParentGreen;');
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+
+    const tree_html = viz.shadowRoot!.innerHTML;
+    expect(tree_html).toContain('<svg');
+    expect(tree_html).toContain('ParentRed');
+    expect(tree_html).toContain('ParentGreen');
+
+    document.body.removeChild(host);
+  });
+
+  it('console.warns when nested viz also carries its own fsl attribute', async () => {
+    // Conflicting configuration: nested viz with `fsl=""` should warn but
+    // still render the parent's machine (NOT the inner attribute's states).
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'HostA -> HostB;');
+    const viz = document.createElement('jssm-viz');
+    viz.setAttribute('fsl', 'InnerX -> InnerY;');
+    host.appendChild(viz);
+
+    const warn_spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    document.body.appendChild(host);
+
+    expect(warn_spy).toHaveBeenCalledTimes(1);
+    expect(String(warn_spy.mock.calls[0]![0])).toMatch(/fsl.*ignored.*jssm-instance/);
+
+    await settle_viz(viz);
+    const tree_html = viz.shadowRoot!.innerHTML;
+    expect(tree_html).toContain('HostA');
+    expect(tree_html).toContain('HostB');
+    expect(tree_html).not.toContain('InnerX');
+
+    warn_spy.mockRestore();
+    document.body.removeChild(host);
+  });
+
+  it('re-renders on parent machine transition', async () => {
+    // The subscription path: after a successful initial render, drive a
+    // transition on the parent and assert the viz updates.  We can't
+    // visually diff the SVG cheaply, but we CAN observe that the viz's
+    // internal `_svg` field gets replaced — that proves rerender ran.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', "Off 'flip' -> On;");
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+    const first_svg = (viz as any)._svg;
+    expect(typeof first_svg).toBe('string');
+    expect(first_svg.length).toBeGreaterThan(0);
+
+    // Mutate the internal SVG so we can prove a fresh render runs.
+    (viz as any)._svg = 'SENTINEL';
+
+    host.do('flip');
+    // The transition event fires synchronously, but the rerender awaits
+    // the WASM viz pipeline.  Wait for it to settle.
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    expect((viz as any)._svg).not.toBe('SENTINEL');
+    expect((viz as any)._svg).toContain('<svg');
+
+    document.body.removeChild(host);
+  });
+
+  it('cleans up the subscription on disconnect (no further rerenders after detach)', async () => {
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', "Off 'flip' -> On 'unflip' -> Off;");
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+    expect((viz as any)._parent_sub).not.toBeNull();
+
+    // Detach the viz (the host remains).  Subscription must be released.
+    host.removeChild(viz);
+    expect((viz as any)._parent_sub).toBeNull();
+    expect((viz as any)._parent_host).toBeNull();
+
+    // Subsequent transitions on the still-mounted host must not crash and
+    // must not touch the detached viz.
+    (viz as any)._svg = 'POST_DETACH';
+    host.do('flip');
+    await new Promise(resolve => setTimeout(resolve, 500));
+    expect((viz as any)._svg).toBe('POST_DETACH');
+
+    document.body.removeChild(host);
+  });
+
+  it('fsl-viz synonym also auto-binds when nested', async () => {
+    // Confirms the empty subclass inherits the nested-mode behavior.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'SynRed -> SynGreen;');
+    const viz = document.createElement('fsl-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+    const tree_html = viz.shadowRoot!.innerHTML;
+    expect(tree_html).toContain('<svg');
+    expect(tree_html).toContain('SynRed');
+    expect(tree_html).toContain('SynGreen');
+
+    document.body.removeChild(host);
+  });
+
+  it('keeps standalone behavior intact when there is no parent ancestor', async () => {
+    // Standalone smoke check: even after the parent-binding code lands,
+    // a viz with no <jssm-instance> ancestor must render its own fsl.
+    const viz = document.createElement('jssm-viz');
+    viz.setAttribute('fsl', 'StandAlpha -> StandBeta;');
+    document.body.appendChild(viz);
+
+    await settle_viz(viz);
+    const tree_html = viz.shadowRoot!.innerHTML;
+    expect(tree_html).toContain('StandAlpha');
+    expect(tree_html).toContain('StandBeta');
+    expect((viz as any)._parent_host).toBeNull();
+
+    document.body.removeChild(viz);
+  });
+
+  it('re-renders the bound parent\'s machine when engine prop changes', async () => {
+    // Covers the willUpdate branch that re-renders from the host machine
+    // on engine change while ignoring fsl change.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'EngineA -> EngineB;');
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+    (viz as any)._svg = 'ENGINE_SENTINEL';
+
+    (viz as any).engine = 'dot';
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await (viz as any).updateComplete;
+
+    expect((viz as any)._svg).not.toBe('ENGINE_SENTINEL');
+    expect((viz as any)._svg).toContain('<svg');
+
+    document.body.removeChild(host);
+  });
+
+  it('ignores fsl-attribute changes while nested (no rerender from own fsl path)', async () => {
+    // willUpdate branch for nested mode: changes to the viz's own `fsl`
+    // attribute must not trigger _renderSvg.  We assert by mutating fsl
+    // to a contradictory value and confirming the rendered SVG still
+    // contains the parent's state names.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'KeepRed -> KeepGreen;');
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+
+    (viz as any).fsl = 'BogusA -> BogusB;';
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await (viz as any).updateComplete;
+
+    const tree_html = viz.shadowRoot!.innerHTML;
+    expect(tree_html).toContain('KeepRed');
+    expect(tree_html).not.toContain('BogusA');
+
+    document.body.removeChild(host);
+  });
+
+  it('emits viz-error when host.machine throws at subscription time', async () => {
+    // Cover the catch-around-host.machine branch in connectedCallback.
+    // We achieve a throw by stubbing the host's `machine` getter to throw
+    // before letting `whenDefined` resolve.  The viz must emit viz-error.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'A -> B;');
+    document.body.appendChild(host);
+
+    // Replace the machine getter on this instance to throw.
+    Object.defineProperty(host, 'machine', {
+      get: () => { throw new Error('forced machine failure'); },
+      configurable: true,
+    });
+
+    const viz = document.createElement('jssm-viz');
+    const error_p: Promise<CustomEvent> = new Promise(resolve => {
+      viz.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
+    });
+    host.appendChild(viz);
+
+    const evt = await error_p;
+    expect(evt.type).toBe('viz-error');
+    expect(evt.detail.message).toMatch(/forced machine failure/);
+
+    document.body.removeChild(host);
+  });
+
+  it('does not subscribe if the viz is detached before whenDefined resolves', async () => {
+    // Cover the `this._parent_host !== host` guard inside the deferred
+    // callback.  We attach a viz to a host, immediately move it out of
+    // the host (which calls disconnectedCallback and clears _parent_host
+    // back to null), then settle.  No subscription should be installed.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'A -> B;');
+    document.body.appendChild(host);
+
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    // Synchronously detach before the microtask running inside connectedCallback's
+    // whenDefined().then(...) gets to run.
+    host.removeChild(viz);
+
+    // Allow the deferred .then() to run.
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect((viz as any)._parent_sub).toBeNull();
+
+    document.body.removeChild(host);
+  });
+
+  it('emits viz-error when nested rerender fails (machine throws mid-render)', async () => {
+    // Cover the catch branch in _rerenderFromHostMachine.  Once the viz is
+    // happily subscribed, we swap the host's `machine` getter to throw and
+    // then trigger the rerender path directly.  The viz must emit viz-error
+    // and clear its SVG.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'A -> B;');
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+    expect((viz as any)._svg).toContain('<svg');
+
+    // Swap the machine getter to throw.
+    Object.defineProperty(host, 'machine', {
+      get: () => { throw new Error('mid-render boom'); },
+      configurable: true,
+    });
+
+    const error_p: Promise<CustomEvent> = new Promise(resolve => {
+      viz.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
+    });
+
+    // Trigger the rerender path directly.
+    void (viz as any)._rerenderFromHostMachine();
+
+    const evt = await error_p;
+    expect(evt.detail.message).toMatch(/mid-render boom/);
+    expect((viz as any)._svg).toBe('');
+
+    document.body.removeChild(host);
+  });
+
+  it('_rerenderFromHostMachine is a no-op when called with no parent host', async () => {
+    // The early-return path: a viz that never had a parent (standalone) must
+    // not crash and must not touch _svg when _rerenderFromHostMachine is
+    // somehow invoked.  We construct the viz but never attach it so the Lit
+    // willUpdate cycle (which would otherwise call _renderSvg) doesn't run.
+    const viz = document.createElement('jssm-viz');
+    (viz as any)._svg = 'UNTOUCHED';
+    await (viz as any)._rerenderFromHostMachine();
+    expect((viz as any)._svg).toBe('UNTOUCHED');
+  });
+
+  it('discards a stale nested render result when the parent host is replaced mid-flight', async () => {
+    // Cover the `this._parent_host === host` guard in _rerenderFromHostMachine:
+    // if the viz is disconnected (so _parent_host becomes null) while the
+    // SVG render is in flight, the stale result must not be committed.
+    const host = document.createElement('jssm-instance') as JssmInstance;
+    host.setAttribute('fsl', 'StaleA -> StaleB;');
+    const viz = document.createElement('jssm-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+    (viz as any)._svg = 'STALE_GUARD';
+
+    // Kick off a rerender, then synchronously null out _parent_host to
+    // simulate disconnection between render start and render completion.
+    const p: Promise<void> = (viz as any)._rerenderFromHostMachine();
+    (viz as any)._parent_host = null;
+    await p;
+
+    expect((viz as any)._svg).toBe('STALE_GUARD');
+
+    document.body.removeChild(host);
   });
 
 });

@@ -9,9 +9,9 @@ export { JssmViz } from './viz.js';
  *
  * Both tags render identically; `<fsl-viz>` is provided as an alternative
  * spelling for users whose mental model is "FSL viz" rather than "jssm
- * viz".
- *
- * TODO: parent-context binding from #647 Stage 2 lands once #648 exists.
+ * viz".  Parent-context binding for both tags lives on the shared
+ * `JssmViz` base class (see {@link JssmViz}); the synonym inherits it
+ * automatically.
  */
 class FslViz extends JssmViz {
 }

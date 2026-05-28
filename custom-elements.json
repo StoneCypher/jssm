@@ -30,7 +30,7 @@
               "description": "Dotted path of property names, e.g. `\"a.b.c\"`."
             }
           ],
-          "description": "Walk a dotted path into a value.  Used by the `data.path.to.field`\nvariant of resolve_binding.  Returns `undefined` whenever the\ntraversal would dereference a non-object, missing field, or `null` —\nmatching the natural \"missing data\" semantics rather than throwing.\n\n```typescript\nwalk_path({ a: { b: 7 } }, 'a.b');     // => 7\nwalk_path({ a: { b: 7 } }, 'a.c');     // => undefined\nwalk_path({ a: { b: 7 } }, 'a.b.c');   // => undefined (7 is not an object)\nwalk_path(undefined,        'a');      // => undefined\nwalk_path({ a: null },     'a.b');     // => undefined (null is not an object)\nwalk_path({ a: 1 },         '');       // => { a: 1 } (empty path = identity)\n```"
+          "description": "Walk a dotted path into a value.  Used by the `data.path.to.field`\r\nvariant of resolve_binding.  Returns `undefined` whenever the\r\ntraversal would dereference a non-object, missing field, or `null` —\r\nmatching the natural \"missing data\" semantics rather than throwing.\r\n\r\n```typescript\r\nwalk_path({ a: { b: 7 } }, 'a.b');     // => 7\r\nwalk_path({ a: { b: 7 } }, 'a.c');     // => undefined\r\nwalk_path({ a: { b: 7 } }, 'a.b.c');   // => undefined (7 is not an object)\r\nwalk_path(undefined,        'a');      // => undefined\r\nwalk_path({ a: null },     'a.b');     // => undefined (null is not an object)\r\nwalk_path({ a: 1 },         '');       // => { a: 1 } (empty path = identity)\r\n```"
         },
         {
           "kind": "function",
@@ -56,7 +56,7 @@
               "description": "The binding expression text (raw attribute value)."
             }
           ],
-          "description": "Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live\nmachine.  Throws on any unknown expression — bindings fail fast at\ninstall time rather than silently producing `undefined` strings in the\nDOM.\n\nRecognized expressions:\n\n| Expression       | Resolves to                                   |\n| ---------------- | --------------------------------------------- |\n| `data`           | `machine.data()`                              |\n| `data.a.b.c`     | dotted-path traversal into `machine.data()`   |\n| `state`          | `machine.state()`                             |\n| `terminal`       | `machine.is_terminal()`                       |\n| `complete`       | `machine.is_complete()`                       |\n| `legal-actions`  | `machine.list_exit_actions().join(' ')`       |\n\n```typescript\nresolve_binding(m, 'state');              // current state name\nresolve_binding(m, 'data.username');      // typed-data subfield\nresolve_binding(m, 'wat');                // throws\n```"
+          "description": "Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live\r\nmachine.  Throws on any unknown expression — bindings fail fast at\r\ninstall time rather than silently producing `undefined` strings in the\r\nDOM.\r\n\r\nRecognized expressions:\r\n\r\n| Expression       | Resolves to                                   |\r\n| ---------------- | --------------------------------------------- |\r\n| `data`           | `machine.data()`                              |\r\n| `data.a.b.c`     | dotted-path traversal into `machine.data()`   |\r\n| `state`          | `machine.state()`                             |\r\n| `terminal`       | `machine.is_terminal()`                       |\r\n| `complete`       | `machine.is_complete()`                       |\r\n| `legal-actions`  | `machine.list_exit_actions().join(' ')`       |\r\n\r\n```typescript\r\nresolve_binding(m, 'state');              // current state name\r\nresolve_binding(m, 'data.username');      // typed-data subfield\r\nresolve_binding(m, 'wat');                // throws\r\n```"
         },
         {
           "kind": "function",
@@ -89,7 +89,7 @@
               "description": "The resolved value to assign."
             }
           ],
-          "description": "Apply a resolved binding value to an element's target property.  The\n`target` selector follows the rules documented in #645:\n\n- `textContent` (or omitted) sets `el.textContent` to the value coerced\n  with `String()`.\n- Any string starting with `data-` is treated as an attribute name and\n  set via `setAttribute`, value coerced with `String()`.\n- Any other string is assigned directly as a property of the element\n  (no coercion) — supports `value`, `disabled`, `hidden`, `checked`,\n  and the documented power-user escape hatch.\n\n```typescript\nset_on_element(span,   'textContent',     7);            // span.textContent = '7'\nset_on_element(input,  'value',           'hi');         // input.value = 'hi'\nset_on_element(button, 'disabled',        true);         // button.disabled = true\nset_on_element(div,    'data-current',    'red');        // setAttribute('data-current', 'red')\n```"
+          "description": "Apply a resolved binding value to an element's target property.  The\r\n`target` selector follows the rules documented in #645:\r\n\r\n- `textContent` (or omitted) sets `el.textContent` to the value coerced\r\n  with `String()`.\r\n- Any string starting with `data-` is treated as an attribute name and\r\n  set via `setAttribute`, value coerced with `String()`.\r\n- Any other string is assigned directly as a property of the element\r\n  (no coercion) — supports `value`, `disabled`, `hidden`, `checked`,\r\n  and the documented power-user escape hatch.\r\n\r\n```typescript\r\nset_on_element(span,   'textContent',     7);            // span.textContent = '7'\r\nset_on_element(input,  'value',           'hi');         // input.value = 'hi'\r\nset_on_element(button, 'disabled',        true);         // button.disabled = true\r\nset_on_element(div,    'data-current',    'red');        // setAttribute('data-current', 'red')\r\n```"
         },
         {
           "kind": "function",
@@ -115,11 +115,11 @@
               "description": "The machine whose state/data is being projected."
             }
           ],
-          "description": "Discover every binding declaration under `host` and install live\nsubscriptions that refresh them on every machine transition.  Returns\na list of unsubscribe callbacks so the host's `disconnectedCallback`\ncan tear them all down.\n\nTwo surface forms are recognized:\n\n1. Inline attribute — any descendant with `data-jssm-bind=\"<expr>\"`.\n   Optional `data-jssm-bind-to=\"<target>\"` chooses the target property\n   (defaults to `textContent`).\n\n2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with\n   `selector=\"<css>\"` and `source=\"<expr>\"` attributes, plus an\n   optional `target=\"<target>\"` (also defaulting to `textContent`).\n   The `selector` is scoped to `host`'s descendants.\n\nEach binding is painted once immediately (using the machine's current\nstate) and then re-painted on every `transition` event.\n\n```typescript\n// typical install during <jssm-instance>.connectedCallback:\nconst unsubs = install_bindings(this, this.machine);\nthis._unsubs.push(...unsubs);\n```"
+          "description": "Discover every binding declaration under `host` and install live\r\nsubscriptions that refresh them on every machine transition.  Returns\r\na list of unsubscribe callbacks so the host's `disconnectedCallback`\r\ncan tear them all down.\r\n\r\nTwo surface forms are recognized:\r\n\r\n1. Inline attribute — any descendant with `data-jssm-bind=\"<expr>\"`.\r\n   Optional `data-jssm-bind-to=\"<target>\"` chooses the target property\r\n   (defaults to `textContent`).\r\n\r\n2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with\r\n   `selector=\"<css>\"` and `source=\"<expr>\"` attributes, plus an\r\n   optional `target=\"<target>\"` (also defaulting to `textContent`).\r\n   The `selector` is scoped to `host`'s descendants.\r\n\r\nEach binding is painted once immediately (using the machine's current\r\nstate) and then re-painted on every `transition` event.\r\n\r\n```typescript\r\n// typical install during <jssm-instance>.connectedCallback:\r\nconst unsubs = install_bindings(this, this.machine);\r\nthis._unsubs.push(...unsubs);\r\n```"
         },
         {
           "kind": "class",
-          "description": "`<jssm-bind>` configuration tag.  The element itself is invisible —\nit carries `selector`, `source`, and optional `target` attributes\nthat the parent `<jssm-instance>` reads during its connection\nlifecycle to wire up a machine-to-DOM binding.\n\nRegistering it as a `LitElement` (rather than leaving it as a generic\nunknown tag) gives it a stable upgrade timing, a `display: none`\ndefault style, and a proper place in the custom-elements registry so\n`customElements.get('jssm-bind')` resolves.",
+          "description": "`<jssm-bind>` configuration tag.  The element itself is invisible —\r\nit carries `selector`, `source`, and optional `target` attributes\r\nthat the parent `<jssm-instance>` reads during its connection\r\nlifecycle to wire up a machine-to-DOM binding.\r\n\r\nRegistering it as a `LitElement` (rather than leaving it as a generic\r\nunknown tag) gives it a stable upgrade timing, a `display: none`\r\ndefault style, and a proper place in the custom-elements registry so\r\n`customElements.get('jssm-bind')` resolves.",
           "name": "JssmBind",
           "members": [],
           "attributes": [
@@ -890,7 +890,7 @@
         },
         {
           "kind": "class",
-          "description": "Web component that renders a jssm machine as inline SVG.",
+          "description": "Web component that renders a jssm machine as inline SVG.\r\n\r\nTwo operating modes:\r\n\r\n  1. **Standalone** (no parent `<jssm-instance>` ancestor): render from\r\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\r\n     attribute change.\r\n  2. **Nested** (inside a `<jssm-instance>` ancestor, found via\r\n     `closest('jssm-instance')` at `connectedCallback`): bind to the\r\n     parent's machine and re-render on every `transition` event.  The\r\n     element's own `fsl` attribute is ignored in this mode; supplying it\r\n     emits a `console.warn` for developer feedback.",
           "name": "JssmViz",
           "cssProperties": [
             {
@@ -928,6 +928,37 @@
               },
               "privacy": "private",
               "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_parent_host",
+              "type": {
+                "text": "JssmInstanceHost | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Parent `<jssm-instance>` host reference, set in `connectedCallback`\r\nwhen a parent is found.  When non-null the viz is in nested mode and\r\nrenders the parent's machine instead of its own `fsl` attribute."
+            },
+            {
+              "kind": "field",
+              "name": "_parent_sub",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Unsubscribe callback returned from `host.machine.on('transition', ...)`.\r\nHeld so `disconnectedCallback` can release the subscription."
+            },
+            {
+              "kind": "method",
+              "name": "_rerenderFromHostMachine",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "description": "Nested-mode render path.  Renders the bound parent's machine via the\r\nmachine_to_svg_string pipeline and commits the result to\r\n`_svg`.  On failure emits a `viz-error` `CustomEvent` and clears the\r\nSVG."
             },
             {
               "kind": "method",
