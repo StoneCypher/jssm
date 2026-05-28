@@ -30,11 +30,11 @@
               "description": "The current value of the host's `fsl` attribute (or property), or empty string."
             }
           ],
-          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\nelement's own text content (after stripping the script and any\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\nnone or more than one is an error.\n\nPulled out as a pure function so it's testable without spinning up a\nLit element.\n\n```typescript\nconst div = document.createElement('div');\ndiv.setAttribute('fsl', 'Off -> On;');\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\n```"
+          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\r\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\r\nelement's own text content (after stripping the script and any\r\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\r\nnone or more than one is an error.\r\n\r\nPulled out as a pure function so it's testable without spinning up a\r\nLit element.\r\n\r\n```typescript\r\nconst div = document.createElement('div');\r\ndiv.setAttribute('fsl', 'Off -> On;');\r\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\r\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\r\n```"
         },
         {
           "kind": "class",
-          "description": "Web component that owns a single `Machine<unknown>` constructed from an\nFSL source supplied via one of three mutually exclusive channels:\n\n  1. The `fsl=\"\"` attribute,\n  2. A child `<script type=\"text/fsl\">`,\n  3. The element's own text content (companion `<jssm-*>` children and\n     any `<script type=\"text/fsl\">` are excluded from this channel).\n\nSupplying zero or more than one channel is a thrown error.\n\nOn every transition the component reflects machine state to its own\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\nand sets a `--current-state` CSS custom property so consumer CSS can\nstyle by state without subclassing.",
+          "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<jssm-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
           "name": "JssmInstance",
           "cssProperties": [
             {
@@ -81,7 +81,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "attribute": "fsl"
             },
             {
@@ -92,7 +92,7 @@
               },
               "privacy": "private",
               "default": "undefined",
-              "description": "The underlying machine instance, constructed at `connectedCallback`.\nExposed raw (not proxied) per the #639/#648 design decision so that\nconsumers can use the full Machine API directly.\n\nMarked optional because Lit will instantiate the element before\n`connectedCallback` runs; the instance is guaranteed present after\nconnection."
+              "description": "The underlying machine instance, constructed at `connectedCallback`.\r\nExposed raw (not proxied) per the #639/#648 design decision so that\r\nconsumers can use the full Machine API directly.\r\n\r\nMarked optional because Lit will instantiate the element before\r\n`connectedCallback` runs; the instance is guaranteed present after\r\nconnection."
             },
             {
               "kind": "field",
@@ -128,7 +128,7 @@
                   "description": "Optional data payload to pass to the action."
                 }
               ],
-              "description": "Convenience wrapper for `machine.action(action, data)`.\nAfter the action, reflects updated state to host attributes and the\n`--current-state` CSS custom property, and requests a Lit update so\nthe state-specific `<slot name=\"state-...\">` can re-pick."
+              "description": "Convenience wrapper for `machine.action(action, data)`.\r\nAfter the action, reflects updated state to host attributes and the\r\n`--current-state` CSS custom property, and requests a Lit update so\r\nthe state-specific `<slot name=\"state-...\">` can re-pick."
             },
             {
               "kind": "method",
@@ -138,7 +138,7 @@
                   "text": "string"
                 }
               },
-              "description": "Convenience wrapper for `machine.state()`.  Returns the current\nstate's name."
+              "description": "Convenience wrapper for `machine.state()`.  Returns the current\r\nstate's name."
             },
             {
               "kind": "method",
@@ -149,7 +149,7 @@
                   "text": "void"
                 }
               },
-              "description": "Reflect machine state onto host attributes and CSS custom properties.\nCalled after every transition and once during `connectedCallback`.\n\nMechanism 1 (#639): writes to host attributes.\nMechanism 3 (#639): writes to host inline-style custom properties."
+              "description": "Reflect machine state onto host attributes and CSS custom properties.\r\nCalled after every transition and once during `connectedCallback`.\r\n\r\nMechanism 1 (#639): writes to host attributes.\r\nMechanism 3 (#639): writes to host inline-style custom properties."
             }
           ],
           "attributes": [
@@ -159,7 +159,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "fieldName": "fsl"
             }
           ],
@@ -215,7 +215,7 @@
         },
         {
           "kind": "class",
-          "description": "Web component that renders a jssm machine as inline SVG.",
+          "description": "Web component that renders a jssm machine as inline SVG.\r\n\r\nTwo operating modes:\r\n\r\n  1. **Standalone** (no parent `<jssm-instance>` ancestor): render from\r\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\r\n     attribute change.\r\n  2. **Nested** (inside a `<jssm-instance>` ancestor, found via\r\n     `closest('jssm-instance')` at `connectedCallback`): bind to the\r\n     parent's machine and re-render on every `transition` event.  The\r\n     element's own `fsl` attribute is ignored in this mode; supplying it\r\n     emits a `console.warn` for developer feedback.",
           "name": "JssmViz",
           "cssProperties": [
             {
@@ -253,6 +253,37 @@
               },
               "privacy": "private",
               "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_parent_host",
+              "type": {
+                "text": "JssmInstanceHost | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Parent `<jssm-instance>` host reference, set in `connectedCallback`\r\nwhen a parent is found.  When non-null the viz is in nested mode and\r\nrenders the parent's machine instead of its own `fsl` attribute."
+            },
+            {
+              "kind": "field",
+              "name": "_parent_sub",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Unsubscribe callback returned from `host.machine.on('transition', ...)`.\r\nHeld so `disconnectedCallback` can release the subscription."
+            },
+            {
+              "kind": "method",
+              "name": "_rerenderFromHostMachine",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "description": "Nested-mode render path.  Renders the bound parent's machine via the\r\nmachine_to_svg_string pipeline and commits the result to\r\n`_svg`.  On failure emits a `viz-error` `CustomEvent` and clears the\r\nSVG."
             },
             {
               "kind": "method",
