@@ -161,41 +161,6 @@ declare const weighted_histo_key: Function;
 declare function name_bind_prop_and_state(prop: string, state: string): string;
 /*******
  *
- *  Internal method generating composite keys for transition hooks by
- *  JSON-serializing a `[from, to]` state pair.  Used to look up hooks
- *  registered on a specific edge.  Not meant for external use.
- *
- *  ```typescript
- *  hook_name('Red', 'Green');  // '["Red","Green"]'
- *  ```
- *
- *  @param from - The source state name.
- *  @param to   - The target state name.
- *
- *  @returns A deterministic JSON string key for the `[from, to]` pair.
- *
- */
-declare const hook_name: (from: string, to: string) => string;
-/*******
- *
- *  Internal method generating composite keys for named-action hooks by
- *  JSON-serializing a `[from, to, action]` triple.  Used to look up hooks
- *  registered on a specific action-labeled edge.  Not meant for external use.
- *
- *  ```typescript
- *  named_hook_name('Red', 'Green', 'next');  // '["Red","Green","next"]'
- *  ```
- *
- *  @param from   - The source state name.
- *  @param to     - The target state name.
- *  @param action - The action label on the edge.
- *
- *  @returns A deterministic JSON string key for the `[from, to, action]` triple.
- *
- */
-declare const named_hook_name: (from: string, to: string, action: string) => string;
-/*******
- *
  *  Creates a SplitMix32 random generator.  Used by the randomness test suite.
  *
  *  Sourced from `bryc`: https://github.com/bryc/code/blob/master/jshash/PRNGs.md#splitmix32
@@ -255,4 +220,4 @@ declare function find_repeated<T>(arr: T[]): [T, number][];
  *
  */
 declare function sleep(ms: number): Promise<unknown>;
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep };
+export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep };
