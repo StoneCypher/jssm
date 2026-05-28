@@ -43,6 +43,30 @@ describe('dist/wc/viz.js — bundler-friendly build', () => {
 
 });
 
+describe('dist/wc/viz.define.js — registration entry point', () => {
+
+  const define_path = resolve(__dirname, '../../../../dist/wc/viz.define.js');
+
+  it('exists after running make_wc_viz_es6', () => {
+    expect(existsSync(define_path)).toBe(true);
+  });
+
+  it('calls customElements.define for jssm-viz', () => {
+    const built = readFileSync(define_path, 'utf8');
+    expect(built).toContain('jssm-viz');
+  });
+
+  it('calls customElements.define for fsl-viz (synonym registration survives bundling)', () => {
+    // The empty-subclass FslViz lives in jssm_viz_wc.define.ts and is the
+    // entire functional change for the synonym. If a bundler or
+    // tree-shaker ever drops it, page authors who import 'jssm/wc/viz/define'
+    // would silently lose the <fsl-viz> tag. This catches that regression.
+    const built = readFileSync(define_path, 'utf8');
+    expect(built).toContain('fsl-viz');
+  });
+
+});
+
 describe('dist/cdn/viz.js — CDN-friendly build', () => {
 
   const cdn_path = resolve(__dirname, '../../../../dist/cdn/viz.js');
@@ -54,6 +78,14 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
   it('contains the jssm-viz tag name string', () => {
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('jssm-viz');
+  });
+
+  it('contains the fsl-viz synonym tag name string', () => {
+    // The synonym registration must survive the CDN bundling step. If the
+    // define module's second customElements.define call ever gets dead-code
+    // eliminated this assertion catches it.
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('fsl-viz');
   });
 
   it('inlines Lit (no lit imports remain)', () => {

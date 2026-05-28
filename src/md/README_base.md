@@ -173,7 +173,7 @@ npm one-liner:
 
 ```ts
 import 'jssm/wc/viz/define';
-// then use <jssm-viz fsl="..."> anywhere
+// then use <jssm-viz fsl="..."> or its synonym <fsl-viz fsl="..."> anywhere
 ```
 
 Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).
