@@ -20,7 +20,13 @@ const PATHEXT    = IS_WINDOWS
  *
  * @param subcommand - The subcommand name (e.g., 'render'). The probed
  *   binary name is `fsl-<subcommand>`.
- * @param pathEnv - The PATH string to search (default `process.env.PATH`)
+ * @param pathEnv - The PATH string to search. Pass `process.env.PATH` to
+ *   search the real PATH; pass `undefined` or `''` to short-circuit to
+ *   `null` (useful in tests). This argument is intentionally non-optional:
+ *   the previous default value meant that passing `undefined` explicitly
+ *   silently re-used `process.env.PATH`, which caused tests that meant to
+ *   exercise the empty-pathEnv path to walk hundreds of real filesystem
+ *   entries — fast in isolation, very slow under build contention.
  * @returns Absolute path to the binary, or null if not found.
  *
  * @example
@@ -32,7 +38,7 @@ const PATHEXT    = IS_WINDOWS
  */
 export async function findPluginOnPath(
   subcommand: string,
-  pathEnv: string | undefined = process.env.PATH,
+  pathEnv: string | undefined,
 ): Promise<string | null> {
   if (!pathEnv) return null;
   const dirs = pathEnv.split(PATH_SEP).filter(d => d.length > 0);
@@ -254,7 +260,7 @@ export async function dispatch(argv: string[]): Promise<number> {
     return 0;
   }
 
-  const pluginPath = await findPluginOnPath(subcommand);
+  const pluginPath = await findPluginOnPath(subcommand, process.env.PATH);
   if (!pluginPath) {
     process.stderr.write(`fsl: '${subcommand}' is not a known subcommand and no \`fsl-${subcommand}\` was found on PATH\n`);
     return 1;
