@@ -699,4 +699,211 @@ declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
  *  made reproducible.
  */
 declare type JssmRng = () => number;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmRng };
+/**
+ *  All event names that {@link Machine.on} accepts.  These are observation
+ *  events fired by the machine in addition to (not in place of) the hook
+ *  system.  Hooks intercept; events observe.
+ *
+ *  @see Machine.on
+ */
+declare type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
+/**
+ *  Detail payload fired with a `transition` event.  Carries the resolved
+ *  source and target, the action name (if the transition was driven by an
+ *  action), the data observed before and after the change, the edge kind,
+ *  and whether the call was a forced transition.
+ */
+declare type JssmTransitionEventDetail<mDT> = {
+    from: StateType;
+    to: StateType;
+    action?: StateType;
+    data: mDT;
+    next_data?: mDT;
+    trans_type: string | undefined;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with a `rejection` event.  Carries the resolved
+ *  source and target plus an indication of who rejected the transition
+ *  and why.  `reason` is `'invalid'` when no edge existed, `'hook'` when
+ *  a hook handler vetoed; `hook_name` is set when `reason` is `'hook'`.
+ */
+declare type JssmRejectionEventDetail<mDT> = {
+    from: StateType;
+    to: StateType;
+    action?: StateType;
+    data: mDT;
+    next_data?: mDT;
+    reason: 'invalid' | 'hook';
+    hook_name?: string;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with an `action` event.  Fires when an action is
+ *  attempted, before transition validation runs.
+ */
+declare type JssmActionEventDetail<mDT> = {
+    action: StateType;
+    from: StateType;
+    to?: StateType;
+    data: mDT;
+    next_data?: mDT;
+};
+/**
+ *  Detail payload fired with an `entry` event.  `state` is the entered
+ *  state.  `from` is the predecessor state, if any.  `action` is the
+ *  action that drove the entry, if any.
+ */
+declare type JssmEntryEventDetail<mDT> = {
+    state: StateType;
+    from?: StateType;
+    action?: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `exit` event.  `state` is the exited
+ *  state.  `to` is the next state, if any.  `action` is the action that
+ *  drove the exit, if any.
+ */
+declare type JssmExitEventDetail<mDT> = {
+    state: StateType;
+    to?: StateType;
+    action?: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `terminal` event.  Indicates that the
+ *  machine has reached a state with no outgoing edges.
+ */
+declare type JssmTerminalEventDetail<mDT> = {
+    state: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `complete` event.  Indicates that the
+ *  machine has reached a FSL `complete` state.
+ */
+declare type JssmCompleteEventDetail<mDT> = {
+    state: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `error` event.  Wraps an exception caught
+ *  while running an event handler; `source_event` and `source_detail`
+ *  identify the event whose handler threw, and `handler` is the offending
+ *  function so consumers can correlate / blame.
+ */
+declare type JssmErrorEventDetail = {
+    error: unknown;
+    source_event: JssmEventName;
+    source_detail: unknown;
+    handler: Function;
+};
+/**
+ *  Detail payload fired with a `data-change` event.  Fires whenever the
+ *  machine's data payload is replaced.  `old_data` is the value before the
+ *  change; `new_data` is the value after.
+ */
+declare type JssmDataChangeEventDetail<mDT> = {
+    from?: StateType;
+    to?: StateType;
+    action?: StateType;
+    old_data: mDT;
+    new_data: mDT;
+    cause: 'transition' | 'override';
+};
+/**
+ *  Detail payload fired with an `override` event.  Distinguishes a forced
+ *  state replacement from a normal transition.
+ */
+declare type JssmOverrideEventDetail<mDT> = {
+    from: StateType;
+    to: StateType;
+    old_data: mDT;
+    new_data?: mDT;
+};
+/**
+ *  Detail payload fired with a `timeout` event.  Fires when a configured
+ *  `after` clause causes an automatic transition.
+ */
+declare type JssmTimeoutEventDetail = {
+    from: StateType;
+    to: StateType;
+    after_time: number;
+};
+/**
+ *  Detail payload fired with `hook-registration` and `hook-removal` events.
+ *  Mirrors the {@link HookDescription} so inspector tools can mirror the
+ *  current hook set.
+ */
+declare type JssmHookLifecycleEventDetail<mDT> = {
+    description: HookDescription<mDT>;
+};
+/**
+ *  Mapped type from {@link JssmEventName} to the corresponding detail
+ *  payload.  Drives the discriminated-union typing of {@link Machine.on},
+ *  so `e.action` and friends only exist where they're meaningful.
+ */
+declare type JssmEventDetailMap<mDT> = {
+    'transition': JssmTransitionEventDetail<mDT>;
+    'rejection': JssmRejectionEventDetail<mDT>;
+    'action': JssmActionEventDetail<mDT>;
+    'entry': JssmEntryEventDetail<mDT>;
+    'exit': JssmExitEventDetail<mDT>;
+    'terminal': JssmTerminalEventDetail<mDT>;
+    'complete': JssmCompleteEventDetail<mDT>;
+    'error': JssmErrorEventDetail;
+    'data-change': JssmDataChangeEventDetail<mDT>;
+    'override': JssmOverrideEventDetail<mDT>;
+    'timeout': JssmTimeoutEventDetail;
+    'hook-registration': JssmHookLifecycleEventDetail<mDT>;
+    'hook-removal': JssmHookLifecycleEventDetail<mDT>;
+};
+/**
+ *  Filter accepted by {@link Machine.on} / {@link Machine.once} for an
+ *  individual event name.  Only events whose detail key matches every
+ *  filter entry fire the handler.  Events that don't list a filter key in
+ *  v1 take no filter properties.
+ */
+declare type JssmEventFilterMap<mDT> = {
+    'transition': {
+        from?: StateType;
+        to?: StateType;
+    };
+    'rejection': Record<string, never>;
+    'action': Record<string, never>;
+    'entry': {
+        state?: StateType;
+    };
+    'exit': {
+        state?: StateType;
+    };
+    'terminal': Record<string, never>;
+    'complete': Record<string, never>;
+    'error': Record<string, never>;
+    'data-change': Record<string, never>;
+    'override': Record<string, never>;
+    'timeout': Record<string, never>;
+    'hook-registration': Record<string, never>;
+    'hook-removal': Record<string, never>;
+};
+/**
+ *  Per-event filter object (as passed to {@link Machine.on}).  Use
+ *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
+/**
+ *  Per-event handler signature.  Receives a detail object typed by event
+ *  name, so `e.action` (etc.) only exist where they're meaningful.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
+/**
+ *  Function returned by {@link Machine.on} and {@link Machine.once} that
+ *  removes the subscription.  Calling it more than once is a no-op.
+ */
+declare type JssmUnsubscribe = () => void;
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
