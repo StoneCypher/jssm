@@ -4,6 +4,191 @@
   "modules": [
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/jssm_bind_wc.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "walk_path",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "obj",
+              "type": {
+                "text": "unknown"
+              },
+              "description": "The root value to traverse."
+            },
+            {
+              "name": "path",
+              "type": {
+                "text": "string"
+              },
+              "description": "Dotted path of property names, e.g. `\"a.b.c\"`."
+            }
+          ],
+          "description": "Walk a dotted path into a value.  Used by the `data.path.to.field`\nvariant of resolve_binding.  Returns `undefined` whenever the\ntraversal would dereference a non-object, missing field, or `null` —\nmatching the natural \"missing data\" semantics rather than throwing.\n\n```typescript\nwalk_path({ a: { b: 7 } }, 'a.b');     // => 7\nwalk_path({ a: { b: 7 } }, 'a.c');     // => undefined\nwalk_path({ a: { b: 7 } }, 'a.b.c');   // => undefined (7 is not an object)\nwalk_path(undefined,        'a');      // => undefined\nwalk_path({ a: null },     'a.b');     // => undefined (null is not an object)\nwalk_path({ a: 1 },         '');       // => { a: 1 } (empty path = identity)\n```"
+        },
+        {
+          "kind": "function",
+          "name": "resolve_binding",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "m",
+              "type": {
+                "text": "Machine<unknown>"
+              },
+              "description": "The machine whose state/data is being projected."
+            },
+            {
+              "name": "expr",
+              "type": {
+                "text": "string"
+              },
+              "description": "The binding expression text (raw attribute value)."
+            }
+          ],
+          "description": "Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live\nmachine.  Throws on any unknown expression — bindings fail fast at\ninstall time rather than silently producing `undefined` strings in the\nDOM.\n\nRecognized expressions:\n\n| Expression       | Resolves to                                   |\n| ---------------- | --------------------------------------------- |\n| `data`           | `machine.data()`                              |\n| `data.a.b.c`     | dotted-path traversal into `machine.data()`   |\n| `state`          | `machine.state()`                             |\n| `terminal`       | `machine.is_terminal()`                       |\n| `complete`       | `machine.is_complete()`                       |\n| `legal-actions`  | `machine.list_exit_actions().join(' ')`       |\n\n```typescript\nresolve_binding(m, 'state');              // current state name\nresolve_binding(m, 'data.username');      // typed-data subfield\nresolve_binding(m, 'wat');                // throws\n```"
+        },
+        {
+          "kind": "function",
+          "name": "set_on_element",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          },
+          "parameters": [
+            {
+              "name": "el",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The element to update."
+            },
+            {
+              "name": "target",
+              "type": {
+                "text": "string"
+              },
+              "description": "Target property name, possibly a `data-*` attribute."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "unknown"
+              },
+              "description": "The resolved value to assign."
+            }
+          ],
+          "description": "Apply a resolved binding value to an element's target property.  The\n`target` selector follows the rules documented in #645:\n\n- `textContent` (or omitted) sets `el.textContent` to the value coerced\n  with `String()`.\n- Any string starting with `data-` is treated as an attribute name and\n  set via `setAttribute`, value coerced with `String()`.\n- Any other string is assigned directly as a property of the element\n  (no coercion) — supports `value`, `disabled`, `hidden`, `checked`,\n  and the documented power-user escape hatch.\n\n```typescript\nset_on_element(span,   'textContent',     7);            // span.textContent = '7'\nset_on_element(input,  'value',           'hi');         // input.value = 'hi'\nset_on_element(button, 'disabled',        true);         // button.disabled = true\nset_on_element(div,    'data-current',    'red');        // setAttribute('data-current', 'red')\n```"
+        },
+        {
+          "kind": "function",
+          "name": "install_bindings",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The host element whose descendants carry the bindings."
+            },
+            {
+              "name": "machine",
+              "type": {
+                "text": "Machine<unknown>"
+              },
+              "description": "The machine whose state/data is being projected."
+            }
+          ],
+          "description": "Discover every binding declaration under `host` and install live\nsubscriptions that refresh them on every machine transition.  Returns\na list of unsubscribe callbacks so the host's `disconnectedCallback`\ncan tear them all down.\n\nTwo surface forms are recognized:\n\n1. Inline attribute — any descendant with `data-jssm-bind=\"<expr>\"`.\n   Optional `data-jssm-bind-to=\"<target>\"` chooses the target property\n   (defaults to `textContent`).\n\n2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with\n   `selector=\"<css>\"` and `source=\"<expr>\"` attributes, plus an\n   optional `target=\"<target>\"` (also defaulting to `textContent`).\n   The `selector` is scoped to `host`'s descendants.\n\nEach binding is painted once immediately (using the machine's current\nstate) and then re-painted on every `transition` event.\n\n```typescript\n// typical install during <jssm-instance>.connectedCallback:\nconst unsubs = install_bindings(this, this.machine);\nthis._unsubs.push(...unsubs);\n```"
+        },
+        {
+          "kind": "class",
+          "description": "`<jssm-bind>` configuration tag.  The element itself is invisible —\nit carries `selector`, `source`, and optional `target` attributes\nthat the parent `<jssm-instance>` reads during its connection\nlifecycle to wire up a machine-to-DOM binding.\n\nRegistering it as a `LitElement` (rather than leaving it as a generic\nunknown tag) gives it a stable upgrade timing, a `display: none`\ndefault style, and a proper place in the custom-elements registry so\n`customElements.get('jssm-bind')` resolves.",
+          "name": "JssmBind",
+          "members": [],
+          "attributes": [
+            {
+              "description": "CSS selector for the target element(s), scoped to the host.",
+              "name": "selector"
+            },
+            {
+              "description": "Binding expression (see {@link resolve_binding}).",
+              "name": "source"
+            },
+            {
+              "description": "Target property name; defaults to `textContent`.",
+              "name": "target"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "jssm-bind",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "walk_path",
+          "declaration": {
+            "name": "walk_path",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_binding",
+          "declaration": {
+            "name": "resolve_binding",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "set_on_element",
+          "declaration": {
+            "name": "set_on_element",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "install_bindings",
+          "declaration": {
+            "name": "install_bindings",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "JssmBind",
+          "declaration": {
+            "name": "JssmBind",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/jssm_hook_wc.ts",
       "declarations": [
         {
@@ -423,13 +608,23 @@
             },
             {
               "kind": "field",
+              "name": "_unsubs",
+              "type": {
+                "text": "JssmBindUnsub[]"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`\r\nprojections.  Every entry must be invoked exactly once during\r\ndisconnectedCallback."
+            },
+            {
+              "kind": "field",
               "name": "_on_unsubscribes",
               "type": {
                 "text": "Array<() => void>"
               },
               "privacy": "private",
               "default": "[]",
-              "description": "Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`\r\nsubscription installed from a `<jssm-on>` child during\r\n`connectedCallback`.  Walked in `disconnectedCallback` so a removed\r\n`<jssm-instance>` doesn't leave dangling handlers on its (now-orphan)\r\nmachine.  Array (insertion order) rather than Set so cleanup order is\r\ndeterministic and easy to reason about."
+              "description": "Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`\r\nsubscription installed from a `<jssm-on>` child during\r\n`connectedCallback`.  Walked in `disconnectedCallback`."
             },
             {
               "kind": "field",
@@ -439,7 +634,7 @@
               },
               "readonly": true,
               "default": "new Map()",
-              "description": "Per-instance registry of named hook handlers consulted before\r\n`globalThis` when resolving `<jssm-hook handler=\"name\">`.\r\n\r\nInitialized to an empty `Map`; consumers may populate it before the\r\nelement connects to provide handlers without polluting global scope —\r\nuseful for module-scoped SPAs where strict CSP blocks inline-body hooks."
+              "description": "Per-instance registry of named hook handlers consulted before\r\n`globalThis` when resolving `<jssm-hook handler=\"name\">`."
             },
             {
               "kind": "field",
@@ -449,7 +644,7 @@
               },
               "privacy": "private",
               "default": "[]",
-              "description": "Descriptors for hooks this WC installed at connect time, used in\r\n`disconnectedCallback` to call `remove_hook` for each so the underlying\r\nmachine doesn't leak handlers when the element is detached.\r\n\r\nCaptured at install time because `remove_hook` matches by descriptor\r\nshape (not handler identity), and we need to record the wrapped handler\r\nwe passed to `set_hook` to undo the registration cleanly.  Stored as\r\n`unknown[]` and cast at the call site because jssm's `HookDescription`\r\nis a discriminated union whose discriminator is only known at runtime."
+              "description": "Descriptors for hooks this WC installed at connect time."
             },
             {
               "kind": "field",
@@ -459,7 +654,7 @@
               },
               "privacy": "private",
               "default": "0",
-              "description": "Counter used to give each compiled inline-body hook a unique debug id\r\nfor its `//# sourceURL=jssm-hook:N` annotation.  Per-instance so that\r\nmultiple `<jssm-instance>` elements on a page don't share numbering."
+              "description": "Counter for compiled inline-body hook debug ids."
             },
             {
               "kind": "field",
@@ -469,7 +664,7 @@
               },
               "privacy": "private",
               "default": "[]",
-              "description": "Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`\r\ndiscovery so disconnectedCallback can remove each one with the\r\nsame handler reference originally passed to `addEventListener`.\r\n\r\nListeners installed via the dedicated `<jssm-action>` tag form may target\r\nelements outside the host (its `selector` is resolved against the host,\r\nbut matching elements live in the document tree), so cleanup must be\r\nexplicit — relying on the host's GC is not sufficient."
+              "description": "DOM listeners installed by `<jssm-action>` / `data-jssm-action` discovery."
             },
             {
               "kind": "field",

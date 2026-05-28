@@ -176,52 +176,32 @@ export declare class JssmInstance extends LitElement {
      */
     private _machine;
     /**
+     * Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`
+     * projections.  Every entry must be invoked exactly once during
+     * {@link disconnectedCallback}.
+     */
+    private _unsubs;
+    /**
      * Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`
      * subscription installed from a `<jssm-on>` child during
-     * `connectedCallback`.  Walked in `disconnectedCallback` so a removed
-     * `<jssm-instance>` doesn't leave dangling handlers on its (now-orphan)
-     * machine.  Array (insertion order) rather than Set so cleanup order is
-     * deterministic and easy to reason about.
+     * `connectedCallback`.  Walked in `disconnectedCallback`.
      */
     private _on_unsubscribes;
     /**
      * Per-instance registry of named hook handlers consulted before
      * `globalThis` when resolving `<jssm-hook handler="name">`.
-     *
-     * Initialized to an empty `Map`; consumers may populate it before the
-     * element connects to provide handlers without polluting global scope —
-     * useful for module-scoped SPAs where strict CSP blocks inline-body hooks.
-     *
-     * @see {@link parse_hook_element}
      */
     readonly registry: JssmHookRegistry;
     /**
-     * Descriptors for hooks this WC installed at connect time, used in
-     * `disconnectedCallback` to call `remove_hook` for each so the underlying
-     * machine doesn't leak handlers when the element is detached.
-     *
-     * Captured at install time because `remove_hook` matches by descriptor
-     * shape (not handler identity), and we need to record the wrapped handler
-     * we passed to `set_hook` to undo the registration cleanly.  Stored as
-     * `unknown[]` and cast at the call site because jssm's `HookDescription`
-     * is a discriminated union whose discriminator is only known at runtime.
+     * Descriptors for hooks this WC installed at connect time.
      */
     private _installed_hooks;
     /**
-     * Counter used to give each compiled inline-body hook a unique debug id
-     * for its `//# sourceURL=jssm-hook:N` annotation.  Per-instance so that
-     * multiple `<jssm-instance>` elements on a page don't share numbering.
+     * Counter for compiled inline-body hook debug ids.
      */
     private _hook_debug_counter;
     /**
-     * Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`
-     * discovery so {@link disconnectedCallback} can remove each one with the
-     * same handler reference originally passed to `addEventListener`.
-     *
-     * Listeners installed via the dedicated `<jssm-action>` tag form may target
-     * elements outside the host (its `selector` is resolved against the host,
-     * but matching elements live in the document tree), so cleanup must be
-     * explicit — relying on the host's GC is not sufficient.
+     * DOM listeners installed by `<jssm-action>` / `data-jssm-action` discovery.
      */
     private _action_listeners;
     /**
