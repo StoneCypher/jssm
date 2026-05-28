@@ -4,7 +4,7 @@ import { FslDirections } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { theme_mapping, base_theme } from './jssm_theme';
-import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep } from './jssm_util';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 import { version, build_time } from './version'; // replaced from package.js in build
@@ -1634,16 +1634,35 @@ class Machine {
      */
     set_hook(HookDesc) {
         switch (HookDesc.kind) {
-            case 'hook':
-                this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+            case 'hook': {
+                // Nested by `from` then `to`; avoids JSON.stringify on every transition (#642).
+                let inner = this._hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._hooks.set(HookDesc.from, inner);
+                }
+                inner.set(HookDesc.to, HookDesc.handler);
                 this._has_hooks = true;
                 this._has_basic_hooks = true;
                 break;
-            case 'named':
-                this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+            }
+            case 'named': {
+                // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
+                let inner = this._named_hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._named_hooks.set(HookDesc.from, inner);
+                }
+                let inner2 = inner.get(HookDesc.to);
+                if (inner2 === undefined) {
+                    inner2 = new Map();
+                    inner.set(HookDesc.to, inner2);
+                }
+                inner2.set(HookDesc.action, HookDesc.handler);
                 this._has_hooks = true;
                 this._has_named_hooks = true;
                 break;
+            }
             case 'global action':
                 this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
                 this._has_hooks = true;
@@ -1687,16 +1706,35 @@ class Machine {
                 this._has_hooks = true;
                 this._has_after_hooks = true;
                 break;
-            case 'post hook':
-                this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+            case 'post hook': {
+                // Nested by `from` then `to`; same rationale as 'hook' (#642).
+                let inner = this._post_hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._post_hooks.set(HookDesc.from, inner);
+                }
+                inner.set(HookDesc.to, HookDesc.handler);
                 this._has_post_hooks = true;
                 this._has_post_basic_hooks = true;
                 break;
-            case 'post named':
-                this._post_named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+            }
+            case 'post named': {
+                // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
+                let inner = this._post_named_hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._post_named_hooks.set(HookDesc.from, inner);
+                }
+                let inner2 = inner.get(HookDesc.to);
+                if (inner2 === undefined) {
+                    inner2 = new Map();
+                    inner.set(HookDesc.to, inner2);
+                }
+                inner2.set(HookDesc.action, HookDesc.handler);
                 this._has_post_hooks = true;
                 this._has_post_named_hooks = true;
                 break;
+            }
             case 'post global action':
                 this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
                 this._has_post_hooks = true;
@@ -2245,7 +2283,12 @@ class Machine {
                 // 5. named transition / action hook
                 if (this._has_named_hooks) {
                     if (wasAction) {
-                        const nhn = named_hook_name(this._state, newState, newStateOrAction), outcome = abstract_hook_step(this._named_hooks.get(nhn), hook_args);
+                        // Nested lookup: from -> to -> action.  Each step is a small Map keyed by
+                        // an already-interned state/action name; no per-call string allocation.
+                        const byTo = this._named_hooks.get(this._state);
+                        const byAct = byTo === undefined ? undefined : byTo.get(newState);
+                        const nh = byAct === undefined ? undefined : byAct.get(newStateOrAction);
+                        const outcome = abstract_hook_step(nh, hook_args);
                         if (outcome.pass === false) {
                             return false;
                         }
@@ -2254,7 +2297,10 @@ class Machine {
                 }
                 // 6. regular hook
                 if (this._has_basic_hooks) {
-                    const hn = hook_name(this._state, newState), outcome = abstract_hook_step(this._hooks.get(hn), hook_args);
+                    // Nested lookup: from -> to.  See note on _hooks declaration (#642).
+                    const byTo = this._hooks.get(this._state);
+                    const h = byTo === undefined ? undefined : byTo.get(newState);
+                    const outcome = abstract_hook_step(h, hook_args);
                     if (outcome.pass === false) {
                         return false;
                     }
@@ -2365,7 +2411,10 @@ class Machine {
             // 5. named transition / action hook
             if (this._has_post_named_hooks) {
                 if (wasAction) {
-                    const nhn = named_hook_name(hook_args.from, hook_args.to, hook_args.action), pnh = this._post_named_hooks.get(nhn);
+                    // Nested lookup: from -> to -> action.  See note on _post_named_hooks (#642).
+                    const byTo = this._post_named_hooks.get(hook_args.from);
+                    const byAct = byTo === undefined ? undefined : byTo.get(hook_args.to);
+                    const pnh = byAct === undefined ? undefined : byAct.get(hook_args.action);
                     if (pnh !== undefined) {
                         pnh(hook_args);
                     }
@@ -2373,7 +2422,9 @@ class Machine {
             }
             // 6. regular hook
             if (this._has_post_basic_hooks) {
-                const hook = this._post_hooks.get(hook_name(hook_args.from, hook_args.to));
+                // Nested lookup: from -> to.  See note on _post_hooks (#642).
+                const byTo = this._post_hooks.get(hook_args.from);
+                const hook = byTo === undefined ? undefined : byTo.get(hook_args.to);
                 if (hook !== undefined) {
                     hook(hook_args);
                 }

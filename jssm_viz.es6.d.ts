@@ -630,8 +630,8 @@ declare class Machine<mDT> {
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
     _has_forced_transitions: boolean;
-    _hooks: Map<string, HookHandler<mDT>>;
-    _named_hooks: Map<string, HookHandler<mDT>>;
+    _hooks: Map<string, Map<string, HookHandler<mDT>>>;
+    _named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
     _entry_hooks: Map<string, HookHandler<mDT>>;
     _exit_hooks: Map<string, HookHandler<mDT>>;
     _after_hooks: Map<string, HookHandler<mDT>>;
@@ -650,8 +650,8 @@ declare class Machine<mDT> {
     _has_post_transition_hooks: boolean;
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
-    _post_hooks: Map<string, HookHandler<mDT>>;
-    _post_named_hooks: Map<string, HookHandler<mDT>>;
+    _post_hooks: Map<string, Map<string, HookHandler<mDT>>>;
+    _post_named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
     _post_entry_hooks: Map<string, HookHandler<mDT>>;
     _post_exit_hooks: Map<string, HookHandler<mDT>>;
     _post_global_action_hooks: Map<string, HookHandler<mDT>>;

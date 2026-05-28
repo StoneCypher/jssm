@@ -210,41 +210,6 @@ function name_bind_prop_and_state(prop, state) {
 }
 /*******
  *
- *  Internal method generating composite keys for transition hooks by
- *  JSON-serializing a `[from, to]` state pair.  Used to look up hooks
- *  registered on a specific edge.  Not meant for external use.
- *
- *  ```typescript
- *  hook_name('Red', 'Green');  // '["Red","Green"]'
- *  ```
- *
- *  @param from - The source state name.
- *  @param to   - The target state name.
- *
- *  @returns A deterministic JSON string key for the `[from, to]` pair.
- *
- */
-const hook_name = (from, to) => JSON.stringify([from, to]);
-/*******
- *
- *  Internal method generating composite keys for named-action hooks by
- *  JSON-serializing a `[from, to, action]` triple.  Used to look up hooks
- *  registered on a specific action-labeled edge.  Not meant for external use.
- *
- *  ```typescript
- *  named_hook_name('Red', 'Green', 'next');  // '["Red","Green","next"]'
- *  ```
- *
- *  @param from   - The source state name.
- *  @param to     - The target state name.
- *  @param action - The action label on the edge.
- *
- *  @returns A deterministic JSON string key for the `[from, to, action]` triple.
- *
- */
-const named_hook_name = (from, to, action) => JSON.stringify([from, to, action]);
-/*******
- *
  *  Creates a SplitMix32 random generator.  Used by the randomness test suite.
  *
  *  Sourced from `bryc`: https://github.com/bryc/code/blob/master/jshash/PRNGs.md#splitmix32
@@ -334,4 +299,4 @@ function find_repeated(arr) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep };
+export { seq, unique, find_repeated, arr_uniq_p, histograph, weighted_histo_key, weighted_rand_select, weighted_sample_select, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep };
