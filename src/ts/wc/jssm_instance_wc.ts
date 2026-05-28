@@ -1,5 +1,6 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { Machine, sm } from '../jssm.js';
+import { install_bindings, type JssmBindUnsub } from './jssm_bind_wc.js';
 
 /**
  * Internal record describing the result of resolving a `<jssm-instance>`'s
@@ -155,6 +156,14 @@ export class JssmInstance extends LitElement {
   private _machine: Machine<unknown> | undefined = undefined;
 
   /**
+   * Live unsubscribe callbacks for every machine-driven subscription
+   * installed by this host (currently: `<jssm-bind>` / `data-jssm-bind`
+   * projections from #645).  Every entry must be invoked exactly once
+   * during {@link disconnectedCallback}.
+   */
+  private _unsubs: JssmBindUnsub[] = [];
+
+  /**
    * Raw machine accessor.  Returns the owned {@link Machine} instance.
    *
    * @throws If accessed before the element has been connected.
@@ -238,7 +247,10 @@ export class JssmInstance extends LitElement {
     // TODO #641: <jssm-hook> discovery happens here.
     // TODO #643: <jssm-on> discovery happens here.
     // TODO #640: <jssm-action> discovery happens here.
-    // TODO #645: <jssm-bind> discovery happens here.
+
+    // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
+    // install live machine-to-DOM projections.
+    this._unsubs.push(...install_bindings(this, this._machine));
   }
 
   /**
@@ -249,9 +261,14 @@ export class JssmInstance extends LitElement {
    */
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    // TODO #638: unsubscribe from machine.on(...) handlers.
+    // TODO #638: unsubscribe from machine.on(...) handlers (for the
+    //            CustomEvent bridge, separate from #645's bindings).
     // TODO #641: remove installed hooks.
-    // TODO #643/#645: remove installed listeners / bindings.
+    // TODO #643: remove installed listeners.
+
+    // #645: tear down every live binding.
+    for (const off of this._unsubs) { off(); }
+    this._unsubs = [];
   }
 
   /**
