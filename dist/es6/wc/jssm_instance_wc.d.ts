@@ -1,5 +1,6 @@
 import { LitElement, TemplateResult } from 'lit';
 import { Machine } from '../jssm.js';
+import { JssmHookRegistry } from './jssm_hook_wc.js';
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
  * in sync with the `JssmEventName` union in `jssm_types.ts` (the library's
@@ -184,6 +185,46 @@ export declare class JssmInstance extends LitElement {
      */
     private _on_unsubscribes;
     /**
+     * Per-instance registry of named hook handlers consulted before
+     * `globalThis` when resolving `<jssm-hook handler="name">`.
+     *
+     * Initialized to an empty `Map`; consumers may populate it before the
+     * element connects to provide handlers without polluting global scope —
+     * useful for module-scoped SPAs where strict CSP blocks inline-body hooks.
+     *
+     * @see {@link parse_hook_element}
+     */
+    readonly registry: JssmHookRegistry;
+    /**
+     * Descriptors for hooks this WC installed at connect time, used in
+     * `disconnectedCallback` to call `remove_hook` for each so the underlying
+     * machine doesn't leak handlers when the element is detached.
+     *
+     * Captured at install time because `remove_hook` matches by descriptor
+     * shape (not handler identity), and we need to record the wrapped handler
+     * we passed to `set_hook` to undo the registration cleanly.  Stored as
+     * `unknown[]` and cast at the call site because jssm's `HookDescription`
+     * is a discriminated union whose discriminator is only known at runtime.
+     */
+    private _installed_hooks;
+    /**
+     * Counter used to give each compiled inline-body hook a unique debug id
+     * for its `//# sourceURL=jssm-hook:N` annotation.  Per-instance so that
+     * multiple `<jssm-instance>` elements on a page don't share numbering.
+     */
+    private _hook_debug_counter;
+    /**
+     * Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`
+     * discovery so {@link disconnectedCallback} can remove each one with the
+     * same handler reference originally passed to `addEventListener`.
+     *
+     * Listeners installed via the dedicated `<jssm-action>` tag form may target
+     * elements outside the host (its `selector` is resolved against the host,
+     * but matching elements live in the document tree), so cleanup must be
+     * explicit — relying on the host's GC is not sufficient.
+     */
+    private _action_listeners;
+    /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
      *
      * @throws If accessed before the element has been connected.
@@ -251,12 +292,36 @@ export declare class JssmInstance extends LitElement {
      */
     private _install_jssm_on_children;
     /**
-     * Lifecycle hook.  Cleans up any installed subscriptions.  Currently a
-     * no-op (no subscriptions are installed in the base scaffolding) — the
-     * empty body is intentional so the future tickets #638/#641/#643/#645
-     * have a single canonical hook to extend.
+     * Discover every direct-child `<jssm-hook>` element and install each
+     * against the owned machine.  Handlers are wrapped with the friendly-proxy
+     * adapter that lets user code write `m.data = ...` and return `false` to
+     * cancel — see {@link make_hook_proxy} and the issue (#641) doc-comment
+     * for the full contract.
+     */
+    private _install_declarative_hooks;
+    /**
+     * Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations
+     * for inline-body hooks compiled by this element.
+     */
+    private _hook_id_prefix;
+    /**
+     * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
+     * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
+     * and DOM listeners from `<jssm-action>` / `data-jssm-action`.
      */
     disconnectedCallback(): void;
+    /**
+     * Wire DOM events to machine actions, using the two declarative forms from
+     * issue #640.  Both forms support optional `from-state` guards,
+     * `from-property` data extraction, and `prevent-default` /
+     * `stop-propagation` modifiers.
+     */
+    private _discover_jssm_actions;
+    /**
+     * Attach one DOM listener that translates a DOM event into a
+     * `machine.action(...)` call, honoring the configured modifiers.
+     */
+    private _install_action_listener;
     /**
      * Reflect machine state onto host attributes and CSS custom properties.
      * Called after every transition and once during `connectedCallback`.

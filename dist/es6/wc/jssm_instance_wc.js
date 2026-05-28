@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { sm } from '../jssm.js';
+import { build_hook_descriptor, parse_hook_element, wrap_user_handler, } from './jssm_hook_wc.js';
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
  * in sync with the `JssmEventName` union in `jssm_types.ts` (the library's
@@ -295,6 +296,46 @@ export class JssmInstance extends LitElement {
          * deterministic and easy to reason about.
          */
         this._on_unsubscribes = [];
+        /**
+         * Per-instance registry of named hook handlers consulted before
+         * `globalThis` when resolving `<jssm-hook handler="name">`.
+         *
+         * Initialized to an empty `Map`; consumers may populate it before the
+         * element connects to provide handlers without polluting global scope —
+         * useful for module-scoped SPAs where strict CSP blocks inline-body hooks.
+         *
+         * @see {@link parse_hook_element}
+         */
+        this.registry = new Map();
+        /**
+         * Descriptors for hooks this WC installed at connect time, used in
+         * `disconnectedCallback` to call `remove_hook` for each so the underlying
+         * machine doesn't leak handlers when the element is detached.
+         *
+         * Captured at install time because `remove_hook` matches by descriptor
+         * shape (not handler identity), and we need to record the wrapped handler
+         * we passed to `set_hook` to undo the registration cleanly.  Stored as
+         * `unknown[]` and cast at the call site because jssm's `HookDescription`
+         * is a discriminated union whose discriminator is only known at runtime.
+         */
+        this._installed_hooks = [];
+        /**
+         * Counter used to give each compiled inline-body hook a unique debug id
+         * for its `//# sourceURL=jssm-hook:N` annotation.  Per-instance so that
+         * multiple `<jssm-instance>` elements on a page don't share numbering.
+         */
+        this._hook_debug_counter = 0;
+        /**
+         * Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`
+         * discovery so {@link disconnectedCallback} can remove each one with the
+         * same handler reference originally passed to `addEventListener`.
+         *
+         * Listeners installed via the dedicated `<jssm-action>` tag form may target
+         * elements outside the host (its `selector` is resolved against the host,
+         * but matching elements live in the document tree), so cleanup must be
+         * explicit — relying on the host's GC is not sufficient.
+         */
+        this._action_listeners = [];
     }
     /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
@@ -359,10 +400,13 @@ export class JssmInstance extends LitElement {
         this.requestUpdate();
         // TODO #638: subscribe to machine.on('transition', ...) once available
         //            and dispatch DOM CustomEvents from this element.
-        // TODO #641: <jssm-hook> discovery happens here.
+        // #641: <jssm-hook> declarative discovery.
+        this._install_declarative_hooks();
+        // #643: <jssm-on> declarative event observation.
         this._install_jssm_on_children();
-        // TODO #640: <jssm-action> discovery happens here.
         // TODO #645: <jssm-bind> discovery happens here.
+        // #640: <jssm-action> DOM event → machine action wiring.
+        this._discover_jssm_actions();
     }
     /**
      * Discover direct-child `<jssm-on>` elements and install their
@@ -406,15 +450,48 @@ export class JssmInstance extends LitElement {
         }
     }
     /**
-     * Lifecycle hook.  Cleans up any installed subscriptions.  Currently a
-     * no-op (no subscriptions are installed in the base scaffolding) — the
-     * empty body is intentional so the future tickets #638/#641/#643/#645
-     * have a single canonical hook to extend.
+     * Discover every direct-child `<jssm-hook>` element and install each
+     * against the owned machine.  Handlers are wrapped with the friendly-proxy
+     * adapter that lets user code write `m.data = ...` and return `false` to
+     * cancel — see {@link make_hook_proxy} and the issue (#641) doc-comment
+     * for the full contract.
+     */
+    _install_declarative_hooks() {
+        const machine = this._machine;
+        const hook_els = this.querySelectorAll(':scope > jssm-hook');
+        for (const el of Array.from(hook_els)) {
+            const debug_id = `${this._hook_id_prefix()}${++this._hook_debug_counter}`;
+            const spec = parse_hook_element(el, debug_id, this.registry);
+            const wrapped = wrap_user_handler(spec, machine);
+            const desc = build_hook_descriptor(spec, wrapped);
+            machine.set_hook(desc);
+            this._installed_hooks.push(desc);
+        }
+    }
+    /**
+     * Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations
+     * for inline-body hooks compiled by this element.
+     */
+    _hook_id_prefix() {
+        const host_id = this.getAttribute('id');
+        return host_id !== null && host_id.length > 0 ? `${host_id}-` : '';
+    }
+    /**
+     * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
+     * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
+     * and DOM listeners from `<jssm-action>` / `data-jssm-action`.
      */
     disconnectedCallback() {
         super.disconnectedCallback();
-        // TODO #638: unsubscribe from machine.on(...) handlers added by the host.
-        // TODO #641: remove installed hooks.
+        // TODO #638: unsubscribe from any direct machine.on(...) handlers added by host.
+        // #641: remove installed hooks.
+        if (this._machine !== undefined) {
+            const machine = this._machine;
+            for (const desc of this._installed_hooks) {
+                machine.remove_hook(desc);
+            }
+        }
+        this._installed_hooks = [];
         // #643: release every subscription installed from a <jssm-on> child.
         for (const off of this._on_unsubscribes) {
             try {
@@ -424,6 +501,84 @@ export class JssmInstance extends LitElement {
         }
         this._on_unsubscribes = [];
         // TODO #645: remove installed bindings.
+        // #640: remove DOM listeners installed via <jssm-action> / data-jssm-action.
+        for (const entry of this._action_listeners) {
+            entry.target.removeEventListener(entry.event, entry.handler);
+        }
+        this._action_listeners = [];
+    }
+    /**
+     * Wire DOM events to machine actions, using the two declarative forms from
+     * issue #640.  Both forms support optional `from-state` guards,
+     * `from-property` data extraction, and `prevent-default` /
+     * `stop-propagation` modifiers.
+     */
+    _discover_jssm_actions() {
+        var _a, _b, _c, _d;
+        const inline_targets = Array.from(this.querySelectorAll('[data-jssm-action]')).filter(el => el.closest('jssm-action') === null);
+        for (const el of inline_targets) {
+            this._install_action_listener({
+                source: el,
+                event_name: (_a = el.dataset['jssmEvent']) !== null && _a !== void 0 ? _a : 'click',
+                action_name: el.dataset['jssmAction'],
+                from_state: el.dataset['jssmFromState'],
+                from_property: el.dataset['jssmFromProperty'],
+                prevent_default: 'jssmPreventDefault' in el.dataset,
+                stop_propagation: 'jssmStopPropagation' in el.dataset,
+            });
+        }
+        const tags = this.querySelectorAll(':scope > jssm-action');
+        for (const tag of Array.from(tags)) {
+            const selector = tag.getAttribute('selector');
+            const action_name = tag.getAttribute('action');
+            if (selector === null || action_name === null) {
+                continue;
+            }
+            const event_name = (_b = tag.getAttribute('event')) !== null && _b !== void 0 ? _b : 'click';
+            const from_state = (_c = tag.getAttribute('from-state')) !== null && _c !== void 0 ? _c : undefined;
+            const from_property = (_d = tag.getAttribute('from-property')) !== null && _d !== void 0 ? _d : undefined;
+            const prevent_default = tag.hasAttribute('prevent-default');
+            const stop_propagation = tag.hasAttribute('stop-propagation');
+            const sources = this.querySelectorAll(selector);
+            for (const src of Array.from(sources)) {
+                this._install_action_listener({
+                    source: src,
+                    event_name,
+                    action_name,
+                    from_state,
+                    from_property,
+                    prevent_default,
+                    stop_propagation,
+                });
+            }
+        }
+    }
+    /**
+     * Attach one DOM listener that translates a DOM event into a
+     * `machine.action(...)` call, honoring the configured modifiers.
+     */
+    _install_action_listener(config) {
+        const handler = (e) => {
+            if (config.prevent_default) {
+                e.preventDefault();
+            }
+            if (config.stop_propagation) {
+                e.stopPropagation();
+            }
+            if (config.from_state !== undefined && this.state() !== config.from_state) {
+                return;
+            }
+            const data = config.from_property !== undefined
+                ? config.source[config.from_property]
+                : undefined;
+            this.do(config.action_name, data);
+        };
+        config.source.addEventListener(config.event_name, handler);
+        this._action_listeners.push({
+            target: config.source,
+            event: config.event_name,
+            handler,
+        });
     }
     /**
      * Reflect machine state onto host attributes and CSS custom properties.
