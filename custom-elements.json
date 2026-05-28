@@ -30,11 +30,11 @@
               "description": "The current value of the host's `fsl` attribute (or property), or empty string."
             }
           ],
-          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\nelement's own text content (after stripping the script and any\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\nnone or more than one is an error.\n\nPulled out as a pure function so it's testable without spinning up a\nLit element.\n\n```typescript\nconst div = document.createElement('div');\ndiv.setAttribute('fsl', 'Off -> On;');\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\n```"
+          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\r\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\r\nelement's own text content (after stripping the script and any\r\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\r\nnone or more than one is an error.\r\n\r\nPulled out as a pure function so it's testable without spinning up a\r\nLit element.\r\n\r\n```typescript\r\nconst div = document.createElement('div');\r\ndiv.setAttribute('fsl', 'Off -> On;');\r\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\r\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\r\n```"
         },
         {
           "kind": "class",
-          "description": "Web component that owns a single `Machine<unknown>` constructed from an\nFSL source supplied via one of three mutually exclusive channels:\n\n  1. The `fsl=\"\"` attribute,\n  2. A child `<script type=\"text/fsl\">`,\n  3. The element's own text content (companion `<jssm-*>` children and\n     any `<script type=\"text/fsl\">` are excluded from this channel).\n\nSupplying zero or more than one channel is a thrown error.\n\nOn every transition the component reflects machine state to its own\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\nand sets a `--current-state` CSS custom property so consumer CSS can\nstyle by state without subclassing.",
+          "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<jssm-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
           "name": "JssmInstance",
           "cssProperties": [
             {
@@ -81,7 +81,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "attribute": "fsl"
             },
             {
@@ -92,7 +92,17 @@
               },
               "privacy": "private",
               "default": "undefined",
-              "description": "The underlying machine instance, constructed at `connectedCallback`.\nExposed raw (not proxied) per the #639/#648 design decision so that\nconsumers can use the full Machine API directly.\n\nMarked optional because Lit will instantiate the element before\n`connectedCallback` runs; the instance is guaranteed present after\nconnection."
+              "description": "The underlying machine instance, constructed at `connectedCallback`.\r\nExposed raw (not proxied) per the #639/#648 design decision so that\r\nconsumers can use the full Machine API directly.\r\n\r\nMarked optional because Lit will instantiate the element before\r\n`connectedCallback` runs; the instance is guaranteed present after\r\nconnection."
+            },
+            {
+              "kind": "field",
+              "name": "_action_listeners",
+              "type": {
+                "text": "Array<{\r\n    target  : EventTarget;\r\n    event   : string;\r\n    handler : EventListener;\r\n  }>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`\r\ndiscovery so disconnectedCallback can remove each one with the\r\nsame handler reference originally passed to `addEventListener`.\r\n\r\nListeners installed via the dedicated `<jssm-action>` tag form may target\r\nelements outside the host (its `selector` is resolved against the host,\r\nbut matching elements live in the document tree), so cleanup must be\r\nexplicit — relying on the host's GC is not sufficient."
             },
             {
               "kind": "field",
@@ -128,7 +138,7 @@
                   "description": "Optional data payload to pass to the action."
                 }
               ],
-              "description": "Convenience wrapper for `machine.action(action, data)`.\nAfter the action, reflects updated state to host attributes and the\n`--current-state` CSS custom property, and requests a Lit update so\nthe state-specific `<slot name=\"state-...\">` can re-pick."
+              "description": "Convenience wrapper for `machine.action(action, data)`.\r\nAfter the action, reflects updated state to host attributes and the\r\n`--current-state` CSS custom property, and requests a Lit update so\r\nthe state-specific `<slot name=\"state-...\">` can re-pick."
             },
             {
               "kind": "method",
@@ -138,7 +148,66 @@
                   "text": "string"
                 }
               },
-              "description": "Convenience wrapper for `machine.state()`.  Returns the current\nstate's name."
+              "description": "Convenience wrapper for `machine.state()`.  Returns the current\r\nstate's name."
+            },
+            {
+              "kind": "method",
+              "name": "_discover_jssm_actions",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Wire DOM events to machine actions, using the two declarative forms from\r\nissue #640:\r\n\r\n 1. Inline attribute form: every descendant of the host carrying a\r\n    `data-jssm-action=\"<name>\"` attribute receives a listener on the\r\n    event named by `data-jssm-event` (default `click`).\r\n 2. Dedicated tag form: each direct `<jssm-action>` child of the host\r\n    supplies a CSS `selector` (scoped to the host), an `action`, and an\r\n    optional `event` (default `click`); every matching descendant\r\n    receives a listener configured by the tag's attributes.\r\n\r\nBoth forms support optional `from-state` guards (dispatch only when the\r\nmachine's current state matches), `from-property` data extraction (pass\r\nthe source element's named property as the action's data argument), and\r\n`prevent-default` / `stop-propagation` modifiers.\r\n\r\nEvery installed listener is recorded in _action_listeners so\r\ndisconnectedCallback can detach them cleanly."
+            },
+            {
+              "kind": "method",
+              "name": "_install_action_listener",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "text": "{\r\n    source           : HTMLElement;\r\n    event_name       : string;\r\n    action_name      : string;\r\n    from_state       : string | undefined;\r\n    from_property    : string | undefined;\r\n    prevent_default  : boolean;\r\n    stop_propagation : boolean;\r\n  }"
+                  },
+                  "description": "Listener configuration."
+                },
+                {
+                  "description": "Element to attach the listener to.",
+                  "name": "config.source"
+                },
+                {
+                  "description": "DOM event to listen for.",
+                  "name": "config.event_name"
+                },
+                {
+                  "description": "Action to dispatch on the machine.",
+                  "name": "config.action_name"
+                },
+                {
+                  "description": "If set, only fire when `machine.state() === from_state`.",
+                  "name": "config.from_state"
+                },
+                {
+                  "description": "If set, pass `source[from_property]` as the action's data argument.",
+                  "name": "config.from_property"
+                },
+                {
+                  "description": "If true, call `e.preventDefault()` before checking the guard.",
+                  "name": "config.prevent_default"
+                },
+                {
+                  "description": "If true, call `e.stopPropagation()` before checking the guard.",
+                  "name": "config.stop_propagation"
+                }
+              ],
+              "description": "Attach one DOM listener that translates a DOM event into a\r\n`machine.action(...)` call, honoring the configured modifiers.  The\r\nlistener is recorded in _action_listeners so it can be removed\r\non disconnect."
             },
             {
               "kind": "method",
@@ -149,7 +218,7 @@
                   "text": "void"
                 }
               },
-              "description": "Reflect machine state onto host attributes and CSS custom properties.\nCalled after every transition and once during `connectedCallback`.\n\nMechanism 1 (#639): writes to host attributes.\nMechanism 3 (#639): writes to host inline-style custom properties."
+              "description": "Reflect machine state onto host attributes and CSS custom properties.\r\nCalled after every transition and once during `connectedCallback`.\r\n\r\nMechanism 1 (#639): writes to host attributes.\r\nMechanism 3 (#639): writes to host inline-style custom properties."
             }
           ],
           "attributes": [
@@ -159,7 +228,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "fieldName": "fsl"
             }
           ],
