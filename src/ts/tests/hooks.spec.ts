@@ -1724,4 +1724,22 @@ describe('All four everything hooks simultaneously', () => {
   });
 
 
+  // Regression coverage for #642: nested-Map dispatch must short-circuit when
+  // there is no inner map for the current `from` state.  The named hook is
+  // registered for a *different* from-state than the one we transition from,
+  // so the dispatch walks the inner-Map chain through an `undefined` link.
+  test('Named hook with non-matching from-state is silently skipped (no inner Map)', () => {
+
+    const uncalled = jest.fn();
+    const foo = sm`a 'go' -> b; b 'go' -> c;`;
+    foo.set_hook({ from: 'b', to: 'c', action: 'go', kind: 'named', handler: uncalled });
+
+    // Action 'go' from 'a' should resolve to a -> b; _named_hooks only has 'b' as
+    // outer key, so the from='a' lookup hits undefined and the dispatch skips.
+    expect(foo.action('go')).toBe(true);
+    expect(uncalled).not.toHaveBeenCalled();
+
+  });
+
+
 });

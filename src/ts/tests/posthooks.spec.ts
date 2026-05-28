@@ -930,4 +930,18 @@ describe('Post everything hook', () => {
   });
 
 
+  // Regression coverage for #642: nested-Map post-dispatch must short-circuit
+  // when there is no inner map for the current from-state.
+  test('Post named hook with non-matching from-state is silently skipped', () => {
+
+    const uncalled = jest.fn();
+    const foo = sm`a 'go' -> b; b 'go' -> c;`;
+    foo.set_hook({ from: 'b', to: 'c', action: 'go', kind: 'post named', handler: uncalled });
+
+    expect(foo.action('go')).toBe(true);
+    expect(uncalled).not.toHaveBeenCalled();
+
+  });
+
+
 });
