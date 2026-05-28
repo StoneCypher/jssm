@@ -110,6 +110,17 @@ export declare class JssmInstance extends LitElement {
      */
     private _hook_debug_counter;
     /**
+     * Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`
+     * discovery so {@link disconnectedCallback} can remove each one with the
+     * same handler reference originally passed to `addEventListener`.
+     *
+     * Listeners installed via the dedicated `<jssm-action>` tag form may target
+     * elements outside the host (its `selector` is resolved against the host,
+     * but matching elements live in the document tree), so cleanup must be
+     * explicit — relying on the host's GC is not sufficient.
+     */
+    private _action_listeners;
+    /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
      *
      * @throws If accessed before the element has been connected.
@@ -191,6 +202,43 @@ export declare class JssmInstance extends LitElement {
      * subscriptions / listeners installed by their respective tags.
      */
     disconnectedCallback(): void;
+    /**
+     * Wire DOM events to machine actions, using the two declarative forms from
+     * issue #640:
+     *
+     *  1. Inline attribute form: every descendant of the host carrying a
+     *     `data-jssm-action="<name>"` attribute receives a listener on the
+     *     event named by `data-jssm-event` (default `click`).
+     *  2. Dedicated tag form: each direct `<jssm-action>` child of the host
+     *     supplies a CSS `selector` (scoped to the host), an `action`, and an
+     *     optional `event` (default `click`); every matching descendant
+     *     receives a listener configured by the tag's attributes.
+     *
+     * Both forms support optional `from-state` guards (dispatch only when the
+     * machine's current state matches), `from-property` data extraction (pass
+     * the source element's named property as the action's data argument), and
+     * `prevent-default` / `stop-propagation` modifiers.
+     *
+     * Every installed listener is recorded in {@link _action_listeners} so
+     * {@link disconnectedCallback} can detach them cleanly.
+     */
+    private _discover_jssm_actions;
+    /**
+     * Attach one DOM listener that translates a DOM event into a
+     * `machine.action(...)` call, honoring the configured modifiers.  The
+     * listener is recorded in {@link _action_listeners} so it can be removed
+     * on disconnect.
+     *
+     * @param config - Listener configuration.
+     * @param config.source - Element to attach the listener to.
+     * @param config.event_name - DOM event to listen for.
+     * @param config.action_name - Action to dispatch on the machine.
+     * @param config.from_state - If set, only fire when `machine.state() === from_state`.
+     * @param config.from_property - If set, pass `source[from_property]` as the action's data argument.
+     * @param config.prevent_default - If true, call `e.preventDefault()` before checking the guard.
+     * @param config.stop_propagation - If true, call `e.stopPropagation()` before checking the guard.
+     */
+    private _install_action_listener;
     /**
      * Reflect machine state onto host attributes and CSS custom properties.
      * Called after every transition and once during `connectedCallback`.

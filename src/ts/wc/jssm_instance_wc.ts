@@ -193,6 +193,22 @@ export class JssmInstance extends LitElement {
   private _hook_debug_counter = 0;
 
   /**
+   * Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`
+   * discovery so {@link disconnectedCallback} can remove each one with the
+   * same handler reference originally passed to `addEventListener`.
+   *
+   * Listeners installed via the dedicated `<jssm-action>` tag form may target
+   * elements outside the host (its `selector` is resolved against the host,
+   * but matching elements live in the document tree), so cleanup must be
+   * explicit — relying on the host's GC is not sufficient.
+   */
+  private _action_listeners: Array<{
+    target  : EventTarget;
+    event   : string;
+    handler : EventListener;
+  }> = [];
+
+  /**
    * Raw machine accessor.  Returns the owned {@link Machine} instance.
    *
    * @throws If accessed before the element has been connected.
@@ -278,7 +294,7 @@ export class JssmInstance extends LitElement {
     this._install_declarative_hooks();
 
     // TODO #643: <jssm-on> discovery happens here.
-    // TODO #640: <jssm-action> discovery happens here.
+    this._discover_jssm_actions();
     // TODO #645: <jssm-bind> discovery happens here.
   }
 
@@ -355,6 +371,140 @@ export class JssmInstance extends LitElement {
     }
     this._installed_hooks = [];
     // TODO #643/#645: remove installed listeners / bindings.
+
+    // Remove every listener installed during `<jssm-action>` / `data-jssm-action`
+    // discovery.  Using the original handler reference ensures `removeEventListener`
+    // actually unbinds — anonymous re-creation here would silently leak.
+    for (const entry of this._action_listeners) {
+      entry.target.removeEventListener(entry.event, entry.handler);
+    }
+    this._action_listeners = [];
+  }
+
+  /**
+   * Wire DOM events to machine actions, using the two declarative forms from
+   * issue #640:
+   *
+   *  1. Inline attribute form: every descendant of the host carrying a
+   *     `data-jssm-action="<name>"` attribute receives a listener on the
+   *     event named by `data-jssm-event` (default `click`).
+   *  2. Dedicated tag form: each direct `<jssm-action>` child of the host
+   *     supplies a CSS `selector` (scoped to the host), an `action`, and an
+   *     optional `event` (default `click`); every matching descendant
+   *     receives a listener configured by the tag's attributes.
+   *
+   * Both forms support optional `from-state` guards (dispatch only when the
+   * machine's current state matches), `from-property` data extraction (pass
+   * the source element's named property as the action's data argument), and
+   * `prevent-default` / `stop-propagation` modifiers.
+   *
+   * Every installed listener is recorded in {@link _action_listeners} so
+   * {@link disconnectedCallback} can detach them cleanly.
+   */
+  private _discover_jssm_actions(): void {
+
+    // Inline attribute form: `[data-jssm-action]` descendants.  Per the
+    // ticket, we scan the host's light DOM (not the shadow tree, which is
+    // owned by us) and skip any element living inside a `<jssm-action>` tag
+    // — those tags are pure data markup, never the source of an event.
+    const inline_targets = Array.from(
+      this.querySelectorAll<HTMLElement>('[data-jssm-action]')
+    ).filter(el => el.closest('jssm-action') === null);
+
+    for (const el of inline_targets) {
+      this._install_action_listener({
+        source           : el,
+        event_name       : el.dataset['jssmEvent'] ?? 'click',
+        action_name      : el.dataset['jssmAction']!,
+        from_state       : el.dataset['jssmFromState'],
+        from_property    : el.dataset['jssmFromProperty'],
+        prevent_default  : 'jssmPreventDefault'   in el.dataset,
+        stop_propagation : 'jssmStopPropagation' in el.dataset,
+      });
+    }
+
+    // Dedicated tag form: direct `<jssm-action>` children of the host.
+    // `:scope >` keeps a nested `<jssm-instance>`'s actions from being
+    // claimed by an outer host.
+    const tags = this.querySelectorAll<HTMLElement>(':scope > jssm-action');
+    for (const tag of Array.from(tags)) {
+      const selector    = tag.getAttribute('selector');
+      const action_name = tag.getAttribute('action');
+      if (selector === null || action_name === null) {
+        // Required attrs missing — skip, but don't throw: a malformed tag
+        // shouldn't break the rest of the host's wiring.
+        continue;
+      }
+      const event_name       = tag.getAttribute('event') ?? 'click';
+      const from_state       = tag.getAttribute('from-state')    ?? undefined;
+      const from_property    = tag.getAttribute('from-property') ?? undefined;
+      const prevent_default  = tag.hasAttribute('prevent-default');
+      const stop_propagation = tag.hasAttribute('stop-propagation');
+
+      const sources = this.querySelectorAll<HTMLElement>(selector);
+      for (const src of Array.from(sources)) {
+        this._install_action_listener({
+          source           : src,
+          event_name,
+          action_name,
+          from_state,
+          from_property,
+          prevent_default,
+          stop_propagation,
+        });
+      }
+    }
+
+  }
+
+  /**
+   * Attach one DOM listener that translates a DOM event into a
+   * `machine.action(...)` call, honoring the configured modifiers.  The
+   * listener is recorded in {@link _action_listeners} so it can be removed
+   * on disconnect.
+   *
+   * @param config - Listener configuration.
+   * @param config.source - Element to attach the listener to.
+   * @param config.event_name - DOM event to listen for.
+   * @param config.action_name - Action to dispatch on the machine.
+   * @param config.from_state - If set, only fire when `machine.state() === from_state`.
+   * @param config.from_property - If set, pass `source[from_property]` as the action's data argument.
+   * @param config.prevent_default - If true, call `e.preventDefault()` before checking the guard.
+   * @param config.stop_propagation - If true, call `e.stopPropagation()` before checking the guard.
+   */
+  private _install_action_listener(config: {
+    source           : HTMLElement;
+    event_name       : string;
+    action_name      : string;
+    from_state       : string | undefined;
+    from_property    : string | undefined;
+    prevent_default  : boolean;
+    stop_propagation : boolean;
+  }): void {
+
+    const handler: EventListener = (e: Event) => {
+      if (config.prevent_default)  { e.preventDefault(); }
+      if (config.stop_propagation) { e.stopPropagation(); }
+
+      // Guard: skip dispatch when the machine isn't in the required state.
+      if (config.from_state !== undefined && this.state() !== config.from_state) {
+        return;
+      }
+
+      const data = config.from_property !== undefined
+        ? (config.source as unknown as Record<string, unknown>)[config.from_property]
+        : undefined;
+
+      this.do(config.action_name, data);
+    };
+
+    config.source.addEventListener(config.event_name, handler);
+    this._action_listeners.push({
+      target  : config.source,
+      event   : config.event_name,
+      handler,
+    });
+
   }
 
   /**

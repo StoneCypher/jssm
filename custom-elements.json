@@ -374,6 +374,16 @@
             },
             {
               "kind": "field",
+              "name": "_action_listeners",
+              "type": {
+                "text": "Array<{\r\n    target  : EventTarget;\r\n    event   : string;\r\n    handler : EventListener;\r\n  }>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`\r\ndiscovery so disconnectedCallback can remove each one with the\r\nsame handler reference originally passed to `addEventListener`.\r\n\r\nListeners installed via the dedicated `<jssm-action>` tag form may target\r\nelements outside the host (its `selector` is resolved against the host,\r\nbut matching elements live in the document tree), so cleanup must be\r\nexplicit — relying on the host's GC is not sufficient."
+            },
+            {
+              "kind": "field",
               "name": "machine",
               "type": {
                 "text": "Machine<unknown>"
@@ -439,6 +449,65 @@
                 }
               },
               "description": "Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations\r\nfor inline-body hooks compiled by this element.  Includes the element's\r\n`id` when present so multi-instance pages can tell sources apart in\r\ndevtools."
+            },
+            {
+              "kind": "method",
+              "name": "_discover_jssm_actions",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Wire DOM events to machine actions, using the two declarative forms from\r\nissue #640:\r\n\r\n 1. Inline attribute form: every descendant of the host carrying a\r\n    `data-jssm-action=\"<name>\"` attribute receives a listener on the\r\n    event named by `data-jssm-event` (default `click`).\r\n 2. Dedicated tag form: each direct `<jssm-action>` child of the host\r\n    supplies a CSS `selector` (scoped to the host), an `action`, and an\r\n    optional `event` (default `click`); every matching descendant\r\n    receives a listener configured by the tag's attributes.\r\n\r\nBoth forms support optional `from-state` guards (dispatch only when the\r\nmachine's current state matches), `from-property` data extraction (pass\r\nthe source element's named property as the action's data argument), and\r\n`prevent-default` / `stop-propagation` modifiers.\r\n\r\nEvery installed listener is recorded in _action_listeners so\r\ndisconnectedCallback can detach them cleanly."
+            },
+            {
+              "kind": "method",
+              "name": "_install_action_listener",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "text": "{\r\n    source           : HTMLElement;\r\n    event_name       : string;\r\n    action_name      : string;\r\n    from_state       : string | undefined;\r\n    from_property    : string | undefined;\r\n    prevent_default  : boolean;\r\n    stop_propagation : boolean;\r\n  }"
+                  },
+                  "description": "Listener configuration."
+                },
+                {
+                  "description": "Element to attach the listener to.",
+                  "name": "config.source"
+                },
+                {
+                  "description": "DOM event to listen for.",
+                  "name": "config.event_name"
+                },
+                {
+                  "description": "Action to dispatch on the machine.",
+                  "name": "config.action_name"
+                },
+                {
+                  "description": "If set, only fire when `machine.state() === from_state`.",
+                  "name": "config.from_state"
+                },
+                {
+                  "description": "If set, pass `source[from_property]` as the action's data argument.",
+                  "name": "config.from_property"
+                },
+                {
+                  "description": "If true, call `e.preventDefault()` before checking the guard.",
+                  "name": "config.prevent_default"
+                },
+                {
+                  "description": "If true, call `e.stopPropagation()` before checking the guard.",
+                  "name": "config.stop_propagation"
+                }
+              ],
+              "description": "Attach one DOM listener that translates a DOM event into a\r\n`machine.action(...)` call, honoring the configured modifiers.  The\r\nlistener is recorded in _action_listeners so it can be removed\r\non disconnect."
             },
             {
               "kind": "method",
