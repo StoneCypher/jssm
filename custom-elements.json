@@ -4,6 +4,191 @@
   "modules": [
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/jssm_bind_wc.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "walk_path",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "obj",
+              "type": {
+                "text": "unknown"
+              },
+              "description": "The root value to traverse."
+            },
+            {
+              "name": "path",
+              "type": {
+                "text": "string"
+              },
+              "description": "Dotted path of property names, e.g. `\"a.b.c\"`."
+            }
+          ],
+          "description": "Walk a dotted path into a value.  Used by the `data.path.to.field`\nvariant of resolve_binding.  Returns `undefined` whenever the\ntraversal would dereference a non-object, missing field, or `null` —\nmatching the natural \"missing data\" semantics rather than throwing.\n\n```typescript\nwalk_path({ a: { b: 7 } }, 'a.b');     // => 7\nwalk_path({ a: { b: 7 } }, 'a.c');     // => undefined\nwalk_path({ a: { b: 7 } }, 'a.b.c');   // => undefined (7 is not an object)\nwalk_path(undefined,        'a');      // => undefined\nwalk_path({ a: null },     'a.b');     // => undefined (null is not an object)\nwalk_path({ a: 1 },         '');       // => { a: 1 } (empty path = identity)\n```"
+        },
+        {
+          "kind": "function",
+          "name": "resolve_binding",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "m",
+              "type": {
+                "text": "Machine<unknown>"
+              },
+              "description": "The machine whose state/data is being projected."
+            },
+            {
+              "name": "expr",
+              "type": {
+                "text": "string"
+              },
+              "description": "The binding expression text (raw attribute value)."
+            }
+          ],
+          "description": "Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live\nmachine.  Throws on any unknown expression — bindings fail fast at\ninstall time rather than silently producing `undefined` strings in the\nDOM.\n\nRecognized expressions:\n\n| Expression       | Resolves to                                   |\n| ---------------- | --------------------------------------------- |\n| `data`           | `machine.data()`                              |\n| `data.a.b.c`     | dotted-path traversal into `machine.data()`   |\n| `state`          | `machine.state()`                             |\n| `terminal`       | `machine.is_terminal()`                       |\n| `complete`       | `machine.is_complete()`                       |\n| `legal-actions`  | `machine.list_exit_actions().join(' ')`       |\n\n```typescript\nresolve_binding(m, 'state');              // current state name\nresolve_binding(m, 'data.username');      // typed-data subfield\nresolve_binding(m, 'wat');                // throws\n```"
+        },
+        {
+          "kind": "function",
+          "name": "set_on_element",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          },
+          "parameters": [
+            {
+              "name": "el",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The element to update."
+            },
+            {
+              "name": "target",
+              "type": {
+                "text": "string"
+              },
+              "description": "Target property name, possibly a `data-*` attribute."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "unknown"
+              },
+              "description": "The resolved value to assign."
+            }
+          ],
+          "description": "Apply a resolved binding value to an element's target property.  The\n`target` selector follows the rules documented in #645:\n\n- `textContent` (or omitted) sets `el.textContent` to the value coerced\n  with `String()`.\n- Any string starting with `data-` is treated as an attribute name and\n  set via `setAttribute`, value coerced with `String()`.\n- Any other string is assigned directly as a property of the element\n  (no coercion) — supports `value`, `disabled`, `hidden`, `checked`,\n  and the documented power-user escape hatch.\n\n```typescript\nset_on_element(span,   'textContent',     7);            // span.textContent = '7'\nset_on_element(input,  'value',           'hi');         // input.value = 'hi'\nset_on_element(button, 'disabled',        true);         // button.disabled = true\nset_on_element(div,    'data-current',    'red');        // setAttribute('data-current', 'red')\n```"
+        },
+        {
+          "kind": "function",
+          "name": "install_bindings",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The host element whose descendants carry the bindings."
+            },
+            {
+              "name": "machine",
+              "type": {
+                "text": "Machine<unknown>"
+              },
+              "description": "The machine whose state/data is being projected."
+            }
+          ],
+          "description": "Discover every binding declaration under `host` and install live\nsubscriptions that refresh them on every machine transition.  Returns\na list of unsubscribe callbacks so the host's `disconnectedCallback`\ncan tear them all down.\n\nTwo surface forms are recognized:\n\n1. Inline attribute — any descendant with `data-jssm-bind=\"<expr>\"`.\n   Optional `data-jssm-bind-to=\"<target>\"` chooses the target property\n   (defaults to `textContent`).\n\n2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with\n   `selector=\"<css>\"` and `source=\"<expr>\"` attributes, plus an\n   optional `target=\"<target>\"` (also defaulting to `textContent`).\n   The `selector` is scoped to `host`'s descendants.\n\nEach binding is painted once immediately (using the machine's current\nstate) and then re-painted on every `transition` event.\n\n```typescript\n// typical install during <jssm-instance>.connectedCallback:\nconst unsubs = install_bindings(this, this.machine);\nthis._unsubs.push(...unsubs);\n```"
+        },
+        {
+          "kind": "class",
+          "description": "`<jssm-bind>` configuration tag.  The element itself is invisible —\nit carries `selector`, `source`, and optional `target` attributes\nthat the parent `<jssm-instance>` reads during its connection\nlifecycle to wire up a machine-to-DOM binding.\n\nRegistering it as a `LitElement` (rather than leaving it as a generic\nunknown tag) gives it a stable upgrade timing, a `display: none`\ndefault style, and a proper place in the custom-elements registry so\n`customElements.get('jssm-bind')` resolves.",
+          "name": "JssmBind",
+          "members": [],
+          "attributes": [
+            {
+              "description": "CSS selector for the target element(s), scoped to the host.",
+              "name": "selector"
+            },
+            {
+              "description": "Binding expression (see {@link resolve_binding}).",
+              "name": "source"
+            },
+            {
+              "description": "Target property name; defaults to `textContent`.",
+              "name": "target"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "jssm-bind",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "walk_path",
+          "declaration": {
+            "name": "walk_path",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_binding",
+          "declaration": {
+            "name": "resolve_binding",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "set_on_element",
+          "declaration": {
+            "name": "set_on_element",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "install_bindings",
+          "declaration": {
+            "name": "install_bindings",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "JssmBind",
+          "declaration": {
+            "name": "JssmBind",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/jssm_instance_wc.ts",
       "declarations": [
         {
@@ -30,11 +215,11 @@
               "description": "The current value of the host's `fsl` attribute (or property), or empty string."
             }
           ],
-          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\nelement's own text content (after stripping the script and any\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\nnone or more than one is an error.\n\nPulled out as a pure function so it's testable without spinning up a\nLit element.\n\n```typescript\nconst div = document.createElement('div');\ndiv.setAttribute('fsl', 'Off -> On;');\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\n```"
+          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\r\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\r\nelement's own text content (after stripping the script and any\r\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\r\nnone or more than one is an error.\r\n\r\nPulled out as a pure function so it's testable without spinning up a\r\nLit element.\r\n\r\n```typescript\r\nconst div = document.createElement('div');\r\ndiv.setAttribute('fsl', 'Off -> On;');\r\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\r\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\r\n```"
         },
         {
           "kind": "class",
-          "description": "Web component that owns a single `Machine<unknown>` constructed from an\nFSL source supplied via one of three mutually exclusive channels:\n\n  1. The `fsl=\"\"` attribute,\n  2. A child `<script type=\"text/fsl\">`,\n  3. The element's own text content (companion `<jssm-*>` children and\n     any `<script type=\"text/fsl\">` are excluded from this channel).\n\nSupplying zero or more than one channel is a thrown error.\n\nOn every transition the component reflects machine state to its own\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\nand sets a `--current-state` CSS custom property so consumer CSS can\nstyle by state without subclassing.",
+          "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<jssm-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
           "name": "JssmInstance",
           "cssProperties": [
             {
@@ -81,7 +266,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "attribute": "fsl"
             },
             {
@@ -92,7 +277,17 @@
               },
               "privacy": "private",
               "default": "undefined",
-              "description": "The underlying machine instance, constructed at `connectedCallback`.\nExposed raw (not proxied) per the #639/#648 design decision so that\nconsumers can use the full Machine API directly.\n\nMarked optional because Lit will instantiate the element before\n`connectedCallback` runs; the instance is guaranteed present after\nconnection."
+              "description": "The underlying machine instance, constructed at `connectedCallback`.\r\nExposed raw (not proxied) per the #639/#648 design decision so that\r\nconsumers can use the full Machine API directly.\r\n\r\nMarked optional because Lit will instantiate the element before\r\n`connectedCallback` runs; the instance is guaranteed present after\r\nconnection."
+            },
+            {
+              "kind": "field",
+              "name": "_unsubs",
+              "type": {
+                "text": "JssmBindUnsub[]"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Live unsubscribe callbacks for every machine-driven subscription\r\ninstalled by this host (currently: `<jssm-bind>` / `data-jssm-bind`\r\nprojections from #645).  Every entry must be invoked exactly once\r\nduring disconnectedCallback."
             },
             {
               "kind": "field",
@@ -128,7 +323,7 @@
                   "description": "Optional data payload to pass to the action."
                 }
               ],
-              "description": "Convenience wrapper for `machine.action(action, data)`.\nAfter the action, reflects updated state to host attributes and the\n`--current-state` CSS custom property, and requests a Lit update so\nthe state-specific `<slot name=\"state-...\">` can re-pick."
+              "description": "Convenience wrapper for `machine.action(action, data)`.\r\nAfter the action, reflects updated state to host attributes and the\r\n`--current-state` CSS custom property, and requests a Lit update so\r\nthe state-specific `<slot name=\"state-...\">` can re-pick."
             },
             {
               "kind": "method",
@@ -138,7 +333,7 @@
                   "text": "string"
                 }
               },
-              "description": "Convenience wrapper for `machine.state()`.  Returns the current\nstate's name."
+              "description": "Convenience wrapper for `machine.state()`.  Returns the current\r\nstate's name."
             },
             {
               "kind": "method",
@@ -149,7 +344,7 @@
                   "text": "void"
                 }
               },
-              "description": "Reflect machine state onto host attributes and CSS custom properties.\nCalled after every transition and once during `connectedCallback`.\n\nMechanism 1 (#639): writes to host attributes.\nMechanism 3 (#639): writes to host inline-style custom properties."
+              "description": "Reflect machine state onto host attributes and CSS custom properties.\r\nCalled after every transition and once during `connectedCallback`.\r\n\r\nMechanism 1 (#639): writes to host attributes.\r\nMechanism 3 (#639): writes to host inline-style custom properties."
             }
           ],
           "attributes": [
@@ -159,7 +354,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "fieldName": "fsl"
             }
           ],

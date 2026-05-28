@@ -80,6 +80,13 @@ export declare class JssmInstance extends LitElement {
      */
     private _machine;
     /**
+     * Live unsubscribe callbacks for every machine-driven subscription
+     * installed by this host (currently: `<jssm-bind>` / `data-jssm-bind`
+     * projections from #645).  Every entry must be invoked exactly once
+     * during {@link disconnectedCallback}.
+     */
+    private _unsubs;
+    /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
      *
      * @throws If accessed before the element has been connected.

@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { sm } from '../jssm.js';
+import { install_bindings } from './jssm_bind_wc.js';
 /**
  * Resolve a `<jssm-instance>`'s FSL source from the three legal channels:
  * the `fsl=""` attribute, a child `<script type="text/fsl">`, and the
@@ -115,6 +116,13 @@ export class JssmInstance extends LitElement {
          * connection.
          */
         this._machine = undefined;
+        /**
+         * Live unsubscribe callbacks for every machine-driven subscription
+         * installed by this host (currently: `<jssm-bind>` / `data-jssm-bind`
+         * projections from #645).  Every entry must be invoked exactly once
+         * during {@link disconnectedCallback}.
+         */
+        this._unsubs = [];
     }
     /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
@@ -182,7 +190,9 @@ export class JssmInstance extends LitElement {
         // TODO #641: <jssm-hook> discovery happens here.
         // TODO #643: <jssm-on> discovery happens here.
         // TODO #640: <jssm-action> discovery happens here.
-        // TODO #645: <jssm-bind> discovery happens here.
+        // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
+        // install live machine-to-DOM projections.
+        this._unsubs.push(...install_bindings(this, this._machine));
     }
     /**
      * Lifecycle hook.  Cleans up any installed subscriptions.  Currently a
@@ -192,9 +202,15 @@ export class JssmInstance extends LitElement {
      */
     disconnectedCallback() {
         super.disconnectedCallback();
-        // TODO #638: unsubscribe from machine.on(...) handlers.
+        // TODO #638: unsubscribe from machine.on(...) handlers (for the
+        //            CustomEvent bridge, separate from #645's bindings).
         // TODO #641: remove installed hooks.
-        // TODO #643/#645: remove installed listeners / bindings.
+        // TODO #643: remove installed listeners.
+        // #645: tear down every live binding.
+        for (const off of this._unsubs) {
+            off();
+        }
+        this._unsubs = [];
     }
     /**
      * Reflect machine state onto host attributes and CSS custom properties.
