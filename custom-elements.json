@@ -4,8 +4,520 @@
   "modules": [
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/jssm_bind_wc.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "walk_path",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "obj",
+              "type": {
+                "text": "unknown"
+              },
+              "description": "The root value to traverse."
+            },
+            {
+              "name": "path",
+              "type": {
+                "text": "string"
+              },
+              "description": "Dotted path of property names, e.g. `\"a.b.c\"`."
+            }
+          ],
+          "description": "Walk a dotted path into a value.  Used by the `data.path.to.field`\r\nvariant of resolve_binding.  Returns `undefined` whenever the\r\ntraversal would dereference a non-object, missing field, or `null` —\r\nmatching the natural \"missing data\" semantics rather than throwing.\r\n\r\n```typescript\r\nwalk_path({ a: { b: 7 } }, 'a.b');     // => 7\r\nwalk_path({ a: { b: 7 } }, 'a.c');     // => undefined\r\nwalk_path({ a: { b: 7 } }, 'a.b.c');   // => undefined (7 is not an object)\r\nwalk_path(undefined,        'a');      // => undefined\r\nwalk_path({ a: null },     'a.b');     // => undefined (null is not an object)\r\nwalk_path({ a: 1 },         '');       // => { a: 1 } (empty path = identity)\r\n```"
+        },
+        {
+          "kind": "function",
+          "name": "resolve_binding",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "m",
+              "type": {
+                "text": "Machine<unknown>"
+              },
+              "description": "The machine whose state/data is being projected."
+            },
+            {
+              "name": "expr",
+              "type": {
+                "text": "string"
+              },
+              "description": "The binding expression text (raw attribute value)."
+            }
+          ],
+          "description": "Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live\r\nmachine.  Throws on any unknown expression — bindings fail fast at\r\ninstall time rather than silently producing `undefined` strings in the\r\nDOM.\r\n\r\nRecognized expressions:\r\n\r\n| Expression       | Resolves to                                   |\r\n| ---------------- | --------------------------------------------- |\r\n| `data`           | `machine.data()`                              |\r\n| `data.a.b.c`     | dotted-path traversal into `machine.data()`   |\r\n| `state`          | `machine.state()`                             |\r\n| `terminal`       | `machine.is_terminal()`                       |\r\n| `complete`       | `machine.is_complete()`                       |\r\n| `legal-actions`  | `machine.list_exit_actions().join(' ')`       |\r\n\r\n```typescript\r\nresolve_binding(m, 'state');              // current state name\r\nresolve_binding(m, 'data.username');      // typed-data subfield\r\nresolve_binding(m, 'wat');                // throws\r\n```"
+        },
+        {
+          "kind": "function",
+          "name": "set_on_element",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          },
+          "parameters": [
+            {
+              "name": "el",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The element to update."
+            },
+            {
+              "name": "target",
+              "type": {
+                "text": "string"
+              },
+              "description": "Target property name, possibly a `data-*` attribute."
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "unknown"
+              },
+              "description": "The resolved value to assign."
+            }
+          ],
+          "description": "Apply a resolved binding value to an element's target property.  The\r\n`target` selector follows the rules documented in #645:\r\n\r\n- `textContent` (or omitted) sets `el.textContent` to the value coerced\r\n  with `String()`.\r\n- Any string starting with `data-` is treated as an attribute name and\r\n  set via `setAttribute`, value coerced with `String()`.\r\n- Any other string is assigned directly as a property of the element\r\n  (no coercion) — supports `value`, `disabled`, `hidden`, `checked`,\r\n  and the documented power-user escape hatch.\r\n\r\n```typescript\r\nset_on_element(span,   'textContent',     7);            // span.textContent = '7'\r\nset_on_element(input,  'value',           'hi');         // input.value = 'hi'\r\nset_on_element(button, 'disabled',        true);         // button.disabled = true\r\nset_on_element(div,    'data-current',    'red');        // setAttribute('data-current', 'red')\r\n```"
+        },
+        {
+          "kind": "function",
+          "name": "install_bindings",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The host element whose descendants carry the bindings."
+            },
+            {
+              "name": "machine",
+              "type": {
+                "text": "Machine<unknown>"
+              },
+              "description": "The machine whose state/data is being projected."
+            }
+          ],
+          "description": "Discover every binding declaration under `host` and install live\r\nsubscriptions that refresh them on every machine transition.  Returns\r\na list of unsubscribe callbacks so the host's `disconnectedCallback`\r\ncan tear them all down.\r\n\r\nTwo surface forms are recognized:\r\n\r\n1. Inline attribute — any descendant with `data-jssm-bind=\"<expr>\"`.\r\n   Optional `data-jssm-bind-to=\"<target>\"` chooses the target property\r\n   (defaults to `textContent`).\r\n\r\n2. Dedicated tag — direct-child `<jssm-bind>` configuration tags with\r\n   `selector=\"<css>\"` and `source=\"<expr>\"` attributes, plus an\r\n   optional `target=\"<target>\"` (also defaulting to `textContent`).\r\n   The `selector` is scoped to `host`'s descendants.\r\n\r\nEach binding is painted once immediately (using the machine's current\r\nstate) and then re-painted on every `transition` event.\r\n\r\n```typescript\r\n// typical install during <jssm-instance>.connectedCallback:\r\nconst unsubs = install_bindings(this, this.machine);\r\nthis._unsubs.push(...unsubs);\r\n```"
+        },
+        {
+          "kind": "class",
+          "description": "`<jssm-bind>` configuration tag.  The element itself is invisible —\r\nit carries `selector`, `source`, and optional `target` attributes\r\nthat the parent `<jssm-instance>` reads during its connection\r\nlifecycle to wire up a machine-to-DOM binding.\r\n\r\nRegistering it as a `LitElement` (rather than leaving it as a generic\r\nunknown tag) gives it a stable upgrade timing, a `display: none`\r\ndefault style, and a proper place in the custom-elements registry so\r\n`customElements.get('jssm-bind')` resolves.",
+          "name": "JssmBind",
+          "members": [],
+          "attributes": [
+            {
+              "description": "CSS selector for the target element(s), scoped to the host.",
+              "name": "selector"
+            },
+            {
+              "description": "Binding expression (see {@link resolve_binding}).",
+              "name": "source"
+            },
+            {
+              "description": "Target property name; defaults to `textContent`.",
+              "name": "target"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "jssm-bind",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "walk_path",
+          "declaration": {
+            "name": "walk_path",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_binding",
+          "declaration": {
+            "name": "resolve_binding",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "set_on_element",
+          "declaration": {
+            "name": "set_on_element",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "install_bindings",
+          "declaration": {
+            "name": "install_bindings",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "JssmBind",
+          "declaration": {
+            "name": "JssmBind",
+            "module": "src/ts/wc/jssm_bind_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/jssm_hook_wc.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "make_hook_proxy",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "ctx",
+              "type": {
+                "text": "{ data?: TData; from?: string; to?: string; action?: string }"
+              },
+              "description": "Raw hook context passed by jssm."
+            },
+            {
+              "name": "machine",
+              "type": {
+                "text": "{ state(): unknown }"
+              },
+              "description": "The owning machine; used for the `state()` accessor."
+            }
+          ],
+          "description": "Build a JssmHookProxy that wraps an arbitrary hook context object.\r\n\r\nThe context shape varies by hook kind (`from`/`to`/`action` may be absent\r\nfor transition-kind hooks), so this normalizes the shape via optional\r\nfields and exposes mutable `data` while keeping the rest read-only.\r\n\r\nThe `machine` parameter is used only for `state()`, so unit tests can\r\nsubstitute any object with a `state(): unknown` method."
+        },
+        {
+          "kind": "function",
+          "name": "compile_inline_body",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "body",
+              "type": {
+                "text": "string"
+              },
+              "description": "Trimmed textContent of the `<jssm-hook>` element."
+            },
+            {
+              "name": "debug_id",
+              "type": {
+                "text": "string"
+              },
+              "description": "Identifier appended to the synthetic sourceURL."
+            }
+          ],
+          "description": "Compile a textContent body into a callable user handler.\r\n\r\nUses dynamic function construction — the same primitive browsers use\r\ninternally for `<a onclick=\"...\">` and `setTimeout(stringBody, ms)`.\r\nStrict CSP without `'unsafe-eval'` blocks this and the call will throw;\r\nconsumers should fall back to the `handler=\"name\"` form there.\r\n\r\nPrepends a `//# sourceURL=` comment so devtools surface a meaningful name\r\nin stack traces instead of `anonymous`."
+        },
+        {
+          "kind": "function",
+          "name": "resolve_named_handler",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The handler name from the `handler=\"\"` attribute."
+            },
+            {
+              "name": "registry",
+              "optional": true,
+              "type": {
+                "text": "JssmHookRegistry"
+              },
+              "description": "Optional in-WC registry to consult first."
+            }
+          ],
+          "description": "Resolve a `handler=\"name\"` attribute to a callable by consulting first the\r\noptional in-WC registry, then `globalThis[name]`.  Throws a clear error if\r\nneither resolves."
+        },
+        {
+          "kind": "function",
+          "name": "normalize_hook_kind",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "raw",
+              "type": {
+                "text": "string | null | undefined"
+              },
+              "description": "The raw attribute value, or null if not present."
+            }
+          ],
+          "description": "Validate and normalize a `<jssm-hook kind=\"...\">` value, defaulting to\r\n`\"hook\"` when the attribute is absent.  Throws on unknown kinds rather\r\nthan silently doing nothing later."
+        },
+        {
+          "kind": "function",
+          "name": "parse_hook_element",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "el",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The `<jssm-hook>` element to parse."
+            },
+            {
+              "name": "debug_id",
+              "type": {
+                "text": "string"
+              },
+              "description": "Identifier used in the inline body's sourceURL."
+            },
+            {
+              "name": "registry",
+              "optional": true,
+              "type": {
+                "text": "JssmHookRegistry"
+              },
+              "description": "Optional in-WC registry of named handlers."
+            }
+          ],
+          "description": "Parse a single `<jssm-hook>` element into a JssmHookInstallSpec.\r\n\r\nValidates the mutual-exclusion rule between `handler=\"name\"` and inline\r\nbody, defaults `kind` to `\"hook\"`, resolves named handlers against the\r\noptional registry then `globalThis`, and compiles inline bodies via\r\ndynamic function construction.  Conditional-required attributes (e.g.\r\n`from`/`to` for `kind=\"hook\"`) are NOT validated here — `set_hook` will\r\nthrow with its own clear errors on missing pieces, which keeps the\r\nerror surface single-sourced."
+        },
+        {
+          "kind": "function",
+          "name": "wrap_user_handler",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "spec",
+              "type": {
+                "text": "JssmHookInstallSpec"
+              },
+              "description": "The parsed install spec carrying the user handler."
+            },
+            {
+              "name": "machine",
+              "type": {
+                "text": "{ state(): unknown }"
+              },
+              "description": "The owning machine; used by the proxy's `state()`."
+            }
+          ],
+          "description": "Wrap a JssmHookUserHandler so that jssm's native hook contract is\r\nsatisfied: the user gets a friendly proxy, the proxy's mutated `data`\r\nbecomes the `HookComplexResult.data`, and an explicit `false` return\r\ncancels the transition.\r\n\r\nAny non-`false` return — including `undefined`, `true`, or an arbitrary\r\nobject — allows the transition.  This matches the contract spelled out\r\nin the issue (#641): \"return false cancels; anything else allows\"."
+        },
+        {
+          "kind": "function",
+          "name": "build_hook_descriptor",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "spec",
+              "type": {
+                "text": "JssmHookInstallSpec"
+              },
+              "description": "The parsed install spec."
+            },
+            {
+              "name": "wrapped",
+              "type": {
+                "text": "(ctx: RawHookContext) => unknown"
+              },
+              "description": "The wrapped (friendly-proxy) handler from {@link wrap_user_handler}.\r\n * "
+            }
+          ],
+          "description": "Build the typed descriptor object passed to `machine.set_hook` (and later\r\nto `machine.remove_hook` for cleanup) from a parsed JssmHookInstallSpec\r\nand the wrapped handler.\r\n\r\nFor kinds that need `from`/`to`/`action`, the descriptor includes those.\r\nMissing required keys produce `undefined` here; jssm's `set_hook` will\r\nsurface the error with its own clear message so we don't duplicate\r\nvalidation.\r\n\r\nReturn type is `unknown` because jssm's `HookDescription` is a\r\ndiscriminated union and our runtime-discriminator value can't be tracked\r\nby TypeScript across the build.  The WC casts at the `set_hook` call site."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "make_hook_proxy",
+          "declaration": {
+            "name": "make_hook_proxy",
+            "module": "src/ts/wc/jssm_hook_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "compile_inline_body",
+          "declaration": {
+            "name": "compile_inline_body",
+            "module": "src/ts/wc/jssm_hook_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_named_handler",
+          "declaration": {
+            "name": "resolve_named_handler",
+            "module": "src/ts/wc/jssm_hook_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "normalize_hook_kind",
+          "declaration": {
+            "name": "normalize_hook_kind",
+            "module": "src/ts/wc/jssm_hook_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "parse_hook_element",
+          "declaration": {
+            "name": "parse_hook_element",
+            "module": "src/ts/wc/jssm_hook_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "wrap_user_handler",
+          "declaration": {
+            "name": "wrap_user_handler",
+            "module": "src/ts/wc/jssm_hook_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "build_hook_descriptor",
+          "declaration": {
+            "name": "build_hook_descriptor",
+            "module": "src/ts/wc/jssm_hook_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/jssm_instance_wc.ts",
       "declarations": [
+        {
+          "kind": "variable",
+          "name": "JSSM_ON_EVENT_NAMES",
+          "default": "new Set<string>([ 'transition', 'rejection', 'action', 'entry', 'exit', 'terminal', 'complete', 'error', 'data-change', 'override', 'timeout', 'hook-registration', 'hook-removal' ])",
+          "description": "Allow-list of event names accepted by `<jssm-on event=\"...\">`.  Must stay\r\nin sync with the `JssmEventName` union in `jssm_types.ts` (the library's\r\n`machine.on(...)` event API, added in #638).  Validating here gives the\r\ndeclarative wiring a clear \"unknown event name\" error at the WC layer\r\ninstead of relying on a downstream library throw whose message would\r\nmention `machine.on(...)` rather than the offending tag."
+        },
+        {
+          "kind": "function",
+          "name": "parse_jssm_on_element",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "el",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The `<jssm-on>` element to parse."
+            }
+          ],
+          "description": "Parse a `<jssm-on>` element into a validated ParsedJssmOn\r\nrecord.  Centralized so the declarative-tag logic is testable without\r\nspinning up the full `<jssm-instance>` lifecycle.\r\n\r\nValidation rules (per #643):\r\n  - `event` is required and must be in JSSM_ON_EVENT_NAMES.\r\n  - Either a `handler=\"name\"` attribute or non-empty `textContent`\r\n    must be supplied, but not both.\r\n  - `state` is only meaningful for `event=\"entry\"` / `event=\"exit\"`;\r\n    it's silently ignored on other events.\r\n  - `from` / `to` are only meaningful for `event=\"transition\"`; they\r\n    are silently ignored on other events.  Both → AND (a specific\r\n    edge).  Neither → unfiltered.\r\n\r\n```typescript\r\nconst el = document.createElement('jssm-on');\r\nel.setAttribute('event', 'entry');\r\nel.setAttribute('state', 'paid');\r\nel.setAttribute('handler', 'onPaid');\r\nparse_jssm_on_element(el);\r\n// => { event: 'entry', handler_name: 'onPaid', inline_body: undefined,\r\n//      once: false, name: undefined, filter: { state: 'paid' } }\r\n```"
+        },
+        {
+          "kind": "variable",
+          "name": "jssm_handler_registry",
+          "type": {
+            "text": "Map<string, (...args: unknown[]) => unknown>"
+          },
+          "default": "new Map()",
+          "description": "Optional global registry that `<jssm-on>` (and, later, `<jssm-hook>`)\r\nconsult first when resolving a `handler=\"name\"` attribute.  Consumers\r\nregister named handlers here in a strict-CSP environment where a stray\r\n`globalThis[name]` isn't acceptable.  Falls through to `globalThis[name]`\r\nif the registry has no entry.\r\n\r\nIntentionally a `Map<string, Function>` rather than a class with methods,\r\nso consumers can use any of `.get`, `.set`, `.delete`, `.clear` directly\r\nwithout a thin wrapper API."
+        },
+        {
+          "kind": "function",
+          "name": "resolve_named_handler",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The handler name as supplied by `handler=\"...\"`."
+            }
+          ],
+          "description": "Resolve a named handler from the registry, then from `globalThis`.\r\nThrows if neither lookup finds a function — earlier failure here is\r\nbetter than a delayed \"is not a function\" at first event delivery."
+        },
+        {
+          "kind": "function",
+          "name": "compile_inline_body",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "body",
+              "type": {
+                "text": "string"
+              },
+              "description": "The inline JS body (function body, not full function)."
+            },
+            {
+              "name": "source_id",
+              "type": {
+                "text": "string"
+              },
+              "description": "A short identifier for the sourceURL pragma."
+            }
+          ],
+          "description": "Compile an inline-body string into a handler function whose single\r\nparameter is `e` (the event detail object).  Uses the same dynamic\r\n`Function(...)` constructor that browsers use internally for inline\r\nevent-handler attributes such as `<a onclick=\"...\">`; the input here\r\nis consumer-authored markup, never network data, so the surface is\r\nexactly that of an inline event-handler attribute and the same CSP\r\ncaveats apply (strict CSP without `'unsafe-eval'` blocks it).  A\r\n`//# sourceURL=jssm-on:N` pragma is appended so devtools stack traces\r\npoint at a meaningful name."
+        },
         {
           "kind": "function",
           "name": "resolve_fsl_source",
@@ -96,6 +608,66 @@
             },
             {
               "kind": "field",
+              "name": "_unsubs",
+              "type": {
+                "text": "JssmBindUnsub[]"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`\r\nprojections.  Every entry must be invoked exactly once during\r\ndisconnectedCallback."
+            },
+            {
+              "kind": "field",
+              "name": "_on_unsubscribes",
+              "type": {
+                "text": "Array<() => void>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`\r\nsubscription installed from a `<jssm-on>` child during\r\n`connectedCallback`.  Walked in `disconnectedCallback`."
+            },
+            {
+              "kind": "field",
+              "name": "registry",
+              "type": {
+                "text": "JssmHookRegistry"
+              },
+              "readonly": true,
+              "default": "new Map()",
+              "description": "Per-instance registry of named hook handlers consulted before\r\n`globalThis` when resolving `<jssm-hook handler=\"name\">`."
+            },
+            {
+              "kind": "field",
+              "name": "_installed_hooks",
+              "type": {
+                "text": "unknown[]"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Descriptors for hooks this WC installed at connect time."
+            },
+            {
+              "kind": "field",
+              "name": "_hook_debug_counter",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0",
+              "description": "Counter for compiled inline-body hook debug ids."
+            },
+            {
+              "kind": "field",
+              "name": "_action_listeners",
+              "type": {
+                "text": "Array<{\r\n    target  : EventTarget;\r\n    event   : string;\r\n    handler : EventListener;\r\n  }>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "DOM listeners installed by `<jssm-action>` / `data-jssm-action` discovery."
+            },
+            {
+              "kind": "field",
               "name": "machine",
               "type": {
                 "text": "Machine<unknown>"
@@ -142,6 +714,69 @@
             },
             {
               "kind": "method",
+              "name": "_install_jssm_on_children",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Discover direct-child `<jssm-on>` elements and install their\r\nsubscriptions on the owned machine.  Per #643:\r\n\r\n- Direct children only (`:scope > jssm-on`).  Deeper nesting is the\r\n  responsibility of a future MutationObserver-driven v2.\r\n- Each `<jssm-on>` is parsed by parse_jssm_on_element, which\r\n  enforces the form / event-name / filter rules.\r\n- Handlers come from resolve_named_handler (form A) or\r\n  compile_inline_body (form B), and the result is installed\r\n  via `machine.on(...)` or `machine.once(...)` depending on the\r\n  element's `once` attribute.\r\n- Every returned unsubscribe is tracked in _on_unsubscribes\r\n  so disconnectedCallback can release them all.\r\n\r\nCalled once from `connectedCallback` after the machine has been\r\nconstructed.  Any error thrown by parsing or resolution propagates\r\nout so it surfaces via jsdom's error event (matching the rest of\r\n`<jssm-instance>`'s \"fail loud at connect\" policy)."
+            },
+            {
+              "kind": "method",
+              "name": "_install_declarative_hooks",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Discover every direct-child `<jssm-hook>` element and install each\r\nagainst the owned machine.  Handlers are wrapped with the friendly-proxy\r\nadapter that lets user code write `m.data = ...` and return `false` to\r\ncancel — see make_hook_proxy and the issue (#641) doc-comment\r\nfor the full contract."
+            },
+            {
+              "kind": "method",
+              "name": "_hook_id_prefix",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "description": "Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations\r\nfor inline-body hooks compiled by this element."
+            },
+            {
+              "kind": "method",
+              "name": "_discover_jssm_actions",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Wire DOM events to machine actions, using the two declarative forms from\r\nissue #640.  Both forms support optional `from-state` guards,\r\n`from-property` data extraction, and `prevent-default` /\r\n`stop-propagation` modifiers."
+            },
+            {
+              "kind": "method",
+              "name": "_install_action_listener",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "config",
+                  "type": {
+                    "text": "{\r\n    source           : HTMLElement;\r\n    event_name       : string;\r\n    action_name      : string;\r\n    from_state       : string | undefined;\r\n    from_property    : string | undefined;\r\n    prevent_default  : boolean;\r\n    stop_propagation : boolean;\r\n  }"
+                  }
+                }
+              ],
+              "description": "Attach one DOM listener that translates a DOM event into a\r\n`machine.action(...)` call, honoring the configured modifiers."
+            },
+            {
+              "kind": "method",
               "name": "_paint_state_reflection",
               "privacy": "private",
               "return": {
@@ -172,6 +807,46 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "JSSM_ON_EVENT_NAMES",
+          "declaration": {
+            "name": "JSSM_ON_EVENT_NAMES",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "parse_jssm_on_element",
+          "declaration": {
+            "name": "parse_jssm_on_element",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "jssm_handler_registry",
+          "declaration": {
+            "name": "jssm_handler_registry",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_named_handler",
+          "declaration": {
+            "name": "resolve_named_handler",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "compile_inline_body",
+          "declaration": {
+            "name": "compile_inline_body",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "resolve_fsl_source",

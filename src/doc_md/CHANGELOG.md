@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-307 merges; 251 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+314 merges; 251 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,28 +22,16 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 11:02:14 PM
+## [Untagged] - May 28, 2026 8:13:09 AM
 
-Commit [0544d3b94fb05e07f8b40d764b3bcf788d86b520](https://github.com/StoneCypher/jssm/commit/0544d3b94fb05e07f8b40d764b3bcf788d86b520)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore: rebuild artifacts and docs for 5.137.0
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - May 27, 2026 11:01:44 PM
-
-Commit [a9da63782a7811711266d7e3821d30d3a835b9b9](https://github.com/StoneCypher/jssm/commit/a9da63782a7811711266d7e3821d30d3a835b9b9)
+Commit [6cbfcdbec837138b713d0b7d06d1f8ecd4dbc0f1](https://github.com/StoneCypher/jssm/commit/6cbfcdbec837138b713d0b7d06d1f8ecd4dbc0f1)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * chore: rebuild artifacts and docs for 5.139.0
+Merges [3a4f6998, d5b33067]
+
+  * Merge pull request #658 from StoneCypher/feat_26-05-27_jssm-bind_645
+  * feat(wc): <jssm-bind> machine→DOM projection (closes #645)
 
 
 
@@ -52,13 +40,15 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 10:58:25 PM
+## [Untagged] - May 28, 2026 8:12:52 AM
 
-Commit [9a87e75f4eec2e58c3d38d5455035eb823412623](https://github.com/StoneCypher/jssm/commit/9a87e75f4eec2e58c3d38d5455035eb823412623)
+Commit [d5b3306749107193e3df33c14a15fde2d1210122](https://github.com/StoneCypher/jssm/commit/d5b3306749107193e3df33c14a15fde2d1210122)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(wc): add <jssm-hook> declarative discovery in <jssm-instance> (closes #641)
+Merges [822d6119, 3a4f6998]
+
+  * Merge main into feat_26-05-27_jssm-bind_645; keep 5.140.0
 
 
 
@@ -67,26 +57,16 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 10:56:24 PM
+## [Untagged] - May 28, 2026 8:04:53 AM
 
-Commit [0f5ab95fe1fdcb7037faf1ecab1da5a28947bff1](https://github.com/StoneCypher/jssm/commit/0f5ab95fe1fdcb7037faf1ecab1da5a28947bff1)
+Commit [3a4f69985f179f7747d9d4fee5d6bfefbeeb4b44](https://github.com/StoneCypher/jssm/commit/3a4f69985f179f7747d9d4fee5d6bfefbeeb4b44)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(wc): <jssm-viz>/<fsl-viz> auto-bind to parent <jssm-instance> (closes #647)
-  * Implements Stage 2 of #647: when a <jssm-viz> (or its <fsl-viz> synonym)
-is nested inside a <jssm-instance>, the viz now walks up via
-closest('jssm-instance') in connectedCallback, subscribes to the
-parent machine's 'transition' event (#638), and renders the parent's
-machine via machine_to_svg_string.  The viz's own `fsl` attribute is
-ignored in nested mode; supplying it emits a console.warn for
-developer feedback.  Standalone usage (no <jssm-instance> ancestor)
-is unchanged.
-  * The subscription is released on disconnectedCallback so detached
-viz elements do not keep the parent's machine reachable.  Both
-tag names share the same base class, so the synonym inherits the
-nested-mode behavior automatically.
-  * Closes #647
+Merges [b6fd18d4, 58e4cb5d]
+
+  * Merge pull request #654 from StoneCypher/feat_26-05-27_jssm-on_643
+  * feat(wc): <jssm-on> declarative observation (closes #643)
 
 
 
@@ -95,24 +75,15 @@ nested-mode behavior automatically.
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 10:51:34 PM
+## [Untagged] - May 28, 2026 8:04:33 AM
 
-Commit [006b7c172aacd3f367211c8fc520e6d17a283705](https://github.com/StoneCypher/jssm/commit/006b7c172aacd3f367211c8fc520e6d17a283705)
+Commit [58e4cb5d376e27dfb525bfb5fd00dcfde2bc2900](https://github.com/StoneCypher/jssm/commit/58e4cb5d376e27dfb525bfb5fd00dcfde2bc2900)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(wc): add data-jssm-action + <jssm-action> discovery in <jssm-instance> (closes #640)
-  * Implements both declarative DOM-to-machine wiring forms from issue #640:
-  * - Inline form: descendants carrying [data-jssm-action] receive an event
-  listener (default 'click', configurable via data-jssm-event) that calls
-  host.machine.action(...) with the attribute's value.
-- Tag form: direct <jssm-action> children with selector + action + event
-  attributes wire matching elements the same way, including external
-  source elements that aren't direct host descendants.
-  * Both forms honor from-state guards, from-property data extraction, and
-prevent-default / stop-propagation modifiers.  Installed listeners are
-tracked so disconnectedCallback can detach them.
-  * Covers all 16 new test cases at 100% statements/branches/functions/lines.
+Merges [a9da6378, b6fd18d4]
+
+  * Merge main into feat_26-05-27_jssm-on_643; keep 5.139.0
 
 
 
@@ -121,38 +92,16 @@ tracked so disconnectedCallback can detach them.
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 10:51:34 PM
+## [Untagged] - May 28, 2026 7:32:48 AM
 
-Commit [4900418af2983832181f338118795e2ea25e274b](https://github.com/StoneCypher/jssm/commit/4900418af2983832181f338118795e2ea25e274b)
+Commit [b6fd18d4b3ec93ef49a1cd2e98c5e019c3039ce4](https://github.com/StoneCypher/jssm/commit/b6fd18d4b3ec93ef49a1cd2e98c5e019c3039ce4)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(wc): add <jssm-on> declarative event observation in <jssm-instance> (closes #643)
-  * Adds a new declarative tag, <jssm-on>, that wires the library's
-machine.on(...) event API into HTML markup as a child of <jssm-instance>.
-Third of the four declarative companion tags (after #641 <jssm-hook>);
-observation-only, no return-value semantics, so handlers may be async.
-  * Two forms (mutually exclusive):
-  - handler="name": resolved against jssm_handler_registry first, then
-    globalThis; throws if neither resolves.
-  - inline textContent body: compiled via Function('e', body) with a
-    //# sourceURL=jssm-on:<n> pragma for devtools-friendly stack traces.
-    CSP without 'unsafe-eval' blocks this form, matching the existing
-    behaviour of inline event-handler attributes.
-  * Attribute filters per the issue:
-  - state on event="entry" / event="exit"   -> { state }
-  - from  / to  on event="transition"      -> { from }, { to }, or both
-    (AND, specific edge); neither -> unfiltered.
-  - once boolean attribute                  -> machine.once instead of on
-  - name (optional)                         -> retained for inspection
-  * The WC validates event against the union from #638's JssmEventName
-allow-list (transition, rejection, action, entry, exit, terminal,
-complete, error, data-change, override, timeout, hook-registration,
-hook-removal); unknown names throw at connect.
-  * Subscriptions are tracked in _on_unsubscribes and released in
-disconnectedCallback; a throwing unsubscribe is swallowed so teardown
-does not surface mid-cleanup.
-  * Bumps to 5.139.0.
+Merges [6181fd95, 6e18e50c]
+
+  * Merge pull request #657 from StoneCypher/feat_26-05-27_jssm-hook_641
+  * feat(wc): <jssm-hook> declarative discovery (closes #641)
 
 
 
@@ -161,33 +110,30 @@ does not surface mid-cleanup.
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 10:36:34 PM
+## [Untagged] - May 28, 2026 7:32:29 AM
 
-Commit [e86509ae95c4fdbc6edd244e744f70556ceeab1a](https://github.com/StoneCypher/jssm/commit/e86509ae95c4fdbc6edd244e744f70556ceeab1a)
+Commit [6e18e50c78437608962be65e19b7eb9b298d55cd](https://github.com/StoneCypher/jssm/commit/6e18e50c78437608962be65e19b7eb9b298d55cd)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [6ca96102, 405f5683]
+Merges [45d40141, 6181fd95]
 
-  * Merge pull request #652 from StoneCypher/feat_26-05-27_jssm-instance-base_648
-  * feat(wc): <jssm-instance> base scaffolding (#648 scope)
-
+  * Merge main into feat_26-05-27_jssm-hook_641; keep 5.138.0
 
 
 
-&nbsp;
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 10:36:18 PM
+&nbsp;
 
-Commit [405f5683675b95fc789c8e300109955d2e718e3c](https://github.com/StoneCypher/jssm/commit/405f5683675b95fc789c8e300109955d2e718e3c)
+## [Untagged] - May 27, 2026 11:13:18 PM
+
+Commit [822d611908aa868a6987b8542625de51dc9055dd](https://github.com/StoneCypher/jssm/commit/822d611908aa868a6987b8542625de51dc9055dd)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4c95e7b4, 6ca96102]
-
-  * Merge main into feat_26-05-27_jssm-instance-base_648; keep 5.136.0
+  * chore: rebuild artifacts and docs for 5.140.0
 
 
 
@@ -196,18 +142,33 @@ Merges [4c95e7b4, 6ca96102]
 
 &nbsp;
 
-<a name="5__135__0" />
+## [Untagged] - May 27, 2026 11:12:43 PM
 
-## [5.135.0] - May 27, 2026 10:30:22 PM
-
-Commit [6ca9610253341dcda721ca28fe60f52d27924d20](https://github.com/StoneCypher/jssm/commit/6ca9610253341dcda721ca28fe60f52d27924d20)
+Commit [233ae1305f75494826b48c0bac9ace93082298f0](https://github.com/StoneCypher/jssm/commit/233ae1305f75494826b48c0bac9ace93082298f0)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [01cdd713, b92444cd]
-
-  * Merge pull request #651 from StoneCypher/feat_26-05-27_fsl-viz-synonym_647
-  * feat(wc): add <fsl-viz> synonym for <jssm-viz> (#647 stage 1)
+  * feat(wc): add data-jssm-bind + <jssm-bind> machine→DOM projection (closes #645)
+  * Wires up the fourth and final member of the declarative-tag family for
+<jssm-instance>: machine-to-DOM data projection.  Two surface forms,
+matching the established <jssm-action> shape:
+  * - Inline:    <span data-jssm-bind="<expr>" data-jssm-bind-to="<target>">
+- Dedicated: <jssm-bind selector="<css>" source="<expr>" target="<target>"/>
+  * Binding expressions: data, data.path.to.field (dotted traversal), state,
+terminal, complete, legal-actions.  Unknown expressions throw at install
+time rather than silently rendering 'undefined'.
+  * Target property selector: defaults to textContent; data-* attribute names
+go through setAttribute; everything else assigns the property directly so
+booleans like disabled/hidden/checked carry their natural semantics.
+  * Each binding is painted on connect from the machine's current state, then
+re-painted on every transition via machine.on('transition', ...) (the
+event API from #638).  Subscriptions are tracked on the host and torn
+down in disconnectedCallback.
+  * The <jssm-bind> element is registered as a hidden LitElement so the tag
+has a stable upgrade point and a place in the custom-elements registry
+without ever rendering content.
+  * 100% line/branch/function coverage on every file touched.
+  * Closes #645
 
 
 
@@ -216,12 +177,25 @@ Merges [01cdd713, b92444cd]
 
 &nbsp;
 
-## [Untagged] - May 27, 2026 10:30:07 PM
+## [Untagged] - May 27, 2026 11:06:50 PM
 
-Commit [b92444cd0c9dc6bcfb01b4f4ab83b4ba46c7d146](https://github.com/StoneCypher/jssm/commit/b92444cd0c9dc6bcfb01b4f4ab83b4ba46c7d146)
+Commit [45d40141a9d37490973a6ca8778a4ae2ee84441f](https://github.com/StoneCypher/jssm/commit/45d40141a9d37490973a6ca8778a4ae2ee84441f)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [eca7fc79, 01cdd713]
+  * chore: rebuild artifacts and docs for 5.138.0
 
-  * Merge main into feat_26-05-27_fsl-viz-synonym_647; keep 5.135.0
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - May 27, 2026 11:06:36 PM
+
+Commit [3cc73718259a27d101bfd7896bbff580feb382e5](https://github.com/StoneCypher/jssm/commit/3cc73718259a27d101bfd7896bbff580feb382e5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: rebuild artifacts and docs for 5.141.0
