@@ -35,4 +35,22 @@ describe('custom-elements.json', () => {
     expect(cem).toContain('--jssm-viz-min-height');
   });
 
+  it('declares the jssm-instance tag', () => {
+    const cem = readFileSync(cem_path, 'utf8');
+    expect(cem).toContain('"jssm-instance"');
+    expect(cem).toContain('JssmInstance');
+  });
+
+  it('documents the --current-state CSS property', () => {
+    const cem = readFileSync(cem_path, 'utf8');
+    expect(cem).toContain('--current-state');
+  });
+
+  it('documents the info-panel named slot (distinctive enough to confirm slot capture)', () => {
+    const cem = readFileSync(cem_path, 'utf8');
+    // "info-panel" is the most distinctive of the declared slot names —
+    // unlikely to collide with unrelated content in the manifest.
+    expect(cem).toContain('info-panel');
+  });
+
 });

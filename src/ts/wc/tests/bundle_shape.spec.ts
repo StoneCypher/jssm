@@ -79,6 +79,71 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
 
 });
 
+describe('dist/wc/instance.js — bundler-friendly build', () => {
+
+  const dist_path = resolve(__dirname, '../../../../dist/wc/instance.js');
+
+  it('exists after running make_wc_instance_es6', () => {
+    expect(existsSync(dist_path)).toBe(true);
+  });
+
+  it('exports the JssmInstance class identifier', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('JssmInstance');
+  });
+
+  it('contains the jssm-instance tag name string', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('jssm-instance');
+  });
+
+  it('does NOT inline Lit internals (lit is external for bundlers)', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    const lit_element_hits = (built.match(/LitElement/g) || []).length;
+    expect(lit_element_hits).toBeGreaterThan(0);
+    expect(lit_element_hits).toBeLessThan(20);
+  });
+
+  it('is reasonably small with jssm core externalized', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    // Same envelope as the viz bundler-friendly build: jssm core + lit
+    // externalized, only the component source remains inline.
+    expect(built.length).toBeLessThan(50_000);
+  });
+
+});
+
+describe('dist/cdn/instance.js — CDN-friendly build', () => {
+
+  const cdn_path = resolve(__dirname, '../../../../dist/cdn/instance.js');
+
+  it('exists after running make_wc_instance_cdn', () => {
+    expect(existsSync(cdn_path)).toBe(true);
+  });
+
+  it('contains the jssm-instance tag name string', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('jssm-instance');
+  });
+
+  it('inlines Lit (no lit imports remain)', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).not.toMatch(/from\s+['"]lit['"]/);
+    expect(built).not.toMatch(/from\s+['"]lit\/decorators\.js['"]/);
+  });
+
+  it('calls customElements.define for jssm-instance', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('customElements.define');
+  });
+
+  it('stays under the 10 MB regression-guard ceiling', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built.length).toBeLessThan(10_000_000);
+  });
+
+});
+
 describe('package.json exposure', () => {
 
   const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../../../package.json'), 'utf8'));
@@ -87,6 +152,24 @@ describe('package.json exposure', () => {
     const json = JSON.stringify(pkg.exports);
     expect(json).toContain('./wc/viz');
     expect(json).toContain('./dist/wc/viz.js');
+  });
+
+  it('exposes the wc/instance subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/instance');
+    expect(json).toContain('./dist/wc/instance.js');
+  });
+
+  it('exposes the wc/instance/define subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/instance/define');
+    expect(json).toContain('./dist/wc/instance.define.js');
+  });
+
+  it('exposes the cdn/instance subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./cdn/instance');
+    expect(json).toContain('./dist/cdn/instance.js');
   });
 
   it('exposes the wc/viz/define subpath', () => {
@@ -118,6 +201,9 @@ describe('package.json exposure', () => {
     expect(json).toContain('dist/wc/viz.js');
     expect(json).toContain('dist/wc/viz.define.js');
     expect(json).toContain('dist/cdn/viz.js');
+    expect(json).toContain('dist/wc/instance.js');
+    expect(json).toContain('dist/wc/instance.define.js');
+    expect(json).toContain('dist/cdn/instance.js');
     expect(json).toContain('custom-elements.json');
   });
 
