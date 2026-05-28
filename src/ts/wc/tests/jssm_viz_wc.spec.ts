@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import '../jssm_viz_wc.define';
+import { FslViz, JssmViz as JssmVizFromDefine } from '../jssm_viz_wc.define';
 import { JssmViz, normalize_viz_error } from '../jssm_viz_wc';
 
 describe('JssmViz registration', () => {
@@ -16,6 +16,34 @@ describe('JssmViz registration', () => {
     expect(el).toBeInstanceOf(JssmViz);
   });
 
+  it('re-exports the same JssmViz from the define module', () => {
+    expect(JssmVizFromDefine).toBe(JssmViz);
+  });
+
+});
+
+describe('FslViz synonym registration', () => {
+
+  it('registers the fsl-viz tag', () => {
+    expect(customElements.get('fsl-viz')).toBe(FslViz);
+  });
+
+  it('creates a fsl-viz element with createElement', () => {
+    const el = document.createElement('fsl-viz');
+    expect(el).toBeInstanceOf(FslViz);
+    // The synonym is a subclass, so fsl-viz instances are also JssmViz
+    // instances. This is the key invariant that keeps behavior identical.
+    expect(el).toBeInstanceOf(JssmViz);
+  });
+
+  it('FslViz is a subclass of JssmViz, not the same constructor', () => {
+    // The empty-subclass pattern is the only way to register the same class
+    // under two tag names — customElements.define requires a distinct
+    // constructor per tag. The subclass adds no behavior of its own.
+    expect(FslViz).not.toBe(JssmViz);
+    expect(Object.getPrototypeOf(FslViz)).toBe(JssmViz);
+  });
+
 });
 
 describe('JssmViz re-registration', () => {
@@ -25,14 +53,18 @@ describe('JssmViz re-registration', () => {
     // at the top of this file already registered the element, so re-evaluating
     // the define module must find it present and skip customElements.define
     // (a second define of the same name would throw a NotSupportedError).
-    const before = customElements.get('jssm-viz');
-    expect(before).toBe(JssmViz);
+    // Same path is exercised for fsl-viz by the same module.
+    const before_jssm = customElements.get('jssm-viz');
+    const before_fsl  = customElements.get('fsl-viz');
+    expect(before_jssm).toBe(JssmViz);
+    expect(before_fsl).toBe(FslViz);
 
     vi.resetModules();
     await expect(import('../jssm_viz_wc.define')).resolves.toBeDefined();
 
-    // Still the same constructor; nothing was re-registered or clobbered.
-    expect(customElements.get('jssm-viz')).toBe(before);
+    // Still the same constructors; nothing was re-registered or clobbered.
+    expect(customElements.get('jssm-viz')).toBe(before_jssm);
+    expect(customElements.get('fsl-viz')).toBe(before_fsl);
   });
 
 });
@@ -195,6 +227,58 @@ describe('JssmViz rendering', () => {
 
     expect(el._svg).not.toContain('StaleStart');
     expect(el._svg).not.toContain('<svg');
+
+    document.body.removeChild(el);
+  });
+
+  it('fsl-viz synonym renders identically to jssm-viz for the same fsl', async () => {
+    // The whole point of the synonym: given the same fsl, both tags must
+    // produce an SVG that contains the same state names. This guards against
+    // any future divergence sneaking into the FslViz subclass.
+    const jssm_el = document.createElement('jssm-viz');
+    const fsl_el  = document.createElement('fsl-viz');
+    document.body.appendChild(jssm_el);
+    document.body.appendChild(fsl_el);
+
+    const source = 'Off -> On;';
+    jssm_el.fsl = source;
+    fsl_el.fsl  = source;
+
+    await (jssm_el as any).updateComplete;
+    await (fsl_el  as any).updateComplete;
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await (jssm_el as any).updateComplete;
+    await (fsl_el  as any).updateComplete;
+
+    const jssm_html = jssm_el.shadowRoot!.innerHTML;
+    const fsl_html  = fsl_el.shadowRoot!.innerHTML;
+
+    expect(jssm_html).toContain('<svg');
+    expect(fsl_html).toContain('<svg');
+    expect(jssm_html).toContain('Off');
+    expect(fsl_html).toContain('Off');
+    expect(jssm_html).toContain('On');
+    expect(fsl_html).toContain('On');
+
+    document.body.removeChild(jssm_el);
+    document.body.removeChild(fsl_el);
+  });
+
+  it('fsl-viz fires viz-error on bad fsl just like jssm-viz', async () => {
+    // Confirms the synonym inherits the error path unchanged.
+    const el = document.createElement('fsl-viz');
+    document.body.appendChild(el);
+
+    const errorEvent: Promise<CustomEvent> = new Promise(resolve => {
+      el.addEventListener('viz-error', e => resolve(e as CustomEvent), { once: true });
+    });
+
+    (el as any).fsl = 'this is not valid fsl !!!';
+
+    const evt = await errorEvent;
+    expect(evt.type).toBe('viz-error');
+    expect(typeof evt.detail.message).toBe('string');
+    expect(evt.detail.message.length).toBeGreaterThan(0);
 
     document.body.removeChild(el);
   });

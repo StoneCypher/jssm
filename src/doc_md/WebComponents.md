@@ -1,6 +1,6 @@
 # Web Components
 
-`jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<jssm-viz>`. Additional widgets (`<jssm-editor>`, `<jssm-playground>`) follow in later releases.
+`jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<jssm-viz>` (also available under the synonym tag `<fsl-viz>` — both render identically). Additional widgets (`<jssm-editor>`, `<jssm-playground>`) follow in later releases.
 
 ## Quick start — CDN
 
@@ -29,10 +29,11 @@ Side-effect import that registers the tag:
 import 'jssm/wc/viz/define';
 ```
 
-Then anywhere in your markup:
+Then anywhere in your markup (`<fsl-viz>` is a synonym that renders identically):
 
 ```html
 <jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+<fsl-viz  fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
 ## Class export — rename or subclass
