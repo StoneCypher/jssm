@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.135.0",
+  "version": "5.136.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -57,7 +57,16 @@
       "import": "./dist/wc/viz.define.js",
       "default": "./dist/wc/viz.define.js"
     },
+    "./wc/instance": {
+      "import": "./dist/wc/instance.js",
+      "default": "./dist/wc/instance.js"
+    },
+    "./wc/instance/define": {
+      "import": "./dist/wc/instance.define.js",
+      "default": "./dist/wc/instance.define.js"
+    },
     "./cdn/viz": "./dist/cdn/viz.js",
+    "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
   },
   "autoupdate": {
@@ -86,7 +95,10 @@
     "dist/jssm_viz.mjs",
     "dist/wc/viz.js",
     "dist/wc/viz.define.js",
+    "dist/wc/instance.js",
+    "dist/wc/instance.define.js",
     "dist/cdn/viz.js",
+    "dist/cdn/instance.js",
     "dist/deno/jssm.js",
     "dist/deno/*.d.ts",
     "dist/deno/README.md",
@@ -126,10 +138,12 @@
     "make_viz": "rollup -c rollup.config.viz.js",
     "make_wc_viz_es6": "rollup -c rollup.config.wc.viz.es6.js",
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
+    "make_wc_instance_es6": "rollup -c rollup.config.wc.instance.es6.js",
+    "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
-    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
+    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",

@@ -4,6 +4,194 @@
   "modules": [
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/jssm_instance_wc.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "resolve_fsl_source",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "text": "HTMLElement"
+              },
+              "description": "The `<jssm-instance>` element being resolved."
+            },
+            {
+              "name": "fsl_attr",
+              "type": {
+                "text": "string"
+              },
+              "description": "The current value of the host's `fsl` attribute (or property), or empty string."
+            }
+          ],
+          "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\nelement's own text content (after stripping the script and any\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\nnone or more than one is an error.\n\nPulled out as a pure function so it's testable without spinning up a\nLit element.\n\n```typescript\nconst div = document.createElement('div');\ndiv.setAttribute('fsl', 'Off -> On;');\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\n```"
+        },
+        {
+          "kind": "class",
+          "description": "Web component that owns a single `Machine<unknown>` constructed from an\nFSL source supplied via one of three mutually exclusive channels:\n\n  1. The `fsl=\"\"` attribute,\n  2. A child `<script type=\"text/fsl\">`,\n  3. The element's own text content (companion `<jssm-*>` children and\n     any `<script type=\"text/fsl\">` are excluded from this channel).\n\nSupplying zero or more than one channel is a thrown error.\n\nOn every transition the component reflects machine state to its own\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\nand sets a `--current-state` CSS custom property so consumer CSS can\nstyle by state without subclassing.",
+          "name": "JssmInstance",
+          "cssProperties": [
+            {
+              "description": "The machine's current state name as a CSS string token.",
+              "name": "--current-state"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Heading area for the instance.",
+              "name": "title"
+            },
+            {
+              "description": "Visualization slot; fallback is a placeholder string.",
+              "name": "viz"
+            },
+            {
+              "description": "Editor surface slot.",
+              "name": "editor"
+            },
+            {
+              "description": "Slot for action buttons / UI.",
+              "name": "actions"
+            },
+            {
+              "description": "Slot for toolbar UI.",
+              "name": "toolbar"
+            },
+            {
+              "description": "Slot for an info / status panel.",
+              "name": "info-panel"
+            },
+            {
+              "description": "Footer slot.",
+              "name": "footer"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "fsl",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "attribute": "fsl"
+            },
+            {
+              "kind": "field",
+              "name": "_machine",
+              "type": {
+                "text": "Machine<unknown> | undefined"
+              },
+              "privacy": "private",
+              "default": "undefined",
+              "description": "The underlying machine instance, constructed at `connectedCallback`.\nExposed raw (not proxied) per the #639/#648 design decision so that\nconsumers can use the full Machine API directly.\n\nMarked optional because Lit will instantiate the element before\n`connectedCallback` runs; the instance is guaranteed present after\nconnection."
+            },
+            {
+              "kind": "field",
+              "name": "machine",
+              "type": {
+                "text": "Machine<unknown>"
+              },
+              "description": "Raw machine accessor.  Returns the owned Machine instance.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "do",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "parameters": [
+                {
+                  "name": "action",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "The action name to dispatch."
+                },
+                {
+                  "name": "data",
+                  "optional": true,
+                  "type": {
+                    "text": "unknown"
+                  },
+                  "description": "Optional data payload to pass to the action."
+                }
+              ],
+              "description": "Convenience wrapper for `machine.action(action, data)`.\nAfter the action, reflects updated state to host attributes and the\n`--current-state` CSS custom property, and requests a Lit update so\nthe state-specific `<slot name=\"state-...\">` can re-pick."
+            },
+            {
+              "kind": "method",
+              "name": "state",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "description": "Convenience wrapper for `machine.state()`.  Returns the current\nstate's name."
+            },
+            {
+              "kind": "method",
+              "name": "_paint_state_reflection",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Reflect machine state onto host attributes and CSS custom properties.\nCalled after every transition and once during `connectedCallback`.\n\nMechanism 1 (#639): writes to host attributes.\nMechanism 3 (#639): writes to host inline-style custom properties."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "FSL source attribute.  When non-empty, this is the sole channel\nsupplying the machine's source.  Setting both this and a child\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
+              "fieldName": "fsl"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "jssm-instance",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "resolve_fsl_source",
+          "declaration": {
+            "name": "resolve_fsl_source",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "JssmInstance",
+          "declaration": {
+            "name": "JssmInstance",
+            "module": "src/ts/wc/jssm_instance_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/jssm_viz_wc.ts",
       "declarations": [
         {
