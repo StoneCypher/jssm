@@ -1,5 +1,11 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { Machine, sm } from '../jssm.js';
+import {
+  JssmHookRegistry,
+  build_hook_descriptor,
+  parse_hook_element,
+  wrap_user_handler,
+} from './jssm_hook_wc.js';
 
 /**
  * Internal record describing the result of resolving a `<jssm-instance>`'s
@@ -155,6 +161,38 @@ export class JssmInstance extends LitElement {
   private _machine: Machine<unknown> | undefined = undefined;
 
   /**
+   * Per-instance registry of named hook handlers consulted before
+   * `globalThis` when resolving `<jssm-hook handler="name">`.
+   *
+   * Initialized to an empty `Map`; consumers may populate it before the
+   * element connects to provide handlers without polluting global scope —
+   * useful for module-scoped SPAs where strict CSP blocks inline-body hooks.
+   *
+   * @see {@link parse_hook_element}
+   */
+  readonly registry: JssmHookRegistry = new Map();
+
+  /**
+   * Descriptors for hooks this WC installed at connect time, used in
+   * `disconnectedCallback` to call `remove_hook` for each so the underlying
+   * machine doesn't leak handlers when the element is detached.
+   *
+   * Captured at install time because `remove_hook` matches by descriptor
+   * shape (not handler identity), and we need to record the wrapped handler
+   * we passed to `set_hook` to undo the registration cleanly.  Stored as
+   * `unknown[]` and cast at the call site because jssm's `HookDescription`
+   * is a discriminated union whose discriminator is only known at runtime.
+   */
+  private _installed_hooks: unknown[] = [];
+
+  /**
+   * Counter used to give each compiled inline-body hook a unique debug id
+   * for its `//# sourceURL=jssm-hook:N` annotation.  Per-instance so that
+   * multiple `<jssm-instance>` elements on a page don't share numbering.
+   */
+  private _hook_debug_counter = 0;
+
+  /**
    * Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`
    * discovery so {@link disconnectedCallback} can remove each one with the
    * same handler reference originally passed to `addEventListener`.
@@ -251,22 +289,87 @@ export class JssmInstance extends LitElement {
 
     // TODO #638: subscribe to machine.on('transition', ...) once available
     //            and dispatch DOM CustomEvents from this element.
-    // TODO #641: <jssm-hook> discovery happens here.
+
+    // #641: <jssm-hook> declarative discovery.
+    this._install_declarative_hooks();
+
     // TODO #643: <jssm-on> discovery happens here.
     this._discover_jssm_actions();
     // TODO #645: <jssm-bind> discovery happens here.
   }
 
   /**
-   * Lifecycle hook.  Cleans up any installed subscriptions.  Currently a
-   * no-op (no subscriptions are installed in the base scaffolding) — the
-   * empty body is intentional so the future tickets #638/#641/#643/#645
-   * have a single canonical hook to extend.
+   * Discover every direct-child `<jssm-hook>` element and install each
+   * against the owned machine.  Handlers are wrapped with the friendly-proxy
+   * adapter that lets user code write `m.data = ...` and return `false` to
+   * cancel — see {@link make_hook_proxy} and the issue (#641) doc-comment
+   * for the full contract.
+   *
+   * Direct children only (the `:scope > jssm-hook` selector) so that nested
+   * `<jssm-instance>` elements don't have their child hooks installed on
+   * the outer machine.
+   *
+   * Tracks every installed descriptor in `_installed_hooks` so that
+   * `disconnectedCallback` can remove them on detach.
+   *
+   * @throws Error - On a malformed `<jssm-hook>` (mutual-exclusion violation,
+   *                 unknown kind, unresolved name, or jssm's own missing-key
+   *                 errors from `set_hook`).
+   */
+  private _install_declarative_hooks(): void {
+
+    const machine = this._machine as Machine<unknown>;
+
+    const hook_els = this.querySelectorAll<HTMLElement>(':scope > jssm-hook');
+    for (const el of Array.from(hook_els)) {
+
+      const debug_id = `${this._hook_id_prefix()}${++this._hook_debug_counter}`;
+      const spec     = parse_hook_element(el, debug_id, this.registry);
+
+      const wrapped = wrap_user_handler(spec, machine);
+      const desc    = build_hook_descriptor(spec, wrapped);
+
+      // `desc` is shaped from runtime kind discrimination; jssm's typed
+      // `HookDescription` is a static discriminated union that TS can't
+      // unify with our runtime-built object, hence the cast.
+      machine.set_hook(desc as Parameters<Machine<unknown>['set_hook']>[0]);
+      this._installed_hooks.push(desc);
+
+    }
+
+  }
+
+  /**
+   * Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations
+   * for inline-body hooks compiled by this element.  Includes the element's
+   * `id` when present so multi-instance pages can tell sources apart in
+   * devtools.
+   */
+  private _hook_id_prefix(): string {
+    const host_id = this.getAttribute('id');
+    return host_id !== null && host_id.length > 0 ? `${host_id}-` : '';
+  }
+
+  /**
+   * Lifecycle hook.  Removes every hook this WC installed via
+   * `<jssm-hook>` discovery so the underlying machine doesn't leak handlers
+   * when the element detaches.  Called automatically by the browser; the
+   * machine itself is not destroyed (consumers can reuse it).
+   *
+   * Future tickets #638/#643/#645 will extend this to drop other
+   * subscriptions / listeners installed by their respective tags.
    */
   disconnectedCallback(): void {
     super.disconnectedCallback();
     // TODO #638: unsubscribe from machine.on(...) handlers.
-    // TODO #641: remove installed hooks.
+    // #641: remove installed hooks.
+    if (this._machine !== undefined) {
+      const machine = this._machine;
+      for (const desc of this._installed_hooks) {
+        machine.remove_hook(desc as Parameters<Machine<unknown>['remove_hook']>[0]);
+      }
+    }
+    this._installed_hooks = [];
     // TODO #643/#645: remove installed listeners / bindings.
 
     // Remove every listener installed during `<jssm-action>` / `data-jssm-action`

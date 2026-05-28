@@ -1,5 +1,6 @@
 import { LitElement, TemplateResult } from 'lit';
 import { Machine } from '../jssm.js';
+import { JssmHookRegistry } from './jssm_hook_wc.js';
 /**
  * Internal record describing the result of resolving a `<jssm-instance>`'s
  * FSL source.  Exactly one of `fsl` is populated on success; otherwise
@@ -80,6 +81,35 @@ export declare class JssmInstance extends LitElement {
      */
     private _machine;
     /**
+     * Per-instance registry of named hook handlers consulted before
+     * `globalThis` when resolving `<jssm-hook handler="name">`.
+     *
+     * Initialized to an empty `Map`; consumers may populate it before the
+     * element connects to provide handlers without polluting global scope —
+     * useful for module-scoped SPAs where strict CSP blocks inline-body hooks.
+     *
+     * @see {@link parse_hook_element}
+     */
+    readonly registry: JssmHookRegistry;
+    /**
+     * Descriptors for hooks this WC installed at connect time, used in
+     * `disconnectedCallback` to call `remove_hook` for each so the underlying
+     * machine doesn't leak handlers when the element is detached.
+     *
+     * Captured at install time because `remove_hook` matches by descriptor
+     * shape (not handler identity), and we need to record the wrapped handler
+     * we passed to `set_hook` to undo the registration cleanly.  Stored as
+     * `unknown[]` and cast at the call site because jssm's `HookDescription`
+     * is a discriminated union whose discriminator is only known at runtime.
+     */
+    private _installed_hooks;
+    /**
+     * Counter used to give each compiled inline-body hook a unique debug id
+     * for its `//# sourceURL=jssm-hook:N` annotation.  Per-instance so that
+     * multiple `<jssm-instance>` elements on a page don't share numbering.
+     */
+    private _hook_debug_counter;
+    /**
      * Records every DOM listener installed by `<jssm-action>` / `data-jssm-action`
      * discovery so {@link disconnectedCallback} can remove each one with the
      * same handler reference originally passed to `addEventListener`.
@@ -137,10 +167,39 @@ export declare class JssmInstance extends LitElement {
      */
     connectedCallback(): void;
     /**
-     * Lifecycle hook.  Cleans up any installed subscriptions.  Currently a
-     * no-op (no subscriptions are installed in the base scaffolding) — the
-     * empty body is intentional so the future tickets #638/#641/#643/#645
-     * have a single canonical hook to extend.
+     * Discover every direct-child `<jssm-hook>` element and install each
+     * against the owned machine.  Handlers are wrapped with the friendly-proxy
+     * adapter that lets user code write `m.data = ...` and return `false` to
+     * cancel — see {@link make_hook_proxy} and the issue (#641) doc-comment
+     * for the full contract.
+     *
+     * Direct children only (the `:scope > jssm-hook` selector) so that nested
+     * `<jssm-instance>` elements don't have their child hooks installed on
+     * the outer machine.
+     *
+     * Tracks every installed descriptor in `_installed_hooks` so that
+     * `disconnectedCallback` can remove them on detach.
+     *
+     * @throws Error - On a malformed `<jssm-hook>` (mutual-exclusion violation,
+     *                 unknown kind, unresolved name, or jssm's own missing-key
+     *                 errors from `set_hook`).
+     */
+    private _install_declarative_hooks;
+    /**
+     * Prefix used in synthetic `//# sourceURL=jssm-hook:<prefix><n>` annotations
+     * for inline-body hooks compiled by this element.  Includes the element's
+     * `id` when present so multi-instance pages can tell sources apart in
+     * devtools.
+     */
+    private _hook_id_prefix;
+    /**
+     * Lifecycle hook.  Removes every hook this WC installed via
+     * `<jssm-hook>` discovery so the underlying machine doesn't leak handlers
+     * when the element detaches.  Called automatically by the browser; the
+     * machine itself is not destroyed (consumers can reuse it).
+     *
+     * Future tickets #638/#643/#645 will extend this to drop other
+     * subscriptions / listeners installed by their respective tags.
      */
     disconnectedCallback(): void;
     /**
