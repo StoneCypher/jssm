@@ -26,6 +26,7 @@ import {
   JssmPropertyDefinition,
   FslDirection, FslDirections, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler,
+  JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
   JssmBaseTheme,
   JssmRng
 
@@ -71,6 +72,21 @@ import { version, build_time } from './version';    // replaced from package.js 
 import { JssmError }           from './jssm_error';
 
 
+
+
+
+/**
+ *  Internal record holding a single registered event subscription: the
+ *  handler, its optional filter, and a flag for `once` semantics.  Not
+ *  exported.
+ *
+ *  @internal
+ */
+type JssmEventEntry<mDT, Ev extends JssmEventName> = {
+  handler : JssmEventHandler<mDT, Ev>,
+  filter? : JssmEventFilter<mDT, Ev>,
+  once    : boolean
+};
 
 
 
@@ -413,6 +429,12 @@ class Machine<mDT> {
   _timeout_target       : string | undefined;
   _timeout_target_time  : number | undefined;
 
+  // Typed event registry: a small in-house `Map<EventName, Set<EventEntry>>`
+  // chosen over Node's `EventEmitter` so the bundle stays browser-clean and
+  // the per-event detail typing is preserved.  See #638.
+  _event_handlers : Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
+  _firing_error   : boolean;  // re-entry guard for the `error` event
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
@@ -584,6 +606,9 @@ class Machine<mDT> {
     this._timeout_target_time           = undefined;
 
     this._after_mapping                 = new Map();
+
+    this._event_handlers                = new Map();
+    this._firing_error                  = false;
 
 
     // consolidate the state declarations
@@ -2254,6 +2279,223 @@ class Machine<mDT> {
 
 
 
+  /**
+   *  Subscribe to a typed observation event.  Hooks (`set_hook` and friends)
+   *  intercept and may cancel a transition; events fire alongside the same
+   *  state-machine moments but cannot influence the outcome.  This is the
+   *  surface most users actually want for "tell me when state changes".
+   *
+   *  Handlers run synchronously, in registration order.  A throwing handler
+   *  does not block subsequent handlers — its exception is caught and
+   *  re-emitted as an `error` event whose detail names the original event
+   *  and the offending handler.
+   *
+   *  ```typescript
+   *  const m = sm`a -> b -> c;`;
+   *
+   *  m.on('transition', e => console.log(`${e.from} -> ${e.to}`));
+   *  m.on('entry', { state: 'b' }, e => console.log(`entered ${e.state}`));
+   *
+   *  const off = m.on('transition', () => {});
+   *  off();  // unsubscribe
+   *  ```
+   *
+   *  @typeparam Ev      The event name (drives the detail type).
+   *  @param name        The event name to subscribe to.
+   *  @param filterOrFn  Either a filter object or, when calling the no-filter
+   *                     form, the handler itself.
+   *  @param maybeFn     The handler, when a filter object was supplied.
+   *  @returns A function that unsubscribes when called.
+   *
+   *  @see Machine.off
+   *  @see Machine.once
+   */
+  on<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+  on<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+  on<Ev extends JssmEventName>(
+    name: Ev,
+    filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
+    maybeFn?: JssmEventHandler<mDT, Ev>
+  ): JssmUnsubscribe {
+    return this._subscribe(name, filterOrFn, maybeFn, false);
+  }
+
+
+
+  /**
+   *  Subscribe to a typed observation event for one matching delivery, then
+   *  auto-remove.  Accepts the same `(name, handler)` and `(name, filter,
+   *  handler)` shapes as {@link Machine.on}.
+   *
+   *  ```typescript
+   *  m.once('terminal', e => console.log(`done at ${e.state}`));
+   *  ```
+   *
+   *  @typeparam Ev      The event name.
+   *  @param name        The event name.
+   *  @param filterOrFn  A filter object or the handler (no-filter form).
+   *  @param maybeFn     The handler, when a filter was supplied.
+   *  @returns A function that unsubscribes early if called before the
+   *           handler has fired.
+   *
+   *  @see Machine.on
+   *  @see Machine.off
+   */
+  once<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+  once<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+  once<Ev extends JssmEventName>(
+    name: Ev,
+    filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
+    maybeFn?: JssmEventHandler<mDT, Ev>
+  ): JssmUnsubscribe {
+    return this._subscribe(name, filterOrFn, maybeFn, true);
+  }
+
+
+
+  /**
+   *  Remove a previously-registered event handler.  Match is by reference —
+   *  the same function value passed to {@link Machine.on} or
+   *  {@link Machine.once}.  Returns `true` if a subscription was found and
+   *  removed, `false` otherwise.
+   *
+   *  ```typescript
+   *  const fn = (e: any) => console.log(e);
+   *  m.on('transition', fn);
+   *  m.off('transition', fn);  // true
+   *  m.off('transition', fn);  // false
+   *  ```
+   *
+   *  @param name    The event name.
+   *  @param handler The handler reference to remove.
+   *  @returns `true` if removed, `false` if no match was registered.
+   */
+  off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean {
+    const set = this._event_handlers.get(name);
+    if (set === undefined) { return false; }
+    for (const entry of set) {
+      if (entry.handler === handler) {
+        set.delete(entry);
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+
+  /**
+   *  Shared registration core used by {@link Machine.on} and
+   *  {@link Machine.once}.  Normalizes the optional filter argument and
+   *  installs the entry into the per-event subscription set.
+   *
+   *  @internal
+   */
+  _subscribe<Ev extends JssmEventName>(
+    name: Ev,
+    filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>,
+    maybeFn: JssmEventHandler<mDT, Ev> | undefined,
+    once: boolean
+  ): JssmUnsubscribe {
+
+    let filter: JssmEventFilter<mDT, Ev> | undefined;
+    let handler: JssmEventHandler<mDT, Ev>;
+
+    if (typeof filterOrFn === 'function') {
+      filter  = undefined;
+      handler = filterOrFn as JssmEventHandler<mDT, Ev>;
+    } else {
+      filter  = filterOrFn;
+      handler = maybeFn as JssmEventHandler<mDT, Ev>;
+    }
+
+    if (typeof handler !== 'function') {
+      throw new JssmError(this, `event handler for "${name}" must be a function`);
+    }
+
+    let set = this._event_handlers.get(name);
+    if (set === undefined) {
+      set = new Set();
+      this._event_handlers.set(name, set);
+    }
+
+    const entry: JssmEventEntry<mDT, Ev> = { handler, filter, once };
+    set.add(entry);
+
+    return () => { set!.delete(entry); };
+  }
+
+
+
+  /**
+   *  Dispatch an event to every registered subscriber in registration
+   *  order.  Filters are checked first; non-matching handlers are skipped
+   *  without invoking the handler.  Exceptions thrown by a handler are
+   *  caught and re-emitted as an `error` event so subsequent handlers
+   *  still run.
+   *
+   *  Re-entry into the `error` event itself is guarded — if an `error`
+   *  handler throws, the new exception is swallowed rather than rebroadcast
+   *  to avoid an infinite loop.
+   *
+   *  @internal
+   */
+  _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void {
+
+    const set = this._event_handlers.get(name);
+    if (set === undefined || set.size === 0) { return; }
+
+    // Snapshot so handlers can `off()` mid-loop without disturbing iteration.
+    const entries = Array.from(set);
+
+    for (const entry of entries) {
+
+      // filter check
+      if (entry.filter !== undefined) {
+        let matched = true;
+        for (const k of Object.keys(entry.filter)) {
+          if ((entry.filter as any)[k] !== (detail as any)[k]) {
+            matched = false;
+            break;
+          }
+        }
+        if (!matched) { continue; }
+      }
+
+      // once removal happens BEFORE invocation so a throwing handler still
+      // gets removed and so re-entrant `on` calls during the handler see
+      // the post-removal state.
+      if (entry.once) { set.delete(entry); }
+
+      try {
+        entry.handler(detail);
+      } catch (err) {
+        if (name === 'error' || this._firing_error) {
+          // surface to stderr as a last resort but never recurse;
+          // `console` is in the JS standard library and present in every
+          // supported runtime, so guarding it would just add an untestable
+          // branch.  See #638.
+          // eslint-disable-next-line no-console
+          console.error(err);
+        } else {
+          this._firing_error = true;
+          try {
+            this._fire('error', {
+              error         : err,
+              source_event  : name,
+              source_detail : detail,
+              handler       : entry.handler as unknown as Function
+            });
+          } finally {
+            this._firing_error = false;
+          }
+        }
+      }
+    }
+  }
+
+
+
   /** Low-level hook registration.  Installs a handler described by a
    *  {@link HookDescription} into the appropriate internal map.  Prefer the
    *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
@@ -2450,6 +2692,172 @@ class Machine<mDT> {
         throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
 
     }
+
+    // fire the registration event for inspector tools (#638)
+    this._fire('hook-registration', { description: HookDesc });
+  }
+
+
+
+  /**
+   *  Remove a previously-registered hook described by a
+   *  {@link HookDescription}.  Match is by `kind` + identifying keys
+   *  (`from`/`to`/`action`/etc.), not by handler reference — there is one
+   *  hook per slot in the registry, so the description uniquely identifies
+   *  which one to clear.  Fires a `hook-removal` event for inspector tools.
+   *
+   *  This is the symmetric counterpart of {@link Machine.set_hook} for the
+   *  event-bridging use case (#638).  Reasoning about hooks via observation
+   *  events requires being able to observe their disappearance too.
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  const fn = () => true;
+   *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+   *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+   *  ```
+   *
+   *  @param HookDesc - A hook descriptor identifying the hook to remove.
+   *  @returns `true` if a hook was removed, `false` otherwise.
+   */
+  remove_hook(HookDesc: HookDescription<mDT>): boolean {
+
+    let removed = false;
+
+    switch (HookDesc.kind) {
+
+      case 'hook': {
+        const inner = this._hooks.get(HookDesc.from);
+        if (inner !== undefined && inner.has(HookDesc.to)) {
+          inner.delete(HookDesc.to);
+          removed = true;
+        }
+        break;
+      }
+
+      case 'named': {
+        const inner = this._named_hooks.get(HookDesc.from);
+        const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
+        if (inner2 !== undefined && inner2.has(HookDesc.action)) {
+          inner2.delete(HookDesc.action);
+          removed = true;
+        }
+        break;
+      }
+
+      case 'global action':
+        removed = this._global_action_hooks.delete(HookDesc.action);
+        break;
+
+      case 'any action':
+        if (this._any_action_hook !== undefined) { this._any_action_hook = undefined; removed = true; }
+        break;
+
+      case 'standard transition':
+        if (this._standard_transition_hook !== undefined) { this._standard_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'main transition':
+        if (this._main_transition_hook !== undefined) { this._main_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'forced transition':
+        if (this._forced_transition_hook !== undefined) { this._forced_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'any transition':
+        if (this._any_transition_hook !== undefined) { this._any_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'entry':
+        removed = this._entry_hooks.delete(HookDesc.to);
+        break;
+
+      case 'exit':
+        removed = this._exit_hooks.delete(HookDesc.from);
+        break;
+
+      case 'after':
+        removed = this._after_hooks.delete(HookDesc.from);
+        break;
+
+      case 'post hook': {
+        const inner = this._post_hooks.get(HookDesc.from);
+        if (inner !== undefined && inner.has(HookDesc.to)) {
+          inner.delete(HookDesc.to);
+          removed = true;
+        }
+        break;
+      }
+
+      case 'post named': {
+        const inner = this._post_named_hooks.get(HookDesc.from);
+        const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
+        if (inner2 !== undefined && inner2.has(HookDesc.action)) {
+          inner2.delete(HookDesc.action);
+          removed = true;
+        }
+        break;
+      }
+
+      case 'post global action':
+        removed = this._post_global_action_hooks.delete(HookDesc.action);
+        break;
+
+      case 'post any action':
+        if (this._post_any_action_hook !== undefined) { this._post_any_action_hook = undefined; removed = true; }
+        break;
+
+      case 'post standard transition':
+        if (this._post_standard_transition_hook !== undefined) { this._post_standard_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'post main transition':
+        if (this._post_main_transition_hook !== undefined) { this._post_main_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'post forced transition':
+        if (this._post_forced_transition_hook !== undefined) { this._post_forced_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'post any transition':
+        if (this._post_any_transition_hook !== undefined) { this._post_any_transition_hook = undefined; removed = true; }
+        break;
+
+      case 'post entry':
+        removed = this._post_entry_hooks.delete(HookDesc.to);
+        break;
+
+      case 'post exit':
+        removed = this._post_exit_hooks.delete(HookDesc.from);
+        break;
+
+      case 'pre everything':
+        if (this._pre_everything_hook !== undefined) { this._pre_everything_hook = undefined; removed = true; }
+        break;
+
+      case 'everything':
+        if (this._everything_hook !== undefined) { this._everything_hook = undefined; removed = true; }
+        break;
+
+      case 'pre post everything':
+        if (this._pre_post_everything_hook !== undefined) { this._pre_post_everything_hook = undefined; removed = true; }
+        break;
+
+      case 'post everything':
+        if (this._post_everything_hook !== undefined) { this._post_everything_hook = undefined; removed = true; }
+        break;
+
+      default:
+        throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+
+    }
+
+    if (removed) {
+      this._fire('hook-removal', { description: HookDesc });
+    }
+
+    return removed;
   }
 
 
@@ -2937,8 +3345,25 @@ class Machine<mDT> {
     if (this.allows_override) {
 
       if (this._states.has(newState)) {
+        const fromState = this._state;
+        const oldData   = this._data;
         this._state = newState;
         this._data  = newData;
+        this._fire('override', {
+          from     : fromState,
+          to       : newState,
+          old_data : oldData,
+          new_data : newData
+        });
+        if (oldData !== newData) {
+          this._fire('data-change', {
+            from     : fromState,
+            to       : newState,
+            old_data : oldData,
+            new_data : newData,
+            cause    : 'override'
+          });
+        }
       } else {
         throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
       }
@@ -3040,6 +3465,23 @@ class Machine<mDT> {
       trans_type
     };
 
+    // 'action' event fires when an action is attempted, regardless of whether
+    // it ultimately succeeds — matches the issue spec for observation events.
+    if (wasAction) {
+      this._fire('action', {
+        action    : newStateOrAction,
+        from      : this._state,
+        to        : newState,
+        data      : this._data,
+        next_data : newData
+      });
+    }
+
+    // Captured pre-transition source state so 'data-change' detail and similar
+    // events can name where we came from.
+    const fromState: StateType = this._state;
+    const oldData: mDT         = this._data;
+
 
     if (valid) {
 
@@ -3058,22 +3500,35 @@ class Machine<mDT> {
 
         let data_changed = false;
 
+        const fire_rejection = (hook_name: string) => {
+          this._fire('rejection', {
+            from      : fromState,
+            to        : newState,
+            action    : fromAction,
+            data      : oldData,
+            next_data : newData,
+            reason    : 'hook',
+            hook_name,
+            forced    : wasForced
+          });
+        };
+
         // 0. pre everything hook (fires before all other pre-hooks)
         if (this._pre_everything_hook !== undefined) {
           const outcome = abstract_everything_hook_step(this._pre_everything_hook, { ...hook_args, hook_name: 'pre everything' });
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('pre everything'); return false; }
           update_fields(outcome);
         }
 
         if (wasAction) {
           // 1a. any action hook
           const outcome = abstract_hook_step(this._any_action_hook, hook_args);
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('any action'); return false; }
           update_fields(outcome);
 
           // 1b. global specific action hook
           const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
-          if (outcome2.pass === false) { return false; }
+          if (outcome2.pass === false) { fire_rejection('global action'); return false; }
           update_fields(outcome2);
         }
 
@@ -3088,14 +3543,14 @@ class Machine<mDT> {
         // 3. any transition hook
         if (this._any_transition_hook !== undefined) {
           const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('any transition'); return false; }
           update_fields(outcome);
         }
 
         // 4. exit hook
         if (this._has_exit_hooks) {
           const outcome = abstract_hook_step(this._exit_hooks.get(this._state), hook_args);
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('exit'); return false; }
           update_fields(outcome);
         }
 
@@ -3110,7 +3565,7 @@ class Machine<mDT> {
             const nh    = byAct === undefined ? undefined : byAct.get(newStateOrAction);
             const outcome = abstract_hook_step(nh, hook_args);
 
-            if (outcome.pass === false) { return false; }
+            if (outcome.pass === false) { fire_rejection('named'); return false; }
             update_fields(outcome);
 
           }
@@ -3124,7 +3579,7 @@ class Machine<mDT> {
           const h    = byTo === undefined ? undefined : byTo.get(newState);
           const outcome = abstract_hook_step(h, hook_args);
 
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('hook'); return false; }
           update_fields(outcome);
 
         }
@@ -3134,35 +3589,35 @@ class Machine<mDT> {
         // 7a. standard transition hook
         if (trans_type === 'legal') {
           const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('standard transition'); return false; }
           update_fields(outcome);
         }
 
         // 7b. main type hook
         if (trans_type === 'main') {
           const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('main transition'); return false; }
           update_fields(outcome);
         }
 
         // 7c. forced transition hook
         if (trans_type === 'forced') {
           const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('forced transition'); return false; }
           update_fields(outcome);
         }
 
         // 8. entry hook
         if (this._has_entry_hooks) {
           const outcome = abstract_hook_step(this._entry_hooks.get(newState), hook_args);
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('entry'); return false; }
           update_fields(outcome);
         }
 
         // 9. everything hook (fires after all other pre-hooks)
         if (this._everything_hook !== undefined) {
           const outcome = abstract_everything_hook_step(this._everything_hook, { ...hook_args, hook_name: 'everything' });
-          if (outcome.pass === false) { return false; }
+          if (outcome.pass === false) { fire_rejection('everything'); return false; }
           update_fields(outcome);
         }
 
@@ -3206,6 +3661,15 @@ class Machine<mDT> {
 
     // not valid
     } else {
+      this._fire('rejection', {
+        from      : fromState,
+        to        : newStateOrAction,   // we never resolved a real target
+        action    : fromAction,
+        data      : oldData,
+        next_data : newData,
+        reason    : 'invalid',
+        forced    : wasForced
+      });
       return false;
     }
 
@@ -3292,6 +3756,48 @@ class Machine<mDT> {
         this._post_everything_hook({ ...hook_args, hook_name: 'post everything' });
       }
 
+    }
+
+    // observation events: fire after the state has been committed and all
+    // hooks (pre and post) have completed, matching the semantics that
+    // events observe rather than intercept (#638).
+    const newData_after: mDT = this._data;
+    this._fire('exit', {
+      state  : fromState,
+      to     : newState,
+      action : fromAction,
+      data   : newData_after
+    });
+    this._fire('transition', {
+      from       : fromState,
+      to         : newState,
+      action     : fromAction,
+      data       : newData_after,
+      next_data  : newData,
+      trans_type,
+      forced     : wasForced
+    });
+    this._fire('entry', {
+      state  : newState,
+      from   : fromState,
+      action : fromAction,
+      data   : newData_after
+    });
+    if (oldData !== newData_after) {
+      this._fire('data-change', {
+        from     : fromState,
+        to       : newState,
+        action   : fromAction,
+        old_data : oldData,
+        new_data : newData_after,
+        cause    : 'transition'
+      });
+    }
+    if (this.state_is_terminal(newState)) {
+      this._fire('terminal', { state: newState, data: newData_after });
+    }
+    if (this.state_is_complete(newState)) {
+      this._fire('complete', { state: newState, data: newData_after });
     }
 
     // possibly re-establish new 'after' clause
@@ -4069,13 +4575,17 @@ class Machine<mDT> {
       // we'll mark it no-check so that our coverage numbers aren't wrecked
 
       /* istanbul ignore next */
+      /* v8 ignore next 10 */
       () => {
+        const from_state = this.state();
         this.clear_state_timeout();
 
         if (this._has_after_hooks) {
-          const ah = this._after_hooks.get(this.state());
+          const ah = this._after_hooks.get(from_state);
           if (ah !== undefined) { ah({ data: this._data, next_data: this._data }); }
         }
+
+        this._fire('timeout', { from: from_state, to: next_state, after_time });
 
         this.go(next_state);
       },

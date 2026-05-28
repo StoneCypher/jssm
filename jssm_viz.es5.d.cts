@@ -550,6 +550,213 @@ declare type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
  *  made reproducible.
  */
 declare type JssmRng = () => number;
+/**
+ *  All event names that {@link Machine.on} accepts.  These are observation
+ *  events fired by the machine in addition to (not in place of) the hook
+ *  system.  Hooks intercept; events observe.
+ *
+ *  @see Machine.on
+ */
+declare type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
+/**
+ *  Detail payload fired with a `transition` event.  Carries the resolved
+ *  source and target, the action name (if the transition was driven by an
+ *  action), the data observed before and after the change, the edge kind,
+ *  and whether the call was a forced transition.
+ */
+declare type JssmTransitionEventDetail<mDT> = {
+    from: StateType$1;
+    to: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+    next_data?: mDT;
+    trans_type: string | undefined;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with a `rejection` event.  Carries the resolved
+ *  source and target plus an indication of who rejected the transition
+ *  and why.  `reason` is `'invalid'` when no edge existed, `'hook'` when
+ *  a hook handler vetoed; `hook_name` is set when `reason` is `'hook'`.
+ */
+declare type JssmRejectionEventDetail<mDT> = {
+    from: StateType$1;
+    to: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+    next_data?: mDT;
+    reason: 'invalid' | 'hook';
+    hook_name?: string;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with an `action` event.  Fires when an action is
+ *  attempted, before transition validation runs.
+ */
+declare type JssmActionEventDetail<mDT> = {
+    action: StateType$1;
+    from: StateType$1;
+    to?: StateType$1;
+    data: mDT;
+    next_data?: mDT;
+};
+/**
+ *  Detail payload fired with an `entry` event.  `state` is the entered
+ *  state.  `from` is the predecessor state, if any.  `action` is the
+ *  action that drove the entry, if any.
+ */
+declare type JssmEntryEventDetail<mDT> = {
+    state: StateType$1;
+    from?: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `exit` event.  `state` is the exited
+ *  state.  `to` is the next state, if any.  `action` is the action that
+ *  drove the exit, if any.
+ */
+declare type JssmExitEventDetail<mDT> = {
+    state: StateType$1;
+    to?: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `terminal` event.  Indicates that the
+ *  machine has reached a state with no outgoing edges.
+ */
+declare type JssmTerminalEventDetail<mDT> = {
+    state: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `complete` event.  Indicates that the
+ *  machine has reached a FSL `complete` state.
+ */
+declare type JssmCompleteEventDetail<mDT> = {
+    state: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `error` event.  Wraps an exception caught
+ *  while running an event handler; `source_event` and `source_detail`
+ *  identify the event whose handler threw, and `handler` is the offending
+ *  function so consumers can correlate / blame.
+ */
+declare type JssmErrorEventDetail = {
+    error: unknown;
+    source_event: JssmEventName;
+    source_detail: unknown;
+    handler: Function;
+};
+/**
+ *  Detail payload fired with a `data-change` event.  Fires whenever the
+ *  machine's data payload is replaced.  `old_data` is the value before the
+ *  change; `new_data` is the value after.
+ */
+declare type JssmDataChangeEventDetail<mDT> = {
+    from?: StateType$1;
+    to?: StateType$1;
+    action?: StateType$1;
+    old_data: mDT;
+    new_data: mDT;
+    cause: 'transition' | 'override';
+};
+/**
+ *  Detail payload fired with an `override` event.  Distinguishes a forced
+ *  state replacement from a normal transition.
+ */
+declare type JssmOverrideEventDetail<mDT> = {
+    from: StateType$1;
+    to: StateType$1;
+    old_data: mDT;
+    new_data?: mDT;
+};
+/**
+ *  Detail payload fired with a `timeout` event.  Fires when a configured
+ *  `after` clause causes an automatic transition.
+ */
+declare type JssmTimeoutEventDetail = {
+    from: StateType$1;
+    to: StateType$1;
+    after_time: number;
+};
+/**
+ *  Detail payload fired with `hook-registration` and `hook-removal` events.
+ *  Mirrors the {@link HookDescription} so inspector tools can mirror the
+ *  current hook set.
+ */
+declare type JssmHookLifecycleEventDetail<mDT> = {
+    description: HookDescription<mDT>;
+};
+/**
+ *  Mapped type from {@link JssmEventName} to the corresponding detail
+ *  payload.  Drives the discriminated-union typing of {@link Machine.on},
+ *  so `e.action` and friends only exist where they're meaningful.
+ */
+declare type JssmEventDetailMap<mDT> = {
+    'transition': JssmTransitionEventDetail<mDT>;
+    'rejection': JssmRejectionEventDetail<mDT>;
+    'action': JssmActionEventDetail<mDT>;
+    'entry': JssmEntryEventDetail<mDT>;
+    'exit': JssmExitEventDetail<mDT>;
+    'terminal': JssmTerminalEventDetail<mDT>;
+    'complete': JssmCompleteEventDetail<mDT>;
+    'error': JssmErrorEventDetail;
+    'data-change': JssmDataChangeEventDetail<mDT>;
+    'override': JssmOverrideEventDetail<mDT>;
+    'timeout': JssmTimeoutEventDetail;
+    'hook-registration': JssmHookLifecycleEventDetail<mDT>;
+    'hook-removal': JssmHookLifecycleEventDetail<mDT>;
+};
+/**
+ *  Filter accepted by {@link Machine.on} / {@link Machine.once} for an
+ *  individual event name.  Only events whose detail key matches every
+ *  filter entry fire the handler.  Events that don't list a filter key in
+ *  v1 take no filter properties.
+ */
+declare type JssmEventFilterMap<mDT> = {
+    'transition': {
+        from?: StateType$1;
+        to?: StateType$1;
+    };
+    'rejection': Record<string, never>;
+    'action': Record<string, never>;
+    'entry': {
+        state?: StateType$1;
+    };
+    'exit': {
+        state?: StateType$1;
+    };
+    'terminal': Record<string, never>;
+    'complete': Record<string, never>;
+    'error': Record<string, never>;
+    'data-change': Record<string, never>;
+    'override': Record<string, never>;
+    'timeout': Record<string, never>;
+    'hook-registration': Record<string, never>;
+    'hook-removal': Record<string, never>;
+};
+/**
+ *  Per-event filter object (as passed to {@link Machine.on}).  Use
+ *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
+/**
+ *  Per-event handler signature.  Receives a detail object typed by event
+ *  name, so `e.action` (etc.) only exist where they're meaningful.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
+/**
+ *  Function returned by {@link Machine.on} and {@link Machine.once} that
+ *  removes the subscription.  Calling it more than once is a no-op.
+ */
+declare type JssmUnsubscribe = () => void;
 
 /**
  *  The published semantic version of the jssm package this build was cut from.
@@ -567,6 +774,18 @@ declare const build_time: number;
 
 declare type StateType = string;
 
+/**
+ *  Internal record holding a single registered event subscription: the
+ *  handler, its optional filter, and a flag for `once` semantics.  Not
+ *  exported.
+ *
+ *  @internal
+ */
+declare type JssmEventEntry<mDT, Ev extends JssmEventName> = {
+    handler: JssmEventHandler<mDT, Ev>;
+    filter?: JssmEventFilter<mDT, Ev>;
+    once: boolean;
+};
 /*******
  *
  *  Core finite state machine class.  Holds the full graph of states and
@@ -686,6 +905,8 @@ declare class Machine<mDT> {
     _timeout_handle: number | undefined;
     _timeout_target: string | undefined;
     _timeout_target_time: number | undefined;
+    _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
+    _firing_error: boolean;
     constructor({ start_states, end_states, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
@@ -1494,6 +1715,100 @@ declare class Machine<mDT> {
      *  @returns `true` if at least one state is complete.
      */
     has_completes(): boolean;
+    /**
+     *  Subscribe to a typed observation event.  Hooks (`set_hook` and friends)
+     *  intercept and may cancel a transition; events fire alongside the same
+     *  state-machine moments but cannot influence the outcome.  This is the
+     *  surface most users actually want for "tell me when state changes".
+     *
+     *  Handlers run synchronously, in registration order.  A throwing handler
+     *  does not block subsequent handlers — its exception is caught and
+     *  re-emitted as an `error` event whose detail names the original event
+     *  and the offending handler.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b -> c;`;
+     *
+     *  m.on('transition', e => console.log(`${e.from} -> ${e.to}`));
+     *  m.on('entry', { state: 'b' }, e => console.log(`entered ${e.state}`));
+     *
+     *  const off = m.on('transition', () => {});
+     *  off();  // unsubscribe
+     *  ```
+     *
+     *  @typeparam Ev      The event name (drives the detail type).
+     *  @param name        The event name to subscribe to.
+     *  @param filterOrFn  Either a filter object or, when calling the no-filter
+     *                     form, the handler itself.
+     *  @param maybeFn     The handler, when a filter object was supplied.
+     *  @returns A function that unsubscribes when called.
+     *
+     *  @see Machine.off
+     *  @see Machine.once
+     */
+    on<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    on<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    /**
+     *  Subscribe to a typed observation event for one matching delivery, then
+     *  auto-remove.  Accepts the same `(name, handler)` and `(name, filter,
+     *  handler)` shapes as {@link Machine.on}.
+     *
+     *  ```typescript
+     *  m.once('terminal', e => console.log(`done at ${e.state}`));
+     *  ```
+     *
+     *  @typeparam Ev      The event name.
+     *  @param name        The event name.
+     *  @param filterOrFn  A filter object or the handler (no-filter form).
+     *  @param maybeFn     The handler, when a filter was supplied.
+     *  @returns A function that unsubscribes early if called before the
+     *           handler has fired.
+     *
+     *  @see Machine.on
+     *  @see Machine.off
+     */
+    once<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    once<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    /**
+     *  Remove a previously-registered event handler.  Match is by reference —
+     *  the same function value passed to {@link Machine.on} or
+     *  {@link Machine.once}.  Returns `true` if a subscription was found and
+     *  removed, `false` otherwise.
+     *
+     *  ```typescript
+     *  const fn = (e: any) => console.log(e);
+     *  m.on('transition', fn);
+     *  m.off('transition', fn);  // true
+     *  m.off('transition', fn);  // false
+     *  ```
+     *
+     *  @param name    The event name.
+     *  @param handler The handler reference to remove.
+     *  @returns `true` if removed, `false` if no match was registered.
+     */
+    off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean;
+    /**
+     *  Shared registration core used by {@link Machine.on} and
+     *  {@link Machine.once}.  Normalizes the optional filter argument and
+     *  installs the entry into the per-event subscription set.
+     *
+     *  @internal
+     */
+    _subscribe<Ev extends JssmEventName>(name: Ev, filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>, maybeFn: JssmEventHandler<mDT, Ev> | undefined, once: boolean): JssmUnsubscribe;
+    /**
+     *  Dispatch an event to every registered subscriber in registration
+     *  order.  Filters are checked first; non-matching handlers are skipped
+     *  without invoking the handler.  Exceptions thrown by a handler are
+     *  caught and re-emitted as an `error` event so subsequent handlers
+     *  still run.
+     *
+     *  Re-entry into the `error` event itself is guarded — if an `error`
+     *  handler throws, the new exception is swallowed rather than rebroadcast
+     *  to avoid an infinite loop.
+     *
+     *  @internal
+     */
+    _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
     /** Low-level hook registration.  Installs a handler described by a
      *  {@link HookDescription} into the appropriate internal map.  Prefer the
      *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
@@ -1501,6 +1816,28 @@ declare class Machine<mDT> {
      *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
      */
     set_hook(HookDesc: HookDescription<mDT>): void;
+    /**
+     *  Remove a previously-registered hook described by a
+     *  {@link HookDescription}.  Match is by `kind` + identifying keys
+     *  (`from`/`to`/`action`/etc.), not by handler reference — there is one
+     *  hook per slot in the registry, so the description uniquely identifies
+     *  which one to clear.  Fires a `hook-removal` event for inspector tools.
+     *
+     *  This is the symmetric counterpart of {@link Machine.set_hook} for the
+     *  event-bridging use case (#638).  Reasoning about hooks via observation
+     *  events requires being able to observe their disappearance too.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b;`;
+     *  const fn = () => true;
+     *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+     *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+     *  ```
+     *
+     *  @param HookDesc - A hook descriptor identifying the hook to remove.
+     *  @returns `true` if a hook was removed, `false` otherwise.
+     */
+    remove_hook(HookDesc: HookDescription<mDT>): boolean;
     /** Register a pre-transition hook on a specific edge.  Fires before
      *  transitioning from `from` to `to`.  If the handler returns `false`, the
      *  transition is blocked.
