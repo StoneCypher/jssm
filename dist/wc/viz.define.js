@@ -1,6 +1,25 @@
 import { JssmViz } from './viz.js';
 export { JssmViz } from './viz.js';
 
+/**
+ * Empty subclass that allows the same class to be registered under a
+ * second tag name. `customElements.define` requires a distinct constructor
+ * per tag, so the only portable way to publish `<fsl-viz>` as a synonym
+ * for `<jssm-viz>` is to register a no-op subclass.
+ *
+ * Both tags render identically; `<fsl-viz>` is provided as an alternative
+ * spelling for users whose mental model is "FSL viz" rather than "jssm
+ * viz".
+ *
+ * TODO: parent-context binding from #647 Stage 2 lands once #648 exists.
+ */
+class FslViz extends JssmViz {
+}
 if (!customElements.get('jssm-viz')) {
     customElements.define('jssm-viz', JssmViz);
 }
+if (!customElements.get('fsl-viz')) {
+    customElements.define('fsl-viz', FslViz);
+}
+
+export { FslViz };
