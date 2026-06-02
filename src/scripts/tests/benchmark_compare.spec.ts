@@ -99,3 +99,49 @@ describe('benchmark_compare argument validation', () => {
   });
 
 });
+
+describe('benchmark_compare baseline-remembering arg resolution', () => {
+
+  test('prepends the baseline when only a current file is given', () => {
+    expect(bc.resolveInputPaths(['cur.json'], 'base.json'))
+      .toEqual(['base.json', 'cur.json']);
+  });
+
+  test('prepends the baseline for a previous+current pair', () => {
+    expect(bc.resolveInputPaths(['prev.json', 'cur.json'], 'base.json'))
+      .toEqual(['base.json', 'prev.json', 'cur.json']);
+  });
+
+  test('defaults to the #636 baseline (benchmark_2026-05-26.json) when no override', () => {
+    const [first] = bc.resolveInputPaths(['cur.json']);
+    expect(first).toBe(bc.DEFAULT_BASELINE);
+    expect(first).toContain('benchmark_2026-05-26.json');
+  });
+
+  test('--baseline overrides the default original', () => {
+    expect(bc.resolveInputPaths(['--baseline', 'x.json', 'prev.json', 'cur.json'], 'base.json'))
+      .toEqual(['x.json', 'prev.json', 'cur.json']);
+  });
+
+  test('--no-baseline reverts to fully-explicit positionals', () => {
+    expect(bc.resolveInputPaths(['--no-baseline', 'orig.json', 'cur.json'], 'base.json'))
+      .toEqual(['orig.json', 'cur.json']);
+  });
+
+  test('throws when steps + baseline would exceed three files', () => {
+    expect(() => bc.resolveInputPaths(['a.json', 'b.json', 'c.json'], 'base.json')).toThrow(/total/);
+  });
+
+  test('throws on --no-baseline with too few files', () => {
+    expect(() => bc.resolveInputPaths(['--no-baseline', 'only.json'], 'base.json')).toThrow(/total/);
+  });
+
+  test('throws when --baseline is missing its path', () => {
+    expect(() => bc.resolveInputPaths(['--baseline'], 'base.json')).toThrow(/--baseline/);
+  });
+
+  test('throws on an unknown flag', () => {
+    expect(() => bc.resolveInputPaths(['--wat', 'cur.json'], 'base.json')).toThrow(/unknown flag/);
+  });
+
+});
