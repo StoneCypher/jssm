@@ -433,6 +433,11 @@ class Machine<mDT> {
   // chosen over Node's `EventEmitter` so the bundle stays browser-clean and
   // the per-event detail typing is preserved.  See #638.
   _event_handlers : Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
+  // Live count of registered event subscriptions across all event names.
+  // Maintained by _subscribe (single add site) and _unsubscribe_entry (the
+  // sole removal helper) so transition_impl can skip building observation-
+  // event detail objects when nothing is listening.  See #670.
+  _event_listener_count : number;
   _firing_error   : boolean;  // re-entry guard for the `error` event
 
 
@@ -608,6 +613,7 @@ class Machine<mDT> {
     this._after_mapping                 = new Map();
 
     this._event_handlers                = new Map();
+    this._event_listener_count          = 0;
     this._firing_error                  = false;
 
 
@@ -2375,11 +2381,26 @@ class Machine<mDT> {
     if (set === undefined) { return false; }
     for (const entry of set) {
       if (entry.handler === handler) {
-        set.delete(entry);
+        this._unsubscribe_entry(set, entry);
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   *  Remove one event-subscription entry from its set and keep
+   *  {@link Machine._event_listener_count} in sync.  The count is decremented
+   *  only when the entry was actually present, so calling a stale unsubscribe
+   *  closure (or removing an already-fired `once` entry) is idempotent and
+   *  cannot drive the count negative.
+   *
+   *  @param set   The per-event-name subscription set.
+   *  @param entry The entry to remove.
+   *  @internal
+   */
+  _unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void {
+    if (set.delete(entry)) { this._event_listener_count--; }
   }
 
 
@@ -2421,8 +2442,9 @@ class Machine<mDT> {
 
     const entry: JssmEventEntry<mDT, Ev> = { handler, filter, once };
     set.add(entry);
+    this._event_listener_count++;
 
-    return () => { set!.delete(entry); };
+    return () => { this._unsubscribe_entry(set!, entry); };
   }
 
 
@@ -2465,7 +2487,7 @@ class Machine<mDT> {
       // once removal happens BEFORE invocation so a throwing handler still
       // gets removed and so re-entrant `on` calls during the handler see
       // the post-removal state.
-      if (entry.once) { set.delete(entry); }
+      if (entry.once) { this._unsubscribe_entry(set, entry); }
 
       try {
         entry.handler(detail);

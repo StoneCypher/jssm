@@ -720,3 +720,41 @@ describe('multiple events on a single transition', () => {
   });
 
 });
+
+describe('_event_listener_count bookkeeping', () => {
+
+  test('tracks live subscriptions across on/off/once/unsubscribe', () => {
+    const m = sm`a -> b -> c -> d;`;
+    const internal = m as unknown as { _event_listener_count: number };
+
+    expect(internal._event_listener_count).toBe(0);
+
+    const off1 = m.on('transition', () => {});
+    expect(internal._event_listener_count).toBe(1);
+
+    const fn = () => {};
+    m.on('entry', fn);
+    expect(internal._event_listener_count).toBe(2);
+
+    m.once('exit', () => {});
+    expect(internal._event_listener_count).toBe(3);
+
+    // off() by reference decrements
+    expect(m.off('entry', fn)).toBe(true);
+    expect(internal._event_listener_count).toBe(2);
+
+    // unsubscribe closure decrements
+    off1();
+    expect(internal._event_listener_count).toBe(1);
+
+    // calling the same unsubscribe closure again must NOT decrement past the
+    // real removal (idempotent — exercises the Set.delete === false path)
+    off1();
+    expect(internal._event_listener_count).toBe(1);
+
+    // once auto-removal on fire decrements the remaining 'exit' listener
+    m.transition('b');
+    expect(internal._event_listener_count).toBe(0);
+  });
+
+});
