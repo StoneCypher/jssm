@@ -82,6 +82,23 @@ describe('Basic hooks on API callpoint', () => {
   } );
 
 
+  test('re-declaring the same transition throws "already has" (#673)', () => {
+
+    expect( () => { const _m = sm`a -> b; a -> b;`; } )
+      .toThrow( /already has/ );
+
+  } );
+
+
+  test('the duplicate-edge error is a JssmError (#673)', () => {
+
+    let caught: unknown;
+    try { const _m = sm`a -> b; a -> b;`; } catch (e) { caught = e; }
+    expect(caught instanceof JssmError).toBe(true);
+
+  } );
+
+
   test('Machine errors drop the parenthetical without content', () => {
 
     expect( () => { jssm.arrow_direction('-a>' as any); } )
