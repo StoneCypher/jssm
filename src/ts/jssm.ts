@@ -433,6 +433,11 @@ class Machine<mDT> {
   // chosen over Node's `EventEmitter` so the bundle stays browser-clean and
   // the per-event detail typing is preserved.  See #638.
   _event_handlers : Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
+  // Live count of registered event subscriptions across all event names.
+  // Maintained by _subscribe (single add site) and _unsubscribe_entry (the
+  // sole removal helper) so transition_impl can skip building observation-
+  // event detail objects when nothing is listening.  See #670.
+  _event_listener_count : number;
   _firing_error   : boolean;  // re-entry guard for the `error` event
 
 
@@ -608,6 +613,7 @@ class Machine<mDT> {
     this._after_mapping                 = new Map();
 
     this._event_handlers                = new Map();
+    this._event_listener_count          = 0;
     this._firing_error                  = false;
 
 
@@ -2375,11 +2381,26 @@ class Machine<mDT> {
     if (set === undefined) { return false; }
     for (const entry of set) {
       if (entry.handler === handler) {
-        set.delete(entry);
+        this._unsubscribe_entry(set, entry);
         return true;
       }
     }
     return false;
+  }
+
+  /**
+   *  Remove one event-subscription entry from its set and keep
+   *  {@link Machine._event_listener_count} in sync.  The count is decremented
+   *  only when the entry was actually present, so calling a stale unsubscribe
+   *  closure (or removing an already-fired `once` entry) is idempotent and
+   *  cannot drive the count negative.
+   *
+   *  @param set   The per-event-name subscription set.
+   *  @param entry The entry to remove.
+   *  @internal
+   */
+  _unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void {
+    if (set.delete(entry)) { this._event_listener_count--; }
   }
 
 
@@ -2421,8 +2442,9 @@ class Machine<mDT> {
 
     const entry: JssmEventEntry<mDT, Ev> = { handler, filter, once };
     set.add(entry);
+    this._event_listener_count++;
 
-    return () => { set!.delete(entry); };
+    return () => { this._unsubscribe_entry(set!, entry); };
   }
 
 
@@ -2465,7 +2487,7 @@ class Machine<mDT> {
       // once removal happens BEFORE invocation so a throwing handler still
       // gets removed and so re-entrant `on` calls during the handler see
       // the post-removal state.
-      if (entry.once) { set.delete(entry); }
+      if (entry.once) { this._unsubscribe_entry(set, entry); }
 
       try {
         entry.handler(detail);
@@ -3455,15 +3477,25 @@ class Machine<mDT> {
     }
 
 
-    const hook_args = {
-      data       : this._data,
-      action     : fromAction,
-      from       : this._state,
-      to         : newState,
-      next_data  : newData,
-      forced     : wasForced,
-      trans_type
-    };
+    // hook_args is read only inside the `_has_hooks` / `_has_post_hooks`
+    // blocks below.  Skip building it for hook-free machines (every
+    // chain/dense/hub/messy benchmark shape) so the hot path stops allocating
+    // a 7-field object it never reads.  The NonNullable cast keeps the type
+    // unchanged for all downstream uses without introducing an impossible
+    // (uncoverable) branch; the value is only dereferenced under the guards
+    // that imply it was built.  #670
+    const hook_args_obj = (this._has_hooks || this._has_post_hooks)
+      ? {
+          data       : this._data,
+          action     : fromAction,
+          from       : this._state,
+          to         : newState,
+          next_data  : newData,
+          forced     : wasForced,
+          trans_type
+        }
+      : undefined;
+    const hook_args = hook_args_obj as NonNullable<typeof hook_args_obj>;
 
     // 'action' event fires when an action is attempted, regardless of whether
     // it ultimately succeeds — matches the issue spec for observation events.
@@ -3758,46 +3790,53 @@ class Machine<mDT> {
 
     }
 
-    // observation events: fire after the state has been committed and all
-    // hooks (pre and post) have completed, matching the semantics that
-    // events observe rather than intercept (#638).
-    const newData_after: mDT = this._data;
-    this._fire('exit', {
-      state  : fromState,
-      to     : newState,
-      action : fromAction,
-      data   : newData_after
-    });
-    this._fire('transition', {
-      from       : fromState,
-      to         : newState,
-      action     : fromAction,
-      data       : newData_after,
-      next_data  : newData,
-      trans_type,
-      forced     : wasForced
-    });
-    this._fire('entry', {
-      state  : newState,
-      from   : fromState,
-      action : fromAction,
-      data   : newData_after
-    });
-    if (oldData !== newData_after) {
-      this._fire('data-change', {
-        from     : fromState,
-        to       : newState,
-        action   : fromAction,
-        old_data : oldData,
-        new_data : newData_after,
-        cause    : 'transition'
+    // Observation events (#638) fire after the state is committed.  Each call
+    // builds a detail literal at the call site, so guard the whole block on a
+    // live subscription count: with zero listeners (the common hot-path case,
+    // and every benchmark shape) we skip all of these allocations entirely.
+    // Read after pre-hooks, so a listener a pre-hook installed is still seen.
+    // ('action' above and 'rejection' on the invalid path are intentionally
+    // NOT under this gate — they fire regardless, and `_fire` itself no-ops
+    // cheaply when that specific event has no subscribers.)  #670
+    if (this._event_listener_count !== 0) {
+      const newData_after: mDT = this._data;
+      this._fire('exit', {
+        state  : fromState,
+        to     : newState,
+        action : fromAction,
+        data   : newData_after
       });
-    }
-    if (this.state_is_terminal(newState)) {
-      this._fire('terminal', { state: newState, data: newData_after });
-    }
-    if (this.state_is_complete(newState)) {
-      this._fire('complete', { state: newState, data: newData_after });
+      this._fire('transition', {
+        from       : fromState,
+        to         : newState,
+        action     : fromAction,
+        data       : newData_after,
+        next_data  : newData,
+        trans_type,
+        forced     : wasForced
+      });
+      this._fire('entry', {
+        state  : newState,
+        from   : fromState,
+        action : fromAction,
+        data   : newData_after
+      });
+      if (oldData !== newData_after) {
+        this._fire('data-change', {
+          from     : fromState,
+          to       : newState,
+          action   : fromAction,
+          old_data : oldData,
+          new_data : newData_after,
+          cause    : 'transition'
+        });
+      }
+      if (this.state_is_terminal(newState)) {
+        this._fire('terminal', { state: newState, data: newData_after });
+      }
+      if (this.state_is_complete(newState)) {
+        this._fire('complete', { state: newState, data: newData_after });
+      }
     }
 
     // possibly re-establish new 'after' clause

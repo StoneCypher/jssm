@@ -720,3 +720,65 @@ describe('multiple events on a single transition', () => {
   });
 
 });
+
+describe('observation events under the listener-count gate', () => {
+
+  test('a listener installed by a pre-hook still receives the transition event', () => {
+    const m = sm`a -> b;`;
+    let seen = 0;
+    // The hook subscribes mid-transition; the gate is read AFTER pre-hooks
+    // run, so this subscription must still be observed for this same transition.
+    m.hook('a', 'b', () => {
+      m.on('transition', () => { seen++; });
+      return true;
+    });
+    m.transition('b');
+    expect(seen).toBe(1);
+  });
+
+  test('transitions with no listeners still mutate state and data', () => {
+    const m = sm_from<number>('a -> b;', { data: 1 });
+    expect(m.transition('b', 2)).toBe(true);
+    expect(m.state()).toBe('b');
+    expect(m.data()).toBe(2);
+  });
+
+});
+
+describe('_event_listener_count bookkeeping', () => {
+
+  test('tracks live subscriptions across on/off/once/unsubscribe', () => {
+    const m = sm`a -> b -> c -> d;`;
+    const internal = m as unknown as { _event_listener_count: number };
+
+    expect(internal._event_listener_count).toBe(0);
+
+    const off1 = m.on('transition', () => {});
+    expect(internal._event_listener_count).toBe(1);
+
+    const fn = () => {};
+    m.on('entry', fn);
+    expect(internal._event_listener_count).toBe(2);
+
+    m.once('exit', () => {});
+    expect(internal._event_listener_count).toBe(3);
+
+    // off() by reference decrements
+    expect(m.off('entry', fn)).toBe(true);
+    expect(internal._event_listener_count).toBe(2);
+
+    // unsubscribe closure decrements
+    off1();
+    expect(internal._event_listener_count).toBe(1);
+
+    // calling the same unsubscribe closure again must NOT decrement past the
+    // real removal (idempotent — exercises the Set.delete === false path)
+    off1();
+    expect(internal._event_listener_count).toBe(1);
+
+    // once auto-removal on fire decrements the remaining 'exit' listener
+    m.transition('b');
+    expect(internal._event_listener_count).toBe(0);
+  });
+
+});
