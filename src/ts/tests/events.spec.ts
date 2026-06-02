@@ -721,6 +721,30 @@ describe('multiple events on a single transition', () => {
 
 });
 
+describe('observation events under the listener-count gate', () => {
+
+  test('a listener installed by a pre-hook still receives the transition event', () => {
+    const m = sm`a -> b;`;
+    let seen = 0;
+    // The hook subscribes mid-transition; the gate is read AFTER pre-hooks
+    // run, so this subscription must still be observed for this same transition.
+    m.hook('a', 'b', () => {
+      m.on('transition', () => { seen++; });
+      return true;
+    });
+    m.transition('b');
+    expect(seen).toBe(1);
+  });
+
+  test('transitions with no listeners still mutate state and data', () => {
+    const m = sm_from<number>('a -> b;', { data: 1 });
+    expect(m.transition('b', 2)).toBe(true);
+    expect(m.state()).toBe('b');
+    expect(m.data()).toBe(2);
+  });
+
+});
+
 describe('_event_listener_count bookkeeping', () => {
 
   test('tracks live subscriptions across on/off/once/unsubscribe', () => {

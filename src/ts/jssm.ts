@@ -3780,46 +3780,50 @@ class Machine<mDT> {
 
     }
 
-    // observation events: fire after the state has been committed and all
-    // hooks (pre and post) have completed, matching the semantics that
-    // events observe rather than intercept (#638).
-    const newData_after: mDT = this._data;
-    this._fire('exit', {
-      state  : fromState,
-      to     : newState,
-      action : fromAction,
-      data   : newData_after
-    });
-    this._fire('transition', {
-      from       : fromState,
-      to         : newState,
-      action     : fromAction,
-      data       : newData_after,
-      next_data  : newData,
-      trans_type,
-      forced     : wasForced
-    });
-    this._fire('entry', {
-      state  : newState,
-      from   : fromState,
-      action : fromAction,
-      data   : newData_after
-    });
-    if (oldData !== newData_after) {
-      this._fire('data-change', {
-        from     : fromState,
-        to       : newState,
-        action   : fromAction,
-        old_data : oldData,
-        new_data : newData_after,
-        cause    : 'transition'
+    // Observation events (#638) fire after the state is committed.  Each call
+    // builds a detail literal at the call site, so guard the whole block on a
+    // live subscription count: with zero listeners (the common hot-path case,
+    // and every benchmark shape) we skip all of these allocations entirely.
+    // Read after pre-hooks, so a listener a pre-hook installed is still seen.  #670
+    if (this._event_listener_count !== 0) {
+      const newData_after: mDT = this._data;
+      this._fire('exit', {
+        state  : fromState,
+        to     : newState,
+        action : fromAction,
+        data   : newData_after
       });
-    }
-    if (this.state_is_terminal(newState)) {
-      this._fire('terminal', { state: newState, data: newData_after });
-    }
-    if (this.state_is_complete(newState)) {
-      this._fire('complete', { state: newState, data: newData_after });
+      this._fire('transition', {
+        from       : fromState,
+        to         : newState,
+        action     : fromAction,
+        data       : newData_after,
+        next_data  : newData,
+        trans_type,
+        forced     : wasForced
+      });
+      this._fire('entry', {
+        state  : newState,
+        from   : fromState,
+        action : fromAction,
+        data   : newData_after
+      });
+      if (oldData !== newData_after) {
+        this._fire('data-change', {
+          from     : fromState,
+          to       : newState,
+          action   : fromAction,
+          old_data : oldData,
+          new_data : newData_after,
+          cause    : 'transition'
+        });
+      }
+      if (this.state_is_terminal(newState)) {
+        this._fire('terminal', { state: newState, data: newData_after });
+      }
+      if (this.state_is_complete(newState)) {
+        this._fire('complete', { state: newState, data: newData_after });
+      }
     }
 
     // possibly re-establish new 'after' clause
