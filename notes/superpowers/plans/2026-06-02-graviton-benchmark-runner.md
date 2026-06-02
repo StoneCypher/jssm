@@ -222,17 +222,25 @@ All `aws` calls take `--region <region>`. Every created resource gets the tag se
   | `git clone --depth 1` | ~5–15 s | ~5–15 s |
   | `npm ci` | ~1–2 min | ~1–2 min |
   | `npm run make` | ~2–3 min | ~2–3 min |
-  | benchmark | ~2–4 min | tuned to ≤ ~5 min (Task 1) |
-  | **total** | **~7–9 min** | **tune to ≤ 10 min** |
+  | benchmark | ~2–4 min | tuned to ≤ ~4 min (Task 1) |
+  | profiled construct pass (4d) | ~0.5–1.5 min | ~0.5–1.5 min |
+  | **total** | **~8–10 min** | **tune benchmark + profile to ≤ 10 min** |
 
   This is why **`npm run make`, not `npm run build`** — `build` additionally runs vet + test + site + cookbook + changelog + docs + cloc + readme, which would blow the budget and is irrelevant to producing `dist/`. `make` is the minimum that yields the `dist/jssm.es5.cjs` the benchmark requires.
 
-- [ ] **4d. Retrieve results.** `scp` the two interesting artifacts back into `--out`:
+- [ ] **4d. Profile a bounded construct pass (bring back optimization notes).** Each run should return not just ops/sec but concrete "what to optimize next" notes from the clean, dedicated core — so the next perf lever is chosen from trustworthy data, not laptop noise. After the benchmark (never around it — `--prof` overhead must not pollute the benny numbers), the remote script runs a *separate, bounded* profiled pass:
+  1. Write a tiny probe that constructs the heaviest shape(s) a **fixed, small** number of times under the V8 profiler — e.g. `node --prof` over ~5 constructs of `dense-200` (optionally `messy-5000`), built exactly as `benchmark_scaling.cjs` builds them. A fixed bounded count (not benny's adaptive sampling) keeps this ~30–90 s even at ~1–8 s/construct.
+  2. `require('./dist/jssm.es5.nonmin.cjs')` (also produced by `npm run make`) — the **non-minified** bundle, so the tick log has readable function names instead of mangled ones.
+  3. Process the log on the instance: `node --prof-process isolate-*.log > construct.prof.txt`.
+  This is the step that localizes the cost: on the current build it fingers PEG.js parse (`peg$parseWS`, `peg$parseSubexp`, `peg$parseNonNegNumber`) plus ~20% GC as the `construct()` cliff, with the build loop a rounding error — exactly the signal that should drive the whitespace-rule and memoization branches. Capturing it per run keeps it current as those land.
+
+- [ ] **4e. Retrieve results.** `scp` the artifacts back into `--out`:
   ```
   scp -i <key.pem> ec2-user@<dns>:jssm/benchmark/results/scaling.json <out>/scaling.json
   scp -i <key.pem> ec2-user@<dns>:jssm/benchmark/results/scaling.md   <out>/scaling.md
+  scp -i <key.pem> ec2-user@<dns>:jssm/construct.prof.txt             <out>/construct.prof.txt
   ```
-  (Optionally `scaling.chart.html` too.) Verify the local files exist and are non-empty before declaring success; a missing/empty `scaling.json` means the remote run failed and should be surfaced as an error (but teardown still runs).
+  (Optionally `scaling.chart.html` too.) Verify the local files exist and are non-empty before declaring success; a missing/empty `scaling.json` means the remote run failed and should be surfaced as an error (but teardown still runs). The profile report (`construct.prof.txt`) is a secondary artifact — a missing one is a warning, not a hard failure.
 
 ---
 
