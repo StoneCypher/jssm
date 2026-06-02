@@ -3477,15 +3477,25 @@ class Machine<mDT> {
     }
 
 
-    const hook_args = {
-      data       : this._data,
-      action     : fromAction,
-      from       : this._state,
-      to         : newState,
-      next_data  : newData,
-      forced     : wasForced,
-      trans_type
-    };
+    // hook_args is read only inside the `_has_hooks` / `_has_post_hooks`
+    // blocks below.  Skip building it for hook-free machines (every
+    // chain/dense/hub/messy benchmark shape) so the hot path stops allocating
+    // a 7-field object it never reads.  The NonNullable cast keeps the type
+    // unchanged for all downstream uses without introducing an impossible
+    // (uncoverable) branch; the value is only dereferenced under the guards
+    // that imply it was built.  #670
+    const hook_args_obj = (this._has_hooks || this._has_post_hooks)
+      ? {
+          data       : this._data,
+          action     : fromAction,
+          from       : this._state,
+          to         : newState,
+          next_data  : newData,
+          forced     : wasForced,
+          trans_type
+        }
+      : undefined;
+    const hook_args = hook_args_obj as NonNullable<typeof hook_args_obj>;
 
     // 'action' event fires when an action is attempted, regardless of whether
     // it ultimately succeeds — matches the issue spec for observation events.
