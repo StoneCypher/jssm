@@ -1,20 +1,33 @@
 'use strict';
 
 /**
- *  Benchmark comparison generator.  Reads two or three historic benchmark
- *  JSON envelopes (as written by `src/buildjs/benchmark_scaling.cjs`) and
- *  emits the markdown delta tables used in the #636 perf-tracking comments,
- *  removing the hand-transcription step from each writeup.
+ *  Benchmark comparison generator.  Reads historic benchmark JSON envelopes
+ *  (as written by `src/buildjs/benchmark_scaling.cjs`) and emits the markdown
+ *  delta tables used in the #636 perf-tracking comments, removing the
+ *  hand-transcription step from each writeup.
  *
- *  CLI:
- *    node src/scripts/benchmark_compare.cjs <original.json> <current.json>
- *    node src/scripts/benchmark_compare.cjs <original.json> <previous.json> <current.json>
+ *  The original #636 baseline ({@link DEFAULT_BASELINE}, jssm 5.128.0) is
+ *  *always* prepended as the leading `original` column, so a writeup can never
+ *  silently drop the vs-baseline comparison.  Positional args are therefore
+ *  just the step(s) layered on top of it:
  *
- *  Two files -> `original`, `current`, `vs orig`.  Three files -> adds
- *  `previous` and `vs prev`.  Output is markdown on stdout.
+ *    node benchmark_compare.cjs <current.json>
+ *      -> original | current | vs orig
+ *    node benchmark_compare.cjs <previous.json> <current.json>
+ *      -> original | previous | current | vs prev | vs orig
+ *
+ *  `--baseline <path>` swaps in a different original; `--no-baseline` drops it
+ *  (then you supply the original yourself as the first positional — the old
+ *  fully-explicit form).  Output is markdown on stdout.
  */
 
-const fs = require('fs');
+const fs   = require('fs');
+const path = require('path');
+
+// The canonical #636 original baseline (jssm 5.128.0), always prepended unless
+// overridden with --baseline or suppressed with --no-baseline.  Resolved from
+// this file's location so it works regardless of the caller's cwd.
+const DEFAULT_BASELINE = path.join(__dirname, '..', 'historic_benchmarks', 'benchmark_2026-05-26.json');
 
 // Tables are emitted in this order; operations absent from the current file
 // are skipped.
@@ -193,13 +206,66 @@ function renderMarkdown(comparison) {
 }
 
 /**
- *  CLI entry point: parse argv, load the files, print the rendered markdown.
- *  Exits non-zero with a usage message on a wrong argument count.
+ *  Resolve CLI args into the ordered list of benchmark file paths to compare.
+ *  The #636 original baseline is prepended automatically (so it can't be
+ *  forgotten) unless `--no-baseline` is given; `--baseline <path>` swaps in a
+ *  different original.  Remaining positionals are the step(s) layered on top:
+ *  one (`current`) or two (`previous` then `current`).
+ *
+ *  @param args The CLI args *after* `node script` (i.e. `process.argv.slice(2)`).
+ *  @param defaultBaseline Path used as the original when neither `--no-baseline`
+ *         nor `--baseline` is supplied.  Defaults to {@link DEFAULT_BASELINE}.
+ *  @returns Ordered file paths — length 2 (`[original, current]`) or 3
+ *           (`[original, previous, current]`) — ready for {@link loadBenchmark}.
+ *  @throws Error if `--baseline` is missing its path, an unknown `--flag`
+ *          appears, or the resolved list isn't 2 or 3 files.
+ *
+ *  @example resolveInputPaths(['cur.json'], 'base.json')
+ *  // => ['base.json', 'cur.json']
+ *  @example resolveInputPaths(['--no-baseline', 'orig.json', 'cur.json'])
+ *  // => ['orig.json', 'cur.json']
+ */
+function resolveInputPaths(args, defaultBaseline = DEFAULT_BASELINE) {
+  let noBaseline    = false;
+  let baseline      = defaultBaseline;
+  const positionals = [];
+
+  for (let i = 0; i < args.length; ++i) {
+    const a = args[i];
+    if (a === '--no-baseline') {
+      noBaseline = true;
+    } else if (a === '--baseline') {
+      baseline = args[++i];
+      if (baseline === undefined) { throw new Error('--baseline requires a path argument'); }
+    } else if (a.startsWith('--')) {
+      throw new Error(`unknown flag: ${a}`);
+    } else {
+      positionals.push(a);
+    }
+  }
+
+  const list = noBaseline ? positionals.slice() : [baseline, ...positionals];
+
+  if (list.length < 2 || list.length > 3) {
+    throw new Error(
+      `expected 1-2 step files on top of the baseline (or 2-3 with --no-baseline); got ${list.length} total`
+    );
+  }
+  return list;
+}
+
+/**
+ *  CLI entry point: resolve args (auto-including the #636 baseline), load the
+ *  files, and print the rendered markdown.  Exits non-zero with the error and a
+ *  usage line on bad arguments.
  */
 function main(argv) {
-  const paths = argv.slice(2);
-  if (paths.length < 2 || paths.length > 3) {
-    process.stderr.write('usage: node benchmark_compare.cjs <original.json> [previous.json] <current.json>\n');
+  let paths;
+  try {
+    paths = resolveInputPaths(argv.slice(2));
+  } catch (e) {
+    process.stderr.write(`${e.message}\n`);
+    process.stderr.write('usage: node benchmark_compare.cjs [--no-baseline] [--baseline <path>] [previous.json] <current.json>\n');
     process.exit(1);
     return;
   }
@@ -207,6 +273,6 @@ function main(argv) {
   process.stdout.write(renderMarkdown(buildComparison(benchmarks)) + '\n');
 }
 
-module.exports = { loadBenchmark, pivot, factor, formatOps, formatFactor, buildComparison, renderMarkdown };
+module.exports = { loadBenchmark, pivot, factor, formatOps, formatFactor, buildComparison, renderMarkdown, resolveInputPaths, DEFAULT_BASELINE };
 
 if (require.main === module) { main(process.argv); }
