@@ -1508,6 +1508,7 @@ declare class Machine<mDT> {
     _timeout_target: string | undefined;
     _timeout_target_time: number | undefined;
     _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
+    _event_listener_count: number;
     _firing_error: boolean;
     constructor({ start_states, end_states, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
@@ -2389,6 +2390,18 @@ declare class Machine<mDT> {
      *  @returns `true` if removed, `false` if no match was registered.
      */
     off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean;
+    /**
+     *  Remove one event-subscription entry from its set and keep
+     *  {@link Machine._event_listener_count} in sync.  The count is decremented
+     *  only when the entry was actually present, so calling a stale unsubscribe
+     *  closure (or removing an already-fired `once` entry) is idempotent and
+     *  cannot drive the count negative.
+     *
+     *  @param set   The per-event-name subscription set.
+     *  @param entry The entry to remove.
+     *  @internal
+     */
+    _unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void;
     /**
      *  Shared registration core used by {@link Machine.on} and
      *  {@link Machine.once}.  Normalizes the optional filter argument and
