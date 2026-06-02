@@ -85,3 +85,17 @@ describe('benchmark_compare two-file comparison', () => {
   });
 
 });
+
+describe('benchmark_compare argument validation', () => {
+
+  test('buildComparison rejects fewer than 2 benchmarks', () => {
+    expect(() => bc.buildComparison([])).toThrow(/2 or 3/);
+    expect(() => bc.buildComparison([{ opsByName: new Map() }])).toThrow(/2 or 3/);
+  });
+
+  test('buildComparison rejects more than 3 benchmarks', () => {
+    // length is checked before any element is dereferenced, so placeholders are fine
+    expect(() => bc.buildComparison([1, 2, 3, 4])).toThrow(/2 or 3/);
+  });
+
+});

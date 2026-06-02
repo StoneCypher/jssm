@@ -3794,7 +3794,10 @@ class Machine<mDT> {
     // builds a detail literal at the call site, so guard the whole block on a
     // live subscription count: with zero listeners (the common hot-path case,
     // and every benchmark shape) we skip all of these allocations entirely.
-    // Read after pre-hooks, so a listener a pre-hook installed is still seen.  #670
+    // Read after pre-hooks, so a listener a pre-hook installed is still seen.
+    // ('action' above and 'rejection' on the invalid path are intentionally
+    // NOT under this gate — they fire regardless, and `_fire` itself no-ops
+    // cheaply when that specific event has no subscribers.)  #670
     if (this._event_listener_count !== 0) {
       const newData_after: mDT = this._data;
       this._fire('exit', {

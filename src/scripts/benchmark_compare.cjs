@@ -99,6 +99,11 @@ function formatFactor(f) {
  *  is the original baseline, the last is current; a middle entry (3-file
  *  form) is the previous step.
  *
+ *  Rows track the shapes present in the *current* file: a shape that exists
+ *  only in an earlier file is dropped (the symmetric dual of skipping
+ *  operations absent from the current file).  Cells for an earlier file that
+ *  lacks a current shape render as `—` via {@link formatOps} / {@link formatFactor}.
+ *
  *  @param benchmarks Array of `{ version, date, opsByName }`, length 2 or 3.
  *  @returns `{ hasPrevious, original, previous, current, operations }`, where
  *           `operations` is an ordered list of `{ operation, rows }` and each
