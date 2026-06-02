@@ -323,6 +323,11 @@ class Machine {
                 this._state_labels.set(key, labelled[0].value);
             }
         });
+        // O(1) duplicate-edge guard for the construction loop below: from -> Set<to>.
+        // Keyed by source state; mirrors each state's `to` array with constant-time
+        // membership so the dedup check is O(1) per edge rather than an O(out-degree)
+        // array scan (which made construction O(V*E) on dense graphs).  #673
+        const seen_edges = new Map();
         // walk the transitions
         transitions.map((tr) => {
             if (tr.from === undefined) {
@@ -342,11 +347,20 @@ class Machine {
             if (!(this._states.has(tr.to))) {
                 this._new_state(cursor_to);
             }
-            // guard against existing connections being re-added
-            if (cursor_from.to.includes(tr.to)) {
+            // guard against existing connections being re-added — O(1) via the
+            // from -> Set<to> index instead of an O(out-degree) `cursor_from.to`
+            // array scan.  Behaviour is identical: the same duplicate (from, to)
+            // pair throws the same JssmError.  #673
+            let seen_to = seen_edges.get(tr.from);
+            if (seen_to === undefined) {
+                seen_to = new Set();
+                seen_edges.set(tr.from, seen_to);
+            }
+            if (seen_to.has(tr.to)) {
                 throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
             }
             else {
+                seen_to.add(tr.to);
                 cursor_from.to.push(tr.to);
                 cursor_to.from.push(tr.from);
             }
