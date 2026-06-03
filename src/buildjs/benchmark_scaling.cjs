@@ -8,10 +8,80 @@ const jssm = require('../../dist/jssm.es5.cjs');
 const sm   = jssm.sm;
 const pkg  = require('../../package.json');
 
+// ----------------------------------------------------------------------------
+// Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
+// ----------------------------------------------------------------------------
+//
+// When BENNY_DEEP is truthy, the suite is measured more thoroughly and emits an
+// ADDITIVE `msPerOp` (plus `samples`) field per result, so sub-1-ops/sec cases
+// (e.g. `dense-200 construct()`) surface as a real number instead of rounding to
+// `0`. Deep mode is purely additive: when BENNY_DEEP is unset the per-case
+// options object is `{}` and the saved JSON envelope is byte-identical to before,
+// so `benchmark_compare.cjs` and committed `scaling.json` snapshots keep working.
+//
+// To stay under the ~10-minute run cap, deepening is SELECTIVE — only the slow,
+// sample-starved `construct()` cases get raised sample counts; the fast read-only
+// cases already give tight margins at benny's default 5 samples.
+
+const DEEP = Boolean(process.env.BENNY_DEEP);
+
+/**
+ *  Per-benny-case options object, threaded through every `b.add` call.  In
+ *  normal mode this is always `{}` (preserving the legacy behavior exactly). In
+ *  deep mode the slow `construct()` cases get raised `minSamples`/`maxTime` so
+ *  their near-zero ops/sec collect a stable distribution; everything else stays
+ *  on benny defaults so the benchmark phase stays bounded.
+ *
+ *  @param caseName e.g. `dense-200 construct()`.
+ *  @returns A benny options object (`{}` in normal mode).
+ *
+ *  @example bennyOpts('chain-10 transition()') // => {} (when BENNY_DEEP unset)
+ */
+function bennyOpts(caseName) {
+  if (!DEEP) { return {}; }
+  if (caseName.endsWith('construct()')) {
+    // ~1.5 s/call worst case -> a bounded maxTime keeps even dense-200 under
+    // ~6 s while collecting far more than benny's default 5 samples.
+    return { minSamples: 20, maxTime: 6 };
+  }
+  return {};
+}
+
+/**
+ *  Augment the just-saved `scaling.json` with an additive per-result `msPerOp`
+ *  (and `samples`) figure, computed from benny's per-case mean seconds/op.  Only
+ *  runs in deep mode; in normal mode the envelope is left untouched.
+ *
+ *  @param summary The benny `Summary` passed to the `complete` handler, whose
+ *         `results[].details.mean` is mean seconds per op and `results[].samples`
+ *         is the sample count.
+ *  @returns void; rewrites `benchmark/results/scaling.json` in place.
+ */
+function augmentDeepJson(summary) {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+
+  const byName = new Map();
+  for (const r of summary.results) { byName.set(r.name, r); }
+
+  for (const r of data.results) {
+    const src = byName.get(r.name);
+    if (src && src.details && typeof src.details.mean === 'number') {
+      r.msPerOp = src.details.mean * 1000;   // mean is seconds/op
+      r.samples = src.samples;
+    }
+  }
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
 function writeMarkdownPivot() {
   const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
   const mdPath   = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.md');
   const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+
+  // A `ms/op` column is added ONLY when results carry msPerOp (deep mode); in
+  // normal mode the markdown is byte-identical to before.
+  const deep = data.results.some((r) => typeof r.msPerOp === 'number');
 
   // Group results by trailing operation token, e.g. "chain-10 transition()" -> op "transition()".
   const groups = new Map();
@@ -20,7 +90,7 @@ function writeMarkdownPivot() {
     const shape    = r.name.slice(0, spaceIdx);
     const op       = r.name.slice(spaceIdx + 1);
     if (!groups.has(op)) groups.set(op, []);
-    groups.get(op).push({ shape, ops: r.ops });
+    groups.get(op).push({ shape, ops: r.ops, msPerOp: r.msPerOp });
   }
 
   const lines = [];
@@ -33,10 +103,19 @@ function writeMarkdownPivot() {
   for (const [op, rows] of groups) {
     lines.push(`## ${op}`);
     lines.push('');
-    lines.push('| shape       | ops/sec     |');
-    lines.push('|-------------|------------:|');
-    for (const row of rows) {
-      lines.push(`| ${row.shape.padEnd(11)} | ${String(row.ops).padStart(11)} |`);
+    if (deep) {
+      lines.push('| shape       | ops/sec     | ms/op       |');
+      lines.push('|-------------|------------:|------------:|');
+      for (const row of rows) {
+        const ms = typeof row.msPerOp === 'number' ? row.msPerOp.toPrecision(4) : '—';
+        lines.push(`| ${row.shape.padEnd(11)} | ${String(row.ops).padStart(11)} | ${String(ms).padStart(11)} |`);
+      }
+    } else {
+      lines.push('| shape       | ops/sec     |');
+      lines.push('|-------------|------------:|');
+      for (const row of rows) {
+        lines.push(`| ${row.shape.padEnd(11)} | ${String(row.ops).padStart(11)} |`);
+      }
     }
     lines.push('');
   }
@@ -220,30 +299,33 @@ const shapes = [
 // ----------------------------------------------------------------------------
 
 function transitionCase(shape) {
-  return b.add(`${shape.name} transition()`, () => {
+  const name = `${shape.name} transition()`;
+  return b.add(name, () => {
     // Reset to s0 each iteration so the precomputed transitionSeq stays valid across
     // shapes whose cycle length doesn't divide K (chain-200, hub-N, messy-N, ...).
     // The override adds ~1% to per-iteration time for transition()-style cases; it
     // is omitted for read-only cases (edges_between, has_state) that don't mutate state.
     shape.machine.override('s0');
     for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
-  });
+  }, bennyOpts(name));
 }
 
 function edgesBetweenCase(shape) {
-  return b.add(`${shape.name} edges_between()`, () => {
+  const name = `${shape.name} edges_between()`;
+  return b.add(name, () => {
     for (let k = 0; k < K; ++k) {
       const [f, t] = shape.edgePairs[k];
       shape.machine.edges_between(f, t);
     }
-  });
+  }, bennyOpts(name));
 }
 
 function hasStateCase(shape) {
+  const name = `${shape.name} has_state()`;
   // Use the transition targets as the state list to probe - they're real states.
-  return b.add(`${shape.name} has_state()`, () => {
+  return b.add(name, () => {
     for (let k = 0; k < K; ++k) shape.machine.has_state(shape.transitionSeq[k]);
-  });
+  }, bennyOpts(name));
 }
 
 function constructionCase(shape) {
@@ -261,10 +343,11 @@ function constructionCase(shape) {
     case shape.name.startsWith('messy-'):  source = loadMessyFixture(parseInt(shape.name.slice(6), 10)); break;
     default: throw new Error(`unknown shape: ${shape.name}`);
   }
-  return b.add(`${shape.name} construct()`, () => {
+  const name = `${shape.name} construct()`;
+  return b.add(name, () => {
     const m = sm([source]);
     if (m === undefined) throw 'not defined!';   // prevent tree-shaking
-  });
+  }, bennyOpts(name));
 }
 
 // NOTE: action() is deliberately deferred from this scaling suite. Adding it would require
@@ -283,12 +366,17 @@ b.suite(
   ...shapes.map(hasStateCase),
   ...shapes.map(constructionCase),
   b.cycle(),
-  b.complete(() => {
+  b.complete((summary) => {
     // benny writes scaling.json synchronously during the b.save calls below in this
-    // suite's argument list. Defer with setImmediate so the markdown writer runs
+    // suite's argument list. Defer with setImmediate so the post-save steps run
     // after the save side-effects flush. If a future benny upgrade changes save
-    // ordering, swap to .then(writeMarkdownPivot) on the b.suite() return value.
-    setImmediate(writeMarkdownPivot);
+    // ordering, swap to .then(...) on the b.suite() return value.
+    setImmediate(() => {
+      // Deep mode: inject the additive msPerOp/samples fields into the saved
+      // JSON before the markdown writer reads it, so the ms/op column appears.
+      if (DEEP) { augmentDeepJson(summary); }
+      writeMarkdownPivot();
+    });
   }),
   b.save({ file: 'scaling', version: pkg.version }),
   b.save({ file: 'scaling', format: 'chart.html' }),
