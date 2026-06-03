@@ -782,3 +782,67 @@ describe('_event_listener_count bookkeeping', () => {
   });
 
 });
+
+
+
+
+describe('action/rejection listener-count gate (perf #671)', () => {
+
+  // --- action gate: zero-listener branch ---
+
+  test('action() with no listeners still mutates state (gate skip path)', () => {
+    // Exercises the wasAction=true / _event_listener_count===0 branch: the
+    // inner _fire('action') is skipped but the transition must still succeed.
+    const m = sm`a 'go' -> b;`;
+    const internal = m as unknown as { _event_listener_count: number };
+    expect(internal._event_listener_count).toBe(0);
+    const result = m.action('go');
+    expect(result).toBe(true);
+    expect(m.state()).toBe('b');
+  });
+
+  // --- action gate: non-zero-listener branch ---
+
+  test('action() with an action listener fires the event (gate live path)', () => {
+    // Exercises the wasAction=true / _event_listener_count!==0 branch: a
+    // subscribed handler must receive the 'action' event.
+    const m = sm`a 'go' -> b;`;
+    let received: any = null;
+    m.on('action', e => { received = e; });
+    m.action('go');
+    expect(received).not.toBeNull();
+    expect(received.action).toBe('go');
+    expect(received.from).toBe('a');
+    expect(received.to).toBe('b');
+  });
+
+  // --- rejection gate (invalid path): zero-listener branch ---
+
+  test('invalid transition with no listeners does not throw (gate skip path)', () => {
+    // Exercises the invalid / _event_listener_count===0 branch: the inner
+    // _fire('rejection') is skipped but transition() must return false cleanly.
+    const m = sm`a -> b;`;
+    const internal = m as unknown as { _event_listener_count: number };
+    expect(internal._event_listener_count).toBe(0);
+    expect(() => m.transition('c')).not.toThrow();
+    expect(m.transition('c')).toBe(false);
+    expect(m.state()).toBe('a');
+  });
+
+  // --- rejection gate (invalid path): non-zero-listener branch ---
+
+  test('invalid transition with a rejection listener still fires it (gate live path)', () => {
+    // Exercises the invalid / _event_listener_count!==0 branch: a subscribed
+    // handler must receive the 'rejection' event even though the transition
+    // was invalid.
+    const m = sm`a -> b;`;
+    let received: any = null;
+    m.on('rejection', e => { received = e; });
+    m.transition('c');   // no edge a->c
+    expect(received).not.toBeNull();
+    expect(received.reason).toBe('invalid');
+    expect(received.from).toBe('a');
+    expect(received.to).toBe('c');
+  });
+
+});
