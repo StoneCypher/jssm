@@ -1727,6 +1727,62 @@ class Machine {
         return () => { this._unsubscribe_entry(set, entry); };
     }
     /**
+     *  Invoke a single event-handler entry, respecting its filter, once-removal
+     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+     *  {@link _fire} can share identical behavior between the size-1 fast-path
+     *  and the general snapshotted loop.
+     *
+     *  @param entry  - The subscriber descriptor to invoke.
+     *  @param set    - The live Set that owns `entry`; needed for once-removal.
+     *  @param name   - The event name being dispatched (used in error re-fires).
+     *  @param detail - The event payload forwarded to the handler.
+     *
+     *  @internal
+     */
+    _fire_one(entry, set, name, detail) {
+        // filter check
+        if (entry.filter !== undefined) {
+            for (const k of Object.keys(entry.filter)) {
+                if (entry.filter[k] !== detail[k]) {
+                    return;
+                }
+            }
+        }
+        // once removal happens BEFORE invocation so a throwing handler still
+        // gets removed and so re-entrant `on` calls during the handler see
+        // the post-removal state.
+        if (entry.once) {
+            this._unsubscribe_entry(set, entry);
+        }
+        try {
+            entry.handler(detail);
+        }
+        catch (err) {
+            if (name === 'error' || this._firing_error) {
+                // surface to stderr as a last resort but never recurse;
+                // `console` is in the JS standard library and present in every
+                // supported runtime, so guarding it would just add an untestable
+                // branch.  See #638.
+                // eslint-disable-next-line no-console
+                console.error(err);
+            }
+            else {
+                this._firing_error = true;
+                try {
+                    this._fire('error', {
+                        error: err,
+                        source_event: name,
+                        source_detail: detail,
+                        handler: entry.handler
+                    });
+                }
+                finally {
+                    this._firing_error = false;
+                }
+            }
+        }
+    }
+    /**
      *  Dispatch an event to every registered subscriber in registration
      *  order.  Filters are checked first; non-matching handlers are skipped
      *  without invoking the handler.  Exceptions thrown by a handler are
@@ -1737,6 +1793,11 @@ class Machine {
      *  handler throws, the new exception is swallowed rather than rebroadcast
      *  to avoid an infinite loop.
      *
+     *  When exactly one subscriber is registered the common case avoids the
+     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+     *  local first — equivalent to a 1-element snapshot but allocation-free.
+     *  The general path still snapshots for re-entrancy safety.
+     *
      *  @internal
      */
     _fire(name, detail) {
@@ -1744,55 +1805,19 @@ class Machine {
         if (set === undefined || set.size === 0) {
             return;
         }
-        // Snapshot so handlers can `off()` mid-loop without disturbing iteration.
+        // Fast-path: single subscriber — capture entry before invoking so that
+        // even if the handler mutates `set` (via off/once auto-removal) we hold a
+        // stable reference.  Behaviorally identical to a 1-element snapshot.
+        if (set.size === 1) {
+            const only = set.values().next().value;
+            this._fire_one(only, set, name, detail);
+            return;
+        }
+        // General path: snapshot so handlers can `off()` mid-loop without
+        // disturbing iteration.
         const entries = Array.from(set);
         for (const entry of entries) {
-            // filter check
-            if (entry.filter !== undefined) {
-                let matched = true;
-                for (const k of Object.keys(entry.filter)) {
-                    if (entry.filter[k] !== detail[k]) {
-                        matched = false;
-                        break;
-                    }
-                }
-                if (!matched) {
-                    continue;
-                }
-            }
-            // once removal happens BEFORE invocation so a throwing handler still
-            // gets removed and so re-entrant `on` calls during the handler see
-            // the post-removal state.
-            if (entry.once) {
-                this._unsubscribe_entry(set, entry);
-            }
-            try {
-                entry.handler(detail);
-            }
-            catch (err) {
-                if (name === 'error' || this._firing_error) {
-                    // surface to stderr as a last resort but never recurse;
-                    // `console` is in the JS standard library and present in every
-                    // supported runtime, so guarding it would just add an untestable
-                    // branch.  See #638.
-                    // eslint-disable-next-line no-console
-                    console.error(err);
-                }
-                else {
-                    this._firing_error = true;
-                    try {
-                        this._fire('error', {
-                            error: err,
-                            source_event: name,
-                            source_detail: detail,
-                            handler: entry.handler
-                        });
-                    }
-                    finally {
-                        this._firing_error = false;
-                    }
-                }
-            }
+            this._fire_one(entry, set, name, detail);
         }
     }
     /** Low-level hook registration.  Installs a handler described by a
