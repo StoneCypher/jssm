@@ -279,7 +279,7 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
   test('pins the exact PR commit and builds dist via make', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: false });
     expect(s).toContain(`git checkout ${'a'.repeat(40)}`);
-    expect(s).toContain('npm ci');
+    expect(s).toContain('npm install');
     expect(s).toContain('npm run make');
     expect(s).toContain('JSSM_PERF_DONE');
   });

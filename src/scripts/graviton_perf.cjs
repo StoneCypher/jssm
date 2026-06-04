@@ -431,7 +431,7 @@ function buildRemoteScript(params) {
     `git checkout ${commitSha}`,
     '',
     '# 3. Build dist/ (make, not build: make is the minimum that yields the bundles).',
-    'npm ci',
+    'npm install --no-audit --no-fund',
     'npm run make',
     '',
     '# 4. Benchmark (mode-dependent).',
@@ -770,6 +770,9 @@ function provision(exec, opts, state) {
  *  @param state Run-state with `instanceId`, `keyPath`, etc.
  *  @param refInfo `{ headRefName, headRefOid }` for the remote checkout.
  *  @returns `{ scalingJson, scalingMd, profTxt }` absolute local paths.
+ *  @throws Error if the remote build/benchmark exits non-zero (surfaced eagerly,
+ *          so a failed build can't masquerade as the repo's committed stale
+ *          `scaling.json`), or if no non-empty `scaling.json` came back.
  */
 function configureAndRun(exec, opts, state, refInfo) {
   const { region } = state;
@@ -806,7 +809,13 @@ function configureAndRun(exec, opts, state, refInfo) {
   const remoteScriptPath = path.join(state.tmpDir, 'remote_run.sh');
   if (!exec.dryRun) { fs.writeFileSync(remoteScriptPath, remoteScript); }
   exec.run('scp', [...sshBase, remoteScriptPath, `ec2-user@${dns}:remote_run.sh`]);
-  exec.run('ssh', [...sshBase, `ec2-user@${dns}`, 'bash', 'remote_run.sh'], { inherit: true });
+  const remoteRun = exec.run('ssh', [...sshBase, `ec2-user@${dns}`, 'bash', 'remote_run.sh'], { inherit: true });
+  if (!exec.dryRun && remoteRun.status !== 0) {
+    throw new Error(
+      `remote build/benchmark failed (ssh exit ${remoteRun.status}); the run never reached ` +
+      `JSSM_PERF_DONE. See the streamed remote output above for the failing step.`
+    );
+  }
 
   // Retrieve artifacts.
   const outDir = state.tmpDir;
