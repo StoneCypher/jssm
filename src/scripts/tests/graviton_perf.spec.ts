@@ -288,6 +288,8 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: false });
     expect(s).toContain('node --prof');
     expect(s).toContain('--prof-process');
+    expect(s).toContain('cat > perf_probe.cjs');   // in the repo cwd, not /tmp, so
+    expect(s).not.toContain('/tmp/perf_probe');     // require('./dist/...') resolves to ./dist
     expect(s).toContain('construct.prof.txt');
     expect(s).toContain('jssm.es5.nonmin.cjs');
   });
