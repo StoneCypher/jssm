@@ -245,28 +245,17 @@ ActionLabel "action label"
 LineTerminator
   = [\n\r\u2028\u2029]
 
-BlockCommentTail
-  = "*/"
-  / . BlockCommentTail
-
 BlockComment "block comment"
-  = "/*" BlockCommentTail
+  = "/*" (!"*/" .)* "*/"
 
 EOF
   = !.
 
-LineCommentTail
-  = LineTerminator
-  / EOF
-  / . LineCommentTail
-
 LineComment "line comment"
-  = "//" LineCommentTail
+  = "//" (!LineTerminator .)* (LineTerminator / EOF)
 
 WS "whitespace"
-  = BlockComment WS?
-  / LineComment  WS?
-  / [ \t\r\n\v]+ WS?
+  = ([ \t\r\n\v]+ / BlockComment / LineComment)+
 
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
