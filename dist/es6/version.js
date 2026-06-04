@@ -4,11 +4,11 @@
  *  Useful for runtime diagnostics and for embedding in serialized machine
  *  snapshots so that deserializers can detect version-skew.
  */
-const version = "5.141.6";
+const version = "5.141.7";
 /**
  *  The Unix epoch timestamp (in milliseconds) at which this build was produced,
  *  written by `src/buildjs/makever.cjs`.  Useful for distinguishing builds
  *  with the same `version` string during development, and for diagnostic logs.
  */
-const build_time = 1780614946835;
+const build_time = 1780615476115;
 export { version, build_time };
