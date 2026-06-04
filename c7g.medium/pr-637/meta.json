@@ -1,0 +1,11 @@
+{
+  "pr": 637,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "40d4ae91a2094a898e2db6afa41821e9d8c962f0",
+  "headRefName": "perf_26-05-26_adjacency-index_635",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:27:29.531Z",
+  "runner": "graviton_perf.cjs"
+}
