@@ -1,0 +1,11 @@
+{
+  "pr": 677,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "8d4794b7baf9adde125a30c1dc43f1d27fc82e0b",
+  "headRefName": "perf_26-06-02_ws-comment-rules_676",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:40:06.179Z",
+  "runner": "graviton_perf.cjs"
+}
