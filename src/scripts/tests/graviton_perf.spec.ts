@@ -21,7 +21,7 @@ describe('parseArgs — defaults and positional', () => {
     expect(o.instanceType).toBe('c7g.medium');
     expect(o.mode).toBe('normal');
     expect(o.region).toBe('us-east-1');
-    expect(o.shutdownMinutes).toBe(15);
+    expect(o.shutdownMinutes).toBe(30);
     expect(o.deep).toBe(false);
     expect(o.spot).toBe(false);
     expect(o.force).toBe(false);

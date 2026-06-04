@@ -21,7 +21,7 @@
  *    --region <aws-region>    AWS region (default `us-east-1`).
  *    --subnet-id <id>         Subnet to launch in (auto-detected if omitted).
  *    --my-ip <cidr>           SSH-ingress CIDR override (default: resolved /32).
- *    --shutdown-minutes <n>   Dead-man's-switch timer (default 15).
+ *    --shutdown-minutes <n>   Dead-man's-switch timer (default 30).
  *    --spot                   Launch as a Spot instance (default on-demand).
  *    --force                  Re-measure even if results already exist.
  *    --keep                   Skip teardown (debug); dead-man's-switch still fires.
@@ -66,7 +66,7 @@ const DEFAULTS = Object.freeze({
   instanceType    : 'c7g.medium',
   mode            : 'normal',
   region          : 'us-east-1',
-  shutdownMinutes : 15,
+  shutdownMinutes : 30,
   repoUrl         : 'https://github.com/StoneCypher/jssm.git',
   ghRepo          : 'StoneCypher/jssm'
 });

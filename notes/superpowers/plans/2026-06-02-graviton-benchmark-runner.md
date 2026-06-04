@@ -56,7 +56,7 @@
 | `--cleanup-only` | off | Skip provisioning/benchmark; **sweep** all resources tagged by this script (optionally filter to a specific `--run-id`) and delete them. The orphan-reaper. |
 | `--run-id <id>` | auto | Override the generated run id. Mainly used with `--cleanup-only` to target one run. |
 | `--keep` | off | (Escape hatch, default OFF) Skip teardown and print SSH instructions, for manual debugging. Prints a loud warning + the exact `--cleanup-only` command to reclaim the resources. The dead-man's-switch (Task 6) still terminates the instance even with `--keep`. |
-| `--shutdown-minutes <n>` | `15` | Dead-man's-switch timer length on the instance (`shutdown -h +n`). Must exceed the expected run time; default 15 leaves margin over the 10-minute target. |
+| `--shutdown-minutes <n>` | `30` | Dead-man's-switch timer length on the instance (`shutdown -h +n`). Must exceed the expected run time; default 30 leaves margin over the 10-minute target. |
 | `--dry-run` | off | Print every AWS CLI / ssh command that would run, execute none. For review. |
 
 **Run id:** `jssm-perf-<yyyymmdd-hhmmss>-<6-char-random>` (e.g. `jssm-perf-20260602-143012-a1b9f2`). Used as the value of the `jssm-perf-run` tag on every resource, and embedded in the key-pair name and security-group name so even an untagged stray is greppable.
@@ -300,10 +300,10 @@ Two independent mechanisms, so a dead orchestrator can never leave a billable in
   ```sh
   #!/bin/bash
   # userdata.sh — runs as root at first boot, BEFORE anything else.
-  shutdown -h +<shutdown-minutes>   # default +15
+  shutdown -h +<shutdown-minutes>   # default +30
   ```
-  (A systemd transient timer — `systemd-run --on-active=15min /sbin/shutdown -h now` — is an equally good alternative and survives a `shutdown -c`; either is acceptable. Document the choice in the script.) Because shutdown-behavior is `terminate`, this self-terminates and drops the volume.
-- [ ] **6c. Margin.** `--shutdown-minutes` (default 15) must exceed the expected wall time (≤10 min target) so a healthy run is never guillotined mid-benchmark, while a hung/abandoned run still dies within 15 minutes max → worst-case waste ≈ 15 min × instance rate ≈ **under one cent**.
+  (A systemd transient timer — `systemd-run --on-active=30min /sbin/shutdown -h now` — is an equally good alternative and survives a `shutdown -c`; either is acceptable. Document the choice in the script.) Because shutdown-behavior is `terminate`, this self-terminates and drops the volume.
+- [ ] **6c. Margin.** `--shutdown-minutes` (default 30) must exceed the expected wall time (≤10 min target) so a healthy run is never guillotined mid-benchmark, while a hung/abandoned run still dies within 30 minutes max → worst-case waste ≈ 30 min × instance rate ≈ **under two cents**.
 
 ---
 
