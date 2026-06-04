@@ -358,3 +358,49 @@ describe('graviton_perf_launch — pure helpers', () => {
   });
 
 });
+
+describe('summarizeFinalInstanceState — post-teardown report', () => {
+
+  test('a single terminated instance reads as cleaned up', () => {
+    const r = gp.summarizeFinalInstanceState('terminated');
+    expect(r.states).toEqual(['terminated']);
+    expect(r.allClear).toBe(true);
+    expect(r.summary).toContain('terminated');
+    expect(r.summary).toContain('✓');
+  });
+
+  test('shutting-down counts as cleared (it always proceeds to terminated)', () => {
+    const r = gp.summarizeFinalInstanceState('shutting-down');
+    expect(r.allClear).toBe(true);
+    expect(r.summary).toContain('shutting-down');
+  });
+
+  test('empty result (no surviving instance) is clear', () => {
+    const r = gp.summarizeFinalInstanceState('');
+    expect(r.states).toEqual([]);
+    expect(r.allClear).toBe(true);
+    expect(r.summary).toContain('no tagged instance survives');
+  });
+
+  test('a still-running instance is surfaced as a leak, not swallowed', () => {
+    const r = gp.summarizeFinalInstanceState('running');
+    expect(r.allClear).toBe(false);
+    expect(r.summary).toContain('NOT torn down');
+    expect(r.summary).toContain('running');
+    expect(r.summary).toContain('--cleanup-only');
+  });
+
+  test('mixed states report every survivor and stay not-clear if any lingers', () => {
+    const r = gp.summarizeFinalInstanceState('terminated\nstopped');
+    expect(r.states).toEqual(['terminated', 'stopped']);
+    expect(r.allClear).toBe(false);
+    expect(r.summary).toContain('stopped');
+  });
+
+  test('whitespace/newline/tab-separated text output parses cleanly', () => {
+    const r = gp.summarizeFinalInstanceState('  terminated \n shutting-down \t');
+    expect(r.states).toEqual(['terminated', 'shutting-down']);
+    expect(r.allClear).toBe(true);
+  });
+
+});

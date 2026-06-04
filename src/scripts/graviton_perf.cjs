@@ -826,6 +826,55 @@ function configureAndRun(exec, opts, state, refInfo) {
 }
 
 /**
+ *  Classify the post-teardown instance state(s) for the run log, so a reader can
+ *  confirm the box ended up gone without opening the EC2 console — and so a
+ *  *leaked* instance (anything not terminating) is surfaced loudly rather than
+ *  hidden behind a bare "teardown complete".
+ *
+ *  `terminated` and `shutting-down` both count as cleaned up: a shutting-down
+ *  instance always proceeds to terminated, and the dead-man's-switch guarantees
+ *  it even if our own terminate call failed. An empty query result means no
+ *  tagged instance survives — also clear.
+ *
+ *  @param stateText Raw `--output text` stdout of the proof-step query
+ *         (`Reservations[].Instances[].State.Name`): whitespace-separated state
+ *         names, or '' when nothing tagged survives.
+ *  @returns `{ states, allClear, summary }` — `states` the parsed names,
+ *           `allClear` whether every survivor is gone/terminating, and `summary`
+ *           the one-line message written to the run log.
+ *
+ *  @example
+ *  summarizeFinalInstanceState('terminated')
+ *  // => { states: ['terminated'], allClear: true,
+ *  //      summary: 'EC2 final state: terminated ✓' }
+ *
+ *  @example
+ *  summarizeFinalInstanceState('')          // nothing survives
+ *  // => { states: [], allClear: true,
+ *  //      summary: 'EC2 final state: no tagged instance survives ✓' }
+ *
+ *  @example
+ *  summarizeFinalInstanceState('running')   // a leak — surfaced, not swallowed
+ *  // => { states: ['running'], allClear: false,
+ *  //      summary: '⚠ EC2 NOT torn down: running — reclaim with --cleanup-only' }
+ */
+function summarizeFinalInstanceState(stateText) {
+  const CLEARED  = new Set(['terminated', 'shutting-down']);
+  const states   = (stateText || '').split(/\s+/).map((s) => s.trim()).filter(Boolean);
+  const allClear = states.every((s) => CLEARED.has(s));
+
+  let summary;
+  if (states.length === 0) {
+    summary = 'EC2 final state: no tagged instance survives ✓';
+  } else if (allClear) {
+    summary = `EC2 final state: ${states.join(', ')} ✓`;
+  } else {
+    summary = `⚠ EC2 NOT torn down: ${states.join(', ')} — reclaim with --cleanup-only`;
+  }
+  return { states, allClear, summary };
+}
+
+/**
  *  Teardown: terminate the instance and WAIT for it gone, delete the security
  *  group (now unreferenced), delete the key pair, and shred local secrets.
  *  Idempotent — "not found" / "already deleted" AWS errors are treated as
@@ -853,13 +902,20 @@ function teardown(exec, state) {
     swallow(() => fs.rmSync(state.tmpDir, { recursive: true, force: true }));
   }
 
-  // Proof step: assert nothing tagged with this run id survives (terminated is ok).
-  swallow(() => exec.run('aws', [
-    'ec2', 'describe-instances', '--region', region,
-    '--filters', tagFilter(state.runId),
-    '--query', "Reservations[].Instances[].{Id:InstanceId,State:State.Name}"
-  ]));
-  process.stdout.write(`teardown complete for ${state.runId}\n`);
+  // Proof step: query the surviving instance state(s) for this run and report
+  // them, so the run log records that the box ended up gone (terminated is ok)
+  // and a leak is screamed about rather than hidden.
+  let finalSummary = 'EC2 final state: unknown (post-teardown query did not run)';
+  swallow(() => {
+    const res = exec.run('aws', [
+      'ec2', 'describe-instances', '--region', region,
+      '--filters', tagFilter(state.runId),
+      '--query', 'Reservations[].Instances[].State.Name', '--output', 'text'
+    ], { dryRunStdout: 'terminated' });
+    finalSummary = summarizeFinalInstanceState(res.stdout).summary;
+  });
+  state.finalInstanceSummary = finalSummary;
+  process.stdout.write(`teardown complete for ${state.runId} — ${finalSummary}\n`);
 }
 
 /**
@@ -1090,6 +1146,7 @@ module.exports = {
   buildUserData,
   buildRemoteScript,
   quoteForDisplay,
+  summarizeFinalInstanceState,
   // seams / orchestration (exercised via --dry-run, not unit-tested against AWS)
   makeExecutor,
   listPerfResultsPaths,
