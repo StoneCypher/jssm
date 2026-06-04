@@ -28,8 +28,8 @@
 
 **Created:**
 
-- `src/scripts/graviton_bench.cjs` — the orchestrator. Self-contained: arg parsing, AWS lifecycle (provision → configure → run → retrieve → teardown), tag-based sweep/cleanup, and a guaranteed-cleanup wrapper.
-- `src/scripts/tests/graviton_bench.spec.ts` — unit tests for the *pure* pieces (arg parser, tag-filter builder, remote-command-string builder, run-id generator, deep-vs-normal env selection). The AWS/SSH side-effecting parts are not unit-tested against live AWS; they are factored behind a thin "executor" seam so the pure logic is testable without spending money. (Optionally a `--dry-run` flag that prints every AWS CLI command instead of running it, for manual verification.)
+- `src/scripts/graviton_perf.cjs` — the orchestrator. Self-contained: arg parsing, AWS lifecycle (provision → configure → run → retrieve → teardown), tag-based sweep/cleanup, and a guaranteed-cleanup wrapper.
+- `src/scripts/tests/graviton_perf.spec.ts` — unit tests for the *pure* pieces (arg parser, tag-filter builder, remote-command-string builder, run-id generator, deep-vs-normal env selection). The AWS/SSH side-effecting parts are not unit-tested against live AWS; they are factored behind a thin "executor" seam so the pure logic is testable without spending money. (Optionally a `--dry-run` flag that prints every AWS CLI command instead of running it, for manual verification.)
 
 **Modified (benchmark-side prerequisite — see Task 1):**
 
@@ -43,7 +43,7 @@
 
 ## Argument / flag design
 
-`node src/scripts/graviton_bench.cjs [flags]`
+`node src/scripts/graviton_perf.cjs [flags]`
 
 | Flag | Default | Meaning |
 |------|---------|---------|
@@ -59,7 +59,7 @@
 | `--shutdown-minutes <n>` | `15` | Dead-man's-switch timer length on the instance (`shutdown -h +n`). Must exceed the expected run time; default 15 leaves margin over the 10-minute target. |
 | `--dry-run` | off | Print every AWS CLI / ssh command that would run, execute none. For review. |
 
-**Run id:** `jssm-bench-<yyyymmdd-hhmmss>-<6-char-random>` (e.g. `jssm-bench-20260602-143012-a1b9f2`). Used as the value of the `jssm-bench-run` tag on every resource, and embedded in the key-pair name and security-group name so even an untagged stray is greppable.
+**Run id:** `jssm-perf-<yyyymmdd-hhmmss>-<6-char-random>` (e.g. `jssm-perf-20260602-143012-a1b9f2`). Used as the value of the `jssm-perf-run` tag on every resource, and embedded in the key-pair name and security-group name so even an untagged stray is greppable.
 
 ---
 
@@ -130,7 +130,7 @@ The script must fail fast, *before* creating anything, if the environment isn't 
 ## Task 3: Provision (create AWS resources, all tagged)
 
 All `aws` calls take `--region <region>`. Every created resource gets the tag set:
-`{ Key: jssm-bench-run, Value: <run-id> }`, `{ Key: jssm-bench, Value: "true" }`, `{ Key: Name, Value: <run-id> }`.
+`{ Key: jssm-perf-run, Value: <run-id> }`, `{ Key: jssm-perf, Value: "true" }`, `{ Key: Name, Value: <run-id> }`.
 
 - [ ] **3a. Resolve a current ARM64 AMI at runtime via SSM Parameter Store** (never hardcode an AMI id — they're region-specific and rotate):
 
@@ -152,8 +152,8 @@ All `aws` calls take `--region <region>`. Every created resource gets the tag se
 - [ ] **3c. Create a temporary security group** in the default VPC, name `<run-id>-sg`, description noting the run id:
   ```
   aws ec2 create-security-group --region <region> --group-name <run-id>-sg \
-    --description "jssm bench transient <run-id>" \
-    --tag-specifications 'ResourceType=security-group,Tags=[{Key=jssm-bench-run,Value=<run-id>},{Key=jssm-bench,Value=true}]'
+    --description "jssm perf transient <run-id>" \
+    --tag-specifications 'ResourceType=security-group,Tags=[{Key=jssm-perf-run,Value=<run-id>},{Key=jssm-perf,Value=true}]'
   ```
   Then **one** ingress rule — SSH/22 from the caller IP only:
   ```
@@ -172,7 +172,7 @@ All `aws` calls take `--region <region>`. Every created resource gets the tag se
     --instance-initiated-shutdown-behavior terminate \
     --block-device-mappings '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":10,"VolumeType":"gp3","DeleteOnTermination":true}}]' \
     --metadata-options 'HttpTokens=required,HttpEndpoint=enabled' \
-    --tag-specifications 'ResourceType=instance,Tags=[{Key=jssm-bench-run,Value=<run-id>},{Key=jssm-bench,Value=true},{Key=Name,Value=<run-id>}]' \
+    --tag-specifications 'ResourceType=instance,Tags=[{Key=jssm-perf-run,Value=<run-id>},{Key=jssm-perf,Value=true},{Key=Name,Value=<run-id>}]' \
     --user-data file://<tmp>/userdata.sh \
     --count 1 \
     --query 'Instances[0].InstanceId' --output text
@@ -268,24 +268,24 @@ All `aws` calls take `--region <region>`. Every created resource gets the tag se
      ```
      then remove `<tmp>/<run-id>-key.pem` and `<tmp>/known_hosts`.
 
-- [ ] **5c. Verify no leftovers** (the proof step). Query by the run tag and assert empty (or, for the instance, only `terminated`):
+- [ ] **5c. Verify no leftovers** (the proof step). Query by the run tag and assert empty (or, for the instance, only `terminated`). The instance query's `State.Name` is parsed by `summarizeFinalInstanceState` and the outcome reported in the run log (`EC2 final state: terminated ✓`, or a loud `⚠ EC2 NOT torn down: …` naming any lingering state), so the box's end state is recorded in the output the user reads — not merely asserted:
   ```
   aws ec2 describe-instances --region <region> \
-    --filters Name=tag:jssm-bench-run,Values=<run-id> \
+    --filters Name=tag:jssm-perf-run,Values=<run-id> \
     --query 'Reservations[].Instances[].{Id:InstanceId,State:State.Name}'
   aws ec2 describe-security-groups --region <region> \
-    --filters Name=tag:jssm-bench-run,Values=<run-id> --query 'SecurityGroups[].GroupId'
+    --filters Name=tag:jssm-perf-run,Values=<run-id> --query 'SecurityGroups[].GroupId'
   aws ec2 describe-volumes --region <region> \
-    --filters Name=tag:jssm-bench-run,Values=<run-id> --query 'Volumes[].VolumeId'
+    --filters Name=tag:jssm-perf-run,Values=<run-id> --query 'Volumes[].VolumeId'
   aws ec2 describe-snapshots --region <region> --owner-ids self \
-    --filters Name=tag:jssm-bench-run,Values=<run-id> --query 'Snapshots[].SnapshotId'
+    --filters Name=tag:jssm-perf-run,Values=<run-id> --query 'Snapshots[].SnapshotId'
   aws ec2 describe-addresses --region <region> \
-    --filters Name=tag:jssm-bench-run,Values=<run-id> --query 'Addresses[].AllocationId'
+    --filters Name=tag:jssm-perf-run,Values=<run-id> --query 'Addresses[].AllocationId'
   aws ec2 describe-key-pairs --region <region> --key-names <run-id>-key   # expect "not found"
   ```
   (We never allocate Elastic IPs or create snapshots, and the volume is DeleteOnTermination — so these should always be empty; checking anyway is the safety net the user explicitly asked for.)
 
-- [ ] **5d. `--cleanup-only` sweep mode.** Same teardown, but discovery is purely tag-based and scoped to `jssm-bench=true` (optionally `--run-id` to target one run): list all instances/SGs/keys/volumes carrying the tag and reap them. This is the orphan-reaper for the case where a previous run's cleanup itself died. Key pairs aren't taggable via the simple `create-key-pair` path, so the sweep also matches key-pair **names** with the `jssm-bench-` prefix.
+- [ ] **5d. `--cleanup-only` sweep mode.** Same teardown, but discovery is purely tag-based and scoped to `jssm-perf=true` (optionally `--run-id` to target one run): list all instances/SGs/keys/volumes carrying the tag and reap them. This is the orphan-reaper for the case where a previous run's cleanup itself died. Key pairs aren't taggable via the simple `create-key-pair` path, so the sweep also matches key-pair **names** with the `jssm-perf-` prefix.
 
 - [ ] **5e. Final confirmation output.** Print an explicit, human-readable summary of exactly what was deleted (instance id, sg id, key name, volume confirmed gone) **and** paste the two or three `aws ec2 describe-...` filter commands above so the user can independently verify zero residue. On any cleanup failure, print a red, unmissable warning naming the surviving resource and the exact `--cleanup-only --run-id <id>` command to finish the job.
 
@@ -309,14 +309,14 @@ Two independent mechanisms, so a dead orchestrator can never leave a billable in
 
 ## Task 7: Tests & verification
 
-- [ ] **7a. Unit tests** (`src/scripts/tests/graviton_bench.spec.ts`) for the pure logic, factored behind an executor seam:
+- [ ] **7a. Unit tests** (`src/scripts/tests/graviton_perf.spec.ts`) for the pure logic, factored behind an executor seam:
   - arg parser (defaults; `--mode deep` selects `BENNY_DEEP=1`; bad `--instance-type` / a `t*` type is rejected; `--cleanup-only` skips provision).
   - run-id generator format.
   - tag-filter / describe-command string builders.
   - remote-command builder (normal vs deep produces the right `BENNY_DEEP` prefix; `<ref>` is interpolated safely / shell-escaped).
   - cleanup idempotency: feed a fake executor that returns "not found" and assert cleanup treats it as success.
   No live-AWS calls in tests. (No golden-file/snapshot tests; assert on substrings/identifiers per project rules.)
-- [ ] **7b. `--dry-run` manual verification:** run `node src/scripts/graviton_bench.cjs --dry-run` and eyeball that the printed AWS CLI sequence is correct (correct tags, `/32` ingress, DeleteOnTermination, shutdown-behavior terminate). Run `--cleanup-only --dry-run` and confirm it prints only describe/delete-by-tag commands.
+- [ ] **7b. `--dry-run` manual verification:** run `node src/scripts/graviton_perf.cjs --dry-run` and eyeball that the printed AWS CLI sequence is correct (correct tags, `/32` ingress, DeleteOnTermination, shutdown-behavior terminate). Run `--cleanup-only --dry-run` and confirm it prints only describe/delete-by-tag commands.
 - [ ] **7c. One real end-to-end run** (costs ~$0.01) in `--mode normal`, confirm `build/scaling.json` returns populated and that the post-run `describe` checks show zero residue. Then one `--mode deep` run to confirm the zeroes are gone (e.g. `dense-200 construct()` now shows a non-zero `ms/op`) and that total wall time stayed under budget; tune Task-1 `minSamples`/`maxTime` if not.
 - [ ] **7d. Failure-injection check:** Ctrl-C the orchestrator mid-build and confirm the `finally`/signal handler tears everything down; separately, kill the orchestrator with `-9` (simulating a crashed laptop) and confirm the **dead-man's-switch** terminates the instance within `--shutdown-minutes`.
 - [ ] **7e. IDE diagnostics** clean on the new files before declaring done.
