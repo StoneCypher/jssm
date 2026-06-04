@@ -1,0 +1,11 @@
+{
+  "pr": 679,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "9768a6f7c575dfbe775f2f90aa022dde169f9ed4",
+  "headRefName": "perf_26-06-03_fire-size1-fastpath",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:10:54.914Z",
+  "runner": "graviton_perf.cjs"
+}
