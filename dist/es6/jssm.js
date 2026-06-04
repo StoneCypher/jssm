@@ -2530,6 +2530,44 @@ class Machine {
     }
     /*********
      *
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Extracted from the per-call closures inside {@link transition_impl} so
+     *  that it is allocated once at class-definition time rather than on every
+     *  hooked transition.
+     *
+     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+     *  @param fromState  State the machine was in when the transition was
+     *    attempted; used as the `from` field of the rejection event.
+     *  @param newState   State that would have been entered had the hook
+     *    passed; used as the `to` field of the rejection event.
+     *  @param fromAction Action name when the transition was initiated by an
+     *    action call; `undefined` for plain state transitions.
+     *  @param oldData    Machine data at the moment the transition was
+     *    attempted, before any hook mutations.
+     *  @param newData    The `next_data` value passed to the transition call.
+     *  @param wasForced  Whether the transition was attempted via
+     *    `force_transition`.
+     *
+     *  @see transition_impl
+     *  @see _fire
+     *
+     *  @internal
+     *
+     */
+    _fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
+        this._fire('rejection', {
+            from: fromState,
+            to: newState,
+            action: fromAction,
+            data: oldData,
+            next_data: newData,
+            reason: 'hook',
+            hook_name,
+            forced: wasForced
+        });
+    }
+    /*********
+     *
      *  Shared transition core used by {@link transition}, {@link force_transition},
      *  and {@link action}.  Runs validation, fires the full hook pipeline (pre-
      *  everything, any-action, after, any-transition, exit, named, basic,
@@ -2636,75 +2674,68 @@ class Machine {
             if (this._has_hooks) {
                 // once validity is known, clear old 'after' timeout clause
                 this.clear_state_timeout();
-                function update_fields(res) {
-                    if (res.hasOwnProperty('data')) {
-                        hook_args.data = res.data;
-                        hook_args.next_data = res.next_data;
-                        data_changed = true;
-                    }
-                }
                 let data_changed = false;
-                const fire_rejection = (hook_name) => {
-                    this._fire('rejection', {
-                        from: fromState,
-                        to: newState,
-                        action: fromAction,
-                        data: oldData,
-                        next_data: newData,
-                        reason: 'hook',
-                        hook_name,
-                        forced: wasForced
-                    });
-                };
                 // 0. pre everything hook (fires before all other pre-hooks)
                 if (this._pre_everything_hook !== undefined) {
                     const outcome = abstract_everything_hook_step(this._pre_everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'pre everything' }));
                     if (outcome.pass === false) {
-                        fire_rejection('pre everything');
+                        this._fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 if (wasAction) {
                     // 1a. any action hook
                     const outcome = abstract_hook_step(this._any_action_hook, hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('any action');
+                        this._fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                     // 1b. global specific action hook
                     const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
                     if (outcome2.pass === false) {
-                        fire_rejection('global action');
+                        this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome2);
+                    if (_update_hook_fields(hook_args, outcome2)) {
+                        data_changed = true;
+                    }
                 }
                 // 2. after hook
                 if (this._has_after_hooks) {
                     const ah = this._after_hooks.get(newStateOrAction);
                     const outcome = abstract_hook_step(ah, hook_args);
-                    // there's no such thing as after not passing, so, omit the result pass check
-                    update_fields(outcome);
+                    // there's no such thing as after not passing, so, omit the result pass check.
+                    // after hooks are post-exit and informational — their outcome never changes
+                    // data, so there's no data_changed branch here (it would be unreachable).
+                    _update_hook_fields(hook_args, outcome);
                 }
                 // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
                     const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('any transition');
+                        this._fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 4. exit hook
                 if (this._has_exit_hooks) {
                     const outcome = abstract_hook_step(this._exit_hooks.get(this._state), hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('exit');
+                        this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 5. named transition / action hook
                 if (this._has_named_hooks) {
@@ -2716,10 +2747,12 @@ class Machine {
                         const nh = byAct === undefined ? undefined : byAct.get(newStateOrAction);
                         const outcome = abstract_hook_step(nh, hook_args);
                         if (outcome.pass === false) {
-                            fire_rejection('named');
+                            this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
-                        update_fields(outcome);
+                        if (_update_hook_fields(hook_args, outcome)) {
+                            data_changed = true;
+                        }
                     }
                 }
                 // 6. regular hook
@@ -2729,56 +2762,68 @@ class Machine {
                     const h = byTo === undefined ? undefined : byTo.get(newState);
                     const outcome = abstract_hook_step(h, hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('hook');
+                        this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 7. edge type hook
                 // 7a. standard transition hook
                 if (trans_type === 'legal') {
                     const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('standard transition');
+                        this._fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 7b. main type hook
                 if (trans_type === 'main') {
                     const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('main transition');
+                        this._fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 7c. forced transition hook
                 if (trans_type === 'forced') {
                     const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('forced transition');
+                        this._fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 8. entry hook
                 if (this._has_entry_hooks) {
                     const outcome = abstract_hook_step(this._entry_hooks.get(newState), hook_args);
                     if (outcome.pass === false) {
-                        fire_rejection('entry');
+                        this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 9. everything hook (fires after all other pre-hooks)
                 if (this._everything_hook !== undefined) {
                     const outcome = abstract_everything_hook_step(this._everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'everything' }));
                     if (outcome.pass === false) {
-                        fire_rejection('everything');
+                        this._fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // all hooks passed!  let's now establish the result
                 if (this._history_length) {
@@ -3737,6 +3782,46 @@ function is_hook_complex_result(hr) {
         if (typeof hr.pass === 'boolean') {
             return true;
         }
+    }
+    return false;
+}
+/**
+ *
+ *  Apply any data-field updates from a hook's complex result into `hook_args`,
+ *  and return whether data actually changed.
+ *
+ *  This is the hoisted, allocation-free replacement for the `update_fields`
+ *  inner function that used to be re-created on every hooked transition inside
+ *  {@link Machine.transition_impl}.  By moving it to module scope the function
+ *  object is allocated once at module load time.
+ *
+ *  When the result does not carry a `data` property (the common case —
+ *  most hooks return `true` or `undefined`) the function returns `false`
+ *  immediately without touching `hook_args`.
+ *
+ *  ```typescript
+ *  const args = { data: 'old', next_data: undefined, ... };
+ *  const changed = _update_hook_fields(args, { pass: true, data: 'new', next_data: undefined });
+ *  // changed === true, args.data === 'new'
+ *  ```
+ *
+ *  @param hook_args  The shared hook-argument object for the current
+ *    transition.  Mutated in-place when the result carries `data`.
+ *  @param res        The normalised complex result returned by
+ *    {@link abstract_hook_step} or {@link abstract_everything_hook_step}.
+ *
+ *  @returns `true` if `res` contained a `data` property (i.e. the hook
+ *    mutated the machine's data); `false` otherwise.
+ *
+ *  @see Machine.transition_impl
+ *  @see abstract_hook_step
+ *
+ */
+function _update_hook_fields(hook_args, res) {
+    if (Object.prototype.hasOwnProperty.call(res, 'data')) {
+        hook_args.data = res.data;
+        hook_args.next_data = res.next_data;
+        return true;
     }
     return false;
 }

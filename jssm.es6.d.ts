@@ -2708,6 +2708,33 @@ declare class Machine<mDT> {
     override(newState: StateType, newData?: mDT | undefined): void;
     /*********
      *
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Extracted from the per-call closures inside {@link transition_impl} so
+     *  that it is allocated once at class-definition time rather than on every
+     *  hooked transition.
+     *
+     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+     *  @param fromState  State the machine was in when the transition was
+     *    attempted; used as the `from` field of the rejection event.
+     *  @param newState   State that would have been entered had the hook
+     *    passed; used as the `to` field of the rejection event.
+     *  @param fromAction Action name when the transition was initiated by an
+     *    action call; `undefined` for plain state transitions.
+     *  @param oldData    Machine data at the moment the transition was
+     *    attempted, before any hook mutations.
+     *  @param newData    The `next_data` value passed to the transition call.
+     *  @param wasForced  Whether the transition was attempted via
+     *    `force_transition`.
+     *
+     *  @see transition_impl
+     *  @see _fire
+     *
+     *  @internal
+     *
+     */
+    _fire_hook_rejection(hook_name: string, fromState: StateType, newState: StateType, fromAction: StateType | undefined, oldData: mDT, newData: mDT | undefined, wasForced: boolean): void;
+    /*********
+     *
      *  Shared transition core used by {@link transition}, {@link force_transition},
      *  and {@link action}.  Runs validation, fires the full hook pipeline (pre-
      *  everything, any-action, after, any-transition, exit, named, basic,

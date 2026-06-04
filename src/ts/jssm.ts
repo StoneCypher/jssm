@@ -3645,8 +3645,10 @@ class Machine<mDT> {
         if (this._has_after_hooks) {
           const ah = this._after_hooks.get(newStateOrAction);
           const outcome = abstract_hook_step(ah, hook_args);
-          // there's no such thing as after not passing, so, omit the result pass check
-          if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
+          // there's no such thing as after not passing, so, omit the result pass check.
+          // after hooks are post-exit and informational — their outcome never changes
+          // data, so there's no data_changed branch here (it would be unreachable).
+          _update_hook_fields(hook_args, outcome);
         }
 
         // 3. any transition hook
