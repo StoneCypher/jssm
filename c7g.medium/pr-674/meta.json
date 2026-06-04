@@ -1,0 +1,11 @@
+{
+  "pr": 674,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "b95b1bc1ec84ca6f3b03af37ce02de75f637726c",
+  "headRefName": "perf_26-06-02_construct-dedup_673",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:30:07.326Z",
+  "runner": "graviton_perf.cjs"
+}
