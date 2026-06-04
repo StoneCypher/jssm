@@ -2657,14 +2657,19 @@ class Machine {
         const hook_args = hook_args_obj;
         // 'action' event fires when an action is attempted, regardless of whether
         // it ultimately succeeds — matches the issue spec for observation events.
+        // Gated on live listener count so we skip the detail-object allocation
+        // when nothing is subscribed.  Gate is read at fire time, so a listener
+        // registered inside a pre-hook still receives the event.  #671
         if (wasAction) {
-            this._fire('action', {
-                action: newStateOrAction,
-                from: this._state,
-                to: newState,
-                data: this._data,
-                next_data: newData
-            });
+            if (this._event_listener_count !== 0) {
+                this._fire('action', {
+                    action: newStateOrAction,
+                    from: this._state,
+                    to: newState,
+                    data: this._data,
+                    next_data: newData
+                });
+            }
         }
         // Captured pre-transition source state so 'data-change' detail and similar
         // events can name where we came from.
@@ -2856,15 +2861,20 @@ class Machine {
             // not valid
         }
         else {
-            this._fire('rejection', {
-                from: fromState,
-                to: newStateOrAction,
-                action: fromAction,
-                data: oldData,
-                next_data: newData,
-                reason: 'invalid',
-                forced: wasForced
-            });
+            // Gated on live listener count so we skip the detail-object allocation
+            // when nothing is subscribed.  A listener still receives the event
+            // because the gate is read at fire time.  #671
+            if (this._event_listener_count !== 0) {
+                this._fire('rejection', {
+                    from: fromState,
+                    to: newStateOrAction,
+                    action: fromAction,
+                    data: oldData,
+                    next_data: newData,
+                    reason: 'invalid',
+                    forced: wasForced
+                });
+            }
             return false;
         }
         // posthooks begin here
