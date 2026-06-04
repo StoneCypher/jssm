@@ -2411,6 +2411,20 @@ declare class Machine<mDT> {
      */
     _subscribe<Ev extends JssmEventName>(name: Ev, filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>, maybeFn: JssmEventHandler<mDT, Ev> | undefined, once: boolean): JssmUnsubscribe;
     /**
+     *  Invoke a single event-handler entry, respecting its filter, once-removal
+     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+     *  {@link _fire} can share identical behavior between the size-1 fast-path
+     *  and the general snapshotted loop.
+     *
+     *  @param entry  - The subscriber descriptor to invoke.
+     *  @param set    - The live Set that owns `entry`; needed for once-removal.
+     *  @param name   - The event name being dispatched (used in error re-fires).
+     *  @param detail - The event payload forwarded to the handler.
+     *
+     *  @internal
+     */
+    _fire_one<Ev extends JssmEventName>(entry: JssmEventEntry<mDT, Ev>, set: Set<JssmEventEntry<any, any>>, name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
+    /**
      *  Dispatch an event to every registered subscriber in registration
      *  order.  Filters are checked first; non-matching handlers are skipped
      *  without invoking the handler.  Exceptions thrown by a handler are
@@ -2420,6 +2434,11 @@ declare class Machine<mDT> {
      *  Re-entry into the `error` event itself is guarded — if an `error`
      *  handler throws, the new exception is swallowed rather than rebroadcast
      *  to avoid an infinite loop.
+     *
+     *  When exactly one subscriber is registered the common case avoids the
+     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+     *  local first — equivalent to a 1-element snapshot but allocation-free.
+     *  The general path still snapshots for re-entrancy safety.
      *
      *  @internal
      */
