@@ -1,0 +1,11 @@
+{
+  "pr": 649,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "6ee147c94d1b3dffb138641174f82b06e1f14028",
+  "headRefName": "perf_26-05-27_hook-dispatch_642",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:28:08.771Z",
+  "runner": "graviton_perf.cjs"
+}
