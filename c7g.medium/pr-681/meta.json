@@ -1,0 +1,11 @@
+{
+  "pr": 681,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "07950ce9bd7bf2e3a01885ec2ab01472b51baecd",
+  "headRefName": "perf_26-06-03_action-path-allocs",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:42:13.699Z",
+  "runner": "graviton_perf.cjs"
+}
