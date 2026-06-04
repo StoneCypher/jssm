@@ -555,10 +555,43 @@ function publishPerfResults(exec, params) {
 
     exec.run('git', ['-C', tmp, 'add', '-A']);
     exec.run('git', ['-C', tmp, 'commit', '-m', commitMessage]);
-    exec.run('git', ['-C', tmp, 'push', 'origin', 'perf_results']);
+    pushPerfResults(exec, tmp);
   } finally {
     try { fs.rmSync(tmp, { recursive: true, force: true }); } catch { /* best effort */ }
   }
+}
+
+/**
+ *  Push the staged perf_results commit, retrying on a non-fast-forward reject —
+ *  a concurrent run for a *different* PR may have advanced the branch between
+ *  our clone and our push. Because every run only adds its own
+ *  `<instance-type>/pr-<num>/` files, rebasing onto the advanced tip replays our
+ *  commit cleanly; only the ref race is ever lost, never a file.
+ *
+ *  @param exec An executor from {@link makeExecutor}.
+ *  @param repoDir The throwaway clone to push from (already committed).
+ *  @returns void; returns on the first push in dry-run.
+ *  @throws Error if the push is still rejected after the retry budget, or if a
+ *          rebase hits a real conflict (which distinct-file runs never should).
+ *
+ *  @example
+ *  pushPerfResults(exec, '/tmp/clone');   // succeeds first try -> one push, no rebase
+ */
+function pushPerfResults(exec, repoDir) {
+  const MAX_ATTEMPTS = 6;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; ++attempt) {
+    const pushed = exec.run('git', ['-C', repoDir, 'push', 'origin', 'perf_results']);
+    if (exec.dryRun || pushed.status === 0) { return; }
+    // Rejected (non-fast-forward): a concurrent run advanced the branch. Pull it
+    // in and retry; distinct pr-<num>/ files rebase cleanly.
+    exec.run('git', ['-C', repoDir, 'fetch', 'origin', 'perf_results']);
+    const rebased = exec.run('git', ['-C', repoDir, 'rebase', 'origin/perf_results']);
+    if (rebased.status !== 0) {
+      exec.run('git', ['-C', repoDir, 'rebase', '--abort']);
+      throw new Error('perf_results: unexpected rebase conflict (concurrent runs should touch distinct files)');
+    }
+  }
+  throw new Error(`perf_results: push still rejected after ${MAX_ATTEMPTS} attempts (heavy concurrent contention?)`);
 }
 
 // ---------------------------------------------------------------------------
@@ -1161,6 +1194,7 @@ module.exports = {
   makeExecutor,
   listPerfResultsPaths,
   publishPerfResults,
+  pushPerfResults,
   resolvePr,
   resolveSubnet,
   provision,

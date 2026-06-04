@@ -406,3 +406,51 @@ describe('summarizeFinalInstanceState — post-teardown report', () => {
   });
 
 });
+
+describe('pushPerfResults — concurrent push retry', () => {
+
+  // Build a fake executor whose `git push` returns the given status sequence
+  // (clamped to the last value), and 0 for every other git call.
+  const fakeExec = (pushStatuses) => {
+    let pushIdx = 0;
+    const calls: string[] = [];
+    const run = (cmd: string, args: string[]) => {
+      calls.push([cmd, ...args].join(' '));
+      if (args.includes('push')) {
+        const status = pushStatuses[Math.min(pushIdx, pushStatuses.length - 1)];
+        pushIdx += 1;
+        return { status, stdout: '', stderr: '' };
+      }
+      return { status: 0, stdout: '', stderr: '' };
+    };
+    return { exec: { run, dryRun: false }, calls, pushCount: () => pushIdx };
+  };
+
+  test('pushes once and never rebases when the first push succeeds', () => {
+    const h = fakeExec([0]);
+    gp.pushPerfResults(h.exec, '/repo');
+    expect(h.pushCount()).toBe(1);
+    expect(h.calls.some((c) => c.includes('rebase'))).toBe(false);
+  });
+
+  test('fetches + rebases + retries on a rejected (non-fast-forward) push', () => {
+    const h = fakeExec([1, 0]);   // reject once, then succeed
+    gp.pushPerfResults(h.exec, '/repo');
+    expect(h.pushCount()).toBe(2);
+    expect(h.calls.some((c) => c.includes('fetch origin perf_results'))).toBe(true);
+    expect(h.calls.some((c) => c.includes('rebase origin/perf_results'))).toBe(true);
+  });
+
+  test('gives up with a clear error after exhausting the retry budget', () => {
+    const h = fakeExec([1]);      // always rejected
+    expect(() => gp.pushPerfResults(h.exec, '/repo')).toThrow(/after \d+ attempts/);
+  });
+
+  test('returns on the first push in dry-run (no rebase)', () => {
+    const calls: string[] = [];
+    const exec = { dryRun: true, run: (cmd: string, args: string[]) => { calls.push([cmd, ...args].join(' ')); return { status: 0 }; } };
+    gp.pushPerfResults(exec, '/repo');
+    expect(calls.filter((c) => c.includes('push')).length).toBe(1);
+  });
+
+});
