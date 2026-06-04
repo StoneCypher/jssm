@@ -1,0 +1,11 @@
+{
+  "pr": 671,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "a5e3ba3e897bb0a9202a7ab0b34375d98c133f5a",
+  "headRefName": "perf_26-06-01_transition-allocation-cleanup_670",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:29:07.737Z",
+  "runner": "graviton_perf.cjs"
+}
