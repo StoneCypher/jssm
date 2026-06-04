@@ -1,0 +1,11 @@
+{
+  "pr": 682,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "a2de1636038b41bb854bbe9c42d998a549e7abc4",
+  "headRefName": "perf_26-06-03_peg-memoization",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T23:02:40.094Z",
+  "runner": "graviton_perf.cjs"
+}
