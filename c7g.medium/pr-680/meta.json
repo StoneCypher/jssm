@@ -1,0 +1,11 @@
+{
+  "pr": 680,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "369000e4e475143866108cf007f7e92cbed55cdb",
+  "headRefName": "perf_26-06-03_hoist-hook-closures",
+  "region": "us-east-1",
+  "timestamp": "2026-06-04T22:41:08.392Z",
+  "runner": "graviton_perf.cjs"
+}
