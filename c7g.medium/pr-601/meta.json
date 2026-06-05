@@ -1,0 +1,11 @@
+{
+  "pr": 601,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "33afb27bf66b91ac2b540bfb7f16ff4beb415aa0",
+  "headRefName": "stoch-section-6-exp",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:25:37.520Z",
+  "runner": "graviton_perf.cjs"
+}
