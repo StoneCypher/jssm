@@ -1,0 +1,11 @@
+{
+  "pr": 611,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "08148c8c28bc7ed928ad5b843048d305e042e8a2",
+  "headRefName": "SpeedUpBuild",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:16:30.800Z",
+  "runner": "graviton_perf.cjs"
+}
