@@ -1,0 +1,11 @@
+{
+  "pr": 606,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "45ecff2a8799518913bba1e6c787470f1de8161a",
+  "headRefName": "ConvertToVitest",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:17:20.882Z",
+  "runner": "graviton_perf.cjs"
+}
