@@ -1104,6 +1104,20 @@ declare class Machine<mDT> {
      */
     _subscribe<Ev extends JssmEventName>(name: Ev, filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>, maybeFn: JssmEventHandler<mDT, Ev> | undefined, once: boolean): JssmUnsubscribe;
     /**
+     *  Invoke a single event-handler entry, respecting its filter, once-removal
+     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+     *  {@link _fire} can share identical behavior between the size-1 fast-path
+     *  and the general snapshotted loop.
+     *
+     *  @param entry  - The subscriber descriptor to invoke.
+     *  @param set    - The live Set that owns `entry`; needed for once-removal.
+     *  @param name   - The event name being dispatched (used in error re-fires).
+     *  @param detail - The event payload forwarded to the handler.
+     *
+     *  @internal
+     */
+    _fire_one<Ev extends JssmEventName>(entry: JssmEventEntry<mDT, Ev>, set: Set<JssmEventEntry<any, any>>, name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
+    /**
      *  Dispatch an event to every registered subscriber in registration
      *  order.  Filters are checked first; non-matching handlers are skipped
      *  without invoking the handler.  Exceptions thrown by a handler are
@@ -1113,6 +1127,11 @@ declare class Machine<mDT> {
      *  Re-entry into the `error` event itself is guarded — if an `error`
      *  handler throws, the new exception is swallowed rather than rebroadcast
      *  to avoid an infinite loop.
+     *
+     *  When exactly one subscriber is registered the common case avoids the
+     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+     *  local first — equivalent to a 1-element snapshot but allocation-free.
+     *  The general path still snapshots for re-entrancy safety.
      *
      *  @internal
      */
@@ -1380,6 +1399,33 @@ declare class Machine<mDT> {
      *
      */
     override(newState: StateType, newData?: mDT | undefined): void;
+    /*********
+     *
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Extracted from the per-call closures inside {@link transition_impl} so
+     *  that it is allocated once at class-definition time rather than on every
+     *  hooked transition.
+     *
+     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+     *  @param fromState  State the machine was in when the transition was
+     *    attempted; used as the `from` field of the rejection event.
+     *  @param newState   State that would have been entered had the hook
+     *    passed; used as the `to` field of the rejection event.
+     *  @param fromAction Action name when the transition was initiated by an
+     *    action call; `undefined` for plain state transitions.
+     *  @param oldData    Machine data at the moment the transition was
+     *    attempted, before any hook mutations.
+     *  @param newData    The `next_data` value passed to the transition call.
+     *  @param wasForced  Whether the transition was attempted via
+     *    `force_transition`.
+     *
+     *  @see transition_impl
+     *  @see _fire
+     *
+     *  @internal
+     *
+     */
+    _fire_hook_rejection(hook_name: string, fromState: StateType, newState: StateType, fromAction: StateType | undefined, oldData: mDT, newData: mDT | undefined, wasForced: boolean): void;
     /*********
      *
      *  Shared transition core used by {@link transition}, {@link force_transition},

@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.141.4",
+  "version": "5.141.9",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -131,7 +131,7 @@
     "typecheck_cli": "tsc --noEmit -p tsconfig.cli.json",
     "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
     "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f src/ts/tests/generated/*.docex.ts && rm -f *.d.ts && mkdir dist && cd dist && mkdir wc && mkdir cdn && cd .. && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
-    "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
+    "peg": "rm -f src/ts/fsl_parser.js && pegjs --cache src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
     "build:cem": "custom-elements-manifest analyze --config custom-elements-manifest.config.mjs",
     "make_core": "rollup -c rollup.config.core.js",
     "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno",

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-319 merges; 258 releases
+324 merges; 260 releases
 
 
 
@@ -12,8 +12,882 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:47:28 AM
+
+Commit [5254c24c9af90a886315c196d6a2df3838d5aade](https://github.com/StoneCypher/jssm/commit/5254c24c9af90a886315c196d6a2df3838d5aade)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: enable PEG.js parser memoization (--cache) for construct()
+  * Add --cache to the pegjs invocation in package.json and regenerate
+src/ts/fsl_parser.ts with full rule-result memoization per input position.
+Memoization adds peg$resultsCache to every rule, eliminating redundant
+re-parses inside construct() (#636, #673, #674).
+  * Update error.spec.ts: PEG.js --cache omits "whitespace" from the
+expected-alternatives list in error messages for invalid input (the
+memoized path does not re-attempt WS at the same position), so the
+one snapshot assertion is updated to match the memoized parser's output.
+All parse results for valid input are identical; 5971/5971 spec tests
+pass at 100% statement/branch/function/line coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:52:42 PM
+
+Commit [e72dffbacf0b3063c0a8d9e99cd7493ad79dddb0](https://github.com/StoneCypher/jssm/commit/e72dffbacf0b3063c0a8d9e99cd7493ad79dddb0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(build): @ts-nocheck the generated parser so pegjs --cache clears TS2563 (#682)
+  * With --cache, peg's memoized peg$parse body exceeds tsc's control-flow-analysis size limit, so tsc --build failed with TS2563 and broke make. fixparser.cjs now prepends // @ts-nocheck to the generated src/ts/fsl_parser.ts; it's generated code, so skipping type-checking on it is correct, and it's harmless without --cache. Verified: full make completes past tsc with no errors.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 4:44:23 PM
+
+Commit [00bb3e24956b007843312b3d57e884bbcb0b64a3](https://github.com/StoneCypher/jssm/commit/00bb3e24956b007843312b3d57e884bbcb0b64a3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a5ab3f7d, bd9cd73c]
+
+  * Merge pull request #677 from StoneCypher/perf_26-06-02_ws-comment-rules_676
+  * perf: de-recurse WS / comment grammar rules (#676) [held for clean benchmark]
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 4:44:03 PM
+
+Commit [bd9cd73cdd7b08afa2aa6cdcb8a1a6cd06e19fa2](https://github.com/StoneCypher/jssm/commit/bd9cd73cdd7b08afa2aa6cdcb8a1a6cd06e19fa2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.141.8 — de-recurse WS/comment grammar rules (#677)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 4:40:15 PM
+
+Commit [f341c1ffc6bf5e4f5f16e82aae4633889ddd6b2e](https://github.com/StoneCypher/jssm/commit/f341c1ffc6bf5e4f5f16e82aae4633889ddd6b2e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.141.9 — enable PEG.js parser memoization (--cache) for construct() (#682)
+  * Includes the TS2563 build fix (// @ts-nocheck on the generated parser). Note: memoization drops 'whitespace' from the expected-token list in parse errors for invalid input; valid parses are byte-identical. Error-message change approved.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 4:56:17 PM
+
+Commit [cede3cce1bd9a1bfc7bbb660741ac7450e69fd0d](https://github.com/StoneCypher/jssm/commit/cede3cce1bd9a1bfc7bbb660741ac7450e69fd0d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: de-recurse WS / comment grammar rules (#676)
+  * WS is now whitespace-first and iterative (([ \t\r\n\v]+ / BlockComment / LineComment)+) instead of comment-first + right-recursive; BlockComment/LineComment consume their bodies iteratively ((!"*/" .)* and (!LineTerminator .)*) instead of one char per stack frame. Behavior-preserving: parse + strengthened comment suites pass, 100% coverage held. Regenerated fsl_parser.ts. Modest expected win; the structural lever (re-parsing) is memoization, the next sub-issue.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 4:24:07 PM
+
+Commit [2b327165f84ea6e8fdbe95182d98701c78c03bc3](https://github.com/StoneCypher/jssm/commit/2b327165f84ea6e8fdbe95182d98701c78c03bc3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add WS/comment grammar optimization design spec (#676)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:47:28 AM
+
+Commit [e5a49bc2a16453d5e5fdb99b230a6fffbec09514](https://github.com/StoneCypher/jssm/commit/e5a49bc2a16453d5e5fdb99b230a6fffbec09514)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: enable PEG.js parser memoization (--cache) for construct()
+  * Add --cache to the pegjs invocation in package.json and regenerate
+src/ts/fsl_parser.ts with full rule-result memoization per input position.
+Memoization adds peg$resultsCache to every rule, eliminating redundant
+re-parses inside construct() (#636, #673, #674).
+  * Update error.spec.ts: PEG.js --cache omits "whitespace" from the
+expected-alternatives list in error messages for invalid input (the
+memoized path does not re-attempt WS at the same position), so the
+one snapshot assertion is updated to match the memoized parser's output.
+All parse results for valid input are identical; 5971/5971 spec tests
+pass at 100% statement/branch/function/line coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:52:42 PM
+
+Commit [4d19b2dd607820337a0c6dca8add606e18ebdbac](https://github.com/StoneCypher/jssm/commit/4d19b2dd607820337a0c6dca8add606e18ebdbac)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(build): @ts-nocheck the generated parser so pegjs --cache clears TS2563 (#682)
+  * With --cache, peg's memoized peg$parse body exceeds tsc's control-flow-analysis size limit, so tsc --build failed with TS2563 and broke make. fixparser.cjs now prepends // @ts-nocheck to the generated src/ts/fsl_parser.ts; it's generated code, so skipping type-checking on it is correct, and it's harmless without --cache. Verified: full make completes past tsc with no errors.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 4:29:54 PM
+
+Commit [a5ab3f7df89a3fca7360edb7f501175e1f2fad6b](https://github.com/StoneCypher/jssm/commit/a5ab3f7df89a3fca7360edb7f501175e1f2fad6b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [70de7f55, 38e2e7d0]
+
+  * Merge pull request #681 from StoneCypher/perf_26-06-03_action-path-allocs
+  * perf: gate action/rejection event fires on live listener count (#671 follow-up)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 4:29:34 PM
+
+Commit [38e2e7d0ee5625ad8e835f387705b91b482bc157](https://github.com/StoneCypher/jssm/commit/38e2e7d0ee5625ad8e835f387705b91b482bc157)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.141.7 — gate action/rejection event fires on live listener count (#681)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:48:46 AM
+
+Commit [602f964550406a8e6c1079d2fd3744d4a9868234](https://github.com/StoneCypher/jssm/commit/602f964550406a8e6c1079d2fd3744d4a9868234)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: gate action/rejection event fires on live listener count
+  * Wrap the `_fire('action', {...})` call inside `if (wasAction)` and the
+`_fire('rejection', {...})` call in the invalid-path `else` branch each
+with a nested `if (this._event_listener_count !== 0)` guard.  With zero
+subscribers both detail-object literals are now skipped entirely on every
+action() call and every failed transition, matching the observation-event
+gate added in #671.  Uses nested `if` (not `&&`) to keep the true/false
+branches independently coverable.
+  * Adds four tests to events.spec.ts that hit both sides of each new branch:
+zero-listener action still mutates state; listener receives the action
+event; zero-listener invalid transition returns false cleanly; rejection
+listener on an invalid transition still fires.
+  * No other material allocation remains on the action dispatch path: hook_args
+is already guarded by _has_hooks (#671), valid_action() and
+current_action_edge_for() are pure Map lookups, and action() itself has no
+call-site allocation.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 4:22:21 PM
+
+Commit [70de7f55cb75e3651394ed4ef587bd757938e430](https://github.com/StoneCypher/jssm/commit/70de7f55cb75e3651394ed4ef587bd757938e430)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [ac0f850d, d5e70897]
+
+  * Merge pull request #680 from StoneCypher/perf_26-06-03_hoist-hook-closures
+  * perf: hoist per-transition hook closures out of transition_impl
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 4:21:09 PM
+
+Commit [d5e7089738f1f02c45b8c1bc8974ea173be92ec9](https://github.com/StoneCypher/jssm/commit/d5e7089738f1f02c45b8c1bc8974ea173be92ec9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.141.6 — hoist per-transition hook closures out of transition_impl (#680)
+  * Also drops an unreachable data_changed branch at the after-hook call site that the hoist exposed: after hooks are post-exit and never change machine data, so that branch could never be taken. Restores 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:47:32 AM
+
+Commit [97ca0bc549c96be5d7f0d93399189b492a478cb9](https://github.com/StoneCypher/jssm/commit/97ca0bc549c96be5d7f0d93399189b492a478cb9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: hoist per-transition hook closures out of transition_impl
+  * Remove two function objects that were re-allocated on every hooked
+transition inside `transition_impl`:
+  * - `update_fields(res)` — closed over the mutable `data_changed` primitive
+  and the `hook_args` object.  Replaced by a module-level pure helper
+  `_update_hook_fields(hook_args, res)` that mutates `hook_args` in-place
+  (pass-by-reference; no change to semantics) and returns a boolean
+  indicating whether the hook supplied new data.  Each of the 10 call
+  sites now does `if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }`.
+  * - `fire_rejection(hook_name)` — closed over `this`, `fromState`,
+  `newState`, `fromAction`, `oldData`, `newData`, and `wasForced`.
+  Replaced by the private class method `_fire_hook_rejection(hook_name,
+  fromState, newState, fromAction, oldData, newData, wasForced)` which
+  forwards to `this._fire('rejection', {...})` with the identical payload.
+  Each of the 9 call sites now passes the already-local captures.
+  * The `'rejection'` event payload, the `data_changed` logic, and all hook
+ordering are byte-identical.  All 5971 spec tests pass at 100%
+statement/branch/function/line coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:52:42 PM
+
+Commit [a2de1636038b41bb854bbe9c42d998a549e7abc4](https://github.com/StoneCypher/jssm/commit/a2de1636038b41bb854bbe9c42d998a549e7abc4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(build): @ts-nocheck the generated parser so pegjs --cache clears TS2563 (#682)
+  * With --cache, peg's memoized peg$parse body exceeds tsc's control-flow-analysis size limit, so tsc --build failed with TS2563 and broke make. fixparser.cjs now prepends // @ts-nocheck to the generated src/ts/fsl_parser.ts; it's generated code, so skipping type-checking on it is correct, and it's harmless without --cache. Verified: full make completes past tsc with no errors.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:46:33 PM
+
+Commit [ac0f850d34bc2be25f233257b7021551cf26b0b5](https://github.com/StoneCypher/jssm/commit/ac0f850d34bc2be25f233257b7021551cf26b0b5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [c1aa8d09, b857de7b]
+
+  * Merge pull request #679 from StoneCypher/perf_26-06-03_fire-size1-fastpath
+  * perf: single-listener fast-path in _fire (skip snapshot alloc)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:43:47 PM
+
+Commit [b857de7b353753af5da12ea23c23dd1c5fc46d74](https://github.com/StoneCypher/jssm/commit/b857de7b353753af5da12ea23c23dd1c5fc46d74)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.141.5 — single-listener fast-path in _fire (#679)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:42:15 PM
+
+Commit [6fb16a247b745d7b332ce2052decd9eecc743a78](https://github.com/StoneCypher/jssm/commit/6fb16a247b745d7b332ce2052decd9eecc743a78)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #681 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:41:10 PM
+
+Commit [5bbe826e459b5d8404ced44c106da8d8f72ae6dc](https://github.com/StoneCypher/jssm/commit/5bbe826e459b5d8404ced44c106da8d8f72ae6dc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #680 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:40:07 PM
+
+Commit [d4de38fa14a06ac283a88c26e0fbbb3999af5497](https://github.com/StoneCypher/jssm/commit/d4de38fa14a06ac283a88c26e0fbbb3999af5497)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #677 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:30:08 PM
+
+Commit [f7c92bbad6f8afc72f02d0b744327056a8f11e3c](https://github.com/StoneCypher/jssm/commit/f7c92bbad6f8afc72f02d0b744327056a8f11e3c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #674 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:29:09 PM
+
+Commit [d7f2f776f4a0a224b4707469dc7c3c4b870d0262](https://github.com/StoneCypher/jssm/commit/d7f2f776f4a0a224b4707469dc7c3c4b870d0262)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #671 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:28:09 PM
+
+Commit [fdc18fa982afee9565073a87206db36ecfa000fb](https://github.com/StoneCypher/jssm/commit/fdc18fa982afee9565073a87206db36ecfa000fb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #649 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:27:31 PM
+
+Commit [81a000e3e9909086f5ddad31d4ce0191af8ceebf](https://github.com/StoneCypher/jssm/commit/81a000e3e9909086f5ddad31d4ce0191af8ceebf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #637 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:17:50 PM
+
+Commit [f71a971f51f147a82862aca05031b30ebd5e1613](https://github.com/StoneCypher/jssm/commit/f71a971f51f147a82862aca05031b30ebd5e1613)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(graviton_perf): retry perf_results push on non-fast-forward (concurrent-safe)
+  * Parallel runs each publish a distinct <instance-type>/pr-<num>/ path, so there is no content conflict, but the second pusher still hits a non-fast-forward reject when a concurrent run advances the branch. pushPerfResults now fetches + rebases onto origin/perf_results and retries (bounded); distinct files mean the rebase always replays cleanly. 4 new unit tests cover first-try success, retry-on-reject, retry exhaustion, and dry-run. 60/60 spec tests pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:11:02 PM
+
+Commit [59ee143000a04f6d809cca773645666d795f456b](https://github.com/StoneCypher/jssm/commit/59ee143000a04f6d809cca773645666d795f456b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: c7g.medium results for PR #679 (normal)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 3:02:22 PM
+
+Commit [605f93ad45c7b719b0cbc56675280ea7150c9432](https://github.com/StoneCypher/jssm/commit/605f93ad45c7b719b0cbc56675280ea7150c9432)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(graviton_perf): write --prof probe to the repo cwd so its require resolves
+  * The second canary finished the full benchmark, then died on the secondary --prof pass: the probe was written to /tmp but does require('./dist/jssm.es5.nonmin.cjs'), which CommonJS resolves relative to the script's dir (/tmp), not the repo. Writing the probe into the repo cwd makes ./dist resolve correctly.
+  * Also make the profile run non-fatal so a secondary-artifact failure can never again discard a successful benchmark run. 56/56 spec tests pass; added a regression assertion that the probe is not under /tmp.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 2:45:57 PM
+
+Commit [da3576350f0a26cf3ef0bd93c98b6185a5a4a8ba](https://github.com/StoneCypher/jssm/commit/da3576350f0a26cf3ef0bd93c98b6185a5a4a8ba)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(graviton_perf): npm install on the instance + surface remote-build failures
+  * The first live canary (#679) died at `npm ci`: the package-lock.json lacks the
+ARM64 native optional deps (@emnapi/core, @emnapi/runtime), since the lock is
+generated on win32 and CI runs x64 Linux, but the c7g.medium is arm64. npm ci
+is strict and bails.
+  * - Use `npm install --no-audit --no-fund` on the instance, which resolves the
+  platform-appropriate deps instead of demanding an exact cross-arch lock match.
+- Check the ssh remote-run exit status and throw eagerly on failure. The build
+  failure had been masked: the repo commits a stale benchmark/results/scaling.json,
+  so the existing guard passed on the stale file and the run died later with a
+  confusing copyfile ENOENT on the (never-generated) construct.prof.txt.
+  * 56/56 graviton_perf spec tests pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 4, 2026 2:45:57 PM
+
+Commit [6d2ccf11e3d3d4e5a041a893873f0536afe297da](https://github.com/StoneCypher/jssm/commit/6d2ccf11e3d3d4e5a041a893873f0536afe297da)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * @
+fix(graviton_perf): npm install on the instance + surface remote-build failures
+  * The first live canary (#679) died at `npm ci`: the package-lock.json lacks the
+ARM64 native optional deps (@emnapi/core, @emnapi/runtime), since the lock is
+generated on win32 and CI runs x64 Linux, but the c7g.medium is arm64. npm ci
+is strict and bails.
+  * - Use `npm install --no-audit --no-fund` on the instance, which resolves the
+  platform-appropriate deps instead of demanding an exact cross-arch lock match.
+- Check the ssh remote-run exit status and throw eagerly on failure. The build
+  failure had been masked: the repo commits a stale benchmark/results/scaling.json,
+  so the existing guard passed on the stale file and the run died later with a
+  confusing copyfile ENOENT on the (never-generated) construct.prof.txt.
+  * 56/56 graviton_perf spec tests pass.
+@
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 10:10:30 PM
+
+Commit [049f0e3fb464d1b189f7740a273d2fb582ff3431](https://github.com/StoneCypher/jssm/commit/049f0e3fb464d1b189f7740a273d2fb582ff3431)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(graviton_perf): raise default dead-man's-switch to 30 min
+  * Was 15 min; 30 gives more headroom over a slow deep-mode build before the
+in-instance self-terminate fires, and forms a cleaner ladder with the new
+account-side reaper (self-terminate @30 min -> reaper backstop @1 h). Updated
+DEFAULTS, the header/usage docs, the plan (Task 6 margin + table), and the
+defaults test (now expects 30). 56/56 graviton_perf spec tests pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 8:20:32 PM
+
+Commit [8fcda1dc80dc8c0c4b8c81b03ee60e8f6158dafe](https://github.com/StoneCypher/jssm/commit/8fcda1dc80dc8c0c4b8c81b03ee60e8f6158dafe)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(graviton_perf): sync plan to jssm-perf naming and final-state report
+  * The implemented runner uses the jssm-perf tag namespace and the filenames
+graviton_perf.cjs / graviton_perf_launch.cjs; the plan still said jssm-bench
+and graviton_bench. Bring the plan in line, and document that step 5c now
+parses State.Name and reports the instance's end state in the run log.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 8:20:20 PM
+
+Commit [e720970f1447835323fcadad3d81415aef8d88a5](https://github.com/StoneCypher/jssm/commit/e720970f1447835323fcadad3d81415aef8d88a5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(graviton_perf): report EC2 final instance state after teardown
+  * The teardown proof-step already queried the surviving instance state but
+discarded it, printing only a bare 'teardown complete'. Capture that query's
+output and classify it with a new pure helper, summarizeFinalInstanceState,
+so the run log records the box's end state (EC2 final state: terminated) and
+screams about a leak (NOT torn down: running) instead of hiding it.
+  * Pure helper is unit-tested (6 new cases: terminated, shutting-down, empty,
+running-leak, mixed, whitespace parsing); the AWS call stays at the seam.
+56/56 graviton_perf spec tests pass.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:48:46 AM
+
+Commit [07950ce9bd7bf2e3a01885ec2ab01472b51baecd](https://github.com/StoneCypher/jssm/commit/07950ce9bd7bf2e3a01885ec2ab01472b51baecd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: gate action/rejection event fires on live listener count
+  * Wrap the `_fire('action', {...})` call inside `if (wasAction)` and the
+`_fire('rejection', {...})` call in the invalid-path `else` branch each
+with a nested `if (this._event_listener_count !== 0)` guard.  With zero
+subscribers both detail-object literals are now skipped entirely on every
+action() call and every failed transition, matching the observation-event
+gate added in #671.  Uses nested `if` (not `&&`) to keep the true/false
+branches independently coverable.
+  * Adds four tests to events.spec.ts that hit both sides of each new branch:
+zero-listener action still mutates state; listener receives the action
+event; zero-listener invalid transition returns false cleanly; rejection
+listener on an invalid transition still fires.
+  * No other material allocation remains on the action dispatch path: hook_args
+is already guarded by _has_hooks (#671), valid_action() and
+current_action_edge_for() are pure Map lookups, and action() itself has no
+call-site allocation.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:47:32 AM
+
+Commit [369000e4e475143866108cf007f7e92cbed55cdb](https://github.com/StoneCypher/jssm/commit/369000e4e475143866108cf007f7e92cbed55cdb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: hoist per-transition hook closures out of transition_impl
+  * Remove two function objects that were re-allocated on every hooked
+transition inside `transition_impl`:
+  * - `update_fields(res)` — closed over the mutable `data_changed` primitive
+  and the `hook_args` object.  Replaced by a module-level pure helper
+  `_update_hook_fields(hook_args, res)` that mutates `hook_args` in-place
+  (pass-by-reference; no change to semantics) and returns a boolean
+  indicating whether the hook supplied new data.  Each of the 10 call
+  sites now does `if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }`.
+  * - `fire_rejection(hook_name)` — closed over `this`, `fromState`,
+  `newState`, `fromAction`, `oldData`, `newData`, and `wasForced`.
+  Replaced by the private class method `_fire_hook_rejection(hook_name,
+  fromState, newState, fromAction, oldData, newData, wasForced)` which
+  forwards to `this._fire('rejection', {...})` with the identical payload.
+  Each of the 9 call sites now passes the already-local captures.
+  * The `'rejection'` event payload, the `data_changed` logic, and all hook
+ordering are byte-identical.  All 5971 spec tests pass at 100%
+statement/branch/function/line coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:47:28 AM
+
+Commit [5ea57ff43e46d2940be6fc785f3659464d6cc081](https://github.com/StoneCypher/jssm/commit/5ea57ff43e46d2940be6fc785f3659464d6cc081)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: enable PEG.js parser memoization (--cache) for construct()
+  * Add --cache to the pegjs invocation in package.json and regenerate
+src/ts/fsl_parser.ts with full rule-result memoization per input position.
+Memoization adds peg$resultsCache to every rule, eliminating redundant
+re-parses inside construct() (#636, #673, #674).
+  * Update error.spec.ts: PEG.js --cache omits "whitespace" from the
+expected-alternatives list in error messages for invalid input (the
+memoized path does not re-attempt WS at the same position), so the
+one snapshot assertion is updated to match the memoized parser's output.
+All parse results for valid input are identical; 5971/5971 spec tests
+pass at 100% statement/branch/function/line coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 3, 2026 12:45:39 AM
+
+Commit [9768a6f7c575dfbe775f2f90aa022dde169f9ed4](https://github.com/StoneCypher/jssm/commit/9768a6f7c575dfbe775f2f90aa022dde169f9ed4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: single-listener fast-path in _fire (skip snapshot alloc)
+  * Extract per-entry dispatch logic into _fire_one so the size===1 and
+general paths share byte-for-byte identical filter/once/error semantics.
+When exactly one subscriber is registered, capture the lone entry into a
+local before invoking — equivalent to a 1-element snapshot but avoids
+the Array.from(set) allocation.  General path (size > 1) still snapshots
+for re-entrancy safety.  All existing event tests pass; _fire_one and
+both branches of _fire are covered.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 6:42:27 PM
+
+Commit [5e4dc8aca1a41aca21066909e235696a4fb974e8](https://github.com/StoneCypher/jssm/commit/5e4dc8aca1a41aca21066909e235696a4fb974e8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: AWS Graviton perf runner with perf_results branch + dedup (#675)
+  * Add a one-command runner that benchmarks a given PR's code on a clean,
+dedicated AWS Graviton core and files the results into a dedicated
+`perf_results` git branch, keyed by machine type then PR.
+  * - `src/scripts/graviton_perf.cjs`: PR-number-driven orchestrator. Resolves
+  the PR head via `gh`, gates on a dedup check against `origin/perf_results`
+  (measure each (instance-type, PR) at most once; `--force` overrides),
+  provisions a tagged `c7g.medium` AL2023-ARM64 instance (SSM-resolved AMI,
+  /32 SSH ingress, DeleteOnTermination volume, IMDSv2, instance-initiated
+  shutdown = terminate, dead-man's-switch in user-data), builds + benchmarks
+  the PR commit over SSH, captures a bounded profiled construct pass, then
+  publishes scaling.json + construct.prof.txt + meta.json to `perf_results`
+  via a throwaway clone (creating the orphan branch on first use, never
+  touching the working tree) and ALWAYS tears down (try/finally + signal
+  handlers + tag-based idempotent sweep). Auto-detects a default VPC + public
+  subnet, falling back to a required `--subnet-id`. Every aws/ssh/git/gh call
+  goes through an executor seam that `--dry-run` swaps for a printer.
+  * - `src/scripts/graviton_perf_launch.cjs` + npm `graviton_perf` script: launch
+  the runner detached (cross-platform, incl. Windows), logging to `build/` and
+  printing the log path + follow command. Invoke: `npm run graviton_perf -- <pr> [flags]`.
+  * - `src/buildjs/benchmark_scaling.cjs`: deep-mode prerequisite. When `BENNY_DEEP`
+  is set, selectively raise samples on the slow construct() cases and additively
+  emit `msPerOp`/`samples` (+ a markdown `ms/op` column) so sub-1-ops/sec cases
+  surface instead of rounding to 0. Behavior is byte-identical when unset.
+  * - `src/scripts/tests/graviton_perf.spec.ts`: 50 unit tests for the pure,
+  AWS-free logic (arg/flag parsing, instance-type allowlist incl. t* rejection,
+  run-id format, perf_results path construction, dedup decision, meta shaping,
+  tag/filter builders, remote-script builder + injection guards, launcher
+  helpers). No live AWS is reachable from any test.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 6:01:09 PM
+
+Commit [8d4794b7baf9adde125a30c1dc43f1d27fc82e0b](https://github.com/StoneCypher/jssm/commit/8d4794b7baf9adde125a30c1dc43f1d27fc82e0b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.141.5 — de-recurse WS/comment grammar rules (#676)
+  * Version bump + full build (bundles the regenerated parser into dist) for the WS/comment de-recursion (97324c27). Behavior-equivalent: 100% coverage, all parse/comment suites pass. Perf is held for clean measurement on the Graviton runner (#675) — laptop benchmarks were unusable (6x intra-run variance on identical code).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 4:56:17 PM
+
+Commit [97324c27a5612a104fea11879c653a467a08e58d](https://github.com/StoneCypher/jssm/commit/97324c27a5612a104fea11879c653a467a08e58d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: de-recurse WS / comment grammar rules (#676)
+  * WS is now whitespace-first and iterative (([ \t\r\n\v]+ / BlockComment / LineComment)+) instead of comment-first + right-recursive; BlockComment/LineComment consume their bodies iteratively ((!"*/" .)* and (!LineTerminator .)*) instead of one char per stack frame. Behavior-preserving: parse + strengthened comment suites pass, 100% coverage held. Regenerated fsl_parser.ts. Modest expected win; the structural lever (re-parsing) is memoization, the next sub-issue.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 4:24:07 PM
+
+Commit [816155939b7cc05b58e968d97edf67ec1c6df830](https://github.com/StoneCypher/jssm/commit/816155939b7cc05b58e968d97edf67ec1c6df830)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add WS/comment grammar optimization design spec (#676)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__141__4" />
+
+## [5.141.4] - Jun 2, 2026 1:03:25 PM
+
+Commit [c1aa8d09be290d6f2825245c50e04718691603ac](https://github.com/StoneCypher/jssm/commit/c1aa8d09be290d6f2825245c50e04718691603ac)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [15912495, b95b1bc1]
+
+  * Merge pull request #674 from StoneCypher/perf_26-06-02_construct-dedup_673
+  * perf: O(1) duplicate-edge dedup in construct() (#673)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 1:02:30 PM
+
+Commit [b95b1bc1ec84ca6f3b03af37ce02de75f637726c](https://github.com/StoneCypher/jssm/commit/b95b1bc1ec84ca6f3b03af37ce02de75f637726c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add per-run profiling step to graviton benchmark runner plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 1:00:18 PM
+
+Commit [626bc4eef8a59b191f6d86914b3f60f57d46ed86](https://github.com/StoneCypher/jssm/commit/626bc4eef8a59b191f6d86914b3f60f57d46ed86)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.141.4 — O(1) construct() duplicate-edge dedup (#673)
+  * Version bump + regenerated artifacts for the e206c6dd dedup (O(out-degree) -> O(1) duplicate-edge guard). NOTE: profiling showed this is NOT the dense-200 construct() cliff — that is PEG.js parse time (peg$parseWS + GC), addressed in follow-up parser branches. This is a minor scaling cleanup only.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 2, 2026 12:59:37 PM
+
+Commit [53e5749224c11b246b490be7081272d27e892c6b](https://github.com/StoneCypher/jssm/commit/53e5749224c11b246b490be7081272d27e892c6b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore: snapshot post-construct-dedup benchmark (#673)
 
 
 
@@ -53,7 +927,9 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 2, 2026 10:10:36 AM
+<a name="5__141__3" />
+
+## [5.141.3] - Jun 2, 2026 10:10:36 AM
 
 Commit [159124954c1702c4668dc2bd2b8dcd284e08125b](https://github.com/StoneCypher/jssm/commit/159124954c1702c4668dc2bd2b8dcd284e08125b)
 
@@ -8146,21 +9022,6 @@ Merges [464d03b0, bebbaa77]
 
   * Merge pull request #578 from StoneCypher/VersionCheckDeserialize_1010
   * Add version checking to deserialize to refuse future versions
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jan 8, 2026 6:09:27 PM
-
-Commit [d748bce20850adfaaa56f854a1bc5bd9a707c398](https://github.com/StoneCypher/jssm/commit/d748bce20850adfaaa56f854a1bc5bd9a707c398)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * yep
 
 
 
