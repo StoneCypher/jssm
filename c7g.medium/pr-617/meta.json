@@ -1,0 +1,11 @@
+{
+  "pr": 617,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "12bdfe3ef72cccbf7525755ff013c19e189b961c",
+  "headRefName": "fix_26-05-17_cli-render-missing-text_615",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:04:47.094Z",
+  "runner": "graviton_perf.cjs"
+}
