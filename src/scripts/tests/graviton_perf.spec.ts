@@ -26,6 +26,7 @@ describe('parseArgs — defaults and positional', () => {
     expect(o.spot).toBe(false);
     expect(o.force).toBe(false);
     expect(o.dryRun).toBe(false);
+    expect(o.harnessFrom).toBeUndefined();
   });
 
   test('rejects a non-numeric PR number', () => {
@@ -86,6 +87,14 @@ describe('parseArgs — flags', () => {
   test('--shutdown-minutes parses an integer and rejects junk', () => {
     expect(gp.parseArgs(['677', '--shutdown-minutes', '30']).shutdownMinutes).toBe(30);
     expect(() => gp.parseArgs(['677', '--shutdown-minutes', 'soon'])).toThrow(/positive integer/);
+  });
+
+  test('--harness-from threads through (overlay ref for benching old PRs)', () => {
+    expect(gp.parseArgs(['677', '--harness-from', 'main']).harnessFrom).toBe('main');
+  });
+
+  test('--harness-from requires a value', () => {
+    expect(() => gp.parseArgs(['677', '--harness-from'])).toThrow(/requires a value/);
   });
 
   test('rejects an unknown flag', () => {
@@ -262,7 +271,8 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     repoUrl: 'https://github.com/StoneCypher/jssm.git',
     headRefName: 'feat_26-06-02_x',
     commitSha: 'a'.repeat(40),
-    shutdownMinutes: 15
+    shutdownMinutes: 15,
+    prNumber: 677
   };
 
   test('normal mode runs benny without BENNY_DEEP', () => {
@@ -307,6 +317,42 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
   test('rejects an unsafe repo url', () => {
     expect(() => gp.buildRemoteScript({ ...ok, repoUrl: 'file:///etc/passwd', deep: false }))
       .toThrow(/unsafe repo url/);
+  });
+
+  test('fetches refs/pull/<n>/head so a deleted-branch PR still resolves', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false });
+    expect(s).toContain('refs/pull/677/head');
+  });
+
+  test('without --harness-from, runs the PR\'s own benny:scaling', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false });
+    expect(s).toContain('npm run benny:scaling');
+    expect(s).not.toContain('git checkout FETCH_HEAD');
+  });
+
+  test('--harness-from overlays today\'s harness and runs it directly', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('git fetch origin "main"');
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs');
+    expect(s).toContain('benchmark/fixtures');
+    expect(s).toContain('npm install benny');
+    expect(s).toContain('node ./src/buildjs/benchmark_scaling.cjs');
+    expect(s).not.toContain('npm run benny:scaling');
+  });
+
+  test('--harness-from honors deep mode', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: true, harnessFrom: 'main' });
+    expect(s).toContain('BENNY_DEEP=1 node ./src/buildjs/benchmark_scaling.cjs');
+  });
+
+  test('rejects a non-numeric PR number (injection guard)', () => {
+    expect(() => gp.buildRemoteScript({ ...ok, prNumber: '1; rm -rf /', deep: false }))
+      .toThrow(/non-numeric PR/);
+  });
+
+  test('rejects an unsafe harness ref (injection guard)', () => {
+    expect(() => gp.buildRemoteScript({ ...ok, harnessFrom: 'main; curl evil', deep: false }))
+      .toThrow(/unsafe harness ref/);
   });
 
 });

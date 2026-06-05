@@ -7,6 +7,7 @@ const path = require('path'); // used by loadMessyFixture (Task 4) and writeMark
 const jssm = require('../../dist/jssm.es5.cjs');
 const sm   = jssm.sm;
 const pkg  = require('../../package.json');
+const plan = require('./benchmark_scaling_plan.cjs');
 
 // ----------------------------------------------------------------------------
 // Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
@@ -279,20 +280,33 @@ function buildShapeMessy(n) {
   return { name: `messy-${n}`, machine, transitionSeq: seq, edgePairs };
 }
 
-const shapes = [
-  buildShapeChain(10),
-  buildShapeChain(50),
-  buildShapeChain(200),
-  buildShapeChain(1000),
-  buildShapeDense(10),
-  buildShapeDense(50),
-  buildShapeDense(200),
-  buildShapeHub(50),
-  buildShapeHub(200),
-  buildShapeHookedHub(200),
-  buildShapeMessy(1000),
-  buildShapeMessy(5000),
-];
+/**
+ * Map a planned shape name back to its builder, so the shape registry can be driven
+ * by {@link plan.plannedShapeNames}: feature-gated shapes (hooked-*, messy-*) are
+ * only built when the library under test supports the ops they need.
+ */
+function buildShapeByName(name) {
+  if (name.startsWith('chain-'))  return buildShapeChain(parseInt(name.slice(6), 10));
+  if (name.startsWith('dense-'))  return buildShapeDense(parseInt(name.slice(6), 10));
+  if (name.startsWith('hub-'))    return buildShapeHub(parseInt(name.slice(4), 10));
+  if (name.startsWith('hooked-')) return buildShapeHookedHub(parseInt(name.slice(7), 10));
+  if (name.startsWith('messy-'))  return buildShapeMessy(parseInt(name.slice(6), 10));
+  throw new Error(`unknown shape: ${name}`);
+}
+
+// Feature-detect the optional operations so an older library — e.g. one benchmarked
+// via the graviton runner's `--harness-from` overlay — degrades to a partial suite
+// instead of crashing on a method it doesn't have yet. With a current build every
+// flag is true and the suite is identical to before.
+const probe = sm(['allows_override: true;\ns0 -> s1;']);
+const HAS   = {
+  set_hook      : typeof probe.set_hook      === 'function',
+  list_exits    : typeof probe.list_exits    === 'function',
+  edges_between : typeof probe.edges_between === 'function',
+  has_state     : typeof probe.has_state     === 'function',
+};
+
+const shapes = plan.plannedShapeNames(HAS).map(buildShapeByName);
 
 // ----------------------------------------------------------------------------
 // Benny case factory
@@ -359,12 +373,17 @@ function constructionCase(shape) {
 // Suite
 // ----------------------------------------------------------------------------
 
+/** Case factories keyed by the operation token used in {@link plan.plannedCaseKinds}. */
+const CASE_FACTORIES = {
+  'transition()'    : transitionCase,
+  'edges_between()' : edgesBetweenCase,
+  'has_state()'     : hasStateCase,
+  'construct()'     : constructionCase,
+};
+
 b.suite(
   'jssm scaling diagnostic suite',
-  ...shapes.map(transitionCase),
-  ...shapes.map(edgesBetweenCase),
-  ...shapes.map(hasStateCase),
-  ...shapes.map(constructionCase),
+  ...plan.plannedCaseKinds(HAS).flatMap((kind) => shapes.map(CASE_FACTORIES[kind])),
   b.cycle(),
   b.complete((summary) => {
     // benny writes scaling.json synchronously during the b.save calls below in this

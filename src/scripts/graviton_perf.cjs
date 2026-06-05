@@ -21,6 +21,9 @@
  *    --region <aws-region>    AWS region (default `us-east-1`).
  *    --subnet-id <id>         Subnet to launch in (auto-detected if omitted).
  *    --my-ip <cidr>           SSH-ingress CIDR override (default: resolved /32).
+ *    --harness-from <ref>     Overlay the current scaling harness from <ref> (e.g.
+ *                             `main`) onto the PR checkout, so a PR predating the
+ *                             benchmark suite can still be measured.
  *    --shutdown-minutes <n>   Dead-man's-switch timer (default 30).
  *    --spot                   Launch as a Spot instance (default on-demand).
  *    --force                  Re-measure even if results already exist.
@@ -115,6 +118,7 @@ function parseArgs(argv) {
     myIp            : undefined,
     shutdownMinutes : DEFAULTS.shutdownMinutes,
     runId           : undefined,
+    harnessFrom     : undefined,
     spot            : false,
     force           : false,
     keep            : false,
@@ -136,6 +140,7 @@ function parseArgs(argv) {
       case '--subnet-id'        : opts.subnetId        = needsValue(a, argv[++i]); break;
       case '--my-ip'            : opts.myIp            = needsValue(a, argv[++i]); break;
       case '--run-id'           : opts.runId           = needsValue(a, argv[++i]); break;
+      case '--harness-from'     : opts.harnessFrom     = needsValue(a, argv[++i]); break;
       case '--shutdown-minutes' : opts.shutdownMinutes = parseInt(needsValue(a, argv[++i]), 10); break;
       case '--spot'             : opts.spot            = true; break;
       case '--force'            : opts.force           = true; break;
@@ -383,21 +388,26 @@ function buildUserData(shutdownMinutes) {
  *  construct pass.  Chains freely because it runs in the *instance's* shell, not
  *  the local dev shell.
  *
- *  @param params `{ repoUrl, headRefName, commitSha, deep, shutdownMinutes }`.
- *         `commitSha` pins the exact PR commit; `headRefName` is fetched to make
- *         the SHA reachable.  `deep` toggles `BENNY_DEEP=1`.
+ *  @param params `{ repoUrl, headRefName, commitSha, deep, shutdownMinutes,
+ *         prNumber, harnessFrom }`.  `commitSha` pins the exact PR commit;
+ *         `refs/pull/<prNumber>/head` is fetched (with `headRefName` as fallback) so
+ *         the SHA is reachable even for a deleted-branch PR.  `deep` toggles
+ *         `BENNY_DEEP=1`.  `harnessFrom`, when set, overlays that ref's scaling
+ *         harness onto the checkout and runs it directly instead of the PR's own
+ *         `benny:scaling`, so a PR predating the suite can still be measured.
  *  @returns A `#!/bin/bash -e` script string with a `JSSM_PERF_DONE` sentinel on
  *           success.
- *  @throws Error if `commitSha` is not a 40/64-char hex SHA or `headRefName`
- *          contains shell-unsafe characters (defense against ref injection).
+ *  @throws Error if `commitSha` is not a 40/64-char hex SHA, `headRefName` or
+ *          `harnessFrom` contains shell-unsafe characters, or `prNumber` is
+ *          non-numeric (defense against ref/command injection).
  *
  *  @example
  *  buildRemoteScript({ repoUrl: 'https://h/r.git', headRefName: 'feat_x',
- *    commitSha: 'a'.repeat(40), deep: true, shutdownMinutes: 15 })
+ *    commitSha: 'a'.repeat(40), deep: true, shutdownMinutes: 15, prNumber: 677 })
  *    .includes('BENNY_DEEP=1') // => true
  */
 function buildRemoteScript(params) {
-  const { repoUrl, headRefName, commitSha, deep, shutdownMinutes } = params;
+  const { repoUrl, headRefName, commitSha, deep, shutdownMinutes, prNumber, harnessFrom } = params;
 
   if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(commitSha)) {
     throw new Error(`refusing to build remote script: unsafe commit SHA "${commitSha}"`);
@@ -408,10 +418,30 @@ function buildRemoteScript(params) {
   if (!/^https?:\/\/[\w./:@-]+$/.test(repoUrl)) {
     throw new Error(`refusing to build remote script: unsafe repo url "${repoUrl}"`);
   }
+  if (!/^\d+$/.test(String(prNumber))) {
+    throw new Error(`refusing to build remote script: non-numeric PR number "${prNumber}"`);
+  }
+  if (harnessFrom !== undefined && !/^[\w./-]+$/.test(harnessFrom)) {
+    throw new Error(`refusing to build remote script: unsafe harness ref "${harnessFrom}"`);
+  }
 
-  const benchCmd = deep
-    ? 'BENNY_DEEP=1 npm run benny:scaling'
-    : 'npm run benny:scaling';
+  // Benchmark step: the PR's own `benny:scaling`, or — with --harness-from — today's
+  // harness overlaid from that ref onto this (possibly pre-harness) checkout and run
+  // directly against the freshly-built old dist/.  The old package.json still supplies
+  // the recorded version string, and the current harness feature-detects ops the old
+  // library may lack.
+  const benchSteps = harnessFrom
+    ? [
+        `# 4. Overlay the current scaling harness from "${harnessFrom}" and run it directly.`,
+        `git fetch origin "${harnessFrom}"`,
+        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_plan.cjs benchmark/fixtures',
+        'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
+        `${deep ? 'BENNY_DEEP=1 ' : ''}node ./src/buildjs/benchmark_scaling.cjs`
+      ]
+    : [
+        '# 4. Benchmark (mode-dependent).',
+        deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling'
+      ];
 
   return [
     '#!/bin/bash',
@@ -424,18 +454,19 @@ function buildRemoteScript(params) {
     'NODE_MAJOR=$(node -v | sed -E "s/^v([0-9]+).*/\\1/")',
     'if [ "$NODE_MAJOR" -lt 20 ]; then echo "Node too old: $(node -v)"; exit 3; fi',
     '',
-    '# 2. Clone, then pin the exact PR commit (fetch the head ref to make it reachable).',
+    '# 2. Clone, then pin the exact PR commit. Fetch refs/pull/<n>/head (kept by GitHub',
+    '#    even after the head branch is deleted) so squash-merged / old PRs still',
+    '#    resolve; fall back to the head branch name, then trust the pinned SHA.',
     `git clone ${repoUrl} jssm`,
     'cd jssm',
-    `git fetch origin "${headRefName}" || true`,
+    `git fetch origin "refs/pull/${prNumber}/head" || git fetch origin "${headRefName}" || true`,
     `git checkout ${commitSha}`,
     '',
     '# 3. Build dist/ (make, not build: make is the minimum that yields the bundles).',
     'npm install --no-audit --no-fund',
     'npm run make',
     '',
-    '# 4. Benchmark (mode-dependent).',
-    benchCmd,
+    ...benchSteps,
     '',
     '# 5. Bounded profiled construct pass (separate from benny so --prof never',
     '#    pollutes the ops/sec numbers).  Non-min bundle for readable frames.',
@@ -838,7 +869,9 @@ function configureAndRun(exec, opts, state, refInfo) {
     headRefName     : refInfo.headRefName,
     commitSha       : refInfo.headRefOid,
     deep            : opts.deep,
-    shutdownMinutes : opts.shutdownMinutes
+    shutdownMinutes : opts.shutdownMinutes,
+    prNumber        : opts.prNumber,
+    harnessFrom     : opts.harnessFrom
   });
   const remoteScriptPath = path.join(state.tmpDir, 'remote_run.sh');
   if (!exec.dryRun) { fs.writeFileSync(remoteScriptPath, remoteScript); }
@@ -1111,6 +1144,8 @@ function printUsage() {
     `  --region <region>        AWS region (default ${DEFAULTS.region})`,
     '  --subnet-id <id>         subnet to launch in (auto-detected if omitted)',
     '  --my-ip <cidr>           SSH-ingress CIDR (default: resolved /32)',
+    '  --harness-from <ref>     overlay the current scaling harness from <ref> (e.g. main)',
+    '                           onto the PR checkout (bench PRs predating the suite)',
     `  --shutdown-minutes <n>   dead-man's-switch timer (default ${DEFAULTS.shutdownMinutes})`,
     '  --spot                   launch as a Spot instance (default on-demand)',
     '  --force                  re-measure even if perf_results already has this (type, PR)',
