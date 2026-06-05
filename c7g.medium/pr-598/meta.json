@@ -1,0 +1,11 @@
+{
+  "pr": 598,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "622f5d017de60b2258d42e8bfae11c136bc93c34",
+  "headRefName": "stonecypher/fsl#1325",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:38:42.724Z",
+  "runner": "graviton_perf.cjs"
+}
