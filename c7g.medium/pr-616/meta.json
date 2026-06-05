@@ -1,0 +1,11 @@
+{
+  "pr": 616,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "97d428d3ccf7ef37be743082389a10d48a62e871",
+  "headRefName": "upgrade-better-git-changelog",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:06:15.946Z",
+  "runner": "graviton_perf.cjs"
+}
