@@ -1,0 +1,11 @@
+{
+  "pr": 633,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "3acfedc7994c44c752fc0413435d3910ceca9a33",
+  "headRefName": "ci_26-05-22_split-pr-main_632",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:01:46.961Z",
+  "runner": "graviton_perf.cjs"
+}
