@@ -1,0 +1,11 @@
+{
+  "pr": 603,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "dd3f5701b80d1eefe9718990a2a7dfcd075e023e",
+  "headRefName": "worktree-lit-wc-foundation",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:17:46.871Z",
+  "runner": "graviton_perf.cjs"
+}
