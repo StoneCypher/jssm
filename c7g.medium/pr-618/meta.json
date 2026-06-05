@@ -1,0 +1,11 @@
+{
+  "pr": 618,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "0d2d0ee92908dca9a442368788ace0df1972433b",
+  "headRefName": "feat_26-05-18_open-sans-and-render-sizing",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:03:08.515Z",
+  "runner": "graviton_perf.cjs"
+}
