@@ -1,0 +1,11 @@
+{
+  "pr": 634,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "9504871d121e518f11fae2db87f007dd934d76be",
+  "headRefName": "chore_26-05-26_diagnostic-benchmark",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:00:18.792Z",
+  "runner": "graviton_perf.cjs"
+}
