@@ -1,0 +1,11 @@
+{
+  "pr": 602,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "4d8372852a4c2e8f4f6049e61ee75bfc7e93a095",
+  "headRefName": "worktree-comparables-extraction",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:25:22.210Z",
+  "runner": "graviton_perf.cjs"
+}
