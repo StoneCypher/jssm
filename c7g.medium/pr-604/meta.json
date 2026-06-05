@@ -1,0 +1,11 @@
+{
+  "pr": 604,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "703d17164b7d63ad8c122aac36eee52f252e83ed",
+  "headRefName": "worktree-BuildUnifiedFslCli",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:18:00.930Z",
+  "runner": "graviton_perf.cjs"
+}
