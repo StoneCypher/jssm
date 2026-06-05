@@ -1,0 +1,11 @@
+{
+  "pr": 612,
+  "instanceType": "c7g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "6c288dd6b2fc51457a72149b4240c220f0f51d90",
+  "headRefName": "executable-docblock-examples",
+  "region": "us-east-1",
+  "timestamp": "2026-06-05T05:16:31.550Z",
+  "runner": "graviton_perf.cjs"
+}
