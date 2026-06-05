@@ -28,9 +28,5 @@ lines.pop();
 const body = lines.join('\n')
   .replace(/function (error|expected)\((\w+), location\)/g, 'function $1($2, location?)');
 
-// Prepend `// @ts-nocheck` to the generated parser. With `pegjs --cache` the
-// peg$parse body exceeds tsc's control-flow-analysis size limit (TS2563); the
-// file is generated, so skipping type-checking on it is correct and unblocks
-// `tsc --build`. Harmless when --cache is off (the file is just smaller).
-fs.writeFileSync('./src/ts/fsl_parser.ts', '// @ts-nocheck\n' + body + tail);
+fs.writeFileSync('./src/ts/fsl_parser.ts', body + tail);
 fs.unlinkSync(orig_fname);
