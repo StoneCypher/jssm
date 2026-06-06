@@ -552,6 +552,143 @@ function buildRemoteScript(params) {
   ].join('\n');
 }
 
+/**
+ *  Build the self-contained user-data script for a `--detached` release run.
+ *  Unlike {@link buildRemoteScript} (which the client uploads + drives over SSH),
+ *  this script runs at instance boot via cloud-init and does the ENTIRE job with
+ *  no client involvement: arm the dead-man's-switch, install Node+git, clone and
+ *  check out the released commit, build `dist/`, run benny, capture a bounded
+ *  profiled construct pass, fetch a push PAT from SSM (via the instance profile),
+ *  publish artifacts to `perf_results` under `<instance-type>/release-<version>/`
+ *  (orphan-creating + non-fast-forward-retrying, like {@link publishPerfResults} /
+ *  {@link pushPerfResults}), and finally self-terminate.
+ *
+ *  @param params `{ repoUrl, commitSha, release, instanceType, region, deep,
+ *         shutdownMinutes, ssmParam }`. `commitSha` pins the exact released commit;
+ *         `release` is the version label used only for keying; `ssmParam` is the
+ *         SecureString name holding the contents:write PAT.
+ *  @returns A `#!/bin/bash` script string.
+ *  @throws Error on an unsafe `commitSha`, `release`, `region`, `ssmParam`, or
+ *          `repoUrl` (defense against command injection into the boot script).
+ *
+ *  @example
+ *  buildDetachedUserData({ repoUrl: 'https://github.com/StoneCypher/jssm.git',
+ *    commitSha: 'a'.repeat(40), release: '5.1.0', instanceType: 'c7g.medium',
+ *    region: 'us-east-1', deep: false, shutdownMinutes: 30,
+ *    ssmParam: '/jssm/perf-push-pat' }).includes('shutdown -h now') // => true
+ */
+function buildDetachedUserData(params) {
+  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, ssmParam } = params;
+
+  if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(commitSha)) {
+    throw new Error(`refusing to build user-data: unsafe commit SHA "${commitSha}"`);
+  }
+  if (!/^[\w.+-]+$/.test(String(release))) {
+    throw new Error(`refusing to build user-data: unsafe release "${release}"`);
+  }
+  if (!/^[\w-]+$/.test(String(region))) {
+    throw new Error(`refusing to build user-data: unsafe region "${region}"`);
+  }
+  if (!/^[\w./-]+$/.test(String(ssmParam))) {
+    throw new Error(`refusing to build user-data: unsafe ssm param "${ssmParam}"`);
+  }
+  if (!/^https?:\/\/[\w./:@-]+$/.test(repoUrl)) {
+    throw new Error(`refusing to build user-data: unsafe repo url "${repoUrl}"`);
+  }
+
+  const destDir   = perfResultDirForSlug(instanceType, releaseSlug(release)); // c7g.medium/release-5.1.0
+  const authUrl   = repoUrl.replace('https://', 'https://x-access-token:${TOKEN}@');
+  const benchLine = deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling';
+
+  return [
+    '#!/bin/bash',
+    '# graviton_perf detached release run — self-contained; no SSH, no client.',
+    '',
+    '# 0. Dead-man\'s-switch FIRST: even if everything below fails, the box dies.',
+    `shutdown -h +${shutdownMinutes}`,
+    '',
+    'set -uo pipefail',
+    'export HOME=/root',
+    'cd /root',
+    '',
+    '# 1. Node 24 (NodeSource) + git. AL2023 already ships AWS CLI v2.',
+    'curl -fsSL https://rpm.nodesource.com/setup_24.x | bash -',
+    'dnf install -y nodejs git',
+    '',
+    '# 2. Clone + pin the released commit.',
+    `git clone ${repoUrl} jssm`,
+    'cd jssm',
+    `git checkout ${commitSha}`,
+    '',
+    '# 3. Build dist/ (make, not build).',
+    'npm install --no-audit --no-fund',
+    'npm run make',
+    '',
+    '# 4. Benchmark (mode-dependent).',
+    benchLine,
+    '',
+    '# 5. Bounded profiled construct pass (non-min bundle for readable frames).',
+    'cat > perf_probe.cjs <<\'PROBE\'',
+    'const jssm = require(\'./dist/jssm.es5.nonmin.cjs\');',
+    'const sm = jssm.sm;',
+    'function denseFSL(n){const l=[\'allows_override: true;\'];for(let i=0;i<n;++i)for(let j=0;j<n;++j)if(i!==j)l.push(`s${i} -> s${j};`);return l.join(\'\\n\');}',
+    'const src = denseFSL(200);',
+    'for (let k = 0; k < 5; ++k) { const m = sm([src]); if (!m) throw new Error(\'no machine\'); }',
+    'PROBE',
+    'node --prof perf_probe.cjs || echo "JSSM_PERF: profile run failed; continuing"',
+    'node --prof-process isolate-*.log > construct.prof.txt || echo "prof-process failed" > construct.prof.txt',
+    '',
+    '# 6. meta.json sidecar.',
+    'cat > meta.json <<META',
+    '{',
+    `  "release": "${release}",`,
+    `  "instanceType": "${instanceType}",`,
+    '  "arch": "arm64",',
+    `  "mode": "${deep ? 'deep' : 'normal'}",`,
+    `  "commitSha": "${commitSha}",`,
+    `  "region": "${region}",`,
+    '  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",',
+    '  "runner": "graviton_perf.cjs --detached"',
+    '}',
+    'META',
+    '',
+    '# 7. Fetch the push PAT from SSM (via the instance profile) and publish results.',
+    `TOKEN=$(aws ssm get-parameter --region ${region} --name "${ssmParam}" --with-decryption --query Parameter.Value --output text)`,
+    'if [ -z "$TOKEN" ] || [ "$TOKEN" = "None" ]; then echo "JSSM_PERF: no PAT from SSM; cannot publish"; shutdown -h now; exit 4; fi',
+    '',
+    `AUTH_URL="${authUrl}"`,
+    'RESULTS=$(mktemp -d)',
+    'if ! git clone --depth 1 --branch perf_results "$AUTH_URL" "$RESULTS"; then',
+    '  git clone --depth 1 "$AUTH_URL" "$RESULTS"',
+    '  git -C "$RESULTS" checkout --orphan perf_results',
+    '  git -C "$RESULTS" rm -rf --ignore-unmatch . || true',
+    'fi',
+    `mkdir -p "$RESULTS/${destDir}"`,
+    `cp benchmark/results/scaling.json "$RESULTS/${destDir}/scaling.json" || true`,
+    `cp construct.prof.txt           "$RESULTS/${destDir}/construct.prof.txt" || true`,
+    `cp meta.json                    "$RESULTS/${destDir}/meta.json"`,
+    'git -C "$RESULTS" config user.email "stonecypher@users.noreply.github.com"',
+    'git -C "$RESULTS" config user.name  "jssm graviton perf bot"',
+    'git -C "$RESULTS" add -A',
+    `git -C "$RESULTS" commit -m "perf: ${instanceType} results for release ${release}"`,
+    '',
+    '# Push with non-fast-forward retry (a concurrent run may have advanced the branch).',
+    'cd "$RESULTS"',
+    'for i in 1 2 3 4 5 6; do',
+    '  if git push origin perf_results; then break; fi',
+    '  git fetch origin perf_results || true',
+    '  git rebase origin/perf_results || { git rebase --abort; echo "JSSM_PERF: rebase conflict"; break; }',
+    'done',
+    'cd -',
+    '',
+    'echo JSSM_PERF_DONE',
+    '',
+    '# 8. Self-terminate (shutdown-behavior=terminate drops the volume).',
+    'shutdown -h now',
+    ''
+  ].join('\n');
+}
+
 // ---------------------------------------------------------------------------
 // Executor seam (side effects live here; --dry-run swaps in a printer)
 // ---------------------------------------------------------------------------
@@ -1293,6 +1430,7 @@ module.exports = {
   tagFilter,
   buildUserData,
   buildRemoteScript,
+  buildDetachedUserData,
   quoteForDisplay,
   summarizeFinalInstanceState,
   // seams / orchestration (exercised via --dry-run, not unit-tested against AWS)

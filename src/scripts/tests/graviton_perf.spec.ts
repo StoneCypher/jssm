@@ -453,6 +453,85 @@ describe('summarizeFinalInstanceState — post-teardown report', () => {
 
 });
 
+describe('buildDetachedUserData — self-contained release run', () => {
+
+  const ok = {
+    repoUrl: 'https://github.com/StoneCypher/jssm.git',
+    commitSha: 'a'.repeat(40),
+    release: '5.141.5',
+    instanceType: 'c7g.medium',
+    region: 'us-east-1',
+    shutdownMinutes: 30,
+    ssmParam: '/jssm/perf-push-pat'
+  };
+
+  test('arms the dead-man\'s-switch and ends by self-terminating', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s.startsWith('#!/bin/bash')).toBe(true);
+    expect(s).toContain('shutdown -h +30');   // backstop
+    expect(s).toContain('shutdown -h now');    // explicit self-terminate at the end
+  });
+
+  test('checks out the exact commit and builds dist via make', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain(`git checkout ${'a'.repeat(40)}`);
+    expect(s).toContain('npm run make');
+  });
+
+  test('normal vs deep benny gate', () => {
+    expect(gp.buildDetachedUserData({ ...ok, deep: false })).toContain('npm run benny:scaling');
+    expect(gp.buildDetachedUserData({ ...ok, deep: false })).not.toContain('BENNY_DEEP=1');
+    expect(gp.buildDetachedUserData({ ...ok, deep: true })).toContain('BENNY_DEEP=1 npm run benny:scaling');
+  });
+
+  test('includes the bounded profiled construct pass', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('node --prof');
+    expect(s).toContain('--prof-process');
+    expect(s).toContain('jssm.es5.nonmin.cjs');
+  });
+
+  test('fetches the PAT from SSM and pushes with the token, to the release dir', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('aws ssm get-parameter');
+    expect(s).toContain('/jssm/perf-push-pat');
+    expect(s).toContain('x-access-token:${TOKEN}@github.com/StoneCypher/jssm.git');
+    expect(s).toContain('c7g.medium/release-5.141.5');
+  });
+
+  test('writes a meta.json stamped arm64 + release', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('"arch": "arm64"');
+    expect(s).toContain('"release": "5.141.5"');
+  });
+
+  test('retries the perf_results push on non-fast-forward', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('git rebase origin/perf_results');
+  });
+
+  test('rejects an unsafe commit SHA', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, commitSha: 'a; rm -rf /', deep: false }))
+      .toThrow(/unsafe commit/);
+  });
+
+  test('rejects an unsafe release string', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, release: 'a;b', deep: false }))
+      .toThrow(/unsafe release/);
+  });
+
+  test('rejects an unsafe region', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, region: 'us east 1', deep: false }))
+      .toThrow(/unsafe region/);
+  });
+
+  test('rejects an unsafe ssm param name', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, ssmParam: 'a;b', deep: false }))
+      .toThrow(/unsafe ssm/);
+  });
+
+});
+
 describe('release-slug keying', () => {
 
   test('releaseSlug builds release-<version>', () => {
