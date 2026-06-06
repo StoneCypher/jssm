@@ -865,6 +865,47 @@ function resolvePr(exec, ghRepo, prNumber) {
 // ---------------------------------------------------------------------------
 
 /**
+ *  Build the `aws ec2 run-instances` argv for a detached release run. Differs
+ *  from the PR-path launch: an IAM instance profile is attached (so the box can
+ *  read the SSM PAT), and there is NO key pair and NO security group — the run is
+ *  SSH-less, so the subnet's default (egress-only) security group suffices.
+ *
+ *  @param p `{ region, amiId, instanceType, subnetId, userDataPath, runId,
+ *         instanceProfile, spot }`.
+ *  @returns The argv array for `exec.run('aws', argv)`.
+ *
+ *  @example
+ *  buildDetachedRunInstancesArgs({ region:'us-east-1', amiId:'ami-1',
+ *    instanceType:'c7g.medium', subnetId:'subnet-1', userDataPath:'/tmp/ud.sh',
+ *    runId:'jssm-perf-x', instanceProfile:'jssm-graviton-perf', spot:false })
+ *    .includes('--iam-instance-profile') // => true
+ */
+function buildDetachedRunInstancesArgs(p) {
+  const args = [
+    'ec2', 'run-instances', '--region', p.region,
+    '--image-id', p.amiId,
+    '--instance-type', p.instanceType,
+    '--subnet-id', p.subnetId,
+    '--associate-public-ip-address',
+    '--iam-instance-profile', `Name=${p.instanceProfile}`,
+    '--instance-initiated-shutdown-behavior', 'terminate',
+    '--block-device-mappings',
+      '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":10,"VolumeType":"gp3","DeleteOnTermination":true}}]',
+    '--metadata-options', 'HttpTokens=required,HttpEndpoint=enabled',
+    '--tag-specifications', tagSpec('instance', p.runId),
+    '--user-data', `file://${p.userDataPath}`,
+    '--count', '1',
+    '--query', 'Instances[0].InstanceId', '--output', 'text'
+  ];
+  if (p.spot) {
+    args.splice(args.length - 2, 0,
+      '--instance-market-options',
+      'MarketType=spot,SpotOptions={SpotInstanceType=one-time,InstanceInterruptionBehavior=terminate}');
+  }
+  return args;
+}
+
+/**
  *  Resolve the subnet to launch in.  Honors an explicit `--subnet-id`; otherwise
  *  auto-detects a default VPC and one of its public (map-public-ip-on-launch)
  *  subnets.  The account may lack a default VPC — in that case this throws,
@@ -1431,6 +1472,7 @@ module.exports = {
   buildUserData,
   buildRemoteScript,
   buildDetachedUserData,
+  buildDetachedRunInstancesArgs,
   quoteForDisplay,
   summarizeFinalInstanceState,
   // seams / orchestration (exercised via --dry-run, not unit-tested against AWS)

@@ -453,6 +453,43 @@ describe('summarizeFinalInstanceState — post-teardown report', () => {
 
 });
 
+describe('buildDetachedRunInstancesArgs — no key, no SG ingress, instance profile', () => {
+
+  const base = {
+    region: 'us-east-1', amiId: 'ami-123', instanceType: 'c7g.medium',
+    subnetId: 'subnet-abc', userDataPath: '/tmp/ud.sh', runId: 'jssm-perf-x',
+    instanceProfile: 'jssm-graviton-perf', spot: false
+  };
+
+  test('attaches the instance profile and self-terminates on shutdown', () => {
+    const a = gp.buildDetachedRunInstancesArgs(base);
+    const joined = a.join(' ');
+    expect(joined).toContain('--iam-instance-profile');
+    expect(joined).toContain('Name=jssm-graviton-perf');
+    expect(joined).toContain('--instance-initiated-shutdown-behavior terminate');
+    expect(joined).toContain('file:///tmp/ud.sh');
+  });
+
+  test('uses no key pair and no security-group ingress (SSH-less)', () => {
+    const joined = gp.buildDetachedRunInstancesArgs(base).join(' ');
+    expect(joined).not.toContain('--key-name');
+    expect(joined).not.toContain('--security-group-ids');
+  });
+
+  test('tags the instance for sweepability', () => {
+    const joined = gp.buildDetachedRunInstancesArgs(base).join(' ');
+    expect(joined).toContain('jssm-perf-run');
+    expect(joined).toContain('Value=jssm-perf-x');
+  });
+
+  test('--spot injects one-time terminate market options', () => {
+    const joined = gp.buildDetachedRunInstancesArgs({ ...base, spot: true }).join(' ');
+    expect(joined).toContain('--instance-market-options');
+    expect(joined).toContain('SpotInstanceType=one-time');
+  });
+
+});
+
 describe('buildDetachedUserData — self-contained release run', () => {
 
   const ok = {
