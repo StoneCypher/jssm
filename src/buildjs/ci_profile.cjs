@@ -16,7 +16,7 @@
  * Usage:
  *   node src/buildjs/ci_profile.cjs                           # all default phases, 1 run each
  *   node src/buildjs/ci_profile.cjs --repeat 3                # 3 runs each, report median/mean
- *   node src/buildjs/ci_profile.cjs --phases jest-spec,jest-stoch
+ *   node src/buildjs/ci_profile.cjs --phases vitest-spec,vitest-stoch
  *   node src/buildjs/ci_profile.cjs --clean                   # rm -rf node_modules before install
  *   node src/buildjs/ci_profile.cjs --help
  *
@@ -25,8 +25,8 @@
  *   === Summary (median ms, sorted by share of total) ===
  *     install               87,432 ms    62.1 %
  *     make                  31,508 ms    22.4 %
- *     jest-spec             18,201 ms    12.9 %
- *     jest-stoch               884 ms     0.6 %
+ *     vitest-spec             18,201 ms    12.9 %
+ *     vitest-stoch               884 ms     0.6 %
  *     ...
  *   → benchmark/results/ci-profile-2026-05-12T18-04-12-417Z.json
  *
@@ -56,13 +56,13 @@ const PHASES = {
   install:             { description: 'npm install (full dependency resolution)',           cmd: 'npm install'           },
   make:                { description: 'npm run make (clean, peg, tsc, bundle, minify)',     cmd: 'npm run make'          },
   vet:                 { description: 'npm run vet (eslint + audit)',                       cmd: 'npm run vet'           },
-  'jest-spec':         { description: 'npm run jest-spec (main test suite)',                cmd: 'npm run jest-spec'     },
-  'jest-stoch':        { description: 'npm run jest-stoch (stochastic / property suite)',   cmd: 'npm run jest-stoch'    },
-  'jest-unicode-atom': { description: 'npm run jest-unicode-atom (one unicode pass)',       cmd: 'npm run jest-unicode-atom' },
+  'vitest-spec':         { description: 'npm run vitest-spec (main test suite)',                cmd: 'npm run vitest-spec'     },
+  'vitest-stoch':        { description: 'npm run vitest-stoch (stochastic / property suite)',   cmd: 'npm run vitest-stoch'    },
+  'vitest-unicode-atom': { description: 'npm run vitest-unicode-atom (one unicode pass)',       cmd: 'npm run vitest-unicode-atom' },
   'ci_build':          { description: 'npm run ci_build (umbrella: vet + test)',            cmd: 'npm run ci_build'      },
 };
 
-const DEFAULT_PHASES = ['install', 'make', 'vet', 'jest-spec', 'jest-stoch'];
+const DEFAULT_PHASES = ['install', 'make', 'vet', 'vitest-spec', 'vitest-stoch'];
 
 
 
@@ -160,7 +160,7 @@ function time_ms(fn) {
  * memory but only its length is returned; on non-zero exit, stderr
  * is printed so the developer can see the failure.
  *
- * @param   {string} cmd  A shell command line (`npm run jest-spec` etc.).
+ * @param   {string} cmd  A shell command line (`npm run vitest-spec` etc.).
  * @returns {{ exit: number, stdout_len: number, stderr_len: number }}
  */
 function run(cmd) {
