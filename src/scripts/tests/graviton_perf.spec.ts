@@ -453,6 +453,244 @@ describe('summarizeFinalInstanceState — post-teardown report', () => {
 
 });
 
+describe('provisionDetached / runDetached — fire and walk away', () => {
+
+  // Fake exec that records calls and returns canned stdout per aws subcommand.
+  const fakeExec = () => {
+    const calls: string[] = [];
+    const run = (cmd: string, args: string[]) => {
+      calls.push([cmd, ...args].join(' '));
+      const a = args.join(' ');
+      if (a.includes('ssm get-parameter')) { return { status: 0, stdout: 'ami-abc', stderr: '' }; }
+      if (a.includes('describe-vpcs'))      { return { status: 0, stdout: 'vpc-abc', stderr: '' }; }
+      if (a.includes('describe-subnets'))   { return { status: 0, stdout: 'subnet-abc', stderr: '' }; }
+      if (a.includes('run-instances'))      { return { status: 0, stdout: 'i-abc', stderr: '' }; }
+      return { status: 0, stdout: '', stderr: '' };
+    };
+    return { exec: { run, dryRun: false }, calls };
+  };
+
+  const opts = {
+    detached: true, release: '5.1.0', commit: 'a'.repeat(40),
+    instanceType: 'c7g.medium', region: 'us-east-1', mode: 'normal', deep: false,
+    shutdownMinutes: 30, spot: false, force: false
+  };
+
+  test('provisionDetached launches one tagged instance and records its id', () => {
+    const h = fakeExec();
+    const state = { runId: 'jssm-perf-x', region: 'us-east-1', instanceType: 'c7g.medium',
+                    tmpDir: require('os').tmpdir() };
+    gp.provisionDetached(h.exec, opts, state);
+    expect(state.instanceId).toBe('i-abc');
+    expect(h.calls.some((c) => c.includes('run-instances'))).toBe(true);
+    expect(h.calls.some((c) => c.includes('--iam-instance-profile'))).toBe(true);
+  });
+
+  test('runDetached never tears down (no terminate / no wait)', () => {
+    const h = fakeExec();
+    const code = gp.runDetached(h.exec, opts);
+    expect(code).toBe(0);
+    expect(h.calls.some((c) => c.includes('terminate-instances'))).toBe(false);
+    expect(h.calls.some((c) => c.includes('wait instance-terminated'))).toBe(false);
+  });
+
+});
+
+describe('buildDetachedRunInstancesArgs — no key, no SG ingress, instance profile', () => {
+
+  const base = {
+    region: 'us-east-1', amiId: 'ami-123', instanceType: 'c7g.medium',
+    subnetId: 'subnet-abc', userDataPath: '/tmp/ud.sh', runId: 'jssm-perf-x',
+    instanceProfile: 'jssm-graviton-perf', spot: false
+  };
+
+  test('attaches the instance profile and self-terminates on shutdown', () => {
+    const a = gp.buildDetachedRunInstancesArgs(base);
+    const joined = a.join(' ');
+    expect(joined).toContain('--iam-instance-profile');
+    expect(joined).toContain('Name=jssm-graviton-perf');
+    expect(joined).toContain('--instance-initiated-shutdown-behavior terminate');
+    expect(joined).toContain('file:///tmp/ud.sh');
+  });
+
+  test('uses no key pair and no security-group ingress (SSH-less)', () => {
+    const joined = gp.buildDetachedRunInstancesArgs(base).join(' ');
+    expect(joined).not.toContain('--key-name');
+    expect(joined).not.toContain('--security-group-ids');
+  });
+
+  test('tags the instance for sweepability', () => {
+    const joined = gp.buildDetachedRunInstancesArgs(base).join(' ');
+    expect(joined).toContain('jssm-perf-run');
+    expect(joined).toContain('Value=jssm-perf-x');
+  });
+
+  test('--spot injects one-time terminate market options', () => {
+    const joined = gp.buildDetachedRunInstancesArgs({ ...base, spot: true }).join(' ');
+    expect(joined).toContain('--instance-market-options');
+    expect(joined).toContain('SpotInstanceType=one-time');
+  });
+
+});
+
+describe('buildDetachedUserData — self-contained release run', () => {
+
+  const ok = {
+    repoUrl: 'https://github.com/StoneCypher/jssm.git',
+    commitSha: 'a'.repeat(40),
+    release: '5.141.5',
+    instanceType: 'c7g.medium',
+    region: 'us-east-1',
+    shutdownMinutes: 30,
+    ssmParam: '/jssm/perf-push-pat'
+  };
+
+  test('arms the dead-man\'s-switch and ends by self-terminating', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s.startsWith('#!/bin/bash')).toBe(true);
+    expect(s).toContain('shutdown -h +30');   // backstop
+    expect(s).toContain('shutdown -h now');    // explicit self-terminate at the end
+  });
+
+  test('checks out the exact commit and builds dist via make', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain(`git checkout ${'a'.repeat(40)}`);
+    expect(s).toContain('npm run make');
+  });
+
+  test('normal vs deep benny gate', () => {
+    expect(gp.buildDetachedUserData({ ...ok, deep: false })).toContain('npm run benny:scaling');
+    expect(gp.buildDetachedUserData({ ...ok, deep: false })).not.toContain('BENNY_DEEP=1');
+    expect(gp.buildDetachedUserData({ ...ok, deep: true })).toContain('BENNY_DEEP=1 npm run benny:scaling');
+  });
+
+  test('includes the bounded profiled construct pass', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('node --prof');
+    expect(s).toContain('--prof-process');
+    expect(s).toContain('jssm.es5.nonmin.cjs');
+  });
+
+  test('fetches the PAT from SSM and pushes with the token, to the release dir', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('aws ssm get-parameter');
+    expect(s).toContain('/jssm/perf-push-pat');
+    expect(s).toContain('x-access-token:${TOKEN}@github.com/StoneCypher/jssm.git');
+    expect(s).toContain('c7g.medium/release-5.141.5');
+  });
+
+  test('writes a meta.json stamped arm64 + release', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('"arch": "arm64"');
+    expect(s).toContain('"release": "5.141.5"');
+  });
+
+  test('retries the perf_results push on non-fast-forward', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('git rebase origin/perf_results');
+  });
+
+  test('guards the publish on a produced scaling.json (no dedup poisoning on a failed build)', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('if [ -s benchmark/results/scaling.json ]; then');
+    expect(s).toContain('skipping perf_results publish');
+  });
+
+  test('rejects an unsafe commit SHA', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, commitSha: 'a; rm -rf /', deep: false }))
+      .toThrow(/unsafe commit/);
+  });
+
+  test('rejects an unsafe release string', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, release: 'a;b', deep: false }))
+      .toThrow(/unsafe release/);
+  });
+
+  test('rejects an unsafe region', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, region: 'us east 1', deep: false }))
+      .toThrow(/unsafe region/);
+  });
+
+  test('rejects an unsafe ssm param name', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, ssmParam: 'a;b', deep: false }))
+      .toThrow(/unsafe ssm/);
+  });
+
+});
+
+describe('release-slug keying', () => {
+
+  test('releaseSlug builds release-<version>', () => {
+    expect(gp.releaseSlug('5.141.5')).toBe('release-5.141.5');
+  });
+
+  test('slug path/dir builders', () => {
+    expect(gp.perfResultPathForSlug('c7g.medium', 'release-5.1.0', 'scaling.json'))
+      .toBe('c7g.medium/release-5.1.0/scaling.json');
+    expect(gp.perfResultDirForSlug('c7g.medium', 'release-5.1.0'))
+      .toBe('c7g.medium/release-5.1.0');
+  });
+
+  test('PR helpers still build pr-<num> (unchanged API)', () => {
+    expect(gp.perfResultPath('c7g.medium', 677, 'scaling.json')).toBe('c7g.medium/pr-677/scaling.json');
+    expect(gp.perfResultDir('c7g.medium', 677)).toBe('c7g.medium/pr-677');
+  });
+
+  test('decideMeasureSlug skips an already-present release, force overrides', () => {
+    const existing = ['c7g.medium/release-5.1.0/scaling.json'];
+    expect(gp.decideMeasureSlug(existing, 'c7g.medium', 'release-5.1.0', false).measure).toBe(false);
+    expect(gp.decideMeasureSlug(existing, 'c7g.medium', 'release-5.1.0', true).measure).toBe(true);
+    expect(gp.decideMeasureSlug(existing, 'c7g.medium', 'release-5.2.0', false).measure).toBe(true);
+  });
+
+});
+
+describe('parseArgs — detached release mode', () => {
+
+  const sha = 'a'.repeat(40);
+
+  test('accepts --detached with --release and --commit', () => {
+    const o = gp.parseArgs(['--detached', '--release', '5.141.5', '--commit', sha]);
+    expect(o.detached).toBe(true);
+    expect(o.release).toBe('5.141.5');
+    expect(o.commit).toBe(sha);
+    expect(o.prNumber).toBeUndefined();
+  });
+
+  test('--detached + --mode deep still sets deep', () => {
+    const o = gp.parseArgs(['--detached', '--release', '5.1.0', '--commit', sha, '--mode', 'deep']);
+    expect(o.deep).toBe(true);
+  });
+
+  test('--detached rejects a PR positional', () => {
+    expect(() => gp.parseArgs(['677', '--detached', '--release', '5.1.0', '--commit', sha]))
+      .toThrow(/not a PR/);
+  });
+
+  test('--detached requires --release', () => {
+    expect(() => gp.parseArgs(['--detached', '--commit', sha])).toThrow(/requires --release/);
+  });
+
+  test('--detached requires --commit', () => {
+    expect(() => gp.parseArgs(['--detached', '--release', '5.1.0'])).toThrow(/requires --commit/);
+  });
+
+  test('--detached rejects a non-hex commit', () => {
+    expect(() => gp.parseArgs(['--detached', '--release', '5.1.0', '--commit', 'nope']))
+      .toThrow(/hex SHA/);
+  });
+
+  test('--detached rejects an unsafe release string', () => {
+    expect(() => gp.parseArgs(['--detached', '--release', 'a b;c', '--commit', sha]))
+      .toThrow(/version string/);
+  });
+
+  test('--release/--commit are rejected without --detached', () => {
+    expect(() => gp.parseArgs(['677', '--release', '5.1.0'])).toThrow(/only valid with --detached/);
+  });
+
+});
+
 describe('pushPerfResults — concurrent push retry', () => {
 
   // Build a fake executor whose `git push` returns the given status sequence

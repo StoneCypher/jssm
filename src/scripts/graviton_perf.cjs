@@ -9,7 +9,15 @@
  *
  *  Usage:
  *
- *      node src/scripts/graviton_perf.cjs <pr-number> [flags]
+ *      node src/scripts/graviton_perf.cjs <pr-number> [flags]        # benchmark a PR
+ *      node src/scripts/graviton_perf.cjs --detached --release <v> --commit <sha>  # fire-and-forget release run (CI)
+ *
+ *  The PR form drives the run from this machine over SSH. The `--detached` form
+ *  launches one instance that runs the whole job itself (build, benchmark, push to
+ *  perf_results under `<type>/release-<v>/`, self-terminate) and returns at once —
+ *  used by the release workflow after npm publish. It needs an AWS instance profile
+ *  ({@link PERF_INSTANCE_PROFILE}) and an SSM PAT ({@link PERF_PUSH_PAT_SSM_PARAM});
+ *  see notes/superpowers/graviton-ci-aws-setup.md.
  *
  *  Primary argument is a GitHub PR number; the runner resolves its head branch
  *  via `gh pr view <num>` and benchmarks *that PR's* commit (not main).
@@ -31,6 +39,9 @@
  *    --cleanup-only           Sweep+delete tagged resources; do not provision.
  *    --run-id <id>            Override the generated run id.
  *    --dry-run                Print every AWS/ssh/git command; execute none.
+ *    --detached               Fire-and-forget release run (CI use after npm publish).
+ *    --release <version>      (with --detached) version label for release-<v> keying.
+ *    --commit <sha>           (with --detached) exact commit to benchmark.
  *
  *  SAFETY: the orchestration here is *only* exercised against live AWS when
  *  `--dry-run` is absent.  Every AWS/ssh/git/gh shell-out goes through the
@@ -85,13 +96,20 @@ const AL2023_ARM64_SSM_PARAM =
 /** Tag every created resource so a partial-failure stray is always reapable. */
 const BENCH_TAG_KEY = 'jssm-perf';
 
+/** SSM SecureString holding the contents:write PAT the instance uses to push perf_results. */
+const PERF_PUSH_PAT_SSM_PARAM = '/jssm/perf-push-pat';
+
+/** IAM instance profile attached to the detached instance so it can read PERF_PUSH_PAT_SSM_PARAM. */
+const PERF_INSTANCE_PROFILE = 'jssm-graviton-perf';
+
 // ---------------------------------------------------------------------------
 // Pure helpers (unit-tested; no side effects)
 // ---------------------------------------------------------------------------
 
 /**
  *  Parse the runner's CLI arguments.  The first non-flag positional is the
- *  required PR number; everything else is a recognized flag.
+ *  required PR number; everything else is a recognized flag.  In detached mode
+ *  there is no PR number; `--release` and `--commit` are required instead.
  *
  *  @param argv Args *after* `node script` (i.e. `process.argv.slice(2)`).
  *  @returns A normalized options object with every flag resolved to a value or
@@ -99,14 +117,17 @@ const BENCH_TAG_KEY = 'jssm-perf';
  *           (boolean) derived from `--mode deep`.
  *  @throws Error on an unknown flag, a missing flag argument, a bad
  *          `--instance-type` (including any `t*` burstable type), a non-numeric
- *          PR number, a bad `--mode`, or a missing PR number when one is
- *          required (i.e. not `--cleanup-only`).
+ *          PR number, a bad `--mode`, a missing PR number when one is
+ *          required (i.e. not `--cleanup-only` or `--detached`), an invalid or
+ *          unsafe `--commit` SHA, or an unsafe `--release` version string.
  *
  *  @example
  *  parseArgs(['677']).prNumber              // => 677
  *  parseArgs(['677', '--mode', 'deep']).deep // => true
  *  @example
  *  parseArgs(['--cleanup-only']).cleanupOnly // => true  (no PR needed)
+ *  @example
+ *  parseArgs(['--detached','--release','5.1.0','--commit','a...']).detached // => true
  */
 function parseArgs(argv) {
   const opts = {
@@ -123,7 +144,10 @@ function parseArgs(argv) {
     force           : false,
     keep            : false,
     cleanupOnly     : false,
-    dryRun          : false
+    dryRun          : false,
+    detached        : false,
+    release         : undefined,
+    commit          : undefined
   };
 
   const needsValue = (flag, value) => {
@@ -147,6 +171,9 @@ function parseArgs(argv) {
       case '--keep'             : opts.keep            = true; break;
       case '--cleanup-only'     : opts.cleanupOnly     = true; break;
       case '--dry-run'          : opts.dryRun          = true; break;
+      case '--detached'         : opts.detached        = true; break;
+      case '--release'          : opts.release         = needsValue(a, argv[++i]); break;
+      case '--commit'           : opts.commit          = needsValue(a, argv[++i]); break;
       default:
         if (a.startsWith('--')) { throw new Error(`unknown flag: ${a}`); }
         if (opts.prNumber !== undefined) { throw new Error(`unexpected extra positional argument: ${a}`); }
@@ -166,9 +193,28 @@ function parseArgs(argv) {
     throw new Error(`--shutdown-minutes must be a positive integer`);
   }
 
-  // The PR number is required for a measurement run, but not for a pure sweep.
-  if (!opts.cleanupOnly && opts.prNumber === undefined) {
-    throw new Error('a PR number is required: node graviton_perf.cjs <pr-number> [flags]');
+  // Targeting: a measurement run benchmarks a PR; a detached run benchmarks a
+  // published release (no PR, no open branch). The two are mutually exclusive.
+  if (opts.detached) {
+    if (opts.prNumber !== undefined) {
+      throw new Error('--detached benchmarks a release, not a PR; do not pass a PR number');
+    }
+    if (!opts.release) { throw new Error('--detached requires --release <version>'); }
+    if (!opts.commit)  { throw new Error('--detached requires --commit <sha>'); }
+    if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(opts.commit)) {
+      throw new Error(`--commit must be a 40- or 64-char hex SHA, got: ${opts.commit}`);
+    }
+    if (!/^[\w.+-]+$/.test(opts.release)) {
+      throw new Error(`--release must be a simple version string, got: ${opts.release}`);
+    }
+  } else {
+    if (opts.release || opts.commit) {
+      throw new Error('--release/--commit are only valid with --detached');
+    }
+    // A PR number is required for a measurement run, but not for a pure sweep.
+    if (!opts.cleanupOnly && opts.prNumber === undefined) {
+      throw new Error('a PR number is required: node graviton_perf.cjs <pr-number> [flags]');
+    }
   }
 
   return opts;
@@ -229,6 +275,21 @@ function randomHex6() {
   return Math.floor(Math.random() * 0x1000000).toString(16).padStart(6, '0');
 }
 
+/** Generic perf_results path keyed by a target slug (`pr-<n>` or `release-<v>`). */
+function perfResultPathForSlug(instanceType, slug, filename) {
+  return `${instanceType}/${slug}/${filename}`;
+}
+
+/** Generic perf_results dir prefix (no filename) keyed by a target slug. */
+function perfResultDirForSlug(instanceType, slug) {
+  return `${instanceType}/${slug}`;
+}
+
+/** The perf_results target slug for a published release version. */
+function releaseSlug(version) {
+  return `release-${version}`;
+}
+
 /**
  *  Build the `perf_results`-branch path for one artifact, keyed by machine type
  *  then PR.  This is the on-branch layout the runner commits to.
@@ -242,8 +303,10 @@ function randomHex6() {
  *  perfResultPath('c7g.medium', 677, 'scaling.json')
  *  // => 'c7g.medium/pr-677/scaling.json'
  */
+// perfResultPath/perfResultDir keep their public (instanceType, prNumber, ...) API,
+// now expressed via the slug primitives.
 function perfResultPath(instanceType, prNumber, filename) {
-  return `${instanceType}/pr-${prNumber}/${filename}`;
+  return perfResultPathForSlug(instanceType, `pr-${prNumber}`, filename);
 }
 
 /**
@@ -254,7 +317,35 @@ function perfResultPath(instanceType, prNumber, filename) {
  *  @example perfResultDir('c7g.medium', 677) // => 'c7g.medium/pr-677'
  */
 function perfResultDir(instanceType, prNumber) {
-  return `${instanceType}/pr-${prNumber}`;
+  return perfResultDirForSlug(instanceType, `pr-${prNumber}`);
+}
+
+/**
+ *  Decide whether to measure a (instanceType, slug) target or skip it as already
+ *  measured: if any path under `<instanceType>/<slug>/` exists on perf_results,
+ *  skip unless `force`. The slug is `pr-<n>` or `release-<v>`.
+ *
+ *  @param existingPaths The flat list of paths present on `perf_results` (e.g.
+ *         from `git ls-tree -r origin/perf_results --name-only`).  An empty list
+ *         (branch absent or empty) always measures.
+ *  @param instanceType e.g. `c7g.medium`.
+ *  @param slug e.g. `pr-677` or `release-5.1.0`.
+ *  @param force When true, always measure regardless of existing results.
+ *  @returns `{ measure, reason }` — `measure` is the boolean decision, `reason`
+ *           is a human-readable explanation suitable for printing.
+ */
+function decideMeasureSlug(existingPaths, instanceType, slug, force) {
+  const dir       = perfResultDirForSlug(instanceType, slug);
+  const dirPrefix = dir + '/';
+  const already   = existingPaths.some((p) => p === dir || p.startsWith(dirPrefix));
+
+  if (already && !force) {
+    return { measure: false, reason: `results already exist at ${dir}/ on perf_results (pass --force to re-measure)` };
+  }
+  if (already && force) {
+    return { measure: true, reason: `--force: re-measuring despite existing ${dir}/` };
+  }
+  return { measure: true, reason: `no existing results for ${dir}/` };
 }
 
 /**
@@ -276,22 +367,12 @@ function perfResultDir(instanceType, prNumber) {
  *  decideMeasure([], 'c7g.medium', 677, false).measure          // => true
  *  decideMeasure(['c7g.medium/pr-677/scaling.json'], 'c7g.medium', 677, false).measure // => false
  *  decideMeasure(['c7g.medium/pr-677/scaling.json'], 'c7g.medium', 677, true).measure  // => true (force)
+ *
+ *  @see decideMeasureSlug
  */
+/** PR-keyed dedup decision (unchanged public API), expressed via the slug core. */
 function decideMeasure(existingPaths, instanceType, prNumber, force) {
-  const dirPrefix = perfResultDir(instanceType, prNumber) + '/';
-  const already = existingPaths.some((p) => p === dirPrefix.slice(0, -1) || p.startsWith(dirPrefix));
-
-  if (already && !force) {
-    return {
-      measure : false,
-      reason  : `results already exist at ${perfResultDir(instanceType, prNumber)}/ on perf_results ` +
-                `(pass --force to re-measure)`
-    };
-  }
-  if (already && force) {
-    return { measure: true, reason: `--force: re-measuring despite existing ${perfResultDir(instanceType, prNumber)}/` };
-  }
-  return { measure: true, reason: `no existing results for ${perfResultDir(instanceType, prNumber)}/` };
+  return decideMeasureSlug(existingPaths, instanceType, `pr-${prNumber}`, force);
 }
 
 /**
@@ -486,6 +567,152 @@ function buildRemoteScript(params) {
   ].join('\n');
 }
 
+/**
+ *  Build the self-contained user-data script for a `--detached` release run.
+ *  Unlike {@link buildRemoteScript} (which the client uploads + drives over SSH),
+ *  this script runs at instance boot via cloud-init and does the ENTIRE job with
+ *  no client involvement: arm the dead-man's-switch, install Node+git, clone and
+ *  check out the released commit, build `dist/`, run benny, capture a bounded
+ *  profiled construct pass, fetch a push PAT from SSM (via the instance profile),
+ *  publish artifacts to `perf_results` under `<instance-type>/release-<version>/`
+ *  (orphan-creating + non-fast-forward-retrying, like {@link publishPerfResults} /
+ *  {@link pushPerfResults}), and finally self-terminate.
+ *
+ *  @param params `{ repoUrl, commitSha, release, instanceType, region, deep,
+ *         shutdownMinutes, ssmParam }`. `commitSha` pins the exact released commit;
+ *         `release` is the version label used only for keying; `ssmParam` is the
+ *         SecureString name holding the contents:write PAT.
+ *  @returns A `#!/bin/bash` script string.
+ *  @throws Error on an unsafe `commitSha`, `release`, `region`, `ssmParam`, or
+ *          `repoUrl` (defense against command injection into the boot script).
+ *
+ *  @example
+ *  buildDetachedUserData({ repoUrl: 'https://github.com/StoneCypher/jssm.git',
+ *    commitSha: 'a'.repeat(40), release: '5.1.0', instanceType: 'c7g.medium',
+ *    region: 'us-east-1', deep: false, shutdownMinutes: 30,
+ *    ssmParam: '/jssm/perf-push-pat' }).includes('shutdown -h now') // => true
+ */
+function buildDetachedUserData(params) {
+  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, ssmParam } = params;
+
+  if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(commitSha)) {
+    throw new Error(`refusing to build user-data: unsafe commit SHA "${commitSha}"`);
+  }
+  if (!/^[\w.+-]+$/.test(String(release))) {
+    throw new Error(`refusing to build user-data: unsafe release "${release}"`);
+  }
+  if (!/^[\w-]+$/.test(String(region))) {
+    throw new Error(`refusing to build user-data: unsafe region "${region}"`);
+  }
+  if (!/^[\w./-]+$/.test(String(ssmParam))) {
+    throw new Error(`refusing to build user-data: unsafe ssm param "${ssmParam}"`);
+  }
+  if (!/^https?:\/\/[\w./:@-]+$/.test(repoUrl)) {
+    throw new Error(`refusing to build user-data: unsafe repo url "${repoUrl}"`);
+  }
+
+  const destDir   = perfResultDirForSlug(instanceType, releaseSlug(release)); // c7g.medium/release-5.1.0
+  const authUrl   = repoUrl.replace('https://', 'https://x-access-token:${TOKEN}@');
+  const benchLine = deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling';
+
+  return [
+    '#!/bin/bash',
+    '# graviton_perf detached release run — self-contained; no SSH, no client.',
+    '',
+    '# 0. Dead-man\'s-switch FIRST: even if everything below fails, the box dies.',
+    `shutdown -h +${shutdownMinutes}`,
+    '',
+    'set -uo pipefail',
+    'export HOME=/root',
+    'cd /root',
+    '',
+    '# 1. Node 24 (NodeSource) + git. AL2023 already ships AWS CLI v2.',
+    'curl -fsSL https://rpm.nodesource.com/setup_24.x | bash -',
+    'dnf install -y nodejs git',
+    '',
+    '# 2. Clone + pin the released commit.',
+    `git clone ${repoUrl} jssm`,
+    'cd jssm',
+    `git checkout ${commitSha}`,
+    '',
+    '# 3. Build dist/ (make, not build).',
+    'npm install --no-audit --no-fund',
+    'npm run make',
+    '',
+    '# 4. Benchmark (mode-dependent).',
+    benchLine,
+    '',
+    '# 5. Bounded profiled construct pass (non-min bundle for readable frames).',
+    'cat > perf_probe.cjs <<\'PROBE\'',
+    'const jssm = require(\'./dist/jssm.es5.nonmin.cjs\');',
+    'const sm = jssm.sm;',
+    'function denseFSL(n){const l=[\'allows_override: true;\'];for(let i=0;i<n;++i)for(let j=0;j<n;++j)if(i!==j)l.push(`s${i} -> s${j};`);return l.join(\'\\n\');}',
+    'const src = denseFSL(200);',
+    'for (let k = 0; k < 5; ++k) { const m = sm([src]); if (!m) throw new Error(\'no machine\'); }',
+    'PROBE',
+    'node --prof perf_probe.cjs || echo "JSSM_PERF: profile run failed; continuing"',
+    'node --prof-process isolate-*.log > construct.prof.txt || echo "prof-process failed" > construct.prof.txt',
+    '',
+    '# 6. meta.json sidecar.',
+    'cat > meta.json <<META',
+    '{',
+    `  "release": "${release}",`,
+    `  "instanceType": "${instanceType}",`,
+    '  "arch": "arm64",',
+    `  "mode": "${deep ? 'deep' : 'normal'}",`,
+    `  "commitSha": "${commitSha}",`,
+    `  "region": "${region}",`,
+    '  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",',
+    '  "runner": "graviton_perf.cjs --detached"',
+    '}',
+    'META',
+    '',
+    '# 7. Publish to perf_results — ONLY if the benchmark actually produced',
+    '#    scaling.json. A failed build/benchmark must not push a meta-only dir,',
+    '#    which would poison the release-<version>/ dedup (it would read as',
+    '#    "already measured" and block a real re-run). Mirrors the SSH path, which',
+    '#    refuses to publish without a non-empty scaling.json.',
+    'if [ -s benchmark/results/scaling.json ]; then',
+    `  TOKEN=$(aws ssm get-parameter --region ${region} --name "${ssmParam}" --with-decryption --query Parameter.Value --output text)`,
+    '  if [ -z "$TOKEN" ] || [ "$TOKEN" = "None" ]; then',
+    '    echo "JSSM_PERF: no PAT from SSM; cannot publish"',
+    '  else',
+    `    AUTH_URL="${authUrl}"`,
+    '    RESULTS=$(mktemp -d)',
+    '    if ! git clone --depth 1 --branch perf_results "$AUTH_URL" "$RESULTS"; then',
+    '      git clone --depth 1 "$AUTH_URL" "$RESULTS"',
+    '      git -C "$RESULTS" checkout --orphan perf_results',
+    '      git -C "$RESULTS" rm -rf --ignore-unmatch . || true',
+    '    fi',
+    `    mkdir -p "$RESULTS/${destDir}"`,
+    `    cp benchmark/results/scaling.json "$RESULTS/${destDir}/scaling.json"`,
+    `    cp construct.prof.txt           "$RESULTS/${destDir}/construct.prof.txt" || true`,
+    `    cp meta.json                    "$RESULTS/${destDir}/meta.json"`,
+    '    git -C "$RESULTS" config user.email "stonecypher@users.noreply.github.com"',
+    '    git -C "$RESULTS" config user.name  "jssm graviton perf bot"',
+    '    git -C "$RESULTS" add -A',
+    `    git -C "$RESULTS" commit -m "perf: ${instanceType} results for release ${release}"`,
+    '    # Push with non-fast-forward retry (a concurrent run may have advanced the branch).',
+    '    cd "$RESULTS"',
+    '    for i in 1 2 3 4 5 6; do',
+    '      if git push origin perf_results; then break; fi',
+    '      git fetch origin perf_results || true',
+    '      git rebase origin/perf_results || { git rebase --abort; echo "JSSM_PERF: rebase conflict"; break; }',
+    '    done',
+    '    cd -',
+    '  fi',
+    'else',
+    '  echo "JSSM_PERF: no scaling.json (build/benchmark failed); skipping perf_results publish"',
+    'fi',
+    '',
+    'echo JSSM_PERF_DONE',
+    '',
+    '# 8. Self-terminate (shutdown-behavior=terminate drops the volume).',
+    'shutdown -h now',
+    ''
+  ].join('\n');
+}
+
 // ---------------------------------------------------------------------------
 // Executor seam (side effects live here; --dry-run swaps in a printer)
 // ---------------------------------------------------------------------------
@@ -660,6 +887,47 @@ function resolvePr(exec, ghRepo, prNumber) {
 // against live AWS).  All AWS calls go through `exec`, take `--region`, and tag
 // every resource so a partial failure is always tag-reapable.
 // ---------------------------------------------------------------------------
+
+/**
+ *  Build the `aws ec2 run-instances` argv for a detached release run. Differs
+ *  from the PR-path launch: an IAM instance profile is attached (so the box can
+ *  read the SSM PAT), and there is NO key pair and NO security group — the run is
+ *  SSH-less, so the subnet's default (egress-only) security group suffices.
+ *
+ *  @param p `{ region, amiId, instanceType, subnetId, userDataPath, runId,
+ *         instanceProfile, spot }`.
+ *  @returns The argv array for `exec.run('aws', argv)`.
+ *
+ *  @example
+ *  buildDetachedRunInstancesArgs({ region:'us-east-1', amiId:'ami-1',
+ *    instanceType:'c7g.medium', subnetId:'subnet-1', userDataPath:'/tmp/ud.sh',
+ *    runId:'jssm-perf-x', instanceProfile:'jssm-graviton-perf', spot:false })
+ *    .includes('--iam-instance-profile') // => true
+ */
+function buildDetachedRunInstancesArgs(p) {
+  const args = [
+    'ec2', 'run-instances', '--region', p.region,
+    '--image-id', p.amiId,
+    '--instance-type', p.instanceType,
+    '--subnet-id', p.subnetId,
+    '--associate-public-ip-address',
+    '--iam-instance-profile', `Name=${p.instanceProfile}`,
+    '--instance-initiated-shutdown-behavior', 'terminate',
+    '--block-device-mappings',
+      '[{"DeviceName":"/dev/xvda","Ebs":{"VolumeSize":10,"VolumeType":"gp3","DeleteOnTermination":true}}]',
+    '--metadata-options', 'HttpTokens=required,HttpEndpoint=enabled',
+    '--tag-specifications', tagSpec('instance', p.runId),
+    '--user-data', `file://${p.userDataPath}`,
+    '--count', '1',
+    '--query', 'Instances[0].InstanceId', '--output', 'text'
+  ];
+  if (p.spot) {
+    args.splice(args.length - 2, 0,
+      '--instance-market-options',
+      'MarketType=spot,SpotOptions={SpotInstanceType=one-time,InstanceInterruptionBehavior=terminate}');
+  }
+  return args;
+}
 
 /**
  *  Resolve the subnet to launch in.  Honors an explicit `--subnet-id`; otherwise
@@ -1077,6 +1345,85 @@ function runMeasurement(exec, opts, ctx) {
 }
 
 /**
+ *  Provision exactly one detached instance: resolve AMI + subnet, write the
+ *  self-contained user-data, and launch it with an instance profile, no key pair,
+ *  and no security group. No SSH, no waiting. Records `instanceId` into `state`.
+ *
+ *  @param exec An executor from {@link makeExecutor}.
+ *  @param opts Parsed options (detached release run).
+ *  @param state Mutable run-state `{ runId, region, instanceType, tmpDir }`.
+ *  @returns The same `state`, populated with `amiId`, `subnetId`, `instanceId`.
+ */
+function provisionDetached(exec, opts, state) {
+  const { region, instanceType, runId, tmpDir } = state;
+
+  const amiRes = exec.run('aws', [
+    'ssm', 'get-parameter', '--region', region,
+    '--name', AL2023_ARM64_SSM_PARAM, '--query', 'Parameter.Value', '--output', 'text'
+  ], { dryRunStdout: 'ami-DRYRUN' });
+  state.amiId = (amiRes.stdout || '').trim() || 'ami-DRYRUN';
+
+  state.subnetId = resolveSubnet(exec, region, opts.subnetId);
+
+  const userDataPath = path.join(tmpDir, 'userdata-detached.sh');
+  if (!exec.dryRun) {
+    fs.writeFileSync(userDataPath, buildDetachedUserData({
+      repoUrl         : DEFAULTS.repoUrl,
+      commitSha       : opts.commit,
+      release         : opts.release,
+      instanceType    : instanceType,
+      region          : region,
+      deep            : opts.deep,
+      shutdownMinutes : opts.shutdownMinutes,
+      ssmParam        : PERF_PUSH_PAT_SSM_PARAM
+    }));
+  }
+
+  const instRes = exec.run('aws', buildDetachedRunInstancesArgs({
+    region, amiId: state.amiId, instanceType, subnetId: state.subnetId,
+    userDataPath, runId, instanceProfile: PERF_INSTANCE_PROFILE, spot: opts.spot
+  }), { dryRunStdout: 'i-DRYRUN' });
+  state.instanceId = (instRes.stdout || '').trim() || 'i-DRYRUN';
+
+  process.stdout.write(
+    `fired detached graviton bench: instance=${state.instanceId} release=${opts.release} ` +
+    `commit=${opts.commit} subnet=${state.subnetId} ami=${state.amiId}\n`
+  );
+  return state;
+}
+
+/**
+ *  Fire-and-forget release run: provision one instance that does the whole job and
+ *  self-terminates, then return immediately. Deliberately registers NO signal
+ *  handlers and runs NO teardown — the instance must outlive this process; its
+ *  dead-man's-switch + `shutdown -h now` reclaim it.
+ *
+ *  @param exec An executor from {@link makeExecutor}.
+ *  @param opts Parsed options (detached release run).
+ *  @returns Process exit code (0 once the instance is launched).
+ */
+function runDetached(exec, opts) {
+  const runId  = opts.runId || makeRunId();
+  const tmpDir = exec.dryRun
+    ? path.join(os.tmpdir(), `jssm-perf-${runId}`)
+    : fs.mkdtempSync(path.join(os.tmpdir(), 'jssm-perf-detached-'));
+  const state = { runId, region: opts.region, instanceType: opts.instanceType, tmpDir };
+
+  try {
+    provisionDetached(exec, opts, state);
+    process.stdout.write(
+      `not waiting on the runner; the instance publishes results to perf_results at ` +
+      `${perfResultDirForSlug(opts.instanceType, releaseSlug(opts.release))}/ and self-terminates.\n` +
+      `(reclaim a stuck run with: node src/scripts/graviton_perf.cjs --cleanup-only --run-id ${runId} --region ${opts.region})\n`
+    );
+    return 0;
+  } catch (e) {
+    process.stderr.write(`detached launch failed: ${e.message}\n`);
+    return 1;
+  }
+}
+
+/**
  *  `--cleanup-only` sweep: discover this runner's resources purely by tag
  *  (optionally narrowed to `--run-id`) and reap them.  The orphan-reaper for a
  *  prior run whose own cleanup died.
@@ -1153,6 +1500,10 @@ function printUsage() {
     '  --cleanup-only           sweep+delete tagged resources; do not provision',
     '  --run-id <id>            override the generated run id (mainly with --cleanup-only)',
     '  --dry-run                print every aws/ssh/git/gh command; execute none',
+    '  --detached               fire-and-forget release run: launch an instance that',
+    '                           self-runs/publishes/terminates, then return immediately',
+    '  --release <version>      (with --detached) version label for release-<v> keying',
+    '  --commit <sha>           (with --detached) exact commit to benchmark',
     ''
   ].join('\n'));
 }
@@ -1194,6 +1545,18 @@ function main(argv) {
     return runCleanupOnly(exec, opts);
   }
 
+  if (opts.detached) {
+    // Cheap dedup against perf_results by release slug (no AWS spend).
+    const existing = listPerfResultsPaths(exec, repoDir);
+    const decision = decideMeasureSlug(existing, opts.instanceType, releaseSlug(opts.release), opts.force);
+    process.stdout.write(`dedup: ${decision.reason}\n`);
+    if (!decision.measure) {
+      process.stdout.write('exiting early without provisioning (already measured).\n');
+      return 0;
+    }
+    return runDetached(exec, opts);
+  }
+
   // Resolve the PR's head commit so we benchmark that PR's code, not main.
   const { headRefName, headRefOid } = resolvePr(exec, DEFAULTS.ghRepo, opts.prNumber);
   process.stdout.write(`PR #${opts.prNumber}: ${headRefName} @ ${headRefOid}\n`);
@@ -1215,6 +1578,10 @@ module.exports = {
   parseArgs,
   validateInstanceType,
   makeRunId,
+  perfResultPathForSlug,
+  perfResultDirForSlug,
+  releaseSlug,
+  decideMeasureSlug,
   perfResultPath,
   perfResultDir,
   decideMeasure,
@@ -1223,6 +1590,8 @@ module.exports = {
   tagFilter,
   buildUserData,
   buildRemoteScript,
+  buildDetachedUserData,
+  buildDetachedRunInstancesArgs,
   quoteForDisplay,
   summarizeFinalInstanceState,
   // seams / orchestration (exercised via --dry-run, not unit-tested against AWS)
@@ -1235,13 +1604,17 @@ module.exports = {
   provision,
   teardown,
   runMeasurement,
+  provisionDetached,
+  runDetached,
   runCleanupOnly,
   main,
   // constants
   ALLOWED_INSTANCE_TYPES,
   DEFAULTS,
   AL2023_ARM64_SSM_PARAM,
-  BENCH_TAG_KEY
+  BENCH_TAG_KEY,
+  PERF_PUSH_PAT_SSM_PARAM,
+  PERF_INSTANCE_PROFILE
 };
 
 if (require.main === module) {
