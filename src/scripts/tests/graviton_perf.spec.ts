@@ -590,6 +590,12 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('git rebase origin/perf_results');
   });
 
+  test('guards the publish on a produced scaling.json (no dedup poisoning on a failed build)', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('if [ -s benchmark/results/scaling.json ]; then');
+    expect(s).toContain('skipping perf_results publish');
+  });
+
   test('rejects an unsafe commit SHA', () => {
     expect(() => gp.buildDetachedUserData({ ...ok, commitSha: 'a; rm -rf /', deep: false }))
       .toThrow(/unsafe commit/);
