@@ -293,7 +293,7 @@ import { JssmEditor } from 'jssm/react/editor';
 
 1. `npm run build:cem` — `@custom-elements-manifest/analyzer` reads `src/wc/*.ts` and emits `custom-elements.json` at the repo root.
 2. `npm run build:wrappers` — runs each generator in `tools/generators/` against `custom-elements.json`. Outputs go to `src/<framework>/`.
-3. `npm run build` — Vite library mode builds `dist/` from the multi-entry config derived from the `exports` table.
+3. `npm run make` — per-target **Rollup** builds compile `dist/`. Each artifact has its own config (`rollup.config.core.js`, `rollup.config.viz.js`, `rollup.config.wc.<widget>.es6.js`, `rollup.config.wc.<widget>.cdn.js`, …) and the `make` script chains one `rollup -c` invocation per target; there is no single multi-entry config. The project bundles with Rollup and tests with Vitest — it does not use Vite.
 4. `npm test` — runs the WC suite, the generator substring-assertion suites, and every smoke suite.
 
 Generated files are checked in. `npm run build:wrappers` updates them; the diff is reviewable in PRs. CI re-runs `npm run build:wrappers` and fails if the working tree is dirty afterwards — proving that the committed wrapper source is in sync with the current CEM. The check is structural, not byte-exact: it verifies "the generator is deterministic and committed output matches what the current generator would produce," not "the output looks identical to a previously-blessed fixture."
