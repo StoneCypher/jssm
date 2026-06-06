@@ -9,7 +9,15 @@
  *
  *  Usage:
  *
- *      node src/scripts/graviton_perf.cjs <pr-number> [flags]
+ *      node src/scripts/graviton_perf.cjs <pr-number> [flags]        # benchmark a PR
+ *      node src/scripts/graviton_perf.cjs --detached --release <v> --commit <sha>  # fire-and-forget release run (CI)
+ *
+ *  The PR form drives the run from this machine over SSH. The `--detached` form
+ *  launches one instance that runs the whole job itself (build, benchmark, push to
+ *  perf_results under `<type>/release-<v>/`, self-terminate) and returns at once —
+ *  used by the release workflow after npm publish. It needs an AWS instance profile
+ *  ({@link PERF_INSTANCE_PROFILE}) and an SSM PAT ({@link PERF_PUSH_PAT_SSM_PARAM});
+ *  see notes/superpowers/graviton-ci-aws-setup.md.
  *
  *  Primary argument is a GitHub PR number; the runner resolves its head branch
  *  via `gh pr view <num>` and benchmarks *that PR's* commit (not main).
@@ -31,6 +39,9 @@
  *    --cleanup-only           Sweep+delete tagged resources; do not provision.
  *    --run-id <id>            Override the generated run id.
  *    --dry-run                Print every AWS/ssh/git command; execute none.
+ *    --detached               Fire-and-forget release run (CI use after npm publish).
+ *    --release <version>      (with --detached) version label for release-<v> keying.
+ *    --commit <sha>           (with --detached) exact commit to benchmark.
  *
  *  SAFETY: the orchestration here is *only* exercised against live AWS when
  *  `--dry-run` is absent.  Every AWS/ssh/git/gh shell-out goes through the
@@ -97,7 +108,8 @@ const PERF_INSTANCE_PROFILE = 'jssm-graviton-perf';
 
 /**
  *  Parse the runner's CLI arguments.  The first non-flag positional is the
- *  required PR number; everything else is a recognized flag.
+ *  required PR number; everything else is a recognized flag.  In detached mode
+ *  there is no PR number; `--release` and `--commit` are required instead.
  *
  *  @param argv Args *after* `node script` (i.e. `process.argv.slice(2)`).
  *  @returns A normalized options object with every flag resolved to a value or
@@ -105,14 +117,17 @@ const PERF_INSTANCE_PROFILE = 'jssm-graviton-perf';
  *           (boolean) derived from `--mode deep`.
  *  @throws Error on an unknown flag, a missing flag argument, a bad
  *          `--instance-type` (including any `t*` burstable type), a non-numeric
- *          PR number, a bad `--mode`, or a missing PR number when one is
- *          required (i.e. not `--cleanup-only`).
+ *          PR number, a bad `--mode`, a missing PR number when one is
+ *          required (i.e. not `--cleanup-only` or `--detached`), an invalid or
+ *          unsafe `--commit` SHA, or an unsafe `--release` version string.
  *
  *  @example
  *  parseArgs(['677']).prNumber              // => 677
  *  parseArgs(['677', '--mode', 'deep']).deep // => true
  *  @example
  *  parseArgs(['--cleanup-only']).cleanupOnly // => true  (no PR needed)
+ *  @example
+ *  parseArgs(['--detached','--release','5.1.0','--commit','a...']).detached // => true
  */
 function parseArgs(argv) {
   const opts = {
@@ -1476,6 +1491,10 @@ function printUsage() {
     '  --cleanup-only           sweep+delete tagged resources; do not provision',
     '  --run-id <id>            override the generated run id (mainly with --cleanup-only)',
     '  --dry-run                print every aws/ssh/git/gh command; execute none',
+    '  --detached               fire-and-forget release run: launch an instance that',
+    '                           self-runs/publishes/terminates, then return immediately',
+    '  --release <version>      (with --detached) version label for release-<v> keying',
+    '  --commit <sha>           (with --detached) exact commit to benchmark',
     ''
   ].join('\n'));
 }
