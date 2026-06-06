@@ -453,6 +453,33 @@ describe('summarizeFinalInstanceState — post-teardown report', () => {
 
 });
 
+describe('release-slug keying', () => {
+
+  test('releaseSlug builds release-<version>', () => {
+    expect(gp.releaseSlug('5.141.5')).toBe('release-5.141.5');
+  });
+
+  test('slug path/dir builders', () => {
+    expect(gp.perfResultPathForSlug('c7g.medium', 'release-5.1.0', 'scaling.json'))
+      .toBe('c7g.medium/release-5.1.0/scaling.json');
+    expect(gp.perfResultDirForSlug('c7g.medium', 'release-5.1.0'))
+      .toBe('c7g.medium/release-5.1.0');
+  });
+
+  test('PR helpers still build pr-<num> (unchanged API)', () => {
+    expect(gp.perfResultPath('c7g.medium', 677, 'scaling.json')).toBe('c7g.medium/pr-677/scaling.json');
+    expect(gp.perfResultDir('c7g.medium', 677)).toBe('c7g.medium/pr-677');
+  });
+
+  test('decideMeasureSlug skips an already-present release, force overrides', () => {
+    const existing = ['c7g.medium/release-5.1.0/scaling.json'];
+    expect(gp.decideMeasureSlug(existing, 'c7g.medium', 'release-5.1.0', false).measure).toBe(false);
+    expect(gp.decideMeasureSlug(existing, 'c7g.medium', 'release-5.1.0', true).measure).toBe(true);
+    expect(gp.decideMeasureSlug(existing, 'c7g.medium', 'release-5.2.0', false).measure).toBe(true);
+  });
+
+});
+
 describe('parseArgs — detached release mode', () => {
 
   const sha = 'a'.repeat(40);

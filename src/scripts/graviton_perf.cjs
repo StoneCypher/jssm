@@ -260,6 +260,21 @@ function randomHex6() {
   return Math.floor(Math.random() * 0x1000000).toString(16).padStart(6, '0');
 }
 
+/** Generic perf_results path keyed by a target slug (`pr-<n>` or `release-<v>`). */
+function perfResultPathForSlug(instanceType, slug, filename) {
+  return `${instanceType}/${slug}/${filename}`;
+}
+
+/** Generic perf_results dir prefix (no filename) keyed by a target slug. */
+function perfResultDirForSlug(instanceType, slug) {
+  return `${instanceType}/${slug}`;
+}
+
+/** The perf_results target slug for a published release version. */
+function releaseSlug(version) {
+  return `release-${version}`;
+}
+
 /**
  *  Build the `perf_results`-branch path for one artifact, keyed by machine type
  *  then PR.  This is the on-branch layout the runner commits to.
@@ -273,8 +288,10 @@ function randomHex6() {
  *  perfResultPath('c7g.medium', 677, 'scaling.json')
  *  // => 'c7g.medium/pr-677/scaling.json'
  */
+// perfResultPath/perfResultDir keep their public (instanceType, prNumber, ...) API,
+// now expressed via the slug primitives.
 function perfResultPath(instanceType, prNumber, filename) {
-  return `${instanceType}/pr-${prNumber}/${filename}`;
+  return perfResultPathForSlug(instanceType, `pr-${prNumber}`, filename);
 }
 
 /**
@@ -285,7 +302,35 @@ function perfResultPath(instanceType, prNumber, filename) {
  *  @example perfResultDir('c7g.medium', 677) // => 'c7g.medium/pr-677'
  */
 function perfResultDir(instanceType, prNumber) {
-  return `${instanceType}/pr-${prNumber}`;
+  return perfResultDirForSlug(instanceType, `pr-${prNumber}`);
+}
+
+/**
+ *  Decide whether to measure a (instanceType, slug) target or skip it as already
+ *  measured: if any path under `<instanceType>/<slug>/` exists on perf_results,
+ *  skip unless `force`. The slug is `pr-<n>` or `release-<v>`.
+ *
+ *  @param existingPaths The flat list of paths present on `perf_results` (e.g.
+ *         from `git ls-tree -r origin/perf_results --name-only`).  An empty list
+ *         (branch absent or empty) always measures.
+ *  @param instanceType e.g. `c7g.medium`.
+ *  @param slug e.g. `pr-677` or `release-5.1.0`.
+ *  @param force When true, always measure regardless of existing results.
+ *  @returns `{ measure, reason }` — `measure` is the boolean decision, `reason`
+ *           is a human-readable explanation suitable for printing.
+ */
+function decideMeasureSlug(existingPaths, instanceType, slug, force) {
+  const dir       = perfResultDirForSlug(instanceType, slug);
+  const dirPrefix = dir + '/';
+  const already   = existingPaths.some((p) => p === dir || p.startsWith(dirPrefix));
+
+  if (already && !force) {
+    return { measure: false, reason: `results already exist at ${dir}/ on perf_results (pass --force to re-measure)` };
+  }
+  if (already && force) {
+    return { measure: true, reason: `--force: re-measuring despite existing ${dir}/` };
+  }
+  return { measure: true, reason: `no existing results for ${dir}/` };
 }
 
 /**
@@ -307,22 +352,12 @@ function perfResultDir(instanceType, prNumber) {
  *  decideMeasure([], 'c7g.medium', 677, false).measure          // => true
  *  decideMeasure(['c7g.medium/pr-677/scaling.json'], 'c7g.medium', 677, false).measure // => false
  *  decideMeasure(['c7g.medium/pr-677/scaling.json'], 'c7g.medium', 677, true).measure  // => true (force)
+ *
+ *  @see decideMeasureSlug
  */
+/** PR-keyed dedup decision (unchanged public API), expressed via the slug core. */
 function decideMeasure(existingPaths, instanceType, prNumber, force) {
-  const dirPrefix = perfResultDir(instanceType, prNumber) + '/';
-  const already = existingPaths.some((p) => p === dirPrefix.slice(0, -1) || p.startsWith(dirPrefix));
-
-  if (already && !force) {
-    return {
-      measure : false,
-      reason  : `results already exist at ${perfResultDir(instanceType, prNumber)}/ on perf_results ` +
-                `(pass --force to re-measure)`
-    };
-  }
-  if (already && force) {
-    return { measure: true, reason: `--force: re-measuring despite existing ${perfResultDir(instanceType, prNumber)}/` };
-  }
-  return { measure: true, reason: `no existing results for ${perfResultDir(instanceType, prNumber)}/` };
+  return decideMeasureSlug(existingPaths, instanceType, `pr-${prNumber}`, force);
 }
 
 /**
@@ -1246,6 +1281,10 @@ module.exports = {
   parseArgs,
   validateInstanceType,
   makeRunId,
+  perfResultPathForSlug,
+  perfResultDirForSlug,
+  releaseSlug,
+  decideMeasureSlug,
   perfResultPath,
   perfResultDir,
   decideMeasure,
