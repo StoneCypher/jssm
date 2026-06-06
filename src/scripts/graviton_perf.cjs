@@ -85,6 +85,12 @@ const AL2023_ARM64_SSM_PARAM =
 /** Tag every created resource so a partial-failure stray is always reapable. */
 const BENCH_TAG_KEY = 'jssm-perf';
 
+/** SSM SecureString holding the contents:write PAT the instance uses to push perf_results. */
+const PERF_PUSH_PAT_SSM_PARAM = '/jssm/perf-push-pat';
+
+/** IAM instance profile attached to the detached instance so it can read PERF_PUSH_PAT_SSM_PARAM. */
+const PERF_INSTANCE_PROFILE = 'jssm-graviton-perf';
+
 // ---------------------------------------------------------------------------
 // Pure helpers (unit-tested; no side effects)
 // ---------------------------------------------------------------------------
@@ -123,7 +129,10 @@ function parseArgs(argv) {
     force           : false,
     keep            : false,
     cleanupOnly     : false,
-    dryRun          : false
+    dryRun          : false,
+    detached        : false,
+    release         : undefined,
+    commit          : undefined
   };
 
   const needsValue = (flag, value) => {
@@ -147,6 +156,9 @@ function parseArgs(argv) {
       case '--keep'             : opts.keep            = true; break;
       case '--cleanup-only'     : opts.cleanupOnly     = true; break;
       case '--dry-run'          : opts.dryRun          = true; break;
+      case '--detached'         : opts.detached        = true; break;
+      case '--release'          : opts.release         = needsValue(a, argv[++i]); break;
+      case '--commit'           : opts.commit          = needsValue(a, argv[++i]); break;
       default:
         if (a.startsWith('--')) { throw new Error(`unknown flag: ${a}`); }
         if (opts.prNumber !== undefined) { throw new Error(`unexpected extra positional argument: ${a}`); }
@@ -166,9 +178,28 @@ function parseArgs(argv) {
     throw new Error(`--shutdown-minutes must be a positive integer`);
   }
 
-  // The PR number is required for a measurement run, but not for a pure sweep.
-  if (!opts.cleanupOnly && opts.prNumber === undefined) {
-    throw new Error('a PR number is required: node graviton_perf.cjs <pr-number> [flags]');
+  // Targeting: a measurement run benchmarks a PR; a detached run benchmarks a
+  // published release (no PR, no open branch). The two are mutually exclusive.
+  if (opts.detached) {
+    if (opts.prNumber !== undefined) {
+      throw new Error('--detached benchmarks a release, not a PR; do not pass a PR number');
+    }
+    if (!opts.release) { throw new Error('--detached requires --release <version>'); }
+    if (!opts.commit)  { throw new Error('--detached requires --commit <sha>'); }
+    if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(opts.commit)) {
+      throw new Error(`--commit must be a 40- or 64-char hex SHA, got: ${opts.commit}`);
+    }
+    if (!/^[\w.+-]+$/.test(opts.release)) {
+      throw new Error(`--release must be a simple version string, got: ${opts.release}`);
+    }
+  } else {
+    if (opts.release || opts.commit) {
+      throw new Error('--release/--commit are only valid with --detached');
+    }
+    // A PR number is required for a measurement run, but not for a pure sweep.
+    if (!opts.cleanupOnly && opts.prNumber === undefined) {
+      throw new Error('a PR number is required: node graviton_perf.cjs <pr-number> [flags]');
+    }
   }
 
   return opts;
@@ -1241,7 +1272,9 @@ module.exports = {
   ALLOWED_INSTANCE_TYPES,
   DEFAULTS,
   AL2023_ARM64_SSM_PARAM,
-  BENCH_TAG_KEY
+  BENCH_TAG_KEY,
+  PERF_PUSH_PAT_SSM_PARAM,
+  PERF_INSTANCE_PROFILE
 };
 
 if (require.main === module) {

@@ -453,6 +453,52 @@ describe('summarizeFinalInstanceState — post-teardown report', () => {
 
 });
 
+describe('parseArgs — detached release mode', () => {
+
+  const sha = 'a'.repeat(40);
+
+  test('accepts --detached with --release and --commit', () => {
+    const o = gp.parseArgs(['--detached', '--release', '5.141.5', '--commit', sha]);
+    expect(o.detached).toBe(true);
+    expect(o.release).toBe('5.141.5');
+    expect(o.commit).toBe(sha);
+    expect(o.prNumber).toBeUndefined();
+  });
+
+  test('--detached + --mode deep still sets deep', () => {
+    const o = gp.parseArgs(['--detached', '--release', '5.1.0', '--commit', sha, '--mode', 'deep']);
+    expect(o.deep).toBe(true);
+  });
+
+  test('--detached rejects a PR positional', () => {
+    expect(() => gp.parseArgs(['677', '--detached', '--release', '5.1.0', '--commit', sha]))
+      .toThrow(/not a PR/);
+  });
+
+  test('--detached requires --release', () => {
+    expect(() => gp.parseArgs(['--detached', '--commit', sha])).toThrow(/requires --release/);
+  });
+
+  test('--detached requires --commit', () => {
+    expect(() => gp.parseArgs(['--detached', '--release', '5.1.0'])).toThrow(/requires --commit/);
+  });
+
+  test('--detached rejects a non-hex commit', () => {
+    expect(() => gp.parseArgs(['--detached', '--release', '5.1.0', '--commit', 'nope']))
+      .toThrow(/hex SHA/);
+  });
+
+  test('--detached rejects an unsafe release string', () => {
+    expect(() => gp.parseArgs(['--detached', '--release', 'a b;c', '--commit', sha]))
+      .toThrow(/version string/);
+  });
+
+  test('--release/--commit are rejected without --detached', () => {
+    expect(() => gp.parseArgs(['677', '--release', '5.1.0'])).toThrow(/only valid with --detached/);
+  });
+
+});
+
 describe('pushPerfResults — concurrent push retry', () => {
 
   // Build a fake executor whose `git push` returns the given status sequence
