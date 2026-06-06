@@ -453,6 +453,49 @@ describe('summarizeFinalInstanceState — post-teardown report', () => {
 
 });
 
+describe('provisionDetached / runDetached — fire and walk away', () => {
+
+  // Fake exec that records calls and returns canned stdout per aws subcommand.
+  const fakeExec = () => {
+    const calls: string[] = [];
+    const run = (cmd: string, args: string[]) => {
+      calls.push([cmd, ...args].join(' '));
+      const a = args.join(' ');
+      if (a.includes('ssm get-parameter')) { return { status: 0, stdout: 'ami-abc', stderr: '' }; }
+      if (a.includes('describe-vpcs'))      { return { status: 0, stdout: 'vpc-abc', stderr: '' }; }
+      if (a.includes('describe-subnets'))   { return { status: 0, stdout: 'subnet-abc', stderr: '' }; }
+      if (a.includes('run-instances'))      { return { status: 0, stdout: 'i-abc', stderr: '' }; }
+      return { status: 0, stdout: '', stderr: '' };
+    };
+    return { exec: { run, dryRun: false }, calls };
+  };
+
+  const opts = {
+    detached: true, release: '5.1.0', commit: 'a'.repeat(40),
+    instanceType: 'c7g.medium', region: 'us-east-1', mode: 'normal', deep: false,
+    shutdownMinutes: 30, spot: false, force: false
+  };
+
+  test('provisionDetached launches one tagged instance and records its id', () => {
+    const h = fakeExec();
+    const state = { runId: 'jssm-perf-x', region: 'us-east-1', instanceType: 'c7g.medium',
+                    tmpDir: require('os').tmpdir() };
+    gp.provisionDetached(h.exec, opts, state);
+    expect(state.instanceId).toBe('i-abc');
+    expect(h.calls.some((c) => c.includes('run-instances'))).toBe(true);
+    expect(h.calls.some((c) => c.includes('--iam-instance-profile'))).toBe(true);
+  });
+
+  test('runDetached never tears down (no terminate / no wait)', () => {
+    const h = fakeExec();
+    const code = gp.runDetached(h.exec, opts);
+    expect(code).toBe(0);
+    expect(h.calls.some((c) => c.includes('terminate-instances'))).toBe(false);
+    expect(h.calls.some((c) => c.includes('wait instance-terminated'))).toBe(false);
+  });
+
+});
+
 describe('buildDetachedRunInstancesArgs — no key, no SG ingress, instance profile', () => {
 
   const base = {

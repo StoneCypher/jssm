@@ -1321,6 +1321,85 @@ function runMeasurement(exec, opts, ctx) {
 }
 
 /**
+ *  Provision exactly one detached instance: resolve AMI + subnet, write the
+ *  self-contained user-data, and launch it with an instance profile, no key pair,
+ *  and no security group. No SSH, no waiting. Records `instanceId` into `state`.
+ *
+ *  @param exec An executor from {@link makeExecutor}.
+ *  @param opts Parsed options (detached release run).
+ *  @param state Mutable run-state `{ runId, region, instanceType, tmpDir }`.
+ *  @returns The same `state`, populated with `amiId`, `subnetId`, `instanceId`.
+ */
+function provisionDetached(exec, opts, state) {
+  const { region, instanceType, runId, tmpDir } = state;
+
+  const amiRes = exec.run('aws', [
+    'ssm', 'get-parameter', '--region', region,
+    '--name', AL2023_ARM64_SSM_PARAM, '--query', 'Parameter.Value', '--output', 'text'
+  ], { dryRunStdout: 'ami-DRYRUN' });
+  state.amiId = (amiRes.stdout || '').trim() || 'ami-DRYRUN';
+
+  state.subnetId = resolveSubnet(exec, region, opts.subnetId);
+
+  const userDataPath = path.join(tmpDir, 'userdata-detached.sh');
+  if (!exec.dryRun) {
+    fs.writeFileSync(userDataPath, buildDetachedUserData({
+      repoUrl         : DEFAULTS.repoUrl,
+      commitSha       : opts.commit,
+      release         : opts.release,
+      instanceType    : instanceType,
+      region          : region,
+      deep            : opts.deep,
+      shutdownMinutes : opts.shutdownMinutes,
+      ssmParam        : PERF_PUSH_PAT_SSM_PARAM
+    }));
+  }
+
+  const instRes = exec.run('aws', buildDetachedRunInstancesArgs({
+    region, amiId: state.amiId, instanceType, subnetId: state.subnetId,
+    userDataPath, runId, instanceProfile: PERF_INSTANCE_PROFILE, spot: opts.spot
+  }), { dryRunStdout: 'i-DRYRUN' });
+  state.instanceId = (instRes.stdout || '').trim() || 'i-DRYRUN';
+
+  process.stdout.write(
+    `fired detached graviton bench: instance=${state.instanceId} release=${opts.release} ` +
+    `commit=${opts.commit} subnet=${state.subnetId} ami=${state.amiId}\n`
+  );
+  return state;
+}
+
+/**
+ *  Fire-and-forget release run: provision one instance that does the whole job and
+ *  self-terminates, then return immediately. Deliberately registers NO signal
+ *  handlers and runs NO teardown — the instance must outlive this process; its
+ *  dead-man's-switch + `shutdown -h now` reclaim it.
+ *
+ *  @param exec An executor from {@link makeExecutor}.
+ *  @param opts Parsed options (detached release run).
+ *  @returns Process exit code (0 once the instance is launched).
+ */
+function runDetached(exec, opts) {
+  const runId  = opts.runId || makeRunId();
+  const tmpDir = exec.dryRun
+    ? path.join(os.tmpdir(), `jssm-perf-${runId}`)
+    : fs.mkdtempSync(path.join(os.tmpdir(), 'jssm-perf-detached-'));
+  const state = { runId, region: opts.region, instanceType: opts.instanceType, tmpDir };
+
+  try {
+    provisionDetached(exec, opts, state);
+    process.stdout.write(
+      `not waiting on the runner; the instance publishes results to perf_results at ` +
+      `${perfResultDirForSlug(opts.instanceType, releaseSlug(opts.release))}/ and self-terminates.\n` +
+      `(reclaim a stuck run with: node src/scripts/graviton_perf.cjs --cleanup-only --run-id ${runId} --region ${opts.region})\n`
+    );
+    return 0;
+  } catch (e) {
+    process.stderr.write(`detached launch failed: ${e.message}\n`);
+    return 1;
+  }
+}
+
+/**
  *  `--cleanup-only` sweep: discover this runner's resources purely by tag
  *  (optionally narrowed to `--run-id`) and reap them.  The orphan-reaper for a
  *  prior run whose own cleanup died.
@@ -1438,6 +1517,18 @@ function main(argv) {
     return runCleanupOnly(exec, opts);
   }
 
+  if (opts.detached) {
+    // Cheap dedup against perf_results by release slug (no AWS spend).
+    const existing = listPerfResultsPaths(exec, repoDir);
+    const decision = decideMeasureSlug(existing, opts.instanceType, releaseSlug(opts.release), opts.force);
+    process.stdout.write(`dedup: ${decision.reason}\n`);
+    if (!decision.measure) {
+      process.stdout.write('exiting early without provisioning (already measured).\n');
+      return 0;
+    }
+    return runDetached(exec, opts);
+  }
+
   // Resolve the PR's head commit so we benchmark that PR's code, not main.
   const { headRefName, headRefOid } = resolvePr(exec, DEFAULTS.ghRepo, opts.prNumber);
   process.stdout.write(`PR #${opts.prNumber}: ${headRefName} @ ${headRefOid}\n`);
@@ -1485,6 +1576,8 @@ module.exports = {
   provision,
   teardown,
   runMeasurement,
+  provisionDetached,
+  runDetached,
   runCleanupOnly,
   main,
   // constants
