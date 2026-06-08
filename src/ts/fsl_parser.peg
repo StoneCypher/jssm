@@ -390,12 +390,16 @@ NonJsOctalIntegerLiteral
 
 SemVer
   = major:IntegerLiteral "." minor:IntegerLiteral "." patch:IntegerLiteral
-  { return {
-    major: parseInt(major,10),
-    minor: parseInt(minor,10),
-    patch: parseInt(patch,10),
-    full: text()
-  }; }
+  {
+    const node: any = {
+      major: parseInt(major,10),
+      minor: parseInt(minor,10),
+      patch: parseInt(patch,10),
+      full: text()
+    };
+    if (options.locations) { node.loc = location(); }
+    return node;
+  }
 
 SemVerOper
   = "^"
@@ -1002,46 +1006,102 @@ HookDefinition "hook definition (open/closed)"
 
 
 MachineAuthor
-  = WS? "machine_author"      WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_author", value }; }
+  = WS? "machine_author"      WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
+      const node: any = { key: "machine_author", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineContributor
-  = WS? "machine_contributor" WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_contributor", value }; }
+  = WS? "machine_contributor" WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
+      const node: any = { key: "machine_contributor", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineComment
-  = WS? "machine_comment"     WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_comment", value }; }
+  = WS? "machine_comment"     WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
+      const node: any = { key: "machine_comment", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineDefinition
-  = WS? "machine_definition"  WS? ":" WS? value:URL                  WS? ";" WS? { return { key: "machine_definition", value }; }
+  = WS? "machine_definition"  WS? ":" WS? value:URL                  WS? ";" WS? {
+      const node: any = { key: "machine_definition", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineName
-  = WS? "machine_name"        WS? ":" WS? value:Label                WS? ";" WS? { return { key: "machine_name", value }; }
+  = WS? "machine_name"        WS? ":" WS? value:Label                WS? ";" WS? {
+      const node: any = { key: "machine_name", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineReference
-  = WS? "machine_reference"   WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_reference", value }; }
+  = WS? "machine_reference"   WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
+      const node: any = { key: "machine_reference", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineVersion
-  = WS? "machine_version"     WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "machine_version", value }; }
+  = WS? "machine_version"     WS? ":" WS? value:SemVer               WS? ";" WS? {
+      const node: any = { key: "machine_version", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineLicense
-  = WS? "machine_license"     WS? ":" WS? value:LicenseOrLabelOrList WS? ";" WS? { return { key: "machine_license", value }; }
+  = WS? "machine_license"     WS? ":" WS? value:LicenseOrLabelOrList WS? ";" WS? {
+      const node: any = { key: "machine_license", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineLanguage
-  = WS? "machine_language"    WS? ":" WS? value:Label                WS? ";" WS? { return { key: "machine_language", value }; }
+  = WS? "machine_language"    WS? ":" WS? value:Label                WS? ";" WS? {
+      const node: any = { key: "machine_language", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 FslVersion
-  = WS? "fsl_version"         WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "fsl_version", value }; }
+  = WS? "fsl_version"         WS? ":" WS? value:SemVer               WS? ";" WS? {
+      const node: any = { key: "fsl_version", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineTheme
-  = WS? "theme"               WS? ":" WS? value:ThemeOrThemeList     WS? ";" WS? { return { key: "theme", value }; }
+  = WS? "theme"               WS? ":" WS? value:ThemeOrThemeList     WS? ";" WS? {
+      const node: any = { key: "theme", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineFlow
-  = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }
+  = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? {
+      const node: any = { key: "flow", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 MachineHookDefinition
-  = WS? "hooks"               WS? ":" WS? value:HookDefinition       WS? ";" WS? { return { key: "hook_definition", value }; }
+  = WS? "hooks"               WS? ":" WS? value:HookDefinition       WS? ";" WS? {
+      const node: any = { key: "hook_definition", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 DotPreamble
-  = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? { return { key: "dot_preamble", value }; }
+  = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? {
+      const node: any = { key: "dot_preamble", value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 MachineAttribute "machine attribute"

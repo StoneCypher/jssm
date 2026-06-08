@@ -37,3 +37,21 @@ describe('parser source locations — transitions', () => {
   });
 
 });
+
+describe('parser source locations — machine attributes', () => {
+
+  test('machine_name node carries a loc spanning the statement', () => {
+    const src  = 'machine_name: foo;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(tree[0].loc).toBeDefined();
+    expect(slice(src, tree[0].loc!)).toContain('machine_name: foo;');
+  });
+
+  test('fsl_version node carries a loc', () => {
+    const src  = 'fsl_version: 1.2.3; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(tree[0].loc).toBeDefined();
+    expect(slice(src, tree[0].loc!)).toContain('fsl_version: 1.2.3;');
+  });
+
+});

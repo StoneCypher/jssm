@@ -599,12 +599,16 @@ function peg$parse(input, options) {
       peg$c447 = function(digits) {
             return parseInt(digits, 8);
            },
-      peg$c448 = function(major, minor, patch) { return {
-          major: parseInt(major,10),
-          minor: parseInt(minor,10),
-          patch: parseInt(patch,10),
-          full: text()
-        }; },
+      peg$c448 = function(major, minor, patch) {
+          const node: any = {
+            major: parseInt(major,10),
+            minor: parseInt(minor,10),
+            patch: parseInt(patch,10),
+            full: text()
+          };
+          if (options.locations) { node.loc = location(); }
+          return node;
+        },
       peg$c449 = "^",
       peg$c450 = peg$literalExpectation("^", false),
       peg$c451 = "~",
@@ -1644,46 +1648,102 @@ function peg$parse(input, options) {
       peg$c1418 = peg$literalExpectation("closed", false),
       peg$c1419 = "machine_author",
       peg$c1420 = peg$literalExpectation("machine_author", false),
-      peg$c1421 = function(value) { return { key: "machine_author", value }; },
+      peg$c1421 = function(value) {
+            const node: any = { key: "machine_author", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1422 = "machine_contributor",
       peg$c1423 = peg$literalExpectation("machine_contributor", false),
-      peg$c1424 = function(value) { return { key: "machine_contributor", value }; },
+      peg$c1424 = function(value) {
+            const node: any = { key: "machine_contributor", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1425 = "machine_comment",
       peg$c1426 = peg$literalExpectation("machine_comment", false),
-      peg$c1427 = function(value) { return { key: "machine_comment", value }; },
+      peg$c1427 = function(value) {
+            const node: any = { key: "machine_comment", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1428 = "machine_definition",
       peg$c1429 = peg$literalExpectation("machine_definition", false),
-      peg$c1430 = function(value) { return { key: "machine_definition", value }; },
+      peg$c1430 = function(value) {
+            const node: any = { key: "machine_definition", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1431 = "machine_name",
       peg$c1432 = peg$literalExpectation("machine_name", false),
-      peg$c1433 = function(value) { return { key: "machine_name", value }; },
+      peg$c1433 = function(value) {
+            const node: any = { key: "machine_name", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1434 = "machine_reference",
       peg$c1435 = peg$literalExpectation("machine_reference", false),
-      peg$c1436 = function(value) { return { key: "machine_reference", value }; },
+      peg$c1436 = function(value) {
+            const node: any = { key: "machine_reference", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1437 = "machine_version",
       peg$c1438 = peg$literalExpectation("machine_version", false),
-      peg$c1439 = function(value) { return { key: "machine_version", value }; },
+      peg$c1439 = function(value) {
+            const node: any = { key: "machine_version", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1440 = "machine_license",
       peg$c1441 = peg$literalExpectation("machine_license", false),
-      peg$c1442 = function(value) { return { key: "machine_license", value }; },
+      peg$c1442 = function(value) {
+            const node: any = { key: "machine_license", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1443 = "machine_language",
       peg$c1444 = peg$literalExpectation("machine_language", false),
-      peg$c1445 = function(value) { return { key: "machine_language", value }; },
+      peg$c1445 = function(value) {
+            const node: any = { key: "machine_language", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1446 = "fsl_version",
       peg$c1447 = peg$literalExpectation("fsl_version", false),
-      peg$c1448 = function(value) { return { key: "fsl_version", value }; },
+      peg$c1448 = function(value) {
+            const node: any = { key: "fsl_version", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1449 = "theme",
       peg$c1450 = peg$literalExpectation("theme", false),
-      peg$c1451 = function(value) { return { key: "theme", value }; },
+      peg$c1451 = function(value) {
+            const node: any = { key: "theme", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1452 = "flow",
       peg$c1453 = peg$literalExpectation("flow", false),
-      peg$c1454 = function(value) { return { key: "flow", value }; },
+      peg$c1454 = function(value) {
+            const node: any = { key: "flow", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1455 = "hooks",
       peg$c1456 = peg$literalExpectation("hooks", false),
-      peg$c1457 = function(value) { return { key: "hook_definition", value }; },
+      peg$c1457 = function(value) {
+            const node: any = { key: "hook_definition", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1458 = "dot_preamble",
       peg$c1459 = peg$literalExpectation("dot_preamble", false),
-      peg$c1460 = function(value) { return { key: "dot_preamble", value }; },
+      peg$c1460 = function(value) {
+            const node: any = { key: "dot_preamble", value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1461 = peg$otherExpectation("machine attribute"),
       peg$c1462 = "label",
       peg$c1463 = peg$literalExpectation("label", false),
