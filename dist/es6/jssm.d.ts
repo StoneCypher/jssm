@@ -121,6 +121,7 @@ declare class Machine<mDT> {
     _machine_license?: string;
     _machine_name?: string;
     _machine_version?: string;
+    _npm_name?: string;
     _fsl_version?: string;
     _raw_state_declaration?: Array<Object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
@@ -203,7 +204,7 @@ declare class Machine<mDT> {
     _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
     _event_listener_count: number;
     _firing_error: boolean;
-    constructor({ start_states, end_states, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -557,6 +558,12 @@ declare class Machine<mDT> {
      *  @returns The machine name string.
      */
     machine_name(): string;
+    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+     *  Returns `undefined` when not present.
+     *  @returns The npm package name string, or `undefined`.
+     *  @see machine_name
+     */
+    npm_name(): string;
     /** Get the machine's version string.  Set via the FSL `machine_version` directive.
      *  @returns The version string.
      */

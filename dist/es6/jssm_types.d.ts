@@ -401,6 +401,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     machine_license?: string;
     machine_name?: string;
     machine_version?: string;
+    npm_name?: string;
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;

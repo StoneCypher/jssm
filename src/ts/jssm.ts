@@ -1476,9 +1476,6 @@ class Machine<mDT> {
   /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
    *  Returns `undefined` when not present.
    *  @returns The npm package name string, or `undefined`.
-   *  @example
-   *    sm`npm_name: my-package; a -> b;`.npm_name()  // → 'my-package'
-   *    sm`a -> b;`.npm_name()                        // → undefined
    *  @see machine_name
    */
   npm_name(): string {
