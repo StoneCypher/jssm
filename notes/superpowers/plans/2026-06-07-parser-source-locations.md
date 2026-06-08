@@ -78,13 +78,30 @@ In `JssmCompileSe` (`:581`) add (keep existing fields):
   r_action_loc   ? : FslSourceLocation,
 ```
 
-In `JssmCompileSeStart` (`:608`) add:
+In `JssmCompileSeStart` (`:608`) add the location fields, and **widen `value`** so the state-declaration item array is properly typed (needed by the color sub-span test in Task 10b):
 
 ```ts
   loc            ? : FslSourceLocation,
   from_loc       ? : FslSourceLocation,
   value_loc      ? : FslSourceLocation,
   name_loc       ? : FslSourceLocation,
+```
+
+Change the existing `value?` line from `value?: string | number,` to:
+
+```ts
+  value?         : string | number | Array<JssmStateDeclarationRule>,
+```
+
+(`JssmStateDeclarationRule` is defined earlier at `:342`; forward use within the same module is fine. `compile()` reads `value` only through `any`-typed intermediates, so the widening is safe.)
+
+- [ ] **Step 2b: Add location fields to `JssmStateDeclarationRule`**
+
+`JssmStateDeclarationRule` (`:342`) is the parse-tree shape for a single state/config item (e.g. `color: red;`). Add optional location fields (keep existing `key`/`value`/`name`):
+
+```ts
+  loc       ? : FslSourceLocation,
+  value_loc ? : FslSourceLocation,
 ```
 
 - [ ] **Step 3: Add `source_location` to `JssmErrorExtendedInfo`**
@@ -623,32 +640,11 @@ git commit -m "feat(parser): transition from/to sub-spans (from_loc, to_loc)"
 
 ---
 
-## Task 9: Sub-span — machine-attribute value (`value_loc`)
+## Task 9: Sub-spans — all 14 machine-attribute values (`value_loc`)
 
-Pick one representative attribute that takes a `Label` value: `MachineName`. (The same wrapper pattern can later be applied to other attributes; v1 wires `MachineName` to validate the mechanism end-to-end.)
+Every machine-attribute rule gets a `value_loc` pinpointing its value, using the same `location()`-gated wrapper regardless of the inner value rule.
 
-**Files:**
-- Modify: `src/ts/fsl_parser.peg` (`MachineName` `:1013`)
-- Modify: `src/ts/tests/locations.spec.ts`
-
-- [ ] **Step 1: Write the failing test**
-
-Append:
-
-```ts
-  test('machine_name value sub-span pinpoints the value', () => {
-    const src  = 'machine_name: foo;';
-    const tree = jssm.parse(src, { locations: true });
-    expect(tree[0].value_loc).toBeDefined();
-    expect(slice(src, tree[0].value_loc!)).toBe('foo');
-  });
-```
-
-- [ ] **Step 2: Run to verify failure**
-
-Run `npm run peg`, then the vitest command. Expected: FAIL.
-
-- [ ] **Step 3: Edit `MachineName`**
+**The mechanical transform (apply to all 14 rules below).** Each attribute rule was converted in Task 3 to `const node = { key, value }; if (options.locations) { node.loc = location(); } return node;`. Now wrap the value capture and set `value_loc`. Generic shape, shown for `MachineName` (`:1013`):
 
 ```pegjs
 MachineName
@@ -662,15 +658,87 @@ MachineName
     }
 ```
 
+Apply the identical transform to every attribute, substituting the rule's own key and inner value rule:
+
+| Rule | Line | Inner value rule (the `<Rule>` to wrap) | key |
+|---|---|---|---|
+| `MachineAuthor`         | `:1001` | `LabelOrLabelList`     | `machine_author` |
+| `MachineContributor`    | `:1004` | `LabelOrLabelList`     | `machine_contributor` |
+| `MachineComment`        | `:1007` | `LabelOrLabelList`     | `machine_comment` |
+| `MachineDefinition`     | `:1010` | `URL`                  | `machine_definition` |
+| `MachineName`           | `:1013` | `Label`                | `machine_name` |
+| `MachineReference`      | `:1016` | `LabelOrLabelList`     | `machine_reference` |
+| `MachineVersion`        | `:1019` | `SemVer`               | `machine_version` |
+| `MachineLicense`        | `:1022` | `LicenseOrLabelOrList` | `machine_license` |
+| `MachineLanguage`       | `:1025` | `Label`                | `machine_language` |
+| `FslVersion`            | `:1028` | `SemVer`               | `fsl_version` |
+| `MachineTheme`          | `:1031` | `ThemeOrThemeList`     | `theme` |
+| `MachineFlow`           | `:1034` | `Direction`            | `flow` |
+| `MachineHookDefinition` | `:1037` | `HookDefinition`       | `hook_definition` |
+| `DotPreamble`           | `:1040` | `String`               | `dot_preamble` |
+
+**Files:**
+- Modify: `src/ts/fsl_parser.peg` (the 14 rules above)
+- Modify: `src/ts/tests/locations.spec.ts`
+
+- [ ] **Step 1: Write the failing tests**
+
+Append (covering a `Label` value, a `SemVer` value, a `URL` value, and an array `ThemeOrThemeList` value to exercise the different inner rules):
+
+```ts
+describe('parser source locations — machine-attribute value sub-spans', () => {
+
+  test('machine_name value sub-span', () => {
+    const src  = 'machine_name: foo;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('foo');
+  });
+
+  test('fsl_version value sub-span (SemVer)', () => {
+    const src  = 'fsl_version: 1.2.3; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('1.2.3');
+  });
+
+  test('machine_definition value sub-span (URL)', () => {
+    const src  = 'machine_definition: https://example.com/x; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('https://example.com/x');
+  });
+
+  test('theme value sub-span (array-valued)', () => {
+    const src  = 'theme: ocean; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('ocean');
+  });
+
+  test('value sub-span absent without locations', () => {
+    const tree = jssm.parse('machine_name: foo;');
+    expect(tree[0].value_loc).toBeUndefined();
+  });
+
+});
+```
+
+> Note: `SemVer` and `ThemeOrThemeList` already consume trailing `WS?` inside their own rules in some paths; the wrapper's `location()` is taken at the close of the inner capture, so the slice is the value token without the trailing `;`. If a slice includes trailing whitespace for a given rule, tighten by asserting `.trim()` for that one case — but verify first, most are exact.
+
+- [ ] **Step 2: Run to verify failure**
+
+Run `npm run peg`, then the vitest command. Expected: the value-sub-span tests FAIL (`value_loc` undefined).
+
+- [ ] **Step 3: Apply the transform to all 14 rules**
+
+Edit each rule in the table above per the generic shape. Take care to substitute the correct `key` string and inner value rule for each.
+
 - [ ] **Step 4: Regenerate and run**
 
-Run `npm run peg`, then the vitest command. Expected: PASS.
+Run `npm run peg`, then the vitest command. Expected: PASS. Re-run the full `locations.spec.ts` and the Task 11 strip-loc sweep to confirm no non-`loc` field leaked (the wrapper must hand the bare value onward when locations are off).
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add src/ts/fsl_parser.peg src/ts/fsl_parser.ts src/ts/tests/locations.spec.ts
-git commit -m "feat(parser): machine_name value sub-span (value_loc)"
+git commit -m "feat(parser): value sub-spans on all machine-attribute nodes (value_loc)"
 ```
 
 ---
@@ -748,7 +816,96 @@ git add src/ts/fsl_parser.peg src/ts/fsl_parser.ts src/ts/tests/locations.spec.t
 git commit -m "feat(parser): action-label sub-spans (l_action_loc, r_action_loc)"
 ```
 
-> **Deferred (documented):** the color-value sub-span from the spec is intentionally **not** implemented here. Color values live in nested state/config item objects whose static types are loose; adding a typed `value_loc` there would require retyping those item structures. The item object itself already carries a whole-statement `loc` (Task 4/5), which is sufficient for diagnostics. Per-leaf color spans are deferred to the future semantic-features plan.
+---
+
+## Task 10b: Sub-spans — color values (`value_loc`) with item retyping
+
+Color values live in nested state/config item objects typed by `JssmStateDeclarationRule` (`:342`), which gained `loc?`/`value_loc?` in Task 1 (Step 2b), with `JssmCompileSeStart.value` widened to include `Array<JssmStateDeclarationRule>`. This task pinpoints the color token within each color-bearing item.
+
+**Color-bearing rules** (state items use `value:Color`; the item objects already get a whole-statement `loc` from Tasks 4–5): `SdStateColor` `:1078`, `SdStateTextColor` `:1081`, `SdStateBackgroundColor` `:1084`, `SdStateBorderColor` `:1087`. Edge/background colors: `SingleEdgeColor` `:632` (two alternatives), `GraphDefaultEdgeColor` `:908` (two alternatives), `ConfigGraphBgColor` `:930`.
+
+**Files:**
+- Modify: `src/ts/fsl_parser.peg` (color-bearing rules above)
+- Modify: `src/ts/tests/locations.spec.ts`
+
+- [ ] **Step 1: Write the failing test**
+
+Append (typed via the retyped `JssmStateDeclarationRule`, narrowed with `Array.isArray` — no casts, no `any`):
+
+```ts
+import type { JssmStateDeclarationRule } from '../jssm_types';
+
+describe('parser source locations — color value sub-spans', () => {
+
+  test('state color value sub-span pinpoints the color token', () => {
+    const src  = 'state alpha: { color: red; }; alpha -> beta;';
+    const tree = jssm.parse(src, { locations: true });
+    const value = tree[0].value;
+    const items: JssmStateDeclarationRule[] = Array.isArray(value) ? value : [];
+    const colorItem = items.find(i => i.key === 'color');
+    expect(colorItem).toBeDefined();
+    expect(colorItem!.value_loc).toBeDefined();
+    expect(slice(src, colorItem!.value_loc!)).toBe('red');
+  });
+
+  test('state color value_loc absent without locations', () => {
+    const tree  = jssm.parse('state alpha: { color: red; };');
+    const value = tree[0].value;
+    const items: JssmStateDeclarationRule[] = Array.isArray(value) ? value : [];
+    const colorItem = items.find(i => i.key === 'color');
+    expect(colorItem && colorItem.value_loc).toBeUndefined();
+  });
+
+});
+```
+
+> Put the `import type { JssmStateDeclarationRule }` near the top of `locations.spec.ts` with the other imports rather than inside the `describe`.
+
+- [ ] **Step 2: Run to verify failure**
+
+Run `npm run peg`, then the vitest command. Expected: first test FAILS.
+
+- [ ] **Step 3: Edit the color-bearing rules**
+
+Apply the value-wrapper transform. For `SdStateColor` (`:1078`), change:
+
+```pegjs
+SdStateColor "color"
+  = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? { return { key:'color', value }; }
+```
+
+to:
+
+```pegjs
+SdStateColor "color"
+  = WS? "color"            WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+```
+
+Apply the identical transform (substituting each rule's `key` string) to `SdStateTextColor` (`text-color`), `SdStateBackgroundColor` (`background-color`), `SdStateBorderColor` (`border-color`), `SingleEdgeColor` (`single_edge_color`, both alternatives), `GraphDefaultEdgeColor` (`graph_default_edge_color`, both alternatives), and `ConfigGraphBgColor` (`graph_bg_color`).
+
+> These rules were already given a whole-item `loc` in Tasks 4/5; preserve that `node.loc = location();` line and just add the wrapped value + `value_loc`.
+
+- [ ] **Step 4: Regenerate and run**
+
+Run `npm run peg`, then the vitest command. Expected: PASS. Re-run the full `locations.spec.ts` and the Task 11 strip-loc sweep — the widened `value` and color wrappers must not change default output.
+
+- [ ] **Step 5: Extend the stochastic walk to color value_loc**
+
+In `src/ts/tests/locations.stoch.ts`, add a property that generates `state X: { color: <c>; };` for a small set of valid colors and asserts that the `color` item's `value_loc` slices back to the chosen color token. (Reuse the `isLoc`/walk helpers; add a focused case rather than rewriting the existing property.)
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add src/ts/fsl_parser.peg src/ts/fsl_parser.ts src/ts/tests/locations.spec.ts src/ts/tests/locations.stoch.ts
+git commit -m "feat(parser): color value sub-spans (value_loc) with item retyping"
+```
 
 ---
 
@@ -1479,7 +1636,7 @@ In the PR body, include `Closes #<issue>` only if an issue exists (none referenc
 
 ## Self-review notes (for the implementer)
 
-- **Spec coverage:** parser `loc` (Tasks 2–6), sub-spans (Tasks 7–10, color deferred with rationale), opt-in guard (Tasks 2, 11), compiler error locations (Tasks 14–15), `JssmError` channel (Task 13), linter wiring (Tasks 16–17), tests incl. stochastic (Task 12), docs (Task 18), build/release (Task 19). All spec sections map to a task.
+- **Spec coverage:** parser `loc` (Tasks 2–6), sub-spans — state name, transition from/to, all 14 attribute values, action labels, color values with item retyping (Tasks 7–10b), opt-in guard (Tasks 2, 11), compiler error locations (Tasks 14–15), `JssmError` channel (Task 13), linter wiring (Tasks 16–17), tests incl. stochastic (Task 12), docs (Task 18), build/release (Task 19). All spec sections map to a task.
 - **Type consistency:** `FslSourceLocation`, `loc`, `from_loc`, `to_loc`, `name_loc`, `value_loc`, `l_action_loc`, `r_action_loc`, `source_location`, and `nth_matching_loc` are named identically across every task that references them.
 - **Coverage gate:** the only new *runtime* `src/ts/**` code is in `jssm_error.ts` (no new branch) and `jssm_compiler.ts` (`nth_matching_loc` + throw-site args), each covered by Tasks 13–15; grammar code lives in the coverage-excluded `fsl_parser.ts`.
 - **No new `any` tokens** in `src/ts/**` tests/source (the `audit` step scans for the literal word). The grammar's pre-existing `: any` casts are unchanged, not new.
