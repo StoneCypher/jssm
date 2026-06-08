@@ -248,6 +248,26 @@ declare type JssmGenericMachine<DataType> = {
     keep_history?: boolean | number;
 };
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+declare type FslSourcePoint = {
+    offset: number;
+    line: number;
+    column: number;
+};
+declare type FslSourceLocation = {
+    start: FslSourcePoint;
+    end: FslSourcePoint;
+};
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -256,6 +276,8 @@ declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
+    loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
 };
 /**
  *  The fully-condensed declaration for a single state, including its raw
@@ -472,6 +494,10 @@ declare type JssmCompileSe<StateType, mDT> = {
     r_probability: number;
     l_after?: number;
     r_after?: number;
+    loc?: FslSourceLocation;
+    to_loc?: FslSourceLocation;
+    l_action_loc?: FslSourceLocation;
+    r_action_loc?: FslSourceLocation;
 };
 /**
  *  Internal compiler intermediate: the root of a chained transition
@@ -486,11 +512,15 @@ declare type JssmCompileSeStart<StateType, DataType> = {
     from: StateType;
     se: JssmCompileSe<StateType, DataType>;
     key: string;
-    value?: string | number;
+    value?: string | number | Array<JssmStateDeclarationRule>;
     name?: string;
     state?: string;
     default_value?: any;
     required?: boolean;
+    loc?: FslSourceLocation;
+    from_loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
+    name_loc?: FslSourceLocation;
 };
 /**
  *  The output shape of the FSL parser: a flat array of
@@ -712,6 +742,7 @@ declare type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookConte
  */
 declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
+    source_location?: FslSourceLocation;
 };
 /**
  *  Bounded history of recently-visited states paired with the data payload
@@ -933,4 +964,4 @@ declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEven
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 declare type JssmUnsubscribe = () => void;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };

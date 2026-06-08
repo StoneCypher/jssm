@@ -192,6 +192,26 @@ declare type JssmMachineInternalState<DataType> = {
 declare type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+declare type FslSourcePoint = {
+    offset: number;
+    line: number;
+    column: number;
+};
+declare type FslSourceLocation = {
+    start: FslSourcePoint;
+    end: FslSourcePoint;
+};
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -200,6 +220,8 @@ declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
+    loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
 };
 /**
  *  The fully-condensed declaration for a single state, including its raw
@@ -369,6 +391,10 @@ declare type JssmCompileSe<StateType, mDT> = {
     r_probability: number;
     l_after?: number;
     r_after?: number;
+    loc?: FslSourceLocation;
+    to_loc?: FslSourceLocation;
+    l_action_loc?: FslSourceLocation;
+    r_action_loc?: FslSourceLocation;
 };
 /**
  *  Internal compiler intermediate: the root of a chained transition
@@ -383,11 +409,15 @@ declare type JssmCompileSeStart<StateType, DataType> = {
     from: StateType;
     se: JssmCompileSe<StateType, DataType>;
     key: string;
-    value?: string | number;
+    value?: string | number | Array<JssmStateDeclarationRule>;
     name?: string;
     state?: string;
     default_value?: any;
     required?: boolean;
+    loc?: FslSourceLocation;
+    from_loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
+    name_loc?: FslSourceLocation;
 };
 /**
  *  The output shape of the FSL parser: a flat array of
@@ -895,6 +925,34 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  This method is mostly for plugin and intermediate tool authors, or people
  *  who need to work with the machine's intermediate representation.
  *
+ *  ## Opt-in source locations
+ *
+ *  Pass `{ locations: true }` to attach source-span information to every
+ *  object node in the AST.  Each node gains a `loc` field of type
+ *  {@link FslSourceLocation} covering its full statement span.  Selected nodes
+ *  also gain curated sub-span fields that pinpoint individual tokens within the
+ *  statement:
+ *
+ *  - Transition nodes: `from_loc` (source state), `to_loc` (target state, on
+ *    the nested `se` object), `l_action_loc` / `r_action_loc` (action labels).
+ *  - State-declaration nodes: `name_loc` (state name), plus `value_loc` on
+ *    each color-bearing item inside the declaration block.
+ *  - Machine-attribute nodes (`machine_name`, `fsl_version`, etc.): `value_loc`
+ *    (the attribute value token).
+ *
+ *  Without `{ locations: true }` the AST is byte-for-byte identical to the
+ *  default output; no `loc` or `*_loc` fields are present.
+ *
+ *  ```typescript
+ *  const tree = wrap_parse('a -> b;', { locations: true });
+ *  // tree[0].loc  === { start: { offset: 0, line: 1, column: 1 },
+ *  //                    end:   { offset: 7, line: 1, column: 8 } }
+ *  // tree[0].from_loc.start.offset === 0   // 'a'
+ *  // tree[0].se.to_loc.start.offset === 5  // 'b'
+ *  ```
+ *
+ *  @see {@link FslSourceLocation}
+ *
  *  # Hey!
  *
  *  Most people looking at this want either the `sm` operator or method `from`,
@@ -923,7 +981,9 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance
+ *  @param options Things to control about the instance.  Pass
+ *                 `{ locations: true }` to enable opt-in source location
+ *                 tracking on every AST node.
  *
  */
 declare function wrap_parse(input: string, options?: Object): any;
@@ -950,6 +1010,31 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  This method is mostly for plugin and intermediate tool authors, or people
  *  who need to work with the machine's intermediate representation.
  *
+ *  ## Source-location-aware error reporting
+ *
+ *  `compile()` ignores `loc` and `*_loc` fields during machine construction —
+ *  the resulting config is identical whether or not the tree was parsed with
+ *  `{ locations: true }`.  However, when those fields are present, `compile()`
+ *  attaches the offending node's source span to any semantic {@link JssmError}
+ *  it throws, via the error's `source_location` field
+ *  (type {@link FslSourceLocation}).  This lets downstream tooling (e.g. a
+ *  CodeMirror 6 linter) map the error to a precise editor range without any
+ *  additional source-scanning.
+ *
+ *  ```typescript
+ *  import { parse, compile } from 'jssm';
+ *
+ *  try {
+ *    compile(parse('fsl_version: 1.0.0;\nfsl_version: 2.0.0;\na -> b;',
+ *                  { locations: true }));
+ *  } catch (err) {
+ *    // err.source_location.start.offset points at the second fsl_version line
+ *    console.log(err.source_location);
+ *  }
+ *  ```
+ *
+ *  @see {@link FslSourceLocation}
+ *
  *  # Hey!
  *
  *  Most people looking at this want either the `sm` operator or method `from`,
@@ -975,7 +1060,10 @@ declare function wrap_parse(input: string, options?: Object): any;
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
  *
- *  @param tree The parse tree to be boiled down into a machine config
+ *  @param tree The parse tree to be boiled down into a machine config.  If the
+ *              tree was produced with `parse(input, { locations: true })`, any
+ *              semantic error thrown will carry a `source_location` span
+ *              pointing at the offending statement.
  *
  */
 declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGenericConfig<StateType, mDT>;

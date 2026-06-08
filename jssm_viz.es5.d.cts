@@ -187,6 +187,26 @@ declare type JssmMachineInternalState<DataType> = {
 declare type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+declare type FslSourcePoint = {
+    offset: number;
+    line: number;
+    column: number;
+};
+declare type FslSourceLocation = {
+    start: FslSourcePoint;
+    end: FslSourcePoint;
+};
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -195,6 +215,8 @@ declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
+    loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
 };
 /**
  *  The fully-condensed declaration for a single state, including its raw
@@ -364,6 +386,10 @@ declare type JssmCompileSe<StateType, mDT> = {
     r_probability: number;
     l_after?: number;
     r_after?: number;
+    loc?: FslSourceLocation;
+    to_loc?: FslSourceLocation;
+    l_action_loc?: FslSourceLocation;
+    r_action_loc?: FslSourceLocation;
 };
 declare type BasicHookDescription<mDT> = {
     kind: 'hook';

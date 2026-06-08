@@ -4,6 +4,12 @@
  *  machine context (current state, instance name) and an optional
  *  `requested_state` so that error messages are self-describing.
  *
+ *  When a semantic error is detected during `compile()` and the parse tree
+ *  was produced with `parse(input, { locations: true })`, the thrown error
+ *  also carries a `source_location` field — the FSL source span of the
+ *  offending statement — so downstream tooling can map the error to a precise
+ *  position in the original source text without additional scanning.
+ *
  *  ```typescript
  *  throw new JssmError(machine, 'no such state', { requested_state: 'Blue' });
  *  // JssmError: [[my-light]]: no such state (at "Red", requested "Blue")
@@ -14,13 +20,16 @@
  *                           read `state()` and `instance_name()` for context.
  *  @param message         - A human-readable description of the error.
  *  @param JEEI            - Optional {@link JssmErrorExtendedInfo} with extra
- *                           context such as `requested_state`.
+ *                           context such as `requested_state` and/or
+ *                           `source_location` (the FSL source span of the
+ *                           offending statement, present when the error
+ *                           originated from a located parse tree).
  *
  */
 class JssmError extends Error {
     constructor(machine, message, JEEI) {
-        const { requested_state } = (JEEI === undefined)
-            ? { requested_state: undefined }
+        const { requested_state, source_location } = (JEEI === undefined)
+            ? { requested_state: undefined, source_location: undefined }
             : JEEI;
         const follow_ups = [];
         if (machine) {
@@ -41,6 +50,7 @@ class JssmError extends Error {
         this.message = complex_msg;
         this.base_message = message;
         this.requested_state = requested_state;
+        this.source_location = source_location;
     }
 }
 ;

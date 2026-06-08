@@ -360,6 +360,21 @@ type JssmGenericMachine<DataType> = {
 
 
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+type FslSourcePoint    = { offset: number, line: number, column: number };
+type FslSourceLocation = { start: FslSourcePoint, end: FslSourcePoint };
+
+
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -367,7 +382,10 @@ type JssmGenericMachine<DataType> = {
 type JssmStateDeclarationRule = {
   key       : string,
   value     : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
-  name?     : string
+  name?     : string,
+
+  loc       ? : FslSourceLocation,
+  value_loc ? : FslSourceLocation
 };
 
 /**
@@ -598,6 +616,7 @@ type JssmCompileRule<StateType> = {
 
 
 
+
 /**
  *  Internal compiler intermediate: one link in a chained transition
  *  expression (an "s-expression" segment).  Carries both directions of an
@@ -617,7 +636,12 @@ type JssmCompileSe<StateType, mDT> = {
   l_probability   : number,
   r_probability   : number,
   l_after       ? : number,
-  r_after       ? : number
+  r_after       ? : number,
+
+  loc            ? : FslSourceLocation,
+  to_loc         ? : FslSourceLocation,
+  l_action_loc   ? : FslSourceLocation,
+  r_action_loc   ? : FslSourceLocation
 
 };
 
@@ -639,11 +663,16 @@ type JssmCompileSeStart<StateType, DataType> = {
   from           : StateType,
   se             : JssmCompileSe<StateType, DataType>,
   key            : string,
-  value?         : string | number,
+  value?         : string | number | Array<JssmStateDeclarationRule>,
   name?          : string,
   state?         : string,
   default_value? : any,     // for properties
-  required?      : boolean  // for properties
+  required?      : boolean, // for properties
+
+  loc            ? : FslSourceLocation,
+  from_loc       ? : FslSourceLocation,
+  value_loc      ? : FslSourceLocation,
+  name_loc       ? : FslSourceLocation
 
 };
 
@@ -969,7 +998,8 @@ type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>)
  *  asked about when the error was raised.
  */
 type JssmErrorExtendedInfo = {
-  requested_state? : StateType | undefined
+  requested_state? : StateType | undefined,
+  source_location? : FslSourceLocation
 };
 
 
@@ -1290,6 +1320,9 @@ export {
 
   FslThemes,
     FslTheme,
+
+  FslSourcePoint,
+    FslSourceLocation,
 
   HookDescription,
     HookHandler,
