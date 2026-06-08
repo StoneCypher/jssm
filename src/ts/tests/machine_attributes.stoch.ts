@@ -69,6 +69,7 @@ describe('§9 MachineAttribute — AST key per keyword (Label-typed values)', ()
   const LABEL_ATTRS: ReadonlyArray<readonly [string, string]> = [
     ['machine_name',     'machine_name'    ],
     ['machine_language', 'machine_language'],
+    ['npm_name',         'npm_name'        ],
   ];
 
   for (const [keyword, expected_key] of LABEL_ATTRS) {
@@ -376,6 +377,7 @@ describe('§9 MachineAttribute — random round-trip across keyword vocabularies
     ['machine_contributor', 'machine_contributor'],
     ['machine_comment',     'machine_comment'    ],
     ['machine_reference',   'machine_reference'  ],
+    ['npm_name',            'npm_name'           ],
   ];
 
   test('Each Label/LabelOrLabelList attribute round-trips a random bare body', () => {

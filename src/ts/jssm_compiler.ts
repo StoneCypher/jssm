@@ -298,7 +298,7 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     'flow', 'dot_preamble', 'allows_override', 'default_state_config',
     'default_start_state_config', 'default_end_state_config',
     'default_hooked_state_config', 'default_active_state_config',
-    'default_terminal_state_config'
+    'default_terminal_state_config', 'npm_name'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -383,6 +383,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     machine_license               : Array<string>,
     machine_name                  : Array<string>,
     machine_reference             : Array<string>,
+    npm_name                      : Array<string>,
     property_definition           : Array<JssmPropertyDefinition>,
     state_property                : { [name: string]: JssmPropertyDefinition },
     theme                         : Array<string>,
@@ -415,6 +416,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     machine_license               : [],
     machine_name                  : [],
     machine_reference             : [],
+    npm_name                      : [],
     property_definition           : [],
     state_property                : {},
     theme                         : [],
@@ -462,7 +464,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
     'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'flow', 'dot_preamble', 'allows_override'
+    'flow', 'dot_preamble', 'allows_override', 'npm_name'
   ];
 
   oneOnlyKeys.map((oneOnlyKey: string) => {
