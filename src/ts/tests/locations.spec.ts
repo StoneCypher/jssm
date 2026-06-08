@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 
 import * as jssm from '../jssm';
-import type { FslSourceLocation } from '../jssm_types';
+import type { FslSourceLocation, JssmStateDeclarationRule } from '../jssm_types';
 
 const slice = (src: string, loc: FslSourceLocation) =>
   src.slice(loc.start.offset, loc.end.offset);
@@ -160,6 +160,29 @@ describe('parser source locations — machine-attribute value sub-spans', () => 
   test('value sub-span absent without locations', () => {
     const tree = jssm.parse('machine_name: foo;');
     expect(tree[0].value_loc).toBeUndefined();
+  });
+
+});
+
+describe('parser source locations — color value sub-spans', () => {
+
+  test('state color value sub-span pinpoints the color token', () => {
+    const src  = 'state alpha: { color: red; }; alpha -> beta;';
+    const tree = jssm.parse(src, { locations: true });
+    const value = tree[0].value;
+    const items: JssmStateDeclarationRule[] = Array.isArray(value) ? value : [];
+    const colorItem = items.find(i => i.key === 'color');
+    expect(colorItem).toBeDefined();
+    expect(colorItem!.value_loc).toBeDefined();
+    expect(slice(src, colorItem!.value_loc!)).toBe('red');
+  });
+
+  test('state color value_loc absent without locations', () => {
+    const tree  = jssm.parse('state alpha: { color: red; };');
+    const value = tree[0].value;
+    const items: JssmStateDeclarationRule[] = Array.isArray(value) ? value : [];
+    const colorItem = items.find(i => i.key === 'color');
+    expect(colorItem && colorItem.value_loc).toBeUndefined();
   });
 
 });

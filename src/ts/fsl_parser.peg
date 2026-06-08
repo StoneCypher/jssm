@@ -638,14 +638,20 @@ ArrowItem
     }
 
 SingleEdgeColor "single edge color"
-  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? {
-      const node: any = { key:'single_edge_color', value:value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "edge-color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'single_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
-  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? {
-      const node: any = { key:'single_edge_color', value:value };
-      if (options.locations) { node.loc = location(); }
+  / WS? "edge_color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'single_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
@@ -984,14 +990,20 @@ TransitionItems
   / TransitionItem+
 
 GraphDefaultEdgeColor "graph default edge color"
-  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? {
-      const node: any = { key:'graph_default_edge_color', value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "edge-color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'graph_default_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
-  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? {
-      const node: any = { key:'graph_default_edge_color', value };
-      if (options.locations) { node.loc = location(); }
+  / WS? "edge_color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'graph_default_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
@@ -1028,9 +1040,12 @@ ConfigEndNodes
     }
 
 ConfigGraphBgColor
-  = WS? "graph_bg_color"  WS? ":" WS? value:Color      WS? ";" WS? {
-      const node: any = { key: "graph_bg_color", value: value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "graph_bg_color"  WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "graph_bg_color", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
@@ -1286,30 +1301,42 @@ SdStateLabel "label"
     }
 
 SdStateColor "color"
-  = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? {
-      const node: any = { key:'color', value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "color"            WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 SdStateTextColor "text color"
-  = WS? "text-color"       WS? ":" WS? value:Color     WS? ";" WS? {
-      const node: any = { key:'text-color', value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "text-color"       WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'text-color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 SdStateBackgroundColor "background color"
-  = WS? "background-color" WS? ":" WS? value:Color     WS? ";" WS? {
-      const node: any = { key:'background-color', value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "background-color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'background-color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 SdStateBorderColor "border color"
-  = WS? "border-color"     WS? ":" WS? value:Color     WS? ";" WS? {
-      const node: any = { key:'border-color', value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "border-color"     WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'border-color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
