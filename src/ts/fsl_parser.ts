@@ -1509,6 +1509,8 @@ function peg$parse(input, options) {
 
             if (tail) { base.se = tail; }
 
+            if (options.locations) { base.loc = location(); }
+
             return base;
 
           },
@@ -1517,6 +1519,7 @@ function peg$parse(input, options) {
           // TODO: properly type this
           const base: any = { key: 'transition', from: label };
           if (se) { base.se = se; }
+          if (options.locations) { base.loc = location(); }
           return base;
         },
       peg$c1317 = "whargarbl",

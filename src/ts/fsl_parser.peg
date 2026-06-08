@@ -774,6 +774,8 @@ Subexp
 
       if (tail) { base.se = tail; }
 
+      if (options.locations) { base.loc = location(); }
+
       return base;
 
     }
@@ -788,6 +790,7 @@ Exp
     // TODO: properly type this
     const base: any = { key: 'transition', from: label };
     if (se) { base.se = se; }
+    if (options.locations) { base.loc = location(); }
     return base;
   }
 
