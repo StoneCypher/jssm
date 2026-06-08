@@ -26,7 +26,10 @@ import {
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
-  JssmAllowsOverride
+  JssmAllowsOverride,
+  JssmTransitionStyleKey,
+  JssmGraphStyleKey,
+  JssmColor
 } from './jssm_types';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
@@ -292,10 +295,11 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
 
   // things that can only exist once and are just a value under their own name
   const tautologies: Array<string> = [
-    'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
-    'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-    'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow', 'dot_preamble', 'allows_override', 'default_state_config',
+    'graph_layout', 'graph_bg_color', 'start_states', 'end_states', 'machine_name',
+    'machine_version', 'machine_comment', 'machine_author', 'machine_contributor',
+    'machine_definition', 'machine_reference', 'machine_license', 'fsl_version',
+    'state_config', 'theme', 'flow', 'dot_preamble', 'allows_override',
+    'default_state_config', 'default_transition_config', 'default_graph_config',
     'default_start_state_config', 'default_end_state_config',
     'default_hooked_state_config', 'default_active_state_config',
     'default_terminal_state_config'
@@ -306,6 +310,96 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
   }
 
   throw new JssmError(undefined, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
+
+}
+
+
+
+
+
+/*********
+ *
+ *  Maps a deprecated top-level graph keyword to the canonical key it occupies
+ *  inside a consolidated `graph: {}` config block.  Aliases whose canonical key
+ *  coincides with a `graph: {}` style item (currently only `graph_bg_color` →
+ *  `background-color`) let an explicit block override the legacy form; the rest
+ *  keep their own key because the block has no equivalent.
+ *
+ *  @param alias_key The deprecated top-level keyword, e.g. `graph_bg_color`
+ *
+ *  @returns The canonical key the value should carry inside `default_graph_config`
+ *
+ *  @see fold_graph_config
+ */
+
+function canonical_graph_alias_key(alias_key: string): string {
+  if (alias_key === 'graph_bg_color') { return 'background-color'; }
+  return alias_key;
+}
+
+
+
+
+
+/*********
+ *
+ *  Folds the deprecated top-level graph keywords (`graph_layout`,
+ *  `graph_bg_color`, `dot_preamble`, `theme`, `flow`) into the consolidated
+ *  `default_graph_config` list, then appends the items from an explicit
+ *  `graph: {}` block so that, on a canonical-key conflict, the explicit block
+ *  wins.  Each present alias emits a one-time `console.warn` deprecation notice.
+ *
+ *  The result is de-duplicated by canonical key, last-wins, preserving the
+ *  position of the first occurrence of each key (so a `graph: {}` override
+ *  updates the value in place rather than reordering).
+ *
+ *  ```typescript
+ *  fold_graph_config({ graph_bg_color: ['#fff'] }, []);
+ *  // [ { key: 'background-color', value: '#fff' } ]
+ *  ```
+ *
+ *  @param aliases       The collected values for each deprecated alias keyword
+ *  @param explicit_block The items parsed from an explicit `graph: {}` block
+ *
+ *  @returns The consolidated, conflict-resolved graph-config item list
+ *
+ *  @see canonical_graph_alias_key
+ */
+
+function fold_graph_config(
+  aliases       : { [alias_key: string]: Array<unknown> },
+  explicit_block: Array<JssmGraphStyleKey>
+): Array<JssmGraphStyleKey> {
+
+  const folded: Array<JssmGraphStyleKey> = [];
+
+  Object.keys(aliases).forEach((alias_key: string) => {
+    aliases[alias_key].forEach((value: unknown) => {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `jssm: top-level \`${alias_key}\` is deprecated; prefer a \`graph: {}\` config block`
+      );
+      folded.push({ key: canonical_graph_alias_key(alias_key), value } as JssmGraphStyleKey);
+    });
+  });
+
+  explicit_block.forEach((item: JssmGraphStyleKey) => folded.push(item));
+
+  // De-duplicate by canonical key, last-wins, holding first-seen position.
+  const seen_at: Map<string, number> = new Map();
+  const result : Array<JssmGraphStyleKey> = [];
+
+  folded.forEach((item: JssmGraphStyleKey) => {
+    const existing_index: number | undefined = seen_at.get(item.key);
+    if (existing_index === undefined) {
+      seen_at.set(item.key, result.length);
+      result.push(item);
+    } else {
+      result[existing_index] = item;
+    }
+  });
+
+  return result;
 
 }
 
@@ -369,6 +463,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
 
   const results: {
     graph_layout                  : Array<JssmLayout>,
+    graph_bg_color                : Array<JssmColor>,
     transition                    : Array<JssmTransition<StateType, mDT>>,
     start_states                  : Array<StateType>,
     end_states                    : Array<StateType>,
@@ -398,9 +493,12 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : Array<JssmStateConfig>,
     default_start_state_config    : Array<JssmStateConfig>,
     default_end_state_config      : Array<JssmStateConfig>,
+    default_transition_config     : Array<JssmTransitionStyleKey>,
+    default_graph_config          : Array<JssmGraphStyleKey>,
     allows_override               : Array<JssmAllowsOverride>
   } = {
     graph_layout                  : [],
+    graph_bg_color                : [],
     transition                    : [],
     start_states                  : [],
     end_states                    : [],
@@ -430,6 +528,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : [],
     default_start_state_config    : [],
     default_end_state_config      : [],
+    default_transition_config     : [],
+    default_graph_config          : [],
     allows_override               : []
   };
 
@@ -460,9 +560,9 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   };
 
   const oneOnlyKeys: Array<string> = [
-    'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
-    'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'flow', 'dot_preamble', 'allows_override'
+    'graph_layout', 'graph_bg_color', 'machine_name', 'machine_version',
+    'machine_comment', 'fsl_version', 'machine_license', 'machine_definition',
+    'machine_language', 'flow', 'dot_preamble', 'allows_override'
   ];
 
   oneOnlyKeys.map((oneOnlyKey: string) => {
@@ -482,13 +582,28 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
    'state_declaration', 'property_definition', 'default_state_config',
    'default_start_state_config', 'default_end_state_config',
    'default_hooked_state_config', 'default_terminal_state_config',
-   'default_active_state_config'].map(
+   'default_active_state_config', 'default_transition_config'].map(
       (multiKey: string) => {
         if (results[multiKey].length) {
           result_cfg[multiKey] = results[multiKey];
         }
       }
     );
+
+  result_cfg.default_graph_config = fold_graph_config(
+    {
+      graph_layout   : results.graph_layout,
+      graph_bg_color : results.graph_bg_color,
+      dot_preamble   : results.dot_preamble,
+      theme          : results.theme,
+      flow           : results.flow
+    },
+    results.default_graph_config
+  );
+
+  if (!result_cfg.default_graph_config.length) {
+    delete result_cfg.default_graph_config;
+  }
 
   // re-walk state declarations, already wrapped up, to get state properties,
   // which go out in a different datastructure

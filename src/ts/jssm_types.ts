@@ -411,6 +411,84 @@ type JssmStateStyleKeyList = JssmStateStyleKey[];
 
 
 
+/**
+ *  The graph-wide default edge colour style item, produced by the
+ *  `edge-color`/`edge_color` line inside a `transition: {}` (or `graph: {}`)
+ *  config block.  Kept distinct from {@link JssmStateStyleColor} because it
+ *  applies to edges rather than nodes, and because it carries the legacy
+ *  `graph_default_edge_color` key the grammar emits.
+ */
+type JssmGraphDefaultEdgeColor = { key: 'graph_default_edge_color', value: JssmColor };
+
+/**
+ *  A single item inside a `transition: {}` default-config block.  For v1 this
+ *  reuses the per-state style items (so `color: red;` works inside a
+ *  `transition:` block exactly as inside a `state:` block) plus the
+ *  edge-scoped {@link JssmGraphDefaultEdgeColor} default.
+ *
+ *  @see JssmTransitionConfig
+ */
+type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
+
+/**
+ *  The compiled value of a `transition: {}` config block: an ordered list of
+ *  edge-default style items.  V1 mirrors the state-style shape used by
+ *  `default_state_config`; group machinery that consumes it lands in a later
+ *  task.
+ *
+ *  ```typescript
+ *  import { compile, parse } from 'jssm';
+ *  const cfg = compile(parse('a -> b; transition: { color: red; };'));
+ *  // cfg.default_transition_config === [ { key: 'color', value: '#ff0000ff' } ]
+ *  ```
+ *
+ *  @see JssmGraphConfig
+ */
+type JssmTransitionConfig = JssmTransitionStyleKey[];
+
+/**
+ *  Graph-scope default-config style items folded from the deprecated
+ *  top-level graph keywords (`graph_layout`, `graph_bg_color`,
+ *  `dot_preamble`, `theme`, `flow`, and the `edge-color`/`edge_color`
+ *  default) into the consolidated `graph: {}` config.  Each carries the
+ *  legacy parse key so downstream consumers can disambiguate.
+ */
+type JssmGraphAliasKey
+  =  { key: 'graph_layout',   value: JssmLayout      }
+  |  { key: 'graph_bg_color', value: JssmColor       }
+  |  { key: 'dot_preamble',   value: string          }
+  |  { key: 'theme',          value: FslTheme | FslTheme[] }
+  |  { key: 'flow',           value: FslDirection    }
+  |  JssmGraphDefaultEdgeColor;
+
+/**
+ *  A single item inside a `graph: {}` default-config block.  For v1 this
+ *  reuses the per-state style items plus the graph-scope alias items
+ *  ({@link JssmGraphAliasKey}) folded in from the deprecated top-level
+ *  graph keywords.
+ *
+ *  @see JssmGraphConfig
+ */
+type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
+
+/**
+ *  The compiled value of a `graph: {}` config block: an ordered list of
+ *  graph-default style items.  The compiler folds the deprecated top-level
+ *  graph keywords into this list first, then lets an explicit `graph: {}`
+ *  block override on key conflict.
+ *
+ *  ```typescript
+ *  import { compile, parse } from 'jssm';
+ *  const cfg = compile(parse('a -> b; graph_bg_color: #ffffff;'));
+ *  // cfg.default_graph_config includes { key: 'graph_bg_color', value: '#ffffffff' }
+ *  ```
+ *
+ *  @see JssmTransitionConfig
+ */
+type JssmGraphConfig = JssmGraphStyleKey[];
+
+
+
 
 
 /**
@@ -538,6 +616,9 @@ type JssmGenericConfig<StateType, DataType> = {
   default_hooked_state_config?   : JssmStateStyleKeyList,
   default_terminal_state_config? : JssmStateStyleKeyList,
   default_active_state_config?   : JssmStateStyleKeyList,
+
+  default_transition_config?     : JssmTransitionConfig,
+  default_graph_config?          : JssmGraphConfig,
 
   rng_seed?                      : number | undefined,
 
@@ -1237,6 +1318,13 @@ export {
 
   JssmStateStyleKey,
     JssmStateStyleKeyList,
+
+  JssmGraphDefaultEdgeColor,
+    JssmTransitionStyleKey,
+    JssmTransitionConfig,
+    JssmGraphAliasKey,
+    JssmGraphStyleKey,
+    JssmGraphConfig,
 
   JssmBaseTheme,
     JssmTheme,
