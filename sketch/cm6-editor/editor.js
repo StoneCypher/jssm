@@ -9,8 +9,11 @@ import {
 } from "@codemirror/language";
 import { linter, lintGutter } from "@codemirror/lint";
 
-import { parse }          from "../../dist/es6/fsl_parser.js";
-import { compile }        from "../../dist/es6/jssm_compiler.js";
+// The bundled es6 build is self-contained (deps like reduce-to-639-1 are
+// inlined), so the browser can load parse + compile without importmap
+// entries for jssm's node dependencies.  The per-module dist/es6/*.js files
+// carry bare imports and are NOT browser-loadable on their own.
+import { parse, compile }  from "../../dist/jssm.es6.mjs";
 import { diagnosticsFor } from "./diagnostics.mjs";
 import { fsl }            from "../cm6-lang-fsl/index.js";
 
