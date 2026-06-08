@@ -322,7 +322,10 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
 
   // state properties are in here
   if (rule.key === 'state_declaration') {
-    if (!rule.name) { throw new JssmError(undefined, 'State declarations must have a name'); }
+    if (!rule.name) {
+      throw new JssmError(undefined, 'State declarations must have a name',
+        { source_location: rule.loc });
+    }
     return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
   }
 
@@ -488,7 +491,11 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
         repeat_props  = find_repeated(property_keys);
 
   if (repeat_props.length) {
-    throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`);
+    const dup = repeat_props[0][0];
+    throw new JssmError(undefined,
+      `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`,
+      { source_location: nth_matching_loc(tree, (n) => n.key === 'property_definition' && n.name === dup, 2) }
+    );
   }
 
   const assembled_transitions: JssmTransitions<StateType, mDT> = [].concat(...results['transition']);
@@ -509,7 +516,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   oneOnlyKeys.map((oneOnlyKey: string) => {
     if (results[oneOnlyKey].length > 1) {
       throw new JssmError(undefined,
-        `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`
+        `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`,
+        { source_location: nth_matching_loc(tree, (n) => n.key === oneOnlyKey, 2) }
       );
     } else {
       if (results[oneOnlyKey].length) {
@@ -540,7 +548,10 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
         const label = name_bind_prop_and_state(decl.name, sd.state)
 
         if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
-          throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`);
+          throw new JssmError(undefined,
+            `A state may only bind a property once (${sd.state} re-binds ${decl.name})`,
+            { source_location: nth_matching_loc(tree, (n) => n.key === 'state_declaration' && n.name === sd.state, 1) }
+          );
         } else {
           result_cfg.state_property.push({ name: label, default_value: decl.value });
         }
