@@ -119,6 +119,23 @@ type JssmAllowIslands = true | false | 'with_start';
 
 
 
+/**
+ *  Structured render-size hint for a machine visualization, set by the FSL
+ *  `default_size` directive.  All three forms are optional in the sense that
+ *  only one or two fields will be present depending on the form used:
+ *
+ *  - `{ width }` — single-number form (`default_size: 800;`)
+ *  - `{ width, height }` — bounding-box form (`default_size: 800 600;`)
+ *  - `{ height }` — height-only form (`default_size: height 600;`)
+ *
+ *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
+ *
+ *  @see Machine.default_size
+ */
+type JssmDefaultSize = { width?: number; height?: number };
+
+
+
 
 
 /**
@@ -536,6 +553,8 @@ type JssmGenericConfig<StateType, DataType> = {
   machine_name?                  : string,
   machine_version?               : string,   // TODO FIXME COMEBACK
   npm_name?                      : string,
+
+  default_size?                  : JssmDefaultSize,
 
   fsl_version?                   : string,   // TODO FIXME COMEBACK
 
@@ -1258,6 +1277,7 @@ export {
   JssmPropertyDefinition,
   JssmAllowsOverride,
   JssmAllowIslands,
+  JssmDefaultSize,
 
   JssmParseFunctionType,
 

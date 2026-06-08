@@ -17,6 +17,7 @@ import {
   JssmMachineInternalState,
   JssmAllowsOverride,
   JssmAllowIslands,
+  JssmDefaultSize,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmStateStyleKey, JssmStateStyleKeyList,
@@ -387,6 +388,7 @@ class Machine<mDT> {
   _machine_name?          : string;
   _machine_version?       : string;
   _npm_name?              : string;
+  _default_size?          : JssmDefaultSize;
   _fsl_version?           : string;
   _raw_state_declaration? : Array<Object>;
   _state_declarations     : Map<StateType, JssmStateDeclaration>;
@@ -526,6 +528,7 @@ class Machine<mDT> {
     machine_name,
     machine_version,
     npm_name,
+    default_size,
     state_declaration,
     property_definition,
     state_property,
@@ -585,6 +588,7 @@ class Machine<mDT> {
     this._machine_name          = machine_name;
     this._machine_version       = machine_version;
     this._npm_name              = npm_name;
+    this._default_size          = default_size;
     this._raw_state_declaration = state_declaration || [];
     this._fsl_version           = fsl_version;
 
@@ -1621,6 +1625,24 @@ class Machine<mDT> {
    */
   npm_name(): string {
     return this._npm_name;
+  }
+
+  /** Get the render-size hint for the machine's visualization.  Set via the
+   *  FSL `default_size` directive.  Returns `undefined` when not present.
+   *
+   *  The three FSL forms each produce a different subset of fields:
+   *
+   *  - `default_size: 800;`       → `{ width: 800 }`
+   *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
+   *  - `default_size: height 600;` → `{ height: 600 }`
+   *
+   *  This is a hint, not a hard constraint.  Renderers may ignore it.
+   *
+   *  @returns The size-hint object, or `undefined` if not set.
+   *  @see npm_name
+   */
+  default_size(): JssmDefaultSize | undefined {
+    return this._default_size;
   }
 
   /** Get the machine's version string.  Set via the FSL `machine_version` directive.

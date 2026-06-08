@@ -557,6 +557,7 @@ Each is a `keyword : value;` line at top level.
 | `dot_preamble`         | `String`              |
 | `flow`                 | `Direction`           |
 | `hooks`                | `HookDefinition`      |
+| `default_size`         | `DefaultSizeVal`      |
 
 ### `URL`
 
@@ -588,6 +589,26 @@ Followed by fall-through to a generic `Label` or `LabelList`.
 
 `open` or `closed` — `hooks:` controls whether *unbound* hooks throw
 or are silently allowed.
+
+### `DefaultSizeVal`
+
+A render-size hint for the machine's visualization.  Accepts three forms
+(tried in this order by the PEG parser):
+
+- **`height <NonNegNumber>`** — height-only hint.
+  Produces `{ height: <number> }`.
+  Example: `default_size: height 600;`
+
+- **`<NonNegNumber> <NonNegNumber>`** — bounding-box (width × height) hint.
+  Produces `{ width: <number>, height: <number> }`.
+  Example: `default_size: 800 600;`
+
+- **`<NonNegNumber>`** — width-only hint.
+  Produces `{ width: <number> }`.
+  Example: `default_size: 800;`
+
+When the attribute is absent the runtime value is `undefined`.  The hint is
+informational only; renderers may ignore it.
 
 
 
