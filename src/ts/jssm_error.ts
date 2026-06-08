@@ -1,5 +1,5 @@
 
-import { JssmErrorExtendedInfo } from './jssm_types';
+import { JssmErrorExtendedInfo, FslSourceLocation } from './jssm_types';
 
 
 
@@ -30,11 +30,12 @@ class JssmError extends Error {
   message         : string;
   base_message    : string;
   requested_state : string | undefined;
+  source_location : FslSourceLocation | undefined;
 
   constructor(machine: any, message: string, JEEI?: JssmErrorExtendedInfo) {
 
-    const { requested_state } = (JEEI === undefined)
-      ? { requested_state: undefined }
+    const { requested_state, source_location } = (JEEI === undefined)
+      ? { requested_state: undefined, source_location: undefined }
       : JEEI;
 
     const follow_ups = [];
@@ -63,6 +64,7 @@ class JssmError extends Error {
     this.message         = complex_msg;
     this.base_message    = message;
     this.requested_state = requested_state;
+    this.source_location = source_location;
 
   }
 
