@@ -26,10 +26,51 @@ import {
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
-  JssmAllowsOverride
+  JssmAllowsOverride,
+  FslSourceLocation
 } from './jssm_types';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
+
+
+
+
+/*********
+ *
+ *  Returns the source span of the `n`-th parse-tree node (1-based) matching
+ *  `predicate`, or `undefined` if there are fewer than `n` matches or the
+ *  matched node carries no location.  Used to point semantic compile errors
+ *  at the offending statement when the tree was produced with
+ *  `parse(input, { locations: true })`.
+ *
+ *  @internal
+ *
+ *  @param tree      The parse tree to scan.
+ *  @param predicate Node test.
+ *  @param n         1-based ordinal of the matching node to return.
+ *
+ *  @returns The matching node's `loc`, or `undefined`.
+ *
+ */
+
+function nth_matching_loc<StateType, mDT>(
+  tree      : JssmParseTree<StateType, mDT>,
+  predicate : (node: JssmCompileSeStart<StateType, mDT>) => boolean,
+  n         : number
+): FslSourceLocation | undefined {
+
+  let count = 0;
+
+  for (const node of tree) {
+    if (predicate(node)) {
+      count++;
+      if (count === n) { return node.loc; }
+    }
+  }
+
+  return undefined;
+
+}
 
 
 
@@ -546,6 +587,8 @@ export {
   make,
     makeTransition,
 
-  wrap_parse
+  wrap_parse,
+
+  nth_matching_loc
 
 };
