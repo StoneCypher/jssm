@@ -1340,9 +1340,12 @@ StateDeclarationDesc
   = "{" WS? items:StateDeclarationItem* WS? "}" { return items; }
 
 StateDeclaration
-  = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? {
-      const node: any = { key:'state_declaration', name, value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "state" WS
+    name:( n:Label { return options.locations ? { __v: n, __loc: location() } : n; } )
+    WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? {
+      const raw  = options.locations ? name.__v : name;
+      const node: any = { key: 'state_declaration', name: raw, value };
+      if (options.locations) { node.loc = location(); node.name_loc = name.__loc; }
       return node;
     }
 

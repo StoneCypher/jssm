@@ -99,3 +99,19 @@ describe('parser source locations — machine attributes', () => {
   });
 
 });
+
+describe('parser source locations — sub-spans', () => {
+
+  test('state name sub-span pinpoints the name', () => {
+    const src  = 'state alpha: { color: red; }; alpha -> beta;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(tree[0].name_loc).toBeDefined();
+    expect(slice(src, tree[0].name_loc!)).toBe('alpha');
+  });
+
+  test('state name sub-span absent without locations', () => {
+    const tree = jssm.parse('state alpha: { color: red; };');
+    expect(tree[0].name_loc).toBeUndefined();
+  });
+
+});
