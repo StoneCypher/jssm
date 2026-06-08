@@ -1,10 +1,10 @@
 import { LitElement, TemplateResult, PropertyValues } from 'lit';
 import type { Machine } from '../jssm.js';
 /**
- * Structural shape used to detect a parent `<jssm-instance>` host without
+ * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
  * creating a hard import cycle from the viz module into the instance module.
  *
- * `<jssm-instance>` exposes its underlying machine via a `machine` getter
+ * `<fsl-instance>` exposes its underlying machine via a `machine` getter
  * that returns the raw {@link Machine} instance.  Treating that shape as a
  * duck-typed interface here keeps the viz file standalone-compilable and
  * lets tests stub a host without instantiating the real element.
@@ -48,20 +48,20 @@ export declare function normalize_viz_error(e: unknown): JssmVizErrorDetail;
  *
  * Two operating modes:
  *
- *   1. **Standalone** (no parent `<jssm-instance>` ancestor): render from
+ *   1. **Standalone** (no parent `<fsl-instance>` ancestor): render from
  *      the element's own `fsl=""` attribute / property.  Re-renders on
  *      attribute change.
- *   2. **Nested** (inside a `<jssm-instance>` ancestor, found via
- *      `closest('jssm-instance')` at `connectedCallback`): bind to the
- *      parent's machine and re-render on every `transition` event.  The
- *      element's own `fsl` attribute is ignored in this mode; supplying it
- *      emits a `console.warn` for developer feedback.
+ *   2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,
+ *      found via `closest_wc(this, 'instance')` at `connectedCallback`):
+ *      bind to the parent's machine and re-render on every `transition`
+ *      event.  The element's own `fsl` attribute is ignored in this mode;
+ *      supplying it emits a `console.warn` for developer feedback.
  *
- * @element jssm-viz
+ * @element fsl-viz
  * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
-export declare class JssmViz extends LitElement {
+export declare class FslViz extends LitElement {
     static styles: import("lit").CSSResult;
     /** FSL source to render. */
     fsl: string;
@@ -69,9 +69,10 @@ export declare class JssmViz extends LitElement {
     engine: string | undefined;
     private _svg;
     /**
-     * Parent `<jssm-instance>` host reference, set in `connectedCallback`
-     * when a parent is found.  When non-null the viz is in nested mode and
-     * renders the parent's machine instead of its own `fsl` attribute.
+     * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
+     * `connectedCallback` when a parent is found.  When non-null the viz is
+     * in nested mode and renders the parent's machine instead of its own
+     * `fsl` attribute.
      */
     private _parent_host;
     /**
@@ -90,9 +91,9 @@ export declare class JssmViz extends LitElement {
     protected willUpdate(changed: PropertyValues<this>): void;
     /**
      * Web Components lifecycle hook.  Walks up to find a parent
-     * `<jssm-instance>` ancestor; if found, switches into nested mode and
-     * subscribes to the parent machine's `transition` events.  Otherwise
-     * leaves standalone behavior intact.
+     * `<fsl-instance>` or `<jssm-instance>` ancestor via `closest_wc`; if
+     * found, switches into nested mode and subscribes to the parent machine's
+     * `transition` events.  Otherwise leaves standalone behavior intact.
      *
      * Subscription setup is deferred via `customElements.whenDefined` so the
      * parent has had a chance to upgrade and construct its machine before
@@ -139,6 +140,7 @@ export declare class JssmViz extends LitElement {
 }
 declare global {
     interface HTMLElementTagNameMap {
-        'jssm-viz': JssmViz;
+        'fsl-viz': FslViz;
+        'jssm-viz': FslViz;
     }
 }

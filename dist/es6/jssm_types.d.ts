@@ -75,6 +75,30 @@ declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
  */
 declare type JssmAllowsOverride = true | false | undefined;
 /**
+ *  Controls whether the state graph may contain disconnected components
+ *  (islands).  `true` permits islands (default), `false` requires a single
+ *  connected component, and `'with_start'` permits islands only when every
+ *  component contains at least one start state.
+ */
+declare type JssmAllowIslands = true | false | 'with_start';
+/**
+ *  Structured render-size hint for a machine visualization, set by the FSL
+ *  `default_size` directive.  All three forms are optional in the sense that
+ *  only one or two fields will be present depending on the form used:
+ *
+ *  - `{ width }` — single-number form (`default_size: 800;`)
+ *  - `{ width, height }` — bounding-box form (`default_size: 800 600;`)
+ *  - `{ height }` — height-only form (`default_size: height 600;`)
+ *
+ *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
+ *
+ *  @see Machine.default_size
+ */
+declare type JssmDefaultSize = {
+    width?: number;
+    height?: number;
+};
+/**
  *  Runtime-iterable list of valid `flow` directions for FSL diagrams.
  *  Use this when you need to enumerate directions; for the type itself
  *  see {@link FslDirection}.
@@ -398,7 +422,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     history?: number;
     min_exits?: number;
     max_exits?: number;
-    allow_islands?: false;
+    allow_islands?: JssmAllowIslands;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -407,6 +431,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
+    failed_outputs?: Array<StateType>;
     initial_state?: StateType;
     start_states_no_enforce?: boolean;
     state_declaration?: Object[];
@@ -423,6 +448,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     machine_license?: string;
     machine_name?: string;
     machine_version?: string;
+    npm_name?: string;
+    default_size?: JssmDefaultSize;
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
@@ -937,4 +964,4 @@ declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEven
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 declare type JssmUnsubscribe = () => void;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };

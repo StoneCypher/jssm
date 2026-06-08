@@ -208,7 +208,11 @@ describe('parser source locations — located output minus loc equals default', 
     'state alpha: { color: red; }; alpha -> beta;',
     "a 'go' -> 'stop' b;",
     '&group: [a b c]; a -> b; arrange [a b];',
-    'graph_layout: dot; a -> b;'
+    'graph_layout: dot; a -> b;',
+    'allow_islands: true; a -> b;',
+    'failed_outputs: [x y]; a -> b;',
+    'default_size: 100 200; a -> b;',
+    'npm_name: foo; a -> b;'
   ];
 
   for (const src of sources) {
@@ -218,5 +222,48 @@ describe('parser source locations — located output minus loc equals default', 
       expect(stripLoc(located)).toEqual(plain);
     });
   }
+
+});
+
+describe('parser source locations — merged-in machine/config attributes', () => {
+
+  const findKey = (src: string, key: string) => {
+    const node = jssm.parse(src, { locations: true }).find(n => n.key === key);
+    if (!node) { throw new Error(`no node with key ${key}`); }
+    return node;
+  };
+
+  test('npm_name carries loc + value_loc', () => {
+    const src  = 'npm_name: foo; a -> b;';
+    const node = findKey(src, 'npm_name');
+    expect(slice(src, node.loc!)).toContain('npm_name: foo;');
+    expect(slice(src, node.value_loc!)).toBe('foo');
+  });
+
+  test('default_size carries loc + value_loc', () => {
+    const src  = 'default_size: 100 200; a -> b;';
+    const node = findKey(src, 'default_size');
+    expect(node.loc).toBeDefined();
+    expect(slice(src, node.value_loc!)).toContain('100');
+  });
+
+  test('allow_islands carries loc + value_loc', () => {
+    const src  = 'allow_islands: with_start; a -> b;';
+    const node = findKey(src, 'allow_islands');
+    expect(node.loc).toBeDefined();
+    expect(slice(src, node.value_loc!)).toBe('with_start');
+  });
+
+  test('failed_outputs carries loc + value_loc', () => {
+    const src  = 'failed_outputs: [x y]; a -> b;';
+    const node = findKey(src, 'failed_outputs');
+    expect(node.loc).toBeDefined();
+    expect(slice(src, node.value_loc!)).toContain('x');
+  });
+
+  test('new attributes carry no loc without the option', () => {
+    const node = jssm.parse('npm_name: foo; a -> b;').find(n => n.key === 'npm_name');
+    expect(node && node.loc).toBeUndefined();
+  });
 
 });

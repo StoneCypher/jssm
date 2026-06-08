@@ -5,7 +5,9 @@ import type { Machine } from '../jssm.js';
  * removes the underlying `machine.on('transition', ...)` subscription that
  * keeps the binding live.
  */
-export declare type JssmBindUnsub = () => void;
+export declare type FslBindUnsub = () => void;
+/** @deprecated Use {@link FslBindUnsub} instead; kept for backwards compat. */
+export declare type JssmBindUnsub = FslBindUnsub;
 /**
  * Walk a dotted path into a value.  Used by the `data.path.to.field`
  * variant of {@link resolve_binding}.  Returns `undefined` whenever the
@@ -117,24 +119,24 @@ export declare function set_on_element(el: HTMLElement, target: string, value: u
  * @throws Error - When a `<jssm-bind>` tag is missing its `selector`
  *                 or `source` attribute.
  */
-export declare function install_bindings(host: HTMLElement, machine: Machine<unknown>): JssmBindUnsub[];
+export declare function install_bindings(host: HTMLElement, machine: Machine<unknown>): FslBindUnsub[];
 /**
- * `<jssm-bind>` configuration tag.  The element itself is invisible —
- * it carries `selector`, `source`, and optional `target` attributes
- * that the parent `<jssm-instance>` reads during its connection
+ * `<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is
+ * invisible — it carries `selector`, `source`, and optional `target`
+ * attributes that the parent `<fsl-instance>` reads during its connection
  * lifecycle to wire up a machine-to-DOM binding.
  *
  * Registering it as a `LitElement` (rather than leaving it as a generic
  * unknown tag) gives it a stable upgrade timing, a `display: none`
  * default style, and a proper place in the custom-elements registry so
- * `customElements.get('jssm-bind')` resolves.
+ * `customElements.get('fsl-bind')` resolves.
  *
- * @element jssm-bind
+ * @element fsl-bind
  * @attribute selector - CSS selector for the target element(s), scoped to the host.
  * @attribute source - Binding expression (see {@link resolve_binding}).
  * @attribute target - Target property name; defaults to `textContent`.
  */
-export declare class JssmBind extends LitElement {
+export declare class FslBind extends LitElement {
     static styles: import("lit").CSSResult;
     /**
      * No-op render.  The tag's purpose is purely declarative
@@ -142,8 +144,11 @@ export declare class JssmBind extends LitElement {
      */
     render(): null;
 }
+/** @deprecated Use {@link FslBind} instead; kept for backwards compat. */
+export declare type JssmBind = FslBind;
 declare global {
     interface HTMLElementTagNameMap {
-        'jssm-bind': JssmBind;
+        'fsl-bind': FslBind;
+        'jssm-bind': FslBind;
     }
 }

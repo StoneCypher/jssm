@@ -1,6 +1,6 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmAllowsOverride, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmRng } from './jssm_types';
+JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmRng } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util';
@@ -81,26 +81,6 @@ declare function transfer_state_properties(state_decl: JssmStateDeclaration): Js
  *
  */
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
-/*******
- *
- *  Core finite state machine class.  Holds the full graph of states and
- *  transitions, the current state, hooks, data, properties, and all runtime
- *  behavior.  Typically created via the {@link sm} tagged template literal
- *  rather than constructed directly.
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
- *  light.state();       // 'Red'
- *  light.action('next'); // true
- *  light.state();       // 'Green'
- *  ```
- *
- *  @typeparam mDT The machine data type — the type of the value stored in
- *  `.data()`.  Defaults to `undefined` when no data is used.
- *
- */
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
@@ -113,6 +93,7 @@ declare class Machine<mDT> {
     _reverse_action_targets: Map<StateType, Map<StateType, number>>;
     _start_states: Set<StateType>;
     _end_states: Set<StateType>;
+    _failed_outputs: Set<StateType>;
     _machine_author?: Array<string>;
     _machine_comment?: string;
     _machine_contributor?: Array<string>;
@@ -121,6 +102,8 @@ declare class Machine<mDT> {
     _machine_license?: string;
     _machine_name?: string;
     _machine_version?: string;
+    _npm_name?: string;
+    _default_size?: JssmDefaultSize;
     _fsl_version?: string;
     _raw_state_declaration?: Array<Object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
@@ -164,6 +147,7 @@ declare class Machine<mDT> {
     _has_post_transition_hooks: boolean;
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
+    _allow_islands: JssmAllowIslands;
     _post_hooks: Map<string, Map<string, HookHandler<mDT>>>;
     _post_named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
     _post_entry_hooks: Map<string, HookHandler<mDT>>;
@@ -203,7 +187,7 @@ declare class Machine<mDT> {
     _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
     _event_listener_count: number;
     _firing_error: boolean;
-    constructor({ start_states, end_states, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -467,6 +451,39 @@ declare class Machine<mDT> {
     is_end_state(whichState: StateType): boolean;
     /********
      *
+     *  Get the set of states declared as failure outputs for this machine.
+     *  Returns an array of state labels, or an empty array when none were
+     *  declared.  A state in this list means the machine is in a failure
+     *  condition when it occupies that state.
+     *
+     *  @see {@link is_failed_output} to test a single state
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    failed_outputs(): Array<StateType>;
+    /********
+     *
+     *  Check whether a given state is declared as a failure output.
+     *
+     *  @param whichState The name of the state to check
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    is_failed_output(whichState: StateType): boolean;
+    /********
+     *
+     *  Check whether the machine is currently in a failure state — that is,
+     *  whether its current state is one of the declared `failed_outputs`.
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed_output} to test an arbitrary state
+     *
+     */
+    is_failed(): boolean;
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -557,6 +574,27 @@ declare class Machine<mDT> {
      *  @returns The machine name string.
      */
     machine_name(): string;
+    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+     *  Returns `undefined` when not present.
+     *  @returns The npm package name string, or `undefined`.
+     *  @see machine_name
+     */
+    npm_name(): string;
+    /** Get the render-size hint for the machine's visualization.  Set via the
+     *  FSL `default_size` directive.  Returns `undefined` when not present.
+     *
+     *  The three FSL forms each produce a different subset of fields:
+     *
+     *  - `default_size: 800;`       → `{ width: 800 }`
+     *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
+     *  - `default_size: height 600;` → `{ height: 600 }`
+     *
+     *  This is a hint, not a hard constraint.  Renderers may ignore it.
+     *
+     *  @returns The size-hint object, or `undefined` if not set.
+     *  @see npm_name
+     */
+    default_size(): JssmDefaultSize | undefined;
     /** Get the machine's version string.  Set via the FSL `machine_version` directive.
      *  @returns The version string.
      */
@@ -707,6 +745,17 @@ declare class Machine<mDT> {
      *
      */
     get allows_override(): JssmAllowsOverride;
+    /*********
+     *
+     *  Return the effective island policy for this machine.  `true` means
+     *  disconnected components are allowed (the default), `false` requires a
+     *  single connected component, and `'with_start'` allows islands only when
+     *  every component contains at least one start state.
+     *
+     *  @returns The island policy stored in the machine.
+     *
+     */
+    get allow_islands(): JssmAllowIslands;
     /** List all available theme names.
      *  @returns An array of theme name strings.
      */

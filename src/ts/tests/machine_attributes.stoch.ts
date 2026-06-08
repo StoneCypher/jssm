@@ -69,6 +69,7 @@ describe('§9 MachineAttribute — AST key per keyword (Label-typed values)', ()
   const LABEL_ATTRS: ReadonlyArray<readonly [string, string]> = [
     ['machine_name',     'machine_name'    ],
     ['machine_language', 'machine_language'],
+    ['npm_name',         'npm_name'        ],
   ];
 
   for (const [keyword, expected_key] of LABEL_ATTRS) {
@@ -376,6 +377,7 @@ describe('§9 MachineAttribute — random round-trip across keyword vocabularies
     ['machine_contributor', 'machine_contributor'],
     ['machine_comment',     'machine_comment'    ],
     ['machine_reference',   'machine_reference'  ],
+    ['npm_name',            'npm_name'           ],
   ];
 
   test('Each Label/LabelOrLabelList attribute round-trips a random bare body', () => {
@@ -390,6 +392,136 @@ describe('§9 MachineAttribute — random round-trip across keyword vocabularies
           expect(node.value).toBe(body);
         }
       ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+});
+
+
+
+describe('§9 MachineAttribute — failed_outputs (LabelOrLabelList, normalized to array)', () => {
+
+  // `failed_outputs` accepts a single state label OR a bracketed list,
+  // and always normalizes the result to an array.  The grammar action
+  // wraps a bare label in a one-element array before returning.
+
+  test('`failed_outputs: foo;` (bare label) produces array-typed value', () => {
+    const node = parse_attr('failed_outputs: foo;');
+    expect(node.key  ).toBe('failed_outputs');
+    expect(node.value).toEqual(['foo']);
+  });
+
+  test('`failed_outputs: [a b c];` (bracketed list) yields array-typed value', () => {
+    const node = parse_attr('failed_outputs: [a b c];');
+    expect(node.key  ).toBe('failed_outputs');
+    expect(node.value).toEqual(['a', 'b', 'c']);
+  });
+
+  test('Random bare label round-trips as one-element array', () => {
+
+    fc.assert(
+      fc.property(
+        ATOM_LIKE,
+        (label) => {
+          const node = parse_attr(`failed_outputs: ${label};`);
+          expect(node.key  ).toBe('failed_outputs');
+          expect(node.value).toEqual([label]);
+        }
+      ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random label list round-trips preserving order and yielding array', () => {
+
+    fc.assert(
+      fc.property(
+        fc.array(ATOM_LIKE, { minLength: 1, maxLength: 5 }),
+        (labels) => {
+          const src  = `failed_outputs: [${labels.join(' ')}];`;
+          const node = parse_attr(src);
+          expect(node.key  ).toBe('failed_outputs');
+          expect(node.value).toEqual(labels);
+        }
+      ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+});
+
+
+
+describe('§9 MachineAttribute — default_size (render-size hint)', () => {
+
+  // The `default_size` attribute accepts three forms:
+  //
+  //   default_size: <number>;           → { width: <number> }
+  //   default_size: <number> <number>;  → { width: <number>, height: <number> }
+  //   default_size: height <number>;    → { height: <number> }
+  //
+  // Property-based tests verify that arbitrary positive integer values
+  // round-trip correctly through the parser.
+
+  /** Positive integer arbitrary: 1–9999 */
+  const POS_INT = fc.integer({ min: 1, max: 9999 });
+
+  test('Single-number form yields `{ width }` with correct value', () => {
+    const node = parse_attr('default_size: 800;');
+    expect(node.key  ).toBe('default_size');
+    expect(node.value).toEqual({ width: 800 });
+  });
+
+  test('Two-number form yields `{ width, height }` with correct values', () => {
+    const node = parse_attr('default_size: 800 600;');
+    expect(node.key  ).toBe('default_size');
+    expect(node.value).toEqual({ width: 800, height: 600 });
+  });
+
+  test('`height <number>` form yields `{ height }` with correct value', () => {
+    const node = parse_attr('default_size: height 600;');
+    expect(node.key  ).toBe('default_size');
+    expect(node.value).toEqual({ height: 600 });
+  });
+
+  test('Random width-only values round-trip', () => {
+
+    fc.assert(
+      fc.property(POS_INT, (w) => {
+        const node = parse_attr(`default_size: ${w};`);
+        expect(node.key  ).toBe('default_size');
+        expect(node.value).toEqual({ width: w });
+      }),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random width × height values round-trip', () => {
+
+    fc.assert(
+      fc.property(POS_INT, POS_INT, (w, h) => {
+        const node = parse_attr(`default_size: ${w} ${h};`);
+        expect(node.key  ).toBe('default_size');
+        expect(node.value).toEqual({ width: w, height: h });
+      }),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random height-only values round-trip', () => {
+
+    fc.assert(
+      fc.property(POS_INT, (h) => {
+        const node = parse_attr(`default_size: height ${h};`);
+        expect(node.key  ).toBe('default_size');
+        expect(node.value).toEqual({ height: h });
+      }),
       { numRuns: RUNS }
     );
 

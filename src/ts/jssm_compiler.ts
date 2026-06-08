@@ -27,7 +27,9 @@ import {
   JssmLayout,
   JssmPropertyDefinition,
   JssmAllowsOverride,
-  FslSourceLocation
+  FslSourceLocation,
+  JssmAllowIslands,
+  JssmDefaultSize
 } from './jssm_types';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
@@ -366,13 +368,13 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
 
   // things that can only exist once and are just a value under their own name
   const tautologies: Array<string> = [
-    'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
+    'graph_layout', 'start_states', 'end_states', 'failed_outputs', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
     'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow', 'dot_preamble', 'allows_override', 'default_state_config',
+    'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'default_state_config',
     'default_start_state_config', 'default_end_state_config',
     'default_hooked_state_config', 'default_active_state_config',
-    'default_terminal_state_config'
+    'default_terminal_state_config', 'npm_name', 'default_size'
   ];
 
   if (tautologies.includes(rule.key)) {
@@ -474,6 +476,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     transition                    : Array<JssmTransition<StateType, mDT>>,
     start_states                  : Array<StateType>,
     end_states                    : Array<StateType>,
+    failed_outputs                : Array<StateType>,
     state_config                  : Array<any>,           // TODO COMEBACK no any
     state_declaration             : Array<JssmStateDeclaration>,
     fsl_version                   : Array<string>,
@@ -485,6 +488,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     machine_license               : Array<string>,
     machine_name                  : Array<string>,
     machine_reference             : Array<string>,
+    npm_name                      : Array<string>,
+    default_size                  : Array<JssmDefaultSize>,
     property_definition           : Array<JssmPropertyDefinition>,
     state_property                : { [name: string]: JssmPropertyDefinition },
     theme                         : Array<string>,
@@ -500,12 +505,14 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : Array<JssmStateConfig>,
     default_start_state_config    : Array<JssmStateConfig>,
     default_end_state_config      : Array<JssmStateConfig>,
-    allows_override               : Array<JssmAllowsOverride>
+    allows_override               : Array<JssmAllowsOverride>,
+    allow_islands                 : Array<JssmAllowIslands>
   } = {
     graph_layout                  : [],
     transition                    : [],
     start_states                  : [],
     end_states                    : [],
+    failed_outputs                : [],
     state_config                  : [],
     state_declaration             : [],
     fsl_version                   : [],
@@ -517,6 +524,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     machine_license               : [],
     machine_name                  : [],
     machine_reference             : [],
+    npm_name                      : [],
+    default_size                  : [],
     property_definition           : [],
     state_property                : {},
     theme                         : [],
@@ -532,7 +541,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : [],
     default_start_state_config    : [],
     default_end_state_config      : [],
-    allows_override               : []
+    allows_override               : [],
+    allow_islands                 : []
   };
 
   tree.map((tr: JssmCompileSeStart<StateType, mDT>) => {
@@ -561,6 +571,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   const result_cfg: JssmGenericConfig<StateType, mDT> = {
     start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],
     end_states     : results.end_states,
+    failed_outputs : results.failed_outputs,
     transitions    : assembled_transitions,
     state_property : [],
   };
@@ -568,7 +579,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
     'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'flow', 'dot_preamble', 'allows_override'
+    'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'npm_name', 'default_size'
   ];
 
   oneOnlyKeys.map((oneOnlyKey: string) => {

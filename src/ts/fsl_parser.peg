@@ -1039,6 +1039,16 @@ ConfigEndNodes
       return node;
     }
 
+ConfigFailedOutputs
+  = WS? "failed_outputs"  WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "failed_outputs", value: typeof raw === 'string' ? [raw] : raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
 ConfigGraphBgColor
   = WS? "graph_bg_color"  WS? ":" WS?
     value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
@@ -1056,6 +1066,16 @@ ConfigAllowsOverride
       return node;
     }
 
+ConfigAllowIslands
+  = WS? "allow_islands" WS? ":" WS?
+    value:( v:IslandsT { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "allow_islands", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
 
 
 
@@ -1065,6 +1085,11 @@ OverrideT
   / 'false'     { return false;     }
   / 'undefined' { return undefined; }
 
+IslandsT
+  = 'with_start' { return 'with_start'; }
+  / 'true'       { return true;         }
+  / 'false'      { return false;        }
+
 
 
 
@@ -1073,12 +1098,14 @@ Config "configuration"
   = ConfigGraphLayout
   / ConfigStartNodes
   / ConfigEndNodes
+  / ConfigFailedOutputs
   / ConfigTransition
   / ConfigAction
   / ConfigAnyState
   / ConfigValidation
   / ConfigGraphBgColor
   / ConfigAllowsOverride
+  / ConfigAllowIslands
 
 
 
@@ -1167,6 +1194,16 @@ MachineName
     WS? ";" WS? {
       const raw = options.locations ? value.__v : value;
       const node: any = { key: "machine_name", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
+NpmName
+  = WS? "npm_name"            WS? ":" WS?
+    value:( v:Label { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "npm_name", value: raw };
       if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
@@ -1261,10 +1298,26 @@ DotPreamble
       return node;
     }
 
+DefaultSizeVal
+  = "height" WS n:NonNegNumber { return { height: n }; }
+  / w:NonNegNumber h:NonNegNumber { return { width: w, height: h }; }
+  / w:NonNegNumber { return { width: w }; }
+
+DefaultSize
+  = WS? "default_size"        WS? ":" WS?
+    value:( v:DefaultSizeVal { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "default_size", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
 
 MachineAttribute "machine attribute"
   = FslVersion
   / MachineName
+  / NpmName
   / MachineAuthor
   / MachineContributor
   / MachineComment
@@ -1277,6 +1330,7 @@ MachineAttribute "machine attribute"
   / DotPreamble
   / MachineFlow
   / MachineHookDefinition
+  / DefaultSize
 
 
 

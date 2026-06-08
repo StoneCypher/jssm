@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.142.0 at 6/8/2026, 12:55:37 AM
+* Generated for version 5.143.0 at 6/8/2026, 3:15:18 PM
 
 -->
-# jssm 5.142.0
+# jssm 5.143.0
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -189,14 +189,14 @@ CDN one-liner (with an import map for `@viz-js/viz`):
 
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
-<jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+<fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
 npm one-liner:
 
 ```ts
 import 'jssm/wc/viz/define';
-// then use <jssm-viz fsl="..."> or its synonym <fsl-viz fsl="..."> anywhere
+// then use <fsl-viz fsl="..."> anywhere; <jssm-viz> is an accepted alias
 ```
 
 Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).
@@ -281,7 +281,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  6,645 tests at 100.0% line coverage
+  library.**  6,726 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -414,11 +414,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***6,645 tests***, run 57,630 times.
+***6,726 tests***, run 58,800 times.
 
-- 6,130 specs with 100.0% coverage
-- 515 fuzz tests with 3.3% coverage
-- 5,638 TypeScript lines - 1.2 tests per line, 10.2 generated tests per line
+- 6,200 specs with 100.0% coverage
+- 526 fuzz tests with 3.3% coverage
+- 5,776 TypeScript lines - 1.2 tests per line, 10.2 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

@@ -109,6 +109,31 @@ type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
  */
 type JssmAllowsOverride = true | false | undefined;
 
+/**
+ *  Controls whether the state graph may contain disconnected components
+ *  (islands).  `true` permits islands (default), `false` requires a single
+ *  connected component, and `'with_start'` permits islands only when every
+ *  component contains at least one start state.
+ */
+type JssmAllowIslands = true | false | 'with_start';
+
+
+
+/**
+ *  Structured render-size hint for a machine visualization, set by the FSL
+ *  `default_size` directive.  All three forms are optional in the sense that
+ *  only one or two fields will be present depending on the form used:
+ *
+ *  - `{ width }` — single-number form (`default_size: 800;`)
+ *  - `{ width, height }` — bounding-box form (`default_size: 800 600;`)
+ *  - `{ height }` — height-only form (`default_size: height 600;`)
+ *
+ *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
+ *
+ *  @see Machine.default_size
+ */
+type JssmDefaultSize = { width?: number; height?: number };
+
 
 
 
@@ -512,7 +537,7 @@ type JssmGenericConfig<StateType, DataType> = {
 //locked?                        : bool = true,
   min_exits?                     : number,
   max_exits?                     : number,
-  allow_islands?                 : false,
+  allow_islands?                 : JssmAllowIslands,
   allow_force?                   : false,
   actions?                       : JssmPermittedOpt,
 
@@ -524,6 +549,7 @@ type JssmGenericConfig<StateType, DataType> = {
 
   start_states                   : Array<StateType>,
   end_states?                    : Array<StateType>,
+  failed_outputs?                : Array<StateType>,
 
   initial_state?                 : StateType,
   start_states_no_enforce?       : boolean,
@@ -544,6 +570,9 @@ type JssmGenericConfig<StateType, DataType> = {
   machine_license?               : string,   // TODO FIXME COMEBACK
   machine_name?                  : string,
   machine_version?               : string,   // TODO FIXME COMEBACK
+  npm_name?                      : string,
+
+  default_size?                  : JssmDefaultSize,
 
   fsl_version?                   : string,   // TODO FIXME COMEBACK
 
@@ -1277,6 +1306,8 @@ export {
   JssmSerialization,
   JssmPropertyDefinition,
   JssmAllowsOverride,
+  JssmAllowIslands,
+  JssmDefaultSize,
 
   JssmParseFunctionType,
 

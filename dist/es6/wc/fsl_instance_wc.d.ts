@@ -1,6 +1,6 @@
 import { LitElement, TemplateResult } from 'lit';
 import { Machine } from '../jssm.js';
-import { JssmHookRegistry } from './jssm_hook_wc.js';
+import { FslHookRegistry } from './fsl_hook_wc.js';
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
  * in sync with the `JssmEventName` union in `jssm_types.ts` (the library's
@@ -147,7 +147,7 @@ export declare function resolve_fsl_source(host: HTMLElement, fsl_attr: string):
  * and sets a `--current-state` CSS custom property so consumer CSS can
  * style by state without subclassing.
  *
- * @element jssm-instance
+ * @element fsl-instance
  * @cssproperty [--current-state] - The machine's current state name as a CSS string token.
  * @slot title - Heading area for the instance.
  * @slot viz - Visualization slot; fallback is a placeholder string.
@@ -157,7 +157,7 @@ export declare function resolve_fsl_source(host: HTMLElement, fsl_attr: string):
  * @slot info-panel - Slot for an info / status panel.
  * @slot footer - Footer slot.
  */
-export declare class JssmInstance extends LitElement {
+export declare class FslInstance extends LitElement {
     static styles: import("lit").CSSResult;
     /**
      * FSL source attribute.  When non-empty, this is the sole channel
@@ -176,7 +176,7 @@ export declare class JssmInstance extends LitElement {
      */
     private _machine;
     /**
-     * Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`
+     * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`
      * projections.  Every entry must be invoked exactly once during
      * {@link disconnectedCallback}.
      */
@@ -189,9 +189,10 @@ export declare class JssmInstance extends LitElement {
     private _on_unsubscribes;
     /**
      * Per-instance registry of named hook handlers consulted before
-     * `globalThis` when resolving `<jssm-hook handler="name">`.
+     * `globalThis` when resolving `<fsl-hook handler="name">` /
+     * `<jssm-hook handler="name">`.
      */
-    readonly registry: JssmHookRegistry;
+    readonly registry: FslHookRegistry;
     /**
      * Descriptors for hooks this WC installed at connect time.
      */
@@ -320,8 +321,11 @@ export declare class JssmInstance extends LitElement {
      */
     render(): TemplateResult;
 }
+/** @deprecated Use `FslInstance` instead; kept for backwards compat. */
+export declare type JssmInstance = FslInstance;
 declare global {
     interface HTMLElementTagNameMap {
-        'jssm-instance': JssmInstance;
+        'fsl-instance': FslInstance;
+        'jssm-instance': FslInstance;
     }
 }

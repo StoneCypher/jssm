@@ -527,10 +527,12 @@ real keys — they are scaffolding for future config schemas.
 
 - `graph_layout : <GvizLayout>;` — `dot`, `circo`, `fdp`, `neato`,
   `twopi`
-- `start_states : <LabelList>;`
-- `end_states   : <LabelList>;`
+- `start_states    : <LabelList>;`
+- `end_states      : <LabelList>;`
+- `failed_outputs  : <LabelOrLabelList>;` — single state or bracketed list; always an array; default `[]`
 - `graph_bg_color : <Color>;`
 - `allows_override : <OverrideT>;` — `true` / `false` / `undefined`
+- `allow_islands : <IslandsT>;` — `true` (default, islands permitted) / `false` (single connected component required, error if not) / `with_start` (islands permitted only if every component has a start state, error otherwise)
 
 
 
@@ -542,6 +544,7 @@ Each is a `keyword : value;` line at top level.
 |------------------------|-----------------------|
 | `fsl_version`          | `SemVer`              |
 | `machine_name`         | `Label`               |
+| `npm_name`             | `Label`               |
 | `machine_author`       | `LabelOrLabelList`    |
 | `machine_contributor`  | `LabelOrLabelList`    |
 | `machine_comment`      | `LabelOrLabelList`    |
@@ -554,6 +557,7 @@ Each is a `keyword : value;` line at top level.
 | `dot_preamble`         | `String`              |
 | `flow`                 | `Direction`           |
 | `hooks`                | `HookDefinition`      |
+| `default_size`         | `DefaultSizeVal`      |
 
 ### `URL`
 
@@ -585,6 +589,26 @@ Followed by fall-through to a generic `Label` or `LabelList`.
 
 `open` or `closed` — `hooks:` controls whether *unbound* hooks throw
 or are silently allowed.
+
+### `DefaultSizeVal`
+
+A render-size hint for the machine's visualization.  Accepts three forms
+(tried in this order by the PEG parser):
+
+- **`height <NonNegNumber>`** — height-only hint.
+  Produces `{ height: <number> }`.
+  Example: `default_size: height 600;`
+
+- **`<NonNegNumber> <NonNegNumber>`** — bounding-box (width × height) hint.
+  Produces `{ width: <number>, height: <number> }`.
+  Example: `default_size: 800 600;`
+
+- **`<NonNegNumber>`** — width-only hint.
+  Produces `{ width: <number> }`.
+  Example: `default_size: 800;`
+
+When the attribute is absent the runtime value is `undefined`.  The hint is
+informational only; renderers may ignore it.
 
 
 

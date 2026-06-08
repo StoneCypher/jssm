@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  *
  * Tests for issue #640: `data-jssm-action` inline attribute and the
- * dedicated `<jssm-action>` tag.  Both wire DOM events to machine
- * actions on a hosting `<jssm-instance>`.
+ * dedicated `<fsl-action>` tag (canonical) / `<jssm-action>` (synonym).
+ * Both wire DOM events to machine actions on a hosting `<jssm-instance>`.
  *
  * Coverage targets:
  *   - inline attribute form (default click)
@@ -14,13 +14,14 @@
  *     action's data argument
  *   - `prevent-default` and `stop-propagation` modifiers
  *   - listener cleanup on disconnect
- *   - defensive: malformed `<jssm-action>` tags are skipped, not thrown
- *   - defensive: `[data-jssm-action]` inside a `<jssm-action>` tag is not
+ *   - defensive: malformed `<fsl-action>` / `<jssm-action>` tags are skipped, not thrown
+ *   - defensive: `[data-jssm-action]` inside a `<fsl-action>` tag is not
  *     double-wired
+ *   - `<jssm-action>` synonym is discovered alongside `<fsl-action>`
  */
 
-import '../jssm_instance_wc.define';
-import { JssmInstance } from '../jssm_instance_wc';
+import '../fsl_instance_wc.define';
+import { JssmInstance } from '../fsl_instance_wc';
 
 /**
  * Build a `<jssm-instance>` with the given inner markup and attach it to
@@ -168,12 +169,12 @@ describe('inline data-jssm-action form', () => {
 
 });
 
-describe('dedicated <jssm-action> tag form', () => {
+describe('dedicated <fsl-action> tag form (canonical)', () => {
 
   it('wires a listener using selector + action + default click event', () => {
     const host = build_host(
       `<button type="button" id="btn"></button>` +
-      `<jssm-action selector="#btn" action="flip"></jssm-action>`,
+      `<fsl-action selector="#btn" action="flip"></fsl-action>`,
       "Off 'flip' -> On;"
     );
 
@@ -185,7 +186,7 @@ describe('dedicated <jssm-action> tag form', () => {
   it('honors a custom event attribute on the tag form', () => {
     const host = build_host(
       `<input id="i" />` +
-      `<jssm-action selector="#i" event="change" action="set"></jssm-action>`,
+      `<fsl-action selector="#i" event="change" action="set"></fsl-action>`,
       "idle 'set' -> done;"
     );
 
@@ -198,7 +199,7 @@ describe('dedicated <jssm-action> tag form', () => {
   it('respects from-state on the tag form', () => {
     const host = build_host(
       `<button type="button" id="r"></button>` +
-      `<jssm-action selector="#r" action="reset" from-state="configured"></jssm-action>`,
+      `<fsl-action selector="#r" action="reset" from-state="configured"></fsl-action>`,
       "idle 'set' -> configured; configured 'reset' -> idle;"
     );
 
@@ -214,8 +215,8 @@ describe('dedicated <jssm-action> tag form', () => {
   it('passes data via from-property on the tag form', () => {
     const host = build_host(
       `<input id="i" />` +
-      `<jssm-action selector="#i" event="change"
-                    action="set" from-property="value"></jssm-action>`,
+      `<fsl-action selector="#i" event="change"
+                    action="set" from-property="value"></fsl-action>`,
       "idle 'set' -> done;"
     );
 
@@ -231,8 +232,8 @@ describe('dedicated <jssm-action> tag form', () => {
   it('calls preventDefault/stopPropagation on the tag form when configured', () => {
     const host = build_host(
       `<div id="o"><button type="button" id="b"></button></div>` +
-      `<jssm-action selector="#b" action="flip"
-                    prevent-default stop-propagation></jssm-action>`,
+      `<fsl-action selector="#b" action="flip"
+                    prevent-default stop-propagation></fsl-action>`,
       "Off 'flip' -> On;"
     );
 
@@ -254,7 +255,7 @@ describe('dedicated <jssm-action> tag form', () => {
     const host = build_host(
       `<button type="button" class="t"></button>` +
       `<button type="button" class="t"></button>` +
-      `<jssm-action selector=".t" action="flip"></jssm-action>`,
+      `<fsl-action selector=".t" action="flip"></fsl-action>`,
       "Off 'flip' -> On 'flip' -> Off;"
     );
 
@@ -269,12 +270,12 @@ describe('dedicated <jssm-action> tag form', () => {
     document.body.removeChild(host);
   });
 
-  it('skips malformed tags missing required attributes without throwing', () => {
+  it('skips malformed fsl-action tags missing required attributes without throwing', () => {
     const host = build_host(
       `<button type="button" id="b" data-jssm-action="flip"></button>` +
-      `<jssm-action></jssm-action>` +
-      `<jssm-action selector="#b"></jssm-action>` +
-      `<jssm-action action="flip"></jssm-action>`,
+      `<fsl-action></fsl-action>` +
+      `<fsl-action selector="#b"></fsl-action>` +
+      `<fsl-action action="flip"></fsl-action>`,
       "Off 'flip' -> On;"
     );
 
@@ -284,17 +285,17 @@ describe('dedicated <jssm-action> tag form', () => {
     document.body.removeChild(host);
   });
 
-  it('does not wire [data-jssm-action] descendants of a <jssm-action> tag', () => {
+  it('does not wire [data-jssm-action] descendants of a <fsl-action> tag', () => {
     // The inline scanner explicitly skips elements that descend from a
-    // `<jssm-action>` data tag — this exercises the `closest('jssm-action')`
+    // `<fsl-action>` data tag — this exercises the `closest_wc(el, 'action')`
     // skip branch.  The inner button has [data-jssm-action], but it sits
-    // inside a <jssm-action> data block and must NOT have a listener
+    // inside a <fsl-action> data block and must NOT have a listener
     // attached.
     const host = build_host(
       `<button type="button" id="x"></button>` +
-      `<jssm-action selector="#x" action="flip">` +
+      `<fsl-action selector="#x" action="flip">` +
       `  <button type="button" id="inner" data-jssm-action="flip"></button>` +
-      `</jssm-action>`,
+      `</fsl-action>`,
       "Off 'flip' -> On;"
     );
 
@@ -307,6 +308,56 @@ describe('dedicated <jssm-action> tag form', () => {
     (host.querySelector('#x') as HTMLButtonElement).click();
     expect(host.state()).toBe('On');
 
+    document.body.removeChild(host);
+  });
+
+});
+
+describe('<jssm-action> synonym coverage', () => {
+
+  it('<jssm-action> synonym wires a listener', () => {
+    const host = build_host(
+      `<button type="button" id="btn-syn"></button>` +
+      `<jssm-action selector="#btn-syn" action="flip"></jssm-action>`,
+      "Off 'flip' -> On;"
+    );
+
+    (host.querySelector('#btn-syn') as HTMLButtonElement).click();
+    expect(host.state()).toBe('On');
+    document.body.removeChild(host);
+  });
+
+  it('mixed-prefix: <fsl-action> and <jssm-action> siblings both fire', () => {
+    // Two buttons: one wired by <fsl-action>, one by <jssm-action>.
+    const host = build_host(
+      `<button type="button" id="fsl-btn"></button>` +
+      `<button type="button" id="jssm-btn"></button>` +
+      `<fsl-action  selector="#fsl-btn"  action="flip"></fsl-action>` +
+      `<jssm-action selector="#jssm-btn" action="flip"></jssm-action>`,
+      "Off 'flip' -> On 'flip' -> Off;"
+    );
+
+    (host.querySelector('#fsl-btn')  as HTMLButtonElement).click();
+    expect(host.state()).toBe('On');
+    (host.querySelector('#jssm-btn') as HTMLButtonElement).click();
+    expect(host.state()).toBe('Off');
+    document.body.removeChild(host);
+  });
+
+  it('does not wire [data-jssm-action] descendants of a <jssm-action> synonym tag', () => {
+    const host = build_host(
+      `<button type="button" id="x2"></button>` +
+      `<jssm-action selector="#x2" action="flip">` +
+      `  <button type="button" id="inner2" data-jssm-action="flip"></button>` +
+      `</jssm-action>`,
+      "Off 'flip' -> On;"
+    );
+
+    (host.querySelector('#inner2') as HTMLButtonElement).click();
+    expect(host.state()).toBe('Off');
+
+    (host.querySelector('#x2') as HTMLButtonElement).click();
+    expect(host.state()).toBe('On');
     document.body.removeChild(host);
   });
 
@@ -331,13 +382,13 @@ describe('listener cleanup on disconnect', () => {
     expect(host.state()).toBe(before);
   });
 
-  it('removes tag-form listeners so external sources stop firing actions', () => {
+  it('removes fsl-action tag-form listeners so external sources stop firing actions', () => {
     // Tag-form selector is scoped to the host, but the source element can
     // be appended into the host's light DOM and survive `removeChild` on
     // the host — its listener must still be detached.
     const host = build_host(
       `<button type="button" id="b"></button>` +
-      `<jssm-action selector="#b" action="flip"></jssm-action>`,
+      `<fsl-action selector="#b" action="flip"></fsl-action>`,
       "Off 'flip' -> On;"
     );
     const btn = host.querySelector('#b') as HTMLButtonElement;

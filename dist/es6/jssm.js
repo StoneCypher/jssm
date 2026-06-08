@@ -197,9 +197,56 @@ function state_style_condense(jssk, machine) {
  *  `.data()`.  Defaults to `undefined` when no data is used.
  *
  */
+/*********
+ *
+ *  Partition a state graph into its connected components using an undirected
+ *  BFS over state names.  Each edge (from, to) is treated as bidirectional so
+ *  that island membership is topology-based rather than flow-based.
+ *
+ *  Used at construction time to enforce the `allow_islands` constraint.
+ *
+ *  @param states  The machine's state map (keys are state names).
+ *  @param edges   The machine's edge list; only `from` and `to` are used.
+ *  @returns       An array of components, each component an array of state names.
+ *
+ */
+function find_connected_components(states, edges) {
+    // Build undirected adjacency list
+    const adj = new Map();
+    for (const name of states.keys()) {
+        adj.set(name, new Set());
+    }
+    for (const edge of edges) {
+        adj.get(edge.from).add(edge.to);
+        adj.get(edge.to).add(edge.from);
+    }
+    const visited = new Set();
+    const result = [];
+    for (const start of states.keys()) {
+        if (visited.has(start)) {
+            continue;
+        }
+        // BFS to collect this component
+        const component = [];
+        const queue = [start];
+        visited.add(start);
+        while (queue.length > 0) {
+            const node = queue.shift();
+            component.push(node);
+            for (const neighbor of adj.get(node)) {
+                if (!visited.has(neighbor)) {
+                    visited.add(neighbor);
+                    queue.push(neighbor);
+                }
+            }
+        }
+        result.push(component);
+    }
+    return result;
+}
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         this._time_source = () => new Date().getTime();
         this._create_started = this._time_source();
         this._instance_name = instance_name;
@@ -214,6 +261,7 @@ class Machine {
         this._reverse_action_targets = new Map(); // todo
         this._start_states = new Set(start_states);
         this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
+        this._failed_outputs = new Set(failed_outputs);
         this._machine_author = array_box_if_string(machine_author);
         this._machine_comment = machine_comment;
         this._machine_contributor = array_box_if_string(machine_contributor);
@@ -222,6 +270,8 @@ class Machine {
         this._machine_license = machine_license;
         this._machine_name = machine_name;
         this._machine_version = machine_version;
+        this._npm_name = npm_name;
+        this._default_size = default_size;
         this._raw_state_declaration = state_declaration || [];
         this._fsl_version = fsl_version;
         this._arrange_declaration = arrange_declaration;
@@ -262,6 +312,7 @@ class Machine {
         // no need for a boolean for single hooks, just test for undefinedness
         this._code_allows_override = allows_override;
         this._config_allows_override = config_allows_override;
+        this._allow_islands = allow_islands !== null && allow_islands !== void 0 ? allow_islands : true;
         if ((allows_override === false) && (config_allows_override === true)) {
             throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
         }
@@ -519,6 +570,24 @@ class Machine {
         // assert chosen starting state is valid
         if (!(start_states.length === this._start_states.size)) {
             throw new JssmError(this, `Start states cannot be repeated`);
+        }
+        // assert connectivity constraints imposed by allow_islands
+        if (this._allow_islands !== true) {
+            const components = find_connected_components(this._states, this._edges);
+            if (this._allow_islands === false) {
+                if (components.length > 1) {
+                    throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
+                }
+            }
+            else {
+                // 'with_start': every component must contain at least one start state
+                for (const component of components) {
+                    const has_start = component.some(s => this._start_states.has(s));
+                    if (!has_start) {
+                        throw new JssmError(this, `allow_islands is 'with_start' but a connected component has no start state: [${[...component].join(', ')}]`);
+                    }
+                }
+            }
         }
         this._created = this._time_source();
         this.auto_set_state_timeout();
@@ -844,6 +913,45 @@ class Machine {
     }
     /********
      *
+     *  Get the set of states declared as failure outputs for this machine.
+     *  Returns an array of state labels, or an empty array when none were
+     *  declared.  A state in this list means the machine is in a failure
+     *  condition when it occupies that state.
+     *
+     *  @see {@link is_failed_output} to test a single state
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    failed_outputs() {
+        return [...this._failed_outputs];
+    }
+    /********
+     *
+     *  Check whether a given state is declared as a failure output.
+     *
+     *  @param whichState The name of the state to check
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    is_failed_output(whichState) {
+        return this._failed_outputs.has(whichState);
+    }
+    /********
+     *
+     *  Check whether the machine is currently in a failure state — that is,
+     *  whether its current state is one of the declared `failed_outputs`.
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed_output} to test an arbitrary state
+     *
+     */
+    is_failed() {
+        return this._failed_outputs.has(this._state);
+    }
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -966,6 +1074,31 @@ class Machine {
      */
     machine_name() {
         return this._machine_name;
+    }
+    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+     *  Returns `undefined` when not present.
+     *  @returns The npm package name string, or `undefined`.
+     *  @see machine_name
+     */
+    npm_name() {
+        return this._npm_name;
+    }
+    /** Get the render-size hint for the machine's visualization.  Set via the
+     *  FSL `default_size` directive.  Returns `undefined` when not present.
+     *
+     *  The three FSL forms each produce a different subset of fields:
+     *
+     *  - `default_size: 800;`       → `{ width: 800 }`
+     *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
+     *  - `default_size: height 600;` → `{ height: 600 }`
+     *
+     *  This is a hint, not a hard constraint.  Renderers may ignore it.
+     *
+     *  @returns The size-hint object, or `undefined` if not set.
+     *  @see npm_name
+     */
+    default_size() {
+        return this._default_size;
     }
     /** Get the machine's version string.  Set via the FSL `machine_version` directive.
      *  @returns The version string.
@@ -1192,6 +1325,19 @@ class Machine {
         else {
             return false;
         }
+    }
+    /*********
+     *
+     *  Return the effective island policy for this machine.  `true` means
+     *  disconnected components are allowed (the default), `false` requires a
+     *  single connected component, and `'with_start'` allows islands only when
+     *  every component contains at least one start state.
+     *
+     *  @returns The island policy stored in the machine.
+     *
+     */
+    get allow_islands() {
+        return this._allow_islands;
     }
     /** List all available theme names.
      *  @returns An array of theme name strings.

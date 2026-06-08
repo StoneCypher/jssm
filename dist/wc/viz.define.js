@@ -1,25 +1,56 @@
-import { JssmViz } from './viz.js';
-export { JssmViz } from './viz.js';
+import { FslViz } from './viz.js';
+export { FslViz } from './viz.js';
 
 /**
- * Empty subclass that allows the same class to be registered under a
- * second tag name. `customElements.define` requires a distinct constructor
- * per tag, so the only portable way to publish `<fsl-viz>` as a synonym
- * for `<jssm-viz>` is to register a no-op subclass.
- *
- * Both tags render identically; `<fsl-viz>` is provided as an alternative
- * spelling for users whose mental model is "FSL viz" rather than "jssm
- * viz".  Parent-context binding for both tags lives on the shared
- * `JssmViz` base class (see {@link JssmViz}); the synonym inherits it
- * automatically.
+ * Shared helpers for the dual-prefix (`fsl-` canonical, `jssm-` synonym)
+ * web-component naming convention.  Centralizes the "match either prefix"
+ * rule so it lives in exactly one place.
  */
-class FslViz extends JssmViz {
-}
-if (!customElements.get('jssm-viz')) {
-    customElements.define('jssm-viz', JssmViz);
-}
-if (!customElements.get('fsl-viz')) {
-    customElements.define('fsl-viz', FslViz);
+/**
+ * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
+ * (case-insensitive).
+ *
+ * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
+ * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
+ * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
+ *
+ * @example
+ * wc_suffix_matches('FSL-VIZ', 'viz');   // true
+ * wc_suffix_matches('jssm-viz', 'viz');  // true
+ * wc_suffix_matches('div', 'viz');       // false
+ * wc_suffix_matches('fsl-vizard', 'viz'); // false — suffix must match exactly
+ */
+/**
+ * Registers a canonical custom-element tag and its synonym tag.
+ *
+ * `customElements.define` requires a distinct constructor per tag name, so
+ * callers pass the canonical class and a thin subclass for the synonym.
+ * The function is idempotent: if either tag is already registered it skips
+ * that `define` call rather than throwing.
+ *
+ * @param canonical_tag  - The primary tag name (e.g. `"fsl-instance"`).
+ * @param synonym_tag    - The alias tag name (e.g. `"jssm-instance"`).
+ * @param CanonicalClass - Constructor to register under `canonical_tag`.
+ * @param SynonymClass   - Constructor to register under `synonym_tag`
+ *                         (must be a distinct class from `CanonicalClass`).
+ *
+ * @example
+ * class FslInstance extends HTMLElement {}
+ * class JssmInstance extends FslInstance {}
+ * define_with_synonym('fsl-instance', 'jssm-instance', FslInstance, JssmInstance);
+ *
+ * @see closest_wc
+ */
+function define_with_synonym(canonical_tag, synonym_tag, CanonicalClass, SynonymClass) {
+    if (!customElements.get(canonical_tag))
+        customElements.define(canonical_tag, CanonicalClass);
+    if (!customElements.get(synonym_tag))
+        customElements.define(synonym_tag, SynonymClass);
 }
 
-export { FslViz };
+/** Thin subclass so `<jssm-viz>` registers under a distinct constructor. */
+class JssmViz extends FslViz {
+}
+define_with_synonym('fsl-viz', 'jssm-viz', FslViz, JssmViz);
+
+export { JssmViz };

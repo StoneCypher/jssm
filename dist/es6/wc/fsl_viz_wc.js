@@ -8,6 +8,7 @@ import { LitElement, html, css } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { fsl_to_svg_string, machine_to_svg_string } from '../jssm_viz.js';
+import { closest_wc } from './wc_tag_helpers.js';
 /**
  * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
@@ -44,20 +45,20 @@ export function normalize_viz_error(e) {
  *
  * Two operating modes:
  *
- *   1. **Standalone** (no parent `<jssm-instance>` ancestor): render from
+ *   1. **Standalone** (no parent `<fsl-instance>` ancestor): render from
  *      the element's own `fsl=""` attribute / property.  Re-renders on
  *      attribute change.
- *   2. **Nested** (inside a `<jssm-instance>` ancestor, found via
- *      `closest('jssm-instance')` at `connectedCallback`): bind to the
- *      parent's machine and re-render on every `transition` event.  The
- *      element's own `fsl` attribute is ignored in this mode; supplying it
- *      emits a `console.warn` for developer feedback.
+ *   2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,
+ *      found via `closest_wc(this, 'instance')` at `connectedCallback`):
+ *      bind to the parent's machine and re-render on every `transition`
+ *      event.  The element's own `fsl` attribute is ignored in this mode;
+ *      supplying it emits a `console.warn` for developer feedback.
  *
- * @element jssm-viz
+ * @element fsl-viz
  * @cssproperty [--jssm-viz-min-height=100px] - Minimum height of the rendered SVG container.
  * @fires {CustomEvent<{ message: string; location?: unknown }>} viz-error - Fires when the FSL source fails to parse or render.
  */
-export class JssmViz extends LitElement {
+export class FslViz extends LitElement {
     constructor() {
         super(...arguments);
         /** FSL source to render. */
@@ -66,9 +67,10 @@ export class JssmViz extends LitElement {
         this.engine = undefined;
         this._svg = '';
         /**
-         * Parent `<jssm-instance>` host reference, set in `connectedCallback`
-         * when a parent is found.  When non-null the viz is in nested mode and
-         * renders the parent's machine instead of its own `fsl` attribute.
+         * Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in
+         * `connectedCallback` when a parent is found.  When non-null the viz is
+         * in nested mode and renders the parent's machine instead of its own
+         * `fsl` attribute.
          */
         this._parent_host = null;
         /**
@@ -101,9 +103,9 @@ export class JssmViz extends LitElement {
     }
     /**
      * Web Components lifecycle hook.  Walks up to find a parent
-     * `<jssm-instance>` ancestor; if found, switches into nested mode and
-     * subscribes to the parent machine's `transition` events.  Otherwise
-     * leaves standalone behavior intact.
+     * `<fsl-instance>` or `<jssm-instance>` ancestor via `closest_wc`; if
+     * found, switches into nested mode and subscribes to the parent machine's
+     * `transition` events.  Otherwise leaves standalone behavior intact.
      *
      * Subscription setup is deferred via `customElements.whenDefined` so the
      * parent has had a chance to upgrade and construct its machine before
@@ -111,7 +113,7 @@ export class JssmViz extends LitElement {
      */
     connectedCallback() {
         super.connectedCallback();
-        const host = this.closest('jssm-instance');
+        const host = closest_wc(this, 'instance');
         if (host === null) {
             return; // standalone: existing behavior, willUpdate handles render
         }
@@ -120,13 +122,13 @@ export class JssmViz extends LitElement {
         // owns the machine.
         if (typeof this.fsl === 'string' && this.fsl.trim().length > 0) {
             // eslint-disable-next-line no-console
-            console.warn('<jssm-viz>: `fsl` ignored when nested inside <jssm-instance>; parent owns the machine');
+            console.warn('<fsl-viz>: `fsl` ignored when nested inside <fsl-instance>; parent owns the machine');
         }
         this._parent_host = host;
         // Defer to whenDefined so a not-yet-upgraded host has its machine
         // available before we access `host.machine` (which throws when called
         // pre-connection).
-        void customElements.whenDefined('jssm-instance').then(() => {
+        void customElements.whenDefined('fsl-instance').then(() => {
             // Re-check the host is still attached and the viz still belongs to
             // it — disconnection between the deferred resolution and now is
             // legal and should not error.
@@ -241,7 +243,7 @@ export class JssmViz extends LitElement {
         return html `<div class="container">${unsafeHTML(this._svg)}</div>`;
     }
 }
-JssmViz.styles = css `
+FslViz.styles = css `
     :host {
       display: block;
       min-height: var(--jssm-viz-min-height, 100px);
@@ -253,10 +255,10 @@ JssmViz.styles = css `
   `;
 __decorate([
     property({ type: String })
-], JssmViz.prototype, "fsl", void 0);
+], FslViz.prototype, "fsl", void 0);
 __decorate([
     property({ type: String })
-], JssmViz.prototype, "engine", void 0);
+], FslViz.prototype, "engine", void 0);
 __decorate([
     state()
-], JssmViz.prototype, "_svg", void 0);
+], FslViz.prototype, "_svg", void 0);

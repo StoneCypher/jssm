@@ -13,12 +13,17 @@ describe('dist/wc/viz.js — bundler-friendly build', () => {
     expect(existsSync(dist_path)).toBe(true);
   });
 
-  it('exports the JssmViz class identifier', () => {
+  it('exports the FslViz class identifier', () => {
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).toContain('JssmViz');
+    expect(built).toContain('FslViz');
   });
 
-  it('contains the jssm-viz tag name string', () => {
+  it('contains the fsl-viz canonical tag name string', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('fsl-viz');
+  });
+
+  it('contains the jssm-viz synonym tag name string', () => {
     const built = readFileSync(dist_path, 'utf8');
     expect(built).toContain('jssm-viz');
   });
@@ -57,7 +62,7 @@ describe('dist/wc/viz.define.js — registration entry point', () => {
   });
 
   it('calls customElements.define for fsl-viz (synonym registration survives bundling)', () => {
-    // The empty-subclass FslViz lives in jssm_viz_wc.define.ts and is the
+    // The empty-subclass JssmViz lives in fsl_viz_wc.define.ts and is the
     // entire functional change for the synonym. If a bundler or
     // tree-shaker ever drops it, page authors who import 'jssm/wc/viz/define'
     // would silently lose the <fsl-viz> tag. This catches that regression.
@@ -119,12 +124,17 @@ describe('dist/wc/instance.js — bundler-friendly build', () => {
     expect(existsSync(dist_path)).toBe(true);
   });
 
-  it('exports the JssmInstance class identifier', () => {
+  it('exports the FslInstance class identifier', () => {
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).toContain('JssmInstance');
+    expect(built).toContain('FslInstance');
   });
 
-  it('contains the jssm-instance tag name string', () => {
+  it('contains the fsl-instance canonical tag name string', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('fsl-instance');
+  });
+
+  it('contains the jssm-instance synonym tag name string', () => {
     const built = readFileSync(dist_path, 'utf8');
     expect(built).toContain('jssm-instance');
   });
@@ -153,7 +163,12 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
     expect(existsSync(cdn_path)).toBe(true);
   });
 
-  it('contains the jssm-instance tag name string', () => {
+  it('contains the fsl-instance canonical tag name string', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('fsl-instance');
+  });
+
+  it('contains the jssm-instance synonym tag name string', () => {
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('jssm-instance');
   });

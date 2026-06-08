@@ -46,10 +46,10 @@ function externalize_jssm_viz_as_subpath() {
 }
 
 /**
- * Rollup plugin that rewrites the define build's `'./jssm_viz_wc.js'`
+ * Rollup plugin that rewrites the define build's `'./fsl_viz_wc.js'`
  * import (the TypeScript-emitted sibling source filename) to the dist-side
  * filename `'./viz.js'`, since the class build is emitted as
- * `dist/wc/viz.js`, not `dist/wc/jssm_viz_wc.js`.
+ * `dist/wc/viz.js`, not `dist/wc/fsl_viz_wc.js`.
  *
  * @returns {import('rollup').Plugin}
  */
@@ -57,7 +57,7 @@ function externalize_class_build_as_viz_js() {
   return {
     name: 'externalize-class-build-as-viz-js',
     resolveId(source) {
-      if (source === './jssm_viz_wc.js') {
+      if (source === './fsl_viz_wc.js') {
         return { id: './viz.js', external: true };
       }
       return null;
@@ -67,12 +67,12 @@ function externalize_class_build_as_viz_js() {
 
 const config = [{
 
-  input: 'dist/es6/wc/jssm_viz_wc.js',
+  input: 'dist/es6/wc/fsl_viz_wc.js',
 
   output: {
     file   : 'dist/wc/viz.js',
     format : 'es',
-    name   : 'jssm_viz_wc',
+    name   : 'fsl_viz_wc',
   },
 
   external : sharedExternal,
@@ -80,12 +80,12 @@ const config = [{
 
 }, {
 
-  input: 'dist/es6/wc/jssm_viz_wc.define.js',
+  input: 'dist/es6/wc/fsl_viz_wc.define.js',
 
   output: {
     file   : 'dist/wc/viz.define.js',
     format : 'es',
-    name   : 'jssm_viz_wc_define',
+    name   : 'fsl_viz_wc_define',
   },
 
   // The define build externalizes the class build so it imports at runtime

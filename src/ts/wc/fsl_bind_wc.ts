@@ -1,4 +1,17 @@
 import { LitElement, css } from 'lit';
+import type { Machine } from '../jssm.js';
+import { wc_suffix_matches } from './wc_tag_helpers.js';
+
+/**
+ * Unsubscribe callback returned by {@link install_bindings}.  Calling it
+ * removes the underlying `machine.on('transition', ...)` subscription that
+ * keeps the binding live.
+ */
+export type FslBindUnsub = () => void;
+
+/** @deprecated Use {@link FslBindUnsub} instead; kept for backwards compat. */
+export type JssmBindUnsub = FslBindUnsub;
+
 /**
  * Walk a dotted path into a value.  Used by the `data.path.to.field`
  * variant of {@link resolve_binding}.  Returns `undefined` whenever the
@@ -18,19 +31,16 @@ import { LitElement, css } from 'lit';
  * @param path - Dotted path of property names, e.g. `"a.b.c"`.
  * @returns The terminal value, or `undefined` if any step fails.
  */
-export function walk_path(obj, path) {
-    if (path.length === 0) {
-        return obj;
-    }
-    let cur = obj;
-    for (const part of path.split('.')) {
-        if (cur === null || typeof cur !== 'object') {
-            return undefined;
-        }
-        cur = cur[part];
-    }
-    return cur;
+export function walk_path(obj: unknown, path: string): unknown {
+  if (path.length === 0) { return obj; }
+  let cur: unknown = obj;
+  for (const part of path.split('.')) {
+    if (cur === null || typeof cur !== 'object') { return undefined; }
+    cur = (cur as Record<string, unknown>)[part];
+  }
+  return cur;
 }
+
 /**
  * Resolve a `<jssm-bind>` / `data-jssm-bind` expression against a live
  * machine.  Throws on any unknown expression — bindings fail fast at
@@ -61,20 +71,19 @@ export function walk_path(obj, path) {
  *
  * @throws Error - When `expr` is not a recognized binding form.
  */
-export function resolve_binding(m, expr) {
-    switch (expr) {
-        case 'state': return m.state();
-        case 'terminal': return m.is_terminal();
-        case 'complete': return m.is_complete();
-        case 'legal-actions': return m.list_exit_actions().map(a => String(a)).join(' ');
-        case 'data': return m.data();
-        default:
-            if (expr.startsWith('data.')) {
-                return walk_path(m.data(), expr.slice(5));
-            }
-            throw new Error(`<jssm-bind>: unknown binding expression "${expr}"`);
-    }
+export function resolve_binding(m: Machine<unknown>, expr: string): unknown {
+  switch (expr) {
+    case 'state':         return m.state();
+    case 'terminal':      return m.is_terminal();
+    case 'complete':      return m.is_complete();
+    case 'legal-actions': return m.list_exit_actions().map(a => String(a)).join(' ');
+    case 'data':          return m.data();
+    default:
+      if (expr.startsWith('data.')) { return walk_path(m.data(), expr.slice(5)); }
+      throw new Error(`<jssm-bind>: unknown binding expression "${expr}"`);
+  }
 }
+
 /**
  * Apply a resolved binding value to an element's target property.  The
  * `target` selector follows the rules documented in #645:
@@ -98,20 +107,19 @@ export function resolve_binding(m, expr) {
  * @param target - Target property name, possibly a `data-*` attribute.
  * @param value  - The resolved value to assign.
  */
-export function set_on_element(el, target, value) {
-    if (target.startsWith('data-')) {
-        el.setAttribute(target, String(value));
-    }
-    else if (target === 'textContent') {
-        el.textContent = String(value);
-    }
-    else {
-        // Power-user escape hatch — assigns value as-is so booleans hit
-        // properties like `disabled`/`hidden`/`checked` with the correct
-        // semantics rather than being coerced to a string.
-        el[target] = value;
-    }
+export function set_on_element(el: HTMLElement, target: string, value: unknown): void {
+  if (target.startsWith('data-')) {
+    el.setAttribute(target, String(value));
+  } else if (target === 'textContent') {
+    el.textContent = String(value);
+  } else {
+    // Power-user escape hatch — assigns value as-is so booleans hit
+    // properties like `disabled`/`hidden`/`checked` with the correct
+    // semantics rather than being coerced to a string.
+    (el as unknown as Record<string, unknown>)[target] = value;
+  }
 }
+
 /**
  * Discover every binding declaration under `host` and install live
  * subscriptions that refresh them on every machine transition.  Returns
@@ -148,69 +156,99 @@ export function set_on_element(el, target, value) {
  * @throws Error - When a `<jssm-bind>` tag is missing its `selector`
  *                 or `source` attribute.
  */
-export function install_bindings(host, machine) {
-    var _a, _b;
-    const unsubs = [];
-    // Form 1: inline `data-jssm-bind` on descendants.
-    const inline_nodes = host.querySelectorAll('[data-jssm-bind]');
-    for (const el of Array.from(inline_nodes)) {
-        const expr = el.dataset.jssmBind;
-        const target = (_a = el.dataset.jssmBindTo) !== null && _a !== void 0 ? _a : 'textContent';
-        const apply = () => {
-            set_on_element(el, target, resolve_binding(machine, expr));
-        };
-        apply();
-        unsubs.push(machine.on('transition', apply));
+export function install_bindings(host: HTMLElement, machine: Machine<unknown>): FslBindUnsub[] {
+
+  const unsubs: FslBindUnsub[] = [];
+
+  // Form 1: inline `data-jssm-bind` on descendants.
+  const inline_nodes = host.querySelectorAll<HTMLElement>('[data-jssm-bind]');
+  for (const el of Array.from(inline_nodes)) {
+    const expr   = el.dataset.jssmBind as string;
+    const target = el.dataset.jssmBindTo ?? 'textContent';
+
+    const apply = (): void => {
+      set_on_element(el, target, resolve_binding(machine, expr));
+    };
+
+    apply();
+    unsubs.push(machine.on('transition', apply));
+  }
+
+  // Form 2: dedicated `<fsl-bind>` / `<jssm-bind>` configuration tags.  Only
+  // direct children are considered configuration tags for THIS host — nested
+  // `<fsl-instance>` / `<jssm-instance>` children would have their own
+  // bindings handled by their own component.
+  const all_direct = host.querySelectorAll<HTMLElement>(':scope > *');
+  const config_tags = Array.from(all_direct).filter(
+    el => wc_suffix_matches(el.tagName, 'bind'),
+  );
+  for (const tag of config_tags) {
+
+    const selector = tag.getAttribute('selector');
+    const expr     = tag.getAttribute('source');
+    const target   = tag.getAttribute('target') ?? 'textContent';
+
+    if (selector === null || selector.length === 0) {
+      throw new Error('<jssm-bind>: missing required "selector" attribute');
     }
-    // Form 2: dedicated `<jssm-bind>` configuration tags.  Only direct
-    // children are considered configuration tags for THIS host — nested
-    // `<jssm-instance>` children would have their own bindings handled by
-    // their own component.
-    const config_tags = host.querySelectorAll(':scope > jssm-bind');
-    for (const tag of Array.from(config_tags)) {
-        const selector = tag.getAttribute('selector');
-        const expr = tag.getAttribute('source');
-        const target = (_b = tag.getAttribute('target')) !== null && _b !== void 0 ? _b : 'textContent';
-        if (selector === null || selector.length === 0) {
-            throw new Error('<jssm-bind>: missing required "selector" attribute');
-        }
-        if (expr === null || expr.length === 0) {
-            throw new Error('<jssm-bind>: missing required "source" attribute');
-        }
-        const targets = host.querySelectorAll(selector);
-        for (const el of Array.from(targets)) {
-            const apply = () => {
-                set_on_element(el, target, resolve_binding(machine, expr));
-            };
-            apply();
-            unsubs.push(machine.on('transition', apply));
-        }
+    if (expr === null || expr.length === 0) {
+      throw new Error('<jssm-bind>: missing required "source" attribute');
     }
-    return unsubs;
+
+    const targets = host.querySelectorAll<HTMLElement>(selector);
+    for (const el of Array.from(targets)) {
+
+      const apply = (): void => {
+        set_on_element(el, target, resolve_binding(machine, expr));
+      };
+
+      apply();
+      unsubs.push(machine.on('transition', apply));
+
+    }
+
+  }
+
+  return unsubs;
+
 }
+
 /**
- * `<jssm-bind>` configuration tag.  The element itself is invisible —
- * it carries `selector`, `source`, and optional `target` attributes
- * that the parent `<jssm-instance>` reads during its connection
+ * `<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is
+ * invisible — it carries `selector`, `source`, and optional `target`
+ * attributes that the parent `<fsl-instance>` reads during its connection
  * lifecycle to wire up a machine-to-DOM binding.
  *
  * Registering it as a `LitElement` (rather than leaving it as a generic
  * unknown tag) gives it a stable upgrade timing, a `display: none`
  * default style, and a proper place in the custom-elements registry so
- * `customElements.get('jssm-bind')` resolves.
+ * `customElements.get('fsl-bind')` resolves.
  *
- * @element jssm-bind
+ * @element fsl-bind
  * @attribute selector - CSS selector for the target element(s), scoped to the host.
  * @attribute source - Binding expression (see {@link resolve_binding}).
  * @attribute target - Target property name; defaults to `textContent`.
  */
-export class JssmBind extends LitElement {
-    /**
-     * No-op render.  The tag's purpose is purely declarative
-     * configuration; it must not contribute any DOM to the page.
-     */
-    render() {
-        return null;
-    }
+export class FslBind extends LitElement {
+
+  static styles = css`:host { display: none; }`;
+
+  /**
+   * No-op render.  The tag's purpose is purely declarative
+   * configuration; it must not contribute any DOM to the page.
+   */
+  render(): null {
+    return null;
+  }
+
 }
-JssmBind.styles = css `:host { display: none; }`;
+
+/** @deprecated Use {@link FslBind} instead; kept for backwards compat. */
+export type JssmBind = FslBind;
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'fsl-bind'  : FslBind;
+    'jssm-bind' : FslBind;
+  }
+}

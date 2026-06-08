@@ -1,12 +1,13 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { Machine, sm } from '../jssm.js';
-import { install_bindings, type JssmBindUnsub } from './jssm_bind_wc.js';
+import { install_bindings, type FslBindUnsub } from './fsl_bind_wc.js';
 import {
-  JssmHookRegistry,
+  FslHookRegistry,
   build_hook_descriptor,
   parse_hook_element,
   wrap_user_handler,
-} from './jssm_hook_wc.js';
+} from './fsl_hook_wc.js';
+import { closest_wc } from './wc_tag_helpers.js';
 
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
@@ -264,9 +265,10 @@ export function resolve_fsl_source(host: HTMLElement, fsl_attr: string): JssmIns
     const clone = host.cloneNode(true) as HTMLElement;
     // Drop every script tag (any type — we only want raw text FSL here).
     clone.querySelectorAll('script').forEach(n => n.remove());
-    // Drop every <jssm-*> companion tag (e.g. <jssm-hook>, <jssm-on>, etc.).
+    // Drop every <fsl-*> or <jssm-*> companion tag (e.g. <fsl-hook>, <jssm-on>, etc.).
     clone.querySelectorAll('*').forEach(n => {
-      if (n.tagName.toLowerCase().startsWith('jssm-')) {
+      const t = n.tagName.toLowerCase();
+      if (t.startsWith('fsl-') || t.startsWith('jssm-')) {
         n.remove();
       }
     });
@@ -312,7 +314,7 @@ export function resolve_fsl_source(host: HTMLElement, fsl_attr: string): JssmIns
  * and sets a `--current-state` CSS custom property so consumer CSS can
  * style by state without subclassing.
  *
- * @element jssm-instance
+ * @element fsl-instance
  * @cssproperty [--current-state] - The machine's current state name as a CSS string token.
  * @slot title - Heading area for the instance.
  * @slot viz - Visualization slot; fallback is a placeholder string.
@@ -322,7 +324,7 @@ export function resolve_fsl_source(host: HTMLElement, fsl_attr: string): JssmIns
  * @slot info-panel - Slot for an info / status panel.
  * @slot footer - Footer slot.
  */
-export class JssmInstance extends LitElement {
+export class FslInstance extends LitElement {
 
   static styles = css`
     :host {
@@ -357,11 +359,11 @@ export class JssmInstance extends LitElement {
   private _machine: Machine<unknown> | undefined = undefined;
 
   /**
-   * Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`
+   * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`
    * projections.  Every entry must be invoked exactly once during
    * {@link disconnectedCallback}.
    */
-  private _unsubs: JssmBindUnsub[] = [];
+  private _unsubs: FslBindUnsub[] = [];
 
   /**
    * Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`
@@ -372,9 +374,10 @@ export class JssmInstance extends LitElement {
 
   /**
    * Per-instance registry of named hook handlers consulted before
-   * `globalThis` when resolving `<jssm-hook handler="name">`.
+   * `globalThis` when resolving `<fsl-hook handler="name">` /
+   * `<jssm-hook handler="name">`.
    */
-  readonly registry: JssmHookRegistry = new Map();
+  readonly registry: FslHookRegistry = new Map();
 
   /**
    * Descriptors for hooks this WC installed at connect time.
@@ -402,7 +405,7 @@ export class JssmInstance extends LitElement {
    */
   get machine(): Machine<unknown> {
     if (this._machine === undefined) {
-      throw new Error('jssm-instance: machine accessed before connection');
+      throw new Error('fsl-instance: machine accessed before connection');
     }
     return this._machine;
   }
@@ -459,7 +462,7 @@ export class JssmInstance extends LitElement {
     // Step 1: resolve FSL source.
     const resolved = resolve_fsl_source(this, this.fsl);
     if (resolved.error !== undefined) {
-      throw new Error(`jssm-instance: ${resolved.error}`);
+      throw new Error(`fsl-instance: ${resolved.error}`);
     }
 
     // Step 2: construct the machine.
@@ -513,7 +516,7 @@ export class JssmInstance extends LitElement {
    */
   private _install_jssm_on_children(): void {
     const machine = this._machine as Machine<unknown>;
-    const on_nodes = this.querySelectorAll<HTMLElement>(':scope > jssm-on');
+    const on_nodes = this.querySelectorAll<HTMLElement>(':scope > fsl-on, :scope > jssm-on');
 
     let index = 0;
     for (const el of Array.from(on_nodes)) {
@@ -548,7 +551,7 @@ export class JssmInstance extends LitElement {
 
     const machine = this._machine as Machine<unknown>;
 
-    const hook_els = this.querySelectorAll<HTMLElement>(':scope > jssm-hook');
+    const hook_els = this.querySelectorAll<HTMLElement>(':scope > fsl-hook, :scope > jssm-hook');
     for (const el of Array.from(hook_els)) {
 
       const debug_id = `${this._hook_id_prefix()}${++this._hook_debug_counter}`;
@@ -618,7 +621,7 @@ export class JssmInstance extends LitElement {
 
     const inline_targets = Array.from(
       this.querySelectorAll<HTMLElement>('[data-jssm-action]')
-    ).filter(el => el.closest('jssm-action') === null);
+    ).filter(el => closest_wc(el, 'action') === null);
 
     for (const el of inline_targets) {
       this._install_action_listener({
@@ -632,7 +635,7 @@ export class JssmInstance extends LitElement {
       });
     }
 
-    const tags = this.querySelectorAll<HTMLElement>(':scope > jssm-action');
+    const tags = this.querySelectorAll<HTMLElement>(':scope > fsl-action, :scope > jssm-action');
     for (const tag of Array.from(tags)) {
       const selector    = tag.getAttribute('selector');
       const action_name = tag.getAttribute('action');
@@ -741,7 +744,7 @@ export class JssmInstance extends LitElement {
     return html`
       <div class="container">
         <header>
-          <slot name="title"><span class="placeholder">jssm-instance</span></slot>
+          <slot name="title"><span class="placeholder">fsl-instance</span></slot>
         </header>
         <section class="viz">
           <slot name="viz"><span class="placeholder">no viz configured</span></slot>
@@ -770,8 +773,12 @@ export class JssmInstance extends LitElement {
 
 }
 
+/** @deprecated Use `FslInstance` instead; kept for backwards compat. */
+export type JssmInstance = FslInstance;
+
 declare global {
   interface HTMLElementTagNameMap {
-    'jssm-instance': JssmInstance;
+    'fsl-instance'  : FslInstance;
+    'jssm-instance' : FslInstance;
   }
 }
