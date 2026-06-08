@@ -204,7 +204,7 @@ function compile_rule_handler(rule) {
     }
     // things that can only exist once and are just a value under their own name
     const tautologies = [
-        'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
+        'graph_layout', 'start_states', 'end_states', 'failed_outputs', 'machine_name', 'machine_version',
         'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
         'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
         'flow', 'dot_preamble', 'allows_override', 'default_state_config',
@@ -274,6 +274,7 @@ function compile(tree) {
         transition: [],
         start_states: [],
         end_states: [],
+        failed_outputs: [],
         state_config: [],
         state_declaration: [],
         fsl_version: [],
@@ -315,6 +316,7 @@ function compile(tree) {
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
         end_states: results.end_states,
+        failed_outputs: results.failed_outputs,
         transitions: assembled_transitions,
         state_property: [],
     };

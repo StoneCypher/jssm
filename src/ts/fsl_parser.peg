@@ -925,7 +925,10 @@ ConfigStartNodes
   = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "start_states",    value: value }; }
 
 ConfigEndNodes
-  = WS? "end_states"      WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "end_states",      value: value }; }
+  = WS? "end_states"      WS? ":" WS? value:LabelList        WS? ";" WS? { return { key: "end_states",      value: value }; }
+
+ConfigFailedOutputs
+  = WS? "failed_outputs"  WS? ":" WS? value:LabelOrLabelList WS? ";" WS? { return { key: "failed_outputs",  value: typeof value === 'string' ? [value] : value }; }
 
 ConfigGraphBgColor
   = WS? "graph_bg_color"  WS? ":" WS? value:Color      WS? ";" WS? { return { key: "graph_bg_color",  value: value }; }
@@ -950,6 +953,7 @@ Config "configuration"
   = ConfigGraphLayout
   / ConfigStartNodes
   / ConfigEndNodes
+  / ConfigFailedOutputs
   / ConfigTransition
   / ConfigAction
   / ConfigAnyState

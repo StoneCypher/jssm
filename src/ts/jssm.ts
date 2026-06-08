@@ -313,6 +313,7 @@ class Machine<mDT> {
 
   _start_states           : Set<StateType>;
   _end_states             : Set<StateType>;
+  _failed_outputs         : Set<StateType>;
 
   _machine_author?        : Array<string>;
   _machine_comment?       : string;
@@ -447,6 +448,7 @@ class Machine<mDT> {
 
     start_states,
     end_states                = [],
+    failed_outputs            = [],
     initial_state,
     start_states_no_enforce,
     complete                  = [],
@@ -505,8 +507,9 @@ class Machine<mDT> {
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();   // todo
 
-    this._start_states = new Set(start_states);
-    this._end_states   = new Set(end_states);   // todo consider what to do about incorporating complete too
+    this._start_states   = new Set(start_states);
+    this._end_states     = new Set(end_states);   // todo consider what to do about incorporating complete too
+    this._failed_outputs = new Set(failed_outputs);
 
     this._machine_author        = array_box_if_string(machine_author);
     this._machine_comment       = machine_comment;
@@ -1309,6 +1312,60 @@ class Machine<mDT> {
 
   is_end_state(whichState: StateType): boolean {
     return this._end_states.has(whichState);
+  }
+
+
+
+
+  /********
+   *
+   *  Get the set of states declared as failure outputs for this machine.
+   *  Returns an array of state labels, or an empty array when none were
+   *  declared.  A state in this list means the machine is in a failure
+   *  condition when it occupies that state.
+   *
+   *  @see {@link is_failed_output} to test a single state
+   *  @see {@link is_failed} to test the current state
+   *
+   */
+
+  failed_outputs(): Array<StateType> {
+    return [...this._failed_outputs];
+  }
+
+
+
+
+  /********
+   *
+   *  Check whether a given state is declared as a failure output.
+   *
+   *  @param whichState The name of the state to check
+   *
+   *  @see {@link failed_outputs} for the full failure-output set
+   *  @see {@link is_failed} to test the current state
+   *
+   */
+
+  is_failed_output(whichState: StateType): boolean {
+    return this._failed_outputs.has(whichState);
+  }
+
+
+
+
+  /********
+   *
+   *  Check whether the machine is currently in a failure state — that is,
+   *  whether its current state is one of the declared `failed_outputs`.
+   *
+   *  @see {@link failed_outputs} for the full failure-output set
+   *  @see {@link is_failed_output} to test an arbitrary state
+   *
+   */
+
+  is_failed(): boolean {
+    return this._failed_outputs.has(this._state);
   }
 
 

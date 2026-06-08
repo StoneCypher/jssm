@@ -199,7 +199,7 @@ function state_style_condense(jssk, machine) {
  */
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         this._time_source = () => new Date().getTime();
         this._create_started = this._time_source();
         this._instance_name = instance_name;
@@ -214,6 +214,7 @@ class Machine {
         this._reverse_action_targets = new Map(); // todo
         this._start_states = new Set(start_states);
         this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
+        this._failed_outputs = new Set(failed_outputs);
         this._machine_author = array_box_if_string(machine_author);
         this._machine_comment = machine_comment;
         this._machine_contributor = array_box_if_string(machine_contributor);
@@ -842,6 +843,45 @@ class Machine {
      */
     is_end_state(whichState) {
         return this._end_states.has(whichState);
+    }
+    /********
+     *
+     *  Get the set of states declared as failure outputs for this machine.
+     *  Returns an array of state labels, or an empty array when none were
+     *  declared.  A state in this list means the machine is in a failure
+     *  condition when it occupies that state.
+     *
+     *  @see {@link is_failed_output} to test a single state
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    failed_outputs() {
+        return [...this._failed_outputs];
+    }
+    /********
+     *
+     *  Check whether a given state is declared as a failure output.
+     *
+     *  @param whichState The name of the state to check
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    is_failed_output(whichState) {
+        return this._failed_outputs.has(whichState);
+    }
+    /********
+     *
+     *  Check whether the machine is currently in a failure state — that is,
+     *  whether its current state is one of the declared `failed_outputs`.
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed_output} to test an arbitrary state
+     *
+     */
+    is_failed() {
+        return this._failed_outputs.has(this._state);
     }
     /********
      *

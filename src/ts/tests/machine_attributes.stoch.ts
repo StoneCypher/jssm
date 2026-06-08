@@ -398,3 +398,58 @@ describe('§9 MachineAttribute — random round-trip across keyword vocabularies
   });
 
 });
+
+
+
+describe('§9 MachineAttribute — failed_outputs (LabelOrLabelList, normalized to array)', () => {
+
+  // `failed_outputs` accepts a single state label OR a bracketed list,
+  // and always normalizes the result to an array.  The grammar action
+  // wraps a bare label in a one-element array before returning.
+
+  test('`failed_outputs: foo;` (bare label) produces array-typed value', () => {
+    const node = parse_attr('failed_outputs: foo;');
+    expect(node.key  ).toBe('failed_outputs');
+    expect(node.value).toEqual(['foo']);
+  });
+
+  test('`failed_outputs: [a b c];` (bracketed list) yields array-typed value', () => {
+    const node = parse_attr('failed_outputs: [a b c];');
+    expect(node.key  ).toBe('failed_outputs');
+    expect(node.value).toEqual(['a', 'b', 'c']);
+  });
+
+  test('Random bare label round-trips as one-element array', () => {
+
+    fc.assert(
+      fc.property(
+        ATOM_LIKE,
+        (label) => {
+          const node = parse_attr(`failed_outputs: ${label};`);
+          expect(node.key  ).toBe('failed_outputs');
+          expect(node.value).toEqual([label]);
+        }
+      ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random label list round-trips preserving order and yielding array', () => {
+
+    fc.assert(
+      fc.property(
+        fc.array(ATOM_LIKE, { minLength: 1, maxLength: 5 }),
+        (labels) => {
+          const src  = `failed_outputs: [${labels.join(' ')}];`;
+          const node = parse_attr(src);
+          expect(node.key  ).toBe('failed_outputs');
+          expect(node.value).toEqual(labels);
+        }
+      ),
+      { numRuns: RUNS }
+    );
+
+  });
+
+});

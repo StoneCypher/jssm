@@ -418,3 +418,52 @@ describe('fsl_version', () => {
       .toEqual({full:"0.0.0", major:0, minor:0, patch:0}) );
 
 });
+
+
+
+
+describe('failed_outputs', () => {
+
+  test('absent → empty array', () =>
+    expect( sm`a -> b;`.failed_outputs() )
+      .toEqual([]) );
+
+  test('single-state form → one-element array', () =>
+    expect( sm`failed_outputs: dead; a -> b -> dead;`.failed_outputs() )
+      .toEqual(['dead']) );
+
+  test('list form → full array', () =>
+    expect( sm`failed_outputs: [dead error]; a -> b -> dead -> error;`.failed_outputs() )
+      .toEqual(['dead', 'error']) );
+
+  test('is_failed_output true for declared failure state', () =>
+    expect( sm`failed_outputs: dead; a -> b -> dead;`.is_failed_output('dead') )
+      .toBe(true) );
+
+  test('is_failed_output false for non-failure state', () =>
+    expect( sm`failed_outputs: dead; a -> b -> dead;`.is_failed_output('a') )
+      .toBe(false) );
+
+  test('is_failed false when current state is not a failure state', () => {
+    const m = sm`failed_outputs: dead; a -> b -> dead;`;
+    expect( m.is_failed() )
+      .toBe(false);
+  });
+
+  test('is_failed true after transitioning into a failure state', () => {
+    const m = sm`failed_outputs: dead; a -> b -> dead;`;
+    m.transition('b');
+    m.transition('dead');
+    expect( m.is_failed() )
+      .toBe(true);
+  });
+
+  test('is_failed false after leaving a failure state', () => {
+    const m = sm`failed_outputs: dead; a -> dead -> b;`;
+    m.transition('dead');
+    m.transition('b');
+    expect( m.is_failed() )
+      .toBe(false);
+  });
+
+});
