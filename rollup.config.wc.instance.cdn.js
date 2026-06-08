@@ -4,12 +4,12 @@ import replace     from '@rollup/plugin-replace';
 
 const config = [{
 
-  input: 'dist/es6/wc/jssm_instance_wc.define.js',
+  input: 'dist/es6/wc/fsl_instance_wc.define.js',
 
   output: {
     file    : 'dist/cdn/instance.js',
     format  : 'es',
-    name    : 'jssm_instance_wc_cdn',
+    name    : 'fsl_instance_wc_cdn',
     inlineDynamicImports: true,
   },
 

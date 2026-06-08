@@ -1,6 +1,6 @@
 import { LitElement, TemplateResult } from 'lit';
 import { Machine } from '../jssm.js';
-import { JssmHookRegistry } from './jssm_hook_wc.js';
+import { FslHookRegistry } from './fsl_hook_wc.js';
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
  * in sync with the `JssmEventName` union in `jssm_types.ts` (the library's
@@ -176,7 +176,7 @@ export declare class FslInstance extends LitElement {
      */
     private _machine;
     /**
-     * Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`
+     * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`
      * projections.  Every entry must be invoked exactly once during
      * {@link disconnectedCallback}.
      */
@@ -189,9 +189,10 @@ export declare class FslInstance extends LitElement {
     private _on_unsubscribes;
     /**
      * Per-instance registry of named hook handlers consulted before
-     * `globalThis` when resolving `<jssm-hook handler="name">`.
+     * `globalThis` when resolving `<fsl-hook handler="name">` /
+     * `<jssm-hook handler="name">`.
      */
-    readonly registry: JssmHookRegistry;
+    readonly registry: FslHookRegistry;
     /**
      * Descriptors for hooks this WC installed at connect time.
      */

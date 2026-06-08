@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { sm } from '../jssm.js';
-import { install_bindings } from './jssm_bind_wc.js';
-import { build_hook_descriptor, parse_hook_element, wrap_user_handler, } from './jssm_hook_wc.js';
+import { install_bindings } from './fsl_bind_wc.js';
+import { build_hook_descriptor, parse_hook_element, wrap_user_handler, } from './fsl_hook_wc.js';
 import { closest_wc } from './wc_tag_helpers.js';
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
@@ -291,7 +291,7 @@ export class FslInstance extends LitElement {
          */
         this._machine = undefined;
         /**
-         * Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`
+         * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`
          * projections.  Every entry must be invoked exactly once during
          * {@link disconnectedCallback}.
          */
@@ -304,7 +304,8 @@ export class FslInstance extends LitElement {
         this._on_unsubscribes = [];
         /**
          * Per-instance registry of named hook handlers consulted before
-         * `globalThis` when resolving `<jssm-hook handler="name">`.
+         * `globalThis` when resolving `<fsl-hook handler="name">` /
+         * `<jssm-hook handler="name">`.
          */
         this.registry = new Map();
         /**

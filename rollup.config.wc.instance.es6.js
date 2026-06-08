@@ -44,10 +44,10 @@ function externalize_jssm_core_as_subpath() {
 }
 
 /**
- * Rollup plugin that rewrites the define build's `'./jssm_instance_wc.js'`
+ * Rollup plugin that rewrites the define build's `'./fsl_instance_wc.js'`
  * import (the TypeScript-emitted sibling source filename) to the dist-side
  * filename `'./instance.js'`, since the class build is emitted as
- * `dist/wc/instance.js`, not `dist/wc/jssm_instance_wc.js`.
+ * `dist/wc/instance.js`, not `dist/wc/fsl_instance_wc.js`.
  *
  * @returns {import('rollup').Plugin}
  */
@@ -55,7 +55,7 @@ function externalize_class_build_as_instance_js() {
   return {
     name: 'externalize-class-build-as-instance-js',
     resolveId(source) {
-      if (source === './jssm_instance_wc.js') {
+      if (source === './fsl_instance_wc.js') {
         return { id: './instance.js', external: true };
       }
       return null;
@@ -65,12 +65,12 @@ function externalize_class_build_as_instance_js() {
 
 const config = [{
 
-  input: 'dist/es6/wc/jssm_instance_wc.js',
+  input: 'dist/es6/wc/fsl_instance_wc.js',
 
   output: {
     file   : 'dist/wc/instance.js',
     format : 'es',
-    name   : 'jssm_instance_wc',
+    name   : 'fsl_instance_wc',
   },
 
   external : sharedExternal,
@@ -78,12 +78,12 @@ const config = [{
 
 }, {
 
-  input: 'dist/es6/wc/jssm_instance_wc.define.js',
+  input: 'dist/es6/wc/fsl_instance_wc.define.js',
 
   output: {
     file   : 'dist/wc/instance.define.js',
     format : 'es',
-    name   : 'jssm_instance_wc_define',
+    name   : 'fsl_instance_wc_define',
   },
 
   // The define build externalizes the class build so it imports at runtime
