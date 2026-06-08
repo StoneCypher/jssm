@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Acyclic flow · fsl.tools cookbook</title>
+<meta name="description" content="A one-way pipeline with a terminal state. Once you&#39;ve shipped, you&#39;ve shipped — there&#39;s no going back."/>
+<link rel="stylesheet" href="cookbook.css"/>
+</head>
+<body>
+
+<header class="cb-nav-bar"><div class="cb-nav-inner">
+  <a class="cb-brand" href="../index.html">fsl<span class="dot">.</span>tools</a>
+  <nav class="cb-nav-links">
+    <a href="../index.html#install">Install</a>
+    <a href="index.html">Cookbook</a>
+    <a href="../index.html#learn">Learn</a>
+    <a href="../index.html#community">Community</a>
+  </nav>
+</div></header>
+
+<div class="cb-page">
+  <article>
+    <div class="cb-eyebrow">
+      <span class="cat">// Patterns</span>
+      <span class="num">r06</span>
+    </div>
+    <h1 class="cb-title">Acyclic flow</h1>
+    <p class="cb-problem">A one-way pipeline with a terminal state. Once you&#39;ve shipped, you&#39;ve shipped — there&#39;s no going back.</p>
+    <nav class="cb-tags"><a class="cb-tag" href="index.html?tag=pipeline">pipeline</a><a class="cb-tag" href="index.html?tag=terminal">terminal</a><a class="cb-tag" href="index.html?tag=orders">orders</a></nav>
+    
+
+    <section id="sec-blocks" class="cb-section">
+      <h2>Code</h2>
+      
+      <figure class="cb-block">
+        <figcaption class="cb-block-head"><span>order.fsl</span></figcaption>
+        <pre class="cb-pre"><code><span style="color:#c4ae5a">const</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">order</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">=</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde">sm</span><span style="color:#c9cfde">`</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">cart</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c4ae5a">&#39;checkout&#39;</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">→</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">paying</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">paying</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c4ae5a">&#39;authorize&#39;</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">→</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">packed</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">packed</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c4ae5a">&#39;ship&#39;</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">→</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">shipped</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">shipped</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c4ae5a">&#39;deliver&#39;</span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">→</span><span style="color:#c9cfde"> </span><span style="color:#5fbeb1">delivered</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde">`</span><span style="color:#c9cfde">;</span><span style="color:#c9cfde">
+</span><span style="color:#c9cfde">
+</span><span style="color:#c294c2">// no edge leaves `delivered` — terminal by construction.</span><span style="color:#c9cfde">
+</span></code></pre>
+      </figure>
+    
+    </section>
+
+    
+    <section id="sec-note" class="cb-section"><h2>Notes</h2><p class="cb-note">Audit the receipts later by walking the hook log; you&#39;ll never see a delivered order rewind, because there&#39;s no syntax for it.</p></section>
+
+    <nav class="cb-prevnext">
+      <span></span>
+      <a class="cb-nav next" href="patterns-auth.html"><span class="cb-nav-label">Next →</span><span class="cb-nav-title">Auth flow</span></a>
+    </nav>
+  </article>
+
+  <aside class="cb-toc">
+    <div class="cb-toc-head">// on this page</div>
+    <ul><li><a href="#sec-blocks">Code</a></li><li><a href="#sec-note">Notes</a></li></ul>
+  </aside>
+</div>
+
+<footer class="cb-footer">
+  <a href="index.html">← All recipes</a>
+</footer>
+
+<script>
+  // Sticky-TOC active link based on scroll position.
+  (function () {
+    const links = [...document.querySelectorAll('.cb-toc a')];
+    const targets = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    function onScroll() {
+      let cur = targets[0];
+      for (const t of targets) if (t.getBoundingClientRect().top < 140) cur = t;
+      links.forEach(a => a.classList.toggle('active', cur && a.getAttribute('href') === '#' + cur.id));
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+</script>
+</body>
+</html>
