@@ -542,6 +542,7 @@ Each is a `keyword : value;` line at top level.
 |------------------------|-----------------------|
 | `fsl_version`          | `SemVer`              |
 | `machine_name`         | `Label`               |
+| `npm_name`             | `Label`               |
 | `machine_author`       | `LabelOrLabelList`    |
 | `machine_contributor`  | `LabelOrLabelList`    |
 | `machine_comment`      | `LabelOrLabelList`    |

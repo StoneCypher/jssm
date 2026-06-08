@@ -526,6 +526,7 @@ type JssmGenericConfig<StateType, DataType> = {
   machine_license?               : string,   // TODO FIXME COMEBACK
   machine_name?                  : string,
   machine_version?               : string,   // TODO FIXME COMEBACK
+  npm_name?                      : string,
 
   fsl_version?                   : string,   // TODO FIXME COMEBACK
 

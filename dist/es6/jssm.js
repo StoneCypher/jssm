@@ -199,7 +199,7 @@ function state_style_condense(jssk, machine) {
  */
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         this._time_source = () => new Date().getTime();
         this._create_started = this._time_source();
         this._instance_name = instance_name;
@@ -222,6 +222,7 @@ class Machine {
         this._machine_license = machine_license;
         this._machine_name = machine_name;
         this._machine_version = machine_version;
+        this._npm_name = npm_name;
         this._raw_state_declaration = state_declaration || [];
         this._fsl_version = fsl_version;
         this._arrange_declaration = arrange_declaration;
@@ -966,6 +967,14 @@ class Machine {
      */
     machine_name() {
         return this._machine_name;
+    }
+    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+     *  Returns `undefined` when not present.
+     *  @returns The npm package name string, or `undefined`.
+     *  @see machine_name
+     */
+    npm_name() {
+        return this._npm_name;
     }
     /** Get the machine's version string.  Set via the FSL `machine_version` directive.
      *  @returns The version string.

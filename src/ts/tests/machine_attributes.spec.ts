@@ -33,6 +33,28 @@ describe('machine_name', () => {
 
 
 
+describe('npm_name', () => {
+
+  test('atom', () =>
+    expect(() => { const _foo = sm`npm_name: mypackage; a->b;`; })
+      .not.toThrow() );
+
+  test('quoted string', () =>
+    expect(() => { const _foo = sm`npm_name: "my-package"; a->b;`; })
+      .not.toThrow() );
+
+  test('retval correct', () =>
+    expect(sm`npm_name: testval; a->b;`.npm_name() )
+      .toBe('testval') );
+
+  test('absent → undefined', () =>
+    expect(sm`a->b;`.npm_name())
+      .toBeUndefined() );
+
+});
+
+
+
 describe('machine_language', () => {
 
   const eachTest = (name, lang) => {

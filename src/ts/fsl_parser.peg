@@ -1013,6 +1013,9 @@ MachineDefinition
 MachineName
   = WS? "machine_name"        WS? ":" WS? value:Label                WS? ";" WS? { return { key: "machine_name", value }; }
 
+NpmName
+  = WS? "npm_name"            WS? ":" WS? value:Label                WS? ";" WS? { return { key: "npm_name", value }; }
+
 MachineReference
   = WS? "machine_reference"   WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_reference", value }; }
 
@@ -1044,6 +1047,7 @@ DotPreamble
 MachineAttribute "machine attribute"
   = FslVersion
   / MachineName
+  / NpmName
   / MachineAuthor
   / MachineContributor
   / MachineComment

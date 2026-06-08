@@ -322,6 +322,7 @@ class Machine<mDT> {
   _machine_license?       : string;
   _machine_name?          : string;
   _machine_version?       : string;
+  _npm_name?              : string;
   _fsl_version?           : string;
   _raw_state_declaration? : Array<Object>;
   _state_declarations     : Map<StateType, JssmStateDeclaration>;
@@ -458,6 +459,7 @@ class Machine<mDT> {
     machine_license,
     machine_name,
     machine_version,
+    npm_name,
     state_declaration,
     property_definition,
     state_property,
@@ -514,6 +516,7 @@ class Machine<mDT> {
     this._machine_license       = machine_license;
     this._machine_name          = machine_name;
     this._machine_version       = machine_version;
+    this._npm_name              = npm_name;
     this._raw_state_declaration = state_declaration || [];
     this._fsl_version           = fsl_version;
 
@@ -1468,6 +1471,15 @@ class Machine<mDT> {
    */
   machine_name(): string {
     return this._machine_name;
+  }
+
+  /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+   *  Returns `undefined` when not present.
+   *  @returns The npm package name string, or `undefined`.
+   *  @see machine_name
+   */
+  npm_name(): string {
+    return this._npm_name;
   }
 
   /** Get the machine's version string.  Set via the FSL `machine_version` directive.
