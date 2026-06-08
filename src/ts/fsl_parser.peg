@@ -1136,45 +1136,93 @@ PropertyVal
 
 
 SdStateLabel "label"
-  = WS? "label"            WS? ":" WS? value:Label     WS? ";" WS? { return { key:'state-label', value }; }
+  = WS? "label"            WS? ":" WS? value:Label     WS? ";" WS? {
+      const node: any = { key:'state-label', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateColor "color"
-  = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? { return { key:'color', value }; }
+  = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? {
+      const node: any = { key:'color', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateTextColor "text color"
-  = WS? "text-color"       WS? ":" WS? value:Color     WS? ";" WS? { return { key:'text-color', value }; }
+  = WS? "text-color"       WS? ":" WS? value:Color     WS? ";" WS? {
+      const node: any = { key:'text-color', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateBackgroundColor "background color"
-  = WS? "background-color" WS? ":" WS? value:Color     WS? ";" WS? { return { key:'background-color', value }; }
+  = WS? "background-color" WS? ":" WS? value:Color     WS? ";" WS? {
+      const node: any = { key:'background-color', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateBorderColor "border color"
-  = WS? "border-color"     WS? ":" WS? value:Color     WS? ";" WS? { return { key:'border-color', value }; }
+  = WS? "border-color"     WS? ":" WS? value:Color     WS? ";" WS? {
+      const node: any = { key:'border-color', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateShape "shape"
-  = WS? "shape"            WS? ":" WS? value:GvizShape WS? ";" WS? { return { key:'shape', value }; }
+  = WS? "shape"            WS? ":" WS? value:GvizShape WS? ";" WS? {
+      const node: any = { key:'shape', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateCorners "corners"
-  = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? { return { key:'corners', value }; }
+  = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? {
+      const node: any = { key:'corners', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateLineStyle "linestyle"
-  = WS? "line-style"       WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
-  / WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
+  = WS? "line-style"       WS? ":" WS? value:LineStyle WS? ";" WS? {
+      const node: any = { key:'line-style', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? {
+      const node: any = { key:'line-style', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 SdStateImage "image"
-  = WS? "image"            WS? ":" WS? value:String    WS? ";" WS? { return { key:'image', value }; }
+  = WS? "image"            WS? ":" WS? value:String    WS? ";" WS? {
+      const node: any = { key:'image', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateUrl "url"
-  = WS? "url"              WS? ":" WS? value:String    WS? ";" WS? { return { key:'url', value }; }
+  = WS? "url"              WS? ":" WS? value:String    WS? ";" WS? {
+      const node: any = { key:'url', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 SdStateProperty "state property"
   = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
-    return { key: 'state_property', name, value }
-  }
+      const node: any = { key: 'state_property', name, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
   / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required' WS? ";" WS? {
-    return { key: 'state_property', name, value, required: true }
-  }
+      const node: any = { key: 'state_property', name, value, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 StateDeclarationItem
@@ -1194,7 +1242,11 @@ StateDeclarationDesc
   = "{" WS? items:StateDeclarationItem* WS? "}" { return items; }
 
 StateDeclaration
-  = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
+  = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? {
+      const node: any = { key:'state_declaration', name, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 

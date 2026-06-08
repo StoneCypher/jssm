@@ -1747,54 +1747,102 @@ function peg$parse(input, options) {
       peg$c1461 = peg$otherExpectation("machine attribute"),
       peg$c1462 = "label",
       peg$c1463 = peg$literalExpectation("label", false),
-      peg$c1464 = function(value) { return { key:'state-label', value }; },
+      peg$c1464 = function(value) {
+            const node: any = { key:'state-label', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1465 = "color",
       peg$c1466 = peg$literalExpectation("color", false),
-      peg$c1467 = function(value) { return { key:'color', value }; },
+      peg$c1467 = function(value) {
+            const node: any = { key:'color', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1468 = peg$otherExpectation("text color"),
       peg$c1469 = "text-color",
       peg$c1470 = peg$literalExpectation("text-color", false),
-      peg$c1471 = function(value) { return { key:'text-color', value }; },
+      peg$c1471 = function(value) {
+            const node: any = { key:'text-color', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1472 = peg$otherExpectation("background color"),
       peg$c1473 = "background-color",
       peg$c1474 = peg$literalExpectation("background-color", false),
-      peg$c1475 = function(value) { return { key:'background-color', value }; },
+      peg$c1475 = function(value) {
+            const node: any = { key:'background-color', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1476 = peg$otherExpectation("border color"),
       peg$c1477 = "border-color",
       peg$c1478 = peg$literalExpectation("border-color", false),
-      peg$c1479 = function(value) { return { key:'border-color', value }; },
+      peg$c1479 = function(value) {
+            const node: any = { key:'border-color', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1480 = peg$otherExpectation("shape"),
       peg$c1481 = "shape",
       peg$c1482 = peg$literalExpectation("shape", false),
-      peg$c1483 = function(value) { return { key:'shape', value }; },
+      peg$c1483 = function(value) {
+            const node: any = { key:'shape', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1484 = peg$otherExpectation("corners"),
       peg$c1485 = "corners",
       peg$c1486 = peg$literalExpectation("corners", false),
-      peg$c1487 = function(value) { return { key:'corners', value }; },
+      peg$c1487 = function(value) {
+            const node: any = { key:'corners', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1488 = peg$otherExpectation("linestyle"),
-      peg$c1489 = function(value) { return { key:'line-style', value }; },
+      peg$c1489 = function(value) {
+            const node: any = { key:'line-style', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1490 = "linestyle",
       peg$c1491 = peg$literalExpectation("linestyle", false),
       peg$c1492 = peg$otherExpectation("image"),
       peg$c1493 = "image",
       peg$c1494 = peg$literalExpectation("image", false),
-      peg$c1495 = function(value) { return { key:'image', value }; },
+      peg$c1495 = function(value) {
+            const node: any = { key:'image', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1496 = peg$otherExpectation("url"),
       peg$c1497 = "url",
       peg$c1498 = peg$literalExpectation("url", false),
-      peg$c1499 = function(value) { return { key:'url', value }; },
+      peg$c1499 = function(value) {
+            const node: any = { key:'url', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1500 = peg$otherExpectation("state property"),
       peg$c1501 = "property",
       peg$c1502 = peg$literalExpectation("property", false),
       peg$c1503 = function(name, value) {
-          return { key: 'state_property', name, value }
-        },
+            const node: any = { key: 'state_property', name, value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1504 = "required",
       peg$c1505 = peg$literalExpectation("required", false),
       peg$c1506 = function(name, value) {
-          return { key: 'state_property', name, value, required: true }
-        },
-      peg$c1507 = function(name, value) { return { key:'state_declaration', name, value }; },
+            const node: any = { key: 'state_property', name, value, required: true };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
+      peg$c1507 = function(name, value) {
+            const node: any = { key:'state_declaration', name, value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1508 = "&",
       peg$c1509 = peg$literalExpectation("&", false),
       peg$c1510 = function(name, value) { return { key:'named_list', name, value }; },
