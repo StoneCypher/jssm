@@ -186,3 +186,37 @@ describe('parser source locations — color value sub-spans', () => {
   });
 
 });
+
+describe('parser source locations — located output minus loc equals default', () => {
+
+  const stripLoc = (value: unknown): unknown => {
+    if (Array.isArray(value)) { return value.map(stripLoc); }
+    if (value && typeof value === 'object') {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        if (k === 'loc' || k.endsWith('_loc')) { continue; }
+        out[k] = stripLoc(v);
+      }
+      return out;
+    }
+    return value;
+  };
+
+  const sources = [
+    'a -> b;',
+    'machine_name: foo; a -> b;',
+    'state alpha: { color: red; }; alpha -> beta;',
+    "a 'go' -> 'stop' b;",
+    '&group: [a b c]; a -> b; arrange [a b];',
+    'graph_layout: dot; a -> b;'
+  ];
+
+  for (const src of sources) {
+    test(`stripping loc reproduces default parse: ${src}`, () => {
+      const located = jssm.parse(src, { locations: true });
+      const plain   = jssm.parse(src);
+      expect(stripLoc(located)).toEqual(plain);
+    });
+  }
+
+});
