@@ -783,12 +783,13 @@ Subexp
   = WS? pre   : ArrowDecorations
     WS? arrow : Arrow
     WS? post  : ArrowDecorations
-    WS? label : ArrowTarget
+    WS? label : ( l:ArrowTarget { return options.locations ? { __v: l, __loc: location() } : l; } )
     WS? tail  : Subexp? {
 
       // Reminder: remove this type and the one in Exp if you want to work in pegjs online
       // TODO: properly type this
-      const base: any = { kind: arrow, to: label };
+      const toVal = options.locations ? label.__v : label;
+      const base: any = { kind: arrow, to: toVal };
 
       // AST field-name conventions inherited from the original
       // fixed-order rule:
@@ -818,7 +819,7 @@ Subexp
 
       if (tail) { base.se = tail; }
 
-      if (options.locations) { base.loc = location(); }
+      if (options.locations) { base.loc = location(); base.to_loc = label.__loc; }
 
       return base;
 
@@ -829,12 +830,14 @@ Subexp
 
 
 Exp
-  = label:ArrowTarget se:Subexp WS? ';' WS? {
+  = label:( l:ArrowTarget { return options.locations ? { __v: l, __loc: location() } : l; } )
+    se:Subexp WS? ';' WS? {
     // Reminder: remove this type and the one in subexp if you want to work in pegjs online
     // TODO: properly type this
-    const base: any = { key: 'transition', from: label };
+    const fromVal = options.locations ? label.__v : label;
+    const base: any = { key: 'transition', from: fromVal };
     if (se) { base.se = se; }
-    if (options.locations) { base.loc = location(); }
+    if (options.locations) { base.loc = location(); base.from_loc = label.__loc; }
     return base;
   }
 

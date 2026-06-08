@@ -114,4 +114,11 @@ describe('parser source locations — sub-spans', () => {
     expect(tree[0].name_loc).toBeUndefined();
   });
 
+  test('transition from/to sub-spans pinpoint the states', () => {
+    const src  = 'alpha -> beta;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].from_loc!)).toBe('alpha');
+    expect(slice(src, tree[0].se!.to_loc!)).toBe('beta');
+  });
+
 });
