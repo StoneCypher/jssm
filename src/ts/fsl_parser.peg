@@ -701,6 +701,34 @@ LabelOrLabelList
   = LabelList
   / Label
 
+// A bare reference to a named group, written `&Name`.  Used wherever a
+// group may stand in for a state: as a transition source/target, as a
+// `state` declaration subject, and as a hook subject.  Distinct from the
+// `&Name : [...]` declaration form (NamedList), which defines a group.
+GroupRef "group reference"
+  = "&" WS? name:Label { return { key: 'group_ref', name }; }
+
+// A single member inside a group-membership list.  Members are ordered.
+// A `&child` member nests the child group (structure-preserving); a
+// `...&child` member spreads the child's members in flat (identity-
+// erasing).  A bare label is an ordinary state member.
+GroupMember
+  = "..." WS? "&" WS? name:Label { return { kind: 'group', name, mode: 'spread' }; }
+  /            "&" WS? name:Label { return { kind: 'group', name, mode: 'nest'   }; }
+  /            name:Label         { return { kind: 'state', name             }; }
+
+// The membership list for a NamedList declaration.  Backward-compatible:
+// when every member is a plain label the result is a bare `string[]`
+// (the historical NamedList value shape, relied on across the suite); as
+// soon as any member is a `&`/`...&` group reference the whole list is
+// returned as ordered member objects so nest/spread structure survives.
+GroupMemberList
+  = "[" WS? members:(GroupMember WS?)* "]" {
+      const items = members.map(m => m[0]);
+      const has_group = items.some(m => m.kind === 'group');
+      return has_group ? items : items.map(m => m.name);
+    }
+
 Stripe
   = '+|' n:$(NonZeroDigit DecimalDigit*) { return { key: 'stripe', value:      parseInt(n, 10) }; }
   / '-|' n:$(NonZeroDigit DecimalDigit*) { return { key: 'stripe', value: -1 * parseInt(n, 10) }; }
@@ -714,6 +742,7 @@ ArrowTarget
   = Stripe
   / Cycle
   / LabelList
+  / GroupRef
   / Label
 
 
@@ -909,9 +938,26 @@ GraphDefaultEdgeColor "graph default edge color"
   = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
   / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
 
+// The shared style-items body for the `transition: {}` and `graph: {}`
+// default-config blocks.  It accepts the same per-state style items as a
+// `state: {}` block (so `color: red;` parses), plus the graph-default
+// edge-color line (`edge-color`/`edge_color`) and the legacy
+// whargarbl/todo TransitionItem stubs — all backward-compatible.
+ConfigStyleItems
+  = GraphDefaultEdgeColor
+  / items:(StateDeclarationItem / TransitionItem)+ { return items; }
+
 ConfigTransition
-  = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
-    return { config_kind: "transition", config_items: transition_items || [] };
+  = WS? "transition" WS? ":" WS? "{" WS? items:ConfigStyleItems? WS? "};" WS? {
+    return { key: "default_transition_config", value: items || [] };
+  }
+
+// `graph: { ... };` — graph-scope styling defaults, the Graphviz
+// *graph*-scope mirror of `state:` (node) and `transition:` (edge).
+// Distinct from `start_states`/`end_states`, which are structural config.
+ConfigGraph
+  = WS? "graph" WS? ":" WS? "{" WS? items:ConfigStyleItems? WS? "};" WS? {
+    return { key: "default_graph_config", value: items || [] };
   }
 
 
@@ -951,6 +997,7 @@ Config "configuration"
   / ConfigStartNodes
   / ConfigEndNodes
   / ConfigTransition
+  / ConfigGraph
   / ConfigAction
   / ConfigAnyState
   / ConfigValidation
@@ -1131,14 +1178,33 @@ StateDeclarationDesc
   = "{" WS? items:StateDeclarationItem* WS? "}" { return items; }
 
 StateDeclaration
-  = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
+  = WS? "state" WS name:GroupRef WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
+  / WS? "state" WS name:Label    WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
 
 
 
 
 
 NamedList
-  = WS? "&" WS? name:Label WS? ":" WS? value:LabelOrLabelList WS? ";" WS? { return { key:'named_list', name, value }; }
+  = WS? "&" WS? name:Label WS? ":" WS? value:GroupMemberList WS? ";" WS? { return { key:'named_list', name, value }; }
+  / WS? "&" WS? name:Label WS? ":" WS? value:Label           WS? ";" WS? { return { key:'named_list', name, value }; }
+
+
+
+
+// The boundary event a hook listens for: `enter` fires when a transition
+// crosses into the subject's boundary, `exit` when it crosses out.
+HookEvent "hook event (enter/exit)"
+  = "enter"
+  / "exit"
+
+// `on <enter|exit> <&group|state> do '<action>';` — registers a boundary
+// hook on a group reference or a plain state.  The action is an
+// ActionLabel (a quoted action name).
+HookDeclaration "hook declaration"
+  = WS? "on" WS event:HookEvent WS subject:(GroupRef / Label) WS "do" WS action:ActionLabel WS? ";" WS? {
+      return { key: 'hook_decl', event, subject, action };
+    }
 
 
 
@@ -1178,7 +1244,8 @@ ArrangeDeclaration "arrange declaration"
 
 
 Term
-  = Exp
+  = HookDeclaration
+  / Exp
   / StateDeclaration
   / ArrangeDeclaration
   / NamedList

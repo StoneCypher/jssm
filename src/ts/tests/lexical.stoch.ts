@@ -591,6 +591,11 @@ describe('§2 Atom — AtomLetter (rest) adds + ( ) & # @', () => {
 
   const REST_ONLY = ['+', '(', ')', '&', '#', '@'] as const;
 
+  // Of those, a leading `&` is no longer a parse error: the overlapping-
+  // state-groups feature makes `&Name` a GroupRef in source position.
+  // The remaining five still fail as an atom's leading character.
+  const REST_ONLY_NONLEADING = ['+', '(', ')', '#', '@'] as const;
+
   test('Each rest-only char concatenates onto a leading atom char', () => {
 
     for (const c of REST_ONLY) {
@@ -601,11 +606,20 @@ describe('§2 Atom — AtomLetter (rest) adds + ( ) & # @', () => {
 
   });
 
-  test('Each rest-only char fails as the leading character of an atom', () => {
+  test('Each non-`&` rest-only char fails as the leading character of an atom', () => {
 
-    for (const c of REST_ONLY) {
+    for (const c of REST_ONLY_NONLEADING) {
       expect(() => parse_transition(`${c}a`, 'b')).toThrow();
     }
+
+  });
+
+  test('A leading `&` parses as a GroupRef source, not an atom', () => {
+
+    // `&busy -> b;` is now a transition whose source is a group
+    // reference `{ key:'group_ref', name:'busy' }`, not a parse error.
+    const tree = jssm.parse('&busy -> b;') as Array<{ from: unknown }>;
+    expect(tree[0].from).toEqual({ key: 'group_ref', name: 'busy' });
 
   });
 
