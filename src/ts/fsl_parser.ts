@@ -13720,26 +13720,6 @@ function peg$parse(input, options) {
     return s0;
   }
 
-  function peg$parseTransitionItems() {
-    var s0, s1;
-
-    s0 = peg$parseGraphDefaultEdgeColor();
-    if (s0 === peg$FAILED) {
-      s0 = [];
-      s1 = peg$parseTransitionItem();
-      if (s1 !== peg$FAILED) {
-        while (s1 !== peg$FAILED) {
-          s0.push(s1);
-          s1 = peg$parseTransitionItem();
-        }
-      } else {
-        s0 = peg$FAILED;
-      }
-    }
-
-    return s0;
-  }
-
   function peg$parseGraphDefaultEdgeColor() {
     var s0, s1, s2, s3, s4, s5, s6, s7, s8, s9;
 

@@ -930,10 +930,6 @@ TransitionKey
 TransitionItem
   = key:TransitionKey ":" value:Label ";" { return { key, value }; }
 
-TransitionItems
-  = GraphDefaultEdgeColor
-  / TransitionItem+
-
 GraphDefaultEdgeColor "graph default edge color"
   = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
   / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
