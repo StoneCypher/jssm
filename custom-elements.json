@@ -4,7 +4,7 @@
   "modules": [
     {
       "kind": "javascript-module",
-      "path": "src/ts/wc/jssm_bind_wc.ts",
+      "path": "src/ts/wc/fsl_bind_wc.ts",
       "declarations": [
         {
           "kind": "function",
@@ -119,8 +119,8 @@
         },
         {
           "kind": "class",
-          "description": "`<jssm-bind>` configuration tag.  The element itself is invisible —\r\nit carries `selector`, `source`, and optional `target` attributes\r\nthat the parent `<jssm-instance>` reads during its connection\r\nlifecycle to wire up a machine-to-DOM binding.\r\n\r\nRegistering it as a `LitElement` (rather than leaving it as a generic\r\nunknown tag) gives it a stable upgrade timing, a `display: none`\r\ndefault style, and a proper place in the custom-elements registry so\r\n`customElements.get('jssm-bind')` resolves.",
-          "name": "JssmBind",
+          "description": "`<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is\r\ninvisible — it carries `selector`, `source`, and optional `target`\r\nattributes that the parent `<fsl-instance>` reads during its connection\r\nlifecycle to wire up a machine-to-DOM binding.\r\n\r\nRegistering it as a `LitElement` (rather than leaving it as a generic\r\nunknown tag) gives it a stable upgrade timing, a `display: none`\r\ndefault style, and a proper place in the custom-elements registry so\r\n`customElements.get('fsl-bind')` resolves.",
+          "name": "FslBind",
           "members": [],
           "attributes": [
             {
@@ -140,7 +140,7 @@
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "jssm-bind",
+          "tagName": "fsl-bind",
           "customElement": true
         }
       ],
@@ -150,7 +150,7 @@
           "name": "walk_path",
           "declaration": {
             "name": "walk_path",
-            "module": "src/ts/wc/jssm_bind_wc.ts"
+            "module": "src/ts/wc/fsl_bind_wc.ts"
           }
         },
         {
@@ -158,7 +158,7 @@
           "name": "resolve_binding",
           "declaration": {
             "name": "resolve_binding",
-            "module": "src/ts/wc/jssm_bind_wc.ts"
+            "module": "src/ts/wc/fsl_bind_wc.ts"
           }
         },
         {
@@ -166,7 +166,7 @@
           "name": "set_on_element",
           "declaration": {
             "name": "set_on_element",
-            "module": "src/ts/wc/jssm_bind_wc.ts"
+            "module": "src/ts/wc/fsl_bind_wc.ts"
           }
         },
         {
@@ -174,22 +174,22 @@
           "name": "install_bindings",
           "declaration": {
             "name": "install_bindings",
-            "module": "src/ts/wc/jssm_bind_wc.ts"
+            "module": "src/ts/wc/fsl_bind_wc.ts"
           }
         },
         {
           "kind": "js",
-          "name": "JssmBind",
+          "name": "FslBind",
           "declaration": {
-            "name": "JssmBind",
-            "module": "src/ts/wc/jssm_bind_wc.ts"
+            "name": "FslBind",
+            "module": "src/ts/wc/fsl_bind_wc.ts"
           }
         }
       ]
     },
     {
       "kind": "javascript-module",
-      "path": "src/ts/wc/jssm_hook_wc.ts",
+      "path": "src/ts/wc/fsl_hook_wc.ts",
       "declarations": [
         {
           "kind": "function",
@@ -263,7 +263,7 @@
               "name": "registry",
               "optional": true,
               "type": {
-                "text": "JssmHookRegistry"
+                "text": "FslHookRegistry"
               },
               "description": "Optional in-WC registry to consult first."
             }
@@ -316,7 +316,7 @@
               "name": "registry",
               "optional": true,
               "type": {
-                "text": "JssmHookRegistry"
+                "text": "FslHookRegistry"
               },
               "description": "Optional in-WC registry of named handlers."
             }
@@ -335,7 +335,7 @@
             {
               "name": "spec",
               "type": {
-                "text": "JssmHookInstallSpec"
+                "text": "FslHookInstallSpec"
               },
               "description": "The parsed install spec carrying the user handler."
             },
@@ -361,7 +361,7 @@
             {
               "name": "spec",
               "type": {
-                "text": "JssmHookInstallSpec"
+                "text": "FslHookInstallSpec"
               },
               "description": "The parsed install spec."
             },
@@ -382,7 +382,7 @@
           "name": "make_hook_proxy",
           "declaration": {
             "name": "make_hook_proxy",
-            "module": "src/ts/wc/jssm_hook_wc.ts"
+            "module": "src/ts/wc/fsl_hook_wc.ts"
           }
         },
         {
@@ -390,7 +390,7 @@
           "name": "compile_inline_body",
           "declaration": {
             "name": "compile_inline_body",
-            "module": "src/ts/wc/jssm_hook_wc.ts"
+            "module": "src/ts/wc/fsl_hook_wc.ts"
           }
         },
         {
@@ -398,7 +398,7 @@
           "name": "resolve_named_handler",
           "declaration": {
             "name": "resolve_named_handler",
-            "module": "src/ts/wc/jssm_hook_wc.ts"
+            "module": "src/ts/wc/fsl_hook_wc.ts"
           }
         },
         {
@@ -406,7 +406,7 @@
           "name": "normalize_hook_kind",
           "declaration": {
             "name": "normalize_hook_kind",
-            "module": "src/ts/wc/jssm_hook_wc.ts"
+            "module": "src/ts/wc/fsl_hook_wc.ts"
           }
         },
         {
@@ -414,7 +414,7 @@
           "name": "parse_hook_element",
           "declaration": {
             "name": "parse_hook_element",
-            "module": "src/ts/wc/jssm_hook_wc.ts"
+            "module": "src/ts/wc/fsl_hook_wc.ts"
           }
         },
         {
@@ -422,7 +422,7 @@
           "name": "wrap_user_handler",
           "declaration": {
             "name": "wrap_user_handler",
-            "module": "src/ts/wc/jssm_hook_wc.ts"
+            "module": "src/ts/wc/fsl_hook_wc.ts"
           }
         },
         {
@@ -430,14 +430,14 @@
           "name": "build_hook_descriptor",
           "declaration": {
             "name": "build_hook_descriptor",
-            "module": "src/ts/wc/jssm_hook_wc.ts"
+            "module": "src/ts/wc/fsl_hook_wc.ts"
           }
         }
       ]
     },
     {
       "kind": "javascript-module",
-      "path": "src/ts/wc/jssm_instance_wc.ts",
+      "path": "src/ts/wc/fsl_instance_wc.ts",
       "declarations": [
         {
           "kind": "variable",
@@ -547,7 +547,7 @@
         {
           "kind": "class",
           "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<jssm-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
-          "name": "JssmInstance",
+          "name": "FslInstance",
           "cssProperties": [
             {
               "description": "The machine's current state name as a CSS string token.",
@@ -610,11 +610,11 @@
               "kind": "field",
               "name": "_unsubs",
               "type": {
-                "text": "JssmBindUnsub[]"
+                "text": "FslBindUnsub[]"
               },
               "privacy": "private",
               "default": "[]",
-              "description": "Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`\r\nprojections.  Every entry must be invoked exactly once during\r\ndisconnectedCallback."
+              "description": "Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`\r\nprojections.  Every entry must be invoked exactly once during\r\ndisconnectedCallback."
             },
             {
               "kind": "field",
@@ -630,11 +630,11 @@
               "kind": "field",
               "name": "registry",
               "type": {
-                "text": "JssmHookRegistry"
+                "text": "FslHookRegistry"
               },
               "readonly": true,
               "default": "new Map()",
-              "description": "Per-instance registry of named hook handlers consulted before\r\n`globalThis` when resolving `<jssm-hook handler=\"name\">`."
+              "description": "Per-instance registry of named hook handlers consulted before\r\n`globalThis` when resolving `<fsl-hook handler=\"name\">` /\r\n`<jssm-hook handler=\"name\">`."
             },
             {
               "kind": "field",
@@ -802,7 +802,7 @@
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "jssm-instance",
+          "tagName": "fsl-instance",
           "customElement": true
         }
       ],
@@ -812,7 +812,7 @@
           "name": "JSSM_ON_EVENT_NAMES",
           "declaration": {
             "name": "JSSM_ON_EVENT_NAMES",
-            "module": "src/ts/wc/jssm_instance_wc.ts"
+            "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
@@ -820,7 +820,7 @@
           "name": "parse_jssm_on_element",
           "declaration": {
             "name": "parse_jssm_on_element",
-            "module": "src/ts/wc/jssm_instance_wc.ts"
+            "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
@@ -828,7 +828,7 @@
           "name": "jssm_handler_registry",
           "declaration": {
             "name": "jssm_handler_registry",
-            "module": "src/ts/wc/jssm_instance_wc.ts"
+            "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
@@ -836,7 +836,7 @@
           "name": "resolve_named_handler",
           "declaration": {
             "name": "resolve_named_handler",
-            "module": "src/ts/wc/jssm_instance_wc.ts"
+            "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
@@ -844,7 +844,7 @@
           "name": "compile_inline_body",
           "declaration": {
             "name": "compile_inline_body",
-            "module": "src/ts/wc/jssm_instance_wc.ts"
+            "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
@@ -852,22 +852,22 @@
           "name": "resolve_fsl_source",
           "declaration": {
             "name": "resolve_fsl_source",
-            "module": "src/ts/wc/jssm_instance_wc.ts"
+            "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         },
         {
           "kind": "js",
-          "name": "JssmInstance",
+          "name": "FslInstance",
           "declaration": {
-            "name": "JssmInstance",
-            "module": "src/ts/wc/jssm_instance_wc.ts"
+            "name": "FslInstance",
+            "module": "src/ts/wc/fsl_instance_wc.ts"
           }
         }
       ]
     },
     {
       "kind": "javascript-module",
-      "path": "src/ts/wc/jssm_viz_wc.ts",
+      "path": "src/ts/wc/fsl_viz_wc.ts",
       "declarations": [
         {
           "kind": "function",
@@ -890,8 +890,8 @@
         },
         {
           "kind": "class",
-          "description": "Web component that renders a jssm machine as inline SVG.\r\n\r\nTwo operating modes:\r\n\r\n  1. **Standalone** (no parent `<jssm-instance>` ancestor): render from\r\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\r\n     attribute change.\r\n  2. **Nested** (inside a `<jssm-instance>` ancestor, found via\r\n     `closest('jssm-instance')` at `connectedCallback`): bind to the\r\n     parent's machine and re-render on every `transition` event.  The\r\n     element's own `fsl` attribute is ignored in this mode; supplying it\r\n     emits a `console.warn` for developer feedback.",
-          "name": "JssmViz",
+          "description": "Web component that renders a jssm machine as inline SVG.\r\n\r\nTwo operating modes:\r\n\r\n  1. **Standalone** (no parent `<fsl-instance>` ancestor): render from\r\n     the element's own `fsl=\"\"` attribute / property.  Re-renders on\r\n     attribute change.\r\n  2. **Nested** (inside a `<fsl-instance>` or `<jssm-instance>` ancestor,\r\n     found via `closest_wc(this, 'instance')` at `connectedCallback`):\r\n     bind to the parent's machine and re-render on every `transition`\r\n     event.  The element's own `fsl` attribute is ignored in this mode;\r\n     supplying it emits a `console.warn` for developer feedback.",
+          "name": "FslViz",
           "cssProperties": [
             {
               "description": "Minimum height of the rendered SVG container.",
@@ -937,7 +937,7 @@
               },
               "privacy": "private",
               "default": "null",
-              "description": "Parent `<jssm-instance>` host reference, set in `connectedCallback`\r\nwhen a parent is found.  When non-null the viz is in nested mode and\r\nrenders the parent's machine instead of its own `fsl` attribute."
+              "description": "Parent `<fsl-instance>` (or `<jssm-instance>`) host reference, set in\r\n`connectedCallback` when a parent is found.  When non-null the viz is\r\nin nested mode and renders the parent's machine instead of its own\r\n`fsl` attribute."
             },
             {
               "kind": "field",
@@ -1005,7 +1005,7 @@
             "name": "LitElement",
             "package": "lit"
           },
-          "tagName": "jssm-viz",
+          "tagName": "fsl-viz",
           "customElement": true
         }
       ],
@@ -1015,15 +1015,155 @@
           "name": "normalize_viz_error",
           "declaration": {
             "name": "normalize_viz_error",
-            "module": "src/ts/wc/jssm_viz_wc.ts"
+            "module": "src/ts/wc/fsl_viz_wc.ts"
           }
         },
         {
           "kind": "js",
-          "name": "JssmViz",
+          "name": "FslViz",
           "declaration": {
-            "name": "JssmViz",
-            "module": "src/ts/wc/jssm_viz_wc.ts"
+            "name": "FslViz",
+            "module": "src/ts/wc/fsl_viz_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/wc_tag_helpers.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "wc_suffix_matches",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "tag_name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The element tag name to test (e.g. `\"FSL-VIZ\"`, `\"jssm-viz\"`)."
+            },
+            {
+              "name": "suffix",
+              "type": {
+                "text": "string"
+              },
+              "description": "The suffix to match after the prefix (e.g. `\"viz\"`)."
+            }
+          ],
+          "description": "Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`\n(case-insensitive)."
+        },
+        {
+          "kind": "function",
+          "name": "closest_wc",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "el",
+              "type": {
+                "text": "Element"
+              },
+              "description": "The element to start the search from."
+            },
+            {
+              "name": "suffix",
+              "type": {
+                "text": "string"
+              },
+              "description": "The suffix to match (e.g. `\"instance\"`)."
+            }
+          ],
+          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\n`fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists."
+        },
+        {
+          "kind": "function",
+          "name": "define_with_synonym",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          },
+          "parameters": [
+            {
+              "name": "canonical_tag",
+              "type": {
+                "text": "string"
+              },
+              "description": "The primary tag name (e.g. `\"fsl-instance\"`)."
+            },
+            {
+              "name": "synonym_tag",
+              "type": {
+                "text": "string"
+              },
+              "description": "The alias tag name (e.g. `\"jssm-instance\"`)."
+            },
+            {
+              "name": "CanonicalClass",
+              "type": {
+                "text": "CustomElementConstructor"
+              },
+              "description": "Constructor to register under `canonical_tag`."
+            },
+            {
+              "name": "SynonymClass",
+              "type": {
+                "text": "CustomElementConstructor"
+              },
+              "description": "Constructor to register under `synonym_tag`\n  (must be a distinct class from `CanonicalClass`)."
+            }
+          ],
+          "description": "Registers a canonical custom-element tag and its synonym tag.\n\n`customElements.define` requires a distinct constructor per tag name, so\ncallers pass the canonical class and a thin subclass for the synonym.\nThe function is idempotent: if either tag is already registered it skips\nthat `define` call rather than throwing."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "wc_suffix_matches",
+          "declaration": {
+            "name": "wc_suffix_matches",
+            "module": "src/ts/wc/wc_tag_helpers.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "closest_wc",
+          "declaration": {
+            "name": "closest_wc",
+            "module": "src/ts/wc/wc_tag_helpers.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "define_with_synonym",
+          "declaration": {
+            "name": "define_with_synonym",
+            "module": "src/ts/wc/wc_tag_helpers.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "canonical_tag",
+          "declaration": {
+            "name": "CanonicalClass",
+            "module": "src/ts/wc/wc_tag_helpers.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "synonym_tag",
+          "declaration": {
+            "name": "SynonymClass",
+            "module": "src/ts/wc/wc_tag_helpers.ts"
           }
         }
       ]

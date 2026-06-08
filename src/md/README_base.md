@@ -166,14 +166,14 @@ CDN one-liner (with an import map for `@viz-js/viz`):
 
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
-<jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+<fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
 npm one-liner:
 
 ```ts
 import 'jssm/wc/viz/define';
-// then use <jssm-viz fsl="..."> or its synonym <fsl-viz fsl="..."> anywhere
+// then use <fsl-viz fsl="..."> anywhere; <jssm-viz> is an accepted alias
 ```
 
 Full documentation: [src/doc_md/WebComponents.md](src/doc_md/WebComponents.md).

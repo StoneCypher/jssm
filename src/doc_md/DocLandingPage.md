@@ -182,4 +182,4 @@ Meet your new state machine.
 
 ## See also
 
-- [Web Components](WebComponents.md) — Lit-based reusable widgets (`<jssm-viz>` etc.)
+- [Web Components](WebComponents.md) — Lit-based reusable widgets (`<fsl-viz>` etc.; `<jssm-viz>` accepted as alias)

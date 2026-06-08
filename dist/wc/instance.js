@@ -2,6 +2,47 @@ import { css, LitElement, html } from 'lit';
 import { sm } from 'jssm';
 
 /**
+ * Shared helpers for the dual-prefix (`fsl-` canonical, `jssm-` synonym)
+ * web-component naming convention.  Centralizes the "match either prefix"
+ * rule so it lives in exactly one place.
+ */
+/**
+ * Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`
+ * (case-insensitive).
+ *
+ * @param tag_name - The element tag name to test (e.g. `"FSL-VIZ"`, `"jssm-viz"`).
+ * @param suffix   - The suffix to match after the prefix (e.g. `"viz"`).
+ * @returns `true` when `tag_name` is `fsl-<suffix>` or `jssm-<suffix>`.
+ *
+ * @example
+ * wc_suffix_matches('FSL-VIZ', 'viz');   // true
+ * wc_suffix_matches('jssm-viz', 'viz');  // true
+ * wc_suffix_matches('div', 'viz');       // false
+ * wc_suffix_matches('fsl-vizard', 'viz'); // false — suffix must match exactly
+ */
+function wc_suffix_matches(tag_name, suffix) {
+    const lower = tag_name.toLowerCase();
+    return lower === `fsl-${suffix}` || lower === `jssm-${suffix}`;
+}
+/**
+ * Returns the nearest ancestor of `el` (or `el` itself) whose tag is
+ * `fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists.
+ *
+ * @param el     - The element to start the search from.
+ * @param suffix - The suffix to match (e.g. `"instance"`).
+ * @returns The closest matching ancestor element, or `null`.
+ *
+ * @example
+ * // <fsl-instance><div id="k"></div></fsl-instance>
+ * closest_wc(document.getElementById('k'), 'instance'); // <fsl-instance>
+ *
+ * @see wc_suffix_matches
+ */
+function closest_wc(el, suffix) {
+    return el.closest(`fsl-${suffix}, jssm-${suffix}`);
+}
+
+/**
  * Walk a dotted path into a value.  Used by the `data.path.to.field`
  * variant of {@link resolve_binding}.  Returns `undefined` whenever the
  * traversal would dereference a non-object, missing field, or `null` —
@@ -164,12 +205,13 @@ function install_bindings(host, machine) {
         apply();
         unsubs.push(machine.on('transition', apply));
     }
-    // Form 2: dedicated `<jssm-bind>` configuration tags.  Only direct
-    // children are considered configuration tags for THIS host — nested
-    // `<jssm-instance>` children would have their own bindings handled by
-    // their own component.
-    const config_tags = host.querySelectorAll(':scope > jssm-bind');
-    for (const tag of Array.from(config_tags)) {
+    // Form 2: dedicated `<fsl-bind>` / `<jssm-bind>` configuration tags.  Only
+    // direct children are considered configuration tags for THIS host — nested
+    // `<fsl-instance>` / `<jssm-instance>` children would have their own
+    // bindings handled by their own component.
+    const all_direct = host.querySelectorAll(':scope > *');
+    const config_tags = Array.from(all_direct).filter(el => wc_suffix_matches(el.tagName, 'bind'));
+    for (const tag of config_tags) {
         const selector = tag.getAttribute('selector');
         const expr = tag.getAttribute('source');
         const target = (_b = tag.getAttribute('target')) !== null && _b !== void 0 ? _b : 'textContent';
@@ -191,22 +233,22 @@ function install_bindings(host, machine) {
     return unsubs;
 }
 /**
- * `<jssm-bind>` configuration tag.  The element itself is invisible —
- * it carries `selector`, `source`, and optional `target` attributes
- * that the parent `<jssm-instance>` reads during its connection
+ * `<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is
+ * invisible — it carries `selector`, `source`, and optional `target`
+ * attributes that the parent `<fsl-instance>` reads during its connection
  * lifecycle to wire up a machine-to-DOM binding.
  *
  * Registering it as a `LitElement` (rather than leaving it as a generic
  * unknown tag) gives it a stable upgrade timing, a `display: none`
  * default style, and a proper place in the custom-elements registry so
- * `customElements.get('jssm-bind')` resolves.
+ * `customElements.get('fsl-bind')` resolves.
  *
- * @element jssm-bind
+ * @element fsl-bind
  * @attribute selector - CSS selector for the target element(s), scoped to the host.
  * @attribute source - Binding expression (see {@link resolve_binding}).
  * @attribute target - Target property name; defaults to `textContent`.
  */
-class JssmBind extends LitElement {
+class FslBind extends LitElement {
     /**
      * No-op render.  The tag's purpose is purely declarative
      * configuration; it must not contribute any DOM to the page.
@@ -215,7 +257,7 @@ class JssmBind extends LitElement {
         return null;
     }
 }
-JssmBind.styles = css `:host { display: none; }`;
+FslBind.styles = css `:host { display: none; }`;
 
 const VALID_KINDS = new Set([
     'hook',
@@ -633,9 +675,10 @@ function resolve_fsl_source(host, fsl_attr) {
         const clone = host.cloneNode(true);
         // Drop every script tag (any type — we only want raw text FSL here).
         clone.querySelectorAll('script').forEach(n => n.remove());
-        // Drop every <jssm-*> companion tag (e.g. <jssm-hook>, <jssm-on>, etc.).
+        // Drop every <fsl-*> or <jssm-*> companion tag (e.g. <fsl-hook>, <jssm-on>, etc.).
         clone.querySelectorAll('*').forEach(n => {
-            if (n.tagName.toLowerCase().startsWith('jssm-')) {
+            const t = n.tagName.toLowerCase();
+            if (t.startsWith('fsl-') || t.startsWith('jssm-')) {
                 n.remove();
             }
         });
@@ -676,7 +719,7 @@ function resolve_fsl_source(host, fsl_attr) {
  * and sets a `--current-state` CSS custom property so consumer CSS can
  * style by state without subclassing.
  *
- * @element jssm-instance
+ * @element fsl-instance
  * @cssproperty [--current-state] - The machine's current state name as a CSS string token.
  * @slot title - Heading area for the instance.
  * @slot viz - Visualization slot; fallback is a placeholder string.
@@ -686,7 +729,7 @@ function resolve_fsl_source(host, fsl_attr) {
  * @slot info-panel - Slot for an info / status panel.
  * @slot footer - Footer slot.
  */
-class JssmInstance extends LitElement {
+class FslInstance extends LitElement {
     constructor() {
         super(...arguments);
         /**
@@ -706,7 +749,7 @@ class JssmInstance extends LitElement {
          */
         this._machine = undefined;
         /**
-         * Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`
+         * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`
          * projections.  Every entry must be invoked exactly once during
          * {@link disconnectedCallback}.
          */
@@ -719,7 +762,8 @@ class JssmInstance extends LitElement {
         this._on_unsubscribes = [];
         /**
          * Per-instance registry of named hook handlers consulted before
-         * `globalThis` when resolving `<jssm-hook handler="name">`.
+         * `globalThis` when resolving `<fsl-hook handler="name">` /
+         * `<jssm-hook handler="name">`.
          */
         this.registry = new Map();
         /**
@@ -742,7 +786,7 @@ class JssmInstance extends LitElement {
      */
     get machine() {
         if (this._machine === undefined) {
-            throw new Error('jssm-instance: machine accessed before connection');
+            throw new Error('fsl-instance: machine accessed before connection');
         }
         return this._machine;
     }
@@ -785,7 +829,7 @@ class JssmInstance extends LitElement {
         // Step 1: resolve FSL source.
         const resolved = resolve_fsl_source(this, this.fsl);
         if (resolved.error !== undefined) {
-            throw new Error(`jssm-instance: ${resolved.error}`);
+            throw new Error(`fsl-instance: ${resolved.error}`);
         }
         // Step 2: construct the machine.
         // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
@@ -830,7 +874,7 @@ class JssmInstance extends LitElement {
      */
     _install_jssm_on_children() {
         const machine = this._machine;
-        const on_nodes = this.querySelectorAll(':scope > jssm-on');
+        const on_nodes = this.querySelectorAll(':scope > fsl-on, :scope > jssm-on');
         let index = 0;
         for (const el of Array.from(on_nodes)) {
             index += 1;
@@ -858,7 +902,7 @@ class JssmInstance extends LitElement {
      */
     _install_declarative_hooks() {
         const machine = this._machine;
-        const hook_els = this.querySelectorAll(':scope > jssm-hook');
+        const hook_els = this.querySelectorAll(':scope > fsl-hook, :scope > jssm-hook');
         for (const el of Array.from(hook_els)) {
             const debug_id = `${this._hook_id_prefix()}${++this._hook_debug_counter}`;
             const spec = parse_hook_element(el, debug_id, this.registry);
@@ -919,7 +963,7 @@ class JssmInstance extends LitElement {
      */
     _discover_jssm_actions() {
         var _a, _b, _c, _d;
-        const inline_targets = Array.from(this.querySelectorAll('[data-jssm-action]')).filter(el => el.closest('jssm-action') === null);
+        const inline_targets = Array.from(this.querySelectorAll('[data-jssm-action]')).filter(el => closest_wc(el, 'action') === null);
         for (const el of inline_targets) {
             this._install_action_listener({
                 source: el,
@@ -931,7 +975,7 @@ class JssmInstance extends LitElement {
                 stop_propagation: 'jssmStopPropagation' in el.dataset,
             });
         }
-        const tags = this.querySelectorAll(':scope > jssm-action');
+        const tags = this.querySelectorAll(':scope > fsl-action, :scope > jssm-action');
         for (const tag of Array.from(tags)) {
             const selector = tag.getAttribute('selector');
             const action_name = tag.getAttribute('action');
@@ -1022,7 +1066,7 @@ class JssmInstance extends LitElement {
         return html `
       <div class="container">
         <header>
-          <slot name="title"><span class="placeholder">jssm-instance</span></slot>
+          <slot name="title"><span class="placeholder">fsl-instance</span></slot>
         </header>
         <section class="viz">
           <slot name="viz"><span class="placeholder">no viz configured</span></slot>
@@ -1049,7 +1093,7 @@ class JssmInstance extends LitElement {
     `;
     }
 }
-JssmInstance.styles = css `
+FslInstance.styles = css `
     :host {
       display: block;
     }
@@ -1068,8 +1112,8 @@ JssmInstance.styles = css `
  * survives the future companion-tag work without colliding with
  * dynamically declared attributes.
  */
-JssmInstance.properties = {
+FslInstance.properties = {
     fsl: { type: String, reflect: false },
 };
 
-export { JSSM_ON_EVENT_NAMES, JssmInstance, compile_inline_body, jssm_handler_registry, parse_jssm_on_element, resolve_fsl_source, resolve_named_handler };
+export { FslInstance, JSSM_ON_EVENT_NAMES, compile_inline_body, jssm_handler_registry, parse_jssm_on_element, resolve_fsl_source, resolve_named_handler };
