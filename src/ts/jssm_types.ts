@@ -335,6 +335,21 @@ type JssmGenericMachine<DataType> = {
 
 
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+type FslSourcePoint    = { offset: number, line: number, column: number };
+type FslSourceLocation = { start: FslSourcePoint, end: FslSourcePoint };
+
+
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -568,21 +583,6 @@ type JssmCompileRule<StateType> = {
 
 };
 
-
-
-/**
- *  A source span produced by the FSL parser when `parse(input, { locations:
- *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
- *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
- *
- *  ```typescript
- *  const [t] = parse('a -> b;', { locations: true });
- *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
- *  //             end:   { offset: 7, line: 1, column: 8 } }
- *  ```
- */
-type FslSourcePoint    = { offset: number, line: number, column: number };
-type FslSourceLocation = { start: FslSourcePoint, end: FslSourcePoint };
 
 
 
