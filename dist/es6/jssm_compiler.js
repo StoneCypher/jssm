@@ -210,7 +210,7 @@ function compile_rule_handler(rule) {
         'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_active_state_config',
-        'default_terminal_state_config', 'npm_name'
+        'default_terminal_state_config', 'npm_name', 'default_size'
     ];
     if (tautologies.includes(rule.key)) {
         return { agg_as: rule.key, val: rule.value };
@@ -287,6 +287,7 @@ function compile(tree) {
         machine_name: [],
         machine_reference: [],
         npm_name: [],
+        default_size: [],
         property_definition: [],
         state_property: {},
         theme: [],
@@ -324,7 +325,7 @@ function compile(tree) {
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
         'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-        'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'npm_name'
+        'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'npm_name', 'default_size'
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {

@@ -453,3 +453,78 @@ describe('§9 MachineAttribute — failed_outputs (LabelOrLabelList, normalized 
   });
 
 });
+
+
+
+describe('§9 MachineAttribute — default_size (render-size hint)', () => {
+
+  // The `default_size` attribute accepts three forms:
+  //
+  //   default_size: <number>;           → { width: <number> }
+  //   default_size: <number> <number>;  → { width: <number>, height: <number> }
+  //   default_size: height <number>;    → { height: <number> }
+  //
+  // Property-based tests verify that arbitrary positive integer values
+  // round-trip correctly through the parser.
+
+  /** Positive integer arbitrary: 1–9999 */
+  const POS_INT = fc.integer({ min: 1, max: 9999 });
+
+  test('Single-number form yields `{ width }` with correct value', () => {
+    const node = parse_attr('default_size: 800;');
+    expect(node.key  ).toBe('default_size');
+    expect(node.value).toEqual({ width: 800 });
+  });
+
+  test('Two-number form yields `{ width, height }` with correct values', () => {
+    const node = parse_attr('default_size: 800 600;');
+    expect(node.key  ).toBe('default_size');
+    expect(node.value).toEqual({ width: 800, height: 600 });
+  });
+
+  test('`height <number>` form yields `{ height }` with correct value', () => {
+    const node = parse_attr('default_size: height 600;');
+    expect(node.key  ).toBe('default_size');
+    expect(node.value).toEqual({ height: 600 });
+  });
+
+  test('Random width-only values round-trip', () => {
+
+    fc.assert(
+      fc.property(POS_INT, (w) => {
+        const node = parse_attr(`default_size: ${w};`);
+        expect(node.key  ).toBe('default_size');
+        expect(node.value).toEqual({ width: w });
+      }),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random width × height values round-trip', () => {
+
+    fc.assert(
+      fc.property(POS_INT, POS_INT, (w, h) => {
+        const node = parse_attr(`default_size: ${w} ${h};`);
+        expect(node.key  ).toBe('default_size');
+        expect(node.value).toEqual({ width: w, height: h });
+      }),
+      { numRuns: RUNS }
+    );
+
+  });
+
+  test('Random height-only values round-trip', () => {
+
+    fc.assert(
+      fc.property(POS_INT, (h) => {
+        const node = parse_attr(`default_size: height ${h};`);
+        expect(node.key  ).toBe('default_size');
+        expect(node.value).toEqual({ height: h });
+      }),
+      { numRuns: RUNS }
+    );
+
+  });
+
+});

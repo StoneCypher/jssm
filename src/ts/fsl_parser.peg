@@ -1056,6 +1056,14 @@ MachineHookDefinition
 DotPreamble
   = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? { return { key: "dot_preamble", value }; }
 
+DefaultSizeVal
+  = "height" WS n:NonNegNumber { return { height: n }; }
+  / w:NonNegNumber h:NonNegNumber { return { width: w, height: h }; }
+  / w:NonNegNumber { return { width: w }; }
+
+DefaultSize
+  = WS? "default_size"        WS? ":" WS? value:DefaultSizeVal        WS? ";" WS? { return { key: "default_size", value }; }
+
 
 MachineAttribute "machine attribute"
   = FslVersion
@@ -1073,6 +1081,7 @@ MachineAttribute "machine attribute"
   / DotPreamble
   / MachineFlow
   / MachineHookDefinition
+  / DefaultSize
 
 
 

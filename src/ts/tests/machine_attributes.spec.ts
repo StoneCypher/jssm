@@ -55,6 +55,78 @@ describe('npm_name', () => {
 
 
 
+describe('default_size', () => {
+
+  describe('single number (width-only form)', () => {
+
+    test('does not throw', () =>
+      expect(() => { const _m = sm`default_size: 800; a->b;`; })
+        .not.toThrow() );
+
+    test('returns { width: 800 }', () =>
+      expect(sm`default_size: 800; a->b;`.default_size())
+        .toEqual({ width: 800 }) );
+
+    test('width is the parsed number', () =>
+      expect((sm`default_size: 1024; a->b;`.default_size() as any).width)
+        .toBe(1024) );
+
+    test('height key is absent', () =>
+      expect('height' in (sm`default_size: 800; a->b;`.default_size() as any))
+        .toBe(false) );
+
+  });
+
+  describe('two numbers (bounding-box form)', () => {
+
+    test('does not throw', () =>
+      expect(() => { const _m = sm`default_size: 800 600; a->b;`; })
+        .not.toThrow() );
+
+    test('returns { width: 800, height: 600 }', () =>
+      expect(sm`default_size: 800 600; a->b;`.default_size())
+        .toEqual({ width: 800, height: 600 }) );
+
+    test('width and height are correct', () => {
+      const sz = sm`default_size: 1920 1080; a->b;`.default_size() as any;
+      expect(sz.width ).toBe(1920);
+      expect(sz.height).toBe(1080);
+    });
+
+  });
+
+  describe('height-keyword form', () => {
+
+    test('does not throw', () =>
+      expect(() => { const _m = sm`default_size: height 600; a->b;`; })
+        .not.toThrow() );
+
+    test('returns { height: 600 }', () =>
+      expect(sm`default_size: height 600; a->b;`.default_size())
+        .toEqual({ height: 600 }) );
+
+    test('height is the parsed number', () =>
+      expect((sm`default_size: height 1080; a->b;`.default_size() as any).height)
+        .toBe(1080) );
+
+    test('width key is absent', () =>
+      expect('width' in (sm`default_size: height 600; a->b;`.default_size() as any))
+        .toBe(false) );
+
+  });
+
+  describe('absent', () => {
+
+    test('returns undefined when not set', () =>
+      expect(sm`a->b;`.default_size())
+        .toBeUndefined() );
+
+  });
+
+});
+
+
+
 describe('machine_language', () => {
 
   const eachTest = (name, lang) => {
