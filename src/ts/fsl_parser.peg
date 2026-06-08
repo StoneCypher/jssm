@@ -772,7 +772,7 @@ ArrowTarget
 
 ArrowDecoration
   = v:ArrowAfter        { return { _kind: 'after',  v: v }; }
-  / v:ActionLabel       { return { _kind: 'action', v: v }; }
+  / v:ActionLabel       { return { _kind: 'action', v: v, loc: location() }; }
   / v:ArrowProbability  { return { _kind: 'prob',   v: v }; }
   / v:ArrowDesc         { return { _kind: 'desc',   v: v }; }
 
@@ -804,7 +804,7 @@ Subexp
         if (seen['pre:' + d._kind]) { error('duplicate ' + d._kind + ' decoration before arrow', location()); }
         seen['pre:' + d._kind] = true;
         if (d._kind === 'after'  && d.v != null) { base.r_after       = d.v;       }
-        if (d._kind === 'action' && d.v != null) { base.r_action      = d.v;       }
+        if (d._kind === 'action' && d.v != null) { base.r_action = d.v; if (options.locations) { base.r_action_loc = d.loc; } }
         if (d._kind === 'prob'   && d.v != null) { base.r_probability = d.v.value; }
         if (d._kind === 'desc'   && d.v != null) { base.l_desc        = d.v;       }
       }
@@ -812,7 +812,7 @@ Subexp
         if (seen['post:' + d._kind]) { error('duplicate ' + d._kind + ' decoration after arrow', location()); }
         seen['post:' + d._kind] = true;
         if (d._kind === 'after'  && d.v != null) { base.l_after       = d.v;       }
-        if (d._kind === 'action' && d.v != null) { base.l_action      = d.v;       }
+        if (d._kind === 'action' && d.v != null) { base.l_action = d.v; if (options.locations) { base.l_action_loc = d.loc; } }
         if (d._kind === 'prob'   && d.v != null) { base.l_probability = d.v.value; }
         if (d._kind === 'desc'   && d.v != null) { base.r_desc        = d.v;       }
       }

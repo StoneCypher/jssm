@@ -121,6 +121,14 @@ describe('parser source locations — sub-spans', () => {
     expect(slice(src, tree[0].se!.to_loc!)).toBe('beta');
   });
 
+  test('action-label sub-spans pinpoint the labels', () => {
+    const src  = "a 'go' -> 'stop' b;";
+    const tree = jssm.parse(src, { locations: true });
+    // pre-arrow action → r_action; post-arrow action → l_action (existing convention)
+    expect(slice(src, tree[0].se!.r_action_loc!)).toBe("'go'");
+    expect(slice(src, tree[0].se!.l_action_loc!)).toBe("'stop'");
+  });
+
 });
 
 describe('parser source locations — machine-attribute value sub-spans', () => {

@@ -1511,7 +1511,7 @@ function peg$parse(input, options) {
             return node;
           },
       peg$c1310 = function(v) { return { _kind: 'after',  v: v }; },
-      peg$c1311 = function(v) { return { _kind: 'action', v: v }; },
+      peg$c1311 = function(v) { return { _kind: 'action', v: v, loc: location() }; },
       peg$c1312 = function(v) { return { _kind: 'prob',   v: v }; },
       peg$c1313 = function(v) { return { _kind: 'desc',   v: v }; },
       peg$c1314 = function(d) { return d; },
@@ -1536,7 +1536,7 @@ function peg$parse(input, options) {
               if (seen['pre:' + d._kind]) { error('duplicate ' + d._kind + ' decoration before arrow', location()); }
               seen['pre:' + d._kind] = true;
               if (d._kind === 'after'  && d.v != null) { base.r_after       = d.v;       }
-              if (d._kind === 'action' && d.v != null) { base.r_action      = d.v;       }
+              if (d._kind === 'action' && d.v != null) { base.r_action = d.v; if (options.locations) { base.r_action_loc = d.loc; } }
               if (d._kind === 'prob'   && d.v != null) { base.r_probability = d.v.value; }
               if (d._kind === 'desc'   && d.v != null) { base.l_desc        = d.v;       }
             }
@@ -1544,7 +1544,7 @@ function peg$parse(input, options) {
               if (seen['post:' + d._kind]) { error('duplicate ' + d._kind + ' decoration after arrow', location()); }
               seen['post:' + d._kind] = true;
               if (d._kind === 'after'  && d.v != null) { base.l_after       = d.v;       }
-              if (d._kind === 'action' && d.v != null) { base.l_action      = d.v;       }
+              if (d._kind === 'action' && d.v != null) { base.l_action = d.v; if (options.locations) { base.l_action_loc = d.loc; } }
               if (d._kind === 'prob'   && d.v != null) { base.l_probability = d.v.value; }
               if (d._kind === 'desc'   && d.v != null) { base.r_desc        = d.v;       }
             }
