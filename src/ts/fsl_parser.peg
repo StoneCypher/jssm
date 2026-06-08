@@ -1107,100 +1107,142 @@ HookDefinition "hook definition (open/closed)"
 
 
 MachineAuthor
-  = WS? "machine_author"      WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
-      const node: any = { key: "machine_author", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_author"      WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_author", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineContributor
-  = WS? "machine_contributor" WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
-      const node: any = { key: "machine_contributor", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_contributor" WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_contributor", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineComment
-  = WS? "machine_comment"     WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
-      const node: any = { key: "machine_comment", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_comment"     WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_comment", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineDefinition
-  = WS? "machine_definition"  WS? ":" WS? value:URL                  WS? ";" WS? {
-      const node: any = { key: "machine_definition", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_definition"  WS? ":" WS?
+    value:( v:URL { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_definition", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineName
-  = WS? "machine_name"        WS? ":" WS? value:Label                WS? ";" WS? {
-      const node: any = { key: "machine_name", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_name"        WS? ":" WS?
+    value:( v:Label { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_name", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineReference
-  = WS? "machine_reference"   WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? {
-      const node: any = { key: "machine_reference", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_reference"   WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_reference", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineVersion
-  = WS? "machine_version"     WS? ":" WS? value:SemVer               WS? ";" WS? {
-      const node: any = { key: "machine_version", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_version"     WS? ":" WS?
+    value:( v:SemVer { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_version", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineLicense
-  = WS? "machine_license"     WS? ":" WS? value:LicenseOrLabelOrList WS? ";" WS? {
-      const node: any = { key: "machine_license", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_license"     WS? ":" WS?
+    value:( v:LicenseOrLabelOrList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_license", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineLanguage
-  = WS? "machine_language"    WS? ":" WS? value:Label                WS? ";" WS? {
-      const node: any = { key: "machine_language", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "machine_language"    WS? ":" WS?
+    value:( v:Label { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_language", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 FslVersion
-  = WS? "fsl_version"         WS? ":" WS? value:SemVer               WS? ";" WS? {
-      const node: any = { key: "fsl_version", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "fsl_version"         WS? ":" WS?
+    value:( v:SemVer { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "fsl_version", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineTheme
-  = WS? "theme"               WS? ":" WS? value:ThemeOrThemeList     WS? ";" WS? {
-      const node: any = { key: "theme", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "theme"               WS? ":" WS?
+    value:( v:ThemeOrThemeList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "theme", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineFlow
-  = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? {
-      const node: any = { key: "flow", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "flow"                WS? ":" WS?
+    value:( v:Direction { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "flow", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 MachineHookDefinition
-  = WS? "hooks"               WS? ":" WS? value:HookDefinition       WS? ";" WS? {
-      const node: any = { key: "hook_definition", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "hooks"               WS? ":" WS?
+    value:( v:HookDefinition { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "hook_definition", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 
 DotPreamble
-  = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? {
-      const node: any = { key: "dot_preamble", value };
-      if (options.locations) { node.loc = location(); }
+  = WS? "dot_preamble"        WS? ":" WS?
+    value:( v:String { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "dot_preamble", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
       return node;
     }
 

@@ -122,3 +122,36 @@ describe('parser source locations — sub-spans', () => {
   });
 
 });
+
+describe('parser source locations — machine-attribute value sub-spans', () => {
+
+  test('machine_name value sub-span', () => {
+    const src  = 'machine_name: foo;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('foo');
+  });
+
+  test('fsl_version value sub-span (SemVer)', () => {
+    const src  = 'fsl_version: 1.2.3; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('1.2.3');
+  });
+
+  test('machine_definition value sub-span (URL)', () => {
+    const src  = 'machine_definition: https://example.com/x ; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('https://example.com/x');
+  });
+
+  test('theme value sub-span (array-valued)', () => {
+    const src  = 'theme: ocean; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(slice(src, tree[0].value_loc!)).toBe('ocean');
+  });
+
+  test('value sub-span absent without locations', () => {
+    const tree = jssm.parse('machine_name: foo;');
+    expect(tree[0].value_loc).toBeUndefined();
+  });
+
+});
