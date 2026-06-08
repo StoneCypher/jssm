@@ -12,23 +12,29 @@ import {
   parse_hook_element,
   resolve_named_handler,
   wrap_user_handler,
+  type FslHookInstallSpec,
+  type FslHookProxy,
+  type FslHookRegistry,
+  type RawHookContext,
+  // Backward-compat aliases — verify they still export.
   type JssmHookInstallSpec,
   type JssmHookProxy,
   type JssmHookRegistry,
-  type RawHookContext,
-} from '../jssm_hook_wc';
+} from '../fsl_hook_wc';
 import type { Machine } from '../../jssm.js';
 
 /**
  * Helper that returns a freshly-attached JssmInstance with the supplied FSL
- * and one or more `<jssm-hook>` children, then removes it on teardown via
- * the returned `cleanup` function.  Hides the document.body lifecycle so
- * each test reads as one logical scenario.
+ * and one or more `<fsl-hook>` (canonical) or `<jssm-hook>` (synonym)
+ * children, then removes it on teardown via the returned `cleanup` function.
+ * Hides the document.body lifecycle so each test reads as one logical
+ * scenario.
  *
  * @param fsl - FSL source for the machine.
- * @param hook_attrs - Array of attribute maps for each `<jssm-hook>` to create.
+ * @param hook_attrs - Array of attribute maps for each hook element to create.
  *                    Each entry may contain a `body` key to set textContent
- *                    instead of a `handler` attribute.
+ *                    instead of a `handler` attribute.  Use `_tag` to override
+ *                    the element tag (defaults to `fsl-hook`).
  * @returns The element and a cleanup function.
  */
 function make_instance_with_hooks(
@@ -40,10 +46,11 @@ function make_instance_with_hooks(
   el.setAttribute('fsl', fsl);
 
   for (const attrs of hook_attrs) {
-    const hook = document.createElement('jssm-hook');
+    const tag  = attrs._tag ?? 'fsl-hook';
+    const hook = document.createElement(tag);
     const body = attrs.body;
     for (const [k, v] of Object.entries(attrs)) {
-      if (k === 'body') continue;
+      if (k === 'body' || k === '_tag') continue;
       hook.setAttribute(k, v);
     }
     if (body !== undefined) {
@@ -746,18 +753,18 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     }
   });
 
-  it('installs multiple <jssm-hook> children in order', () => {
+  it('installs multiple <fsl-hook> children in order', () => {
     // First hook sets data; second hook reads and appends.
     const el = document.createElement('jssm-instance') as JssmInstance;
     el.setAttribute('fsl', "red 'go' -> green;");
 
-    const h1 = document.createElement('jssm-hook');
+    const h1 = document.createElement('fsl-hook');
     h1.setAttribute('from', 'red');
     h1.setAttribute('to', 'green');
     h1.textContent = 'm.data = "a";';
     el.appendChild(h1);
 
-    const h2 = document.createElement('jssm-hook');
+    const h2 = document.createElement('fsl-hook');
     h2.setAttribute('kind', 'entry');
     h2.setAttribute('to', 'green');
     h2.textContent = 'm.data = (m.data ?? "") + "b";';
@@ -767,6 +774,48 @@ describe('<jssm-hook> integration with <jssm-instance>', () => {
     try {
       el.do('go');
       expect(el.machine.data()).toBe('ab');
+    } finally {
+      document.body.removeChild(el);
+    }
+  });
+
+});
+
+describe('<jssm-hook> synonym coverage — instance discovers both prefixes', () => {
+
+  it('installs a hook from <jssm-hook> (synonym) inline-body form', () => {
+    const { el, cleanup } = make_instance_with_hooks(
+      "red 'go' -> green;",
+      [{ _tag: 'jssm-hook', from: 'red', to: 'green', body: 'm.data = "jssm-hook-ran";' }],
+    );
+    try {
+      el.do('go');
+      expect(el.machine.data()).toBe('jssm-hook-ran');
+    } finally {
+      cleanup();
+    }
+  });
+
+  it('mixed-prefix: fsl-hook and jssm-hook siblings both fire', () => {
+    const el = document.createElement('jssm-instance') as JssmInstance;
+    el.setAttribute('fsl', "red 'go' -> green;");
+
+    const h1 = document.createElement('fsl-hook');
+    h1.setAttribute('from', 'red');
+    h1.setAttribute('to', 'green');
+    h1.textContent = 'm.data = (m.data ?? "") + "fsl";';
+    el.appendChild(h1);
+
+    const h2 = document.createElement('jssm-hook');
+    h2.setAttribute('kind', 'entry');
+    h2.setAttribute('to', 'green');
+    h2.textContent = 'm.data = (m.data ?? "") + "+jssm";';
+    el.appendChild(h2);
+
+    document.body.appendChild(el);
+    try {
+      el.do('go');
+      expect(el.machine.data()).toBe('fsl+jssm');
     } finally {
       document.body.removeChild(el);
     }

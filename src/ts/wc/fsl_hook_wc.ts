@@ -16,13 +16,14 @@ export interface RawHookContext {
 }
 
 /**
- * The discriminator strings that may appear in `<jssm-hook kind="...">`.
- * Mirrors jssm's pre-transition hook kinds; post-transition and "everything"
- * variants are intentionally left out of v1 of the declarative tag.
+ * The discriminator strings that may appear in `<fsl-hook kind="...">` /
+ * `<jssm-hook kind="...">`.  Mirrors jssm's pre-transition hook kinds;
+ * post-transition and "everything" variants are intentionally left out of
+ * v1 of the declarative tag.
  *
  * @see {@link Machine.set_hook}
  */
-export type JssmHookKind =
+export type FslHookKind =
   | 'hook'
   | 'named'
   | 'any transition'
@@ -34,7 +35,10 @@ export type JssmHookKind =
   | 'any action'
   | 'global action';
 
-const VALID_KINDS: ReadonlySet<string> = new Set<JssmHookKind>([
+/** @deprecated Use {@link FslHookKind} instead; kept for backwards compat. */
+export type JssmHookKind = FslHookKind;
+
+const VALID_KINDS: ReadonlySet<string> = new Set<FslHookKind>([
   'hook',
   'named',
   'any transition',
@@ -49,8 +53,9 @@ const VALID_KINDS: ReadonlySet<string> = new Set<JssmHookKind>([
 
 /**
  * Friendly proxy surface that wraps jssm's native `HookContext` for the
- * declarative `<jssm-hook>` form.  User-authored handlers (named function or
- * inline body) receive an `m` of this shape rather than the raw hook context.
+ * declarative `<fsl-hook>` / `<jssm-hook>` form.  User-authored handlers
+ * (named function or inline body) receive an `m` of this shape rather than
+ * the raw hook context.
  *
  * `data` is read/write — mutating it flows back into the synthesized
  * `HookComplexResult` so jssm commits the new value.  The remaining fields
@@ -66,7 +71,7 @@ const VALID_KINDS: ReadonlySet<string> = new Set<JssmHookKind>([
  *     m.data = (m.data ?? 0) + 1;
  *   }
  */
-export interface JssmHookProxy<TData = unknown> {
+export interface FslHookProxy<TData = unknown> {
   data           : TData;
   readonly from  : string | undefined;
   readonly to    : string | undefined;
@@ -74,22 +79,31 @@ export interface JssmHookProxy<TData = unknown> {
   state(): string;
 }
 
+/** @deprecated Use {@link FslHookProxy} instead; kept for backwards compat. */
+export type JssmHookProxy<TData = unknown> = FslHookProxy<TData>;
+
 /**
  * Type of a user-authored declarative-hook handler.  The return value is
  * checked: an explicit `false` cancels the transition; any other value
  * (including `undefined`, `true`, or an arbitrary object) allows it.
  */
-export type JssmHookUserHandler<TData = unknown> =
-  (m: JssmHookProxy<TData>) => unknown;
+export type FslHookUserHandler<TData = unknown> =
+  (m: FslHookProxy<TData>) => unknown;
+
+/** @deprecated Use {@link FslHookUserHandler} instead; kept for backwards compat. */
+export type JssmHookUserHandler<TData = unknown> = FslHookUserHandler<TData>;
 
 /**
  * Optional per-instance registry of named handlers.  Looked up before
- * `globalThis` when resolving `<jssm-hook handler="name">`.  Provided as a
- * `Map` so consumers can register their own handlers without polluting the
- * global namespace; useful for module-scoped SPAs where strict CSP blocks
- * inline-body hooks.
+ * `globalThis` when resolving `<fsl-hook handler="name">` /
+ * `<jssm-hook handler="name">`.  Provided as a `Map` so consumers can
+ * register their own handlers without polluting the global namespace; useful
+ * for module-scoped SPAs where strict CSP blocks inline-body hooks.
  */
-export type JssmHookRegistry = Map<string, JssmHookUserHandler<unknown>>;
+export type FslHookRegistry = Map<string, FslHookUserHandler<unknown>>;
+
+/** @deprecated Use {@link FslHookRegistry} instead; kept for backwards compat. */
+export type JssmHookRegistry = FslHookRegistry;
 
 /**
  * Build a {@link JssmHookProxy} that wraps an arbitrary hook context object.
@@ -108,7 +122,7 @@ export type JssmHookRegistry = Map<string, JssmHookUserHandler<unknown>>;
 export function make_hook_proxy<TData = unknown>(
   ctx: { data?: TData; from?: string; to?: string; action?: string },
   machine: { state(): unknown },
-): JssmHookProxy<TData> {
+): FslHookProxy<TData> {
 
   return {
     get data(): TData {
@@ -151,10 +165,10 @@ export function make_hook_proxy<TData = unknown>(
 export function compile_inline_body<TData = unknown>(
   body: string,
   debug_id: string,
-): JssmHookUserHandler<TData> {
+): FslHookUserHandler<TData> {
 
   const annotated = `//# sourceURL=jssm-hook:${debug_id}\n${body}`;
-  const ctor = Function as unknown as new (arg: string, body: string) => JssmHookUserHandler<TData>;
+  const ctor = Function as unknown as new (arg: string, body: string) => FslHookUserHandler<TData>;
   return new ctor('m', annotated);
 
 }
@@ -171,19 +185,19 @@ export function compile_inline_body<TData = unknown>(
  */
 export function resolve_named_handler<TData = unknown>(
   name: string,
-  registry?: JssmHookRegistry,
-): JssmHookUserHandler<TData> {
+  registry?: FslHookRegistry,
+): FslHookUserHandler<TData> {
 
   if (registry !== undefined) {
     const registered = registry.get(name);
     if (registered !== undefined) {
-      return registered as JssmHookUserHandler<TData>;
+      return registered as FslHookUserHandler<TData>;
     }
   }
 
   const global = (globalThis as Record<string, unknown>)[name];
   if (typeof global === 'function') {
-    return global as JssmHookUserHandler<TData>;
+    return global as FslHookUserHandler<TData>;
   }
 
   throw new Error(
@@ -201,7 +215,7 @@ export function resolve_named_handler<TData = unknown>(
  * @returns The normalized {@link JssmHookKind}.
  * @throws Error - On an unknown kind.
  */
-export function normalize_hook_kind(raw: string | null | undefined): JssmHookKind {
+export function normalize_hook_kind(raw: string | null | undefined): FslHookKind {
 
   if (raw === null || raw === undefined || raw === '') {
     return 'hook';
@@ -213,27 +227,30 @@ export function normalize_hook_kind(raw: string | null | undefined): JssmHookKin
     );
   }
 
-  return raw as JssmHookKind;
+  return raw as FslHookKind;
 
 }
 
 /**
- * Resolved description of a single `<jssm-hook>` element, ready to install.
- * Carries the kind, optional name, the user handler to wrap, and the
- * descriptor pieces needed by `set_hook` / `remove_hook`.
+ * Resolved description of a single `<fsl-hook>` / `<jssm-hook>` element,
+ * ready to install.  Carries the kind, optional name, the user handler to
+ * wrap, and the descriptor pieces needed by `set_hook` / `remove_hook`.
  *
  * Wrapping into a `HookDescription<unknown>` is deferred to the caller so
  * the friendly-proxy wrapper closes over both the underlying machine and
  * the registry at install time.
  */
-export interface JssmHookInstallSpec {
-  kind        : JssmHookKind;
+export interface FslHookInstallSpec {
+  kind        : FslHookKind;
   name        : string | undefined;
   from        : string | undefined;
   to          : string | undefined;
   action      : string | undefined;
-  user_handler: JssmHookUserHandler<unknown>;
+  user_handler: FslHookUserHandler<unknown>;
 }
+
+/** @deprecated Use {@link FslHookInstallSpec} instead; kept for backwards compat. */
+export type JssmHookInstallSpec = FslHookInstallSpec;
 
 /**
  * Parse a single `<jssm-hook>` element into a {@link JssmHookInstallSpec}.
@@ -255,8 +272,8 @@ export interface JssmHookInstallSpec {
 export function parse_hook_element(
   el       : HTMLElement,
   debug_id : string,
-  registry?: JssmHookRegistry,
-): JssmHookInstallSpec {
+  registry?: FslHookRegistry,
+): FslHookInstallSpec {
 
   const handler_attr = el.getAttribute('handler');
   const raw_text     = el.textContent;
@@ -274,7 +291,7 @@ export function parse_hook_element(
     );
   }
 
-  const user_handler: JssmHookUserHandler<unknown> = handler_attr !== null
+  const user_handler: FslHookUserHandler<unknown> = handler_attr !== null
     ? resolve_named_handler(handler_attr, registry)
     : compile_inline_body(body_text, debug_id);
 
@@ -305,7 +322,7 @@ export function parse_hook_element(
  * @returns A wrapped handler suitable for `set_hook`.
  */
 export function wrap_user_handler(
-  spec   : JssmHookInstallSpec,
+  spec   : FslHookInstallSpec,
   machine: { state(): unknown },
 ): (ctx: RawHookContext) => unknown {
 
@@ -343,7 +360,7 @@ export function wrap_user_handler(
  * @returns A descriptor object for `set_hook`/`remove_hook`.
  */
 export function build_hook_descriptor(
-  spec    : JssmHookInstallSpec,
+  spec    : FslHookInstallSpec,
   wrapped : (ctx: RawHookContext) => unknown,
 ): Record<string, unknown> {
 

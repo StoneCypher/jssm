@@ -2,11 +2,11 @@ import { LitElement, html, css, TemplateResult } from 'lit';
 import { Machine, sm } from '../jssm.js';
 import { install_bindings, type FslBindUnsub } from './fsl_bind_wc.js';
 import {
-  JssmHookRegistry,
+  FslHookRegistry,
   build_hook_descriptor,
   parse_hook_element,
   wrap_user_handler,
-} from './jssm_hook_wc.js';
+} from './fsl_hook_wc.js';
 import { closest_wc } from './wc_tag_helpers.js';
 
 /**
@@ -374,9 +374,10 @@ export class FslInstance extends LitElement {
 
   /**
    * Per-instance registry of named hook handlers consulted before
-   * `globalThis` when resolving `<jssm-hook handler="name">`.
+   * `globalThis` when resolving `<fsl-hook handler="name">` /
+   * `<jssm-hook handler="name">`.
    */
-  readonly registry: JssmHookRegistry = new Map();
+  readonly registry: FslHookRegistry = new Map();
 
   /**
    * Descriptors for hooks this WC installed at connect time.
