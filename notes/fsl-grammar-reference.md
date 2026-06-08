@@ -532,6 +532,7 @@ real keys — they are scaffolding for future config schemas.
 - `failed_outputs  : <LabelOrLabelList>;` — single state or bracketed list; always an array; default `[]`
 - `graph_bg_color : <Color>;`
 - `allows_override : <OverrideT>;` — `true` / `false` / `undefined`
+- `allow_islands : <IslandsT>;` — `true` (default, islands permitted) / `false` (single connected component required, error if not) / `with_start` (islands permitted only if every component has a start state, error otherwise)
 
 
 

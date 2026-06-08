@@ -109,6 +109,14 @@ type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
  */
 type JssmAllowsOverride = true | false | undefined;
 
+/**
+ *  Controls whether the state graph may contain disconnected components
+ *  (islands).  `true` permits islands (default), `false` requires a single
+ *  connected component, and `'with_start'` permits islands only when every
+ *  component contains at least one start state.
+ */
+type JssmAllowIslands = true | false | 'with_start';
+
 
 
 
@@ -494,7 +502,7 @@ type JssmGenericConfig<StateType, DataType> = {
 //locked?                        : bool = true,
   min_exits?                     : number,
   max_exits?                     : number,
-  allow_islands?                 : false,
+  allow_islands?                 : JssmAllowIslands,
   allow_force?                   : false,
   actions?                       : JssmPermittedOpt,
 
@@ -1249,6 +1257,7 @@ export {
   JssmSerialization,
   JssmPropertyDefinition,
   JssmAllowsOverride,
+  JssmAllowIslands,
 
   JssmParseFunctionType,
 

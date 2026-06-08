@@ -467,3 +467,60 @@ describe('failed_outputs', () => {
   });
 
 });
+
+
+
+
+describe('allow_islands', () => {
+
+  test('default (omitted) allows an island machine', () =>
+    expect( () => { const _m = sm`a -> b; c -> d;`; })
+      .not.toThrow() );
+
+  test('explicit true allows an island machine', () =>
+    expect( () => { const _m = sm`allow_islands: true; a -> b; c -> d;`; })
+      .not.toThrow() );
+
+  test('explicit true allows a connected machine', () =>
+    expect( () => { const _m = sm`allow_islands: true; a -> b;`; })
+      .not.toThrow() );
+
+  test('false throws on a two-island machine', () =>
+    expect( () => { const _m = sm`allow_islands: false; a -> b; c -> d;`; })
+      .toThrow() );
+
+  test('false passes on a single-component machine', () =>
+    expect( () => { const _m = sm`allow_islands: false; a -> b -> c;`; })
+      .not.toThrow() );
+
+  test('with_start passes when every island has a start state', () =>
+    // a is default start; c is also a start state declared explicitly
+    expect( () => { const _m = sm`allow_islands: with_start; start_states: [a c]; a -> b; c -> d;`; })
+      .not.toThrow() );
+
+  test('with_start throws when an island has no start state', () =>
+    // only a is a start state; the c->d island has none
+    expect( () => { const _m = sm`allow_islands: with_start; a -> b; c -> d;`; })
+      .toThrow() );
+
+  test('with_start passes on a connected machine with one start state', () =>
+    expect( () => { const _m = sm`allow_islands: with_start; a -> b -> c;`; })
+      .not.toThrow() );
+
+  test('.allow_islands getter returns true when omitted', () =>
+    expect( sm`a -> b;`.allow_islands )
+      .toBe(true) );
+
+  test('.allow_islands getter returns true when explicit', () =>
+    expect( sm`allow_islands: true; a -> b;`.allow_islands )
+      .toBe(true) );
+
+  test('.allow_islands getter returns false when set to false', () =>
+    expect( sm`allow_islands: false; a -> b;`.allow_islands )
+      .toBe(false) );
+
+  test(".allow_islands getter returns 'with_start' when set", () =>
+    expect( sm`allow_islands: with_start; a -> b;`.allow_islands )
+      .toBe('with_start') );
+
+});
