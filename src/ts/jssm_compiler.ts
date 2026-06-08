@@ -347,7 +347,14 @@ function canonical_graph_alias_key(alias_key: string): string {
  *  `graph_bg_color`, `dot_preamble`, `theme`, `flow`) into the consolidated
  *  `default_graph_config` list, then appends the items from an explicit
  *  `graph: {}` block so that, on a canonical-key conflict, the explicit block
- *  wins.  Each present alias emits a one-time `console.warn` deprecation notice.
+ *  wins.
+ *
+ *  Only `graph_bg_color` emits a `console.warn` deprecation notice, because
+ *  it is the only alias that has a direct `graph: {}` block replacement today
+ *  (`graph: { background-color: … }`).  The other aliases (`graph_layout`,
+ *  `theme`, `flow`, `dot_preamble`) fold silently — they have no block-level
+ *  equivalent yet, so warning on them would be misleading spam.  The warning
+ *  fires once per compile (the key can only appear once in a valid FSL source).
  *
  *  The result is de-duplicated by canonical key, last-wins, preserving the
  *  position of the first occurrence of each key (so a `graph: {}` override
@@ -366,6 +373,8 @@ function canonical_graph_alias_key(alias_key: string): string {
  *  @see canonical_graph_alias_key
  */
 
+const WARN_DEPRECATED_GRAPH_ALIASES = new Set(['graph_bg_color']);
+
 function fold_graph_config(
   aliases       : { [alias_key: string]: Array<unknown> },
   explicit_block: Array<JssmGraphStyleKey>
@@ -375,10 +384,12 @@ function fold_graph_config(
 
   Object.keys(aliases).forEach((alias_key: string) => {
     aliases[alias_key].forEach((value: unknown) => {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `jssm: top-level \`${alias_key}\` is deprecated; prefer a \`graph: {}\` config block`
-      );
+      if (WARN_DEPRECATED_GRAPH_ALIASES.has(alias_key)) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `jssm: top-level \`${alias_key}\` is deprecated; prefer a \`graph: {}\` config block`
+        );
+      }
       folded.push({ key: canonical_graph_alias_key(alias_key), value } as JssmGraphStyleKey);
     });
   });

@@ -132,7 +132,17 @@ describe('deprecated graph aliases fold into default_graph_config', () => {
     expect(cfg.dot_preamble).toBe('rankdir=LR');
   });
 
-  test('using an alias emits a deprecation warning naming the keyword', () => {
+  test('`theme`, `flow`, and `dot_preamble` fold silently — no deprecation warning', () => {
+    compile('a -> b; theme: ocean; flow: down; dot_preamble: "rankdir=LR";');
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('`graph_layout` folds silently — no deprecation warning', () => {
+    compile('a -> b; graph_layout: circo;');
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('`graph_bg_color` emits a deprecation warning naming the keyword', () => {
     compile('a -> b; graph_bg_color: #ffffff;');
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toContain('graph_bg_color');
