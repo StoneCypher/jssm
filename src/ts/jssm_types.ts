@@ -233,6 +233,64 @@ type JssmGroupMemberRef =
 type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
 
 /**
+ *  A parsed FSL boundary-hook declaration — the `on <enter|exit> <subject> do
+ *  '<action>';` form.  `event` is the boundary crossing the hook listens for,
+ *  `subject` is either a {@link JssmGroupRef} (a `&Group`) or a plain state
+ *  label `string`, and `action` is the (unquoted) action name to run.  The
+ *  compiler routes a group subject into `group_hooks` and a state subject
+ *  into `state_hooks` on {@link JssmGenericConfig}; runtime firing is a
+ *  later task.
+ *
+ *  ```typescript
+ *  import { parse } from 'jssm';
+ *  parse("on enter &busy do 'log';")[0];
+ *  // { key:'hook_decl', event:'enter',
+ *  //   subject:{ key:'group_ref', name:'busy' }, action:'log' }
+ *  ```
+ *
+ *  @see JssmGroupRef
+ *  @see JssmGroupHooks
+ */
+type JssmHookDeclaration = {
+  key     : 'hook_decl',
+  event   : 'enter' | 'exit',
+  subject : JssmGroupRef | string,
+  action  : string
+};
+
+/**
+ *  The compiled boundary-hook surface for a single subject (a group or a
+ *  state): the action to run on entry (`onEnter`) and/or on exit (`onExit`).
+ *  Each is optional so a subject may declare only one direction; the compiler
+ *  merges an `enter` and an `exit` declaration for the same subject into one
+ *  of these.
+ *
+ *  @see JssmHookDeclaration
+ */
+type JssmBoundaryHooks = {
+  onEnter? : string,
+  onExit?  : string
+};
+
+/**
+ *  Maps each group name that has at least one boundary hook to its merged
+ *  {@link JssmBoundaryHooks}.  Carried on {@link JssmGenericConfig} for the
+ *  runtime to consume; depth-aware firing is a later task.
+ *
+ *  @see JssmHookDeclaration
+ */
+type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
+
+/**
+ *  Maps each plain state name that has at least one boundary hook to its
+ *  merged {@link JssmBoundaryHooks}.  The state-subject analogue of
+ *  {@link JssmGroupHooks}.
+ *
+ *  @see JssmHookDeclaration
+ */
+type JssmStateHooks = Map<string, JssmBoundaryHooks>;
+
+/**
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
  *  provide `default_value` to fall back when the state does not specify it.
@@ -685,6 +743,9 @@ type JssmGenericConfig<StateType, DataType> = {
   default_graph_config?          : JssmGraphConfig,
 
   group_registry?                : JssmGroupRegistry,
+  group_metadata?                : Map<string, JssmStateConfig>,
+  group_hooks?                   : JssmGroupHooks,
+  state_hooks?                   : JssmStateHooks,
 
   rng_seed?                      : number | undefined,
 
@@ -1405,6 +1466,10 @@ export {
   JssmGroupRef,
     JssmGroupMemberRef,
     JssmGroupRegistry,
+    JssmHookDeclaration,
+    JssmBoundaryHooks,
+    JssmGroupHooks,
+    JssmStateHooks,
 
   JssmParseFunctionType,
 
