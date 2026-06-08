@@ -38,6 +38,17 @@ describe('parser source locations — transitions', () => {
 
 });
 
+describe('parser source locations — config blocks', () => {
+
+  test('graph_layout config node carries a loc', () => {
+    const src  = 'graph_layout: dot; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(tree[0].loc).toBeDefined();
+    expect(slice(src, tree[0].loc!)).toContain('graph_layout: dot;');
+  });
+
+});
+
 describe('parser source locations — state declarations', () => {
 
   test('state_declaration node carries a loc', () => {

@@ -1378,13 +1378,21 @@ function peg$parse(input, options) {
       peg$c1211 = peg$otherExpectation("single edge color"),
       peg$c1212 = "edge-color",
       peg$c1213 = peg$literalExpectation("edge-color", false),
-      peg$c1214 = function(value) { return {key:'single_edge_color', value:value}; },
+      peg$c1214 = function(value) {
+            const node: any = { key:'single_edge_color', value:value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1215 = "edge_color",
       peg$c1216 = peg$literalExpectation("edge_color", false),
       peg$c1217 = peg$otherExpectation("transition line style"),
       peg$c1218 = "line-style",
       peg$c1219 = peg$literalExpectation("line-style", false),
-      peg$c1220 = function(value) { return {key:'transition_line_style', value:value}; },
+      peg$c1220 = function(value) {
+            const node: any = { key:'transition_line_style', value:value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1221 = "{",
       peg$c1222 = peg$literalExpectation("{", false),
       peg$c1223 = "}",
@@ -1530,14 +1538,20 @@ function peg$parse(input, options) {
       peg$c1318 = peg$literalExpectation("whargarbl", false),
       peg$c1319 = "todo",
       peg$c1320 = peg$literalExpectation("todo", false),
-      peg$c1321 = function(validationkey, value) { return {key:validationkey, value:value}; },
+      peg$c1321 = function(validationkey, value) {
+            const node: any = { key: validationkey, value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1322 = "validation",
       peg$c1323 = peg$literalExpectation("validation", false),
       peg$c1324 = "};",
       peg$c1325 = peg$literalExpectation("};", false),
       peg$c1326 = function(validation_items) {
-          return { config_kind: "validation", config_items: validation_items || [] };
-        },
+            const node: any = { config_kind: "validation", config_items: validation_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1327 = "dot",
       peg$c1328 = peg$literalExpectation("dot", false),
       peg$c1329 = "circo",
@@ -1551,62 +1565,110 @@ function peg$parse(input, options) {
       peg$c1337 = "state",
       peg$c1338 = peg$literalExpectation("state", false),
       peg$c1339 = function(state_items) {
-          return { key: "default_state_config", value: state_items || [] };
-        },
+            const node: any = { key: "default_state_config", value: state_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1340 = "start_state",
       peg$c1341 = peg$literalExpectation("start_state", false),
       peg$c1342 = function(state_items) {
-          return { key: "default_start_state_config", value: state_items || [] };
-        },
+            const node: any = { key: "default_start_state_config", value: state_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1343 = "end_state",
       peg$c1344 = peg$literalExpectation("end_state", false),
       peg$c1345 = function(state_items) {
-          return { key: "default_end_state_config", value: state_items || [] };
-        },
+            const node: any = { key: "default_end_state_config", value: state_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1346 = "active_state",
       peg$c1347 = peg$literalExpectation("active_state", false),
       peg$c1348 = function(state_items) {
-          return { key: "default_active_state_config", value: state_items || [] };
-        },
+            const node: any = { key: "default_active_state_config", value: state_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1349 = "terminal_state",
       peg$c1350 = peg$literalExpectation("terminal_state", false),
       peg$c1351 = function(state_items) {
-          return { key: "default_terminal_state_config", value: state_items || [] };
-        },
+            const node: any = { key: "default_terminal_state_config", value: state_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1352 = "hooked_state",
       peg$c1353 = peg$literalExpectation("hooked_state", false),
       peg$c1354 = function(state_items) {
-          return { key: "default_hooked_state_config", value: state_items || [] };
-        },
-      peg$c1355 = function(actionkey, value) { return {key:actionkey, value:value}; },
+            const node: any = { key: "default_hooked_state_config", value: state_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
+      peg$c1355 = function(actionkey, value) {
+            const node: any = { key: actionkey, value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1356 = "action",
       peg$c1357 = peg$literalExpectation("action", false),
       peg$c1358 = function(action_items) {
-          return { config_kind: "action", config_items: action_items || [] };
-        },
-      peg$c1359 = function(key, value) { return { key, value }; },
+            const node: any = { config_kind: "action", config_items: action_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
+      peg$c1359 = function(key, value) {
+            const node: any = { key, value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1360 = peg$otherExpectation("graph default edge color"),
-      peg$c1361 = function(value) { return { key:'graph_default_edge_color', value }; },
+      peg$c1361 = function(value) {
+            const node: any = { key:'graph_default_edge_color', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1362 = "transition",
       peg$c1363 = peg$literalExpectation("transition", false),
       peg$c1364 = function(transition_items) {
-          return { config_kind: "transition", config_items: transition_items || [] };
-        },
+            const node: any = { config_kind: "transition", config_items: transition_items || [] };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1365 = "graph_layout",
       peg$c1366 = peg$literalExpectation("graph_layout", false),
-      peg$c1367 = function(value) { return { key: "graph_layout",    value: value }; },
+      peg$c1367 = function(value) {
+            const node: any = { key: "graph_layout", value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1368 = "start_states",
       peg$c1369 = peg$literalExpectation("start_states", false),
-      peg$c1370 = function(value) { return { key: "start_states",    value: value }; },
+      peg$c1370 = function(value) {
+            const node: any = { key: "start_states", value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1371 = "end_states",
       peg$c1372 = peg$literalExpectation("end_states", false),
-      peg$c1373 = function(value) { return { key: "end_states",      value: value }; },
+      peg$c1373 = function(value) {
+            const node: any = { key: "end_states", value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1374 = "graph_bg_color",
       peg$c1375 = peg$literalExpectation("graph_bg_color", false),
-      peg$c1376 = function(value) { return { key: "graph_bg_color",  value: value }; },
+      peg$c1376 = function(value) {
+            const node: any = { key: "graph_bg_color", value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1377 = "allows_override",
       peg$c1378 = peg$literalExpectation("allows_override", false),
-      peg$c1379 = function(value) { return { key: "allows_override", value: value }; },
+      peg$c1379 = function(value) {
+            const node: any = { key: "allows_override", value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1380 = function() { return true;      },
       peg$c1381 = function() { return false;     },
       peg$c1382 = peg$otherExpectation("configuration"),

@@ -634,11 +634,23 @@ ArrowItem
   = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? { return {key:key, value:value}; }
 
 SingleEdgeColor "single edge color"
-  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
-  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
+  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? {
+      const node: any = { key:'single_edge_color', value:value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? {
+      const node: any = { key:'single_edge_color', value:value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 TransitionLineStyle "transition line style"
-  = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
+  = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? {
+      const node: any = { key:'transition_line_style', value:value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrowItems
   = SingleEdgeColor
@@ -807,15 +819,21 @@ ValidationKey
   / "todo"
 
 ValidationItem
-  = validationkey:ValidationKey ":" value:Label ";" { return {key:validationkey, value:value}; }
+  = validationkey:ValidationKey ":" value:Label ";" {
+      const node: any = { key: validationkey, value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ValidationItems
   = ValidationItem+
 
 ConfigValidation
   = WS? "validation" WS? ":" WS? "{" WS? validation_items:ValidationItems? WS? "};" WS? {
-    return { config_kind: "validation", config_items: validation_items || [] };
-  }
+      const node: any = { config_kind: "validation", config_items: validation_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -842,33 +860,45 @@ StateItems
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigStartState
   = WS? "start_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_start_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_start_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigEndState
   = WS? "end_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_end_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_end_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigActiveState
   = WS? "active_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_active_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_active_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigTerminalState
   = WS? "terminal_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_terminal_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_terminal_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigHookedState
   = WS? "hooked_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_hooked_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_hooked_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigAnyState
   = ConfigState
@@ -887,15 +917,21 @@ ActionKey
   / "todo"
 
 ActionItem
-  = actionkey:ActionKey ":" value:Label ";" { return {key:actionkey, value:value}; }
+  = actionkey:ActionKey ":" value:Label ";" {
+      const node: any = { key: actionkey, value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ActionItems
   = ActionItem+
 
 ConfigAction
   = WS? "action" WS? ":" WS? "{" WS? action_items:ActionItems? WS? "};" WS? {
-    return { config_kind: "action", config_items: action_items || [] };
-  }
+      const node: any = { config_kind: "action", config_items: action_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -906,39 +942,73 @@ TransitionKey
   / "todo"
 
 TransitionItem
-  = key:TransitionKey ":" value:Label ";" { return { key, value }; }
+  = key:TransitionKey ":" value:Label ";" {
+      const node: any = { key, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 TransitionItems
   = GraphDefaultEdgeColor
   / TransitionItem+
 
 GraphDefaultEdgeColor "graph default edge color"
-  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
-  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
+  = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? {
+      const node: any = { key:'graph_default_edge_color', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? {
+      const node: any = { key:'graph_default_edge_color', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigTransition
   = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
-    return { config_kind: "transition", config_items: transition_items || [] };
-  }
+      const node: any = { config_kind: "transition", config_items: transition_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
 
 
 ConfigGraphLayout
-  = WS? "graph_layout"    WS? ":" WS? value:GvizLayout WS? ";" WS? { return { key: "graph_layout",    value: value }; }
+  = WS? "graph_layout"    WS? ":" WS? value:GvizLayout WS? ";" WS? {
+      const node: any = { key: "graph_layout", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigStartNodes
-  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "start_states",    value: value }; }
+  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? {
+      const node: any = { key: "start_states", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigEndNodes
-  = WS? "end_states"      WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "end_states",      value: value }; }
+  = WS? "end_states"      WS? ":" WS? value:LabelList  WS? ";" WS? {
+      const node: any = { key: "end_states", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigGraphBgColor
-  = WS? "graph_bg_color"  WS? ":" WS? value:Color      WS? ";" WS? { return { key: "graph_bg_color",  value: value }; }
+  = WS? "graph_bg_color"  WS? ":" WS? value:Color      WS? ";" WS? {
+      const node: any = { key: "graph_bg_color", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigAllowsOverride
-  = WS? "allows_override" WS? ":" WS? value:OverrideT  WS? ";" WS? { return { key: "allows_override", value: value }; }
+  = WS? "allows_override" WS? ":" WS? value:OverrideT  WS? ";" WS? {
+      const node: any = { key: "allows_override", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
