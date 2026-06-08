@@ -38,6 +38,27 @@ describe('parser source locations — transitions', () => {
 
 });
 
+describe('parser source locations — other top-level nodes', () => {
+
+  test('named_list node carries a loc', () => {
+    const src  = '&group: [a b c]; a -> b;';
+    const tree = jssm.parse(src, { locations: true });
+    expect(tree[0].key).toBe('named_list');
+    expect(tree[0].loc).toBeDefined();
+    expect(slice(src, tree[0].loc!)).toContain('&group:');
+  });
+
+  test('arrange declaration node carries a loc', () => {
+    const src  = 'a -> b; arrange [a b];';
+    const tree = jssm.parse(src, { locations: true });
+    const node = tree.find(n => n.key === 'arrange_declaration');
+    expect(node).toBeDefined();
+    expect(node!.loc).toBeDefined();
+    expect(slice(src, node!.loc!)).toContain('arrange [a b];');
+  });
+
+});
+
 describe('parser source locations — config blocks', () => {
 
   test('graph_layout config node carries a loc', () => {

@@ -631,7 +631,11 @@ ArrowItemKey
   / "tail_label"
 
 ArrowItem
-  = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? { return {key:key, value:value}; }
+  = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? {
+      const node: any = { key:key, value:value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SingleEdgeColor "single edge color"
   = WS? "edge-color" WS? ":" WS? value:Color WS? ";" WS? {
@@ -661,7 +665,11 @@ ArrowDesc
   = "{" WS? items:ArrowItems? WS? "}" { return items; }
 
 ArrowProbability
-  = value:NonNegNumber "%" { return { key: 'arrow probability', value: value }; }
+  = value:NonNegNumber "%" {
+      const node: any = { key: 'arrow probability', value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -718,13 +726,33 @@ LabelOrLabelList
   / Label
 
 Stripe
-  = '+|' n:$(NonZeroDigit DecimalDigit*) { return { key: 'stripe', value:      parseInt(n, 10) }; }
-  / '-|' n:$(NonZeroDigit DecimalDigit*) { return { key: 'stripe', value: -1 * parseInt(n, 10) }; }
+  = '+|' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'stripe', value:      parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / '-|' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'stripe', value: -1 * parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 Cycle
-  = '+' n:$(NonZeroDigit DecimalDigit*) { return { key: 'cycle', value:      parseInt(n, 10) }; }
-  / '-' n:$(NonZeroDigit DecimalDigit*) { return { key: 'cycle', value: -1 * parseInt(n, 10) }; }
-  / '+0'                                 { return { key: 'cycle', value: 0                  }; }
+  = '+' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'cycle', value:      parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / '-' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'cycle', value: -1 * parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / '+0'                                 {
+      const node: any = { key: 'cycle', value: 0 };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrowTarget
   = Stripe
@@ -1323,7 +1351,11 @@ StateDeclaration
 
 
 NamedList
-  = WS? "&" WS? name:Label WS? ":" WS? value:LabelOrLabelList WS? ";" WS? { return { key:'named_list', name, value }; }
+  = WS? "&" WS? name:Label WS? ":" WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key:'named_list', name, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -1335,23 +1367,51 @@ MachinePropertyDefault
 //   / MachinePropertyDefaultObject
 
 MachineProperty
-  = WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault WS  'required' WS? ";" WS? { return { key:'property_definition', name, default_value, required: true }; }
-  / WS? "property" WS name:Label                                                      WS  'required' WS? ";" WS? { return { key:'property_definition', name,                required: true }; }
-  / WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault                WS? ";" WS? { return { key:'property_definition', name, default_value                 }; }
-  / WS? "property" WS name:Label                                                                     WS? ";" WS? { return { key:'property_definition', name                                }; }
+  = WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault WS  'required' WS? ";" WS? {
+      const node: any = { key:'property_definition', name, default_value, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "property" WS name:Label                                                      WS  'required' WS? ";" WS? {
+      const node: any = { key:'property_definition', name, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault                WS? ";" WS? {
+      const node: any = { key:'property_definition', name, default_value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "property" WS name:Label                                                                     WS? ";" WS? {
+      const node: any = { key:'property_definition', name };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
 
 
 RegularArrangeDeclaration
-  = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_declaration', value }; }
+  = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'arrange_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrangeStartDeclaration
-  = "arrange-start" WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_start_declaration', value }; }
+  = "arrange-start" WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'arrange_start_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrangeEndDeclaration
-  = "arrange-end"   WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_end_declaration', value }; }
+  = "arrange-end"   WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'arrange_end_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrangeDeclaration "arrange declaration"
   = ArrangeStartDeclaration

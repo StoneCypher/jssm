@@ -1374,7 +1374,11 @@ function peg$parse(input, options) {
       peg$c1207 = peg$literalExpectation(":", false),
       peg$c1208 = ";",
       peg$c1209 = peg$literalExpectation(";", false),
-      peg$c1210 = function(key, value) { return {key:key, value:value}; },
+      peg$c1210 = function(key, value) {
+            const node: any = { key:key, value:value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1211 = peg$otherExpectation("single edge color"),
       peg$c1212 = "edge-color",
       peg$c1213 = peg$literalExpectation("edge-color", false),
@@ -1400,7 +1404,11 @@ function peg$parse(input, options) {
       peg$c1225 = function(items) { return items; },
       peg$c1226 = "%",
       peg$c1227 = peg$literalExpectation("%", false),
-      peg$c1228 = function(value) { return { key: 'arrow probability', value: value }; },
+      peg$c1228 = function(value) {
+            const node: any = { key: 'arrow probability', value: value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1229 = "milliseconds",
       peg$c1230 = peg$literalExpectation("milliseconds", false),
       peg$c1231 = function() { return 1;                       },
@@ -1469,19 +1477,39 @@ function peg$parse(input, options) {
       peg$c1294 = function(names) { return names.map(i => i[0]); },
       peg$c1295 = "+|",
       peg$c1296 = peg$literalExpectation("+|", false),
-      peg$c1297 = function(n) { return { key: 'stripe', value:      parseInt(n, 10) }; },
+      peg$c1297 = function(n) {
+            const node: any = { key: 'stripe', value:      parseInt(n, 10) };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1298 = "-|",
       peg$c1299 = peg$literalExpectation("-|", false),
-      peg$c1300 = function(n) { return { key: 'stripe', value: -1 * parseInt(n, 10) }; },
+      peg$c1300 = function(n) {
+            const node: any = { key: 'stripe', value: -1 * parseInt(n, 10) };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1301 = "+",
       peg$c1302 = peg$literalExpectation("+", false),
-      peg$c1303 = function(n) { return { key: 'cycle', value:      parseInt(n, 10) }; },
+      peg$c1303 = function(n) {
+            const node: any = { key: 'cycle', value:      parseInt(n, 10) };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1304 = "-",
       peg$c1305 = peg$literalExpectation("-", false),
-      peg$c1306 = function(n) { return { key: 'cycle', value: -1 * parseInt(n, 10) }; },
+      peg$c1306 = function(n) {
+            const node: any = { key: 'cycle', value: -1 * parseInt(n, 10) };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1307 = "+0",
       peg$c1308 = peg$literalExpectation("+0", false),
-      peg$c1309 = function() { return { key: 'cycle', value: 0                  }; },
+      peg$c1309 = function() {
+            const node: any = { key: 'cycle', value: 0 };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1310 = function(v) { return { _kind: 'after',  v: v }; },
       peg$c1311 = function(v) { return { _kind: 'action', v: v }; },
       peg$c1312 = function(v) { return { _kind: 'prob',   v: v }; },
@@ -1907,20 +1935,52 @@ function peg$parse(input, options) {
           },
       peg$c1508 = "&",
       peg$c1509 = peg$literalExpectation("&", false),
-      peg$c1510 = function(name, value) { return { key:'named_list', name, value }; },
-      peg$c1511 = function(name, default_value) { return { key:'property_definition', name, default_value, required: true }; },
-      peg$c1512 = function(name) { return { key:'property_definition', name,                required: true }; },
-      peg$c1513 = function(name, default_value) { return { key:'property_definition', name, default_value                 }; },
-      peg$c1514 = function(name) { return { key:'property_definition', name                                }; },
+      peg$c1510 = function(name, value) {
+            const node: any = { key:'named_list', name, value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
+      peg$c1511 = function(name, default_value) {
+            const node: any = { key:'property_definition', name, default_value, required: true };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
+      peg$c1512 = function(name) {
+            const node: any = { key:'property_definition', name, required: true };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
+      peg$c1513 = function(name, default_value) {
+            const node: any = { key:'property_definition', name, default_value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
+      peg$c1514 = function(name) {
+            const node: any = { key:'property_definition', name };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1515 = "arrange",
       peg$c1516 = peg$literalExpectation("arrange", false),
-      peg$c1517 = function(value) { return { key: 'arrange_declaration', value }; },
+      peg$c1517 = function(value) {
+            const node: any = { key: 'arrange_declaration', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1518 = "arrange-start",
       peg$c1519 = peg$literalExpectation("arrange-start", false),
-      peg$c1520 = function(value) { return { key: 'arrange_start_declaration', value }; },
+      peg$c1520 = function(value) {
+            const node: any = { key: 'arrange_start_declaration', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1521 = "arrange-end",
       peg$c1522 = peg$literalExpectation("arrange-end", false),
-      peg$c1523 = function(value) { return { key: 'arrange_end_declaration', value }; },
+      peg$c1523 = function(value) {
+            const node: any = { key: 'arrange_end_declaration', value };
+            if (options.locations) { node.loc = location(); }
+            return node;
+          },
       peg$c1524 = peg$otherExpectation("arrange declaration"),
 
       peg$currPos          = 0,
