@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 
-import '../jssm_instance_wc.define';
-import { JssmInstance } from '../jssm_instance_wc';
+import '../fsl_instance_wc.define';
+import { JssmInstance } from '../fsl_instance_wc';
 import {
   build_hook_descriptor,
   compile_inline_body,

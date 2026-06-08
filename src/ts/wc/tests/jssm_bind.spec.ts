@@ -10,9 +10,9 @@ import {
   walk_path,
   JssmBind,
 } from '../jssm_bind_wc.js';
-import '../jssm_instance_wc.define';
+import '../fsl_instance_wc.define';
 import '../jssm_bind_wc.define';
-import type { JssmInstance } from '../jssm_instance_wc.js';
+import type { JssmInstance } from '../fsl_instance_wc.js';
 
 describe('walk_path', () => {
 

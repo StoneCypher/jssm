@@ -2,10 +2,10 @@
  * @vitest-environment jsdom
  */
 
-import '../jssm_instance_wc.define';
+import '../fsl_instance_wc.define';
 import { FslViz, JssmViz as JssmVizFromDefine } from '../jssm_viz_wc.define';
 import { JssmViz, normalize_viz_error } from '../jssm_viz_wc';
-import type { JssmInstance } from '../jssm_instance_wc';
+import type { FslInstance as JssmInstance } from '../fsl_instance_wc';
 
 describe('JssmViz registration', () => {
 

@@ -2,32 +2,52 @@
  * @vitest-environment jsdom
  */
 
-import '../jssm_instance_wc.define';
-import { JssmInstance, resolve_fsl_source } from '../jssm_instance_wc';
+import '../fsl_instance_wc.define';
+import { FslInstance, resolve_fsl_source } from '../fsl_instance_wc';
 
-describe('JssmInstance registration', () => {
+// JssmInstance is re-exported as an alias from the define file.
+import { JssmInstance } from '../fsl_instance_wc.define';
 
-  it('registers the jssm-instance tag', () => {
-    expect(customElements.get('jssm-instance')).toBe(JssmInstance);
+describe('FslInstance registration', () => {
+
+  it('registers the fsl-instance tag', () => {
+    expect(customElements.get('fsl-instance')).toBe(FslInstance);
   });
 
-  it('creates an element with createElement', () => {
-    const el = document.createElement('jssm-instance');
-    expect(el).toBeInstanceOf(JssmInstance);
+  it('creates an element with createElement using fsl-instance', () => {
+    const el = document.createElement('fsl-instance');
+    expect(el).toBeInstanceOf(FslInstance);
   });
 
 });
 
-describe('JssmInstance re-registration', () => {
+describe('jssm-instance synonym registration', () => {
+
+  it('registers the jssm-instance synonym tag', () => {
+    expect(customElements.get('jssm-instance')).toBeDefined();
+  });
+
+  it('creates an element with createElement using jssm-instance', () => {
+    const el = document.createElement('jssm-instance');
+    expect(el).toBeInstanceOf(FslInstance);
+  });
+
+  it('JssmInstance alias is a subclass of FslInstance', () => {
+    expect(JssmInstance.prototype).toBeInstanceOf(FslInstance);
+  });
+
+});
+
+describe('FslInstance re-registration', () => {
 
   it('does not re-define or throw when the define module is re-evaluated', async () => {
-    const before = customElements.get('jssm-instance');
-    expect(before).toBe(JssmInstance);
+    const before = customElements.get('fsl-instance');
+    expect(before).toBe(FslInstance);
 
     vi.resetModules();
-    await expect(import('../jssm_instance_wc.define')).resolves.toBeDefined();
+    await expect(import('../fsl_instance_wc.define')).resolves.toBeDefined();
 
-    expect(customElements.get('jssm-instance')).toBe(before);
+    expect(customElements.get('fsl-instance')).toBe(before);
   });
 
 });
@@ -78,10 +98,22 @@ describe('resolve_fsl_source', () => {
     expect(r.error).toBeUndefined();
   });
 
-  it('keeps non-jssm child element contributions to textContent', () => {
-    // The filter that drops <jssm-*> tags has a false branch for any non-jssm
-    // descendant: that contribution must remain in the assembled FSL text.
-    // This exercises the "tagName does NOT start with jssm-" branch.
+  it('strips <fsl-*> companion-tag children from the textContent channel', () => {
+    // prefix-agnostic stripping: <fsl-hook> must also be excluded.
+    const host = document.createElement('div');
+    host.appendChild(document.createTextNode('   P -> Q;   '));
+    const hook = document.createElement('fsl-hook');
+    hook.textContent = 'handlerName';
+    host.appendChild(hook);
+    host.appendChild(document.createTextNode('   '));
+    const r = resolve_fsl_source(host, '');
+    expect(r.fsl).toBe('P -> Q;');
+    expect(r.error).toBeUndefined();
+  });
+
+  it('keeps non-fsl/non-jssm child element contributions to textContent', () => {
+    // The filter that drops <fsl-*>/<jssm-*> tags has a false branch for any
+    // other descendant: that contribution must remain in the assembled FSL text.
     const host = document.createElement('div');
     host.appendChild(document.createTextNode('M -> N'));
     const span = document.createElement('span');
@@ -210,11 +242,11 @@ function capture_connection_error(fn: () => void): Error | null {
   return captured;
 }
 
-describe('JssmInstance lifecycle', () => {
+describe('FslInstance lifecycle (via fsl-instance tag)', () => {
 
   it('throws on connect when no FSL source is provided', () => {
     const err = capture_connection_error(() => {
-      const el = document.createElement('jssm-instance');
+      const el = document.createElement('fsl-instance');
       document.body.appendChild(el);
     });
     expect(err).not.toBeNull();
@@ -223,7 +255,7 @@ describe('JssmInstance lifecycle', () => {
 
   it('throws on connect when more than one source is provided', () => {
     const err = capture_connection_error(() => {
-      const el = document.createElement('jssm-instance') as JssmInstance;
+      const el = document.createElement('fsl-instance') as FslInstance;
       el.setAttribute('fsl', 'Off -> On;');
       const script = document.createElement('script');
       script.setAttribute('type', 'text/fsl');
@@ -236,7 +268,7 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('constructs a machine from the fsl attribute and exposes it', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'Off -> On;');
     document.body.appendChild(el);
 
@@ -247,7 +279,7 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('constructs a machine from a <script type="text/fsl"> child', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     const script = document.createElement('script');
     script.setAttribute('type', 'text/fsl');
     script.textContent = 'Red -> Green;';
@@ -260,7 +292,7 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('constructs a machine from textContent', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.textContent = 'Alpha -> Beta;';
     document.body.appendChild(el);
 
@@ -270,7 +302,7 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('drives transitions via host.do() and reflects updated state', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On 'flip' -> Off;");
     document.body.appendChild(el);
 
@@ -286,7 +318,7 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('returns false from host.do() when the action is illegal', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
     document.body.appendChild(el);
 
@@ -300,7 +332,7 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('reflects legal-actions, terminal, and complete host attributes', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
     document.body.appendChild(el);
 
@@ -316,7 +348,7 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('sets the --current-state CSS custom property on the host', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
     document.body.appendChild(el);
 
@@ -330,12 +362,12 @@ describe('JssmInstance lifecycle', () => {
   });
 
   it('throws when machine is accessed before connection', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     expect(() => el.machine).toThrow(/before connection/);
   });
 
   it('cleans up on disconnect without throwing', () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'A -> B;');
     document.body.appendChild(el);
     expect(() => document.body.removeChild(el)).not.toThrow();
@@ -343,10 +375,36 @@ describe('JssmInstance lifecycle', () => {
 
 });
 
-describe('JssmInstance shadow DOM', () => {
+describe('jssm-instance synonym lifecycle', () => {
+
+  it('constructs a working machine via the jssm-instance synonym tag', () => {
+    const el = document.createElement('jssm-instance') as FslInstance;
+    el.setAttribute('fsl', 'Off -> On;');
+    document.body.appendChild(el);
+
+    expect(el.machine).toBeDefined();
+    expect(el.state()).toBe('Off');
+
+    document.body.removeChild(el);
+  });
+
+  it('drives transitions via jssm-instance synonym', () => {
+    const el = document.createElement('jssm-instance') as FslInstance;
+    el.setAttribute('fsl', "Off 'go' -> On;");
+    document.body.appendChild(el);
+
+    expect(el.do('go')).toBe(true);
+    expect(el.state()).toBe('On');
+
+    document.body.removeChild(el);
+  });
+
+});
+
+describe('FslInstance shadow DOM', () => {
 
   it('renders the named slots and the state-specific slot', async () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
     document.body.appendChild(el);
     await (el as any).updateComplete;
@@ -370,7 +428,7 @@ describe('JssmInstance shadow DOM', () => {
   });
 
   it('updates the state-specific slot name after a transition', async () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
     document.body.appendChild(el);
     await (el as any).updateComplete;
@@ -387,14 +445,14 @@ describe('JssmInstance shadow DOM', () => {
   });
 
   it('shows fallback placeholder content when slots are empty', async () => {
-    const el = document.createElement('jssm-instance') as JssmInstance;
+    const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', 'A -> B;');
     document.body.appendChild(el);
     await (el as any).updateComplete;
 
     const html_str = el.shadowRoot!.innerHTML;
-    // Title and viz both have explicit fallback strings.
-    expect(html_str).toContain('jssm-instance');
+    // Title slot has the fsl-instance placeholder.
+    expect(html_str).toContain('fsl-instance');
     expect(html_str).toContain('no viz configured');
 
     document.body.removeChild(el);
@@ -403,11 +461,38 @@ describe('JssmInstance shadow DOM', () => {
   it('renders the placeholder state slot name before connection', () => {
     // Direct render-method call with no machine attached covers the
     // pre-connection render branch (state slot becomes "state-unknown").
-    const inst = new JssmInstance();
+    const inst = new FslInstance();
     const result = inst.render();
     // The dynamic value is interpolated into the template; it should be
     // the unknown placeholder when no machine is set.
     expect(result.values).toContain('state-unknown');
+  });
+
+});
+
+describe('mixed-prefix companion discovery', () => {
+
+  it('discovers a jssm-on child under a fsl-instance host', () => {
+    // A <jssm-on> child under <fsl-instance> must be discovered and wired.
+    // We verify by checking the host drives the subscription: the handler
+    // fires on the transition and updates a local flag.
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "Off 'go' -> On;");
+
+    const on_el = document.createElement('jssm-on');
+    on_el.setAttribute('event', 'transition');
+    let fired = false;
+    // Use a named handler on globalThis so the inline resolver can find it.
+    (globalThis as any)['_test_mixed_prefix_handler'] = () => { fired = true; };
+    on_el.setAttribute('handler', '_test_mixed_prefix_handler');
+    el.appendChild(on_el);
+
+    document.body.appendChild(el);
+    el.do('go');
+    expect(fired).toBe(true);
+
+    document.body.removeChild(el);
+    delete (globalThis as any)['_test_mixed_prefix_handler'];
   });
 
 });

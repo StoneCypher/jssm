@@ -12,7 +12,7 @@
  *      delivery, `once` semantics, and cleanup on disconnect.
  */
 
-import '../jssm_instance_wc.define';
+import '../fsl_instance_wc.define';
 import {
   JssmInstance,
   parse_jssm_on_element,
@@ -20,7 +20,7 @@ import {
   compile_inline_body,
   jssm_handler_registry,
   JSSM_ON_EVENT_NAMES
-} from '../jssm_instance_wc';
+} from '../fsl_instance_wc';
 
 
 
