@@ -1,6 +1,6 @@
 import { LitElement, html, css, TemplateResult } from 'lit';
 import { Machine, sm } from '../jssm.js';
-import { install_bindings, type JssmBindUnsub } from './jssm_bind_wc.js';
+import { install_bindings, type FslBindUnsub } from './fsl_bind_wc.js';
 import {
   JssmHookRegistry,
   build_hook_descriptor,
@@ -359,11 +359,11 @@ export class FslInstance extends LitElement {
   private _machine: Machine<unknown> | undefined = undefined;
 
   /**
-   * Live unsubscribe callbacks for #645 `<jssm-bind>` / `data-jssm-bind`
+   * Live unsubscribe callbacks for #645 `<fsl-bind>` / `data-jssm-bind`
    * projections.  Every entry must be invoked exactly once during
    * {@link disconnectedCallback}.
    */
-  private _unsubs: JssmBindUnsub[] = [];
+  private _unsubs: FslBindUnsub[] = [];
 
   /**
    * Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`

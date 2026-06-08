@@ -1,12 +1,16 @@
 import { LitElement, css } from 'lit';
 import type { Machine } from '../jssm.js';
+import { wc_suffix_matches } from './wc_tag_helpers.js';
 
 /**
  * Unsubscribe callback returned by {@link install_bindings}.  Calling it
  * removes the underlying `machine.on('transition', ...)` subscription that
  * keeps the binding live.
  */
-export type JssmBindUnsub = () => void;
+export type FslBindUnsub = () => void;
+
+/** @deprecated Use {@link FslBindUnsub} instead; kept for backwards compat. */
+export type JssmBindUnsub = FslBindUnsub;
 
 /**
  * Walk a dotted path into a value.  Used by the `data.path.to.field`
@@ -152,9 +156,9 @@ export function set_on_element(el: HTMLElement, target: string, value: unknown):
  * @throws Error - When a `<jssm-bind>` tag is missing its `selector`
  *                 or `source` attribute.
  */
-export function install_bindings(host: HTMLElement, machine: Machine<unknown>): JssmBindUnsub[] {
+export function install_bindings(host: HTMLElement, machine: Machine<unknown>): FslBindUnsub[] {
 
-  const unsubs: JssmBindUnsub[] = [];
+  const unsubs: FslBindUnsub[] = [];
 
   // Form 1: inline `data-jssm-bind` on descendants.
   const inline_nodes = host.querySelectorAll<HTMLElement>('[data-jssm-bind]');
@@ -170,12 +174,15 @@ export function install_bindings(host: HTMLElement, machine: Machine<unknown>): 
     unsubs.push(machine.on('transition', apply));
   }
 
-  // Form 2: dedicated `<jssm-bind>` configuration tags.  Only direct
-  // children are considered configuration tags for THIS host — nested
-  // `<jssm-instance>` children would have their own bindings handled by
-  // their own component.
-  const config_tags = host.querySelectorAll<HTMLElement>(':scope > jssm-bind');
-  for (const tag of Array.from(config_tags)) {
+  // Form 2: dedicated `<fsl-bind>` / `<jssm-bind>` configuration tags.  Only
+  // direct children are considered configuration tags for THIS host — nested
+  // `<fsl-instance>` / `<jssm-instance>` children would have their own
+  // bindings handled by their own component.
+  const all_direct = host.querySelectorAll<HTMLElement>(':scope > *');
+  const config_tags = Array.from(all_direct).filter(
+    el => wc_suffix_matches(el.tagName, 'bind'),
+  );
+  for (const tag of config_tags) {
 
     const selector = tag.getAttribute('selector');
     const expr     = tag.getAttribute('source');
@@ -207,22 +214,22 @@ export function install_bindings(host: HTMLElement, machine: Machine<unknown>): 
 }
 
 /**
- * `<jssm-bind>` configuration tag.  The element itself is invisible —
- * it carries `selector`, `source`, and optional `target` attributes
- * that the parent `<jssm-instance>` reads during its connection
+ * `<fsl-bind>` / `<jssm-bind>` configuration tag.  The element itself is
+ * invisible — it carries `selector`, `source`, and optional `target`
+ * attributes that the parent `<fsl-instance>` reads during its connection
  * lifecycle to wire up a machine-to-DOM binding.
  *
  * Registering it as a `LitElement` (rather than leaving it as a generic
  * unknown tag) gives it a stable upgrade timing, a `display: none`
  * default style, and a proper place in the custom-elements registry so
- * `customElements.get('jssm-bind')` resolves.
+ * `customElements.get('fsl-bind')` resolves.
  *
- * @element jssm-bind
+ * @element fsl-bind
  * @attribute selector - CSS selector for the target element(s), scoped to the host.
  * @attribute source - Binding expression (see {@link resolve_binding}).
  * @attribute target - Target property name; defaults to `textContent`.
  */
-export class JssmBind extends LitElement {
+export class FslBind extends LitElement {
 
   static styles = css`:host { display: none; }`;
 
@@ -236,8 +243,12 @@ export class JssmBind extends LitElement {
 
 }
 
+/** @deprecated Use {@link FslBind} instead; kept for backwards compat. */
+export type JssmBind = FslBind;
+
 declare global {
   interface HTMLElementTagNameMap {
-    'jssm-bind': JssmBind;
+    'fsl-bind'  : FslBind;
+    'jssm-bind' : FslBind;
   }
 }

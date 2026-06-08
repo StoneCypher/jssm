@@ -8,10 +8,11 @@ import {
   resolve_binding,
   set_on_element,
   walk_path,
+  FslBind,
   JssmBind,
-} from '../jssm_bind_wc.js';
+} from '../fsl_bind_wc.js';
 import '../fsl_instance_wc.define';
-import '../jssm_bind_wc.define';
+import '../fsl_bind_wc.define';
 import type { JssmInstance } from '../fsl_instance_wc.js';
 
 describe('walk_path', () => {
@@ -419,36 +420,42 @@ describe('install_bindings — dedicated <jssm-bind> tag form', () => {
 
 });
 
-describe('JssmBind re-registration guard', () => {
+describe('FslBind re-registration guard', () => {
 
-  // Covers the "already registered" branch of jssm_bind_wc.define.ts so
+  // Covers the "already registered" branch of fsl_bind_wc.define.ts so
   // re-evaluating the define module is a no-op rather than a re-define
   // error (custom-elements registry only accepts each tag name once).
   it('does not re-define or throw when the define module is re-evaluated', async () => {
-    const before = customElements.get('jssm-bind');
-    expect(before).toBe(JssmBind);
+    const before = customElements.get('fsl-bind');
+    expect(before).toBe(FslBind);
 
     vi.resetModules();
-    await expect(import('../jssm_bind_wc.define')).resolves.toBeDefined();
+    await expect(import('../fsl_bind_wc.define')).resolves.toBeDefined();
 
-    expect(customElements.get('jssm-bind')).toBe(before);
+    expect(customElements.get('fsl-bind')).toBe(before);
+  });
+
+  // Synonym (jssm-bind) is also registered by define_with_synonym.
+  it('jssm-bind synonym is registered alongside fsl-bind', () => {
+    expect(customElements.get('jssm-bind')).toBeDefined();
+    expect(customElements.get('jssm-bind')).not.toBe(FslBind);
   });
 
 });
 
-describe('JssmBind class', () => {
+describe('FslBind class (canonical)', () => {
 
-  it('is registered as the <jssm-bind> custom element', () => {
-    expect(customElements.get('jssm-bind')).toBe(JssmBind);
+  it('is registered as the <fsl-bind> custom element', () => {
+    expect(customElements.get('fsl-bind')).toBe(FslBind);
   });
 
-  it('createElement(jssm-bind) returns a JssmBind instance', () => {
-    const el = document.createElement('jssm-bind');
-    expect(el).toBeInstanceOf(JssmBind);
+  it('createElement(fsl-bind) returns a FslBind instance', () => {
+    const el = document.createElement('fsl-bind');
+    expect(el).toBeInstanceOf(FslBind);
   });
 
   it('renders no content (purely declarative configuration)', async () => {
-    const el = document.createElement('jssm-bind') as JssmBind;
+    const el = document.createElement('fsl-bind') as FslBind;
     document.body.appendChild(el);
     await (el as unknown as { updateComplete: Promise<unknown> }).updateComplete;
 
@@ -458,6 +465,39 @@ describe('JssmBind class', () => {
     expect(el.render()).toBeNull();
 
     document.body.removeChild(el);
+  });
+
+});
+
+describe('JssmBind synonym coverage', () => {
+
+  it('jssm-bind is registered and its instances are FslBind instances', () => {
+    const ctor = customElements.get('jssm-bind');
+    expect(ctor).toBeDefined();
+    const el = document.createElement('jssm-bind');
+    expect(el).toBeInstanceOf(FslBind);
+    // JssmBind is a type alias for FslBind; confirm assignment-compat.
+    const typed: JssmBind = el as JssmBind;
+    expect(typed).toBeInstanceOf(FslBind);
+  });
+
+  it('install_bindings discovers <jssm-bind> config tags as a synonym', () => {
+    const host = document.createElement('div');
+    const target_span = document.createElement('span');
+    target_span.id = 'syn-tgt';
+    host.appendChild(target_span);
+
+    const config = document.createElement('jssm-bind');
+    config.setAttribute('selector', '#syn-tgt');
+    config.setAttribute('source', 'state');
+    host.appendChild(config);
+
+    const m = sm`Alpha 'go' -> Beta;`;
+    install_bindings(host, m);
+    expect(target_span.textContent).toBe('Alpha');
+
+    m.transition('Beta');
+    expect(target_span.textContent).toBe('Beta');
   });
 
 });
