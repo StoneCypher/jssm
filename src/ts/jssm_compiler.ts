@@ -26,7 +26,8 @@ import {
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
-  JssmAllowsOverride
+  JssmAllowsOverride,
+  JssmAllowIslands
 } from './jssm_types';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
@@ -295,7 +296,7 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     'graph_layout', 'start_states', 'end_states', 'failed_outputs', 'machine_name', 'machine_version',
     'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
     'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-    'flow', 'dot_preamble', 'allows_override', 'default_state_config',
+    'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'default_state_config',
     'default_start_state_config', 'default_end_state_config',
     'default_hooked_state_config', 'default_active_state_config',
     'default_terminal_state_config', 'npm_name'
@@ -400,7 +401,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : Array<JssmStateConfig>,
     default_start_state_config    : Array<JssmStateConfig>,
     default_end_state_config      : Array<JssmStateConfig>,
-    allows_override               : Array<JssmAllowsOverride>
+    allows_override               : Array<JssmAllowsOverride>,
+    allow_islands                 : Array<JssmAllowIslands>
   } = {
     graph_layout                  : [],
     transition                    : [],
@@ -434,7 +436,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     default_terminal_state_config : [],
     default_start_state_config    : [],
     default_end_state_config      : [],
-    allows_override               : []
+    allows_override               : [],
+    allow_islands                 : []
   };
 
   tree.map((tr: JssmCompileSeStart<StateType, mDT>) => {
@@ -467,7 +470,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   const oneOnlyKeys: Array<string> = [
     'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
     'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-    'flow', 'dot_preamble', 'allows_override', 'npm_name'
+    'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'npm_name'
   ];
 
   oneOnlyKeys.map((oneOnlyKey: string) => {

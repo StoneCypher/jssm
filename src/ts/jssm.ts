@@ -16,6 +16,7 @@ import {
   JssmTransition, JssmTransitions, JssmTransitionList, // JssmTransitionRule,
   JssmMachineInternalState,
   JssmAllowsOverride,
+  JssmAllowIslands,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmStateStyleKey, JssmStateStyleKeyList,
@@ -298,6 +299,68 @@ function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmS
  *
  */
 
+
+
+/*********
+ *
+ *  Partition a state graph into its connected components using an undirected
+ *  BFS over state names.  Each edge (from, to) is treated as bidirectional so
+ *  that island membership is topology-based rather than flow-based.
+ *
+ *  Used at construction time to enforce the `allow_islands` constraint.
+ *
+ *  @param states  The machine's state map (keys are state names).
+ *  @param edges   The machine's edge list; only `from` and `to` are used.
+ *  @returns       An array of components, each component an array of state names.
+ *
+ */
+
+function find_connected_components<mDT>(
+  states : Map<StateType, JssmGenericState>,
+  edges  : Array<JssmTransition<StateType, mDT>>
+): Array<Array<StateType>> {
+
+  // Build undirected adjacency list
+  const adj: Map<StateType, Set<StateType>> = new Map();
+  for (const name of states.keys()) {
+    adj.set(name, new Set());
+  }
+  for (const edge of edges) {
+    adj.get(edge.from)!.add(edge.to);
+    adj.get(edge.to)!.add(edge.from);
+  }
+
+  const visited : Set<StateType>             = new Set();
+  const result  : Array<Array<StateType>>    = [];
+
+  for (const start of states.keys()) {
+    if (visited.has(start)) { continue; }
+
+    // BFS to collect this component
+    const component : Array<StateType> = [];
+    const queue     : Array<StateType> = [start];
+    visited.add(start);
+
+    while (queue.length > 0) {
+      const node      = queue.shift()!;
+      component.push(node);
+      for (const neighbor of adj.get(node)!) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    result.push(component);
+  }
+
+  return result;
+
+}
+
+
+
 class Machine<mDT> {
 
 
@@ -384,6 +447,7 @@ class Machine<mDT> {
 
   _code_allows_override   : JssmAllowsOverride;
   _config_allows_override : JssmAllowsOverride;
+  _allow_islands          : JssmAllowIslands;
 
   // Same nesting strategy as `_hooks` / `_named_hooks`; see comment above.  #642
   _post_hooks                    : Map<string, Map<string, HookHandler<mDT>>>;
@@ -484,6 +548,7 @@ class Machine<mDT> {
     default_end_state_config,
     allows_override,
     config_allows_override,
+    allow_islands,
     rng_seed,
     time_source,
     timeout_source,
@@ -567,6 +632,7 @@ class Machine<mDT> {
 
     this._code_allows_override   = allows_override;
     this._config_allows_override = config_allows_override;
+    this._allow_islands          = allow_islands ?? true;
 
     if ( (allows_override === false) && (config_allows_override === true) ) {
       throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
@@ -892,6 +958,24 @@ class Machine<mDT> {
     // assert chosen starting state is valid
     if (!( start_states.length === this._start_states.size )) {
       throw new JssmError(this, `Start states cannot be repeated`);
+    }
+
+    // assert connectivity constraints imposed by allow_islands
+    if (this._allow_islands !== true) {
+      const components = find_connected_components(this._states, this._edges);
+      if (this._allow_islands === false) {
+        if (components.length > 1) {
+          throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
+        }
+      } else {
+        // 'with_start': every component must contain at least one start state
+        for (const component of components) {
+          const has_start = component.some(s => this._start_states.has(s));
+          if (!has_start) {
+            throw new JssmError(this, `allow_islands is 'with_start' but a connected component has no start state: [${[...component].join(', ')}]`);
+          }
+        }
+      }
     }
 
 
@@ -1824,6 +1908,24 @@ class Machine<mDT> {
       return false;
     }
 
+  }
+
+
+
+
+  /*********
+   *
+   *  Return the effective island policy for this machine.  `true` means
+   *  disconnected components are allowed (the default), `false` requires a
+   *  single connected component, and `'with_start'` allows islands only when
+   *  every component contains at least one start state.
+   *
+   *  @returns The island policy stored in the machine.
+   *
+   */
+
+  get allow_islands(): JssmAllowIslands {
+    return this._allow_islands;
   }
 
 

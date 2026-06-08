@@ -207,7 +207,7 @@ function compile_rule_handler(rule) {
         'graph_layout', 'start_states', 'end_states', 'failed_outputs', 'machine_name', 'machine_version',
         'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
         'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-        'flow', 'dot_preamble', 'allows_override', 'default_state_config',
+        'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_active_state_config',
         'default_terminal_state_config', 'npm_name'
@@ -302,7 +302,8 @@ function compile(tree) {
         default_terminal_state_config: [],
         default_start_state_config: [],
         default_end_state_config: [],
-        allows_override: []
+        allows_override: [],
+        allow_islands: []
     };
     tree.map((tr) => {
         const rule = compile_rule_handler(tr), agg_as = rule.agg_as, val = rule.val; // TODO FIXME no any
@@ -323,7 +324,7 @@ function compile(tree) {
     const oneOnlyKeys = [
         'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
         'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-        'flow', 'dot_preamble', 'allows_override', 'npm_name'
+        'flow', 'dot_preamble', 'allows_override', 'allow_islands', 'npm_name'
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {

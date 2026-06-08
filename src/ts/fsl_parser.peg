@@ -936,6 +936,9 @@ ConfigGraphBgColor
 ConfigAllowsOverride
   = WS? "allows_override" WS? ":" WS? value:OverrideT  WS? ";" WS? { return { key: "allows_override", value: value }; }
 
+ConfigAllowIslands
+  = WS? "allow_islands" WS? ":" WS? value:IslandsT  WS? ";" WS? { return { key: "allow_islands", value: value }; }
+
 
 
 
@@ -944,6 +947,11 @@ OverrideT
   = 'true'      { return true;      }
   / 'false'     { return false;     }
   / 'undefined' { return undefined; }
+
+IslandsT
+  = 'with_start' { return 'with_start'; }
+  / 'true'       { return true;         }
+  / 'false'      { return false;        }
 
 
 
@@ -960,6 +968,7 @@ Config "configuration"
   / ConfigValidation
   / ConfigGraphBgColor
   / ConfigAllowsOverride
+  / ConfigAllowIslands
 
 
 
