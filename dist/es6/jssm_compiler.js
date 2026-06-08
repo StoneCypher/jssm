@@ -5,6 +5,35 @@ import { find_repeated, name_bind_prop_and_state } from './jssm_util';
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 /*********
  *
+ *  Returns the source span of the `n`-th parse-tree node (1-based) matching
+ *  `predicate`, or `undefined` if there are fewer than `n` matches or the
+ *  matched node carries no location.  Used to point semantic compile errors
+ *  at the offending statement when the tree was produced with
+ *  `parse(input, { locations: true })`.
+ *
+ *  @internal
+ *
+ *  @param tree      The parse tree to scan.
+ *  @param predicate Node test.
+ *  @param n         1-based ordinal of the matching node to return.
+ *
+ *  @returns The matching node's `loc`, or `undefined`.
+ *
+ */
+function nth_matching_loc(tree, predicate, n) {
+    let count = 0;
+    for (const node of tree) {
+        if (predicate(node)) {
+            count++;
+            if (count === n) {
+                return node.loc;
+            }
+        }
+    }
+    return undefined;
+}
+/*********
+ *
  *  Internal method meant to perform factory assembly of an edge.  Not meant for
  *  external use.  Constructs a {@link JssmTransition} from a parsed
  *  semi-edge (`this_se`), a source state, a target state, and directionality.
@@ -87,6 +116,34 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
  *  This method is mostly for plugin and intermediate tool authors, or people
  *  who need to work with the machine's intermediate representation.
  *
+ *  ## Opt-in source locations
+ *
+ *  Pass `{ locations: true }` to attach source-span information to every
+ *  object node in the AST.  Each node gains a `loc` field of type
+ *  {@link FslSourceLocation} covering its full statement span.  Selected nodes
+ *  also gain curated sub-span fields that pinpoint individual tokens within the
+ *  statement:
+ *
+ *  - Transition nodes: `from_loc` (source state), `to_loc` (target state, on
+ *    the nested `se` object), `l_action_loc` / `r_action_loc` (action labels).
+ *  - State-declaration nodes: `name_loc` (state name), plus `value_loc` on
+ *    each color-bearing item inside the declaration block.
+ *  - Machine-attribute nodes (`machine_name`, `fsl_version`, etc.): `value_loc`
+ *    (the attribute value token).
+ *
+ *  Without `{ locations: true }` the AST is byte-for-byte identical to the
+ *  default output; no `loc` or `*_loc` fields are present.
+ *
+ *  ```typescript
+ *  const tree = wrap_parse('a -> b;', { locations: true });
+ *  // tree[0].loc  === { start: { offset: 0, line: 1, column: 1 },
+ *  //                    end:   { offset: 7, line: 1, column: 8 } }
+ *  // tree[0].from_loc.start.offset === 0   // 'a'
+ *  // tree[0].se.to_loc.start.offset === 5  // 'b'
+ *  ```
+ *
+ *  @see {@link FslSourceLocation}
+ *
  *  # Hey!
  *
  *  Most people looking at this want either the `sm` operator or method `from`,
@@ -115,7 +172,9 @@ function makeTransition(this_se, from, to, isRight, _wasList, _wasIndex) {
  *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance
+ *  @param options Things to control about the instance.  Pass
+ *                 `{ locations: true }` to enable opt-in source location
+ *                 tracking on every AST node.
  *
  */
 function wrap_parse(input, options) {
@@ -194,7 +253,7 @@ function compile_rule_handler(rule) {
     // state properties are in here
     if (rule.key === 'state_declaration') {
         if (!rule.name) {
-            throw new JssmError(undefined, 'State declarations must have a name');
+            throw new JssmError(undefined, 'State declarations must have a name', { source_location: rule.loc });
         }
         return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
     }
@@ -240,6 +299,31 @@ function compile_rule_handler(rule) {
  *  This method is mostly for plugin and intermediate tool authors, or people
  *  who need to work with the machine's intermediate representation.
  *
+ *  ## Source-location-aware error reporting
+ *
+ *  `compile()` ignores `loc` and `*_loc` fields during machine construction —
+ *  the resulting config is identical whether or not the tree was parsed with
+ *  `{ locations: true }`.  However, when those fields are present, `compile()`
+ *  attaches the offending node's source span to any semantic {@link JssmError}
+ *  it throws, via the error's `source_location` field
+ *  (type {@link FslSourceLocation}).  This lets downstream tooling (e.g. a
+ *  CodeMirror 6 linter) map the error to a precise editor range without any
+ *  additional source-scanning.
+ *
+ *  ```typescript
+ *  import { parse, compile } from 'jssm';
+ *
+ *  try {
+ *    compile(parse('fsl_version: 1.0.0;\nfsl_version: 2.0.0;\na -> b;',
+ *                  { locations: true }));
+ *  } catch (err) {
+ *    // err.source_location.start.offset points at the second fsl_version line
+ *    console.log(err.source_location);
+ *  }
+ *  ```
+ *
+ *  @see {@link FslSourceLocation}
+ *
  *  # Hey!
  *
  *  Most people looking at this want either the `sm` operator or method `from`,
@@ -265,7 +349,10 @@ function compile_rule_handler(rule) {
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
  *
- *  @param tree The parse tree to be boiled down into a machine config
+ *  @param tree The parse tree to be boiled down into a machine config.  If the
+ *              tree was produced with `parse(input, { locations: true })`, any
+ *              semantic error thrown will carry a `source_location` span
+ *              pointing at the offending statement.
  *
  */
 function compile(tree) {
@@ -308,7 +395,8 @@ function compile(tree) {
     });
     const property_keys = results['property_definition'].map(pd => pd.name), repeat_props = find_repeated(property_keys);
     if (repeat_props.length) {
-        throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`);
+        const dup = repeat_props[0][0];
+        throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`, { source_location: nth_matching_loc(tree, (n) => n.key === 'property_definition' && n.name === dup, 2) });
     }
     const assembled_transitions = [].concat(...results['transition']);
     const result_cfg = {
@@ -324,7 +412,7 @@ function compile(tree) {
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {
-            throw new JssmError(undefined, `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`);
+            throw new JssmError(undefined, `May only have one ${oneOnlyKey} statement maximum: ${JSON.stringify(results[oneOnlyKey])}`, { source_location: nth_matching_loc(tree, (n) => n.key === oneOnlyKey, 2) });
         }
         else {
             if (results[oneOnlyKey].length) {
@@ -349,7 +437,7 @@ function compile(tree) {
             if (decl.key === 'state_property') {
                 const label = name_bind_prop_and_state(decl.name, sd.state);
                 if (result_cfg.state_property.findIndex(c => c.name === label) !== -1) {
-                    throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`);
+                    throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`, { source_location: nth_matching_loc(tree, (n) => n.key === 'state_declaration' && n.name === sd.state, 1) });
                 }
                 else {
                     result_cfg.state_property.push({ name: label, default_value: decl.value });
@@ -377,4 +465,4 @@ export { compile,
 // compile_rule_handler,
 // compile_rule_transition_step,
 // compile_rule_handle_transition,
-make, makeTransition, wrap_parse };
+make, makeTransition, wrap_parse, nth_matching_loc };
