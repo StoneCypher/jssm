@@ -506,6 +506,7 @@ type JssmGenericConfig<StateType, DataType> = {
 
   start_states                   : Array<StateType>,
   end_states?                    : Array<StateType>,
+  failed_outputs?                : Array<StateType>,
 
   initial_state?                 : StateType,
   start_states_no_enforce?       : boolean,

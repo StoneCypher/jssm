@@ -527,8 +527,9 @@ real keys — they are scaffolding for future config schemas.
 
 - `graph_layout : <GvizLayout>;` — `dot`, `circo`, `fdp`, `neato`,
   `twopi`
-- `start_states : <LabelList>;`
-- `end_states   : <LabelList>;`
+- `start_states    : <LabelList>;`
+- `end_states      : <LabelList>;`
+- `failed_outputs  : <LabelOrLabelList>;` — single state or bracketed list; always an array; default `[]`
 - `graph_bg_color : <Color>;`
 - `allows_override : <OverrideT>;` — `true` / `false` / `undefined`
 
