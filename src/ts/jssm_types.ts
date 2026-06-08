@@ -169,6 +169,70 @@ type JssmSerialization<DataType> = {
 
 
 /**
+ *  A bare reference to a named group as it appears in the parse tree —
+ *  written `&Name` in FSL.  Stands in for a state wherever a group may be
+ *  used (a transition source/target, a `state` declaration subject, or a
+ *  hook subject).  Distinct from the `&Name : [...]` declaration form,
+ *  which defines the group's members.
+ *
+ *  ```typescript
+ *  import { parse } from 'jssm';
+ *  parse('&busy : [a b]; &busy -> idle;')[1].from;
+ *  // { key: 'group_ref', name: 'busy' }
+ *  ```
+ *
+ *  @see JssmGroupMemberRef
+ *  @see JssmGroupRegistry
+ */
+type JssmGroupRef = {
+  key  : 'group_ref',
+  name : string
+};
+
+/**
+ *  One ordered member of a named group's membership list.  A `'state'`
+ *  member is an ordinary state (`a` inside `&g : [a]`).  A `'group'` member
+ *  references another group: `mode: 'nest'` is the `&child` form, which
+ *  preserves the child group's identity for later precedence/viz, while
+ *  `mode: 'spread'` is the `...&child` form, which inlines the child's
+ *  members and erases that identity.  Both modes resolve to the same flat
+ *  set of states via {@link JssmGroupRegistry} resolution; only their
+ *  structural bookkeeping differs.
+ *
+ *  ```typescript
+ *  // `&outer : [&inner x];` direct members:
+ *  // [ { kind: 'group', name: 'inner', mode: 'nest' },
+ *  //   { kind: 'state', name: 'x' } ]
+ *  ```
+ *
+ *  @see JssmGroupRef
+ *  @see JssmGroupRegistry
+ */
+type JssmGroupMemberRef =
+    { kind: 'state'; name: string }
+  | { kind: 'group'; name: string; mode: 'nest' | 'spread' };
+
+/**
+ *  The compiled group table: maps each declared group name to its
+ *  **ordered, direct** members (a {@link JssmGroupMemberRef} list).  Order
+ *  is meaningful — it carries declaration/iteration/precedence order — so
+ *  this is always an array-valued `Map`, never a `Set`.  Only direct
+ *  members are stored; transitive (flattened) membership is resolved
+ *  lazily so the group→group graph survives for viz and precedence.
+ *
+ *  ```typescript
+ *  // for `&inner : [a b]; &outer : [&inner c];`
+ *  // registry.get('inner') === [ { kind:'state', name:'a' },
+ *  //                             { kind:'state', name:'b' } ]
+ *  // registry.get('outer') === [ { kind:'group', name:'inner', mode:'nest' },
+ *  //                             { kind:'state', name:'c' } ]
+ *  ```
+ *
+ *  @see JssmGroupMemberRef
+ */
+type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
+
+/**
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
  *  provide `default_value` to fall back when the state does not specify it.
@@ -619,6 +683,8 @@ type JssmGenericConfig<StateType, DataType> = {
 
   default_transition_config?     : JssmTransitionConfig,
   default_graph_config?          : JssmGraphConfig,
+
+  group_registry?                : JssmGroupRegistry,
 
   rng_seed?                      : number | undefined,
 
@@ -1335,6 +1401,10 @@ export {
   JssmSerialization,
   JssmPropertyDefinition,
   JssmAllowsOverride,
+
+  JssmGroupRef,
+    JssmGroupMemberRef,
+    JssmGroupRegistry,
 
   JssmParseFunctionType,
 
