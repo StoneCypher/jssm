@@ -557,7 +557,7 @@ function resolve_transition_conflicts<StateType, mDT>(
 
   tagged.forEach((edge: Tagged, index: number) => {
     if (edge.action == null) { return; }                 // actionless edges never contest on action
-    const key: string = `${String(edge.from)} ${String(edge.action)}`;
+    const key: string = JSON.stringify([String(edge.from), String(edge.action)]);
 
     let by_decl: Map<number, DeclEntry> | undefined = buckets.get(key);
     if (by_decl === undefined) { by_decl = new Map(); buckets.set(key, by_decl); }

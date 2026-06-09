@@ -787,3 +787,39 @@ describe('overlapping state groups — sibling fan-out is not self-arbitrated (T
 
 
 });
+
+
+
+
+describe('overlapping state groups — bucket-key collision regression (Bug 1)', () => {
+
+
+  // Regression: the old plain-space separator `${from} ${action}` caused
+  // (from="a b", action="c") and (from="a", action="b c") to both hash to
+  // "a b c", so one legal edge was silently dropped and a spurious
+  // console.warn fired.  The fix uses JSON.stringify([from, action]) which
+  // is collision-safe for any state/action strings.
+  test('space-in-name collision: both edges survive and no console.warn fires', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // &g1 has state "a b"; &g2 has state "a".
+    // &g1 edge: from="a b", action="c"  → old key "a b c"
+    // &g2 edge: from="a",   action="b c" → old key "a b c"  ← collision!
+    const cfg = jssm.compile(jssm.parse('&g1 : ["a b"]; &g2 : [a]; &g1 \'c\' -> z1; &g2 \'b c\' -> z2;'));
+
+    // Both edges must survive in the compiled transitions.
+    const transitions = cfg.transitions;
+    const edge1 = transitions.find(t => t.from === 'a b' && t.action === 'c'   && t.to === 'z1');
+    const edge2 = transitions.find(t => t.from === 'a'   && t.action === 'b c' && t.to === 'z2');
+
+    expect(edge1).toBeDefined();
+    expect(edge2).toBeDefined();
+
+    // No spurious override warning must have fired.
+    expect(warn).not.toHaveBeenCalled();
+
+    warn.mockRestore();
+  });
+
+
+});

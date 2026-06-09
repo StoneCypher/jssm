@@ -742,6 +742,26 @@ type JssmGenericConfig<StateType, DataType> = {
   default_transition_config?     : JssmTransitionConfig,
   default_graph_config?          : JssmGraphConfig,
 
+  /**
+   *  Overlapping-state-group tables produced by the compile pass and consumed
+   *  by the Task-3 runtime cascade.
+   *
+   *  `group_registry` maps each group name to its ordered list of direct
+   *  members (states and sub-group references) as declared in the FSL source.
+   *
+   *  `group_metadata` maps each group name to its RAW style object
+   *  `{ declarations: [...] }` — parsed style items from a
+   *  `state &g : { … };` declaration, **not** condensed `JssmStateConfig`
+   *  style fields.  Condensation is intentionally deferred to the Task-3
+   *  runtime cascade so that depth-specificity resolution can weight each
+   *  group's contribution before merging into per-state config.
+   *
+   *  `group_hooks` and `state_hooks` hold boundary-hook payloads keyed by
+   *  group name and state name respectively; firing is also a Task-3 concern.
+   *
+   *  All four fields are absent (`undefined`) on machines that declare no
+   *  groups or hooks.
+   */
   group_registry?                : JssmGroupRegistry,
   group_metadata?                : Map<string, JssmStateConfig>,
   group_hooks?                   : JssmGroupHooks,
