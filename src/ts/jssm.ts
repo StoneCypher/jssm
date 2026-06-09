@@ -28,6 +28,7 @@ import {
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler,
   JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
   JssmBaseTheme,
+  JssmGroupRegistry, JssmGroupHooks, JssmStateHooks,
   JssmRng
 
 } from './jssm_types';
@@ -37,7 +38,8 @@ import {
 
 
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
-import { compile, make, makeTransition, wrap_parse }          from './jssm_compiler';
+import { compile, make, makeTransition, wrap_parse,
+         transitive_members, membership_distance }            from './jssm_compiler';
 import { theme_mapping, base_theme }                          from './jssm_theme';
 
 
@@ -277,6 +279,56 @@ function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmS
 
 
 
+/*********
+ *
+ *  Shallow-merges one {@link JssmStateConfig} style tier over another, with
+ *  later-wins, undefined-skipping semantics — the across-tier folding primitive
+ *  for the unified config cascade in {@link Machine.resolve_state_config}.
+ *
+ *  Every defined key in `over` replaces the corresponding key in the result;
+ *  keys whose `over` value is `undefined` leave the `base` value untouched.
+ *  Unlike {@link state_style_condense} — which throws when a key is redefined
+ *  *within a single declaration block* — this NEVER throws on a key collision,
+ *  because the cascade deliberately layers more-specific tiers (group, per-state,
+ *  active) over less-specific ones (theme, kind defaults) and the later tier is
+ *  meant to win.  Neither input is mutated; a fresh object is returned.
+ *
+ *  ```typescript
+ *  merge_state_config({ color: 'red', shape: 'box' }, { color: 'blue' });
+ *  // => { color: 'blue', shape: 'box' }
+ *
+ *  merge_state_config({ color: 'red' }, { color: undefined, shape: 'oval' });
+ *  // => { color: 'red', shape: 'oval' }  (undefined `over` keys are ignored)
+ *  ```
+ *
+ *  @param base The lower-precedence style tier (the accumulator so far).
+ *  @param over The higher-precedence style tier; its defined keys win.
+ *
+ *  @returns A new {@link JssmStateConfig} with `over`'s defined keys layered
+ *  over `base`.
+ *
+ *  @internal
+ *
+ */
+
+function merge_state_config(base: JssmStateConfig, over: JssmStateConfig): JssmStateConfig {
+
+  const merged: JssmStateConfig = { ...base };
+
+  Object.keys(over).forEach(key => {
+    if (over[key] !== undefined) {
+      merged[key] = over[key];
+    }
+  });
+
+  return merged;
+
+}
+
+
+
+
+
 /*******
  *
  *  Core finite state machine class.  Holds the full graph of states and
@@ -415,6 +467,30 @@ class Machine<mDT> {
   _start_state_style    : JssmStateConfig;
   _end_state_style      : JssmStateConfig;
 
+  // Overlapping-state-group runtime tables, carried from the compile pass.
+  // `_group_registry` is the ordered direct-membership table (states + nested/
+  // spread sub-group refs); `_group_metadata` holds each group's RAW style
+  // `{ declarations }` block, condensed lazily in the config cascade;
+  // `_group_hooks`/`_state_hooks` store boundary-hook payloads for the parked
+  // hook-firing task (3b) — stored here, never fired in this tier.
+  _group_registry  : JssmGroupRegistry;
+  _group_metadata  : Map<string, JssmStateConfig>;
+  _group_hooks     : JssmGroupHooks;
+  _state_hooks     : JssmStateHooks;
+
+  // Deep/transitive inverse membership index: each state maps to every group
+  // that transitively contains it (direct, nested, or spread).  Built once at
+  // construction so `groupsOf`/`isIn` are O(1)-ish lookups.
+  _state_to_groups : Map<StateType, Set<string>>;
+
+  // Declared group names in declaration order (the registry's key order).
+  _group_order     : string[];
+
+  // Memoized tiers 1–5 (static) of the config cascade, keyed by state.  The
+  // dynamic `active_state` overlay (tier 6) is recomputed per call against the
+  // current state, so this stays valid as the machine transitions.
+  _static_state_config_cache : Map<StateType, JssmStateConfig>;
+
   _state_labels : Map<string, string>;
 
   _time_source    : () => number;
@@ -478,6 +554,10 @@ class Machine<mDT> {
     default_terminal_state_config,
     default_start_state_config,
     default_end_state_config,
+    group_registry,
+    group_metadata,
+    group_hooks,
+    state_hooks,
     allows_override,
     config_allows_override,
     rng_seed,
@@ -595,6 +675,51 @@ class Machine<mDT> {
     this._terminal_state_style          = state_style_condense(default_terminal_state_config, this);
     this._start_state_style             = state_style_condense(default_start_state_config, this);
     this._end_state_style               = state_style_condense(default_end_state_config, this);
+
+    // Overlapping-state-group tables.  The registry/hooks are stored as-is; the
+    // raw per-group `{ declarations }` blocks are condensed once into style
+    // configs here (a single declaration block, so the intra-block redefine
+    // guard in `state_style_condense` still applies), while depth-ordered
+    // merging across groups happens later in `resolve_state_config`.
+    this._group_registry = group_registry ?? new Map();
+    this._group_hooks    = group_hooks    ?? new Map();
+    this._state_hooks    = state_hooks    ?? new Map();
+
+    this._group_metadata = new Map();
+    (group_metadata ?? new Map()).forEach(
+      (raw: JssmStateConfig, group_name: string) =>
+        // `raw.declarations` is the parser's raw style-item list — structurally
+        // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
+        // JssmStateConfig — so it condenses through the same path as the
+        // `default_*_state_config` blocks (intra-block redefine still throws).
+        this._group_metadata.set(
+          group_name,
+          state_style_condense(raw.declarations as unknown as JssmStateStyleKeyList, this)
+        )
+    );
+
+    this._group_order = [ ...this._group_registry.keys() ];
+
+    // Deep/transitive inverse index: for each declared group, flatten its
+    // transitive member states (reusing the compiler's `transitive_members`)
+    // and record that group against every one of them.  A `memo` shared across
+    // groups memoizes overlapping sub-group resolution.
+    this._state_to_groups = new Map();
+    {
+      const memo: Map<string, string[]> = new Map();
+      this._group_order.forEach((group_name: string) => {
+        transitive_members(this._group_registry, group_name, memo).forEach((member: string) => {
+          let bucket: Set<string> | undefined = this._state_to_groups.get(member);
+          if (bucket === undefined) {
+            bucket = new Set();
+            this._state_to_groups.set(member, bucket);
+          }
+          bucket.add(group_name);
+        });
+      });
+    }
+
+    this._static_state_config_cache = new Map();
 
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
@@ -2269,6 +2394,149 @@ class Machine<mDT> {
    */
   has_terminals(): boolean {
     return this.states().some((x): boolean => this.state_is_terminal(x));
+  }
+
+
+
+
+
+  /********
+   *
+   *  Reports whether the machine's CURRENT state is a transitive member of a
+   *  named group.  Membership is deep: a state counts as in `groupName` if it
+   *  belongs to that group directly, or via any nested (`&child`) or spread
+   *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
+   *  members, so this returns `false` rather than throwing.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&busy : [working]; idle 'go' -> working;`;
+   *  m.isIn('busy');     // false — current state is 'idle'
+   *  m.action('go');
+   *  m.isIn('busy');     // true  — current state is now 'working'
+   *  m.isIn('nonesuch'); // false — undeclared group has no members
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param groupName The group to test the current state against.
+   *
+   *  @returns `true` if the current state is a transitive member of `groupName`.
+   *
+   *  @see groupsOf
+   *  @see statesIn
+   *
+   */
+
+  isIn(groupName: string): boolean {
+    return this.groupsOf(this.state()).has(groupName);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Lists every group that transitively contains a given state.  Membership is
+   *  deep — direct, nested, and spread sub-group containment all count — and the
+   *  result is the precomputed inverse-index entry for the state, so the lookup
+   *  is constant-time.  A state that belongs to no group (or a state name that
+   *  appears in no group) yields an empty `Set`.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
+   *  m.groupsOf('a');     // Set { 'inner', 'outer' }  — deep through &inner
+   *  m.groupsOf('b');     // Set { 'outer' }
+   *  m.groupsOf('z');     // Set {}                    — not in any group
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param state The state whose containing groups are wanted.
+   *
+   *  @returns A `Set` of every group name transitively containing `state`;
+   *  empty when `state` belongs to no group.
+   *
+   *  @see isIn
+   *  @see groups
+   *
+   */
+
+  groupsOf(state: StateType): Set<string> {
+    return this._state_to_groups.get(state) ?? new Set();
+  }
+
+
+
+
+
+  /********
+   *
+   *  Lists all declared group names, in source declaration order.  The order
+   *  matches the order the `&group : [ … ];` declarations appear in the FSL, and
+   *  is the same order used to break depth-specificity ties in the config
+   *  cascade.  Machines that declare no groups return an empty array.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
+   *  m.groups();  // [ 'first', 'second' ]
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @returns The declared group names, in declaration order.
+   *
+   *  @see groupsOf
+   *  @see statesIn
+   *
+   */
+
+  groups(): string[] {
+    return [ ...this._group_order ];
+  }
+
+
+
+
+
+  /********
+   *
+   *  Lists every state that is a transitive member of a named group — the
+   *  flattened membership of the group, descending through nested and spread
+   *  sub-groups, in member-declaration order.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
+   *  m.statesIn('outer');  // [ 'a', 'b', 'c' ]
+   *  m.statesIn('inner');  // [ 'a', 'b' ]
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param groupName The group whose transitive member states are wanted.
+   *
+   *  @returns The transitive member states of `groupName`, in declaration order.
+   *
+   *  @throws {JssmError} If `groupName` is not a declared group.
+   *
+   *  @see groups
+   *  @see groupsOf
+   *
+   */
+
+  statesIn(groupName: string): Array<StateType> {
+    if (!(this._group_registry.has(groupName))) {
+      throw new JssmError(this, `No such group ${JSON.stringify(groupName)}`);
+    }
+    return transitive_members(this._group_registry, groupName, new Map());
   }
 
 
@@ -4312,19 +4580,285 @@ class Machine<mDT> {
 
   /********
    *
-   *  Gets the composite style for a specific node by individually imposing the
-   *  style layers on a given object, after determining which layers are
-   *  appropriate.
+   *  Returns the list of resolved theme implementations for this machine, in
+   *  the order they should layer (outer/base-most first).  Each declared theme
+   *  name is mapped through {@link theme_mapping}; unknown names are skipped.
    *
-   *  The order of composition is base, then theme, then user content.  Each
-   *  item in the stack will be composited independently.  First, the base state
-   *  style, then the theme state style, then the user state style.
+   *  The list is reversed relative to declaration order to match the historical
+   *  layering of {@link style_for}: a later-declared theme layers under an
+   *  earlier-declared one.
    *
-   *  After the three state styles, we'll composite the hooked styles; then the
-   *  terminal styles; then the start styles; then the end styles; finally, the
-   *  active styles.  Remember, last wins.
+   *  @returns The resolved {@link JssmBaseTheme} stack, base-most first.
    *
-   *  The base state style must exist.  All other styles are optional.
+   *  @internal
+   *
+   */
+
+  _resolved_themes(): JssmBaseTheme[] {
+
+    const themes: JssmBaseTheme[] = [];
+
+    this._themes.forEach(th => {
+      const theme_impl = theme_mapping.get(th);
+      if (theme_impl !== undefined) {
+        themes.push(theme_impl);
+      }
+    });
+
+    return themes.reverse();
+
+  }
+
+
+
+
+  /********
+   *
+   *  Reads the condensed per-state style fields (`color`, `shape`, …) out of a
+   *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
+   *  "`state foo : { … }`" contribution of the config cascade.  A state with no
+   *  declaration yields an all-`undefined` config (which contributes nothing
+   *  once folded with {@link merge_state_config}).
+   *
+   *  @param state The state whose per-state declared style is wanted.
+   *
+   *  @returns The per-state style config (fields may be `undefined`).
+   *
+   *  @internal
+   *
+   */
+
+  _individual_state_config(state: StateType): JssmStateConfig {
+
+    const decl: JssmStateDeclaration = this._state_declarations.get(state);
+
+    return {
+      color           : decl?.color,
+      textColor       : decl?.textColor,
+      borderColor     : decl?.borderColor,
+      backgroundColor : decl?.backgroundColor,
+      lineStyle       : decl?.lineStyle,
+      corners         : decl?.corners,
+      shape           : decl?.shape,
+      image           : decl?.image,
+      url             : decl?.url
+    };
+
+  }
+
+
+
+
+  /********
+   *
+   *  Orders the groups a state belongs to by nesting depth for the config
+   *  cascade — outermost first, innermost last — so that, folded in order,
+   *  the innermost (nearest / smallest {@link membership_distance}) group's
+   *  metadata wins.  Equal-distance groups are ordered by group declaration
+   *  order, so a later-declared group of the same depth wins the tie.
+   *
+   *  Concretely: groups are sorted by descending membership distance (largest
+   *  distance applied first / wins least), and for equal distances by
+   *  ascending declaration index (later index applied last / wins most).
+   *
+   *  @param state The state whose containing groups are being ordered.
+   *
+   *  @returns The containing group names, ordered for outer→inner folding
+   *  (the last entry wins).
+   *
+   *  @internal
+   *
+   */
+
+  _groups_by_depth(state: StateType): string[] {
+
+    const containing: string[] = [ ...this.groupsOf(state) ];
+
+    if (containing.length < 2) { return containing; }
+
+    return containing.sort((ga: string, gb: string): number => {
+
+      const da: number = membership_distance(this._group_registry, state, ga),
+            db: number = membership_distance(this._group_registry, state, gb);
+
+      // Larger distance (more "outer") sorts earlier so it is applied first and
+      // overridden by nearer groups.
+      if (da !== db) { return db - da; }
+
+      // Equal depth: earlier-declared group sorts earlier (applied first), so
+      // the later-declared group of the same depth wins the tie.
+      return this._group_order.indexOf(ga) - this._group_order.indexOf(gb);
+
+    });
+
+  }
+
+
+
+
+  /********
+   *
+   *  Folds the static tiers 1–5 of the unified config cascade for a state, plus
+   *  — when `active` is set — the active-state THEME layers, which historically
+   *  sit just below the per-state config so that a `state foo : { … }` block
+   *  still overrides a theme's `active` styling.  The user `active_state : { … }`
+   *  overlay (tier 6) is NOT applied here; it is layered on top by
+   *  {@link resolve_state_config} so it wins over per-state config.
+   *
+   *  Tiers, folded least-specific → most-specific with {@link merge_state_config}
+   *  (later wins, never throwing on a cross-tier key collision):
+   *
+   *    1. theme defaults — `base_theme.state`, then each selected theme's
+   *       `.state` block.
+   *    2. `default_state_config` (the implicit `state : { … }` root over every
+   *       state).
+   *    3. static per-kind defaults selected by structural kind — terminal,
+   *       then start, then end — each contributing its `base_theme.<kind>`,
+   *       selected themes' `.<kind>`, and the machine's `default_<kind>_state_config`.
+   *       When `active`, the active-state theme layers (`base_theme.active` and
+   *       each selected theme's `.active`) are folded here too.
+   *    4. group metadata, depth-ordered outer→inner (see {@link _groups_by_depth}),
+   *       each group's RAW `{ declarations }` already condensed at construction.
+   *    5. the per-state `state foo : { … }` config.
+   *
+   *  @param state  The state to resolve config for.
+   *  @param active Whether to include the active-state theme layers (true only
+   *                for the machine's currently-occupied state).
+   *
+   *  @returns The composited tiers-1–5 {@link JssmStateConfig} for the state.
+   *
+   *  @internal
+   *
+   */
+
+  _compose_state_config(state: StateType, active: boolean): JssmStateConfig {
+
+    const themes: JssmBaseTheme[] = this._resolved_themes();
+
+    let acc: JssmStateConfig = {};
+
+    // tier 1 — theme defaults (base, then selected themes)
+    acc = merge_state_config(acc, base_theme.state);
+    themes.forEach(theme => {
+      if (theme.state) { acc = merge_state_config(acc, theme.state); }
+    });
+
+    // tier 2 — default_state_config (implicit root over all states)
+    acc = merge_state_config(acc, this._state_style);
+
+    // tier 3 — static per-kind defaults, selected by structural kind
+    if (this.state_is_terminal(state)) {
+      acc = merge_state_config(acc, base_theme.terminal);
+      themes.forEach(theme => { if (theme.terminal) { acc = merge_state_config(acc, theme.terminal); } });
+      acc = merge_state_config(acc, this._terminal_state_style);
+    }
+
+    if (this.is_start_state(state)) {
+      acc = merge_state_config(acc, base_theme.start);
+      themes.forEach(theme => { if (theme.start) { acc = merge_state_config(acc, theme.start); } });
+      acc = merge_state_config(acc, this._start_state_style);
+    }
+
+    if (this.is_end_state(state)) {
+      acc = merge_state_config(acc, base_theme.end);
+      themes.forEach(theme => { if (theme.end) { acc = merge_state_config(acc, theme.end); } });
+      acc = merge_state_config(acc, this._end_state_style);
+    }
+
+    // tier 3 (active kind) — active-state THEME layers, below per-state so a
+    // per-state block still wins (preserving the historical layer order).
+    if (active) {
+      acc = merge_state_config(acc, base_theme.active);
+      themes.forEach(theme => { if (theme.active) { acc = merge_state_config(acc, theme.active); } });
+    }
+
+    // tier 4 — group metadata, outer→inner (inner / nearest group wins)
+    this._groups_by_depth(state).forEach((group_name: string) => {
+      const group_cfg: JssmStateConfig | undefined = this._group_metadata.get(group_name);
+      if (group_cfg !== undefined) { acc = merge_state_config(acc, group_cfg); }
+    });
+
+    // tier 5 — per-state `state foo : { … }`
+    acc = merge_state_config(acc, this._individual_state_config(state));
+
+    return acc;
+
+  }
+
+
+
+
+  /********
+   *
+   *  Resolves the full unified style/config cascade for a state — the runtime
+   *  successor to the ad-hoc layer merge {@link style_for} used to perform.
+   *
+   *  For any state OTHER than the current one, this returns the memoized static
+   *  resolution (tiers 1–5; see {@link _compose_state_config}) — theme →
+   *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
+   *  per-state config.  The cache is keyed by state and never invalidated, since
+   *  those tiers do not depend on which state is current.
+   *
+   *  For the machine's CURRENTLY-occupied state the result is recomputed each
+   *  call (never cached) and additionally carries the dynamic `active_state`
+   *  layers: the active-state THEME layers fold in just below the per-state
+   *  config (tier 3-active), and the user `active_state : { … }` overlay folds
+   *  in LAST (tier 6), on top of everything, so it wins over per-state config.
+   *  Every fold uses {@link merge_state_config}, so a key set at a lower tier is
+   *  overridden — never rejected — by a higher one.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
+   *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param state The state to compute the composite config for.
+   *
+   *  @returns The fully composited {@link JssmStateConfig} for the state,
+   *  including the active overlay when the state is current.
+   *
+   *  @see style_for
+   *
+   */
+
+  resolve_state_config(state: StateType): JssmStateConfig {
+
+    // The current state carries the dynamic active layers and is recomputed
+    // each call so the overlay tracks transitions; it is never memoized.
+    if (this.state() === state) {
+      const acc: JssmStateConfig = this._compose_state_config(state, true);
+      // tier 6 — user active_state overlay, on top of per-state config.
+      return merge_state_config(acc, this._active_state_style);
+    }
+
+    // Non-current states: tiers 1–5 only, memoized.
+    const cached: JssmStateConfig | undefined = this._static_state_config_cache.get(state);
+    if (cached !== undefined) { return cached; }
+
+    const resolved: JssmStateConfig = this._compose_state_config(state, false);
+    this._static_state_config_cache.set(state, resolved);
+    return resolved;
+
+  }
+
+
+
+
+  /********
+   *
+   *  Gets the composite style for a specific node — the public viz entry point,
+   *  now a thin wrapper over the unified config cascade in
+   *  {@link resolve_state_config}.
+   *
+   *  The order of composition runs least-specific to most-specific: theme
+   *  defaults, then the `default_state_config` root, then per-kind defaults
+   *  (terminal, start, end), then depth-ordered group metadata (inner groups
+   *  winning over outer), then the per-state config, and finally — for the
+   *  current state only — the active overlay.  Last wins at every tier.
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
    *
@@ -4332,110 +4866,12 @@ class Machine<mDT> {
    *
    *  @returns The fully composited {@link JssmStateConfig} for the given state.
    *
+   *  @see resolve_state_config
+   *
    */
 
   style_for(state: StateType): JssmStateConfig {
-
-
-    // first look up the themes
-    const themes: JssmBaseTheme[] = [];
-
-    this._themes.forEach(th => {
-
-      const theme_impl = theme_mapping.get(th);
-
-      if (theme_impl !== undefined) {
-        themes.push(theme_impl);
-      }
-
-    });
-
-    // basic state style
-    const layers = [ base_theme.state ];
-
-
-    themes.reverse().map(theme => {
-      if (theme.state) { layers.push(theme.state); }
-    });
-
-    layers.push(this._state_style);
-
-
-    // hooked state style
-    // if (this.has_hooks(state)) {
-    //   layers.push(base_theme.hooked);
-    //   themes.map(theme => {
-    //     if (theme.hooked) { layers.push(theme.hooked); }
-    //   });
-    //   if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
-    // }
-
-
-    // terminal state style
-    if (this.state_is_terminal(state)) {
-      layers.push(base_theme.terminal);
-      themes.map(theme => {
-        if (theme.terminal) { layers.push(theme.terminal); }
-      });
-      layers.push(this._terminal_state_style);
-    }
-
-
-    // start state style
-    if (this.is_start_state(state)) {
-      layers.push(base_theme.start);
-      themes.map(theme => {
-        if (theme.start) { layers.push(theme.start); }
-      });
-      layers.push(this._start_state_style);
-    }
-
-
-    // end state style
-    if (this.is_end_state(state)) {
-      layers.push(base_theme.end);
-      themes.map(theme => {
-        if (theme.end) { layers.push(theme.end); }
-      });
-      layers.push(this._end_state_style);
-    }
-
-
-    // active state style
-    if (this.state() === state) {
-      layers.push(base_theme.active);
-      themes.map(theme => {
-        if (theme.active) { layers.push(theme.active); }
-      });
-      layers.push(this._active_state_style);
-    }
-
-
-    const individual_style : JssmStateConfig      = {},
-          decl             : JssmStateDeclaration = this._state_declarations.get(state);
-
-    individual_style.color           = decl?.color;
-    individual_style.textColor       = decl?.textColor;
-    individual_style.borderColor     = decl?.borderColor;
-    individual_style.backgroundColor = decl?.backgroundColor;
-    individual_style.lineStyle       = decl?.lineStyle;
-    individual_style.corners         = decl?.corners;
-    individual_style.shape           = decl?.shape;
-    individual_style.image           = decl?.image;
-    individual_style.url             = decl?.url;
-
-    layers.push(individual_style);
-
-
-    return layers.reduce((acc: JssmStateConfig, cur: JssmStateConfig) => {
-
-      const composite_state: JssmStateConfig = acc;
-      Object.keys(cur).forEach(key => composite_state[key] = cur[key] ?? composite_state[key]);
-
-      return composite_state;
-
-    }, {} as JssmStateConfig);
-
+    return this.resolve_state_config(state);
   }
 
 
