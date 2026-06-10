@@ -1056,7 +1056,7 @@
               "description": "The suffix to match after the prefix (e.g. `\"viz\"`)."
             }
           ],
-          "description": "Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`\n(case-insensitive)."
+          "description": "Returns true when `tag_name` is exactly `fsl-<suffix>` or `jssm-<suffix>`\r\n(case-insensitive)."
         },
         {
           "kind": "function",
@@ -1082,7 +1082,7 @@
               "description": "The suffix to match (e.g. `\"instance\"`)."
             }
           ],
-          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\n`fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists."
+          "description": "Returns the nearest ancestor of `el` (or `el` itself) whose tag is\r\n`fsl-<suffix>` or `jssm-<suffix>`, or `null` if none exists."
         },
         {
           "kind": "function",
@@ -1119,10 +1119,10 @@
               "type": {
                 "text": "CustomElementConstructor"
               },
-              "description": "Constructor to register under `synonym_tag`\n  (must be a distinct class from `CanonicalClass`)."
+              "description": "Constructor to register under `synonym_tag`\r\n  (must be a distinct class from `CanonicalClass`)."
             }
           ],
-          "description": "Registers a canonical custom-element tag and its synonym tag.\n\n`customElements.define` requires a distinct constructor per tag name, so\ncallers pass the canonical class and a thin subclass for the synonym.\nThe function is idempotent: if either tag is already registered it skips\nthat `define` call rather than throwing."
+          "description": "Registers a canonical custom-element tag and its synonym tag.\r\n\r\n`customElements.define` requires a distinct constructor per tag name, so\r\ncallers pass the canonical class and a thin subclass for the synonym.\r\nThe function is idempotent: if either tag is already registered it skips\r\nthat `define` call rather than throwing."
         }
       ],
       "exports": [

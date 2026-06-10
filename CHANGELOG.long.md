@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-332 merges; 269 releases
+339 merges; 275 releases
 
 
 
@@ -12,8 +12,1163 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 11:45:24 PM
+
+Commit [3246454cffcc730fa9382addea56567472cabd2b](https://github.com/StoneCypher/jssm/commit/3246454cffcc730fa9382addea56567472cabd2b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(docs): drop unrunnable @example from boundary_depth_limit type field
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 11:29:07 PM
+
+Commit [d39a6e709fb829f80931723e323770e399bdc86e](https://github.com/StoneCypher/jssm/commit/d39a6e709fb829f80931723e323770e399bdc86e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: correct folded-legacy-keys list and top-level statement count
+  * Remove `edge-color` from the list of legacy top-level graph keys that
+fold into `default_graph_config` in section 12 — `fold_graph_config`
+only folds `graph_layout`, `graph_bg_color`, `dot_preamble`, `theme`,
+and `flow`; `edge-color`/`edge_color` is not a folded top-level key.
+  * Update section 1's Term enumeration from seven to eight and add
+`HookDeclaration` as the eighth kind, with a cross-reference to
+section 12.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 10:28:31 PM
+
+Commit [1eaabeeae930e1b12997564a73f0050d3def62ed](https://github.com/StoneCypher/jssm/commit/1eaabeeae930e1b12997564a73f0050d3def62ed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: overlapping state groups — grammar reference, README, cookbook recipes
+  * - notes/fsl-grammar-reference.md: new section 12 covering the &g GroupRef,
+  nest vs spread members, HookDeclaration (do=action), transition:{}/graph:{}
+  blocks and legacy-key supersession, compile-time conflict resolution,
+  runtime boundary-hook semantics + loop protection, the styling cascade, and
+  the declaration-vs-reference disambiguation; cheat-sheet rows + renumbering.
+- src/md/README_base.md: short overlapping-groups subsection in the
+  60-second tour with one motivating HTTP-request example + cookbook pointer.
+- src/fsl.tools/site/recipes/patterns-overlapping-groups.cjs: HTTP-request
+  recipe (in-progress vs receiving overlap).
+- src/fsl.tools/site/recipes/patterns-user-account-groups.cjs: user-account
+  recipe (&Active/&RestrictedAccess/&Paid/&Authenticated overlap).
+- src/doc_md/todo.md: mark Overlapping state groups done; Hierarchical states
+  and State subtypes done (subsumed); refresh the Architectural intro and the
+  Harel-render dependency.
+- src/ts/jssm_types.ts: correct stale DocBlock — folded graph_bg_color is
+  canonicalized to a background-color item.
+  * Recipe + README FSL verified to compile and SVG-round-trip in a scratch
+vitest spec (since removed).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 9:39:48 PM
+
+Commit [00a6ab0ac191434d4dc5964516d3d787a2d39edf](https://github.com/StoneCypher/jssm/commit/00a6ab0ac191434d4dc5964516d3d787a2d39edf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(viz): apply transition: edge defaults and graph: graph attributes
+  * Project the consolidated `transition: {}` and `graph: {}` default-config
+blocks (Task 4b of overlapping-state-groups) onto the Graphviz output.
+  * - Machine now stores and exposes `default_transition_config()` /
+  `default_graph_config()` so the viz layer can read the compiled blocks.
+- `machine_to_dot` emits a default `edge [ ... ]` statement carrying the
+  `transition: {}` attrs (color/edge_color -> color, text-color ->
+  fontcolor, line-style -> style), so every edge inherits them.
+- `graph: {}` graph-scope attrs are reconciled with existing graph-attr
+  emission: `background-color` (incl. the folded legacy `graph_bg_color`)
+  flows through the single `bgcolor` slot so the graph block wins and the
+  value is never double-emitted; `color`/`text-color` emit as graph attrs.
+  Already-handled legacy keys (graph_layout/flow/theme/dot_preamble) are
+  intentionally not re-emitted.
+  * Absent blocks keep byte-parity with prior output. Adds substring-based
+DOT tests plus an SVG round-trip for a machine using both blocks.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 9:13:23 PM
+
+Commit [9c9580e20733da22508069faab6d7e61a81f50c4](https://github.com/StoneCypher/jssm/commit/9c9580e20733da22508069faab6d7e61a81f50c4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(viz): escape group names in DOT, collision-free cluster ids, spread inlines, drop empty clusters
+  * - Lift doublequote() to module scope; apply to cluster label="…" and chip group names in label_with_chips so group names with embedded double-quotes produce valid DOT and survive the SVG round-trip.
+- Make cluster_id_for() append _<index> to every non-empty slug so two distinct names that slug identically (e.g. "Active Players" / "active-players") emit separate subgraph blocks instead of silently merging.
+- Treat mode:'spread' group members as inline: their states appear directly in the parent cluster, and no subgraph cluster_<child> block is emitted.
+- Suppress empty cluster blocks: render_cluster() returns '' when the combined body (direct nodes + spread nodes + nested sub-clusters) is empty, preventing stray empty boxes.
+- Add full test coverage for all four fixes in viz_overlapping_groups.spec.ts (36 tests, all passing; full vitest-spec 6294 tests green).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 8:58:07 PM
+
+Commit [f2611bfc4df67a3444d470cb43ce400edff0a430](https://github.com/StoneCypher/jssm/commit/f2611bfc4df67a3444d470cb43ce400edff0a430)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(viz): render group clusters with chip fallback for overlap
+  * Add a render_groups option ('cluster' | 'chips' | 'off', default 'cluster')
+to the viz render path. In 'cluster' mode, the strict-nesting subset of the
+FSL group DAG is emitted as nested subgraph cluster_<group> { ... } boxes
+(deepest group innermost), with each member node statement woven into its
+primary cluster; a state that genuinely overlaps two non-nesting groups is
+placed in its innermost/last-declared group and its remaining memberships
+are shown as bracketed [group] chips on the node label. 'chips' mode renders
+every membership as a chip and emits no clusters; 'off' reproduces the prior
+group-blind output byte-for-byte. Node styling still flows through style_for.
+  * Adds viz_overlapping_groups.spec.ts (substring/identifier assertions, plus an
+SVG round-trip that proves the nested cluster DOT is valid Graphviz).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 8:47:19 PM
+
+Commit [8aaf6113ead686cdbf722b9251631b8cdd4b7068](https://github.com/StoneCypher/jssm/commit/8aaf6113ead686cdbf722b9251631b8cdd4b7068)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(runtime): configurable boundary-cascade depth limit; test + doc cleanup
+  * Make `_boundary_depth_limit` configurable via a new `boundary_depth_limit`
+constructor/from() option (default 100), mirroring the `history` option
+pattern. Add `boundary_depth_limit?` to `JssmGenericConfig` in
+`jssm_types.ts`, accept the parameter in the Machine constructor
+destructuring, and initialize with `boundary_depth_limit ?? 100`.
+  * Update the runtime_overlapping_groups.spec.ts header docblock to cover both
+Task 3a (queries/cascade) and Task 3b (boundary-hook firing) instead of
+marking 3b as out-of-scope. Add five new tests: (a) a custom low limit
+throws sooner than the default on a ping-pong cascade; (b) a raised limit
+(200) allows a 110-step linear cascade to complete; (c-d) exit-side ordering
+— group exits fire before the plain-state exit, and an exit-driven cascade
+resolves correctly and stays bounded.
+  * All 6258 spec tests pass; 100% statement/branch/function/line coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 8:36:11 PM
+
+Commit [e7640feda04a10ad72a5e596f6cd9c9fd0d0fa07](https://github.com/StoneCypher/jssm/commit/e7640feda04a10ad72a5e596f6cd9c9fd0d0fa07)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(runtime): fire FSL group/state boundary-hook actions with loop protection
+  * After a state change commits, fire the parked boundary-hook actions: on
+enter/exit of a group or plain state, dispatch the named machine action
+(do is a synonym for action). Exits fire before enters; a transition
+within a group fires no boundary hook; multi-membership and nesting fan
+out to every crossed boundary.
+  * Boundary firing runs at the single post-commit site in transition_impl
+(covering transition/action/forced) and in override. A re-entrancy depth
+counter bounds cascading boundary actions; exceeding the cap throws a
+JssmError rather than overflowing the stack or hanging. Inapplicable
+boundary actions are safe no-ops.
+  * Adds runtime coverage in runtime_overlapping_groups.spec.ts.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 8:24:24 PM
+
+Commit [d9e83ea83edb6379557c3007b2d115e9f287bb0c](https://github.com/StoneCypher/jssm/commit/d9e83ea83edb6379557c3007b2d115e9f287bb0c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(runtime): groupsOf returns a defensive copy of the group set
+  * Return `new Set(...)` instead of the live internal Set so callers
+cannot corrupt `_state_to_groups` via mutation. Mirrors the existing
+defensive-copy contract of `groups()`. Adds a mutation-isolation test.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 1:57:43 PM
+
+Commit [e1c64a6332f252067a542970cbb92cc224dab119](https://github.com/StoneCypher/jssm/commit/e1c64a6332f252067a542970cbb92cc224dab119)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: Phase 1 implementation plan for FSL var extended state
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 12:30:47 PM
+
+Commit [c71b82a84e87c78d4d7afaaadb904703d9d46b94](https://github.com/StoneCypher/jssm/commit/c71b82a84e87c78d4d7afaaadb904703d9d46b94)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add FSL extended-state & expression-language design spec
+  * Host-agnostic expression language over declared var extended state: type system (numeric tower, containers, variants/option/any), operators, full pattern matching, container protocol, lambdas, assign/where/require, pipeline integration, the checkable verifiability tier, and the multi-host conformance posture. Sibling: StoneCypher/fsl#1355 (contracts).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 9, 2026 8:37:10 AM
+
+Commit [55014184f0c0c9d098c14dc781f59a49f17b3559](https://github.com/StoneCypher/jssm/commit/55014184f0c0c9d098c14dc781f59a49f17b3559)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(runtime): group membership queries + unified config cascade
+  * Read group_registry/group_metadata/group_hooks/state_hooks off the compiled
+config and store them on the Machine, building a deep transitive inverse index
+(state -> every containing group, direct/nested/spread) for O(1)-ish lookups.
+Group/state hooks are stored only; firing is parked for 3b.
+  * Add membership-query methods: isIn (current state in a group, deep), groupsOf
+(all containing groups, deep), groups (declared names in order), and statesIn
+(transitive members, throws JssmError on an undeclared group).
+  * Replace the ad-hoc style merge with a unified per-state config cascade
+(resolve_state_config, backing style_for): theme -> default_state_config ->
+per-kind defaults -> depth-ordered group metadata (inner/nearest group wins,
+equal-depth ties by declaration order) -> per-state config -> active_state
+overlay. Group metadata is condensed from its raw declarations at construction.
+Tiers 1-5 are memoized per state; the dynamic active overlay is recomputed for
+the current state. A new pure merge_state_config folds tiers key-wise without
+the intra-block redefine throw, which stays scoped to single-declaration
+condensing.
+  * New spec runtime_overlapping_groups.spec.ts covers the queries and the cascade
+(group color onto a member, per-state beats group, inner beats outer, state:{}
+base, theme below all, cross-tier override does not throw, active overlay
+applies/clears). Full spec suite green at 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 5:18:29 PM
+
+Commit [40eae612172db12e00c61951b0d48e307385c678](https://github.com/StoneCypher/jssm/commit/40eae612172db12e00c61951b0d48e307385c678)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(compiler): collision-safe conflict bucket key; document group_metadata shape
+  * Replace the plain-space `${from} ${action}` bucket key in
+resolve_group_transition_conflicts with JSON.stringify([from, action]),
+which is collision-safe for any state/action strings (including quoted
+names with embedded spaces).  Adds regression test proving the collision
+example (from="a b", action="c") and (from="a", action="b c") no longer
+hash to the same key.
+  * Also adds a DocBlock to the JssmGenericConfig group fields
+(group_registry, group_metadata, group_hooks, state_hooks) noting that
+group_metadata stores RAW { declarations: [...] } items and that
+condensation is deferred to the Task-3 runtime cascade.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 4:50:20 PM
+
+Commit [9787ebc48f26243e8b7a8981c4b2dc5bbe8c2f1f](https://github.com/StoneCypher/jssm/commit/9787ebc48f26243e8b7a8981c4b2dc5bbe8c2f1f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(compiler): group-source expansion, metadata, hooks, depth-specificity conflicts
+  * Expand group-ref transition sources to one tagged edge per transitive member, then arbitrate competing (source_state, action) edges across distinct declarations by depth-specificity: a state-specific transition beats any group; among groups the nearest (smallest membership distance) wins; equal-distance ties go to the later-declared group, warning on group-vs-group overrides. Register 'state &g {}' as per-group metadata and 'on enter|exit' hooks into group_hooks/state_hooks (enter+exit merged). Validate undeclared sub-group members. Add JssmHookDeclaration/JssmBoundaryHooks/JssmGroupHooks/JssmStateHooks types and group_metadata/group_hooks/state_hooks config fields. Export membership_distance and validate_group_members. 60 new/updated compile-pass tests; full spec suite green at 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 4:15:21 PM
+
+Commit [75011b8ef2ed5896cced0c9125f05f00c962e850](https://github.com/StoneCypher/jssm/commit/75011b8ef2ed5896cced0c9125f05f00c962e850)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(compiler): group registry, transitive membership, cycle check, fan-out-target
+  * Task 2b-i of overlapping state groups: build an ordered group registry from
+named_list parse nodes, resolve transitive (flat) member states with
+memoization, reject group->group membership cycles, validate group references
+used as transition sources/targets, and expand a group used as a fan-out
+target into one edge per transitive member (reusing the existing list-target
+fan-out). named_list nodes now compile instead of throwing "Unknown rule".
+  * Adds JssmGroupRef / JssmGroupMemberRef / JssmGroupRegistry types and an
+optional group_registry on JssmGenericConfig (set only when groups exist).
+  * Out of scope (2b-ii): group-as-source expansion, group metadata, hooks,
+depth-specificity conflict resolution.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 3:59:31 PM
+
+Commit [66dc3103bad3396e131b31bf5a02e639a384d0cd](https://github.com/StoneCypher/jssm/commit/66dc3103bad3396e131b31bf5a02e639a384d0cd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(compiler): only warn-deprecate graph_bg_color, fold other graph aliases silently
+  * Only `graph_bg_color` has a real `graph: {}` block replacement today
+(`background-color`), so it is the only alias that should emit a
+deprecation warning.  Folding `graph_layout`, `theme`, `flow`, and
+`dot_preamble` with a warning was misleading and spammed fixtures.
+  * Introduce `WARN_DEPRECATED_GRAPH_ALIASES` (a Set containing only
+`graph_bg_color`) so the guard is explicit and easy to extend later.
+Update the `fold_graph_config` DocBlock accordingly.
+  * Add two new spec assertions confirming the silent aliases produce no
+`console.warn`, while the `graph_bg_color` assertion is unchanged.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__143__0" />
+
+## [5.143.0] - Jun 8, 2026 3:25:46 PM
+
+Commit [5830dfd01fb8fdcab7b28baeaebbe2e956d59e90](https://github.com/StoneCypher/jssm/commit/5830dfd01fb8fdcab7b28baeaebbe2e956d59e90)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [bc239f3a, 23f46308]
+
+  * Merge pull request #692 from StoneCypher/worktree-stonecypher_jssm_feat_26-06-07_parser-source-locations
+  * feat: opt-in FSL parser source locations and CM6 editor diagnostics
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 3:20:36 PM
+
+Commit [23f46308780c9cbb23265ce4fc54e4a727540101](https://github.com/StoneCypher/jssm/commit/23f46308780c9cbb23265ce4fc54e4a727540101)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [05457f6b, bc239f3a]
+
+  * Merge origin/main into parser-source-locations; re-bump to 5.143.0
+  * Integrates failed_outputs, allow_islands, default_size, and npm_name (added on main in v5.142.1-5.142.4). Resolved conflicts in fsl_parser.peg, jssm_compiler.ts, and package.json; opt-in loc + value_loc applied to all four new attributes with tests; package-lock reconciled; all artifacts regenerated at 5.143.0. Spec suite green at 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 2:51:22 PM
+
+Commit [c389e4fdf60a72887dc0d8510c7f16276fd34575](https://github.com/StoneCypher/jssm/commit/c389e4fdf60a72887dc0d8510c7f16276fd34575)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(compiler): compile transition:/graph: config blocks, fold deprecated graph aliases
+  * Wire `default_transition_config` (from `transition: {}`) and
+`default_graph_config` (from `graph: {}`) through `compile_rule_handler`,
+mirroring how `default_state_config` is handled, so these blocks compile
+instead of throwing "Unknown rule".
+  * Additively fold the deprecated top-level graph keywords (`graph_layout`,
+`graph_bg_color`, `dot_preamble`, `theme`, `flow`) into `default_graph_config`
+first, then let an explicit `graph: {}` block override on canonical-key
+conflict (`graph_bg_color` -> `background-color`). Each alias used emits a
+`console.warn` deprecation notice. Legacy top-level fields are left intact for
+the current visualizer.
+  * Adds `JssmTransitionConfig`/`JssmGraphConfig` (and supporting item types) plus
+the `default_transition_config?`/`default_graph_config?` fields on
+`JssmGenericConfig`, and a vitest spec covering compile, alias folding,
+override, and the deprecation-warning path.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 2:51:22 PM
+
+Commit [417ac12aca5153bf675b12c7a5afae7d50ee7e4e](https://github.com/StoneCypher/jssm/commit/417ac12aca5153bf675b12c7a5afae7d50ee7e4e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * @
+feat(compiler): compile transition:/graph: config blocks, fold deprecated graph aliases
+  * Wire `default_transition_config` (from `transition: {}`) and
+`default_graph_config` (from `graph: {}`) through `compile_rule_handler`,
+mirroring how `default_state_config` is handled, so these blocks compile
+instead of throwing "Unknown rule".
+  * Additively fold the deprecated top-level graph keywords (`graph_layout`,
+`graph_bg_color`, `dot_preamble`, `theme`, `flow`) into `default_graph_config`
+first, then let an explicit `graph: {}` block override on canonical-key
+conflict (`graph_bg_color` -> `background-color`). Each alias used emits a
+`console.warn` deprecation notice. Legacy top-level fields are left intact for
+the current visualizer.
+  * Adds `JssmTransitionConfig`/`JssmGraphConfig` (and supporting item types) plus
+the `default_transition_config?`/`default_graph_config?` fields on
+`JssmGenericConfig`, and a vitest spec covering compile, alias folding,
+override, and the deprecation-warning path.
+@
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 2:37:13 PM
+
+Commit [21ead7861786a103fb2ad489bdb902acceeb45d3](https://github.com/StoneCypher/jssm/commit/21ead7861786a103fb2ad489bdb902acceeb45d3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(grammar): drop orphaned TransitionItems rule; fix stale config_kind comment
+  * TransitionItems was dead after ConfigTransition was rewired to use
+ConfigStyleItems; confirmed no references outside the rule definition.
+Update the NOTE in edge_color_alias.spec.ts to reflect that the compiler
+now receives `default_transition_config` (not the old config_kind shape)
+and that wiring it through the compiler dispatch is Task 2 of the
+overlapping-state-groups plan.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 9:11:09 AM
+
+Commit [05457f6b89a7b0842dddbc399965f043af6e80e0](https://github.com/StoneCypher/jssm/commit/05457f6b89a7b0842dddbc399965f043af6e80e0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(sketch): load parse/compile from the self-contained es6 bundle
+  * The per-module `dist/es6/jssm_compiler.js` carries a bare `reduce-to-639-1` import that the browser cannot resolve without an importmap entry, so the editor failed to mount. Import `parse` and `compile` from the bundled `dist/jssm.es6.mjs` (deps inlined) instead. Verified in-browser: the sample parses+compiles cleanly, and a duplicate `fsl_version` now underlines the second statement with the semantic error.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__142__4" />
+
+## [5.142.4] - Jun 8, 2026 2:27:44 AM
+
+Commit [bc239f3a0638a1357694c8c92922724e504362f4](https://github.com/StoneCypher/jssm/commit/bc239f3a0638a1357694c8c92922724e504362f4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [4ad065bf, 89a0fc98]
+
+  * Merge pull request #696 from StoneCypher/feat_26-06-08_default-size-attribute
+  * feat: default_size machine attribute (v5.142.4)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 2:24:24 AM
+
+Commit [89a0fc98b43427879e82f95829bb48b0f060ae53](https://github.com/StoneCypher/jssm/commit/89a0fc98b43427879e82f95829bb48b0f060ae53)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.142.4 — default_size machine attribute
+  * Version bump + regenerated artifacts for default_size (StoneCypher/fsl#1338): render-size hint, forms = number (width) / two numbers (centered box) / 'height n' (height), default undefined. Adds .default_size() getter.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 2:18:44 AM
+
+Commit [343c207b850ff6b6d6afba8fa09ecb8dcfe8a705](https://github.com/StoneCypher/jssm/commit/343c207b850ff6b6d6afba8fa09ecb8dcfe8a705)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add default_size machine attribute (StoneCypher/fsl#1338)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__142__3" />
+
+## [5.142.3] - Jun 8, 2026 2:07:28 AM
+
+Commit [4ad065bf1c651245a35fce23035bcdddfcea4522](https://github.com/StoneCypher/jssm/commit/4ad065bf1c651245a35fce23035bcdddfcea4522)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [29f89299, f8709e78]
+
+  * Merge pull request #695 from StoneCypher/feat_26-06-08_allow-islands-attribute
+  * feat: allow_islands machine attribute (v5.142.3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 2:04:06 AM
+
+Commit [f8709e78e113506c8229cc45f907cf151efcac5f](https://github.com/StoneCypher/jssm/commit/f8709e78e113506c8229cc45f907cf151efcac5f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.142.3 — allow_islands machine attribute
+  * Version bump + regenerated artifacts for allow_islands (StoneCypher/fsl#1335): true | false | with_start, default true. false/with_start enforce graph connectivity at construction via undirected connected-component detection. Adds .allow_islands() getter.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 1:58:32 AM
+
+Commit [a1129b7330f98fbd1b2d1deabc0575b5124a206c](https://github.com/StoneCypher/jssm/commit/a1129b7330f98fbd1b2d1deabc0575b5124a206c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add allow_islands machine attribute with connectivity validation (StoneCypher/fsl#1335)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__142__2" />
+
+## [5.142.2] - Jun 8, 2026 1:47:48 AM
+
+Commit [29f892994775cc08c23b60bf2cdf06cff9fad801](https://github.com/StoneCypher/jssm/commit/29f892994775cc08c23b60bf2cdf06cff9fad801)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [670b95e0, 3ff99dd6]
+
+  * Merge pull request #694 from StoneCypher/feat_26-06-08_failed-outputs-attribute
+  * feat: failed_outputs machine attribute (v5.142.2)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 1:44:24 AM
+
+Commit [3ff99dd6ff08f3502d26eec02fec61b9cd24d886](https://github.com/StoneCypher/jssm/commit/3ff99dd6ff08f3502d26eec02fec61b9cd24d886)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.142.2 — failed_outputs machine attribute
+  * Version bump + regenerated artifacts for failed_outputs (StoneCypher/fsl#1336). Adds failed_outputs() / is_failed_output() / is_failed() to the machine. Also updates compile.spec's exact-match expected config to include the new failed_outputs: [] key.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 1:34:04 AM
+
+Commit [ba2c0e3ee73e36c4cbb010be5c33124ef7920359](https://github.com/StoneCypher/jssm/commit/ba2c0e3ee73e36c4cbb010be5c33124ef7920359)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add failed_outputs machine attribute (StoneCypher/fsl#1336)
+  * Adds `failed_outputs` as a LabelOrLabelList-typed machine attribute that
+declares which states represent failure conditions.  A single state is
+shorthand for a one-element list; both forms normalize to an array.
+Absent → empty array (no failure states).
+  * New API: `.failed_outputs()` returns the failure-state array,
+`.is_failed_output(state)` tests a given state, and `.is_failed()`
+tests whether the current state is a failure state.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 1:23:04 AM
+
+Commit [53dceb07bd8ab267a40bfae9027457dfea118d34](https://github.com/StoneCypher/jssm/commit/53dceb07bd8ab267a40bfae9027457dfea118d34)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(grammar): GroupRef, nest/spread members, transition:/graph: config blocks
+  * Task 1 of the overlapping-state-groups feature (parser/grammar layer only).
+  * - Add GroupRef atom (`&Name` -> {key:'group_ref', name}); wire into
+  ArrowTarget (before Label), StateDeclaration subject, and hook subject.
+- Add ordered nest (`&child`) / spread (`...&child`) member syntax for
+  NamedList membership lists via GroupMember/GroupMemberList. Bare label
+  lists stay a plain string[] for backward compatibility; member objects
+  only appear once a group member is present.
+- Add HookEvent + HookDeclaration (`on enter|exit <subject> do '<action>';`)
+  and wire HookDeclaration first in Term.
+- Normalize ConfigTransition from the orphan {config_kind,config_items}
+  shape to {key:'default_transition_config', value}; add a new ConfigGraph
+  (`graph: {}`) block; both reuse a shared ConfigStyleItems body.
+- Regenerate src/ts/fsl_parser.ts via npm run peg.
+- New parse-only spec grammar_overlapping_groups.spec.ts (14 tests).
+- Update config.stoch.ts and lexical.stoch.ts to the new contract (the
+  normalized transition shape; leading `&` now parses as a GroupRef).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__142__1" />
+
+## [5.142.1] - Jun 8, 2026 1:22:32 AM
+
+Commit [670b95e0eacbeed35d543fd106d92f6d4c36badb](https://github.com/StoneCypher/jssm/commit/670b95e0eacbeed35d543fd106d92f6d4c36badb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [65dad04f, 8627399d]
+
+  * Merge pull request #693 from StoneCypher/feat_26-06-08_npm-name-attribute
+  * feat: npm_name machine attribute (v5.142.1)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 1:19:00 AM
+
+Commit [8627399dcbf188e669d0a7df1cba3d523a3f0c0c](https://github.com/StoneCypher/jssm/commit/8627399dcbf188e669d0a7df1cba3d523a3f0c0c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.142.1 — npm_name machine attribute
+  * Version bump + regenerated artifacts for the npm_name attribute (StoneCypher/fsl#1337). Also drops a bogus @example on the npm_name getter (invalid hyphenated atom + wrong doctest marker) to match the sibling getters, which carry none.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 1:05:40 AM
+
+Commit [c2c0fa4804323a865a69985efee520670bc8a2d8](https://github.com/StoneCypher/jssm/commit/c2c0fa4804323a865a69985efee520670bc8a2d8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat: add npm_name machine attribute (StoneCypher/fsl#1337)
+  * Adds `npm_name` as a Label-typed machine attribute that records the npm
+package name associated with a machine, defaulting to undefined when absent.
+Mirrors `machine_name` end-to-end: grammar rule, parser regeneration,
+compiler tautology/oneOnly wiring, JssmGenericConfig type, private field,
+constructor assignment, and public getter.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 1:04:19 AM
+
+Commit [900558e839ba3adc9c2d2f6fa6f85e60044dd3ac](https://github.com/StoneCypher/jssm/commit/900558e839ba3adc9c2d2f6fa6f85e60044dd3ac)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): rework overlapping-state-groups plan - ordered/nested groups, unified cascade, transition/graph configs
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:56:56 AM
+
+Commit [898ddc81a7e541f0c638cabc73d105ed2ae37a84](https://github.com/StoneCypher/jssm/commit/898ddc81a7e541f0c638cabc73d105ed2ae37a84)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): opt-in source locations and CM6 editor diagnostics
+  * Add `parse(input, { locations: true })`, which annotates AST object nodes with a `loc` (new exported `FslSourceLocation`) plus curated `*_loc` sub-spans for state names, transition source/target, all 14 machine-attribute values, action labels, and color values. The default parse output is byte-identical and machine construction is unaffected, so the feature is fully opt-in.
+  * Compiler semantic errors now carry `source_location` pointing at the offending statement (via a new `nth_matching_loc` helper), and `JssmError` gains an optional `source_location` field. The CodeMirror 6 sketch linter runs parse then compile and maps both syntax errors and located semantic errors to precise editor diagnostics through a pure, dependency-injected `diagnosticsFor` helper.
+  * Includes opt-in contract tests, sub-span tests, stochastic well-formedness, docblocks, and the v5.142.0 release artifacts. Spec suite remains at 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:45:07 AM
+
+Commit [2b4675bc6851995baf6cb3a4369c17280471622a](https://github.com/StoneCypher/jssm/commit/2b4675bc6851995baf6cb3a4369c17280471622a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: document opt-in parser locations and JssmError.source_location
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:40:37 AM
+
+Commit [0bedb5722bb85f62eae84e3742a402aa9af94bd3](https://github.com/StoneCypher/jssm/commit/0bedb5722bb85f62eae84e3742a402aa9af94bd3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(sketch): linter surfaces parse and semantic errors via diagnosticsFor
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:40:09 AM
+
+Commit [7597cf5330ae8611a5020e6b5dce9a0bb1adc31e](https://github.com/StoneCypher/jssm/commit/7597cf5330ae8611a5020e6b5dce9a0bb1adc31e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(sketch): pure diagnosticsFor helper (parse->compile->diagnostics)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:33:46 AM
+
+Commit [097a95659895676b5d7846dd3ee122b4ae736932](https://github.com/StoneCypher/jssm/commit/097a95659895676b5d7846dd3ee122b4ae736932)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(compiler): attach source_location to semantic compile errors
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:28:31 AM
+
+Commit [f0b9533bf5161e4bd827b0922d4424bc3fc4c4a2](https://github.com/StoneCypher/jssm/commit/f0b9533bf5161e4bd827b0922d4424bc3fc4c4a2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(compiler): add nth_matching_loc tree-scan helper
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:27:20 AM
+
+Commit [5cbea012dfa2697e4b5cc7e447dcbafd7e41baff](https://github.com/StoneCypher/jssm/commit/5cbea012dfa2697e4b5cc7e447dcbafd7e41baff)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(error): JssmError carries optional source_location
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:24:39 AM
+
+Commit [4807522244008320a24c9a4be361762fcee6d049](https://github.com/StoneCypher/jssm/commit/4807522244008320a24c9a4be361762fcee6d049)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(parser): stochastic loc well-formedness + color value_loc round-trip
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:20:20 AM
+
+Commit [ed3caa5c1199cf9e40226ef11854fdd24b6706c1](https://github.com/StoneCypher/jssm/commit/ed3caa5c1199cf9e40226ef11854fdd24b6706c1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(parser): lock opt-in invariant (located minus loc equals default)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:19:44 AM
+
+Commit [5dc9888952cbca322e2bb6d32b68e386c7f48cda](https://github.com/StoneCypher/jssm/commit/5dc9888952cbca322e2bb6d32b68e386c7f48cda)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): color value sub-spans (value_loc) with item retyping
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:17:29 AM
+
+Commit [d854bd66ca1a7d102e15d2363a122bf175532e58](https://github.com/StoneCypher/jssm/commit/d854bd66ca1a7d102e15d2363a122bf175532e58)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): action-label sub-spans (l_action_loc, r_action_loc)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:16:25 AM
+
+Commit [e3052776fefe0409f654f20b7af602745f92793f](https://github.com/StoneCypher/jssm/commit/e3052776fefe0409f654f20b7af602745f92793f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): value sub-spans on all machine-attribute nodes (value_loc)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:12:01 AM
+
+Commit [b2730a2e8d3a1ae4424a4d0d4d437b11fd0af3ac](https://github.com/StoneCypher/jssm/commit/b2730a2e8d3a1ae4424a4d0d4d437b11fd0af3ac)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): transition from/to sub-spans (from_loc, to_loc)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:11:08 AM
+
+Commit [b7bf3df26bef19d9b3d01585111e795c9753755e](https://github.com/StoneCypher/jssm/commit/b7bf3df26bef19d9b3d01585111e795c9753755e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): state-name sub-span (name_loc)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:07:51 AM
+
+Commit [6b5b30c59cc49e40712c6af49a85a447c1c48f44](https://github.com/StoneCypher/jssm/commit/6b5b30c59cc49e40712c6af49a85a447c1c48f44)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): opt-in source locations on remaining object nodes
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:05:19 AM
+
+Commit [be73040a674237aa4a95b068c316042844094c8f](https://github.com/StoneCypher/jssm/commit/be73040a674237aa4a95b068c316042844094c8f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): opt-in source locations on config blocks and items
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:03:47 AM
+
+Commit [c281d09628fed293cfe039b7136314b663141643](https://github.com/StoneCypher/jssm/commit/c281d09628fed293cfe039b7136314b663141643)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): opt-in source locations on state declarations and items
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:02:40 AM
+
+Commit [b58fe63f02f99d5bf5166ec658c9143fb95a52f7](https://github.com/StoneCypher/jssm/commit/b58fe63f02f99d5bf5166ec658c9143fb95a52f7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): opt-in source locations on machine-attribute nodes
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 8, 2026 12:01:26 AM
+
+Commit [c782982474793c633533d309868f865b1ff5c596](https://github.com/StoneCypher/jssm/commit/c782982474793c633533d309868f865b1ff5c596)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(parser): opt-in source locations on transition nodes
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 7, 2026 11:57:08 PM
+
+Commit [e52f3b82bae04845cf42ff9cb2e879f1790d924c](https://github.com/StoneCypher/jssm/commit/e52f3b82bae04845cf42ff9cb2e879f1790d924c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(types): define FslSourceLocation before first use to satisfy typecheck
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 7, 2026 11:53:00 PM
+
+Commit [896baa40df9863de14bf0be713512d60a3c9a397](https://github.com/StoneCypher/jssm/commit/896baa40df9863de14bf0be713512d60a3c9a397)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(types): add FslSourceLocation and optional loc fields for opt-in parser locations
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 7, 2026 11:47:04 PM
+
+Commit [6b732180c6d11837bfbec21b2d6da324563834f9](https://github.com/StoneCypher/jssm/commit/6b732180c6d11837bfbec21b2d6da324563834f9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: expand plan — color value sub-spans + all 14 attribute values
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 7, 2026 11:37:16 PM
+
+Commit [c16961d5fd19e57ebf4c9fc9b9cceb46b0c5cf7b](https://github.com/StoneCypher/jssm/commit/c16961d5fd19e57ebf4c9fc9b9cceb46b0c5cf7b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add parser source-locations + CM6 diagnostics implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__142__0" />
+
+## [5.142.0] - Jun 7, 2026 11:34:38 PM
+
+Commit [65dad04f62197cf63d717047c4acb181a274030a](https://github.com/StoneCypher/jssm/commit/65dad04f62197cf63d717047c4acb181a274030a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [103d7304, 8cc206a6]
+
+  * Merge pull request #691 from StoneCypher/refactor_26-06-07_fsl-canonical-wc-naming
+  * feat(wc): fsl-* canonical web-component naming, jssm-* aliases (v5.142.0)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 7, 2026 11:30:06 PM
+
+Commit [8cc206a6013eae50b8b14869ac78ff290576161a](https://github.com/StoneCypher/jssm/commit/8cc206a6013eae50b8b14869ac78ff290576161a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.142.0 — fsl-* canonical web-component naming
+  * Makes fsl-* the canonical custom-element tags and Fsl* the canonical exported classes across all six web components (viz, instance, bind, hook, on, action), with jssm-*/Jssm* retained as non-breaking aliases. Cross-component discovery/binding is prefix-agnostic. Source files renamed jssm_*_wc.ts -> fsl_*_wc.ts; rollup inputs, CEM, tests, and docs updated. Subpaths (jssm/wc/viz, etc.) and dist output names unchanged. 6115 spec tests pass at 100% coverage.
 
 
 

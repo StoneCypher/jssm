@@ -123,6 +123,476 @@ function wrap_parse(input, options) {
 }
 /*********
  *
+ *  Normalizes a single parsed `named_list` value into an ordered array of
+ *  {@link JssmGroupMemberRef}.  The grammar returns a bare `string[]` when a
+ *  list contains only plain labels (the historical NamedList shape), and an
+ *  array of member objects as soon as any `&`/`...&` group member appears.
+ *  This collapses both forms into the uniform member-object shape used by
+ *  the {@link JssmGroupRegistry}.
+ *
+ *  ```typescript
+ *  normalize_group_members(['a', 'b']);
+ *  // [ { kind: 'state', name: 'a' }, { kind: 'state', name: 'b' } ]
+ *  ```
+ *
+ *  @param value The `value` field of a parsed `named_list` node — either a
+ *               `string[]` of plain labels or an array of member objects.
+ *
+ *  @returns The ordered direct members as {@link JssmGroupMemberRef} objects.
+ *
+ *  @internal
+ */
+function normalize_group_members(value) {
+    return value.map((member) => (typeof member === 'string')
+        ? { kind: 'state', name: member }
+        : member);
+}
+/*********
+ *
+ *  Builds the ordered {@link JssmGroupRegistry} from every `named_list` node
+ *  in a parse tree, preserving declaration order of each group's direct
+ *  members.  Only direct members are stored; transitive (flattened)
+ *  membership is resolved separately by {@link transitive_members} so the
+ *  group→group graph survives for later precedence/viz work.
+ *
+ *  ```typescript
+ *  build_group_registry(parse('&g : [a b];'));
+ *  // Map { 'g' => [ { kind:'state', name:'a' }, { kind:'state', name:'b' } ] }
+ *  ```
+ *
+ *  @param tree The parse tree to scan for group declarations.
+ *
+ *  @returns A `Map` from group name to its ordered direct members.
+ *
+ *  @throws {JssmError} If two `named_list` nodes declare the same group name.
+ *
+ *  @see transitive_members
+ *  @see group_registry_cycle_check
+ */
+function build_group_registry(tree) {
+    const registry = new Map();
+    tree.forEach((node) => {
+        if (node.key === 'named_list') {
+            if (registry.has(node.name)) {
+                throw new JssmError(undefined, `Cannot redeclare group: &${node.name}`);
+            }
+            registry.set(node.name, normalize_group_members(node.value));
+        }
+    });
+    return registry;
+}
+/*********
+ *
+ *  Walks the group→group edges of a {@link JssmGroupRegistry} (both `nest`
+ *  and `spread` members count as edges) and throws on a cycle.  A cycle
+ *  would make transitive membership non-terminating, so it is rejected at
+ *  compile time.
+ *
+ *  ```typescript
+ *  group_registry_cycle_check(build_group_registry(parse('&a:[&b]; &b:[&a];')));
+ *  // throws JssmError: Group membership cycle detected: &a -> &b -> &a
+ *  ```
+ *
+ *  @param registry The ordered group registry to validate.
+ *
+ *  @throws {JssmError} If any group transitively contains itself.
+ *
+ *  @see build_group_registry
+ */
+function group_registry_cycle_check(registry) {
+    const visiting = new Set(); // on the current DFS stack
+    const visited = new Set(); // fully explored, known acyclic
+    const walk = (group, path) => {
+        var _a;
+        if (visiting.has(group)) {
+            const cycle = [...path, group].map((g) => `&${g}`).join(' -> ');
+            throw new JssmError(undefined, `Group membership cycle detected: ${cycle}`);
+        }
+        if (visited.has(group)) {
+            return;
+        }
+        visiting.add(group);
+        ((_a = registry.get(group)) !== null && _a !== void 0 ? _a : []).forEach((member) => {
+            if (member.kind === 'group') {
+                walk(member.name, [...path, group]);
+            }
+        });
+        visiting.delete(group);
+        visited.add(group);
+    };
+    registry.forEach((_members, group) => walk(group, []));
+}
+/*********
+ *
+ *  Resolves a group to its ordered, flat list of member STATE names,
+ *  splicing each nested or spread sub-group's resolved members in at the
+ *  position the sub-group occupies.  `nest` and `spread` produce the same
+ *  state set here; their structural distinction is retained only in the
+ *  registry for later viz/precedence.  Results are cached in `memo` so a
+ *  group shared by several parents resolves once.
+ *
+ *  Assumes the registry is acyclic — run {@link group_registry_cycle_check}
+ *  first.
+ *
+ *  ```typescript
+ *  const reg = build_group_registry(parse('&inner:[a b]; &outer:[&inner c];'));
+ *  transitive_members(reg, 'outer', new Map());  // [ 'a', 'b', 'c' ]
+ *  ```
+ *
+ *  @param registry The ordered group registry.
+ *  @param group    The group name to flatten.
+ *  @param memo     A cache from group name to its already-resolved state
+ *                  list; shared across calls to memoize overlapping work.
+ *
+ *  @returns The ordered member state names.
+ *
+ *  @see build_group_registry
+ */
+function transitive_members(registry, group, memo) {
+    var _a;
+    const cached = memo.get(group);
+    if (cached !== undefined) {
+        return cached;
+    }
+    const out = [];
+    ((_a = registry.get(group)) !== null && _a !== void 0 ? _a : []).forEach((member) => {
+        if (member.kind === 'state') {
+            out.push(member.name);
+        }
+        else {
+            transitive_members(registry, member.name, memo).forEach((s) => out.push(s));
+        }
+    });
+    memo.set(group, out);
+    return out;
+}
+/*********
+ *
+ *  Validates that every `group`-kind member of every group in the registry
+ *  names a group that is itself declared.  A `&outer : [&missing]` whose
+ *  `missing` group is never declared is a compile error — the analogue, on
+ *  the membership side, of the unresolved transition/target reference rejected
+ *  by {@link resolve_group_refs}.  Plain `state`-kind members are NOT checked:
+ *  states are never pre-declared in FSL, so any label is acceptable there.
+ *
+ *  ```typescript
+ *  // `&outer : [&missing];` throws:
+ *  //   JssmError: Unresolved group reference: &missing
+ *  ```
+ *
+ *  @param registry The compiled group registry to validate.
+ *
+ *  @throws {JssmError} If any group member references an undeclared group,
+ *                      naming the unresolved member.
+ *
+ *  @see resolve_group_refs
+ *  @see build_group_registry
+ *  @internal
+ */
+function validate_group_members(registry) {
+    registry.forEach((members) => {
+        members.forEach((member) => {
+            if ((member.kind === 'group') && (!registry.has(member.name))) {
+                throw new JssmError(undefined, `Unresolved group reference: &${member.name}`);
+            }
+        });
+    });
+}
+/*********
+ *
+ *  Computes the minimum membership distance from a source `state` up to a
+ *  containing `group` — the specificity metric that drives group-vs-group
+ *  conflict resolution.  Distance 1 means `state` is a direct member of
+ *  `group`; distance 2 means `state` belongs to some sub-group nested (or
+ *  spread) one hop inside `group`; and so on.  A smaller distance means the
+ *  group is "nearer"/"more specific" to the state, so it wins.
+ *
+ *  The walk is a breadth-first descent over the group→group membership edges
+ *  starting at `group`: a group dequeued at hop-count `h` contributes its
+ *  direct `state` members at distance `h + 1`, and enqueues its `group`
+ *  members at hop-count `h + 1`.  BFS guarantees the first time `state` is
+ *  seen is via a shortest path; cycles cannot occur because the registry is
+ *  validated acyclic by {@link group_registry_cycle_check} first, but a
+ *  `visited` set guards against re-expansion regardless.
+ *
+ *  ```typescript
+ *  // for `&Playing:[normal]; &Active:[&Playing];`
+ *  // membership_distance(reg, 'normal', 'Playing') === 1
+ *  // membership_distance(reg, 'normal', 'Active')  === 2
+ *  ```
+ *
+ *  @param registry The compiled group registry.
+ *  @param state    The source state whose distance is measured.
+ *  @param group    The containing group to measure the distance to.
+ *
+ *  @returns The minimum membership distance (>= 1), or `Infinity` if `state`
+ *           is not a transitive member of `group`.
+ *
+ *  @see transitive_members
+ *  @internal
+ */
+function membership_distance(registry, state, group) {
+    var _a;
+    const visited = new Set([group]);
+    let frontier = [{ group, hops: 0 }];
+    while (frontier.length) {
+        const next = [];
+        for (const { group: g, hops } of frontier) {
+            const members = (_a = registry.get(g)) !== null && _a !== void 0 ? _a : [];
+            for (const member of members) {
+                if (member.kind === 'state') {
+                    if (member.name === state) {
+                        return hops + 1;
+                    }
+                }
+                else if (!visited.has(member.name)) {
+                    visited.add(member.name);
+                    next.push({ group: member.name, hops: hops + 1 });
+                }
+            }
+        }
+        frontier = next;
+    }
+    return Infinity;
+}
+/*********
+ *
+ *  Arbitrates transitions that compete for the same `(source_state, action)`
+ *  pair after group-as-source expansion, returning a new edge list in which
+ *  each such pair keeps exactly one winner and every transient
+ *  conflict-resolution tag (`__source_group`, `__specificity`) has been
+ *  stripped.  Edges without an `action`, and `(from, action)` pairs claimed
+ *  by a single edge, pass through untouched (so a genuine user-authored
+ *  duplicate like `a 'x' -> b; a 'x' -> c;` still reaches — and is rejected
+ *  by — the Machine constructor's one-action-per-origin check).
+ *
+ *  The winner for a contested pair is chosen by the inner-overrides-outer
+ *  (statechart) rule:
+ *
+ *  1. A **state-specific** edge (one with no `__source_group`, i.e. authored
+ *     directly rather than via a group source) always beats every
+ *     group-sourced edge for that pair.  All state-specific edges survive
+ *     (any duplication among them is the user's own and is left for the
+ *     runtime to reject); all group-sourced edges are dropped silently —
+ *     overriding a group with a state is the documented, expected case.
+ *  2. Otherwise the contest is among group-sourced edges: the one with the
+ *     SMALLEST `__specificity` (nearest / innermost group) wins.
+ *  3. An equal-specificity tie breaks by **declaration order** — the edge
+ *     appearing later in the source (later array index) wins.
+ *
+ *  Whenever a group-sourced edge is dropped in favor of another group-sourced
+ *  edge, a `console.warn` names the overridden group, the overriding group,
+ *  and the shared source state.
+ *
+ *  ```typescript
+ *  // `&Playing:[normal]; &Active:[&Playing];
+ *  //  &Playing 'error' -> buffering; &Active 'error' -> stopped;`
+ *  // for `normal`: Playing (distance 1) beats Active (distance 2), so the
+ *  // surviving edge is `normal 'error' -> buffering`.
+ *  ```
+ *
+ *  @param edges The assembled, post-expansion edge list (tags still present).
+ *
+ *  @returns A new edge list with contested pairs resolved and tags removed;
+ *           surviving edges keep their original relative order.
+ *
+ *  @see resolve_group_refs
+ *  @see membership_distance
+ *  @internal
+ */
+function resolve_transition_conflicts(edges) {
+    const tagged = edges;
+    // Group edge indices by (from, action), then by declaration within each, so
+    // sibling edges of one fan-out (shared decl_id) never override each other.
+    const buckets = new Map();
+    tagged.forEach((edge, index) => {
+        var _a;
+        if (edge.action == null) {
+            return;
+        } // actionless edges never contest on action
+        const key = JSON.stringify([String(edge.from), String(edge.action)]);
+        let by_decl = buckets.get(key);
+        if (by_decl === undefined) {
+            by_decl = new Map();
+            buckets.set(key, by_decl);
+        }
+        const decl_id = edge.__decl_id;
+        const entry = by_decl.get(decl_id);
+        if (entry === undefined) {
+            by_decl.set(decl_id, {
+                decl_id,
+                indices: [index],
+                source_group: edge.__source_group,
+                specificity: (_a = edge.__specificity) !== null && _a !== void 0 ? _a : Infinity
+            });
+        }
+        else {
+            entry.indices.push(index);
+        }
+    });
+    const dropped = new Set();
+    buckets.forEach((by_decl) => {
+        const decls = [...by_decl.values()];
+        if (decls.length < 2) {
+            return;
+        } // a single declaration cannot conflict
+        const state_decls = decls.filter((d) => d.source_group === undefined);
+        const group_decls = decls.filter((d) => d.source_group !== undefined);
+        // Rule 1: any state-specific declaration wins — drop every group-sourced
+        // edge silently, keep every state-specific edge (runtime rejects genuine
+        // user dupes among the state declarations).
+        if (state_decls.length) {
+            group_decls.forEach((d) => d.indices.forEach((i) => dropped.add(i)));
+            return;
+        }
+        // Rule 2 + 3: among group-sourced declarations, smallest specificity wins;
+        // ties break by later declaration order (larger decl_id).
+        let winner = group_decls[0];
+        group_decls.forEach((d) => {
+            const nearer = d.specificity < winner.specificity;
+            const tie_later = (d.specificity === winner.specificity) && (d.decl_id > winner.decl_id);
+            if (nearer || tie_later) {
+                winner = d;
+            }
+        });
+        group_decls.forEach((d) => {
+            if (d.decl_id !== winner.decl_id) {
+                d.indices.forEach((i) => dropped.add(i));
+                // eslint-disable-next-line no-console
+                console.warn(`jssm: group &${d.source_group} transition for state '${String(tagged[d.indices[0]].from)}' `
+                    + `on action '${String(tagged[d.indices[0]].action)}' is overridden by nearer group `
+                    + `&${winner.source_group}`);
+            }
+        });
+    });
+    // Emit survivors in original order, stripping the transient tags.
+    const out = [];
+    tagged.forEach((edge, index) => {
+        if (dropped.has(index)) {
+            return;
+        }
+        delete edge.__decl_id;
+        delete edge.__source_group;
+        delete edge.__specificity;
+        out.push(edge);
+    });
+    return out;
+}
+/*********
+ *
+ *  Reports whether a parsed transition endpoint is a group reference
+ *  (`&Name`), i.e. a `{ key: 'group_ref', name }` node.  Used to drive
+ *  reference resolution and fan-out-target rewriting.
+ *
+ *  A plain label is a `string` (rejected by the `typeof` test), a list
+ *  target is an `Array` (an object whose `.key` is `undefined`), and a
+ *  cycle/stripe marker is an object with a different `.key` — all three
+ *  return `false`.  The parser never emits a `null` endpoint, so the
+ *  `typeof === 'object'` guard alone is sufficient.
+ *
+ *  @param endpoint A transition `from` or `to` value from the parse tree.
+ *
+ *  @returns `true` for a group-reference node, `false` for a plain label,
+ *           a label list, or a cycle/stripe marker.
+ *
+ *  @internal
+ */
+function is_group_ref(endpoint) {
+    return (typeof endpoint === 'object')
+        && (endpoint.key === 'group_ref');
+}
+/*********
+ *
+ *  Resolves every `group_ref` used as a transition source/target or hook
+ *  subject against the registry, throwing on an unresolved name, and produces
+ *  a parse tree in which:
+ *
+ *  - every group-reference TARGET (any `to` position in an arrow chain) is
+ *    rewritten in place to the ordered state array produced by
+ *    {@link transitive_members}, so the existing list-target fan-out in
+ *    {@link compile_rule_transition_step} expands it to one edge per member;
+ *  - every group-reference SOURCE (a `from` position) is FANNED OUT to one
+ *    transition node per transitive member, each carrying a transient
+ *    `__source_group` (the declared group name) and `__specificity` (that
+ *    member's {@link membership_distance} from the declared group) used only
+ *    by {@link resolve_transition_conflicts} and stripped before emission.
+ *
+ *  Forward references resolve because the registry is built from the whole
+ *  tree before this pass runs.  Non-transition nodes (state declarations,
+ *  hook declarations, ...) pass through untouched, except that hook subjects
+ *  are validated.
+ *
+ *  ```typescript
+ *  // `&g : [a b]; foo -> &g;` rewrites the target to `['a','b']`, which
+ *  // then fans out to `foo -> a; foo -> b;`.
+ *  // `&g : [a b]; &g 'x' -> y;` fans the source out to two transition nodes
+ *  // `a 'x' -> y;` and `b 'x' -> y;`.
+ *  ```
+ *
+ *  @param tree     The parse tree to resolve; target/hook validation mutates
+ *                  transition `to` links in place, but source fan-out is
+ *                  returned as a NEW node array (the input is not reordered).
+ *  @param registry The compiled group registry.
+ *
+ *  @returns The resolved parse tree, with group sources fanned out.
+ *
+ *  @throws {JssmError} If a `group_ref` (source, target, or hook subject)
+ *                      names a group not present in the registry.
+ *
+ *  @see transitive_members
+ *  @see membership_distance
+ *  @see resolve_transition_conflicts
+ *  @see compile_rule_transition_step
+ */
+function resolve_group_refs(tree, registry) {
+    const memo = new Map();
+    const require_resolvable = (name) => {
+        if (!registry.has(name)) {
+            throw new JssmError(undefined, `Unresolved group reference: &${name}`);
+        }
+    };
+    const resolved = []; // TODO FIXME no any
+    let decl_id = 0; // one id per source declaration
+    tree.forEach((node) => {
+        // Hook subjects that are group refs are validated here (state subjects
+        // need no validation — states are never pre-declared).
+        if ((node.key === 'hook_decl') && is_group_ref(node.subject)) {
+            require_resolvable(node.subject.name);
+        }
+        if (node.key !== 'transition') {
+            resolved.push(node);
+            return;
+        }
+        // Every transition declaration gets one id so conflict resolution can
+        // tell distinct declarations apart from the sibling edges of a single
+        // declaration's list/group fan-out (which must never override each other).
+        const this_decl = decl_id++;
+        // Every `to` along the arrow chain is a target; a group ref there is
+        // rewritten in place to its ordered member-state array.
+        for (let link = node.se; link; link = link.se) {
+            if (is_group_ref(link.to)) {
+                require_resolvable(link.to.name);
+                link.to = transitive_members(registry, link.to.name, memo);
+            }
+        }
+        // A group-ref SOURCE fans out to one transition node per transitive
+        // member, each tagged with the originating group and that member's
+        // membership distance (its specificity) for later conflict resolution.
+        if (is_group_ref(node.from)) {
+            const group_name = node.from.name;
+            require_resolvable(group_name);
+            transitive_members(registry, group_name, memo).forEach((member) => {
+                resolved.push(Object.assign(Object.assign({}, node), { from: member, __decl_id: this_decl, __source_group: group_name, __specificity: membership_distance(registry, member, group_name) }));
+            });
+        }
+        else {
+            resolved.push(Object.assign(Object.assign({}, node), { __decl_id: this_decl }));
+        }
+    });
+    return resolved;
+}
+/*********
+ *
  *  Internal method performing one step in compiling rules for transitions.  Not
  *  generally meant for external use.
  *
@@ -175,7 +645,27 @@ function compile_rule_handle_transition(rule) {
  */
 function compile_rule_handler(rule) {
     if (rule.key === 'transition') {
-        return { agg_as: 'transition', val: compile_rule_handle_transition(rule) };
+        const edges = compile_rule_handle_transition(rule);
+        // Every transition node carries a transient `__decl_id` (assigned per
+        // source declaration by resolve_group_refs); a group-sourced node also
+        // carries `__source_group` / `__specificity`.  Stamp these onto the edges
+        // leaving the declared source so resolve_transition_conflicts can
+        // arbitrate competing (from, action) pairs across DISTINCT declarations.
+        // The right-direction edges are the source-driven ones, so tag only the
+        // edges whose `from` is the declaration's source state.
+        const decl_id = rule.__decl_id; // TODO FIXME no any
+        const source_group = rule.__source_group; // TODO FIXME no any
+        const specificity = rule.__specificity; // TODO FIXME no any
+        edges.forEach((edge) => {
+            if (edge.from === rule.from) {
+                edge.__decl_id = decl_id; // TODO FIXME no any
+                if (source_group !== undefined) {
+                    edge.__source_group = source_group; // TODO FIXME no any
+                    edge.__specificity = specificity; // TODO FIXME no any
+                }
+            }
+        });
+        return { agg_as: 'transition', val: edges };
     }
     if (rule.key === 'machine_language') {
         return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
@@ -191,10 +681,29 @@ function compile_rule_handler(rule) {
         }
         return ret;
     }
+    // Group declarations are collected into the registry in a separate pass
+    // (see build_group_registry); here we only need them to stop falling
+    // through to the "Unknown rule" throw.  The aggregated value is unused.
+    if (rule.key === 'named_list') {
+        return { agg_as: 'named_list', val: [] };
+    }
+    // A boundary-hook declaration (`on enter|exit <subject> do 'action';`) is
+    // collected raw; the compile pass routes it into group_hooks or state_hooks
+    // by subject kind.  Runtime firing is a later task.
+    if (rule.key === 'hook_decl') {
+        return { agg_as: 'hook_decl', val: [rule] };
+    }
     // state properties are in here
     if (rule.key === 'state_declaration') {
         if (!rule.name) {
             throw new JssmError(undefined, 'State declarations must have a name');
+        }
+        // `state &g : { … }` (a group-ref subject) registers GROUP metadata keyed
+        // by group name — NOT fanned out to per-member states — so the runtime
+        // cascade can preserve depth.  A plain `state foo : { … }` keeps its
+        // existing per-state behavior.
+        if (is_group_ref(rule.name)) {
+            return { agg_as: 'group_metadata', val: [{ group: rule.name.name, declarations: rule.value }] }; // TODO FIXME no any
         }
         return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
     }
@@ -204,10 +713,11 @@ function compile_rule_handler(rule) {
     }
     // things that can only exist once and are just a value under their own name
     const tautologies = [
-        'graph_layout', 'start_states', 'end_states', 'machine_name', 'machine_version',
-        'machine_comment', 'machine_author', 'machine_contributor', 'machine_definition',
-        'machine_reference', 'machine_license', 'fsl_version', 'state_config', 'theme',
-        'flow', 'dot_preamble', 'allows_override', 'default_state_config',
+        'graph_layout', 'graph_bg_color', 'start_states', 'end_states', 'machine_name',
+        'machine_version', 'machine_comment', 'machine_author', 'machine_contributor',
+        'machine_definition', 'machine_reference', 'machine_license', 'fsl_version',
+        'state_config', 'theme', 'flow', 'dot_preamble', 'allows_override',
+        'default_state_config', 'default_transition_config', 'default_graph_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_active_state_config',
         'default_terminal_state_config'
@@ -216,6 +726,85 @@ function compile_rule_handler(rule) {
         return { agg_as: rule.key, val: rule.value };
     }
     throw new JssmError(undefined, `compile_rule_handler: Unknown rule: ${JSON.stringify(rule)}`);
+}
+/*********
+ *
+ *  Maps a deprecated top-level graph keyword to the canonical key it occupies
+ *  inside a consolidated `graph: {}` config block.  Aliases whose canonical key
+ *  coincides with a `graph: {}` style item (currently only `graph_bg_color` →
+ *  `background-color`) let an explicit block override the legacy form; the rest
+ *  keep their own key because the block has no equivalent.
+ *
+ *  @param alias_key The deprecated top-level keyword, e.g. `graph_bg_color`
+ *
+ *  @returns The canonical key the value should carry inside `default_graph_config`
+ *
+ *  @see fold_graph_config
+ */
+function canonical_graph_alias_key(alias_key) {
+    if (alias_key === 'graph_bg_color') {
+        return 'background-color';
+    }
+    return alias_key;
+}
+/*********
+ *
+ *  Folds the deprecated top-level graph keywords (`graph_layout`,
+ *  `graph_bg_color`, `dot_preamble`, `theme`, `flow`) into the consolidated
+ *  `default_graph_config` list, then appends the items from an explicit
+ *  `graph: {}` block so that, on a canonical-key conflict, the explicit block
+ *  wins.
+ *
+ *  Only `graph_bg_color` emits a `console.warn` deprecation notice, because
+ *  it is the only alias that has a direct `graph: {}` block replacement today
+ *  (`graph: { background-color: … }`).  The other aliases (`graph_layout`,
+ *  `theme`, `flow`, `dot_preamble`) fold silently — they have no block-level
+ *  equivalent yet, so warning on them would be misleading spam.  The warning
+ *  fires once per compile (the key can only appear once in a valid FSL source).
+ *
+ *  The result is de-duplicated by canonical key, last-wins, preserving the
+ *  position of the first occurrence of each key (so a `graph: {}` override
+ *  updates the value in place rather than reordering).
+ *
+ *  ```typescript
+ *  fold_graph_config({ graph_bg_color: ['#fff'] }, []);
+ *  // [ { key: 'background-color', value: '#fff' } ]
+ *  ```
+ *
+ *  @param aliases       The collected values for each deprecated alias keyword
+ *  @param explicit_block The items parsed from an explicit `graph: {}` block
+ *
+ *  @returns The consolidated, conflict-resolved graph-config item list
+ *
+ *  @see canonical_graph_alias_key
+ */
+const WARN_DEPRECATED_GRAPH_ALIASES = new Set(['graph_bg_color']);
+function fold_graph_config(aliases, explicit_block) {
+    const folded = [];
+    Object.keys(aliases).forEach((alias_key) => {
+        aliases[alias_key].forEach((value) => {
+            if (WARN_DEPRECATED_GRAPH_ALIASES.has(alias_key)) {
+                // eslint-disable-next-line no-console
+                console.warn(`jssm: top-level \`${alias_key}\` is deprecated; prefer a \`graph: {}\` config block`);
+            }
+            folded.push({ key: canonical_graph_alias_key(alias_key), value });
+        });
+    });
+    explicit_block.forEach((item) => folded.push(item));
+    // De-duplicate by canonical key, last-wins, holding first-seen position.
+    const seen_at = new Map();
+    const result = [];
+    folded.forEach((item) => {
+        const existing_index = seen_at.get(item.key);
+        if (existing_index === undefined) {
+            seen_at.set(item.key, result.length);
+            result.push(item);
+        }
+        else {
+            result[existing_index] = item;
+        }
+    });
+    return result;
 }
 /*********
  *
@@ -271,6 +860,7 @@ function compile_rule_handler(rule) {
 function compile(tree) {
     const results = {
         graph_layout: [],
+        graph_bg_color: [],
         transition: [],
         start_states: [],
         end_states: [],
@@ -300,9 +890,23 @@ function compile(tree) {
         default_terminal_state_config: [],
         default_start_state_config: [],
         default_end_state_config: [],
+        default_transition_config: [],
+        default_graph_config: [],
+        named_list: [],
+        group_metadata: [],
+        hook_decl: [],
         allows_override: []
     };
-    tree.map((tr) => {
+    // Build the ordered group registry, reject membership cycles and undeclared
+    // sub-group members, then resolve/rewrite group references — group targets
+    // fan out through the existing list-target machinery and group sources fan
+    // out into per-member transition nodes (tagged for conflict resolution).
+    // All before the main rule walk, so forward references resolve.
+    const group_registry = build_group_registry(tree);
+    group_registry_cycle_check(group_registry);
+    validate_group_members(group_registry);
+    const resolved_tree = resolve_group_refs(tree, group_registry);
+    resolved_tree.map((tr) => {
         const rule = compile_rule_handler(tr), agg_as = rule.agg_as, val = rule.val; // TODO FIXME no any
         results[agg_as] = results[agg_as].concat(val);
     });
@@ -310,17 +914,67 @@ function compile(tree) {
     if (repeat_props.length) {
         throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`);
     }
-    const assembled_transitions = [].concat(...results['transition']);
+    // Assemble all edges, then arbitrate group-expanded edges that compete for
+    // the same (source_state, action) by depth-specificity before any further
+    // processing (the runtime would otherwise reject the duplicates outright).
+    const assembled_transitions = resolve_transition_conflicts([].concat(...results['transition']));
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
         end_states: results.end_states,
         transitions: assembled_transitions,
         state_property: [],
     };
+    // Carry the ordered group registry through to the machine config, but only
+    // when groups were actually declared, so group-free machines are unchanged.
+    if (group_registry.size) {
+        result_cfg.group_registry = group_registry;
+    }
+    // Group metadata: each `state &g : { … }` block becomes one per-group
+    // JssmStateConfig entry, keyed by group name and NOT fanned out to members,
+    // so the runtime cascade can resolve it with depth-specificity later.
+    if (results.group_metadata.length) {
+        const group_metadata = new Map();
+        results.group_metadata.forEach((gm) => {
+            group_metadata.set(gm.group, { declarations: gm.declarations });
+        });
+        result_cfg.group_metadata = group_metadata;
+    }
+    // Boundary hooks: route each `on enter|exit <subject> do '<action>';` into
+    // group_hooks (group subject) or state_hooks (plain-state subject), merging
+    // an enter and an exit declaration for the same subject into one entry.
+    if (results.hook_decl.length) {
+        const group_hooks = new Map();
+        const state_hooks = new Map();
+        const merge_hook = (table, subject, event, action) => {
+            var _a;
+            const existing = (_a = table.get(subject)) !== null && _a !== void 0 ? _a : {};
+            if (event === 'enter') {
+                existing.onEnter = action;
+            }
+            else {
+                existing.onExit = action;
+            }
+            table.set(subject, existing);
+        };
+        results.hook_decl.forEach((decl) => {
+            if (is_group_ref(decl.subject)) {
+                merge_hook(group_hooks, decl.subject.name, decl.event, decl.action);
+            }
+            else {
+                merge_hook(state_hooks, decl.subject, decl.event, decl.action);
+            }
+        });
+        if (group_hooks.size) {
+            result_cfg.group_hooks = group_hooks;
+        }
+        if (state_hooks.size) {
+            result_cfg.state_hooks = state_hooks;
+        }
+    }
     const oneOnlyKeys = [
-        'graph_layout', 'machine_name', 'machine_version', 'machine_comment',
-        'fsl_version', 'machine_license', 'machine_definition', 'machine_language',
-        'flow', 'dot_preamble', 'allows_override'
+        'graph_layout', 'graph_bg_color', 'machine_name', 'machine_version',
+        'machine_comment', 'fsl_version', 'machine_license', 'machine_definition',
+        'machine_language', 'flow', 'dot_preamble', 'allows_override'
     ];
     oneOnlyKeys.map((oneOnlyKey) => {
         if (results[oneOnlyKey].length > 1) {
@@ -337,11 +991,21 @@ function compile(tree) {
         'state_declaration', 'property_definition', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',
         'default_hooked_state_config', 'default_terminal_state_config',
-        'default_active_state_config'].map((multiKey) => {
+        'default_active_state_config', 'default_transition_config'].map((multiKey) => {
         if (results[multiKey].length) {
             result_cfg[multiKey] = results[multiKey];
         }
     });
+    result_cfg.default_graph_config = fold_graph_config({
+        graph_layout: results.graph_layout,
+        graph_bg_color: results.graph_bg_color,
+        dot_preamble: results.dot_preamble,
+        theme: results.theme,
+        flow: results.flow
+    }, results.default_graph_config);
+    if (!result_cfg.default_graph_config.length) {
+        delete result_cfg.default_graph_config;
+    }
     // re-walk state declarations, already wrapped up, to get state properties,
     // which go out in a different datastructure
     results.state_declaration.forEach(sd => {
@@ -377,4 +1041,4 @@ export { compile,
 // compile_rule_handler,
 // compile_rule_transition_step,
 // compile_rule_handle_transition,
-make, makeTransition, wrap_parse };
+make, makeTransition, build_group_registry, group_registry_cycle_check, transitive_members, validate_group_members, membership_distance, wrap_parse };

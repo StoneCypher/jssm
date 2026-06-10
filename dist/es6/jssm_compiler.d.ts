@@ -1,4 +1,4 @@
-import { JssmTransition, JssmCompileSe, JssmParseTree, JssmGenericConfig } from './jssm_types';
+import { JssmTransition, JssmCompileSe, JssmParseTree, JssmGenericConfig, JssmGroupRegistry } from './jssm_types';
 /*********
  *
  *  Internal method meant to perform factory assembly of an edge.  Not meant for
@@ -85,6 +85,133 @@ declare function makeTransition<StateType, mDT>(this_se: JssmCompileSe<StateType
 declare function wrap_parse(input: string, options?: Object): any;
 /*********
  *
+ *  Builds the ordered {@link JssmGroupRegistry} from every `named_list` node
+ *  in a parse tree, preserving declaration order of each group's direct
+ *  members.  Only direct members are stored; transitive (flattened)
+ *  membership is resolved separately by {@link transitive_members} so the
+ *  group→group graph survives for later precedence/viz work.
+ *
+ *  ```typescript
+ *  build_group_registry(parse('&g : [a b];'));
+ *  // Map { 'g' => [ { kind:'state', name:'a' }, { kind:'state', name:'b' } ] }
+ *  ```
+ *
+ *  @param tree The parse tree to scan for group declarations.
+ *
+ *  @returns A `Map` from group name to its ordered direct members.
+ *
+ *  @throws {JssmError} If two `named_list` nodes declare the same group name.
+ *
+ *  @see transitive_members
+ *  @see group_registry_cycle_check
+ */
+declare function build_group_registry<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGroupRegistry;
+/*********
+ *
+ *  Walks the group→group edges of a {@link JssmGroupRegistry} (both `nest`
+ *  and `spread` members count as edges) and throws on a cycle.  A cycle
+ *  would make transitive membership non-terminating, so it is rejected at
+ *  compile time.
+ *
+ *  ```typescript
+ *  group_registry_cycle_check(build_group_registry(parse('&a:[&b]; &b:[&a];')));
+ *  // throws JssmError: Group membership cycle detected: &a -> &b -> &a
+ *  ```
+ *
+ *  @param registry The ordered group registry to validate.
+ *
+ *  @throws {JssmError} If any group transitively contains itself.
+ *
+ *  @see build_group_registry
+ */
+declare function group_registry_cycle_check(registry: JssmGroupRegistry): void;
+/*********
+ *
+ *  Resolves a group to its ordered, flat list of member STATE names,
+ *  splicing each nested or spread sub-group's resolved members in at the
+ *  position the sub-group occupies.  `nest` and `spread` produce the same
+ *  state set here; their structural distinction is retained only in the
+ *  registry for later viz/precedence.  Results are cached in `memo` so a
+ *  group shared by several parents resolves once.
+ *
+ *  Assumes the registry is acyclic — run {@link group_registry_cycle_check}
+ *  first.
+ *
+ *  ```typescript
+ *  const reg = build_group_registry(parse('&inner:[a b]; &outer:[&inner c];'));
+ *  transitive_members(reg, 'outer', new Map());  // [ 'a', 'b', 'c' ]
+ *  ```
+ *
+ *  @param registry The ordered group registry.
+ *  @param group    The group name to flatten.
+ *  @param memo     A cache from group name to its already-resolved state
+ *                  list; shared across calls to memoize overlapping work.
+ *
+ *  @returns The ordered member state names.
+ *
+ *  @see build_group_registry
+ */
+declare function transitive_members(registry: JssmGroupRegistry, group: string, memo: Map<string, string[]>): string[];
+/*********
+ *
+ *  Validates that every `group`-kind member of every group in the registry
+ *  names a group that is itself declared.  A `&outer : [&missing]` whose
+ *  `missing` group is never declared is a compile error — the analogue, on
+ *  the membership side, of the unresolved transition/target reference rejected
+ *  by {@link resolve_group_refs}.  Plain `state`-kind members are NOT checked:
+ *  states are never pre-declared in FSL, so any label is acceptable there.
+ *
+ *  ```typescript
+ *  // `&outer : [&missing];` throws:
+ *  //   JssmError: Unresolved group reference: &missing
+ *  ```
+ *
+ *  @param registry The compiled group registry to validate.
+ *
+ *  @throws {JssmError} If any group member references an undeclared group,
+ *                      naming the unresolved member.
+ *
+ *  @see resolve_group_refs
+ *  @see build_group_registry
+ *  @internal
+ */
+declare function validate_group_members(registry: JssmGroupRegistry): void;
+/*********
+ *
+ *  Computes the minimum membership distance from a source `state` up to a
+ *  containing `group` — the specificity metric that drives group-vs-group
+ *  conflict resolution.  Distance 1 means `state` is a direct member of
+ *  `group`; distance 2 means `state` belongs to some sub-group nested (or
+ *  spread) one hop inside `group`; and so on.  A smaller distance means the
+ *  group is "nearer"/"more specific" to the state, so it wins.
+ *
+ *  The walk is a breadth-first descent over the group→group membership edges
+ *  starting at `group`: a group dequeued at hop-count `h` contributes its
+ *  direct `state` members at distance `h + 1`, and enqueues its `group`
+ *  members at hop-count `h + 1`.  BFS guarantees the first time `state` is
+ *  seen is via a shortest path; cycles cannot occur because the registry is
+ *  validated acyclic by {@link group_registry_cycle_check} first, but a
+ *  `visited` set guards against re-expansion regardless.
+ *
+ *  ```typescript
+ *  // for `&Playing:[normal]; &Active:[&Playing];`
+ *  // membership_distance(reg, 'normal', 'Playing') === 1
+ *  // membership_distance(reg, 'normal', 'Active')  === 2
+ *  ```
+ *
+ *  @param registry The compiled group registry.
+ *  @param state    The source state whose distance is measured.
+ *  @param group    The containing group to measure the distance to.
+ *
+ *  @returns The minimum membership distance (>= 1), or `Infinity` if `state`
+ *           is not a transitive member of `group`.
+ *
+ *  @see transitive_members
+ *  @internal
+ */
+declare function membership_distance(registry: JssmGroupRegistry, state: string, group: string): number;
+/*********
+ *
  *  Compile a machine's JSON intermediate representation to a config object.  If
  *  you're using this (probably don't,) you're probably also using
  *  {@link parse} to get the IR, and the object constructor
@@ -147,4 +274,4 @@ declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): J
  *
  */
 declare function make<StateType, mDT>(plan: string): JssmGenericConfig<StateType, mDT>;
-export { compile, make, makeTransition, wrap_parse };
+export { compile, make, makeTransition, build_group_registry, group_registry_cycle_check, transitive_members, validate_group_members, membership_distance, wrap_parse };
