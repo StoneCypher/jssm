@@ -3,9 +3,27 @@ import * as jssm                 from './jssm';
 import { JssmError }              from './jssm_error';
 import { default_viz_colors }     from './jssm_viz_colors';
 import { version, build_time }    from './version';
+import { membership_distance }    from './jssm_compiler';
 
 import type { Viz }               from '@viz-js/viz';
-import type { JssmTransition, JssmStateConfig } from './jssm_types';
+import type { JssmTransition, JssmStateConfig, JssmGroupMemberRef } from './jssm_types';
+
+
+/**
+ *  How {@link machine_to_dot} renders FSL state groups (`&group : [ … ];`).
+ *
+ *  - `'cluster'` (default) — render the subset of groups that form a clean
+ *    nesting tree as nested Graphviz `subgraph cluster_<group> { … }` boxes,
+ *    deepest group innermost.  A state that genuinely *overlaps* two groups
+ *    (member of two groups where neither nests inside the other) can only be
+ *    drawn inside one cluster, so its remaining memberships are shown as
+ *    bracketed chips appended to the node label.
+ *  - `'chips'` — render *every* group membership as a chip on the node label
+ *    and emit no clusters at all.  Useful when cluster boxes clutter the
+ *    diagram or when overlap is pervasive.
+ *  - `'off'` — ignore groups entirely; byte-for-byte the historical output.
+ */
+type RenderGroups = 'cluster' | 'chips' | 'off';
 
 
 
@@ -474,30 +492,44 @@ function default_fillcolor_for(kind: StateKind): string {
  *
  *  @internal
  */
-function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_state_labels = false): string {
+function state_node_line<T>(u_jssm: jssm.Machine<T>, s: string, state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_state_labels: boolean, chips: string[]): string {
 
-  return l_states.map((s) => {
+  const style     = u_jssm.style_for(s);
+  const fillcolor = style.backgroundColor || default_fillcolor_for(state_kinds.get(s) ?? 'base');
 
-    const style     = u_jssm.style_for(s);
-    const fillcolor = style.backgroundColor || default_fillcolor_for(state_kinds.get(s) ?? 'base');
+  const label     = hide_state_labels ? '' : label_with_chips(u_jssm.display_text(s), chips);
 
-    const features = [
-      ['label',     hide_state_labels ? '' : u_jssm.display_text(s)],
-      ['shape',     style.shape       || ''],
-      ['color',     style.borderColor || ''],
-      ['style',     compose_style_string(style)],
-      ['fontcolor', style.textColor   || ''],
-      ['image',     style.image       || ''],
-      ['URL',       style.url         || ''],
-      ['fillcolor', fillcolor]
-    ]
-      .filter(r => r[1])
-      .map(r => `${r[0]}="${r[1]}"`)
-      .join(' ');
+  const features = [
+    ['label',     label],
+    ['shape',     style.shape       || ''],
+    ['color',     style.borderColor || ''],
+    ['style',     compose_style_string(style)],
+    ['fontcolor', style.textColor   || ''],
+    ['image',     style.image       || ''],
+    ['URL',       style.url         || ''],
+    ['fillcolor', fillcolor]
+  ]
+    .filter(r => r[1])
+    .map(r => `${r[0]}="${r[1]}"`)
+    .join(' ');
 
-    return `${node_of(s, state_index)} [${features}];`;
+  return `${node_of(s, state_index)} [${features}];`;
 
-  }).join(' ');
+}
+
+/**
+ *  Render the node-feature line for one state, routing every style read
+ *  through {@link jssm.Machine.style_for} so theme-supplied values are
+ *  honoured uniformly.  Extracted so the group-cluster builder can emit the
+ *  identical node statement inside a `subgraph cluster_… { … }` block.
+ *
+ *  @internal
+ */
+function states_to_nodes_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_state_labels = false, chips: Map<string, string[]> = new Map()): string {
+
+  return l_states
+    .map((s) => state_node_line(u_jssm, s, state_index, state_kinds, hide_state_labels, chips.get(s) ?? []))
+    .join(' ');
 
 }
 
@@ -684,6 +716,247 @@ function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, strin
 
 
 /**
+ *  Slugify a group name into the body of a Graphviz `cluster_…` subgraph
+ *  identifier.  Graphviz treats any `subgraph` whose name begins with the
+ *  literal `cluster` as a visually-boxed cluster, so the emitted name is
+ *  `cluster_<slug>`.  The slug alphabet is lowercase alphanumerics joined by
+ *  `_`; a name that slugs to empty (e.g. `&"!!!"`) falls back to `g<index>`.
+ *
+ *  ```typescript
+ *  cluster_id_for('Active Players', 0);  // 'cluster_active_players'
+ *  cluster_id_for('!!!', 3);             // 'cluster_g3'
+ *  ```
+ *
+ *  @internal
+ */
+function cluster_id_for(group: string, index: number): string {
+  const body = group.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  return `cluster_${body || `g${index}`}`;
+}
+
+
+/**
+ *  Append group-membership chips to a node label.  Each extra group becomes a
+ *  bracketed suffix (e.g. `Foo [overlap] [extra]`), so a node that the cluster
+ *  tree can only place in its primary group still surfaces its other
+ *  memberships visually.  With no chips the label is returned verbatim, so
+ *  chip-free output is byte-identical to the historical label.
+ *
+ *  ```typescript
+ *  label_with_chips('Foo', []);              // 'Foo'
+ *  label_with_chips('Foo', ['a', 'b']);      // 'Foo [a] [b]'
+ *  ```
+ *
+ *  @internal
+ */
+function label_with_chips(label: string, chips: string[]): string {
+  if (chips.length === 0) { return label; }
+  return `${label} ${chips.map(c => `[${c}]`).join(' ')}`;
+}
+
+
+/**
+ *  Build the group→parent-group map used to lay groups out as a properly
+ *  nested cluster tree.  Graphviz clusters must nest strictly (a node lives in
+ *  exactly one innermost cluster, and clusters may not partially overlap), but
+ *  the FSL group registry is a DAG — a sub-group may be referenced by several
+ *  parents.  We therefore pick, for each group that is referenced as a
+ *  `group`-kind member, a single *primary* parent: the earliest-declared group
+ *  that lists it.  Groups with no parent are roots.
+ *
+ *  ```typescript
+ *  // for `&inner:[a]; &outer:[&inner b];`
+ *  // group_parent_map(reg, ['inner','outer']) === Map { 'inner' => 'outer' }
+ *  ```
+ *
+ *  @internal
+ */
+function group_parent_map(registry: Map<string, JssmGroupMemberRef[]>, order: string[]): Map<string, string> {
+  const parent = new Map<string, string>();
+  for (const parent_name of order) {
+    for (const member of registry.get(parent_name) ?? []) {
+      if ((member.kind === 'group') && (!parent.has(member.name))) {
+        parent.set(member.name, parent_name);
+      }
+    }
+  }
+  return parent;
+}
+
+
+/**
+ *  Walk the primary-parent chain of a group up to its root, returning the
+ *  ancestor set *including the group itself*.  Used both to nest clusters and
+ *  to decide which of a state's memberships its primary cluster already
+ *  represents (so the rest become chips).
+ *
+ *  @internal
+ */
+function group_ancestry(group: string, parents: Map<string, string>): Set<string> {
+  const chain = new Set<string>();
+  let cursor: string | undefined = group;
+  while ((cursor !== undefined) && (!chain.has(cursor))) {
+    chain.add(cursor);
+    cursor = parents.get(cursor);
+  }
+  return chain;
+}
+
+
+/**
+ *  Choose the *primary* cluster for a state: the innermost (smallest
+ *  {@link membership_distance}) group containing it, ties broken by latest
+ *  declaration order — the same precedence the config cascade uses, so a
+ *  state's cluster placement agrees with the group whose style won.  Returns
+ *  `undefined` for a state in no group.
+ *
+ *  @internal
+ */
+function primary_group_for<T>(u_jssm: jssm.Machine<T>, state: string, order: string[]): string | undefined {
+  const containing = [ ...u_jssm.groupsOf(state) ];
+  if (containing.length === 0) { return undefined; }
+  return containing.reduce((best, g) => {
+    const d_best = membership_distance(u_jssm._group_registry, state, best);
+    const d_g    = membership_distance(u_jssm._group_registry, state, g);
+    if (d_g !== d_best) { return d_g < d_best ? g : best; }
+    return order.indexOf(g) > order.indexOf(best) ? g : best;
+  });
+}
+
+
+/**
+ *  Plan how each state's groups are rendered in `'cluster'` mode.  Produces,
+ *  per state, the *primary* cluster it is placed in (or `undefined` for an
+ *  ungrouped state) plus the *chip* groups — memberships the primary cluster's
+ *  ancestry does not already represent, i.e. genuine overlap that nesting
+ *  cannot show.
+ *
+ *  @returns `{ placement, chips }` where `placement` maps state → primary
+ *  group, and `chips` maps state → the overflow group names (declaration
+ *  order).
+ *
+ *  @internal
+ */
+function plan_cluster_groups<T>(u_jssm: jssm.Machine<T>, l_states: string[], order: string[], parents: Map<string, string>): { placement: Map<string, string>, chips: Map<string, string[]> } {
+
+  const placement = new Map<string, string>();
+  const chips     = new Map<string, string[]>();
+
+  for (const s of l_states) {
+    const primary = primary_group_for(u_jssm, s, order);
+    if (primary === undefined) { continue; }
+
+    placement.set(s, primary);
+
+    const represented = group_ancestry(primary, parents);
+    const overflow    = order.filter(g => u_jssm.groupsOf(s).has(g) && (!represented.has(g)));
+    if (overflow.length) { chips.set(s, overflow); }
+  }
+
+  return { placement, chips };
+
+}
+
+
+/**
+ *  Emit the nested-cluster DOT for a machine's groups, weaving each state's
+ *  node statement into its primary cluster's `subgraph cluster_<group> { … }`
+ *  block, deepest group innermost.  Roots (groups with no primary parent) are
+ *  emitted at top level; ungrouped states are returned separately so the
+ *  caller can place them outside every cluster.
+ *
+ *  The cluster tree follows {@link group_parent_map} — the strict-nesting
+ *  subset of the group DAG — so output is always valid Graphviz even when the
+ *  source groups genuinely overlap; the unrepresentable memberships travel as
+ *  chips on the node label instead (see {@link plan_cluster_groups}).
+ *
+ *  ```typescript
+ *  // for `&inner:[a]; &outer:[&inner b]; a -> b;` the result contains
+ *  //   subgraph cluster_outer { label="outer"; … subgraph cluster_inner { … } }
+ *  ```
+ *
+ *  @returns `{ clusters, ungrouped_nodes }` — the cluster DOT block and the
+ *  node statements for states in no group.
+ *
+ *  @internal
+ */
+function groups_to_subgraph_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_state_labels: boolean): { clusters: string, ungrouped_nodes: string } {
+
+  const order   = u_jssm.groups();
+  const parents = group_parent_map(u_jssm._group_registry, order);
+
+  const { placement, chips } = plan_cluster_groups(u_jssm, l_states, order, parents);
+
+  // children[g] = sub-groups whose primary parent is g, in declaration order
+  const children = new Map<string, string[]>();
+  for (const g of order) {
+    const p = parents.get(g);
+    if (p !== undefined) {
+      const bucket = children.get(p) ?? [];
+      bucket.push(g);
+      children.set(p, bucket);
+    }
+  }
+
+  // members[g] = states placed directly in cluster g, in state-declaration order
+  const members = new Map<string, string[]>();
+  for (const s of l_states) {
+    const g = placement.get(s);
+    if (g !== undefined) {
+      const bucket = members.get(g) ?? [];
+      bucket.push(s);
+      members.set(g, bucket);
+    }
+  }
+
+  const node_line = (s: string): string =>
+    state_node_line(u_jssm, s, state_index, state_kinds, hide_state_labels, chips.get(s) ?? []);
+
+  const render_cluster = (g: string, index: number): string => {
+    const inner_nodes = (members.get(g) ?? []).map(node_line).join(' ');
+    const sub         = (children.get(g) ?? []).map(c => render_cluster(c, order.indexOf(c))).join(' ');
+    return `subgraph ${cluster_id_for(g, index)} { label="${g}"; ${inner_nodes}${sub ? ` ${sub}` : ''} };`;
+  };
+
+  const roots    = order.filter(g => parents.get(g) === undefined);
+  const clusters = roots.map(g => render_cluster(g, order.indexOf(g))).join(' ');
+
+  const ungrouped_nodes = l_states
+    .filter(s => !placement.has(s))
+    .map(node_line)
+    .join(' ');
+
+  return { clusters, ungrouped_nodes };
+
+}
+
+
+/**
+ *  Build the per-state chip map for `'chips'` mode: every group a state
+ *  belongs to, in declaration order, becomes a chip on its label, and no
+ *  clusters are emitted at all.  This is the all-chips counterpart to the
+ *  overflow-only chips produced by {@link plan_cluster_groups}.
+ *
+ *  ```typescript
+ *  // for `&inner:[a]; &outer:[&inner b]; a -> b;`
+ *  // chips_for_all_groups(m, ['a','b']) === Map { 'a' => ['inner','outer'], 'b' => ['outer'] }
+ *  ```
+ *
+ *  @internal
+ */
+function chips_for_all_groups<T>(u_jssm: jssm.Machine<T>, l_states: string[]): Map<string, string[]> {
+  const order = u_jssm.groups();
+  const chips = new Map<string, string[]>();
+  for (const s of l_states) {
+    const groups = u_jssm.groupsOf(s);
+    const mine   = order.filter(g => groups.has(g));
+    if (mine.length) { chips.set(s, mine); }
+  }
+  return chips;
+}
+
+
+/**
  *  Options for the dot/SVG render entry points.
  *
  *  - `hide_state_labels` (default `false`) — when `true`, the rendered dot
@@ -695,12 +968,53 @@ function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, strin
  *    of the generated dot source (e.g. `labelloc="b"; label="caption";`).
  *  - `engine` — graphviz layout engine for the SVG render path (e.g.
  *    `dot`, `neato`, `circo`); honored by `fsl_to_svg_string`.
+ *  - `render_groups` (default `'cluster'`) — how FSL state groups are drawn;
+ *    see {@link RenderGroups}.  `'off'` reproduces the historical, group-blind
+ *    output byte-for-byte.
  */
 type VizRenderOpts = {
   hide_state_labels?: boolean,
   footer?: string,
-  engine?: string
+  engine?: string,
+  render_groups?: RenderGroups
 };
+
+
+/**
+ *  Assemble the node-declaration block for a machine, honouring the
+ *  `render_groups` mode:
+ *
+ *  - `'cluster'` — emit nested `subgraph cluster_<group> { … }` boxes via
+ *    {@link groups_to_subgraph_string}, with each member node statement woven
+ *    into its primary cluster and overlap memberships chipped onto the label.
+ *  - `'chips'`   — emit a flat node list (no clusters) with *every* group
+ *    membership rendered as a label chip (see {@link chips_for_all_groups}).
+ *  - `'off'`     — emit the historical flat node list, ignoring groups
+ *    entirely; output is byte-identical to the pre-groups renderer.
+ *
+ *  A machine that declares no groups produces the same flat node list in every
+ *  mode, so `'cluster'`/`'chips'` are no-ops there.
+ *
+ *  @internal
+ */
+function node_block_for<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>, hide_labels: boolean, mode: RenderGroups): string {
+
+  if ((mode === 'off') || (u_jssm.groups().length === 0)) {
+    return states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide_labels);
+  }
+
+  if (mode === 'chips') {
+    const chips = chips_for_all_groups(u_jssm, l_states);
+    return states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, hide_labels, chips);
+  }
+
+  const { clusters, ungrouped_nodes } =
+    groups_to_subgraph_string(u_jssm, l_states, state_index, state_kinds, hide_labels);
+
+  return `${clusters}${(clusters && ungrouped_nodes) ? ' ' : ''}${ungrouped_nodes}`;
+
+}
+
 
 /**
  *  Render a {@link jssm.Machine} as a graphviz dot string.
@@ -722,6 +1036,13 @@ type VizRenderOpts = {
  *
  *  const dot_with_footer = machine_to_dot(sm`a -> b;`, { footer: 'labelloc="b"; label="caption";' });
  *  // 'digraph G { ... labelloc="b"; label="caption"; }'
+ *
+ *  // render FSL state groups as nested clusters (the default)
+ *  const grouped = machine_to_dot(sm`&g : [a b]; a -> b;`);
+ *  // 'digraph G { ... subgraph cluster_g { label="g"; ... } ... }'
+ *
+ *  // or as label chips, with no cluster boxes
+ *  const chipped = machine_to_dot(sm`&g : [a b]; a -> b;`, { render_groups: 'chips' });
  *  ```
  *
  *  @param u_jssm The machine to render.
@@ -730,11 +1051,13 @@ type VizRenderOpts = {
  */
 function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): string {
 
-  const l_states    = u_jssm.states();
-  const state_index = slug_states(l_states);
-  const state_kinds = classify_states(u_jssm, l_states);
+  const l_states     = u_jssm.states();
+  const state_index  = slug_states(l_states);
+  const state_kinds  = classify_states(u_jssm, l_states);
+  const hide_labels  = opts.hide_state_labels === true;
+  const mode: RenderGroups = opts.render_groups ?? 'cluster';
 
-  const nodes    = states_to_nodes_string(u_jssm, l_states, state_index, state_kinds, opts.hide_state_labels === true);
+  const nodes    = node_block_for(u_jssm, l_states, state_index, state_kinds, hide_labels, mode);
   const edges    = states_to_edges_string(u_jssm, l_states, state_index, state_kinds);
   const arranges = arranges_for(u_jssm, state_index);
 
@@ -919,11 +1242,16 @@ export {
   version, build_time
 };
 
-export type { VizRenderOpts };
+export type { VizRenderOpts, RenderGroups };
 
 /** @internal — test-only access to private helpers. */
 export const _test = {
   color8to6, u_color8to6, vc, node_of,
   slug_for, slug_states,
-  shape_for_state, image_for_state, style_for_state
+  shape_for_state, image_for_state, style_for_state,
+  cluster_id_for, label_with_chips,
+  group_parent_map, group_ancestry,
+  primary_group_for, plan_cluster_groups,
+  groups_to_subgraph_string, chips_for_all_groups,
+  node_block_for
 };
