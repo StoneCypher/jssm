@@ -704,10 +704,6 @@ type JssmGenericConfig<StateType, DataType> = {
    *  Defaults to `100`.  Raise it for legitimate pipelines that genuinely nest
    *  more than 100 transitions via boundary hooks.
    *
-   *  @example
-   *  // Allow up to 5 nested boundary hops (tight; good for tests):
-   *  from('a -> b;', { boundary_depth_limit: 5 });
-   *
    *  @see Machine._boundary_depth_limit
    *  @see Machine._fire_boundary_actions
    */
