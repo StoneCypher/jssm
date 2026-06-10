@@ -114,6 +114,29 @@ function vc(col: string): string {
 
 
 /**
+ *  Escape a string for safe interpolation inside a DOT double-quoted
+ *  attribute value.  Replaces every `"` with `\"` so that group names,
+ *  state labels, and chip labels containing literal double-quotes produce
+ *  valid, parseable DOT source.
+ *
+ *  ```typescript
+ *  doublequote('a"b');  // 'a\\"b'
+ *  doublequote('safe'); // 'safe'
+ *  ```
+ *
+ *  @param txt Any string that will be placed inside `"…"` in a DOT attribute.
+ *  @returns The string with every `"` replaced by `\"`.
+ *
+ *  @internal
+ */
+function doublequote(txt: string): string {
+  return txt.replace(/"/g, '\\"');
+}
+
+
+
+
+/**
  *  Convert a state name into a URL-friendly slug suitable for use as the
  *  body of a dot/SVG node identifier.  The transformation is:
  *
@@ -640,7 +663,6 @@ function colored_label<T>(tr: JssmTransition<string, T> | undefined, which: 'hea
  */
 function states_to_edges_string<T>(u_jssm: jssm.Machine<T>, l_states: string[], state_index: Map<string, string>, state_kinds: Map<string, StateKind>): string {
 
-  const doublequote = (txt: string) => txt.replace(/"/g, '\\"');
   const strike      = new Set<string>();
   const kind_of     = (s: string): StateKind => state_kinds.get(s) ?? 'base';
 
@@ -719,19 +741,28 @@ function arranges_for<T>(u_jssm: jssm.Machine<T>, state_index: Map<string, strin
  *  Slugify a group name into the body of a Graphviz `cluster_…` subgraph
  *  identifier.  Graphviz treats any `subgraph` whose name begins with the
  *  literal `cluster` as a visually-boxed cluster, so the emitted name is
- *  `cluster_<slug>`.  The slug alphabet is lowercase alphanumerics joined by
- *  `_`; a name that slugs to empty (e.g. `&"!!!"`) falls back to `g<index>`.
+ *  `cluster_<slug>_<index>`.  The slug alphabet is lowercase alphanumerics
+ *  joined by `_`; a name that slugs to empty (e.g. `&"!!!"`) falls back to
+ *  `g<index>` (the index alone, no slug component).  The `_<index>` suffix
+ *  guarantees every group gets a unique cluster id even when two distinct
+ *  names happen to slugify identically (e.g. `"Active Players"` and
+ *  `"active-players"` both slug to `active_players`).
  *
  *  ```typescript
- *  cluster_id_for('Active Players', 0);  // 'cluster_active_players'
+ *  cluster_id_for('Active Players', 0);  // 'cluster_active_players_0'
  *  cluster_id_for('!!!', 3);             // 'cluster_g3'
  *  ```
+ *
+ *  @param group The FSL group name.
+ *  @param index The group's stable declaration-order index (0-based); included
+ *  in the emitted id to prevent slug collisions.
+ *  @returns A valid Graphviz subgraph identifier starting with `cluster_`.
  *
  *  @internal
  */
 function cluster_id_for(group: string, index: number): string {
   const body = group.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  return `cluster_${body || `g${index}`}`;
+  return body ? `cluster_${body}_${index}` : `cluster_g${index}`;
 }
 
 
@@ -751,7 +782,7 @@ function cluster_id_for(group: string, index: number): string {
  */
 function label_with_chips(label: string, chips: string[]): string {
   if (chips.length === 0) { return label; }
-  return `${label} ${chips.map(c => `[${c}]`).join(' ')}`;
+  return `${label} ${chips.map(c => `[${doublequote(c)}]`).join(' ')}`;
 }
 
 
@@ -887,11 +918,27 @@ function groups_to_subgraph_string<T>(u_jssm: jssm.Machine<T>, l_states: string[
 
   const { placement, chips } = plan_cluster_groups(u_jssm, l_states, order, parents);
 
-  // children[g] = sub-groups whose primary parent is g, in declaration order
+  // spread_children_of[p] = child group names listed as mode:'spread' by parent p whose
+  // primary parent is p.  Spread children do NOT get their own sub-cluster; their member
+  // states are inlined directly into the parent cluster.
+  const spread_children_of = new Map<string, string[]>();
+  const is_spread_child    = new Set<string>();
+  for (const p of order) {
+    for (const member of u_jssm._group_registry.get(p) ?? []) {
+      if (member.kind === 'group' && member.mode === 'spread' && parents.get(member.name) === p) {
+        const bucket = spread_children_of.get(p) ?? [];
+        bucket.push(member.name);
+        spread_children_of.set(p, bucket);
+        is_spread_child.add(member.name);
+      }
+    }
+  }
+
+  // children[g] = nested (non-spread) sub-groups whose primary parent is g, in declaration order
   const children = new Map<string, string[]>();
   for (const g of order) {
     const p = parents.get(g);
-    if (p !== undefined) {
+    if (p !== undefined && !is_spread_child.has(g)) {
       const bucket = children.get(p) ?? [];
       bucket.push(g);
       children.set(p, bucket);
@@ -913,13 +960,20 @@ function groups_to_subgraph_string<T>(u_jssm: jssm.Machine<T>, l_states: string[
     state_node_line(u_jssm, s, state_index, state_kinds, hide_state_labels, chips.get(s) ?? []);
 
   const render_cluster = (g: string, index: number): string => {
-    const inner_nodes = (members.get(g) ?? []).map(node_line).join(' ');
-    const sub         = (children.get(g) ?? []).map(c => render_cluster(c, order.indexOf(c))).join(' ');
-    return `subgraph ${cluster_id_for(g, index)} { label="${g}"; ${inner_nodes}${sub ? ` ${sub}` : ''} };`;
+    const direct_nodes  = (members.get(g) ?? []).map(node_line).join(' ');
+    const spread_nodes  = (spread_children_of.get(g) ?? [])
+      .flatMap(c => members.get(c) ?? [])
+      .map(node_line)
+      .join(' ');
+    const inner_nodes   = [direct_nodes, spread_nodes].filter(Boolean).join(' ');
+    const sub           = (children.get(g) ?? []).map(c => render_cluster(c, order.indexOf(c))).join(' ');
+    const body          = [inner_nodes, sub].filter(Boolean).join(' ');
+    if (!body) { return ''; }
+    return `subgraph ${cluster_id_for(g, index)} { label="${doublequote(g)}"; ${body} };`;
   };
 
-  const roots    = order.filter(g => parents.get(g) === undefined);
-  const clusters = roots.map(g => render_cluster(g, order.indexOf(g))).join(' ');
+  const roots    = order.filter(g => parents.get(g) === undefined && !is_spread_child.has(g));
+  const clusters = roots.map(g => render_cluster(g, order.indexOf(g))).filter(Boolean).join(' ');
 
   const ungrouped_nodes = l_states
     .filter(s => !placement.has(s))
@@ -1246,6 +1300,7 @@ export type { VizRenderOpts, RenderGroups };
 
 /** @internal — test-only access to private helpers. */
 export const _test = {
+  doublequote,
   color8to6, u_color8to6, vc, node_of,
   slug_for, slug_states,
   shape_for_state, image_for_state, style_for_state,
