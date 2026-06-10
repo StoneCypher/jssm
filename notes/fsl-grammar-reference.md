@@ -10,9 +10,12 @@ runtime does with it.  A few productions are accepted by the parser and
 either ignored or only partially honoured downstream; those are flagged
 inline.
 
-*Last verified against `src/ts/fsl_parser.peg` on 2026-05-05.*  When
-re-syncing, `git log src/ts/fsl_parser.peg --since=<that date>` will
-show what may need to be re-audited.
+*Last verified against `src/ts/fsl_parser.peg` on 2026-06-09* (the
+overlapping-state-groups section additionally tracks compile/runtime
+behaviour, verified against the `*_overlapping_groups.spec.ts` and
+`transition_graph_config.spec.ts` suites).  When re-syncing, `git log
+src/ts/fsl_parser.peg --since=<that date>` will show what may need to be
+re-audited.
 
 Grammar conventions used throughout this document:
 
@@ -621,15 +624,216 @@ top-level `property <Label> default <Val>` syntax.
 ## 11. Named lists — `NamedList`
 
 ```
-& <Label> : <LabelOrLabelList> ;
+& <Label> : <GroupMemberList> ;
+& <Label> : <Label> ;
 ```
 
-A reusable label group.  `& foo : [a b c];` defines `foo` as a
-shorthand that expands elsewhere.
+A reusable named group.  `& foo : [a b c];` defines `foo` as a
+shorthand that expands elsewhere.  Historically this was just a
+fan-out transition-target alias; it is now the *declaration form* of a
+first-class **state group** (see section 12).  The bracketed form takes
+a `GroupMemberList` rather than a plain `LabelOrLabelList`, so a member
+may itself be a nested (`&child`) or spread (`...&child`) group, not
+only a plain label.
+
+Backward-compatibility: when every member is a plain label the
+declaration's `value` is still a bare `string[]` (the historical shape
+every existing consumer relies on); as soon as any member is a `&` /
+`...&` group reference the whole list becomes ordered member objects so
+the nest/spread structure survives.  Group *semantics* — transitions,
+metadata, hooks, and runtime queries — are covered in the next section.
 
 
 
-## 12. Arrange declarations
+## 12. Overlapping state groups
+
+A `NamedList` declaration (section 11) is the *declaration* of a state
+group; everything in this section is built on top of it.  The defining
+property is that **groups overlap**: a single state may belong to
+several groups at once (`Suspended` ∈ `Active` *and* `Suspended` ∈
+`RestrictedAccess`), which is strictly more expressive than a hierarchy
+where every state has one parent.
+
+This section describes *both* grammar and the runtime/compile behaviour
+the grammar drives, because the two are inseparable for groups — unlike
+the rest of this document, which is grammar-only.
+
+### `GroupRef` — `&Name` (a reference, not a declaration)
+
+```
+GroupRef = "&" WS? <Label>
+```
+
+`&Name` is a bare **reference** to an already- (or later-) declared
+group, producing `{ key: 'group_ref', name }`.  Disambiguate it from
+the declaration: `&g : [a b c];` (with the `: [...]`) *declares* the
+group `g`; a bare `&g` anywhere else *references* it.  A `GroupRef` may
+appear in exactly three positions:
+
+- **Transition source/target** — via `ArrowTarget` (`&g 'x' -> y;`,
+  `foo -> &g;`).
+- **`state` declaration subject** — `state &g : { … };` (group default
+  metadata).
+- **Hook subject** — `on enter &g do '…';`.
+
+A `GroupRef` parses even when the group is undeclared; resolution (and
+its error) happens at compile time, not parse time.
+
+### Group members — nest vs spread
+
+```
+GroupMember = "..." WS? "&" WS? <Label>   // spread: { kind:'group', mode:'spread' }
+            |         "&" WS? <Label>     // nest:   { kind:'group', mode:'nest' }
+            |         <Label>             // state:  { kind:'state' }
+```
+
+Members are **ordered**.  A member is one of:
+
+- a plain state (`a`),
+- a **nested** sub-group (`&child`) — the child is preserved as a
+  distinguishable sub-group: it keeps its own identity, its own
+  cluster in the visualizer, and adds a nesting hop to the
+  membership-distance metric, and
+- a **spread** sub-group (`...&child`) — the child's members are
+  inlined flat and the child's identity is *erased*: a spread child
+  renders no cluster of its own.
+
+Both nest and spread resolve to the *same transitive member set*; they
+differ only in whether the child's identity survives.  Groups may nest
+arbitrarily deep but must form a **DAG — a group→group cycle (direct,
+self-referential, or via spread) is a compile error** (`cycle
+detected`).  An undeclared sub-group member is also a compile error
+(`Unresolved group reference: &…`).
+
+### Groups as transition source / target
+
+A group used as a transition **source** expands to one edge per
+transitive member, preserving the action and target:
+`&g 'x' -> y;` with `&g : [a b]` emits `a 'x' -> y` and `b 'x' -> y`.
+A group used as a transition **target** fans out the same way a bare
+`[a b]` list does: `foo -> &g;` emits `foo -> a` and `foo -> b`.  The
+emitted edges are *plain* — byte-identical to hand-authored ones — so
+nothing downstream has to know a group produced them.
+
+### Conflict resolution (compile-time)
+
+When two transitions claim the same `(source-state, action)` pair, a
+CSS-like cascade picks one winner:
+
+1. A **state-specific** transition (authored directly on the state)
+   always beats any group-sourced transition.  This drop is silent.
+2. Otherwise the **innermost group wins** — the one with the smallest
+   membership distance to the state (a direct member is distance 1; a
+   member via one nesting hop is distance 2; BFS takes the shortest
+   path when a state is reachable two ways).
+3. An **equal-distance tie** breaks in favour of the **later-declared**
+   group.
+
+A group-vs-group override (rules 2 and 3) emits a single `console.warn`
+naming the overriding group, the overridden group, and the shared
+source state.  A state-over-group override (rule 1) does not warn.
+
+### Group default metadata — `state &g : { … }`
+
+`state &g : { … };` attaches default state styling to the *group*,
+keyed by group name (it is **not** fanned out to per-member `state`
+declarations).  At runtime it joins a styling cascade, least- to
+most-specific:
+
+1. the active **theme** defaults,
+2. the implicit `state: {}` root (`default_state_config`, the base
+   over *all* states),
+3. per-kind defaults (`start_state:`, `end_state:`, …),
+4. **group metadata**, ordered by nesting depth — an inner group's
+   metadata overrides an outer group's,
+5. per-state `state foo: {}`, and
+6. the `active_state` overlay, applied only to the machine's current
+   state.
+
+Each later tier overrides the earlier on a per-key basis; the
+cross-tier merge never throws (an intra-block key redefine inside a
+single `{ … }` still throws, as elsewhere).
+
+### Boundary hooks — `on enter|exit <&g|state> do '…'`
+
+```
+HookDeclaration = "on" WS <enter|exit> WS <GroupRef|Label> WS "do" WS <ActionLabel> ";"
+```
+
+`do` is a synonym for "action": `on enter &g do 'X'` dispatches machine
+action `X` when a transition crosses *into* group `g`; `on exit` fires
+when it crosses *out*.  Crossing is **deep** — entering any transitive
+member of `g` from a non-member is an enter; a transition wholly within
+`g` (member→member) fires neither hook.  A plain state may also be a
+hook subject (`on enter foo do '…'`).
+
+Firing order on a single transition: all applicable **exits fire before
+enters**; within each side, multiple groups fire in **declaration
+order**.  A boundary action that is invalid from the new state is a
+safe no-op (it does not throw and does not move the machine).
+
+Because a boundary action can itself trigger another boundary crossing,
+cascades are possible; they are guarded by a configurable
+`boundary_depth_limit` (default 100).  An unbounded cascade throws a
+`JssmError` naming the cascade rather than hanging.  `override()` *also*
+fires boundary hooks for the boundaries it crosses — so an override into
+a group whose `onEnter` transitions can leave the machine somewhere past
+the override target.
+
+### Runtime queries
+
+All deep / transitive:
+
+- `isIn(group)` — is the current state a (transitive) member of `group`?
+  Returns `false` for an undeclared group rather than throwing.
+- `groupsOf(state)` — the `Set` of every group containing `state`,
+  deeply.
+- `groups()` — declared group names, in declaration order.
+- `statesIn(group)` — the transitive member states, in declaration
+  order.  Throws `JssmError` on an undeclared group.
+
+### `transition: {}` and `graph: {}` config blocks
+
+Two default-config blocks introduced alongside groups:
+
+- **`transition: { … };`** sets default **edge** attributes (rendered
+  as a Graphviz `edge [ … ]` default), e.g. `transition: { color:
+  blue; line-style: dashed; };`.
+- **`graph: { … };`** sets **graph-scope** attributes (the
+  graph-scope mirror of `state:` for nodes and `transition:` for
+  edges), e.g. `graph: { background-color: #ffffff; color: green; };`.
+
+Both parse to the normalized `{ key: 'default_<x>_config', value: […] }`
+shape (not the older `{ config_kind, config_items }` orphan shape).
+
+`graph: {}` **supersedes** the legacy scattered top-level graph keys —
+`graph_layout`, `graph_bg_color`, `edge-color`, `dot_preamble`,
+`theme`, and `flow` now fold into `default_graph_config`.  An explicit
+`graph: {}` block wins on a key conflict with a folded legacy key.
+Folding `graph_bg_color` (canonicalized to a `background-color` item)
+emits a deprecation warning naming the keyword, because it has a direct
+`graph: {}` replacement; the other legacy keys fold silently, as they
+have no block-level equivalent yet.
+
+### Visualization
+
+`render_groups` selects how groups draw:
+
+- **`'cluster'`** (default) — groups that form a nesting *tree* render
+  as nested Graphviz clusters; a genuinely *overlapping* membership
+  (the same state in two groups where neither nests in the other)
+  renders as a bracketed chip on the node label, e.g. `b [g1]`.
+- **`'chips'`** — every membership renders as a chip; no clusters are
+  emitted.
+- **`'off'`** — neither clusters nor chips; output is byte-identical to
+  a machine with no groups at all.
+
+A spread child draws no cluster of its own (its identity is erased); a
+nested child does.  Empty clusters are suppressed.
+
+
+
+## 13. Arrange declarations
 
 Three forms, all taking a `LabelOrLabelList`:
 
@@ -642,7 +846,7 @@ hyphenated forms aren't shadowed.
 
 
 
-## 13. State / arrow / transition vocabulary cheat sheet
+## 14. State / arrow / transition vocabulary cheat sheet
 
 | Concept              | Grammar entry point                          |
 |----------------------|----------------------------------------------|
@@ -662,13 +866,17 @@ hyphenated forms aren't shadowed.
 | State default block  | `ConfigState` / `ConfigStartState` / …       |
 | Machine metadata     | `MachineAttribute`                           |
 | Machine property     | `MachineProperty`                            |
-| Reusable label group | `NamedList`                                  |
+| Reusable label group / group declaration | `NamedList`              |
+| Group reference (`&Name`) | `GroupRef`                              |
+| Group member (nest / spread / state) | `GroupMember`                |
+| Group boundary hook  | `HookDeclaration` (`on enter\|exit … do …`) |
+| Default edge / graph config | `ConfigTransition` / `ConfigGraph`    |
 | Layout hints         | `ArrangeDeclaration`                         |
 | Graph-level config   | `Config`                                     |
 
 
 
-## 14. Quirks and footguns to be aware of
+## 15. Quirks and footguns to be aware of
 
 - **Missing `-0` cycle.** `Cycle` accepts `+0` but not `-0` or bare
   `0`.  Probably intentional (zero is unsigned), but worth noting.

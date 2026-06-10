@@ -602,7 +602,9 @@ type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
  *  ```typescript
  *  import { compile, parse } from 'jssm';
  *  const cfg = compile(parse('a -> b; graph_bg_color: #ffffff;'));
- *  // cfg.default_graph_config includes { key: 'graph_bg_color', value: '#ffffffff' }
+ *  // the compiler canonicalizes the folded `graph_bg_color` alias to a
+ *  // `background-color` item, so:
+ *  // cfg.default_graph_config includes { key: 'background-color', value: '#ffffffff' }
  *  ```
  *
  *  @see JssmTransitionConfig
