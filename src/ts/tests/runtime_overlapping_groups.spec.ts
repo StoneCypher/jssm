@@ -321,3 +321,252 @@ describe('overlapping state groups — unified config cascade (Task 3a)', () => 
 
 
 });
+
+
+
+
+
+describe('overlapping state groups — boundary-hook firing (Task 3b)', () => {
+
+
+  describe('group onEnter / onExit', () => {
+
+    test('onEnter fires its action on entering a group from outside', () => {
+      // `work` is in &busy; entering &busy dispatches action 'leave', which is
+      // valid from `work` and sends the machine back to `idle`.  The observable
+      // effect is the machine having bounced back out: final state is `idle`.
+      const m = sm`&busy : [work]; idle 'go' -> work 'leave' -> idle; on enter &busy do 'leave';`;
+      expect(m.state()).toBe('idle');
+
+      m.action('go');               // idle -> work (enters &busy) -> fires 'leave' -> idle
+      expect(m.state()).toBe('idle');
+    });
+
+    test('onEnter dispatches the named action (observed via a global-action hook)', () => {
+      // Independent of any resulting transition: prove `this.action(label)` was
+      // actually dispatched by watching the global-action hook for that label.
+      let fired = 0;
+      const m = sm`&busy : [work]; idle 'go' -> work 'leave' -> idle; on enter &busy do 'leave';`;
+      m.hook_global_action('leave', () => { fired += 1; });
+
+      m.action('go');
+      expect(fired).toBe(1);
+    });
+
+    test('onExit fires its action on leaving a group to outside', () => {
+      // Crossing OUT of &busy (work -> idle) dispatches 'mark', which is a valid
+      // self-loop action on idle; a global-action hook records the dispatch.
+      // The self-loop keeps the state name unchanged, so it fires no further
+      // boundary hooks.
+      let exited = 0;
+      const m = sm`&busy : [work]; idle 'go' -> work 'back' -> idle; idle 'mark' -> idle; on exit &busy do 'mark';`;
+      m.hook_global_action('mark', () => { exited += 1; });
+
+      m.action('go');               // idle -> work : enters &busy, no exit
+      expect(exited).toBe(0);
+
+      m.action('back');             // work -> idle : exits &busy -> fires 'mark'
+      expect(exited).toBe(1);
+      expect(m.state()).toBe('idle');
+    });
+
+    test('a transition WITHIN a group does NOT fire that group\'s boundary hooks', () => {
+      // Both `a` and `b` are in &g, so a -> b stays inside &g and must fire
+      // neither onEnter nor onExit for &g.
+      let entered = 0, exited = 0;
+      const m = sm`&g : [a b]; a 'go' -> b; on enter &g do 'noop_in'; on exit &g do 'noop_out';`;
+      m.hook_global_action('noop_in',  () => { entered += 1; });
+      m.hook_global_action('noop_out', () => { exited  += 1; });
+
+      m.action('go');               // a -> b, both in &g — within-group move
+      expect(m.state()).toBe('b');
+      expect(entered).toBe(0);
+      expect(exited).toBe(0);
+    });
+
+  });
+
+
+  describe('multi-membership and nesting', () => {
+
+    test('a state in groups A and B fires BOTH groups\' onEnter', () => {
+      // `target` is a direct member of both &a and &b; entering it must fire
+      // each group's onEnter.  The two fired actions chain (a_in: target->mid,
+      // then b_in: mid->done), so a final state of `done` proves both fired,
+      // in exit-before-enter order with A before B (declaration order).
+      let aIn = 0, bIn = 0;
+      const m = sm`
+        &a : [target];
+        &b : [target];
+        start 'go' -> target 'a_in' -> mid 'b_in' -> done;
+        on enter &a do 'a_in';
+        on enter &b do 'b_in';
+      `;
+      m.hook_global_action('a_in', () => { aIn += 1; });
+      m.hook_global_action('b_in', () => { bIn += 1; });
+
+      m.action('go');               // -> target (in &a,&b): fires a_in then b_in
+      expect(aIn).toBe(1);
+      expect(bIn).toBe(1);
+      expect(m.state()).toBe('done');
+    });
+
+    test('crossing inner + outer boundaries fires both levels', () => {
+      // `a` is in &inner (directly) and &outer (via the nest).  Entering `a`
+      // from a non-member crosses both boundaries and fires both onEnters.
+      // The two fired actions chain so the final state proves both fired.
+      let innerIn = 0, outerIn = 0;
+      const m = sm`
+        &inner : [a];
+        &outer : [&inner b];
+        start 'go' -> a 'inner_in' -> mid 'outer_in' -> done;
+        on enter &inner do 'inner_in';
+        on enter &outer do 'outer_in';
+      `;
+      m.hook_global_action('inner_in', () => { innerIn += 1; });
+      m.hook_global_action('outer_in', () => { outerIn += 1; });
+
+      m.action('go');               // start -> a : enters &inner AND &outer
+      expect(innerIn).toBe(1);
+      expect(outerIn).toBe(1);
+      expect(m.state()).toBe('done');
+    });
+
+    test('moving from an inner member to an outer-only member fires only the inner boundary', () => {
+      // a (in &inner and &outer) -> b (in &outer only): &outer is in both group
+      // sets so it does not fire; only &inner is exited.
+      let innerOut = 0, outerOut = 0, outerIn = 0;
+      const m = sm`
+        &inner : [a];
+        &outer : [&inner b];
+        a 'go' -> b;
+        b 'inner_out' -> b;
+        on exit  &inner do 'inner_out';
+        on exit  &outer do 'outer_out';
+        on enter &outer do 'outer_in';
+      `;
+      m.hook_global_action('inner_out', () => { innerOut += 1; });
+      m.hook_global_action('outer_out', () => { outerOut += 1; });
+      m.hook_global_action('outer_in',  () => { outerIn  += 1; });
+
+      m.action('go');               // a -> b : exits &inner; stays within &outer
+      expect(innerOut).toBe(1);
+      expect(outerOut).toBe(0);
+      expect(outerIn).toBe(0);
+      expect(m.state()).toBe('b');
+    });
+
+  });
+
+
+  describe('plain-state boundary hooks', () => {
+
+    test('on enter foo fires on entering state foo', () => {
+      // 'note' is a valid self-loop on foo, so the boundary firing is observed
+      // via its global-action hook without perturbing the state name.
+      let entered = 0;
+      const m = sm`a 'go' -> foo; foo 'note' -> foo; on enter foo do 'note';`;
+      m.hook_global_action('note', () => { entered += 1; });
+
+      expect(m.state()).toBe('a');
+      m.action('go');               // a -> foo : enters foo
+      expect(entered).toBe(1);
+      expect(m.state()).toBe('foo');
+    });
+
+    test('on exit foo fires on leaving state foo', () => {
+      // 'note' is a valid self-loop on bar (the state we just entered).
+      let exited = 0;
+      const m = sm`foo 'go' -> bar; bar 'note' -> bar; on exit foo do 'note';`;
+      m.hook_global_action('note', () => { exited += 1; });
+
+      expect(m.state()).toBe('foo');
+      m.action('go');               // foo -> bar : exits foo
+      expect(exited).toBe(1);
+      expect(m.state()).toBe('bar');
+    });
+
+  });
+
+
+  describe('safety', () => {
+
+    test('an inapplicable boundary action is a safe no-op (no throw)', () => {
+      // 'nope' is never a declared action, so dispatching it from the new state
+      // is invalid; the boundary firing must swallow that as a no-op.
+      const m = sm`&g : [b]; a 'go' -> b; on enter &g do 'nope';`;
+      expect(() => m.action('go')).not.toThrow();
+      expect(m.state()).toBe('b');
+    });
+
+    test('a boundary action that is invalid from the new state does not move the machine', () => {
+      // 'back' is valid from b, but the boundary fires it as the entry to &g;
+      // here we choose an action ('teleport') that exists in the FSL but is not
+      // available from b, so it is a no-op and the machine stays in b.
+      const m = sm`&g : [b]; a 'go' -> b; c 'teleport' -> a; on enter &g do 'teleport';`;
+      m.action('go');
+      expect(m.state()).toBe('b');
+    });
+
+    test('boundary firing also occurs on override across a boundary', () => {
+      // override is an out-of-graph state set; it must still fire the boundary
+      // hooks for the groups it crosses.  'note' is a valid self-loop on b.
+      let entered = 0;
+      const m = sm`allows_override: true; &g : [b]; a -> b; b 'note' -> b; on enter &g do 'note';`;
+      m.hook_global_action('note', () => { entered += 1; });
+
+      m.override('b');              // jumps into &g out-of-graph
+      expect(m.state()).toBe('b');
+      expect(entered).toBe(1);
+    });
+
+  });
+
+
+  describe('loop protection', () => {
+
+    test('an unbounded boundary cascade throws JssmError rather than hanging', () => {
+      // &g enter -> 'toh' (moves to h, entering &h); &h enter -> 'tog' (moves
+      // back to g, entering &g); ... a ping-pong with no fixed point.  The
+      // depth guard must convert this into a thrown JssmError, fast.
+      const m = sm`
+        &g : [g];
+        &h : [h];
+        start 'go' -> g;
+        g 'toh' -> h 'tog' -> g;
+        on enter &g do 'toh';
+        on enter &h do 'tog';
+      `;
+      expect(() => m.action('go')).toThrow(JssmError);
+    });
+
+    test('the loop-protection error names the cascade as the cause', () => {
+      const m = sm`
+        &g : [g];
+        &h : [h];
+        start 'go' -> g;
+        g 'toh' -> h 'tog' -> g;
+        on enter &g do 'toh';
+        on enter &h do 'tog';
+      `;
+      expect(() => m.action('go')).toThrow(/cascade|depth limit|infinite/i);
+    });
+
+    test('a deep-but-finite cascade under the cap completes normally', () => {
+      // start -> a enters &one (fires 'step' -> b), b enters &two (fires 'step2'
+      // -> c).  Two nested boundary hops, well under the limit; ends in `c`.
+      const m = sm`
+        &one : [a];
+        &two : [b];
+        start 'go' -> a 'step' -> b 'step2' -> c;
+        on enter &one do 'step';
+        on enter &two do 'step2';
+      `;
+      expect(() => m.action('go')).not.toThrow();
+      expect(m.state()).toBe('c');
+    });
+
+  });
+
+
+});

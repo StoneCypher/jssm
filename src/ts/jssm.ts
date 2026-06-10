@@ -516,6 +516,16 @@ class Machine<mDT> {
   _event_listener_count : number;
   _firing_error   : boolean;  // re-entry guard for the `error` event
 
+  // Re-entrancy depth of FSL boundary-hook action firing.  A boundary action
+  // (`on enter &g do 'X'`) can drive a further transition, which crosses more
+  // boundaries, which fires more actions — an unbounded run-to-completion
+  // cascade.  `_boundary_depth` counts how many boundary-firing frames are on
+  // the stack; `_fire_boundary_actions` throws a JssmError once it exceeds
+  // `_boundary_depth_limit` rather than recursing into a stack overflow.  See
+  // the overlapping-state-group feature (boundary-hook firing).
+  _boundary_depth       : number;
+  _boundary_depth_limit : number;
+
 
   // whargarbl this badly needs to be broken up, monolith master
   constructor({
@@ -740,6 +750,11 @@ class Machine<mDT> {
     this._event_handlers                = new Map();
     this._event_listener_count          = 0;
     this._firing_error                  = false;
+
+    // Boundary-hook action cascade guard.  Limit is a fixed sane cap; a cascade
+    // deeper than this is treated as a probable infinite loop and rejected.
+    this._boundary_depth                = 0;
+    this._boundary_depth_limit          = 100;
 
 
     // consolidate the state declarations
@@ -3702,6 +3717,9 @@ class Machine<mDT> {
             cause    : 'override'
           });
         }
+        // An override is still a real state change that may cross group/state
+        // boundaries, so its boundary-hook actions fire too (depth-bounded).
+        this._fire_boundary_actions(fromState, newState);
       } else {
         throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
       }
@@ -3760,6 +3778,118 @@ class Machine<mDT> {
       hook_name,
       forced    : wasForced
     });
+  }
+
+
+
+  /*********
+   *
+   *  Fire the FSL boundary-hook actions for a single, already-committed state
+   *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
+   *  means "when the machine crosses INTO group `g`, dispatch machine action
+   *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
+   *  that fires those parked hooks.
+   *
+   *  Crossing semantics (statechart convention — exits before enters):
+   *
+   *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
+   *     the old and new states, from `_state_to_groups`.
+   *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
+   *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
+   *     actually changed).
+   *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
+   *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
+   *     changed).
+   *  4. A group present in BOTH sets is a transition *within* that group and
+   *     fires neither of its boundary hooks.  `prev_state === next_state` fires
+   *     nothing at all.
+   *  5. "Fire its action" is `this.action(label)`.  If that action is not valid
+   *     from the current state, `action` is a safe no-op (returns `false`) — an
+   *     inapplicable boundary action never throws.
+   *  6. Multi-membership and nesting both fan out naturally: a state in groups
+   *     A and B fires both; crossing an inner and an outer boundary fires both
+   *     levels.
+   *
+   *  Because firing an action can drive a further transition (which crosses
+   *  more boundaries, which fires more actions), this is a bounded
+   *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
+   *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
+   *  rather than overflowing the stack or hanging.
+   *
+   *  @param prev_state The state the machine was in before this commit.
+   *  @param next_state The state the machine is in now (already committed).
+   *
+   *  @throws {JssmError} If cascaded boundary firing exceeds the depth limit
+   *    (a probable infinite loop).
+   *
+   *  @see action
+   *  @see transition_impl
+   *
+   *  @internal
+   *
+   */
+
+  _fire_boundary_actions(prev_state: StateType, next_state: StateType): void {
+
+    // Nothing crosses a boundary when the state name is unchanged.
+    if (prev_state === next_state) { return; }
+
+    // Skip entirely for machines that declared no boundary hooks at all — the
+    // overwhelming common case, and it keeps the hot transition path free of
+    // set arithmetic.
+    if (this._group_hooks.size === 0 && this._state_hooks.size === 0) { return; }
+
+    if (this._boundary_depth >= this._boundary_depth_limit) {
+      throw new JssmError(
+        this,
+        `boundary-hook action cascade exceeded depth limit (${this._boundary_depth_limit}) `
+          + `crossing from ${JSON.stringify(prev_state)} to ${JSON.stringify(next_state)} `
+          + `(possible infinite loop)`
+      );
+    }
+
+    const prev_groups: Set<string> = this._state_to_groups.get(prev_state) ?? new Set();
+    const next_groups: Set<string> = this._state_to_groups.get(next_state) ?? new Set();
+
+    // The labels to dispatch, gathered before any firing so that re-entrant
+    // transitions caused by an early action cannot perturb which boundaries the
+    // *current* crossing fires.  Exits precede enters (statechart convention).
+    const labels: string[] = [];
+
+    // Exits: groups left (in prev but not next), then the plain prev state.
+    for (const group of prev_groups) {
+      if (!next_groups.has(group)) {
+        const label: string | undefined = this._group_hooks.get(group)?.onExit;
+        if (label !== undefined) { labels.push(label); }
+      }
+    }
+    const prev_state_exit: string | undefined = this._state_hooks.get(prev_state)?.onExit;
+    if (prev_state_exit !== undefined) { labels.push(prev_state_exit); }
+
+    // Enters: groups entered (in next but not prev), then the plain next state.
+    for (const group of next_groups) {
+      if (!prev_groups.has(group)) {
+        const label: string | undefined = this._group_hooks.get(group)?.onEnter;
+        if (label !== undefined) { labels.push(label); }
+      }
+    }
+    const next_state_enter: string | undefined = this._state_hooks.get(next_state)?.onEnter;
+    if (next_state_enter !== undefined) { labels.push(next_state_enter); }
+
+    if (labels.length === 0) { return; }
+
+    // Each dispatched action re-enters transition_impl, which (on success) calls
+    // back here for the boundary it just crossed.  The depth counter brackets
+    // the whole fan-out so a self-perpetuating cascade is bounded, not infinite.
+    this._boundary_depth += 1;
+    try {
+      for (const label of labels) {
+        this.action(label);   // safe no-op (returns false) if inapplicable here
+      }
+    } finally {
+      this._boundary_depth -= 1;
+    }
+
   }
 
 
@@ -4195,6 +4325,12 @@ class Machine<mDT> {
         this._fire('complete', { state: newState, data: newData_after });
       }
     }
+
+    // FSL boundary-hook actions (`on enter/exit &g do 'X'`) fire after the
+    // state is committed and after the observation events, matching the
+    // statechart "exits before enters" convention.  Cascades are depth-bounded
+    // inside the helper.
+    this._fire_boundary_actions(fromState, newState);
 
     // possibly re-establish new 'after' clause
     this.auto_set_state_timeout();
