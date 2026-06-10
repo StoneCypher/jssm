@@ -2467,7 +2467,7 @@ class Machine<mDT> {
    */
 
   groupsOf(state: StateType): Set<string> {
-    return this._state_to_groups.get(state) ?? new Set();
+    return new Set(this._state_to_groups.get(state) ?? []);
   }
 
 

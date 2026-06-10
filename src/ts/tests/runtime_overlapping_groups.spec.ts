@@ -92,6 +92,14 @@ describe('overlapping state groups — membership queries (Task 3a)', () => {
       expect(m.groupsOf('a')).toEqual(new Set());
     });
 
+    test('returns a fresh Set (mutating it does not corrupt the machine)', () => {
+      const m = sm`&g : [a]; a -> b;`;
+      const s = m.groupsOf('a');
+      s.add('intruder');
+      expect(m.groupsOf('a')).toEqual(new Set(['g']));
+      expect(m.isIn('g')).toBe(true);
+    });
+
   });
 
 
