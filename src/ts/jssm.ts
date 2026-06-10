@@ -19,6 +19,7 @@ import {
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmStateStyleKey, JssmStateStyleKeyList,
+  JssmTransitionConfig, JssmGraphConfig,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmLayout, JssmHistory,
   JssmArrowKind,
@@ -387,6 +388,8 @@ class Machine<mDT> {
 
   _graph_layout              : JssmLayout;
   _dot_preamble              : string;
+  _default_transition_config : JssmTransitionConfig | undefined;
+  _default_graph_config      : JssmGraphConfig      | undefined;
   _arrange_declaration       : Array<Array<StateType>>;
   _arrange_start_declaration : Array<Array<StateType>>;
   _arrange_end_declaration   : Array<Array<StateType>>;
@@ -570,6 +573,8 @@ class Machine<mDT> {
     default_terminal_state_config,
     default_start_state_config,
     default_end_state_config,
+    default_transition_config,
+    default_graph_config,
     group_registry,
     group_metadata,
     group_hooks,
@@ -691,6 +696,14 @@ class Machine<mDT> {
     this._terminal_state_style          = state_style_condense(default_terminal_state_config, this);
     this._start_state_style             = state_style_condense(default_start_state_config, this);
     this._end_state_style               = state_style_condense(default_end_state_config, this);
+
+    // Consolidated `transition: {}` and `graph: {}` default-config blocks,
+    // stored verbatim so the viz layer can project them onto Graphviz `edge [ … ]`
+    // defaults and graph-scope attributes respectively.  Both are kept as the
+    // compiler's de-duplicated `{ key, value }[]` lists (last-wins already
+    // applied, so iterating in order yields the winning value per key).
+    this._default_transition_config     = default_transition_config;
+    this._default_graph_config          = default_graph_config;
 
     // Overlapping-state-group tables.  The registry/hooks are stored as-is; the
     // raw per-group `{ declarations }` blocks are condensed once into style
@@ -1564,6 +1577,49 @@ class Machine<mDT> {
    */
   dot_preamble(): string {
     return this._dot_preamble;
+  }
+
+  /** Get the consolidated `transition: {}` default-config block: the ordered,
+   *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
+   *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
+   *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
+   *  every edge inherits it.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
+   *  // [ { key: 'color', value: '#0000ffff' } ]
+   *  ```
+   *
+   *  @returns The transition-config item list, or `undefined` if the machine
+   *  declared no `transition: {}` block.
+   *  @see default_graph_config
+   */
+  default_transition_config(): JssmTransitionConfig | undefined {
+    return this._default_transition_config;
+  }
+
+  /** Get the consolidated `graph: {}` default-config block: the ordered,
+   *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
+   *  compiler folds the deprecated top-level graph keywords
+   *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
+   *  `flow`, `dot_preamble`) into this list first, then lets an explicit
+   *  `graph: {}` block win on key conflict.  The viz layer projects the
+   *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
+   *  `background-color` → `bgcolor`).
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
+   *  // [ { key: 'background-color', value: '#ffffffff' } ]
+   *  ```
+   *
+   *  @returns The graph-config item list, or `undefined` if the machine has no
+   *  graph config (no `graph: {}` block and no deprecated graph keyword).
+   *  @see default_transition_config
+   */
+  default_graph_config(): JssmGraphConfig | undefined {
+    return this._default_graph_config;
   }
 
 

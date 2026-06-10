@@ -6,7 +6,8 @@ import { version, build_time }    from './version';
 import { membership_distance }    from './jssm_compiler';
 
 import type { Viz }               from '@viz-js/viz';
-import type { JssmTransition, JssmStateConfig, JssmGroupMemberRef } from './jssm_types';
+import type { JssmTransition, JssmStateConfig, JssmGroupMemberRef,
+              JssmTransitionConfig, JssmGraphConfig } from './jssm_types';
 
 
 /**
@@ -379,6 +380,123 @@ function flow_direction_to_rankdir(flow_direction: string): string {
 
 
 /**
+ *  Map a single `transition: {}` config item (`{ key, value }`) to a Graphviz
+ *  *edge*-scope attribute `name="value"` pair, or `undefined` when the key has
+ *  no edge-meaningful projection.  Mirrors the per-node mapping in
+ *  {@link state_node_line}, but targets the attribute names Graphviz uses on
+ *  edges:
+ *
+ *  - `color` and the legacy `graph_default_edge_color` both set the edge line
+ *    `color`.
+ *  - `text-color`  → edge label `fontcolor`.
+ *  - `line-style`  → edge `style` (`dashed`/`dotted`/`solid` pass through).
+ *
+ *  Node-only keys (`background-color`, `shape`, `corners`, `image`, `url`,
+ *  `state-label`, `border-color`) have no edge meaning and yield `undefined`,
+ *  so they are dropped from the `edge [ … ]` default statement.
+ *
+ *  @internal
+ */
+function edge_attr_for(key: string, value: string): string | undefined {
+  switch (key) {
+    case 'color':
+    case 'graph_default_edge_color': return `color="${doublequote(value)}"`;
+    case 'text-color':               return `fontcolor="${doublequote(value)}"`;
+    case 'line-style':               return `style="${doublequote(value)}"`;
+    default:                         return undefined;
+  }
+}
+
+
+/**
+ *  Project a {@link JssmTransitionConfig} (the compiled `transition: {}` block)
+ *  onto the body of a Graphviz default-edge statement — the attribute list that
+ *  belongs inside `edge [ … ];`.  Per-key last-wins is already applied by the
+ *  compiler, so the list is walked in order and each edge-meaningful key
+ *  (see {@link edge_attr_for}) contributes one attribute.  Returns the empty
+ *  string when the config is absent or contributes nothing, so a machine with
+ *  no `transition: {}` block produces byte-identical output to before.
+ *
+ *  ```typescript
+ *  edge_defaults_body([{ key: 'color', value: '#0000ffff' }]);
+ *  // 'color="#0000ffff"'
+ *  ```
+ *
+ *  @internal
+ */
+function edge_defaults_body(config: JssmTransitionConfig | undefined): string {
+  if (!config) { return ''; }
+  return config
+    .map(item => edge_attr_for(item.key, item.value as string))
+    .filter((a): a is string => a !== undefined)
+    .join(' ');
+}
+
+
+/**
+ *  Map a single `graph: {}` config item (`{ key, value }`) to a Graphviz
+ *  *graph*-scope attribute `name="value"` pair, or `undefined` when the key is
+ *  either not graph-meaningful or already handled by another machine path
+ *  (`graph_layout` → SVG engine, `flow` → `rankdir`, `theme` → style cascade,
+ *  `dot_preamble` → preamble).  `background-color` is handled separately — it
+ *  feeds the existing single `bgcolor` slot in {@link dot_template} so it is
+ *  never double-emitted — and so is excluded here.
+ *
+ *  - `color`      → graph `color` (cluster/graph border).
+ *  - `text-color` → graph `fontcolor`.
+ *
+ *  @internal
+ */
+function graph_attr_for(key: string, value: string): string | undefined {
+  switch (key) {
+    case 'color':      return `color="${doublequote(value)}"`;
+    case 'text-color': return `fontcolor="${doublequote(value)}"`;
+    default:           return undefined;
+  }
+}
+
+
+/**
+ *  Read the effective graph background color from a {@link JssmGraphConfig},
+ *  honouring the `background-color` item the compiler folded `graph_bg_color`
+ *  into (and into which an explicit `graph: { background-color: … }` block
+ *  already won, last-wins).  Falls back to the supplied palette default when
+ *  the config carries no background color, so output is unchanged for machines
+ *  without a `graph: {}` background.
+ *
+ *  This is the single reconciliation point for the graph background: the value
+ *  it returns flows into {@link dot_template}'s one `bgcolor="…"` slot, so the
+ *  `graph: {}` value wins over the legacy alias and is never emitted twice.
+ *
+ *  @internal
+ */
+function graph_bg_color_from_config(config: JssmGraphConfig | undefined, fallback: string): string {
+  if (!config) { return fallback; }
+  const item = config.find(i => i.key === 'background-color');
+  return item ? (item.value as string) : fallback;
+}
+
+
+/**
+ *  Project the graph-scope attributes of a {@link JssmGraphConfig} that are NOT
+ *  the background color (handled via {@link graph_bg_color_from_config}) onto
+ *  one Graphviz graph attribute statement per key (e.g. `color="…";`).  Returns
+ *  the empty string when nothing applies, so machines without graph-scope color
+ *  attributes are byte-identical to before.
+ *
+ *  @internal
+ */
+function graph_attrs_body(config: JssmGraphConfig | undefined): string {
+  if (!config) { return ''; }
+  return config
+    .map(item => graph_attr_for(item.key, item.value as string))
+    .filter((a): a is string => a !== undefined)
+    .map(a => `${a};`)
+    .join('\n');
+}
+
+
+/**
  *  Build the graphviz `digraph G { ... }` envelope from rendered fragments.
  *
  *  The optional `preamble` is inlined just after `digraph G {`, before any
@@ -387,6 +505,14 @@ function flow_direction_to_rankdir(flow_direction: string): string {
  *  from surrounding content by a blank line so that empty strings render
  *  cleanly (no stray whitespace artifacts in the output).
  *
+ *  The `edge_defaults` body (mapped from the machine's `transition: {}` block)
+ *  is appended after the built-in `edge [ … ]` defaults so user-supplied edge
+ *  colour/style wins; an empty body leaves the built-in statement untouched.
+ *  `extra_graph_attrs` (mapped from the non-background graph-scope keys of the
+ *  `graph: {}` block) is emitted just after `bgcolor`; the background colour
+ *  itself flows through the single `graph_bg_color` slot so it is never
+ *  double-emitted.
+ *
  *  @param rank_dir Pre-rendered `rankdir=...;` fragment (see {@link flow_direction_to_rankdir}).
  *  @param graph_bg_color CSS-style color string for `bgcolor`.
  *  @param nodes Rendered node-declaration block.
@@ -394,11 +520,13 @@ function flow_direction_to_rankdir(flow_direction: string): string {
  *  @param arranges Rendered rank-arrangement block.
  *  @param preamble Optional verbatim dot source inserted just after `digraph G {`.
  *  @param footer Optional verbatim dot source inserted just before the closing `}`.
+ *  @param edge_defaults Attribute body for the machine's `transition: {}` edge defaults.
+ *  @param extra_graph_attrs Graph-scope attribute statements from the `graph: {}` block.
  *  @returns A complete graphviz dot source string.
  *
  *  @internal
  */
-function dot_template(rank_dir: string, graph_bg_color: string, nodes: string, edges: string, arranges: string, preamble = '', footer = ''): string {
+function dot_template(rank_dir: string, graph_bg_color: string, nodes: string, edges: string, arranges: string, preamble = '', footer = '', edge_defaults = '', extra_graph_attrs = ''): string {
   return `digraph G {
 ${preamble}
 
@@ -406,9 +534,10 @@ ${rank_dir}
 fontname="Open Sans";
 style=filled;
 bgcolor="${graph_bg_color}";
+${extra_graph_attrs}
 node [fontsize=14; shape=box; style=filled; fillcolor=white; fontname="Times New Roman"];
 edge [fontsize=6; fontname="Open Sans"];
-
+${edge_defaults ? `edge [ ${edge_defaults} ];\n` : ''}
 ${nodes}
 
 ${edges}
@@ -1119,7 +1248,19 @@ function machine_to_dot<T>(u_jssm: jssm.Machine<T>, opts: VizRenderOpts = {}): s
   const preamble = u_jssm.dot_preamble() || '';
   const footer   = opts?.footer ?? '';
 
-  return dot_template(rank_dir, vc('graph_bg_color'), nodes, edges, arranges, preamble, footer);
+  // `transition: {}` → default `edge [ … ]` attrs; `graph: {}` → graph-scope
+  // attrs.  The graph background reconciles through the single `bgcolor` slot
+  // (the `graph: {}` value already won last-wins in the compiler), so it is
+  // never double-emitted; the remaining graph-scope keys flow through
+  // `extra_graph_attrs`.
+  const transition_config = u_jssm.default_transition_config();
+  const graph_config      = u_jssm.default_graph_config();
+
+  const edge_defaults     = edge_defaults_body(transition_config);
+  const extra_graph_attrs = graph_attrs_body(graph_config);
+  const bg_color          = graph_bg_color_from_config(graph_config, vc('graph_bg_color'));
+
+  return dot_template(rank_dir, bg_color, nodes, edges, arranges, preamble, footer, edge_defaults, extra_graph_attrs);
 
 }
 
@@ -1308,5 +1449,7 @@ export const _test = {
   group_parent_map, group_ancestry,
   primary_group_for, plan_cluster_groups,
   groups_to_subgraph_string, chips_for_all_groups,
-  node_block_for
+  node_block_for,
+  edge_attr_for, edge_defaults_body,
+  graph_attr_for, graph_attrs_body, graph_bg_color_from_config
 };

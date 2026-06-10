@@ -400,3 +400,200 @@ describe('groups_to_subgraph_string direct helper', () => {
   });
 
 });
+
+
+
+
+// ---------------------------------------------------------------------------
+// Task 4b: `transition: {}` → DOT default-edge attrs; `graph: {}` → graph attrs
+// ---------------------------------------------------------------------------
+
+
+
+
+describe('edge_attr_for / edge_defaults_body helpers', () => {
+
+  test('maps a `color` item to the edge `color` attribute', () =>
+    expect(jv._test.edge_attr_for('color', '#0000ffff'))
+      .toBe('color="#0000ffff"'));
+
+  test('maps the legacy `graph_default_edge_color` to the edge `color` attribute', () =>
+    expect(jv._test.edge_attr_for('graph_default_edge_color', '#0000ffff'))
+      .toBe('color="#0000ffff"'));
+
+  test('maps `text-color` to edge `fontcolor`', () =>
+    expect(jv._test.edge_attr_for('text-color', '#ff0000ff'))
+      .toBe('fontcolor="#ff0000ff"'));
+
+  test('maps `line-style` to edge `style`', () =>
+    expect(jv._test.edge_attr_for('line-style', 'dashed'))
+      .toBe('style="dashed"'));
+
+  test('drops node-only keys (background-color, shape, …) from edge scope', () => {
+    expect(jv._test.edge_attr_for('background-color', '#fff')).toBeUndefined();
+    expect(jv._test.edge_attr_for('shape',            'box')).toBeUndefined();
+    expect(jv._test.edge_attr_for('corners',          'rounded')).toBeUndefined();
+  });
+
+  test('escapes an embedded double-quote in the value', () =>
+    expect(jv._test.edge_attr_for('color', 'a"b'))
+      .toBe('color="a\\"b"'));
+
+  test('edge_defaults_body returns empty string for an absent config', () =>
+    expect(jv._test.edge_defaults_body(undefined)).toBe(''));
+
+  test('edge_defaults_body returns empty string when nothing edge-meaningful applies', () =>
+    expect(jv._test.edge_defaults_body([{ key: 'shape', value: 'box' } as any])).toBe(''));
+
+  test('edge_defaults_body joins multiple edge attrs with a space', () =>
+    expect(jv._test.edge_defaults_body([
+      { key: 'color',      value: '#0000ffff' },
+      { key: 'line-style', value: 'dashed'    }
+    ] as any))
+      .toBe('color="#0000ffff" style="dashed"'));
+
+});
+
+
+
+
+describe('graph_attr_for / graph_attrs_body / graph_bg_color_from_config helpers', () => {
+
+  test('maps a graph `color` item to the graph `color` attribute', () =>
+    expect(jv._test.graph_attr_for('color', '#008000ff'))
+      .toBe('color="#008000ff"'));
+
+  test('maps `text-color` to graph `fontcolor`', () =>
+    expect(jv._test.graph_attr_for('text-color', '#111111ff'))
+      .toBe('fontcolor="#111111ff"'));
+
+  test('does NOT re-emit background-color (it owns the dedicated bgcolor slot)', () =>
+    expect(jv._test.graph_attr_for('background-color', '#ffffffff')).toBeUndefined());
+
+  test('drops already-handled legacy keys (graph_layout, flow, theme, dot_preamble)', () => {
+    expect(jv._test.graph_attr_for('graph_layout', 'circo')).toBeUndefined();
+    expect(jv._test.graph_attr_for('flow',         'down')).toBeUndefined();
+    expect(jv._test.graph_attr_for('theme',        'ocean')).toBeUndefined();
+    expect(jv._test.graph_attr_for('dot_preamble', 'rankdir=LR')).toBeUndefined();
+  });
+
+  test('graph_attrs_body returns empty string for an absent config', () =>
+    expect(jv._test.graph_attrs_body(undefined)).toBe(''));
+
+  test('graph_attrs_body emits one statement per graph-meaningful key', () =>
+    expect(jv._test.graph_attrs_body([
+      { key: 'color',            value: '#008000ff' },
+      { key: 'background-color', value: '#ffffffff' }
+    ] as any))
+      .toBe('color="#008000ff";'));
+
+  test('graph_bg_color_from_config falls back when no background-color item present', () =>
+    expect(jv._test.graph_bg_color_from_config(undefined, '#eeeeee'))
+      .toBe('#eeeeee'));
+
+  test('graph_bg_color_from_config reads the folded background-color item', () =>
+    expect(jv._test.graph_bg_color_from_config(
+      [{ key: 'background-color', value: '#ffffffff' }] as any, '#eeeeee'))
+      .toBe('#ffffffff'));
+
+});
+
+
+
+
+describe('machine_to_dot — transition: {} → default edge statement', () => {
+
+  test('a transition: { color } emits an `edge [ … ]` default carrying that color', () => {
+    // `blue` normalizes to the 8-channel hex #0000ffff, exactly as a node color does.
+    const dot = jv.machine_to_dot(sm`a -> b; transition: { color: blue; };`);
+    expect(dot).toMatch(/edge \[ [^\]]*color="#0000ffff"[^\]]*\];/);
+  });
+
+  test('every edge inherits the default — no per-edge color is emitted on the a->b line', () => {
+    const dot = jv.machine_to_dot(sm`a -> b -> c; transition: { color: blue; };`);
+    // the default-edge statement is present once...
+    expect((dot.match(/edge \[ [^\]]*color="#0000ffff"/g) ?? []).length).toBe(1);
+    // ...and the edges themselves still render (they inherit the default)
+    expect(dot).toMatch(/"a"->"b"/);
+    expect(dot).toMatch(/"b"->"c"/);
+  });
+
+  test('the legacy edge_color default also lands in the edge statement as color', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; transition: { edge_color: blue; };`);
+    expect(dot).toMatch(/edge \[ [^\]]*color="#0000ffff"[^\]]*\];/);
+  });
+
+  test('a line-style default lands as the edge style attribute', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; transition: { line-style: dashed; };`);
+    expect(dot).toMatch(/edge \[ [^\]]*style="dashed"[^\]]*\];/);
+  });
+
+  test('absent transition block → no spurious default-edge statement (parity)', () => {
+    const dot = jv.machine_to_dot(sm`a -> b;`);
+    // only the built-in `edge [fontsize=6; …]` default exists; no second `edge [ … ];`
+    expect(dot).not.toMatch(/edge \[ /);   // note the trailing space form used for user defaults
+  });
+
+});
+
+
+
+
+describe('machine_to_dot — graph: {} → graph-scope attributes', () => {
+
+  test('graph: { background-color } sets the graph bgcolor', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; graph: { background-color: #ffffff; };`);
+    expect(dot).toContain('bgcolor="#ffffffff"');
+  });
+
+  test('the legacy graph_bg_color alias also drives bgcolor through the same slot', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; graph_bg_color: #ffffff;`);
+    expect(dot).toContain('bgcolor="#ffffffff"');
+  });
+
+  test('an explicit graph: {} background-color WINS over a conflicting legacy alias', () => {
+    const dot = jv.machine_to_dot(
+      sm`a -> b; graph_bg_color: #000000; graph: { background-color: #ffffff; };`
+    );
+    // the graph block value wins...
+    expect(dot).toContain('bgcolor="#ffffffff"');
+    // ...and the losing alias value is not emitted as a bgcolor
+    expect(dot).not.toContain('bgcolor="#000000ff"');
+    // background color is emitted exactly once (no double-emit)
+    expect((dot.match(/bgcolor=/g) ?? []).length).toBe(1);
+  });
+
+  test('a graph: { color } graph-scope attribute is emitted', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; graph: { color: green; };`);
+    expect(dot).toContain('color="#008000ff";');
+  });
+
+  test('absent graph block → bgcolor falls back to the palette default (parity)', () => {
+    const dot = jv.machine_to_dot(sm`a -> b;`);
+    expect(dot).toContain(`bgcolor="${jv._test.vc('graph_bg_color')}"`);
+    // exactly one bgcolor in the output
+    expect((dot.match(/bgcolor=/g) ?? []).length).toBe(1);
+  });
+
+});
+
+
+
+
+describe('machine_to_dot — transition/graph blocks render to SVG without error', () => {
+
+  test('a machine using BOTH a transition: and a graph: block round-trips through viz', async () => {
+    const svg = await jv.fsl_to_svg_string(
+      'a -> b -> c; transition: { color: blue; line-style: dashed; }; graph: { background-color: #ffffff; color: green; };'
+    );
+    expect(svg).toMatch(/<svg/);
+  });
+
+  test('a grouped machine combined with both blocks still renders', async () => {
+    const svg = await jv.fsl_to_svg_string(
+      '&g : [a b]; a -> b; transition: { color: blue; }; graph: { background-color: #fafafa; };'
+    );
+    expect(svg).toMatch(/<svg/);
+  });
+
+});
