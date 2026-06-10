@@ -691,6 +691,26 @@ type JssmGenericConfig<StateType, DataType> = {
   check?                         : JssmStatePermitterMaybeArray<DataType>,
   history?                       : number,
 
+  /**
+   *  Maximum depth of the boundary-hook action cascade before the machine
+   *  throws a {@link JssmError} rather than risking a stack overflow or hang.
+   *
+   *  Each time a boundary action fires a transition that itself crosses a
+   *  boundary, the depth counter increments.  A cascade exceeding this limit is
+   *  treated as a probable infinite loop and rejected.
+   *
+   *  Defaults to `100`.  Raise it for legitimate pipelines that genuinely nest
+   *  more than 100 transitions via boundary hooks.
+   *
+   *  @example
+   *  // Allow up to 5 nested boundary hops (tight; good for tests):
+   *  from('a -> b;', { boundary_depth_limit: 5 });
+   *
+   *  @see Machine._boundary_depth_limit
+   *  @see Machine._fire_boundary_actions
+   */
+  boundary_depth_limit?          : number,
+
 //locked?                        : bool = true,
   min_exits?                     : number,
   max_exits?                     : number,

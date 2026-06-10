@@ -523,6 +523,11 @@ class Machine<mDT> {
   // the stack; `_fire_boundary_actions` throws a JssmError once it exceeds
   // `_boundary_depth_limit` rather than recursing into a stack overflow.  See
   // the overlapping-state-group feature (boundary-hook firing).
+  //
+  // `_boundary_depth_limit` is configurable via the `boundary_depth_limit`
+  // constructor option (default 100) so that legitimate deep pipelines can
+  // raise the cap without touching the source, and tests can lower it to
+  // make runaway-detection tests cheap.
   _boundary_depth       : number;
   _boundary_depth_limit : number;
 
@@ -557,6 +562,7 @@ class Machine<mDT> {
     graph_layout              = 'dot',
     instance_name,
     history,
+    boundary_depth_limit,
     data,
     default_state_config,
     default_active_state_config,
@@ -751,10 +757,11 @@ class Machine<mDT> {
     this._event_listener_count          = 0;
     this._firing_error                  = false;
 
-    // Boundary-hook action cascade guard.  Limit is a fixed sane cap; a cascade
-    // deeper than this is treated as a probable infinite loop and rejected.
+    // Boundary-hook action cascade guard.  Limit defaults to 100 but is
+    // configurable via the `boundary_depth_limit` constructor option so tests
+    // can tighten the cap and deep pipelines can raise it.
     this._boundary_depth                = 0;
-    this._boundary_depth_limit          = 100;
+    this._boundary_depth_limit          = boundary_depth_limit ?? 100;
 
 
     // consolidate the state declarations
@@ -3814,12 +3821,13 @@ class Machine<mDT> {
    *  more boundaries, which fires more actions), this is a bounded
    *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
    *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
-   *  rather than overflowing the stack or hanging.
+   *  rather than overflowing the stack or hanging.  The limit defaults to 100
+   *  and is configurable via the `boundary_depth_limit` constructor option.
    *
    *  @param prev_state The state the machine was in before this commit.
    *  @param next_state The state the machine is in now (already committed).
    *
-   *  @throws {JssmError} If cascaded boundary firing exceeds the depth limit
+   *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
    *    (a probable infinite loop).
    *
    *  @see action

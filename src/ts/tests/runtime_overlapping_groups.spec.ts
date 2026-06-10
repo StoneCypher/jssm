@@ -2,18 +2,27 @@
 /* eslint-disable max-len */
 
 /**
- * Runtime tests for the "Overlapping State Groups" feature (Task 3a): the
- * membership-query API (`isIn`, `groupsOf`, `groups`, `statesIn`) and the
- * unified per-state config cascade (`resolve_state_config` / `style_for`),
- * including depth-ordered group metadata, the never-throwing cross-tier merge,
- * and the dynamic `active_state` overlay.
+ * Runtime tests for the "Overlapping State Groups" feature.
+ *
+ * **Task 3a** — membership-query API (`isIn`, `groupsOf`, `groups`,
+ * `statesIn`) and the unified per-state config cascade
+ * (`resolve_state_config` / `style_for`), including depth-ordered group
+ * metadata, the never-throwing cross-tier merge, and the dynamic
+ * `active_state` overlay.
+ *
+ * **Task 3b** — boundary-hook FIRING: group `on enter` / `on exit` hooks,
+ * plain-state `on enter` / `on exit` hooks, multi-membership fan-out, nested
+ * group boundary crossing, ordering (exits before enters, declaration order),
+ * cascade safety (inapplicable actions are no-ops), cascade loop protection
+ * (the configurable `boundary_depth_limit` guard), and the exit-side ordering
+ * invariant (group exits precede plain-state exit; exit-side cascades resolve
+ * correctly).
  *
  * These exercise real `sm` / `from` machines end-to-end — no fakes, no
  * snapshots.  Membership assertions compare against `Set`/array contents;
  * cascade assertions read concrete style fields out of `style_for`.
  *
- * Out of scope (parked for Task 3b / Task 4): boundary-hook FIRING and viz
- * cluster rendering.  Hooks are only stored at compile/construct time here.
+ * Out of scope (Task 4): viz cluster rendering.
  */
 
 import { sm, from } from '../jssm';
@@ -564,6 +573,99 @@ describe('overlapping state groups — boundary-hook firing (Task 3b)', () => {
       `;
       expect(() => m.action('go')).not.toThrow();
       expect(m.state()).toBe('c');
+    });
+
+    test('a custom LOW boundary_depth_limit throws sooner than the default', () => {
+      // The cascade ping-pongs: start -> a (enters &one -> fires 'step' -> b,
+      // enters &two -> fires 'back' -> a, enters &one again ...).  With the
+      // default limit of 100 this would run for a while; with limit=3 it must
+      // throw after just three hops — the same cascade that the default allows
+      // to run longer is cut short by the reduced cap.
+      const m = from(
+        `&one : [a]; &two : [b];
+         start 'go' -> a 'step' -> b 'back' -> a;
+         on enter &one do 'step';
+         on enter &two do 'back';`,
+        { boundary_depth_limit: 3 }
+      );
+      expect(() => m.action('go')).toThrow(JssmError);
+    });
+
+    test('a raised boundary_depth_limit allows a cascade deeper than 100 to complete', () => {
+      // Build a 110-step linear cascade using unique group names.  Each group
+      // &gN contains only state sN; entering it fires action 'stepN' which
+      // moves the machine to sN+1 (entering &g(N+1), and so on).  With the
+      // default limit of 100 this would throw; raising to 200 lets it finish.
+      //
+      // Implementation: build the FSL string programmatically.
+      const DEPTH = 110;
+
+      const groupDecls  = Array.from({ length: DEPTH }, (_, i) => `&g${i} : [s${i}];`).join(' ');
+      const transitions = Array.from({ length: DEPTH - 1 }, (_, i) => `s${i} 'step${i}' -> s${i + 1};`).join(' ');
+      const hooks       = Array.from({ length: DEPTH - 1 }, (_, i) => `on enter &g${i} do 'step${i}';`).join(' ');
+      const fsl         = `${groupDecls} start 'go' -> s0; ${transitions} ${hooks}`;
+
+      const m = from(fsl, { boundary_depth_limit: 200 });
+      expect(() => m.action('go')).not.toThrow();
+      expect(m.state()).toBe(`s${DEPTH - 1}`);
+    });
+
+  });
+
+
+  describe('exit-side ordering', () => {
+
+    test('group exits fire before the plain-state exit on a multi-group departure', () => {
+      // `src` is in &alpha and &beta; `dst` is in neither.  Leaving `src` must
+      // fire: &alpha exit, &beta exit (declaration order), then plain `src` exit.
+      //
+      // Because jssm does not allow multiple arcs between the same from/to pair,
+      // each boundary action chains through a distinct intermediate state so that
+      // the transitions are legal.  The `hook_global_action` callbacks record the
+      // dispatch order independently of where the machine ends up.
+      const order: string[] = [];
+      const m = from(
+        `&alpha : [src]; &beta : [src];
+         src 'go' -> dst;
+         dst      'alpha_out' -> a_rec;
+         a_rec    'beta_out'  -> b_rec;
+         b_rec    'src_out'   -> s_rec;
+         on exit &alpha do 'alpha_out';
+         on exit &beta  do 'beta_out';
+         on exit src    do 'src_out';`
+      );
+      m.hook_global_action('alpha_out', () => { order.push('alpha_out'); });
+      m.hook_global_action('beta_out',  () => { order.push('beta_out');  });
+      m.hook_global_action('src_out',   () => { order.push('src_out');   });
+
+      m.action('go');                 // src -> dst : exits &alpha, &beta, then src
+      // The first boundary action fires from dst; if dst -> a_rec succeeds the
+      // cascade continues.  Regardless of where the machine lands, the dispatch
+      // order is what we are asserting.
+      expect(order).toEqual(['alpha_out', 'beta_out', 'src_out']);
+    });
+
+    test('an exit-side cascade itself resolves correctly and stays bounded', () => {
+      // Exiting `src` (in &chain) fires 'hop', which takes the machine from
+      // `mid` to `end`.  `end` is in &fin, whose entry fires 'done' (a self-loop
+      // on `end`).  A global-action hook on 'done' proves the whole exit-driven
+      // cascade completed.
+      let hopFired  = false;
+      let doneFired = false;
+      const m = from(
+        `&chain : [src]; &fin : [end];
+         src 'go' -> mid 'hop' -> end;
+         end 'done' -> end;
+         on exit  &chain do 'hop';
+         on enter &fin   do 'done';`
+      );
+      m.hook_global_action('hop',  () => { hopFired  = true; });
+      m.hook_global_action('done', () => { doneFired = true; });
+
+      expect(() => m.action('go')).not.toThrow();  // cascade stays bounded
+      expect(hopFired).toBe(true);
+      expect(doneFired).toBe(true);
+      expect(m.state()).toBe('end');
     });
 
   });
