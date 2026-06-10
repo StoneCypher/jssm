@@ -43,7 +43,7 @@ Zero or more `Term`s, no separator between them.  Term-level statements
 each end with their own `;`, so the list is unambiguous without a
 delimiter.
 
-### `Term` — the seven top-level statement kinds
+### `Term` — the eight top-level statement kinds
 
 A term is exactly one of:
 
@@ -54,6 +54,7 @@ A term is exactly one of:
 5. **`MachineAttribute`** — metadata like `machine_name`, `fsl_version`, `theme`, `flow`
 6. **`MachineProperty`** — typed property declaration with optional default and `required`
 7. **`Config`** — block configuration (`graph_layout`, `start_states`, `transition`, `state`, `validation`, …)
+8. **`HookDeclaration`** — boundary-hook statement (`on enter|exit <state|&group> do '<action>';`) (see section 12)
 
 Each of these is described in its own section below.
 
@@ -807,8 +808,8 @@ Both parse to the normalized `{ key: 'default_<x>_config', value: […] }`
 shape (not the older `{ config_kind, config_items }` orphan shape).
 
 `graph: {}` **supersedes** the legacy scattered top-level graph keys —
-`graph_layout`, `graph_bg_color`, `edge-color`, `dot_preamble`,
-`theme`, and `flow` now fold into `default_graph_config`.  An explicit
+`graph_layout`, `graph_bg_color`, `dot_preamble`, `theme`, and `flow`
+now fold into `default_graph_config`.  An explicit
 `graph: {}` block wins on a key conflict with a folded legacy key.
 Folding `graph_bg_color` (canonicalized to a `background-color` item)
 emits a deprecation warning naming the keyword, because it has a direct
