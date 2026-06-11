@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-337 merges; 274 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+339 merges; 275 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
 
 
@@ -22,27 +22,28 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 2:51:22 PM
+## [Untagged] - Jun 11, 2026 1:26:04 PM
 
-Commit [c389e4fdf60a72887dc0d8510c7f16276fd34575](https://github.com/StoneCypher/jssm/commit/c389e4fdf60a72887dc0d8510c7f16276fd34575)
+Commit [543d4bdbd48651f8267b252a63eff1f4cd16ecc6](https://github.com/StoneCypher/jssm/commit/543d4bdbd48651f8267b252a63eff1f4cd16ecc6)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(compiler): compile transition:/graph: config blocks, fold deprecated graph aliases
-  * Wire `default_transition_config` (from `transition: {}`) and
-`default_graph_config` (from `graph: {}`) through `compile_rule_handler`,
-mirroring how `default_state_config` is handled, so these blocks compile
-instead of throwing "Unknown rule".
-  * Additively fold the deprecated top-level graph keywords (`graph_layout`,
-`graph_bg_color`, `dot_preamble`, `theme`, `flow`) into `default_graph_config`
-first, then let an explicit `graph: {}` block override on canonical-key
-conflict (`graph_bg_color` -> `background-color`). Each alias used emits a
-`console.warn` deprecation notice. Legacy top-level fields are left intact for
-the current visualizer.
-  * Adds `JssmTransitionConfig`/`JssmGraphConfig` (and supporting item types) plus
-the `default_transition_config?`/`default_graph_config?` fields on
-`JssmGenericConfig`, and a vitest spec covering compile, alias folding,
-override, and the deprecation-warning path.
+  * docs(manual): structural templates file — the use-case template, with format projections
+  * New 2026-06-11-fsl-manual-templates.md: repeating manual topics get
+fixed shapes; one source per instance, four projections (book/PDF,
+flat-file-for-LLMs, web, editor help) with per-section format flags
+ordered by survival priority. Template 1 (use case): machine-readable
+frontmatter; one-breath summary carrying the differentiator clause;
+when-to-reach (honest limits at the top, not buried); the mapping table
+as the translation heart; doc-tested incremental builds revealing
+stdlib parts; a MANDATORY 'what you can now prove' section
+(counterexamples stated in domain terms); run-it; production notes
+(named hooks = outside the proofs); neighbors (the web link graph);
+generated provenance. Every instance doubles as an NL-to-FSL corpus
+pair + eval seeds. Skeletal circuit-breaker instantiation included as
+proof of shape. Manual-topics gains the organizing-principle pointer;
+future templates enumerated (feature ref, stdlib part, lesson,
+playbook, explainer, verb, error-code, zoo entry).
 
 
 
@@ -51,29 +52,26 @@ override, and the deprecation-warning path.
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 2:51:22 PM
+## [Untagged] - Jun 11, 2026 1:21:51 PM
 
-Commit [417ac12aca5153bf675b12c7a5afae7d50ee7e4e](https://github.com/StoneCypher/jssm/commit/417ac12aca5153bf675b12c7a5afae7d50ee7e4e)
+Commit [ddf9503a32977753a9c2265e7bf13290743a7bf6](https://github.com/StoneCypher/jssm/commit/ddf9503a32977753a9c2265e7bf13290743a7bf6)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * @
-feat(compiler): compile transition:/graph: config blocks, fold deprecated graph aliases
-  * Wire `default_transition_config` (from `transition: {}`) and
-`default_graph_config` (from `graph: {}`) through `compile_rule_handler`,
-mirroring how `default_state_config` is handled, so these blocks compile
-instead of throwing "Unknown rule".
-  * Additively fold the deprecated top-level graph keywords (`graph_layout`,
-`graph_bg_color`, `dot_preamble`, `theme`, `flow`) into `default_graph_config`
-first, then let an explicit `graph: {}` block override on canonical-key
-conflict (`graph_bg_color` -> `background-color`). Each alias used emits a
-`console.warn` deprecation notice. Legacy top-level fields are left intact for
-the current visualizer.
-  * Adds `JssmTransitionConfig`/`JssmGraphConfig` (and supporting item types) plus
-the `default_transition_config?`/`default_graph_config?` fields on
-`JssmGenericConfig`, and a vitest spec covering compile, alias folding,
-override, and the deprecation-warning path.
-@
+  * docs(manual-topics): access control (RBAC/ACL/ABAC) as the security chapter's applied use case
+  * The reference-monitor pattern: requests as actions, decisions as where-
+guards over policy vals, the input tape as the audit log. ACL = map val
++ contracted grant/revoke (revocation-effectiveness as a theorem with
+attack-trace counterexamples); RBAC = session machines from factories,
+static SoD as invariants, dynamic SoD as native temporal state, role
+hierarchy as the group DAG; ABAC = the expression language with
+environment-as-sensors, its audit question answered by reachability
+queries with witnesses. Unique adds: refinement-checked policy
+tightening, windowed-aggregate lockout, break-glass as contrary-to-duty
+states, flow contracts beyond permission. Honest limit recorded: FSL is
+the monitor + lifecycle, not the grant database. reference-monitor
+noted as a certified-stdlib candidate; worked-examples security row
+cross-linked.
 
 
 
@@ -82,19 +80,23 @@ override, and the deprecation-warning path.
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 2:37:13 PM
+## [Untagged] - Jun 11, 2026 1:00:52 PM
 
-Commit [21ead7861786a103fb2ad489bdb902acceeb45d3](https://github.com/StoneCypher/jssm/commit/21ead7861786a103fb2ad489bdb902acceeb45d3)
+Commit [9392d19d6e10bb2cb93af011879837bcd0763d87](https://github.com/StoneCypher/jssm/commit/9392d19d6e10bb2cb93af011879837bcd0763d87)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * refactor(grammar): drop orphaned TransitionItems rule; fix stale config_kind comment
-  * TransitionItems was dead after ConfigTransition was rewired to use
-ConfigStyleItems; confirmed no references outside the rule definition.
-Update the NOTE in edge_color_alias.spec.ts to reflect that the compiler
-now receives `default_transition_config` (not the old config_kind shape)
-and that wiring it through the compiler dispatch is Task 2 of the
-overlapping-state-groups plan.
+  * docs(manual-topics): the manual needs a deontics explainer
+  * FSL is an operational deontic language and readers will arrive with the
+vocabulary: Forbidden = absence patterns / flow contracts / policy
+guardrails; Obligatory = response patterns; Permitted = enabledness
+(where-guards). The showpiece: contrary-to-duty obligations — deontic
+logic's hardest classic problem (Chisholm's paradox) — are structurally
+trivial in a state machine, because 'after the violation' is just a
+state (error-recovery, supervision, on_member_error); norms attach to
+where you are, not to floating propositions. Noted as the candidate
+fourth essay for the positioning trio. First commit on the v6
+integration branch.
 
 
 
@@ -103,14 +105,24 @@ overlapping-state-groups plan.
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 9:11:09 AM
+## [Untagged] - Jun 11, 2026 12:38:44 PM
 
-Commit [05457f6b89a7b0842dddbc399965f043af6e80e0](https://github.com/StoneCypher/jssm/commit/05457f6b89a7b0842dddbc399965f043af6e80e0)
+Commit [2f4f7b139acf74612089e2b970657261424d2f62](https://github.com/StoneCypher/jssm/commit/2f4f7b139acf74612089e2b970657261424d2f62)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * fix(sketch): load parse/compile from the self-contained es6 bundle
-  * The per-module `dist/es6/jssm_compiler.js` carries a bare `reduce-to-639-1` import that the browser cannot resolve without an importmap entry, so the editor failed to mount. Import `parse` and `compile` from the bundled `dist/jssm.es6.mjs` (deps inlined) instead. Verified in-browser: the sample parses+compiles cleanly, and a duplicate `fsl_version` now underlines the second statement with the semantic error.
+  * docs(megaspec): strict read-through fixes — stale refs, rename survivor, pure profile, open items
+  * Full-document review found seven defects, five fixed: §2's principle
+cross-refs predated every renumbering (§18→§15 replay, §19→§16
+multi-host, §4→§3 tiers); §5's accessor list still said .var_type()
+(var→val rename survivor) → .val_type(); §23 cited §27 for session
+types (they live in §17's zoo); header dialogue range extended to
+06-11; the pure profile in §3 now explicitly excludes named hooks (a
+hook is an arbitrary host call — §25.1's verify-before-run claim
+requires it, and the two sections previously disagreed). Two genuine
+open items logged in §28: the stream type is used (§5/§7/§15) but never
+defined in §4, and the example comment token is inconsistent (% vs //;
+jssm's parser uses //).
 
 
 
@@ -119,18 +131,24 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-<a name="5__142__4" />
+## [Untagged] - Jun 11, 2026 12:14:50 PM
 
-## [5.142.4] - Jun 8, 2026 2:27:44 AM
-
-Commit [bc239f3a0638a1357694c8c92922724e504362f4](https://github.com/StoneCypher/jssm/commit/bc239f3a0638a1357694c8c92922724e504362f4)
+Commit [40d4422b3fbead53f811ad979ae430ed44b44b35](https://github.com/StoneCypher/jssm/commit/40d4422b3fbead53f811ad979ae430ed44b44b35)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [4ad065bf, 89a0fc98]
-
-  * Merge pull request #696 from StoneCypher/feat_26-06-08_default-size-attribute
-  * feat: default_size machine attribute (v5.142.4)
+  * docs(megaspec): complete the deployment ring — calibrate, query, windowed aggregates; flagship park listing
+  * calibrate: fit transition weights and factory-binding distributions to
+production tapes, emitting corrections as reviewable diffs — the
+digital-twin loop closes model -> simulate -> drift -> calibrate ->
+re-prove. query: fleet-wide behavioral predicates (reachability, flow,
+structure, metadata) with witness tapes per hit — CodeQL for behavior;
+check interrogates one document, query governs fleets. Windowed
+aggregates join the expression stdlib: rate/count/avg/min/max/sum over
+the last N steps, literal-length, lowering to N bounded vals (finite-
+eligible) — circuit breakers and in-machine SLOs as one-liners. 31
+built-in verbs. Manual-topics gains the approved flagship RCT park
+listing (two files, ~30 features, doc-tested).
 
 
 
@@ -139,14 +157,23 @@ Merges [4ad065bf, 89a0fc98]
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 2:24:24 AM
+## [Untagged] - Jun 11, 2026 12:10:45 PM
 
-Commit [89a0fc98b43427879e82f95829bb48b0f060ae53](https://github.com/StoneCypher/jssm/commit/89a0fc98b43427879e82f95829bb48b0f060ae53)
+Commit [1da4c40f5514c9355b13369514855f5131a2c5eb](https://github.com/StoneCypher/jssm/commit/1da4c40f5514c9355b13369514855f5131a2c5eb)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * chore(release): v5.142.4 — default_size machine attribute
-  * Version bump + regenerated artifacts for default_size (StoneCypher/fsl#1338): render-size hint, forms = number (width) / two numbers (centered box) / 'height n' (height), default undefined. Adds .default_size() getter.
+  * docs(megaspec): editions refined to two-stream evolution — feature gates + rare editions
+  * User insight: a yearly edition cadence assumes human development speed.
+The fix is the full Rust decomposition rather than faster editions:
+additive changes never need an edition (new syntax affects no existing
+document), so the fast lane is feature gates — feature: <name>; opts in,
+gated constructs ship weekly with their conformance vectors, graduate
+when proven. Editions remain the slow lane for batched BREAKAGE only,
+rare on purpose: each edition is a forever-maintained parse-rule set, a
+conformance-matrix multiplier, and a dialect in the public training
+corpus — scarcity is what keeps 'the corpus never rots' true for models
+as well as compilers. Year = name, not promise.
 
 
 
@@ -155,13 +182,22 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 2:18:44 AM
+## [Untagged] - Jun 11, 2026 9:12:56 AM
 
-Commit [343c207b850ff6b6d6afba8fa09ecb8dcfe8a705](https://github.com/StoneCypher/jssm/commit/343c207b850ff6b6d6afba8fa09ecb8dcfe8a705)
+Commit [b89ab4aa6ded1fe091e4b28aab56c90c542c8edd](https://github.com/StoneCypher/jssm/commit/b89ab4aa6ded1fe091e4b28aab56c90c542c8edd)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat: add default_size machine attribute (StoneCypher/fsl#1338)
+  * docs(megaspec): deployment ring (partial) — canary factories and lockfiles
+  * Canary factories: via factory weighted [v1 90% v2 10%] — weighted
+version selection at spawn reusing the weighted-LabelList rule;
+cohort-split drift detection compares the two populations' tape
+statistics (verified canarying: promote or roll back on evidence);
+composes with hot member upgrade; seed tree keeps assignment
+reproducible. Lockfiles: fsl.lock pins every registry member to source
+hash + certificate + edition — reproducible system builds and verify's
+anchor. Decision log notes all rings target v6; calibrate / fleet query
+/ windowed aggregates remain under discussion.
 
 
 
@@ -170,18 +206,25 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-<a name="5__142__3" />
+## [Untagged] - Jun 11, 2026 8:25:25 AM
 
-## [5.142.3] - Jun 8, 2026 2:07:28 AM
-
-Commit [4ad065bf1c651245a35fce23035bcdddfcea4522](https://github.com/StoneCypher/jssm/commit/4ad065bf1c651245a35fce23035bcdddfcea4522)
+Commit [f700b2b4ddaa14339065839a7f7ad5af7f68173b](https://github.com/StoneCypher/jssm/commit/f700b2b4ddaa14339065839a7f7ad5af7f68173b)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [29f89299, f8709e78]
-
-  * Merge pull request #695 from StoneCypher/feat_26-06-08_allow-islands-attribute
-  * feat: allow_islands machine attribute (v5.142.3)
+  * docs(megaspec): resilience ring — supervision, hot upgrade, fairness, revocation, editions
+  * Supervision: on_member_error escalate/restart/retire — restart stamps a
+replacement from the member's factory (deterministic, exactly
+characterized); restart-intensity windows; the composition tree doubles
+as the supervision tree; the checker can prove 'this system self-heals.'
+Hot member upgrade = supervision composed with migrates-from. Dispatch
+fairness: deterministic weighted round-robin + per-member quotas as
+policy events. Certificate revocation & advisories: the transparency
+log + an advisory feed give the trust economy an immune system.
+Editions: Rust-style language evolution — per-edition parse rules,
+everything compiles forever, alias removal becomes a boundary. Manual-
+topics: the Erlang chapter (failure as a feature, restart-discards-vals
+gotcha) and the trust-lifecycle entry.
 
 
 
@@ -190,14 +233,25 @@ Merges [29f89299, f8709e78]
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 2:04:06 AM
+## [Untagged] - Jun 11, 2026 7:30:25 AM
 
-Commit [f8709e78e113506c8229cc45f907cf151efcac5f](https://github.com/StoneCypher/jssm/commit/f8709e78e113506c8229cc45f907cf151efcac5f)
+Commit [d256dfe70749116a2419adf6df507cc9cab33732](https://github.com/StoneCypher/jssm/commit/d256dfe70749116a2419adf6df507cc9cab33732)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * chore(release): v5.142.3 — allow_islands machine attribute
-  * Version bump + regenerated artifacts for allow_islands (StoneCypher/fsl#1335): true | false | with_start, default true. false/with_start enforce graph connectivity at construction via undirected connected-component detection. Adds .allow_islands() getter.
+  * docs(megaspec): identity & distribution ring — signing, in-flight upgrade, location transparency, adapter conformance, self-fuzzing
+  * Certificates gain sigstore-style keyless signing + an append-only
+transparency log (attributable, tamper-evident; unsigned certificates
+are self-asserted theater). migrates-from blocks: typed snapshot lifting
+for in-flight upgrades — verifier-checked, refinement-vetted; the
+affirmative path beside version gating's refusal, obligated by the
+durable-execution claim. §22.4 gains location-transparent wiring (the
+distribution door: transports bind later without document changes;
+per-member tapes + causal merge = distributed replay; partition
+semantics deferred to §28). §26 gains adapter conformance (vector suite
+through adapter runtimes on declared subsets) and toolchain self-fuzzing
+via the GBNF artifact. Parameterized verification (for-all-N cutoffs)
+and distribution semantics recorded in §28.
 
 
 
@@ -206,10 +260,24 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 8, 2026 1:58:32 AM
+## [Untagged] - Jun 10, 2026 11:05:43 PM
 
-Commit [a1129b7330f98fbd1b2d1deabc0575b5124a206c](https://github.com/StoneCypher/jssm/commit/a1129b7330f98fbd1b2d1deabc0575b5124a206c)
+Commit [25f2e0c13a67bc0b8fa50843ffe1da7e3add8f22](https://github.com/StoneCypher/jssm/commit/25f2e0c13a67bc0b8fa50843ffe1da7e3add8f22)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat: add allow_islands machine attribute with connectivity validation (StoneCypher/fsl#1335)
+  * docs(megaspec): verifier-theory ring — composition, flow contracts, synth, SLOs, reach, CEGAR
+  * Assume-guarantee compositional verification in §23: interface contracts
+as the unit of composition (compose contracts, not state spaces;
+session-typed wiring checks from interfaces alone; piecewise system
+certificates). Flow contracts: disallow flow a -> b — noninterference
+by taint-product reachability, decidable for finite machines,
+completing --redact's read-side analysis into the full lattice. synth
+verb (aspirational): safety-game policy synthesis — derive the
+maximally-permissive guardrail from Dwyer-pattern properties; the
+infer/check/synth ladder. SLO contracts: PCTL in contract position
+(design-time proof + runtime drift monitor, same property).
+walk --reach: concolic witness generation. CEGAR named as the checker's
+third scaling rung (§28, aspirational). Free theorem recorded:
+refinement => old tapes replay on v2. Manual-topics: the three-rung
+scaling ladder, the security chapter's flow half, SLO teaching.
