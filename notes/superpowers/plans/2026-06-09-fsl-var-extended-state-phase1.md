@@ -1,5 +1,7 @@
 # FSL `var` Extended State — Phase 1 Implementation Plan
 
+> **⚠ VOCABULARY REFRESH REQUIRED BEFORE EXECUTION (2026-06-10):** the canonical spec is now `notes/superpowers/specs/2026-06-09-fsl-megaspec.md`, which **renames `var`→`val` and `property`→`prop`** (§5; `property` kept as deprecated alias). This plan was written pre-rename and says `var`/`JssmVarType`/`.var()` throughout (156 occurrences); apply the rename mechanically when refreshing, and re-check the megaspec's §5 deltas (e.g. `sensor`, `required`+`default` conflict = error, optional `prop` typing). The spec-coverage citation at the bottom should read megaspec §4–§5.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a machine-level `var` declaration — a *named, typed, validated, mutable* extended-state variable (the mutable sibling of `property`) — for the scalar type core (`boolean`, `int`, bounded `int lo..hi`, `string`, `enum(...)`), with construction-time type validation and a typed runtime mutation API. **No** expression evaluation, `assign`, `where`, or source-level mutation yet — those are Phase 2.
@@ -1081,7 +1083,7 @@ git commit -m "test(var): close coverage gaps for 100% spec coverage"
 
 ## Self-Review (planner's checklist — completed)
 
-**Spec coverage (against `2026-06-09-fsl-expression-language-design.md` §4–§5, Phase 1 scope):**
+**Spec coverage (against `2026-06-09-fsl-megaspec.md` §4–§5, Phase 1 scope — formerly the retired `2026-06-09-fsl-expression-language-design.md`):**
 - `var` declaration syntax (§5) → Tasks 1, 4, 5 (grammar) ✓
 - Scalar type core: `boolean`/`int`/bounded `int`/`string`/`enum` (§4.1) → Tasks 1–5 ✓
 - `default` + `required` + validation at construction (§5) → Tasks 1, 6 ✓
