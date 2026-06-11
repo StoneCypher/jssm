@@ -129,6 +129,90 @@ Structure the manual's second half as **playbooks** — entry by occupation, not
 ## Appendix — Worked examples to reuse (already written this session)
 Battery charger (product units), cruise control (rate units), download manager (data units, bits/bytes), rocket ascent controller (extreme units), risk monitor (square dollars = variance), motor controller (mechanical+electrical watts, torque/energy twist), raptor startup (arbitrary units), key-value/bank (model-based testing), **Paxos consensus** (Systems + message payloads + the prop/val/sensor trichotomy *live* — proposer = control machine, acceptor = data machine; `invariant forall x,y in chosen : x=y` = the agreement safety property; **unbounded ballots ⇒ register/data automaton ⇒ `checkable`/SMT tier, not `finite`**; safety passes while liveness needs a leader — the safety-vs-liveness split; "executable, visual TLA+" made concrete). **Chess** (the flagship for the **verifiability tiers** — chess is a **data machine**: the board is a `val`, the only control states are `playing` + checkmate/stalemate/draw; the **rules ARE contracts** — move legality = the `where` guard, king-safety = `ensure`, two-kings-impossible = `invariant`; Piece/Square/Move **ADTs** + `case` move-generation, or a function-typed-val **Strategy per piece**; *THE lesson:* **finite-but-not-enumerable** — ~10⁴³ positions, so it lands in `checkable` / large-finite-SMT, **not** small-finite-enumerable — and a **depth-bounded model-check over it *is* a chess engine** ("mate in 3" = bounded reachability; the game tree = a `tree` / game automaton); the move history **is** the input tape, **PGN/FEN** = serialization, replay reconstructs the board (a famous game = a regression test); the "weird rules" — castling / en-passant / 50-move / threefold — are exactly where the auxiliary vals + typed `Move` ADT earn their keep).
 
+**The flagship listing (draft, approved 2026-06-11) — the RCT park in two files.** This is the worked example the manual builds toward; it exercises ~30 v6 features in code a newcomer can read. Keep it current as syntax finalizes; every snippet doc-tested.
+
+```fsl
+// customer.fsl ----------------------------------------------------- v6 draft
+edition: 2026;
+finite;                              // verifiability declared + compiler-enforced
+machine_name: "Customer";
+
+/// A park guest: queues, rides, and storms off when patience runs out.
+
+Entering 'join'  -> Queuing;
+Queuing  'wait'  -> Queuing    assign patience -= rand(1, 3);   // rand legal on finite:
+                                                                // proven for ALL outcomes
+Queuing  'board' -> Riding
+    require park_open                                           // caller obligation
+    where   patience > 0;                                       // silent enabledness
+Riding   'done'  -> Leaving
+    assign { rides_taken += 1;
+             satisfaction := clamp(satisfaction + rand(-10, 25), 0, 100); }
+    ensure  rides_taken = old rides_taken + 1                   // machine obligation
+    emit    left <- satisfaction;                               // typed output channel
+Queuing -> StormedOff   where patience <= 0;                    // eventless + guard
+
+state StormedOff: { error; };        // domain failure state — a free checker target
+
+val patience     : int 0..100        default 50;
+val rides_taken  : int 0..20         default 0;
+val satisfaction : int 0..100        default 70;
+val tier         : enum(kid, adult)  required;     // an UNFILLED PARAMETER
+prop   name      : string;
+sensor park_open : boolean;                        // recorded for replay,
+                                                   // over-approximated for proof
+channel left : int 0..100;                         // declared output alphabet
+
+invariant patience >= 0;
+property  response('board', Riding);               // Dwyer pattern
+settles_within(4);                                 // quantitative quiescence
+
+factory {
+  seed 90210;
+  name          <- "Guest ${seq()}";               // fsl#431
+  instance_name <- "guest_${seq()}";               // fsl#430
+  patience      <- rand(20, 95);                   // stochastic fixture, still finite
+  // tier left unbound: make() must supply it
+}
+
+test reaches Leaving;                              // a model-check, not an example
+test never violates invariant;
+test inputs ['join' 'board' 'done'] outputs [left];
+```
+
+```fsl
+// park.fsl -------------------------------------------------------- v6 draft
+edition: 2026;
+import Customer from "./customer.fsl";
+
+system Park {
+  finite;
+  val n_guests : int 0..500 default 120;
+
+  guests : many Customer via factory  count n_guests  max 500;
+  gate   : one  Gate;
+  channel closed : string;
+
+  on guests.left(s)             -> gate 'tally'(s);          // channel route
+  on gate.admit                 -> spawn guests;             // the customer stream
+  on guests enters Leaving      -> retire sender;            // observation route
+  on action 'last_call'         -> guests where patience < 30  'hurry';  // selector
+  on gate enters Closed         -> emit closed <- "day end";
+
+  on_member_error:  retire;            // supervision ('restart' would re-stamp
+                                       // a fresh guest from the factory)
+  on_undeliverable: dead_letter;
+  dispatch:         fair;
+
+  invariant count(guests) <= 500;
+  invariant all(guests, satisfaction >= 0);
+
+  factory { n_guests <- rand(60, 400); }
+}
+```
+
+The session that sells it: `check --estimate` → `check --json` (proofs or the tape that breaks them) → `make --bind tier=kid --at 42` (a coordinate) → `walk --sweep n_guests=60..400:20` (where does the queue saturate?) → `render` (clusters + population badge) → `check --emit-certificate` (proof-carrying park).
+
 **The reference repair-loop recipe (write this as a cookbook entry AND a manual section).** ~50 lines implementing the full agent harness: generate → `check --json` → narrate the counterexample → repair → re-check, with the budget tri-state handled correctly and `source_hash` memoization. Agent builders copy working loops far more often than they read contracts; this is the §25 contracts made executable, and it doubles as the integration test for the whole agent feature set.
 
 **Systems / protocols / classic verification examples** (recognizable, exercise Systems + contracts + verification — pick per feature being taught):
