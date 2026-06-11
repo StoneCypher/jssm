@@ -503,7 +503,7 @@ The existing git-style dispatcher is unchanged (`fsl <verb>`; built-ins reserved
 
 | Verb | Role | Notes |
 |---|---|---|
-| `render` | documents → images (exists) | grows system rendering (§24); `--watch` live-reload |
+| `render` | documents → images (exists) | targets incl. **`ascii`** (deterministic text-art graphs — terminals, diffs, text-only models); grows system rendering (§24); `--watch` live-reload |
 | `make` | stamp instances from factories | `--bind k=v`, `--seed`, `-n`/`--at n`; emits §21 serializations |
 | `run` | drive a doc from a stimulus file | JSONL stimuli in, channel records out; `--snapshot`/`--restore`; **the replayer** |
 | `check` | `finite` validation; §23 model checking | counterexamples = stimulus files `run` replays; meaningful exit codes |
@@ -514,7 +514,7 @@ The existing git-style dispatcher is unchanged (`fsl <verb>`; built-ins reserved
 | `parse` | dump parse tree / compiled config JSON | the tooling seam for editors, plugins, bug reports |
 | `config` | print resolved config with provenance | files discovered, extends chain, winning layer per key |
 | `import` | SCXML / xstate / mermaid / dot → FSL | lossy conversions marked |
-| `export` | FSL → SCXML / xstate / mermaid / JSON | tool interchange |
+| `export` | FSL → SCXML / xstate / mermaid / JSON | tool interchange; plus **grammar artifacts** (`--target gbnf`/`lark`/`ebnf`) — the versioned machine-readable grammar, for constrained decoding (inference stacks force syntactically valid FSL from any model, including small local ones) |
 | `codegen` | FSL → host source (§16 artifacts) | targets = plugins declaring abilities + certified tier (§26, #1172/#1173); `--certify` runs conformance |
 | `publish` | package as a module (fsl#407) | npm first; wraps codegen + manifest; **never touches a registry without explicit confirmation** |
 | `init` | scaffold project / config / registry | |
@@ -529,6 +529,8 @@ The existing git-style dispatcher is unchanged (`fsl <verb>`; built-ins reserved
 
 **The `publish` bundle:** module code + manifest + generated `README.md` + an HTML render + PNG and SVG renders (via `render`/`docs`). The README and HTML carry a small, unobtrusive attribution link to the FSL website and GitHub repo (footer/badge placement) — every published machine quietly points home (SEO).
 
+**Agent verb contracts (cross-cutting — AI agents are first-class CLI users; these are contracts, not conveniences).** Every verb supports **`--json`**: structured results where errors carry source spans (the 5.143 parser locations), the expectation, and a **`suggested_fix`** patch field; `check --json` embeds its counterexample tape **inline**; `lint`/`diff`/`test` findings are structured. Every verb is **non-interactive-total**: no TTY assumptions, meaningful exit codes, an explicit flag wherever confirmation exists (`publish --yes`), and human prose never mixed into `--json` stdout. **`parse → format → parse` is idempotent**, guaranteed and conformance-tested, so mechanical editors rewrite files without fear.
+
 **Flows:** `check` → counterexample → `run` (two-command reproduction); `repl` → recorded session → `test` (interactive discovery becomes a regression file); `walk` → shrunk failing tape → `test` (a fuzz find becomes a permanent regression); factories → `walk` → vectors → `codegen --certify` (§26); any refused bundle → `inspect` (see why).
 
 **Protocol servers:** `lsp` and `mcp` are thin stdio adapters over the same library internals as the one-shot verbs — editors and AI agents respectively become clients of one implementation rather than reimplementing N integrations. If `mcp` outgrows stdio (hosted/HTTP), it spins out to its own package then — same door as codegen targets.
@@ -536,6 +538,16 @@ The existing git-style dispatcher is unchanged (`fsl <verb>`; built-ins reserved
 **The FSL Claude plugin (separate repo; ecosystem, not CLI).** A standalone Claude Code plugin repo — self-publishing single-plugin marketplace (`/plugin marketplace add <owner>/<repo>` + `/plugin install`), per the 2026-05-22 scaffold plan — whose v0.1 is one `SKILL.md` teaching Claude idiomatic FSL, with `commands/`/`agents/`/`hooks/` later. Two of that plan's deferred decisions are **resolved here**: the plugin's MCP component is **configuration, not implementation** — an `.mcp.json` launching `fsl mcp` (this section), so the plugin never reimplements tooling — and there is **no LSP-wrapper repo**: `fsl lsp` is the language server, editors configure it directly. The skill's body (mental model, idioms, pitfalls Claude gets wrong, tooling commands) derives from the manual-topics syllabus. The scaffold *procedure* lives in the plugin-dev skills (which the plan itself deferred to as authoritative).
 
 **Verb phasing:** `lint`/`format`/`parse`/`config`/`init` are parser/loader-only, land early; `lsp` follows them; `make`/`run` ride F1–F5 (§20); `check` rides F5/F6; `test`/`repl`/`walk` follow `run` (`walk` rides the existing seeded `probabilistic_walk` machinery); `inspect` follows serialization; `mcp` once the verb surface stabilizes; `import`/`export`/`docs`/`diff` independent; `codegen`/`publish` are the long pole, gated on certification (§26). *(Considered and declined: a `migrate` codemod — context-scoped keywords keep v5 documents parsing and `sm` stays a synonym, so v6 adoption needs no rewriter; revisit at v7 when the `property` alias is removed.)*
+
+### 25.1 The AI-accessibility posture
+
+FSL's adoption surface includes AI systems as *authors*, and FSL holds an asymmetric advantage there: an LLM's characteristic failure mode is **plausible-but-wrong**, and FSL is a language where that failure is *caught* — a `finite` machine's properties are proven or refuted with a replayable counterexample (§17/§23). The posture is **"AI writes it, the verifier vouches for it."** Its supports:
+
+- **Corpus strategy — NL↔FSL pairs, uniformly spelled.** Model fluency in a niche language is a function of paired training exposure. Every published machine (the publish bundle) pairs its §16-generated prose description with canonically-`format`ted source on the public web; the cookbook is curated few-shot/training data and is maintained as such; everything public passes through `format` so the corpus has **one spelling**.
+- **Retrieval surface.** fsl.tools ships **`llms.txt`/`llms-full.txt`**, a one-page versioned language reference at stable per-version URLs, and an **"FSL in ~500 tokens" cheat-sheet** designed for system prompts. The mantra-style principle lines ("a `prop` varies by *where you are*; a `val` by *how you got there*") are deliberate in-context-teaching assets — a house style, kept on purpose.
+- **Constrained decoding.** The `export` grammar artifacts (gbnf/lark/ebnf) make *syntactically valid* FSL enforceable at sampling time on any inference stack.
+- **Evals.** A small versioned eval set — NL→FSL authoring, FSL→NL explanation, bug-fix-given-counterexample — ships with the project: it measures model fluency, regression-tests the cheat-sheet/skill material, and gives model vendors a target.
+- **Delivery.** The Claude plugin and `mcp` (above) are the packaged form of all of this; the repair loop they enable — *write → `check --json` → counterexample tape → replay → fix → proof* — is the product.
 
 ---
 
@@ -625,6 +637,10 @@ Cross-host equivalence is tested as **data, not N ported suites** (the concrete 
 | system visualization (§24) | normative structural model: nested clusters (composition tree = cluster tree), population badges, routes as inter-cluster edges, channel ports, dead-letter sink; reuses 5.143 group-cluster machinery + SVG id/class hooks; live rendering deferred |
 | CLI (§25) | **21 built-in verbs** (render make run check test repl lint format parse config import export codegen publish init docs diff **walk inspect lsp mcp**); dispatcher/plugin architecture unchanged; config gains `registry:`; boundaries render=images / codegen=host source / import-export=interchange (no package fetching); `walk` = the statistical tier + stimulus generator + shrinking; `lsp`/`mcp` = stdio protocol servers over the same internals (editors / AI agents); `inspect` = repro-bundle reader (§15 version-gating's face); publish bundle = module + README + HTML/PNG/SVG with subtle FSL-site/repo attribution links (SEO); `migrate` considered+declined (context-scoped keywords; revisit at v7 alias removal); cli-config branch Tasks 1–11 survive |
 | conformance mechanics (§26) | vectors-as-data `(document, seed, stimuli)` → canonical trace (normative artifact, not snapshot); thin per-host harness; **T1 finite / T2 rich-portable / T3 pinned-unicode** certification declared in target capability manifests (#1172); `codegen --certify`; factory-generated vectors; pairwise differential mode |
+| agent verb contracts (§25) | `--json` on every verb (errors carry spans + expectation + `suggested_fix`; `check` embeds its counterexample tape inline); non-interactive totality (no TTY, semantic exit codes, explicit `--yes` where confirmation exists, prose never in `--json` stdout); `parse→format→parse` idempotence conformance-tested |
+| grammar export | `export --target gbnf/lark/ebnf` — the versioned machine-readable grammar as an artifact, for constrained decoding |
+| ascii render | `render --target ascii` — deterministic text-art graphs (terminals, diffs, text-only models) |
+| AI-accessibility posture (§25.1) | "AI writes it, the verifier vouches for it": NL↔FSL paired corpus (publish prose + canonical formatting; cookbook = curated few-shot data); llms.txt + versioned one-page reference + ~500-token cheat-sheet; mantra-style principles as deliberate house style; versioned NL↔FSL/bug-fix eval set |
 
 ---
 
