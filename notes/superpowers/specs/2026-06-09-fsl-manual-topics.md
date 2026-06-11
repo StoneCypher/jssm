@@ -218,6 +218,68 @@ system Park {
 
 The session that sells it: `check --estimate` → `check --json` (proofs or the tape that breaks them) → `make --bind tier=kid --at 42` (a coordinate) → `walk --sweep n_guests=60..400:20` (where does the queue saturate?) → `render` (clusters + population badge) → `check --emit-certificate` (proof-carrying park).
 
+**Easter egg / feature-demo listing — the Matt Foley intervention machine (approved 2026-06-11).** A comedy listing that is secretly a dense feature demo: tagged error state with the free safety target *failing on purpose* (the van is reachable — the counterexample tape is the speech), contrary-to-duty deontics (the only exit from the error state is `'become-motivational-speaker'`), windowed aggregates (`rate(wisdom, 10) >= 3` gates the coffee-table crash), require/ensure on the table resource, sensors (`eyes_rolling`), a factory with `seed 1995` stamping per-kid interventions, and `test reaches VanDownByTheRiver;` + `test reaches StraightenedOut;` proving both fates reachable. Use where the manual needs the reader to *laugh and accidentally learn error states*:
+
+```fsl
+// matt_foley.fsl ------------------------------------------ v6 draft
+edition: 2026;
+finite;
+machine_name: "YourWholeFutureIfYouDontStraightenOut";
+
+/// The trajectory of a young person who thinks the rules don't apply to them.
+
+LivingAtHome 'roll-dem-bones'  -> WritingYourNovel;
+WritingYourNovel 'wait-by-the-phone' -> WaitingForRoyalties
+    assign confidence -= rand(10, 25);
+WaitingForRoyalties 'phone-dont-ring' -> WaitingForRoyalties
+    assign { confidence -= 5; cheese_blocks += 1; };
+WaitingForRoyalties -> VanDownByTheRiver   where confidence <= 0;
+
+LivingAtHome 'dad-calls-matt' -> GettingYelledAt;
+WritingYourNovel 'dad-calls-matt' -> GettingYelledAt;
+GettingYelledAt 'hike-up-pants' -> GettingYelledAt
+    assign rage := clamp(rage + rand(15, 30), 0, 100)
+    emit wisdom <- "WELL LA-DEE-FRICKIN-DA!";
+GettingYelledAt 'point-at-kid' -> Yelling   require coffee_table_intact;
+Yelling 'crescendo' -> CrashingThroughCoffeeTable
+    where rate(wisdom, 10) >= 3
+    assign coffee_table_intact := false
+    ensure not coffee_table_intact
+    emit wisdom <- "I AM THIRTY-FIVE YEARS OLD, AND I AM DIVORCED!";
+CrashingThroughCoffeeTable 'get-back-up' -> Yelling;
+Yelling 'kid-shapes-up' -> StraightenedOut;
+Yelling 'kid-rolls-eyes' -> VanDownByTheRiver;
+
+state VanDownByTheRiver: { error; };
+VanDownByTheRiver 'become-motivational-speaker' -> GettingYelledAt;
+
+val rage                : int 0..100   default 85;
+val confidence          : int 0..100   default 50;
+val cheese_blocks       : int 0..20    default 0;
+val coffee_table_intact : boolean      default true;
+val kid_name            : string       required;
+sensor eyes_rolling : boolean;
+channel wisdom : string;
+
+invariant rage >= 50;
+invariant cheese_blocks <= 20;
+property  response('point-at-kid', Yelling);
+property  absence(StraightenedOut, before GettingYelledAt);
+settles_within(4);
+
+factory {
+  seed 1995;
+  kid_name      <- "Kid ${seq()}";
+  instance_name <- "intervention_${seq()}";
+  rage          <- rand(70, 100);
+  confidence    <- rand(20, 60);
+}
+
+test reaches VanDownByTheRiver;
+test reaches StraightenedOut;
+test never violates invariant;
+```
+
 **The reference repair-loop recipe (write this as a cookbook entry AND a manual section).** ~50 lines implementing the full agent harness: generate → `check --json` → narrate the counterexample → repair → re-check, with the budget tri-state handled correctly and `source_hash` memoization. Agent builders copy working loops far more often than they read contracts; this is the §25 contracts made executable, and it doubles as the integration test for the whole agent feature set.
 
 **Systems / protocols / classic verification examples** (recognizable, exercise Systems + contracts + verification — pick per feature being taught):
