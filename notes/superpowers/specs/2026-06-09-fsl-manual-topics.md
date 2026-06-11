@@ -19,6 +19,9 @@ These recur everywhere; explain them once, early, and refer back:
 
 ---
 
+## Organizing principle — Structural templates
+Repeating topic-kinds get fixed shapes in **`2026-06-11-fsl-manual-templates.md`** (single source per instance, four projections: book/PDF · flat-file-for-LLMs · web · editor help; sections carry format flags, ordered by survival priority). The **use case** template is defined there (mapping-table heart, mandatory "what you can now prove" section, doc-tested builds, every instance doubling as an NL↔FSL corpus pair); feature reference, stdlib part, lesson, playbook, concept explainer, CLI verb, error-code, and zoo-entry templates are expected to follow. When adding a topic to this file, note which template its eventual writing should use.
+
 ## Organizing principle — Domain playbooks
 Structure the manual's second half as **playbooks** — entry by occupation, not by feature: **games** (ghost AI, weapon cycles, behavior trees, the RCT park), **fintech** (payment lifecycle, double-entry invariant, margin calls), **embedded** (thermostat → railway interlocking → `settles_within`), **web** (checkout, feature flags, durable sagas), **infra** (CI/CD, leases, drift detection), **AI agents** (guardrails, the repair loop, MBT). Each playbook: three certified-stdlib parts, one flagship worked example, the domain's killer feature named in its own dialect. People adopt by finding *their* chapter. Also extract the **positioning essay trio** for fsl.tools — "You don't write the patterns, you write states" (GoF), "The automata zoo is a coordinate system" (§27 meta), "AI writes it; the verifier vouches for it" (§25.1, guardrails as centerpiece — keynote material) — these already exist inside the spec; publication is extraction.
 
