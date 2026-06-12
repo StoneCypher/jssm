@@ -21,7 +21,7 @@ describe('parseArgs — defaults and positional', () => {
     expect(o.instanceType).toBe('c7g.medium');
     expect(o.mode).toBe('normal');
     expect(o.region).toBe('us-east-1');
-    expect(o.shutdownMinutes).toBe(30);
+    expect(o.shutdownMinutes).toBe(90);   // raised from 30; see #725
     expect(o.deep).toBe(false);
     expect(o.spot).toBe(false);
     expect(o.force).toBe(false);
@@ -552,10 +552,15 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('shutdown -h now');    // explicit self-terminate at the end
   });
 
-  test('checks out the exact commit and builds dist via make', () => {
+  test('checks out the exact commit and benchmarks the committed dist (no rebuild)', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
     expect(s).toContain(`git checkout ${'a'.repeat(40)}`);
-    expect(s).toContain('npm run make');
+    // The release path benchmarks the SHIPPED artifact, not a rebuild (#725):
+    // installs harness deps but does NOT run make, and guards on committed dist.
+    expect(s).toContain('npm install');
+    expect(s).not.toContain('npm run make');
+    expect(s).toContain('dist/jssm.es5.cjs');
+    expect(s).toContain('dist/jssm.es5.nonmin.cjs');
   });
 
   test('normal vs deep benny gate', () => {
