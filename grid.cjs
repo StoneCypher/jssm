@@ -326,8 +326,46 @@ const JSSM6_ROWS = [
 ];
 
 const FEAS_ROWS = feasRows();
-// All renderable feature rows, in section order.
-const ALL_ROWS = ROWS.concat(FEAS_ROWS, JSSM6_ROWS);
+
+// ---------------------------------------------------------------------------
+// declared feature catalog (features.cjs) — jssm-authoritative rows; competitor
+// cells fill from MEASURED data where a `fill` key says how, else render '?'.
+// ---------------------------------------------------------------------------
+
+const FEATURES = require('./features.cjs');
+const { Y: FY, N: FN, P: FP, Q: FQ } = FEATURES.GLYPHS;
+
+function glyphMeta(g) {
+  if (g === FY) return { mark: YES, status: 'pass' };
+  if (g === FN) return { mark: NO,  status: 'fail' };
+  if (g === FP) return { mark: DECL, status: 'neutral' };
+  return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
+}
+
+function featureRows() {
+  return FEATURES.map(f => ({
+    group: f.section, label: f.label, demo: f.demo || null, explain: f.explain,
+    jssm6: f.jssm6, declared: !f.fill,
+    meta: (lib) => {
+      if (lib === 'jssm') return glyphMeta(f.jssm);
+      if (f.fill === 'always') return { mark: YES, status: 'pass' };
+      if (f.fill && f.fill.startsWith('cap:')) {
+        const flag = f.fill.slice(4);
+        return (caps[lib] && caps[lib][flag]) ? { mark: YES, status: 'pass' } : { mark: NO, status: 'fail' };
+      }
+      if (f.fill === 'static:types') {
+        const t = STAT && STAT.results && STAT.results[lib] && STAT.results[lib].types;
+        return t === 'bundled' ? { mark: YES, status: 'pass' } : { mark: NO, status: 'fail' };
+      }
+      return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
+    },
+  }));
+}
+const FEATURE_ROWS = featureRows();
+
+// All renderable feature rows, in section order: measured first, then the
+// declared feature catalog, scaling, and the jssm-6 declared block.
+const ALL_ROWS = ROWS.concat(FEATURE_ROWS, FEAS_ROWS, JSSM6_ROWS);
 
 // ---------------------------------------------------------------------------
 // validate FSL demos as test vectors (docs-as-tests)
@@ -347,6 +385,13 @@ for (const r of ROWS) {
   } catch (e) {
     demoFailures.push(`${r.group} / ${r.label}: demo threw — ${e.message.slice(0, 90)}`);
   }
+}
+// Feature-catalog demos are illustrative FSL; validate them as parse-vectors
+// (they must be valid FSL, so a broken demo fails the render — docs can't rot).
+for (const f of FEATURES) {
+  if (!f.demo) continue;
+  try { jssm.sm([`allows_override: true;\n${f.demo}`]); }
+  catch (e) { demoFailures.push(`feature "${f.label}": demo does not parse — ${e.message.slice(0, 90)}`); }
 }
 if (demoFailures.length) {
   console.error('FSL demo validation failed (docs-as-tests):\n  ' + demoFailures.join('\n  '));
@@ -393,6 +438,7 @@ function statusClass(status) {
        : status === 'pass' ? 'c-pass'
        : status === 'warn' ? 'c-warn'
        : status === 'fail' ? 'c-fail'
+       : status === 'unknown' ? 'c-unknown'
        : 'c-neutral';
 }
 
@@ -543,6 +589,7 @@ const html = `<!doctype html>
   .c-warn { background:#fdeccb; color:#9a6512; font-weight:700; }
   .c-fail { background:#fbe1de; color:#b03030; font-weight:700; }
   .c-neutral { color:#555; }
+  .c-unknown { color:#b9b2a0; font-style:italic; background:repeating-linear-gradient(45deg,#f4f1e8,#f4f1e8 5px,#eee8d8 5px,#eee8d8 10px); }
   sub.submark { font-size:0.7em; font-weight:700; }
   [data-tip] { cursor: help; }
   /* custom tooltip widget */
@@ -637,4 +684,4 @@ const html = `<!doctype html>
 const outIdx = process.argv.indexOf('--out');
 const outPath = outIdx !== -1 && process.argv[outIdx + 1] ? process.argv[outIdx + 1] : 'grid.html';
 fs.writeFileSync(outPath, html);
-console.log(`wrote ${outPath} — ${ROWS.length + JSSM6_ROWS.length} rows × ${COLS.length} columns; ${demoFailures.length} demo failures`);
+console.log(`wrote ${outPath} — ${ALL_ROWS.length} rows × ${COLS.length} columns; ${demoFailures.length} demo failures`);
