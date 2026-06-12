@@ -28,6 +28,7 @@ describe('cli/config/types', () => {
       format:   {},
       test:     {},
       check:    {},
+      typegen:  {},
       codegen:  {},
       init:     {},
       import:   {},

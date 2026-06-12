@@ -49,14 +49,16 @@ const dirnameOf = (path: string): string => {
 const joinPath = (dir: string, rel: string): string => {
   // If `rel` looks absolute (POSIX `/` or Windows `X:\`), return as-is.
   if (/^([a-zA-Z]:)?[/\\]/.test(rel)) return rel;
-  const parts = (dir + '/' + rel).split(/[/\\]+/);
+  const combined = dir + '/' + rel;
+  const parts = combined.split(/[/\\]+/);
   const out: string[] = [];
   for (const p of parts) {
     if (p === '.' || p === '') continue;
     if (p === '..') out.pop();
     else out.push(p);
   }
-  const prefix = /^[a-zA-Z]:/.test(parts[0] ?? '') ? '' : '/';
+  // A Windows drive-letter base keeps its own prefix; POSIX paths get `/`.
+  const prefix = /^[a-zA-Z]:/.test(combined) ? '' : '/';
   return prefix + out.join('/');
 };
 

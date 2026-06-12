@@ -51,7 +51,11 @@ export interface TestConfig {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CheckConfig {}
 
-/** Codegen subcommand configuration — empty in v1; fields land with the v6 `codegen` verb (megaspec §25; formerly issue #624's `typegen`). */
+/** Typegen subcommand configuration — empty in v1; fields land with issue #624. Typegen exports *types* so a consumer of the machine gets a typed surface; it is distinct from codegen, which emits an implementation. */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface TypegenConfig {}
+
+/** Codegen subcommand configuration — empty in v1; fields land with the v6 `codegen` verb (megaspec §25). Codegen generates an *implementation* of the machine, frequently in another language (cross-compilation); distinct from typegen's consumer-facing type exports. */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CodegenConfig {}
 
@@ -98,6 +102,7 @@ export interface ResolvedConfig {
   format: FormatConfig;
   test: TestConfig;
   check: CheckConfig;
+  typegen: TypegenConfig;
   codegen: CodegenConfig;
   init: InitConfig;
   import: ImportConfig;

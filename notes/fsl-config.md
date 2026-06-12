@@ -71,6 +71,7 @@ Each subcommand owns a top-level key, named for its CLI verb. v1 only populates 
   "format":   { ... },
   "test":     { ... },
   "check":    { ... },
+  "typegen":  { ... },
   "codegen":  { ... },
   "init":     { ... },
   "import":   { ... },
@@ -80,6 +81,8 @@ Each subcommand owns a top-level key, named for its CLI verb. v1 only populates 
   "repl":     { ... }
 }
 ```
+
+Note that `typegen` and `codegen` are distinct: **typegen** exports types to support a *user* of the machine (a typed surface for consumers); **codegen** generates an *implementation* of the machine directly, frequently in a different language (essentially cross-compiling).
 
 ## The registry section
 

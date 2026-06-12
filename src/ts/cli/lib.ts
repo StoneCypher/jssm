@@ -60,6 +60,7 @@ export type {
   FormatConfig,
   TestConfig,
   CheckConfig,
+  TypegenConfig,
   CodegenConfig,
   InitConfig,
   ImportConfig,

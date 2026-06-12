@@ -51,6 +51,7 @@ export const CONFIG_SCHEMA = {
     format: emptySection,
     test: emptySection,
     check: emptySection,
+    typegen: emptySection,
     codegen: emptySection,
     init: emptySection,
     import: emptySection,

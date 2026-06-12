@@ -43,6 +43,7 @@ export const defaults: ResolvedConfig = deepFreeze({
   format: {},
   test: {},
   check: {},
+  typegen: {},
   codegen: {},
   init: {},
   import: {},

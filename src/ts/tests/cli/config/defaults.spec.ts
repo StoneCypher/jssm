@@ -27,6 +27,7 @@ describe('cli/config/defaults', () => {
     expect(defaults.format).toBeDefined();
     expect(defaults.test).toBeDefined();
     expect(defaults.check).toBeDefined();
+    expect(defaults.typegen).toBeDefined();
     expect(defaults.codegen).toBeDefined();
     expect(defaults.init).toBeDefined();
     expect(defaults.import).toBeDefined();
