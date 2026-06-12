@@ -139,6 +139,126 @@ declare type JssmSerialization<DataType> = {
     data: DataType;
 };
 /**
+ *  A bare reference to a named group as it appears in the parse tree —
+ *  written `&Name` in FSL.  Stands in for a state wherever a group may be
+ *  used (a transition source/target, a `state` declaration subject, or a
+ *  hook subject).  Distinct from the `&Name : [...]` declaration form,
+ *  which defines the group's members.
+ *
+ *  ```typescript
+ *  import { parse } from 'jssm';
+ *  parse('&busy : [a b]; &busy -> idle;')[1].from;
+ *  // { key: 'group_ref', name: 'busy' }
+ *  ```
+ *
+ *  @see JssmGroupMemberRef
+ *  @see JssmGroupRegistry
+ */
+declare type JssmGroupRef = {
+    key: 'group_ref';
+    name: string;
+};
+/**
+ *  One ordered member of a named group's membership list.  A `'state'`
+ *  member is an ordinary state (`a` inside `&g : [a]`).  A `'group'` member
+ *  references another group: `mode: 'nest'` is the `&child` form, which
+ *  preserves the child group's identity for later precedence/viz, while
+ *  `mode: 'spread'` is the `...&child` form, which inlines the child's
+ *  members and erases that identity.  Both modes resolve to the same flat
+ *  set of states via {@link JssmGroupRegistry} resolution; only their
+ *  structural bookkeeping differs.
+ *
+ *  ```typescript
+ *  // `&outer : [&inner x];` direct members:
+ *  // [ { kind: 'group', name: 'inner', mode: 'nest' },
+ *  //   { kind: 'state', name: 'x' } ]
+ *  ```
+ *
+ *  @see JssmGroupRef
+ *  @see JssmGroupRegistry
+ */
+declare type JssmGroupMemberRef = {
+    kind: 'state';
+    name: string;
+} | {
+    kind: 'group';
+    name: string;
+    mode: 'nest' | 'spread';
+};
+/**
+ *  The compiled group table: maps each declared group name to its
+ *  **ordered, direct** members (a {@link JssmGroupMemberRef} list).  Order
+ *  is meaningful — it carries declaration/iteration/precedence order — so
+ *  this is always an array-valued `Map`, never a `Set`.  Only direct
+ *  members are stored; transitive (flattened) membership is resolved
+ *  lazily so the group→group graph survives for viz and precedence.
+ *
+ *  ```typescript
+ *  // for `&inner : [a b]; &outer : [&inner c];`
+ *  // registry.get('inner') === [ { kind:'state', name:'a' },
+ *  //                             { kind:'state', name:'b' } ]
+ *  // registry.get('outer') === [ { kind:'group', name:'inner', mode:'nest' },
+ *  //                             { kind:'state', name:'c' } ]
+ *  ```
+ *
+ *  @see JssmGroupMemberRef
+ */
+declare type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
+/**
+ *  A parsed FSL boundary-hook declaration — the `on <enter|exit> <subject> do
+ *  '<action>';` form.  `event` is the boundary crossing the hook listens for,
+ *  `subject` is either a {@link JssmGroupRef} (a `&Group`) or a plain state
+ *  label `string`, and `action` is the (unquoted) action name to run.  The
+ *  compiler routes a group subject into `group_hooks` and a state subject
+ *  into `state_hooks` on {@link JssmGenericConfig}; runtime firing is a
+ *  later task.
+ *
+ *  ```typescript
+ *  import { parse } from 'jssm';
+ *  parse("on enter &busy do 'log';")[0];
+ *  // { key:'hook_decl', event:'enter',
+ *  //   subject:{ key:'group_ref', name:'busy' }, action:'log' }
+ *  ```
+ *
+ *  @see JssmGroupRef
+ *  @see JssmGroupHooks
+ */
+declare type JssmHookDeclaration = {
+    key: 'hook_decl';
+    event: 'enter' | 'exit';
+    subject: JssmGroupRef | string;
+    action: string;
+};
+/**
+ *  The compiled boundary-hook surface for a single subject (a group or a
+ *  state): the action to run on entry (`onEnter`) and/or on exit (`onExit`).
+ *  Each is optional so a subject may declare only one direction; the compiler
+ *  merges an `enter` and an `exit` declaration for the same subject into one
+ *  of these.
+ *
+ *  @see JssmHookDeclaration
+ */
+declare type JssmBoundaryHooks = {
+    onEnter?: string;
+    onExit?: string;
+};
+/**
+ *  Maps each group name that has at least one boundary hook to its merged
+ *  {@link JssmBoundaryHooks}.  Carried on {@link JssmGenericConfig} for the
+ *  runtime to consume; depth-aware firing is a later task.
+ *
+ *  @see JssmHookDeclaration
+ */
+declare type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
+/**
+ *  Maps each plain state name that has at least one boundary hook to its
+ *  merged {@link JssmBoundaryHooks}.  The state-subject analogue of
+ *  {@link JssmGroupHooks}.
+ *
+ *  @see JssmHookDeclaration
+ */
+declare type JssmStateHooks = Map<string, JssmBoundaryHooks>;
+/**
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
  *  provide `default_value` to fall back when the state does not specify it.
@@ -370,6 +490,90 @@ declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | Jss
  */
 declare type JssmStateStyleKeyList = JssmStateStyleKey[];
 /**
+ *  The graph-wide default edge colour style item, produced by the
+ *  `edge-color`/`edge_color` line inside a `transition: {}` (or `graph: {}`)
+ *  config block.  Kept distinct from {@link JssmStateStyleColor} because it
+ *  applies to edges rather than nodes, and because it carries the legacy
+ *  `graph_default_edge_color` key the grammar emits.
+ */
+declare type JssmGraphDefaultEdgeColor = {
+    key: 'graph_default_edge_color';
+    value: JssmColor;
+};
+/**
+ *  A single item inside a `transition: {}` default-config block.  For v1 this
+ *  reuses the per-state style items (so `color: red;` works inside a
+ *  `transition:` block exactly as inside a `state:` block) plus the
+ *  edge-scoped {@link JssmGraphDefaultEdgeColor} default.
+ *
+ *  @see JssmTransitionConfig
+ */
+declare type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
+/**
+ *  The compiled value of a `transition: {}` config block: an ordered list of
+ *  edge-default style items.  V1 mirrors the state-style shape used by
+ *  `default_state_config`; group machinery that consumes it lands in a later
+ *  task.
+ *
+ *  ```typescript
+ *  import { compile, parse } from 'jssm';
+ *  const cfg = compile(parse('a -> b; transition: { color: red; };'));
+ *  // cfg.default_transition_config === [ { key: 'color', value: '#ff0000ff' } ]
+ *  ```
+ *
+ *  @see JssmGraphConfig
+ */
+declare type JssmTransitionConfig = JssmTransitionStyleKey[];
+/**
+ *  Graph-scope default-config style items folded from the deprecated
+ *  top-level graph keywords (`graph_layout`, `graph_bg_color`,
+ *  `dot_preamble`, `theme`, `flow`, and the `edge-color`/`edge_color`
+ *  default) into the consolidated `graph: {}` config.  Each carries the
+ *  legacy parse key so downstream consumers can disambiguate.
+ */
+declare type JssmGraphAliasKey = {
+    key: 'graph_layout';
+    value: JssmLayout;
+} | {
+    key: 'graph_bg_color';
+    value: JssmColor;
+} | {
+    key: 'dot_preamble';
+    value: string;
+} | {
+    key: 'theme';
+    value: FslTheme | FslTheme[];
+} | {
+    key: 'flow';
+    value: FslDirection;
+} | JssmGraphDefaultEdgeColor;
+/**
+ *  A single item inside a `graph: {}` default-config block.  For v1 this
+ *  reuses the per-state style items plus the graph-scope alias items
+ *  ({@link JssmGraphAliasKey}) folded in from the deprecated top-level
+ *  graph keywords.
+ *
+ *  @see JssmGraphConfig
+ */
+declare type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
+/**
+ *  The compiled value of a `graph: {}` config block: an ordered list of
+ *  graph-default style items.  The compiler folds the deprecated top-level
+ *  graph keywords into this list first, then lets an explicit `graph: {}`
+ *  block override on key conflict.
+ *
+ *  ```typescript
+ *  import { compile, parse } from 'jssm';
+ *  const cfg = compile(parse('a -> b; graph_bg_color: #ffffff;'));
+ *  // the compiler canonicalizes the folded `graph_bg_color` alias to a
+ *  // `background-color` item, so:
+ *  // cfg.default_graph_config includes { key: 'background-color', value: '#ffffffff' }
+ *  ```
+ *
+ *  @see JssmTransitionConfig
+ */
+declare type JssmGraphConfig = JssmGraphStyleKey[];
+/**
  *  Complete shape of a jssm-viz theme.  A theme provides a style block for
  *  each kind of state (`state`, `hooked`, `start`, `end`, `terminal`) as
  *  well as a matching `active_*` variant used while that state is current.
@@ -429,6 +633,21 @@ declare type JssmGenericConfig<StateType, DataType> = {
     nodes?: Array<StateType>;
     check?: JssmStatePermitterMaybeArray<DataType>;
     history?: number;
+    /**
+     *  Maximum depth of the boundary-hook action cascade before the machine
+     *  throws a {@link JssmError} rather than risking a stack overflow or hang.
+     *
+     *  Each time a boundary action fires a transition that itself crosses a
+     *  boundary, the depth counter increments.  A cascade exceeding this limit is
+     *  treated as a probable infinite loop and rejected.
+     *
+     *  Defaults to `100`.  Raise it for legitimate pipelines that genuinely nest
+     *  more than 100 transitions via boundary hooks.
+     *
+     *  @see Machine._boundary_depth_limit
+     *  @see Machine._fire_boundary_actions
+     */
+    boundary_depth_limit?: number;
     min_exits?: number;
     max_exits?: number;
     allow_islands?: JssmAllowIslands;
@@ -468,6 +687,32 @@ declare type JssmGenericConfig<StateType, DataType> = {
     default_hooked_state_config?: JssmStateStyleKeyList;
     default_terminal_state_config?: JssmStateStyleKeyList;
     default_active_state_config?: JssmStateStyleKeyList;
+    default_transition_config?: JssmTransitionConfig;
+    default_graph_config?: JssmGraphConfig;
+    /**
+     *  Overlapping-state-group tables produced by the compile pass and consumed
+     *  by the Task-3 runtime cascade.
+     *
+     *  `group_registry` maps each group name to its ordered list of direct
+     *  members (states and sub-group references) as declared in the FSL source.
+     *
+     *  `group_metadata` maps each group name to its RAW style object
+     *  `{ declarations: [...] }` — parsed style items from a
+     *  `state &g : { … };` declaration, **not** condensed `JssmStateConfig`
+     *  style fields.  Condensation is intentionally deferred to the Task-3
+     *  runtime cascade so that depth-specificity resolution can weight each
+     *  group's contribution before merging into per-state config.
+     *
+     *  `group_hooks` and `state_hooks` hold boundary-hook payloads keyed by
+     *  group name and state name respectively; firing is also a Task-3 concern.
+     *
+     *  All four fields are absent (`undefined`) on machines that declare no
+     *  groups or hooks.
+     */
+    group_registry?: JssmGroupRegistry;
+    group_metadata?: Map<string, JssmStateConfig>;
+    group_hooks?: JssmGroupHooks;
+    state_hooks?: JssmStateHooks;
     rng_seed?: number | undefined;
     time_source?: () => number;
     timeout_source?: (Function: any, number: any) => number;
@@ -973,4 +1218,4 @@ declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEven
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 declare type JssmUnsubscribe = () => void;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmGraphDefaultEdgeColor, JssmTransitionStyleKey, JssmTransitionConfig, JssmGraphAliasKey, JssmGraphStyleKey, JssmGraphConfig, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmGroupRef, JssmGroupMemberRef, JssmGroupRegistry, JssmHookDeclaration, JssmBoundaryHooks, JssmGroupHooks, JssmStateHooks, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
