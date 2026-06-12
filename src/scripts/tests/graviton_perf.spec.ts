@@ -595,6 +595,24 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('git rebase origin/perf_results');
   });
 
+  test('verifies the fallback clone and reports a dead PAT distinctly', () => {
+    // Regression for the 2026-06-12 release runs: with an invalid PAT both
+    // clones fail, $RESULTS never becomes a repo, and every later git command
+    // used to cascade into a misleading "rebase conflict" report.
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('if git clone --depth 1 "$AUTH_URL" "$RESULTS"; then');
+    expect(s).toContain('authenticated clone failed twice');
+    expect(s).toContain('if [ -d "$RESULTS/.git" ]; then');
+    expect(s).not.toContain('JSSM_PERF: rebase conflict');
+  });
+
+  test('reports publish success and failure explicitly after the retry loop', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('JSSM_PERF: published to perf_results');
+    expect(s).toContain('JSSM_PERF: publish FAILED; results were not pushed');
+    expect(s).toContain('JSSM_PERF: rebase during push retry failed');
+  });
+
   test('guards the publish on a produced scaling.json (no dedup poisoning on a failed build)', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
     expect(s).toContain('if [ -s benchmark/results/scaling.json ]; then');
