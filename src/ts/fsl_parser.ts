@@ -4672,45 +4672,34 @@ function peg$parse(input, options) {
   }
 
   function peg$parseIntegerLiteral() {
-    var s0, s1, s2, s3, s4;
+    var c, start;
 
-    s0 = peg$currPos;
-    if (input.charCodeAt(peg$currPos) === 48) {
-      s1 = peg$c312;
+    c = input.charCodeAt(peg$currPos);
+
+    if (c === 48) {                                          // '0' alternative
       peg$currPos++;
-    } else {
-      s1 = peg$FAILED;
-      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c313); }
-    }
-    if (s1 === peg$FAILED) {
-      s1 = peg$currPos;
-      s2 = peg$parseNonZeroDigit();
-      if (s2 !== peg$FAILED) {
-        s3 = [];
-        s4 = peg$parseDecimalDigit();
-        while (s4 !== peg$FAILED) {
-          s3.push(s4);
-          s4 = peg$parseDecimalDigit();
-        }
-        if (s3 !== peg$FAILED) {
-          s2 = [s2, s3];
-          s1 = s2;
-        } else {
-          peg$currPos = s1;
-          s1 = peg$FAILED;
-        }
-      } else {
-        peg$currPos = s1;
-        s1 = peg$FAILED;
-      }
-    }
-    if (s1 !== peg$FAILED) {
-      s0 = input.substring(s0, peg$currPos);
-    } else {
-      s0 = s1;
+      return '0';
     }
 
-    return s0;
+    // the generated code records the "0" alternative's expectation whenever
+    // input doesn't start with 0 — including on the successful 1-9 path
+    if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c313); }
+
+    if (c >= 49 && c <= 57) {                                // 1-9
+      start = peg$currPos;
+      peg$currPos++;
+      c = input.charCodeAt(peg$currPos);
+      while (c >= 48 && c <= 57) {                           // 0-9 run
+        peg$currPos++;
+        c = input.charCodeAt(peg$currPos);
+      }
+      // run-terminating DecimalDigit failure, recorded at the stop position
+      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c315); }
+      return input.substring(start, peg$currPos);
+    }
+
+    if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c317); }
+    return peg$FAILED;
   }
 
   function peg$parseDecimalDigit() {
