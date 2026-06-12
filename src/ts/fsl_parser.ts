@@ -12003,6 +12003,11 @@ function peg$parse(input, options) {
 
   function peg$parseStripe() {
     var s0, s1, s2, s3, s4, s5, s6;
+    var cg = input.charCodeAt(peg$currPos);
+    if (cg !== 43 && cg !== 45) {
+      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c1297); peg$fail(peg$c1300); }
+      return peg$FAILED;
+    }
 
     s0 = peg$currPos;
     if (input.substr(peg$currPos, 2) === peg$c1296) {
@@ -12106,6 +12111,11 @@ function peg$parse(input, options) {
 
   function peg$parseCycle() {
     var s0, s1, s2, s3, s4, s5, s6;
+    var cg = input.charCodeAt(peg$currPos);
+    if (cg !== 43 && cg !== 45) {
+      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c1303); peg$fail(peg$c1306); peg$fail(peg$c1309); }
+      return peg$FAILED;
+    }
 
     s0 = peg$currPos;
     if (input.charCodeAt(peg$currPos) === 43) {
