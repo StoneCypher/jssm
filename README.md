@@ -20,7 +20,8 @@ trigger, no schedule, and nothing on this branch executes on its own.
 | `suite.cjs` | capability-gated benny throughput: construct/transition across shapes + action/guard/hook/data per supporting library; writes `shootout.json` |
 | `memory.cjs` | retained bytes/machine + allocation bytes/transition (`node --expose-gc memory.cjs`); writes `memory.json` |
 | `probes.cjs` | behavior battery — categorical semantics (illegal transition, self-loop, frozen config, hostile state names, reentrancy) + differential conformance; writes `behavior.json`. Records what each library *does*, never pass/fail |
-| `launch.cjs` | fire-and-forget Graviton launcher (same SSM PAT / instance profile / dead-man pattern as main's `graviton_perf.cjs`); runs conformance → suite → memory → probes; `--dry-run` supported |
+| `static.cjs` | static / lifecycle facts (no machine run): install size, direct deps, bundled types, ESM/CJS, postinstall scripts, last-publish age, cold-start `require` time; writes `static.json` |
+| `launch.cjs` | fire-and-forget Graviton launcher (same SSM PAT / instance profile / dead-man pattern as main's `graviton_perf.cjs`); runs conformance → suite → memory → probes → static; `--dry-run` supported |
 | `fixtures/` | frozen messy FSL fixtures, copied from main's `benchmark/fixtures` |
 
 ## Coverage
