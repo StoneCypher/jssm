@@ -1284,7 +1284,8 @@ class Machine {
      *  @returns `true` if the machine has at least one action.
      */
     get uses_actions() {
-        return Array.from(this._actions.keys()).length > 0;
+        // Map.size answers emptiness without materializing the key list
+        return this._actions.size > 0;
     }
     /** Whether any forced (`~>`) transitions exist in this machine.
      *  @returns `true` if at least one forced transition is defined.
@@ -1561,17 +1562,31 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, 
-        // every transition that exits whichState
-        all_exits = wstate_to
-            .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean), 
-        // forced-only exits cannot be reached by transition(), so they are
-        // never legal probabilistic outcomes
-        legal_exits = all_exits.filter((e) => !e.forced_only), 
-        // if any legal exit declares a probability, filter to those only so
-        // that probability-bearing edges are not diluted by their peers
-        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        // single pass over the state's exits, replacing the old map -> filter ->
+        // filter -> filter chain and its three intermediate arrays; selection and
+        // ordering semantics are unchanged
+        const legal_exits = [], probability_bearing = [];
+        for (const ws of wstate.to) {
+            // wstate.to is built from the same edge set lookup_transition_for
+            // resolves against, so the lookup cannot miss; the guard mirrors the
+            // old defensive .filter(Boolean) and is equally unreachable.
+            const edge = this.lookup_transition_for(whichState, ws);
+            /* v8 ignore next */
+            if (!edge) {
+                continue;
+            }
+            // forced-only exits cannot be reached by transition(), so they are
+            // never legal probabilistic outcomes
+            if (edge.forced_only) {
+                continue;
+            }
+            legal_exits.push(edge);
+            // if any legal exit declares a probability, only those are returned, so
+            // that probability-bearing edges are not diluted by their peers
+            if (edge.probability !== undefined) {
+                probability_bearing.push(edge);
+            }
+        }
         return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
