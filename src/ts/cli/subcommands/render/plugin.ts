@@ -1,27 +1,56 @@
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { parseFslArgs } from '../../cli-utils';
+import { loadConfig } from '../../config/loader';
 import { render } from './render';
 import type { RenderTarget, RenderOptions } from '../../types';
 import { RenderError } from '../../types';
 
 const getVersion = (): string => '__JSSM_VERSION__';
 
+// Defaults for `target` and `quality` previously lived on `SPEC` flags. They
+// have been moved to the config `defaults` layer so that an absent flag stays
+// `undefined` in `parsed.flags` and `flagsToConfig` correctly treats it as
+// "no override" — letting the config file's value win. SPEC defaults would
+// otherwise stamp a value over the config layer every invocation.
 const SPEC = {
   flags: {
-    target:   { short: 't' as const, enum: ['svg','dot','png','jpeg','html'] as const, default: 'svg' },
+    target:   { short: 't' as const, enum: ['svg','dot','png','jpeg','html'] as const },
     output:   { short: 'o' as const },
     'out-dir': {},
     stdout:   { boolean: true as const },
     width:    { type: 'number' as const },
     height:   { type: 'number' as const },
     scale:    { type: 'number' as const },
-    quality:  { type: 'number' as const, default: 85 },
+    quality:  { type: 'number' as const },
+    config:   {},
+    'no-config': { boolean: true as const },
     help:     { short: 'h' as const, boolean: true as const },
     version:  { short: 'V' as const, boolean: true as const },
   },
   usage: 'fsl-render [options] <fsl-paths...>',
 };
+
+/**
+ * Maps each render-plugin flag to its dotted config path, or `null` to mark
+ * the flag as per-invocation-only (never sourced from or written to the
+ * config layer). The loader uses this to convert parsed flags into a
+ * top-priority config override layer.
+ */
+const RENDER_FLAG_TO_CONFIG = {
+  target:    'render.defaultTarget',
+  output:    null,
+  'out-dir': 'render.outDir',
+  stdout:    null,
+  width:     'render.width',
+  height:    'render.height',
+  scale:     'render.scale',
+  quality:   'render.quality',
+  config:    null,
+  'no-config': null,
+  help:      null,
+  version:   null,
+} as const;
 
 const extOf = (target: RenderTarget): string => target;
 
@@ -76,14 +105,29 @@ export async function cli(argv: string[]): Promise<number> {
     return 0;
   }
 
-  const target  = parsed.flags.target as RenderTarget;
+  let config: Awaited<ReturnType<typeof loadConfig>>;
+  try {
+    config = await loadConfig({
+      cwd:                process.cwd(),
+      machinePath:        parsed.positional[0],
+      flags:              parsed.flags,
+      flagMapping:        RENDER_FLAG_TO_CONFIG,
+      explicitConfigPath: parsed.flags.config as string | undefined,
+      skipConfig:         parsed.flags['no-config'] === true,
+    });
+  } catch (e) {
+    printErr((e as Error).message);
+    return 1;
+  }
+
+  const target  = config.render.defaultTarget as RenderTarget;
   const output  = parsed.flags.output as string | undefined;
-  const outDir  = parsed.flags['out-dir'] as string | undefined;
+  const outDir  = (parsed.flags['out-dir'] as string | undefined) ?? config.render.outDir;
   const stdout  = parsed.flags.stdout === true;
-  const width   = parsed.flags.width as number | undefined;
-  const height  = parsed.flags.height as number | undefined;
-  const scale   = parsed.flags.scale as number | undefined;
-  const quality = parsed.flags.quality as number | undefined;
+  const width   = config.render.width;
+  const height  = config.render.height;
+  const scale   = config.render.scale;
+  const quality = config.render.quality;
 
   // Conflict rules
   const outputFlags = [output, outDir, stdout ? '--stdout' : undefined].filter(x => x !== undefined);
