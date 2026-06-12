@@ -22,6 +22,53 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 12, 2026 2:23:16 AM
+
+Commit [ef49f37a46a7badd803bb60963d923cfac314b98](https://github.com/StoneCypher/jssm/commit/ef49f37a46a7badd803bb60963d923cfac314b98)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(build): regenerate artifacts after interned dispatch
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 2:22:43 AM
+
+Commit [3bb751a0c84afb3b8bfcf5dba293b667db6e041f](https://github.com/StoneCypher/jssm/commit/3bb751a0c84afb3b8bfcf5dba293b667db6e041f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(shootout): capability adapter contract + conformance gate + 14 libraries
+  * v2 of the shootout: extends the adapter interface with capability flags
+(action/guard/hook/data/timer) and a conformance gate (conformance.cjs)
+that drives every adapter through known machines and asserts state
+sequences before any benchmarking — refusing to measure adapters that
+can't demonstrably move.
+  * Fourteen libraries conformant across their declared capabilities:
+jssm, xstate, @xstate/fsm, javascript-state-machine, robot3, machina,
+nanostate, statebot, finity, typestate, stately.js, fn-machine, fseh,
+easy-fsm.
+  * The gate already earned its keep: it surfaced StoneCypher/jssm#723
+(hookless machines never clear `after` timeouts on early exit) and
+decoded several libraries whose published APIs had drifted from their
+current code (machina 6.x compositeState/api.ctx; typestate's namespaced
+constructor; stately.js onEnter hooks; javascript-state-machine method
+camelization).
+  * contract.md documents the adapter interface. Competitor versions pinned
+exactly in package.json.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 12, 2026 2:03:45 AM
 
 Commit [5995e954e3e749de892f9fabf17486f8233b703a](https://github.com/StoneCypher/jssm/commit/5995e954e3e749de892f9fabf17486f8233b703a)
@@ -164,76 +211,3 @@ stopped throwing; latent on every release line.
 parts now follow semver: a prerelease precedes its release, identifiers
 compare dot-by-dot, numerics below alphanumerics, prefix sets first.
 Direct pair tests pin the semantics independently of the current version.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 1:18:57 AM
-
-Commit [951e24a1efa37cec8b8e68ef468bd36e67b55b7e](https://github.com/StoneCypher/jssm/commit/951e24a1efa37cec8b8e68ef468bd36e67b55b7e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): v6.0.0-alpha.2 — adopt the v6 prerelease line on the CLI config branch
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 1:14:15 AM
-
-Commit [3138f1120b96cc99457ae2a34c77d8d7759af24a](https://github.com/StoneCypher/jssm/commit/3138f1120b96cc99457ae2a34c77d8d7759af24a)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [7c09c8be, 1129cb8f]
-
-  * Merge branch 'v6' into feat_26-05-22_fsl-cli-config_631
-  * # Conflicts:
-#       CHANGELOG.long.md
-#       CHANGELOG.md
-#       README.md
-#       dist/cdn/instance.js
-#       dist/cdn/viz.js
-#       dist/cli/fsl-render.cjs
-#       dist/cli/fsl.cjs
-#       dist/cli/lib.cjs
-#       dist/cli/lib.mjs
-#       dist/deno/README.md
-#       dist/deno/jssm.js
-#       dist/es6/version.js
-#       dist/jssm.es5.cjs
-#       dist/jssm.es5.iife.js
-#       dist/jssm.es5.nonmin.cjs
-#       dist/jssm.es6.mjs
-#       dist/jssm.es6.nonmin.cjs
-#       dist/jssm_viz.cjs
-#       dist/jssm_viz.es5.iife.nonmin.cjs
-#       dist/jssm_viz.es5.nonmin.cjs
-#       dist/jssm_viz.es6.nonmin.cjs
-#       dist/jssm_viz.iife.cjs
-#       dist/jssm_viz.mjs
-#       docs/demo/jssm.es5.iife.js
-#       docs/docs/classes/jssm.Machine.html
-#       docs/docs/classes/jssm_error.JssmError.html
-#       docs/docs/modules/jssm._internal_.html
-#       docs/docs/modules/jssm.html
-#       docs/docs/modules/jssm_constants.html
-#       docs/docs/modules/jssm_types._internal_.html
-#       docs/docs/modules/jssm_types.html
-#       docs/docs/modules/jssm_util.html
-#       docs/docs/modules/jssm_viz.html
-#       docs/docs/modules/version.html
-#       docs/docs/pages/CHANGELOG.long.html
-#       docs/fsl.tools/cookbook/manifest.json
-#       package.json
-#       src/doc_md/CHANGELOG.long.md
-#       src/doc_md/CHANGELOG.md
-#       src/ts/version.ts

@@ -11,6 +11,45 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
+<a href="#untagged---jun-12-2026-22316-am" id="untagged---jun-12-2026-22316-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 2:23:16 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/ef49f37a46a7badd803bb60963d923cfac314b98">ef49f37a46a7badd803bb60963d923cfac314b98</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>chore(build): regenerate artifacts after interned dispatch</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-12-2026-22243-am" id="untagged---jun-12-2026-22243-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 2:22:43 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/3bb751a0c84afb3b8bfcf5dba293b667db6e041f">3bb751a0c84afb3b8bfcf5dba293b667db6e041f</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>feat(shootout): capability adapter contract + conformance gate + 14 libraries</li>
+<li>v2 of the shootout: extends the adapter interface with capability flags
+(action/guard/hook/data/timer) and a conformance gate (conformance.cjs)
+that drives every adapter through known machines and asserts state
+sequences before any benchmarking — refusing to measure adapters that
+can&#39;t demonstrably move.</li>
+<li>Fourteen libraries conformant across their declared capabilities:
+jssm, xstate, @xstate/fsm, javascript-state-machine, robot3, machina,
+nanostate, statebot, finity, typestate, stately.js, fn-machine, fseh,
+easy-fsm.</li>
+<li>The gate already earned its keep: it surfaced StoneCypher/jssm#723
+(hookless machines never clear <code>after</code> timeouts on early exit) and
+decoded several libraries whose published APIs had drifted from their
+current code (machina 6.x compositeState/api.ctx; typestate&#39;s namespaced
+constructor; stately.js onEnter hooks; javascript-state-machine method
+camelization).</li>
+<li>contract.md documents the adapter interface. Competitor versions pinned
+exactly in package.json.</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 <a href="#untagged---jun-12-2026-20345-am" id="untagged---jun-12-2026-20345-am" style="color: inherit; text-decoration: none;">
   <h2>[Untagged] - Jun 12, 2026 2:03:45 AM</h2>
 </a>

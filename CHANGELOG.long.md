@@ -22,6 +22,53 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 12, 2026 2:23:16 AM
+
+Commit [ef49f37a46a7badd803bb60963d923cfac314b98](https://github.com/StoneCypher/jssm/commit/ef49f37a46a7badd803bb60963d923cfac314b98)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(build): regenerate artifacts after interned dispatch
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 2:22:43 AM
+
+Commit [3bb751a0c84afb3b8bfcf5dba293b667db6e041f](https://github.com/StoneCypher/jssm/commit/3bb751a0c84afb3b8bfcf5dba293b667db6e041f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(shootout): capability adapter contract + conformance gate + 14 libraries
+  * v2 of the shootout: extends the adapter interface with capability flags
+(action/guard/hook/data/timer) and a conformance gate (conformance.cjs)
+that drives every adapter through known machines and asserts state
+sequences before any benchmarking — refusing to measure adapters that
+can't demonstrably move.
+  * Fourteen libraries conformant across their declared capabilities:
+jssm, xstate, @xstate/fsm, javascript-state-machine, robot3, machina,
+nanostate, statebot, finity, typestate, stately.js, fn-machine, fseh,
+easy-fsm.
+  * The gate already earned its keep: it surfaced StoneCypher/jssm#723
+(hookless machines never clear `after` timeouts on early exit) and
+decoded several libraries whose published APIs had drifted from their
+current code (machina 6.x compositeState/api.ctx; typestate's namespaced
+constructor; stately.js onEnter hooks; javascript-state-machine method
+camelization).
+  * contract.md documents the adapter interface. Competitor versions pinned
+exactly in package.json.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 12, 2026 2:03:45 AM
 
 Commit [5995e954e3e749de892f9fabf17486f8233b703a](https://github.com/StoneCypher/jssm/commit/5995e954e3e749de892f9fabf17486f8233b703a)
