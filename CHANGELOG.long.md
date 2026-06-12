@@ -22,6 +22,31 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 11, 2026 7:34:56 PM
+
+Commit [6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600](https://github.com/StoneCypher/jssm/commit/6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(compiler): v5.143.4 — drop [].concat spread; uncaps machines past ~65k transitions (#703)
+  * compile() assembled its transition list with
+`[].concat(...results['transition'])`. Spreading into an argument list
+is bounded by the engine's maximum argument count (~65k in V8), so
+machines past that ceiling — dense-300 is 89,700 edges — threw
+RangeError inside the compiler before any jssm semantics ran. It was
+also a pointless O(n) copy: since #700 the accumulator is already flat
+and function-local, so it is now used directly.
+  * Adds compile_scale.spec.ts, which manufactures a 70,000-transition
+parse tree directly (no parsing) and asserts compile() assembles it;
+this test crashes on the previous code.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 11, 2026 7:26:57 PM
 
 Commit [4f90d17f60f6b39ab739e322502e21e3dea3eb47](https://github.com/StoneCypher/jssm/commit/4f90d17f60f6b39ab739e322502e21e3dea3eb47)

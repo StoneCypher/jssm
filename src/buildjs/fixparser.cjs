@@ -202,7 +202,56 @@ function inline_fast_atom(body) {
   return body.replace(fn_re, () => replacement);
 }
 
-const body = inline_fast_atom(inline_fast_ws(widened));
+/**
+ *  Hoists `peg$fail`'s early-return condition into every generated guard
+ *  site.  `peg$fail` is called at every failed match attempt outside named
+ *  rules — ~835 generated sites, millions of calls per large parse — and
+ *  nearly every call exits at its first line (`peg$currPos < peg$maxFailPos`),
+ *  making the cost almost pure call overhead: 6.7% of `construct()` self-time
+ *  in the #704 profile.  Rewriting
+ *
+ *      if (peg$silentFails === 0) { peg$fail(peg$cN); }
+ *  to
+ *      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$cN); }
+ *
+ *  replaces the common-case call with one inline integer compare.  The
+ *  condition is `peg$fail`'s own first-line test lifted verbatim, so
+ *  expectation collection — and therefore every parse-error message — is
+ *  byte-identical.  The single non-constant site (`peg$endExpectation()`,
+ *  once per parse at EOF) is deliberately left untouched.
+ *
+ *  @param body Full generated parser source, after the WS and Atom swaps.
+ *  @returns The source with all constant-expectation guard sites rewritten.
+ *
+ *  @throws Error when fewer than 500 sites are rewritten — pegjs output
+ *          drift; update the site pattern rather than silently shipping
+ *          unguarded calls.
+ *
+ *  @example
+ *  inline_fail_guard(generated_source).includes('&& peg$currPos >= peg$maxFailPos')
+ *  // => true
+ *
+ *  @see https://github.com/StoneCypher/jssm/issues/704
+ *  @see inline_fast_ws
+ */
+function inline_fail_guard(body) {
+
+  const site_re = /if \(peg\$silentFails === 0\) \{ peg\$fail\((peg\$c\d+)\); \}/g;
+
+  let count = 0;
+  const out = body.replace(site_re, (_m, constant) => {
+    count++;
+    return `if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(${constant}); }`;
+  });
+
+  if (count < 500) {
+    throw new Error(`fixparser: peg$fail guard rewrite hit only ${count} sites (expected ~835); pegjs output drift?`);
+  }
+
+  return out;
+}
+
+const body = inline_fail_guard(inline_fast_atom(inline_fast_ws(widened)));
 
 fs.writeFileSync('./src/ts/fsl_parser.ts', body + tail);
 fs.unlinkSync(orig_fname);
