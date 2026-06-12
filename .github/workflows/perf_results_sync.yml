@@ -1,0 +1,110 @@
+name: perf results sync
+
+# Nightly drain of the graviton runners' S3 bucket onto the perf_results
+# branch.  The runners upload via their instance profile and carry no GitHub
+# credential at all (the predecessor design's stored PAT went stale, leaked,
+# and failed silently — 2026-06-12); this workflow is the only thing that
+# writes runner results to the branch, using its own ephemeral token via
+# AWS OIDC + GITHUB_TOKEN.
+#
+# Because GITHUB_TOKEN pushes never trigger workflows, the perf_chart
+# workflow's push trigger will NOT fire for our sync commit — so this
+# workflow renders and posts the chart itself after a successful sync.
+# (perf_chart's push trigger still serves the SSH-driven PR runs, which
+# publish with the operator's own credentials.)
+
+on:
+  schedule:
+    - cron: '17 9 * * *'   # nightly, odd minute to dodge the cron herd
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  id-token: write
+
+env:
+  PERF_RESULTS_BUCKET: jssm-perf-results-032239181269
+
+jobs:
+
+  sync:
+    name: drain the runner bucket onto perf_results
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_GRAVITON_OIDC_ROLE: ${{ secrets.AWS_GRAVITON_OIDC_ROLE }}
+
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+
+    steps:
+
+      - name: Stop quietly when AWS is not configured
+        if: env.AWS_GRAVITON_OIDC_ROLE == ''
+        run: echo "no AWS role configured; nothing to sync"
+
+      - name: Check out perf_results
+        if: env.AWS_GRAVITON_OIDC_ROLE != ''
+        uses: actions/checkout@v4
+        with:
+          ref: perf_results
+
+      - name: Configure AWS credentials (OIDC)
+        if: env.AWS_GRAVITON_OIDC_ROLE != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_GRAVITON_OIDC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Sync new results down from the bucket
+        if: env.AWS_GRAVITON_OIDC_ROLE != ''
+        run: aws s3 sync "s3://${PERF_RESULTS_BUCKET}" . --exclude ".git/*" --exclude "charts/*"
+
+      - name: Commit and push anything new
+        if: env.AWS_GRAVITON_OIDC_ROLE != ''
+        id: commit
+        run: |
+          git config user.email "stonecypher@users.noreply.github.com"
+          git config user.name  "jssm perf sync bot"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "nothing new in the bucket"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "perf: nightly sync of graviton runner results from S3"
+            git push origin perf_results
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  chart:
+    name: render and post the perf trend
+    needs: sync
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # The chart script lives on main; the data was just pushed to perf_results.
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Authenticate git pushes with the workflow token
+        run: git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Identify the chart bot for the perf_results commit
+        run: |
+          git config --global user.email "stonecypher@users.noreply.github.com"
+          git config --global user.name  "jssm perf chart bot"
+
+      - name: Render and post
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node src/scripts/make_perf_chart.cjs --out build/perf_chart_out --comment
