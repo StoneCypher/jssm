@@ -203,6 +203,103 @@ function inline_fast_atom(body) {
 }
 
 /**
+ *  Inserts a first-character gate at the top of one generated rule function:
+ *  when the next input character cannot begin the rule, fail immediately —
+ *  replaying exactly the expectation constants the alternatives would have
+ *  recorded — instead of running every alternative's literal probes.  The
+ *  probes are `input.substr(...)` allocations plus equality tests, so for a
+ *  rule probed per edge target this is pure waste on machines that never use
+ *  the construct (#731).
+ *
+ *  Equivalence: with a non-matching first character, every alternative of the
+ *  rule fails at offset zero and records its expectation (under the standard
+ *  silent/maxFailPos guard); the gate performs the same guarded recordings in
+ *  the same order at the same position, then returns `peg$FAILED` with
+ *  `peg$currPos` unmoved — which is where the generated body's backtracking
+ *  would have left it.  With a matching first character, the original body
+ *  runs untouched.  Parse-error messages are therefore byte-identical.
+ *
+ *  The expectation constants are extracted from the generated body (pegjs
+ *  renumbers them on any grammar edit) and their count is asserted, so any
+ *  grammar change that adds or removes an alternative trips loudly here
+ *  rather than silently skewing error reporting.
+ *
+ *  @param body Full generated parser source.
+ *  @param rule Generated rule name, e.g. `Stripe`.
+ *  @param gate_chars Code units that may legally begin the rule.
+ *  @param expected_fail_count Exact number of in-function expectation
+ *         constants the generated body must contain.
+ *  @returns The source with the gate inserted after the rule's `var` line.
+ *  @throws Error when the rule function, its `var` line, or the expected
+ *          number of expectation constants cannot be found — pegjs output
+ *          drift; update the patterns here rather than shipping a bad gate.
+ *
+ *  @example
+ *  gate_first_char(src, 'Cycle', [43, 45], 3).includes('cg !== 43 && cg !== 45')
+ *  // => true
+ *
+ *  @see https://github.com/StoneCypher/jssm/issues/731
+ *  @see inline_fail_guard
+ */
+function gate_first_char(body, rule, gate_chars, expected_fail_count) {
+
+  const full_re = new RegExp(`  function peg\\$parse${rule}\\(\\) \\{\\n[\\s\\S]*?\\n  \\}\\n`),
+        full    = body.match(full_re);
+
+  if (!full) { throw new Error(`fixparser: cannot find generated peg$parse${rule}`); }
+
+  const consts = [...full[0].matchAll(/peg\$fail\((peg\$c\d+)\)/g)].map((m) => m[1]);
+  if (consts.length !== expected_fail_count) {
+    throw new Error(
+      `fixparser: peg$parse${rule} has ${consts.length} expectation constants ` +
+      `(expected ${expected_fail_count}); grammar drift — re-derive the gate`
+    );
+  }
+
+  const header_re = new RegExp(`(  function peg\\$parse${rule}\\(\\) \\{\\n    var [^\\n]+\\n)`),
+        header    = body.match(header_re);
+
+  if (!header) { throw new Error(`fixparser: cannot find peg$parse${rule} var line`); }
+
+  // Already guarded: the multi-fail block doesn't match inline_fail_guard's
+  // single-fail site pattern, so the guard is written out here directly.
+  const fails = consts.map((c) => `peg$fail(${c});`).join(' '),
+        cond  = gate_chars.map((c) => `cg !== ${c}`).join(' && ');
+
+  const gate =
+`    var cg = input.charCodeAt(peg$currPos);
+    if (${cond}) {
+      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { ${fails} }
+      return peg$FAILED;
+    }
+`;
+
+  return body.replace(header_re, (_m, h) => h + gate);
+}
+
+/**
+ *  Applies {@link gate_first_char} to the two `ArrowTarget` probe rules,
+ *  `Stripe` (`+|n` / `-|n`) and `Cycle` (`+n` / `-n` / `+0`) — both can only
+ *  begin with `+` (0x2B) or `-` (0x2D).  Every arrow target probes both rules
+ *  before its label is attempted, which cost ~4% of `construct()` nonlib
+ *  ticks on stripe/cycle-free machines in the 2026-06-12 named profile.
+ *
+ *  @param body Full generated parser source, after the scanner swaps.
+ *  @returns The source with both gates inserted.
+ *  @throws Error on pegjs output drift (see {@link gate_first_char}).
+ *
+ *  @example
+ *  inline_arrowtarget_gates(generated_source).includes('var cg')
+ *  // => true
+ *
+ *  @see https://github.com/StoneCypher/jssm/issues/731
+ */
+function inline_arrowtarget_gates(body) {
+  const gated = gate_first_char(body, 'Stripe', [43, 45], 2);   // '+|' '-|'
+  return        gate_first_char(gated, 'Cycle', [43, 45], 3);   // '+'  '-'  '+0'
+}
+
+/**
  *  Hoists `peg$fail`'s early-return condition into every generated guard
  *  site.  `peg$fail` is called at every failed match attempt outside named
  *  rules — ~835 generated sites, millions of calls per large parse — and
@@ -251,7 +348,7 @@ function inline_fail_guard(body) {
   return out;
 }
 
-const body = inline_fail_guard(inline_fast_atom(inline_fast_ws(widened)));
+const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_atom(inline_fast_ws(widened))));
 
 fs.writeFileSync('./src/ts/fsl_parser.ts', body + tail);
 fs.unlinkSync(orig_fname);
