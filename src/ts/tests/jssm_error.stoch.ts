@@ -153,9 +153,10 @@ describe('JssmError with machine context', () => {
         fc.string({ minLength: 1 }),
         (msg, state) => {
 
+          // exact composition: proves no [[..]] prefix was added without
+          // misfiring when msg itself begins with "[[" (fc found "[[ ")
           const no_iname = new JssmError(stub_machine(state, undefined), msg);
-          expect(no_iname.message.startsWith('[[')).toBe(false);
-          expect(no_iname.message).toContain(`at "${state}"`);
+          expect(no_iname.message).toBe(`${msg} (at "${state}")`);
 
           const no_state = new JssmError(stub_machine(undefined, undefined), msg);
           expect(no_state.message).toBe(msg);
