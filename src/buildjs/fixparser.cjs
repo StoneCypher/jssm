@@ -203,6 +203,134 @@ function inline_fast_atom(body) {
 }
 
 /**
+ *  Replaces the generated `peg$parseTimeType` with a first-char-gated table
+ *  scanner.  The grammar's 28 ordered time-unit literals (`'milliseconds'`
+ *  … `'w'`) compile to up to 28 sequential `input.substr` probes per `after`
+ *  decoration — e.g. `after 50 seconds` walks six failed substring
+ *  allocations before matching, and a failing parse walks all 28 (#733).
+ *
+ *  The replacement walks an extracted table gated on the alternative's first
+ *  character code: non-candidates cost one integer compare, candidates one
+ *  substring equality (single-character units none at all).  Expectation
+ *  bookkeeping is byte-identical to the generated chain: a match at
+ *  alternative i replays the fail constants of alternatives 0..i-1 — exactly
+ *  the ones the generated code would have probed and recorded — at the same
+ *  unmoved position under the same silent/maxFailPos guard, and a total miss
+ *  replays all 28.  `peg$savedPos` is set before the action constant runs,
+ *  as generated.
+ *
+ *  Extraction handles both generated probe forms (`input.substr(...) ===
+ *  peg$cN` for multi-character literals, `input.charCodeAt(...) === code`
+ *  for single-character ones) in source order, resolves first-character
+ *  codes from the literal constants' definitions, and asserts exactly 28
+ *  alternatives — a grammar edit to the unit list trips loudly here.
+ *
+ *  @param body Full generated parser source, after the Atom swap.
+ *  @returns The source with the table emitted and `peg$parseTimeType`
+ *           swapped.
+ *  @throws Error when the rule cannot be found, an alternative's literal
+ *          definition cannot be resolved, or the alternative count is not 28
+ *          — pegjs output / grammar drift; update the patterns here.
+ *
+ *  @example
+ *  inline_timetype_table(generated_source).includes('peg$timetype_alts')
+ *  // => true
+ *
+ *  @see https://github.com/StoneCypher/jssm/issues/733
+ *  @see inline_fast_ws
+ */
+function inline_timetype_table(body) {
+
+  const fn_re = /  function peg\$parseTimeType\(\) \{\n[\s\S]*?\n  \}\n/,
+        found = body.match(fn_re);
+
+  if (!found) { throw new Error('fixparser: cannot find generated peg$parseTimeType'); }
+
+  const fn = found[0];
+
+  // Both probe forms, captured with enough tail to grab the fail constant
+  // and the action constant that follows a successful probe.
+  const substr_re   = /if \(input\.substr\(peg\$currPos, (\d+)\) === (peg\$c\d+)\) \{[\s\S]*?peg\$fail\((peg\$c\d+)\);[\s\S]*?s1 = (peg\$c\d+)\(\);/g;
+  const charcode_re = /if \(input\.charCodeAt\(peg\$currPos\) === (\d+)\) \{\s*\n\s*s1 = (peg\$c\d+);[\s\S]*?peg\$fail\((peg\$c\d+)\);[\s\S]*?s1 = (peg\$c\d+)\(\);/g;
+
+  // The lazy [\s\S]*? tails can overrun into the next alternative when run
+  // naively over the whole body, so alternatives are located by their probe
+  // headers first, then parsed one segment at a time.
+  const headers = [...fn.matchAll(/if \(input\.(substr\(peg\$currPos, \d+\) === peg\$c\d+|charCodeAt\(peg\$currPos\) === \d+)\) \{/g)];
+
+  const alts = headers.map((h, i) => {
+    const seg_end = (i + 1 < headers.length) ? headers[i + 1].index : fn.length;
+    const seg     = fn.slice(h.index, seg_end);
+
+    substr_re.lastIndex   = 0;
+    charcode_re.lastIndex = 0;
+
+    const sm = substr_re.exec(seg);
+    if (sm && sm.index === 0) {
+      return { len: parseInt(sm[1], 10), lit: sm[2], fail: sm[3], act: sm[4], code: undefined };
+    }
+    const cm = charcode_re.exec(seg);
+    if (cm && cm.index === 0) {
+      return { len: 1, lit: cm[2], fail: cm[3], act: cm[4], code: parseInt(cm[1], 10) };
+    }
+    throw new Error('fixparser: unrecognized TimeType alternative shape (pegjs output drift?)');
+  });
+
+  if (alts.length !== 28) {
+    throw new Error(`fixparser: TimeType has ${alts.length} alternatives (expected 28); grammar drift — re-derive the table`);
+  }
+
+  // First-char codes for substr-form alternatives come from the literal
+  // constant definitions ('peg$cN = "milliseconds"').
+  for (const alt of alts) {
+    if (alt.code === undefined) {
+      const def = body.match(new RegExp(`${alt.lit.replace('$', '\\$')} = "([^"]+)"`));
+      if (!def) { throw new Error(`fixparser: cannot resolve literal ${alt.lit} for TimeType table`); }
+      alt.code = def[1].charCodeAt(0);
+    }
+  }
+
+  const table_rows = alts
+    .map((a) => `[${a.len}, ${a.lit}, ${a.fail}, ${a.act}, ${a.code}]`)
+    .join(',\n    ');
+
+  const replacement =
+`  var peg$timetype_alts = [
+    ${table_rows}
+  ];
+
+  function peg$parseTimeType() {
+    var i, j, alt, start;
+    var c = input.charCodeAt(peg$currPos);
+
+    for (i = 0; i < 28; i++) {
+      alt = peg$timetype_alts[i];
+      if (alt[4] !== c) { continue; }                                        // first-char gate
+      if (alt[0] !== 1 && input.substr(peg$currPos, alt[0]) !== alt[1]) { continue; }
+
+      // replay the expectations of every alternative the generated chain
+      // would have probed and failed before this one, at the unmoved position
+      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) {
+        for (j = 0; j < i; j++) { peg$fail(peg$timetype_alts[j][2]); }
+      }
+
+      start = peg$currPos;
+      peg$currPos += alt[0];
+      peg$savedPos = start;
+      return alt[3]();
+    }
+
+    if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) {
+      for (j = 0; j < 28; j++) { peg$fail(peg$timetype_alts[j][2]); }
+    }
+    return peg$FAILED;
+  }
+`;
+
+  return body.replace(fn_re, () => replacement);
+}
+
+/**
  *  Hoists `peg$fail`'s early-return condition into every generated guard
  *  site.  `peg$fail` is called at every failed match attempt outside named
  *  rules — ~835 generated sites, millions of calls per large parse — and
@@ -251,7 +379,7 @@ function inline_fail_guard(body) {
   return out;
 }
 
-const body = inline_fail_guard(inline_fast_atom(inline_fast_ws(widened)));
+const body = inline_fail_guard(inline_timetype_table(inline_fast_atom(inline_fast_ws(widened))));
 
 fs.writeFileSync('./src/ts/fsl_parser.ts', body + tail);
 fs.unlinkSync(orig_fname);
