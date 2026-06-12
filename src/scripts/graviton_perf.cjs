@@ -80,7 +80,11 @@ const DEFAULTS = Object.freeze({
   instanceType    : 'c7g.medium',
   mode            : 'normal',
   region          : 'us-east-1',
-  shutdownMinutes : 30,
+  // Safety cap on wasted spend if a run hangs — NOT a target; the instance
+  // self-terminates the moment it finishes. Raised from 30 (which guillotined
+  // every release run mid-build, back when the detached path still ran
+  // `npm run make`; see #725) to 90 for margin. Worst case ~$0.05.
+  shutdownMinutes : 90,
   repoUrl         : 'https://github.com/StoneCypher/jssm.git',
   ghRepo          : 'StoneCypher/jssm'
 });
@@ -635,9 +639,17 @@ function buildDetachedUserData(params) {
     'cd jssm',
     `git checkout ${commitSha}`,
     '',
-    '# 3. Build dist/ (make, not build).',
+    '# 3. Install the harness deps (benny is a devDependency) — but do NOT',
+    "#    rebuild. dist/ is committed and, at a release tag, is release-state by",
+    "#    the /sc-commit + verify-version-bump policy, so we benchmark the SHIPPED",
+    '#    artifact (literally the bytes npm publishes) rather than a fresh rebuild',
+    '#    that could differ. This also drops the ~30-45 min full rebuild that was',
+    "#    overrunning the dead-man's-switch and silently killing every run. #725",
     'npm install --no-audit --no-fund',
-    'npm run make',
+    'if [ ! -s dist/jssm.es5.cjs ] || [ ! -s dist/jssm.es5.nonmin.cjs ]; then',
+    '  echo "JSSM_PERF: committed dist/ missing at this commit; refusing to rebuild-and-benchmark a different artifact"',
+    '  shutdown -h now',
+    'fi',
     '',
     '# 4. Benchmark (mode-dependent).',
     benchLine,
