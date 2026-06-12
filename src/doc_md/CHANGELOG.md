@@ -22,123 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 9:04:15 AM
-
-Commit [e76a9ddc705cd09f86cb55e8ef7879ccd2b0f7c4](https://github.com/StoneCypher/jssm/commit/e76a9ddc705cd09f86cb55e8ef7879ccd2b0f7c4)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * perf(parser): v5.143.13 — hand-rolled ActionLabel/String scanners (#730)
-  * Third and fourth applications of the fixparser scanner pattern (#698 WS,
-#702 Atom).  pegjs 0.10 compiles the two quoted-text rules into one rule
-call, one class test, and one Array.prototype.push per character, then
-joins the array in the action; ArrayPrototypePush was the top builtin at
-10.4% of nonlib ticks in the 2026-06-12 named profile.
-  * The shared scanner consumes maximal unescaped runs as single
-input.substring slices (zero arrays/joins for escape-free labels, the
-overwhelmingly common case) and decodes the same escape set inline on a
-backslash: quote, backslash, slash, b f n r t v, and case-insensitive
-uXXXX.  Unknown escapes, bad hex, out-of-class characters, and EOF fail
-the rule with peg$currPos restored and the same named expectation
-recorded, so parse errors are byte-identical.  Expectation constants are
-extracted from the generated source with drift tripwires, and the
-emitted guard form is the plain one so inline_fail_guard (#704) rewrites
-it like any generated site.
-  * Verified: 20-case escape semantics smoke (every escape form, rejection
-forms, String rule), 320/320 unicode action-label suite, full build
-green at 100% spec coverage.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:52:32 AM
-
-Commit [15cd6a31bd449704a6c178b740f139d1392f6c53](https://github.com/StoneCypher/jssm/commit/15cd6a31bd449704a6c178b740f139d1392f6c53)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * perf(util): v5.143.12 — query/util micro-cleanups (#736)
-  * uses_actions tested emptiness by materializing the action map's key list
-into an array; Map.size answers without allocating.  probable_exits_for
-walked its exits in a map -> filter -> filter -> filter chain, three
-intermediate arrays per probabilistic_transition; now a single pass with
-identical edge selection, ordering, and fallback semantics.  unique()
-was O(n^2) via indexOf-per-element; now Set-tracked O(n), with NaN still
-explicitly dropped because Sets self-match NaN (SameValueZero) where the
-documented === behavior never did.  seq() built three arrays per call
-(new Array + fill + map); now one Array.from.
-  * All behavior preserved; 6,208 specs + 51 touching stoch tests pass at
-100% spec coverage.  Local profile context in #736; canonical numbers
-come from the graviton runner per-PR.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:50:00 AM
-
-Commit [e5580f088459f6635ca7990da1aa6e4199578d7a](https://github.com/StoneCypher/jssm/commit/e5580f088459f6635ca7990da1aa6e4199578d7a)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(machine): unknown-name guards for interned hook registration and removal; firing-order pin (#729)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:43:43 AM
-
-Commit [db51aca9832269638ec558ead15d7e5ff7bbeda0](https://github.com/StoneCypher/jssm/commit/db51aca9832269638ec558ead15d7e5ff7bbeda0)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * perf(machine): numeric interned keys for hook storage and firing (#729)
-  * Hook stores re-key from nested string maps to interned ids: pair_key
-(from, to) for basic/named pair maps, action id for global-action, state
-id for entry/exit, pre and post mirrors alike. set_hook interns at
-registration (unknown names register silently and can never fire, as
-before); remove_hook probes with id_of so unknown names report false
-without growing the tables. Fire sites reuse the lever-1 dispatch ids,
-with actionId threaded from resolution and fromStateId captured
-pre-commit for the post probes. _after_hooks stays string-keyed (mixed
-state/action key domain).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:39:30 AM
-
-Commit [0c5797e9fa452f835018f5cf50d7cd9b80b20819](https://github.com/StoneCypher/jssm/commit/0c5797e9fa452f835018f5cf50d7cd9b80b20819)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): v5.143.12 — re-bump past the parallel 5.143.11 release; regenerate artifacts after main sync
-  * The full stoch suite (727 property tests) passes over the interned
-dispatch path introduced by #726: stoch coverage on the merged tree is
-74.2% statements / 66.51% branches / 78.26% functions.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:34:48 AM
 
 Commit [5b6cb087b9f355c5291b0cb27390551774a4bfd9](https://github.com/StoneCypher/jssm/commit/5b6cb087b9f355c5291b0cb27390551774a4bfd9)
@@ -272,3 +155,162 @@ Commit [4b7bcb2b51452381aa17eb7442356fe16f136895](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * chore(release): v5.143.11 — re-bump past the parallel 5.143.10 release; regenerate artifacts after second main sync
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 8:14:52 AM
+
+Commit [c6a303becb82d10fa34edea94b258d5430fb6d79](https://github.com/StoneCypher/jssm/commit/c6a303becb82d10fa34edea94b258d5430fb6d79)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [2ab37235, 3087dd08]
+
+  * Merge remote-tracking branch 'origin/main' into perf_26-06-12_state-interning
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/cli/fsl-render.cjs
+#       dist/cli/lib.cjs
+#       dist/cli/lib.mjs
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       docs/demo/jssm.es5.iife.js
+#       docs/docs/classes/jssm.Machine.html
+#       docs/docs/classes/jssm_error.JssmError.html
+#       docs/docs/modules/jssm._internal_.html
+#       docs/docs/modules/jssm.html
+#       docs/docs/modules/jssm_constants.html
+#       docs/docs/modules/jssm_types._internal_.html
+#       docs/docs/modules/jssm_types.html
+#       docs/docs/modules/jssm_util.html
+#       docs/docs/modules/jssm_viz.html
+#       docs/docs/modules/version.html
+#       docs/docs/pages/CHANGELOG.long.html
+#       docs/fsl.tools/cookbook/manifest.json
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__143__10" />
+
+## [5.143.10] - Jun 12, 2026 8:11:52 AM
+
+Commit [3087dd08226daff38f198f6fa20c1bde1c6189ca](https://github.com/StoneCypher/jssm/commit/3087dd08226daff38f198f6fa20c1bde1c6189ca)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [c31b05c3, eedb91dc]
+
+  * Merge pull request #728 from StoneCypher/test_26-06-12_stoch-coverage
+  * test(stoch): property-test the Machine runtime and WC layer — stoch coverage 5% to 63% — plus an after-timer leak fix
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 8:08:49 AM
+
+Commit [2ab37235c87c90d6f3f344f011977704fa2889a1](https://github.com/StoneCypher/jssm/commit/2ab37235c87c90d6f3f344f011977704fa2889a1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): v5.143.10 — re-bump past the parallel 5.143.9 release; regenerate artifacts after main sync
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 8:07:05 AM
+
+Commit [eedb91dce2f1a60130d70ad73ec5a6fd0bfa5594](https://github.com/StoneCypher/jssm/commit/eedb91dce2f1a60130d70ad73ec5a6fd0bfa5594)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): v5.143.10 — property-test the web-component layer under jsdom
+  * Stoch coverage rises again, 53.33% -> 63.39% statements (branches
+49.43% -> 59.14%, functions 57.84% -> 68.87%); 26 more property tests
+in two files, 694 stoch tests total.
+  * - wc_tag_helpers: dual-prefix suffix matching under random case, ancestor
+  search through random nesting depth, idempotent dual registration
+- fsl_instance_wc: <jssm-on> directive parsing (events, filters,
+  handler/body mutual exclusion), registry-over-globalThis handler
+  resolution, inline body compilation, FSL source-channel arithmetic
+  (exactly-one-of attribute/script/text), and the live <fsl-instance>
+  lifecycle over random action rings — state reflection attributes and
+  state-specific shadow slots verified per step
+- fsl_bind_wc: walk_path over constructed nesting, all documented binding
+  expressions, set_on_element target semantics, live install_bindings
+  repaint-per-transition and unsubscribe freeze
+- fsl_hook_wc: kind normalization, hook element parsing, proxy data
+  write-back, wrap_user_handler cancel/pass contract
+- fsl_viz_wc: error normalization
+  * Also merges main (5.143.9 released underneath this branch), re-bumps to
+5.143.10, and carries the regenerated build artifacts.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 8:02:57 AM
+
+Commit [bac38e1edf2ae291c717fc205702eff4d929c5ca](https://github.com/StoneCypher/jssm/commit/bac38e1edf2ae291c717fc205702eff4d929c5ca)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(shootout): static / lifecycle runner — size, deps, types, packaging, cold start, age
+  * static.cjs collects the facts that need no machine run, just the
+installed package and a cold require:
+  * - installSizeKB — on-disk size of the package's own directory. Wide
+  spread: easy-fsm 9 KB ... jssm 12.7 MB (the breadth tax — viz, web
+  components, CLI, fonts all ship in one package).
+- directDeps, types (bundled/none), modules (esm/cjs/dual), postinstall.
+- ageYears via npm view (best-effort; omitted, never faked, on failure).
+  Half the field hasn't shipped in ~4 years (javascript-state-machine,
+  nanostate, typestate, finity, stately.js, pastafarian) — a real
+  maintenance signal; jssm/xstate/machina are fresh.
+- coldStartMs — median child-process require() time, the cost that
+  dominates CLI/serverless and is invisible to transition benchmarks
+  (pastafarian ~10 ms ... fseh ~72 ms).
+  * Fixed a types false-negative in my own detector: it now reads the
+exports-map "types" condition and dist/types subdirs, so TS-first
+libraries (xstate et al.) correctly read as bundled rather than none.
+npm view uses a shell only on Windows (avoids the args-via-shell
+deprecation on the Linux instance; names come from our pinned list, so
+no injection surface).
+  * Wired into launch.cjs (conformance -> suite -> memory -> probes ->
+static) and published as static.json. README updated.
