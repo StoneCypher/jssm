@@ -4,6 +4,7 @@ JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize,
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util';
+import { Interner } from './jssm_intern';
 import * as constants from './jssm_constants';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[], state_name_chars: readonly {
     from: string;
@@ -91,6 +92,12 @@ declare class Machine<mDT> {
     _actions: Map<StateType, Map<StateType, number>>;
     _reverse_actions: Map<StateType, Map<StateType, number>>;
     _reverse_action_targets: Map<StateType, Map<StateType, number>>;
+    _state_interner: Interner;
+    _action_interner: Interner;
+    _state_id: number;
+    _edge_id_by_pair: Map<number, number>;
+    _edge_id_by_action_pair: Map<number, number>;
+    _edge_to_ids: Array<number>;
     _start_states: Set<StateType>;
     _end_states: Set<StateType>;
     _failed_outputs: Set<StateType>;
@@ -1918,6 +1925,8 @@ declare class Machine<mDT> {
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
     /** Get the edge index for an action from the current state.
+     *  Interned dispatch: resolves via the numeric (action, from) index —
+     *  unknown action names miss without throwing.
      *  @param action - The action name.
      *  @returns The edge index, or `undefined` if the action is not available.
      */
