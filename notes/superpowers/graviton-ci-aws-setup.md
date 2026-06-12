@@ -104,3 +104,14 @@ AWS_GRAVITON_OIDC_ROLE = arn:aws:iam::<acct>:role/<your-oidc-role-name>
   (optionally `--run-id <id>` to target one run).
 - To test the launch path without spending anything:
   `node src/scripts/graviton_perf.cjs --detached --release 0.0.0 --commit <sha> --dry-run`
+
+## Shootout (manual-only cross-library benchmark)
+
+The same three AWS objects + secret also power the FSM shootout: a
+self-contained comparison project on the orphan `shootout` branch (adapters,
+suite, launcher, pinned competitor libraries — never merged to main).
+`.github/workflows/shootout.yml` is a `workflow_dispatch`-ONLY shim that checks
+out that branch and fires `launch.cjs` under the same OIDC role; results land
+on `perf_results` under `shootout/<run-id>/`.  It has no automatic trigger of
+any kind, by design — run it from the Actions tab or
+`gh workflow run shootout.yml`.
