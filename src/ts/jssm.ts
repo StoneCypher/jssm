@@ -490,6 +490,11 @@ class Machine<mDT> {
   _state_properties    : Map<string, any>;
   _required_properties : Set<string>;
 
+  // property name -> first state that bound it, in first-binding order;
+  // recorded at insertion so post-build validation needn't JSON.parse the
+  // serialized _state_properties keys back apart (#734)
+  _state_property_first_state : Map<string, StateType>;
+
   _history        : JssmHistory<mDT>;
   _history_length : number;
 
@@ -688,6 +693,7 @@ class Machine<mDT> {
     this._default_properties            = new Map();
     this._state_properties              = new Map();
     this._required_properties           = new Set();
+    this._state_property_first_state    = new Map();
 
     this._state_style                   = state_style_condense(default_state_config, this);
     this._active_state_style            = state_style_condense(default_active_state_config, this);
@@ -922,7 +928,26 @@ class Machine<mDT> {
     if (Array.isArray(state_property)) {
 
       state_property.forEach(sp => {
+
         this._state_properties.set(sp.name, sp.default_value);
+
+        // Record the unserialized (property, state) pair for post-build
+        // validation.  The compiler writes both fields; a hand-built config
+        // that carries only the serialized name pays one JSON.parse here,
+        // which is what every binding used to pay at validation time (#734).
+        let j_property = sp.property,
+            j_state    = sp.state;
+
+        if ((j_property === undefined) || (j_state === undefined)) {
+          const inside = JSON.parse(sp.name);
+          j_property   = inside[0];
+          j_state      = inside[1];
+        }
+
+        if (!(this._state_property_first_state.has(j_property))) {
+          this._state_property_first_state.set(j_property, j_state);
+        }
+
       });
 
     }
@@ -951,33 +976,26 @@ class Machine<mDT> {
     // done building, do checks
 
     // assert all props are valid
-    // _state_properties keys are always JSON.stringify([string, string]),
-    // built by name_bind_prop_and_state which throws on non-strings — so the
-    // non-array / non-string else-arms below are unreachable, not untested.
-    this._state_properties.forEach( (_value, key) => {
-      const inside = JSON.parse(key);
-      /* v8 ignore else */
-      if (Array.isArray(inside)) {
-        const j_property = inside[0];
-        /* v8 ignore else */
-        if (typeof j_property === 'string') {
-          const j_state = inside[1];
-          /* v8 ignore else */
-          if (typeof j_state === 'string') {
-            if (!(this.known_prop(j_property))) {
-              throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
-            }
-          }
-        }
+    // provenance pairs were recorded at insertion — first state per property,
+    // in first-binding order — replacing the old JSON.parse of every
+    // serialized key; the error fires for the same binding it always did,
+    // because the first property in first-binding order whose name is
+    // undeclared owns the earliest undeclared binding.
+    this._state_property_first_state.forEach( (j_state, j_property) => {
+      if (!(this.known_prop(j_property))) {
+        throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
       }
     });
 
     // assert all required properties are serviced
+    // states() allocates a fresh array per call, so take it once rather than
+    // once per required property
+    const all_states_for_props = this.states();
     this._required_properties.forEach( dp_key => {
       if (this._default_properties.has(dp_key)) {
         throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
       }
-      this.states().forEach(s => {
+      all_states_for_props.forEach(s => {
         const bound_name = name_bind_prop_and_state(dp_key, s);
         if (!(this._state_properties.has(bound_name))) {
           throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
