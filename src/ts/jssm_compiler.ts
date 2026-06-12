@@ -574,7 +574,13 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     );
   }
 
-  const assembled_transitions: JssmTransitions<StateType, mDT> = [].concat(...results['transition']);
+  // The accumulator is already flat (#700's per-rule push spreads one level)
+  // and function-local, so it is used directly.  The previous
+  // `[].concat(...results['transition'])` both copied it for nothing and
+  // capped machines near 65k transition statements: spreading into an
+  // argument list is bounded by the engine's maximum argument count, so e.g.
+  // dense-300 (89,700 edges) threw RangeError inside the compiler.  #703
+  const assembled_transitions: JssmTransitions<StateType, mDT> = results['transition'];
 
   const result_cfg: JssmGenericConfig<StateType, mDT> = {
     start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],

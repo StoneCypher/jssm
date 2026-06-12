@@ -414,7 +414,13 @@ function compile(tree) {
         const dup = repeat_props[0][0];
         throw new JssmError(undefined, `Cannot repeat property definitions.  Saw ${JSON.stringify(repeat_props)}`, { source_location: nth_matching_loc(tree, (n) => n.key === 'property_definition' && n.name === dup, 2) });
     }
-    const assembled_transitions = [].concat(...results['transition']);
+    // The accumulator is already flat (#700's per-rule push spreads one level)
+    // and function-local, so it is used directly.  The previous
+    // `[].concat(...results['transition'])` both copied it for nothing and
+    // capped machines near 65k transition statements: spreading into an
+    // argument list is bounded by the engine's maximum argument count, so e.g.
+    // dense-300 (89,700 edges) threw RangeError inside the compiler.  #703
+    const assembled_transitions = results['transition'];
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
         end_states: results.end_states,
