@@ -149,18 +149,24 @@ function highlightFSL(src) {
 const YES = '✓', NO = '✗', NA = '—', DECL = '◐';
 const TIMEOUT = '⏱', ERRMARK = '✗', RADIOACTIVE = '☢️';   // ☢️ = state corruption
 const CHECK_F = '✓F';   // illegal-move rejection by returning false; rendered ✓ + subscript F
+const CROSS_T = '✗T';   // hostile-name rejection by throwing; rendered ✗ + subscript T (keeps the column narrow)
+const WARN_N  = '⚠N';   // illegal-move rejection by silent no-op; rendered ⚠ + subscript N (safe, but signals nothing to the caller)
+const CROSS_C = '✗C';   // CJS-only packaging (no ESM entry point); rendered ✗ + subscript C
 const WARN = '⚠';       // builds, but >10x slower than jssm
 
 /** Render a mark to HTML — most are plain glyphs; CHECK_F gets a subscript F. */
 function markHtml(mark) {
   if (mark === CHECK_F) return '✓<sub class="submark">F</sub>';
+  if (mark === CROSS_T) return '✗<sub class="submark">T</sub>';
+  if (mark === WARN_N)  return '⚠<sub class="submark">N</sub>';
+  if (mark === CROSS_C) return '✗<sub class="submark">C</sub>';
   return esc(String(mark));
 }
 
 /** Classify a plain mark into pass / fail / neutral for cell backgrounds. */
 function classifyMark(m) {
   if (m === YES) return 'pass';
-  if (m === NO || m === ERRMARK || m === RADIOACTIVE || m === TIMEOUT) return 'fail';
+  if (m === NO || m === ERRMARK || m === RADIOACTIVE || m === TIMEOUT || m === CROSS_C) return 'fail';
   return 'neutral';
 }
 
@@ -242,10 +248,14 @@ const ROWS = [
         'throws-with-state-names': 'rejects by throwing an error that names the offending states (ideal)',
         'throws'                 : 'rejects by throwing an error',
         'returns-false'          : 'rejects by returning false (no throw)',
-        'noop'                   : 'rejects by silent no-op — state unchanged, nothing thrown or returned',
+        'noop'                   : 'rejects by silent no-op — state unchanged, but nothing thrown or returned, so the caller is never told the move was illegal',
       }[b.category] || `rejects: ${b.category}`;
-      const mark = b.category === 'returns-false' ? CHECK_F : YES;
-      return { mark, status: 'pass', note };
+      // A silent no-op is safe (state stays consistent) but gives the caller no
+      // signal, so it warns rather than cleanly passing; returning false is a
+      // pass with the F mark; throwing is the ideal clean pass.
+      if (b.category === 'noop')          return { mark: WARN_N, status: 'warn', note };
+      if (b.category === 'returns-false') return { mark: CHECK_F, status: 'pass', note };
+      return { mark: YES, status: 'pass', note };
     },
     (m) => true),
 
@@ -253,7 +263,7 @@ const ROWS = [
     `"__proto__" -> "constructor";`,
     'Using `__proto__` / `constructor` as state names. Pass = handles them as ordinary names; fail = throws (cannot use them) or corrupts.',
     (b) => b.category === 'works' ? { mark: YES, status: 'pass' }
-         : b.category === 'throws' ? { mark: 'throws', status: 'fail', note: 'throws on __proto__/constructor as a state name' }
+         : b.category === 'throws' ? { mark: CROSS_T, status: 'fail', note: 'throws on __proto__/constructor as a state name' }
          : { mark: RADIOACTIVE, status: 'fail' },
     (m) => true),
 
@@ -271,8 +281,8 @@ const ROWS = [
 
   staticRow('Dual ESM + CJS',
     `a -> b;`,
-    'Advertises both `import` and `require` entry points.',
-    (s) => s.modules === 'dual' ? YES : s.modules),
+    'Advertises both `import` and `require` entry points. CJS-only (no ESM) is a fail (✗C).',
+    (s) => s.modules === 'dual' ? YES : s.modules === 'cjs' ? CROSS_C : s.modules),
 
   staticRow('No install scripts',
     `a -> b;`,
@@ -690,7 +700,7 @@ const html = `<!doctype html>
   <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Cells are machine-verified against a pinned version, except the muted <b style="color:#4f7a52">ᵈ</b> tier, which is sourced from each library's own published documentation.</p>
   <div class="caveat"><strong>LOCAL PREVIEW.</strong> These numbers were measured on a developer workstation (and a <code>--quick</code> throughput pass), not the graviton reference runner — directional only. Capability and behavior checkmarks are environment-independent and final. Canonical numbers come from a dispatched <code>perf_results/shootout/</code> run.</div>
   <p class="legend">Hover any cell for detail. Backgrounds: <b style="background:#cdf3f4;color:#0a6b78;padding:0 4px;border-radius:3px">cyan</b> beats jssm · <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">green</b> pass · <b style="background:#fdeccb;color:#9a6512;padding:0 4px;border-radius:3px">amber</b> &gt;${WARN_FACTOR}× slower than jssm · <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">red</b> fail.
-  &nbsp; <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a
+  &nbsp; <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">✗<sub class="submark">T</sub></b> throws (can't use the name) · <b style="color:#9a6512">⚠<sub class="submark">N</sub></b> silent no-op (safe, but tells the caller nothing) · <b class="m-no">✗<sub class="submark">C</sub></b> CJS-only (no ESM) · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a
   &nbsp; <b style="background:#eef5ec;color:#4f7a52;padding:0 4px;border-radius:3px">✓ᵈ</b> / <b style="background:#f6ebe9;color:#9a6f6c;padding:0 4px;border-radius:3px">✗ᵈ</b> documented in the library's own docs (the muted ᵈ tier — claimed, not machine-verified; hover for the source).</p>
 
   <table class="grid">
