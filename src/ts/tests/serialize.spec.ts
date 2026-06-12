@@ -101,8 +101,9 @@ describe('Version checking in deserialization', () => {
 
   describe('compareVersions utility', () => {
 
-    // Note: compareVersions is an internal utility function
-    // We test it indirectly through deserialization behavior
+    // compareVersions is exported public API; deserialization-level tests
+    // exercise it through deserialize, and direct pair tests below pin its
+    // exact semantics independently of the current library version.
 
     test('Detects future major version', () => {
       const machine_str = "a -> b;";
@@ -174,32 +175,69 @@ describe('Version checking in deserialization', () => {
         .toThrow(/Cannot deserialize from future version/);
     });
 
-    // The two tests below exercise compareVersions's `?? 0` branches —
-    // the existing fewer/more-segment tests exit the iteration loop at i=0
-    // because the major versions differ.  These versions match the current
-    // version's prefix so the loop iterates past one array's length, hitting
-    // the nullish-coalescing branch on parts1[i] / parts2[i].
-
-    test('Handles version equal to current with fewer trailing segments', () => {
+    test('Refuses to deserialize from a future prerelease version', () => {
+      // Regression guard: prerelease identifiers used to become NaN inside
+      // the comparator, so future prerelease-stamped data was silently
+      // accepted instead of refused.
       const machine_str = "a -> b;";
       const foo = jssm.from(machine_str);
       const ser = foo.serialize();
-      // strip the patch component to get a 2-segment version
-      ser.jssm_version = ser.jssm_version.split('.').slice(0, 2).join('.');
+      ser.jssm_version = '999.0.0-rc.1';
 
       expect(() => jssm.deserialize(machine_str, ser))
-        .not.toThrow();
+        .toThrow(/Cannot deserialize from future version/);
     });
 
-    test('Handles version equal to current with extra trailing zero segment', () => {
+    test('Refuses when a dot-segment extends the current version', () => {
+      // Works whether the current version is a release (the extra segment
+      // outranks the implied zero) or a prerelease (the longer identifier
+      // set outranks its prefix).
       const machine_str = "a -> b;";
       const foo = jssm.from(machine_str);
       const ser = foo.serialize();
-      // append an extra zero segment
-      ser.jssm_version = `${ser.jssm_version}.0`;
+      ser.jssm_version = `${ser.jssm_version}.1`;
 
       expect(() => jssm.deserialize(machine_str, ser))
-        .not.toThrow();
+        .toThrow(/Cannot deserialize from future version/);
+    });
+
+    // Direct pair tests: deterministic regardless of the current library
+    // version, covering segment zero-extension and semver prerelease
+    // precedence (a prerelease precedes its release; identifiers compare
+    // dot-by-dot, numerics below alphanumerics, prefix sets first).
+
+    test('zero-extends missing numeric segments', () => {
+      expect(jssm.compareVersions('5.104',     '5.104.0')).toBe(0);
+      expect(jssm.compareVersions('5.104.0.0', '5.104.0')).toBe(0);
+    });
+
+    test('a prerelease precedes its release', () => {
+      expect(jssm.compareVersions('6.0.0-alpha.1', '6.0.0')).toBeLessThan(0);
+      expect(jssm.compareVersions('6.0.0', '6.0.0-alpha.1')).toBeGreaterThan(0);
+    });
+
+    test('numeric prerelease identifiers compare numerically', () => {
+      expect(jssm.compareVersions('6.0.0-alpha.1', '6.0.0-alpha.2')).toBeLessThan(0);
+      expect(jssm.compareVersions('6.0.0-alpha.10', '6.0.0-alpha.9')).toBeGreaterThan(0);
+    });
+
+    test('alphanumeric prerelease identifiers compare in ASCII order', () => {
+      expect(jssm.compareVersions('6.0.0-alpha.1', '6.0.0-beta.1')).toBeLessThan(0);
+      expect(jssm.compareVersions('6.0.0-beta.1', '6.0.0-alpha.1')).toBeGreaterThan(0);
+    });
+
+    test('numeric prerelease identifiers rank below alphanumeric ones', () => {
+      expect(jssm.compareVersions('6.0.0-1', '6.0.0-alpha')).toBeLessThan(0);
+      expect(jssm.compareVersions('6.0.0-alpha', '6.0.0-1')).toBeGreaterThan(0);
+    });
+
+    test('a shorter prerelease identifier set precedes a longer one it prefixes', () => {
+      expect(jssm.compareVersions('6.0.0-alpha', '6.0.0-alpha.1')).toBeLessThan(0);
+      expect(jssm.compareVersions('6.0.0-alpha.1.0', '6.0.0-alpha.1')).toBeGreaterThan(0);
+    });
+
+    test('identical prereleases compare equal', () => {
+      expect(jssm.compareVersions('6.0.0-alpha.1', '6.0.0-alpha.1')).toBe(0);
     });
 
   });
