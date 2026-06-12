@@ -545,15 +545,23 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     allow_islands                 : []
   };
 
-  tree.map((tr: JssmCompileSeStart<StateType, mDT>) => {
+  // Accumulate by in-place push, not `results[agg_as].concat(val)`: concat
+  // recopies and reallocates the whole bucket per rule, which made this loop
+  // O(n^2) over edge-heavy machines — two-thirds of construct() self-time
+  // (#700).  Array-valued rules spread one level, matching concat's behavior.
+  for (const tr of tree) {
 
     const rule   : JssmCompileRule<StateType> = compile_rule_handler(tr),
-          agg_as : string                     = rule.agg_as,
-          val    : any                        = rule.val;                  // TODO FIXME no any
+          val    : any                        = rule.val,                  // TODO FIXME no any
+          bucket : any                        = results[rule.agg_as];
 
-    results[agg_as] = results[agg_as].concat(val)
+    if (Array.isArray(val)) {
+      for (const v of val) { bucket.push(v); }
+    } else {
+      bucket.push(val);
+    }
 
-  });
+  }
 
   const property_keys = results['property_definition'].map(pd => pd.name),
         repeat_props  = find_repeated(property_keys);
