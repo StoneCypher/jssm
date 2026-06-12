@@ -22,6 +22,62 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 11, 2026 7:45:56 PM
+
+Commit [483bf22c910e5b0648f6730795e51b8a366f90c3](https://github.com/StoneCypher/jssm/commit/483bf22c910e5b0648f6730795e51b8a366f90c3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(taxonomy): cs-pedagogy collection — 32 machines that teach CS topics
+  * Twelfth collection, with a structural twist: for a teaching collection
+the kills field names a MISCONCEPTION rather than a bug ('await pauses
+the computer', 'a boolean flag is a lock', 'timestamps order events',
+'just add one more ack'). Spans theory (subset construction live, the
+pumping lemma machine, decidability tripwires, two-stacks-equals-
+Turing, the state-explosion demo), algorithms (KMP's failure function
+IS an automaton, Huffman bit-walks, ReDoS vs DFA), systems (TIME_WAIT
+honestly, MESI, tri-color GC with the invariant actually held, pipeline
+hazards, schedulers), distributed (two generals as a PROVEN negative
+result, Raft elections, vector clocks), and probability (the gambler's-
+fallacy machine, Monte Carlo budgets). Pairs with learn-by-repairing:
+the checker is the teaching assistant — wrong intuitions become
+reachable states you can visit. 12 collections, 220 items;
+Node-validated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 11, 2026 7:43:02 PM
+
+Commit [0e3d617c99f19fc633306e575f45c424d8d1d7fa](https://github.com/StoneCypher/jssm/commit/0e3d617c99f19fc633306e575f45c424d8d1d7fa)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(parser): v5.143.5 — inline peg$fail's early-return guard at all 835 call sites (#704)
+  * peg$fail was 6.7% of construct() self-time: it is called at every
+failed match attempt outside named rules, and nearly every call exits
+at its first line (peg$currPos < peg$maxFailPos), so the cost was
+almost pure call overhead.
+  * fixparser.cjs now mechanically rewrites every generated
+`if (peg$silentFails === 0) { peg$fail(peg$cN); }` site to also require
+`peg$currPos >= peg$maxFailPos`, hoisting peg$fail's own first-line
+test so the common case is one inline integer compare instead of a
+function call. The condition is lifted verbatim, so expectation
+collection — and every parse-error message — is byte-identical. All
+835 constant-expectation sites rewrite (tripwire throws under 500);
+the single peg$endExpectation() EOF site is deliberately untouched.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 11, 2026 7:34:56 PM
 
 Commit [6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600](https://github.com/StoneCypher/jssm/commit/6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600)

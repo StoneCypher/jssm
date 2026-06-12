@@ -11,6 +11,54 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
+<a href="#untagged---jun-11-2026-74556-pm" id="untagged---jun-11-2026-74556-pm" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 11, 2026 7:45:56 PM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/483bf22c910e5b0648f6730795e51b8a366f90c3">483bf22c910e5b0648f6730795e51b8a366f90c3</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>docs(taxonomy): cs-pedagogy collection — 32 machines that teach CS topics</li>
+<li>Twelfth collection, with a structural twist: for a teaching collection
+the kills field names a MISCONCEPTION rather than a bug (&#39;await pauses
+the computer&#39;, &#39;a boolean flag is a lock&#39;, &#39;timestamps order events&#39;,
+&#39;just add one more ack&#39;). Spans theory (subset construction live, the
+pumping lemma machine, decidability tripwires, two-stacks-equals-
+Turing, the state-explosion demo), algorithms (KMP&#39;s failure function
+IS an automaton, Huffman bit-walks, ReDoS vs DFA), systems (TIME_WAIT
+honestly, MESI, tri-color GC with the invariant actually held, pipeline
+hazards, schedulers), distributed (two generals as a PROVEN negative
+result, Raft elections, vector clocks), and probability (the gambler&#39;s-
+fallacy machine, Monte Carlo budgets). Pairs with learn-by-repairing:
+the checker is the teaching assistant — wrong intuitions become
+reachable states you can visit. 12 collections, 220 items;
+Node-validated.</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-11-2026-74302-pm" id="untagged---jun-11-2026-74302-pm" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 11, 2026 7:43:02 PM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/0e3d617c99f19fc633306e575f45c424d8d1d7fa">0e3d617c99f19fc633306e575f45c424d8d1d7fa</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>perf(parser): v5.143.5 — inline peg$fail&#39;s early-return guard at all 835 call sites (#704)</li>
+<li>peg$fail was 6.7% of construct() self-time: it is called at every
+failed match attempt outside named rules, and nearly every call exits
+at its first line (peg$currPos &lt; peg$maxFailPos), so the cost was
+almost pure call overhead.</li>
+<li>fixparser.cjs now mechanically rewrites every generated
+<code>if (peg$silentFails === 0) { peg$fail(peg$cN); }</code> site to also require
+<code>peg$currPos &gt;= peg$maxFailPos</code>, hoisting peg$fail&#39;s own first-line
+test so the common case is one inline integer compare instead of a
+function call. The condition is lifted verbatim, so expectation
+collection — and every parse-error message — is byte-identical. All
+835 constant-expectation sites rewrite (tripwire throws under 500);
+the single peg$endExpectation() EOF site is deliberately untouched.</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 <a href="#untagged---jun-11-2026-73456-pm" id="untagged---jun-11-2026-73456-pm" style="color: inherit; text-decoration: none;">
   <h2>[Untagged] - Jun 11, 2026 7:34:56 PM</h2>
 </a>
