@@ -65,6 +65,16 @@ describe('cli/config/sources/from-discovery', () => {
       expect(out).toBeNull();
     });
 
+    it('returns null via the 64-iteration defensive cap on a pathological deep path', async () => {
+      // 70 components is deeper than the cap, so the walk cannot reach the
+      // filesystem root before iterations run out; the cap must end the walk
+      // with null rather than continuing toward the root. None of the
+      // directories need to exist — the existence probe just fails.
+      const deep = '/' + Array.from({ length: 70 }, (_, i) => `lvl${i}`).join('/');
+      const out = await discoverProjectConfig({ from: deep });
+      expect(out).toBeNull();
+    });
+
   });
 
 });

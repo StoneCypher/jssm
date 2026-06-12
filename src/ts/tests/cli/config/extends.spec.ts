@@ -126,6 +126,24 @@ describe('cli/config/extends', () => {
     )).rejects.toBeInstanceOf(ConfigSchemaError);
   });
 
+  it('resolves extends relative to a Windows drive-letter base path', async () => {
+    // A `C:\...` base must resolve to `C:/...` — drive prefix kept, and no
+    // spurious leading `/` prepended the way a POSIX-rooted path gets one.
+    const seen: string[] = [];
+    const reader: Reader = async (path: string) => {
+      seen.push(path);
+      if (path === 'C:/proj/.fsl/base.json') return JSON.stringify({ render: { scale: 2, outDir: 'win-dir' } });
+      throw Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' });
+    };
+    const out = await resolveExtends(
+      { extends: './base.json', render: { scale: 9 } },
+      'C:\\proj\\.fsl\\config.json',
+      reader,
+    );
+    expect(seen).toEqual(['C:/proj/.fsl/base.json']);
+    expect(out.render).toEqual({ scale: 9, outDir: 'win-dir' });
+  });
+
   it('throws ConfigParseError when a base file is malformed JSON', async () => {
     const { ConfigParseError } = await import('../../../cli/config/types');
     const reader = makeReader({
