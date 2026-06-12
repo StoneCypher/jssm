@@ -38,6 +38,19 @@ describe('cli/config/schema', () => {
     }, { path: '/x' })).not.toThrow();
   });
 
+  it('accepts a registry section mapping names to file paths', () => {
+    expect(() => validateConfig({
+      registry: {
+        traffic:  './machines/traffic-light.fsl',
+        elevator: '../shared/elevator.fsl',
+      },
+    }, { path: '/x' })).not.toThrow();
+  });
+
+  it('rejects non-string registry values', () => {
+    expect(() => validateConfig({ registry: { traffic: 42 } } as any, { path: '/x' })).toThrow(ConfigSchemaError);
+  });
+
   it('rejects unknown top-level keys', () => {
     expect(() => validateConfig({ totally_made_up: true } as any, { path: '/x' })).toThrow(ConfigSchemaError);
   });

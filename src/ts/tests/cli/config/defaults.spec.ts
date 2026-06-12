@@ -24,16 +24,17 @@ describe('cli/config/defaults', () => {
 
   it('every per-subcommand section is present', () => {
     expect(defaults.lint).toBeDefined();
-    expect(defaults.fmt).toBeDefined();
+    expect(defaults.format).toBeDefined();
     expect(defaults.test).toBeDefined();
     expect(defaults.check).toBeDefined();
-    expect(defaults.typegen).toBeDefined();
-    expect(defaults.new).toBeDefined();
-    expect(defaults.convert).toBeDefined();
-    expect(defaults.playground).toBeDefined();
+    expect(defaults.codegen).toBeDefined();
+    expect(defaults.init).toBeDefined();
+    expect(defaults.import).toBeDefined();
+    expect(defaults.export).toBeDefined();
     expect(defaults.mcp).toBeDefined();
     expect(defaults.lsp).toBeDefined();
     expect(defaults.repl).toBeDefined();
+    expect(defaults.registry).toBeDefined();
   });
 
   it('defaults is deep-frozen so callers cannot mutate it', () => {

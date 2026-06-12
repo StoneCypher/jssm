@@ -39,9 +39,9 @@ export interface RenderConfig {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LintConfig {}
 
-/** Fmt subcommand configuration — empty in v1; fields land with issue #621. */
+/** Format subcommand configuration — empty in v1; fields land with the v6 `format` verb (megaspec §25; formerly issue #621's `fmt`). */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface FmtConfig {}
+export interface FormatConfig {}
 
 /** Test subcommand configuration — empty in v1; fields land with issue #622. */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -51,21 +51,21 @@ export interface TestConfig {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CheckConfig {}
 
-/** Typegen subcommand configuration — empty in v1; fields land with issue #624. */
+/** Codegen subcommand configuration — empty in v1; fields land with the v6 `codegen` verb (megaspec §25; formerly issue #624's `typegen`). */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface TypegenConfig {}
+export interface CodegenConfig {}
 
-/** Scaffolder subcommand configuration — empty in v1; fields land with issue #625. */
+/** Init (project scaffolder) subcommand configuration — empty in v1; fields land with the v6 `init` verb (megaspec §25; formerly issue #625's `new`). */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface NewConfig {}
+export interface InitConfig {}
 
-/** Converter subcommand configuration — empty in v1; fields land with issue #626. */
+/** Import (SCXML / xstate / mermaid / dot → FSL) subcommand configuration — empty in v1; fields land with the v6 `import` verb (megaspec §25). */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ConvertConfig {}
+export interface ImportConfig {}
 
-/** Playground subcommand configuration — empty in v1; fields land with issue #627. */
+/** Export (FSL → SCXML / xstate / mermaid / grammar artifacts) subcommand configuration — empty in v1; fields land with the v6 `export` verb (megaspec §25). */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface PlaygroundConfig {}
+export interface ExportConfig {}
 
 /** MCP server subcommand configuration — empty in v1; fields land with issue #628. */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -79,22 +79,33 @@ export interface LspConfig {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ReplConfig {}
 
+/**
+ * The registry section: a map from machine/system name to the file that
+ * defines it, consumed by every name-resolving verb (megaspec §25). Empty
+ * in v1 — reserved here so configs written today validate tomorrow.
+ *
+ * @example
+ *   { "traffic": "./machines/traffic-light.fsl" }
+ */
+export type RegistryConfig = Record<string, string>;
+
 /** The fully-merged, defaults-populated configuration the loader returns. */
 export interface ResolvedConfig {
   include: string[];
   exclude: string[];
   render: Required<Pick<RenderConfig, 'defaultTarget' | 'scale' | 'quality'>> & RenderConfig;
   lint: LintConfig;
-  fmt: FmtConfig;
+  format: FormatConfig;
   test: TestConfig;
   check: CheckConfig;
-  typegen: TypegenConfig;
-  new: NewConfig;
-  convert: ConvertConfig;
-  playground: PlaygroundConfig;
+  codegen: CodegenConfig;
+  init: InitConfig;
+  import: ImportConfig;
+  export: ExportConfig;
   mcp: McpConfig;
   lsp: LspConfig;
   repl: ReplConfig;
+  registry: RegistryConfig;
 }
 
 type DeepPartial<T> = T extends object
