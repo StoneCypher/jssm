@@ -51,6 +51,26 @@ existing trend lines measure the wrong thing (see Repairs).
 | 3 | `'Blind cycle a traffic light 100 times by action'` registered twice (same name, same fn) | Drop the duplicate registration | n/a |
 | 4 | Envelope saved with hardcoded `version: '1.2.0'` | `version: pkg.version` (require `../../package.json`), matching the scaling suite | n/a |
 
+### Addendum (found during plan verification, probe-confirmed against dist)
+
+| # | Bug | Fix | Naming |
+|---|-----|-----|--------|
+| 5 | Named-hook cases register with `name:` but `set_hook` reads `HookDesc.action` — the hook lands under an interned `undefined` and **never fires** (`Tl4WAHA`, `Tl4WAWHA`, `Tl4KS` ×2) | Use `action:` | Rename affected cases: append ` v2` |
+| 6 | Global-action cases register with no `action:` field — **never fires** (`Tl4GA`, `Tl4KS`) | Add `action: 'next'` | Rename: append ` v2` |
+| 7 | `transition()` cannot traverse `~>` edges (probe-confirmed), so the FT-by-transition case fails every call and its hook never fires | Exercise via `force_transition()` | Rename: ` v2` |
+
+Named hooks fire only under `action()` dispatch (`jssm.ts` named fire site is
+gated on `wasAction`), so the named-by-transition case is retained as an
+explicit **carrying-cost** case (hook present, structurally cannot fire) and
+renamed to say so.
+
+Because five of these seven bugs are silent no-fire bugs, the suite gains
+**registration-time fire verification**: every hooked case is declared through
+a builder, and at startup the suite runs one exercise pass against a counting
+handler and throws unless the observed fire count matches the case's declared
+expectation (`expectFire: true|false`). A silently-broken case can then never
+report a number again.
+
 Renaming rule: a case whose measured semantics change gets a new name, because
 benny envelopes are compared by case name across versions; keeping the old name
 would splice a rejection-path trend into a hook-firing trend.
