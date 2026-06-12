@@ -63,6 +63,42 @@ function feasStatus(lib, shape) {
   return FEAS[lib] && FEAS[lib][shape] && FEAS[lib][shape].status;
 }
 
+// construct() ops/sec by (lib, shape), for the jssm-relative scaling comparison.
+const opsByName = new Map();
+if (SHOOT && SHOOT.results) for (const r of SHOOT.results) opsByName.set(r.name, r.ops);
+function constructOps(lib, shape) { return opsByName.get(`${lib} ${shape} construct()`); }
+
+// A competitor more than this many times slower than jssm at building a shape
+// is "warn" rather than a clean pass. Round number ~10x worse than jssm.
+const WARN_FACTOR = 10;
+
+// Month + year the publish counts were checked, for the release-cadence row
+// headers.
+const asOf = new Date((SHOOT && SHOOT.generatedAt) || Date.now())
+  .toLocaleString('en-US', { month: 'short', year: 'numeric' });
+
+// A graded release-cadence row: pass above `passAbove` publishes in the
+// window, warn if >0 but below, fail at 0; cyan if it outpaces jssm.
+function publishRow(windowKey, windowText, passAbove, headLabel) {
+  return {
+    group: 'Packaging & lifecycle', label: `${headLabel} (as of ${asOf})`,
+    demo: `a -> b;`,
+    explain: `Number of versions published to npm ${windowText}. Pass above ${passAbove}; warn if maintained but below; fail if none. A competitor publishing more often than jssm is cyan.`,
+    jssm6: undefined,
+    meta: (lib) => {
+      const s = STAT && STAT.results && STAT.results[lib];
+      if (!s || s[windowKey] == null) return { mark: NA, status: 'neutral' };
+      const n = s[windowKey];
+      const jn = (STAT.results.jssm && STAT.results.jssm[windowKey] != null) ? STAT.results.jssm[windowKey] : null;
+      const note = `${n} release${n === 1 ? '' : 's'} ${windowText}` + (jn != null ? `; jssm: ${jn}` : '');
+      if (jn != null && n > jn) return { mark: String(n), status: 'beat', note: note + ' — outpaces jssm' };
+      if (n > passAbove)        return { mark: String(n), status: 'pass', note };
+      if (n > 0)                return { mark: String(n), status: 'warn', note: note + ' — below the maintained bar' };
+      return { mark: '0', status: 'fail', note: note + ' — no releases in window' };
+    },
+  };
+}
+
 // ---------------------------------------------------------------------------
 // tiny FSL highlighter — spans for the period-correct render. Order matters:
 // comments and strings first so their interiors aren't re-tokenized.
@@ -95,6 +131,7 @@ function highlightFSL(src) {
 const YES = '✓', NO = '✗', NA = '—', DECL = '◐';
 const TIMEOUT = '⏱', ERRMARK = '✗', RADIOACTIVE = '☢️';   // ☢️ = state corruption
 const CHECK_F = '✓F';   // illegal-move rejection by returning false; rendered ✓ + subscript F
+const WARN = '⚠';       // builds, but >10x slower than jssm
 
 /** Render a mark to HTML — most are plain glyphs; CHECK_F gets a subscript F. */
 function markHtml(mark) {
@@ -224,10 +261,8 @@ const ROWS = [
     'No postinstall/install/preinstall hooks — one less supply-chain surface when you add it.',
     (s) => s.postinstall === 'no' ? YES : NO),
 
-  staticRow('Maintained (< 2y since publish)',
-    `a -> b;`,
-    'Published within the last two years. Half this field has not shipped in ~4.',
-    (s) => (typeof s.ageYears === 'number') ? (s.ageYears < 2 ? YES : NO) : NA),
+  publishRow('publishes6mo', 'in the last 6 months', 5, 'Releases · 6 mo'),
+  publishRow('publishes2yr', 'in the last 2 years',  20, 'Releases · 2 yr'),
 
   staticRow('Zero runtime dependencies',
     `a -> b;`,
@@ -257,11 +292,19 @@ function feasRows() {
       meta: (lib) => {
         const f = FEAS[lib] && FEAS[lib][sh];
         if (!f) return { mark: NA, status: 'neutral' };
-        if (f.status === 'ok') {
-          return { mark: YES, status: 'pass', note: f.constructMs !== undefined ? `built in ${Math.round(f.constructMs)} ms` : undefined };
-        }
-        if (f.status === 'timeout') return { mark: TIMEOUT, status: 'fail', note: `timed out building ${sh} (> ${ceilingSec}s) — construction does not scale to this shape` };
-        return { mark: ERRMARK, status: 'fail', note: `errored building ${sh}` };
+        if (f.status === 'timeout') return { mark: TIMEOUT, status: 'fail', note: `timed out building ${sh} — could not construct it within the ceiling` };
+        if (f.status === 'error')   return { mark: ERRMARK, status: 'fail', note: `errored building ${sh}` };
+        // ok — grade by construct() speed relative to jssm.
+        const ops = constructOps(lib, sh), ref = constructOps('jssm', sh);
+        const fmt = (n) => n >= 100 ? Math.round(n).toLocaleString() : n.toFixed(n < 10 ? 2 : 1);
+        if (ops == null || ref == null) return { mark: YES, status: 'pass' };
+        if (lib === 'jssm') return { mark: YES, status: 'pass', note: `${sh} construct: ${fmt(ops)} ops/s (reference)` };
+        const ratio = ops / ref;                                    // >1 faster than jssm
+        const rel = ratio >= 1 ? `${ratio.toFixed(2)}× faster than jssm` : `${(1 / ratio).toFixed(1)}× slower than jssm`;
+        const note = `${sh} construct: ${fmt(ops)} ops/s vs jssm ${fmt(ref)} — ${rel}`;
+        if (ratio > 1)               return { mark: YES,  status: 'beat', note };
+        if (ratio < 1 / WARN_FACTOR) return { mark: WARN, status: 'warn', note: note + ` (>${WARN_FACTOR}× slower)` };
+        return { mark: YES, status: 'pass', note };
       },
     });
   }
@@ -346,7 +389,11 @@ function cellInfo(row, col) {
 }
 
 function statusClass(status) {
-  return status === 'pass' ? 'c-pass' : status === 'fail' ? 'c-fail' : 'c-neutral';
+  return status === 'beat' ? 'c-beat'
+       : status === 'pass' ? 'c-pass'
+       : status === 'warn' ? 'c-warn'
+       : status === 'fail' ? 'c-fail'
+       : 'c-neutral';
 }
 
 let rowIndex = 0;
@@ -491,7 +538,9 @@ const html = `<!doctype html>
   td.rowlabel summary::-webkit-details-marker { display: none; }
   tr.grouphdr td { background:#d8d0ba; font-weight:700; text-align:left; letter-spacing:1px; text-transform:uppercase; font-size:11px; padding:4px 6px; }
   /* cell pass/fail backgrounds */
+  .c-beat { background:#cdf3f4; color:#0a6b78; font-weight:700; }
   .c-pass { background:#e2f1e0; color:#1d7a33; font-weight:700; }
+  .c-warn { background:#fdeccb; color:#9a6512; font-weight:700; }
   .c-fail { background:#fbe1de; color:#b03030; font-weight:700; }
   .c-neutral { color:#555; }
   sub.submark { font-size:0.7em; font-weight:700; }
@@ -529,7 +578,8 @@ const html = `<!doctype html>
   <h1>The FSM Shootout Grid<span class="tm">™</span></h1>
   <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Every cell machine-verified against a pinned version.</p>
   <div class="caveat"><strong>LOCAL PREVIEW.</strong> These numbers were measured on a developer workstation (and a <code>--quick</code> throughput pass), not the graviton reference runner — directional only. Capability and behavior checkmarks are environment-independent and final. Canonical numbers come from a dispatched <code>perf_results/shootout/</code> run.</div>
-  <p class="legend">Green = pass, red = fail (hover any cell for detail). <b class="m-yes">${YES}</b> yes · <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">${NO}</b> no · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b class="m-timeout">${TIMEOUT}</b> timed out building (didn't scale) · <b class="m-decl">${DECL}</b> declared (jssm 6, announced not measured) · <b class="m-na">${NA}</b> n/a</p>
+  <p class="legend">Hover any cell for detail. Backgrounds: <b style="background:#cdf3f4;color:#0a6b78;padding:0 4px;border-radius:3px">cyan</b> beats jssm · <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">green</b> pass · <b style="background:#fdeccb;color:#9a6512;padding:0 4px;border-radius:3px">amber</b> &gt;${WARN_FACTOR}× slower than jssm · <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">red</b> fail.
+  &nbsp; <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a</p>
 
   <table class="grid">
     <colgroup><col class="labelcol">${COLS.map(() => '<col class="libcol">').join('')}</colgroup>

@@ -14,7 +14,11 @@
     "types": "bundled",
     "modules": "cjs",
     "postinstall": "no",
-    "coldStartMs": 8.68
+    "coldStartMs": 8.68,
+    "publishes6mo": 0,
+    "publishes2yr": 0,
+    "lastPublishISO": "2018-05-17T12:33:34.289Z",
+    "publishCheckedAt": "2026-06-12T16:42:00.049Z"
   },
   "behavior": {
     "illegalTransition": {

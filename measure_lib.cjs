@@ -91,7 +91,28 @@ function measureStatic() {
     modules: hasESM && hasCJS ? 'dual' : hasESM ? 'esm' : 'cjs',
     postinstall: (s.postinstall || s.install || s.preinstall) ? 'yes' : 'no',
     coldStartMs,
+    ...measurePublishes(),
   };
+}
+
+// Release cadence: count published versions in the last 6 months / 2 years
+// from npm's per-version timestamps. A maintenance signal the grid grades.
+function measurePublishes() {
+  try {
+    const out = execFileSync('npm', ['view', libName, 'time', '--json'],
+      { cwd: __dirname, encoding: 'utf8', timeout: 20000, shell: process.platform === 'win32', stdio: ['ignore', 'pipe', 'ignore'] });
+    const time = JSON.parse(out);
+    const now = Date.now(), sixMo = now - 182 * 864e5, twoYr = now - 730 * 864e5;
+    let p6 = 0, p2 = 0, last = null;
+    for (const [v, iso] of Object.entries(time)) {
+      if (v === 'created' || v === 'modified') continue;
+      const t = new Date(iso).getTime(); if (Number.isNaN(t)) continue;
+      if (t >= sixMo) p6++;
+      if (t >= twoYr) p2++;
+      if (!last || t > new Date(last).getTime()) last = iso;
+    }
+    return { publishes6mo: p6, publishes2yr: p2, lastPublishISO: last, publishCheckedAt: new Date().toISOString() };
+  } catch { return {}; }
 }
 
 // --- behavior (categorical) ---------------------------------------------------

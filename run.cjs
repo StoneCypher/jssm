@@ -63,7 +63,12 @@ for (const adapter of ADAPTERS) {
     continue;
   }
   const prev = cached(adapter.name);
-  const fresh = prev && prev.version === adapter.version && prev.completedAt && !FORCE;
+  // Reuse if this version was already measured past the cheap phases (static +
+  // behavior + memory present). A library that legitimately times out on a
+  // huge shape never reaches `completedAt`, so requiring it would re-measure
+  // (and re-time-out) every run; the missing shapes are read as timeouts
+  // instead. `--force` re-measures regardless.
+  const fresh = prev && prev.version === adapter.version && prev.static && prev.behavior && prev.memory && !FORCE;
   if (fresh) {
     measured[adapter.name] = prev;
     console.log(`  reuse  ${adapter.name.padEnd(26)} @${adapter.version} (cached)`);

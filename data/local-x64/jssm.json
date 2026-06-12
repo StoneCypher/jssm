@@ -17,7 +17,11 @@
     "types": "bundled",
     "modules": "dual",
     "postinstall": "no",
-    "coldStartMs": 42.59
+    "coldStartMs": 42.59,
+    "publishes6mo": 63,
+    "publishes2yr": 72,
+    "lastPublishISO": "2026-06-12T15:47:29.489Z",
+    "publishCheckedAt": "2026-06-12T16:41:36.702Z"
   },
   "behavior": {
     "illegalTransition": {

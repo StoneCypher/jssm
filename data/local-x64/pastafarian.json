@@ -14,7 +14,11 @@
     "types": "none",
     "modules": "cjs",
     "postinstall": "no",
-    "coldStartMs": 15.81
+    "coldStartMs": 15.81,
+    "publishes6mo": 0,
+    "publishes2yr": 0,
+    "lastPublishISO": "2016-07-22T15:18:02.896Z",
+    "publishCheckedAt": "2026-06-12T16:41:45.802Z"
   },
   "behavior": {
     "illegalTransition": {
