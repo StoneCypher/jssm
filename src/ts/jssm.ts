@@ -1884,7 +1884,8 @@ class Machine<mDT> {
    *  @returns `true` if the machine has at least one action.
    */
   get uses_actions(): boolean {
-    return Array.from(this._actions.keys()).length > 0;
+    // Map.size answers emptiness without materializing the key list
+    return this._actions.size > 0;
   }
 
   /** Whether any forced (`~>`) transitions exist in this machine.
@@ -2229,23 +2230,32 @@ class Machine<mDT> {
     const wstate: JssmGenericState = this._states.get(whichState);
     if (!(wstate)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
-    const wstate_to: Array<StateType> = wstate.to,
+    // single pass over the state's exits, replacing the old map -> filter ->
+    // filter -> filter chain and its three intermediate arrays; selection and
+    // ordering semantics are unchanged
+    const legal_exits          : Array<JssmTransition<StateType, mDT>> = [],
+          probability_bearing  : Array<JssmTransition<StateType, mDT>> = [];
 
-      // every transition that exits whichState
-      all_exits: Array<JssmTransition<StateType, mDT>>
-        = wstate_to
-          .map((ws): JssmTransition<StateType, mDT> => this.lookup_transition_for(whichState, ws))
-          .filter(Boolean),
+    for (const ws of wstate.to) {
+
+      // wstate.to is built from the same edge set lookup_transition_for
+      // resolves against, so the lookup cannot miss; the guard mirrors the
+      // old defensive .filter(Boolean) and is equally unreachable.
+      const edge: JssmTransition<StateType, mDT> = this.lookup_transition_for(whichState, ws);
+      /* v8 ignore next */
+      if (!edge) { continue; }
 
       // forced-only exits cannot be reached by transition(), so they are
       // never legal probabilistic outcomes
-      legal_exits: Array<JssmTransition<StateType, mDT>>
-        = all_exits.filter((e): boolean => !e.forced_only),
+      if (edge.forced_only) { continue; }
 
-      // if any legal exit declares a probability, filter to those only so
+      legal_exits.push(edge);
+
+      // if any legal exit declares a probability, only those are returned, so
       // that probability-bearing edges are not diluted by their peers
-      probability_bearing: Array<JssmTransition<StateType, mDT>>
-        = legal_exits.filter((e): boolean => e.probability !== undefined);
+      if (edge.probability !== undefined) { probability_bearing.push(edge); }
+
+    }
 
     return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
 
