@@ -22,6 +22,51 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 12, 2026 9:34:12 AM
+
+Commit [1744a90fd6bc282fa0c2c78e6bb37b07469b355e](https://github.com/StoneCypher/jssm/commit/1744a90fd6bc282fa0c2c78e6bb37b07469b355e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): v5.143.13 — property-test the hook registry, event machinery, style buckets, interner, and canvas rasterizer
+  * Stoch coverage rises 74.2% -> 85.3% statements (branches 66.51% ->
+77.69%, functions 78.26% -> 85.99%); 29 more property tests in two
+files, 756 stoch tests total.
+  * - set_hook / remove_hook driven across all 22 hook kinds with per-kind
+  stimulus verification: install fires exactly once, removal returns
+  true then false, removed hooks stay silent, and hook-registration /
+  hook-removal events track the registry
+- event machinery: filtered on() subscriptions, non-function handler
+  rejection, throwing handlers re-emitted as 'error' events with later
+  handlers still running, and the console.error fallback when an error
+  handler itself throws
+- hook complex results: { pass: true, data } adopts data, { pass: false,
+  data } neither moves nor mutates
+- default style buckets (state / active / hooked / terminal / start /
+  end): kebab-to-camel condensation per key, named colors normalizing to
+  hex8, duplicate-key redefinition throwing at construction
+- islands: connected-component detection under allow_islands: false
+- getter long tail: machine_definition (bare-URL grammar, whitespace
+  before the terminator since ';' is a legal URL char), machine_language
+  ISO-639-1 normalization, state declaration surfaces, machine_state,
+  multi-state actions, the machine-level sm template
+- compareVersions deep prerelease branches; deserialize with history
+- jssm_intern: intern/id_of/name_of/size consistency, pair_key
+  injectivity over constructed natural pairs
+- rasterize OffscreenCanvas path via injected fake Canvas/Image globals:
+  width/height/scale fit arithmetic against constructed natural sizes,
+  jpeg quality mapping, the missing-Image guard
+- dispatcher spawn path with real spawned node fixtures and the
+  --verbose resolution trace
+  * Includes the v5.143.13 bump and regenerated build artifacts.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 12, 2026 9:31:17 AM
 
 Commit [082f2d78454e79c136738f70057c1b9f478dd205](https://github.com/StoneCypher/jssm/commit/082f2d78454e79c136738f70057c1b9f478dd205)

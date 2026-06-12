@@ -11,6 +11,54 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
+<a href="#untagged---jun-12-2026-93412-am" id="untagged---jun-12-2026-93412-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 9:34:12 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/1744a90fd6bc282fa0c2c78e6bb37b07469b355e">1744a90fd6bc282fa0c2c78e6bb37b07469b355e</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>test(stoch): v5.143.13 — property-test the hook registry, event machinery, style buckets, interner, and canvas rasterizer</li>
+<li>Stoch coverage rises 74.2% -&gt; 85.3% statements (branches 66.51% -&gt;
+77.69%, functions 78.26% -&gt; 85.99%); 29 more property tests in two
+files, 756 stoch tests total.</li>
+<li><ul>
+<li>set_hook / remove_hook driven across all 22 hook kinds with per-kind
+stimulus verification: install fires exactly once, removal returns
+true then false, removed hooks stay silent, and hook-registration /
+hook-removal events track the registry</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>event machinery: filtered on() subscriptions, non-function handler
+rejection, throwing handlers re-emitted as &#39;error&#39; events with later
+handlers still running, and the console.error fallback when an error
+handler itself throws</li>
+<li>hook complex results: { pass: true, data } adopts data, { pass: false,
+data } neither moves nor mutates</li>
+<li>default style buckets (state / active / hooked / terminal / start /
+end): kebab-to-camel condensation per key, named colors normalizing to
+hex8, duplicate-key redefinition throwing at construction</li>
+<li>islands: connected-component detection under allow_islands: false</li>
+<li>getter long tail: machine_definition (bare-URL grammar, whitespace
+before the terminator since &#39;;&#39; is a legal URL char), machine_language
+ISO-639-1 normalization, state declaration surfaces, machine_state,
+multi-state actions, the machine-level sm template</li>
+<li>compareVersions deep prerelease branches; deserialize with history</li>
+<li>jssm_intern: intern/id_of/name_of/size consistency, pair_key
+injectivity over constructed natural pairs</li>
+<li>rasterize OffscreenCanvas path via injected fake Canvas/Image globals:
+width/height/scale fit arithmetic against constructed natural sizes,
+jpeg quality mapping, the missing-Image guard</li>
+<li>dispatcher spawn path with real spawned node fixtures and the
+--verbose resolution trace<ul>
+<li>Includes the v5.143.13 bump and regenerated build artifacts.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 <a href="#untagged---jun-12-2026-93117-am" id="untagged---jun-12-2026-93117-am" style="color: inherit; text-decoration: none;">
   <h2>[Untagged] - Jun 12, 2026 9:31:17 AM</h2>
 </a>
