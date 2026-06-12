@@ -438,16 +438,18 @@ class Machine<mDT> {
 
   _has_forced_transitions   : boolean;
 
-  // Per-edge hook tables are nested by `from` then `to` (and then `action` for
-  // named hooks).  Nesting avoids a `JSON.stringify` string-key allocation on
-  // every transition and gives V8 small per-state maps to hash, which is
-  // materially cheaper than hashing a stringified array.  See #642.
-  _hooks                    : Map<string, Map<string, HookHandler<mDT>>>;
-  _named_hooks              : Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-  _entry_hooks              : Map<string, HookHandler<mDT>>;
-  _exit_hooks               : Map<string, HookHandler<mDT>>;
+  // Numeric interned hook stores (interning lever 2, #729; supersedes the
+  // #642 nested-string-map strategy).  Keys are pair_key(from_id, to_id) for
+  // the pair maps, an interned action id for the global-action map, and a
+  // state id for entry/exit.  _after_hooks stays string-keyed on purpose:
+  // its key domain mixes state and action names, and it is a single guarded
+  // probe — do not "fix" it without splitting the domains first.
+  _hooks                    : Map<number, HookHandler<mDT>>;
+  _named_hooks              : Map<number, Map<number, HookHandler<mDT>>>;
+  _entry_hooks              : Map<number, HookHandler<mDT>>;
+  _exit_hooks               : Map<number, HookHandler<mDT>>;
   _after_hooks              : Map<string, HookHandler<mDT>>;
-  _global_action_hooks      : Map<string, HookHandler<mDT>>;
+  _global_action_hooks      : Map<number, HookHandler<mDT>>;
   _any_action_hook          : HookHandler<mDT> | undefined;
   _standard_transition_hook : HookHandler<mDT> | undefined;
   _main_transition_hook     : HookHandler<mDT> | undefined;
@@ -468,12 +470,12 @@ class Machine<mDT> {
   _config_allows_override : JssmAllowsOverride;
   _allow_islands          : JssmAllowIslands;
 
-  // Same nesting strategy as `_hooks` / `_named_hooks`; see comment above.  #642
-  _post_hooks                    : Map<string, Map<string, HookHandler<mDT>>>;
-  _post_named_hooks              : Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-  _post_entry_hooks              : Map<string, HookHandler<mDT>>;
-  _post_exit_hooks               : Map<string, HookHandler<mDT>>;
-  _post_global_action_hooks      : Map<string, HookHandler<mDT>>;
+  // Same numeric keying as `_hooks` / `_named_hooks`; see comment above.  #729
+  _post_hooks                    : Map<number, HookHandler<mDT>>;
+  _post_named_hooks              : Map<number, Map<number, HookHandler<mDT>>>;
+  _post_entry_hooks              : Map<number, HookHandler<mDT>>;
+  _post_exit_hooks               : Map<number, HookHandler<mDT>>;
+  _post_global_action_hooks      : Map<number, HookHandler<mDT>>;
   _post_any_action_hook          : HookHandler<mDT> | undefined;
   _post_standard_transition_hook : HookHandler<mDT> | undefined;
   _post_main_transition_hook     : HookHandler<mDT> | undefined;
@@ -489,6 +491,11 @@ class Machine<mDT> {
   _default_properties  : Map<string, any>;
   _state_properties    : Map<string, any>;
   _required_properties : Set<string>;
+
+  // property name -> first state that bound it, in first-binding order;
+  // recorded at insertion so post-build validation needn't JSON.parse the
+  // serialized _state_properties keys back apart (#734)
+  _state_property_first_state : Map<string, StateType>;
 
   _history        : JssmHistory<mDT>;
   _history_length : number;
@@ -688,6 +695,7 @@ class Machine<mDT> {
     this._default_properties            = new Map();
     this._state_properties              = new Map();
     this._required_properties           = new Set();
+    this._state_property_first_state    = new Map();
 
     this._state_style                   = state_style_condense(default_state_config, this);
     this._active_state_style            = state_style_condense(default_active_state_config, this);
@@ -922,7 +930,26 @@ class Machine<mDT> {
     if (Array.isArray(state_property)) {
 
       state_property.forEach(sp => {
+
         this._state_properties.set(sp.name, sp.default_value);
+
+        // Record the unserialized (property, state) pair for post-build
+        // validation.  The compiler writes both fields; a hand-built config
+        // that carries only the serialized name pays one JSON.parse here,
+        // which is what every binding used to pay at validation time (#734).
+        let j_property = sp.property,
+            j_state    = sp.state;
+
+        if ((j_property === undefined) || (j_state === undefined)) {
+          const inside = JSON.parse(sp.name);
+          j_property   = inside[0];
+          j_state      = inside[1];
+        }
+
+        if (!(this._state_property_first_state.has(j_property))) {
+          this._state_property_first_state.set(j_property, j_state);
+        }
+
       });
 
     }
@@ -951,33 +978,26 @@ class Machine<mDT> {
     // done building, do checks
 
     // assert all props are valid
-    // _state_properties keys are always JSON.stringify([string, string]),
-    // built by name_bind_prop_and_state which throws on non-strings — so the
-    // non-array / non-string else-arms below are unreachable, not untested.
-    this._state_properties.forEach( (_value, key) => {
-      const inside = JSON.parse(key);
-      /* v8 ignore else */
-      if (Array.isArray(inside)) {
-        const j_property = inside[0];
-        /* v8 ignore else */
-        if (typeof j_property === 'string') {
-          const j_state = inside[1];
-          /* v8 ignore else */
-          if (typeof j_state === 'string') {
-            if (!(this.known_prop(j_property))) {
-              throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
-            }
-          }
-        }
+    // provenance pairs were recorded at insertion — first state per property,
+    // in first-binding order — replacing the old JSON.parse of every
+    // serialized key; the error fires for the same binding it always did,
+    // because the first property in first-binding order whose name is
+    // undeclared owns the earliest undeclared binding.
+    this._state_property_first_state.forEach( (j_state, j_property) => {
+      if (!(this.known_prop(j_property))) {
+        throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
       }
     });
 
     // assert all required properties are serviced
+    // states() allocates a fresh array per call, so take it once rather than
+    // once per required property
+    const all_states_for_props = this.states();
     this._required_properties.forEach( dp_key => {
       if (this._default_properties.has(dp_key)) {
         throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
       }
-      this.states().forEach(s => {
+      all_states_for_props.forEach(s => {
         const bound_name = name_bind_prop_and_state(dp_key, s);
         if (!(this._state_properties.has(bound_name))) {
           throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
@@ -1884,7 +1904,8 @@ class Machine<mDT> {
    *  @returns `true` if the machine has at least one action.
    */
   get uses_actions(): boolean {
-    return Array.from(this._actions.keys()).length > 0;
+    // Map.size answers emptiness without materializing the key list
+    return this._actions.size > 0;
   }
 
   /** Whether any forced (`~>`) transitions exist in this machine.
@@ -2229,23 +2250,32 @@ class Machine<mDT> {
     const wstate: JssmGenericState = this._states.get(whichState);
     if (!(wstate)) { throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`); }
 
-    const wstate_to: Array<StateType> = wstate.to,
+    // single pass over the state's exits, replacing the old map -> filter ->
+    // filter -> filter chain and its three intermediate arrays; selection and
+    // ordering semantics are unchanged
+    const legal_exits          : Array<JssmTransition<StateType, mDT>> = [],
+          probability_bearing  : Array<JssmTransition<StateType, mDT>> = [];
 
-      // every transition that exits whichState
-      all_exits: Array<JssmTransition<StateType, mDT>>
-        = wstate_to
-          .map((ws): JssmTransition<StateType, mDT> => this.lookup_transition_for(whichState, ws))
-          .filter(Boolean),
+    for (const ws of wstate.to) {
+
+      // wstate.to is built from the same edge set lookup_transition_for
+      // resolves against, so the lookup cannot miss; the guard mirrors the
+      // old defensive .filter(Boolean) and is equally unreachable.
+      const edge: JssmTransition<StateType, mDT> = this.lookup_transition_for(whichState, ws);
+      /* v8 ignore next */
+      if (!edge) { continue; }
 
       // forced-only exits cannot be reached by transition(), so they are
       // never legal probabilistic outcomes
-      legal_exits: Array<JssmTransition<StateType, mDT>>
-        = all_exits.filter((e): boolean => !e.forced_only),
+      if (edge.forced_only) { continue; }
 
-      // if any legal exit declares a probability, filter to those only so
+      legal_exits.push(edge);
+
+      // if any legal exit declares a probability, only those are returned, so
       // that probability-bearing edges are not diluted by their peers
-      probability_bearing: Array<JssmTransition<StateType, mDT>>
-        = legal_exits.filter((e): boolean => e.probability !== undefined);
+      if (edge.probability !== undefined) { probability_bearing.push(edge); }
+
+    }
 
     return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
 
@@ -2809,38 +2839,35 @@ class Machine<mDT> {
     switch (HookDesc.kind) {
 
       case 'hook': {
-        // Nested by `from` then `to`; avoids JSON.stringify on every transition (#642).
-        let inner = this._hooks.get(HookDesc.from);
-        if (inner === undefined) {
-          inner = new Map();
-          this._hooks.set(HookDesc.from, inner);
-        }
-        inner.set(HookDesc.to, HookDesc.handler);
+        // Numeric pair key (#729).  intern() rather than id_of(): a hook may
+        // name a state the machine doesn't have — it gets an id no live state
+        // can match, so it registers silently and never fires, as before.
+        this._hooks.set(
+          pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to)),
+          HookDesc.handler,
+        );
         this._has_hooks       = true;
         this._has_basic_hooks = true;
         break;
       }
 
       case 'named': {
-        // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
-        let inner = this._named_hooks.get(HookDesc.from);
+        // Numeric pair key, then action id; the per-pair action map stays a
+        // map because the action interner may keep growing (#729).
+        const pk = pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to));
+        let inner = this._named_hooks.get(pk);
         if (inner === undefined) {
           inner = new Map();
-          this._named_hooks.set(HookDesc.from, inner);
+          this._named_hooks.set(pk, inner);
         }
-        let inner2 = inner.get(HookDesc.to);
-        if (inner2 === undefined) {
-          inner2 = new Map();
-          inner.set(HookDesc.to, inner2);
-        }
-        inner2.set(HookDesc.action, HookDesc.handler);
+        inner.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
         this._has_hooks       = true;
         this._has_named_hooks = true;
         break;
       }
 
       case 'global action':
-        this._global_action_hooks.set( HookDesc.action, HookDesc.handler );
+        this._global_action_hooks.set( this._action_interner.intern(HookDesc.action), HookDesc.handler );
         this._has_hooks               = true;
         this._has_global_action_hooks = true;
         break;
@@ -2874,13 +2901,13 @@ class Machine<mDT> {
         break;
 
       case 'entry':
-        this._entry_hooks.set( HookDesc.to, HookDesc.handler );
+        this._entry_hooks.set( this._state_interner.intern(HookDesc.to), HookDesc.handler );
         this._has_hooks       = true;
         this._has_entry_hooks = true;
         break;
 
       case 'exit':
-        this._exit_hooks.set( HookDesc.from, HookDesc.handler );
+        this._exit_hooks.set( this._state_interner.intern(HookDesc.from), HookDesc.handler );
         this._has_hooks      = true;
         this._has_exit_hooks = true;
         break;
@@ -2893,38 +2920,32 @@ class Machine<mDT> {
 
 
       case 'post hook': {
-        // Nested by `from` then `to`; same rationale as 'hook' (#642).
-        let inner = this._post_hooks.get(HookDesc.from);
-        if (inner === undefined) {
-          inner = new Map();
-          this._post_hooks.set(HookDesc.from, inner);
-        }
-        inner.set(HookDesc.to, HookDesc.handler);
+        // Numeric pair key; same rationale as 'hook' (#729).
+        this._post_hooks.set(
+          pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to)),
+          HookDesc.handler,
+        );
         this._has_post_hooks       = true;
         this._has_post_basic_hooks = true;
         break;
       }
 
       case 'post named': {
-        // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
-        let inner = this._post_named_hooks.get(HookDesc.from);
+        // Numeric pair key, then action id; same rationale as 'named' (#729).
+        const pk = pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to));
+        let inner = this._post_named_hooks.get(pk);
         if (inner === undefined) {
           inner = new Map();
-          this._post_named_hooks.set(HookDesc.from, inner);
+          this._post_named_hooks.set(pk, inner);
         }
-        let inner2 = inner.get(HookDesc.to);
-        if (inner2 === undefined) {
-          inner2 = new Map();
-          inner.set(HookDesc.to, inner2);
-        }
-        inner2.set(HookDesc.action, HookDesc.handler);
+        inner.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
         this._has_post_hooks       = true;
         this._has_post_named_hooks = true;
         break;
       }
 
       case 'post global action':
-        this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
+        this._post_global_action_hooks.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
         this._has_post_hooks               = true;
         this._has_post_global_action_hooks = true;
         break;
@@ -2958,13 +2979,13 @@ class Machine<mDT> {
         break;
 
       case 'post entry':
-        this._post_entry_hooks.set(HookDesc.to, HookDesc.handler);
+        this._post_entry_hooks.set(this._state_interner.intern(HookDesc.to), HookDesc.handler);
         this._has_post_entry_hooks = true;
         this._has_post_hooks       = true;
         break;
 
       case 'post exit':
-        this._post_exit_hooks.set(HookDesc.from, HookDesc.handler);
+        this._post_exit_hooks.set(this._state_interner.intern(HookDesc.from), HookDesc.handler);
         this._has_post_exit_hooks = true;
         this._has_post_hooks      = true;
         break;
@@ -3029,27 +3050,28 @@ class Machine<mDT> {
     switch (HookDesc.kind) {
 
       case 'hook': {
-        const inner = this._hooks.get(HookDesc.from);
-        if (inner !== undefined && inner.has(HookDesc.to)) {
-          inner.delete(HookDesc.to);
-          removed = true;
-        }
+        // id_of, not intern: removal of an unknown name reports false and
+        // must not grow the interner tables (#729).
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to);
+        removed = (fid !== undefined) && (tid !== undefined) && this._hooks.delete(pair_key(fid, tid));
         break;
       }
 
       case 'named': {
-        const inner = this._named_hooks.get(HookDesc.from);
-        const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
-        if (inner2 !== undefined && inner2.has(HookDesc.action)) {
-          inner2.delete(HookDesc.action);
-          removed = true;
-        }
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to),
+              aid = this._action_interner.id_of(HookDesc.action);
+        const inner = ((fid === undefined) || (tid === undefined)) ? undefined : this._named_hooks.get(pair_key(fid, tid));
+        removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
         break;
       }
 
-      case 'global action':
-        removed = this._global_action_hooks.delete(HookDesc.action);
+      case 'global action': {
+        const aid = this._action_interner.id_of(HookDesc.action);
+        removed = (aid !== undefined) && this._global_action_hooks.delete(aid);
         break;
+      }
 
       case 'any action':
         if (this._any_action_hook !== undefined) { this._any_action_hook = undefined; removed = true; }
@@ -3071,40 +3093,43 @@ class Machine<mDT> {
         if (this._any_transition_hook !== undefined) { this._any_transition_hook = undefined; removed = true; }
         break;
 
-      case 'entry':
-        removed = this._entry_hooks.delete(HookDesc.to);
+      case 'entry': {
+        const tid = this._state_interner.id_of(HookDesc.to);
+        removed = (tid !== undefined) && this._entry_hooks.delete(tid);
         break;
+      }
 
-      case 'exit':
-        removed = this._exit_hooks.delete(HookDesc.from);
+      case 'exit': {
+        const fid = this._state_interner.id_of(HookDesc.from);
+        removed = (fid !== undefined) && this._exit_hooks.delete(fid);
         break;
+      }
 
       case 'after':
         removed = this._after_hooks.delete(HookDesc.from);
         break;
 
       case 'post hook': {
-        const inner = this._post_hooks.get(HookDesc.from);
-        if (inner !== undefined && inner.has(HookDesc.to)) {
-          inner.delete(HookDesc.to);
-          removed = true;
-        }
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to);
+        removed = (fid !== undefined) && (tid !== undefined) && this._post_hooks.delete(pair_key(fid, tid));
         break;
       }
 
       case 'post named': {
-        const inner = this._post_named_hooks.get(HookDesc.from);
-        const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
-        if (inner2 !== undefined && inner2.has(HookDesc.action)) {
-          inner2.delete(HookDesc.action);
-          removed = true;
-        }
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to),
+              aid = this._action_interner.id_of(HookDesc.action);
+        const inner = ((fid === undefined) || (tid === undefined)) ? undefined : this._post_named_hooks.get(pair_key(fid, tid));
+        removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
         break;
       }
 
-      case 'post global action':
-        removed = this._post_global_action_hooks.delete(HookDesc.action);
+      case 'post global action': {
+        const aid = this._action_interner.id_of(HookDesc.action);
+        removed = (aid !== undefined) && this._post_global_action_hooks.delete(aid);
         break;
+      }
 
       case 'post any action':
         if (this._post_any_action_hook !== undefined) { this._post_any_action_hook = undefined; removed = true; }
@@ -3126,13 +3151,17 @@ class Machine<mDT> {
         if (this._post_any_transition_hook !== undefined) { this._post_any_transition_hook = undefined; removed = true; }
         break;
 
-      case 'post entry':
-        removed = this._post_entry_hooks.delete(HookDesc.to);
+      case 'post entry': {
+        const tid = this._state_interner.id_of(HookDesc.to);
+        removed = (tid !== undefined) && this._post_entry_hooks.delete(tid);
         break;
+      }
 
-      case 'post exit':
-        removed = this._post_exit_hooks.delete(HookDesc.from);
+      case 'post exit': {
+        const fid = this._state_interner.id_of(HookDesc.from);
+        removed = (fid !== undefined) && this._post_exit_hooks.delete(fid);
         break;
+      }
 
       case 'pre everything':
         if (this._pre_everything_hook !== undefined) { this._pre_everything_hook = undefined; removed = true; }
@@ -3780,6 +3809,7 @@ class Machine<mDT> {
         trans_type : string,
         newState   : StateType,
         newStateId : number                = NaN,
+        actionId   : number                = NaN,
         fromAction : StateType | undefined = undefined;
 
     if (wasForced) {
@@ -3797,15 +3827,18 @@ class Machine<mDT> {
 
     } else if (wasAction) {
       // single numeric resolution: the old path looked the action up twice,
-      // once inside valid_action and again inside current_action_edge_for
-      const edgeId = this.current_action_for(newStateOrAction);
-      if ((edgeId !== undefined) && (edgeId !== null)) {
+      // once inside valid_action and again inside current_action_edge_for.
+      // aid is captured for the numeric hook probes below (#729).
+      const aid    = this._action_interner.id_of(newStateOrAction);
+      const edgeId = (aid === undefined) ? undefined : this._edge_id_by_action_pair.get(pair_key(aid, this._state_id));
+      if (edgeId !== undefined) {
         const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
         valid      = true;
         trans_type = edge.kind;
         newState   = edge.to;
         newStateId = this._edge_to_ids[edgeId];
         fromAction = newStateOrAction;
+        actionId   = aid;
       }
 
     } else {
@@ -3815,7 +3848,16 @@ class Machine<mDT> {
       const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
       if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
-          trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
+          // first matching outbound edge's kind, without building the result
+          // array edges_between allocated here on every hooked transition.
+          // First-match semantics are kept deliberately: _edge_map is
+          // last-wins for multi-edge (from, to) pairs, so lookup_transition_for
+          // could disagree with the old edges_between(...)[0].  #735
+          // TODO this won't do the right thing if various edges have different types
+          for (const ob_eid of this._outbound_edge_ids.get(this._state)) {
+            const ob_edge = this._edges[ob_eid];
+            if (ob_edge.to === newStateOrAction) { trans_type = ob_edge.kind; break; }
+          }
         }
         valid      = true;
         newState   = newStateOrAction;
@@ -3831,6 +3873,11 @@ class Machine<mDT> {
     // unchanged for all downstream uses without introducing an impossible
     // (uncoverable) branch; the value is only dereferenced under the guards
     // that imply it was built.  #670
+    // NOTE (#735): the { ...hook_args, hook_name } spreads at the four
+    // everything-hook sites are contractual, not waste — handlers may capture
+    // their context, and each captured context must durably carry its own
+    // hook_name (pinned by the simultaneous-everything-hook specs).  A shared
+    // mutated object cannot satisfy that; do not "optimize" the spreads away.
     const hook_args_obj = (this._has_hooks || this._has_post_hooks)
       ? {
           data       : this._data,
@@ -3862,9 +3909,12 @@ class Machine<mDT> {
     }
 
     // Captured pre-transition source state so 'data-change' detail and similar
-    // events can name where we came from.
-    const fromState: StateType = this._state;
-    const oldData: mDT         = this._data;
+    // events can name where we came from.  fromStateId mirrors it for the
+    // numeric post-hook probes: by the time they run, _state_id is already
+    // the destination (#729).
+    const fromState: StateType   = this._state;
+    const fromStateId: number    = this._state_id;
+    const oldData: mDT           = this._data;
 
 
     if (valid) {
@@ -3894,7 +3944,7 @@ class Machine<mDT> {
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
           // 1b. global specific action hook
-          const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
+          const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
           if (outcome2.pass === false) { this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome2)) { data_changed = true; }
         }
@@ -3918,7 +3968,7 @@ class Machine<mDT> {
 
         // 4. exit hook
         if (this._has_exit_hooks) {
-          const outcome = abstract_hook_step(this._exit_hooks.get(this._state), hook_args);
+          const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
           if (outcome.pass === false) { this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
@@ -3927,11 +3977,9 @@ class Machine<mDT> {
         if (this._has_named_hooks) {
           if (wasAction) {
 
-            // Nested lookup: from -> to -> action.  Each step is a small Map keyed by
-            // an already-interned state/action name; no per-call string allocation.
-            const byTo  = this._named_hooks.get(this._state);
-            const byAct = byTo === undefined ? undefined : byTo.get(newState);
-            const nh    = byAct === undefined ? undefined : byAct.get(newStateOrAction);
+            // Numeric pair probe, then the action id captured at dispatch (#729).
+            const byPair = this._named_hooks.get(pair_key(this._state_id, newStateId));
+            const nh     = byPair === undefined ? undefined : byPair.get(actionId);
             const outcome = abstract_hook_step(nh, hook_args);
 
             if (outcome.pass === false) { this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
@@ -3943,9 +3991,8 @@ class Machine<mDT> {
         // 6. regular hook
         if (this._has_basic_hooks) {
 
-          // Nested lookup: from -> to.  See note on _hooks declaration (#642).
-          const byTo = this._hooks.get(this._state);
-          const h    = byTo === undefined ? undefined : byTo.get(newState);
+          // Numeric pair probe (#729); one integer hash replaces two string maps.
+          const h = this._hooks.get(pair_key(this._state_id, newStateId));
           const outcome = abstract_hook_step(h, hook_args);
 
           if (outcome.pass === false) { this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
@@ -3978,7 +4025,7 @@ class Machine<mDT> {
 
         // 8. entry hook
         if (this._has_entry_hooks) {
-          const outcome = abstract_hook_step(this._entry_hooks.get(newState), hook_args);
+          const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
           if (outcome.pass === false) { this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
@@ -4063,7 +4110,7 @@ class Machine<mDT> {
         if (this._post_any_action_hook !== undefined) { this._post_any_action_hook(hook_args); }
 
         // 2. global specific action hook
-        const pgah = this._post_global_action_hooks.get(hook_args.action)
+        const pgah = this._post_global_action_hooks.get(actionId)
         if (pgah !== undefined) { pgah(hook_args); }
       }
 
@@ -4074,17 +4121,16 @@ class Machine<mDT> {
 
       // 4. exit hook
       if (this._has_post_exit_hooks) {
-        const peh = this._post_exit_hooks.get(hook_args.from);  // todo this is probably from instead
+        const peh = this._post_exit_hooks.get(fromStateId);
         if (peh !== undefined) { peh(hook_args); }
       }
 
       // 5. named transition / action hook
       if (this._has_post_named_hooks) {
         if (wasAction) {
-          // Nested lookup: from -> to -> action.  See note on _post_named_hooks (#642).
-          const byTo  = this._post_named_hooks.get(hook_args.from);
-          const byAct = byTo === undefined ? undefined : byTo.get(hook_args.to);
-          const pnh   = byAct === undefined ? undefined : byAct.get(hook_args.action);
+          // Numeric pair probe, then the action id captured at dispatch (#729).
+          const byPair = this._post_named_hooks.get(pair_key(fromStateId, newStateId));
+          const pnh    = byPair === undefined ? undefined : byPair.get(actionId);
 
           if (pnh !== undefined) { pnh(hook_args); }
         }
@@ -4092,9 +4138,8 @@ class Machine<mDT> {
 
       // 6. regular hook
       if (this._has_post_basic_hooks) {
-        // Nested lookup: from -> to.  See note on _post_hooks (#642).
-        const byTo = this._post_hooks.get(hook_args.from);
-        const hook = byTo === undefined ? undefined : byTo.get(hook_args.to);
+        // Numeric pair probe (#729).
+        const hook = this._post_hooks.get(pair_key(fromStateId, newStateId));
         if (hook !== undefined) { hook(hook_args); }
       }
 
@@ -4123,7 +4168,7 @@ class Machine<mDT> {
 
       // 8. entry hook
       if (this._has_post_entry_hooks) {
-        const hook = this._post_entry_hooks.get(hook_args.to);
+        const hook = this._post_entry_hooks.get(newStateId);
         if (hook !== undefined) { hook(hook_args); }
       }
 
@@ -4175,10 +4220,15 @@ class Machine<mDT> {
           cause    : 'transition'
         });
       }
-      if (this.state_is_terminal(newState)) {
+      // one state-record fetch answers both checks; newState is known-valid
+      // here, and the public state_is_terminal / state_is_complete pair would
+      // each redo has_state plus its own map walk.  Same predicates:
+      // terminal = no exits, complete = the constructor-set flag.  #735
+      const new_state_rec: JssmGenericState = this._states.get(newState);
+      if (new_state_rec.to.length === 0) {
         this._fire('terminal', { state: newState, data: newData_after });
       }
-      if (this.state_is_complete(newState)) {
+      if (new_state_rec.complete) {
         this._fire('complete', { state: newState, data: newData_after });
       }
     }
