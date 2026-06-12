@@ -2,9 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Extend FSL's existing `NamedList` construct (`&group : [a b c];`) from a fan-out transition-target alias into a first-class *state group* with shared behaviour. Groups gain: transition sources, default state metadata, boundary hooks, and runtime membership queries. Groups overlap freely — a state can belong to multiple groups — which is strictly more expressive than hierarchical states and unique in the state-machine library space.
+> **Revision — 2026-06-08:** This plan was substantially reworked in a design session. Changes from the original 2026-05-12 version: group membership is now **ordered**, not a `Set`; nested groups are **not flattened** — the compiler keeps a group→group graph and resolves membership transitively (lazily), enabling depth-based precedence and nested rendering; member lists distinguish **nest** (`&child`) from **spread** (`...&child`); applying metadata/hooks/transitions to a group is **deep by default** with **inner-group-wins** specificity; per-state config, per-kind defaults, group metadata, and `state: {}` are unified into **one specificity cascade** with `default_state_config` as the implicit root group ⊤; the looping `()` group form is **dropped** (closed/ring topology is the cycles feature's job); and a parallel **`transition: {}`** default-edge-config (wiring the existing parser-only `ConfigTransition` rule) is added as the edge-side mirror of `state: {}`; and a new **`graph: {}`** block completes the Graphviz node/edge/graph default-attribute triad, **superseding** the scattered graph-level keys (`graph_layout`, `graph_bg_color`, `edge-color`, `dot_preamble`, `theme`, `flow`) as deprecated aliases. Locked decisions and tasks below reflect the reworked design.
 
-**Architecture:** Extend the PEG grammar with one new atomic form (`GroupRef`) and one new statement (`HookDeclaration`); extend `ArrowTarget` and `StateDeclaration` to accept group references. Compile-pass expansion of group references into per-member transitions and per-member metadata, with conflict resolution at compile time. Runtime API additions on the `Machine` class for membership queries and boundary-hook firing. Visualization renders groups as Graphviz cluster subgraphs (non-overlapping case) or via a flagged convention TBD (overlapping case).
+**Goal:** Extend FSL's existing `NamedList` construct (`&group : [a b c];`) from a fan-out transition-target alias into a first-class, **ordered** *state group* with shared behaviour. Groups gain: transition sources, default state metadata, boundary hooks, and runtime membership queries. Groups overlap freely *and* nest freely — a state can belong to multiple groups, and a group can contain other groups — which is strictly more expressive than hierarchical states (it captures both overlap and depth) and unique in the state-machine library space.
+
+**Architecture:** Extend the PEG grammar with one new atomic form (`GroupRef`), a nest/spread member syntax, and one new statement (`HookDeclaration`); extend `ArrowTarget` and `StateDeclaration` to accept group references; normalize and wire the existing parser-only `transition: {}` config. The compiler keeps an **ordered group→group graph** (no flattening), resolves membership transitively with a DAG (cycle) check, and expands group references into per-member transitions and metadata with **depth-specificity** conflict resolution. Runtime API additions on the `Machine` class cover deep membership queries and boundary-hook firing. A single config **cascade resolver** merges theme → `state: {}` (root group ⊤) → static per-kind defaults → group metadata by nesting depth → per-state config, with `active_state` as a runtime overlay; the same machinery drives the new `transition: {}` edge defaults. Visualization renders the group graph as nested Graphviz cluster subgraphs (nesting tree) with a chip fallback for non-tree overlap.
 
 **Tech Stack:** TypeScript 4.7, Jest 29 (with @swc/jest), Rollup 4, PEG.js, existing jssm infrastructure.
 
@@ -25,13 +27,20 @@
 
 ## Locked design decisions
 
-(From the TODO entry; not up for re-litigation during execution.)
+(Settled during the 2026-06-08 design session; not up for re-litigation during execution.)
 
-1. **Syntax:** extend existing `NamedList` semantics. Keep `:` as the separator (`&busy : [loading saving];`). Do not introduce parallel `&group = [...]` syntax.
+1. **Syntax:** extend existing `NamedList` semantics. Keep `:` as the separator (`&busy : [loading saving];`). Do not introduce `&group = [...]` syntax. *(The `=` spelling from tracker #244 was considered and rejected in favour of grammar reuse.)*
 2. **Reference syntax:** require `&` at every reference site so group names are unambiguous with state names (`&busy 'CANCEL' -> idle`).
-3. **Conflict resolution:** state-specific transitions always win; among groups, most-recently-declared wins. Compile-time warning emitted on overrides.
-4. **Boundary semantics:** enter/exit hooks fire when a transition crosses the group boundary (prev not in, next in = enter; prev in, next not in = exit). Transitions wholly within the group do not fire boundary hooks.
-5. **History:** per-group history slots. States with multi-membership have independent history per group.
+3. **Ordered membership:** a group's members are an **ordered list**, not a set. Order is meaningful (declaration / precedence / iteration); the registry is `Map<group, MemberRef[]>`, never `Set`.
+4. **No flattening — keep the group graph.** A member may be a state or another group. The compiler stores the direct, ordered members and resolves transitive membership **lazily**, preserving the group→group structure (needed for depth precedence and nested rendering). A **DAG/cycle check** rejects `&a:[&b]; &b:[&a];` at compile time.
+5. **Nest vs spread member operators.** `&child` inside a member list **nests** child as a distinguishable sub-group (default; structure-preserving). `...&child` **spreads** child's members in flat, erasing the sub-group identity. Both yield the same transitive members; only nest preserves the relationship for precedence and nested viz.
+6. **Deep apply with depth-specificity.** Applying a transition / metadata / hook to a group applies to **all transitive members** (deep by default). When definitions collide for a state, the **most-specific (deepest / nearest) group wins**; equal-depth ties fall back to declaration order; a state-specific definition always beats any group. Compile-time warning on group-vs-group overrides.
+7. **Boundary semantics.** enter/exit hooks fire when a transition crosses the group's **transitive** boundary (prev not in, next in = enter; prev in, next not in = exit). Transitions wholly within the group do not fire its boundary hooks. The cascade fires per crossed level (inner and outer boundaries both fire when both are crossed).
+8. **Unified config cascade.** State styling resolves through **one** least→most-specific cascade: theme → `state: {}` (`default_state_config`, treated as the **root group ⊤** containing every state) → static per-kind defaults (`start_state`/`end_state`/`terminal_state`/`hooked_state`) → group metadata ordered by **nesting depth** (outer→inner, inner wins) → per-state `state foo: {}`. `active_state` is a **runtime overlay** applied on top of the static cascade for the currently-occupied state, not a static tier. Cross-layer merge is silent override (later wins) and must **not** reuse the single-declaration redefine-throw (see Task 3 Step 5).
+9. **No `()` looping group.** Closed/ring topology is owned by the cycles feature (`[a b c] -> +1`); groups are membership only. (A future `&group -> +1` to generate a ring over a named group is noted as adjacent, out of scope here.)
+10. **`transition: {}` edge defaults.** Add an edge-side mirror of `state: {}` by **wiring the existing parser-only `ConfigTransition` rule** (normalizing its orphan `{config_kind,config_items}` shape to the standard `key:'default_transition_config'`). It is the root ⊤ of an edge-config cascade analogous to the state cascade.
+11. **`graph: {}` graph defaults (supersedes scattered keys).** Add a new `ConfigGraph` block as the Graphviz *graph*-scope mirror of `state:` (node) and `transition:` (edge), completing the triad. It **supersedes** the existing scattered graph-level keys — `graph_layout`, `graph_bg_color`, `edge-color`/`edge_color`, `dot_preamble`, `theme`, `flow` — which become **deprecated aliases** folded into `default_graph_config` (with `graph: {}` winning on conflict). Unlike `transition:`, `graph:` has a real cascade *via groups*: a group's Graphviz **cluster** is a subgraph, so graph attributes cascade `graph: {}` → group/cluster → nested cluster by nesting depth (inner wins) — shared with the group-rendering work in Task 4.
+12. **History:** per-group history slots. States with multi-membership have independent history per group.
 
 ---
 
@@ -42,21 +51,23 @@
 - `src/ts/tests/grammar_overlapping_groups.spec.ts` — Grammar-level parse tests for the new forms (~15 cases). Runs in default Node env.
 - `src/ts/tests/compile_overlapping_groups.spec.ts` — Compile-pass tests for group expansion, conflict resolution, and validation (~25 cases).
 - `src/ts/tests/runtime_overlapping_groups.spec.ts` — Runtime API tests for `isIn`, `groupsOf`, `groups`, `statesIn`, and boundary-hook firing (~20 cases).
-- `src/ts/tests/viz_overlapping_groups.spec.ts` — Visualization smoke tests for cluster-subgraph emission and overlapping-group rendering (~5 cases).
+- `src/ts/tests/viz_overlapping_groups.spec.ts` — Visualization smoke tests for nested-cluster emission, chip fallback, and edge-default application (~6 cases).
+- `src/ts/tests/cascade_state_config.spec.ts` — Tests for the unified theme→`state:`→kind→group→state cascade, depth-specificity ordering, the `active_state` runtime overlay, and silent cross-layer override (no redefine-throw) (~15 cases).
+- `src/ts/tests/transition_config.spec.ts` — Tests that `transition: {}` parses to the normalized shape, compiles through `compile_rule_handler`, and applies as default edge styling (~8 cases).
 - `src/fsl.tools/site/recipes/patterns-overlapping-groups.cjs` — Cookbook recipe demonstrating the HTTP-request example.
 - `src/fsl.tools/site/recipes/patterns-user-account-groups.cjs` — Cookbook recipe demonstrating the user-account-states example with overlapping Active/Restricted memberships.
 
 **Modified files:**
 
-- `src/ts/fsl_parser.peg` — Grammar additions (one new rule, two extensions, one new top-level alternative).
-- `src/ts/jssm_compiler.ts` — Compile-pass handlers for new rule variants; group registry; reference resolution; conflict cascade.
-- `src/ts/jssm_types.ts` — New union variants for GroupRef-bearing parse tree nodes; new HookDeclaration shape; group registry type.
-- `src/ts/jssm.ts` — New `Machine` methods (`isIn`, `groupsOf`, `groups`, `statesIn`); boundary-hook plumbing in the transition path.
-- `src/ts/jssm_viz.ts` — `groups_to_subgraph_string` helper; render-config flag for groups; integration with `machine_to_dot`.
+- `src/ts/fsl_parser.peg` — Grammar additions: `GroupRef`; nest (`&child`) / spread (`...&child`) member syntax inside label lists; `HookDeclaration`; `ArrowTarget` / `StateDeclaration` extensions; **normalize the existing `ConfigTransition` rule** from its orphan `{config_kind,config_items}` shape to `{ key:'default_transition_config', value }`; add a new **`ConfigGraph`** (`graph: {}`) block and re-route the deprecated graph-level keys (`graph_layout`, `graph_bg_color`, `edge-color`/`edge_color`, `dot_preamble`, `theme`, `flow`) as aliases into it.
+- `src/ts/jssm_compiler.ts` — Compile-pass handlers for new rule variants; ordered group→group registry; transitive resolution + DAG/cycle check; depth-specificity conflict cascade; wire `default_transition_config` and `default_graph_config` through `compile_rule_handler`; fold the deprecated alias keys into `default_graph_config` (`graph: {}` wins on conflict).
+- `src/ts/jssm_types.ts` — GroupRef-bearing parse-tree variants; `JssmGroupMemberRef` (state | nested group | spread group); ordered `JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>`; `JssmHookDeclaration`; `JssmTransitionConfig` / `JssmGraphConfig` (edge / graph defaults) and `default_transition_config` / `default_graph_config` on `JssmGenericConfig`.
+- `src/ts/jssm.ts` — New `Machine` methods (`isIn`, `groupsOf`, `groups`, `statesIn`, all deep/transitive); boundary-hook plumbing; the **unified config cascade resolver** (`resolve_state_config`) and a pure non-throwing `merge_state_config`; `active_state` runtime overlay; edge-config resolution for `transition: {}`.
+- `src/ts/jssm_viz.ts` — `groups_to_subgraph_string` helper rendering the **nesting tree** as nested clusters; chip fallback for non-tree overlap; render-config flag; apply resolved edge defaults from `transition: {}`; apply `graph: {}` at graph scope and cascade it through group clusters (graph → cluster → nested cluster); integration with `machine_to_dot`.
 - `notes/fsl-grammar-reference.md` — Document the new grammar additions and disambiguation rules.
 - `src/fsl.tools/AGENTS.md` — If the cookbook recipe authoring patterns change (likely not, but check).
 - `base_README.md` — Short "Overlapping state groups" section in the appropriate area, per CLAUDE.md project conventions.
-- `src/doc_md/todo.md` — Mark "Overlapping state groups" `[done]`; retire "Hierarchical states" and "State subtypes" as subsumed.
+- `src/doc_md/todo.md` — Mark "Overlapping state groups" `[done]`; retire "Hierarchical states" and "State subtypes" as subsumed; note `transition: {}` wiring closes the parser-only-`ConfigTransition` gap.
 
 **Unchanged:**
 
@@ -71,16 +82,51 @@
 - Modify: `src/ts/fsl_parser.peg`
 - Run: `npm run peg` to regenerate `src/ts/fsl_parser.ts`
 
-- [ ] **Step 1: Add the `GroupRef` rule**
+- [ ] **Step 1: Add `GroupRef`, nest/spread member syntax, and normalize `ConfigTransition`**
 
-  Add the rule:
+  Add the group-reference atom:
 
   ```peg
   GroupRef
     = "&" name:Label { return { key: 'group_ref', name }; }
   ```
 
-  Place it near the existing `Label` / `LabelList` / `LabelOrLabelList` rules in the lexical-layer area of the grammar.
+  Place it near the existing `Label` / `LabelList` / `LabelOrLabelList` rules.
+
+  Extend the member-list grammar so a member may be a state, a **nested** group (`&child`), or a **spread** group (`...&child`). Members stay **ordered**:
+
+  ```peg
+  GroupMember
+    = "..." "&" name:Label { return { kind: 'group', name, mode: 'spread' }; }
+    /        "&" name:Label { return { kind: 'group', name, mode: 'nest'   }; }
+    /        s:Label        { return { kind: 'state', name: s }; }
+
+  // NamedList's value becomes an ordered list of GroupMember.
+  // Bare `[a b c]` still parses (all members kind:'state'), so existing
+  // fan-out targets and fixtures are unaffected.
+  ```
+
+  Normalize the **existing** parser-only `ConfigTransition` rule so it emits the standard dispatch shape instead of its orphan `{config_kind,config_items}` form:
+
+  ```peg
+  ConfigTransition
+    = WS? "transition" WS? ":" WS? "{" WS? items:TransitionItems? WS? "};" WS? {
+        return { key: "default_transition_config", value: items || [] };
+      }
+  ```
+
+  (`ConfigAction` / `validation` share the same orphan shape; leave them as-is unless trivially in the way — out of scope here.)
+
+  Add the new **`graph: {}`** block and route the deprecated graph-level keys into it:
+
+  ```peg
+  ConfigGraph
+    = WS? "graph" WS? ":" WS? "{" WS? items:GraphItems? WS? "};" WS? {
+        return { key: "default_graph_config", value: items || [] };
+      }
+  ```
+
+  Keep the existing `graph_layout` / `graph_bg_color` / `edge-color` / `dot_preamble` / `theme` / `flow` rules parsing (back-compat) but treat them as **deprecated aliases**; the compile pass (Task 2) folds them into `default_graph_config` with `graph: {}` winning on conflict. `graph: {}` is graph-scope *styling*, distinct from `start_states` / `end_states` (structural config — those stay top-level).
 
 - [ ] **Step 2: Extend `ArrowTarget` to accept `GroupRef`**
 
@@ -156,7 +202,10 @@
   5. `&busy : [loading saving]; on exit &busy do 'cleanup';` parses HookDeclaration with `exit` event.
   6. `on enter foo do 'log';` parses HookDeclaration on a regular state (not a group).
   7. Negative: `&undeclared 'x' -> y;` — parses (resolution is Task 2), produces parse tree with GroupRef.
-  8. Backwards compat: every test fixture under `src/ts/tests/fixtures/` that previously parsed still parses identically.
+  8. Nest member: `&outer : [&inner x];` parses with ordered members `[{kind:'group',mode:'nest',name:'inner'},{kind:'state',name:'x'}]`.
+  9. Spread member: `&outer : [...&inner x];` parses with `mode:'spread'` on the inner member.
+  10. `transition : { color: red; };` parses to `{ key:'default_transition_config', value:[…] }` (normalized shape, not `config_kind`).
+  11. Backwards compat: every test fixture under `src/ts/tests/fixtures/` that previously parsed still parses identically (bare `[a b c]` lists unchanged).
 
 - [ ] **Step 8: Run the full existing test suite**
 
@@ -177,6 +226,11 @@
   ```typescript
   type JssmGroupRef = { key: 'group_ref'; name: string };
 
+  // Ordered member of a group: a state, a nested sub-group, or a spread group.
+  type JssmGroupMemberRef =
+    | { kind: 'state'; name: string }
+    | { kind: 'group'; name: string; mode: 'nest' | 'spread' };
+
   type JssmHookDeclaration = {
     key:     'hook_decl';
     event:   'enter' | 'exit';
@@ -184,7 +238,19 @@
     action:  string;  // action label
   };
 
-  type JssmGroupRegistry = Map<string, Set<string>>;
+  // ORDERED, graph-bearing — never a Set. Stores DIRECT members only;
+  // transitive membership is resolved lazily (preserves the group graph).
+  type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
+
+  // Edge-side analogue of the state-config items; the value of `transition: {}`.
+  type JssmTransitionConfig = JssmStateConfig;  // reuse the style shape for v1
+
+  // Graph-scope defaults; the value of `graph: {}`. Covers the superseded
+  // scattered keys (layout, bgcolor, default edge color, preamble, theme, flow).
+  type JssmGraphConfig = JssmStateConfig & {
+    layout?: string; bgColor?: string; dotPreamble?: string;
+    theme?:  string; flow?: string;
+  };
 
   // Extend any existing union types that cover ArrowTarget, StateDeclaration
   // subject, and Term so GroupRef / HookDeclaration are represented.
@@ -195,22 +261,26 @@
   Extend `JssmGenericConfig<StateType, mDT>` with:
 
   ```typescript
-  group_registry?:  JssmGroupRegistry;
-  group_metadata?:  Map<string, JssmStateConfig>;   // group → metadata defaults
-  group_hooks?:     Map<string, { onEnter?: string; onExit?: string }>;
+  group_registry?:            JssmGroupRegistry;                       // ordered, graph-bearing
+  group_metadata?:            Map<string, JssmStateConfig>;            // group → metadata defaults
+  group_hooks?:               Map<string, { onEnter?: string; onExit?: string }>;
+  default_transition_config?: JssmTransitionConfig;                    // the `transition: {}` block
+  default_graph_config?:      JssmGraphConfig;                          // the `graph: {}` block (+ folded aliases)
   ```
 
 - [ ] **Step 3: Add compile_rule_handler dispatch for new rule variants**
 
   In `jssm_compiler.ts`, add cases in `compile_rule_handler` for:
 
-  - GroupRef appearing as a transition source (ArrowTarget in `from` position): expand to one transition per group member, marked with the source group name for conflict resolution.
-  - GroupRef appearing as a `StateDeclaration` subject: expand to one StateDeclarationItem-set per group member, applied to the existing state-declaration pipeline.
+  - GroupRef appearing as a transition source (ArrowTarget in `from` position): expand to one transition per **transitive** group member, tagged with the source group + its depth for conflict resolution.
+  - GroupRef appearing as a `StateDeclaration` subject: register as group metadata (resolved through the cascade at runtime, Task 3 Step 5) rather than eagerly fanned out, so depth-specificity is preserved.
   - HookDeclaration: register the hook in `group_hooks` (if subject is GroupRef) or in per-state hooks (if subject is a plain Label).
+  - `default_transition_config` (the normalized `transition: {}`): condense its items (an edge-style analogue of `state_style_condense`) and store on `JssmGenericConfig.default_transition_config`. Add `default_transition_config` to the `key`-dispatch so it no longer falls through to the "Unknown rule" throw.
+  - `default_graph_config` (the new `graph: {}`): condense and store on `JssmGenericConfig.default_graph_config`. **Fold the deprecated alias keys** (`graph_layout`, `graph_bg_color`, `graph_default_edge_color`, `dot_preamble`, `theme`, `flow`) into the same target — apply each alias first, then let `graph: {}` override on conflict — and emit a deprecation warning when an alias key is used.
 
-- [ ] **Step 4: Build the group registry during compile**
+- [ ] **Step 4: Build the ordered group graph + cycle check**
 
-  Walk all `NamedList` parse-tree nodes, building `group_registry: Map<groupName, Set<memberName>>`. Members may be states or other groups (the registry stores the flat membership; group-of-group is left to a future pass if ever wanted).
+  Walk all `NamedList` parse-tree nodes, building `group_registry: Map<groupName, JssmGroupMemberRef[]>` preserving **declaration order** and recording each member as a `state`, a nested `group`, or a spread `group`. Do **not** flatten. Then run a **DAG/cycle check** over group→group edges (nest and spread both count as edges) and throw `JssmError` on a cycle (`&a:[&b]; &b:[&a];`). Provide a memoized `transitive_members(group)` resolver that walks the graph, splicing nested groups in at their ordered position and inlining spread groups' members; nest vs spread differ only in whether the sub-group identity is retained for precedence/viz, not in the resulting member set.
 
 - [ ] **Step 5: Reference-resolution pass**
 
@@ -223,9 +293,9 @@
 
   When multiple transitions match the same `(source, action)` pair after group expansion:
 
-  - State-specific transitions (those declared without going through any group) take priority. They override any group-sourced transition.
-  - Among group-sourced transitions for the same `(source, action)`, the most-recently-declared group wins.
-  - When an override is applied, emit a compile-time warning naming the overridden and overriding groups.
+  - State-specific transitions (declared without any group) always win.
+  - Among group-sourced transitions, the **most-specific (deepest / nearest) group wins** — compute each contributing group's nesting depth relative to the source state and pick the deepest. Equal-depth ties (a state reached through two unrelated groups at the same depth) fall back to **declaration order** (later wins).
+  - When a group-vs-group override is applied, emit a compile-time warning naming the overridden and overriding groups and the winning depth.
 
 - [ ] **Step 7: Write compile-pass tests**
 
@@ -238,6 +308,11 @@
   - Conflict (most-recent group wins): `&g1 : [a]; &g2 : [a]; &g1 'x' -> b; &g2 'x' -> c;` — `c` wins; warning emitted.
   - Invalid reference: `&undeclared 'x' -> y;` throws JssmError with clear message.
   - Hook declaration registered: `&busy : [a]; on enter &busy do 'log';` registers a group hook.
+  - Nest preserves structure: `&inner:[a b]; &outer:[&inner c];` — `transitive_members('outer')` = `[a,b,c]`, and the graph records the outer→inner edge.
+  - Spread erases structure: `&inner:[a b]; &outer:[...&inner c];` — `transitive_members('outer')` = `[a,b,c]`, but no outer→inner sub-group edge remains for viz/precedence.
+  - Cycle rejected: `&a:[&b]; &b:[&a];` throws JssmError.
+  - Depth-specificity: state in `&inner ⊂ &outer`, both define action `x` — the inner transition wins.
+  - `transition: { color: red; };` compiles to `default_transition_config` (no "Unknown rule" throw) and condenses to `{ color:'red' }`.
 
 - [ ] **Step 8: Run the full test suite**
 
@@ -307,17 +382,20 @@
   - Transitions where `prev_state === next_state` do not fire any boundary hook (no boundary crossed).
   - Transitions wholly within a group (where the group is in both `prev_groups` and `next_groups`) do not fire that group's hooks.
 
-- [ ] **Step 5: Apply group metadata in `style_for`**
+- [ ] **Step 5: Unified config cascade (`resolve_state_config`)**
 
-  Update `Machine.style_for(state)` to consider group-level metadata. Order of merge:
+  Replace the ad-hoc style merge with **one** resolver that merges, least → most specific:
 
-  1. Base theme defaults.
-  2. Active theme(s).
-  3. Group metadata (for each group the state belongs to, in declaration order — later wins).
-  4. State-specific metadata.
-  5. State-kind-specific metadata (terminal, start, end, active).
+  1. Theme defaults (base, then active theme).
+  2. **`state: {}`** (`default_state_config`) — treat as the metadata of the implicit **root group ⊤** containing every state.
+  3. **Static** per-kind defaults — `start_state` / `end_state` / `terminal_state` / `hooked_state` — selected by the state's structural kind.
+  4. **Group metadata, ordered by nesting depth** (outer → inner; inner wins; equal-depth ties by declaration order). This is where `state &busy : { color: amber; };` lands.
+  5. Per-state `state foo : { … };` — most specific static tier.
+  6. **`active_state` runtime overlay** — applied on top for the currently-occupied state only (dynamic, not a static tier).
 
-  This makes `state &busy : { color: amber; };` actually affect rendering through the existing viz pipeline.
+  **Override-throw handling (required).** `state_style_condense` (`jssm.ts:181`) throws on redefining a key *within a single declaration block*. The cascade merges *across* tiers where later-wins is intentional, so it must **not** route through that guard. Add a pure `merge_state_config(base, over)` that does a shallow key-wise override (`over` wins; `undefined` keys ignored) and **never throws**; the redefine-throw stays scoped to condensing one block. `resolve_state_config` folds the tiers with `merge_state_config`.
+
+  Memoize per-state static resolution (stable for the machine's lifetime); recompute only the `active_state` overlay on transition.
 
 - [ ] **Step 6: Write runtime tests**
 
@@ -332,6 +410,9 @@
   - Transition within a group does not fire boundary hooks for that group.
   - Multi-membership: state in groups A and B — entering it fires both A's and B's `onEnter`.
   - Group metadata applied: `state &busy : { color: amber; };` — `m.style_for(member).color === 'amber'`.
+  - Cascade precedence: per-state config beats group; inner group beats outer; `state: {}` is the base; theme is below all.
+  - Override does not throw: a key set at `state: {}` *and* overridden by `state foo: {}` resolves to foo's value without raising the single-block redefine error.
+  - `active_state` overlay: the currently-occupied state picks up `active_state: {}` styling on top of its static resolution, and loses it after transitioning away.
 
 - [ ] **Step 7: Run the full test suite**
 
@@ -366,9 +447,9 @@
 
   Render the chip form when chosen — annotate each node's label with HTML-style chips for each group membership beyond the first.
 
-- [ ] **Step 4: Integrate into `machine_to_dot`**
+- [ ] **Step 4: Integrate into `machine_to_dot` (groups + edge + graph defaults)**
 
-  Call the appropriate helper based on `render_groups` config. Default to `'cluster'`. The chips form is available via configuration.
+  Call the appropriate group helper based on `render_groups` config (default `'cluster'`, rendering the **nesting tree** as nested clusters; `'chips'` for non-tree overlap). Resolve and apply **`transition: {}`** edge defaults: an edge's style cascades theme → `default_transition_config` (edge ⊤) → (future per-edge config, not in v1) — so `transition: { color: blue; };` styles every edge. Resolve and apply **`graph: {}`** graph defaults at graph scope (after folding the deprecated alias keys), and cascade them into clusters: each group cluster's graph attributes resolve `default_graph_config` → cluster (group) → nested cluster by depth (inner wins). So `graph: { bgColor: …; }` styles the diagram, and the cluster box of a group inherits graph scope then overrides per nesting level — the graph-side mirror of `state: {}`.
 
 - [ ] **Step 5: Write viz smoke tests**
 
@@ -492,11 +573,14 @@
 
 ## Open questions (decide during implementation)
 
-1. **Visualization for overlapping groups** — cluster subgraphs with chip annotations vs. pure chip approach. Defer to Task 4 visual inspection.
+1. **Non-tree overlap rendering** — the nesting tree renders as nested clusters; genuinely overlapping (non-tree) memberships still need the chip fallback. Confirm the chip visual by inspection in Task 4. *(Resolved in principle: nesting → nested clusters; overlap → chips.)*
 2. **Should `HookDeclaration` also accept inline action bodies** (e.g. `on enter &busy do { log("entering"); }`) or only named action labels? Start with named labels; revisit if users request inline.
-3. **Group-of-group membership** — should a group be able to contain another group? Defer; flat membership is sufficient for v1.
+3. **Kind-vs-group cascade order** — locked as static-kind (tier 3) *below* group metadata (tier 4) *below* per-state (tier 5). Revisit only if a real case wants a group to lose to a kind default.
 4. **History API shape** — `machine.lastInGroup('busy')`? `machine.history({ group: 'busy' })`? Defer; not required for v1.
 5. **Compile-time-warnings format** — silent, console, or via a returned `warnings: string[]` field on the machine? Default to console.warn for now; revisit if warnings become numerous.
+6. **`transition: {}` depth** — v1 applies it machine-wide (edge ⊤) only. Per-group or per-edge edge config (mirroring the full state cascade) is deferred until per-edge properties (#445) exist.
+
+*(Group-of-group membership — previously open — is now **decided**: groups nest, the compiler keeps the graph, resolution is transitive. See Locked decisions 4–6.)*
 
 ## Risks
 
@@ -510,6 +594,9 @@
 - **Parallel regions** (XState-style simultaneous states across orthogonal axes). Covered by the separate FSMs-as-machine-data-members plan.
 - **Inline anonymous groups** (`&[a b c] 'foo' -> bar`). Deliberate non-feature; require named declaration.
 - **Negative group membership** (`&except [...]` or `&[* except X]`). Defer.
+- **Looping `()` group syntax and `&group -> +1` named rings.** Closed/ring topology belongs to the cycles feature; a named-group ring generator is adjacent future work, not this plan.
+- **Edge-kind default tiers** (`main_transition: {}`, `forced_transition: {}`) mirroring the existing node-kind tiers (`start_state` / `terminal_state` / …). Identified as the one genuine remaining symmetry gap — states have kind-defaults, edges don't — but deferred: the v1 edge cascade is just the `transition:` ⊤; kind tiers slot in when per-edge config (#445) lands.
+- **Removal of the deprecated graph-alias keys.** This plan keeps `graph_layout` / `graph_bg_color` / `edge-color` / `dot_preamble` / `theme` / `flow` working as aliases (with a deprecation warning); actually removing them is a later breaking-change pass.
 - **Cross-machine groups** (referencing groups in nested machine-typed properties). Defer; designed alongside FSMs-as-properties.
 - **Group renaming / migration tooling** for users coming from `XState`'s hierarchical states. Not required for v1.
 
@@ -517,11 +604,11 @@
 
 | Task | Estimate |
 |---|---|
-| Task 1: Grammar | 1–2 days |
-| Task 2: Compile pass | 2–4 days |
-| Task 3: Runtime API | 2–3 days |
-| Task 4: Visualization | 3–5 days (highest variance) |
+| Task 1: Grammar (GroupRef, nest/spread, `transition:` normalize) | 1–2 days |
+| Task 2: Compile pass (ordered graph, DAG check, depth-specificity, `transition:` wiring) | 3–5 days |
+| Task 3: Runtime API + unified cascade + override-throw + edge defaults | 3–4 days |
+| Task 4: Visualization (nested clusters + chips + edge defaults) | 3–5 days (highest variance) |
 | Task 5: Docs and recipes | 1–2 days |
 | Task 6: Final pass | Half a day |
 
-**Total: ~10–17 working days** for a focused implementation. Smaller than the original "architectural rewrite" framing because most of the work reuses existing machinery — the parse tree shape doesn't change, the compiler pipeline takes the same overall shape, the runtime Machine class gets additive methods rather than restructured internals, and the viz pipeline gains a sibling helper rather than being rewritten.
+**Total: ~12–19 working days** for a focused implementation. Slightly above the original estimate because keeping the group graph (vs flattening) adds the transitive resolver + DAG check, the unified cascade subsumes and replaces the old style merge, and `transition: {}` wiring is folded in. Still far short of an "architectural rewrite": the parse-tree shape is additive, the compiler reuses its existing pipeline, the Machine class gains additive methods plus one cascade resolver, and the viz pipeline gains sibling helpers rather than being rewritten.
