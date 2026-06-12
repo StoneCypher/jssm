@@ -345,6 +345,24 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     expect(s).toContain('BENNY_DEEP=1 node ./src/buildjs/benchmark_scaling.cjs');
   });
 
+  test('runs the general (hook microbenchmark) suite as its own line', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false });
+    // line-exact: 'npm run benny:scaling' contains 'npm run benny' as a substring
+    expect(s.split('\n')).toContain('npm run benny');
+  });
+
+  test('general suite is not deepened', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: true });
+    expect(s.split('\n')).toContain('npm run benny');
+    expect(s.split('\n')).not.toContain('BENNY_DEEP=1 npm run benny');
+  });
+
+  test('--harness-from overlays and runs the general suite too', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('src/buildjs/benchmark.cjs');
+    expect(s.split('\n')).toContain('node ./src/buildjs/benchmark.cjs');
+  });
+
   test('rejects a non-numeric PR number (injection guard)', () => {
     expect(() => gp.buildRemoteScript({ ...ok, prNumber: '1; rm -rf /', deep: false }))
       .toThrow(/non-numeric PR/);
@@ -574,6 +592,13 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('node --prof');
     expect(s).toContain('--prof-process');
     expect(s).toContain('jssm.es5.nonmin.cjs');
+  });
+
+  test('runs the general suite and publishes general.json', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    // line-exact: 'npm run benny:scaling' contains 'npm run benny' as a substring
+    expect(s.split('\n')).toContain('npm run benny');
+    expect(s).toContain('cp benchmark/results/general.json');
   });
 
   test('fetches the PAT from SSM and pushes with the token, to the release dir', () => {
