@@ -132,3 +132,40 @@ describe('line strategies', () => {
   });
 
 });
+
+
+
+
+
+// Equivalence guards for the WS / comment grammar de-recursion (#676).  These
+// lock the behaviors the rewrite must preserve; they pass identically on the
+// old (recursive) and new (iterative) comment rules.
+describe('comment equivalence guards (#676)', () => {
+
+  const AtoB  = [{"key": "transition", "from": "a", "se": {"kind": "->","to": "b"}}];
+  const is_AB = (str: string) =>
+                  test(JSON.stringify(str), () => expect(jssm.parse(str)).toEqual(AtoB));
+
+  describe('block comment body spanning newlines', () => {
+    is_AB('a->b;/* multi\nline\nbody */');
+    is_AB('a->b;\n/* multi\nline */\n');
+  });
+
+  describe('unterminated block comment throws', () => {
+    test('no closer at all', () => expect(() => jssm.parse('a->b;/* nope')).toThrow());
+    test('trailing star, no slash', () => expect(() => jssm.parse('a->b;/* nope *')).toThrow());
+  });
+
+  describe('vertical tab stays inside a line comment (not a terminator)', () => {
+    is_AB('a->b;// a\vb\n');
+    is_AB('a->b;// a\vb');
+  });
+
+  describe('u2028 / u2029 terminate a line comment', () => {
+    const U2028 = String.fromCharCode(0x2028);
+    const U2029 = String.fromCharCode(0x2029);
+    is_AB('// hello' + U2028 + 'a->b;');
+    is_AB('// hello' + U2029 + 'a->b;');
+  });
+
+});

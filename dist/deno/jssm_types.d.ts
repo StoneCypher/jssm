@@ -75,6 +75,30 @@ declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
  */
 declare type JssmAllowsOverride = true | false | undefined;
 /**
+ *  Controls whether the state graph may contain disconnected components
+ *  (islands).  `true` permits islands (default), `false` requires a single
+ *  connected component, and `'with_start'` permits islands only when every
+ *  component contains at least one start state.
+ */
+declare type JssmAllowIslands = true | false | 'with_start';
+/**
+ *  Structured render-size hint for a machine visualization, set by the FSL
+ *  `default_size` directive.  All three forms are optional in the sense that
+ *  only one or two fields will be present depending on the form used:
+ *
+ *  - `{ width }` — single-number form (`default_size: 800;`)
+ *  - `{ width, height }` — bounding-box form (`default_size: 800 600;`)
+ *  - `{ height }` — height-only form (`default_size: height 600;`)
+ *
+ *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
+ *
+ *  @see Machine.default_size
+ */
+declare type JssmDefaultSize = {
+    width?: number;
+    height?: number;
+};
+/**
  *  Runtime-iterable list of valid `flow` directions for FSL diagrams.
  *  Use this when you need to enumerate directions; for the type itself
  *  see {@link FslDirection}.
@@ -224,6 +248,26 @@ declare type JssmGenericMachine<DataType> = {
     keep_history?: boolean | number;
 };
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+declare type FslSourcePoint = {
+    offset: number;
+    line: number;
+    column: number;
+};
+declare type FslSourceLocation = {
+    start: FslSourcePoint;
+    end: FslSourcePoint;
+};
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -232,6 +276,8 @@ declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
+    loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
 };
 /**
  *  The fully-condensed declaration for a single state, including its raw
@@ -376,7 +422,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     history?: number;
     min_exits?: number;
     max_exits?: number;
-    allow_islands?: false;
+    allow_islands?: JssmAllowIslands;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -385,6 +431,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
+    failed_outputs?: Array<StateType>;
     initial_state?: StateType;
     start_states_no_enforce?: boolean;
     state_declaration?: Object[];
@@ -401,6 +448,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     machine_license?: string;
     machine_name?: string;
     machine_version?: string;
+    npm_name?: string;
+    default_size?: JssmDefaultSize;
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
@@ -445,6 +494,10 @@ declare type JssmCompileSe<StateType, mDT> = {
     r_probability: number;
     l_after?: number;
     r_after?: number;
+    loc?: FslSourceLocation;
+    to_loc?: FslSourceLocation;
+    l_action_loc?: FslSourceLocation;
+    r_action_loc?: FslSourceLocation;
 };
 /**
  *  Internal compiler intermediate: the root of a chained transition
@@ -459,11 +512,15 @@ declare type JssmCompileSeStart<StateType, DataType> = {
     from: StateType;
     se: JssmCompileSe<StateType, DataType>;
     key: string;
-    value?: string | number;
+    value?: string | number | Array<JssmStateDeclarationRule>;
     name?: string;
     state?: string;
     default_value?: any;
     required?: boolean;
+    loc?: FslSourceLocation;
+    from_loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
+    name_loc?: FslSourceLocation;
 };
 /**
  *  The output shape of the FSL parser: a flat array of
@@ -685,6 +742,7 @@ declare type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookConte
  */
 declare type JssmErrorExtendedInfo = {
     requested_state?: StateType | undefined;
+    source_location?: FslSourceLocation;
 };
 /**
  *  Bounded history of recently-visited states paired with the data payload
@@ -699,4 +757,211 @@ declare type JssmHistory<mDT> = circular_buffer<[StateType, mDT]>;
  *  made reproducible.
  */
 declare type JssmRng = () => number;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmRng };
+/**
+ *  All event names that {@link Machine.on} accepts.  These are observation
+ *  events fired by the machine in addition to (not in place of) the hook
+ *  system.  Hooks intercept; events observe.
+ *
+ *  @see Machine.on
+ */
+declare type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
+/**
+ *  Detail payload fired with a `transition` event.  Carries the resolved
+ *  source and target, the action name (if the transition was driven by an
+ *  action), the data observed before and after the change, the edge kind,
+ *  and whether the call was a forced transition.
+ */
+declare type JssmTransitionEventDetail<mDT> = {
+    from: StateType;
+    to: StateType;
+    action?: StateType;
+    data: mDT;
+    next_data?: mDT;
+    trans_type: string | undefined;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with a `rejection` event.  Carries the resolved
+ *  source and target plus an indication of who rejected the transition
+ *  and why.  `reason` is `'invalid'` when no edge existed, `'hook'` when
+ *  a hook handler vetoed; `hook_name` is set when `reason` is `'hook'`.
+ */
+declare type JssmRejectionEventDetail<mDT> = {
+    from: StateType;
+    to: StateType;
+    action?: StateType;
+    data: mDT;
+    next_data?: mDT;
+    reason: 'invalid' | 'hook';
+    hook_name?: string;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with an `action` event.  Fires when an action is
+ *  attempted, before transition validation runs.
+ */
+declare type JssmActionEventDetail<mDT> = {
+    action: StateType;
+    from: StateType;
+    to?: StateType;
+    data: mDT;
+    next_data?: mDT;
+};
+/**
+ *  Detail payload fired with an `entry` event.  `state` is the entered
+ *  state.  `from` is the predecessor state, if any.  `action` is the
+ *  action that drove the entry, if any.
+ */
+declare type JssmEntryEventDetail<mDT> = {
+    state: StateType;
+    from?: StateType;
+    action?: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `exit` event.  `state` is the exited
+ *  state.  `to` is the next state, if any.  `action` is the action that
+ *  drove the exit, if any.
+ */
+declare type JssmExitEventDetail<mDT> = {
+    state: StateType;
+    to?: StateType;
+    action?: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `terminal` event.  Indicates that the
+ *  machine has reached a state with no outgoing edges.
+ */
+declare type JssmTerminalEventDetail<mDT> = {
+    state: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `complete` event.  Indicates that the
+ *  machine has reached a FSL `complete` state.
+ */
+declare type JssmCompleteEventDetail<mDT> = {
+    state: StateType;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `error` event.  Wraps an exception caught
+ *  while running an event handler; `source_event` and `source_detail`
+ *  identify the event whose handler threw, and `handler` is the offending
+ *  function so consumers can correlate / blame.
+ */
+declare type JssmErrorEventDetail = {
+    error: unknown;
+    source_event: JssmEventName;
+    source_detail: unknown;
+    handler: Function;
+};
+/**
+ *  Detail payload fired with a `data-change` event.  Fires whenever the
+ *  machine's data payload is replaced.  `old_data` is the value before the
+ *  change; `new_data` is the value after.
+ */
+declare type JssmDataChangeEventDetail<mDT> = {
+    from?: StateType;
+    to?: StateType;
+    action?: StateType;
+    old_data: mDT;
+    new_data: mDT;
+    cause: 'transition' | 'override';
+};
+/**
+ *  Detail payload fired with an `override` event.  Distinguishes a forced
+ *  state replacement from a normal transition.
+ */
+declare type JssmOverrideEventDetail<mDT> = {
+    from: StateType;
+    to: StateType;
+    old_data: mDT;
+    new_data?: mDT;
+};
+/**
+ *  Detail payload fired with a `timeout` event.  Fires when a configured
+ *  `after` clause causes an automatic transition.
+ */
+declare type JssmTimeoutEventDetail = {
+    from: StateType;
+    to: StateType;
+    after_time: number;
+};
+/**
+ *  Detail payload fired with `hook-registration` and `hook-removal` events.
+ *  Mirrors the {@link HookDescription} so inspector tools can mirror the
+ *  current hook set.
+ */
+declare type JssmHookLifecycleEventDetail<mDT> = {
+    description: HookDescription<mDT>;
+};
+/**
+ *  Mapped type from {@link JssmEventName} to the corresponding detail
+ *  payload.  Drives the discriminated-union typing of {@link Machine.on},
+ *  so `e.action` and friends only exist where they're meaningful.
+ */
+declare type JssmEventDetailMap<mDT> = {
+    'transition': JssmTransitionEventDetail<mDT>;
+    'rejection': JssmRejectionEventDetail<mDT>;
+    'action': JssmActionEventDetail<mDT>;
+    'entry': JssmEntryEventDetail<mDT>;
+    'exit': JssmExitEventDetail<mDT>;
+    'terminal': JssmTerminalEventDetail<mDT>;
+    'complete': JssmCompleteEventDetail<mDT>;
+    'error': JssmErrorEventDetail;
+    'data-change': JssmDataChangeEventDetail<mDT>;
+    'override': JssmOverrideEventDetail<mDT>;
+    'timeout': JssmTimeoutEventDetail;
+    'hook-registration': JssmHookLifecycleEventDetail<mDT>;
+    'hook-removal': JssmHookLifecycleEventDetail<mDT>;
+};
+/**
+ *  Filter accepted by {@link Machine.on} / {@link Machine.once} for an
+ *  individual event name.  Only events whose detail key matches every
+ *  filter entry fire the handler.  Events that don't list a filter key in
+ *  v1 take no filter properties.
+ */
+declare type JssmEventFilterMap<mDT> = {
+    'transition': {
+        from?: StateType;
+        to?: StateType;
+    };
+    'rejection': Record<string, never>;
+    'action': Record<string, never>;
+    'entry': {
+        state?: StateType;
+    };
+    'exit': {
+        state?: StateType;
+    };
+    'terminal': Record<string, never>;
+    'complete': Record<string, never>;
+    'error': Record<string, never>;
+    'data-change': Record<string, never>;
+    'override': Record<string, never>;
+    'timeout': Record<string, never>;
+    'hook-registration': Record<string, never>;
+    'hook-removal': Record<string, never>;
+};
+/**
+ *  Per-event filter object (as passed to {@link Machine.on}).  Use
+ *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
+/**
+ *  Per-event handler signature.  Receives a detail object typed by event
+ *  name, so `e.action` (etc.) only exist where they're meaningful.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
+/**
+ *  Function returned by {@link Machine.on} and {@link Machine.once} that
+ *  removes the subscription.  Calling it more than once is a no-op.
+ */
+declare type JssmUnsubscribe = () => void;
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };

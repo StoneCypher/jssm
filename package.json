@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.128.0",
+  "version": "5.143.3",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -57,7 +57,16 @@
       "import": "./dist/wc/viz.define.js",
       "default": "./dist/wc/viz.define.js"
     },
+    "./wc/instance": {
+      "import": "./dist/wc/instance.js",
+      "default": "./dist/wc/instance.js"
+    },
+    "./wc/instance/define": {
+      "import": "./dist/wc/instance.define.js",
+      "default": "./dist/wc/instance.define.js"
+    },
     "./cdn/viz": "./dist/cdn/viz.js",
+    "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
   },
   "autoupdate": {
@@ -86,7 +95,10 @@
     "dist/jssm_viz.mjs",
     "dist/wc/viz.js",
     "dist/wc/viz.define.js",
+    "dist/wc/instance.js",
+    "dist/wc/instance.define.js",
     "dist/cdn/viz.js",
+    "dist/cdn/instance.js",
     "dist/deno/jssm.js",
     "dist/deno/*.d.ts",
     "dist/deno/README.md",
@@ -126,19 +138,27 @@
     "make_viz": "rollup -c rollup.config.viz.js",
     "make_wc_viz_es6": "rollup -c rollup.config.wc.viz.es6.js",
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
+    "make_wc_instance_es6": "rollup -c rollup.config.wc.instance.es6.js",
+    "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
-    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
+    "prep": "npm run makever && npm run peg",
+    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
+    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
+    "benny:scaling": "node ./src/buildjs/benchmark_scaling.cjs",
+    "benny:all": "npm run benny && npm run benny:scaling",
+    "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
     "ci_profile": "node ./src/buildjs/ci_profile.cjs",
     "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
+    "ci_test": "npm run vet && npm run make_ci && npm run vitest",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
     "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
@@ -215,7 +235,7 @@
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "benny": "^3.7.1",
-    "better_git_changelog": "^1.6.5",
+    "better_git_changelog": "^1.6.20",
     "cloc": "^2.10.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",

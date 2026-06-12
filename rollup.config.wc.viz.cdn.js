@@ -4,12 +4,12 @@ import replace     from '@rollup/plugin-replace';
 
 const config = [{
 
-  input: 'dist/es6/wc/jssm_viz_wc.define.js',
+  input: 'dist/es6/wc/fsl_viz_wc.define.js',
 
   output: {
     file    : 'dist/cdn/viz.js',
     format  : 'es',
-    name    : 'jssm_viz_wc_cdn',
+    name    : 'fsl_viz_wc_cdn',
     inlineDynamicImports: true,
   },
 

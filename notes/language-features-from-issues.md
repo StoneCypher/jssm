@@ -86,7 +86,7 @@ The conceptual ancestors of the overlapping-groups feature we just designed.
 
 - Hierarchical state charts (#7)
 - Named sequential groups (#70), should be subordinable (#244)
-- Cycles (#56, #400), Stripes (#57, #401)
+- Cycles (#400), Stripes (#401)
 - Spread (#72), No-self spread (#142), State spread (#453)
 - Apparently named lists parse — implement and test their use (#279)
 - Explicit ability to mark a group as a subgraph (#118)
@@ -130,7 +130,7 @@ The conceptual ancestors of the overlapping-groups feature we just designed.
 - URL decoration for states (#420)
 - Control hover label of states (#422)
 - Set a hover label (#313)
-- Expose SVG ID of nodes to user (#315), better SVG default node IDs through slugging (#316)
+- Expose SVG ID of nodes to user (#315)
 - State labels should make it to error messages (#426)
 - Should be able to disable state labels in render (#427)
 - Default new shapes for nodes with hooks (#247)
@@ -145,7 +145,6 @@ The conceptual ancestors of the overlapping-groups feature we just designed.
 - Machine attribute indicating minimum FSL language version (#410)
 - Default size attribute (#859)
 - Hooks open/closed machine attribute (#617, #645)
-- Machine should expose valid character set (#542)
 - Mechanism to control background color of graphs (#176)
 - Transparent as a state background color (#312)
 - Default border color on all nodes (#347)
@@ -273,8 +272,6 @@ This is what `toString`/`fromString` (the discussion we had earlier) maps to in 
 - Transitions need line styles too (#606)
 - HTML-like labels support (#264)
 - FontAwesome as node symbols (#438)
-- Update corner support in jssm-viz (#369)
-- `dot` footer (#332)
 - Edge color naming consistency (#358)
 
 ### A.18 Misc

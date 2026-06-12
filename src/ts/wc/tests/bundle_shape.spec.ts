@@ -1,5 +1,5 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
 
 import { readFileSync, existsSync } from 'node:fs';
@@ -13,12 +13,17 @@ describe('dist/wc/viz.js — bundler-friendly build', () => {
     expect(existsSync(dist_path)).toBe(true);
   });
 
-  it('exports the JssmViz class identifier', () => {
+  it('exports the FslViz class identifier', () => {
     const built = readFileSync(dist_path, 'utf8');
-    expect(built).toContain('JssmViz');
+    expect(built).toContain('FslViz');
   });
 
-  it('contains the jssm-viz tag name string', () => {
+  it('contains the fsl-viz canonical tag name string', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('fsl-viz');
+  });
+
+  it('contains the jssm-viz synonym tag name string', () => {
     const built = readFileSync(dist_path, 'utf8');
     expect(built).toContain('jssm-viz');
   });
@@ -43,6 +48,30 @@ describe('dist/wc/viz.js — bundler-friendly build', () => {
 
 });
 
+describe('dist/wc/viz.define.js — registration entry point', () => {
+
+  const define_path = resolve(__dirname, '../../../../dist/wc/viz.define.js');
+
+  it('exists after running make_wc_viz_es6', () => {
+    expect(existsSync(define_path)).toBe(true);
+  });
+
+  it('calls customElements.define for jssm-viz', () => {
+    const built = readFileSync(define_path, 'utf8');
+    expect(built).toContain('jssm-viz');
+  });
+
+  it('calls customElements.define for fsl-viz (synonym registration survives bundling)', () => {
+    // The empty-subclass JssmViz lives in fsl_viz_wc.define.ts and is the
+    // entire functional change for the synonym. If a bundler or
+    // tree-shaker ever drops it, page authors who import 'jssm/wc/viz/define'
+    // would silently lose the <fsl-viz> tag. This catches that regression.
+    const built = readFileSync(define_path, 'utf8');
+    expect(built).toContain('fsl-viz');
+  });
+
+});
+
 describe('dist/cdn/viz.js — CDN-friendly build', () => {
 
   const cdn_path = resolve(__dirname, '../../../../dist/cdn/viz.js');
@@ -54,6 +83,14 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
   it('contains the jssm-viz tag name string', () => {
     const built = readFileSync(cdn_path, 'utf8');
     expect(built).toContain('jssm-viz');
+  });
+
+  it('contains the fsl-viz synonym tag name string', () => {
+    // The synonym registration must survive the CDN bundling step. If the
+    // define module's second customElements.define call ever gets dead-code
+    // eliminated this assertion catches it.
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('fsl-viz');
   });
 
   it('inlines Lit (no lit imports remain)', () => {
@@ -79,6 +116,81 @@ describe('dist/cdn/viz.js — CDN-friendly build', () => {
 
 });
 
+describe('dist/wc/instance.js — bundler-friendly build', () => {
+
+  const dist_path = resolve(__dirname, '../../../../dist/wc/instance.js');
+
+  it('exists after running make_wc_instance_es6', () => {
+    expect(existsSync(dist_path)).toBe(true);
+  });
+
+  it('exports the FslInstance class identifier', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('FslInstance');
+  });
+
+  it('contains the fsl-instance canonical tag name string', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('fsl-instance');
+  });
+
+  it('contains the jssm-instance synonym tag name string', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('jssm-instance');
+  });
+
+  it('does NOT inline Lit internals (lit is external for bundlers)', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    const lit_element_hits = (built.match(/LitElement/g) || []).length;
+    expect(lit_element_hits).toBeGreaterThan(0);
+    expect(lit_element_hits).toBeLessThan(20);
+  });
+
+  it('is reasonably small with jssm core externalized', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    // Same envelope as the viz bundler-friendly build: jssm core + lit
+    // externalized, only the component source remains inline.
+    expect(built.length).toBeLessThan(50_000);
+  });
+
+});
+
+describe('dist/cdn/instance.js — CDN-friendly build', () => {
+
+  const cdn_path = resolve(__dirname, '../../../../dist/cdn/instance.js');
+
+  it('exists after running make_wc_instance_cdn', () => {
+    expect(existsSync(cdn_path)).toBe(true);
+  });
+
+  it('contains the fsl-instance canonical tag name string', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('fsl-instance');
+  });
+
+  it('contains the jssm-instance synonym tag name string', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('jssm-instance');
+  });
+
+  it('inlines Lit (no lit imports remain)', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).not.toMatch(/from\s+['"]lit['"]/);
+    expect(built).not.toMatch(/from\s+['"]lit\/decorators\.js['"]/);
+  });
+
+  it('calls customElements.define for jssm-instance', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built).toContain('customElements.define');
+  });
+
+  it('stays under the 10 MB regression-guard ceiling', () => {
+    const built = readFileSync(cdn_path, 'utf8');
+    expect(built.length).toBeLessThan(10_000_000);
+  });
+
+});
+
 describe('package.json exposure', () => {
 
   const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../../../package.json'), 'utf8'));
@@ -87,6 +199,24 @@ describe('package.json exposure', () => {
     const json = JSON.stringify(pkg.exports);
     expect(json).toContain('./wc/viz');
     expect(json).toContain('./dist/wc/viz.js');
+  });
+
+  it('exposes the wc/instance subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/instance');
+    expect(json).toContain('./dist/wc/instance.js');
+  });
+
+  it('exposes the wc/instance/define subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/instance/define');
+    expect(json).toContain('./dist/wc/instance.define.js');
+  });
+
+  it('exposes the cdn/instance subpath', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./cdn/instance');
+    expect(json).toContain('./dist/cdn/instance.js');
   });
 
   it('exposes the wc/viz/define subpath', () => {
@@ -118,6 +248,9 @@ describe('package.json exposure', () => {
     expect(json).toContain('dist/wc/viz.js');
     expect(json).toContain('dist/wc/viz.define.js');
     expect(json).toContain('dist/cdn/viz.js');
+    expect(json).toContain('dist/wc/instance.js');
+    expect(json).toContain('dist/wc/instance.define.js');
+    expect(json).toContain('dist/cdn/instance.js');
     expect(json).toContain('custom-elements.json');
   });
 

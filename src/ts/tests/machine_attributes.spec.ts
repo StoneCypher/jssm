@@ -33,6 +33,100 @@ describe('machine_name', () => {
 
 
 
+describe('npm_name', () => {
+
+  test('atom', () =>
+    expect(() => { const _foo = sm`npm_name: mypackage; a->b;`; })
+      .not.toThrow() );
+
+  test('quoted string', () =>
+    expect(() => { const _foo = sm`npm_name: "my-package"; a->b;`; })
+      .not.toThrow() );
+
+  test('retval correct', () =>
+    expect(sm`npm_name: testval; a->b;`.npm_name() )
+      .toBe('testval') );
+
+  test('absent → undefined', () =>
+    expect(sm`a->b;`.npm_name())
+      .toBeUndefined() );
+
+});
+
+
+
+describe('default_size', () => {
+
+  describe('single number (width-only form)', () => {
+
+    test('does not throw', () =>
+      expect(() => { const _m = sm`default_size: 800; a->b;`; })
+        .not.toThrow() );
+
+    test('returns { width: 800 }', () =>
+      expect(sm`default_size: 800; a->b;`.default_size())
+        .toEqual({ width: 800 }) );
+
+    test('width is the parsed number', () =>
+      expect((sm`default_size: 1024; a->b;`.default_size() as any).width)
+        .toBe(1024) );
+
+    test('height key is absent', () =>
+      expect('height' in (sm`default_size: 800; a->b;`.default_size() as any))
+        .toBe(false) );
+
+  });
+
+  describe('two numbers (bounding-box form)', () => {
+
+    test('does not throw', () =>
+      expect(() => { const _m = sm`default_size: 800 600; a->b;`; })
+        .not.toThrow() );
+
+    test('returns { width: 800, height: 600 }', () =>
+      expect(sm`default_size: 800 600; a->b;`.default_size())
+        .toEqual({ width: 800, height: 600 }) );
+
+    test('width and height are correct', () => {
+      const sz = sm`default_size: 1920 1080; a->b;`.default_size() as any;
+      expect(sz.width ).toBe(1920);
+      expect(sz.height).toBe(1080);
+    });
+
+  });
+
+  describe('height-keyword form', () => {
+
+    test('does not throw', () =>
+      expect(() => { const _m = sm`default_size: height 600; a->b;`; })
+        .not.toThrow() );
+
+    test('returns { height: 600 }', () =>
+      expect(sm`default_size: height 600; a->b;`.default_size())
+        .toEqual({ height: 600 }) );
+
+    test('height is the parsed number', () =>
+      expect((sm`default_size: height 1080; a->b;`.default_size() as any).height)
+        .toBe(1080) );
+
+    test('width key is absent', () =>
+      expect('width' in (sm`default_size: height 600; a->b;`.default_size() as any))
+        .toBe(false) );
+
+  });
+
+  describe('absent', () => {
+
+    test('returns undefined when not set', () =>
+      expect(sm`a->b;`.default_size())
+        .toBeUndefined() );
+
+  });
+
+});
+
+
+
 describe('machine_language', () => {
 
   const eachTest = (name, lang) => {
@@ -394,5 +488,111 @@ describe('fsl_version', () => {
   test('retval correct', () =>
     expect(sm`fsl_version: 0.0.0; a->b;`.fsl_version())
       .toEqual({full:"0.0.0", major:0, minor:0, patch:0}) );
+
+});
+
+
+
+
+describe('failed_outputs', () => {
+
+  test('absent → empty array', () =>
+    expect( sm`a -> b;`.failed_outputs() )
+      .toEqual([]) );
+
+  test('single-state form → one-element array', () =>
+    expect( sm`failed_outputs: dead; a -> b -> dead;`.failed_outputs() )
+      .toEqual(['dead']) );
+
+  test('list form → full array', () =>
+    expect( sm`failed_outputs: [dead error]; a -> b -> dead -> error;`.failed_outputs() )
+      .toEqual(['dead', 'error']) );
+
+  test('is_failed_output true for declared failure state', () =>
+    expect( sm`failed_outputs: dead; a -> b -> dead;`.is_failed_output('dead') )
+      .toBe(true) );
+
+  test('is_failed_output false for non-failure state', () =>
+    expect( sm`failed_outputs: dead; a -> b -> dead;`.is_failed_output('a') )
+      .toBe(false) );
+
+  test('is_failed false when current state is not a failure state', () => {
+    const m = sm`failed_outputs: dead; a -> b -> dead;`;
+    expect( m.is_failed() )
+      .toBe(false);
+  });
+
+  test('is_failed true after transitioning into a failure state', () => {
+    const m = sm`failed_outputs: dead; a -> b -> dead;`;
+    m.transition('b');
+    m.transition('dead');
+    expect( m.is_failed() )
+      .toBe(true);
+  });
+
+  test('is_failed false after leaving a failure state', () => {
+    const m = sm`failed_outputs: dead; a -> dead -> b;`;
+    m.transition('dead');
+    m.transition('b');
+    expect( m.is_failed() )
+      .toBe(false);
+  });
+
+});
+
+
+
+
+describe('allow_islands', () => {
+
+  test('default (omitted) allows an island machine', () =>
+    expect( () => { const _m = sm`a -> b; c -> d;`; })
+      .not.toThrow() );
+
+  test('explicit true allows an island machine', () =>
+    expect( () => { const _m = sm`allow_islands: true; a -> b; c -> d;`; })
+      .not.toThrow() );
+
+  test('explicit true allows a connected machine', () =>
+    expect( () => { const _m = sm`allow_islands: true; a -> b;`; })
+      .not.toThrow() );
+
+  test('false throws on a two-island machine', () =>
+    expect( () => { const _m = sm`allow_islands: false; a -> b; c -> d;`; })
+      .toThrow() );
+
+  test('false passes on a single-component machine', () =>
+    expect( () => { const _m = sm`allow_islands: false; a -> b -> c;`; })
+      .not.toThrow() );
+
+  test('with_start passes when every island has a start state', () =>
+    // a is default start; c is also a start state declared explicitly
+    expect( () => { const _m = sm`allow_islands: with_start; start_states: [a c]; a -> b; c -> d;`; })
+      .not.toThrow() );
+
+  test('with_start throws when an island has no start state', () =>
+    // only a is a start state; the c->d island has none
+    expect( () => { const _m = sm`allow_islands: with_start; a -> b; c -> d;`; })
+      .toThrow() );
+
+  test('with_start passes on a connected machine with one start state', () =>
+    expect( () => { const _m = sm`allow_islands: with_start; a -> b -> c;`; })
+      .not.toThrow() );
+
+  test('.allow_islands getter returns true when omitted', () =>
+    expect( sm`a -> b;`.allow_islands )
+      .toBe(true) );
+
+  test('.allow_islands getter returns true when explicit', () =>
+    expect( sm`allow_islands: true; a -> b;`.allow_islands )
+      .toBe(true) );
+
+  test('.allow_islands getter returns false when set to false', () =>
+    expect( sm`allow_islands: false; a -> b;`.allow_islands )
+      .toBe(false) );
+
+  test(".allow_islands getter returns 'with_start' when set", () =>
+    expect( sm`allow_islands: with_start; a -> b;`.allow_islands )
+      .toBe('with_start') );
 
 });

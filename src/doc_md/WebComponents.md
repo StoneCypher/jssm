@@ -1,6 +1,8 @@
 # Web Components
 
-`jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<jssm-viz>`. Additional widgets (`<jssm-editor>`, `<jssm-playground>`) follow in later releases.
+`jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<fsl-viz>`. Additional widgets (`<fsl-editor>`, `<fsl-playground>`) follow in later releases.
+
+> **Tag names:** `fsl-*` is the canonical spelling (e.g. `<fsl-viz>`, class `FslViz`). The `jssm-*` tags (`<jssm-viz>`, …) and `Jssm*` class names remain accepted aliases and will not be removed.
 
 ## Quick start — CDN
 
@@ -12,10 +14,10 @@ For static HTML pages with no build step:
 </script>
 <script type="module" src="https://cdn.jsdelivr.net/npm/jssm/dist/cdn/viz.js"></script>
 
-<jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+<fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
-The import map is required so that `<jssm-viz>`'s dynamic import of `@viz-js/viz` resolves in the browser. Hosting providers other than jsDelivr work identically — substitute the base URL.
+The import map is required so that `<fsl-viz>`'s dynamic import of `@viz-js/viz` resolves in the browser. Hosting providers other than jsDelivr work identically — substitute the base URL.
 
 ## Quick start — npm
 
@@ -32,18 +34,20 @@ import 'jssm/wc/viz/define';
 Then anywhere in your markup:
 
 ```html
-<jssm-viz fsl="Off -> On -> Off;"></jssm-viz>
+<fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
+
+The `<jssm-viz>` alias is also accepted and renders identically.
 
 ## Class export — rename or subclass
 
 To register the class under a different tag name, or to subclass it:
 
 ```ts
-import { JssmViz } from 'jssm/wc/viz';
+import { FslViz } from 'jssm/wc/viz';
 import { css } from 'lit';
 
-customElements.define('my-fsl-viz', class extends JssmViz {
+customElements.define('my-fsl-viz', class extends FslViz {
   static styles = [
     super.styles,
     css`:host { background: #111; }`,
@@ -51,7 +55,7 @@ customElements.define('my-fsl-viz', class extends JssmViz {
 });
 ```
 
-The class export has no side effects — importing it does not register any tag.
+The class export has no side effects — importing it does not register any tag. `JssmViz` is also exported as an alias for `FslViz`.
 
 ## Properties
 

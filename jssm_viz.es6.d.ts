@@ -47,6 +47,30 @@ declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
  */
 declare type JssmAllowsOverride = true | false | undefined;
 /**
+ *  Controls whether the state graph may contain disconnected components
+ *  (islands).  `true` permits islands (default), `false` requires a single
+ *  connected component, and `'with_start'` permits islands only when every
+ *  component contains at least one start state.
+ */
+declare type JssmAllowIslands = true | false | 'with_start';
+/**
+ *  Structured render-size hint for a machine visualization, set by the FSL
+ *  `default_size` directive.  All three forms are optional in the sense that
+ *  only one or two fields will be present depending on the form used:
+ *
+ *  - `{ width }` — single-number form (`default_size: 800;`)
+ *  - `{ width, height }` — bounding-box form (`default_size: 800 600;`)
+ *  - `{ height }` — height-only form (`default_size: height 600;`)
+ *
+ *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
+ *
+ *  @see Machine.default_size
+ */
+declare type JssmDefaultSize = {
+    width?: number;
+    height?: number;
+};
+/**
  *  Runtime-iterable list of valid `flow` directions for FSL diagrams.
  *  Use this when you need to enumerate directions; for the type itself
  *  see {@link FslDirection}.
@@ -163,6 +187,26 @@ declare type JssmMachineInternalState<DataType> = {
 declare type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+declare type FslSourcePoint = {
+    offset: number;
+    line: number;
+    column: number;
+};
+declare type FslSourceLocation = {
+    start: FslSourcePoint;
+    end: FslSourcePoint;
+};
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -171,6 +215,8 @@ declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
+    loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
 };
 /**
  *  The fully-condensed declaration for a single state, including its raw
@@ -279,7 +325,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     history?: number;
     min_exits?: number;
     max_exits?: number;
-    allow_islands?: false;
+    allow_islands?: JssmAllowIslands;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -288,6 +334,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
+    failed_outputs?: Array<StateType>;
     initial_state?: StateType;
     start_states_no_enforce?: boolean;
     state_declaration?: Object[];
@@ -304,6 +351,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     machine_license?: string;
     machine_name?: string;
     machine_version?: string;
+    npm_name?: string;
+    default_size?: JssmDefaultSize;
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
@@ -337,6 +386,10 @@ declare type JssmCompileSe<StateType, mDT> = {
     r_probability: number;
     l_after?: number;
     r_after?: number;
+    loc?: FslSourceLocation;
+    to_loc?: FslSourceLocation;
+    l_action_loc?: FslSourceLocation;
+    r_action_loc?: FslSourceLocation;
 };
 declare type BasicHookDescription<mDT> = {
     kind: 'hook';
@@ -550,6 +603,213 @@ declare type JssmHistory<mDT> = circular_buffer<[StateType$1, mDT]>;
  *  made reproducible.
  */
 declare type JssmRng = () => number;
+/**
+ *  All event names that {@link Machine.on} accepts.  These are observation
+ *  events fired by the machine in addition to (not in place of) the hook
+ *  system.  Hooks intercept; events observe.
+ *
+ *  @see Machine.on
+ */
+declare type JssmEventName = 'transition' | 'rejection' | 'action' | 'entry' | 'exit' | 'terminal' | 'complete' | 'error' | 'data-change' | 'override' | 'timeout' | 'hook-registration' | 'hook-removal';
+/**
+ *  Detail payload fired with a `transition` event.  Carries the resolved
+ *  source and target, the action name (if the transition was driven by an
+ *  action), the data observed before and after the change, the edge kind,
+ *  and whether the call was a forced transition.
+ */
+declare type JssmTransitionEventDetail<mDT> = {
+    from: StateType$1;
+    to: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+    next_data?: mDT;
+    trans_type: string | undefined;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with a `rejection` event.  Carries the resolved
+ *  source and target plus an indication of who rejected the transition
+ *  and why.  `reason` is `'invalid'` when no edge existed, `'hook'` when
+ *  a hook handler vetoed; `hook_name` is set when `reason` is `'hook'`.
+ */
+declare type JssmRejectionEventDetail<mDT> = {
+    from: StateType$1;
+    to: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+    next_data?: mDT;
+    reason: 'invalid' | 'hook';
+    hook_name?: string;
+    forced: boolean;
+};
+/**
+ *  Detail payload fired with an `action` event.  Fires when an action is
+ *  attempted, before transition validation runs.
+ */
+declare type JssmActionEventDetail<mDT> = {
+    action: StateType$1;
+    from: StateType$1;
+    to?: StateType$1;
+    data: mDT;
+    next_data?: mDT;
+};
+/**
+ *  Detail payload fired with an `entry` event.  `state` is the entered
+ *  state.  `from` is the predecessor state, if any.  `action` is the
+ *  action that drove the entry, if any.
+ */
+declare type JssmEntryEventDetail<mDT> = {
+    state: StateType$1;
+    from?: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `exit` event.  `state` is the exited
+ *  state.  `to` is the next state, if any.  `action` is the action that
+ *  drove the exit, if any.
+ */
+declare type JssmExitEventDetail<mDT> = {
+    state: StateType$1;
+    to?: StateType$1;
+    action?: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `terminal` event.  Indicates that the
+ *  machine has reached a state with no outgoing edges.
+ */
+declare type JssmTerminalEventDetail<mDT> = {
+    state: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with a `complete` event.  Indicates that the
+ *  machine has reached a FSL `complete` state.
+ */
+declare type JssmCompleteEventDetail<mDT> = {
+    state: StateType$1;
+    data: mDT;
+};
+/**
+ *  Detail payload fired with an `error` event.  Wraps an exception caught
+ *  while running an event handler; `source_event` and `source_detail`
+ *  identify the event whose handler threw, and `handler` is the offending
+ *  function so consumers can correlate / blame.
+ */
+declare type JssmErrorEventDetail = {
+    error: unknown;
+    source_event: JssmEventName;
+    source_detail: unknown;
+    handler: Function;
+};
+/**
+ *  Detail payload fired with a `data-change` event.  Fires whenever the
+ *  machine's data payload is replaced.  `old_data` is the value before the
+ *  change; `new_data` is the value after.
+ */
+declare type JssmDataChangeEventDetail<mDT> = {
+    from?: StateType$1;
+    to?: StateType$1;
+    action?: StateType$1;
+    old_data: mDT;
+    new_data: mDT;
+    cause: 'transition' | 'override';
+};
+/**
+ *  Detail payload fired with an `override` event.  Distinguishes a forced
+ *  state replacement from a normal transition.
+ */
+declare type JssmOverrideEventDetail<mDT> = {
+    from: StateType$1;
+    to: StateType$1;
+    old_data: mDT;
+    new_data?: mDT;
+};
+/**
+ *  Detail payload fired with a `timeout` event.  Fires when a configured
+ *  `after` clause causes an automatic transition.
+ */
+declare type JssmTimeoutEventDetail = {
+    from: StateType$1;
+    to: StateType$1;
+    after_time: number;
+};
+/**
+ *  Detail payload fired with `hook-registration` and `hook-removal` events.
+ *  Mirrors the {@link HookDescription} so inspector tools can mirror the
+ *  current hook set.
+ */
+declare type JssmHookLifecycleEventDetail<mDT> = {
+    description: HookDescription<mDT>;
+};
+/**
+ *  Mapped type from {@link JssmEventName} to the corresponding detail
+ *  payload.  Drives the discriminated-union typing of {@link Machine.on},
+ *  so `e.action` and friends only exist where they're meaningful.
+ */
+declare type JssmEventDetailMap<mDT> = {
+    'transition': JssmTransitionEventDetail<mDT>;
+    'rejection': JssmRejectionEventDetail<mDT>;
+    'action': JssmActionEventDetail<mDT>;
+    'entry': JssmEntryEventDetail<mDT>;
+    'exit': JssmExitEventDetail<mDT>;
+    'terminal': JssmTerminalEventDetail<mDT>;
+    'complete': JssmCompleteEventDetail<mDT>;
+    'error': JssmErrorEventDetail;
+    'data-change': JssmDataChangeEventDetail<mDT>;
+    'override': JssmOverrideEventDetail<mDT>;
+    'timeout': JssmTimeoutEventDetail;
+    'hook-registration': JssmHookLifecycleEventDetail<mDT>;
+    'hook-removal': JssmHookLifecycleEventDetail<mDT>;
+};
+/**
+ *  Filter accepted by {@link Machine.on} / {@link Machine.once} for an
+ *  individual event name.  Only events whose detail key matches every
+ *  filter entry fire the handler.  Events that don't list a filter key in
+ *  v1 take no filter properties.
+ */
+declare type JssmEventFilterMap<mDT> = {
+    'transition': {
+        from?: StateType$1;
+        to?: StateType$1;
+    };
+    'rejection': Record<string, never>;
+    'action': Record<string, never>;
+    'entry': {
+        state?: StateType$1;
+    };
+    'exit': {
+        state?: StateType$1;
+    };
+    'terminal': Record<string, never>;
+    'complete': Record<string, never>;
+    'error': Record<string, never>;
+    'data-change': Record<string, never>;
+    'override': Record<string, never>;
+    'timeout': Record<string, never>;
+    'hook-registration': Record<string, never>;
+    'hook-removal': Record<string, never>;
+};
+/**
+ *  Per-event filter object (as passed to {@link Machine.on}).  Use
+ *  `JssmEventDetailMap<mDT>[Ev]` to find the matching detail type.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventFilter<mDT, Ev extends JssmEventName> = JssmEventFilterMap<mDT>[Ev];
+/**
+ *  Per-event handler signature.  Receives a detail object typed by event
+ *  name, so `e.action` (etc.) only exist where they're meaningful.
+ *  @typeparam mDT The type of the machine data member.
+ *  @typeparam Ev  The event name.
+ */
+declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEventDetailMap<mDT>[Ev]) => void;
+/**
+ *  Function returned by {@link Machine.on} and {@link Machine.once} that
+ *  removes the subscription.  Calling it more than once is a no-op.
+ */
+declare type JssmUnsubscribe = () => void;
 
 /**
  *  The published semantic version of the jssm package this build was cut from.
@@ -567,37 +827,31 @@ declare const build_time: number;
 
 declare type StateType = string;
 
-/*******
+/**
+ *  Internal record holding a single registered event subscription: the
+ *  handler, its optional filter, and a flag for `once` semantics.  Not
+ *  exported.
  *
- *  Core finite state machine class.  Holds the full graph of states and
- *  transitions, the current state, hooks, data, properties, and all runtime
- *  behavior.  Typically created via the {@link sm} tagged template literal
- *  rather than constructed directly.
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
- *  light.state();       // 'Red'
- *  light.action('next'); // true
- *  light.state();       // 'Green'
- *  ```
- *
- *  @typeparam mDT The machine data type — the type of the value stored in
- *  `.data()`.  Defaults to `undefined` when no data is used.
- *
+ *  @internal
  */
+declare type JssmEventEntry<mDT, Ev extends JssmEventName> = {
+    handler: JssmEventHandler<mDT, Ev>;
+    filter?: JssmEventFilter<mDT, Ev>;
+    once: boolean;
+};
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
     _edges: Array<JssmTransition<StateType, mDT>>;
     _edge_map: Map<StateType, Map<StateType, number>>;
+    _outbound_edge_ids: Map<StateType, Array<number>>;
     _named_transitions: Map<StateType, number>;
     _actions: Map<StateType, Map<StateType, number>>;
     _reverse_actions: Map<StateType, Map<StateType, number>>;
     _reverse_action_targets: Map<StateType, Map<StateType, number>>;
     _start_states: Set<StateType>;
     _end_states: Set<StateType>;
+    _failed_outputs: Set<StateType>;
     _machine_author?: Array<string>;
     _machine_comment?: string;
     _machine_contributor?: Array<string>;
@@ -606,6 +860,8 @@ declare class Machine<mDT> {
     _machine_license?: string;
     _machine_name?: string;
     _machine_version?: string;
+    _npm_name?: string;
+    _default_size?: JssmDefaultSize;
     _fsl_version?: string;
     _raw_state_declaration?: Array<Object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
@@ -629,8 +885,8 @@ declare class Machine<mDT> {
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
     _has_forced_transitions: boolean;
-    _hooks: Map<string, HookHandler<mDT>>;
-    _named_hooks: Map<string, HookHandler<mDT>>;
+    _hooks: Map<string, Map<string, HookHandler<mDT>>>;
+    _named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
     _entry_hooks: Map<string, HookHandler<mDT>>;
     _exit_hooks: Map<string, HookHandler<mDT>>;
     _after_hooks: Map<string, HookHandler<mDT>>;
@@ -649,8 +905,9 @@ declare class Machine<mDT> {
     _has_post_transition_hooks: boolean;
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
-    _post_hooks: Map<string, HookHandler<mDT>>;
-    _post_named_hooks: Map<string, HookHandler<mDT>>;
+    _allow_islands: JssmAllowIslands;
+    _post_hooks: Map<string, Map<string, HookHandler<mDT>>>;
+    _post_named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
     _post_entry_hooks: Map<string, HookHandler<mDT>>;
     _post_exit_hooks: Map<string, HookHandler<mDT>>;
     _post_global_action_hooks: Map<string, HookHandler<mDT>>;
@@ -685,7 +942,10 @@ declare class Machine<mDT> {
     _timeout_handle: number | undefined;
     _timeout_target: string | undefined;
     _timeout_target_time: number | undefined;
-    constructor({ start_states, end_states, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
+    _event_listener_count: number;
+    _firing_error: boolean;
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -949,6 +1209,39 @@ declare class Machine<mDT> {
     is_end_state(whichState: StateType): boolean;
     /********
      *
+     *  Get the set of states declared as failure outputs for this machine.
+     *  Returns an array of state labels, or an empty array when none were
+     *  declared.  A state in this list means the machine is in a failure
+     *  condition when it occupies that state.
+     *
+     *  @see {@link is_failed_output} to test a single state
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    failed_outputs(): Array<StateType>;
+    /********
+     *
+     *  Check whether a given state is declared as a failure output.
+     *
+     *  @param whichState The name of the state to check
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    is_failed_output(whichState: StateType): boolean;
+    /********
+     *
+     *  Check whether the machine is currently in a failure state — that is,
+     *  whether its current state is one of the declared `failed_outputs`.
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed_output} to test an arbitrary state
+     *
+     */
+    is_failed(): boolean;
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -1039,6 +1332,27 @@ declare class Machine<mDT> {
      *  @returns The machine name string.
      */
     machine_name(): string;
+    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+     *  Returns `undefined` when not present.
+     *  @returns The npm package name string, or `undefined`.
+     *  @see machine_name
+     */
+    npm_name(): string;
+    /** Get the render-size hint for the machine's visualization.  Set via the
+     *  FSL `default_size` directive.  Returns `undefined` when not present.
+     *
+     *  The three FSL forms each produce a different subset of fields:
+     *
+     *  - `default_size: 800;`       → `{ width: 800 }`
+     *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
+     *  - `default_size: height 600;` → `{ height: 600 }`
+     *
+     *  This is a hint, not a hard constraint.  Renderers may ignore it.
+     *
+     *  @returns The size-hint object, or `undefined` if not set.
+     *  @see npm_name
+     */
+    default_size(): JssmDefaultSize | undefined;
     /** Get the machine's version string.  Set via the FSL `machine_version` directive.
      *  @returns The version string.
      */
@@ -1189,6 +1503,17 @@ declare class Machine<mDT> {
      *
      */
     get allows_override(): JssmAllowsOverride;
+    /*********
+     *
+     *  Return the effective island policy for this machine.  `true` means
+     *  disconnected components are allowed (the default), `false` requires a
+     *  single connected component, and `'with_start'` allows islands only when
+     *  every component contains at least one start state.
+     *
+     *  @returns The island policy stored in the machine.
+     *
+     */
+    get allow_islands(): JssmAllowIslands;
     /** List all available theme names.
      *  @returns An array of theme name strings.
      */
@@ -1493,6 +1818,131 @@ declare class Machine<mDT> {
      *  @returns `true` if at least one state is complete.
      */
     has_completes(): boolean;
+    /**
+     *  Subscribe to a typed observation event.  Hooks (`set_hook` and friends)
+     *  intercept and may cancel a transition; events fire alongside the same
+     *  state-machine moments but cannot influence the outcome.  This is the
+     *  surface most users actually want for "tell me when state changes".
+     *
+     *  Handlers run synchronously, in registration order.  A throwing handler
+     *  does not block subsequent handlers — its exception is caught and
+     *  re-emitted as an `error` event whose detail names the original event
+     *  and the offending handler.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b -> c;`;
+     *
+     *  m.on('transition', e => console.log(`${e.from} -> ${e.to}`));
+     *  m.on('entry', { state: 'b' }, e => console.log(`entered ${e.state}`));
+     *
+     *  const off = m.on('transition', () => {});
+     *  off();  // unsubscribe
+     *  ```
+     *
+     *  @typeparam Ev      The event name (drives the detail type).
+     *  @param name        The event name to subscribe to.
+     *  @param filterOrFn  Either a filter object or, when calling the no-filter
+     *                     form, the handler itself.
+     *  @param maybeFn     The handler, when a filter object was supplied.
+     *  @returns A function that unsubscribes when called.
+     *
+     *  @see Machine.off
+     *  @see Machine.once
+     */
+    on<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    on<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    /**
+     *  Subscribe to a typed observation event for one matching delivery, then
+     *  auto-remove.  Accepts the same `(name, handler)` and `(name, filter,
+     *  handler)` shapes as {@link Machine.on}.
+     *
+     *  ```typescript
+     *  m.once('terminal', e => console.log(`done at ${e.state}`));
+     *  ```
+     *
+     *  @typeparam Ev      The event name.
+     *  @param name        The event name.
+     *  @param filterOrFn  A filter object or the handler (no-filter form).
+     *  @param maybeFn     The handler, when a filter was supplied.
+     *  @returns A function that unsubscribes early if called before the
+     *           handler has fired.
+     *
+     *  @see Machine.on
+     *  @see Machine.off
+     */
+    once<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    once<Ev extends JssmEventName>(name: Ev, filter: JssmEventFilter<mDT, Ev>, handler: JssmEventHandler<mDT, Ev>): JssmUnsubscribe;
+    /**
+     *  Remove a previously-registered event handler.  Match is by reference —
+     *  the same function value passed to {@link Machine.on} or
+     *  {@link Machine.once}.  Returns `true` if a subscription was found and
+     *  removed, `false` otherwise.
+     *
+     *  ```typescript
+     *  const fn = (e: any) => console.log(e);
+     *  m.on('transition', fn);
+     *  m.off('transition', fn);  // true
+     *  m.off('transition', fn);  // false
+     *  ```
+     *
+     *  @param name    The event name.
+     *  @param handler The handler reference to remove.
+     *  @returns `true` if removed, `false` if no match was registered.
+     */
+    off<Ev extends JssmEventName>(name: Ev, handler: JssmEventHandler<mDT, Ev>): boolean;
+    /**
+     *  Remove one event-subscription entry from its set and keep
+     *  {@link Machine._event_listener_count} in sync.  The count is decremented
+     *  only when the entry was actually present, so calling a stale unsubscribe
+     *  closure (or removing an already-fired `once` entry) is idempotent and
+     *  cannot drive the count negative.
+     *
+     *  @param set   The per-event-name subscription set.
+     *  @param entry The entry to remove.
+     *  @internal
+     */
+    _unsubscribe_entry(set: Set<JssmEventEntry<any, any>>, entry: JssmEventEntry<any, any>): void;
+    /**
+     *  Shared registration core used by {@link Machine.on} and
+     *  {@link Machine.once}.  Normalizes the optional filter argument and
+     *  installs the entry into the per-event subscription set.
+     *
+     *  @internal
+     */
+    _subscribe<Ev extends JssmEventName>(name: Ev, filterOrFn: JssmEventFilter<mDT, Ev> | JssmEventHandler<mDT, Ev>, maybeFn: JssmEventHandler<mDT, Ev> | undefined, once: boolean): JssmUnsubscribe;
+    /**
+     *  Invoke a single event-handler entry, respecting its filter, once-removal
+     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+     *  {@link _fire} can share identical behavior between the size-1 fast-path
+     *  and the general snapshotted loop.
+     *
+     *  @param entry  - The subscriber descriptor to invoke.
+     *  @param set    - The live Set that owns `entry`; needed for once-removal.
+     *  @param name   - The event name being dispatched (used in error re-fires).
+     *  @param detail - The event payload forwarded to the handler.
+     *
+     *  @internal
+     */
+    _fire_one<Ev extends JssmEventName>(entry: JssmEventEntry<mDT, Ev>, set: Set<JssmEventEntry<any, any>>, name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
+    /**
+     *  Dispatch an event to every registered subscriber in registration
+     *  order.  Filters are checked first; non-matching handlers are skipped
+     *  without invoking the handler.  Exceptions thrown by a handler are
+     *  caught and re-emitted as an `error` event so subsequent handlers
+     *  still run.
+     *
+     *  Re-entry into the `error` event itself is guarded — if an `error`
+     *  handler throws, the new exception is swallowed rather than rebroadcast
+     *  to avoid an infinite loop.
+     *
+     *  When exactly one subscriber is registered the common case avoids the
+     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+     *  local first — equivalent to a 1-element snapshot but allocation-free.
+     *  The general path still snapshots for re-entrancy safety.
+     *
+     *  @internal
+     */
+    _fire<Ev extends JssmEventName>(name: Ev, detail: JssmEventDetailMap<mDT>[Ev]): void;
     /** Low-level hook registration.  Installs a handler described by a
      *  {@link HookDescription} into the appropriate internal map.  Prefer the
      *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
@@ -1500,6 +1950,28 @@ declare class Machine<mDT> {
      *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
      */
     set_hook(HookDesc: HookDescription<mDT>): void;
+    /**
+     *  Remove a previously-registered hook described by a
+     *  {@link HookDescription}.  Match is by `kind` + identifying keys
+     *  (`from`/`to`/`action`/etc.), not by handler reference — there is one
+     *  hook per slot in the registry, so the description uniquely identifies
+     *  which one to clear.  Fires a `hook-removal` event for inspector tools.
+     *
+     *  This is the symmetric counterpart of {@link Machine.set_hook} for the
+     *  event-bridging use case (#638).  Reasoning about hooks via observation
+     *  events requires being able to observe their disappearance too.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b;`;
+     *  const fn = () => true;
+     *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+     *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+     *  ```
+     *
+     *  @param HookDesc - A hook descriptor identifying the hook to remove.
+     *  @returns `true` if a hook was removed, `false` otherwise.
+     */
+    remove_hook(HookDesc: HookDescription<mDT>): boolean;
     /** Register a pre-transition hook on a specific edge.  Fires before
      *  transitioning from `from` to `to`.  If the handler returns `false`, the
      *  transition is blocked.
@@ -1734,6 +2206,33 @@ declare class Machine<mDT> {
      *
      */
     override(newState: StateType, newData?: mDT | undefined): void;
+    /*********
+     *
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Extracted from the per-call closures inside {@link transition_impl} so
+     *  that it is allocated once at class-definition time rather than on every
+     *  hooked transition.
+     *
+     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+     *  @param fromState  State the machine was in when the transition was
+     *    attempted; used as the `from` field of the rejection event.
+     *  @param newState   State that would have been entered had the hook
+     *    passed; used as the `to` field of the rejection event.
+     *  @param fromAction Action name when the transition was initiated by an
+     *    action call; `undefined` for plain state transitions.
+     *  @param oldData    Machine data at the moment the transition was
+     *    attempted, before any hook mutations.
+     *  @param newData    The `next_data` value passed to the transition call.
+     *  @param wasForced  Whether the transition was attempted via
+     *    `force_transition`.
+     *
+     *  @see transition_impl
+     *  @see _fire
+     *
+     *  @internal
+     *
+     */
+    _fire_hook_rejection(hook_name: string, fromState: StateType, newState: StateType, fromAction: StateType | undefined, oldData: mDT, newData: mDT | undefined, wasForced: boolean): void;
     /*********
      *
      *  Shared transition core used by {@link transition}, {@link force_transition},

@@ -53,7 +53,7 @@ describe('Basic hooks on API callpoint', () => {
 // TODO
 
     expect( () => { const _foo = sm`a -FAIL> b;`; } )
-      .toThrow( 'Expected \"after\", \"{\", action label, arrow, nonneg number, or whitespace but \"-\" found.' )
+      .toThrow( 'Expected "after", "{", action label, arrow, nonneg number, or whitespace but "-" found.' )
 
   } );
 
@@ -78,6 +78,23 @@ describe('Basic hooks on API callpoint', () => {
       _foo.state_for('c');
     } )
       .toThrow( '[[doug]]: No such state (at "a", requested "c")' )
+
+  } );
+
+
+  test('re-declaring the same transition throws "already has" (#673)', () => {
+
+    expect( () => { const _m = sm`a -> b; a -> b;`; } )
+      .toThrow( /already has/ );
+
+  } );
+
+
+  test('the duplicate-edge error is a JssmError (#673)', () => {
+
+    let caught: unknown;
+    try { const _m = sm`a -> b; a -> b;`; } catch (e) { caught = e; }
+    expect(caught instanceof JssmError).toBe(true);
 
   } );
 

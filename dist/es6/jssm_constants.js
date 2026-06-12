@@ -146,7 +146,7 @@ const named_colors = [
  *  import { state_name_chars } from 'jssm';
  *  state_name_chars.some(r => 'A' >= r.from && 'A' <= r.to);  // => true
  */
-// keep in sync with src/ts/fsl_parser.peg:278
+// keep in sync with src/ts/fsl_parser.peg:267
 const state_name_chars = Object.freeze([
     { from: '0', to: '9' },
     { from: 'a', to: 'z' },
@@ -179,7 +179,7 @@ const state_name_chars = Object.freeze([
  *  import { state_name_first_chars } from 'jssm';
  *  state_name_first_chars.some(r => '+' >= r.from && '+' <= r.to);  // => false
  */
-// keep in sync with src/ts/fsl_parser.peg:275
+// keep in sync with src/ts/fsl_parser.peg:264
 const state_name_first_chars = Object.freeze([
     { from: '0', to: '9' },
     { from: 'a', to: 'z' },

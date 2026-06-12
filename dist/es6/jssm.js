@@ -4,7 +4,7 @@ import { FslDirections } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { theme_mapping, base_theme } from './jssm_theme';
-import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, hook_name, named_hook_name, gen_splitmix32, sleep } from './jssm_util';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 import { version, build_time } from './version'; // replaced from package.js in build
@@ -197,9 +197,56 @@ function state_style_condense(jssk, machine) {
  *  `.data()`.  Defaults to `undefined` when no data is used.
  *
  */
+/*********
+ *
+ *  Partition a state graph into its connected components using an undirected
+ *  BFS over state names.  Each edge (from, to) is treated as bidirectional so
+ *  that island membership is topology-based rather than flow-based.
+ *
+ *  Used at construction time to enforce the `allow_islands` constraint.
+ *
+ *  @param states  The machine's state map (keys are state names).
+ *  @param edges   The machine's edge list; only `from` and `to` are used.
+ *  @returns       An array of components, each component an array of state names.
+ *
+ */
+function find_connected_components(states, edges) {
+    // Build undirected adjacency list
+    const adj = new Map();
+    for (const name of states.keys()) {
+        adj.set(name, new Set());
+    }
+    for (const edge of edges) {
+        adj.get(edge.from).add(edge.to);
+        adj.get(edge.to).add(edge.from);
+    }
+    const visited = new Set();
+    const result = [];
+    for (const start of states.keys()) {
+        if (visited.has(start)) {
+            continue;
+        }
+        // BFS to collect this component
+        const component = [];
+        const queue = [start];
+        visited.add(start);
+        while (queue.length > 0) {
+            const node = queue.shift();
+            component.push(node);
+            for (const neighbor of adj.get(node)) {
+                if (!visited.has(neighbor)) {
+                    visited.add(neighbor);
+                    queue.push(neighbor);
+                }
+            }
+        }
+        result.push(component);
+    }
+    return result;
+}
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         this._time_source = () => new Date().getTime();
         this._create_started = this._time_source();
         this._instance_name = instance_name;
@@ -207,12 +254,14 @@ class Machine {
         this._state_declarations = new Map();
         this._edges = [];
         this._edge_map = new Map();
+        this._outbound_edge_ids = new Map();
         this._named_transitions = new Map();
         this._actions = new Map();
         this._reverse_actions = new Map();
         this._reverse_action_targets = new Map(); // todo
         this._start_states = new Set(start_states);
         this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
+        this._failed_outputs = new Set(failed_outputs);
         this._machine_author = array_box_if_string(machine_author);
         this._machine_comment = machine_comment;
         this._machine_contributor = array_box_if_string(machine_contributor);
@@ -221,6 +270,8 @@ class Machine {
         this._machine_license = machine_license;
         this._machine_name = machine_name;
         this._machine_version = machine_version;
+        this._npm_name = npm_name;
+        this._default_size = default_size;
         this._raw_state_declaration = state_declaration || [];
         this._fsl_version = fsl_version;
         this._arrange_declaration = arrange_declaration;
@@ -261,6 +312,7 @@ class Machine {
         // no need for a boolean for single hooks, just test for undefinedness
         this._code_allows_override = allows_override;
         this._config_allows_override = config_allows_override;
+        this._allow_islands = allow_islands !== null && allow_islands !== void 0 ? allow_islands : true;
         if ((allows_override === false) && (config_allows_override === true)) {
             throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
         }
@@ -300,6 +352,9 @@ class Machine {
         this._timeout_target = undefined;
         this._timeout_target_time = undefined;
         this._after_mapping = new Map();
+        this._event_handlers = new Map();
+        this._event_listener_count = 0;
+        this._firing_error = false;
         // consolidate the state declarations
         if (state_declaration) {
             state_declaration.map((state_decl) => {
@@ -319,6 +374,11 @@ class Machine {
                 this._state_labels.set(key, labelled[0].value);
             }
         });
+        // O(1) duplicate-edge guard for the construction loop below: from -> Set<to>.
+        // Keyed by source state; mirrors each state's `to` array with constant-time
+        // membership so the dedup check is O(1) per edge rather than an O(out-degree)
+        // array scan (which made construction O(V*E) on dense graphs).  #673
+        const seen_edges = new Map();
         // walk the transitions
         transitions.map((tr) => {
             if (tr.from === undefined) {
@@ -338,11 +398,20 @@ class Machine {
             if (!(this._states.has(tr.to))) {
                 this._new_state(cursor_to);
             }
-            // guard against existing connections being re-added
-            if (cursor_from.to.includes(tr.to)) {
+            // guard against existing connections being re-added — O(1) via the
+            // from -> Set<to> index instead of an O(out-degree) `cursor_from.to`
+            // array scan.  Behaviour is identical: the same duplicate (from, to)
+            // pair throws the same JssmError.  #673
+            let seen_to = seen_edges.get(tr.from);
+            if (seen_to === undefined) {
+                seen_to = new Set();
+                seen_edges.set(tr.from, seen_to);
+            }
+            if (seen_to.has(tr.to)) {
                 throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
             }
             else {
+                seen_to.add(tr.to);
                 cursor_from.to.push(tr.to);
                 cursor_to.from.push(tr.from);
             }
@@ -372,6 +441,17 @@ class Machine {
             }
             //    const to_mapping = from_mapping.get(tr.to);
             from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
+            // outbound adjacency: every edge originating at tr.from, regardless of action/target.
+            // _edge_map above keys a single edge per (from, to) and overwrites on collision, which
+            // is fine for lookup_transition_for but loses information for edges_between when several
+            // edges share endpoints across distinct actions.  This index preserves every edge id and
+            // lets edges_between scan only one state's exits, not all of _edges.
+            let outbound = this._outbound_edge_ids.get(tr.from);
+            if (!outbound) {
+                outbound = [];
+                this._outbound_edge_ids.set(tr.from, outbound);
+            }
+            outbound.push(thisEdgeId);
             // set up the action mapping, so that actions can be looked up by origin
             if (tr.action) {
                 // forward mapping first by action name
@@ -490,6 +570,24 @@ class Machine {
         // assert chosen starting state is valid
         if (!(start_states.length === this._start_states.size)) {
             throw new JssmError(this, `Start states cannot be repeated`);
+        }
+        // assert connectivity constraints imposed by allow_islands
+        if (this._allow_islands !== true) {
+            const components = find_connected_components(this._states, this._edges);
+            if (this._allow_islands === false) {
+                if (components.length > 1) {
+                    throw new JssmError(this, `allow_islands is false but the state graph has ${components.length} disconnected components`);
+                }
+            }
+            else {
+                // 'with_start': every component must contain at least one start state
+                for (const component of components) {
+                    const has_start = component.some(s => this._start_states.has(s));
+                    if (!has_start) {
+                        throw new JssmError(this, `allow_islands is 'with_start' but a connected component has no start state: [${[...component].join(', ')}]`);
+                    }
+                }
+            }
         }
         this._created = this._time_source();
         this.auto_set_state_timeout();
@@ -815,6 +913,45 @@ class Machine {
     }
     /********
      *
+     *  Get the set of states declared as failure outputs for this machine.
+     *  Returns an array of state labels, or an empty array when none were
+     *  declared.  A state in this list means the machine is in a failure
+     *  condition when it occupies that state.
+     *
+     *  @see {@link is_failed_output} to test a single state
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    failed_outputs() {
+        return [...this._failed_outputs];
+    }
+    /********
+     *
+     *  Check whether a given state is declared as a failure output.
+     *
+     *  @param whichState The name of the state to check
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    is_failed_output(whichState) {
+        return this._failed_outputs.has(whichState);
+    }
+    /********
+     *
+     *  Check whether the machine is currently in a failure state — that is,
+     *  whether its current state is one of the declared `failed_outputs`.
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed_output} to test an arbitrary state
+     *
+     */
+    is_failed() {
+        return this._failed_outputs.has(this._state);
+    }
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -937,6 +1074,31 @@ class Machine {
      */
     machine_name() {
         return this._machine_name;
+    }
+    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+     *  Returns `undefined` when not present.
+     *  @returns The npm package name string, or `undefined`.
+     *  @see machine_name
+     */
+    npm_name() {
+        return this._npm_name;
+    }
+    /** Get the render-size hint for the machine's visualization.  Set via the
+     *  FSL `default_size` directive.  Returns `undefined` when not present.
+     *
+     *  The three FSL forms each produce a different subset of fields:
+     *
+     *  - `default_size: 800;`       → `{ width: 800 }`
+     *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
+     *  - `default_size: height 600;` → `{ height: 600 }`
+     *
+     *  This is a hint, not a hard constraint.  Renderers may ignore it.
+     *
+     *  @returns The size-hint object, or `undefined` if not set.
+     *  @see npm_name
+     */
+    default_size() {
+        return this._default_size;
     }
     /** Get the machine's version string.  Set via the FSL `machine_version` directive.
      *  @returns The version string.
@@ -1163,6 +1325,19 @@ class Machine {
         else {
             return false;
         }
+    }
+    /*********
+     *
+     *  Return the effective island policy for this machine.  `true` means
+     *  disconnected components are allowed (the default), `false` requires a
+     *  single connected component, and `'with_start'` allows islands only when
+     *  every component contains at least one start state.
+     *
+     *  @returns The island policy stored in the machine.
+     *
+     */
+    get allow_islands() {
+        return this._allow_islands;
     }
     /** List all available theme names.
      *  @returns An array of theme name strings.
@@ -1614,6 +1789,183 @@ class Machine {
     has_completes() {
         return this.states().some((x) => this.state_is_complete(x));
     }
+    on(name, filterOrFn, maybeFn) {
+        return this._subscribe(name, filterOrFn, maybeFn, false);
+    }
+    once(name, filterOrFn, maybeFn) {
+        return this._subscribe(name, filterOrFn, maybeFn, true);
+    }
+    /**
+     *  Remove a previously-registered event handler.  Match is by reference —
+     *  the same function value passed to {@link Machine.on} or
+     *  {@link Machine.once}.  Returns `true` if a subscription was found and
+     *  removed, `false` otherwise.
+     *
+     *  ```typescript
+     *  const fn = (e: any) => console.log(e);
+     *  m.on('transition', fn);
+     *  m.off('transition', fn);  // true
+     *  m.off('transition', fn);  // false
+     *  ```
+     *
+     *  @param name    The event name.
+     *  @param handler The handler reference to remove.
+     *  @returns `true` if removed, `false` if no match was registered.
+     */
+    off(name, handler) {
+        const set = this._event_handlers.get(name);
+        if (set === undefined) {
+            return false;
+        }
+        for (const entry of set) {
+            if (entry.handler === handler) {
+                this._unsubscribe_entry(set, entry);
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     *  Remove one event-subscription entry from its set and keep
+     *  {@link Machine._event_listener_count} in sync.  The count is decremented
+     *  only when the entry was actually present, so calling a stale unsubscribe
+     *  closure (or removing an already-fired `once` entry) is idempotent and
+     *  cannot drive the count negative.
+     *
+     *  @param set   The per-event-name subscription set.
+     *  @param entry The entry to remove.
+     *  @internal
+     */
+    _unsubscribe_entry(set, entry) {
+        if (set.delete(entry)) {
+            this._event_listener_count--;
+        }
+    }
+    /**
+     *  Shared registration core used by {@link Machine.on} and
+     *  {@link Machine.once}.  Normalizes the optional filter argument and
+     *  installs the entry into the per-event subscription set.
+     *
+     *  @internal
+     */
+    _subscribe(name, filterOrFn, maybeFn, once) {
+        let filter;
+        let handler;
+        if (typeof filterOrFn === 'function') {
+            filter = undefined;
+            handler = filterOrFn;
+        }
+        else {
+            filter = filterOrFn;
+            handler = maybeFn;
+        }
+        if (typeof handler !== 'function') {
+            throw new JssmError(this, `event handler for "${name}" must be a function`);
+        }
+        let set = this._event_handlers.get(name);
+        if (set === undefined) {
+            set = new Set();
+            this._event_handlers.set(name, set);
+        }
+        const entry = { handler, filter, once };
+        set.add(entry);
+        this._event_listener_count++;
+        return () => { this._unsubscribe_entry(set, entry); };
+    }
+    /**
+     *  Invoke a single event-handler entry, respecting its filter, once-removal
+     *  semantics, and the error re-fire / recursion-guard logic.  Extracted so
+     *  {@link _fire} can share identical behavior between the size-1 fast-path
+     *  and the general snapshotted loop.
+     *
+     *  @param entry  - The subscriber descriptor to invoke.
+     *  @param set    - The live Set that owns `entry`; needed for once-removal.
+     *  @param name   - The event name being dispatched (used in error re-fires).
+     *  @param detail - The event payload forwarded to the handler.
+     *
+     *  @internal
+     */
+    _fire_one(entry, set, name, detail) {
+        // filter check
+        if (entry.filter !== undefined) {
+            for (const k of Object.keys(entry.filter)) {
+                if (entry.filter[k] !== detail[k]) {
+                    return;
+                }
+            }
+        }
+        // once removal happens BEFORE invocation so a throwing handler still
+        // gets removed and so re-entrant `on` calls during the handler see
+        // the post-removal state.
+        if (entry.once) {
+            this._unsubscribe_entry(set, entry);
+        }
+        try {
+            entry.handler(detail);
+        }
+        catch (err) {
+            if (name === 'error' || this._firing_error) {
+                // surface to stderr as a last resort but never recurse;
+                // `console` is in the JS standard library and present in every
+                // supported runtime, so guarding it would just add an untestable
+                // branch.  See #638.
+                // eslint-disable-next-line no-console
+                console.error(err);
+            }
+            else {
+                this._firing_error = true;
+                try {
+                    this._fire('error', {
+                        error: err,
+                        source_event: name,
+                        source_detail: detail,
+                        handler: entry.handler
+                    });
+                }
+                finally {
+                    this._firing_error = false;
+                }
+            }
+        }
+    }
+    /**
+     *  Dispatch an event to every registered subscriber in registration
+     *  order.  Filters are checked first; non-matching handlers are skipped
+     *  without invoking the handler.  Exceptions thrown by a handler are
+     *  caught and re-emitted as an `error` event so subsequent handlers
+     *  still run.
+     *
+     *  Re-entry into the `error` event itself is guarded — if an `error`
+     *  handler throws, the new exception is swallowed rather than rebroadcast
+     *  to avoid an infinite loop.
+     *
+     *  When exactly one subscriber is registered the common case avoids the
+     *  `Array.from(set)` snapshot allocation by capturing the lone entry into a
+     *  local first — equivalent to a 1-element snapshot but allocation-free.
+     *  The general path still snapshots for re-entrancy safety.
+     *
+     *  @internal
+     */
+    _fire(name, detail) {
+        const set = this._event_handlers.get(name);
+        if (set === undefined || set.size === 0) {
+            return;
+        }
+        // Fast-path: single subscriber — capture entry before invoking so that
+        // even if the handler mutates `set` (via off/once auto-removal) we hold a
+        // stable reference.  Behaviorally identical to a 1-element snapshot.
+        if (set.size === 1) {
+            const only = set.values().next().value;
+            this._fire_one(only, set, name, detail);
+            return;
+        }
+        // General path: snapshot so handlers can `off()` mid-loop without
+        // disturbing iteration.
+        const entries = Array.from(set);
+        for (const entry of entries) {
+            this._fire_one(entry, set, name, detail);
+        }
+    }
     /** Low-level hook registration.  Installs a handler described by a
      *  {@link HookDescription} into the appropriate internal map.  Prefer the
      *  convenience wrappers ({@link hook}, {@link hook_entry}, etc.) over
@@ -1622,16 +1974,35 @@ class Machine {
      */
     set_hook(HookDesc) {
         switch (HookDesc.kind) {
-            case 'hook':
-                this._hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+            case 'hook': {
+                // Nested by `from` then `to`; avoids JSON.stringify on every transition (#642).
+                let inner = this._hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._hooks.set(HookDesc.from, inner);
+                }
+                inner.set(HookDesc.to, HookDesc.handler);
                 this._has_hooks = true;
                 this._has_basic_hooks = true;
                 break;
-            case 'named':
-                this._named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+            }
+            case 'named': {
+                // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
+                let inner = this._named_hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._named_hooks.set(HookDesc.from, inner);
+                }
+                let inner2 = inner.get(HookDesc.to);
+                if (inner2 === undefined) {
+                    inner2 = new Map();
+                    inner.set(HookDesc.to, inner2);
+                }
+                inner2.set(HookDesc.action, HookDesc.handler);
                 this._has_hooks = true;
                 this._has_named_hooks = true;
                 break;
+            }
             case 'global action':
                 this._global_action_hooks.set(HookDesc.action, HookDesc.handler);
                 this._has_hooks = true;
@@ -1675,16 +2046,35 @@ class Machine {
                 this._has_hooks = true;
                 this._has_after_hooks = true;
                 break;
-            case 'post hook':
-                this._post_hooks.set(hook_name(HookDesc.from, HookDesc.to), HookDesc.handler);
+            case 'post hook': {
+                // Nested by `from` then `to`; same rationale as 'hook' (#642).
+                let inner = this._post_hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._post_hooks.set(HookDesc.from, inner);
+                }
+                inner.set(HookDesc.to, HookDesc.handler);
                 this._has_post_hooks = true;
                 this._has_post_basic_hooks = true;
                 break;
-            case 'post named':
-                this._post_named_hooks.set(named_hook_name(HookDesc.from, HookDesc.to, HookDesc.action), HookDesc.handler);
+            }
+            case 'post named': {
+                // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
+                let inner = this._post_named_hooks.get(HookDesc.from);
+                if (inner === undefined) {
+                    inner = new Map();
+                    this._post_named_hooks.set(HookDesc.from, inner);
+                }
+                let inner2 = inner.get(HookDesc.to);
+                if (inner2 === undefined) {
+                    inner2 = new Map();
+                    inner.set(HookDesc.to, inner2);
+                }
+                inner2.set(HookDesc.action, HookDesc.handler);
                 this._has_post_hooks = true;
                 this._has_post_named_hooks = true;
                 break;
+            }
             case 'post global action':
                 this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
                 this._has_post_hooks = true;
@@ -1742,6 +2132,179 @@ class Machine {
             default:
                 throw new JssmError(this, `Unknown hook type ${HookDesc.kind}, should be impossible`);
         }
+        // fire the registration event for inspector tools (#638)
+        this._fire('hook-registration', { description: HookDesc });
+    }
+    /**
+     *  Remove a previously-registered hook described by a
+     *  {@link HookDescription}.  Match is by `kind` + identifying keys
+     *  (`from`/`to`/`action`/etc.), not by handler reference — there is one
+     *  hook per slot in the registry, so the description uniquely identifies
+     *  which one to clear.  Fires a `hook-removal` event for inspector tools.
+     *
+     *  This is the symmetric counterpart of {@link Machine.set_hook} for the
+     *  event-bridging use case (#638).  Reasoning about hooks via observation
+     *  events requires being able to observe their disappearance too.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b;`;
+     *  const fn = () => true;
+     *  m.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+     *  m.remove_hook({ kind: 'hook', from: 'a', to: 'b', handler: fn });
+     *  ```
+     *
+     *  @param HookDesc - A hook descriptor identifying the hook to remove.
+     *  @returns `true` if a hook was removed, `false` otherwise.
+     */
+    remove_hook(HookDesc) {
+        let removed = false;
+        switch (HookDesc.kind) {
+            case 'hook': {
+                const inner = this._hooks.get(HookDesc.from);
+                if (inner !== undefined && inner.has(HookDesc.to)) {
+                    inner.delete(HookDesc.to);
+                    removed = true;
+                }
+                break;
+            }
+            case 'named': {
+                const inner = this._named_hooks.get(HookDesc.from);
+                const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
+                if (inner2 !== undefined && inner2.has(HookDesc.action)) {
+                    inner2.delete(HookDesc.action);
+                    removed = true;
+                }
+                break;
+            }
+            case 'global action':
+                removed = this._global_action_hooks.delete(HookDesc.action);
+                break;
+            case 'any action':
+                if (this._any_action_hook !== undefined) {
+                    this._any_action_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'standard transition':
+                if (this._standard_transition_hook !== undefined) {
+                    this._standard_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'main transition':
+                if (this._main_transition_hook !== undefined) {
+                    this._main_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'forced transition':
+                if (this._forced_transition_hook !== undefined) {
+                    this._forced_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'any transition':
+                if (this._any_transition_hook !== undefined) {
+                    this._any_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'entry':
+                removed = this._entry_hooks.delete(HookDesc.to);
+                break;
+            case 'exit':
+                removed = this._exit_hooks.delete(HookDesc.from);
+                break;
+            case 'after':
+                removed = this._after_hooks.delete(HookDesc.from);
+                break;
+            case 'post hook': {
+                const inner = this._post_hooks.get(HookDesc.from);
+                if (inner !== undefined && inner.has(HookDesc.to)) {
+                    inner.delete(HookDesc.to);
+                    removed = true;
+                }
+                break;
+            }
+            case 'post named': {
+                const inner = this._post_named_hooks.get(HookDesc.from);
+                const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
+                if (inner2 !== undefined && inner2.has(HookDesc.action)) {
+                    inner2.delete(HookDesc.action);
+                    removed = true;
+                }
+                break;
+            }
+            case 'post global action':
+                removed = this._post_global_action_hooks.delete(HookDesc.action);
+                break;
+            case 'post any action':
+                if (this._post_any_action_hook !== undefined) {
+                    this._post_any_action_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'post standard transition':
+                if (this._post_standard_transition_hook !== undefined) {
+                    this._post_standard_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'post main transition':
+                if (this._post_main_transition_hook !== undefined) {
+                    this._post_main_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'post forced transition':
+                if (this._post_forced_transition_hook !== undefined) {
+                    this._post_forced_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'post any transition':
+                if (this._post_any_transition_hook !== undefined) {
+                    this._post_any_transition_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'post entry':
+                removed = this._post_entry_hooks.delete(HookDesc.to);
+                break;
+            case 'post exit':
+                removed = this._post_exit_hooks.delete(HookDesc.from);
+                break;
+            case 'pre everything':
+                if (this._pre_everything_hook !== undefined) {
+                    this._pre_everything_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'everything':
+                if (this._everything_hook !== undefined) {
+                    this._everything_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'pre post everything':
+                if (this._pre_post_everything_hook !== undefined) {
+                    this._pre_post_everything_hook = undefined;
+                    removed = true;
+                }
+                break;
+            case 'post everything':
+                if (this._post_everything_hook !== undefined) {
+                    this._post_everything_hook = undefined;
+                    removed = true;
+                }
+                break;
+            default:
+                throw new JssmError(this, `Unknown hook type ${HookDesc.kind}, should be impossible`);
+        }
+        if (removed) {
+            this._fire('hook-removal', { description: HookDesc });
+        }
+        return removed;
     }
     /** Register a pre-transition hook on a specific edge.  Fires before
      *  transitioning from `from` to `to`.  If the handler returns `false`, the
@@ -2045,7 +2608,21 @@ class Machine {
      *  @returns An array of matching {@link JssmTransition} objects.
      */
     edges_between(from, to) {
-        return this._edges.filter(edge => ((edge.from === from) && (edge.to === to)));
+        var _a;
+        // Filter only this state's outbound edges instead of the full _edges array.
+        // For machines with E total edges and average out-degree d, this is O(d)
+        // instead of O(E) — a large win on dense graphs where d << E.  The `?? []`
+        // covers from-states that have no outgoing edges (terminal states) and
+        // states that don't exist at all, both of which return [] without iterating.
+        const outbound = (_a = this._outbound_edge_ids.get(from)) !== null && _a !== void 0 ? _a : [];
+        const result = [];
+        for (const edgeId of outbound) {
+            const edge = this._edges[edgeId];
+            if (edge.to === to) {
+                result.push(edge);
+            }
+        }
+        return result;
     }
     /*********
      *
@@ -2069,8 +2646,25 @@ class Machine {
     override(newState, newData) {
         if (this.allows_override) {
             if (this._states.has(newState)) {
+                const fromState = this._state;
+                const oldData = this._data;
                 this._state = newState;
                 this._data = newData;
+                this._fire('override', {
+                    from: fromState,
+                    to: newState,
+                    old_data: oldData,
+                    new_data: newData
+                });
+                if (oldData !== newData) {
+                    this._fire('data-change', {
+                        from: fromState,
+                        to: newState,
+                        old_data: oldData,
+                        new_data: newData,
+                        cause: 'override'
+                    });
+                }
             }
             else {
                 throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
@@ -2079,6 +2673,44 @@ class Machine {
         else {
             throw new JssmError(this, "Code specifies no override, but config tries to permit; config may not be less strict than code");
         }
+    }
+    /*********
+     *
+     *  Fire a `'rejection'` event caused by a hook vetoing a pending transition.
+     *  Extracted from the per-call closures inside {@link transition_impl} so
+     *  that it is allocated once at class-definition time rather than on every
+     *  hooked transition.
+     *
+     *  @param hook_name  Name of the hook that rejected (e.g. `'exit'`).
+     *  @param fromState  State the machine was in when the transition was
+     *    attempted; used as the `from` field of the rejection event.
+     *  @param newState   State that would have been entered had the hook
+     *    passed; used as the `to` field of the rejection event.
+     *  @param fromAction Action name when the transition was initiated by an
+     *    action call; `undefined` for plain state transitions.
+     *  @param oldData    Machine data at the moment the transition was
+     *    attempted, before any hook mutations.
+     *  @param newData    The `next_data` value passed to the transition call.
+     *  @param wasForced  Whether the transition was attempted via
+     *    `force_transition`.
+     *
+     *  @see transition_impl
+     *  @see _fire
+     *
+     *  @internal
+     *
+     */
+    _fire_hook_rejection(hook_name, fromState, newState, fromAction, oldData, newData, wasForced) {
+        this._fire('rejection', {
+            from: fromState,
+            to: newState,
+            action: fromAction,
+            data: oldData,
+            next_data: newData,
+            reason: 'hook',
+            hook_name,
+            forced: wasForced
+        });
     }
     /*********
      *
@@ -2150,130 +2782,199 @@ class Machine {
                 newState = newStateOrAction;
             }
         }
-        const hook_args = {
-            data: this._data,
-            action: fromAction,
-            from: this._state,
-            to: newState,
-            next_data: newData,
-            forced: wasForced,
-            trans_type
-        };
+        // hook_args is read only inside the `_has_hooks` / `_has_post_hooks`
+        // blocks below.  Skip building it for hook-free machines (every
+        // chain/dense/hub/messy benchmark shape) so the hot path stops allocating
+        // a 7-field object it never reads.  The NonNullable cast keeps the type
+        // unchanged for all downstream uses without introducing an impossible
+        // (uncoverable) branch; the value is only dereferenced under the guards
+        // that imply it was built.  #670
+        const hook_args_obj = (this._has_hooks || this._has_post_hooks)
+            ? {
+                data: this._data,
+                action: fromAction,
+                from: this._state,
+                to: newState,
+                next_data: newData,
+                forced: wasForced,
+                trans_type
+            }
+            : undefined;
+        const hook_args = hook_args_obj;
+        // 'action' event fires when an action is attempted, regardless of whether
+        // it ultimately succeeds — matches the issue spec for observation events.
+        // Gated on live listener count so we skip the detail-object allocation
+        // when nothing is subscribed.  Gate is read at fire time, so a listener
+        // registered inside a pre-hook still receives the event.  #671
+        if (wasAction) {
+            if (this._event_listener_count !== 0) {
+                this._fire('action', {
+                    action: newStateOrAction,
+                    from: this._state,
+                    to: newState,
+                    data: this._data,
+                    next_data: newData
+                });
+            }
+        }
+        // Captured pre-transition source state so 'data-change' detail and similar
+        // events can name where we came from.
+        const fromState = this._state;
+        const oldData = this._data;
         if (valid) {
             if (this._has_hooks) {
                 // once validity is known, clear old 'after' timeout clause
                 this.clear_state_timeout();
-                function update_fields(res) {
-                    if (res.hasOwnProperty('data')) {
-                        hook_args.data = res.data;
-                        hook_args.next_data = res.next_data;
-                        data_changed = true;
-                    }
-                }
                 let data_changed = false;
                 // 0. pre everything hook (fires before all other pre-hooks)
                 if (this._pre_everything_hook !== undefined) {
                     const outcome = abstract_everything_hook_step(this._pre_everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'pre everything' }));
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('pre everything', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 if (wasAction) {
                     // 1a. any action hook
                     const outcome = abstract_hook_step(this._any_action_hook, hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('any action', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                     // 1b. global specific action hook
                     const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
                     if (outcome2.pass === false) {
+                        this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome2);
+                    if (_update_hook_fields(hook_args, outcome2)) {
+                        data_changed = true;
+                    }
                 }
                 // 2. after hook
                 if (this._has_after_hooks) {
                     const ah = this._after_hooks.get(newStateOrAction);
                     const outcome = abstract_hook_step(ah, hook_args);
-                    // there's no such thing as after not passing, so, omit the result pass check
-                    update_fields(outcome);
+                    // there's no such thing as after not passing, so, omit the result pass check.
+                    // after hooks are post-exit and informational — their outcome never changes
+                    // data, so there's no data_changed branch here (it would be unreachable).
+                    _update_hook_fields(hook_args, outcome);
                 }
                 // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
                     const outcome = abstract_hook_step(this._any_transition_hook, hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('any transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 4. exit hook
                 if (this._has_exit_hooks) {
                     const outcome = abstract_hook_step(this._exit_hooks.get(this._state), hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 5. named transition / action hook
                 if (this._has_named_hooks) {
                     if (wasAction) {
-                        const nhn = named_hook_name(this._state, newState, newStateOrAction), outcome = abstract_hook_step(this._named_hooks.get(nhn), hook_args);
+                        // Nested lookup: from -> to -> action.  Each step is a small Map keyed by
+                        // an already-interned state/action name; no per-call string allocation.
+                        const byTo = this._named_hooks.get(this._state);
+                        const byAct = byTo === undefined ? undefined : byTo.get(newState);
+                        const nh = byAct === undefined ? undefined : byAct.get(newStateOrAction);
+                        const outcome = abstract_hook_step(nh, hook_args);
                         if (outcome.pass === false) {
+                            this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced);
                             return false;
                         }
-                        update_fields(outcome);
+                        if (_update_hook_fields(hook_args, outcome)) {
+                            data_changed = true;
+                        }
                     }
                 }
                 // 6. regular hook
                 if (this._has_basic_hooks) {
-                    const hn = hook_name(this._state, newState), outcome = abstract_hook_step(this._hooks.get(hn), hook_args);
+                    // Nested lookup: from -> to.  See note on _hooks declaration (#642).
+                    const byTo = this._hooks.get(this._state);
+                    const h = byTo === undefined ? undefined : byTo.get(newState);
+                    const outcome = abstract_hook_step(h, hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 7. edge type hook
                 // 7a. standard transition hook
                 if (trans_type === 'legal') {
                     const outcome = abstract_hook_step(this._standard_transition_hook, hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('standard transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 7b. main type hook
                 if (trans_type === 'main') {
                     const outcome = abstract_hook_step(this._main_transition_hook, hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('main transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 7c. forced transition hook
                 if (trans_type === 'forced') {
                     const outcome = abstract_hook_step(this._forced_transition_hook, hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('forced transition', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 8. entry hook
                 if (this._has_entry_hooks) {
                     const outcome = abstract_hook_step(this._entry_hooks.get(newState), hook_args);
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // 9. everything hook (fires after all other pre-hooks)
                 if (this._everything_hook !== undefined) {
                     const outcome = abstract_everything_hook_step(this._everything_hook, Object.assign(Object.assign({}, hook_args), { hook_name: 'everything' }));
                     if (outcome.pass === false) {
+                        this._fire_hook_rejection('everything', fromState, newState, fromAction, oldData, newData, wasForced);
                         return false;
                     }
-                    update_fields(outcome);
+                    if (_update_hook_fields(hook_args, outcome)) {
+                        data_changed = true;
+                    }
                 }
                 // all hooks passed!  let's now establish the result
                 if (this._history_length) {
@@ -2306,6 +3007,20 @@ class Machine {
             // not valid
         }
         else {
+            // Gated on live listener count so we skip the detail-object allocation
+            // when nothing is subscribed.  A listener still receives the event
+            // because the gate is read at fire time.  #671
+            if (this._event_listener_count !== 0) {
+                this._fire('rejection', {
+                    from: fromState,
+                    to: newStateOrAction,
+                    action: fromAction,
+                    data: oldData,
+                    next_data: newData,
+                    reason: 'invalid',
+                    forced: wasForced
+                });
+            }
             return false;
         }
         // posthooks begin here
@@ -2339,7 +3054,10 @@ class Machine {
             // 5. named transition / action hook
             if (this._has_post_named_hooks) {
                 if (wasAction) {
-                    const nhn = named_hook_name(hook_args.from, hook_args.to, hook_args.action), pnh = this._post_named_hooks.get(nhn);
+                    // Nested lookup: from -> to -> action.  See note on _post_named_hooks (#642).
+                    const byTo = this._post_named_hooks.get(hook_args.from);
+                    const byAct = byTo === undefined ? undefined : byTo.get(hook_args.to);
+                    const pnh = byAct === undefined ? undefined : byAct.get(hook_args.action);
                     if (pnh !== undefined) {
                         pnh(hook_args);
                     }
@@ -2347,7 +3065,9 @@ class Machine {
             }
             // 6. regular hook
             if (this._has_post_basic_hooks) {
-                const hook = this._post_hooks.get(hook_name(hook_args.from, hook_args.to));
+                // Nested lookup: from -> to.  See note on _post_hooks (#642).
+                const byTo = this._post_hooks.get(hook_args.from);
+                const hook = byTo === undefined ? undefined : byTo.get(hook_args.to);
                 if (hook !== undefined) {
                     hook(hook_args);
                 }
@@ -2381,6 +3101,54 @@ class Machine {
             // 9. post everything hook (fires after all other post-hooks)
             if (this._post_everything_hook !== undefined) {
                 this._post_everything_hook(Object.assign(Object.assign({}, hook_args), { hook_name: 'post everything' }));
+            }
+        }
+        // Observation events (#638) fire after the state is committed.  Each call
+        // builds a detail literal at the call site, so guard the whole block on a
+        // live subscription count: with zero listeners (the common hot-path case,
+        // and every benchmark shape) we skip all of these allocations entirely.
+        // Read after pre-hooks, so a listener a pre-hook installed is still seen.
+        // ('action' above and 'rejection' on the invalid path are intentionally
+        // NOT under this gate — they fire regardless, and `_fire` itself no-ops
+        // cheaply when that specific event has no subscribers.)  #670
+        if (this._event_listener_count !== 0) {
+            const newData_after = this._data;
+            this._fire('exit', {
+                state: fromState,
+                to: newState,
+                action: fromAction,
+                data: newData_after
+            });
+            this._fire('transition', {
+                from: fromState,
+                to: newState,
+                action: fromAction,
+                data: newData_after,
+                next_data: newData,
+                trans_type,
+                forced: wasForced
+            });
+            this._fire('entry', {
+                state: newState,
+                from: fromState,
+                action: fromAction,
+                data: newData_after
+            });
+            if (oldData !== newData_after) {
+                this._fire('data-change', {
+                    from: fromState,
+                    to: newState,
+                    action: fromAction,
+                    old_data: oldData,
+                    new_data: newData_after,
+                    cause: 'transition'
+                });
+            }
+            if (this.state_is_terminal(newState)) {
+                this._fire('terminal', { state: newState, data: newData_after });
+            }
+            if (this.state_is_complete(newState)) {
+                this._fire('complete', { state: newState, data: newData_after });
             }
         }
         // possibly re-establish new 'after' clause
@@ -3011,14 +3779,17 @@ class Machine {
         // this is enforced by the "after mapping runs normally with very short time" tests in after_mapping.spec
         // we'll mark it no-check so that our coverage numbers aren't wrecked
         /* istanbul ignore next */
+        /* v8 ignore next 10 */
         () => {
+            const from_state = this.state();
             this.clear_state_timeout();
             if (this._has_after_hooks) {
-                const ah = this._after_hooks.get(this.state());
+                const ah = this._after_hooks.get(from_state);
                 if (ah !== undefined) {
                     ah({ data: this._data, next_data: this._data });
                 }
             }
+            this._fire('timeout', { from: from_state, to: next_state, after_time });
             this.go(next_state);
         }, after_time);
         this._timeout_target = next_state;
@@ -3167,6 +3938,46 @@ function is_hook_complex_result(hr) {
         if (typeof hr.pass === 'boolean') {
             return true;
         }
+    }
+    return false;
+}
+/**
+ *
+ *  Apply any data-field updates from a hook's complex result into `hook_args`,
+ *  and return whether data actually changed.
+ *
+ *  This is the hoisted, allocation-free replacement for the `update_fields`
+ *  inner function that used to be re-created on every hooked transition inside
+ *  {@link Machine.transition_impl}.  By moving it to module scope the function
+ *  object is allocated once at module load time.
+ *
+ *  When the result does not carry a `data` property (the common case —
+ *  most hooks return `true` or `undefined`) the function returns `false`
+ *  immediately without touching `hook_args`.
+ *
+ *  ```typescript
+ *  const args = { data: 'old', next_data: undefined, ... };
+ *  const changed = _update_hook_fields(args, { pass: true, data: 'new', next_data: undefined });
+ *  // changed === true, args.data === 'new'
+ *  ```
+ *
+ *  @param hook_args  The shared hook-argument object for the current
+ *    transition.  Mutated in-place when the result carries `data`.
+ *  @param res        The normalised complex result returned by
+ *    {@link abstract_hook_step} or {@link abstract_everything_hook_step}.
+ *
+ *  @returns `true` if `res` contained a `data` property (i.e. the hook
+ *    mutated the machine's data); `false` otherwise.
+ *
+ *  @see Machine.transition_impl
+ *  @see abstract_hook_step
+ *
+ */
+function _update_hook_fields(hook_args, res) {
+    if (Object.prototype.hasOwnProperty.call(res, 'data')) {
+        hook_args.data = res.data;
+        hook_args.next_data = res.next_data;
+        return true;
     }
     return false;
 }
