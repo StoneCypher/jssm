@@ -22,6 +22,29 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 12, 2026 2:30:19 AM
+
+Commit [7fd3ddddbee25d5de7be88ceae443b2c357eb3b1](https://github.com/StoneCypher/jssm/commit/7fd3ddddbee25d5de7be88ceae443b2c357eb3b1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(machine): v5.143.9 — integer state-id interning for the dispatch path
+  * States and actions intern to dense integer ids at construction; the
+action / transition / forced dispatch resolves through numeric pair-keyed
+indexes (Szudzik pairing) instead of nested string maps, and the live
+state carries a dual _state_id. Behaviorally invisible: state names stay
+strings in every public surface, list_edges() objects are unchanged
+(parallel arrays carry the ids), foreign deserialized state names stay
+inert via the NaN sentinel, and forced_only refusal keeps its semantics.
+Lever 1 of the interning trail; hook firing keys are lever 2.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 12, 2026 2:23:16 AM
 
 Commit [ef49f37a46a7badd803bb60963d923cfac314b98](https://github.com/StoneCypher/jssm/commit/ef49f37a46a7badd803bb60963d923cfac314b98)

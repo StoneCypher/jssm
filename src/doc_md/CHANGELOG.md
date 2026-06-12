@@ -22,6 +22,29 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 12, 2026 2:30:19 AM
+
+Commit [7fd3ddddbee25d5de7be88ceae443b2c357eb3b1](https://github.com/StoneCypher/jssm/commit/7fd3ddddbee25d5de7be88ceae443b2c357eb3b1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(machine): v5.143.9 — integer state-id interning for the dispatch path
+  * States and actions intern to dense integer ids at construction; the
+action / transition / forced dispatch resolves through numeric pair-keyed
+indexes (Szudzik pairing) instead of nested string maps, and the live
+state carries a dual _state_id. Behaviorally invisible: state names stay
+strings in every public surface, list_edges() objects are unchanged
+(parallel arrays carry the ids), foreign deserialized state names stay
+inert via the NaN sentinel, and forced_only refusal keeps its semantics.
+Lever 1 of the interning trail; hook firing keys are lever 2.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 12, 2026 2:23:16 AM
 
 Commit [ef49f37a46a7badd803bb60963d923cfac314b98](https://github.com/StoneCypher/jssm/commit/ef49f37a46a7badd803bb60963d923cfac314b98)
@@ -187,27 +210,3 @@ Commit [1be694a147ed28583328dc8701bfcbf771075966](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * fix(jssm): v5.143.8 — compareVersions handles prerelease versions; deserialize future-version guard no longer bypassed by prerelease stamps
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 1:07:27 AM
-
-Commit [3793b42a19ae2252cb3b928b504ba4ca21d88841](https://github.com/StoneCypher/jssm/commit/3793b42a19ae2252cb3b928b504ba4ca21d88841)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(jssm): compareVersions handles prerelease versions per semver precedence
-  * Prerelease identifiers became NaN under split('.').map(Number), and since
-NaN comparisons always miss, deserialize silently accepted data stamped
-with future prerelease versions (e.g. 5.144.1-rc.1 against 5.144.0).
-Surfaced when v6 moved to 6.0.0-alpha.1 and the future-patch refusal test
-stopped throwing; latent on every release line.
-  * Main parts still compare numerically with zero-extension; prerelease
-parts now follow semver: a prerelease precedes its release, identifiers
-compare dot-by-dot, numerics below alphanumerics, prefix sets first.
-Direct pair tests pin the semantics independently of the current version.
