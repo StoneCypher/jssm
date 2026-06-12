@@ -203,6 +203,225 @@ function inline_fast_atom(body) {
 }
 
 /**
+ *  Replaces the generated `peg$parseTimeType` with a first-char-gated table
+ *  scanner.  The grammar's 28 ordered time-unit literals (`'milliseconds'`
+ *  … `'w'`) compile to up to 28 sequential `input.substr` probes per `after`
+ *  decoration — e.g. `after 50 seconds` walks six failed substring
+ *  allocations before matching, and a failing parse walks all 28 (#733).
+ *
+ *  The replacement walks an extracted table gated on the alternative's first
+ *  character code: non-candidates cost one integer compare, candidates one
+ *  substring equality (single-character units none at all).  Expectation
+ *  bookkeeping is byte-identical to the generated chain: a match at
+ *  alternative i replays the fail constants of alternatives 0..i-1 — exactly
+ *  the ones the generated code would have probed and recorded — at the same
+ *  unmoved position under the same silent/maxFailPos guard, and a total miss
+ *  replays all 28.  `peg$savedPos` is set before the action constant runs,
+ *  as generated.
+ *
+ *  Extraction handles both generated probe forms (`input.substr(...) ===
+ *  peg$cN` for multi-character literals, `input.charCodeAt(...) === code`
+ *  for single-character ones) in source order, resolves first-character
+ *  codes from the literal constants' definitions, and asserts exactly 28
+ *  alternatives — a grammar edit to the unit list trips loudly here.
+ *
+ *  @param body Full generated parser source, after the Atom swap.
+ *  @returns The source with the table emitted and `peg$parseTimeType`
+ *           swapped.
+ *  @throws Error when the rule cannot be found, an alternative's literal
+ *          definition cannot be resolved, or the alternative count is not 28
+ *          — pegjs output / grammar drift; update the patterns here.
+ *
+ *  @example
+ *  inline_timetype_table(generated_source).includes('peg$timetype_alts')
+ *  // => true
+ *
+ *  @see https://github.com/StoneCypher/jssm/issues/733
+ *  @see inline_fast_ws
+ */
+function inline_timetype_table(body) {
+
+  const fn_re = /  function peg\$parseTimeType\(\) \{\n[\s\S]*?\n  \}\n/,
+        found = body.match(fn_re);
+
+  if (!found) { throw new Error('fixparser: cannot find generated peg$parseTimeType'); }
+
+  const fn = found[0];
+
+  // Both probe forms, captured with enough tail to grab the fail constant
+  // and the action constant that follows a successful probe.
+  const substr_re   = /if \(input\.substr\(peg\$currPos, (\d+)\) === (peg\$c\d+)\) \{[\s\S]*?peg\$fail\((peg\$c\d+)\);[\s\S]*?s1 = (peg\$c\d+)\(\);/g;
+  const charcode_re = /if \(input\.charCodeAt\(peg\$currPos\) === (\d+)\) \{\s*\n\s*s1 = (peg\$c\d+);[\s\S]*?peg\$fail\((peg\$c\d+)\);[\s\S]*?s1 = (peg\$c\d+)\(\);/g;
+
+  // The lazy [\s\S]*? tails can overrun into the next alternative when run
+  // naively over the whole body, so alternatives are located by their probe
+  // headers first, then parsed one segment at a time.
+  const headers = [...fn.matchAll(/if \(input\.(substr\(peg\$currPos, \d+\) === peg\$c\d+|charCodeAt\(peg\$currPos\) === \d+)\) \{/g)];
+
+  const alts = headers.map((h, i) => {
+    const seg_end = (i + 1 < headers.length) ? headers[i + 1].index : fn.length;
+    const seg     = fn.slice(h.index, seg_end);
+
+    substr_re.lastIndex   = 0;
+    charcode_re.lastIndex = 0;
+
+    const sm = substr_re.exec(seg);
+    if (sm && sm.index === 0) {
+      return { len: parseInt(sm[1], 10), lit: sm[2], fail: sm[3], act: sm[4], code: undefined };
+    }
+    const cm = charcode_re.exec(seg);
+    if (cm && cm.index === 0) {
+      return { len: 1, lit: cm[2], fail: cm[3], act: cm[4], code: parseInt(cm[1], 10) };
+    }
+    throw new Error('fixparser: unrecognized TimeType alternative shape (pegjs output drift?)');
+  });
+
+  if (alts.length !== 28) {
+    throw new Error(`fixparser: TimeType has ${alts.length} alternatives (expected 28); grammar drift — re-derive the table`);
+  }
+
+  // First-char codes for substr-form alternatives come from the literal
+  // constant definitions ('peg$cN = "milliseconds"').
+  for (const alt of alts) {
+    if (alt.code === undefined) {
+      const def = body.match(new RegExp(`${alt.lit.replace('$', '\\$')} = "([^"]+)"`));
+      if (!def) { throw new Error(`fixparser: cannot resolve literal ${alt.lit} for TimeType table`); }
+      alt.code = def[1].charCodeAt(0);
+    }
+  }
+
+  const table_rows = alts
+    .map((a) => `[${a.len}, ${a.lit}, ${a.fail}, ${a.act}, ${a.code}]`)
+    .join(',\n    ');
+
+  const replacement =
+`  var peg$timetype_alts = [
+    ${table_rows}
+  ];
+
+  function peg$parseTimeType() {
+    var i, j, alt, start;
+    var c = input.charCodeAt(peg$currPos);
+
+    for (i = 0; i < 28; i++) {
+      alt = peg$timetype_alts[i];
+      if (alt[4] !== c) { continue; }                                        // first-char gate
+      if (alt[0] !== 1 && input.substr(peg$currPos, alt[0]) !== alt[1]) { continue; }
+
+      // replay the expectations of every alternative the generated chain
+      // would have probed and failed before this one, at the unmoved position
+      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) {
+        for (j = 0; j < i; j++) { peg$fail(peg$timetype_alts[j][2]); }
+      }
+
+      start = peg$currPos;
+      peg$currPos += alt[0];
+      peg$savedPos = start;
+      return alt[3]();
+    }
+
+    if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) {
+      for (j = 0; j < 28; j++) { peg$fail(peg$timetype_alts[j][2]); }
+    }
+    return peg$FAILED;
+  }
+`;
+
+  return body.replace(fn_re, () => replacement);
+}
+
+/**
+ *  Replaces the generated `peg$parseIntegerLiteral` with a charCodeAt
+ *  digit-run scanner.  pegjs 0.10 compiles `$("0" / NonZeroDigit
+ *  DecimalDigit*)` into a `"0"` probe plus one rule-function call and one
+ *  regex class test (`/^[1-9]/`, `/^[0-9]/`) per digit, with a character
+ *  array collected and discarded under the `$`.  The `^[1-9]` regex alone was
+ *  2.1% of construct() nonlib ticks (plus 1.9% `RegExpPrototypeTestFast`) in
+ *  the 2026-06-12 named profile, fed by NonNegNumber probes (#732).
+ *
+ *  Behavior is unchanged, including failure-expectation bookkeeping, which
+ *  the generated code performs even on success: the `"0"` alternative's
+ *  expectation is recorded whenever the input doesn't start with `0` (also on
+ *  the successful 1-9 path), and the run-terminating DecimalDigit failure
+ *  records the digit-class expectation at the stop position.  The scanner
+ *  replays all three constants at exactly the same positions, emitting the
+ *  unguarded `peg$fail` form so {@link inline_fail_guard} rewrites the sites
+ *  like any generated ones.
+ *
+ *  @param body Full generated parser source, after the Atom swap.
+ *  @returns The source with `peg$parseIntegerLiteral` swapped.
+ *  @throws Error when the rule or any of the three expectation constants
+ *          (the `"0"` literal's, DecimalDigit's, NonZeroDigit's) cannot be
+ *          located — pegjs output drift; update the patterns here.
+ *
+ *  @example
+ *  inline_fast_integer(generated_source).includes('c >= 49 && c <= 57')
+ *  // => true
+ *
+ *  @see https://github.com/StoneCypher/jssm/issues/732
+ *  @see inline_fast_ws
+ */
+function inline_fast_integer(body) {
+
+  const fn_re = /  function peg\$parseIntegerLiteral\(\) \{\n[\s\S]*?\n  \}\n/,
+        found = body.match(fn_re);
+
+  if (!found) { throw new Error('fixparser: cannot find generated peg$parseIntegerLiteral'); }
+
+  // The "0" alternative's expectation is the first fail constant in the rule.
+  const zero_found = found[0].match(/peg\$fail\((peg\$c\d+)\)/);
+  if (!zero_found) { throw new Error('fixparser: cannot find IntegerLiteral "0" expectation constant'); }
+
+  // The digit-class expectations live in their own rule functions.
+  const digit_const = (rule) => {
+    const f = body.match(new RegExp(`  function peg\\$parse${rule}\\(\\) \\{\\n[\\s\\S]*?\\n  \\}\\n`));
+    if (!f) { throw new Error(`fixparser: cannot find generated peg$parse${rule}`); }
+    const c = f[0].match(/peg\$fail\((peg\$c\d+)\)/);
+    if (!c) { throw new Error(`fixparser: cannot find peg$parse${rule} expectation constant`); }
+    return c[1];
+  };
+
+  const c_zero    = zero_found[1],
+        c_decimal = digit_const('DecimalDigit'),
+        c_nonzero = digit_const('NonZeroDigit');
+
+  const replacement =
+`  function peg$parseIntegerLiteral() {
+    var c, start;
+
+    c = input.charCodeAt(peg$currPos);
+
+    if (c === 48) {                                          // '0' alternative
+      peg$currPos++;
+      return '0';
+    }
+
+    // the generated code records the "0" alternative's expectation whenever
+    // input doesn't start with 0 — including on the successful 1-9 path
+    if (peg$silentFails === 0) { peg$fail(${c_zero}); }
+
+    if (c >= 49 && c <= 57) {                                // 1-9
+      start = peg$currPos;
+      peg$currPos++;
+      c = input.charCodeAt(peg$currPos);
+      while (c >= 48 && c <= 57) {                           // 0-9 run
+        peg$currPos++;
+        c = input.charCodeAt(peg$currPos);
+      }
+      // run-terminating DecimalDigit failure, recorded at the stop position
+      if (peg$silentFails === 0) { peg$fail(${c_decimal}); }
+      return input.substring(start, peg$currPos);
+    }
+
+    if (peg$silentFails === 0) { peg$fail(${c_nonzero}); }
+    return peg$FAILED;
+  }
+`;
+
+  return body.replace(fn_re, () => replacement);
+}
+
+/**
  *  Inserts a first-character gate at the top of one generated rule function:
  *  when the next input character cannot begin the rule, fail immediately —
  *  replaying exactly the expectation constants the alternatives would have
@@ -522,7 +741,7 @@ function inline_fail_guard(body) {
   return out;
 }
 
-const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_string(inline_fast_actionlabel(inline_fast_atom(inline_fast_ws(widened))))));
+const body = inline_fail_guard(inline_arrowtarget_gates(inline_fast_string(inline_fast_actionlabel(inline_timetype_table(inline_fast_integer(inline_fast_atom(inline_fast_ws(widened))))))));
 
 fs.writeFileSync('./src/ts/fsl_parser.ts', body + tail);
 fs.unlinkSync(orig_fname);

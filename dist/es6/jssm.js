@@ -2827,7 +2827,19 @@ class Machine {
             const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
             if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
                 if (this._has_transition_hooks || this._has_post_transition_hooks) {
-                    trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
+                    // first matching outbound edge's kind, without building the result
+                    // array edges_between allocated here on every hooked transition.
+                    // First-match semantics are kept deliberately: _edge_map is
+                    // last-wins for multi-edge (from, to) pairs, so lookup_transition_for
+                    // could disagree with the old edges_between(...)[0].  #735
+                    // TODO this won't do the right thing if various edges have different types
+                    for (const ob_eid of this._outbound_edge_ids.get(this._state)) {
+                        const ob_edge = this._edges[ob_eid];
+                        if (ob_edge.to === newStateOrAction) {
+                            trans_type = ob_edge.kind;
+                            break;
+                        }
+                    }
                 }
                 valid = true;
                 newState = newStateOrAction;
@@ -2841,6 +2853,11 @@ class Machine {
         // unchanged for all downstream uses without introducing an impossible
         // (uncoverable) branch; the value is only dereferenced under the guards
         // that imply it was built.  #670
+        // NOTE (#735): the { ...hook_args, hook_name } spreads at the four
+        // everything-hook sites are contractual, not waste — handlers may capture
+        // their context, and each captured context must durably carry its own
+        // hook_name (pinned by the simultaneous-everything-hook specs).  A shared
+        // mutated object cannot satisfy that; do not "optimize" the spreads away.
         const hook_args_obj = (this._has_hooks || this._has_post_hooks)
             ? {
                 data: this._data,
@@ -3200,10 +3217,15 @@ class Machine {
                     cause: 'transition'
                 });
             }
-            if (this.state_is_terminal(newState)) {
+            // one state-record fetch answers both checks; newState is known-valid
+            // here, and the public state_is_terminal / state_is_complete pair would
+            // each redo has_state plus its own map walk.  Same predicates:
+            // terminal = no exits, complete = the constructor-set flag.  #735
+            const new_state_rec = this._states.get(newState);
+            if (new_state_rec.to.length === 0) {
                 this._fire('terminal', { state: newState, data: newData_after });
             }
-            if (this.state_is_complete(newState)) {
+            if (new_state_rec.complete) {
                 this._fire('complete', { state: newState, data: newData_after });
             }
         }
