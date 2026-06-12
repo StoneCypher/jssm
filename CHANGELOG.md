@@ -22,6 +22,65 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 11, 2026 7:26:57 PM
+
+Commit [4f90d17f60f6b39ab739e322502e21e3dea3eb47](https://github.com/StoneCypher/jssm/commit/4f90d17f60f6b39ab739e322502e21e3dea3eb47)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(taxonomy): nine more collections — 11 collections, 188 items total
+  * everyday-gamedev (42 items: the cutscene soft-lock, the double-open
+item dupe, coyote time, boss-stuck-between-phases, controller
+disconnect as a cert requirement, deterministic replay as FSL's home
+turf). everyday-data (the backfill that double-counted, watermark
+stalls, CDC handoff gaps). everyday-sre (canary verdicts nobody
+defined, the silence from last quarter, auto-remediation circuit
+breakers). everyday-mobile (push tokens silently dead, the paid-but-
+nothing customer, offline mutation queues). everyday-embedded (the
+brick, watchdog discipline, OTA boot loops). everyday-ai-engineering
+(the agent calling one tool 40 times, context eviction, eval-gated
+prompt deploys). everyday-security-engineering (reset links that work
+twice, the fired employee's still-valid token, recovery-as-MFA-bypass).
+everyday-qa (flake quarantine, the shard that died silently).
+interview-classics (the canon, but provable — both-directions-green
+now impossible, not unlikely). All items carry kills + size;
+Node-validated, ids unique.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 11, 2026 7:22:29 PM
+
+Commit [3f384bad4ad561ee0db9a5c6108233b11cb0aa82](https://github.com/StoneCypher/jssm/commit/3f384bad4ad561ee0db9a5c6108233b11cb0aa82)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(parser): v5.143.3 — hand-rolled Atom scanner (#702)
+  * The Atom cluster (peg$parseAtom, the two letter rules, their regexes,
+the per-character collector loop, and the join action peg$c310) was
+~13% of construct() self-time in the post-#700 named profile, running
+for every state name in every machine. pegjs 0.10 compiles
+`first:AtomFirstLetter text:AtomLetter*` into one function call and a
+regex test per character, builds a character array, and the action
+joins it back into a string.
+  * fixparser.cjs now swaps the generated peg$parseAtom for an
+allocation-free charCodeAt scanner that returns the matched text via a
+single input.substring. Same two character classes (AtomFirstLetter
+excludes + ( ) & # @, which only AtomLetter admits), same named "atom"
+failure expectation (constant captured from generated source, drift
+tripwires throw). Second application of the #698 pattern.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 11, 2026 7:08:15 PM
 
 Commit [a352f4d0cb2ee40bb9e807cb491d5b53c5043de0](https://github.com/StoneCypher/jssm/commit/a352f4d0cb2ee40bb9e807cb491d5b53c5043de0)
@@ -233,61 +292,3 @@ messy-1000/5000 1.33x); transition(), edges_between(), and has_state()
 are within the noise band. Pre/post envelopes committed as
 src/historic_benchmarks/benchmark_2026-06-11_pre-ws-scanner.json and
 benchmark_2026-06-11_ws-scanner.json.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 11, 2026 1:26:04 PM
-
-Commit [543d4bdbd48651f8267b252a63eff1f4cd16ecc6](https://github.com/StoneCypher/jssm/commit/543d4bdbd48651f8267b252a63eff1f4cd16ecc6)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(manual): structural templates file — the use-case template, with format projections
-  * New 2026-06-11-fsl-manual-templates.md: repeating manual topics get
-fixed shapes; one source per instance, four projections (book/PDF,
-flat-file-for-LLMs, web, editor help) with per-section format flags
-ordered by survival priority. Template 1 (use case): machine-readable
-frontmatter; one-breath summary carrying the differentiator clause;
-when-to-reach (honest limits at the top, not buried); the mapping table
-as the translation heart; doc-tested incremental builds revealing
-stdlib parts; a MANDATORY 'what you can now prove' section
-(counterexamples stated in domain terms); run-it; production notes
-(named hooks = outside the proofs); neighbors (the web link graph);
-generated provenance. Every instance doubles as an NL-to-FSL corpus
-pair + eval seeds. Skeletal circuit-breaker instantiation included as
-proof of shape. Manual-topics gains the organizing-principle pointer;
-future templates enumerated (feature ref, stdlib part, lesson,
-playbook, explainer, verb, error-code, zoo entry).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 11, 2026 1:21:51 PM
-
-Commit [ddf9503a32977753a9c2265e7bf13290743a7bf6](https://github.com/StoneCypher/jssm/commit/ddf9503a32977753a9c2265e7bf13290743a7bf6)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(manual-topics): access control (RBAC/ACL/ABAC) as the security chapter's applied use case
-  * The reference-monitor pattern: requests as actions, decisions as where-
-guards over policy vals, the input tape as the audit log. ACL = map val
-+ contracted grant/revoke (revocation-effectiveness as a theorem with
-attack-trace counterexamples); RBAC = session machines from factories,
-static SoD as invariants, dynamic SoD as native temporal state, role
-hierarchy as the group DAG; ABAC = the expression language with
-environment-as-sensors, its audit question answered by reachability
-queries with witnesses. Unique adds: refinement-checked policy
-tightening, windowed-aggregate lockout, break-glass as contrary-to-duty
-states, flow contracts beyond permission. Honest limit recorded: FSL is
-the monitor + lifecycle, not the grant database. reference-monitor
-noted as a certified-stdlib candidate; worked-examples security row
-cross-linked.
