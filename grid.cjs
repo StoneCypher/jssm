@@ -164,9 +164,15 @@ function markHtml(mark) {
 }
 
 /** Classify a plain mark into pass / fail / neutral for cell backgrounds. */
+// Classify a plain mark into a cell status. Compound subscript marks (✓F, ✗T,
+// ⚠N, ✗C) must be recognised here too: the jssm-6 column inherits the jssm
+// column's mark and is classified through this function, so an unrecognised
+// compound mark would fall through to a bare neutral instead of its real colour.
 function classifyMark(m) {
-  if (m === YES) return 'pass';
-  if (m === NO || m === ERRMARK || m === RADIOACTIVE || m === TIMEOUT || m === CROSS_C) return 'fail';
+  if (m === YES || m === CHECK_F) return 'pass';
+  if (m === WARN_N) return 'warn';
+  if (m === NO || m === ERRMARK || m === RADIOACTIVE || m === TIMEOUT || m === CROSS_C || m === CROSS_T) return 'fail';
+  if (m === '?') return 'unknown';
   return 'neutral';
 }
 
@@ -657,8 +663,10 @@ const html = `<!doctype html>
   .c-pass { background:#e2f1e0; color:#1d7a33; font-weight:700; }
   .c-warn { background:#fdeccb; color:#9a6512; font-weight:700; }
   .c-fail { background:#fbe1de; color:#b03030; font-weight:700; }
-  .c-neutral { color:#555; }
-  .c-unknown { color:#b9b2a0; font-style:italic; background:repeating-linear-gradient(45deg,#f4f1e8,#f4f1e8 5px,#eee8d8 5px,#eee8d8 10px); }
+  /* neutral = "n/a / forward-looking" — a muted solid fill so no cell is ever
+     bare paper, but clearly distinct from pass / fail / warn / the unknown hatch. */
+  .c-neutral { color:#666; background:#e8e3d5; }
+  .c-unknown { color:#a99f86; font-style:italic; background:repeating-linear-gradient(45deg,#f1ede1,#f1ede1 5px,#e4ddc8 5px,#e4ddc8 10px); }
   /* documented tier — softer than measured pass/fail; a ᵈ badge marks it as a
      doc claim (not relying on color alone), the tooltip carries the source. */
   .c-doc-yes { background:#eef5ec; color:#4f7a52; font-weight:600; }
