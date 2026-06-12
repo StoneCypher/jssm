@@ -379,8 +379,11 @@ class Machine {
         // membership so the dedup check is O(1) per edge rather than an O(out-degree)
         // array scan (which made construction O(V*E) on dense graphs).  #673
         const seen_edges = new Map();
-        // walk the transitions
-        transitions.map((tr) => {
+        // walk the transitions.  single-lookup cursor fetches: each endpoint was
+        // previously a get followed by a has on the same key (four hashes per
+        // edge); the undefined check on the get's result carries the same
+        // information.  #706
+        for (const tr of transitions) {
             if (tr.from === undefined) {
                 throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`);
             }
@@ -388,14 +391,14 @@ class Machine {
                 throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`);
             }
             // get the cursors.  what a mess
-            const cursor_from = this._states.get(tr.from)
-                || { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
-            if (!(this._states.has(tr.from))) {
+            let cursor_from = this._states.get(tr.from);
+            if (cursor_from === undefined) {
+                cursor_from = { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
                 this._new_state(cursor_from);
             }
-            const cursor_to = this._states.get(tr.to)
-                || { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
-            if (!(this._states.has(tr.to))) {
+            let cursor_to = this._states.get(tr.to);
+            if (cursor_to === undefined) {
+                cursor_to = { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
                 this._new_state(cursor_to);
             }
             // guard against existing connections being re-added — O(1) via the
@@ -435,8 +438,9 @@ class Machine {
                 this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
             }
             // set up the mapping, so that edges can be looked up by endpoint pairs
-            const from_mapping = this._edge_map.get(tr.from) || new Map();
-            if (!(this._edge_map.has(tr.from))) {
+            let from_mapping = this._edge_map.get(tr.from);
+            if (from_mapping === undefined) {
+                from_mapping = new Map();
                 this._edge_map.set(tr.from, from_mapping);
             }
             //    const to_mapping = from_mapping.get(tr.to);
@@ -493,7 +497,7 @@ class Machine {
                         }
                 */
             }
-        });
+        }
         if (Array.isArray(property_definition)) {
             property_definition.forEach(pr => {
                 this._property_keys.add(pr.name);
