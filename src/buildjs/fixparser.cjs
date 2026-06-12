@@ -203,6 +203,97 @@ function inline_fast_atom(body) {
 }
 
 /**
+ *  Replaces the generated `peg$parseIntegerLiteral` with a charCodeAt
+ *  digit-run scanner.  pegjs 0.10 compiles `$("0" / NonZeroDigit
+ *  DecimalDigit*)` into a `"0"` probe plus one rule-function call and one
+ *  regex class test (`/^[1-9]/`, `/^[0-9]/`) per digit, with a character
+ *  array collected and discarded under the `$`.  The `^[1-9]` regex alone was
+ *  2.1% of construct() nonlib ticks (plus 1.9% `RegExpPrototypeTestFast`) in
+ *  the 2026-06-12 named profile, fed by NonNegNumber probes (#732).
+ *
+ *  Behavior is unchanged, including failure-expectation bookkeeping, which
+ *  the generated code performs even on success: the `"0"` alternative's
+ *  expectation is recorded whenever the input doesn't start with `0` (also on
+ *  the successful 1-9 path), and the run-terminating DecimalDigit failure
+ *  records the digit-class expectation at the stop position.  The scanner
+ *  replays all three constants at exactly the same positions, emitting the
+ *  unguarded `peg$fail` form so {@link inline_fail_guard} rewrites the sites
+ *  like any generated ones.
+ *
+ *  @param body Full generated parser source, after the Atom swap.
+ *  @returns The source with `peg$parseIntegerLiteral` swapped.
+ *  @throws Error when the rule or any of the three expectation constants
+ *          (the `"0"` literal's, DecimalDigit's, NonZeroDigit's) cannot be
+ *          located — pegjs output drift; update the patterns here.
+ *
+ *  @example
+ *  inline_fast_integer(generated_source).includes('c >= 49 && c <= 57')
+ *  // => true
+ *
+ *  @see https://github.com/StoneCypher/jssm/issues/732
+ *  @see inline_fast_ws
+ */
+function inline_fast_integer(body) {
+
+  const fn_re = /  function peg\$parseIntegerLiteral\(\) \{\n[\s\S]*?\n  \}\n/,
+        found = body.match(fn_re);
+
+  if (!found) { throw new Error('fixparser: cannot find generated peg$parseIntegerLiteral'); }
+
+  // The "0" alternative's expectation is the first fail constant in the rule.
+  const zero_found = found[0].match(/peg\$fail\((peg\$c\d+)\)/);
+  if (!zero_found) { throw new Error('fixparser: cannot find IntegerLiteral "0" expectation constant'); }
+
+  // The digit-class expectations live in their own rule functions.
+  const digit_const = (rule) => {
+    const f = body.match(new RegExp(`  function peg\\$parse${rule}\\(\\) \\{\\n[\\s\\S]*?\\n  \\}\\n`));
+    if (!f) { throw new Error(`fixparser: cannot find generated peg$parse${rule}`); }
+    const c = f[0].match(/peg\$fail\((peg\$c\d+)\)/);
+    if (!c) { throw new Error(`fixparser: cannot find peg$parse${rule} expectation constant`); }
+    return c[1];
+  };
+
+  const c_zero    = zero_found[1],
+        c_decimal = digit_const('DecimalDigit'),
+        c_nonzero = digit_const('NonZeroDigit');
+
+  const replacement =
+`  function peg$parseIntegerLiteral() {
+    var c, start;
+
+    c = input.charCodeAt(peg$currPos);
+
+    if (c === 48) {                                          // '0' alternative
+      peg$currPos++;
+      return '0';
+    }
+
+    // the generated code records the "0" alternative's expectation whenever
+    // input doesn't start with 0 — including on the successful 1-9 path
+    if (peg$silentFails === 0) { peg$fail(${c_zero}); }
+
+    if (c >= 49 && c <= 57) {                                // 1-9
+      start = peg$currPos;
+      peg$currPos++;
+      c = input.charCodeAt(peg$currPos);
+      while (c >= 48 && c <= 57) {                           // 0-9 run
+        peg$currPos++;
+        c = input.charCodeAt(peg$currPos);
+      }
+      // run-terminating DecimalDigit failure, recorded at the stop position
+      if (peg$silentFails === 0) { peg$fail(${c_decimal}); }
+      return input.substring(start, peg$currPos);
+    }
+
+    if (peg$silentFails === 0) { peg$fail(${c_nonzero}); }
+    return peg$FAILED;
+  }
+`;
+
+  return body.replace(fn_re, () => replacement);
+}
+
+/**
  *  Hoists `peg$fail`'s early-return condition into every generated guard
  *  site.  `peg$fail` is called at every failed match attempt outside named
  *  rules — ~835 generated sites, millions of calls per large parse — and
@@ -251,7 +342,7 @@ function inline_fail_guard(body) {
   return out;
 }
 
-const body = inline_fail_guard(inline_fast_atom(inline_fast_ws(widened)));
+const body = inline_fail_guard(inline_fast_integer(inline_fast_atom(inline_fast_ws(widened))));
 
 fs.writeFileSync('./src/ts/fsl_parser.ts', body + tail);
 fs.unlinkSync(orig_fname);
