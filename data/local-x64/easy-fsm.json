@@ -2,7 +2,7 @@
   "name": "easy-fsm",
   "version": "2.2.2",
   "host": "local-x64",
-  "measuredAt": "2026-06-12T16:26:10.550Z",
+  "measuredAt": "2026-06-12T21:19:27.090Z",
   "caps": {
     "transition": true,
     "action": true,
@@ -14,11 +14,11 @@
     "types": "bundled",
     "modules": "cjs",
     "postinstall": "no",
-    "coldStartMs": 17.66,
+    "coldStartMs": 13.91,
     "publishes6mo": 0,
     "publishes2yr": 0,
     "lastPublishISO": "2024-06-06T13:42:03.700Z",
-    "publishCheckedAt": "2026-06-12T16:41:22.808Z"
+    "publishCheckedAt": "2026-06-12T21:19:30.862Z"
   },
   "behavior": {
     "illegalTransition": {
@@ -34,65 +34,69 @@
     }
   },
   "memory": {
-    "retainedBytesPerMachine": 195,
+    "retainedBytesPerMachine": 189,
     "allocBytesPerTransition": 0,
     "shape": "hub-50"
   },
   "shapes": {
     "chain-10": {
-      "constructOps": 1239051,
+      "constructOps": 1299854,
       "feasibility": "ok",
-      "transitionOps": 13303
+      "transitionOps": 17377
     },
     "hub-50": {
-      "constructOps": 1054017,
+      "constructOps": 1312766,
       "feasibility": "ok",
-      "transitionOps": 18034
+      "transitionOps": 24454
     },
     "dense-10": {
-      "constructOps": 1144260,
+      "constructOps": 2094277,
       "feasibility": "ok",
-      "transitionOps": 14291
+      "transitionOps": 15486
     },
     "chain-200": {
-      "constructOps": 1268554,
+      "constructOps": 984654,
       "feasibility": "ok",
-      "transitionOps": 13246
+      "transitionOps": 11877
     },
     "dense-50": {
-      "constructOps": 1053186,
+      "constructOps": 1151923,
       "feasibility": "ok",
-      "transitionOps": 16209
+      "transitionOps": 16474
     },
     "hub-200": {
-      "constructOps": 1628274,
+      "constructOps": 1542274,
       "feasibility": "ok",
-      "transitionOps": 21754
+      "transitionOps": 16249
     },
     "chain-1000": {
-      "constructOps": 1305374,
+      "constructOps": 1143006,
       "feasibility": "ok",
-      "transitionOps": 11623
+      "transitionOps": 11403
     },
     "messy-1000": {
-      "constructOps": 995691,
+      "constructOps": 980529,
       "feasibility": "ok",
-      "transitionOps": 12406
+      "transitionOps": 12843
     },
     "dense-200": {
-      "constructOps": 996991,
+      "constructOps": 1067446,
       "feasibility": "ok",
-      "transitionOps": 10826
+      "transitionOps": 14703
     },
     "messy-5000": {
-      "constructOps": 1290997,
+      "constructOps": 1041640,
       "feasibility": "ok",
-      "transitionOps": 16120
+      "transitionOps": 11651
     }
   },
   "capabilityOps": {
-    "action": 18089,
-    "hook": 13814
+    "action": 21126,
+    "hook": 14926
   },
-  "completedAt": "2026-06-12T16:26:19.923Z"
+  "featureTests": {
+    "observe": "yes",
+    "serialize": "no"
+  },
+  "completedAt": "2026-06-12T21:19:39.750Z"
 }

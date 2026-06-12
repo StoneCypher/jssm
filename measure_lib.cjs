@@ -175,9 +175,26 @@ function measureCapabilities() {
   return ops;
 }
 
+// --- feature tests (functional, fill the grid's measured feature rows) -------
+function measureFeatureTests() {
+  const out = {};
+  // observe transitions: attach the adapter's observer, step, confirm it fired.
+  if (adapter.caps.hook) {
+    try { const ctx = adapter.openHook(); adapter.stepHook(ctx, 'b'); out.observe = ctx.hookCount() > 0 ? 'yes' : 'no'; }
+    catch { out.observe = 'no'; }
+  } else { out.observe = 'no'; }
+  // serialization round-trip: only libraries with a real serialize/restore API.
+  if (typeof adapter.trySerialize === 'function') {
+    try { out.serialize = adapter.trySerialize() ? 'yes' : 'partial'; }
+    catch (e) { out.serialize = 'error'; }
+  } else { out.serialize = 'no'; }
+  return out;
+}
+
 // --- run ---------------------------------------------------------------------
 result.static   = measureStatic();    flush();
 result.behavior = measureBehavior();  flush();
+result.featureTests = measureFeatureTests(); flush();
 try { result.memory = measureMemory(); } catch (e) { result.memory = { error: e.message }; } flush();
 result.capabilityOps = measureCapabilities(); flush();
 

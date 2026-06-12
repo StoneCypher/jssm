@@ -2,7 +2,7 @@
   "name": "nanostate",
   "version": "1.2.1",
   "host": "local-x64",
-  "measuredAt": "2026-06-12T16:25:46.578Z",
+  "measuredAt": "2026-06-12T21:13:22.460Z",
   "caps": {
     "transition": true,
     "action": true,
@@ -14,11 +14,11 @@
     "types": "none",
     "modules": "cjs",
     "postinstall": "no",
-    "coldStartMs": 31.2,
+    "coldStartMs": 27.61,
     "publishes6mo": 0,
     "publishes2yr": 0,
     "lastPublishISO": "2018-02-12T11:58:41.432Z",
-    "publishCheckedAt": "2026-06-12T16:41:43.216Z"
+    "publishCheckedAt": "2026-06-12T21:13:26.167Z"
   },
   "behavior": {
     "illegalTransition": {
@@ -40,59 +40,63 @@
   },
   "shapes": {
     "chain-10": {
-      "constructOps": 2219097,
+      "constructOps": 2170477,
       "feasibility": "ok",
-      "transitionOps": 1354
+      "transitionOps": 1994
     },
     "hub-50": {
-      "constructOps": 1014176,
+      "constructOps": 1649429,
       "feasibility": "ok",
-      "transitionOps": 1023
+      "transitionOps": 1379
     },
     "dense-10": {
-      "constructOps": 1878094,
+      "constructOps": 1580511,
       "feasibility": "ok",
-      "transitionOps": 1454
+      "transitionOps": 874
     },
     "chain-200": {
-      "constructOps": 1750433,
+      "constructOps": 966626,
       "feasibility": "ok",
-      "transitionOps": 1595
+      "transitionOps": 635
     },
     "dense-50": {
-      "constructOps": 2348009,
+      "constructOps": 516046,
       "feasibility": "ok",
-      "transitionOps": 1594
+      "transitionOps": 1508
     },
     "hub-200": {
-      "constructOps": 2209117,
+      "constructOps": 2201949,
       "feasibility": "ok",
-      "transitionOps": 1691
+      "transitionOps": 1706
     },
     "chain-1000": {
-      "constructOps": 2725760,
+      "constructOps": 1369752,
       "feasibility": "ok",
-      "transitionOps": 1551
+      "transitionOps": 1100
     },
     "messy-1000": {
-      "constructOps": 1540877,
+      "constructOps": 2776360,
       "feasibility": "ok",
-      "transitionOps": 1293
+      "transitionOps": 2606
     },
     "dense-200": {
-      "constructOps": 684486,
+      "constructOps": 3472363,
       "feasibility": "ok",
-      "transitionOps": 1326
+      "transitionOps": 846
     },
     "messy-5000": {
-      "constructOps": 2200951,
+      "constructOps": 3861669,
       "feasibility": "ok",
-      "transitionOps": 1455
+      "transitionOps": 2637
     }
   },
   "capabilityOps": {
-    "action": 2014,
-    "hook": 1866
+    "action": 1403,
+    "hook": 1346
   },
-  "completedAt": "2026-06-12T16:25:56.503Z"
+  "featureTests": {
+    "observe": "yes",
+    "serialize": "no"
+  },
+  "completedAt": "2026-06-12T21:13:35.534Z"
 }

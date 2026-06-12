@@ -2,7 +2,7 @@
   "name": "stately.js",
   "version": "2.0.0",
   "host": "local-x64",
-  "measuredAt": "2026-06-12T16:19:07.185Z",
+  "measuredAt": "2026-06-12T21:18:35.021Z",
   "caps": {
     "transition": true,
     "action": true,
@@ -15,11 +15,11 @@
     "types": "none",
     "modules": "cjs",
     "postinstall": "no",
-    "coldStartMs": 29.2,
+    "coldStartMs": 14.84,
     "publishes6mo": 0,
     "publishes2yr": 0,
     "lastPublishISO": "2017-10-16T23:34:51.297Z",
-    "publishCheckedAt": "2026-06-12T16:41:57.371Z"
+    "publishCheckedAt": "2026-06-12T21:18:39.496Z"
   },
   "behavior": {
     "illegalTransition": {
@@ -35,66 +35,70 @@
     }
   },
   "memory": {
-    "retainedBytesPerMachine": 30417,
+    "retainedBytesPerMachine": 30416,
     "allocBytesPerTransition": 0,
     "shape": "hub-50"
   },
   "shapes": {
     "chain-10": {
-      "constructOps": 30929,
+      "constructOps": 48723,
       "feasibility": "ok",
-      "transitionOps": 1682
+      "transitionOps": 2934
     },
     "hub-50": {
-      "constructOps": 4286,
+      "constructOps": 9309,
       "feasibility": "ok",
-      "transitionOps": 227
+      "transitionOps": 456
     },
     "dense-10": {
-      "constructOps": 11514,
+      "constructOps": 27537,
       "feasibility": "ok",
-      "transitionOps": 737
+      "transitionOps": 1643
     },
     "chain-200": {
-      "constructOps": 1306,
+      "constructOps": 3394,
       "feasibility": "ok",
-      "transitionOps": 1223
+      "transitionOps": 2331
     },
     "dense-50": {
-      "constructOps": 440,
+      "constructOps": 994,
       "feasibility": "ok",
-      "transitionOps": 115
+      "transitionOps": 223
     },
     "hub-200": {
-      "constructOps": 1246,
+      "constructOps": 2660,
       "feasibility": "ok",
-      "transitionOps": 64
+      "transitionOps": 119
     },
     "chain-1000": {
-      "constructOps": 199,
+      "constructOps": 754,
       "feasibility": "ok",
-      "transitionOps": 1151
+      "transitionOps": 2697
     },
     "messy-1000": {
-      "constructOps": 150,
+      "constructOps": 259,
       "feasibility": "ok",
-      "transitionOps": 894
+      "transitionOps": 2134
     },
     "dense-200": {
-      "constructOps": 27,
+      "constructOps": 62,
       "feasibility": "ok",
-      "transitionOps": 28
+      "transitionOps": 48
     },
     "messy-5000": {
-      "constructOps": 19,
+      "constructOps": 53,
       "feasibility": "error",
       "error": "Maximum call stack size exceeded"
     }
   },
   "capabilityOps": {
-    "action": 2231,
-    "guard": 1843,
-    "hook": 1946
+    "action": 4717,
+    "guard": 3931,
+    "hook": 4489
   },
-  "completedAt": "2026-06-12T16:19:21.031Z"
+  "featureTests": {
+    "observe": "yes",
+    "serialize": "no"
+  },
+  "completedAt": "2026-06-12T21:18:50.945Z"
 }

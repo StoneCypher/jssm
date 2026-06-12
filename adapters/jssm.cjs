@@ -65,6 +65,17 @@ module.exports = {
   },
   stepData : (ctx, target, value) => ctx.machine.transition(target, value),
 
+  // ---- serialization round-trip (runtime state) ----
+  // Self-contained functional test: build, move off the start state,
+  // serialize, restore, and confirm the restored machine reports the same
+  // state. jssm.deserialize takes (fsl, serialized).
+  trySerialize() {
+    const fsl = 'a -> b; b -> a;';
+    const m = jssm.sm([fsl]); m.transition('b');
+    const restored = jssm.deserialize(fsl, m.serialize());
+    return restored.state() === 'b';
+  },
+
   // ---- timer (FSL `after` clause; entering b arms b -> a) ----
   // NB the explicit clear_state_timeout() in stepTimer: on released jssm,
   // hookless machines do not clear `after` timeouts when leaving the state

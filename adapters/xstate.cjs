@@ -106,6 +106,23 @@ module.exports = {
   },
   stepData : (ctx, target, value) => { [ctx.snap] = transition(ctx.machine, ctx.snap, { type: `to_${target}`, value }); },
 
+  // ---- serialization round-trip (actor persistence) ----
+  // XState persists runtime state through actors: getPersistedSnapshot() ->
+  // createActor(machine, { snapshot }). The pure transition path can't persist
+  // on its own, so this exercises the actor API (the library's real mechanism).
+  trySerialize() {
+    const machine = createMachine({ id: 'ser', initial: 'a',
+      states: { a: { on: { go: 'b' } }, b: { on: { go: 'a' } } } });
+    const a1 = createActor(machine).start();
+    a1.send({ type: 'go' });                 // a -> b
+    const snap = a1.getPersistedSnapshot();
+    a1.stop();
+    const a2 = createActor(machine, { snapshot: snap }).start();
+    const v = a2.getSnapshot().value;
+    a2.stop();
+    return v === 'b';
+  },
+
   // ---- timer (actor `after`; clocks need a runtime) ----
   timerDelayMs : () => TIMER_MS,
   openTimer() {

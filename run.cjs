@@ -94,6 +94,7 @@ const libs = {}, caps = {}, feasibility = {}, results = [];
 const memory = { results: {}, shape: null };
 const behavior = { adapters: {} };
 const staticEnv = { results: {} };
+const featureTests = {};   // lib -> { observe, serialize, ... }
 
 for (const adapter of ADAPTERS) {
   const m = measured[adapter.name];
@@ -101,8 +102,9 @@ for (const adapter of ADAPTERS) {
   caps[adapter.name] = adapter.caps;
   if (!m) continue;
 
-  if (m.static)   staticEnv.results[adapter.name]  = { version: adapter.version, ...m.static };
-  if (m.behavior) behavior.adapters[adapter.name]  = m.behavior;
+  if (m.static)       staticEnv.results[adapter.name] = { version: adapter.version, ...m.static };
+  if (m.behavior)     behavior.adapters[adapter.name] = m.behavior;
+  if (m.featureTests) featureTests[adapter.name]      = m.featureTests;
   if (m.memory && !m.memory.error) { memory.results[adapter.name] = m.memory; memory.shape = m.memory.shape; }
 
   feasibility[adapter.name] = {};
@@ -128,7 +130,7 @@ const report = {
   ceilingMs: WORKER_TIMEOUT_MS, k: 100,
   libs, caps, excluded: EXCLUDED || [],
   feasibility, results,
-  memory, behavior, static: staticEnv,
+  memory, behavior, static: staticEnv, featureTests,
 };
 
 // ---------------------------------------------------------------------------

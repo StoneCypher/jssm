@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-12T20:42:34.474Z",
+  "generatedAt": "2026-06-12T21:19:52.760Z",
   "host": "local-x64",
   "node": "v24.11.0",
   "arch": "x64",
@@ -612,67 +612,67 @@
   "results": [
     {
       "name": "jssm chain-10 construct()",
-      "ops": 2671
+      "ops": 3563
     },
     {
       "name": "jssm chain-10 transition()",
-      "ops": 91754
+      "ops": 98906
     },
     {
       "name": "jssm hub-50 construct()",
-      "ops": 997
+      "ops": 923
     },
     {
       "name": "jssm hub-50 transition()",
-      "ops": 99217
+      "ops": 76606
     },
     {
       "name": "jssm dense-10 construct()",
-      "ops": 1489
+      "ops": 1149
     },
     {
       "name": "jssm dense-10 transition()",
-      "ops": 102180
+      "ops": 78477
     },
     {
       "name": "jssm chain-200 construct()",
-      "ops": 554
+      "ops": 516
     },
     {
       "name": "jssm chain-200 transition()",
-      "ops": 61697
+      "ops": 65571
     },
     {
       "name": "jssm dense-50 construct()",
-      "ops": 43
+      "ops": 55
     },
     {
       "name": "jssm dense-50 transition()",
-      "ops": 63271
+      "ops": 75523
     },
     {
       "name": "jssm hub-200 construct()",
-      "ops": 296
+      "ops": 308
     },
     {
       "name": "jssm hub-200 transition()",
-      "ops": 77937
+      "ops": 73780
     },
     {
       "name": "jssm chain-1000 construct()",
-      "ops": 139
+      "ops": 111
     },
     {
       "name": "jssm chain-1000 transition()",
-      "ops": 65237
+      "ops": 57466
     },
     {
       "name": "jssm messy-1000 construct()",
-      "ops": 51
+      "ops": 39
     },
     {
       "name": "jssm messy-1000 transition()",
-      "ops": 69423
+      "ops": 77611
     },
     {
       "name": "jssm dense-200 construct()",
@@ -680,295 +680,295 @@
     },
     {
       "name": "jssm dense-200 transition()",
-      "ops": 56840
+      "ops": 43763
     },
     {
       "name": "jssm messy-5000 construct()",
-      "ops": 11
+      "ops": 7
     },
     {
       "name": "jssm messy-5000 transition()",
-      "ops": 110989
+      "ops": 56934
     },
     {
       "name": "jssm action()",
-      "ops": 48306
+      "ops": 75317
     },
     {
       "name": "jssm guard()",
-      "ops": 43720
+      "ops": 47411
     },
     {
       "name": "jssm hook()",
-      "ops": 39840
+      "ops": 42729
     },
     {
       "name": "jssm data()",
-      "ops": 115337
+      "ops": 134571
     },
     {
       "name": "xstate chain-10 construct()",
-      "ops": 15274
+      "ops": 8616
     },
     {
       "name": "xstate chain-10 transition()",
-      "ops": 700
+      "ops": 315
     },
     {
       "name": "xstate hub-50 construct()",
-      "ops": 4194
+      "ops": 2305
     },
     {
       "name": "xstate hub-50 transition()",
-      "ops": 589
+      "ops": 397
     },
     {
       "name": "xstate dense-10 construct()",
-      "ops": 6383
+      "ops": 5666
     },
     {
       "name": "xstate dense-10 transition()",
-      "ops": 494
+      "ops": 437
     },
     {
       "name": "xstate chain-200 construct()",
-      "ops": 741
+      "ops": 677
     },
     {
       "name": "xstate chain-200 transition()",
-      "ops": 654
+      "ops": 406
     },
     {
       "name": "xstate dense-50 construct()",
-      "ops": 391
+      "ops": 197
     },
     {
       "name": "xstate dense-50 transition()",
-      "ops": 536
+      "ops": 589
     },
     {
       "name": "xstate hub-200 construct()",
-      "ops": 846
+      "ops": 711
     },
     {
       "name": "xstate hub-200 transition()",
-      "ops": 447
+      "ops": 473
     },
     {
       "name": "xstate chain-1000 construct()",
-      "ops": 139
+      "ops": 106
     },
     {
       "name": "xstate chain-1000 transition()",
-      "ops": 644
+      "ops": 423
     },
     {
       "name": "xstate messy-1000 construct()",
-      "ops": 129
+      "ops": 76
     },
     {
       "name": "xstate messy-1000 transition()",
-      "ops": 457
+      "ops": 420
     },
     {
       "name": "xstate dense-200 construct()",
-      "ops": 21
-    },
-    {
-      "name": "xstate dense-200 transition()",
-      "ops": 402
-    },
-    {
-      "name": "xstate messy-5000 construct()",
       "ops": 15
     },
     {
+      "name": "xstate dense-200 transition()",
+      "ops": 447
+    },
+    {
+      "name": "xstate messy-5000 construct()",
+      "ops": 9
+    },
+    {
       "name": "xstate messy-5000 transition()",
-      "ops": 754
+      "ops": 377
     },
     {
       "name": "xstate action()",
-      "ops": 393
+      "ops": 309
     },
     {
       "name": "xstate guard()",
-      "ops": 305
+      "ops": 325
     },
     {
       "name": "xstate hook()",
-      "ops": 866
+      "ops": 734
     },
     {
       "name": "xstate data()",
-      "ops": 311
+      "ops": 227
     },
     {
       "name": "@xstate/fsm chain-10 construct()",
-      "ops": 1805494
+      "ops": 1115394
     },
     {
       "name": "@xstate/fsm chain-10 transition()",
-      "ops": 9397
+      "ops": 8354
     },
     {
       "name": "@xstate/fsm hub-50 construct()",
-      "ops": 301509
+      "ops": 322040
     },
     {
       "name": "@xstate/fsm hub-50 transition()",
-      "ops": 9889
+      "ops": 7117
     },
     {
       "name": "@xstate/fsm dense-10 construct()",
-      "ops": 2086769
+      "ops": 1173483
     },
     {
       "name": "@xstate/fsm dense-10 transition()",
-      "ops": 12091
+      "ops": 5660
     },
     {
       "name": "@xstate/fsm chain-200 construct()",
-      "ops": 106534
+      "ops": 39974
     },
     {
       "name": "@xstate/fsm chain-200 transition()",
-      "ops": 10094
+      "ops": 5929
     },
     {
       "name": "@xstate/fsm dense-50 construct()",
-      "ops": 338203
+      "ops": 244411
     },
     {
       "name": "@xstate/fsm dense-50 transition()",
-      "ops": 10571
+      "ops": 7414
     },
     {
       "name": "@xstate/fsm hub-200 construct()",
-      "ops": 87940
+      "ops": 67774
     },
     {
       "name": "@xstate/fsm hub-200 transition()",
-      "ops": 12777
+      "ops": 6706
     },
     {
       "name": "@xstate/fsm chain-1000 construct()",
-      "ops": 10406
+      "ops": 5631
     },
     {
       "name": "@xstate/fsm chain-1000 transition()",
-      "ops": 10343
+      "ops": 4766
     },
     {
       "name": "@xstate/fsm messy-1000 construct()",
-      "ops": 7671
+      "ops": 6017
     },
     {
       "name": "@xstate/fsm messy-1000 transition()",
-      "ops": 8914
+      "ops": 6940
     },
     {
       "name": "@xstate/fsm dense-200 construct()",
-      "ops": 71137
+      "ops": 88531
     },
     {
       "name": "@xstate/fsm dense-200 transition()",
-      "ops": 7289
+      "ops": 8260
     },
     {
       "name": "@xstate/fsm messy-5000 construct()",
-      "ops": 1014
+      "ops": 700
     },
     {
       "name": "@xstate/fsm messy-5000 transition()",
-      "ops": 10049
+      "ops": 6960
     },
     {
       "name": "@xstate/fsm action()",
-      "ops": 10263
+      "ops": 8057
     },
     {
       "name": "@xstate/fsm guard()",
-      "ops": 6469
+      "ops": 6043
     },
     {
       "name": "@xstate/fsm hook()",
-      "ops": 9617
+      "ops": 4949
     },
     {
       "name": "@xstate/fsm data()",
-      "ops": 9783
+      "ops": 3729
     },
     {
       "name": "javascript-state-machine chain-10 construct()",
-      "ops": 9757
+      "ops": 7569
     },
     {
       "name": "javascript-state-machine chain-10 transition()",
-      "ops": 1237
+      "ops": 1243
     },
     {
       "name": "javascript-state-machine hub-50 construct()",
-      "ops": 2823
+      "ops": 3206
     },
     {
       "name": "javascript-state-machine hub-50 transition()",
-      "ops": 1103
+      "ops": 1540
     },
     {
       "name": "javascript-state-machine dense-10 construct()",
-      "ops": 6609
+      "ops": 9234
     },
     {
       "name": "javascript-state-machine dense-10 transition()",
-      "ops": 960
+      "ops": 1417
     },
     {
       "name": "javascript-state-machine chain-200 construct()",
-      "ops": 747
+      "ops": 1140
     },
     {
       "name": "javascript-state-machine chain-200 transition()",
-      "ops": 1014
+      "ops": 2203
     },
     {
       "name": "javascript-state-machine dense-50 construct()",
-      "ops": 246
+      "ops": 331
     },
     {
       "name": "javascript-state-machine dense-50 transition()",
-      "ops": 1114
+      "ops": 1129
     },
     {
       "name": "javascript-state-machine hub-200 construct()",
-      "ops": 646
+      "ops": 817
     },
     {
       "name": "javascript-state-machine hub-200 transition()",
-      "ops": 1034
+      "ops": 1297
     },
     {
       "name": "javascript-state-machine chain-1000 construct()",
-      "ops": 79
+      "ops": 101
     },
     {
       "name": "javascript-state-machine chain-1000 transition()",
-      "ops": 1006
+      "ops": 2146
     },
     {
       "name": "javascript-state-machine messy-1000 construct()",
-      "ops": 14
+      "ops": 37
     },
     {
       "name": "javascript-state-machine messy-1000 transition()",
-      "ops": 1300
+      "ops": 1820
     },
     {
       "name": "javascript-state-machine dense-200 construct()",
-      "ops": 8
+      "ops": 27
     },
     {
       "name": "javascript-state-machine dense-200 transition()",
-      "ops": 1097
+      "ops": 1263
     },
     {
       "name": "javascript-state-machine messy-5000 construct()",
@@ -976,359 +976,359 @@
     },
     {
       "name": "javascript-state-machine messy-5000 transition()",
-      "ops": 883
+      "ops": 1446
     },
     {
       "name": "javascript-state-machine action()",
-      "ops": 1029
+      "ops": 1666
     },
     {
       "name": "javascript-state-machine guard()",
-      "ops": 1157
+      "ops": 1269
     },
     {
       "name": "javascript-state-machine hook()",
-      "ops": 1003
+      "ops": 1586
     },
     {
       "name": "javascript-state-machine data()",
-      "ops": 949
+      "ops": 1386
     },
     {
       "name": "robot3 chain-10 construct()",
-      "ops": 503460
+      "ops": 395266
     },
     {
       "name": "robot3 chain-10 transition()",
-      "ops": 7097
+      "ops": 3820
     },
     {
       "name": "robot3 hub-50 construct()",
-      "ops": 290883
+      "ops": 184831
     },
     {
       "name": "robot3 hub-50 transition()",
-      "ops": 5360
+      "ops": 3371
     },
     {
       "name": "robot3 dense-10 construct()",
-      "ops": 458260
+      "ops": 309477
     },
     {
       "name": "robot3 dense-10 transition()",
-      "ops": 6163
+      "ops": 4129
     },
     {
       "name": "robot3 chain-200 construct()",
-      "ops": 112646
+      "ops": 101991
     },
     {
       "name": "robot3 chain-200 transition()",
-      "ops": 6660
+      "ops": 6331
     },
     {
       "name": "robot3 dense-50 construct()",
-      "ops": 276631
+      "ops": 258523
     },
     {
       "name": "robot3 dense-50 transition()",
-      "ops": 4320
+      "ops": 3697
     },
     {
       "name": "robot3 hub-200 construct()",
-      "ops": 73614
+      "ops": 60466
     },
     {
       "name": "robot3 hub-200 transition()",
-      "ops": 4154
+      "ops": 3651
     },
     {
       "name": "robot3 chain-1000 construct()",
-      "ops": 8851
+      "ops": 7634
     },
     {
       "name": "robot3 chain-1000 transition()",
-      "ops": 5680
+      "ops": 5923
     },
     {
       "name": "robot3 messy-1000 construct()",
-      "ops": 9560
+      "ops": 12686
     },
     {
       "name": "robot3 messy-1000 transition()",
-      "ops": 3677
+      "ops": 6469
     },
     {
       "name": "robot3 dense-200 construct()",
-      "ops": 62674
+      "ops": 69031
     },
     {
       "name": "robot3 dense-200 transition()",
-      "ops": 3980
+      "ops": 4123
     },
     {
       "name": "robot3 messy-5000 construct()",
-      "ops": 1400
+      "ops": 1377
     },
     {
       "name": "robot3 messy-5000 transition()",
-      "ops": 6037
+      "ops": 6877
     },
     {
       "name": "robot3 action()",
-      "ops": 6051
+      "ops": 5154
     },
     {
       "name": "robot3 guard()",
-      "ops": 4566
+      "ops": 5137
     },
     {
       "name": "robot3 hook()",
-      "ops": 6891
+      "ops": 6671
     },
     {
       "name": "robot3 data()",
-      "ops": 6014
+      "ops": 5880
     },
     {
       "name": "machina chain-10 construct()",
-      "ops": 290543
+      "ops": 398923
     },
     {
       "name": "machina chain-10 transition()",
-      "ops": 7177
+      "ops": 11243
     },
     {
       "name": "machina hub-50 construct()",
-      "ops": 75709
+      "ops": 122249
     },
     {
       "name": "machina hub-50 transition()",
-      "ops": 5060
+      "ops": 6314
     },
     {
       "name": "machina dense-10 construct()",
-      "ops": 285469
+      "ops": 272583
     },
     {
       "name": "machina dense-10 transition()",
-      "ops": 9849
+      "ops": 11809
     },
     {
       "name": "machina chain-200 construct()",
-      "ops": 27243
+      "ops": 32556
     },
     {
       "name": "machina chain-200 transition()",
-      "ops": 7514
+      "ops": 5831
     },
     {
       "name": "machina dense-50 construct()",
-      "ops": 96163
+      "ops": 77229
     },
     {
       "name": "machina dense-50 transition()",
-      "ops": 9031
+      "ops": 5326
     },
     {
       "name": "machina hub-200 construct()",
-      "ops": 32277
+      "ops": 19943
     },
     {
       "name": "machina hub-200 transition()",
-      "ops": 8494
+      "ops": 6251
     },
     {
       "name": "machina chain-1000 construct()",
-      "ops": 3057
+      "ops": 3226
     },
     {
       "name": "machina chain-1000 transition()",
-      "ops": 9134
+      "ops": 7714
     },
     {
       "name": "machina messy-1000 construct()",
-      "ops": 2454
+      "ops": 2754
     },
     {
       "name": "machina messy-1000 transition()",
-      "ops": 6797
+      "ops": 7977
     },
     {
       "name": "machina dense-200 construct()",
-      "ops": 21377
+      "ops": 20386
     },
     {
       "name": "machina dense-200 transition()",
-      "ops": 9137
+      "ops": 4394
     },
     {
       "name": "machina messy-5000 construct()",
-      "ops": 184
+      "ops": 127
     },
     {
       "name": "machina messy-5000 transition()",
-      "ops": 3522
+      "ops": 4866
     },
     {
       "name": "machina action()",
-      "ops": 7411
+      "ops": 5697
     },
     {
       "name": "machina guard()",
-      "ops": 6577
+      "ops": 5960
     },
     {
       "name": "machina hook()",
-      "ops": 8837
+      "ops": 9306
     },
     {
       "name": "machina data()",
-      "ops": 9203
+      "ops": 11214
     },
     {
       "name": "nanostate chain-10 construct()",
-      "ops": 2219097
+      "ops": 2170477
     },
     {
       "name": "nanostate chain-10 transition()",
-      "ops": 1354
+      "ops": 1994
     },
     {
       "name": "nanostate hub-50 construct()",
-      "ops": 1014176
+      "ops": 1649429
     },
     {
       "name": "nanostate hub-50 transition()",
-      "ops": 1023
+      "ops": 1379
     },
     {
       "name": "nanostate dense-10 construct()",
-      "ops": 1878094
+      "ops": 1580511
     },
     {
       "name": "nanostate dense-10 transition()",
-      "ops": 1454
+      "ops": 874
     },
     {
       "name": "nanostate chain-200 construct()",
-      "ops": 1750433
+      "ops": 966626
     },
     {
       "name": "nanostate chain-200 transition()",
-      "ops": 1595
+      "ops": 635
     },
     {
       "name": "nanostate dense-50 construct()",
-      "ops": 2348009
+      "ops": 516046
     },
     {
       "name": "nanostate dense-50 transition()",
-      "ops": 1594
+      "ops": 1508
     },
     {
       "name": "nanostate hub-200 construct()",
-      "ops": 2209117
+      "ops": 2201949
     },
     {
       "name": "nanostate hub-200 transition()",
-      "ops": 1691
+      "ops": 1706
     },
     {
       "name": "nanostate chain-1000 construct()",
-      "ops": 2725760
+      "ops": 1369752
     },
     {
       "name": "nanostate chain-1000 transition()",
-      "ops": 1551
+      "ops": 1100
     },
     {
       "name": "nanostate messy-1000 construct()",
-      "ops": 1540877
+      "ops": 2776360
     },
     {
       "name": "nanostate messy-1000 transition()",
-      "ops": 1293
+      "ops": 2606
     },
     {
       "name": "nanostate dense-200 construct()",
-      "ops": 684486
+      "ops": 3472363
     },
     {
       "name": "nanostate dense-200 transition()",
-      "ops": 1326
+      "ops": 846
     },
     {
       "name": "nanostate messy-5000 construct()",
-      "ops": 2200951
+      "ops": 3861669
     },
     {
       "name": "nanostate messy-5000 transition()",
-      "ops": 1455
+      "ops": 2637
     },
     {
       "name": "nanostate action()",
-      "ops": 2014
+      "ops": 1403
     },
     {
       "name": "nanostate hook()",
-      "ops": 1866
+      "ops": 1346
     },
     {
       "name": "statebot chain-10 construct()",
-      "ops": 9160
+      "ops": 11880
     },
     {
       "name": "statebot chain-10 transition()",
-      "ops": 2617
+      "ops": 1540
     },
     {
       "name": "statebot hub-50 construct()",
-      "ops": 1326
+      "ops": 814
     },
     {
       "name": "statebot hub-50 transition()",
-      "ops": 2463
+      "ops": 1563
     },
     {
       "name": "statebot dense-10 construct()",
-      "ops": 2203
+      "ops": 1374
     },
     {
       "name": "statebot dense-10 transition()",
-      "ops": 3369
+      "ops": 1624
     },
     {
       "name": "statebot chain-200 construct()",
-      "ops": 226
+      "ops": 153
     },
     {
       "name": "statebot chain-200 transition()",
-      "ops": 1397
+      "ops": 743
     },
     {
       "name": "statebot dense-50 construct()",
-      "ops": 1
+      "ops": 0
     },
     {
       "name": "statebot dense-50 transition()",
-      "ops": 139
+      "ops": 110
     },
     {
       "name": "statebot hub-200 construct()",
-      "ops": 62
+      "ops": 50
     },
     {
       "name": "statebot hub-200 transition()",
-      "ops": 1294
+      "ops": 989
     },
     {
       "name": "statebot chain-1000 construct()",
-      "ops": 3
+      "ops": 2
     },
     {
       "name": "statebot chain-1000 transition()",
-      "ops": 578
+      "ops": 403
     },
     {
       "name": "statebot messy-1000 construct()",
@@ -1336,175 +1336,175 @@
     },
     {
       "name": "statebot messy-1000 transition()",
-      "ops": 217
+      "ops": 117
     },
     {
       "name": "statebot action()",
-      "ops": 1046
+      "ops": 580
     },
     {
       "name": "statebot hook()",
-      "ops": 2729
+      "ops": 1914
     },
     {
       "name": "finity chain-10 construct()",
-      "ops": 22994
+      "ops": 37026
     },
     {
       "name": "finity chain-10 transition()",
-      "ops": 6497
+      "ops": 8320
     },
     {
       "name": "finity hub-50 construct()",
-      "ops": 4066
+      "ops": 5334
     },
     {
       "name": "finity hub-50 transition()",
-      "ops": 6297
+      "ops": 7874
     },
     {
       "name": "finity dense-10 construct()",
-      "ops": 6989
+      "ops": 7589
     },
     {
       "name": "finity dense-10 transition()",
-      "ops": 6583
+      "ops": 6271
     },
     {
       "name": "finity chain-200 construct()",
-      "ops": 1154
+      "ops": 943
     },
     {
       "name": "finity chain-200 transition()",
-      "ops": 5971
+      "ops": 5509
     },
     {
       "name": "finity dense-50 construct()",
-      "ops": 266
+      "ops": 285
     },
     {
       "name": "finity dense-50 transition()",
-      "ops": 5863
+      "ops": 6494
     },
     {
       "name": "finity hub-200 construct()",
-      "ops": 834
+      "ops": 829
     },
     {
       "name": "finity hub-200 transition()",
-      "ops": 6474
+      "ops": 5546
     },
     {
       "name": "finity chain-1000 construct()",
-      "ops": 199
+      "ops": 203
     },
     {
       "name": "finity chain-1000 transition()",
-      "ops": 4154
+      "ops": 5857
     },
     {
       "name": "finity messy-1000 construct()",
-      "ops": 130
+      "ops": 102
     },
     {
       "name": "finity messy-1000 transition()",
-      "ops": 6429
+      "ops": 5151
     },
     {
       "name": "finity dense-200 construct()",
-      "ops": 16
+      "ops": 17
     },
     {
       "name": "finity dense-200 transition()",
-      "ops": 5840
+      "ops": 4580
     },
     {
       "name": "finity messy-5000 construct()",
-      "ops": 23
+      "ops": 19
     },
     {
       "name": "finity messy-5000 transition()",
-      "ops": 6006
+      "ops": 5360
     },
     {
       "name": "finity action()",
-      "ops": 6920
+      "ops": 8231
     },
     {
       "name": "finity guard()",
-      "ops": 7349
+      "ops": 7371
     },
     {
       "name": "finity hook()",
-      "ops": 7146
+      "ops": 6523
     },
     {
       "name": "finity data()",
-      "ops": 8229
+      "ops": 8263
     },
     {
       "name": "typestate chain-10 construct()",
-      "ops": 255318
+      "ops": 104615
     },
     {
       "name": "typestate chain-10 transition()",
-      "ops": 33580
+      "ops": 22020
     },
     {
       "name": "typestate hub-50 construct()",
-      "ops": 18017
+      "ops": 10177
     },
     {
       "name": "typestate hub-50 transition()",
-      "ops": 19423
+      "ops": 12623
     },
     {
       "name": "typestate dense-10 construct()",
-      "ops": 13826
+      "ops": 8083
     },
     {
       "name": "typestate dense-10 transition()",
-      "ops": 14091
+      "ops": 5503
     },
     {
       "name": "typestate chain-200 construct()",
-      "ops": 6469
+      "ops": 2524
     },
     {
       "name": "typestate chain-200 transition()",
-      "ops": 12351
+      "ops": 6526
     },
     {
       "name": "typestate dense-50 construct()",
-      "ops": 24
+      "ops": 14
     },
     {
       "name": "typestate dense-50 transition()",
-      "ops": 549
+      "ops": 297
     },
     {
       "name": "typestate hub-200 construct()",
-      "ops": 1130
+      "ops": 891
     },
     {
       "name": "typestate hub-200 transition()",
-      "ops": 12286
+      "ops": 10417
     },
     {
       "name": "typestate chain-1000 construct()",
-      "ops": 180
+      "ops": 127
     },
     {
       "name": "typestate chain-1000 transition()",
-      "ops": 10477
+      "ops": 6306
     },
     {
       "name": "typestate messy-1000 construct()",
-      "ops": 11
+      "ops": 12
     },
     {
       "name": "typestate messy-1000 transition()",
-      "ops": 871
+      "ops": 754
     },
     {
       "name": "typestate dense-200 construct()",
@@ -1512,7 +1512,7 @@
     },
     {
       "name": "typestate dense-200 transition()",
-      "ops": 11
+      "ops": 56
     },
     {
       "name": "typestate messy-5000 construct()",
@@ -1520,453 +1520,453 @@
     },
     {
       "name": "typestate messy-5000 transition()",
-      "ops": 19
+      "ops": 60
     },
     {
       "name": "typestate guard()",
-      "ops": 63463
+      "ops": 30229
     },
     {
       "name": "typestate hook()",
-      "ops": 64589
+      "ops": 30911
     },
     {
       "name": "stately.js chain-10 construct()",
-      "ops": 30929
+      "ops": 48723
     },
     {
       "name": "stately.js chain-10 transition()",
-      "ops": 1682
+      "ops": 2934
     },
     {
       "name": "stately.js hub-50 construct()",
-      "ops": 4286
+      "ops": 9309
     },
     {
       "name": "stately.js hub-50 transition()",
-      "ops": 227
+      "ops": 456
     },
     {
       "name": "stately.js dense-10 construct()",
-      "ops": 11514
+      "ops": 27537
     },
     {
       "name": "stately.js dense-10 transition()",
-      "ops": 737
+      "ops": 1643
     },
     {
       "name": "stately.js chain-200 construct()",
-      "ops": 1306
+      "ops": 3394
     },
     {
       "name": "stately.js chain-200 transition()",
-      "ops": 1223
+      "ops": 2331
     },
     {
       "name": "stately.js dense-50 construct()",
-      "ops": 440
+      "ops": 994
     },
     {
       "name": "stately.js dense-50 transition()",
-      "ops": 115
+      "ops": 223
     },
     {
       "name": "stately.js hub-200 construct()",
-      "ops": 1246
+      "ops": 2660
     },
     {
       "name": "stately.js hub-200 transition()",
-      "ops": 64
+      "ops": 119
     },
     {
       "name": "stately.js chain-1000 construct()",
-      "ops": 199
+      "ops": 754
     },
     {
       "name": "stately.js chain-1000 transition()",
-      "ops": 1151
+      "ops": 2697
     },
     {
       "name": "stately.js messy-1000 construct()",
-      "ops": 150
+      "ops": 259
     },
     {
       "name": "stately.js messy-1000 transition()",
-      "ops": 894
+      "ops": 2134
     },
     {
       "name": "stately.js dense-200 construct()",
-      "ops": 27
+      "ops": 62
     },
     {
       "name": "stately.js dense-200 transition()",
-      "ops": 28
+      "ops": 48
     },
     {
       "name": "stately.js action()",
-      "ops": 2231
+      "ops": 4717
     },
     {
       "name": "stately.js guard()",
-      "ops": 1843
+      "ops": 3931
     },
     {
       "name": "stately.js hook()",
-      "ops": 1946
+      "ops": 4489
     },
     {
       "name": "fn-machine chain-10 construct()",
-      "ops": 2468963
+      "ops": 3199989
     },
     {
       "name": "fn-machine chain-10 transition()",
-      "ops": 17820
+      "ops": 18446
     },
     {
       "name": "fn-machine hub-50 construct()",
-      "ops": 2636857
+      "ops": 2906294
     },
     {
       "name": "fn-machine hub-50 transition()",
-      "ops": 4080
+      "ops": 5563
     },
     {
       "name": "fn-machine dense-10 construct()",
-      "ops": 2088640
+      "ops": 3419463
     },
     {
       "name": "fn-machine dense-10 transition()",
-      "ops": 16280
+      "ops": 27306
     },
     {
       "name": "fn-machine chain-200 construct()",
-      "ops": 2738457
+      "ops": 4614686
     },
     {
       "name": "fn-machine chain-200 transition()",
-      "ops": 5023
+      "ops": 7791
     },
     {
       "name": "fn-machine dense-50 construct()",
-      "ops": 2786549
+      "ops": 3865737
     },
     {
       "name": "fn-machine dense-50 transition()",
-      "ops": 1883
+      "ops": 2874
     },
     {
       "name": "fn-machine hub-200 construct()",
-      "ops": 2824931
+      "ops": 4893497
     },
     {
       "name": "fn-machine hub-200 transition()",
-      "ops": 1066
+      "ops": 1814
     },
     {
       "name": "fn-machine chain-1000 construct()",
-      "ops": 2664226
+      "ops": 5267314
     },
     {
       "name": "fn-machine chain-1000 transition()",
-      "ops": 4780
+      "ops": 6920
     },
     {
       "name": "fn-machine messy-1000 construct()",
-      "ops": 3009471
+      "ops": 3070857
     },
     {
       "name": "fn-machine messy-1000 transition()",
-      "ops": 1466
+      "ops": 1349
     },
     {
       "name": "fn-machine dense-200 construct()",
-      "ops": 2804903
+      "ops": 3364251
     },
     {
       "name": "fn-machine dense-200 transition()",
-      "ops": 393
+      "ops": 597
     },
     {
       "name": "fn-machine messy-5000 construct()",
-      "ops": 2643338
+      "ops": 5128251
     },
     {
       "name": "fn-machine messy-5000 transition()",
-      "ops": 37
+      "ops": 120
     },
     {
       "name": "fn-machine action()",
-      "ops": 25014
+      "ops": 53406
     },
     {
       "name": "fn-machine hook()",
-      "ops": 24537
+      "ops": 41460
     },
     {
       "name": "fn-machine data()",
-      "ops": 23889
+      "ops": 44954
     },
     {
       "name": "fseh chain-10 construct()",
-      "ops": 270780
+      "ops": 325814
     },
     {
       "name": "fseh chain-10 transition()",
-      "ops": 3091
+      "ops": 3571
     },
     {
       "name": "fseh hub-50 construct()",
-      "ops": 185369
+      "ops": 236136
     },
     {
       "name": "fseh hub-50 transition()",
-      "ops": 1425
+      "ops": 2977
     },
     {
       "name": "fseh dense-10 construct()",
-      "ops": 131991
+      "ops": 358654
     },
     {
       "name": "fseh dense-10 transition()",
-      "ops": 1311
+      "ops": 3580
     },
     {
       "name": "fseh chain-200 construct()",
-      "ops": 122814
+      "ops": 284503
     },
     {
       "name": "fseh chain-200 transition()",
-      "ops": 1803
+      "ops": 2451
     },
     {
       "name": "fseh dense-50 construct()",
-      "ops": 156563
+      "ops": 246364
     },
     {
       "name": "fseh dense-50 transition()",
-      "ops": 2302
+      "ops": 2944
     },
     {
       "name": "fseh hub-200 construct()",
-      "ops": 131765
+      "ops": 288757
     },
     {
       "name": "fseh hub-200 transition()",
-      "ops": 1575
+      "ops": 2582
     },
     {
       "name": "fseh chain-1000 construct()",
-      "ops": 162000
+      "ops": 142161
     },
     {
       "name": "fseh chain-1000 transition()",
-      "ops": 1923
+      "ops": 3611
     },
     {
       "name": "fseh messy-1000 construct()",
-      "ops": 93294
+      "ops": 82863
     },
     {
       "name": "fseh messy-1000 transition()",
-      "ops": 1275
+      "ops": 98
     },
     {
       "name": "fseh dense-200 construct()",
-      "ops": 175680
+      "ops": 204423
     },
     {
       "name": "fseh dense-200 transition()",
-      "ops": 1847
+      "ops": 1582
     },
     {
       "name": "fseh messy-5000 construct()",
-      "ops": 125189
+      "ops": 328172
     },
     {
       "name": "fseh messy-5000 transition()",
-      "ops": 1943
+      "ops": 2626
     },
     {
       "name": "easy-fsm chain-10 construct()",
-      "ops": 1239051
+      "ops": 1299854
     },
     {
       "name": "easy-fsm chain-10 transition()",
-      "ops": 13303
+      "ops": 17377
     },
     {
       "name": "easy-fsm hub-50 construct()",
-      "ops": 1054017
+      "ops": 1312766
     },
     {
       "name": "easy-fsm hub-50 transition()",
-      "ops": 18034
+      "ops": 24454
     },
     {
       "name": "easy-fsm dense-10 construct()",
-      "ops": 1144260
+      "ops": 2094277
     },
     {
       "name": "easy-fsm dense-10 transition()",
-      "ops": 14291
+      "ops": 15486
     },
     {
       "name": "easy-fsm chain-200 construct()",
-      "ops": 1268554
+      "ops": 984654
     },
     {
       "name": "easy-fsm chain-200 transition()",
-      "ops": 13246
+      "ops": 11877
     },
     {
       "name": "easy-fsm dense-50 construct()",
-      "ops": 1053186
+      "ops": 1151923
     },
     {
       "name": "easy-fsm dense-50 transition()",
-      "ops": 16209
+      "ops": 16474
     },
     {
       "name": "easy-fsm hub-200 construct()",
-      "ops": 1628274
+      "ops": 1542274
     },
     {
       "name": "easy-fsm hub-200 transition()",
-      "ops": 21754
+      "ops": 16249
     },
     {
       "name": "easy-fsm chain-1000 construct()",
-      "ops": 1305374
+      "ops": 1143006
     },
     {
       "name": "easy-fsm chain-1000 transition()",
-      "ops": 11623
+      "ops": 11403
     },
     {
       "name": "easy-fsm messy-1000 construct()",
-      "ops": 995691
+      "ops": 980529
     },
     {
       "name": "easy-fsm messy-1000 transition()",
-      "ops": 12406
+      "ops": 12843
     },
     {
       "name": "easy-fsm dense-200 construct()",
-      "ops": 996991
+      "ops": 1067446
     },
     {
       "name": "easy-fsm dense-200 transition()",
-      "ops": 10826
+      "ops": 14703
     },
     {
       "name": "easy-fsm messy-5000 construct()",
-      "ops": 1290997
+      "ops": 1041640
     },
     {
       "name": "easy-fsm messy-5000 transition()",
-      "ops": 16120
+      "ops": 11651
     },
     {
       "name": "easy-fsm action()",
-      "ops": 18089
+      "ops": 21126
     },
     {
       "name": "easy-fsm hook()",
-      "ops": 13814
+      "ops": 14926
     },
     {
       "name": "pastafarian chain-10 construct()",
-      "ops": 1879374
+      "ops": 2179351
     },
     {
       "name": "pastafarian chain-10 transition()",
-      "ops": 3420
+      "ops": 5063
     },
     {
       "name": "pastafarian hub-50 construct()",
-      "ops": 1337411
+      "ops": 3062220
     },
     {
       "name": "pastafarian hub-50 transition()",
-      "ops": 2575
+      "ops": 4789
     },
     {
       "name": "pastafarian dense-10 construct()",
-      "ops": 1171346
+      "ops": 3656724
     },
     {
       "name": "pastafarian dense-10 transition()",
-      "ops": 3106
+      "ops": 5131
     },
     {
       "name": "pastafarian chain-200 construct()",
-      "ops": 1011609
+      "ops": 2714080
     },
     {
       "name": "pastafarian chain-200 transition()",
-      "ops": 3229
+      "ops": 4240
     },
     {
       "name": "pastafarian dense-50 construct()",
-      "ops": 1781071
+      "ops": 3163266
     },
     {
       "name": "pastafarian dense-50 transition()",
-      "ops": 2306
+      "ops": 4411
     },
     {
       "name": "pastafarian hub-200 construct()",
-      "ops": 1077321
+      "ops": 3815203
     },
     {
       "name": "pastafarian hub-200 transition()",
-      "ops": 2143
+      "ops": 3789
     },
     {
       "name": "pastafarian chain-1000 construct()",
-      "ops": 1880311
+      "ops": 3451783
     },
     {
       "name": "pastafarian chain-1000 transition()",
-      "ops": 3557
+      "ops": 5477
     },
     {
       "name": "pastafarian messy-1000 construct()",
-      "ops": 1678631
+      "ops": 2960551
     },
     {
       "name": "pastafarian messy-1000 transition()",
-      "ops": 3774
+      "ops": 5574
     },
     {
       "name": "pastafarian dense-200 construct()",
-      "ops": 1955846
+      "ops": 3600454
     },
     {
       "name": "pastafarian dense-200 transition()",
-      "ops": 1854
+      "ops": 3469
     },
     {
       "name": "pastafarian messy-5000 construct()",
-      "ops": 1682507
+      "ops": 3089120
     },
     {
       "name": "pastafarian messy-5000 transition()",
-      "ops": 3906
+      "ops": 5960
     },
     {
       "name": "pastafarian hook()",
-      "ops": 4089
+      "ops": 6451
     },
     {
       "name": "pastafarian data()",
-      "ops": 3346
+      "ops": 4820
     }
   ],
   "memory": {
     "results": {
       "jssm": {
-        "retainedBytesPerMachine": 68465,
+        "retainedBytesPerMachine": 68300,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
@@ -1976,17 +1976,17 @@
         "shape": "hub-50"
       },
       "@xstate/fsm": {
-        "retainedBytesPerMachine": 458,
+        "retainedBytesPerMachine": 459,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
       "javascript-state-machine": {
-        "retainedBytesPerMachine": 54734,
+        "retainedBytesPerMachine": 54738,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
       "robot3": {
-        "retainedBytesPerMachine": 69,
+        "retainedBytesPerMachine": 68,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
@@ -2001,7 +2001,7 @@
         "shape": "hub-50"
       },
       "statebot": {
-        "retainedBytesPerMachine": 12712,
+        "retainedBytesPerMachine": 12708,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
@@ -2011,12 +2011,12 @@
         "shape": "hub-50"
       },
       "typestate": {
-        "retainedBytesPerMachine": 6144,
+        "retainedBytesPerMachine": 6141,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
       "stately.js": {
-        "retainedBytesPerMachine": 30417,
+        "retainedBytesPerMachine": 30416,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
@@ -2026,17 +2026,17 @@
         "shape": "hub-50"
       },
       "fseh": {
-        "retainedBytesPerMachine": 1111,
+        "retainedBytesPerMachine": 1112,
         "allocBytesPerTransition": 752,
         "shape": "hub-50"
       },
       "easy-fsm": {
-        "retainedBytesPerMachine": 195,
+        "retainedBytesPerMachine": 189,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
       "pastafarian": {
-        "retainedBytesPerMachine": 565,
+        "retainedBytesPerMachine": 564,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       }
@@ -2241,11 +2241,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 42.59,
-        "publishes6mo": 63,
-        "publishes2yr": 72,
-        "lastPublishISO": "2026-06-12T15:47:29.489Z",
-        "publishCheckedAt": "2026-06-12T16:41:36.702Z"
+        "coldStartMs": 44.24,
+        "publishes6mo": 69,
+        "publishes2yr": 78,
+        "lastPublishISO": "2026-06-12T20:55:09.386Z",
+        "publishCheckedAt": "2026-06-12T21:11:48.260Z"
       },
       "xstate": {
         "version": "5.32.0",
@@ -2254,11 +2254,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 17.86,
+        "coldStartMs": 40.48,
         "publishes6mo": 9,
         "publishes2yr": 34,
         "lastPublishISO": "2026-05-27T23:42:23.544Z",
-        "publishCheckedAt": "2026-06-12T16:42:02.942Z"
+        "publishCheckedAt": "2026-06-12T21:12:06.963Z"
       },
       "@xstate/fsm": {
         "version": "2.1.0",
@@ -2267,11 +2267,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 11.45,
+        "coldStartMs": 29.41,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2023-07-11T11:55:23.846Z",
-        "publishCheckedAt": "2026-06-12T16:41:20.354Z"
+        "publishCheckedAt": "2026-06-12T21:12:26.373Z"
       },
       "javascript-state-machine": {
         "version": "3.1.0",
@@ -2280,11 +2280,11 @@
         "types": "none",
         "modules": "cjs",
         "postinstall": "no",
-        "coldStartMs": 18.07,
+        "coldStartMs": 11.97,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2018-07-12T14:31:05.703Z",
-        "publishCheckedAt": "2026-06-12T16:41:33.622Z"
+        "publishCheckedAt": "2026-06-12T21:12:39.763Z"
       },
       "robot3": {
         "version": "1.2.0",
@@ -2293,11 +2293,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 10.33,
+        "coldStartMs": 16.4,
         "publishes6mo": 0,
         "publishes2yr": 6,
         "lastPublishISO": "2025-09-20T15:18:51.585Z",
-        "publishCheckedAt": "2026-06-12T16:41:51.066Z"
+        "publishCheckedAt": "2026-06-12T21:12:58.094Z"
       },
       "machina": {
         "version": "6.3.0",
@@ -2306,11 +2306,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 12.85,
+        "coldStartMs": 18.57,
         "publishes6mo": 4,
         "publishes2yr": 4,
         "lastPublishISO": "2026-04-06T23:36:38.548Z",
-        "publishCheckedAt": "2026-06-12T16:41:40.173Z"
+        "publishCheckedAt": "2026-06-12T21:13:11.842Z"
       },
       "nanostate": {
         "version": "1.2.1",
@@ -2319,11 +2319,11 @@
         "types": "none",
         "modules": "cjs",
         "postinstall": "no",
-        "coldStartMs": 31.2,
+        "coldStartMs": 27.61,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2018-02-12T11:58:41.432Z",
-        "publishCheckedAt": "2026-06-12T16:41:43.216Z"
+        "publishCheckedAt": "2026-06-12T21:13:26.167Z"
       },
       "statebot": {
         "version": "3.1.3",
@@ -2332,11 +2332,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 16.83,
+        "coldStartMs": 26.97,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2023-04-13T08:20:43.718Z",
-        "publishCheckedAt": "2026-06-12T16:43:11.064Z"
+        "publishCheckedAt": "2026-06-12T21:13:41.428Z"
       },
       "finity": {
         "version": "0.5.4",
@@ -2345,11 +2345,11 @@
         "types": "bundled",
         "modules": "cjs",
         "postinstall": "no",
-        "coldStartMs": 66.42,
+        "coldStartMs": 61.33,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2018-03-07T16:56:35.772Z",
-        "publishCheckedAt": "2026-06-12T16:41:24.959Z"
+        "publishCheckedAt": "2026-06-12T21:16:41.799Z"
       },
       "typestate": {
         "version": "1.0.6",
@@ -2358,11 +2358,11 @@
         "types": "bundled",
         "modules": "cjs",
         "postinstall": "no",
-        "coldStartMs": 8.68,
+        "coldStartMs": 55.54,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2018-05-17T12:33:34.289Z",
-        "publishCheckedAt": "2026-06-12T16:42:00.049Z"
+        "publishCheckedAt": "2026-06-12T21:17:03.254Z"
       },
       "stately.js": {
         "version": "2.0.0",
@@ -2371,11 +2371,11 @@
         "types": "none",
         "modules": "cjs",
         "postinstall": "no",
-        "coldStartMs": 29.2,
+        "coldStartMs": 14.84,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2017-10-16T23:34:51.297Z",
-        "publishCheckedAt": "2026-06-12T16:41:57.371Z"
+        "publishCheckedAt": "2026-06-12T21:18:39.496Z"
       },
       "fn-machine": {
         "version": "0.1.2",
@@ -2384,11 +2384,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 31.44,
+        "coldStartMs": 20.54,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2023-01-25T20:38:30.058Z",
-        "publishCheckedAt": "2026-06-12T16:41:27.808Z"
+        "publishCheckedAt": "2026-06-12T21:18:54.650Z"
       },
       "fseh": {
         "version": "5.0.1",
@@ -2397,11 +2397,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 82.09,
+        "coldStartMs": 64.25,
         "publishes6mo": 2,
         "publishes2yr": 2,
         "lastPublishISO": "2026-03-03T14:46:17.555Z",
-        "publishCheckedAt": "2026-06-12T16:41:30.888Z"
+        "publishCheckedAt": "2026-06-12T21:19:07.623Z"
       },
       "easy-fsm": {
         "version": "2.2.2",
@@ -2410,11 +2410,11 @@
         "types": "bundled",
         "modules": "cjs",
         "postinstall": "no",
-        "coldStartMs": 17.66,
+        "coldStartMs": 13.91,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2024-06-06T13:42:03.700Z",
-        "publishCheckedAt": "2026-06-12T16:41:22.808Z"
+        "publishCheckedAt": "2026-06-12T21:19:30.862Z"
       },
       "pastafarian": {
         "version": "1.2.1",
@@ -2423,12 +2423,74 @@
         "types": "none",
         "modules": "cjs",
         "postinstall": "no",
-        "coldStartMs": 15.81,
+        "coldStartMs": 15.13,
         "publishes6mo": 0,
         "publishes2yr": 0,
         "lastPublishISO": "2016-07-22T15:18:02.896Z",
-        "publishCheckedAt": "2026-06-12T16:41:45.802Z"
+        "publishCheckedAt": "2026-06-12T21:19:43.903Z"
       }
+    }
+  },
+  "featureTests": {
+    "jssm": {
+      "observe": "yes",
+      "serialize": "yes"
+    },
+    "xstate": {
+      "observe": "yes",
+      "serialize": "yes"
+    },
+    "@xstate/fsm": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "javascript-state-machine": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "robot3": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "machina": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "nanostate": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "statebot": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "finity": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "typestate": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "stately.js": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "fn-machine": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "fseh": {
+      "observe": "no",
+      "serialize": "no"
+    },
+    "easy-fsm": {
+      "observe": "yes",
+      "serialize": "no"
+    },
+    "pastafarian": {
+      "observe": "yes",
+      "serialize": "no"
     }
   }
 }

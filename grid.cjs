@@ -56,6 +56,7 @@ const LIBS   = Object.keys(libs);
 const EXCL   = (SHOOT && SHOOT.excluded) || [];
 const FEAS   = (SHOOT && SHOOT.feasibility) || {};
 const CEIL   = (SHOOT && SHOOT.ceilingMs) || 15000;
+const FTESTS = (SHOOT && SHOOT.featureTests) || {};
 
 // Feasibility lookup: did <lib> construct <shape> within the ceiling?
 // 'ok' / 'timeout' / 'error' / undefined (not probed).
@@ -356,6 +357,15 @@ function featureRows() {
       if (f.fill === 'static:types') {
         const t = STAT && STAT.results && STAT.results[lib] && STAT.results[lib].types;
         return t === 'bundled' ? { mark: YES, status: 'pass' } : { mark: NO, status: 'fail' };
+      }
+      if (f.fill && f.fill.startsWith('feature:')) {
+        const key = f.fill.slice(8);
+        const v = FTESTS[lib] && FTESTS[lib][key];
+        if (v === 'yes')     return { mark: YES, status: 'pass' };
+        if (v === 'partial') return { mark: WARN, status: 'warn', note: 'partial — serialize without a clean round-trip' };
+        if (v === 'no')      return { mark: NO,  status: 'fail' };
+        if (v === 'error')   return { mark: NO,  status: 'fail', note: 'errored under test' };
+        return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
       }
       return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
     },

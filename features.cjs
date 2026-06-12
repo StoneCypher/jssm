@@ -42,7 +42,7 @@ module.exports = [
   { section: 'Language features', label: 'Weighted edges',      jssm: Y, jssm6: Y, demo: null, explain: 'Probabilities on transitions, for weighted random walks.' },
   { section: 'Language features', label: 'State groups',        jssm: Y, jssm6: Y, demo: `[a b] ~> off;`, explain: 'Operate on a set of states at once (overlapping groups in 5.143).' },
   { section: 'Language features', label: 'Random walks',        jssm: Y, jssm6: Y, demo: `a 'n' -> b 'n' -> a;`, explain: 'Probabilistically walk the machine.' },
-  { section: 'Language features', label: 'Serialization',       jssm: Y, jssm6: Y, demo: `a -> b;`, explain: 'Serialize/deserialize machine state.' },
+  { section: 'Language features', label: 'Serialization',       jssm: Y, jssm6: Y, fill: 'feature:serialize', demo: `a -> b;`, explain: 'Serialize machine state and restore it (round-trip verified by test).' },
   { section: 'Language features', label: 'Properties',          jssm: Y, jssm6: Y, demo: null, explain: 'Declared per-machine / per-state properties.' },
   { section: 'Language features', label: 'Hierarchical states', jssm: N, jssm6: P, demo: null, explain: 'Nested/compound states. Planned for jssm 6 via systems.' },
   { section: 'Language features', label: 'Machine composition', jssm: N, jssm6: P, demo: null, explain: 'Compose several machines into one. Planned for jssm 6 (systems).' },
@@ -100,7 +100,7 @@ module.exports = [
   { section: 'Language features', label: 'Injectable clock',       jssm: Y, jssm6: Y, demo: null, explain: 'Custom setTimeout/clearTimeout sources for `after` timers (deterministic tests).' },
   { section: 'Language features', label: 'Seeded / reproducible RNG', jssm: Y, jssm6: Y, demo: null, explain: 'Injectable seeded RNG for reproducible weighted random walks (gen_splitmix32).' },
   { section: 'Language features', label: 'Forced transitions',     jssm: Y, jssm6: Y, demo: `a ~> b;`, explain: 'Forced-only edges (~>) that bypass normal legality.' },
-  { section: 'Language features', label: 'Event API (machine.on)', jssm: Y, jssm6: Y, demo: null, explain: 'A clean machine.on(...) observation API, separate from hooks.' },
+  { section: 'Language features', label: 'Observe transitions', jssm: Y, jssm6: Y, fill: 'feature:observe', demo: null, explain: 'Attach an observer that fires on transitions (jssm: machine.on / hooks). Verified by test: listener fired after a step.' },
   { section: 'Language features', label: 'Versioned serialization',jssm: Y, jssm6: Y, demo: null, explain: 'Serialization carries data + history + machine version + timestamp.' },
 
   // ===== Machine attributes (FSL) =====
