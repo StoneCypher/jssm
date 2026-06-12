@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-341 merges; 277 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+348 merges; 277 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,45 +22,24 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 7:08:15 PM
+## [Untagged] - Jun 12, 2026 1:08:41 AM
 
-Commit [a352f4d0cb2ee40bb9e807cb491d5b53c5043de0](https://github.com/StoneCypher/jssm/commit/a352f4d0cb2ee40bb9e807cb491d5b53c5043de0)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(taxonomy): engineer-conversion collections — 55 everyday wins named by the bug they kill
-  * New collections section (cross-cutting curated lists beside the domain
-supergroups): everyday-frontend (30 items — the async button,
-search-as-you-type's out-of-order race, single-flight token refresh,
-toast queues, drag-and-drop's five states, wizard back buttons...) and
-everyday-backend (25 items — retry with backoff+jitter+budget, graceful
-shutdown, fencing-token locks, idempotency keys, the transactional
-outbox, cache dogpiles, resumable imports, the GDPR deletion that left
-rows in five tables...). Every item carries a 'kills' field naming the
-bug it prevents and a size (tiny/small/medium — tiny items' editor
-projection is essentially the whole page). Recognition, not persuasion:
-conversion material for working engineers. Node-validated (unique ids,
-valid sizes, kills present).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__143__2" />
-
-## [5.143.2] - Jun 11, 2026 7:06:35 PM
-
-Commit [d4f26296eceee861ee456e87c0f37582248a6354](https://github.com/StoneCypher/jssm/commit/d4f26296eceee861ee456e87c0f37582248a6354)
+Commit [6235963be5afe6ac77a2964e124223d2253f15ed](https://github.com/StoneCypher/jssm/commit/6235963be5afe6ac77a2964e124223d2253f15ed)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5727dbc1, c9f21b34]
-
-  * Merge pull request #701 from StoneCypher/perf_26-06-11_compile-concat_700
-  * perf(compiler): O(n) push accumulation in compile(); graviton-only benchmark data (#700)
+  * ci: v5.143.8 — manual-only dispatch shim for the FSM shootout branch
+  * Adds .github/workflows/shootout.yml: a workflow_dispatch-ONLY shim (no
+push, schedule, or PR triggers — the shootout runs only on request)
+that checks out the orphan `shootout` branch and fires its detached
+Graviton launcher under the existing AWS_GRAVITON_OIDC_ROLE.
+  * The shootout itself — adapters (jssm, xstate), library-neutral shapes,
+benny suite, EC2 launcher with dry-run, pinned competitor deps — is
+entirely self-contained on the `shootout` branch and never merges to
+main, so mainline users and contributors never install competitor
+libraries. Results publish to perf_results under shootout/<run-id>/.
+Inputs: instance_type (default c7g.medium) and run_id (default UTC
+timestamp). Also documents the shootout in the graviton AWS setup note.
 
 
 
@@ -69,27 +48,22 @@ Merges [5727dbc1, c9f21b34]
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 6:49:43 PM
+## [Untagged] - Jun 12, 2026 1:07:27 AM
 
-Commit [284430466659e5a1d11e6eaf76e2b47f45af8a22](https://github.com/StoneCypher/jssm/commit/284430466659e5a1d11e6eaf76e2b47f45af8a22)
+Commit [1d7041d92233c8cdb1d2e2fa6cfae9f90748bcaa](https://github.com/StoneCypher/jssm/commit/1d7041d92233c8cdb1d2e2fa6cfae9f90748bcaa)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(taxonomy): v3 — six new supergroups, 297 categories / 1,508 seeds
-  * XIX Public Safety & Emergency Management (911/CAD dispatch, incident
-command, triage, search & rescue, evacuation, civil disaster recovery,
-mutual aid). XX Manufacturing, Maintenance & Reliability (MES work
-orders, SPC/CAPA, CMMS, predictive maintenance, calibration, recalls &
-traceability, spare parts, OEE). XXI Sports & Competition (officiating,
-leagues, race control's flag ladders, judging, eligibility & doping
-chain-of-custody, fantasy scoring). XXII Telecom & Carrier (SIM/eSIM,
-the number-porting dance, roaming, mobile session/bearer machines,
-provisioning, network ops). XXIII Open Source, Standards & Community
-Governance (issue/PR workflows, code review, IETF/TC39/ISO process
-ladders, governance voting, CLA compliance). XXIV Personal Productivity
-& Life (GTD, inbox triage, personal finance, PKM, life logistics,
-digital estate). Node-validated; deliberate omissions noted in meta
-(weapons targeting, adult industry — taste, not oversight).
+  * fix(jssm): compareVersions handles prerelease versions per semver precedence
+  * Prerelease identifiers became NaN under split('.').map(Number), and since
+NaN comparisons always miss, deserialize silently accepted data stamped
+with future prerelease versions (e.g. 5.144.1-rc.1 against 5.144.0).
+Surfaced when v6 moved to 6.0.0-alpha.1 and the future-patch refusal test
+stopped throwing; latent on every release line.
+  * Main parts still compare numerically with zero-extension; prerelease
+parts now follow semver: a prerelease precedes its release, identifiers
+compare dot-by-dot, numerics below alphanumerics, prefix sets first.
+Direct pair tests pin the semantics independently of the current version.
 
 
 
@@ -98,34 +72,24 @@ digital estate). Node-validated; deliberate omissions noted in meta
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 2:10:31 PM
+## [Untagged] - Jun 12, 2026 1:01:11 AM
 
-Commit [c9f21b34df995d9a332d5fe8e57bc0a84caefb41](https://github.com/StoneCypher/jssm/commit/c9f21b34df995d9a332d5fe8e57bc0a84caefb41)
+Commit [e828e8da66ad285f6a8d9e77e06ed5bc57b985c2](https://github.com/StoneCypher/jssm/commit/e828e8da66ad285f6a8d9e77e06ed5bc57b985c2)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * perf(compiler): v5.143.2 — O(n) push accumulation in compile(); graviton-only benchmark data (#700)
-  * compile() accumulated rule results with `results[agg_as] =
-results[agg_as].concat(val)`, recopying and reallocating the whole
-bucket once per parse-tree rule — O(n^2) over edge-heavy machines. A
-named CPU profile (nonmin bundle) put two-thirds of construct()
-self-time in that one loop, with the parser at ~2% combined; #674's
-"parser-bound" diagnosis was an artifact of profiling the minified
-bundle, where this closure shows as (anonymous). Replaced with in-place
-push (one-level flatten preserved via Array.isArray), and the
-discarded-result tree.map became for..of.
-  * Local controlled runs show construct() gains scaling with rule count —
-messy-5000 2.50x, dense-50 1.56x, chain-1000 1.33x, dense-200 from
-sub-1 ops/s (rounds to 0) to 5 ops/s — but canonical numbers come from
-the graviton runner after publish.
-  * Also per dataset policy: local benny output is no longer stored in the
-repo. benchmark/results/ is untracked and gitignored, and the two
-locally-measured envelopes #699 added to src/historic_benchmarks/ are
-removed; the host runs consumer software with fundamentally different
-performance characteristics than the graviton runners, and anything
-else in the dataset is pollution. The pre-graviton historic archive
-(2026-05-26 through 2026-06-02) stays: closed writeups reference it and
-benchmark_compare.cjs uses it as DEFAULT_BASELINE.
+  * feat(shootout): cross-library FSM benchmark, manual-only, isolated orphan branch
+  * Self-contained comparison project: library-neutral shapes (chain/dense/
+hub/messy, mirroring main's scaling suite), per-library adapters (jssm
+via FSL parse + transition; XState v5 via createMachine + pure
+transition core), benny suite emitting a versioned shootout.json
+envelope, and a fire-and-forget Graviton launcher reusing the proven
+graviton_perf pattern (SSM PAT, jssm-graviton-perf instance profile,
+dead-man's-switch, publish-only-on-results, non-fast-forward retry).
+  * Results publish to perf_results under shootout/<run-id>/. Nothing on
+this branch runs automatically: the only callers are the
+workflow_dispatch shim on main and a human with aws credentials.
+Competitor versions pinned by lockfile and recorded per run.
 
 
 
@@ -134,26 +98,19 @@ benchmark_compare.cjs uses it as DEFAULT_BASELINE.
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 2:08:48 PM
+## [Untagged] - Jun 12, 2026 12:51:31 AM
 
-Commit [4b8690545e1d4950da82c5c9df3393eab7390c55](https://github.com/StoneCypher/jssm/commit/4b8690545e1d4950da82c5c9df3393eab7390c55)
+Commit [7c09c8be2e1a54651315c6d3a25a58af62bf414d](https://github.com/StoneCypher/jssm/commit/7c09c8be2e1a54651315c6d3a25a58af62bf414d)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(taxonomy): canonical JSON form, expanded to 259 categories / 1,336 seeds
-  * 2026-06-11-fsl-use-case-taxonomy.json (v2) becomes the canonical
-machine-consumable source for the use-case corpus and future site
-generator: 18 supergroups, 259 categories (up from 202), 1,336 seed
-instances, unique kebab ids, user anchors marked. Node-validated
-(parse, id uniqueness, shape). v2 adds ~57 categories including
-supply-chain security, zero-trust attestation, treasury/digital-assets,
-CPQ, chaos engineering, FinOps, ACME ops, agent memory, computer-use
-sessions, delegation contracts, WebRTC/ICE, atomic commit, event
-sourcing, state-machine replication, micromobility, tolling, baggage
-handling, procedural generation, modding/UGC, justice, immigration,
-libraries, genomics, early-warning, online judges, and proof-assistant
-workflows — and thickens seed lists throughout. The markdown keeps the
-SEO-mechanics prose and now defers to the JSON for the list itself.
+  * feat(cli): v5.144.0 — layered .fsl/config.json configuration, wired into fsl-render (#631)
+  * Config loader (discovery, extends chains, schema validation, layered
+merge) integrated into the render verb via --config / --no-config.
+Config sections follow the v6 verb vocabulary, with typegen and codegen
+as distinct sections and the megaspec section 25 registry map reserved.
+Backward compatibility verified: render output is byte-identical with
+and without --no-config when no config file is present.
 
 
 
@@ -162,27 +119,15 @@ SEO-mechanics prose and now defers to the JSON for the list itself.
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 1:46:46 PM
+## [Untagged] - Jun 12, 2026 12:45:58 AM
 
-Commit [f4961a44bc994b7f4e9a18d0458c36903f9ca1e5](https://github.com/StoneCypher/jssm/commit/f4961a44bc994b7f4e9a18d0458c36903f9ca1e5)
+Commit [b0db166b4b1d6951eb4424c334cea17e9d566433](https://github.com/StoneCypher/jssm/commit/b0db166b4b1d6951eb4424c334cea17e9d566433)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(manual): Matt Foley easter-egg listing + the use-case taxonomy (202 categories)
-  * Manual-topics gains the Foley intervention machine as an approved
-worked-example easter egg — a comedy listing that is secretly a dense
-feature demo (tagged error state whose free safety target fails on
-purpose, contrary-to-duty exit, windowed-aggregate crescendo gate,
-require/ensure on the coffee table, sensors, a seeded factory, and
-reachability tests for both fates). New
-2026-06-11-fsl-use-case-taxonomy.md: the master category list for the
-use-case corpus — 202 categories across 18 supergroups (user anchors
-starred: authentication, authorization, transduction, conversion,
-verification, parsing, appliance state, software state, unity,
-modelling, control systems, circuitry), each seeded with example
-instances to set scale. Category pages = SEO hubs; template-shaped
-instances = long-tail leaves; the neighbors sections = the link mesh;
-the taxonomy = the sitemap.
+Merges [14ac73a8, c7f5e530]
+
+  * Merge remote-tracking branch 'origin/main' into v6
 
 
 
@@ -191,18 +136,13 @@ the taxonomy = the sitemap.
 
 &nbsp;
 
-<a name="5__143__1" />
+## [Untagged] - Jun 12, 2026 12:20:27 AM
 
-## [5.143.1] - Jun 11, 2026 1:34:21 PM
-
-Commit [5727dbc1abdb040d8f58b4d9e08dfc8853ebe662](https://github.com/StoneCypher/jssm/commit/5727dbc1abdb040d8f58b4d9e08dfc8853ebe662)
+Commit [2fad9f3ba623093a87cff25d8bb8aeb9d5ab5673](https://github.com/StoneCypher/jssm/commit/2fad9f3ba623093a87cff25d8bb8aeb9d5ab5673)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5830dfd0, 612293bd]
-
-  * Merge pull request #699 from StoneCypher/perf_26-06-11_ws-scanner_698
-  * perf(parser): hand-rolled peg$parseWS whitespace scanner (#698)
+  * chore(build): regenerate dist, docs, changelog, readme, and declaration bundles after merge and config work
 
 
 
@@ -211,28 +151,18 @@ Merges [5830dfd0, 612293bd]
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 1:29:42 PM
+## [Untagged] - Jun 12, 2026 12:18:42 AM
 
-Commit [612293bdb0c9bd7d40307b439412050255b50c79](https://github.com/StoneCypher/jssm/commit/612293bdb0c9bd7d40307b439412050255b50c79)
+Commit [14ac73a88bf22934390f7a0aa9c6524becd7bfca](https://github.com/StoneCypher/jssm/commit/14ac73a88bf22934390f7a0aa9c6524becd7bfca)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * perf(parser): v5.143.1 — hand-rolled peg$parseWS whitespace scanner (#698)
-  * pegjs 0.10 compiles the WS rule into per-character array pushes plus a
-regex test per character, and WS? is probed at hundreds of grammar
-positions — making peg$parseWS the top parser self-time and the main GC
-source in the construct() profile (#674).
-  * fixparser.cjs now swaps the generated function for an allocation-free
-charCodeAt scanner; the comment sub-parsers are attempted only when the
-next character is '/'. Same accepted language, same named "whitespace"
-expectation on failure; no grammar action observes the WS value. The
-expectation constant is captured from the generated source, so grammar
-edits that renumber peg$c* constants cannot silently break the fixup.
-  * construct() improves 1.09–1.55x by shape (hub-50 1.55x, hub-200 1.41x,
-messy-1000/5000 1.33x); transition(), edges_between(), and has_state()
-are within the noise band. Pre/post envelopes committed as
-src/historic_benchmarks/benchmark_2026-06-11_pre-ws-scanner.json and
-benchmark_2026-06-11_ws-scanner.json.
+  * docs(megaspec): restore typegen as a first-class CLI verb distinct from codegen
+  * typegen exports the machine's type surface for host consumers (.d.ts
+first; TS users are the largest consumer constituency; C headers etc.
+later) while codegen emits an implementation, frequently cross-language.
+Carried forward from the 2026-05-12 CLI design's fsl-typegen (#624),
+which the megaspec consolidation had dropped.
 
 
 
@@ -241,28 +171,20 @@ benchmark_2026-06-11_ws-scanner.json.
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 1:26:04 PM
+## [Untagged] - Jun 12, 2026 12:15:23 AM
 
-Commit [543d4bdbd48651f8267b252a63eff1f4cd16ecc6](https://github.com/StoneCypher/jssm/commit/543d4bdbd48651f8267b252a63eff1f4cd16ecc6)
+Commit [af10678f2f38f83b405b489d3c817921f830d9ac](https://github.com/StoneCypher/jssm/commit/af10678f2f38f83b405b489d3c817921f830d9ac)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(manual): structural templates file — the use-case template, with format projections
-  * New 2026-06-11-fsl-manual-templates.md: repeating manual topics get
-fixed shapes; one source per instance, four projections (book/PDF,
-flat-file-for-LLMs, web, editor help) with per-section format flags
-ordered by survival priority. Template 1 (use case): machine-readable
-frontmatter; one-breath summary carrying the differentiator clause;
-when-to-reach (honest limits at the top, not buried); the mapping table
-as the translation heart; doc-tested incremental builds revealing
-stdlib parts; a MANDATORY 'what you can now prove' section
-(counterexamples stated in domain terms); run-it; production notes
-(named hooks = outside the proofs); neighbors (the web link graph);
-generated provenance. Every instance doubles as an NL-to-FSL corpus
-pair + eval seeds. Skeletal circuit-breaker instantiation included as
-proof of shape. Manual-topics gains the organizing-principle pointer;
-future templates enumerated (feature ref, stdlib part, lesson,
-playbook, explainer, verb, error-code, zoo entry).
+  * fix(cli/config): restore typegen as its own section distinct from codegen; remove the dead nullish branch in joinPath
+  * typegen exports types to support a user of the machine; codegen generates
+an implementation of the machine directly, frequently in a different
+language. The earlier v6-vocabulary rename wrongly folded the former into
+the latter.
+  * joinPath's parts[0] ?? '' guarded a case String.split cannot produce; the
+prefix test now reads the combined path directly, which the Windows
+drive-letter spec already exercises on both sides.
 
 
 
@@ -271,23 +193,28 @@ playbook, explainer, verb, error-code, zoo entry).
 
 &nbsp;
 
-## [Untagged] - Jun 11, 2026 1:21:51 PM
+## [Untagged] - Jun 12, 2026 12:10:33 AM
 
-Commit [ddf9503a32977753a9c2265e7bf13290743a7bf6](https://github.com/StoneCypher/jssm/commit/ddf9503a32977753a9c2265e7bf13290743a7bf6)
+Commit [f667704d4dc984e345fc375654ef4a6707cb937a](https://github.com/StoneCypher/jssm/commit/f667704d4dc984e345fc375654ef4a6707cb937a)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(manual-topics): access control (RBAC/ACL/ABAC) as the security chapter's applied use case
-  * The reference-monitor pattern: requests as actions, decisions as where-
-guards over policy vals, the input tape as the audit log. ACL = map val
-+ contracted grant/revoke (revocation-effectiveness as a theorem with
-attack-trace counterexamples); RBAC = session machines from factories,
-static SoD as invariants, dynamic SoD as native temporal state, role
-hierarchy as the group DAG; ABAC = the expression language with
-environment-as-sensors, its audit question answered by reachability
-queries with witnesses. Unique adds: refinement-checked policy
-tightening, windowed-aggregate lockout, break-glass as contrary-to-duty
-states, flow contracts beyond permission. Honest limit recorded: FSL is
-the monitor + lifecycle, not the grant database. reference-monitor
-noted as a certified-stdlib candidate; worked-examples security row
-cross-linked.
+Merges [a055590f, fedf5aa5]
+
+  * Merge pull request #711 from StoneCypher/perf_26-06-11_map-dedup_706
+  * perf(machine): single-lookup cursors in the constructor build loop (#706)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 12:10:07 AM
+
+Commit [ba8120bcef43114161e7dafa4022a8b0c52230f6](https://github.com/StoneCypher/jssm/commit/ba8120bcef43114161e7dafa4022a8b0c52230f6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(cli/config): user-facing config reference in notes; README Configuration section
