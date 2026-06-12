@@ -1,0 +1,17 @@
+{
+  "name": "jssm-shootout",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cross-library FSM performance shootout. Lives on the orphan `shootout` branch; never merged to main; run on request only (workflow_dispatch shim on main, or launch.cjs from any aws-credentialed shell). Results publish to the perf_results branch under shootout/<runid>/.",
+  "license": "MIT",
+  "scripts": {
+    "suite": "node suite.cjs",
+    "launch": "node launch.cjs",
+    "dry": "node launch.cjs --dry-run"
+  },
+  "dependencies": {
+    "benny": "3.7.1",
+    "jssm": "5.143.7",
+    "xstate": "5.32.0"
+  }
+}
