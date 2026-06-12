@@ -162,5 +162,607 @@ interface ParseResult<S extends ParseSpec> {
  */
 declare function parseFslArgs<S extends ParseSpec>(argv: string[], spec: S): ParseResult<S>;
 
-export { RasterizationUnsupportedError, RenderError, parseFslArgs, render, renderSet };
-export type { FlagSpec, FlagType, ParseResult, ParseSpec, RasterResult, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, TextResult };
+/**
+ * Public types and error classes for the `jssm/cli` config loader.
+ *
+ * This module is **Pure** — no Node API references — so it can be bundled
+ * into browser, edge-worker, and other non-Node environments without
+ * pulling in `fs`/`path`/`os`.
+ *
+ * See `notes/superpowers/specs/2026-05-22-fsl-cli-config-design.md` for the
+ * full architectural design.
+ */
+
+
+/** Signature for an injected config-file reader (fs.readFile, fetch, etc.). */
+declare type Reader = (path: string) => Promise<string>;
+/** A render target alias — re-exports `RenderTarget` from the parent CLI types module so the config types stay in sync automatically. */
+declare type RenderTargetName = RenderTarget;
+/** Render subcommand configuration; fully populated in v1. */
+interface RenderConfig {
+    /** Default render target when none specified on CLI. Default: `'svg'`. */
+    defaultTarget?: RenderTargetName;
+    /** Output directory for multi-file render. */
+    outDir?: string;
+    /** Output zoom scale. Default: `3`. */
+    scale?: number;
+    /** Output pixel width (raster). Mutually exclusive with `height` and `scale`. */
+    width?: number;
+    /** Output pixel height (raster). Mutually exclusive with `width` and `scale`. */
+    height?: number;
+    /** JPEG quality 1-100. Default: `85`. */
+    quality?: number;
+    /** Named theme (reserved for issue #607). */
+    theme?: string;
+}
+/** Lint subcommand configuration — empty in v1; fields land with issue #620. */
+interface LintConfig {
+}
+/** Format subcommand configuration — empty in v1; fields land with the v6 `format` verb (megaspec §25; formerly issue #621's `fmt`). */
+interface FormatConfig {
+}
+/** Test subcommand configuration — empty in v1; fields land with issue #622. */
+interface TestConfig {
+}
+/** Check subcommand configuration — empty in v1; fields land with issue #623. */
+interface CheckConfig {
+}
+/** Typegen subcommand configuration — empty in v1; fields land with issue #624. Typegen exports *types* so a consumer of the machine gets a typed surface; it is distinct from codegen, which emits an implementation. */
+interface TypegenConfig {
+}
+/** Codegen subcommand configuration — empty in v1; fields land with the v6 `codegen` verb (megaspec §25). Codegen generates an *implementation* of the machine, frequently in another language (cross-compilation); distinct from typegen's consumer-facing type exports. */
+interface CodegenConfig {
+}
+/** Init (project scaffolder) subcommand configuration — empty in v1; fields land with the v6 `init` verb (megaspec §25; formerly issue #625's `new`). */
+interface InitConfig {
+}
+/** Import (SCXML / xstate / mermaid / dot → FSL) subcommand configuration — empty in v1; fields land with the v6 `import` verb (megaspec §25). */
+interface ImportConfig {
+}
+/** Export (FSL → SCXML / xstate / mermaid / grammar artifacts) subcommand configuration — empty in v1; fields land with the v6 `export` verb (megaspec §25). */
+interface ExportConfig {
+}
+/** MCP server subcommand configuration — empty in v1; fields land with issue #628. */
+interface McpConfig {
+}
+/** LSP server subcommand configuration — empty in v1; fields land with issue #629. */
+interface LspConfig {
+}
+/** REPL subcommand configuration — empty in v1; fields land with issue #630. */
+interface ReplConfig {
+}
+/**
+ * The registry section: a map from machine/system name to the file that
+ * defines it, consumed by every name-resolving verb (megaspec §25). Empty
+ * in v1 — reserved here so configs written today validate tomorrow.
+ *
+ * @example
+ *   { "traffic": "./machines/traffic-light.fsl" }
+ */
+declare type RegistryConfig = Record<string, string>;
+/** The fully-merged, defaults-populated configuration the loader returns. */
+interface ResolvedConfig {
+    include: string[];
+    exclude: string[];
+    render: Required<Pick<RenderConfig, 'defaultTarget' | 'scale' | 'quality'>> & RenderConfig;
+    lint: LintConfig;
+    format: FormatConfig;
+    test: TestConfig;
+    check: CheckConfig;
+    typegen: TypegenConfig;
+    codegen: CodegenConfig;
+    init: InitConfig;
+    import: ImportConfig;
+    export: ExportConfig;
+    mcp: McpConfig;
+    lsp: LspConfig;
+    repl: ReplConfig;
+    registry: RegistryConfig;
+}
+declare type DeepPartial<T> = T extends object ? {
+    [K in keyof T]?: DeepPartial<T[K]>;
+} : T;
+/** What users actually write in their config file — every field optional. */
+declare type PartialConfig = DeepPartial<ResolvedConfig> & {
+    $schema?: string;
+    extends?: string | string[];
+};
+/** Base class for all config errors. */
+declare abstract class ConfigError extends Error {
+    /** Discriminator for catch-block branching without instanceof chains. */
+    abstract readonly kind: 'parse' | 'schema' | 'extends' | 'io';
+    /** Source file path, if known. */
+    readonly path?: string;
+    /** Source line, if known. */
+    readonly line?: number;
+    /** Source column, if known. */
+    readonly column?: number;
+    constructor(message: string, opts?: {
+        path?: string;
+        line?: number;
+        column?: number;
+    });
+}
+/** Thrown when a config file is not valid JSON. */
+declare class ConfigParseError extends ConfigError {
+    readonly kind: "parse";
+    constructor(message: string, opts?: {
+        path?: string;
+        line?: number;
+        column?: number;
+    });
+}
+/** Thrown when a parsed config violates the schema. */
+declare class ConfigSchemaError extends ConfigError {
+    readonly kind: "schema";
+    /** Raw ajv error array — callers may format as they please. */
+    readonly violations: ReadonlyArray<unknown>;
+    constructor(message: string, opts: {
+        path?: string;
+        line?: number;
+        column?: number;
+        violations: ReadonlyArray<unknown>;
+    });
+}
+/** Thrown on extends-chain failures: missing path, cycle, depth exceeded. */
+declare class ConfigExtendsError extends ConfigError {
+    readonly kind: "extends";
+    /** The chain of file paths leading to the failure. */
+    readonly chain: ReadonlyArray<string>;
+    constructor(message: string, opts: {
+        path?: string;
+        chain: ReadonlyArray<string>;
+    });
+}
+/** Thrown on filesystem failures (permission denied, etc.). */
+declare class ConfigIOError extends ConfigError {
+    readonly kind: "io";
+    /** The underlying Node errno error. (Named `errno` rather than `cause` to avoid shadowing the native ES2022 Error.cause field.) */
+    readonly errno: NodeJS.ErrnoException;
+    constructor(message: string, opts: {
+        path?: string;
+        errno: NodeJS.ErrnoException;
+    });
+}
+
+/**
+ * Apply a `flag-name → config-dot-path` mapping to produce a
+ * `PartialConfig` suitable as the top layer of a config stack.
+ *
+ * Each subcommand owns its mapping table. Flags whose mapping is `null`
+ * are per-invocation-only and never written to the config layer.
+ *
+ * Pure module — no I/O, no global state.
+ */
+
+/** A mapping from flag name to dotted config path, or `null` to skip. */
+declare type FlagMapping = Record<string, string | null>;
+/**
+ * @param flags - Parsed flags (typed as `Record<string, unknown>` because
+ *   flag values can be strings, numbers, booleans, arrays, or undefined).
+ * @param mapping - Per-subcommand flag → config-path table.
+ * @returns A `PartialConfig` representing the flag overrides.
+ *
+ * @example
+ *   flagsToConfig({ target: 'png' }, { target: 'render.defaultTarget' });
+ *   // { render: { defaultTarget: 'png' } }
+ */
+declare function flagsToConfig(flags: Record<string, unknown>, mapping: FlagMapping): PartialConfig;
+
+/**
+ * The CLI-environment orchestrator. Collects every config layer (defaults,
+ * user-global, project, machine attributes, flag overrides) and merges
+ * them into a `ResolvedConfig`.
+ *
+ * Non-CLI consumers (GitHub Actions, editor plugins, static-site
+ * generators) can use this same function — pass `skipUserGlobal: true`
+ * for reproducibility and/or `projectRoot` to anchor discovery.
+ *
+ * Browser consumers should skip this and use `mergeConfigs` + the pure
+ * helpers directly.
+ *
+ * Node-only.
+ */
+
+/** Options accepted by `loadConfig`. */
+interface LoadConfigOptions {
+    /** Base for walk-up discovery. Usually `process.cwd()`. */
+    cwd: string;
+    /** Anchor discovery here instead of walking up from cwd. */
+    projectRoot?: string;
+    /** If set, run `extractMachineAttributes` on this file's content. */
+    machinePath?: string;
+    /** Parsed CLI flags. */
+    flags?: Record<string, unknown>;
+    /** Flag → config-dot-path mapping table. */
+    flagMapping?: FlagMapping;
+    /** Bypass project discovery; load exactly this file. */
+    explicitConfigPath?: string;
+    /** Skip ALL discovery (defaults + flags only). */
+    skipConfig?: boolean;
+    /** Skip the ~/.fsl layer specifically (Action / CI / sandbox use). */
+    skipUserGlobal?: boolean;
+    /** Override home directory (test seam). */
+    home?: string;
+}
+/**
+ * Load and merge every config layer for the CLI environment.
+ *
+ * Layer precedence (lowest to highest):
+ *   1. Built-in defaults
+ *   2. User-global config (~/.fsl/config.json) — skipped if `skipUserGlobal`
+ *   3. Project config (walking up from cwd or anchored at `projectRoot`)
+ *   4. Machine source attributes (from `machinePath` if provided)
+ *   5. CLI flag overrides (`flags` + `flagMapping`)
+ *
+ * @param opts - Options controlling which layers to load and how to discover them.
+ * @returns A complete `ResolvedConfig` with defaults populated.
+ * @throws Any of the `Config*Error` classes if a discovered file is malformed.
+ *
+ * @example
+ *   const cfg = await loadConfig({ cwd: process.cwd(), flags, flagMapping });
+ *
+ * @example
+ *   // GitHub Action use
+ *   const cfg = await loadConfig({
+ *     cwd:            process.env.GITHUB_WORKSPACE,
+ *     projectRoot:    process.env.GITHUB_WORKSPACE,
+ *     skipUserGlobal: true,
+ *     flags:          inputs,
+ *     flagMapping:    ACTION_INPUT_TO_CONFIG,
+ *   });
+ */
+declare function loadConfig(opts: LoadConfigOptions): Promise<ResolvedConfig>;
+
+/**
+ * Pure deep-merge for an ordered array of `PartialConfig` layers.
+ *
+ * Semantics:
+ *   - objects merge recursively per-key, later wins per-key
+ *   - arrays REPLACE (later array wholly replaces former — not concat, not union)
+ *   - scalars: later wins
+ *   - `null` from a later layer explicitly clears (sets to null)
+ *   - `undefined` from a later layer does NOT override an earlier value
+ *   - type mismatch (object on one side, array on the other): later wins
+ *
+ * Input layers are never mutated.
+ */
+
+/**
+ * Merge an ordered list of partial configs into a single `PartialConfig`.
+ *
+ * Layers are applied left-to-right: the last layer has the highest precedence.
+ * The merge is deep for plain objects but arrays REPLACE rather than concatenate
+ * (consistent with how most CLI config systems treat array-valued settings).
+ *
+ * @param layers - From lowest precedence (first) to highest (last).
+ * @returns A new object; inputs are never mutated.
+ *
+ * @example
+ *   mergeConfigs([
+ *     { render: { scale: 3 } },
+ *     { render: { scale: 7 } },
+ *   ]);
+ *   // { render: { scale: 7 } }
+ *
+ * @example
+ *   mergeConfigs([]);
+ *   // {}
+ *
+ * @see mergeTwo for the per-value merge semantics.
+ */
+declare function mergeConfigs(layers: ReadonlyArray<PartialConfig>): PartialConfig;
+
+/**
+ * Resolve a `PartialConfig`'s `extends` chain into a single merged
+ * `PartialConfig`. Pure module — takes a `Reader` callback so the same
+ * logic serves Node (`fs.readFile`) and browser (`fetch`).
+ *
+ * Resolution rules (per the design spec):
+ *   - paths relative to the file containing the extends
+ *   - cycle detection via the recursion stack
+ *   - depth limit: 32 nested extends
+ *   - merge order: bases resolve bottom-up first; the file's own keys merge last
+ *   - array form: bases merge in order before the file's own keys
+ */
+
+/**
+ * Resolve `raw.extends` into the fully merged effective config.
+ *
+ * Each base file is read via the injected `reader`, parsed, schema-validated,
+ * and then recursively resolved before being merged. The merge order is
+ * lowest-precedence-first: each base is merged before the file that extends it,
+ * and the file's own keys win over all bases.
+ *
+ * @param raw - The parsed config object (may or may not have `extends`).
+ * @param basePath - Absolute path of the file `raw` came from; extends paths
+ *   resolve relative to its dirname.
+ * @param reader - Async function that turns a path into the file's text.
+ *   The CLI passes `fs.readFile`; a browser integration would pass a `fetch`
+ *   wrapper.
+ * @param visited - Internal recursion stack used for cycle detection. Callers
+ *   should omit this parameter; it is managed by the recursive calls.
+ * @returns The merged config, with the `extends` key stripped.
+ * @throws ConfigExtendsError on cycle or depth overrun.
+ * @throws ConfigParseError if a base file is malformed JSON.
+ * @throws ConfigSchemaError if a base file violates the schema.
+ * @throws Whatever the `reader` callback rejects with — propagated unwrapped (typically a Node `ErrnoException` from `fs.readFile`).
+ *
+ * @see mergeConfigs
+ * @see validateConfig
+ *
+ * @example
+ *   const cfg = await resolveExtends(parsed, '/p/.fsl/config.json', fsReader);
+ */
+declare function resolveExtends(raw: PartialConfig, basePath: string, reader: Reader, visited?: ReadonlyArray<string>): Promise<PartialConfig>;
+
+/**
+ * Compile-time-constant default `ResolvedConfig`. The lowest layer of the
+ * config stack — every loadConfig call starts here.
+ *
+ * **Calibrated to today's `fsl render` behavior** so a project with no
+ * config file produces identical output to the current release.
+ *
+ * Deep-frozen so consumers cannot accidentally mutate the shared singleton.
+ */
+
+/**
+ * The built-in defaults.
+ *
+ * @example
+ *   import { defaults } from 'jssm/cli';
+ *   const cfg = mergeConfigs([defaults, userConfig]);
+ */
+declare const defaults: ResolvedConfig;
+
+/**
+ * JSON Schema for the `fsl` config file, plus the `validateConfig`
+ * function used by the loader.
+ *
+ * The schema is hand-written in v1; a follow-up will generate it from the
+ * TS types via `ts-json-schema-generator`. Until then, when types in
+ * `types.ts` change, update this file in lockstep.
+ *
+ * Pure module — uses ajv directly with no Node API references.
+ */
+
+/** The JSON Schema (draft-07) used at runtime and published for editor autocomplete. */
+declare const CONFIG_SCHEMA: {
+    readonly $schema: "http://json-schema.org/draft-07/schema#";
+    readonly $id: "https://stonecypher.github.io/jssm/schemas/fsl-config.json";
+    readonly title: "fsl Configuration";
+    readonly description: "Unified configuration for the fsl CLI and the jssm/cli library.";
+    readonly type: "object";
+    readonly additionalProperties: false;
+    readonly properties: {
+        readonly $schema: {
+            readonly type: "string";
+        };
+        readonly extends: {
+            readonly oneOf: readonly [{
+                readonly type: "string";
+            }, {
+                readonly type: "array";
+                readonly items: {
+                    readonly type: "string";
+                };
+            }];
+        };
+        readonly include: {
+            readonly type: "array";
+            readonly items: {
+                readonly type: "string";
+            };
+        };
+        readonly exclude: {
+            readonly type: "array";
+            readonly items: {
+                readonly type: "string";
+            };
+        };
+        readonly render: {
+            readonly type: "object";
+            readonly additionalProperties: false;
+            readonly properties: {
+                readonly defaultTarget: {
+                    readonly type: "string";
+                    readonly enum: readonly ["svg", "dot", "png", "jpeg", "html"];
+                };
+                readonly outDir: {
+                    readonly type: "string";
+                };
+                readonly scale: {
+                    readonly type: "number";
+                };
+                readonly width: {
+                    readonly type: "number";
+                };
+                readonly height: {
+                    readonly type: "number";
+                };
+                readonly quality: {
+                    readonly type: "number";
+                };
+                readonly theme: {
+                    readonly type: "string";
+                };
+            };
+        };
+        readonly lint: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly format: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly test: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly check: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly typegen: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly codegen: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly init: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly import: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly export: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly mcp: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly lsp: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly repl: {
+            readonly type: "object";
+            readonly additionalProperties: true;
+        };
+        readonly registry: {
+            readonly type: "object";
+            readonly additionalProperties: {
+                readonly type: "string";
+            };
+        };
+    };
+};
+/**
+ * Validate a parsed config object against the schema. Throws
+ * `ConfigSchemaError` with the full ajv violation array on failure.
+ *
+ * @param config - The parsed object from a config file (or assembled in code)
+ * @param opts.path - Source path for the error message (optional but recommended)
+ * @throws ConfigSchemaError if the object violates the schema
+ *
+ * @example
+ *   validateConfig({ render: { defaultTarget: 'svg' } }, { path: '/x.json' });
+ *   // returns void
+ *
+ * @example
+ *   validateConfig({ render: { defaultTarget: 'tiff' } }, { path: '/x.json' });
+ *   // throws ConfigSchemaError
+ *
+ * @see CONFIG_SCHEMA
+ * @see ConfigSchemaError
+ */
+declare function validateConfig(config: unknown, opts?: {
+    path?: string;
+}): asserts config is PartialConfig;
+
+/**
+ * Filesystem-backed config file loader. Wraps `resolveExtends` with
+ * `fs.readFile` as the reader, runs schema validation, returns the
+ * fully-merged `PartialConfig`.
+ *
+ * Node-only — uses `fs/promises`.
+ */
+
+/**
+ * Read, parse, validate, and resolve the extends chain of one config file.
+ *
+ * @param path - Absolute or cwd-relative path to a config file.
+ * @returns The fully-merged `PartialConfig` (with `extends` and `$schema` stripped).
+ * @throws ConfigIOError if the file cannot be read.
+ * @throws ConfigParseError if the file is not valid JSON.
+ * @throws ConfigSchemaError if the parsed object violates the schema.
+ * @throws ConfigExtendsError on cycle or depth overrun.
+ *
+ * @example
+ *   const cfg = await loadConfigFile('/project/.fsl/config.json');
+ *   // { render: { scale: 4, ... } }
+ *
+ * @see resolveExtends
+ * @see validateConfig
+ */
+declare function loadConfigFile(path: string): Promise<PartialConfig>;
+
+/**
+ * Discover the user-global and project-level config files.
+ *
+ * Two separately exported functions so non-CLI consumers (GitHub Actions,
+ * editor plugins, SSGs) can pick which one(s) to call. The CLI's
+ * `loadConfig` orchestrator calls both.
+ *
+ * Node-only — uses `fs` and `os`.
+ */
+
+/**
+ * Look for `~/.fsl/config.json` (or `<home>/.fsl/config.json` if `home`
+ * is provided for testing).
+ *
+ * @param opts.home - Override the home directory (test seam). Defaults to `os.homedir()`.
+ * @returns The parsed config, or `null` if the file does not exist.
+ * @throws ConfigParseError / ConfigSchemaError / ConfigIOError if the file exists but is malformed.
+ *
+ * @example
+ *   const userCfg = await discoverUserGlobalConfig();
+ *   // null on a fresh machine, a PartialConfig if the user wrote one.
+ *
+ * @see discoverProjectConfig
+ */
+declare function discoverUserGlobalConfig(opts?: {
+    home?: string;
+}): Promise<PartialConfig | null>;
+/**
+ * Walk up from `from` looking for a directory containing `.fsl/config.json`.
+ * Returns the first one found; null if none up to the filesystem root.
+ *
+ * @param opts.from - Directory to start walking from. Walks toward the filesystem root.
+ * @returns The parsed config, or `null` if none exists in any ancestor.
+ * @throws ConfigParseError / ConfigSchemaError / ConfigIOError if a file is found but malformed.
+ *
+ * @example
+ *   const projCfg = await discoverProjectConfig({ from: process.cwd() });
+ *   // { render: { defaultTarget: 'svg', scale: 3, quality: 85 }, ... }
+ *
+ * @see discoverUserGlobalConfig
+ */
+declare function discoverProjectConfig(opts: {
+    from: string;
+}): Promise<PartialConfig | null>;
+
+/**
+ * Extract config-relevant attributes from an FSL machine source.
+ *
+ * The v1 mapping table is **deliberately empty** — almost nothing in
+ * today's grammar is invocation-config-shaped. The function exists so
+ * the layer slot is wired and tested; concrete mappings land alongside
+ * the features that need them (e.g. issue #607 will add `theme`).
+ *
+ * Pure module — does not throw on invalid FSL; returns `{}` instead, so
+ * config layering never blocks on parser errors.
+ *
+ * @param machineSource - FSL source text.
+ * @returns A `PartialConfig` derived from machine attributes (empty in v1).
+ *
+ * @example
+ *   extractMachineAttributes("a 'next' -> b;");
+ *   // {}
+ *
+ *   // Future (after issue #607 lands):
+ *   //   extractMachineAttributes('theme : "neon"; a -> b;');
+ *   //   // { render: { theme: 'neon' } }
+ */
+
+declare function extractMachineAttributes(_machineSource: string): PartialConfig;
+
+export { CONFIG_SCHEMA, ConfigError, ConfigExtendsError, ConfigIOError, ConfigParseError, ConfigSchemaError, RasterizationUnsupportedError, RenderError, defaults, discoverProjectConfig, discoverUserGlobalConfig, extractMachineAttributes, flagsToConfig, loadConfig, loadConfigFile, mergeConfigs, parseFslArgs, render, renderSet, resolveExtends, validateConfig };
+export type { CheckConfig, CodegenConfig, ExportConfig, FlagMapping, FlagSpec, FlagType, FormatConfig, ImportConfig, InitConfig, LintConfig, LoadConfigOptions, LspConfig, McpConfig, ParseResult, ParseSpec, PartialConfig, RasterResult, Reader, RegistryConfig, RenderConfig, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, ReplConfig, ResolvedConfig, TestConfig, TextResult, TypegenConfig };
