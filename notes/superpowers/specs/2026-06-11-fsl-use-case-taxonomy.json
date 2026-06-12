@@ -1,10 +1,10 @@
 {
   "meta": {
     "title": "FSL Use-Case Taxonomy",
-    "version": 2,
+    "version": 3,
     "date": "2026-06-11",
     "canonical": true,
-    "notes": "Canonical source for the use-case corpus; supersedes the category list inside 2026-06-11-fsl-use-case-taxonomy.md (which retains the SEO mechanics prose). v2 expands v1's 202 categories with additional categories and seeds. Each category becomes a web hub page; each seed grows into a use-case-template instance (see 2026-06-11-fsl-manual-templates.md). anchor=true marks the user's original anchor terms. Seeds set scale, not bounds. Never delete a category with instances - redirect.",
+    "notes": "Canonical source for the use-case corpus; supersedes the category list inside 2026-06-11-fsl-use-case-taxonomy.md (which retains the SEO mechanics prose). v2 expanded v1's 202 categories; v3 adds six supergroups (XIX-XXIV: public safety & emergency, manufacturing/maintenance/reliability, sports & competition, telecom & carrier, open source & standards governance, personal productivity & life). Each category becomes a web hub page; each seed grows into a use-case-template instance (see 2026-06-11-fsl-manual-templates.md). anchor=true marks the user's original anchor terms. Seeds set scale, not bounds. Never delete a category with instances - redirect. Deliberate omissions by taste, not oversight: weapons/defense targeting, adult industry.",
     "schema": { "supergroups": "[{id, ordinal, title, categories: [{id, title, anchor?, seeds: [string]}]}]" }
   },
   "supergroups": [
@@ -302,6 +302,56 @@
       { "id": "interview-cs-education", "title": "Interview & CS Education", "seeds": ["elevator design", "parking lot", "traffic light", "the canon, but provable"] },
       { "id": "online-judges", "title": "Online Judges & Autograders", "seeds": ["submission lifecycle", "sandbox execution states", "verdict ladders", "rejudge campaigns", "contest clock phases"] },
       { "id": "proof-assistant-workflows", "title": "Proof-Assistant Workflows", "seeds": ["tactic state progression", "proof-obligation queues", "library dependency gates", "CI proof farms"] }
+    ]},
+    { "id": "public-safety-emergency", "ordinal": "XIX", "title": "Public Safety & Emergency Management", "categories": [
+      { "id": "emergency-dispatch", "title": "Emergency Dispatch (911/CAD)", "seeds": ["call intake & triage states", "unit assignment & status", "priority upgrades", "multi-agency handoffs", "abandoned-call callback"] },
+      { "id": "incident-command", "title": "Incident Command (ICS)", "seeds": ["activation levels", "resource request lifecycle", "operational periods", "demobilization", "unified-command transitions"] },
+      { "id": "medical-triage", "title": "Medical Triage", "seeds": ["mass-casualty START states", "ED triage ladders", "retriage cycles", "surge level activation"] },
+      { "id": "search-rescue", "title": "Search & Rescue", "seeds": ["mission phases", "grid assignment states", "probability-of-area updates", "suspension decisions", "subject-found transitions"] },
+      { "id": "evacuation", "title": "Evacuation & Sheltering", "seeds": ["zone order ladders (ready-set-go)", "shelter open/capacity/close", "re-entry phasing", "special-needs registry activation"] },
+      { "id": "disaster-recovery-civil", "title": "Disaster Recovery (Civil)", "seeds": ["FEMA phase progression", "damage assessment workflows", "aid application lifecycle", "debris-removal sequencing"] },
+      { "id": "mutual-aid", "title": "Mutual Aid", "seeds": ["request-fulfillment states", "EMAC compact flows", "resource demob & reimbursement"] }
+    ]},
+    { "id": "manufacturing-maintenance-reliability", "ordinal": "XX", "title": "Manufacturing, Maintenance & Reliability", "categories": [
+      { "id": "mes-work-orders", "title": "MES & Work Orders", "seeds": ["release-start-complete", "rework loops", "traveler states", "WIP tracking gates", "line clearance"] },
+      { "id": "quality-spc", "title": "Quality & SPC", "seeds": ["control-chart rule states", "hold & disposition", "CAPA lifecycle", "first-article approval", "deviation workflows"] },
+      { "id": "maintenance-cmms", "title": "Maintenance & CMMS", "seeds": ["preventive-maintenance schedules", "work-order lifecycle", "shutdown/turnaround planning", "deferred-maintenance ladders", "permit-to-work integration"] },
+      { "id": "predictive-maintenance", "title": "Predictive Maintenance", "seeds": ["condition states", "alarm-to-work-order pipelines", "remaining-useful-life thresholds", "model-drift recalibration"] },
+      { "id": "calibration-management", "title": "Calibration Management", "seeds": ["due-date cycles", "out-of-tolerance investigations", "reverse-traceability holds", "standards custody"] },
+      { "id": "recalls-traceability", "title": "Recalls & Traceability", "seeds": ["lot genealogy", "recall scope determination", "effectiveness checks", "regulatory notification clocks", "serialization track-and-trace"] },
+      { "id": "spare-parts", "title": "Spare Parts & Repairables", "seeds": ["min/max replenishment", "repairables rotation (rotable pools)", "obsolescence lifecycles", "kitting states"] },
+      { "id": "oee-production", "title": "OEE & Production States", "seeds": ["run/idle/down classification", "changeover sequences", "micro-stop attribution", "shift handover states"] }
+    ]},
+    { "id": "sports-competition", "ordinal": "XXI", "title": "Sports & Competition", "categories": [
+      { "id": "officiating", "title": "Officiating & Game Management", "seeds": ["game clocks & stoppage states", "review/challenge flows", "advantage/play-on logic", "card & ejection ladders", "weather delay protocols"] },
+      { "id": "league-seasons", "title": "Leagues & Seasons", "seeds": ["fixture lifecycle", "standings & tiebreaker states", "relegation/promotion", "playoff qualification scenarios", "transfer windows"] },
+      { "id": "race-control", "title": "Race Control", "seeds": ["flag states & safety-car ladders", "virtual safety car", "pit-lane open/close windows", "parc ferme", "red-flag restart procedures"] },
+      { "id": "judging-scoring", "title": "Judging & Scoring", "seeds": ["panel scoring states", "protest & inquiry windows", "score confirmation gates", "deduction review"] },
+      { "id": "athlete-eligibility", "title": "Athlete Eligibility & Integrity", "seeds": ["registration windows", "transfer & loan states", "doping-control chain of custody", "whereabouts compliance", "sanction ladders"] },
+      { "id": "fantasy-scoring", "title": "Fantasy & Pick'em Scoring", "seeds": ["lineup lock states", "live scoring settlement", "stat-correction reconciliation", "void & postponement rules"] }
+    ]},
+    { "id": "telecom-carrier", "ordinal": "XXII", "title": "Telecom & Carrier Operations", "categories": [
+      { "id": "sim-lifecycle", "title": "SIM & eSIM Lifecycle", "seeds": ["provision-activate-suspend-recycle", "eSIM profile download states", "swap fraud gates", "fleet IoT SIM pools"] },
+      { "id": "number-porting", "title": "Number Porting", "seeds": ["the LNP dance (request-validate-confirm-activate)", "port-out protection", "snapback windows", "inter-carrier dispute flows"] },
+      { "id": "roaming", "title": "Roaming", "seeds": ["registration & steering states", "TAP record settlement", "welcome-SMS triggers", "fraud velocity holds"] },
+      { "id": "mobile-sessions", "title": "Mobile Sessions & Bearers", "seeds": ["attach/detach", "bearer establishment & QoS negotiation", "handover state machines", "paging & idle-mode transitions"] },
+      { "id": "service-provisioning", "title": "Service Provisioning", "seeds": ["order-to-activate", "line test gates", "truck-roll fallback", "number reservation expiry", "service migration cutover"] },
+      { "id": "network-operations", "title": "Network Operations", "seeds": ["cell up/down/degraded states", "maintenance windows", "congestion management modes", "spectrum refarming campaigns"] }
+    ]},
+    { "id": "open-source-standards", "ordinal": "XXIII", "title": "Open Source, Standards & Community Governance", "categories": [
+      { "id": "oss-issue-pr", "title": "OSS Issue & PR Workflows", "seeds": ["triage label ladders", "stale-bot lifecycles", "review request states", "merge queues", "backport campaigns", "good-first-issue curation"] },
+      { "id": "code-review-workflows", "title": "Code Review Workflows", "seeds": ["approval rule satisfaction", "CODEOWNERS gates", "re-request cycles", "blocking/dismissal states", "review SLA clocks"] },
+      { "id": "rfc-standards", "title": "RFC & Standards Processes", "seeds": ["IETF draft ladder", "TC39 stage progression", "ISO ballot cycles", "W3C recommendation track", "errata workflows"] },
+      { "id": "governance-voting", "title": "Governance & Voting", "seeds": ["proposal lifecycles", "quorum & ballot states", "election cycles", "veto & appeal windows", "charter amendment flows"] },
+      { "id": "licensing-compliance-oss", "title": "Licensing & CLA Compliance", "seeds": ["CLA signature states", "license-scan gates", "exception approval flows", "relicensing campaigns"] }
+    ]},
+    { "id": "personal-productivity-life", "ordinal": "XXIV", "title": "Personal Productivity & Life", "categories": [
+      { "id": "task-management", "title": "Task Management", "seeds": ["GTD capture-clarify-organize-reflect-engage", "kanban WIP limits", "someday/maybe resurfacing", "delegation & waiting-for states", "weekly review gates"] },
+      { "id": "inbox-communication", "title": "Inbox & Communication Triage", "seeds": ["inbox-zero ladders", "snooze states", "follow-up nag cycles", "unsubscribe campaigns", "VIP escalation"] },
+      { "id": "personal-finance", "title": "Personal Finance", "seeds": ["budget envelope states", "savings goal progression", "bill-pay cycles", "debt-snowball ladders", "subscription audit flows"] },
+      { "id": "notes-pkm", "title": "Notes & PKM", "seeds": ["fleeting-to-evergreen promotion", "spaced resurfacing", "inbox-to-archive flows", "link-rot review cycles"] },
+      { "id": "life-logistics", "title": "Life Logistics", "seeds": ["family calendar coordination", "chore rotations", "moving-house pipelines", "vehicle maintenance schedules", "travel packing & checklists"] },
+      { "id": "digital-estate", "title": "Digital Estate & Legacy", "seeds": ["account legacy states", "beneficiary access flows", "memorialization", "credential escrow & release"] }
     ]}
   ]
 }
