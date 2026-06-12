@@ -2826,9 +2826,13 @@ class Machine {
         const fromState = this._state;
         const oldData = this._data;
         if (valid) {
+            // once validity is known, clear old 'after' timeout clause.  This must
+            // happen for hook-free machines too: leaving it inside the hooks branch
+            // let a pending 'after' timer survive a manual transition away, firing a
+            // ghost go() later and crashing re-entry to the after-state with
+            // "already timing out".
+            this.clear_state_timeout();
             if (this._has_hooks) {
-                // once validity is known, clear old 'after' timeout clause
-                this.clear_state_timeout();
                 let data_changed = false;
                 // 0. pre everything hook (fires before all other pre-hooks)
                 if (this._pre_everything_hook !== undefined) {
