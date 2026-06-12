@@ -58,6 +58,23 @@ const FEAS   = (SHOOT && SHOOT.feasibility) || {};
 const CEIL   = (SHOOT && SHOOT.ceilingMs) || 15000;
 const FTESTS = (SHOOT && SHOOT.featureTests) || {};
 
+// Documentation-farmed feature claims (data/docs/farm.json) — the muted THIRD
+// evidence tier, below measured (conformance/behavior) and below jssm's first-
+// party authoritative column. Host-independent (docs don't vary by machine) and
+// version-keyed per library, so it is loaded relative to the script, not cwd.
+const DOCS = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'docs', 'farm.json'), 'utf8')); }
+  catch { return { libs: {} }; }
+})();
+
+// One farmed fact for (lib, key): { v, e, source, fetchedAt, version } or null.
+function docFact(lib, key) {
+  const L = DOCS.libs && DOCS.libs[lib];
+  if (!L || !L.features || !L.features[key]) return null;
+  const f = L.features[key];
+  return { v: f.v, e: f.e, source: L.source, fetchedAt: L.fetchedAt || DOCS.fetchedAt, version: L.version };
+}
+
 // Feasibility lookup: did <lib> construct <shape> within the ceiling?
 // 'ok' / 'timeout' / 'error' / undefined (not probed).
 function feasStatus(lib, shape) {
@@ -369,6 +386,23 @@ function featureRows() {
         if (v === 'error')   return { mark: NO,  status: 'fail', note: 'errored under test' };
         return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
       }
+      // Documentation tier: fill competitor cells from each library's own docs
+      // (data/docs/farm.json). The muted 'doc-yes'/'doc-no' tier is visibly
+      // softer than measured pass/fail and the tooltip cites the source + date
+      // + version. jssm stays first-party authoritative (never farmed). These
+      // rows are flagship/ecosystem features (nesting, viz, CLI, framework,
+      // editor) where absence-by-omission in the docs is reliable, so a
+      // documented NO is shown as a muted ✗ rather than '?'.
+      if (f.fill && f.fill.startsWith('docs:')) {
+        const key = f.fill.slice(5);
+        if (lib === 'jssm') return glyphMeta(f.jssm);
+        const fact = docFact(lib, key);
+        if (!fact) return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
+        const cite = `${fact.source} (${fact.fetchedAt}, v${fact.version})` + (fact.e ? ` — ${fact.e}` : '');
+        if (fact.v === 'YES') return { mark: YES, status: 'doc-yes', note: `documented: ${cite}` };
+        if (fact.v === 'NO')  return { mark: NO,  status: 'doc-no',  note: `documented absent: ${cite}` };
+        return { mark: FQ, status: 'unknown', note: `documentation does not say (${fact.source})` };
+      }
       // DSL gate: textual-notation features. A config-object library (no DSL)
       // definitively lacks them (✗); a library with a DSL but whose specific
       // notation we haven't assessed is '?'. jssm is the authoritative DSL.
@@ -461,6 +495,8 @@ function statusClass(status) {
        : status === 'pass' ? 'c-pass'
        : status === 'warn' ? 'c-warn'
        : status === 'fail' ? 'c-fail'
+       : status === 'doc-yes' ? 'c-doc-yes'
+       : status === 'doc-no' ? 'c-doc-no'
        : status === 'unknown' ? 'c-unknown'
        : 'c-neutral';
 }
@@ -613,6 +649,11 @@ const html = `<!doctype html>
   .c-fail { background:#fbe1de; color:#b03030; font-weight:700; }
   .c-neutral { color:#555; }
   .c-unknown { color:#b9b2a0; font-style:italic; background:repeating-linear-gradient(45deg,#f4f1e8,#f4f1e8 5px,#eee8d8 5px,#eee8d8 10px); }
+  /* documented tier — softer than measured pass/fail; a ᵈ badge marks it as a
+     doc claim (not relying on color alone), the tooltip carries the source. */
+  .c-doc-yes { background:#eef5ec; color:#4f7a52; font-weight:600; }
+  .c-doc-no  { background:#f6ebe9; color:#9a6f6c; font-weight:600; }
+  .c-doc-yes::after, .c-doc-no::after { content:'ᵈ'; font-size:.9em; opacity:.6; margin-left:1px; }
   sub.submark { font-size:0.7em; font-weight:700; }
   [data-tip] { cursor: help; }
   /* custom tooltip widget */
@@ -646,10 +687,11 @@ const html = `<!doctype html>
 </style></head>
 <body>
   <h1>The FSM Shootout Grid<span class="tm">™</span></h1>
-  <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Every cell machine-verified against a pinned version.</p>
+  <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Cells are machine-verified against a pinned version, except the muted <b style="color:#4f7a52">ᵈ</b> tier, which is sourced from each library's own published documentation.</p>
   <div class="caveat"><strong>LOCAL PREVIEW.</strong> These numbers were measured on a developer workstation (and a <code>--quick</code> throughput pass), not the graviton reference runner — directional only. Capability and behavior checkmarks are environment-independent and final. Canonical numbers come from a dispatched <code>perf_results/shootout/</code> run.</div>
   <p class="legend">Hover any cell for detail. Backgrounds: <b style="background:#cdf3f4;color:#0a6b78;padding:0 4px;border-radius:3px">cyan</b> beats jssm · <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">green</b> pass · <b style="background:#fdeccb;color:#9a6512;padding:0 4px;border-radius:3px">amber</b> &gt;${WARN_FACTOR}× slower than jssm · <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">red</b> fail.
-  &nbsp; <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a</p>
+  &nbsp; <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a
+  &nbsp; <b style="background:#eef5ec;color:#4f7a52;padding:0 4px;border-radius:3px">✓ᵈ</b> / <b style="background:#f6ebe9;color:#9a6f6c;padding:0 4px;border-radius:3px">✗ᵈ</b> documented in the library's own docs (the muted ᵈ tier — claimed, not machine-verified; hover for the source).</p>
 
   <table class="grid">
     <colgroup><col class="labelcol">${COLS.map(() => '<col class="libcol">').join('')}</colgroup>

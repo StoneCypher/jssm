@@ -44,7 +44,8 @@ module.exports = [
   { section: 'Language features', label: 'Random walks',        jssm: Y, jssm6: Y, demo: `a 'n' -> b 'n' -> a;`, explain: 'Probabilistically walk the machine.' },
   { section: 'Language features', label: 'Serialization',       jssm: Y, jssm6: Y, fill: 'feature:serialize', demo: `a -> b;`, explain: 'Serialize machine state and restore it (round-trip verified by test).' },
   { section: 'Language features', label: 'Properties',          jssm: Y, jssm6: Y, demo: null, explain: 'Declared per-machine / per-state properties.' },
-  { section: 'Language features', label: 'Hierarchical states', jssm: N, jssm6: P, demo: null, explain: 'Nested/compound states. Planned for jssm 6 via systems.' },
+  { section: 'Language features', label: 'Hierarchical states', jssm: N, jssm6: P, fill: 'docs:hierarchical', demo: null, explain: 'Nested/compound states. Planned for jssm 6 via systems. Competitor cells: documented support (their own docs), muted tier.' },
+  { section: 'Language features', label: 'Parallel / orthogonal regions', jssm: N, jssm6: N, fill: 'docs:parallel', demo: null, explain: 'Concurrent orthogonal state regions active at once. jssm models concurrency with separate machines, not in-machine parallel regions. Competitor cells: documented support, muted tier.' },
   { section: 'Language features', label: 'Machine composition', jssm: N, jssm6: P, demo: null, explain: 'Compose several machines into one. Planned for jssm 6 (systems).' },
   { section: 'Language features', label: 'Factories',           jssm: N, jssm6: P, demo: null, explain: 'Parameterised reusable machine templates. Planned for jssm 6.' },
   { section: 'Language features', label: 'Extended state vars', jssm: N, jssm6: P, demo: null, explain: 'Typed variables + expression language. Planned for jssm 6.' },
@@ -70,7 +71,7 @@ module.exports = [
   { section: 'Docs & community', label: 'Detailed errors',     jssm: Y, jssm6: Y, demo: null, explain: 'Errors that name states and explain the cause.' },
   { section: 'Docs & community', label: 'Defined start states',jssm: Y, jssm6: Y, demo: null, explain: 'Explicit, validated start states.' },
   { section: 'Docs & community', label: 'Probabilistic starts',jssm: Y, jssm6: Y, demo: null, explain: 'Weighted random initial state.' },
-  { section: 'Docs & community', label: 'Graph renderer',      jssm: Y, jssm6: Y, demo: null, explain: 'Render the machine as a diagram (jssm-viz / Graphviz / SVG).' },
+  { section: 'Docs & community', label: 'Graph renderer',      jssm: Y, jssm6: Y, fill: 'docs:visualization', demo: null, explain: 'Render the machine as a diagram (jssm-viz / Graphviz / SVG). Competitor cells: documented support, muted tier.' },
   { section: 'Docs & community', label: 'Visual styling',      jssm: Y, jssm6: Y, demo: null, explain: 'Theme and style the rendered diagram.' },
   { section: 'Docs & community', label: 'Compiler',            jssm: Y, jssm6: Y, demo: null, explain: 'Compile FSL source to a machine config.' },
   { section: 'Docs & community', label: 'Manual',              jssm: Y, jssm6: Y, demo: null, explain: 'A written manual, beyond API docs.' },
@@ -84,8 +85,8 @@ module.exports = [
   { section: 'Testing', label: 'Conformance suite',  jssm: Y, jssm6: Y, demo: null, explain: 'A behavior conformance test corpus.' },
 
   // ===== Tools =====
-  { section: 'Tools', label: 'Live editor',      jssm: Y, jssm6: Y, demo: null, explain: 'A browser editor for FSL machines.' },
-  { section: 'Tools', label: 'CLI',              jssm: Y, jssm6: Y, demo: null, explain: 'A command-line tool (render, etc.).' },
+  { section: 'Tools', label: 'Live editor',      jssm: Y, jssm6: Y, fill: 'docs:live_editor', demo: null, explain: 'A browser editor for FSL machines. Competitor cells: documented support, muted tier.' },
+  { section: 'Tools', label: 'CLI',              jssm: Y, jssm6: Y, fill: 'docs:cli', demo: null, explain: 'A command-line tool (render, etc.). Competitor cells: documented support, muted tier.' },
   { section: 'Tools', label: 'Graph Action',     jssm: Q, jssm6: Q, demo: null, explain: 'A GitHub Action. Not re-verified — historic grid is stale.' },
   { section: 'Tools', label: 'URL live-paste',   jssm: Y, jssm6: Y, demo: null, explain: 'Share a machine via URL.' },
   { section: 'Tools', label: 'Web components',   jssm: Y, jssm6: Y, demo: null, explain: '<jssm-viz> / <jssm-instance> custom elements.' },
@@ -119,14 +120,14 @@ module.exports = [
   { section: 'Notation (FSL)', label: 'Mixed arrows', jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a <=> b;`, explain: 'Mixed-kind arrows (<=>, light/fat/tilde combinations) in one token.' },
 
   // ===== Visualization (jssm-viz) =====
-  { section: 'Visualization', label: 'Graph rendering',        jssm: Y, jssm6: Y, demo: null, explain: 'Render the machine as a graph diagram.' },
+  { section: 'Visualization', label: 'Graph rendering',        jssm: Y, jssm6: Y, fill: 'docs:visualization', demo: null, explain: 'Render the machine as a graph diagram. Competitor cells: documented support, muted tier.' },
   { section: 'Visualization', label: 'Per-state-kind styling', jssm: Y, jssm6: Y, demo: null, explain: 'Style start / end / current / terminal / hooked / standard states distinctly.' },
   { section: 'Visualization', label: 'Themes',                 jssm: Y, jssm6: Y, demo: null, explain: 'Selectable rendering themes (default / ocean / modern / plain / bold).' },
   { section: 'Visualization', label: 'Color support (rgb/rgba/named)', jssm: Y, jssm6: Y, demo: null, explain: 'RGB3/6, rgba4/8, and W3 named colors in styling.' },
   { section: 'Visualization', label: 'Layout direction',       jssm: Y, jssm6: Y, demo: null, explain: 'Control graph layout direction (graph_layout).' },
   { section: 'Visualization', label: 'SVG output',             jssm: Y, jssm6: Y, demo: null, explain: 'Vector SVG rendering.' },
   { section: 'Visualization', label: 'PNG / JPEG output',      jssm: Y, jssm6: Y, demo: null, explain: 'Raster image rendering with text labels.' },
-  { section: 'Visualization', label: 'React component',        jssm: Q, jssm6: Q, demo: null, explain: 'A dedicated React component. Not re-verified.' },
+  { section: 'Visualization', label: 'React component',        jssm: Q, jssm6: Q, fill: 'docs:react_integration', demo: null, explain: 'A dedicated React binding/component. jssm cell unverified (?); competitor cells: documented support, muted tier.' },
   { section: 'Visualization', label: 'Editor (Monaco)',        jssm: Q, jssm6: Q, demo: null, explain: 'A Monaco-based FSL editor. Not re-verified.' },
 
 ];
