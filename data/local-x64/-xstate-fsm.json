@@ -1,0 +1,98 @@
+{
+  "name": "@xstate/fsm",
+  "version": "2.1.0",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:13:35.495Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "guard": true,
+    "hook": true,
+    "data": true
+  },
+  "static": {
+    "installSizeKB": 56,
+    "directDeps": 0,
+    "types": "bundled",
+    "modules": "dual",
+    "postinstall": "no",
+    "coldStartMs": 11.45
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "noop",
+      "note": "returned undefined"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "throws",
+      "note": "Cannot set properties of undefined (setting 'to_constructor')"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 458,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 1805494,
+      "feasibility": "ok",
+      "transitionOps": 9397
+    },
+    "hub-50": {
+      "constructOps": 301509,
+      "feasibility": "ok",
+      "transitionOps": 9889
+    },
+    "dense-10": {
+      "constructOps": 2086769,
+      "feasibility": "ok",
+      "transitionOps": 12091
+    },
+    "chain-200": {
+      "constructOps": 106534,
+      "feasibility": "ok",
+      "transitionOps": 10094
+    },
+    "dense-50": {
+      "constructOps": 338203,
+      "feasibility": "ok",
+      "transitionOps": 10571
+    },
+    "hub-200": {
+      "constructOps": 87940,
+      "feasibility": "ok",
+      "transitionOps": 12777
+    },
+    "chain-1000": {
+      "constructOps": 10406,
+      "feasibility": "ok",
+      "transitionOps": 10343
+    },
+    "messy-1000": {
+      "constructOps": 7671,
+      "feasibility": "ok",
+      "transitionOps": 8914
+    },
+    "dense-200": {
+      "constructOps": 71137,
+      "feasibility": "ok",
+      "transitionOps": 7289
+    },
+    "messy-5000": {
+      "constructOps": 1014,
+      "feasibility": "ok",
+      "transitionOps": 10049
+    }
+  },
+  "capabilityOps": {
+    "action": 10263,
+    "guard": 6469,
+    "hook": 9617,
+    "data": 9783
+  },
+  "completedAt": "2026-06-12T16:13:45.427Z"
+}

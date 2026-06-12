@@ -1,0 +1,96 @@
+{
+  "name": "stately.js",
+  "version": "2.0.0",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:19:07.185Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "guard": true,
+    "hook": true
+  },
+  "static": {
+    "installSizeKB": 169,
+    "directDeps": 0,
+    "types": "none",
+    "modules": "cjs",
+    "postinstall": "no",
+    "coldStartMs": 29.2
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "noop",
+      "note": "returned {}"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "throws",
+      "note": "ctx.m[target] is not a function"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 30417,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 30929,
+      "feasibility": "ok",
+      "transitionOps": 1682
+    },
+    "hub-50": {
+      "constructOps": 4286,
+      "feasibility": "ok",
+      "transitionOps": 227
+    },
+    "dense-10": {
+      "constructOps": 11514,
+      "feasibility": "ok",
+      "transitionOps": 737
+    },
+    "chain-200": {
+      "constructOps": 1306,
+      "feasibility": "ok",
+      "transitionOps": 1223
+    },
+    "dense-50": {
+      "constructOps": 440,
+      "feasibility": "ok",
+      "transitionOps": 115
+    },
+    "hub-200": {
+      "constructOps": 1246,
+      "feasibility": "ok",
+      "transitionOps": 64
+    },
+    "chain-1000": {
+      "constructOps": 199,
+      "feasibility": "ok",
+      "transitionOps": 1151
+    },
+    "messy-1000": {
+      "constructOps": 150,
+      "feasibility": "ok",
+      "transitionOps": 894
+    },
+    "dense-200": {
+      "constructOps": 27,
+      "feasibility": "ok",
+      "transitionOps": 28
+    },
+    "messy-5000": {
+      "constructOps": 19,
+      "feasibility": "error",
+      "error": "Maximum call stack size exceeded"
+    }
+  },
+  "capabilityOps": {
+    "action": 2231,
+    "guard": 1843,
+    "hook": 1946
+  },
+  "completedAt": "2026-06-12T16:19:21.031Z"
+}

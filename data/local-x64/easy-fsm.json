@@ -1,0 +1,94 @@
+{
+  "name": "easy-fsm",
+  "version": "2.2.2",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:26:10.550Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "hook": true
+  },
+  "static": {
+    "installSizeKB": 9,
+    "directDeps": 0,
+    "types": "bundled",
+    "modules": "cjs",
+    "postinstall": "no",
+    "coldStartMs": 17.66
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "throws-with-state-names",
+      "note": "cannot_send: to_s2, current: s0"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "throws",
+      "note": "Cannot set properties of undefined (setting 'to_constructor')"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 195,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 1239051,
+      "feasibility": "ok",
+      "transitionOps": 13303
+    },
+    "hub-50": {
+      "constructOps": 1054017,
+      "feasibility": "ok",
+      "transitionOps": 18034
+    },
+    "dense-10": {
+      "constructOps": 1144260,
+      "feasibility": "ok",
+      "transitionOps": 14291
+    },
+    "chain-200": {
+      "constructOps": 1268554,
+      "feasibility": "ok",
+      "transitionOps": 13246
+    },
+    "dense-50": {
+      "constructOps": 1053186,
+      "feasibility": "ok",
+      "transitionOps": 16209
+    },
+    "hub-200": {
+      "constructOps": 1628274,
+      "feasibility": "ok",
+      "transitionOps": 21754
+    },
+    "chain-1000": {
+      "constructOps": 1305374,
+      "feasibility": "ok",
+      "transitionOps": 11623
+    },
+    "messy-1000": {
+      "constructOps": 995691,
+      "feasibility": "ok",
+      "transitionOps": 12406
+    },
+    "dense-200": {
+      "constructOps": 996991,
+      "feasibility": "ok",
+      "transitionOps": 10826
+    },
+    "messy-5000": {
+      "constructOps": 1290997,
+      "feasibility": "ok",
+      "transitionOps": 16120
+    }
+  },
+  "capabilityOps": {
+    "action": 18089,
+    "hook": 13814
+  },
+  "completedAt": "2026-06-12T16:26:19.923Z"
+}

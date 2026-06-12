@@ -1,0 +1,94 @@
+{
+  "name": "nanostate",
+  "version": "1.2.1",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:25:46.578Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "hook": true
+  },
+  "static": {
+    "installSizeKB": 26,
+    "directDeps": 2,
+    "types": "none",
+    "modules": "cjs",
+    "postinstall": "no",
+    "coldStartMs": 31.2
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "throws-with-state-names",
+      "note": "nanostate.emit: invalid transition s0 -> to_s2"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "throws",
+      "note": "nanostate.emit: invalid transition __proto__ -> to_constructor"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 240,
+    "allocBytesPerTransition": 282,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 2219097,
+      "feasibility": "ok",
+      "transitionOps": 1354
+    },
+    "hub-50": {
+      "constructOps": 1014176,
+      "feasibility": "ok",
+      "transitionOps": 1023
+    },
+    "dense-10": {
+      "constructOps": 1878094,
+      "feasibility": "ok",
+      "transitionOps": 1454
+    },
+    "chain-200": {
+      "constructOps": 1750433,
+      "feasibility": "ok",
+      "transitionOps": 1595
+    },
+    "dense-50": {
+      "constructOps": 2348009,
+      "feasibility": "ok",
+      "transitionOps": 1594
+    },
+    "hub-200": {
+      "constructOps": 2209117,
+      "feasibility": "ok",
+      "transitionOps": 1691
+    },
+    "chain-1000": {
+      "constructOps": 2725760,
+      "feasibility": "ok",
+      "transitionOps": 1551
+    },
+    "messy-1000": {
+      "constructOps": 1540877,
+      "feasibility": "ok",
+      "transitionOps": 1293
+    },
+    "dense-200": {
+      "constructOps": 684486,
+      "feasibility": "ok",
+      "transitionOps": 1326
+    },
+    "messy-5000": {
+      "constructOps": 2200951,
+      "feasibility": "ok",
+      "transitionOps": 1455
+    }
+  },
+  "capabilityOps": {
+    "action": 2014,
+    "hook": 1866
+  },
+  "completedAt": "2026-06-12T16:25:56.503Z"
+}

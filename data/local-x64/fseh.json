@@ -1,0 +1,88 @@
+{
+  "name": "fseh",
+  "version": "5.0.1",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:19:33.039Z",
+  "caps": {
+    "transition": true
+  },
+  "static": {
+    "installSizeKB": 35,
+    "directDeps": 2,
+    "types": "bundled",
+    "modules": "dual",
+    "postinstall": "no",
+    "coldStartMs": 82.09
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "corrupts",
+      "note": "moved s0 -> s2 with no edge"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "works"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 1111,
+    "allocBytesPerTransition": 752,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 270780,
+      "feasibility": "ok",
+      "transitionOps": 3091
+    },
+    "hub-50": {
+      "constructOps": 185369,
+      "feasibility": "ok",
+      "transitionOps": 1425
+    },
+    "dense-10": {
+      "constructOps": 131991,
+      "feasibility": "ok",
+      "transitionOps": 1311
+    },
+    "chain-200": {
+      "constructOps": 122814,
+      "feasibility": "ok",
+      "transitionOps": 1803
+    },
+    "dense-50": {
+      "constructOps": 156563,
+      "feasibility": "ok",
+      "transitionOps": 2302
+    },
+    "hub-200": {
+      "constructOps": 131765,
+      "feasibility": "ok",
+      "transitionOps": 1575
+    },
+    "chain-1000": {
+      "constructOps": 162000,
+      "feasibility": "ok",
+      "transitionOps": 1923
+    },
+    "messy-1000": {
+      "constructOps": 93294,
+      "feasibility": "ok",
+      "transitionOps": 1275
+    },
+    "dense-200": {
+      "constructOps": 175680,
+      "feasibility": "ok",
+      "transitionOps": 1847
+    },
+    "messy-5000": {
+      "constructOps": 125189,
+      "feasibility": "ok",
+      "transitionOps": 1943
+    }
+  },
+  "capabilityOps": {},
+  "completedAt": "2026-06-12T16:19:42.635Z"
+}

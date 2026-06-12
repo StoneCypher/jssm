@@ -1,0 +1,95 @@
+{
+  "name": "fn-machine",
+  "version": "0.1.2",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:19:21.961Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "hook": true,
+    "data": true
+  },
+  "static": {
+    "installSizeKB": 15,
+    "directDeps": 0,
+    "types": "bundled",
+    "modules": "dual",
+    "postinstall": "no",
+    "coldStartMs": 31.44
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "noop",
+      "note": "returned {\"state\":\"s0\",\"context\":{}}"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "works"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 364,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 2468963,
+      "feasibility": "ok",
+      "transitionOps": 17820
+    },
+    "hub-50": {
+      "constructOps": 2636857,
+      "feasibility": "ok",
+      "transitionOps": 4080
+    },
+    "dense-10": {
+      "constructOps": 2088640,
+      "feasibility": "ok",
+      "transitionOps": 16280
+    },
+    "chain-200": {
+      "constructOps": 2738457,
+      "feasibility": "ok",
+      "transitionOps": 5023
+    },
+    "dense-50": {
+      "constructOps": 2786549,
+      "feasibility": "ok",
+      "transitionOps": 1883
+    },
+    "hub-200": {
+      "constructOps": 2824931,
+      "feasibility": "ok",
+      "transitionOps": 1066
+    },
+    "chain-1000": {
+      "constructOps": 2664226,
+      "feasibility": "ok",
+      "transitionOps": 4780
+    },
+    "messy-1000": {
+      "constructOps": 3009471,
+      "feasibility": "ok",
+      "transitionOps": 1466
+    },
+    "dense-200": {
+      "constructOps": 2804903,
+      "feasibility": "ok",
+      "transitionOps": 393
+    },
+    "messy-5000": {
+      "constructOps": 2643338,
+      "feasibility": "ok",
+      "transitionOps": 37
+    }
+  },
+  "capabilityOps": {
+    "action": 25014,
+    "hook": 24537,
+    "data": 23889
+  },
+  "completedAt": "2026-06-12T16:19:32.183Z"
+}

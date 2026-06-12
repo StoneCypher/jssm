@@ -1,0 +1,97 @@
+{
+  "name": "robot3",
+  "version": "1.2.0",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:13:47.973Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "guard": true,
+    "hook": true,
+    "data": true
+  },
+  "static": {
+    "installSizeKB": 27,
+    "directDeps": 0,
+    "types": "bundled",
+    "modules": "dual",
+    "postinstall": "no",
+    "coldStartMs": 10.33
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "noop",
+      "note": "returned undefined"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "works"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 69,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 503460,
+      "feasibility": "ok",
+      "transitionOps": 7097
+    },
+    "hub-50": {
+      "constructOps": 290883,
+      "feasibility": "ok",
+      "transitionOps": 5360
+    },
+    "dense-10": {
+      "constructOps": 458260,
+      "feasibility": "ok",
+      "transitionOps": 6163
+    },
+    "chain-200": {
+      "constructOps": 112646,
+      "feasibility": "ok",
+      "transitionOps": 6660
+    },
+    "dense-50": {
+      "constructOps": 276631,
+      "feasibility": "ok",
+      "transitionOps": 4320
+    },
+    "hub-200": {
+      "constructOps": 73614,
+      "feasibility": "ok",
+      "transitionOps": 4154
+    },
+    "chain-1000": {
+      "constructOps": 8851,
+      "feasibility": "ok",
+      "transitionOps": 5680
+    },
+    "messy-1000": {
+      "constructOps": 9560,
+      "feasibility": "ok",
+      "transitionOps": 3677
+    },
+    "dense-200": {
+      "constructOps": 62674,
+      "feasibility": "ok",
+      "transitionOps": 3980
+    },
+    "messy-5000": {
+      "constructOps": 1400,
+      "feasibility": "ok",
+      "transitionOps": 6037
+    }
+  },
+  "capabilityOps": {
+    "action": 6051,
+    "guard": 4566,
+    "hook": 6891,
+    "data": 6014
+  },
+  "completedAt": "2026-06-12T16:13:58.236Z"
+}

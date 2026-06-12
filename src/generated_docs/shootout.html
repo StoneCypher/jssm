@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>FSM shootout — the grid</title>
+<style>
+  :root { --ink:#1a1a1a; --rule:#c9c2b0; --paper:#f4f1e8; --jssm:#fff6d8; --yes:#1d7a33; --no:#b03030; --decl:#9466c8; }
+  * { box-sizing: border-box; }
+  body { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; background: var(--paper); color: var(--ink); margin: 0; padding: 24px; }
+  h1 { font-size: 22px; letter-spacing: -0.5px; margin: 0 0 2px; }
+  h1 .tm { color: var(--no); }
+  .sub { color:#6b6453; font-size:12px; margin:0 0 4px; }
+  .caveat { background:#fff3c4; border:1px solid #e2cf7a; padding:6px 10px; font-size:12px; margin:10px 0; }
+  table.grid { border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+  table.grid th, table.grid td { border: 1px solid var(--rule); padding: 2px 0; text-align: center; }
+  /* Uniform narrow columns for every library; the row-label column is wide. */
+  table.grid col.libcol { width: 26px; }
+  table.grid col.labelcol { width: 300px; }
+  table.grid thead th { background:#e9e4d4; position: sticky; top: 0; vertical-align: bottom; height: 96px; }
+  th.col-jssm { background: var(--jssm); }
+  /* jssm + jssm6 columns marked by side borders so pass/fail backgrounds still show through. */
+  td.col-jssm { border-left:2px solid #d9c25e; border-right:2px solid #d9c25e; }
+  /* 90° counter-clockwise header labels, all the same width. */
+  .vlabel { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-weight: 700; margin: 0 auto; padding: 4px 0; letter-spacing: 0.5px; }
+  th[title] { cursor: help; }
+  td[title] { cursor: help; }
+  /* right-aligned row headers */
+  td.rowlabel { text-align: right; background:#efeada; }
+  th.rowlabel { text-align: right; vertical-align: bottom; padding: 4px 6px; white-space: nowrap; }
+  td.rowlabel details { text-align: right; }
+  td.rowlabel summary { cursor: pointer; list-style: none; }
+  td.rowlabel summary::-webkit-details-marker { display: none; }
+  tr.grouphdr td { background:#d8d0ba; font-weight:700; text-align:left; letter-spacing:1px; text-transform:uppercase; font-size:11px; padding:4px 6px; }
+  /* cell pass/fail backgrounds */
+  .c-pass { background:#e2f1e0; color:#1d7a33; font-weight:700; }
+  .c-fail { background:#fbe1de; color:#b03030; font-weight:700; }
+  .c-neutral { color:#555; }
+  sub.submark { font-size:0.7em; font-weight:700; }
+  [data-tip] { cursor: help; }
+  /* custom tooltip widget */
+  #tip { position:fixed; z-index:50; max-width:280px; pointer-events:none; opacity:0;
+    transform:translateY(3px); transition:opacity .09s ease, transform .09s ease;
+    background:#26241d; color:#f4f1e8; font-size:11.5px; line-height:1.45;
+    padding:7px 10px; border-radius:6px; box-shadow:0 4px 14px rgba(0,0,0,.28);
+    border:1px solid #11100c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  #tip.on { opacity:1; transform:translateY(0); }
+  #tip b { color:#ffe08a; font-weight:700; }
+  #tip::after { content:''; position:absolute; left:var(--ax,16px); bottom:-6px;
+    border:6px solid transparent; border-top-color:#26241d; border-bottom:0; }
+  #tip.below::after { bottom:auto; top:-6px; border-top:0; border-bottom-color:#26241d; }
+  /* legend swatches */
+  .m-yes { color: var(--yes); font-weight:700; } .m-no { color: var(--no); font-weight:700; }
+  .m-timeout { color:#c87d1a; font-weight:700; background:#fdf0d8; } .m-decl { color: var(--decl); font-weight:700; } .m-na { color:#aaa; } .m-cat { font-size:10px; color:#555; }
+  .demo { padding:8px 4px 4px; }
+  pre.fsl { background:#fbfaf4; border:1px solid var(--rule); border-left:3px solid var(--decl); padding:6px 8px; margin:0 0 4px; font-size:12px; overflow-x:auto; white-space:pre-wrap; }
+  .c-kw{color:#9466c8;font-weight:700;} .c-arr{color:#b03030;font-weight:700;} .c-str{color:#1d7a33;} .c-com{color:#999;font-style:italic;} .c-num{color:#06c;}
+  p.explain { margin:0; font-size:11px; color:#554; max-width:60ch; }
+  .legend { font-size:11px; color:#554; margin:10px 0; }
+  .legend b { font-weight:700; }
+  h3 { font-size:12px; margin:12px 0 2px; color:#554; }
+  h3.opgrp { font-size:14px; margin:22px 0 6px; color:var(--ink); border-bottom:2px solid var(--rule); padding-bottom:2px; }
+  table.numt { border-collapse: collapse; width:100%; max-width:680px; font-size:12px; }
+  table.numt td { border-bottom:1px solid var(--rule); padding:2px 8px; }
+  td.nl { width:200px; } table.numt td.col-jssm { background:var(--jssm); } td.nv { width:140px; text-align:right; color:#333; }
+  td.nbar span { display:inline-block; height:9px; background:#9466c8; }
+  .excl { font-size:11px; color:#6b6453; margin-top:14px; }
+  footer { margin-top:22px; font-size:11px; color:#7a7460; border-top:1px solid var(--rule); padding-top:8px; }
+</style></head>
+<body>
+  <h1>The FSM Shootout Grid<span class="tm">™</span></h1>
+  <p class="sub">JavaScript finite-state-machine libraries, measured. 14 competitors + 2 jssm editions. Every cell machine-verified against a pinned version.</p>
+  <div class="caveat"><strong>LOCAL PREVIEW.</strong> These numbers were measured on a developer workstation (and a <code>--quick</code> throughput pass), not the graviton reference runner — directional only. Capability and behavior checkmarks are environment-independent and final. Canonical numbers come from a dispatched <code>perf_results/shootout/</code> run.</div>
+  <p class="legend">Green = pass, red = fail (hover any cell for detail). <b class="m-yes">✓</b> yes · <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">✗</b> no · <b class="m-no">☢️</b> corrupts state · <b class="m-timeout">⏱</b> timed out building (didn't scale) · <b class="m-decl">◐</b> declared (jssm 6, announced not measured) · <b class="m-na">—</b> n/a</p>
+
+  <table class="grid">
+    <colgroup><col class="labelcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"><col class="libcol"></colgroup>
+    <thead><tr><th class="rowlabel">feature — click to unfold</th><th class="col-jssm" data-tip="jssm 5 — 5.143.7"><div class="vlabel">jssm 5</div></th><th class="col-jssm" data-tip="jssm 6 — planned"><div class="vlabel">jssm 6</div></th><th class="" data-tip="xstate — 5.32.0"><div class="vlabel">xstate</div></th><th class="" data-tip="@xstate/fsm — 2.1.0"><div class="vlabel">@xstate/fs…</div></th><th class="" data-tip="javascript-state-machine — 3.1.0"><div class="vlabel">javascript…</div></th><th class="" data-tip="robot3 — 1.2.0"><div class="vlabel">robot3</div></th><th class="" data-tip="machina — 6.3.0"><div class="vlabel">machina</div></th><th class="" data-tip="nanostate — 1.2.1"><div class="vlabel">nanostate</div></th><th class="" data-tip="statebot — 3.1.3"><div class="vlabel">statebot</div></th><th class="" data-tip="finity — 0.5.4"><div class="vlabel">finity</div></th><th class="" data-tip="typestate — 1.0.6"><div class="vlabel">typestate</div></th><th class="" data-tip="stately.js — 2.0.0"><div class="vlabel">stately.js</div></th><th class="" data-tip="fn-machine — 0.1.2"><div class="vlabel">fn-machine</div></th><th class="" data-tip="fseh — 5.0.1"><div class="vlabel">fseh</div></th><th class="" data-tip="easy-fsm — 2.2.2"><div class="vlabel">easy-fsm</div></th><th class="" data-tip="pastafarian — 1.2.1"><div class="vlabel">pastafaria…</div></th></tr></thead>
+    <tbody><tr class="grouphdr"><td colspan="17">Capabilities</td></tr>
+    <tr class="featrow" data-row="r0">
+      <td class="rowlabel"><details><summary>Named-event dispatch</summary><div class="demo"><pre class="fsl">a <span class="c-str">'go'</span> <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Trigger transitions by event/action name (here `go`), not just by naming the target state.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-fail">✗</td>
+    </tr>
+    <tr class="featrow" data-row="r1">
+      <td class="rowlabel"><details><summary>Guarded transitions</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">A predicate runs per transition and can veto it (jssm: an edge hook returning false blocks the move).</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td>
+    </tr>
+    <tr class="featrow" data-row="r2">
+      <td class="rowlabel"><details><summary>Lifecycle hooks / observers</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b <span class="c-arr">-&gt;</span> a;</pre><p class="explain">A handler fires on transitions so you can observe or react to state changes.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td>
+    </tr>
+    <tr class="featrow" data-row="r3">
+      <td class="rowlabel"><details><summary>Transition data payload</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Carry a data value through a transition into machine context.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-pass">✓</td>
+    </tr>
+    <tr class="featrow" data-row="r4">
+      <td class="rowlabel"><details><summary>Native delayed / automatic transitions</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;
+b <span class="c-kw">after</span> <span class="c-num">1000</span>ms <span class="c-arr">-&gt;</span> a;</pre><p class="explain">Arm a time-based transition declaratively (jssm: the `after` clause); entering `b` schedules `b -&gt; a`.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-fail">✗</td>
+    </tr><tr class="grouphdr"><td colspan="17">Behavior</td></tr>
+    <tr class="featrow" data-row="r5">
+      <td class="rowlabel"><details><summary>Illegal move handled safely</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Asking to move where no edge exists. Throwing, returning false, or a no-op are all safe (the machine stays consistent). The only failure is silently corrupting state by moving anyway.</p></div></details></td>
+      <td class="c-pass col-jssm" data-tip="jssm 5 — rejects by returning false (no throw)">✓<sub class="submark">F</sub></td><td class="c-neutral col-jssm">✓<sub class="submark">F</sub></td><td class="c-pass" data-tip="xstate — rejects by silent no-op — state unchanged, nothing thrown or returned">✓</td><td class="c-pass" data-tip="@xstate/fsm — rejects by silent no-op — state unchanged, nothing thrown or returned">✓</td><td class="c-pass" data-tip="javascript-state-machine — rejects by throwing an error">✓</td><td class="c-pass" data-tip="robot3 — rejects by silent no-op — state unchanged, nothing thrown or returned">✓</td><td class="c-pass" data-tip="machina — rejects by silent no-op — state unchanged, nothing thrown or returned">✓</td><td class="c-pass" data-tip="nanostate — rejects by throwing an error that names the offending states (ideal)">✓</td><td class="c-pass" data-tip="statebot — rejects by returning false (no throw)">✓<sub class="submark">F</sub></td><td class="c-pass" data-tip="finity — rejects by throwing an error that names the offending states (ideal)">✓</td><td class="c-pass" data-tip="typestate — rejects by throwing an error that names the offending states (ideal)">✓</td><td class="c-pass" data-tip="stately.js — rejects by silent no-op — state unchanged, nothing thrown or returned">✓</td><td class="c-pass" data-tip="fn-machine — rejects by silent no-op — state unchanged, nothing thrown or returned">✓</td><td class="c-fail" data-tip="fseh — moved s0 -&gt; s2 with no edge">☢️</td><td class="c-pass" data-tip="easy-fsm — rejects by throwing an error that names the offending states (ideal)">✓</td><td class="c-pass" data-tip="pastafarian — rejects by throwing an error that names the offending states (ideal)">✓</td>
+    </tr>
+    <tr class="featrow" data-row="r6">
+      <td class="rowlabel"><details><summary>Hostile state names (`__proto__`)</summary><div class="demo"><pre class="fsl"><span class="c-str">"__proto__"</span> <span class="c-arr">-&gt;</span> <span class="c-str">"constructor"</span>;</pre><p class="explain">Using `__proto__` / `constructor` as state names. Pass = handles them as ordinary names; fail = throws (cannot use them) or corrupts.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-fail" data-tip="xstate — throws on __proto__/constructor as a state name">throws</td><td class="c-fail" data-tip="@xstate/fsm — throws on __proto__/constructor as a state name">throws</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail" data-tip="nanostate — throws on __proto__/constructor as a state name">throws</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail" data-tip="typestate — throws on __proto__/constructor as a state name">throws</td><td class="c-fail" data-tip="stately.js — throws on __proto__/constructor as a state name">throws</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail" data-tip="easy-fsm — throws on __proto__/constructor as a state name">throws</td><td class="c-fail" data-tip="pastafarian — throws on __proto__/constructor as a state name">throws</td>
+    </tr>
+    <tr class="featrow" data-row="r7">
+      <td class="rowlabel"><details><summary>Self-transition (a -&gt; a)</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> a;
+a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Can a state transition to itself and fire the move?</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td>
+    </tr><tr class="grouphdr"><td colspan="17">Packaging &amp; lifecycle</td></tr>
+    <tr class="featrow" data-row="r8">
+      <td class="rowlabel"><details><summary>Ships TypeScript types</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Bundled `.d.ts` declarations (top-level, exports-map `types` condition, or a dist subdir).</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td>
+    </tr>
+    <tr class="featrow" data-row="r9">
+      <td class="rowlabel"><details><summary>Dual ESM + CJS</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Advertises both `import` and `require` entry points.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-neutral">cjs</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-neutral">cjs</td><td class="c-pass">✓</td><td class="c-neutral">cjs</td><td class="c-neutral">cjs</td><td class="c-neutral">cjs</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-neutral">cjs</td><td class="c-neutral">cjs</td>
+    </tr>
+    <tr class="featrow" data-row="r10">
+      <td class="rowlabel"><details><summary>No install scripts</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">No postinstall/install/preinstall hooks — one less supply-chain surface when you add it.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td>
+    </tr>
+    <tr class="featrow" data-row="r11">
+      <td class="rowlabel"><details><summary>Maintained (&lt; 2y since publish)</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Published within the last two years. Half this field has not shipped in ~4.</p></div></details></td>
+      <td class="c-neutral col-jssm">—</td><td class="c-neutral col-jssm">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td><td class="c-neutral">—</td>
+    </tr>
+    <tr class="featrow" data-row="r12">
+      <td class="rowlabel"><details><summary>Zero runtime dependencies</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">No transitive runtime dependencies of its own.</p></div></details></td>
+      <td class="c-fail col-jssm">✗</td><td class="c-fail col-jssm">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td>
+    </tr><tr class="grouphdr"><td colspan="17">Scaling — constructs within 180s</td></tr>
+    <tr class="featrow" data-row="r13">
+      <td class="rowlabel"><details><summary>Builds dense-200</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;
+b <span class="c-arr">-&gt;</span> a;
+a <span class="c-arr">-&gt;</span> c;
+<span class="c-com">/* …every state to every other… */</span></pre><p class="explain">Constructs the dense-200 machine within the 180s ceiling. A timeout (⏱) means the library's construction does not scale to this shape.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail" data-tip="statebot — timed out building dense-200 (&gt; 180s) — construction does not scale to this shape">⏱</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td>
+    </tr>
+    <tr class="featrow" data-row="r14">
+      <td class="rowlabel"><details><summary>Builds messy-5000</summary><div class="demo"><pre class="fsl"><span class="c-com">/* a large irregular machine */</span>
+a <span class="c-arr">-&gt;</span> b;
+b <span class="c-arr">-&gt;</span> c;</pre><p class="explain">Constructs the messy-5000 machine within the 180s ceiling. A timeout (⏱) means the library's construction does not scale to this shape.</p></div></details></td>
+      <td class="c-pass col-jssm">✓</td><td class="c-pass col-jssm">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail" data-tip="statebot — timed out building messy-5000 (&gt; 180s) — construction does not scale to this shape">⏱</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-fail" data-tip="stately.js — errored building messy-5000">✗</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td><td class="c-pass">✓</td>
+    </tr><tr class="grouphdr"><td colspan="17">jssm 6 (declared)</td></tr>
+    <tr class="featrow" data-row="r15">
+      <td class="rowlabel"><details><summary>Extended state — typed `var`s</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">First-class typed machine variables (jssm 6 expression language). Declared, not yet shipped.</p></div></details></td>
+      <td class="c-neutral col-jssm">✗</td><td class="c-neutral col-jssm" data-tip="jssm 6 — declared for jssm 6 — announced, not yet measurable">◐</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td>
+    </tr>
+    <tr class="featrow" data-row="r16">
+      <td class="rowlabel"><details><summary>Guard / assignment expressions</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Conditions and data updates written in the FSL expression language (jssm 6).</p></div></details></td>
+      <td class="c-neutral col-jssm">✗</td><td class="c-neutral col-jssm" data-tip="jssm 6 — declared for jssm 6 — announced, not yet measurable">◐</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td>
+    </tr>
+    <tr class="featrow" data-row="r17">
+      <td class="rowlabel"><details><summary>State factories</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Parameterised, reusable state templates (jssm 6).</p></div></details></td>
+      <td class="c-neutral col-jssm">✗</td><td class="c-neutral col-jssm" data-tip="jssm 6 — declared for jssm 6 — announced, not yet measurable">◐</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td>
+    </tr>
+    <tr class="featrow" data-row="r18">
+      <td class="rowlabel"><details><summary>Systems — composed machines</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">Multiple machines composed into one coordinated system (jssm 6).</p></div></details></td>
+      <td class="c-neutral col-jssm">✗</td><td class="c-neutral col-jssm" data-tip="jssm 6 — declared for jssm 6 — announced, not yet measurable">◐</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td>
+    </tr>
+    <tr class="featrow" data-row="r19">
+      <td class="rowlabel"><details><summary>Overlapping state groups</summary><div class="demo"><pre class="fsl">a <span class="c-arr">-&gt;</span> b;</pre><p class="explain">States belonging to multiple overlapping groups at once (jssm 6).</p></div></details></td>
+      <td class="c-neutral col-jssm">✗</td><td class="c-neutral col-jssm" data-tip="jssm 6 — declared for jssm 6 — announced, not yet measurable">◐</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td><td class="c-neutral">✗</td>
+    </tr></tbody>
+  </table>
+
+  <h2 style="font-size:16px;margin:24px 0 4px;">Measured numbers</h2>
+  <h3 class="opgrp">construct() — ops/sec by machine type (higher better)</h3><h3>chain-10</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,468,963 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">2,219,097 ops/s</td>
+      <td class="nbar"><span style="width:90%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,879,374 ops/s</td>
+      <td class="nbar"><span style="width:76%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">1,805,494 ops/s</td>
+      <td class="nbar"><span style="width:73%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,239,051 ops/s</td>
+      <td class="nbar"><span style="width:50%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">503,460 ops/s</td>
+      <td class="nbar"><span style="width:20%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">290,543 ops/s</td>
+      <td class="nbar"><span style="width:12%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">270,780 ops/s</td>
+      <td class="nbar"><span style="width:11%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">255,318 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">30,929 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">22,994 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">15,274 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">13,400 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">9,757 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">2,671 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>hub-50</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,636,857 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,337,411 ops/s</td>
+      <td class="nbar"><span style="width:51%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,054,017 ops/s</td>
+      <td class="nbar"><span style="width:40%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,014,176 ops/s</td>
+      <td class="nbar"><span style="width:38%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">301,509 ops/s</td>
+      <td class="nbar"><span style="width:11%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">290,883 ops/s</td>
+      <td class="nbar"><span style="width:11%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">185,369 ops/s</td>
+      <td class="nbar"><span style="width:7%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">75,709 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">18,017 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">4,286 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">4,194 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">4,066 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">2,823 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">1,151 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">997 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>dense-10</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,088,640 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">2,086,769 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,878,094 ops/s</td>
+      <td class="nbar"><span style="width:90%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,171,346 ops/s</td>
+      <td class="nbar"><span style="width:56%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,144,260 ops/s</td>
+      <td class="nbar"><span style="width:55%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">458,260 ops/s</td>
+      <td class="nbar"><span style="width:22%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">285,469 ops/s</td>
+      <td class="nbar"><span style="width:14%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">131,991 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">13,826 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">11,514 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">6,989 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">6,609 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">6,383 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">1,683 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">1,489 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>chain-200</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,738,457 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,750,433 ops/s</td>
+      <td class="nbar"><span style="width:64%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,268,554 ops/s</td>
+      <td class="nbar"><span style="width:46%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,011,609 ops/s</td>
+      <td class="nbar"><span style="width:37%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">122,814 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">112,646 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">106,534 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">27,243 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">6,469 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">1,306 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">1,154 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">747 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">741 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">554 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">190 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>dense-50</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,786,549 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">2,348,009 ops/s</td>
+      <td class="nbar"><span style="width:84%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,781,071 ops/s</td>
+      <td class="nbar"><span style="width:64%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,053,186 ops/s</td>
+      <td class="nbar"><span style="width:38%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">338,203 ops/s</td>
+      <td class="nbar"><span style="width:12%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">276,631 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">156,563 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">96,163 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">440 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">391 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">266 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">246 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">43 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">24 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">0 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>hub-200</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,824,931 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">2,209,117 ops/s</td>
+      <td class="nbar"><span style="width:78%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,628,274 ops/s</td>
+      <td class="nbar"><span style="width:58%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,077,321 ops/s</td>
+      <td class="nbar"><span style="width:38%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">131,765 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">87,940 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">73,614 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">32,277 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">1,246 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">1,130 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">846 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">834 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">646 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">296 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">39 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>chain-1000</h3><table class="numt"><tbody><tr><td class="nl">nanostate</td>
+      <td class="nv">2,725,760 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,664,226 ops/s</td>
+      <td class="nbar"><span style="width:98%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,880,311 ops/s</td>
+      <td class="nbar"><span style="width:69%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,305,374 ops/s</td>
+      <td class="nbar"><span style="width:48%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">162,000 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">10,406 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">8,851 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">3,057 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">199 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">199 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">180 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">139 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">139 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">79 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">3 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>messy-1000</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">3,009,471 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,678,631 ops/s</td>
+      <td class="nbar"><span style="width:56%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,540,877 ops/s</td>
+      <td class="nbar"><span style="width:51%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">995,691 ops/s</td>
+      <td class="nbar"><span style="width:33%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">93,294 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">9,560 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">7,671 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">2,454 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">150 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">130 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">129 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">51 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">14 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">11 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">0 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>dense-200</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,804,903 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,955,846 ops/s</td>
+      <td class="nbar"><span style="width:70%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">996,991 ops/s</td>
+      <td class="nbar"><span style="width:36%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">684,486 ops/s</td>
+      <td class="nbar"><span style="width:24%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">175,680 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">71,137 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">62,674 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">21,377 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">27 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">21 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">16 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">8 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">3 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">0 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>messy-5000</h3><table class="numt"><tbody><tr><td class="nl">fn-machine</td>
+      <td class="nv">2,643,338 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">2,200,951 ops/s</td>
+      <td class="nbar"><span style="width:83%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,682,507 ops/s</td>
+      <td class="nbar"><span style="width:64%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">1,290,997 ops/s</td>
+      <td class="nbar"><span style="width:49%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">125,189 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">1,400 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">1,014 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">184 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">23 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">15 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">11 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">0 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3 class="opgrp">transition() — ops/sec by machine type (higher better)</h3><h3>chain-10</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">91,754 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">33,580 ops/s</td>
+      <td class="nbar"><span style="width:37%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">17,820 ops/s</td>
+      <td class="nbar"><span style="width:19%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">13,303 ops/s</td>
+      <td class="nbar"><span style="width:14%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">9,397 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">7,177 ops/s</td>
+      <td class="nbar"><span style="width:8%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">7,097 ops/s</td>
+      <td class="nbar"><span style="width:8%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">6,497 ops/s</td>
+      <td class="nbar"><span style="width:7%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">3,471 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">3,420 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">3,091 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">1,682 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,354 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,237 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">700 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>hub-50</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">99,217 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">19,423 ops/s</td>
+      <td class="nbar"><span style="width:20%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">18,034 ops/s</td>
+      <td class="nbar"><span style="width:18%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">9,889 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">6,297 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">5,360 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">5,060 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">4,080 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">2,643 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">2,575 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,425 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,103 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,023 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">589 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">227 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>dense-10</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">102,180 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">16,280 ops/s</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">14,291 ops/s</td>
+      <td class="nbar"><span style="width:14%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">14,091 ops/s</td>
+      <td class="nbar"><span style="width:14%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">12,091 ops/s</td>
+      <td class="nbar"><span style="width:12%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">9,849 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">6,583 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">6,163 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">3,106 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">1,891 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,454 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,311 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">960 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">737 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">494 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>chain-200</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">61,697 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">13,246 ops/s</td>
+      <td class="nbar"><span style="width:21%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">12,351 ops/s</td>
+      <td class="nbar"><span style="width:20%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">10,094 ops/s</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">7,514 ops/s</td>
+      <td class="nbar"><span style="width:12%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">6,660 ops/s</td>
+      <td class="nbar"><span style="width:11%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">5,971 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">5,023 ops/s</td>
+      <td class="nbar"><span style="width:8%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">3,229 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,803 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,595 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">1,406 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">1,223 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,014 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">654 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>dense-50</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">63,271 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">16,209 ops/s</td>
+      <td class="nbar"><span style="width:26%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">10,571 ops/s</td>
+      <td class="nbar"><span style="width:17%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">9,031 ops/s</td>
+      <td class="nbar"><span style="width:14%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">5,863 ops/s</td>
+      <td class="nbar"><span style="width:9%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">4,320 ops/s</td>
+      <td class="nbar"><span style="width:7%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">2,306 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">2,302 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">1,883 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,594 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,114 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">549 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">536 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">142 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">115 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>hub-200</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">77,937 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">21,754 ops/s</td>
+      <td class="nbar"><span style="width:28%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">12,777 ops/s</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">12,286 ops/s</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">8,494 ops/s</td>
+      <td class="nbar"><span style="width:11%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">6,474 ops/s</td>
+      <td class="nbar"><span style="width:8%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">4,154 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">2,143 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,691 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,575 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">1,254 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">1,066 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,034 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">447 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">64 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>chain-1000</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">65,237 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">11,623 ops/s</td>
+      <td class="nbar"><span style="width:18%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">10,477 ops/s</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">10,343 ops/s</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">9,134 ops/s</td>
+      <td class="nbar"><span style="width:14%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">5,680 ops/s</td>
+      <td class="nbar"><span style="width:9%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">4,780 ops/s</td>
+      <td class="nbar"><span style="width:7%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">4,154 ops/s</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">3,557 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,923 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,551 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">1,151 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,006 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">644 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">536 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>messy-1000</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">69,423 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">12,406 ops/s</td>
+      <td class="nbar"><span style="width:18%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">8,914 ops/s</td>
+      <td class="nbar"><span style="width:13%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">6,797 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">6,429 ops/s</td>
+      <td class="nbar"><span style="width:9%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">3,774 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">3,677 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">1,466 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,300 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,293 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,275 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">894 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">871 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">457 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">225 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>dense-200</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">56,840 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">10,826 ops/s</td>
+      <td class="nbar"><span style="width:19%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">9,137 ops/s</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">7,289 ops/s</td>
+      <td class="nbar"><span style="width:13%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">5,840 ops/s</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">3,980 ops/s</td>
+      <td class="nbar"><span style="width:7%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">1,854 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,847 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,326 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">1,097 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">402 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">393 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">28 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">11 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>messy-5000</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">110,989 ops/s</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">16,120 ops/s</td>
+      <td class="nbar"><span style="width:15%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">10,049 ops/s</td>
+      <td class="nbar"><span style="width:9%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">6,037 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">6,006 ops/s</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">3,906 ops/s</td>
+      <td class="nbar"><span style="width:4%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">3,522 ops/s</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,943 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">1,455 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">883 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">754 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">37 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">19 ops/s</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3 class="opgrp">Memory</h3><h3>Retained per machine — hub-50 (lower better)</h3><table class="numt"><tbody><tr><td class="nl">robot3</td>
+      <td class="nv">69 B</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">195 B</td>
+      <td class="nbar"><span style="width:35%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">240 B</td>
+      <td class="nbar"><span style="width:29%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">364 B</td>
+      <td class="nbar"><span style="width:19%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">458 B</td>
+      <td class="nbar"><span style="width:15%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">565 B</td>
+      <td class="nbar"><span style="width:12%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">1,111 B</td>
+      <td class="nbar"><span style="width:6%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">1,422 B</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">6,144 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">12,711 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">30,417 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">54,734 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">57,132 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">68,465 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">81,144 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>Allocated per transition (lower better)</h3><table class="numt"><tbody><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">0 B</td>
+      <td class="nbar"><span style="width:NaN%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">282 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">752 B</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3 class="opgrp">Packaging</h3><h3>Install size (lower better)</h3><table class="numt"><tbody><tr><td class="nl">easy-fsm</td>
+      <td class="nv">9 KB</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">15 KB</td>
+      <td class="nbar"><span style="width:60%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">19 KB</td>
+      <td class="nbar"><span style="width:47%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">26 KB</td>
+      <td class="nbar"><span style="width:35%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">27 KB</td>
+      <td class="nbar"><span style="width:33%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">35 KB</td>
+      <td class="nbar"><span style="width:26%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">56 KB</td>
+      <td class="nbar"><span style="width:16%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">89 KB</td>
+      <td class="nbar"><span style="width:10%"></span></td></tr><tr><td class="nl">typestate</td>
+      <td class="nv">119 KB</td>
+      <td class="nbar"><span style="width:8%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">133 KB</td>
+      <td class="nbar"><span style="width:7%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">169 KB</td>
+      <td class="nbar"><span style="width:5%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">278 KB</td>
+      <td class="nbar"><span style="width:3%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">716 KB</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">2,226 KB</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">12,748 KB</td>
+      <td class="nbar"><span style="width:2%"></span></td></tr></tbody></table><h3>Cold-start require (lower better)</h3><table class="numt"><tbody><tr><td class="nl">typestate</td>
+      <td class="nv">8.68 ms</td>
+      <td class="nbar"><span style="width:100%"></span></td></tr><tr><td class="nl">robot3</td>
+      <td class="nv">10.33 ms</td>
+      <td class="nbar"><span style="width:84%"></span></td></tr><tr><td class="nl">@xstate/fsm</td>
+      <td class="nv">11.45 ms</td>
+      <td class="nbar"><span style="width:76%"></span></td></tr><tr><td class="nl">machina</td>
+      <td class="nv">12.85 ms</td>
+      <td class="nbar"><span style="width:68%"></span></td></tr><tr><td class="nl">pastafarian</td>
+      <td class="nv">15.81 ms</td>
+      <td class="nbar"><span style="width:55%"></span></td></tr><tr><td class="nl">easy-fsm</td>
+      <td class="nv">17.66 ms</td>
+      <td class="nbar"><span style="width:49%"></span></td></tr><tr><td class="nl">xstate</td>
+      <td class="nv">17.86 ms</td>
+      <td class="nbar"><span style="width:49%"></span></td></tr><tr><td class="nl">javascript-state-machine</td>
+      <td class="nv">18.07 ms</td>
+      <td class="nbar"><span style="width:48%"></span></td></tr><tr><td class="nl">statebot</td>
+      <td class="nv">25.76 ms</td>
+      <td class="nbar"><span style="width:34%"></span></td></tr><tr><td class="nl">stately.js</td>
+      <td class="nv">29.2 ms</td>
+      <td class="nbar"><span style="width:30%"></span></td></tr><tr><td class="nl">nanostate</td>
+      <td class="nv">31.2 ms</td>
+      <td class="nbar"><span style="width:28%"></span></td></tr><tr><td class="nl">fn-machine</td>
+      <td class="nv">31.44 ms</td>
+      <td class="nbar"><span style="width:28%"></span></td></tr><tr><td class="nl col-jssm">jssm 5</td>
+      <td class="nv">42.59 ms</td>
+      <td class="nbar"><span style="width:20%"></span></td></tr><tr><td class="nl">finity</td>
+      <td class="nv">66.42 ms</td>
+      <td class="nbar"><span style="width:13%"></span></td></tr><tr><td class="nl">fseh</td>
+      <td class="nv">82.09 ms</td>
+      <td class="nbar"><span style="width:11%"></span></td></tr></tbody></table>
+
+  <p class="excl"><strong>Excluded:</strong> @edium/fsm (broken CJS build (createState throws)) · xsm (reactive store, not a transition FSM)</p>
+  <footer>Measured 2026-06-12T16:26:19.979Z · host local-x64 · node v24.11.0 · x64. Grid generated 2026-06-12T16:26:20.203Z by <code>grid.cjs</code>. Every FSL demo above is executed as a test vector at render time — a stale demo fails the build.</footer>
+  <div id="tip" role="tooltip"></div>
+  <script>
+  (function () {
+    var tip = document.getElementById('tip');
+    function show(el) {
+      var text = el.getAttribute('data-tip'); if (!text) return;
+      // bold the part before an em dash (the column/feature name), via DOM
+      // nodes (no innerHTML, so no injection surface).
+      var dash = text.indexOf(' — ');
+      tip.textContent = '';
+      if (dash > -1) {
+        var b = document.createElement('b'); b.textContent = text.slice(0, dash);
+        tip.appendChild(b);
+        tip.appendChild(document.createTextNode(text.slice(dash)));
+      } else {
+        tip.textContent = text;
+      }
+      tip.classList.add('on');
+      var r = el.getBoundingClientRect();
+      tip.classList.remove('below');
+      // measure
+      var tr = tip.getBoundingClientRect();
+      var left = r.left + r.width / 2 - tr.width / 2;
+      left = Math.max(6, Math.min(left, window.innerWidth - tr.width - 6));
+      var top = r.top - tr.height - 9;
+      if (top < 6) { top = r.bottom + 9; tip.classList.add('below'); }
+      tip.style.left = left + 'px';
+      tip.style.top = top + 'px';
+      tip.style.setProperty('--ax', (r.left + r.width / 2 - left - 6) + 'px');
+    }
+    function hide() { tip.classList.remove('on'); }
+    document.addEventListener('mouseover', function (e) {
+      var el = e.target.closest('[data-tip]'); if (el) show(el);
+    });
+    document.addEventListener('mouseout', function (e) {
+      var el = e.target.closest('[data-tip]'); if (el) hide();
+    });
+    window.addEventListener('scroll', hide, true);
+  })();
+  </script>
+</body></html>

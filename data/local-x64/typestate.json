@@ -1,0 +1,94 @@
+{
+  "name": "typestate",
+  "version": "1.0.6",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:17:12.872Z",
+  "caps": {
+    "transition": true,
+    "guard": true,
+    "hook": true
+  },
+  "static": {
+    "installSizeKB": 119,
+    "directDeps": 0,
+    "types": "bundled",
+    "modules": "cjs",
+    "postinstall": "no",
+    "coldStartMs": 8.68
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "throws-with-state-names",
+      "note": "Error no transition function exists from state s0 to s2"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "throws",
+      "note": "this._exitCallbacks[this.currentState.toString(...)].reduce is not a function"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 6144,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 255318,
+      "feasibility": "ok",
+      "transitionOps": 33580
+    },
+    "hub-50": {
+      "constructOps": 18017,
+      "feasibility": "ok",
+      "transitionOps": 19423
+    },
+    "dense-10": {
+      "constructOps": 13826,
+      "feasibility": "ok",
+      "transitionOps": 14091
+    },
+    "chain-200": {
+      "constructOps": 6469,
+      "feasibility": "ok",
+      "transitionOps": 12351
+    },
+    "dense-50": {
+      "constructOps": 24,
+      "feasibility": "ok",
+      "transitionOps": 549
+    },
+    "hub-200": {
+      "constructOps": 1130,
+      "feasibility": "ok",
+      "transitionOps": 12286
+    },
+    "chain-1000": {
+      "constructOps": 180,
+      "feasibility": "ok",
+      "transitionOps": 10477
+    },
+    "messy-1000": {
+      "constructOps": 11,
+      "feasibility": "ok",
+      "transitionOps": 871
+    },
+    "dense-200": {
+      "constructOps": 0,
+      "feasibility": "ok",
+      "transitionOps": 11
+    },
+    "messy-5000": {
+      "constructOps": 0,
+      "feasibility": "ok",
+      "transitionOps": 19
+    }
+  },
+  "capabilityOps": {
+    "guard": 63463,
+    "hook": 64589
+  },
+  "completedAt": "2026-06-12T16:19:05.755Z"
+}

@@ -1,0 +1,94 @@
+{
+  "name": "pastafarian",
+  "version": "1.2.1",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:19:51.484Z",
+  "caps": {
+    "transition": true,
+    "hook": true,
+    "data": true
+  },
+  "static": {
+    "installSizeKB": 19,
+    "directDeps": 0,
+    "types": "none",
+    "modules": "cjs",
+    "postinstall": "no",
+    "coldStartMs": 15.81
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "throws-with-state-names",
+      "note": "Transition from s0 to s2 is not allowed"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "throws",
+      "note": "states[e.from].push is not a function"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 565,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 1879374,
+      "feasibility": "ok",
+      "transitionOps": 3420
+    },
+    "hub-50": {
+      "constructOps": 1337411,
+      "feasibility": "ok",
+      "transitionOps": 2575
+    },
+    "dense-10": {
+      "constructOps": 1171346,
+      "feasibility": "ok",
+      "transitionOps": 3106
+    },
+    "chain-200": {
+      "constructOps": 1011609,
+      "feasibility": "ok",
+      "transitionOps": 3229
+    },
+    "dense-50": {
+      "constructOps": 1781071,
+      "feasibility": "ok",
+      "transitionOps": 2306
+    },
+    "hub-200": {
+      "constructOps": 1077321,
+      "feasibility": "ok",
+      "transitionOps": 2143
+    },
+    "chain-1000": {
+      "constructOps": 1880311,
+      "feasibility": "ok",
+      "transitionOps": 3557
+    },
+    "messy-1000": {
+      "constructOps": 1678631,
+      "feasibility": "ok",
+      "transitionOps": 3774
+    },
+    "dense-200": {
+      "constructOps": 1955846,
+      "feasibility": "ok",
+      "transitionOps": 1854
+    },
+    "messy-5000": {
+      "constructOps": 1682507,
+      "feasibility": "ok",
+      "transitionOps": 3906
+    }
+  },
+  "capabilityOps": {
+    "hook": 4089,
+    "data": 3346
+  },
+  "completedAt": "2026-06-12T16:20:00.913Z"
+}

@@ -1,0 +1,99 @@
+{
+  "name": "xstate",
+  "version": "5.32.0",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:13:22.272Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "guard": true,
+    "hook": true,
+    "data": true,
+    "timer": true
+  },
+  "static": {
+    "installSizeKB": 2226,
+    "directDeps": 0,
+    "types": "bundled",
+    "modules": "dual",
+    "postinstall": "no",
+    "coldStartMs": 17.86
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "noop",
+      "note": "returned undefined"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "throws",
+      "note": "Cannot set properties of undefined (setting 'to_constructor')"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 81144,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 15274,
+      "feasibility": "ok",
+      "transitionOps": 700
+    },
+    "hub-50": {
+      "constructOps": 4194,
+      "feasibility": "ok",
+      "transitionOps": 589
+    },
+    "dense-10": {
+      "constructOps": 6383,
+      "feasibility": "ok",
+      "transitionOps": 494
+    },
+    "chain-200": {
+      "constructOps": 741,
+      "feasibility": "ok",
+      "transitionOps": 654
+    },
+    "dense-50": {
+      "constructOps": 391,
+      "feasibility": "ok",
+      "transitionOps": 536
+    },
+    "hub-200": {
+      "constructOps": 846,
+      "feasibility": "ok",
+      "transitionOps": 447
+    },
+    "chain-1000": {
+      "constructOps": 139,
+      "feasibility": "ok",
+      "transitionOps": 644
+    },
+    "messy-1000": {
+      "constructOps": 129,
+      "feasibility": "ok",
+      "transitionOps": 457
+    },
+    "dense-200": {
+      "constructOps": 21,
+      "feasibility": "ok",
+      "transitionOps": 402
+    },
+    "messy-5000": {
+      "constructOps": 15,
+      "feasibility": "ok",
+      "transitionOps": 754
+    }
+  },
+  "capabilityOps": {
+    "action": 393,
+    "guard": 305,
+    "hook": 866,
+    "data": 311
+  },
+  "completedAt": "2026-06-12T16:13:34.919Z"
+}

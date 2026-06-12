@@ -45,11 +45,18 @@ process.on('unhandledRejection', (reason) => {
 
 const quick = process.argv.includes('--quick');
 
-// Trimmed shape set — enough to show the scaling shape without exploding the
-// case count (15 adapters × shapes × ops must fit the instance window).
+// Full example-machine-type catalog, matching main's scaling suite: every
+// shape family (chain / dense / hub / messy) at its canonical sizes. --quick
+// trims to three small shapes for a local smoke. The instance's 90-min window
+// absorbs the full 10-shape × 15-library matrix; locally, prefer --quick.
 const SCALING_SHAPES = quick
-  ? [chainShape(10)]
-  : [chainShape(10), chainShape(1000), denseShape(50), hubShape(200), buildMessy(1000)];
+  ? [chainShape(10), denseShape(10), hubShape(50)]
+  : [
+      chainShape(10), chainShape(200), chainShape(1000),
+      denseShape(10), denseShape(50),  denseShape(200),
+      hubShape(50),   hubShape(200),
+      buildMessy(1000), buildMessy(5000),
+    ];
 
 const CAP_OPS = ['action', 'guard', 'hook', 'data'];
 
@@ -108,12 +115,59 @@ function capabilityCase(adapter, cap) {
 }
 
 // ---------------------------------------------------------------------------
-// assemble
+// preflight — feasibility per (library, shape) under a hard wall-clock ceiling
+// ---------------------------------------------------------------------------
+//
+// A competitor that takes too long (or hangs) constructing a large machine —
+// e.g. dense-200's ~39,800 edges — must not stall the whole suite, and "could
+// not build it in time" is itself a result worth showing. Each (library,
+// shape) is probed in a CHILD process (preflight_one.cjs); the parent enforces
+// the ceiling with execFileSync's timeout, which kills a synchronous hang that
+// no in-process timer could interrupt. Outcome per combo: 'ok' / 'timeout' /
+// 'error'. Only 'ok' combos get benny throughput cases; the rest are recorded
+// in the feasibility matrix and rendered as failures in the grid.
+
+const { execFileSync } = require('child_process');
+const PREFLIGHT_CEILING_MS = quick ? 8000 : 15000;
+
+const feasibility = {};   // lib -> shape -> { status, constructMs? }
+function preflight(adapter, shape) {
+  feasibility[adapter.name] = feasibility[adapter.name] || {};
+  let status = 'ok', constructMs;
+  try {
+    const out = execFileSync(process.execPath, ['preflight_one.cjs', adapter.name, shape.name],
+      { cwd: __dirname, encoding: 'utf8', timeout: PREFLIGHT_CEILING_MS, stdio: ['ignore', 'pipe', 'ignore'] });
+    const m = out.match(/OK construct=([\d.]+)/);
+    if (m) { constructMs = parseFloat(m[1]); }
+    else   { status = 'error'; }
+  } catch (e) {
+    status = (e && (e.killed || e.signal === 'SIGTERM' || e.code === 'ETIMEDOUT')) ? 'timeout' : 'error';
+  }
+  feasibility[adapter.name][shape.name] = constructMs !== undefined ? { status, constructMs } : { status };
+  return status === 'ok';
+}
+
+console.log(`preflight (ceiling ${PREFLIGHT_CEILING_MS} ms)…`);
+const feasible = new Map();   // adapter -> Set of feasible shape names
+for (const adapter of ADAPTERS) {
+  const ok = new Set();
+  for (const shape of SCALING_SHAPES) {
+    if (preflight(adapter, shape)) ok.add(shape.name);
+  }
+  feasible.set(adapter, ok);
+  const fails = SCALING_SHAPES.length - ok.size;
+  console.log(`  ${adapter.name.padEnd(26)} ${ok.size}/${SCALING_SHAPES.length} shapes feasible${fails ? `  (${fails} timeout/error)` : ''}`);
+}
+
+// ---------------------------------------------------------------------------
+// assemble — only feasible (library, shape) combos get throughput cases
 // ---------------------------------------------------------------------------
 
 const cases = [];
 for (const adapter of ADAPTERS) {
+  const ok = feasible.get(adapter);
   for (const shape of SCALING_SHAPES) {
+    if (!ok.has(shape.name)) continue;
     cases.push(constructCase(adapter, shape));
     cases.push(transitionCase(adapter, shape));
   }
@@ -137,8 +191,10 @@ b.suite(
       arch     : process.arch,
       mode     : quick ? 'quick' : 'full',
       k        : K,
+      ceilingMs: PREFLIGHT_CEILING_MS,
       libs,
       caps,
+      feasibility,
       excluded : EXCLUDED || [],
       results  : summary.results.map(r => ({ name: r.name, ops: r.ops, margin: r.margin })),
     };

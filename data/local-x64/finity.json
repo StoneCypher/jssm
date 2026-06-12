@@ -1,0 +1,97 @@
+{
+  "name": "finity",
+  "version": "0.5.4",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:25:57.678Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "guard": true,
+    "hook": true,
+    "data": true
+  },
+  "static": {
+    "installSizeKB": 133,
+    "directDeps": 0,
+    "types": "bundled",
+    "modules": "cjs",
+    "postinstall": "no",
+    "coldStartMs": 66.42
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "throws-with-state-names",
+      "note": "Unhandled event 'to_s2' in state 's0'."
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "works"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 57132,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 22994,
+      "feasibility": "ok",
+      "transitionOps": 6497
+    },
+    "hub-50": {
+      "constructOps": 4066,
+      "feasibility": "ok",
+      "transitionOps": 6297
+    },
+    "dense-10": {
+      "constructOps": 6989,
+      "feasibility": "ok",
+      "transitionOps": 6583
+    },
+    "chain-200": {
+      "constructOps": 1154,
+      "feasibility": "ok",
+      "transitionOps": 5971
+    },
+    "dense-50": {
+      "constructOps": 266,
+      "feasibility": "ok",
+      "transitionOps": 5863
+    },
+    "hub-200": {
+      "constructOps": 834,
+      "feasibility": "ok",
+      "transitionOps": 6474
+    },
+    "chain-1000": {
+      "constructOps": 199,
+      "feasibility": "ok",
+      "transitionOps": 4154
+    },
+    "messy-1000": {
+      "constructOps": 130,
+      "feasibility": "ok",
+      "transitionOps": 6429
+    },
+    "dense-200": {
+      "constructOps": 16,
+      "feasibility": "ok",
+      "transitionOps": 5840
+    },
+    "messy-5000": {
+      "constructOps": 23,
+      "feasibility": "ok",
+      "transitionOps": 6006
+    }
+  },
+  "capabilityOps": {
+    "action": 6920,
+    "guard": 7349,
+    "hook": 7146,
+    "data": 8229
+  },
+  "completedAt": "2026-06-12T16:26:09.736Z"
+}

@@ -1,0 +1,97 @@
+{
+  "name": "javascript-state-machine",
+  "version": "3.1.0",
+  "host": "local-x64",
+  "measuredAt": "2026-06-12T16:25:28.001Z",
+  "caps": {
+    "transition": true,
+    "action": true,
+    "guard": true,
+    "hook": true,
+    "data": true
+  },
+  "static": {
+    "installSizeKB": 89,
+    "directDeps": 0,
+    "types": "none",
+    "modules": "cjs",
+    "postinstall": "no",
+    "coldStartMs": 18.07
+  },
+  "behavior": {
+    "illegalTransition": {
+      "category": "throws",
+      "note": "transition is invalid in current state"
+    },
+    "selfTransition": {
+      "category": "works"
+    },
+    "hostileStateNames": {
+      "category": "works"
+    }
+  },
+  "memory": {
+    "retainedBytesPerMachine": 54734,
+    "allocBytesPerTransition": 0,
+    "shape": "hub-50"
+  },
+  "shapes": {
+    "chain-10": {
+      "constructOps": 9757,
+      "feasibility": "ok",
+      "transitionOps": 1237
+    },
+    "hub-50": {
+      "constructOps": 2823,
+      "feasibility": "ok",
+      "transitionOps": 1103
+    },
+    "dense-10": {
+      "constructOps": 6609,
+      "feasibility": "ok",
+      "transitionOps": 960
+    },
+    "chain-200": {
+      "constructOps": 747,
+      "feasibility": "ok",
+      "transitionOps": 1014
+    },
+    "dense-50": {
+      "constructOps": 246,
+      "feasibility": "ok",
+      "transitionOps": 1114
+    },
+    "hub-200": {
+      "constructOps": 646,
+      "feasibility": "ok",
+      "transitionOps": 1034
+    },
+    "chain-1000": {
+      "constructOps": 79,
+      "feasibility": "ok",
+      "transitionOps": 1006
+    },
+    "messy-1000": {
+      "constructOps": 14,
+      "feasibility": "ok",
+      "transitionOps": 1300
+    },
+    "dense-200": {
+      "constructOps": 8,
+      "feasibility": "ok",
+      "transitionOps": 1097
+    },
+    "messy-5000": {
+      "constructOps": 1,
+      "feasibility": "ok",
+      "transitionOps": 883
+    }
+  },
+  "capabilityOps": {
+    "action": 1029,
+    "guard": 1157,
+    "hook": 1003,
+    "data": 949
+  },
+  "completedAt": "2026-06-12T16:25:45.736Z"
+}
