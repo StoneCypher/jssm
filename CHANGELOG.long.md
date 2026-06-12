@@ -22,36 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 2:14:17 PM
-
-Commit [ed8bae35c8a414e7f2da283e7cbf2d190dce8e57](https://github.com/StoneCypher/jssm/commit/ed8bae35c8a414e7f2da283e7cbf2d190dce8e57)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(bench): spec addendum (bugs 5-7, fire-verification) and implementation plan
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 2:13:20 PM
-
-Commit [81b20344cb1da4e6f0a12711460f59254e4fb405](https://github.com/StoneCypher/jssm/commit/81b20344cb1da4e6f0a12711460f59254e4fb405)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(perf): rebuild on merged main at v5.143.24, recycling after the 5.143.23 release (#734)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 2:07:18 PM
 
 Commit [05428d04e67861747dd16892c71aa6427473b4e2](https://github.com/StoneCypher/jssm/commit/05428d04e67861747dd16892c71aa6427473b4e2)

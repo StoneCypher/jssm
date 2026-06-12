@@ -22,36 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 2:14:17 PM
-
-Commit [ed8bae35c8a414e7f2da283e7cbf2d190dce8e57](https://github.com/StoneCypher/jssm/commit/ed8bae35c8a414e7f2da283e7cbf2d190dce8e57)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(bench): spec addendum (bugs 5-7, fire-verification) and implementation plan
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 2:13:20 PM
-
-Commit [81b20344cb1da4e6f0a12711460f59254e4fb405](https://github.com/StoneCypher/jssm/commit/81b20344cb1da4e6f0a12711460f59254e4fb405)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * build(perf): rebuild on merged main at v5.143.24, recycling after the 5.143.23 release (#734)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 2:07:18 PM
 
 Commit [05428d04e67861747dd16892c71aa6427473b4e2](https://github.com/StoneCypher/jssm/commit/05428d04e67861747dd16892c71aa6427473b4e2)
@@ -199,3 +169,55 @@ Commit [d92f2204e421211e018fd0d97ae956b144c854f6](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * build(perf): rebuild on merged main at v5.143.22, recycling after the 5.143.21 release (#730)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 1:31:16 PM
+
+Commit [3b84abff68a73ad5df29ca87588b31f52006f926](https://github.com/StoneCypher/jssm/commit/3b84abff68a73ad5df29ca87588b31f52006f926)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(shootout): declared feature catalog (73-row grid), jssm column re-verified
+  * Expands the grid from ~19 to 73 rows across six sections drawn from jssm's
+historic FeatureComparison taxonomy (Language features, Notation/FSL, API &
+reflection, Docs & community, Testing, Tools) — features.cjs.
+  * Honesty model (the historic page's competitor facts are years stale and
+deliberately NOT trusted):
+  * - Measured rows fill competitor cells from conformance-verified data: the
+  capability features (Actions, Data, hooks, hook rejection, timeouts) pull
+  from the caps the gate actually exercises; Typed data from the type probe.
+- Declared rows show jssm's authoritative value with competitor cells as a
+  muted hatched "?" ("not assessed for this library yet") — never copied
+  from the old grid, ready to graduate to measured via a row's `fill:` key.
+- jssm's own column was re-verified against the live 5.143.7 API (serialize,
+  history*, is_terminal/state_is_complete, states/list_*, probabilistic_*,
+  prop/props/known_props all present). Two claims that are external artifacts
+  and can't be verified from code (tutorial videos, GitHub Action) were
+  downgraded from the stale grid's "yes" to "?".
+- jssm's genuine gaps are shown honestly (Hierarchical states / Machine
+  composition / Factories / Extended state vars: jssm 5 ✗, jssm 6 ◐).
+  * Feature-catalog FSL demos are validated as parse-vectors at render time;
+two I mis-wrote (weighted-edge + property syntax) were caught and corrected.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 1:29:42 PM
+
+Commit [2956a84f8e44707ee6c37202a7f0a69afad58521](https://github.com/StoneCypher/jssm/commit/2956a84f8e44707ee6c37202a7f0a69afad58521)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [e76a9ddc, ee79b015]
+
+  * merge: origin/main into perf_26-06-12_actionlabel-scanner_730 (generated files from main; rebuild and re-bump follow)
