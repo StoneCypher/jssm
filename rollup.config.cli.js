@@ -16,7 +16,15 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8'));
 const external = [
   '@viz-js/viz',
   '@resvg/resvg-wasm',
+  // ajv is left external because its package ships JSON files
+  // (meta-schemas under dist/refs/*.json) that rollup cannot consume
+  // without @rollup/plugin-json. Keeping it external means the CLI dist
+  // require()s ajv at runtime from node_modules instead of bundling it.
+  // ajv is already declared in package.json `dependencies` so it ships
+  // alongside the CLI.
+  'ajv',
   'fs', 'path', 'os', 'child_process', 'util', 'stream',
+  'fs/promises',
   'module',
 ];
 
