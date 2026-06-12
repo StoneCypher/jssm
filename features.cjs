@@ -90,6 +90,44 @@ module.exports = [
   { section: 'Tools', label: 'URL live-paste',   jssm: Y, jssm6: Y, demo: null, explain: 'Share a machine via URL.' },
   { section: 'Tools', label: 'Web components',   jssm: Y, jssm6: Y, demo: null, explain: '<jssm-viz> / <jssm-instance> custom elements.' },
   { section: 'Tools', label: 'Minified builds',  jssm: Y, jssm6: Y, demo: null, explain: 'Minified distribution bundles.' },
+  { section: 'Tools', label: 'CLI render (svg/png/jpeg)', jssm: Y, jssm6: Y, demo: null, explain: 'Render a machine to SVG / PNG / JPEG from the command line.' },
+  { section: 'Tools', label: 'Declarative WC tags', jssm: Q, jssm6: Q, demo: null, explain: '<jssm-bind> / <jssm-on> / <jssm-hook> / <jssm-action> custom elements. Not re-verified which shipped.' },
+
+  // ===== Language features (batch 2 — mined from closed issues, jssm re-verified) =====
+  { section: 'Language features', label: 'State properties',       jssm: Y, jssm6: Y, demo: null, explain: 'Per-state typed properties (number/string/bool/null/object/array), read via .prop/.props.' },
+  { section: 'Language features', label: 'Property defaults/override', jssm: Y, jssm6: Y, demo: null, explain: 'Property defaults at the machine level, overridable per state.' },
+  { section: 'Language features', label: 'Named numeric constants', jssm: Y, jssm6: Y, demo: null, explain: 'Inf / NaN / π / e / √2 / Epsilon / MaxSafeInt etc. as numeric literals (parser carries EulerConstant, LN2, NInf, …).' },
+  { section: 'Language features', label: 'Injectable clock',       jssm: Y, jssm6: Y, demo: null, explain: 'Custom setTimeout/clearTimeout sources for `after` timers (deterministic tests).' },
+  { section: 'Language features', label: 'Seeded / reproducible RNG', jssm: Y, jssm6: Y, demo: null, explain: 'Injectable seeded RNG for reproducible weighted random walks (gen_splitmix32).' },
+  { section: 'Language features', label: 'Forced transitions',     jssm: Y, jssm6: Y, demo: `a ~> b;`, explain: 'Forced-only edges (~>) that bypass normal legality.' },
+  { section: 'Language features', label: 'Event API (machine.on)', jssm: Y, jssm6: Y, demo: null, explain: 'A clean machine.on(...) observation API, separate from hooks.' },
+  { section: 'Language features', label: 'Versioned serialization',jssm: Y, jssm6: Y, demo: null, explain: 'Serialization carries data + history + machine version + timestamp.' },
+
+  // ===== Machine attributes (FSL) =====
+  { section: 'Machine attributes', label: 'Metadata (author/version/license…)', jssm: Y, jssm6: Y, demo: null, explain: 'Declared machine metadata: author, version, license, comment, name, npm_name.' },
+  { section: 'Machine attributes', label: 'Island control (allow_islands)',     jssm: Y, jssm6: Y, demo: null, explain: 'Allow / forbid disconnected components, optionally requiring a start.' },
+  { section: 'Machine attributes', label: 'Override control (allows_override)',  jssm: Y, jssm6: Y, demo: null, explain: 'Permit direct state override outside normal transitions.' },
+  { section: 'Machine attributes', label: 'Failed-output states',                jssm: Y, jssm6: Y, demo: null, explain: 'Declare states treated as failure outputs.' },
+  { section: 'Machine attributes', label: 'Render-size hint (default_size)',     jssm: Y, jssm6: Y, demo: null, explain: 'A default rendering size hint for the diagram.' },
+
+  // ===== API & reflection (batch 2) =====
+  { section: 'API & reflection', label: 'is_start_state / is_end_state', jssm: Y, jssm6: Y, demo: null, explain: 'Query whether a state is a start or end state.' },
+  { section: 'API & reflection', label: 'Introspection (uses_actions, …)', jssm: Y, jssm6: Y, demo: null, explain: 'uses_actions / uses_forced_transitions and similar machine-shape queries.' },
+  { section: 'API & reflection', label: 'Property reflection',           jssm: Y, jssm6: Y, demo: null, explain: 'Enumerate property keys (.known_props) and read one (.known_prop).' },
+
+  // ===== Notation (batch 2) =====
+  { section: 'Notation (FSL)', label: 'Mixed arrows', jssm: Y, jssm6: Y, demo: `a <=> b;`, explain: 'Mixed-kind arrows (<=>, light/fat/tilde combinations) in one token.' },
+
+  // ===== Visualization (jssm-viz) =====
+  { section: 'Visualization', label: 'Graph rendering',        jssm: Y, jssm6: Y, demo: null, explain: 'Render the machine as a graph diagram.' },
+  { section: 'Visualization', label: 'Per-state-kind styling', jssm: Y, jssm6: Y, demo: null, explain: 'Style start / end / current / terminal / hooked / standard states distinctly.' },
+  { section: 'Visualization', label: 'Themes',                 jssm: Y, jssm6: Y, demo: null, explain: 'Selectable rendering themes (default / ocean / modern / plain / bold).' },
+  { section: 'Visualization', label: 'Color support (rgb/rgba/named)', jssm: Y, jssm6: Y, demo: null, explain: 'RGB3/6, rgba4/8, and W3 named colors in styling.' },
+  { section: 'Visualization', label: 'Layout direction',       jssm: Y, jssm6: Y, demo: null, explain: 'Control graph layout direction (graph_layout).' },
+  { section: 'Visualization', label: 'SVG output',             jssm: Y, jssm6: Y, demo: null, explain: 'Vector SVG rendering.' },
+  { section: 'Visualization', label: 'PNG / JPEG output',      jssm: Y, jssm6: Y, demo: null, explain: 'Raster image rendering with text labels.' },
+  { section: 'Visualization', label: 'React component',        jssm: Q, jssm6: Q, demo: null, explain: 'A dedicated React component. Not re-verified.' },
+  { section: 'Visualization', label: 'Editor (Monaco)',        jssm: Q, jssm6: Q, demo: null, explain: 'A Monaco-based FSL editor. Not re-verified.' },
 
 ];
 
