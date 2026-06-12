@@ -29,9 +29,9 @@ const ADAPTERS = [
 //     import in dist/index.cjs). Cannot construct a machine when require()d.
 //   xsm 1.6.0 — reactive key-value store (get/set/setMany/bindState), not an
 //     edge-transition FSM; out of category.
-module.exports.EXCLUDED = [
+const EXCLUDED = [
   { name: '@edium/fsm',  version: '3.0.2',  reason: 'broken CJS build (createState throws)' },
   { name: 'xsm',         version: '1.6.0',  reason: 'reactive store, not a transition FSM' },
 ];
 
-module.exports = { ADAPTERS };
+module.exports = { ADAPTERS, EXCLUDED };
