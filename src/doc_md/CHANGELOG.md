@@ -22,6 +22,31 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 11, 2026 7:34:56 PM
+
+Commit [6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600](https://github.com/StoneCypher/jssm/commit/6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(compiler): v5.143.4 — drop [].concat spread; uncaps machines past ~65k transitions (#703)
+  * compile() assembled its transition list with
+`[].concat(...results['transition'])`. Spreading into an argument list
+is bounded by the engine's maximum argument count (~65k in V8), so
+machines past that ceiling — dense-300 is 89,700 edges — threw
+RangeError inside the compiler before any jssm semantics ran. It was
+also a pointless O(n) copy: since #700 the accumulator is already flat
+and function-local, so it is now used directly.
+  * Adds compile_scale.spec.ts, which manufactures a 70,000-transition
+parse tree directly (no parsing) and asserts compile() assembles it;
+this test crashes on the previous code.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 11, 2026 7:26:57 PM
 
 Commit [4f90d17f60f6b39ab739e322502e21e3dea3eb47](https://github.com/StoneCypher/jssm/commit/4f90d17f60f6b39ab739e322502e21e3dea3eb47)
@@ -262,33 +287,3 @@ Merges [5830dfd0, 612293bd]
 
   * Merge pull request #699 from StoneCypher/perf_26-06-11_ws-scanner_698
   * perf(parser): hand-rolled peg$parseWS whitespace scanner (#698)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 11, 2026 1:29:42 PM
-
-Commit [612293bdb0c9bd7d40307b439412050255b50c79](https://github.com/StoneCypher/jssm/commit/612293bdb0c9bd7d40307b439412050255b50c79)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * perf(parser): v5.143.1 — hand-rolled peg$parseWS whitespace scanner (#698)
-  * pegjs 0.10 compiles the WS rule into per-character array pushes plus a
-regex test per character, and WS? is probed at hundreds of grammar
-positions — making peg$parseWS the top parser self-time and the main GC
-source in the construct() profile (#674).
-  * fixparser.cjs now swaps the generated function for an allocation-free
-charCodeAt scanner; the comment sub-parsers are attempted only when the
-next character is '/'. Same accepted language, same named "whitespace"
-expectation on failure; no grammar action observes the WS value. The
-expectation constant is captured from the generated source, so grammar
-edits that renumber peg$c* constants cannot silently break the fixup.
-  * construct() improves 1.09–1.55x by shape (hub-50 1.55x, hub-200 1.41x,
-messy-1000/5000 1.33x); transition(), edges_between(), and has_state()
-are within the noise band. Pre/post envelopes committed as
-src/historic_benchmarks/benchmark_2026-06-11_pre-ws-scanner.json and
-benchmark_2026-06-11_ws-scanner.json.
