@@ -139,6 +139,24 @@ Pipe FSL via stdin:
 cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
 ```
 
+### Configuration
+
+The `fsl` CLI reads a layered JSON config from `<project>/.fsl/config.json` (discovered by walking up from the working directory), with optional `~/.fsl/config.json` for user-global defaults. Both support an `extends` chain.
+
+```json
+{
+  "$schema": "https://stonecypher.github.io/jssm/schemas/fsl-config.json",
+  "render": {
+    "defaultTarget": "png",
+    "scale": 4
+  }
+}
+```
+
+CLI flags override config values. Use `--config <path>` for an explicit file or `--no-config` to skip discovery entirely.
+
+See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm/cli` library API.
+
 ### Plugin architecture
 
 Every `fsl-<name>` executable on PATH is dispatched when you run `fsl <name>`. Third-party plugins follow the same contract as first-party `fsl-render`. See `notes/superpowers/specs/2026-05-12-fsl-cli-design.md` for the contract.
