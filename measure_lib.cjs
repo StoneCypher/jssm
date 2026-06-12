@@ -188,6 +188,12 @@ function measureFeatureTests() {
     try { out.serialize = adapter.trySerialize() ? 'yes' : 'partial'; }
     catch (e) { out.serialize = 'error'; }
   } else { out.serialize = 'no'; }
+  // terminal/final states: only set when affirmatively tested; libraries
+  // without the test stay '?' (absence here would need per-lib verification).
+  if (typeof adapter.tryTermination === 'function') {
+    try { out.termination = adapter.tryTermination() ? 'yes' : 'no'; }
+    catch (e) { out.termination = 'error'; }
+  }
   return out;
 }
 

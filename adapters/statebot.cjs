@@ -20,7 +20,7 @@ module.exports = {
   name    : 'statebot',
   version,
 
-  caps : { transition: true, action: true, hook: true },
+  caps : { transition: true, action: true, hook: true, dsl: true },
 
   buildDefinition : (shape) => ({ chart: chartFor(shape), logLevel: 0 }),
   construct       : (def)   => Statebot('bench', def),

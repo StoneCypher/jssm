@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-12T21:19:52.760Z",
+  "generatedAt": "2026-06-12T21:28:44.098Z",
   "host": "local-x64",
   "node": "v24.11.0",
   "arch": "x64",
@@ -29,7 +29,8 @@
       "guard": true,
       "hook": true,
       "data": true,
-      "timer": true
+      "timer": true,
+      "dsl": true
     },
     "xstate": {
       "transition": true,
@@ -75,7 +76,8 @@
     "statebot": {
       "transition": true,
       "action": true,
-      "hook": true
+      "hook": true,
+      "dsl": true
     },
     "finity": {
       "transition": true,
@@ -612,67 +614,67 @@
   "results": [
     {
       "name": "jssm chain-10 construct()",
-      "ops": 3563
+      "ops": 1197
     },
     {
       "name": "jssm chain-10 transition()",
-      "ops": 98906
+      "ops": 84720
     },
     {
       "name": "jssm hub-50 construct()",
-      "ops": 923
+      "ops": 248
     },
     {
       "name": "jssm hub-50 transition()",
-      "ops": 76606
+      "ops": 78749
     },
     {
       "name": "jssm dense-10 construct()",
-      "ops": 1149
+      "ops": 1006
     },
     {
       "name": "jssm dense-10 transition()",
-      "ops": 78477
+      "ops": 82820
     },
     {
       "name": "jssm chain-200 construct()",
-      "ops": 516
+      "ops": 511
     },
     {
       "name": "jssm chain-200 transition()",
-      "ops": 65571
+      "ops": 67417
     },
     {
       "name": "jssm dense-50 construct()",
-      "ops": 55
+      "ops": 49
     },
     {
       "name": "jssm dense-50 transition()",
-      "ops": 75523
+      "ops": 43414
     },
     {
       "name": "jssm hub-200 construct()",
-      "ops": 308
+      "ops": 300
     },
     {
       "name": "jssm hub-200 transition()",
-      "ops": 73780
+      "ops": 68851
     },
     {
       "name": "jssm chain-1000 construct()",
-      "ops": 111
+      "ops": 21
     },
     {
       "name": "jssm chain-1000 transition()",
-      "ops": 57466
+      "ops": 66740
     },
     {
       "name": "jssm messy-1000 construct()",
-      "ops": 39
+      "ops": 37
     },
     {
       "name": "jssm messy-1000 transition()",
-      "ops": 77611
+      "ops": 64972
     },
     {
       "name": "jssm dense-200 construct()",
@@ -680,7 +682,7 @@
     },
     {
       "name": "jssm dense-200 transition()",
-      "ops": 43763
+      "ops": 41969
     },
     {
       "name": "jssm messy-5000 construct()",
@@ -688,119 +690,119 @@
     },
     {
       "name": "jssm messy-5000 transition()",
-      "ops": 56934
+      "ops": 78137
     },
     {
       "name": "jssm action()",
-      "ops": 75317
+      "ops": 75111
     },
     {
       "name": "jssm guard()",
-      "ops": 47411
+      "ops": 43434
     },
     {
       "name": "jssm hook()",
-      "ops": 42729
+      "ops": 28717
     },
     {
       "name": "jssm data()",
-      "ops": 134571
+      "ops": 123114
     },
     {
       "name": "xstate chain-10 construct()",
-      "ops": 8616
+      "ops": 8189
     },
     {
       "name": "xstate chain-10 transition()",
-      "ops": 315
+      "ops": 300
     },
     {
       "name": "xstate hub-50 construct()",
-      "ops": 2305
+      "ops": 1291
     },
     {
       "name": "xstate hub-50 transition()",
-      "ops": 397
+      "ops": 331
     },
     {
       "name": "xstate dense-10 construct()",
-      "ops": 5666
+      "ops": 5443
     },
     {
       "name": "xstate dense-10 transition()",
-      "ops": 437
+      "ops": 348
     },
     {
       "name": "xstate chain-200 construct()",
-      "ops": 677
+      "ops": 714
     },
     {
       "name": "xstate chain-200 transition()",
-      "ops": 406
+      "ops": 339
     },
     {
       "name": "xstate dense-50 construct()",
-      "ops": 197
+      "ops": 211
     },
     {
       "name": "xstate dense-50 transition()",
-      "ops": 589
+      "ops": 310
     },
     {
       "name": "xstate hub-200 construct()",
-      "ops": 711
+      "ops": 671
     },
     {
       "name": "xstate hub-200 transition()",
-      "ops": 473
+      "ops": 440
     },
     {
       "name": "xstate chain-1000 construct()",
-      "ops": 106
+      "ops": 142
     },
     {
       "name": "xstate chain-1000 transition()",
-      "ops": 423
+      "ops": 538
     },
     {
       "name": "xstate messy-1000 construct()",
-      "ops": 76
+      "ops": 95
     },
     {
       "name": "xstate messy-1000 transition()",
-      "ops": 420
+      "ops": 329
     },
     {
       "name": "xstate dense-200 construct()",
-      "ops": 15
+      "ops": 11
     },
     {
       "name": "xstate dense-200 transition()",
-      "ops": 447
+      "ops": 627
     },
     {
       "name": "xstate messy-5000 construct()",
-      "ops": 9
+      "ops": 14
     },
     {
       "name": "xstate messy-5000 transition()",
-      "ops": 377
+      "ops": 674
     },
     {
       "name": "xstate action()",
-      "ops": 309
+      "ops": 254
     },
     {
       "name": "xstate guard()",
-      "ops": 325
+      "ops": 493
     },
     {
       "name": "xstate hook()",
-      "ops": 734
+      "ops": 1419
     },
     {
       "name": "xstate data()",
-      "ops": 227
+      "ops": 185
     },
     {
       "name": "@xstate/fsm chain-10 construct()",
@@ -1966,12 +1968,12 @@
   "memory": {
     "results": {
       "jssm": {
-        "retainedBytesPerMachine": 68300,
+        "retainedBytesPerMachine": 68301,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
       "xstate": {
-        "retainedBytesPerMachine": 81144,
+        "retainedBytesPerMachine": 81178,
         "allocBytesPerTransition": 0,
         "shape": "hub-50"
       },
@@ -2241,11 +2243,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 44.24,
-        "publishes6mo": 69,
-        "publishes2yr": 78,
-        "lastPublishISO": "2026-06-12T20:55:09.386Z",
-        "publishCheckedAt": "2026-06-12T21:11:48.260Z"
+        "coldStartMs": 41.05,
+        "publishes6mo": 70,
+        "publishes2yr": 79,
+        "lastPublishISO": "2026-06-12T21:25:35.436Z",
+        "publishCheckedAt": "2026-06-12T21:28:05.294Z"
       },
       "xstate": {
         "version": "5.32.0",
@@ -2254,11 +2256,11 @@
         "types": "bundled",
         "modules": "dual",
         "postinstall": "no",
-        "coldStartMs": 40.48,
+        "coldStartMs": 45.52,
         "publishes6mo": 9,
         "publishes2yr": 34,
         "lastPublishISO": "2026-05-27T23:42:23.544Z",
-        "publishCheckedAt": "2026-06-12T21:12:06.963Z"
+        "publishCheckedAt": "2026-06-12T21:28:30.139Z"
       },
       "@xstate/fsm": {
         "version": "2.1.0",
@@ -2434,11 +2436,13 @@
   "featureTests": {
     "jssm": {
       "observe": "yes",
-      "serialize": "yes"
+      "serialize": "yes",
+      "termination": "yes"
     },
     "xstate": {
       "observe": "yes",
-      "serialize": "yes"
+      "serialize": "yes",
+      "termination": "yes"
     },
     "@xstate/fsm": {
       "observe": "yes",

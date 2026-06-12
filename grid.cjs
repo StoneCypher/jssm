@@ -348,7 +348,9 @@ function featureRows() {
     group: f.section, label: f.label, demo: f.demo || null, explain: f.explain,
     jssm6: f.jssm6, declared: !f.fill,
     meta: (lib) => {
-      if (lib === 'jssm') return glyphMeta(f.jssm);
+      // Measured fills apply to EVERY library, jssm included, so a measured row
+      // is measured end to end (jssm's declared glyph is only a fallback for
+      // genuinely-declared rows).
       if (f.fill === 'always') return { mark: YES, status: 'pass' };
       if (f.fill && f.fill.startsWith('cap:')) {
         const flag = f.fill.slice(4);
@@ -367,6 +369,17 @@ function featureRows() {
         if (v === 'error')   return { mark: NO,  status: 'fail', note: 'errored under test' };
         return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
       }
+      // DSL gate: textual-notation features. A config-object library (no DSL)
+      // definitively lacks them (✗); a library with a DSL but whose specific
+      // notation we haven't assessed is '?'. jssm is the authoritative DSL.
+      if (f.fill === 'dsl-gate') {
+        if (lib === 'jssm') return glyphMeta(f.jssm);
+        const dsl = caps[lib] && caps[lib].dsl;
+        return dsl ? { mark: FQ, status: 'unknown', note: 'has a textual DSL; this notation not assessed' }
+                   : { mark: NO, status: 'fail', note: 'config-object library — no textual DSL' };
+      }
+      // genuinely declared (no fill): jssm authoritative, competitors unassessed
+      if (lib === 'jssm') return glyphMeta(f.jssm);
       return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
     },
   }));

@@ -123,6 +123,17 @@ module.exports = {
     return v === 'b';
   },
 
+  // ---- terminal/final states ----
+  tryTermination() {
+    const machine = createMachine({ id: 'fin', initial: 'a',
+      states: { a: { on: { go: 'b' } }, b: { type: 'final' } } });
+    const actor = createActor(machine).start();
+    actor.send({ type: 'go' });
+    const done = actor.getSnapshot().status === 'done';
+    actor.stop();
+    return done;
+  },
+
   // ---- timer (actor `after`; clocks need a runtime) ----
   timerDelayMs : () => TIMER_MS,
   openTimer() {

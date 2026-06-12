@@ -38,7 +38,7 @@ module.exports = [
   { section: 'Language features', label: 'Post-hooks',          jssm: Y, jssm6: Y, demo: `a -> b;`, explain: 'Hooks that fire after the transition commits.' },
   { section: 'Language features', label: 'Hook rejection',      jssm: Y, jssm6: Y, fill: 'cap:guard', demo: `a -> b;`, explain: 'A hook can veto a transition.' },
   { section: 'Language features', label: 'Timeouts (after)',    jssm: Y, jssm6: Y, fill: 'cap:timer', demo: `a -> b;\nb after 1000ms -> a;`, explain: 'Time-delayed automatic transitions.' },
-  { section: 'Language features', label: 'Termination',         jssm: Y, jssm6: Y, demo: `a -> b;`, explain: 'Terminal/complete states.' },
+  { section: 'Language features', label: 'Termination',         jssm: Y, jssm6: Y, fill: 'feature:termination', demo: `a -> b;`, explain: 'Terminal / final states (a state the machine can finish in). Measured by test where assessed.' },
   { section: 'Language features', label: 'Weighted edges',      jssm: Y, jssm6: Y, demo: null, explain: 'Probabilities on transitions, for weighted random walks.' },
   { section: 'Language features', label: 'State groups',        jssm: Y, jssm6: Y, demo: `[a b] ~> off;`, explain: 'Operate on a set of states at once (overlapping groups in 5.143).' },
   { section: 'Language features', label: 'Random walks',        jssm: Y, jssm6: Y, demo: `a 'n' -> b 'n' -> a;`, explain: 'Probabilistically walk the machine.' },
@@ -52,13 +52,13 @@ module.exports = [
   { section: 'Language features', label: 'Error hooks',         jssm: Y, jssm6: Y, demo: null, explain: 'Hooks on rejected/invalid transitions.' },
 
   // ===== Notations (jssm FSL) =====
-  { section: 'Notation (FSL)', label: 'String DSL',     jssm: Y, jssm6: Y, demo: `a -> b -> c;`, explain: 'A dedicated textual state-machine language (FSL), not just object config.' },
-  { section: 'Notation (FSL)', label: 'Wildcards',      jssm: Y, jssm6: Y, demo: null, explain: 'Match groups of states.' },
-  { section: 'Notation (FSL)', label: 'Stripes',        jssm: Y, jssm6: Y, demo: `a -> b -> c -> d;`, explain: 'Chain many transitions on one line (a -> b -> c).' },
-  { section: 'Notation (FSL)', label: 'Cycles',         jssm: Y, jssm6: Y, demo: `a -> b -> c -> a;`, explain: 'Close a chain back to its start.' },
-  { section: 'Notation (FSL)', label: 'Arrow kinds',    jssm: Y, jssm6: Y, demo: `a -> b;\nc <=> d;\ne ~> f;`, explain: 'Distinct arrow kinds (legal / main / forced) with different semantics.' },
-  { section: 'Notation (FSL)', label: 'State spread',   jssm: Y, jssm6: Y, demo: `[a b c] ~> off;`, explain: 'Apply one edge across a bracketed set of states.' },
-  { section: 'Notation (FSL)', label: 'Complex labels', jssm: Y, jssm6: Y, demo: `a 'cook 🍳' -> b;`, explain: 'Rich edge labels (quoted, unicode, actions, weights, timing).' },
+  { section: 'Notation (FSL)', label: 'String DSL',     jssm: Y, jssm6: Y, fill: 'cap:dsl', demo: `a -> b -> c;`, explain: 'A dedicated textual state-machine language, not just object config. Measured: does the library accept a textual definition?' },
+  { section: 'Notation (FSL)', label: 'Wildcards',      jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: null, explain: 'Match groups of states.' },
+  { section: 'Notation (FSL)', label: 'Stripes',        jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b -> c -> d;`, explain: 'Chain many transitions on one line (a -> b -> c).' },
+  { section: 'Notation (FSL)', label: 'Cycles',         jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b -> c -> a;`, explain: 'Close a chain back to its start.' },
+  { section: 'Notation (FSL)', label: 'Arrow kinds',    jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b;\nc <=> d;\ne ~> f;`, explain: 'Distinct arrow kinds (legal / main / forced) with different semantics.' },
+  { section: 'Notation (FSL)', label: 'State spread',   jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `[a b c] ~> off;`, explain: 'Apply one edge across a bracketed set of states.' },
+  { section: 'Notation (FSL)', label: 'Complex labels', jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a 'cook 🍳' -> b;`, explain: 'Rich edge labels (quoted, unicode, actions, weights, timing).' },
 
   // ===== API / reflection =====
   { section: 'API & reflection', label: 'Graph reflection API', jssm: Y, jssm6: Y, demo: null, explain: 'Query states, edges, exits, reachability at runtime.' },
@@ -116,7 +116,7 @@ module.exports = [
   { section: 'API & reflection', label: 'Property reflection',           jssm: Y, jssm6: Y, demo: null, explain: 'Enumerate property keys (.known_props) and read one (.known_prop).' },
 
   // ===== Notation (batch 2) =====
-  { section: 'Notation (FSL)', label: 'Mixed arrows', jssm: Y, jssm6: Y, demo: `a <=> b;`, explain: 'Mixed-kind arrows (<=>, light/fat/tilde combinations) in one token.' },
+  { section: 'Notation (FSL)', label: 'Mixed arrows', jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a <=> b;`, explain: 'Mixed-kind arrows (<=>, light/fat/tilde combinations) in one token.' },
 
   // ===== Visualization (jssm-viz) =====
   { section: 'Visualization', label: 'Graph rendering',        jssm: Y, jssm6: Y, demo: null, explain: 'Render the machine as a graph diagram.' },

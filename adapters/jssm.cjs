@@ -18,7 +18,7 @@ module.exports = {
   name    : 'jssm',
   version : jssm.version,
 
-  caps : { transition: true, action: true, guard: true, hook: true, data: true, timer: true },
+  caps : { transition: true, action: true, guard: true, hook: true, data: true, timer: true, dsl: true },
 
   // ---- core ----
   buildDefinition : (shape) => shape.fsl,
@@ -74,6 +74,12 @@ module.exports = {
     const m = jssm.sm([fsl]); m.transition('b');
     const restored = jssm.deserialize(fsl, m.serialize());
     return restored.state() === 'b';
+  },
+
+  // ---- terminal/final states ----
+  tryTermination() {
+    const m = jssm.sm([`a -> b;`]);   // b has no exits -> terminal
+    return m.state_is_terminal('b') === true;
   },
 
   // ---- timer (FSL `after` clause; entering b arms b -> a) ----
