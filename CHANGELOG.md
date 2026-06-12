@@ -22,6 +22,34 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 11, 2026 7:51:14 PM
+
+Commit [bd50b7d823dba63b1c3918dd45eb1675dcc3f0d1](https://github.com/StoneCypher/jssm/commit/bd50b7d823dba63b1c3918dd45eb1675dcc3f0d1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(hooks): v5.143.6 — shared frozen hook outcomes (#705)
+  * abstract_hook_step and abstract_everything_hook_step returned a freshly
+allocated { pass: true } in the three overwhelmingly common cases (no
+hook installed, hook returned undefined, hook returned true), and a
+fresh { pass: false } on plain rejections. The hooked transition
+cascade calls these at up to ~10 sites per transition, so a machine
+with one per-edge hook still allocated 6-10 outcome objects per
+transition() whose only purpose was a single .pass read.
+  * The simple results are now module-level shared frozen constants
+(HOOK_PASSED / HOOK_REJECTED). Complex results pass through untouched.
+Callers only read .pass and probe hasOwnProperty('data')
+(_update_hook_fields); nothing mutates an outcome (verified), and
+freezing turns that read-only contract from incidental into enforced.
+  * The allocation half of #649's leftover list, reachable since #671.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 11, 2026 7:45:56 PM
 
 Commit [483bf22c910e5b0648f6730795e51b8a366f90c3](https://github.com/StoneCypher/jssm/commit/483bf22c910e5b0648f6730795e51b8a366f90c3)
@@ -266,31 +294,3 @@ performance characteristics than the graviton runners, and anything
 else in the dataset is pollution. The pre-graviton historic archive
 (2026-05-26 through 2026-06-02) stays: closed writeups reference it and
 benchmark_compare.cjs uses it as DEFAULT_BASELINE.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 11, 2026 2:08:48 PM
-
-Commit [4b8690545e1d4950da82c5c9df3393eab7390c55](https://github.com/StoneCypher/jssm/commit/4b8690545e1d4950da82c5c9df3393eab7390c55)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(taxonomy): canonical JSON form, expanded to 259 categories / 1,336 seeds
-  * 2026-06-11-fsl-use-case-taxonomy.json (v2) becomes the canonical
-machine-consumable source for the use-case corpus and future site
-generator: 18 supergroups, 259 categories (up from 202), 1,336 seed
-instances, unique kebab ids, user anchors marked. Node-validated
-(parse, id uniqueness, shape). v2 adds ~57 categories including
-supply-chain security, zero-trust attestation, treasury/digital-assets,
-CPQ, chaos engineering, FinOps, ACME ops, agent memory, computer-use
-sessions, delegation contracts, WebRTC/ICE, atomic commit, event
-sourcing, state-machine replication, micromobility, tolling, baggage
-handling, procedural generation, modding/UGC, justice, immigration,
-libraries, genomics, early-warning, online judges, and proof-assistant
-workflows — and thickens seed lists throughout. The markdown keeps the
-SEO-mechanics prose and now defers to the JSON for the list itself.

@@ -731,26 +731,25 @@ class Machine<mDT> {
     // array scan (which made construction O(V*E) on dense graphs).  #673
     const seen_edges: Map<StateType, Set<StateType>> = new Map();
 
-    // walk the transitions
-    transitions.map((tr: JssmTransition<StateType, mDT>) => {
+    // walk the transitions.  single-lookup cursor fetches: each endpoint was
+    // previously a get followed by a has on the same key (four hashes per
+    // edge); the undefined check on the get's result carries the same
+    // information.  #706
+    for (const tr of transitions) {
 
       if ( tr.from === undefined ) { throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`); }
       if ( tr.to   === undefined ) { throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`); }
 
       // get the cursors.  what a mess
-      const cursor_from: JssmGenericState
-        = this._states.get(tr.from)
-        || { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
-
-      if (!(this._states.has(tr.from))) {
+      let cursor_from: JssmGenericState | undefined = this._states.get(tr.from);
+      if (cursor_from === undefined) {
+        cursor_from = { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
         this._new_state(cursor_from);
       }
 
-      const cursor_to: JssmGenericState
-        = this._states.get(tr.to)
-        || { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
-
-      if (!(this._states.has(tr.to))) {
+      let cursor_to: JssmGenericState | undefined = this._states.get(tr.to);
+      if (cursor_to === undefined) {
+        cursor_to = { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
         this._new_state(cursor_to);
       }
 
@@ -791,8 +790,9 @@ class Machine<mDT> {
       }
 
       // set up the mapping, so that edges can be looked up by endpoint pairs
-      const from_mapping: Map<StateType, number> = this._edge_map.get(tr.from) || new Map();
-      if (!(this._edge_map.has(tr.from))) {
+      let from_mapping: Map<StateType, number> | undefined = this._edge_map.get(tr.from);
+      if (from_mapping === undefined) {
+        from_mapping = new Map();
         this._edge_map.set(tr.from, from_mapping);
       }
 
@@ -861,7 +861,7 @@ class Machine<mDT> {
         */
       }
 
-    });
+    }
 
 
     if (Array.isArray(property_definition)) {

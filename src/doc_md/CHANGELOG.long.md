@@ -22,6 +22,34 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 11, 2026 7:51:14 PM
+
+Commit [bd50b7d823dba63b1c3918dd45eb1675dcc3f0d1](https://github.com/StoneCypher/jssm/commit/bd50b7d823dba63b1c3918dd45eb1675dcc3f0d1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(hooks): v5.143.6 — shared frozen hook outcomes (#705)
+  * abstract_hook_step and abstract_everything_hook_step returned a freshly
+allocated { pass: true } in the three overwhelmingly common cases (no
+hook installed, hook returned undefined, hook returned true), and a
+fresh { pass: false } on plain rejections. The hooked transition
+cascade calls these at up to ~10 sites per transition, so a machine
+with one per-edge hook still allocated 6-10 outcome objects per
+transition() whose only purpose was a single .pass read.
+  * The simple results are now module-level shared frozen constants
+(HOOK_PASSED / HOOK_REJECTED). Complex results pass through untouched.
+Callers only read .pass and probe hasOwnProperty('data')
+(_update_hook_fields); nothing mutates an outcome (verified), and
+freezing turns that read-only contract from incidental into enforced.
+  * The allocation half of #649's leftover list, reachable since #671.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 11, 2026 7:45:56 PM
 
 Commit [483bf22c910e5b0648f6730795e51b8a366f90c3](https://github.com/StoneCypher/jssm/commit/483bf22c910e5b0648f6730795e51b8a366f90c3)
