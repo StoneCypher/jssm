@@ -149,9 +149,9 @@ function seq(n: number): number[] {
     throw new TypeError('seq/1 takes a non-negative integer n as an argument');
   }
 
-  return (new Array(n))
-           .fill(true)
-           .map( (_, i): number => i );
+  // single-allocation form; the old new Array(n).fill().map() chain built
+  // three arrays per call, and seq runs per probabilistic walk / sample
+  return Array.from( {length: n}, (_, i): number => i );
 
 }
 
@@ -353,9 +353,21 @@ function gen_splitmix32(a? : number | undefined) {
  *
  */
 
-const unique = <T>(arr: T[]) =>
+const unique = <T>(arr: T[]) => {
 
-  arr.filter( (v, i, a) => a.indexOf(v) === i );
+  // Set membership makes this O(n); the old indexOf-per-element filter was
+  // O(n^2).  NaN is dropped *explicitly* here because Sets self-match NaN
+  // (SameValueZero) where the documented indexOf behavior (===) never did.
+  const seen = new Set<T>();
+
+  return arr.filter( (v: T): boolean => {
+    if (v !== v)     { return false; }   // NaN: preserve documented dropping
+    if (seen.has(v)) { return false; }
+    seen.add(v);
+    return true;
+  });
+
+};
 
 
 
