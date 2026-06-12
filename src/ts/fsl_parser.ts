@@ -4159,43 +4159,72 @@ function peg$parse(input, options) {
   }
 
   function peg$parseActionLabel() {
-    var s0, s1, s2, s3;
+    var c, start, chunk, out, h, hv;
 
     peg$silentFails++;
-    s0 = peg$currPos;
-    s1 = peg$parseActionLabelQuoteMark();
-    if (s1 !== peg$FAILED) {
-      s2 = [];
-      s3 = peg$parseActionLabelChar();
-      while (s3 !== peg$FAILED) {
-        s2.push(s3);
-        s3 = peg$parseActionLabelChar();
-      }
-      if (s2 !== peg$FAILED) {
-        s3 = peg$parseActionLabelQuoteMark();
-        if (s3 !== peg$FAILED) {
-          peg$savedPos = s0;
-          s1 = peg$c289(s2);
-          s0 = s1;
-        } else {
-          peg$currPos = s0;
-          s0 = peg$FAILED;
+
+    if (input.charCodeAt(peg$currPos) === 39) {
+
+      start = peg$currPos;
+      peg$currPos++;
+      chunk = peg$currPos;
+      out   = '';
+
+      for (;;) {
+        c = input.charCodeAt(peg$currPos);
+
+        if (c >= 32 && c !== 39 && c !== 92) {                  // unescaped run
+          peg$currPos++;
+          continue;
         }
-      } else {
-        peg$currPos = s0;
-        s0 = peg$FAILED;
+
+        if (c === 39) {                    // closing quote: emit
+          out = out + input.substring(chunk, peg$currPos);
+          peg$currPos++;
+          peg$silentFails--;
+          return out;
+        }
+
+        if (c === 92) {                                // backslash: one escape
+          out += input.substring(chunk, peg$currPos);
+          peg$currPos++;
+          c = input.charCodeAt(peg$currPos);
+          if      (c === 39) { out += "'"; peg$currPos++; }
+          else if (c === 92)  { out += '\\'; peg$currPos++; }
+          else if (c === 47)  { out += '/';    peg$currPos++; }
+          else if (c === 98)  { out += '\b';  peg$currPos++; }
+          else if (c === 102) { out += '\f';  peg$currPos++; }
+          else if (c === 110) { out += '\n';  peg$currPos++; }
+          else if (c === 114) { out += '\r';  peg$currPos++; }
+          else if (c === 116) { out += '\t';  peg$currPos++; }
+          else if (c === 118) { out += '\v';  peg$currPos++; }
+          else if (c === 117) {                        // \uXXXX, hex case-insensitive
+            hv = 0;
+            for (h = 1; h <= 4; ++h) {
+              c = input.charCodeAt(peg$currPos + h);
+              if      (c >= 48 && c <= 57)  { hv = hv * 16 + (c - 48); }
+              else if (c >= 97 && c <= 102) { hv = hv * 16 + (c - 87); }
+              else if (c >= 65 && c <= 70)  { hv = hv * 16 + (c - 55); }
+              else { hv = -1; break; }
+            }
+            if (hv < 0) { break; }                     // bad hex: rule fails
+            out += String.fromCharCode(hv);
+            peg$currPos += 5;
+          }
+          else { break; }                              // unknown escape: rule fails
+          chunk = peg$currPos;
+          continue;
+        }
+
+        break;                                         // EOF or out-of-class char
       }
-    } else {
-      peg$currPos = s0;
-      s0 = peg$FAILED;
-    }
-    peg$silentFails--;
-    if (s0 === peg$FAILED) {
-      s1 = peg$FAILED;
-      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c288); }
+
+      peg$currPos = start;                             // backtrack to rule start
     }
 
-    return s0;
+    peg$silentFails--;
+    if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c288); }
+    return peg$FAILED;
   }
 
   function peg$parseLineTerminator() {
@@ -4489,43 +4518,72 @@ function peg$parse(input, options) {
   }
 
   function peg$parseString() {
-    var s0, s1, s2, s3;
+    var c, start, chunk, out, h, hv;
 
     peg$silentFails++;
-    s0 = peg$currPos;
-    s1 = peg$parseQuoteMark();
-    if (s1 !== peg$FAILED) {
-      s2 = [];
-      s3 = peg$parseChar();
-      while (s3 !== peg$FAILED) {
-        s2.push(s3);
-        s3 = peg$parseChar();
-      }
-      if (s2 !== peg$FAILED) {
-        s3 = peg$parseQuoteMark();
-        if (s3 !== peg$FAILED) {
-          peg$savedPos = s0;
-          s1 = peg$c289(s2);
-          s0 = s1;
-        } else {
-          peg$currPos = s0;
-          s0 = peg$FAILED;
+
+    if (input.charCodeAt(peg$currPos) === 34) {
+
+      start = peg$currPos;
+      peg$currPos++;
+      chunk = peg$currPos;
+      out   = '';
+
+      for (;;) {
+        c = input.charCodeAt(peg$currPos);
+
+        if (c >= 0 && c !== 34 && c !== 92) {                  // unescaped run
+          peg$currPos++;
+          continue;
         }
-      } else {
-        peg$currPos = s0;
-        s0 = peg$FAILED;
+
+        if (c === 34) {                    // closing quote: emit
+          out = out + input.substring(chunk, peg$currPos);
+          peg$currPos++;
+          peg$silentFails--;
+          return out;
+        }
+
+        if (c === 92) {                                // backslash: one escape
+          out += input.substring(chunk, peg$currPos);
+          peg$currPos++;
+          c = input.charCodeAt(peg$currPos);
+          if      (c === 34) { out += '"'; peg$currPos++; }
+          else if (c === 92)  { out += '\\'; peg$currPos++; }
+          else if (c === 47)  { out += '/';    peg$currPos++; }
+          else if (c === 98)  { out += '\b';  peg$currPos++; }
+          else if (c === 102) { out += '\f';  peg$currPos++; }
+          else if (c === 110) { out += '\n';  peg$currPos++; }
+          else if (c === 114) { out += '\r';  peg$currPos++; }
+          else if (c === 116) { out += '\t';  peg$currPos++; }
+          else if (c === 118) { out += '\v';  peg$currPos++; }
+          else if (c === 117) {                        // \uXXXX, hex case-insensitive
+            hv = 0;
+            for (h = 1; h <= 4; ++h) {
+              c = input.charCodeAt(peg$currPos + h);
+              if      (c >= 48 && c <= 57)  { hv = hv * 16 + (c - 48); }
+              else if (c >= 97 && c <= 102) { hv = hv * 16 + (c - 87); }
+              else if (c >= 65 && c <= 70)  { hv = hv * 16 + (c - 55); }
+              else { hv = -1; break; }
+            }
+            if (hv < 0) { break; }                     // bad hex: rule fails
+            out += String.fromCharCode(hv);
+            peg$currPos += 5;
+          }
+          else { break; }                              // unknown escape: rule fails
+          chunk = peg$currPos;
+          continue;
+        }
+
+        break;                                         // EOF or out-of-class char
       }
-    } else {
-      peg$currPos = s0;
-      s0 = peg$FAILED;
-    }
-    peg$silentFails--;
-    if (s0 === peg$FAILED) {
-      s1 = peg$FAILED;
-      if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c304); }
+
+      peg$currPos = start;                             // backtrack to rule start
     }
 
-    return s0;
+    peg$silentFails--;
+    if (peg$silentFails === 0 && peg$currPos >= peg$maxFailPos) { peg$fail(peg$c304); }
+    return peg$FAILED;
   }
 
   function peg$parseAtomFirstLetter() {
