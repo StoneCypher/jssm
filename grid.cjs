@@ -101,7 +101,7 @@ function publishRow(windowKey, windowText, passAbove, headLabel) {
   return {
     group: 'Packaging & lifecycle', label: `${headLabel} (as of ${asOf})`,
     demo: `a -> b;`,
-    explain: `Number of versions published to npm ${windowText}. Pass above ${passAbove}; warn if maintained but below; fail if none. A competitor publishing more often than jssm is cyan.`,
+    explain: `Number of versions published to npm ${windowText}. Pass at ${passAbove}+ releases; warn if maintained but fewer; fail if none. A competitor publishing more often than jssm is cyan.`,
     jssm6: undefined,
     meta: (lib) => {
       const s = STAT && STAT.results && STAT.results[lib];
@@ -110,7 +110,7 @@ function publishRow(windowKey, windowText, passAbove, headLabel) {
       const jn = (STAT.results.jssm && STAT.results.jssm[windowKey] != null) ? STAT.results.jssm[windowKey] : null;
       const note = `${n} release${n === 1 ? '' : 's'} ${windowText}` + (jn != null ? `; jssm: ${jn}` : '');
       if (jn != null && n > jn) return { mark: String(n), status: 'beat', note: note + ' — outpaces jssm' };
-      if (n > passAbove)        return { mark: String(n), status: 'pass', note };
+      if (n >= passAbove)       return { mark: String(n), status: 'pass', note };   // meeting the bar is a pass
       if (n > 0)                return { mark: String(n), status: 'warn', note: note + ' — below the maintained bar' };
       return { mark: '0', status: 'fail', note: note + ' — no releases in window' };
     },
@@ -201,14 +201,19 @@ function behavRow(key, label, demo, explain, metaFn, validate) {
   };
 }
 
+// A packaging fact row. mapFn(s) returns either a bare mark or, to carry an
+// explanatory hover, a { mark, note, status? } object — so a ✗C (CJS-only) cell
+// can explain itself like the behavior cells do.
 function staticRow(label, demo, explain, mapFn, validate) {
   return {
     group: 'Packaging & lifecycle', label, demo, explain, validate,
     jssm6: undefined,
-    cell: (lib) => {
+    meta: (lib) => {
       const s = STAT && STAT.results && STAT.results[lib];
-      if (!s) return NA;
-      return mapFn(s);
+      if (!s) return { mark: NA, status: 'neutral' };
+      const r = mapFn(s);
+      if (r && typeof r === 'object') return { mark: r.mark, status: r.status || classifyMark(r.mark), note: r.note };
+      return { mark: r, status: classifyMark(r) };
     },
   };
 }
@@ -283,17 +288,25 @@ const ROWS = [
   staticRow('Ships TypeScript types',
     `a -> b;`,
     'Bundled `.d.ts` declarations (top-level, exports-map `types` condition, or a dist subdir).',
-    (s) => s.types === 'bundled' ? YES : NO),
+    (s) => s.types === 'bundled'
+      ? { mark: YES, note: 'ships bundled .d.ts type declarations' }
+      : { mark: NO, note: 'no bundled TypeScript declarations' }),
 
   staticRow('Dual ESM + CJS',
     `a -> b;`,
     'Advertises both `import` and `require` entry points. CJS-only (no ESM) is a fail (✗C).',
-    (s) => s.modules === 'dual' ? YES : s.modules === 'cjs' ? CROSS_C : s.modules),
+    (s) => s.modules === 'dual'
+      ? { mark: YES, note: 'ships both ESM (import) and CJS (require) entry points' }
+      : s.modules === 'cjs'
+      ? { mark: CROSS_C, note: 'CJS-only — no ESM import entry point; modern ESM/bundler consumers must interop through the CommonJS build' }
+      : { mark: s.modules, note: `module format: ${s.modules}` }),
 
   staticRow('No install scripts',
     `a -> b;`,
     'No postinstall/install/preinstall hooks — one less supply-chain surface when you add it.',
-    (s) => s.postinstall === 'no' ? YES : NO),
+    (s) => s.postinstall === 'no'
+      ? { mark: YES, note: 'no install / postinstall scripts' }
+      : { mark: NO, note: 'runs an install / postinstall script — extra supply-chain surface' }),
 
   publishRow('publishes6mo', 'in the last 6 months', 5, 'Releases · 6 mo'),
   publishRow('publishes2yr', 'in the last 2 years',  20, 'Releases · 2 yr'),
@@ -301,7 +314,9 @@ const ROWS = [
   staticRow('Zero runtime dependencies',
     `a -> b;`,
     'No transitive runtime dependencies of its own.',
-    (s) => s.directDeps === 0 ? YES : NO),
+    (s) => s.directDeps === 0
+      ? { mark: YES, note: 'no runtime dependencies' }
+      : { mark: NO, note: `${s.directDeps} runtime ${s.directDeps === 1 ? 'dependency' : 'dependencies'}` }),
 ];
 
 // Scaling feasibility rows — one per demanding shape, generated from the
@@ -345,19 +360,9 @@ function feasRows() {
   return rows;
 }
 
-// jssm 6 declared-only rows (announced in the v6 plans; not yet measurable).
-const JSSM6_ROWS = [
-  { group: 'jssm 6 (declared)', label: 'Extended state — typed `var`s',
-    demo: `a -> b;`, explain: 'First-class typed machine variables (jssm 6 expression language). Declared, not yet shipped.' },
-  { group: 'jssm 6 (declared)', label: 'Guard / assignment expressions',
-    demo: `a -> b;`, explain: 'Conditions and data updates written in the FSL expression language (jssm 6).' },
-  { group: 'jssm 6 (declared)', label: 'State factories',
-    demo: `a -> b;`, explain: 'Parameterised, reusable state templates (jssm 6).' },
-  { group: 'jssm 6 (declared)', label: 'Systems — composed machines',
-    demo: `a -> b;`, explain: 'Multiple machines composed into one coordinated system (jssm 6).' },
-  { group: 'jssm 6 (declared)', label: 'Overlapping state groups',
-    demo: `a -> b;`, explain: 'States belonging to multiple overlapping groups at once (jssm 6).' },
-];
+// (The jssm-6 forward-looking features live in their natural sections in
+// features.cjs — jssm:✗ / jssm6:◐ — so each section shows 6 advancing over 5,
+// rather than isolating them in a separate block.)
 
 const FEAS_ROWS = feasRows();
 
@@ -403,12 +408,13 @@ function featureRows() {
         return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
       }
       // Documentation tier: fill competitor cells from each library's own docs
-      // (data/docs/farm.json). The muted 'doc-yes'/'doc-no' tier is visibly
-      // softer than measured pass/fail and the tooltip cites the source + date
-      // + version. jssm stays first-party authoritative (never farmed). These
-      // rows are flagship/ecosystem features (nesting, viz, CLI, framework,
-      // editor) where absence-by-omission in the docs is reliable, so a
-      // documented NO is shown as a muted ✗ rather than '?'.
+      // (data/docs/farm.json). doc-yes/doc-no carry the same pass/fail verdict
+      // colours as measured cells (a documented absence is a real failure); the
+      // ᵈ badge + tooltip mark the EVIDENCE as a doc claim and cite source/date/
+      // version. jssm stays first-party authoritative (never farmed). These rows
+      // are flagship/ecosystem features (nesting, viz, CLI, framework, editor)
+      // where absence-by-omission in the docs is reliable, so a documented NO is
+      // a ✗ rather than '?'.
       if (f.fill && f.fill.startsWith('docs:')) {
         const key = f.fill.slice(5);
         if (lib === 'jssm') return glyphMeta(f.jssm);
@@ -437,8 +443,8 @@ function featureRows() {
 const FEATURE_ROWS = featureRows();
 
 // All renderable feature rows, in section order: measured first, then the
-// declared feature catalog, scaling, and the jssm-6 declared block.
-const ALL_ROWS = ROWS.concat(FEATURE_ROWS, FEAS_ROWS, JSSM6_ROWS);
+// declared feature catalog, then scaling.
+const ALL_ROWS = ROWS.concat(FEATURE_ROWS, FEAS_ROWS);
 
 // ---------------------------------------------------------------------------
 // validate FSL demos as test vectors (docs-as-tests)
@@ -471,11 +477,14 @@ if (demoFailures.length) {
   process.exit(1);
 }
 
-// jssm6 inherits the jssm5 cell where not explicitly set (meta rows included).
-// Declared-future rows have neither cell nor meta — cellInfo handles them.
+// jssm6 inherits the jssm5 cell where not explicitly set (measured rows). For
+// meta rows we keep the WHOLE jssm result (jssm6info) — mark, status, and note —
+// so the jssm-6 column mirrors jssm's real colour (a publish count, a ✓F, a
+// scaling grade) instead of re-deriving a status from a bare mark, which can't
+// classify a number or a compound glyph.
 for (const r of ALL_ROWS) {
   if (r.jssm6 !== undefined) continue;
-  if (r.meta)      r.jssm6 = r.meta('jssm').mark;
+  if (r.meta)      { const j = r.meta('jssm'); r.jssm6 = j.mark; r.jssm6info = j; }
   else if (r.cell) r.jssm6 = r.cell('jssm');
 }
 
@@ -491,13 +500,8 @@ const COLS = ['jssm', 'jssm 6'].concat(COMPETITORS);
 // (carried mainly on failures, and on the illegal-move successes to explain
 // each rejection mode).
 function cellInfo(row, col) {
-  if (row.group === 'jssm 6 (declared)') {
-    // Declared-future rows: jssm 6 has it (declared); nobody else does yet —
-    // shown neutral, not red, since these are forward-looking, not failings.
-    return col === 'jssm 6' ? { mark: DECL, status: 'neutral', note: 'declared for jssm 6 — announced, not yet measurable' }
-                            : { mark: NO, status: 'neutral' };
-  }
   if (col === 'jssm 6') {
+    if (row.jssm6info) return { mark: row.jssm6info.mark, status: row.jssm6info.status, note: row.jssm6info.note };
     const m = row.jssm6;
     return { mark: m, status: classifyMark(m) };
   }
@@ -667,11 +671,12 @@ const html = `<!doctype html>
      bare paper, but clearly distinct from pass / fail / warn / the unknown hatch. */
   .c-neutral { color:#666; background:#e8e3d5; }
   .c-unknown { color:#a99f86; font-style:italic; background:repeating-linear-gradient(45deg,#f1ede1,#f1ede1 5px,#e4ddc8 5px,#e4ddc8 10px); }
-  /* documented tier — softer than measured pass/fail; a ᵈ badge marks it as a
-     doc claim (not relying on color alone), the tooltip carries the source. */
-  .c-doc-yes { background:#eef5ec; color:#4f7a52; font-weight:600; }
-  .c-doc-no  { background:#f6ebe9; color:#9a6f6c; font-weight:600; }
-  .c-doc-yes::after, .c-doc-no::after { content:'ᵈ'; font-size:.9em; opacity:.6; margin-left:1px; }
+  /* documented tier — same pass/fail VERDICT colours as measured cells (a
+     documented absence is still a failure), with a ᵈ badge marking the
+     EVIDENCE as a doc claim rather than a machine test; tooltip cites the source. */
+  .c-doc-yes { background:#e2f1e0; color:#1d7a33; font-weight:700; }
+  .c-doc-no  { background:#fbe1de; color:#b03030; font-weight:700; }
+  .c-doc-yes::after, .c-doc-no::after { content:'ᵈ'; font-size:.82em; opacity:.5; margin-left:1px; font-weight:400; }
   sub.submark { font-size:0.7em; font-weight:700; }
   [data-tip] { cursor: help; }
   /* custom tooltip widget */
@@ -705,11 +710,11 @@ const html = `<!doctype html>
 </style></head>
 <body>
   <h1>The FSM Shootout Grid<span class="tm">™</span></h1>
-  <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Cells are machine-verified against a pinned version, except the muted <b style="color:#4f7a52">ᵈ</b> tier, which is sourced from each library's own published documentation.</p>
+  <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Cells are machine-verified against a pinned version; a <b>ᵈ</b> badge marks the few sourced from each library's own published documentation (same pass/fail colours, doc-claimed evidence).</p>
   <div class="caveat"><strong>LOCAL PREVIEW.</strong> These numbers were measured on a developer workstation (and a <code>--quick</code> throughput pass), not the graviton reference runner — directional only. Capability and behavior checkmarks are environment-independent and final. Canonical numbers come from a dispatched <code>perf_results/shootout/</code> run.</div>
   <p class="legend">Hover any cell for detail. Backgrounds: <b style="background:#cdf3f4;color:#0a6b78;padding:0 4px;border-radius:3px">cyan</b> beats jssm · <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">green</b> pass · <b style="background:#fdeccb;color:#9a6512;padding:0 4px;border-radius:3px">amber</b> &gt;${WARN_FACTOR}× slower than jssm · <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">red</b> fail.
   &nbsp; <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">✗<sub class="submark">T</sub></b> throws (can't use the name) · <b style="color:#9a6512">⚠<sub class="submark">N</sub></b> silent no-op (safe, but tells the caller nothing) · <b class="m-no">✗<sub class="submark">C</sub></b> CJS-only (no ESM) · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a
-  &nbsp; <b style="background:#eef5ec;color:#4f7a52;padding:0 4px;border-radius:3px">✓ᵈ</b> / <b style="background:#f6ebe9;color:#9a6f6c;padding:0 4px;border-radius:3px">✗ᵈ</b> documented in the library's own docs (the muted ᵈ tier — claimed, not machine-verified; hover for the source).</p>
+  &nbsp; <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">✓ᵈ</b> / <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">✗ᵈ</b> verdict from the library's own docs — same pass/fail colours, the ᵈ badge means doc-claimed (not machine-verified); hover for the source.</p>
 
   <table class="grid">
     <colgroup><col class="labelcol">${COLS.map(() => '<col class="libcol">').join('')}</colgroup>

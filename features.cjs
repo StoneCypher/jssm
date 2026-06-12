@@ -49,6 +49,7 @@ module.exports = [
   { section: 'Language features', label: 'Machine composition', jssm: N, jssm6: P, demo: null, explain: 'Compose several machines into one. Planned for jssm 6 (systems).' },
   { section: 'Language features', label: 'Factories',           jssm: N, jssm6: P, demo: null, explain: 'Parameterised reusable machine templates. Planned for jssm 6.' },
   { section: 'Language features', label: 'Extended state vars', jssm: N, jssm6: P, demo: null, explain: 'Typed variables + expression language. Planned for jssm 6.' },
+  { section: 'Language features', label: 'Expression guards / assignment', jssm: N, jssm6: P, demo: null, explain: 'Guard conditions and data assignments written in the FSL expression language. Planned for jssm 6.' },
   { section: 'Language features', label: 'Named instances',     jssm: Y, jssm6: Y, demo: null, explain: 'Name and address machine instances.' },
   { section: 'Language features', label: 'Error hooks',         jssm: Y, jssm6: Y, demo: null, explain: 'Hooks on rejected/invalid transitions.' },
 
@@ -57,9 +58,15 @@ module.exports = [
   { section: 'Notation (FSL)', label: 'Wildcards',      jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: null, explain: 'Match groups of states.' },
   { section: 'Notation (FSL)', label: 'Stripes',        jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b -> c -> d;`, explain: 'Chain many transitions on one line (a -> b -> c).' },
   { section: 'Notation (FSL)', label: 'Cycles',         jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b -> c -> a;`, explain: 'Close a chain back to its start.' },
-  { section: 'Notation (FSL)', label: 'Arrow kinds',    jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b;\nc <=> d;\ne ~> f;`, explain: 'Distinct arrow kinds (legal / main / forced) with different semantics.' },
-  { section: 'Notation (FSL)', label: 'State spread',   jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `[a b c] ~> off;`, explain: 'Apply one edge across a bracketed set of states.' },
-  { section: 'Notation (FSL)', label: 'Complex labels', jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a 'cook 🍳' -> b;`, explain: 'Rich edge labels (quoted, unicode, actions, weights, timing).' },
+  { section: 'Notation (FSL)', label: 'Legal edges (->)',   jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b;`, explain: 'Normal legal transitions — the workhorse arrow.' },
+  { section: 'Notation (FSL)', label: 'Main edges (=>)',    jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a => b;`, explain: 'The "main" line-kind — a distinct edge class jssm renders and treats apart from legal edges.' },
+  { section: 'Notation (FSL)', label: 'Forced edges (~>)',  jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a ~> b;`, explain: 'Forced-only edges (~>) that bypass normal transition legality.' },
+  { section: 'Notation (FSL)', label: 'State spread',       jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `[a b c] ~> off;`, explain: 'Apply one edge across a bracketed set of states.' },
+  { section: 'Notation (FSL)', label: 'Quoted edge labels', jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a 'open' -> b;`, explain: 'Arbitrary quoted text as an edge label.' },
+  { section: 'Notation (FSL)', label: 'Unicode in labels',  jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a '🍳 cook' -> b;`, explain: 'Full unicode — emoji and non-Latin scripts — in labels and names.' },
+  { section: 'Notation (FSL)', label: 'Action-named edges', jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a 'go' -> b;`, explain: 'A quoted label that names a dispatchable action / event on the edge.' },
+  { section: 'Notation (FSL)', label: 'Edge weights (n%)',  jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a 'go' 60% -> b;`, explain: 'Per-edge probability weights for weighted random walks.' },
+  { section: 'Notation (FSL)', label: 'Timed edges (after)',jssm: Y, jssm6: Y, fill: 'dsl-gate', demo: `a -> b;\nb after 1000ms -> a;`, explain: 'Time-delayed automatic transitions written in FSL (the `after` clause).' },
 
   // ===== API / reflection =====
   { section: 'API & reflection', label: 'Graph reflection API', jssm: Y, jssm6: Y, demo: null, explain: 'Query states, edges, exits, reachability at runtime.' },
