@@ -4557,37 +4557,43 @@ function peg$parse(input, options) {
   }
 
   function peg$parseAtom() {
-    var s0, s1, s2, s3;
+    var c, start;
 
     peg$silentFails++;
-    s0 = peg$currPos;
-    s1 = peg$parseAtomFirstLetter();
-    if (s1 !== peg$FAILED) {
-      s2 = [];
-      s3 = peg$parseAtomLetter();
-      while (s3 !== peg$FAILED) {
-        s2.push(s3);
-        s3 = peg$parseAtomLetter();
+    c = input.charCodeAt(peg$currPos);
+
+    if ((c >= 48 && c <= 57)  ||                  // 0-9
+        (c >= 97 && c <= 122) ||                  // a-z
+        (c >= 65 && c <= 90)  ||                  // A-Z
+        c === 46 || c === 95 || c === 33 ||       // . _ !
+        c === 36 || c === 94 || c === 42 ||       // $ ^ *
+        c === 63 || c === 44 ||                   // ? ,
+        c >= 128) {                               // \x80-\uFFFF
+
+      start = peg$currPos;
+      peg$currPos++;
+      c = input.charCodeAt(peg$currPos);
+
+      while ((c >= 48 && c <= 57)  ||
+             (c >= 97 && c <= 122) ||
+             (c >= 65 && c <= 90)  ||
+             c === 46 || c === 95 || c === 33 ||
+             c === 36 || c === 94 || c === 42 ||
+             c === 63 || c === 44 ||
+             c === 43 || c === 40 || c === 41 ||  // + ( )
+             c === 38 || c === 35 || c === 64 ||  // & # @
+             c >= 128) {
+        peg$currPos++;
+        c = input.charCodeAt(peg$currPos);
       }
-      if (s2 !== peg$FAILED) {
-        peg$savedPos = s0;
-        s1 = peg$c310(s1, s2);
-        s0 = s1;
-      } else {
-        peg$currPos = s0;
-        s0 = peg$FAILED;
-      }
-    } else {
-      peg$currPos = s0;
-      s0 = peg$FAILED;
-    }
-    peg$silentFails--;
-    if (s0 === peg$FAILED) {
-      s1 = peg$FAILED;
-      if (peg$silentFails === 0) { peg$fail(peg$c309); }
+
+      peg$silentFails--;
+      return input.substring(start, peg$currPos);
     }
 
-    return s0;
+    peg$silentFails--;
+    if (peg$silentFails === 0) { peg$fail(peg$c309); }
+    return peg$FAILED;
   }
 
   function peg$parseLabel() {
