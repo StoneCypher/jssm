@@ -22,6 +22,62 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 11, 2026 7:45:56 PM
+
+Commit [483bf22c910e5b0648f6730795e51b8a366f90c3](https://github.com/StoneCypher/jssm/commit/483bf22c910e5b0648f6730795e51b8a366f90c3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(taxonomy): cs-pedagogy collection — 32 machines that teach CS topics
+  * Twelfth collection, with a structural twist: for a teaching collection
+the kills field names a MISCONCEPTION rather than a bug ('await pauses
+the computer', 'a boolean flag is a lock', 'timestamps order events',
+'just add one more ack'). Spans theory (subset construction live, the
+pumping lemma machine, decidability tripwires, two-stacks-equals-
+Turing, the state-explosion demo), algorithms (KMP's failure function
+IS an automaton, Huffman bit-walks, ReDoS vs DFA), systems (TIME_WAIT
+honestly, MESI, tri-color GC with the invariant actually held, pipeline
+hazards, schedulers), distributed (two generals as a PROVEN negative
+result, Raft elections, vector clocks), and probability (the gambler's-
+fallacy machine, Monte Carlo budgets). Pairs with learn-by-repairing:
+the checker is the teaching assistant — wrong intuitions become
+reachable states you can visit. 12 collections, 220 items;
+Node-validated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 11, 2026 7:43:02 PM
+
+Commit [0e3d617c99f19fc633306e575f45c424d8d1d7fa](https://github.com/StoneCypher/jssm/commit/0e3d617c99f19fc633306e575f45c424d8d1d7fa)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(parser): v5.143.5 — inline peg$fail's early-return guard at all 835 call sites (#704)
+  * peg$fail was 6.7% of construct() self-time: it is called at every
+failed match attempt outside named rules, and nearly every call exits
+at its first line (peg$currPos < peg$maxFailPos), so the cost was
+almost pure call overhead.
+  * fixparser.cjs now mechanically rewrites every generated
+`if (peg$silentFails === 0) { peg$fail(peg$cN); }` site to also require
+`peg$currPos >= peg$maxFailPos`, hoisting peg$fail's own first-line
+test so the common case is one inline integer compare instead of a
+function call. The condition is lifted verbatim, so expectation
+collection — and every parse-error message — is byte-identical. All
+835 constant-expectation sites rewrite (tripwire throws under 500);
+the single peg$endExpectation() EOF site is deliberately untouched.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 11, 2026 7:34:56 PM
 
 Commit [6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600](https://github.com/StoneCypher/jssm/commit/6f0122f2d3c17cdf0e1a085a9a0f3d9d3506c600)
@@ -238,52 +294,3 @@ handling, procedural generation, modding/UGC, justice, immigration,
 libraries, genomics, early-warning, online judges, and proof-assistant
 workflows — and thickens seed lists throughout. The markdown keeps the
 SEO-mechanics prose and now defers to the JSON for the list itself.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 11, 2026 1:46:46 PM
-
-Commit [f4961a44bc994b7f4e9a18d0458c36903f9ca1e5](https://github.com/StoneCypher/jssm/commit/f4961a44bc994b7f4e9a18d0458c36903f9ca1e5)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(manual): Matt Foley easter-egg listing + the use-case taxonomy (202 categories)
-  * Manual-topics gains the Foley intervention machine as an approved
-worked-example easter egg — a comedy listing that is secretly a dense
-feature demo (tagged error state whose free safety target fails on
-purpose, contrary-to-duty exit, windowed-aggregate crescendo gate,
-require/ensure on the coffee table, sensors, a seeded factory, and
-reachability tests for both fates). New
-2026-06-11-fsl-use-case-taxonomy.md: the master category list for the
-use-case corpus — 202 categories across 18 supergroups (user anchors
-starred: authentication, authorization, transduction, conversion,
-verification, parsing, appliance state, software state, unity,
-modelling, control systems, circuitry), each seeded with example
-instances to set scale. Category pages = SEO hubs; template-shaped
-instances = long-tail leaves; the neighbors sections = the link mesh;
-the taxonomy = the sitemap.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__143__1" />
-
-## [5.143.1] - Jun 11, 2026 1:34:21 PM
-
-Commit [5727dbc1abdb040d8f58b4d9e08dfc8853ebe662](https://github.com/StoneCypher/jssm/commit/5727dbc1abdb040d8f58b4d9e08dfc8853ebe662)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [5830dfd0, 612293bd]
-
-  * Merge pull request #699 from StoneCypher/perf_26-06-11_ws-scanner_698
-  * perf(parser): hand-rolled peg$parseWS whitespace scanner (#698)

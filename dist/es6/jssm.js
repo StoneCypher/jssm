@@ -4027,6 +4027,26 @@ function is_hook_rejection(hr) {
 }
 /**
  *
+ *  Shared, frozen outcomes for the simple hook results.  The transition
+ *  cascade runs up to ~10 hook steps per transition, and the overwhelmingly
+ *  common results — no hook installed, or a hook returning `undefined` /
+ *  `true` / `false` — previously allocated a fresh one-field object each
+ *  time, just to have `.pass` read once and be discarded.  Callers only read
+ *  `pass` and probe for an own `data` property ({@link _update_hook_fields}),
+ *  so a shared instance is observationally identical; freezing turns that
+ *  read-only contract from incidental into enforced.  Complex results (hooks
+ *  returning `{ pass, data, ... }`) still pass through untouched.  #705
+ *
+ *  @see abstract_hook_step
+ *  @see abstract_everything_hook_step
+ *
+ *  @internal
+ *
+ */
+const HOOK_PASSED = Object.freeze({ pass: true }); // eslint-disable-line @typescript-eslint/no-explicit-any
+const HOOK_REJECTED = Object.freeze({ pass: false }); // eslint-disable-line @typescript-eslint/no-explicit-any
+/**
+ *
  *  Invoke an optional transition/action hook and normalize its return value
  *  into a {@link HookComplexResult}.
  *
@@ -4066,16 +4086,16 @@ function abstract_hook_step(maybe_hook, hook_args) {
     if (maybe_hook !== undefined) {
         const result = maybe_hook(hook_args);
         if (result === undefined) {
-            return { pass: true };
+            return HOOK_PASSED;
         }
         if (result === true) {
-            return { pass: true };
+            return HOOK_PASSED;
         }
         if (result === false) {
-            return { pass: false };
+            return HOOK_REJECTED;
         }
         if (result === null) {
-            return { pass: false };
+            return HOOK_REJECTED;
         }
         if (is_hook_complex_result(result)) {
             return result;
@@ -4083,7 +4103,7 @@ function abstract_hook_step(maybe_hook, hook_args) {
         throw new TypeError(`Unknown hook result type ${result}`);
     }
     else {
-        return { pass: true };
+        return HOOK_PASSED;
     }
 }
 /**
@@ -4124,16 +4144,16 @@ function abstract_everything_hook_step(maybe_hook, hook_args) {
     if (maybe_hook !== undefined) {
         const result = maybe_hook(hook_args);
         if (result === undefined) {
-            return { pass: true };
+            return HOOK_PASSED;
         }
         if (result === true) {
-            return { pass: true };
+            return HOOK_PASSED;
         }
         if (result === false) {
-            return { pass: false };
+            return HOOK_REJECTED;
         }
         if (result === null) {
-            return { pass: false };
+            return HOOK_REJECTED;
         }
         if (is_hook_complex_result(result)) {
             return result;
@@ -4141,7 +4161,7 @@ function abstract_everything_hook_step(maybe_hook, hook_args) {
         throw new TypeError(`Unknown hook result type ${result}`);
     }
     else {
-        return { pass: true };
+        return HOOK_PASSED;
     }
 }
 /**
