@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-10T09:29:43.262Z",
-  "count": 20,
+  "generated": "2026-06-12T23:09:19.775Z",
+  "count": 18,
   "categories": [
     "Composition",
     "Hooks",
@@ -9,7 +9,6 @@
     "Testing"
   ],
   "tags": [
-    "account",
     "analytics",
     "async",
     "auth",
@@ -20,13 +19,10 @@
     "error",
     "fork",
     "forms",
-    "groups",
     "hook",
     "hook_action",
     "hook_any_transition",
     "hook_entry",
-    "hooks",
-    "http",
     "instances",
     "jest",
     "jsdom",
@@ -37,7 +33,6 @@
     "network",
     "observability",
     "orders",
-    "overlap",
     "per-row",
     "pipeline",
     "publish",
@@ -193,22 +188,8 @@
       "triple": null
     },
     {
-      "slug": "patterns-overlapping-groups",
-      "n": 11,
-      "title": "Overlapping groups",
-      "category": "Patterns",
-      "tags": [
-        "groups",
-        "http",
-        "hooks",
-        "overlap"
-      ],
-      "problem": "An HTTP request is simultaneously \"in progress\" and \"receiving\" — two orthogonal axes of membership that don't fit a tree. Overlapping groups let one state belong to several groups at once, so a transition or a boundary hook can target a whole axis instead of every member by hand.",
-      "triple": null
-    },
-    {
       "slug": "patterns-toggle",
-      "n": 12,
+      "n": 11,
       "title": "Toggle",
       "category": "Patterns",
       "tags": [
@@ -220,22 +201,8 @@
       "triple": null
     },
     {
-      "slug": "patterns-user-account-groups",
-      "n": 13,
-      "title": "User account groups",
-      "category": "Patterns",
-      "tags": [
-        "groups",
-        "auth",
-        "account",
-        "overlap"
-      ],
-      "problem": "A user account is several things at once: authenticated, active, paid, restricted. Those axes overlap — a Suspended user is still authenticated but no longer active, a Premium user is active and paid. Overlapping groups model each axis independently instead of forcing one state-per-combination tree.",
-      "triple": null
-    },
-    {
       "slug": "real-world-fetch-retry",
-      "n": 14,
+      "n": 12,
       "title": "Fetch with retry",
       "category": "Real world",
       "tags": [
@@ -248,7 +215,7 @@
     },
     {
       "slug": "real-world-multi-step-form",
-      "n": 15,
+      "n": 13,
       "title": "Multi-step form",
       "category": "Real world",
       "tags": [
@@ -261,7 +228,7 @@
     },
     {
       "slug": "real-world-optimistic",
-      "n": 16,
+      "n": 14,
       "title": "Optimistic UI",
       "category": "Real world",
       "tags": [
@@ -274,7 +241,7 @@
     },
     {
       "slug": "real-world-testing",
-      "n": 17,
+      "n": 15,
       "title": "Testing transitions",
       "category": "Real world",
       "tags": [
@@ -287,7 +254,7 @@
     },
     {
       "slug": "test-jest-webpack-react",
-      "n": 18,
+      "n": 16,
       "title": "Jest × Webpack × React",
       "category": "Testing",
       "tags": [
@@ -305,7 +272,7 @@
     },
     {
       "slug": "test-vitest-vite-react",
-      "n": 19,
+      "n": 17,
       "title": "Vitest × Vite × React",
       "category": "Testing",
       "tags": [
@@ -323,7 +290,7 @@
     },
     {
       "slug": "test-vitest-vite-vue",
-      "n": 20,
+      "n": 18,
       "title": "Vitest × Vite × Vue",
       "category": "Testing",
       "tags": [

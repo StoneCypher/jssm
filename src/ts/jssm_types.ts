@@ -109,6 +109,31 @@ type JssmLineStyle      = 'solid' | 'dashed' | 'dotted';
  */
 type JssmAllowsOverride = true | false | undefined;
 
+/**
+ *  Controls whether the state graph may contain disconnected components
+ *  (islands).  `true` permits islands (default), `false` requires a single
+ *  connected component, and `'with_start'` permits islands only when every
+ *  component contains at least one start state.
+ */
+type JssmAllowIslands = true | false | 'with_start';
+
+
+
+/**
+ *  Structured render-size hint for a machine visualization, set by the FSL
+ *  `default_size` directive.  All three forms are optional in the sense that
+ *  only one or two fields will be present depending on the form used:
+ *
+ *  - `{ width }` — single-number form (`default_size: 800;`)
+ *  - `{ width, height }` — bounding-box form (`default_size: 800 600;`)
+ *  - `{ height }` — height-only form (`default_size: height 600;`)
+ *
+ *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
+ *
+ *  @see Machine.default_size
+ */
+type JssmDefaultSize = { width?: number; height?: number };
+
 
 
 
@@ -294,11 +319,20 @@ type JssmStateHooks = Map<string, JssmBoundaryHooks>;
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
  *  provide `default_value` to fall back when the state does not specify it.
+ *
+ *  For state-property *bindings* (the `state_property` config list), the
+ *  compiler also writes `property` and `state` — the unserialized pair behind
+ *  the serialized `name` — so the Machine constructor can validate bindings
+ *  without parsing `name` back apart.  Both are optional: hand-built configs
+ *  may carry only the serialized `name`, and global property definitions
+ *  never set them.
  */
 type JssmPropertyDefinition = {
   name           : string,
   default_value? : any,
-  required?      : boolean
+  required?      : boolean,
+  property?      : string,
+  state?         : string
 };
 
 
@@ -457,6 +491,21 @@ type JssmGenericMachine<DataType> = {
 
 
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+type FslSourcePoint    = { offset: number, line: number, column: number };
+type FslSourceLocation = { start: FslSourcePoint, end: FslSourcePoint };
+
+
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -464,7 +513,10 @@ type JssmGenericMachine<DataType> = {
 type JssmStateDeclarationRule = {
   key       : string,
   value     : any,  // TODO FIXME COMEBACK enumerate types against concrete keys
-  name?     : string
+  name?     : string,
+
+  loc       ? : FslSourceLocation,
+  value_loc ? : FslSourceLocation
 };
 
 /**
@@ -712,7 +764,7 @@ type JssmGenericConfig<StateType, DataType> = {
 //locked?                        : bool = true,
   min_exits?                     : number,
   max_exits?                     : number,
-  allow_islands?                 : false,
+  allow_islands?                 : JssmAllowIslands,
   allow_force?                   : false,
   actions?                       : JssmPermittedOpt,
 
@@ -724,6 +776,7 @@ type JssmGenericConfig<StateType, DataType> = {
 
   start_states                   : Array<StateType>,
   end_states?                    : Array<StateType>,
+  failed_outputs?                : Array<StateType>,
 
   initial_state?                 : StateType,
   start_states_no_enforce?       : boolean,
@@ -744,6 +797,9 @@ type JssmGenericConfig<StateType, DataType> = {
   machine_license?               : string,   // TODO FIXME COMEBACK
   machine_name?                  : string,
   machine_version?               : string,   // TODO FIXME COMEBACK
+  npm_name?                      : string,
+
+  default_size?                  : JssmDefaultSize,
 
   fsl_version?                   : string,   // TODO FIXME COMEBACK
 
@@ -815,6 +871,7 @@ type JssmCompileRule<StateType> = {
 
 
 
+
 /**
  *  Internal compiler intermediate: one link in a chained transition
  *  expression (an "s-expression" segment).  Carries both directions of an
@@ -834,7 +891,12 @@ type JssmCompileSe<StateType, mDT> = {
   l_probability   : number,
   r_probability   : number,
   l_after       ? : number,
-  r_after       ? : number
+  r_after       ? : number,
+
+  loc            ? : FslSourceLocation,
+  to_loc         ? : FslSourceLocation,
+  l_action_loc   ? : FslSourceLocation,
+  r_action_loc   ? : FslSourceLocation
 
 };
 
@@ -856,11 +918,16 @@ type JssmCompileSeStart<StateType, DataType> = {
   from           : StateType,
   se             : JssmCompileSe<StateType, DataType>,
   key            : string,
-  value?         : string | number,
+  value?         : string | number | Array<JssmStateDeclarationRule>,
   name?          : string,
   state?         : string,
   default_value? : any,     // for properties
-  required?      : boolean  // for properties
+  required?      : boolean, // for properties
+
+  loc            ? : FslSourceLocation,
+  from_loc       ? : FslSourceLocation,
+  value_loc      ? : FslSourceLocation,
+  name_loc       ? : FslSourceLocation
 
 };
 
@@ -1186,7 +1253,8 @@ type PostEverythingHookHandler<mDT> = (hook_context: EverythingHookContext<mDT>)
  *  asked about when the error was raised.
  */
 type JssmErrorExtendedInfo = {
-  requested_state? : StateType | undefined
+  requested_state? : StateType | undefined,
+  source_location? : FslSourceLocation
 };
 
 
@@ -1500,6 +1568,8 @@ export {
   JssmSerialization,
   JssmPropertyDefinition,
   JssmAllowsOverride,
+  JssmAllowIslands,
+  JssmDefaultSize,
 
   JssmGroupRef,
     JssmGroupMemberRef,
@@ -1520,6 +1590,9 @@ export {
 
   FslThemes,
     FslTheme,
+
+  FslSourcePoint,
+    FslSourceLocation,
 
   HookDescription,
     HookHandler,

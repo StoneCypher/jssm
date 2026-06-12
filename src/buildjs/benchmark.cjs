@@ -1,438 +1,353 @@
 
 const b    = require('benny'),
       jssm = require('../../dist/jssm.es5.cjs'),
+      pkg  = require('../../package.json'),
       sm   = jssm.sm;
 
 
 
+// ---------------------------------------------------------------------------
+// Instrument integrity
+// ---------------------------------------------------------------------------
+//
+// This file's historical failure mode is the silent no-fire benchmark: a
+// hooked case whose hook never actually fires still produces a plausible
+// ops/sec figure, because the miss path benchmarks fine.  Five separate bugs
+// shipped this way (wrong machine in the kitchen sink; `name:` where set_hook
+// reads `action:`; global-action with no `action:`; transition() over forced
+// edges; unlabeled machines probed with action()).  Every hooked case is
+// therefore declared as a builder, and verified() runs one exercise pass
+// against a counting handler at startup, throwing unless the observed count
+// matches the case's declared expectation.  See
+// notes/superpowers/specs/2026-06-12-bench-hook-paths-design.md.
 
+/**
+ *  Register a hooked benny case after verifying its hook actually fires (or,
+ *  for carrying-cost cases, deliberately cannot).  Builds the case twice: once
+ *  with a counting handler for the verification pass, then fresh with the
+ *  measurement handler so the verification machine never pollutes timing.
+ *
+ *  @param name The benny case name; also used in violation messages.
+ *  @param builder Given a hook handler, builds a fresh machine wired with that
+ *         handler and returns the per-op exercise closure.
+ *  @param opts `expectFire` (default true): whether one exercise pass must fire
+ *         the hook at least once, or (false) exactly never.  `handler` (default
+ *         `() => true`): the measurement handler, overridable for e.g. the
+ *         data-carrying case.
+ *  @returns The registered benny case (the return value of `b.add`).
+ *  @throws Error when the verification pass contradicts `expectFire`.
+ *
+ *  @example
+ *  verified('Basic hook by transition', (h) => {
+ *    const m = sm`a => b => a;`;
+ *    m.set_hook({ from: 'a', to: 'b', handler: h, kind: 'hook' });
+ *    return () => { m.transition('b'); m.transition('a'); };
+ *  })
+ *
+ *  @see kindSupported
+ */
+function verified(name, builder, opts = {}) {
 
-const Tl4 = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
+  const expectFire = opts.expectFire !== false;
+  const handler    = opts.handler || (() => true);
 
-function TransitionCycleTL100Times() {
+  let count = 0;
+  const verification_pass = builder((...args) => { count += 1; return handler(...args); });
+  verification_pass();
 
-  for (let i=0; i<100; ++i) {
-    Tl4.transition('green');
-    Tl4.transition('yellow');
-    Tl4.transition('red');
+  if (expectFire && count === 0) {
+    throw new Error(`instrument bug: "${name}" never fires its hook`);
   }
+  if (!expectFire && count !== 0) {
+    throw new Error(`instrument bug: "${name}" is a carrying-cost case but fired ${count}x`);
+  }
+
+  return b.add(name, builder(handler));
 
 }
 
 
 
-
-
-const Tl4WH = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
-Tl4WH.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
-
-function TransitionCycleTLWithHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4WH.transition('green');
-    Tl4WH.transition('yellow');
-    Tl4WH.transition('red');
+/**
+ *  Whether this library build supports registering the described hook — so a
+ *  `--harness-from` overlay of this suite onto an older jssm degrades to a
+ *  partial suite instead of crashing at load.  Mirrors the scaling suite's
+ *  `HAS` feature probes in spirit.
+ *
+ *  @param desc A complete set_hook descriptor, attempted on a throwaway machine.
+ *  @returns true when registration succeeds on this build.
+ *
+ *  @example kindSupported({ kind: 'after', from: 'fpb', handler: () => true })  // => true on current builds
+ *
+ *  @see verified
+ */
+function kindSupported(desc) {
+  try {
+    const m = sm`fpa 'fpgo' => fpb 'fpgo' => fpa;`;
+    if (typeof m.set_hook !== 'function') { return false; }
+    m.set_hook(desc);
+    return true;
+  } catch (_e) {
+    return false;
   }
-
 }
 
 
 
-
-
-const Tl4WAHA = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
-Tl4WAHA.set_hook({ from: 'red', to: 'green', name: 'foo', handler: () => true, kind: 'named' });
-
-function TransitionCycleTLWithNamedHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4WAHA.transition('green');
-    Tl4WAHA.transition('yellow');
-    Tl4WAHA.transition('red');
-  }
-
+/**
+ *  Build a hooked-case builder from a machine source, a hook-descriptor list
+ *  factory, and an exercise factory — the composition glue for verified().
+ *
+ *  @param src FSL source for a fresh machine per build.
+ *  @param descsFor Given the handler, returns the set_hook descriptors to install.
+ *  @param exercise Given the machine, returns the per-op exercise closure.
+ *  @returns A builder suitable for {@link verified}.
+ */
+function hooked(src, descsFor, exercise) {
+  return (handler) => {
+    const m = sm([src]);
+    for (const desc of descsFor(handler)) { m.set_hook(desc); }
+    return exercise(m);
+  };
 }
 
 
 
+const noop_true = () => true;
 
+// Machine shapes.  MAIN uses => edges (transition() and main-transition hooks);
+// STANDARD uses -> (standard-transition hooks); FORCED uses ~>, which
+// transition() cannot traverse — forced shapes are exercised by
+// force_transition() or by labeled action() (probe-verified).
+const TL_MAIN             = `red => green => yellow => red; [red yellow green] ~> off -> red;`;
+const TL_MAIN_LABELED     = `red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
+const TL_STANDARD         = `red 'foo' -> green -> yellow -> red; [red yellow green] ~> off -> red;`;
+const TL_STANDARD_LABELED = `red 'next' -> green 'next' -> yellow 'next' -> red; [red yellow green] ~> off -> red;`;
+const TL_FORCED           = `red 'foo' ~> green ~> yellow ~> red; [red yellow green] ~> off -> red;`;
+const TL_FORCED_LABELED   = `red 'next' ~> green 'next' ~> yellow 'next' ~> red; [red yellow green] ~> off -> red;`;
+const TL_KITCHEN          = `red 'next' => green 'next' -> yellow 'next' ~> red; [red yellow green] ~> off -> red;`;
 
-const Tl4AT = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
-Tl4AT.set_hook({ handler: () => true, kind: 'any transition' });
+function cycleByTransition(m) {
+  return () => {
+    for (let i = 0; i < 100; ++i) { m.transition('green'); m.transition('yellow'); m.transition('red'); }
+  };
+}
 
-function TransitionCycleTLWithAnyTransitionHooks100Times() {
+function cycleByAction(m) {
+  return () => {
+    for (let i = 0; i < 100; ++i) { m.action('next'); m.action('next'); m.action('next'); }
+  };
+}
 
-  for (let i=0; i<100; ++i) {
-    Tl4AT.transition('green');
-    Tl4AT.transition('yellow');
-    Tl4AT.transition('red');
-  }
-
+function cycleByForce(m) {
+  return () => {
+    for (let i = 0; i < 100; ++i) { m.force_transition('green'); m.force_transition('yellow'); m.force_transition('red'); }
+  };
 }
 
 
 
-
-
-const Tl4EX = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
-Tl4EX.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
-
-function TransitionCycleTLWithExitHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4EX.transition('green');
-    Tl4EX.transition('yellow');
-    Tl4EX.transition('red');
-  }
-
+/**
+ *  The kitchen-sink builder: one machine carrying fifteen distinct hook slots
+ *  spanning pre, post, and after families, cycled across all three edge types
+ *  (main =>, standard ->, forced ~>) so every slot is reachable.  v2: the v1
+ *  case cycled the wrong machine entirely, registered named hooks under
+ *  `name:`, registered global-action with no `action:`, and double-registered
+ *  several single-slot hooks (overwrites, not additions).
+ */
+function kitchenSink(handler) {
+  const m = sm([TL_KITCHEN]);
+  m.set_hook({ from: 'red',   to: 'green',  handler, kind: 'hook' });
+  m.set_hook({ from: 'green', to: 'yellow', action: 'next',   handler, kind: 'named' });
+  m.set_hook({ from: 'red',   to: 'green',  action: 'unused', handler, kind: 'named' });
+  m.set_hook({ handler, kind: 'any transition' });
+  m.set_hook({ handler, from: 'red', kind: 'exit' });
+  m.set_hook({ handler, kind: 'any action' });
+  m.set_hook({ handler, kind: 'standard transition' });
+  m.set_hook({ handler, kind: 'main transition' });
+  m.set_hook({ handler, kind: 'forced transition' });
+  m.set_hook({ handler, action: 'next', kind: 'global action' });
+  m.set_hook({ handler, to: 'red', kind: 'entry' });
+  m.set_hook({ handler, kind: 'after', from: 'green' });
+  m.set_hook({ handler, kind: 'post hook', from: 'red', to: 'green' });
+  m.set_hook({ handler, kind: 'post entry', to: 'yellow' });
+  m.set_hook({ handler, kind: 'post exit', from: 'yellow' });
+  return () => {
+    for (let i = 0; i < 100; ++i) {
+      m.transition('green');        // red    -> green  (main edge)
+      m.action('next');             // green  -> yellow (standard edge, named action)
+      m.force_transition('red');    // yellow -> red    (forced edge)
+    }
+  };
 }
 
 
 
+// ---------------------------------------------------------------------------
+// Cases
+// ---------------------------------------------------------------------------
+//
+// Naming: a case keeps its historical name only when its measured semantics
+// are unchanged; repaired cases carry a v2 suffix so old (broken) trend lines
+// cannot be spliced onto the repaired measurement.
 
+const TlBlindT = sm([TL_MAIN]);
+const TlBlindA = sm([TL_MAIN_LABELED]);
 
-const Tl4EN = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
-Tl4EN.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
-
-function TransitionCycleTLWithEnterHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4EN.transition('green');
-    Tl4EN.transition('yellow');
-    Tl4EN.transition('red');
-  }
-
+const TlRJ = sm([TL_MAIN_LABELED]);
+if (TlRJ.action('nope') !== false) { throw new Error('instrument bug: rejected-action case unexpectedly transitioned'); }
+function RejectedAction100Times() {
+  for (let i = 0; i < 100; ++i) { TlRJ.action('nope'); }
 }
-
-
-
-
-
-const Tl4ST = sm`red 'foo' -> green -> yellow -> red; [red yellow green] ~> off -> red;`;
-Tl4ST.set_hook({ handler: () => true, to: 'red', kind: 'standard transition' });
-
-function TransitionCycleTLWithSTHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4ST.transition('green');
-    Tl4ST.transition('yellow');
-    Tl4ST.transition('red');
-  }
-
-}
-
-
-
-
-
-const Tl4MT = sm`red 'foo' => green => yellow => red; [red yellow green] ~> off -> red;`;
-Tl4MT.set_hook({ handler: () => true, to: 'red', kind: 'main transition' });
-
-function TransitionCycleTLWithMTHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4MT.transition('green');
-    Tl4MT.transition('yellow');
-    Tl4MT.transition('red');
-  }
-
-}
-
-
-
-
-
-const Tl4FT = sm`red 'foo' ~> green ~> yellow ~> red; [red yellow green] ~> off -> red;`;
-Tl4FT.set_hook({ handler: () => true, to: 'red', kind: 'forced transition' });
-
-function TransitionCycleTLWithFTHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4FT.transition('green');
-    Tl4FT.transition('yellow');
-    Tl4FT.transition('red');
-  }
-
-}
-
-
-
-
-
-const Tl4WA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-
-function ActionCycleTL100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4WA.action('next');  // to green
-    Tl4WA.action('next');  // to yellow
-    Tl4WA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4WAWH = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-Tl4WAWH.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
-
-function ActionCycleTLWithHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4WAWH.action('next');  // to green
-    Tl4WAWH.action('next');  // to yellow
-    Tl4WAWH.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4WAWHA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-Tl4WAWHA.set_hook({ from: 'red', to: 'green', name: 'next', handler: () => true, kind: 'named' });
-
-function ActionCycleTLWithNamedHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4WAWHA.action('next');  // to green
-    Tl4WAWHA.action('next');  // to yellow
-    Tl4WAWHA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4AA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-Tl4AA.set_hook({ handler: () => true, kind: 'any action' });
-
-function AnyActionCycleTLWithNamedHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4AA.action('next');  // to green
-    Tl4AA.action('next');  // to yellow
-    Tl4AA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4TAA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-Tl4TAA.set_hook({ handler: () => true, kind: 'any transition' });
-
-function ActionCycleTLWithAnyTransitionHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4TAA.action('next');  // to green
-    Tl4TAA.action('next');  // to yellow
-    Tl4TAA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-const Tl4EXA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-Tl4EXA.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
-
-function ActionCycleTLWithExitHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4EXA.action('next');  // to green
-    Tl4EXA.action('next');  // to yellow
-    Tl4EXA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-const Tl4ENA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-Tl4ENA.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
-
-function ActionCycleTLWithEnterHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4ENA.action('next');  // to green
-    Tl4ENA.action('next');  // to yellow
-    Tl4ENA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-const Tl4STA = sm`red -> green -> yellow -> red; [red yellow green] ~> off -> red;`;
-Tl4STA.set_hook({ handler: () => true, kind: 'standard transition' });
-
-function ActionCycleTLWithSTHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4STA.action('next');  // to green
-    Tl4STA.action('next');  // to yellow
-    Tl4STA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4MTA = sm`red => green => yellow => red; [red yellow green] ~> off -> red;`;
-Tl4MTA.set_hook({ handler: () => true, kind: 'main transition' });
-
-function ActionCycleTLWithMTHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4MTA.action('next');  // to green
-    Tl4MTA.action('next');  // to yellow
-    Tl4MTA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4FTA = sm`red ~> green ~> yellow ~> red; [red yellow green] ~> off -> red;`;
-Tl4FTA.set_hook({ handler: () => true, kind: 'forced transition' });
-
-function ActionCycleTLWithFTHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4FTA.action('next');  // to green
-    Tl4FTA.action('next');  // to yellow
-    Tl4FTA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4GA = sm`red 'next' => green 'next' => yellow 'next' => red; [red yellow green] ~> off -> red;`;
-Tl4GA.set_hook({ handler: () => true, kind: 'global action' });
-
-function GlobalActionCycleTLWithNamedHooks100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4GA.action('next');  // to green
-    Tl4GA.action('next');  // to yellow
-    Tl4GA.action('next');  // to red
-  }
-
-}
-
-
-
-
-
-
-const Tl4KS = sm`red 'next' => green 'next' -> yellow 'next' ~> red; [red yellow green] ~> off -> red;`;
-
-Tl4KS.set_hook({ from: 'red', to: 'green', handler: () => true, kind: 'hook' });
-Tl4KS.set_hook({ from: 'red', to: 'green', name: 'next', handler: () => true, kind: 'named' });
-Tl4KS.set_hook({ from: 'red', to: 'green', name: 'unused', handler: () => true, kind: 'named' });
-Tl4KS.set_hook({ handler: () => true, kind: 'any transition' });
-Tl4KS.set_hook({ handler: () => true, from: 'red', kind: 'exit' });
-Tl4KS.set_hook({ handler: () => true, kind: 'any action' });
-Tl4KS.set_hook({ handler: () => true, kind: 'any transition' });
-Tl4KS.set_hook({ handler: () => true, kind: 'standard transition' });
-Tl4KS.set_hook({ handler: () => true, kind: 'main transition' });
-Tl4KS.set_hook({ handler: () => true, kind: 'forced transition' });
-Tl4KS.set_hook({ handler: () => true, kind: 'global action' });
-Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'entry' });
-Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'standard transition' });
-Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'main transition' });
-Tl4KS.set_hook({ handler: () => true, to: 'red', kind: 'forced transition' });
-
-function KitchenSink100Times() {
-
-  for (let i=0; i<100; ++i) {
-    Tl4GA.transition('green');
-    Tl4GA.action('next');           // to yellow
-    Tl4GA.force_transition('red');
-  }
-
-}
-
-
-
-
 
 function CompileTrivialABStringUsingSm() {
   const ab = sm`a -> b;`;
   if (ab === undefined) { throw 'not defined!'; }  // prevent removal through shaking
 }
 
-
-
-
-
 function CompileTrivialABStringUsingFrom() {
   const ab = jssm.from('a -> b;');
   if (ab === undefined) { throw 'not defined!'; }  // prevent removal through shaking
 }
 
+const cases = [
 
+  b.add('Blind cycle a traffic light 100 times by transition', cycleByTransition(TlBlindT)),
+  b.add('Blind cycle a traffic light 100 times by action',     cycleByAction(TlBlindA)),
+
+  // --- pre-hook family, transition dispatch -------------------------------
+
+  verified('Blind cycle a basic-hooked traffic light 100 times by transition',
+    hooked(TL_MAIN, h => [{ from: 'red', to: 'green', handler: h, kind: 'hook' }], cycleByTransition)),
+
+  // Named hooks fire only under action() dispatch (jssm.ts named fire site is
+  // gated on wasAction), so this is by design a carrying-cost case: the store
+  // is populated, the dispatch pays _has_named_hooks, and the hook can never
+  // fire.  expectFire:false pins that.
+  verified('Carry a named hook that cannot fire, 100 cycles by transition v2',
+    hooked(TL_MAIN_LABELED, h => [{ from: 'red', to: 'green', action: 'next', handler: h, kind: 'named' }], cycleByTransition),
+    { expectFire: false }),
+
+  verified('Blind cycle an any-transition traffic light 100 times by transition',
+    hooked(TL_MAIN, h => [{ handler: h, kind: 'any transition' }], cycleByTransition)),
+
+  verified('Blind cycle an exit hooked traffic light 100 times by transition',
+    hooked(TL_MAIN, h => [{ handler: h, from: 'red', kind: 'exit' }], cycleByTransition)),
+
+  verified('Blind cycle an enter hooked traffic light 100 times by transition',
+    hooked(TL_MAIN, h => [{ handler: h, to: 'red', kind: 'entry' }], cycleByTransition)),
+
+  verified('Blind cycle a standard-transition hooked light by transition',
+    hooked(TL_STANDARD, h => [{ handler: h, kind: 'standard transition' }], cycleByTransition)),
+
+  verified('Blind cycle a main-transition hooked light by transition',
+    hooked(TL_MAIN, h => [{ handler: h, kind: 'main transition' }], cycleByTransition)),
+
+  // v2: v1 drove this machine with transition(), which cannot traverse ~>
+  // edges — every call failed and the hook never fired.
+  verified('Cycle a force-transition hooked light 100 times by force_transition v2',
+    hooked(TL_FORCED, h => [{ handler: h, kind: 'forced transition' }], cycleByForce)),
+
+  // --- pre-hook family, action dispatch -----------------------------------
+
+  verified('Blind cycle a basic-hooked traffic light 100 times by action',
+    hooked(TL_MAIN_LABELED, h => [{ from: 'red', to: 'green', handler: h, kind: 'hook' }], cycleByAction)),
+
+  // v2: v1 registered with name: (set_hook reads action:) — never fired.
+  verified('Blind cycle a named-hooked traffic light 100 times by action v2',
+    hooked(TL_MAIN_LABELED, h => [{ from: 'red', to: 'green', action: 'next', handler: h, kind: 'named' }], cycleByAction)),
+
+  verified('Blind cycle an any-action traffic light 100 times by action',
+    hooked(TL_MAIN_LABELED, h => [{ handler: h, kind: 'any action' }], cycleByAction)),
+
+  // v2: v1 registered with no action: field — never fired.
+  verified('Blind cycle a global-action traffic light 100 times by action v2',
+    hooked(TL_MAIN_LABELED, h => [{ handler: h, action: 'next', kind: 'global action' }], cycleByAction)),
+
+  verified('Blind cycle an exit hooked traffic light 100 times by action',
+    hooked(TL_MAIN_LABELED, h => [{ handler: h, from: 'red', kind: 'exit' }], cycleByAction)),
+
+  verified('Blind cycle an enter hooked traffic light 100 times by action',
+    hooked(TL_MAIN_LABELED, h => [{ handler: h, to: 'red', kind: 'entry' }], cycleByAction)),
+
+  // v2 ×3: v1's machines had no 'next' labels — every action() call failed.
+  verified('Cycle a standard transition tl 100 times by action v2',
+    hooked(TL_STANDARD_LABELED, h => [{ handler: h, kind: 'standard transition' }], cycleByAction)),
+
+  verified('Cycle a main transition tl 100 times by action v2',
+    hooked(TL_MAIN_LABELED, h => [{ handler: h, kind: 'main transition' }], cycleByAction)),
+
+  verified('Cycle a forced transition tl 100 times by action v2',
+    hooked(TL_FORCED_LABELED, h => [{ handler: h, kind: 'forced transition' }], cycleByAction)),
+
+  // --- data and rejection paths --------------------------------------------
+
+  verified('Data-carrying basic hook, 100 cycles by transition',
+    hooked(TL_MAIN, h => [{ from: 'red', to: 'green', handler: h, kind: 'hook' }], cycleByTransition),
+    { handler: () => ({ pass: true, data: 7 }) }),
+
+  b.add('Rejected action, 100 calls by action', RejectedAction100Times),
+
+];
+
+// --- after / post families (feature-probed for --harness-from overlays) -----
+
+function addIfSupported(guardDesc, makeCase) {
+  if (kindSupported(guardDesc)) { cases.push(makeCase()); }
+}
+
+addIfSupported({ kind: 'after', from: 'fpb', handler: noop_true }, () =>
+  verified('After hook keyed by state, 100 cycles by transition',
+    hooked(TL_MAIN, h => [{ kind: 'after', from: 'green', handler: h }], cycleByTransition)));
+
+addIfSupported({ kind: 'after', from: 'fpgo', handler: noop_true }, () =>
+  verified('After hook keyed by action, 100 cycles by action',
+    hooked(TL_MAIN_LABELED, h => [{ kind: 'after', from: 'next', handler: h }], cycleByAction)));
+
+addIfSupported({ kind: 'post hook', from: 'fpa', to: 'fpb', handler: noop_true }, () =>
+  verified('Post basic hook, 100 cycles by transition',
+    hooked(TL_MAIN, h => [{ kind: 'post hook', from: 'red', to: 'green', handler: h }], cycleByTransition)));
+
+addIfSupported({ kind: 'post hook', from: 'fpa', to: 'fpb', handler: noop_true }, () =>
+  verified('Post basic hook, 100 cycles by action',
+    hooked(TL_MAIN_LABELED, h => [{ kind: 'post hook', from: 'red', to: 'green', handler: h }], cycleByAction)));
+
+addIfSupported({ kind: 'post named', from: 'fpa', to: 'fpb', action: 'fpgo', handler: noop_true }, () =>
+  verified('Post named hook, 100 cycles by action',
+    hooked(TL_MAIN_LABELED, h => [{ kind: 'post named', from: 'red', to: 'green', action: 'next', handler: h }], cycleByAction)));
+
+addIfSupported({ kind: 'post entry', to: 'fpb', handler: noop_true }, () =>
+  verified('Post entry hook, 100 cycles by transition',
+    hooked(TL_MAIN, h => [{ kind: 'post entry', to: 'red', handler: h }], cycleByTransition)));
+
+addIfSupported({ kind: 'post exit', from: 'fpa', handler: noop_true }, () =>
+  verified('Post exit hook, 100 cycles by transition',
+    hooked(TL_MAIN, h => [{ kind: 'post exit', from: 'red', handler: h }], cycleByTransition)));
+
+addIfSupported({ kind: 'post global action', action: 'fpgo', handler: noop_true }, () =>
+  verified('Post global action hook, 100 cycles by action',
+    hooked(TL_MAIN_LABELED, h => [{ kind: 'post global action', action: 'next', handler: h }], cycleByAction)));
+
+if (    kindSupported({ kind: 'after',     from: 'fpb',            handler: noop_true })
+     && kindSupported({ kind: 'post hook', from: 'fpa', to: 'fpb', handler: noop_true }) ) {
+  cases.push(verified('Kitchen sink (15 hooks) 100 times v2', kitchenSink));
+}
+
+// --- compile ----------------------------------------------------------------
+
+cases.push(b.add('Compile `a -> b;` using sm',    CompileTrivialABStringUsingSm));
+cases.push(b.add('Compile `a -> b;` using .from', CompileTrivialABStringUsingFrom));
 
 
 
 b.suite('General performance suite',
 
-  b.add('Blind cycle a traffic light 100 times by transition',                 TransitionCycleTL100Times                       ),
-  b.add('Blind cycle a traffic light 100 times by action',                     ActionCycleTL100Times                           ),
-  b.add('Blind cycle a basic-hooked traffic light 100 times by transition',    TransitionCycleTLWithHooks100Times              ),
-  b.add('Blind cycle a named-hooked traffic light 100 times by transition',    TransitionCycleTLWithNamedHooks100Times         ),
-  b.add('Blind cycle an any-transition traffic light 100 times by transition', TransitionCycleTLWithAnyTransitionHooks100Times ),
-  b.add('Blind cycle an exit hooked traffic light 100 times by transition',    TransitionCycleTLWithExitHooks100Times          ),
-  b.add('Blind cycle an enter hooked traffic light 100 times by transition',   TransitionCycleTLWithEnterHooks100Times         ),
-  b.add('Blind cycle a standard-transition hooked light by transition',        TransitionCycleTLWithSTHooks100Times            ),
-  b.add('Blind cycle a main-transition hooked light by transition',            TransitionCycleTLWithMTHooks100Times            ),
-  b.add('Blind cycle a force-transition hooked light by transition',           TransitionCycleTLWithFTHooks100Times            ),
-  b.add('Blind cycle a traffic light 100 times by action',                     ActionCycleTL100Times                           ),
-  b.add('Blind cycle a basic-hooked traffic light 100 times by action',        ActionCycleTLWithHooks100Times                  ),
-  b.add('Blind cycle a named-hooked traffic light 100 times by action',        ActionCycleTLWithNamedHooks100Times             ),
-  b.add('Blind cycle an any-action traffic light 100 times by action',         AnyActionCycleTLWithNamedHooks100Times          ),
-  b.add('Blind cycle a global-action traffic light 100 times by action',       GlobalActionCycleTLWithNamedHooks100Times       ),
-  b.add('Blind cycle an exit hooked traffic light 100 times by action',        ActionCycleTLWithExitHooks100Times              ),
-  b.add('Blind cycle an enter hooked traffic light 100 times by action',       ActionCycleTLWithEnterHooks100Times             ),
-  b.add('Blind cycle a standard transition tl 100 times by action',            ActionCycleTLWithSTHooks100Times                ),
-  b.add('Blind cycle a main transition tl 100 times by action',                ActionCycleTLWithMTHooks100Times                ),
-  b.add('Blind cycle a forced transition tl 100 times by action',              ActionCycleTLWithFTHooks100Times                ),
-  b.add('Kitchen Sink 100 times',                                              KitchenSink100Times                             ),
-  b.add('Compile `a -> b;` using sm',                                          CompileTrivialABStringUsingSm                   ),
-  b.add('Compile `a -> b;` using .from',                                       CompileTrivialABStringUsingFrom                 ),
+  ...cases,
 
   b.cycle(),
   b.complete(),
 
-  b.save({ file: 'general', version: '1.2.0' }),
+  b.save({ file: 'general', version: pkg.version }),
   b.save({ file: 'general', format: 'chart.html' }),
 
 );

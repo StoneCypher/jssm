@@ -52,6 +52,30 @@ declare type JssmLineStyle = 'solid' | 'dashed' | 'dotted';
  */
 declare type JssmAllowsOverride = true | false | undefined;
 /**
+ *  Controls whether the state graph may contain disconnected components
+ *  (islands).  `true` permits islands (default), `false` requires a single
+ *  connected component, and `'with_start'` permits islands only when every
+ *  component contains at least one start state.
+ */
+declare type JssmAllowIslands = true | false | 'with_start';
+/**
+ *  Structured render-size hint for a machine visualization, set by the FSL
+ *  `default_size` directive.  All three forms are optional in the sense that
+ *  only one or two fields will be present depending on the form used:
+ *
+ *  - `{ width }` — single-number form (`default_size: 800;`)
+ *  - `{ width, height }` — bounding-box form (`default_size: 800 600;`)
+ *  - `{ height }` — height-only form (`default_size: height 600;`)
+ *
+ *  This is a *hint*, not a hard constraint.  Renderers may ignore it.
+ *
+ *  @see Machine.default_size
+ */
+declare type JssmDefaultSize = {
+    width?: number;
+    height?: number;
+};
+/**
  *  Runtime-iterable list of valid `flow` directions for FSL diagrams.
  *  Use this when you need to enumerate directions; for the type itself
  *  see {@link FslDirection}.
@@ -92,89 +116,23 @@ declare type JssmSerialization<DataType> = {
     data: DataType;
 };
 /**
- *  One ordered member of a named group's membership list.  A `'state'`
- *  member is an ordinary state (`a` inside `&g : [a]`).  A `'group'` member
- *  references another group: `mode: 'nest'` is the `&child` form, which
- *  preserves the child group's identity for later precedence/viz, while
- *  `mode: 'spread'` is the `...&child` form, which inlines the child's
- *  members and erases that identity.  Both modes resolve to the same flat
- *  set of states via {@link JssmGroupRegistry} resolution; only their
- *  structural bookkeeping differs.
- *
- *  ```typescript
- *  // `&outer : [&inner x];` direct members:
- *  // [ { kind: 'group', name: 'inner', mode: 'nest' },
- *  //   { kind: 'state', name: 'x' } ]
- *  ```
- *
- *  @see JssmGroupRef
- *  @see JssmGroupRegistry
- */
-declare type JssmGroupMemberRef = {
-    kind: 'state';
-    name: string;
-} | {
-    kind: 'group';
-    name: string;
-    mode: 'nest' | 'spread';
-};
-/**
- *  The compiled group table: maps each declared group name to its
- *  **ordered, direct** members (a {@link JssmGroupMemberRef} list).  Order
- *  is meaningful — it carries declaration/iteration/precedence order — so
- *  this is always an array-valued `Map`, never a `Set`.  Only direct
- *  members are stored; transitive (flattened) membership is resolved
- *  lazily so the group→group graph survives for viz and precedence.
- *
- *  ```typescript
- *  // for `&inner : [a b]; &outer : [&inner c];`
- *  // registry.get('inner') === [ { kind:'state', name:'a' },
- *  //                             { kind:'state', name:'b' } ]
- *  // registry.get('outer') === [ { kind:'group', name:'inner', mode:'nest' },
- *  //                             { kind:'state', name:'c' } ]
- *  ```
- *
- *  @see JssmGroupMemberRef
- */
-declare type JssmGroupRegistry = Map<string, JssmGroupMemberRef[]>;
-/**
- *  The compiled boundary-hook surface for a single subject (a group or a
- *  state): the action to run on entry (`onEnter`) and/or on exit (`onExit`).
- *  Each is optional so a subject may declare only one direction; the compiler
- *  merges an `enter` and an `exit` declaration for the same subject into one
- *  of these.
- *
- *  @see JssmHookDeclaration
- */
-declare type JssmBoundaryHooks = {
-    onEnter?: string;
-    onExit?: string;
-};
-/**
- *  Maps each group name that has at least one boundary hook to its merged
- *  {@link JssmBoundaryHooks}.  Carried on {@link JssmGenericConfig} for the
- *  runtime to consume; depth-aware firing is a later task.
- *
- *  @see JssmHookDeclaration
- */
-declare type JssmGroupHooks = Map<string, JssmBoundaryHooks>;
-/**
- *  Maps each plain state name that has at least one boundary hook to its
- *  merged {@link JssmBoundaryHooks}.  The state-subject analogue of
- *  {@link JssmGroupHooks}.
- *
- *  @see JssmHookDeclaration
- */
-declare type JssmStateHooks = Map<string, JssmBoundaryHooks>;
-/**
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
  *  provide `default_value` to fall back when the state does not specify it.
+ *
+ *  For state-property *bindings* (the `state_property` config list), the
+ *  compiler also writes `property` and `state` — the unserialized pair behind
+ *  the serialized `name` — so the Machine constructor can validate bindings
+ *  without parsing `name` back apart.  Both are optional: hand-built configs
+ *  may carry only the serialized `name`, and global property definitions
+ *  never set them.
  */
 declare type JssmPropertyDefinition = {
     name: string;
     default_value?: any;
     required?: boolean;
+    property?: string;
+    state?: string;
 };
 declare type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
@@ -243,6 +201,26 @@ declare type JssmMachineInternalState<DataType> = {
 declare type JssmStatePermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmStatePermitterMaybeArray<DataType> = JssmStatePermitter<DataType> | Array<JssmStatePermitter<DataType>>;
 /**
+ *  A source span produced by the FSL parser when `parse(input, { locations:
+ *  true })` is used.  Mirrors PEG.js's native `location()` shape: byte
+ *  `offset`s (0-based, half-open) plus 1-based `line`/`column` for display.
+ *
+ *  ```typescript
+ *  const [t] = parse('a -> b;', { locations: true });
+ *  // t.loc === { start: { offset: 0, line: 1, column: 1 },
+ *  //             end:   { offset: 7, line: 1, column: 8 } }
+ *  ```
+ */
+declare type FslSourcePoint = {
+    offset: number;
+    line: number;
+    column: number;
+};
+declare type FslSourceLocation = {
+    start: FslSourcePoint;
+    end: FslSourcePoint;
+};
+/**
  *  A single key/value pair from an FSL `state X: { ... };` block, in the
  *  raw form produced by the parser before being condensed into a
  *  {@link JssmStateDeclaration}.
@@ -251,6 +229,8 @@ declare type JssmStateDeclarationRule = {
     key: string;
     value: any;
     name?: string;
+    loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
 };
 /**
  *  The fully-condensed declaration for a single state, including its raw
@@ -334,120 +314,6 @@ declare type JssmStateStyleKey = JssmStateStyleShape | JssmStateStyleColor | Jss
  */
 declare type JssmStateStyleKeyList = JssmStateStyleKey[];
 /**
- *  The graph-wide default edge colour style item, produced by the
- *  `edge-color`/`edge_color` line inside a `transition: {}` (or `graph: {}`)
- *  config block.  Kept distinct from {@link JssmStateStyleColor} because it
- *  applies to edges rather than nodes, and because it carries the legacy
- *  `graph_default_edge_color` key the grammar emits.
- */
-declare type JssmGraphDefaultEdgeColor = {
-    key: 'graph_default_edge_color';
-    value: JssmColor;
-};
-/**
- *  A single item inside a `transition: {}` default-config block.  For v1 this
- *  reuses the per-state style items (so `color: red;` works inside a
- *  `transition:` block exactly as inside a `state:` block) plus the
- *  edge-scoped {@link JssmGraphDefaultEdgeColor} default.
- *
- *  @see JssmTransitionConfig
- */
-declare type JssmTransitionStyleKey = JssmStateStyleKey | JssmGraphDefaultEdgeColor;
-/**
- *  The compiled value of a `transition: {}` config block: an ordered list of
- *  edge-default style items.  V1 mirrors the state-style shape used by
- *  `default_state_config`; group machinery that consumes it lands in a later
- *  task.
- *
- *  ```typescript
- *  import { compile, parse } from 'jssm';
- *  const cfg = compile(parse('a -> b; transition: { color: red; };'));
- *  // cfg.default_transition_config === [ { key: 'color', value: '#ff0000ff' } ]
- *  ```
- *
- *  @see JssmGraphConfig
- */
-declare type JssmTransitionConfig = JssmTransitionStyleKey[];
-/**
- *  Graph-scope default-config style items folded from the deprecated
- *  top-level graph keywords (`graph_layout`, `graph_bg_color`,
- *  `dot_preamble`, `theme`, `flow`, and the `edge-color`/`edge_color`
- *  default) into the consolidated `graph: {}` config.  Each carries the
- *  legacy parse key so downstream consumers can disambiguate.
- */
-declare type JssmGraphAliasKey = {
-    key: 'graph_layout';
-    value: JssmLayout;
-} | {
-    key: 'graph_bg_color';
-    value: JssmColor;
-} | {
-    key: 'dot_preamble';
-    value: string;
-} | {
-    key: 'theme';
-    value: FslTheme | FslTheme[];
-} | {
-    key: 'flow';
-    value: FslDirection;
-} | JssmGraphDefaultEdgeColor;
-/**
- *  A single item inside a `graph: {}` default-config block.  For v1 this
- *  reuses the per-state style items plus the graph-scope alias items
- *  ({@link JssmGraphAliasKey}) folded in from the deprecated top-level
- *  graph keywords.
- *
- *  @see JssmGraphConfig
- */
-declare type JssmGraphStyleKey = JssmStateStyleKey | JssmGraphAliasKey;
-/**
- *  The compiled value of a `graph: {}` config block: an ordered list of
- *  graph-default style items.  The compiler folds the deprecated top-level
- *  graph keywords into this list first, then lets an explicit `graph: {}`
- *  block override on key conflict.
- *
- *  ```typescript
- *  import { compile, parse } from 'jssm';
- *  const cfg = compile(parse('a -> b; graph_bg_color: #ffffff;'));
- *  // the compiler canonicalizes the folded `graph_bg_color` alias to a
- *  // `background-color` item, so:
- *  // cfg.default_graph_config includes { key: 'background-color', value: '#ffffffff' }
- *  ```
- *
- *  @see JssmTransitionConfig
- */
-declare type JssmGraphConfig = JssmGraphStyleKey[];
-/**
- *  Complete shape of a jssm-viz theme.  A theme provides a style block for
- *  each kind of state (`state`, `hooked`, `start`, `end`, `terminal`) as
- *  well as a matching `active_*` variant used while that state is current.
- *
- *  The `graph`, `legal`, `main`, `forced`, `action`, and `title` slots are
- *  reserved for future use and currently typed as `undefined`.
- *
- *  Most user-defined themes should be typed as {@link JssmTheme} (the
- *  `Partial` of this) so that omitted fields fall back to the base theme.
- */
-declare type JssmBaseTheme = {
-    name: string;
-    state: JssmStateConfig;
-    hooked: JssmStateConfig;
-    start: JssmStateConfig;
-    end: JssmStateConfig;
-    terminal: JssmStateConfig;
-    active: JssmStateConfig;
-    active_hooked: JssmStateConfig;
-    active_start: JssmStateConfig;
-    active_end: JssmStateConfig;
-    active_terminal: JssmStateConfig;
-    graph: undefined;
-    legal: undefined;
-    main: undefined;
-    forced: undefined;
-    action: undefined;
-    title: undefined;
-};
-/**
  *  Full configuration object accepted by the {@link Machine} constructor and
  *  by {@link from}.  Carries the transition list and the optional knobs
  *  governing layout, theming, history, start/end states, property
@@ -471,24 +337,9 @@ declare type JssmGenericConfig<StateType, DataType> = {
     nodes?: Array<StateType>;
     check?: JssmStatePermitterMaybeArray<DataType>;
     history?: number;
-    /**
-     *  Maximum depth of the boundary-hook action cascade before the machine
-     *  throws a {@link JssmError} rather than risking a stack overflow or hang.
-     *
-     *  Each time a boundary action fires a transition that itself crosses a
-     *  boundary, the depth counter increments.  A cascade exceeding this limit is
-     *  treated as a probable infinite loop and rejected.
-     *
-     *  Defaults to `100`.  Raise it for legitimate pipelines that genuinely nest
-     *  more than 100 transitions via boundary hooks.
-     *
-     *  @see Machine._boundary_depth_limit
-     *  @see Machine._fire_boundary_actions
-     */
-    boundary_depth_limit?: number;
     min_exits?: number;
     max_exits?: number;
-    allow_islands?: false;
+    allow_islands?: JssmAllowIslands;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -497,6 +348,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     dot_preamble?: string;
     start_states: Array<StateType>;
     end_states?: Array<StateType>;
+    failed_outputs?: Array<StateType>;
     initial_state?: StateType;
     start_states_no_enforce?: boolean;
     state_declaration?: Object[];
@@ -513,6 +365,8 @@ declare type JssmGenericConfig<StateType, DataType> = {
     machine_license?: string;
     machine_name?: string;
     machine_version?: string;
+    npm_name?: string;
+    default_size?: JssmDefaultSize;
     fsl_version?: string;
     auto_api?: boolean | string;
     instance_name?: string | undefined;
@@ -522,32 +376,6 @@ declare type JssmGenericConfig<StateType, DataType> = {
     default_hooked_state_config?: JssmStateStyleKeyList;
     default_terminal_state_config?: JssmStateStyleKeyList;
     default_active_state_config?: JssmStateStyleKeyList;
-    default_transition_config?: JssmTransitionConfig;
-    default_graph_config?: JssmGraphConfig;
-    /**
-     *  Overlapping-state-group tables produced by the compile pass and consumed
-     *  by the Task-3 runtime cascade.
-     *
-     *  `group_registry` maps each group name to its ordered list of direct
-     *  members (states and sub-group references) as declared in the FSL source.
-     *
-     *  `group_metadata` maps each group name to its RAW style object
-     *  `{ declarations: [...] }` — parsed style items from a
-     *  `state &g : { … };` declaration, **not** condensed `JssmStateConfig`
-     *  style fields.  Condensation is intentionally deferred to the Task-3
-     *  runtime cascade so that depth-specificity resolution can weight each
-     *  group's contribution before merging into per-state config.
-     *
-     *  `group_hooks` and `state_hooks` hold boundary-hook payloads keyed by
-     *  group name and state name respectively; firing is also a Task-3 concern.
-     *
-     *  All four fields are absent (`undefined`) on machines that declare no
-     *  groups or hooks.
-     */
-    group_registry?: JssmGroupRegistry;
-    group_metadata?: Map<string, JssmStateConfig>;
-    group_hooks?: JssmGroupHooks;
-    state_hooks?: JssmStateHooks;
     rng_seed?: number | undefined;
     time_source?: () => number;
     timeout_source?: (Function: any, number: any) => number;
@@ -572,6 +400,10 @@ declare type JssmCompileSe<StateType, mDT> = {
     r_probability: number;
     l_after?: number;
     r_after?: number;
+    loc?: FslSourceLocation;
+    to_loc?: FslSourceLocation;
+    l_action_loc?: FslSourceLocation;
+    r_action_loc?: FslSourceLocation;
 };
 /**
  *  Internal compiler intermediate: the root of a chained transition
@@ -586,11 +418,15 @@ declare type JssmCompileSeStart<StateType, DataType> = {
     from: StateType;
     se: JssmCompileSe<StateType, DataType>;
     key: string;
-    value?: string | number;
+    value?: string | number | Array<JssmStateDeclarationRule>;
     name?: string;
     state?: string;
     default_value?: any;
     required?: boolean;
+    loc?: FslSourceLocation;
+    from_loc?: FslSourceLocation;
+    value_loc?: FslSourceLocation;
+    name_loc?: FslSourceLocation;
 };
 /**
  *  The output shape of the FSL parser: a flat array of
@@ -1098,6 +934,34 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *  This method is mostly for plugin and intermediate tool authors, or people
  *  who need to work with the machine's intermediate representation.
  *
+ *  ## Opt-in source locations
+ *
+ *  Pass `{ locations: true }` to attach source-span information to every
+ *  object node in the AST.  Each node gains a `loc` field of type
+ *  {@link FslSourceLocation} covering its full statement span.  Selected nodes
+ *  also gain curated sub-span fields that pinpoint individual tokens within the
+ *  statement:
+ *
+ *  - Transition nodes: `from_loc` (source state), `to_loc` (target state, on
+ *    the nested `se` object), `l_action_loc` / `r_action_loc` (action labels).
+ *  - State-declaration nodes: `name_loc` (state name), plus `value_loc` on
+ *    each color-bearing item inside the declaration block.
+ *  - Machine-attribute nodes (`machine_name`, `fsl_version`, etc.): `value_loc`
+ *    (the attribute value token).
+ *
+ *  Without `{ locations: true }` the AST is byte-for-byte identical to the
+ *  default output; no `loc` or `*_loc` fields are present.
+ *
+ *  ```typescript
+ *  const tree = wrap_parse('a -> b;', { locations: true });
+ *  // tree[0].loc  === { start: { offset: 0, line: 1, column: 1 },
+ *  //                    end:   { offset: 7, line: 1, column: 8 } }
+ *  // tree[0].from_loc.start.offset === 0   // 'a'
+ *  // tree[0].se.to_loc.start.offset === 5  // 'b'
+ *  ```
+ *
+ *  @see {@link FslSourceLocation}
+ *
  *  # Hey!
  *
  *  Most people looking at this want either the `sm` operator or method `from`,
@@ -1126,7 +990,9 @@ declare function arrow_right_kind(arrow: JssmArrow): JssmArrowKind;
  *
  *  @param input The FSL code to be evaluated
  *
- *  @param options Things to control about the instance
+ *  @param options Things to control about the instance.  Pass
+ *                 `{ locations: true }` to enable opt-in source location
+ *                 tracking on every AST node.
  *
  */
 declare function wrap_parse(input: string, options?: Object): any;
@@ -1153,6 +1019,31 @@ declare function wrap_parse(input: string, options?: Object): any;
  *  This method is mostly for plugin and intermediate tool authors, or people
  *  who need to work with the machine's intermediate representation.
  *
+ *  ## Source-location-aware error reporting
+ *
+ *  `compile()` ignores `loc` and `*_loc` fields during machine construction —
+ *  the resulting config is identical whether or not the tree was parsed with
+ *  `{ locations: true }`.  However, when those fields are present, `compile()`
+ *  attaches the offending node's source span to any semantic {@link JssmError}
+ *  it throws, via the error's `source_location` field
+ *  (type {@link FslSourceLocation}).  This lets downstream tooling (e.g. a
+ *  CodeMirror 6 linter) map the error to a precise editor range without any
+ *  additional source-scanning.
+ *
+ *  ```typescript
+ *  import { parse, compile } from 'jssm';
+ *
+ *  try {
+ *    compile(parse('fsl_version: 1.0.0;\nfsl_version: 2.0.0;\na -> b;',
+ *                  { locations: true }));
+ *  } catch (err) {
+ *    // err.source_location.start.offset points at the second fsl_version line
+ *    console.log(err.source_location);
+ *  }
+ *  ```
+ *
+ *  @see {@link FslSourceLocation}
+ *
  *  # Hey!
  *
  *  Most people looking at this want either the `sm` operator or method `from`,
@@ -1178,7 +1069,10 @@ declare function wrap_parse(input: string, options?: Object): any;
  *
  *  @typeparam mDT The type of the machine data member; usually omitted
  *
- *  @param tree The parse tree to be boiled down into a machine config
+ *  @param tree The parse tree to be boiled down into a machine config.  If the
+ *              tree was produced with `parse(input, { locations: true })`, any
+ *              semantic error thrown will carry a `source_location` span
+ *              pointing at the offending statement.
  *
  */
 declare function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGenericConfig<StateType, mDT>;
@@ -1362,6 +1256,73 @@ declare function find_repeated<T>(arr: T[]): [T, number][];
  *
  */
 declare function sleep(ms: number): Promise<unknown>;
+
+/**
+ * String interning support for the jssm machine internals.
+ *
+ * State and action names are interned to dense integer ids at machine
+ * construction so that per-transition dispatch can use numeric map keys
+ * (integer hashing) instead of repeated string-keyed lookups.  Internal
+ * machinery only — deliberately not re-exported from the `jssm` public
+ * surface, so the public API is unchanged.
+ *
+ * @internal
+ */
+/**
+ * A string↔integer bimap.  Assigns dense ids (0, 1, 2, …) in first-seen
+ * order; lookups are O(1) both directions.  Grows monotonically — there is
+ * no removal, matching machine semantics (states and actions are fixed
+ * after construction; late interning only happens for never-matching
+ * lookups such as hook registrations naming unknown states).
+ *
+ * @example
+ *   const i = new Interner();
+ *   i.intern('red');     // 0
+ *   i.intern('green');   // 1
+ *   i.intern('red');     // 0  (idempotent)
+ *   i.id_of('green');    // 1
+ *   i.name_of(0);        // 'red'
+ *
+ * @see pair_key
+ */
+declare class Interner {
+    private readonly ids;
+    private readonly names;
+    constructor();
+    /**
+     * Return the id for `name`, assigning the next dense id if the name has
+     * not been seen before.
+     *
+     * @param name - The string to intern.
+     * @returns The (possibly newly assigned) integer id.
+     *
+     * @example
+     *   interner.intern('red');  // 0 on first call, 0 on every later call
+     */
+    intern(name: string): number;
+    /**
+     * Return the id for `name` without interning, or `undefined` when the
+     * name has never been interned.  This is the hot-path probe for
+     * user-supplied names.
+     *
+     * @param name - The string to look up.
+     *
+     * @example
+     *   interner.id_of('mauve');  // undefined — never interned
+     */
+    id_of(name: string): number | undefined;
+    /**
+     * Return the name for `id`, or `undefined` for an id never assigned.
+     *
+     * @param id - The integer id to invert.
+     *
+     * @example
+     *   interner.name_of(0);  // 'red'
+     */
+    name_of(id: number): string | undefined;
+    /** The count of distinct interned names. */
+    get size(): number;
+}
 
 /*******
  *
@@ -1618,26 +1579,6 @@ declare function transfer_state_properties(state_decl: JssmStateDeclaration): Js
  *
  */
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
-/*******
- *
- *  Core finite state machine class.  Holds the full graph of states and
- *  transitions, the current state, hooks, data, properties, and all runtime
- *  behavior.  Typically created via the {@link sm} tagged template literal
- *  rather than constructed directly.
- *
- *  ```typescript
- *  import { sm } from 'jssm';
- *
- *  const light = sm`Red 'next' => Green 'next' => Yellow 'next' => Red;`;
- *  light.state();       // 'Red'
- *  light.action('next'); // true
- *  light.state();       // 'Green'
- *  ```
- *
- *  @typeparam mDT The machine data type — the type of the value stored in
- *  `.data()`.  Defaults to `undefined` when no data is used.
- *
- */
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
@@ -1648,8 +1589,15 @@ declare class Machine<mDT> {
     _actions: Map<StateType, Map<StateType, number>>;
     _reverse_actions: Map<StateType, Map<StateType, number>>;
     _reverse_action_targets: Map<StateType, Map<StateType, number>>;
+    _state_interner: Interner;
+    _action_interner: Interner;
+    _state_id: number;
+    _edge_id_by_pair: Map<number, number>;
+    _edge_id_by_action_pair: Map<number, number>;
+    _edge_to_ids: Array<number>;
     _start_states: Set<StateType>;
     _end_states: Set<StateType>;
+    _failed_outputs: Set<StateType>;
     _machine_author?: Array<string>;
     _machine_comment?: string;
     _machine_contributor?: Array<string>;
@@ -1658,6 +1606,8 @@ declare class Machine<mDT> {
     _machine_license?: string;
     _machine_name?: string;
     _machine_version?: string;
+    _npm_name?: string;
+    _default_size?: JssmDefaultSize;
     _fsl_version?: string;
     _raw_state_declaration?: Array<Object>;
     _state_declarations: Map<StateType, JssmStateDeclaration>;
@@ -1667,8 +1617,6 @@ declare class Machine<mDT> {
     _rng: JssmRng;
     _graph_layout: JssmLayout;
     _dot_preamble: string;
-    _default_transition_config: JssmTransitionConfig | undefined;
-    _default_graph_config: JssmGraphConfig | undefined;
     _arrange_declaration: Array<Array<StateType>>;
     _arrange_start_declaration: Array<Array<StateType>>;
     _arrange_end_declaration: Array<Array<StateType>>;
@@ -1683,12 +1631,12 @@ declare class Machine<mDT> {
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
     _has_forced_transitions: boolean;
-    _hooks: Map<string, Map<string, HookHandler<mDT>>>;
-    _named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-    _entry_hooks: Map<string, HookHandler<mDT>>;
-    _exit_hooks: Map<string, HookHandler<mDT>>;
+    _hooks: Map<number, HookHandler<mDT>>;
+    _named_hooks: Map<number, Map<number, HookHandler<mDT>>>;
+    _entry_hooks: Map<number, HookHandler<mDT>>;
+    _exit_hooks: Map<number, HookHandler<mDT>>;
     _after_hooks: Map<string, HookHandler<mDT>>;
-    _global_action_hooks: Map<string, HookHandler<mDT>>;
+    _global_action_hooks: Map<number, HookHandler<mDT>>;
     _any_action_hook: HookHandler<mDT> | undefined;
     _standard_transition_hook: HookHandler<mDT> | undefined;
     _main_transition_hook: HookHandler<mDT> | undefined;
@@ -1703,11 +1651,12 @@ declare class Machine<mDT> {
     _has_post_transition_hooks: boolean;
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
-    _post_hooks: Map<string, Map<string, HookHandler<mDT>>>;
-    _post_named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-    _post_entry_hooks: Map<string, HookHandler<mDT>>;
-    _post_exit_hooks: Map<string, HookHandler<mDT>>;
-    _post_global_action_hooks: Map<string, HookHandler<mDT>>;
+    _allow_islands: JssmAllowIslands;
+    _post_hooks: Map<number, HookHandler<mDT>>;
+    _post_named_hooks: Map<number, Map<number, HookHandler<mDT>>>;
+    _post_entry_hooks: Map<number, HookHandler<mDT>>;
+    _post_exit_hooks: Map<number, HookHandler<mDT>>;
+    _post_global_action_hooks: Map<number, HookHandler<mDT>>;
     _post_any_action_hook: HookHandler<mDT> | undefined;
     _post_standard_transition_hook: HookHandler<mDT> | undefined;
     _post_main_transition_hook: HookHandler<mDT> | undefined;
@@ -1721,6 +1670,7 @@ declare class Machine<mDT> {
     _default_properties: Map<string, any>;
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
+    _state_property_first_state: Map<string, StateType>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     _state_style: JssmStateConfig;
@@ -1729,13 +1679,6 @@ declare class Machine<mDT> {
     _terminal_state_style: JssmStateConfig;
     _start_state_style: JssmStateConfig;
     _end_state_style: JssmStateConfig;
-    _group_registry: JssmGroupRegistry;
-    _group_metadata: Map<string, JssmStateConfig>;
-    _group_hooks: JssmGroupHooks;
-    _state_hooks: JssmStateHooks;
-    _state_to_groups: Map<StateType, Set<string>>;
-    _group_order: string[];
-    _static_state_config_cache: Map<StateType, JssmStateConfig>;
     _state_labels: Map<string, string>;
     _time_source: () => number;
     _create_started: number;
@@ -1749,9 +1692,7 @@ declare class Machine<mDT> {
     _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
     _event_listener_count: number;
     _firing_error: boolean;
-    _boundary_depth: number;
-    _boundary_depth_limit: number;
-    constructor({ start_states, end_states, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -2015,6 +1956,39 @@ declare class Machine<mDT> {
     is_end_state(whichState: StateType): boolean;
     /********
      *
+     *  Get the set of states declared as failure outputs for this machine.
+     *  Returns an array of state labels, or an empty array when none were
+     *  declared.  A state in this list means the machine is in a failure
+     *  condition when it occupies that state.
+     *
+     *  @see {@link is_failed_output} to test a single state
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    failed_outputs(): Array<StateType>;
+    /********
+     *
+     *  Check whether a given state is declared as a failure output.
+     *
+     *  @param whichState The name of the state to check
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed} to test the current state
+     *
+     */
+    is_failed_output(whichState: StateType): boolean;
+    /********
+     *
+     *  Check whether the machine is currently in a failure state — that is,
+     *  whether its current state is one of the declared `failed_outputs`.
+     *
+     *  @see {@link failed_outputs} for the full failure-output set
+     *  @see {@link is_failed_output} to test an arbitrary state
+     *
+     */
+    is_failed(): boolean;
+    /********
+     *
      *  Check whether a given state is final (either has no exits or is marked
      *  `complete`.)
      *
@@ -2077,43 +2051,6 @@ declare class Machine<mDT> {
      *  @returns The preamble string.
      */
     dot_preamble(): string;
-    /** Get the consolidated `transition: {}` default-config block: the ordered,
-     *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
-     *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
-     *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
-     *  every edge inherits it.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
-     *  // [ { key: 'color', value: '#0000ffff' } ]
-     *  ```
-     *
-     *  @returns The transition-config item list, or `undefined` if the machine
-     *  declared no `transition: {}` block.
-     *  @see default_graph_config
-     */
-    default_transition_config(): JssmTransitionConfig | undefined;
-    /** Get the consolidated `graph: {}` default-config block: the ordered,
-     *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
-     *  compiler folds the deprecated top-level graph keywords
-     *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
-     *  `flow`, `dot_preamble`) into this list first, then lets an explicit
-     *  `graph: {}` block win on key conflict.  The viz layer projects the
-     *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
-     *  `background-color` → `bgcolor`).
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
-     *  // [ { key: 'background-color', value: '#ffffffff' } ]
-     *  ```
-     *
-     *  @returns The graph-config item list, or `undefined` if the machine has no
-     *  graph config (no `graph: {}` block and no deprecated graph keyword).
-     *  @see default_transition_config
-     */
-    default_graph_config(): JssmGraphConfig | undefined;
     /** Get the machine's author list.  Set via the FSL `machine_author` directive.
      *  @returns An array of author name strings.
      */
@@ -2142,6 +2079,27 @@ declare class Machine<mDT> {
      *  @returns The machine name string.
      */
     machine_name(): string;
+    /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
+     *  Returns `undefined` when not present.
+     *  @returns The npm package name string, or `undefined`.
+     *  @see machine_name
+     */
+    npm_name(): string;
+    /** Get the render-size hint for the machine's visualization.  Set via the
+     *  FSL `default_size` directive.  Returns `undefined` when not present.
+     *
+     *  The three FSL forms each produce a different subset of fields:
+     *
+     *  - `default_size: 800;`       → `{ width: 800 }`
+     *  - `default_size: 800 600;`   → `{ width: 800, height: 600 }`
+     *  - `default_size: height 600;` → `{ height: 600 }`
+     *
+     *  This is a hint, not a hard constraint.  Renderers may ignore it.
+     *
+     *  @returns The size-hint object, or `undefined` if not set.
+     *  @see npm_name
+     */
+    default_size(): JssmDefaultSize | undefined;
     /** Get the machine's version string.  Set via the FSL `machine_version` directive.
      *  @returns The version string.
      */
@@ -2292,6 +2250,17 @@ declare class Machine<mDT> {
      *
      */
     get allows_override(): JssmAllowsOverride;
+    /*********
+     *
+     *  Return the effective island policy for this machine.  `true` means
+     *  disconnected components are allowed (the default), `false` requires a
+     *  single connected component, and `'with_start'` allows islands only when
+     *  every component contains at least one start state.
+     *
+     *  @returns The island policy stored in the machine.
+     *
+     */
+    get allow_islands(): JssmAllowIslands;
     /** List all available theme names.
      *  @returns An array of theme name strings.
      */
@@ -2582,114 +2551,6 @@ declare class Machine<mDT> {
      *  @returns `true` if at least one state has no exits.
      */
     has_terminals(): boolean;
-    /********
-     *
-     *  Reports whether the machine's CURRENT state is a transitive member of a
-     *  named group.  Membership is deep: a state counts as in `groupName` if it
-     *  belongs to that group directly, or via any nested (`&child`) or spread
-     *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
-     *  members, so this returns `false` rather than throwing.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&busy : [working]; idle 'go' -> working;`;
-     *  m.isIn('busy');     // false — current state is 'idle'
-     *  m.action('go');
-     *  m.isIn('busy');     // true  — current state is now 'working'
-     *  m.isIn('nonesuch'); // false — undeclared group has no members
-     *  ```
-     *
-     *  @typeparam mDT The type of the machine data member; usually omitted
-     *
-     *  @param groupName The group to test the current state against.
-     *
-     *  @returns `true` if the current state is a transitive member of `groupName`.
-     *
-     *  @see groupsOf
-     *  @see statesIn
-     *
-     */
-    isIn(groupName: string): boolean;
-    /********
-     *
-     *  Lists every group that transitively contains a given state.  Membership is
-     *  deep — direct, nested, and spread sub-group containment all count — and the
-     *  result is the precomputed inverse-index entry for the state, so the lookup
-     *  is constant-time.  A state that belongs to no group (or a state name that
-     *  appears in no group) yields an empty `Set`.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
-     *  m.groupsOf('a');     // Set { 'inner', 'outer' }  — deep through &inner
-     *  m.groupsOf('b');     // Set { 'outer' }
-     *  m.groupsOf('z');     // Set {}                    — not in any group
-     *  ```
-     *
-     *  @typeparam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state whose containing groups are wanted.
-     *
-     *  @returns A `Set` of every group name transitively containing `state`;
-     *  empty when `state` belongs to no group.
-     *
-     *  @see isIn
-     *  @see groups
-     *
-     */
-    groupsOf(state: StateType): Set<string>;
-    /********
-     *
-     *  Lists all declared group names, in source declaration order.  The order
-     *  matches the order the `&group : [ … ];` declarations appear in the FSL, and
-     *  is the same order used to break depth-specificity ties in the config
-     *  cascade.  Machines that declare no groups return an empty array.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
-     *  m.groups();  // [ 'first', 'second' ]
-     *  ```
-     *
-     *  @typeparam mDT The type of the machine data member; usually omitted
-     *
-     *  @returns The declared group names, in declaration order.
-     *
-     *  @see groupsOf
-     *  @see statesIn
-     *
-     */
-    groups(): string[];
-    /********
-     *
-     *  Lists every state that is a transitive member of a named group — the
-     *  flattened membership of the group, descending through nested and spread
-     *  sub-groups, in member-declaration order.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
-     *  m.statesIn('outer');  // [ 'a', 'b', 'c' ]
-     *  m.statesIn('inner');  // [ 'a', 'b' ]
-     *  ```
-     *
-     *  @typeparam mDT The type of the machine data member; usually omitted
-     *
-     *  @param groupName The group whose transitive member states are wanted.
-     *
-     *  @returns The transitive member states of `groupName`, in declaration order.
-     *
-     *  @throws {JssmError} If `groupName` is not a declared group.
-     *
-     *  @see groups
-     *  @see groupsOf
-     *
-     */
-    statesIn(groupName: string): Array<StateType>;
     /** Check whether the current state is complete (every exit has an action).
      *  @returns `true` if the current state is complete.
      */
@@ -3121,54 +2982,6 @@ declare class Machine<mDT> {
     _fire_hook_rejection(hook_name: string, fromState: StateType, newState: StateType, fromAction: StateType | undefined, oldData: mDT, newData: mDT | undefined, wasForced: boolean): void;
     /*********
      *
-     *  Fire the FSL boundary-hook actions for a single, already-committed state
-     *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
-     *  means "when the machine crosses INTO group `g`, dispatch machine action
-     *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
-     *  that fires those parked hooks.
-     *
-     *  Crossing semantics (statechart convention — exits before enters):
-     *
-     *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
-     *     the old and new states, from `_state_to_groups`.
-     *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
-     *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
-     *     actually changed).
-     *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
-     *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
-     *     changed).
-     *  4. A group present in BOTH sets is a transition *within* that group and
-     *     fires neither of its boundary hooks.  `prev_state === next_state` fires
-     *     nothing at all.
-     *  5. "Fire its action" is `this.action(label)`.  If that action is not valid
-     *     from the current state, `action` is a safe no-op (returns `false`) — an
-     *     inapplicable boundary action never throws.
-     *  6. Multi-membership and nesting both fan out naturally: a state in groups
-     *     A and B fires both; crossing an inner and an outer boundary fires both
-     *     levels.
-     *
-     *  Because firing an action can drive a further transition (which crosses
-     *  more boundaries, which fires more actions), this is a bounded
-     *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
-     *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
-     *  rather than overflowing the stack or hanging.  The limit defaults to 100
-     *  and is configurable via the `boundary_depth_limit` constructor option.
-     *
-     *  @param prev_state The state the machine was in before this commit.
-     *  @param next_state The state the machine is in now (already committed).
-     *
-     *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
-     *    (a probable infinite loop).
-     *
-     *  @see action
-     *  @see transition_impl
-     *
-     *  @internal
-     *
-     */
-    _fire_boundary_actions(prev_state: StateType, next_state: StateType): void;
-    /*********
-     *
      *  Shared transition core used by {@link transition}, {@link force_transition},
      *  and {@link action}.  Runs validation, fires the full hook pipeline (pre-
      *  everything, any-action, after, any-transition, exit, named, basic,
@@ -3472,148 +3285,25 @@ declare class Machine<mDT> {
     get active_state_style(): JssmStateConfig;
     /********
      *
-     *  Returns the list of resolved theme implementations for this machine, in
-     *  the order they should layer (outer/base-most first).  Each declared theme
-     *  name is mapped through {@link theme_mapping}; unknown names are skipped.
+     *  Gets the composite style for a specific node by individually imposing the
+     *  style layers on a given object, after determining which layers are
+     *  appropriate.
      *
-     *  The list is reversed relative to declaration order to match the historical
-     *  layering of {@link style_for}: a later-declared theme layers under an
-     *  earlier-declared one.
+     *  The order of composition is base, then theme, then user content.  Each
+     *  item in the stack will be composited independently.  First, the base state
+     *  style, then the theme state style, then the user state style.
      *
-     *  @returns The resolved {@link JssmBaseTheme} stack, base-most first.
+     *  After the three state styles, we'll composite the hooked styles; then the
+     *  terminal styles; then the start styles; then the end styles; finally, the
+     *  active styles.  Remember, last wins.
      *
-     *  @internal
-     *
-     */
-    _resolved_themes(): JssmBaseTheme[];
-    /********
-     *
-     *  Reads the condensed per-state style fields (`color`, `shape`, …) out of a
-     *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
-     *  "`state foo : { … }`" contribution of the config cascade.  A state with no
-     *  declaration yields an all-`undefined` config (which contributes nothing
-     *  once folded with {@link merge_state_config}).
-     *
-     *  @param state The state whose per-state declared style is wanted.
-     *
-     *  @returns The per-state style config (fields may be `undefined`).
-     *
-     *  @internal
-     *
-     */
-    _individual_state_config(state: StateType): JssmStateConfig;
-    /********
-     *
-     *  Orders the groups a state belongs to by nesting depth for the config
-     *  cascade — outermost first, innermost last — so that, folded in order,
-     *  the innermost (nearest / smallest {@link membership_distance}) group's
-     *  metadata wins.  Equal-distance groups are ordered by group declaration
-     *  order, so a later-declared group of the same depth wins the tie.
-     *
-     *  Concretely: groups are sorted by descending membership distance (largest
-     *  distance applied first / wins least), and for equal distances by
-     *  ascending declaration index (later index applied last / wins most).
-     *
-     *  @param state The state whose containing groups are being ordered.
-     *
-     *  @returns The containing group names, ordered for outer→inner folding
-     *  (the last entry wins).
-     *
-     *  @internal
-     *
-     */
-    _groups_by_depth(state: StateType): string[];
-    /********
-     *
-     *  Folds the static tiers 1–5 of the unified config cascade for a state, plus
-     *  — when `active` is set — the active-state THEME layers, which historically
-     *  sit just below the per-state config so that a `state foo : { … }` block
-     *  still overrides a theme's `active` styling.  The user `active_state : { … }`
-     *  overlay (tier 6) is NOT applied here; it is layered on top by
-     *  {@link resolve_state_config} so it wins over per-state config.
-     *
-     *  Tiers, folded least-specific → most-specific with {@link merge_state_config}
-     *  (later wins, never throwing on a cross-tier key collision):
-     *
-     *    1. theme defaults — `base_theme.state`, then each selected theme's
-     *       `.state` block.
-     *    2. `default_state_config` (the implicit `state : { … }` root over every
-     *       state).
-     *    3. static per-kind defaults selected by structural kind — terminal,
-     *       then start, then end — each contributing its `base_theme.<kind>`,
-     *       selected themes' `.<kind>`, and the machine's `default_<kind>_state_config`.
-     *       When `active`, the active-state theme layers (`base_theme.active` and
-     *       each selected theme's `.active`) are folded here too.
-     *    4. group metadata, depth-ordered outer→inner (see {@link _groups_by_depth}),
-     *       each group's RAW `{ declarations }` already condensed at construction.
-     *    5. the per-state `state foo : { … }` config.
-     *
-     *  @param state  The state to resolve config for.
-     *  @param active Whether to include the active-state theme layers (true only
-     *                for the machine's currently-occupied state).
-     *
-     *  @returns The composited tiers-1–5 {@link JssmStateConfig} for the state.
-     *
-     *  @internal
-     *
-     */
-    _compose_state_config(state: StateType, active: boolean): JssmStateConfig;
-    /********
-     *
-     *  Resolves the full unified style/config cascade for a state — the runtime
-     *  successor to the ad-hoc layer merge {@link style_for} used to perform.
-     *
-     *  For any state OTHER than the current one, this returns the memoized static
-     *  resolution (tiers 1–5; see {@link _compose_state_config}) — theme →
-     *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
-     *  per-state config.  The cache is keyed by state and never invalidated, since
-     *  those tiers do not depend on which state is current.
-     *
-     *  For the machine's CURRENTLY-occupied state the result is recomputed each
-     *  call (never cached) and additionally carries the dynamic `active_state`
-     *  layers: the active-state THEME layers fold in just below the per-state
-     *  config (tier 3-active), and the user `active_state : { … }` overlay folds
-     *  in LAST (tier 6), on top of everything, so it wins over per-state config.
-     *  Every fold uses {@link merge_state_config}, so a key set at a lower tier is
-     *  overridden — never rejected — by a higher one.
-     *
-     *  ```typescript
-     *  import { sm } from 'jssm';
-     *
-     *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
-     *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
-     *  ```
-     *
-     *  @typeparam mDT The type of the machine data member; usually omitted
-     *
-     *  @param state The state to compute the composite config for.
-     *
-     *  @returns The fully composited {@link JssmStateConfig} for the state,
-     *  including the active overlay when the state is current.
-     *
-     *  @see style_for
-     *
-     */
-    resolve_state_config(state: StateType): JssmStateConfig;
-    /********
-     *
-     *  Gets the composite style for a specific node — the public viz entry point,
-     *  now a thin wrapper over the unified config cascade in
-     *  {@link resolve_state_config}.
-     *
-     *  The order of composition runs least-specific to most-specific: theme
-     *  defaults, then the `default_state_config` root, then per-kind defaults
-     *  (terminal, start, end), then depth-ordered group metadata (inner groups
-     *  winning over outer), then the per-state config, and finally — for the
-     *  current state only — the active overlay.  Last wins at every tier.
+     *  The base state style must exist.  All other styles are optional.
      *
      *  @typeparam mDT The type of the machine data member; usually omitted
      *
      *  @param state The state to compute the composite style for.
      *
      *  @returns The fully composited {@link JssmStateConfig} for the given state.
-     *
-     *  @see resolve_state_config
      *
      */
     style_for(state: StateType): JssmStateConfig;
@@ -3733,6 +3423,8 @@ declare class Machine<mDT> {
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
     /** Get the edge index for an action from the current state.
+     *  Interned dispatch: resolves via the numeric (action, from) index —
+     *  unknown action names miss without throwing.
      *  @param action - The action name.
      *  @returns The edge index, or `undefined` if the action is not available.
      */
@@ -3986,9 +3678,17 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  */
 declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT>;
 /**
- * Compares two semantic version strings.
+ * Compares two semantic version strings, including prerelease versions.
  *
- * @param {string} v1 - First version string (e.g., "5.104.2")
+ * The numeric (`major.minor.patch`) parts compare numerically, with missing
+ * segments treated as zero.  Prerelease parts (everything after the first
+ * `-`) follow semver precedence: a version *with* a prerelease precedes the
+ * same version *without* one; prerelease identifiers compare dot-by-dot,
+ * numeric identifiers numerically and below alphanumeric ones, alphanumeric
+ * identifiers in ASCII order, and a shorter identifier set precedes a longer
+ * one that it prefixes.
+ *
+ * @param {string} v1 - First version string (e.g., "5.104.2" or "6.0.0-alpha.1")
  * @param {string} v2 - Second version string (e.g., "5.103.1")
  *
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
@@ -4004,6 +3704,18 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "5.104.2");  // => 0
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0-alpha.2");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-beta.1", "6.0.0-alpha.1");  // => 1
  */
 declare function compareVersions(v1: string, v2: string): number;
 /**

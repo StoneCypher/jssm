@@ -9,8 +9,13 @@ import {
 } from "@codemirror/language";
 import { linter, lintGutter } from "@codemirror/lint";
 
-import { parse } from "../../dist/es6/fsl_parser.js";
-import { fsl }   from "../cm6-lang-fsl/index.js";
+// The bundled es6 build is self-contained (deps like reduce-to-639-1 are
+// inlined), so the browser can load parse + compile without importmap
+// entries for jssm's node dependencies.  The per-module dist/es6/*.js files
+// carry bare imports and are NOT browser-loadable on their own.
+import { parse, compile }  from "../../dist/jssm.es6.mjs";
+import { diagnosticsFor } from "./diagnostics.mjs";
+import { fsl }            from "../cm6-lang-fsl/index.js";
 
 const basicSetup = [
   lineNumbers(),
@@ -30,35 +35,19 @@ const basicSetup = [
 
 const statusEl = document.getElementById("status");
 
-function offsetFromLineCol(doc, line, column) {
-  const safeLine = Math.min(Math.max(line, 1), doc.lines);
-  return doc.line(safeLine).from + Math.max(column - 1, 0);
-}
-
 const fslLinter = linter((view) => {
   const text = view.state.doc.toString();
-  try {
-    parse(text, {});
-    statusEl.textContent = "parses cleanly";
-    statusEl.dataset.state = "ok";
-    return [];
-  } catch (err) {
-    statusEl.textContent = err.message || String(err);
-    statusEl.dataset.state = "err";
+  const { ok, status, diagnostics } = diagnosticsFor(text, parse, compile);
 
-    const loc = err.location;
-    if (!loc) return [];
+  statusEl.textContent   = status;
+  statusEl.dataset.state = ok ? "ok" : "err";
 
-    const from = offsetFromLineCol(view.state.doc, loc.start.line, loc.start.column);
-    const to   = offsetFromLineCol(view.state.doc, loc.end.line,   loc.end.column);
-
-    return [{
-      from,
-      to: Math.max(to, from + 1),
-      severity: "error",
-      message: err.message,
-    }];
-  }
+  return diagnostics.map(d => ({
+    from     : Math.min(d.from, text.length),
+    to       : Math.min(Math.max(d.to, d.from + 1), text.length),
+    severity : d.severity,
+    message  : d.message,
+  }));
 });
 
 const theme = EditorView.theme({
