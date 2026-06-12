@@ -812,6 +812,73 @@ declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEven
 declare type JssmUnsubscribe = () => void;
 
 /**
+ * String interning support for the jssm machine internals.
+ *
+ * State and action names are interned to dense integer ids at machine
+ * construction so that per-transition dispatch can use numeric map keys
+ * (integer hashing) instead of repeated string-keyed lookups.  Internal
+ * machinery only — deliberately not re-exported from the `jssm` public
+ * surface, so the public API is unchanged.
+ *
+ * @internal
+ */
+/**
+ * A string↔integer bimap.  Assigns dense ids (0, 1, 2, …) in first-seen
+ * order; lookups are O(1) both directions.  Grows monotonically — there is
+ * no removal, matching machine semantics (states and actions are fixed
+ * after construction; late interning only happens for never-matching
+ * lookups such as hook registrations naming unknown states).
+ *
+ * @example
+ *   const i = new Interner();
+ *   i.intern('red');     // 0
+ *   i.intern('green');   // 1
+ *   i.intern('red');     // 0  (idempotent)
+ *   i.id_of('green');    // 1
+ *   i.name_of(0);        // 'red'
+ *
+ * @see pair_key
+ */
+declare class Interner {
+    private readonly ids;
+    private readonly names;
+    constructor();
+    /**
+     * Return the id for `name`, assigning the next dense id if the name has
+     * not been seen before.
+     *
+     * @param name - The string to intern.
+     * @returns The (possibly newly assigned) integer id.
+     *
+     * @example
+     *   interner.intern('red');  // 0 on first call, 0 on every later call
+     */
+    intern(name: string): number;
+    /**
+     * Return the id for `name` without interning, or `undefined` when the
+     * name has never been interned.  This is the hot-path probe for
+     * user-supplied names.
+     *
+     * @param name - The string to look up.
+     *
+     * @example
+     *   interner.id_of('mauve');  // undefined — never interned
+     */
+    id_of(name: string): number | undefined;
+    /**
+     * Return the name for `id`, or `undefined` for an id never assigned.
+     *
+     * @param id - The integer id to invert.
+     *
+     * @example
+     *   interner.name_of(0);  // 'red'
+     */
+    name_of(id: number): string | undefined;
+    /** The count of distinct interned names. */
+    get size(): number;
+}
+
+/**
  *  The published semantic version of the jssm package this build was cut from.
  *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
  *  Useful for runtime diagnostics and for embedding in serialized machine
@@ -849,6 +916,12 @@ declare class Machine<mDT> {
     _actions: Map<StateType, Map<StateType, number>>;
     _reverse_actions: Map<StateType, Map<StateType, number>>;
     _reverse_action_targets: Map<StateType, Map<StateType, number>>;
+    _state_interner: Interner;
+    _action_interner: Interner;
+    _state_id: number;
+    _edge_id_by_pair: Map<number, number>;
+    _edge_id_by_action_pair: Map<number, number>;
+    _edge_to_ids: Array<number>;
     _start_states: Set<StateType>;
     _end_states: Set<StateType>;
     _failed_outputs: Set<StateType>;
@@ -2676,6 +2749,8 @@ declare class Machine<mDT> {
      */
     force_transition(newState: StateType, newData?: mDT): boolean;
     /** Get the edge index for an action from the current state.
+     *  Interned dispatch: resolves via the numeric (action, from) index —
+     *  unknown action names miss without throwing.
      *  @param action - The action name.
      *  @returns The edge index, or `undefined` if the action is not available.
      */

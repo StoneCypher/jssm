@@ -5,6 +5,7 @@ import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { theme_mapping, base_theme } from './jssm_theme';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep } from './jssm_util';
+import { Interner, pair_key } from './jssm_intern';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 import { version, build_time } from './version'; // replaced from package.js in build
@@ -259,6 +260,12 @@ class Machine {
         this._actions = new Map();
         this._reverse_actions = new Map();
         this._reverse_action_targets = new Map(); // todo
+        this._state_interner = new Interner();
+        this._action_interner = new Interner();
+        this._state_id = NaN;
+        this._edge_id_by_pair = new Map();
+        this._edge_id_by_action_pair = new Map();
+        this._edge_to_ids = [];
         this._start_states = new Set(start_states);
         this._end_states = new Set(end_states); // todo consider what to do about incorporating complete too
         this._failed_outputs = new Set(failed_outputs);
@@ -445,6 +452,13 @@ class Machine {
             }
             //    const to_mapping = from_mapping.get(tr.to);
             from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
+            // numeric mirror of the (from, to) endpoint mapping.  intern() rather
+            // than id_of(): idempotent, and returns number (not number|undefined)
+            // since both endpoints were just created above if missing.
+            const from_id = this._state_interner.intern(tr.from);
+            const to_id = this._state_interner.intern(tr.to);
+            this._edge_id_by_pair.set(pair_key(from_id, to_id), thisEdgeId);
+            this._edge_to_ids[thisEdgeId] = to_id;
             // outbound adjacency: every edge originating at tr.from, regardless of action/target.
             // _edge_map above keys a single edge per (from, to) and overwrites on collision, which
             // is fine for lookup_transition_for but loses information for edges_between when several
@@ -479,6 +493,9 @@ class Machine {
                 // no need to test for reverse mapping pre-presence;
                 // forward mapping already covers collisions
                 rActionMap.set(tr.action, thisEdgeId);
+                // numeric mirror of the (action, from) dispatch mapping
+                const action_id = this._action_interner.intern(tr.action);
+                this._edge_id_by_action_pair.set(pair_key(action_id, from_id), thisEdgeId);
                 // reverse mapping first by state target name
                 if (!(this._reverse_action_targets.has(tr.to))) {
                     this._reverse_action_targets.set(tr.to, new Map());
@@ -523,9 +540,11 @@ class Machine {
                 throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
             }
             this._state = initial_state;
+            this._state_id = this._state_interner.intern(this._state);
         }
         else {
             this._state = start_states[0];
+            this._state_id = this._state_interner.intern(this._state);
         }
         // done building, do checks
         // assert all props are valid
@@ -613,6 +632,7 @@ class Machine {
             throw new JssmError(this, `state ${JSON.stringify(state_config.name)} already exists`);
         }
         this._states.set(state_config.name, state_config);
+        this._state_interner.intern(state_config.name);
         return state_config.name;
     }
     /*********
@@ -2653,6 +2673,7 @@ class Machine {
                 const fromState = this._state;
                 const oldData = this._data;
                 this._state = newState;
+                this._state_id = this._state_interner.intern(newState);
                 this._data = newData;
                 this._fire('override', {
                     from: fromState,
@@ -2760,30 +2781,45 @@ class Machine {
      *
      */
     transition_impl(newStateOrAction, newData, wasForced, wasAction) {
-        let valid = false, trans_type, newState, fromAction = undefined;
+        let valid = false, trans_type, newState, newStateId = NaN, fromAction = undefined;
         if (wasForced) {
-            if (this.valid_force_transition(newStateOrAction, newData)) {
+            // numeric inline of valid_force_transition: any existing edge
+            // qualifies, forced or not.  one string probe (the user's target name)
+            // plus one numeric probe, replacing two string probes.
+            const to_id = this._state_interner.id_of(newStateOrAction);
+            const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+            if (edgeId !== undefined) {
                 valid = true;
                 trans_type = 'forced';
                 newState = newStateOrAction;
+                newStateId = to_id;
             }
         }
         else if (wasAction) {
-            if (this.valid_action(newStateOrAction, newData)) {
-                const edge = this.current_action_edge_for(newStateOrAction);
+            // single numeric resolution: the old path looked the action up twice,
+            // once inside valid_action and again inside current_action_edge_for
+            const edgeId = this.current_action_for(newStateOrAction);
+            if ((edgeId !== undefined) && (edgeId !== null)) {
+                const edge = this._edges[edgeId];
                 valid = true;
                 trans_type = edge.kind;
                 newState = edge.to;
+                newStateId = this._edge_to_ids[edgeId];
                 fromAction = newStateOrAction;
             }
         }
         else {
-            if (this.valid_transition(newStateOrAction, newData)) {
+            // numeric inline of valid_transition: the edge must exist and must not
+            // be forced_only (truthiness, matching the old refusal exactly)
+            const to_id = this._state_interner.id_of(newStateOrAction);
+            const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+            if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
                 if (this._has_transition_hooks || this._has_post_transition_hooks) {
                     trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
                 }
                 valid = true;
                 newState = newStateOrAction;
+                newStateId = to_id;
             }
         }
         // hook_args is read only inside the `_has_hooks` / `_has_post_hooks`
@@ -2985,6 +3021,7 @@ class Machine {
                     this._history.shove([this._state, this._data]);
                 }
                 this._state = newState;
+                this._state_id = newStateId;
                 if (data_changed) {
                     this._data = hook_args.data;
                 }
@@ -3000,6 +3037,7 @@ class Machine {
                     this._history.shove([this._state, this._data]);
                 }
                 this._state = newState;
+                this._state_id = newStateId;
                 // TODO known bug: this gives no way to set data to undefined
                 //   see https://github.com/StoneCypher/fsl/issues/1264
                 if (newData !== undefined) {
@@ -3684,14 +3722,16 @@ class Machine {
         return this.transition_impl(newState, newData, true, false);
     }
     /** Get the edge index for an action from the current state.
+     *  Interned dispatch: resolves via the numeric (action, from) index —
+     *  unknown action names miss without throwing.
      *  @param action - The action name.
      *  @returns The edge index, or `undefined` if the action is not available.
      */
     current_action_for(action) {
-        const action_base = this._actions.get(action);
-        return action_base
-            ? action_base.get(this.state())
-            : undefined;
+        const action_id = this._action_interner.id_of(action);
+        return (action_id === undefined)
+            ? undefined
+            : this._edge_id_by_action_pair.get(pair_key(action_id, this._state_id));
     }
     /** Get the full transition object for an action from the current state.
      *  @param action - The action name.
@@ -4283,6 +4323,7 @@ function compareVersions(v1, v2) {
  * restored.state();  // => 'a'
  */
 function deserialize(machine_string, ser) {
+    var _a;
     // Refuse to deserialize data from future versions
     if (compareVersions(ser.jssm_version, version) > 0) {
         throw new Error(`Cannot deserialize from future version ${ser.jssm_version} ` +
@@ -4290,6 +4331,7 @@ function deserialize(machine_string, ser) {
     }
     const machine = from(machine_string, { data: ser.data, history: ser.history_capacity });
     machine._state = ser.state;
+    machine._state_id = (_a = machine._state_interner.id_of(ser.state)) !== null && _a !== void 0 ? _a : NaN;
     ser.history.forEach(history_item => machine._history.push(history_item));
     return machine;
 }
