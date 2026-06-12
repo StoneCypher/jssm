@@ -22,21 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:21:35 AM
-
-Commit [4b7bcb2b51452381aa17eb7442356fe16f136895](https://github.com/StoneCypher/jssm/commit/4b7bcb2b51452381aa17eb7442356fe16f136895)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): v5.143.11 — re-bump past the parallel 5.143.10 release; regenerate artifacts after second main sync
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:14:52 AM
 
 Commit [c6a303becb82d10fa34edea94b258d5430fb6d79](https://github.com/StoneCypher/jssm/commit/c6a303becb82d10fa34edea94b258d5430fb6d79)

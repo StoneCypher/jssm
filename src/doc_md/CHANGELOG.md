@@ -22,21 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:21:35 AM
-
-Commit [4b7bcb2b51452381aa17eb7442356fe16f136895](https://github.com/StoneCypher/jssm/commit/4b7bcb2b51452381aa17eb7442356fe16f136895)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): v5.143.11 — re-bump past the parallel 5.143.10 release; regenerate artifacts after second main sync
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:14:52 AM
 
 Commit [c6a303becb82d10fa34edea94b258d5430fb6d79](https://github.com/StoneCypher/jssm/commit/c6a303becb82d10fa34edea94b258d5430fb6d79)
@@ -350,3 +335,24 @@ shootout/<run-id>/.
 was clobbering the EXCLUDED export (envelope showed excluded:0); both are
 now exported together. README documents the v2 layout, coverage, and the
 two documented exclusions.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 2:46:49 AM
+
+Commit [de2484a5f28dec1ed3c72124bccb77e1f81e6471](https://github.com/StoneCypher/jssm/commit/de2484a5f28dec1ed3c72124bccb77e1f81e6471)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(shootout): pastafarian adapter (15 conformant) + documented exclusions
+  * Adds the pastafarian adapter (transition/hook/data), bringing the
+conformant set to 15. Records two probed-but-excluded libraries as data
+rather than silent drops (they become grid rows): @edium/fsm 3.0.2 ships
+a broken CommonJS build (createState throws on a busted bundled-lodash
+import), and xsm is a reactive key-value store rather than an
+edge-transition FSM.

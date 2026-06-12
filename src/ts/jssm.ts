@@ -57,6 +57,8 @@ import {
   sleep
 } from './jssm_util';
 
+import { Interner, pair_key } from './jssm_intern';
+
 
 
 
@@ -375,6 +377,21 @@ class Machine<mDT> {
   _reverse_actions        : Map<StateType, Map<StateType, number>>;
   _reverse_action_targets : Map<StateType, Map<StateType, number>>;
 
+  // Interned-id machinery (lever 1 of the interning perf trail).  Additive
+  // numeric mirrors of the hot-path string maps; every string map above stays
+  // authoritative for its other readers.  See
+  // notes/superpowers/plans/2026-06-12-integer-state-interning.md
+  _state_interner         : Interner;
+  _action_interner        : Interner;
+  // The interned id of the current state.  NaN — never undefined — when the
+  // current state is unknown to the interner (only reachable by deserializing
+  // a foreign state name); NaN pair_keys can never match a stored key, so
+  // every dispatch lookup misses, which is exactly the string-map behavior.
+  _state_id               : number;
+  _edge_id_by_pair        : Map<number, number>;  // pair_key(from_id, to_id)     -> edge id
+  _edge_id_by_action_pair : Map<number, number>;  // pair_key(action_id, from_id) -> edge id
+  _edge_to_ids            : Array<number>;        // edge id -> interned id of edge.to
+
   _start_states           : Set<StateType>;
   _end_states             : Set<StateType>;
   _failed_outputs         : Set<StateType>;
@@ -574,6 +591,13 @@ class Machine<mDT> {
     this._actions                = new Map();
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();   // todo
+
+    this._state_interner         = new Interner();
+    this._action_interner        = new Interner();
+    this._state_id               = NaN;
+    this._edge_id_by_pair        = new Map();
+    this._edge_id_by_action_pair = new Map();
+    this._edge_to_ids            = [];
 
     this._start_states   = new Set(start_states);
     this._end_states     = new Set(end_states);   // todo consider what to do about incorporating complete too
@@ -799,6 +823,14 @@ class Machine<mDT> {
       //    const to_mapping = from_mapping.get(tr.to);
       from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
 
+      // numeric mirror of the (from, to) endpoint mapping.  intern() rather
+      // than id_of(): idempotent, and returns number (not number|undefined)
+      // since both endpoints were just created above if missing.
+      const from_id = this._state_interner.intern(tr.from);
+      const to_id   = this._state_interner.intern(tr.to);
+      this._edge_id_by_pair.set(pair_key(from_id, to_id), thisEdgeId);
+      this._edge_to_ids[thisEdgeId] = to_id;
+
       // outbound adjacency: every edge originating at tr.from, regardless of action/target.
       // _edge_map above keys a single edge per (from, to) and overwrites on collision, which
       // is fine for lookup_transition_for but loses information for edges_between when several
@@ -839,6 +871,10 @@ class Machine<mDT> {
         // no need to test for reverse mapping pre-presence;
         // forward mapping already covers collisions
         rActionMap.set(tr.action, thisEdgeId);
+
+        // numeric mirror of the (action, from) dispatch mapping
+        const action_id = this._action_interner.intern(tr.action);
+        this._edge_id_by_action_pair.set(pair_key(action_id, from_id), thisEdgeId);
 
 
         // reverse mapping first by state target name
@@ -903,10 +939,12 @@ class Machine<mDT> {
         throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
       }
 
-      this._state = initial_state;
+      this._state    = initial_state;
+      this._state_id = this._state_interner.intern(this._state);
 
     } else {
-      this._state = start_states[0];
+      this._state    = start_states[0];
+      this._state_id = this._state_interner.intern(this._state);
     }
 
 
@@ -1015,6 +1053,7 @@ class Machine<mDT> {
     }
 
     this._states.set(state_config.name, state_config);
+    this._state_interner.intern(state_config.name);
     return state_config.name;
 
   }
@@ -3610,7 +3649,8 @@ class Machine<mDT> {
       if (this._states.has(newState)) {
         const fromState = this._state;
         const oldData   = this._data;
-        this._state = newState;
+        this._state    = newState;
+        this._state_id = this._state_interner.intern(newState);
         this._data  = newData;
         this._fire('override', {
           from     : fromState,
@@ -3739,31 +3779,47 @@ class Machine<mDT> {
     let valid      : boolean               = false,
         trans_type : string,
         newState   : StateType,
+        newStateId : number                = NaN,
         fromAction : StateType | undefined = undefined;
 
     if (wasForced) {
-      if (this.valid_force_transition(newStateOrAction, newData)) {
+      // numeric inline of valid_force_transition: any existing edge
+      // qualifies, forced or not.  one string probe (the user's target name)
+      // plus one numeric probe, replacing two string probes.
+      const to_id  = this._state_interner.id_of(newStateOrAction);
+      const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+      if (edgeId !== undefined) {
         valid      = true;
         trans_type = 'forced';
         newState   = newStateOrAction;
+        newStateId = to_id;
       }
 
     } else if (wasAction) {
-      if (this.valid_action(newStateOrAction, newData)) {
-        const edge: JssmTransition<StateType, mDT> = this.current_action_edge_for(newStateOrAction);
-        valid                                      = true;
-        trans_type                                 = edge.kind;
-        newState                                   = edge.to;
-        fromAction                                 = newStateOrAction;
+      // single numeric resolution: the old path looked the action up twice,
+      // once inside valid_action and again inside current_action_edge_for
+      const edgeId = this.current_action_for(newStateOrAction);
+      if ((edgeId !== undefined) && (edgeId !== null)) {
+        const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
+        valid      = true;
+        trans_type = edge.kind;
+        newState   = edge.to;
+        newStateId = this._edge_to_ids[edgeId];
+        fromAction = newStateOrAction;
       }
 
     } else {
-      if (this.valid_transition(newStateOrAction, newData)) {
+      // numeric inline of valid_transition: the edge must exist and must not
+      // be forced_only (truthiness, matching the old refusal exactly)
+      const to_id  = this._state_interner.id_of(newStateOrAction);
+      const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+      if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
           trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
         }
-        valid    = true;
-        newState = newStateOrAction;
+        valid      = true;
+        newState   = newStateOrAction;
+        newStateId = to_id;
       }
     }
 
@@ -3940,7 +3996,8 @@ class Machine<mDT> {
           this._history.shove([ this._state, this._data ]);
         }
 
-        this._state = newState;
+        this._state    = newState;
+        this._state_id = newStateId;
 
         if (data_changed) {
           this._data = hook_args.data;
@@ -3959,7 +4016,8 @@ class Machine<mDT> {
           this._history.shove([ this._state, this._data ]);
         }
 
-        this._state = newState;
+        this._state    = newState;
+        this._state_id = newStateId;
 
         // TODO known bug: this gives no way to set data to undefined
         //   see https://github.com/StoneCypher/fsl/issues/1264
@@ -4787,14 +4845,16 @@ class Machine<mDT> {
 
 
   /** Get the edge index for an action from the current state.
+   *  Interned dispatch: resolves via the numeric (action, from) index —
+   *  unknown action names miss without throwing.
    *  @param action - The action name.
    *  @returns The edge index, or `undefined` if the action is not available.
    */
   current_action_for(action: StateType): number {
-    const action_base: Map<StateType, number> = this._actions.get(action);
-    return action_base
-      ? action_base.get(this.state())
-      : undefined;
+    const action_id = this._action_interner.id_of(action);
+    return (action_id === undefined)
+      ? undefined
+      : this._edge_id_by_action_pair.get(pair_key(action_id, this._state_id));
   }
 
   /** Get the full transition object for an action from the current state.
@@ -5522,7 +5582,8 @@ function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): 
   }
 
   const machine  = from(machine_string, { data: ser.data, history: ser.history_capacity });
-  machine._state = ser.state;
+  machine._state    = ser.state;
+  machine._state_id = machine._state_interner.id_of(ser.state) ?? NaN;
 
   ser.history.forEach( history_item =>
     machine._history.push(history_item)
