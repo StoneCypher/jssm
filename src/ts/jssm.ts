@@ -3779,31 +3779,47 @@ class Machine<mDT> {
     let valid      : boolean               = false,
         trans_type : string,
         newState   : StateType,
+        newStateId : number                = NaN,
         fromAction : StateType | undefined = undefined;
 
     if (wasForced) {
-      if (this.valid_force_transition(newStateOrAction, newData)) {
+      // numeric inline of valid_force_transition: any existing edge
+      // qualifies, forced or not.  one string probe (the user's target name)
+      // plus one numeric probe, replacing two string probes.
+      const to_id  = this._state_interner.id_of(newStateOrAction);
+      const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+      if (edgeId !== undefined) {
         valid      = true;
         trans_type = 'forced';
         newState   = newStateOrAction;
+        newStateId = to_id;
       }
 
     } else if (wasAction) {
-      if (this.valid_action(newStateOrAction, newData)) {
-        const edge: JssmTransition<StateType, mDT> = this.current_action_edge_for(newStateOrAction);
-        valid                                      = true;
-        trans_type                                 = edge.kind;
-        newState                                   = edge.to;
-        fromAction                                 = newStateOrAction;
+      // single numeric resolution: the old path looked the action up twice,
+      // once inside valid_action and again inside current_action_edge_for
+      const edgeId = this.current_action_for(newStateOrAction);
+      if ((edgeId !== undefined) && (edgeId !== null)) {
+        const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
+        valid      = true;
+        trans_type = edge.kind;
+        newState   = edge.to;
+        newStateId = this._edge_to_ids[edgeId];
+        fromAction = newStateOrAction;
       }
 
     } else {
-      if (this.valid_transition(newStateOrAction, newData)) {
+      // numeric inline of valid_transition: the edge must exist and must not
+      // be forced_only (truthiness, matching the old refusal exactly)
+      const to_id  = this._state_interner.id_of(newStateOrAction);
+      const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+      if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
           trans_type = this.edges_between(this._state, newStateOrAction)[0].kind;  // TODO this won't do the right thing if various edges have different types
         }
-        valid    = true;
-        newState = newStateOrAction;
+        valid      = true;
+        newState   = newStateOrAction;
+        newStateId = to_id;
       }
     }
 
@@ -3977,7 +3993,7 @@ class Machine<mDT> {
         }
 
         this._state    = newState;
-        this._state_id = this._state_interner.intern(newState);
+        this._state_id = newStateId;
 
         if (data_changed) {
           this._data = hook_args.data;
@@ -3997,7 +4013,7 @@ class Machine<mDT> {
         }
 
         this._state    = newState;
-        this._state_id = this._state_interner.intern(newState);
+        this._state_id = newStateId;
 
         // TODO known bug: this gives no way to set data to undefined
         //   see https://github.com/StoneCypher/fsl/issues/1264
@@ -4825,14 +4841,16 @@ class Machine<mDT> {
 
 
   /** Get the edge index for an action from the current state.
+   *  Interned dispatch: resolves via the numeric (action, from) index —
+   *  unknown action names miss without throwing.
    *  @param action - The action name.
    *  @returns The edge index, or `undefined` if the action is not available.
    */
   current_action_for(action: StateType): number {
-    const action_base: Map<StateType, number> = this._actions.get(action);
-    return action_base
-      ? action_base.get(this.state())
-      : undefined;
+    const action_id = this._action_interner.id_of(action);
+    return (action_id === undefined)
+      ? undefined
+      : this._edge_id_by_action_pair.get(pair_key(action_id, this._state_id));
   }
 
   /** Get the full transition object for an action from the current state.
