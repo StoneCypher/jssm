@@ -3593,9 +3593,17 @@ declare function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefine
  */
 declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mDT> | undefined, hook_args: EverythingHookContext<mDT>): HookComplexResult<mDT>;
 /**
- * Compares two semantic version strings.
+ * Compares two semantic version strings, including prerelease versions.
  *
- * @param {string} v1 - First version string (e.g., "5.104.2")
+ * The numeric (`major.minor.patch`) parts compare numerically, with missing
+ * segments treated as zero.  Prerelease parts (everything after the first
+ * `-`) follow semver precedence: a version *with* a prerelease precedes the
+ * same version *without* one; prerelease identifiers compare dot-by-dot,
+ * numeric identifiers numerically and below alphanumeric ones, alphanumeric
+ * identifiers in ASCII order, and a shorter identifier set precedes a longer
+ * one that it prefixes.
+ *
+ * @param {string} v1 - First version string (e.g., "5.104.2" or "6.0.0-alpha.1")
  * @param {string} v2 - Second version string (e.g., "5.103.1")
  *
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
@@ -3611,6 +3619,18 @@ declare function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHa
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "5.104.2");  // => 0
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0-alpha.2");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-beta.1", "6.0.0-alpha.1");  // => 1
  */
 declare function compareVersions(v1: string, v2: string): number;
 /**
