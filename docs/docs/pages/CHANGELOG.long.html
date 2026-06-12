@@ -3,7 +3,7 @@
   <h1>Changelog</h1>
 </a>
 <p>All notable changes to this project will be documented in this file.</p>
-<p>353 merges; 284 releases</p>
+<p>355 merges; 284 releases</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 <p>Published tags:</p>
@@ -11,86 +11,12 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-<a href="#untagged---jun-12-2026-80257-am" id="untagged---jun-12-2026-80257-am" style="color: inherit; text-decoration: none;">
-  <h2>[Untagged] - Jun 12, 2026 8:02:57 AM</h2>
+<a href="#untagged---jun-12-2026-81452-am" id="untagged---jun-12-2026-81452-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 8:14:52 AM</h2>
 </a>
-<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/bac38e1edf2ae291c717fc205702eff4d929c5ca">bac38e1edf2ae291c717fc205702eff4d929c5ca</a></p>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/c6a303becb82d10fa34edea94b258d5430fb6d79">c6a303becb82d10fa34edea94b258d5430fb6d79</a></p>
 <p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
-<ul>
-<li>feat(shootout): static / lifecycle runner — size, deps, types, packaging, cold start, age</li>
-<li>static.cjs collects the facts that need no machine run, just the
-installed package and a cold require:</li>
-<li><ul>
-<li>installSizeKB — on-disk size of the package&#39;s own directory. Wide
-spread: easy-fsm 9 KB ... jssm 12.7 MB (the breadth tax — viz, web
-components, CLI, fonts all ship in one package).</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>directDeps, types (bundled/none), modules (esm/cjs/dual), postinstall.</li>
-<li>ageYears via npm view (best-effort; omitted, never faked, on failure).
-Half the field hasn&#39;t shipped in ~4 years (javascript-state-machine,
-nanostate, typestate, finity, stately.js, pastafarian) — a real
-maintenance signal; jssm/xstate/machina are fresh.</li>
-<li>coldStartMs — median child-process require() time, the cost that
-dominates CLI/serverless and is invisible to transition benchmarks
-(pastafarian ~10 ms ... fseh ~72 ms).<ul>
-<li>Fixed a types false-negative in my own detector: it now reads the
-exports-map &quot;types&quot; condition and dist/types subdirs, so TS-first
-libraries (xstate et al.) correctly read as bundled rather than none.
-npm view uses a shell only on Windows (avoids the args-via-shell
-deprecation on the Linux instance; names come from our pinned list, so
-no injection surface).</li>
-<li>Wired into launch.cjs (conformance -&gt; suite -&gt; memory -&gt; probes -&gt;
-static) and published as static.json. README updated.</li>
-</ul>
-</li>
-</ul>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-
-<a href="#untagged---jun-12-2026-75639-am" id="untagged---jun-12-2026-75639-am" style="color: inherit; text-decoration: none;">
-  <h2>[Untagged] - Jun 12, 2026 7:56:39 AM</h2>
-</a>
-<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/b320d33ef6369a41931f79888bfea33bc7fae6f1">b320d33ef6369a41931f79888bfea33bc7fae6f1</a></p>
-<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
-<ul>
-<li>feat(shootout): behavior battery — categorical semantics + differential conformance</li>
-<li>probes.cjs records what each library <em>does</em> in underspecified situations
-(never pass/fail — it characterizes):</li>
-<li><ul>
-<li>illegalTransition: throws-with-state-names / throws / returns-false /
-noop / corrupts. Wide spread — nanostate/finity/typestate/easy-fsm/
-pastafarian throw with state names; jssm/statebot return false; xstate/
-@xstate/fsm/robot3/machina/stately.js/fn-machine silently noop; fseh
-CORRUPTS (moves to an edgeless state — by design, it has no edge graph,
-but a real semantic red flag the grid footnotes).</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li>hostileStateNames (<strong>proto</strong> / constructor): ~half throw; jssm and
-several others handle them.</li>
-<li>selfTransition, frozenConfig: characterized per library.</li>
-<li>differential conformance: the same seeded legal walk through every
-transition-capable adapter must match the reference (jssm). All 15
-agree — the correctness floor holds; a divergence would be a footnote
-or a filed bug, never silent.<ul>
-<li>Wired into launch.cjs (conformance -&gt; suite -&gt; memory -&gt; probes) and
-published as behavior.json alongside the other envelopes. README updated.</li>
-</ul>
-</li>
-</ul>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-
-<a href="#untagged---jun-12-2026-75546-am" id="untagged---jun-12-2026-75546-am" style="color: inherit; text-decoration: none;">
-  <h2>[Untagged] - Jun 12, 2026 7:55:46 AM</h2>
-</a>
-<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/dc2b2031efeb9993acd1e5730e638597a657b0b0">dc2b2031efeb9993acd1e5730e638597a657b0b0</a></p>
-<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
-<p>Merges [7fd3dddd, c31b05c3]</p>
+<p>Merges [2ab37235, 3087dd08]</p>
 <ul>
 <li>Merge remote-tracking branch &#39;origin/main&#39; into perf_26-06-12_state-interning</li>
 <li>
@@ -232,10 +158,6 @@ published as behavior.json alongside the other envelopes. README updated.</li>
   <h1>docs/fsl.tools/cookbook/manifest.json</h1>
 </a>
 
-<a href="#package-lockjson" id="package-lockjson" style="color: inherit; text-decoration: none;">
-  <h1>package-lock.json</h1>
-</a>
-
 <a href="#srcdoc_mdchangeloglongmd" id="srcdoc_mdchangeloglongmd" style="color: inherit; text-decoration: none;">
   <h1>src/doc_md/CHANGELOG.long.md</h1>
 </a>
@@ -250,20 +172,163 @@ published as behavior.json alongside the other envelopes. README updated.</li>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-<a href="#untagged---jun-12-2026-75318-am" id="untagged---jun-12-2026-75318-am" style="color: inherit; text-decoration: none;">
-  <h2>[Untagged] - Jun 12, 2026 7:53:18 AM</h2>
+<a href="#untagged---jun-12-2026-81152-am" id="untagged---jun-12-2026-81152-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 8:11:52 AM</h2>
 </a>
-<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/124e01e7f4209b850ca82acd69b465d9648d350e">124e01e7f4209b850ca82acd69b465d9648d350e</a></p>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/3087dd08226daff38f198f6fa20c1bde1c6189ca">3087dd08226daff38f198f6fa20c1bde1c6189ca</a></p>
 <p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
-<p>Merges [52187639, c31b05c3]</p>
+<p>Merges [c31b05c3, eedb91dc]</p>
 <ul>
-<li>Merge remote-tracking branch &#39;origin/main&#39; into test_26-06-12_stoch-coverage</li>
+<li>Merge pull request #728 from StoneCypher/test_26-06-12_stoch-coverage</li>
+<li>test(stoch): property-test the Machine runtime and WC layer — stoch coverage 5% to 63% — plus an after-timer leak fix</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-12-2026-80849-am" id="untagged---jun-12-2026-80849-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 8:08:49 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/2ab37235c87c90d6f3f344f011977704fa2889a1">2ab37235c87c90d6f3f344f011977704fa2889a1</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>chore(release): v5.143.10 — re-bump past the parallel 5.143.9 release; regenerate artifacts after main sync</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-12-2026-80705-am" id="untagged---jun-12-2026-80705-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 8:07:05 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/eedb91dce2f1a60130d70ad73ec5a6fd0bfa5594">eedb91dce2f1a60130d70ad73ec5a6fd0bfa5594</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>test(stoch): v5.143.10 — property-test the web-component layer under jsdom</li>
+<li>Stoch coverage rises again, 53.33% -&gt; 63.39% statements (branches
+49.43% -&gt; 59.14%, functions 57.84% -&gt; 68.87%); 26 more property tests
+in two files, 694 stoch tests total.</li>
+<li><ul>
+<li>wc_tag_helpers: dual-prefix suffix matching under random case, ancestor
+search through random nesting depth, idempotent dual registration</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>fsl_instance_wc: <jssm-on> directive parsing (events, filters,
+handler/body mutual exclusion), registry-over-globalThis handler
+resolution, inline body compilation, FSL source-channel arithmetic
+(exactly-one-of attribute/script/text), and the live <fsl-instance>
+lifecycle over random action rings — state reflection attributes and
+state-specific shadow slots verified per step</li>
+<li>fsl_bind_wc: walk_path over constructed nesting, all documented binding
+expressions, set_on_element target semantics, live install_bindings
+repaint-per-transition and unsubscribe freeze</li>
+<li>fsl_hook_wc: kind normalization, hook element parsing, proxy data
+write-back, wrap_user_handler cancel/pass contract</li>
+<li>fsl_viz_wc: error normalization<ul>
+<li>Also merges main (5.143.9 released underneath this branch), re-bumps to
+5.143.10, and carries the regenerated build artifacts.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-12-2026-80257-am" id="untagged---jun-12-2026-80257-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 8:02:57 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/bac38e1edf2ae291c717fc205702eff4d929c5ca">bac38e1edf2ae291c717fc205702eff4d929c5ca</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>feat(shootout): static / lifecycle runner — size, deps, types, packaging, cold start, age</li>
+<li>static.cjs collects the facts that need no machine run, just the
+installed package and a cold require:</li>
+<li><ul>
+<li>installSizeKB — on-disk size of the package&#39;s own directory. Wide
+spread: easy-fsm 9 KB ... jssm 12.7 MB (the breadth tax — viz, web
+components, CLI, fonts all ship in one package).</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>directDeps, types (bundled/none), modules (esm/cjs/dual), postinstall.</li>
+<li>ageYears via npm view (best-effort; omitted, never faked, on failure).
+Half the field hasn&#39;t shipped in ~4 years (javascript-state-machine,
+nanostate, typestate, finity, stately.js, pastafarian) — a real
+maintenance signal; jssm/xstate/machina are fresh.</li>
+<li>coldStartMs — median child-process require() time, the cost that
+dominates CLI/serverless and is invisible to transition benchmarks
+(pastafarian ~10 ms ... fseh ~72 ms).<ul>
+<li>Fixed a types false-negative in my own detector: it now reads the
+exports-map &quot;types&quot; condition and dist/types subdirs, so TS-first
+libraries (xstate et al.) correctly read as bundled rather than none.
+npm view uses a shell only on Windows (avoids the args-via-shell
+deprecation on the Linux instance; names come from our pinned list, so
+no injection surface).</li>
+<li>Wired into launch.cjs (conformance -&gt; suite -&gt; memory -&gt; probes -&gt;
+static) and published as static.json. README updated.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-12-2026-75639-am" id="untagged---jun-12-2026-75639-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 7:56:39 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/b320d33ef6369a41931f79888bfea33bc7fae6f1">b320d33ef6369a41931f79888bfea33bc7fae6f1</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>feat(shootout): behavior battery — categorical semantics + differential conformance</li>
+<li>probes.cjs records what each library <em>does</em> in underspecified situations
+(never pass/fail — it characterizes):</li>
+<li><ul>
+<li>illegalTransition: throws-with-state-names / throws / returns-false /
+noop / corrupts. Wide spread — nanostate/finity/typestate/easy-fsm/
+pastafarian throw with state names; jssm/statebot return false; xstate/
+@xstate/fsm/robot3/machina/stately.js/fn-machine silently noop; fseh
+CORRUPTS (moves to an edgeless state — by design, it has no edge graph,
+but a real semantic red flag the grid footnotes).</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>hostileStateNames (<strong>proto</strong> / constructor): ~half throw; jssm and
+several others handle them.</li>
+<li>selfTransition, frozenConfig: characterized per library.</li>
+<li>differential conformance: the same seeded legal walk through every
+transition-capable adapter must match the reference (jssm). All 15
+agree — the correctness floor holds; a divergence would be a footnote
+or a filed bug, never silent.<ul>
+<li>Wired into launch.cjs (conformance -&gt; suite -&gt; memory -&gt; probes) and
+published as behavior.json alongside the other envelopes. README updated.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-12-2026-75546-am" id="untagged---jun-12-2026-75546-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 7:55:46 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/dc2b2031efeb9993acd1e5730e638597a657b0b0">dc2b2031efeb9993acd1e5730e638597a657b0b0</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<p>Merges [7fd3dddd, c31b05c3]</p>
+<ul>
+<li>Merge remote-tracking branch &#39;origin/main&#39; into perf_26-06-12_state-interning</li>
 <li>
 <a href="#conflicts-1" id="conflicts-1" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
 </ul>
+
+<a href="#changeloglongmd-1" id="changeloglongmd-1" style="color: inherit; text-decoration: none;">
+  <h1>CHANGELOG.long.md</h1>
+</a>
+
+<a href="#changelogmd-1" id="changelogmd-1" style="color: inherit; text-decoration: none;">
+  <h1>CHANGELOG.md</h1>
+</a>
 
 <a href="#readmemd-1" id="readmemd-1" style="color: inherit; text-decoration: none;">
   <h1>README.md</h1>
@@ -345,19 +410,176 @@ published as behavior.json alongside the other envelopes. README updated.</li>
   <h1>docs/docs/classes/jssm.Machine.html</h1>
 </a>
 
+<a href="#docsdocsclassesjssm_errorjssmerrorhtml-1" id="docsdocsclassesjssm_errorjssmerrorhtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/classes/jssm_error.JssmError.html</h1>
+</a>
+
+<a href="#docsdocsmodulesjssminternalhtml-1" id="docsdocsmodulesjssminternalhtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/jssm.<em>internal</em>.html</h1>
+</a>
+
 <a href="#docsdocsmodulesjssmhtml-1" id="docsdocsmodulesjssmhtml-1" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm.html</h1>
+</a>
+
+<a href="#docsdocsmodulesjssm_constantshtml-1" id="docsdocsmodulesjssm_constantshtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/jssm_constants.html</h1>
+</a>
+
+<a href="#docsdocsmodulesjssm_typesinternalhtml-1" id="docsdocsmodulesjssm_typesinternalhtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/jssm_types.<em>internal</em>.html</h1>
+</a>
+
+<a href="#docsdocsmodulesjssm_typeshtml-1" id="docsdocsmodulesjssm_typeshtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/jssm_types.html</h1>
+</a>
+
+<a href="#docsdocsmodulesjssm_utilhtml-1" id="docsdocsmodulesjssm_utilhtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/jssm_util.html</h1>
+</a>
+
+<a href="#docsdocsmodulesjssm_vizhtml-1" id="docsdocsmodulesjssm_vizhtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/jssm_viz.html</h1>
 </a>
 
 <a href="#docsdocsmodulesversionhtml-1" id="docsdocsmodulesversionhtml-1" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/version.html</h1>
 </a>
 
+<a href="#docsdocspageschangeloglonghtml-1" id="docsdocspageschangeloglonghtml-1" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/pages/CHANGELOG.long.html</h1>
+</a>
+
 <a href="#docsfsltoolscookbookmanifestjson-1" id="docsfsltoolscookbookmanifestjson-1" style="color: inherit; text-decoration: none;">
   <h1>docs/fsl.tools/cookbook/manifest.json</h1>
 </a>
 
+<a href="#package-lockjson" id="package-lockjson" style="color: inherit; text-decoration: none;">
+  <h1>package-lock.json</h1>
+</a>
+
+<a href="#srcdoc_mdchangeloglongmd-1" id="srcdoc_mdchangeloglongmd-1" style="color: inherit; text-decoration: none;">
+  <h1>src/doc_md/CHANGELOG.long.md</h1>
+</a>
+
+<a href="#srcdoc_mdchangelogmd-1" id="srcdoc_mdchangelogmd-1" style="color: inherit; text-decoration: none;">
+  <h1>src/doc_md/CHANGELOG.md</h1>
+</a>
+
 <a href="#srctsversionts-1" id="srctsversionts-1" style="color: inherit; text-decoration: none;">
+  <h1>src/ts/version.ts</h1>
+</a>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---jun-12-2026-75318-am" id="untagged---jun-12-2026-75318-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 7:53:18 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/124e01e7f4209b850ca82acd69b465d9648d350e">124e01e7f4209b850ca82acd69b465d9648d350e</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<p>Merges [52187639, c31b05c3]</p>
+<ul>
+<li>Merge remote-tracking branch &#39;origin/main&#39; into test_26-06-12_stoch-coverage</li>
+<li>
+<a href="#conflicts-2" id="conflicts-2" style="color: inherit; text-decoration: none;">
+  <h1>Conflicts:</h1>
+</a>
+</li>
+</ul>
+
+<a href="#readmemd-2" id="readmemd-2" style="color: inherit; text-decoration: none;">
+  <h1>README.md</h1>
+</a>
+
+<a href="#distclifsl-rendercjs-2" id="distclifsl-rendercjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/cli/fsl-render.cjs</h1>
+</a>
+
+<a href="#distclilibcjs-2" id="distclilibcjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/cli/lib.cjs</h1>
+</a>
+
+<a href="#distclilibmjs-2" id="distclilibmjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/cli/lib.mjs</h1>
+</a>
+
+<a href="#distdenoreadmemd-2" id="distdenoreadmemd-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/deno/README.md</h1>
+</a>
+
+<a href="#distdenojssmjs-2" id="distdenojssmjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/deno/jssm.js</h1>
+</a>
+
+<a href="#distes6versionjs-2" id="distes6versionjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/es6/version.js</h1>
+</a>
+
+<a href="#distjssmes5cjs-2" id="distjssmes5cjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es5.cjs</h1>
+</a>
+
+<a href="#distjssmes5iifejs-2" id="distjssmes5iifejs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es5.iife.js</h1>
+</a>
+
+<a href="#distjssmes5nonmincjs-2" id="distjssmes5nonmincjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es5.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssmes6mjs-2" id="distjssmes6mjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es6.mjs</h1>
+</a>
+
+<a href="#distjssmes6nonmincjs-2" id="distjssmes6nonmincjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es6.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_vizcjs-2" id="distjssm_vizcjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.cjs</h1>
+</a>
+
+<a href="#distjssm_vizes5iifenonmincjs-2" id="distjssm_vizes5iifenonmincjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.es5.iife.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_vizes5nonmincjs-2" id="distjssm_vizes5nonmincjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.es5.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_vizes6nonmincjs-2" id="distjssm_vizes6nonmincjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.es6.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_viziifecjs-2" id="distjssm_viziifecjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.iife.cjs</h1>
+</a>
+
+<a href="#distjssm_vizmjs-2" id="distjssm_vizmjs-2" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.mjs</h1>
+</a>
+
+<a href="#docsdemojssmes5iifejs-2" id="docsdemojssmes5iifejs-2" style="color: inherit; text-decoration: none;">
+  <h1>docs/demo/jssm.es5.iife.js</h1>
+</a>
+
+<a href="#docsdocsclassesjssmmachinehtml-2" id="docsdocsclassesjssmmachinehtml-2" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/classes/jssm.Machine.html</h1>
+</a>
+
+<a href="#docsdocsmodulesjssmhtml-2" id="docsdocsmodulesjssmhtml-2" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/jssm.html</h1>
+</a>
+
+<a href="#docsdocsmodulesversionhtml-2" id="docsdocsmodulesversionhtml-2" style="color: inherit; text-decoration: none;">
+  <h1>docs/docs/modules/version.html</h1>
+</a>
+
+<a href="#docsfsltoolscookbookmanifestjson-2" id="docsfsltoolscookbookmanifestjson-2" style="color: inherit; text-decoration: none;">
+  <h1>docs/fsl.tools/cookbook/manifest.json</h1>
+</a>
+
+<a href="#srctsversionts-2" id="srctsversionts-2" style="color: inherit; text-decoration: none;">
   <h1>src/ts/version.ts</h1>
 </a>
 <p>&nbsp;</p>
@@ -735,21 +957,21 @@ Direct pair tests pin the semantics independently of the current version.</li>
 <ul>
 <li>Merge branch &#39;v6&#39; into feat_26-05-22_fsl-cli-config_631</li>
 <li>
-<a href="#conflicts-2" id="conflicts-2" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-3" id="conflicts-3" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
 </ul>
 
-<a href="#changeloglongmd-1" id="changeloglongmd-1" style="color: inherit; text-decoration: none;">
+<a href="#changeloglongmd-2" id="changeloglongmd-2" style="color: inherit; text-decoration: none;">
   <h1>CHANGELOG.long.md</h1>
 </a>
 
-<a href="#changelogmd-1" id="changelogmd-1" style="color: inherit; text-decoration: none;">
+<a href="#changelogmd-2" id="changelogmd-2" style="color: inherit; text-decoration: none;">
   <h1>CHANGELOG.md</h1>
 </a>
 
-<a href="#readmemd-2" id="readmemd-2" style="color: inherit; text-decoration: none;">
+<a href="#readmemd-3" id="readmemd-3" style="color: inherit; text-decoration: none;">
   <h1>README.md</h1>
 </a>
 
@@ -761,7 +983,7 @@ Direct pair tests pin the semantics independently of the current version.</li>
   <h1>dist/cdn/viz.js</h1>
 </a>
 
-<a href="#distclifsl-rendercjs-2" id="distclifsl-rendercjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distclifsl-rendercjs-3" id="distclifsl-rendercjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/cli/fsl-render.cjs</h1>
 </a>
 
@@ -769,119 +991,119 @@ Direct pair tests pin the semantics independently of the current version.</li>
   <h1>dist/cli/fsl.cjs</h1>
 </a>
 
-<a href="#distclilibcjs-2" id="distclilibcjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distclilibcjs-3" id="distclilibcjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/cli/lib.cjs</h1>
 </a>
 
-<a href="#distclilibmjs-2" id="distclilibmjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distclilibmjs-3" id="distclilibmjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/cli/lib.mjs</h1>
 </a>
 
-<a href="#distdenoreadmemd-2" id="distdenoreadmemd-2" style="color: inherit; text-decoration: none;">
+<a href="#distdenoreadmemd-3" id="distdenoreadmemd-3" style="color: inherit; text-decoration: none;">
   <h1>dist/deno/README.md</h1>
 </a>
 
-<a href="#distdenojssmjs-2" id="distdenojssmjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distdenojssmjs-3" id="distdenojssmjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/deno/jssm.js</h1>
 </a>
 
-<a href="#distes6versionjs-2" id="distes6versionjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distes6versionjs-3" id="distes6versionjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/es6/version.js</h1>
 </a>
 
-<a href="#distjssmes5cjs-2" id="distjssmes5cjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5cjs-3" id="distjssmes5cjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.cjs</h1>
 </a>
 
-<a href="#distjssmes5iifejs-2" id="distjssmes5iifejs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5iifejs-3" id="distjssmes5iifejs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.iife.js</h1>
 </a>
 
-<a href="#distjssmes5nonmincjs-2" id="distjssmes5nonmincjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5nonmincjs-3" id="distjssmes5nonmincjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssmes6mjs-2" id="distjssmes6mjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6mjs-3" id="distjssmes6mjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.mjs</h1>
 </a>
 
-<a href="#distjssmes6nonmincjs-2" id="distjssmes6nonmincjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6nonmincjs-3" id="distjssmes6nonmincjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizcjs-2" id="distjssm_vizcjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizcjs-3" id="distjssm_vizcjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5iifenonmincjs-2" id="distjssm_vizes5iifenonmincjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5iifenonmincjs-3" id="distjssm_vizes5iifenonmincjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.iife.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5nonmincjs-2" id="distjssm_vizes5nonmincjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5nonmincjs-3" id="distjssm_vizes5nonmincjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes6nonmincjs-2" id="distjssm_vizes6nonmincjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes6nonmincjs-3" id="distjssm_vizes6nonmincjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_viziifecjs-2" id="distjssm_viziifecjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_viziifecjs-3" id="distjssm_viziifecjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.iife.cjs</h1>
 </a>
 
-<a href="#distjssm_vizmjs-2" id="distjssm_vizmjs-2" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizmjs-3" id="distjssm_vizmjs-3" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.mjs</h1>
 </a>
 
-<a href="#docsdemojssmes5iifejs-2" id="docsdemojssmes5iifejs-2" style="color: inherit; text-decoration: none;">
+<a href="#docsdemojssmes5iifejs-3" id="docsdemojssmes5iifejs-3" style="color: inherit; text-decoration: none;">
   <h1>docs/demo/jssm.es5.iife.js</h1>
 </a>
 
-<a href="#docsdocsclassesjssmmachinehtml-2" id="docsdocsclassesjssmmachinehtml-2" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsclassesjssmmachinehtml-3" id="docsdocsclassesjssmmachinehtml-3" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/classes/jssm.Machine.html</h1>
 </a>
 
-<a href="#docsdocsclassesjssm_errorjssmerrorhtml-1" id="docsdocsclassesjssm_errorjssmerrorhtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsclassesjssm_errorjssmerrorhtml-2" id="docsdocsclassesjssm_errorjssmerrorhtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/classes/jssm_error.JssmError.html</h1>
 </a>
 
-<a href="#docsdocsmodulesjssminternalhtml-1" id="docsdocsmodulesjssminternalhtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesjssminternalhtml-2" id="docsdocsmodulesjssminternalhtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm.<em>internal</em>.html</h1>
 </a>
 
-<a href="#docsdocsmodulesjssmhtml-2" id="docsdocsmodulesjssmhtml-2" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesjssmhtml-3" id="docsdocsmodulesjssmhtml-3" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm.html</h1>
 </a>
 
-<a href="#docsdocsmodulesjssm_constantshtml-1" id="docsdocsmodulesjssm_constantshtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesjssm_constantshtml-2" id="docsdocsmodulesjssm_constantshtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm_constants.html</h1>
 </a>
 
-<a href="#docsdocsmodulesjssm_typesinternalhtml-1" id="docsdocsmodulesjssm_typesinternalhtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesjssm_typesinternalhtml-2" id="docsdocsmodulesjssm_typesinternalhtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm_types.<em>internal</em>.html</h1>
 </a>
 
-<a href="#docsdocsmodulesjssm_typeshtml-1" id="docsdocsmodulesjssm_typeshtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesjssm_typeshtml-2" id="docsdocsmodulesjssm_typeshtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm_types.html</h1>
 </a>
 
-<a href="#docsdocsmodulesjssm_utilhtml-1" id="docsdocsmodulesjssm_utilhtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesjssm_utilhtml-2" id="docsdocsmodulesjssm_utilhtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm_util.html</h1>
 </a>
 
-<a href="#docsdocsmodulesjssm_vizhtml-1" id="docsdocsmodulesjssm_vizhtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesjssm_vizhtml-2" id="docsdocsmodulesjssm_vizhtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/jssm_viz.html</h1>
 </a>
 
-<a href="#docsdocsmodulesversionhtml-2" id="docsdocsmodulesversionhtml-2" style="color: inherit; text-decoration: none;">
+<a href="#docsdocsmodulesversionhtml-3" id="docsdocsmodulesversionhtml-3" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/modules/version.html</h1>
 </a>
 
-<a href="#docsdocspageschangeloglonghtml-1" id="docsdocspageschangeloglonghtml-1" style="color: inherit; text-decoration: none;">
+<a href="#docsdocspageschangeloglonghtml-2" id="docsdocspageschangeloglonghtml-2" style="color: inherit; text-decoration: none;">
   <h1>docs/docs/pages/CHANGELOG.long.html</h1>
 </a>
 
-<a href="#docsfsltoolscookbookmanifestjson-2" id="docsfsltoolscookbookmanifestjson-2" style="color: inherit; text-decoration: none;">
+<a href="#docsfsltoolscookbookmanifestjson-3" id="docsfsltoolscookbookmanifestjson-3" style="color: inherit; text-decoration: none;">
   <h1>docs/fsl.tools/cookbook/manifest.json</h1>
 </a>
 
@@ -889,15 +1111,15 @@ Direct pair tests pin the semantics independently of the current version.</li>
   <h1>package.json</h1>
 </a>
 
-<a href="#srcdoc_mdchangeloglongmd-1" id="srcdoc_mdchangeloglongmd-1" style="color: inherit; text-decoration: none;">
+<a href="#srcdoc_mdchangeloglongmd-2" id="srcdoc_mdchangeloglongmd-2" style="color: inherit; text-decoration: none;">
   <h1>src/doc_md/CHANGELOG.long.md</h1>
 </a>
 
-<a href="#srcdoc_mdchangelogmd-1" id="srcdoc_mdchangelogmd-1" style="color: inherit; text-decoration: none;">
+<a href="#srcdoc_mdchangelogmd-2" id="srcdoc_mdchangelogmd-2" style="color: inherit; text-decoration: none;">
   <h1>src/doc_md/CHANGELOG.md</h1>
 </a>
 
-<a href="#srctsversionts-2" id="srctsversionts-2" style="color: inherit; text-decoration: none;">
+<a href="#srctsversionts-3" id="srctsversionts-3" style="color: inherit; text-decoration: none;">
   <h1>src/ts/version.ts</h1>
 </a>
 <p>&nbsp;</p>
@@ -1147,7 +1369,7 @@ name-resolving verb.</li>
 <ul>
 <li>Merge remote-tracking branch &#39;origin/main&#39; into feat_26-05-22_fsl-cli-config_631</li>
 <li>
-<a href="#conflicts-3" id="conflicts-3" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-4" id="conflicts-4" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
@@ -8217,110 +8439,18 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
 <ul>
 <li>Merge branch &#39;main&#39; into stonecypher/fsl#1325</li>
 <li>
-<a href="#conflicts-4" id="conflicts-4" style="color: inherit; text-decoration: none;">
-  <h1>Conflicts:</h1>
-</a>
-</li>
-</ul>
-
-<a href="#distdenoreadmemd-3" id="distdenoreadmemd-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/deno/README.md</h1>
-</a>
-
-<a href="#distdenojssmjs-3" id="distdenojssmjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/deno/jssm.js</h1>
-</a>
-
-<a href="#distes6versionjs-3" id="distes6versionjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/es6/version.js</h1>
-</a>
-
-<a href="#distjssmes5cjs-3" id="distjssmes5cjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm.es5.cjs</h1>
-</a>
-
-<a href="#distjssmes5iifejs-3" id="distjssmes5iifejs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm.es5.iife.js</h1>
-</a>
-
-<a href="#distjssmes5nonmincjs-3" id="distjssmes5nonmincjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm.es5.nonmin.cjs</h1>
-</a>
-
-<a href="#distjssmes6mjs-3" id="distjssmes6mjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm.es6.mjs</h1>
-</a>
-
-<a href="#distjssmes6nonmincjs-3" id="distjssmes6nonmincjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm.es6.nonmin.cjs</h1>
-</a>
-
-<a href="#distjssm_vizcjs-3" id="distjssm_vizcjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm_viz.cjs</h1>
-</a>
-
-<a href="#distjssm_vizes5iifenonmincjs-3" id="distjssm_vizes5iifenonmincjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm_viz.es5.iife.nonmin.cjs</h1>
-</a>
-
-<a href="#distjssm_vizes5nonmincjs-3" id="distjssm_vizes5nonmincjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm_viz.es5.nonmin.cjs</h1>
-</a>
-
-<a href="#distjssm_vizes6nonmincjs-3" id="distjssm_vizes6nonmincjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm_viz.es6.nonmin.cjs</h1>
-</a>
-
-<a href="#distjssm_viziifecjs-3" id="distjssm_viziifecjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm_viz.iife.cjs</h1>
-</a>
-
-<a href="#distjssm_vizmjs-3" id="distjssm_vizmjs-3" style="color: inherit; text-decoration: none;">
-  <h1>dist/jssm_viz.mjs</h1>
-</a>
-
-<a href="#packagejson-1" id="packagejson-1" style="color: inherit; text-decoration: none;">
-  <h1>package.json</h1>
-</a>
-
-<a href="#srctsversionts-3" id="srctsversionts-3" style="color: inherit; text-decoration: none;">
-  <h1>src/ts/version.ts</h1>
-</a>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-
-<a href="#untagged---may-13-2026-11122-am" id="untagged---may-13-2026-11122-am" style="color: inherit; text-decoration: none;">
-  <h2>[Untagged] - May 13, 2026 1:11:22 AM</h2>
-</a>
-<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/006b9b3a36992762edacab6929c2f8cdd5d36bb4">006b9b3a36992762edacab6929c2f8cdd5d36bb4</a></p>
-<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
-<ul>
-<li>build: full rebuild after merge of main into stonecypher/fsl#420</li>
-</ul>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-
-<a href="#untagged---may-13-2026-10408-am" id="untagged---may-13-2026-10408-am" style="color: inherit; text-decoration: none;">
-  <h2>[Untagged] - May 13, 2026 1:04:08 AM</h2>
-</a>
-<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/e501db802c7db250681f6f868909f446b05a3d91">e501db802c7db250681f6f868909f446b05a3d91</a></p>
-<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
-<p>Merges [f3977b3e, a0d0e54b]</p>
-<ul>
-<li>Merge branch &#39;main&#39; into stonecypher/fsl#420</li>
-<li>
 <a href="#conflicts-5" id="conflicts-5" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
 </ul>
 
-<a href="#distdenojssmjs-4" id="distdenojssmjs-4" style="color: inherit; text-decoration: none;">
-  <h1>dist/deno/jssm.js</h1>
+<a href="#distdenoreadmemd-4" id="distdenoreadmemd-4" style="color: inherit; text-decoration: none;">
+  <h1>dist/deno/README.md</h1>
 </a>
 
-<a href="#distes6fsl_parserjs" id="distes6fsl_parserjs" style="color: inherit; text-decoration: none;">
-  <h1>dist/es6/fsl_parser.js</h1>
+<a href="#distdenojssmjs-4" id="distdenojssmjs-4" style="color: inherit; text-decoration: none;">
+  <h1>dist/deno/jssm.js</h1>
 </a>
 
 <a href="#distes6versionjs-4" id="distes6versionjs-4" style="color: inherit; text-decoration: none;">
@@ -8371,11 +8501,103 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
   <h1>dist/jssm_viz.mjs</h1>
 </a>
 
-<a href="#packagejson-2" id="packagejson-2" style="color: inherit; text-decoration: none;">
+<a href="#packagejson-1" id="packagejson-1" style="color: inherit; text-decoration: none;">
   <h1>package.json</h1>
 </a>
 
 <a href="#srctsversionts-4" id="srctsversionts-4" style="color: inherit; text-decoration: none;">
+  <h1>src/ts/version.ts</h1>
+</a>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---may-13-2026-11122-am" id="untagged---may-13-2026-11122-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - May 13, 2026 1:11:22 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/006b9b3a36992762edacab6929c2f8cdd5d36bb4">006b9b3a36992762edacab6929c2f8cdd5d36bb4</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>build: full rebuild after merge of main into stonecypher/fsl#420</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+<a href="#untagged---may-13-2026-10408-am" id="untagged---may-13-2026-10408-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - May 13, 2026 1:04:08 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/e501db802c7db250681f6f868909f446b05a3d91">e501db802c7db250681f6f868909f446b05a3d91</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<p>Merges [f3977b3e, a0d0e54b]</p>
+<ul>
+<li>Merge branch &#39;main&#39; into stonecypher/fsl#420</li>
+<li>
+<a href="#conflicts-6" id="conflicts-6" style="color: inherit; text-decoration: none;">
+  <h1>Conflicts:</h1>
+</a>
+</li>
+</ul>
+
+<a href="#distdenojssmjs-5" id="distdenojssmjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/deno/jssm.js</h1>
+</a>
+
+<a href="#distes6fsl_parserjs" id="distes6fsl_parserjs" style="color: inherit; text-decoration: none;">
+  <h1>dist/es6/fsl_parser.js</h1>
+</a>
+
+<a href="#distes6versionjs-5" id="distes6versionjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/es6/version.js</h1>
+</a>
+
+<a href="#distjssmes5cjs-5" id="distjssmes5cjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es5.cjs</h1>
+</a>
+
+<a href="#distjssmes5iifejs-5" id="distjssmes5iifejs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es5.iife.js</h1>
+</a>
+
+<a href="#distjssmes5nonmincjs-5" id="distjssmes5nonmincjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es5.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssmes6mjs-5" id="distjssmes6mjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es6.mjs</h1>
+</a>
+
+<a href="#distjssmes6nonmincjs-5" id="distjssmes6nonmincjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm.es6.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_vizcjs-5" id="distjssm_vizcjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.cjs</h1>
+</a>
+
+<a href="#distjssm_vizes5iifenonmincjs-5" id="distjssm_vizes5iifenonmincjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.es5.iife.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_vizes5nonmincjs-5" id="distjssm_vizes5nonmincjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.es5.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_vizes6nonmincjs-5" id="distjssm_vizes6nonmincjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.es6.nonmin.cjs</h1>
+</a>
+
+<a href="#distjssm_viziifecjs-5" id="distjssm_viziifecjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.iife.cjs</h1>
+</a>
+
+<a href="#distjssm_vizmjs-5" id="distjssm_vizmjs-5" style="color: inherit; text-decoration: none;">
+  <h1>dist/jssm_viz.mjs</h1>
+</a>
+
+<a href="#packagejson-2" id="packagejson-2" style="color: inherit; text-decoration: none;">
+  <h1>package.json</h1>
+</a>
+
+<a href="#srctsversionts-5" id="srctsversionts-5" style="color: inherit; text-decoration: none;">
   <h1>src/ts/version.ts</h1>
 </a>
 <p>&nbsp;</p>
@@ -8401,7 +8623,7 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
 <ul>
 <li>Merge branch &#39;main&#39; into stonecypher/fsl#1324</li>
 <li>
-<a href="#conflicts-6" id="conflicts-6" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-7" id="conflicts-7" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
@@ -8466,7 +8688,7 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
 <ul>
 <li>Merge branch &#39;main&#39; into stonecypher/fsl#1326</li>
 <li>
-<a href="#conflicts-7" id="conflicts-7" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-8" id="conflicts-8" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
@@ -8498,13 +8720,13 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
 <ul>
 <li>Merge branch &#39;main&#39; into stonecypher/fsl#358</li>
 <li>
-<a href="#conflicts-8" id="conflicts-8" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-9" id="conflicts-9" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
 </ul>
 
-<a href="#distdenojssmjs-5" id="distdenojssmjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distdenojssmjs-6" id="distdenojssmjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/deno/jssm.js</h1>
 </a>
 
@@ -8512,51 +8734,51 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
   <h1>dist/es6/fsl_parser.js</h1>
 </a>
 
-<a href="#distes6versionjs-5" id="distes6versionjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distes6versionjs-6" id="distes6versionjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/es6/version.js</h1>
 </a>
 
-<a href="#distjssmes5cjs-5" id="distjssmes5cjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5cjs-6" id="distjssmes5cjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.cjs</h1>
 </a>
 
-<a href="#distjssmes5iifejs-5" id="distjssmes5iifejs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5iifejs-6" id="distjssmes5iifejs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.iife.js</h1>
 </a>
 
-<a href="#distjssmes5nonmincjs-5" id="distjssmes5nonmincjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5nonmincjs-6" id="distjssmes5nonmincjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssmes6mjs-5" id="distjssmes6mjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6mjs-6" id="distjssmes6mjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.mjs</h1>
 </a>
 
-<a href="#distjssmes6nonmincjs-5" id="distjssmes6nonmincjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6nonmincjs-6" id="distjssmes6nonmincjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizcjs-5" id="distjssm_vizcjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizcjs-6" id="distjssm_vizcjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5iifenonmincjs-5" id="distjssm_vizes5iifenonmincjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5iifenonmincjs-6" id="distjssm_vizes5iifenonmincjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.iife.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5nonmincjs-5" id="distjssm_vizes5nonmincjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5nonmincjs-6" id="distjssm_vizes5nonmincjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes6nonmincjs-5" id="distjssm_vizes6nonmincjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes6nonmincjs-6" id="distjssm_vizes6nonmincjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_viziifecjs-5" id="distjssm_viziifecjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_viziifecjs-6" id="distjssm_viziifecjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.iife.cjs</h1>
 </a>
 
-<a href="#distjssm_vizmjs-5" id="distjssm_vizmjs-5" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizmjs-6" id="distjssm_vizmjs-6" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.mjs</h1>
 </a>
 
@@ -8564,7 +8786,7 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
   <h1>package.json</h1>
 </a>
 
-<a href="#srctsversionts-5" id="srctsversionts-5" style="color: inherit; text-decoration: none;">
+<a href="#srctsversionts-6" id="srctsversionts-6" style="color: inherit; text-decoration: none;">
   <h1>src/ts/version.ts</h1>
 </a>
 <p>&nbsp;</p>
@@ -8612,7 +8834,7 @@ so Windows can execute Node-script plugins without EFTYPE errors</li>
 <ul>
 <li>Merge branch &#39;main&#39; into stonecypher/fsl#427</li>
 <li>
-<a href="#conflicts-9" id="conflicts-9" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-10" id="conflicts-10" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
@@ -9001,61 +9223,61 @@ process.write so test mocks capture subprocess output.</li>
 <ul>
 <li>Merge branch &#39;main&#39; into stonecypher/fsl#316</li>
 <li>
-<a href="#conflicts-10" id="conflicts-10" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-11" id="conflicts-11" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
 </ul>
 
-<a href="#distdenojssmjs-6" id="distdenojssmjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distdenojssmjs-7" id="distdenojssmjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/deno/jssm.js</h1>
 </a>
 
-<a href="#distes6versionjs-6" id="distes6versionjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distes6versionjs-7" id="distes6versionjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/es6/version.js</h1>
 </a>
 
-<a href="#distjssmes5cjs-6" id="distjssmes5cjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5cjs-7" id="distjssmes5cjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.cjs</h1>
 </a>
 
-<a href="#distjssmes5iifejs-6" id="distjssmes5iifejs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5iifejs-7" id="distjssmes5iifejs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.iife.js</h1>
 </a>
 
-<a href="#distjssmes5nonmincjs-6" id="distjssmes5nonmincjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5nonmincjs-7" id="distjssmes5nonmincjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssmes6mjs-6" id="distjssmes6mjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6mjs-7" id="distjssmes6mjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.mjs</h1>
 </a>
 
-<a href="#distjssmes6nonmincjs-6" id="distjssmes6nonmincjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6nonmincjs-7" id="distjssmes6nonmincjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizcjs-6" id="distjssm_vizcjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizcjs-7" id="distjssm_vizcjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5iifenonmincjs-6" id="distjssm_vizes5iifenonmincjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5iifenonmincjs-7" id="distjssm_vizes5iifenonmincjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.iife.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5nonmincjs-6" id="distjssm_vizes5nonmincjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5nonmincjs-7" id="distjssm_vizes5nonmincjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes6nonmincjs-6" id="distjssm_vizes6nonmincjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes6nonmincjs-7" id="distjssm_vizes6nonmincjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_viziifecjs-6" id="distjssm_viziifecjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_viziifecjs-7" id="distjssm_viziifecjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.iife.cjs</h1>
 </a>
 
-<a href="#distjssm_vizmjs-6" id="distjssm_vizmjs-6" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizmjs-7" id="distjssm_vizmjs-7" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.mjs</h1>
 </a>
 
@@ -9063,7 +9285,7 @@ process.write so test mocks capture subprocess output.</li>
   <h1>package.json</h1>
 </a>
 
-<a href="#srctsversionts-6" id="srctsversionts-6" style="color: inherit; text-decoration: none;">
+<a href="#srctsversionts-7" id="srctsversionts-7" style="color: inherit; text-decoration: none;">
   <h1>src/ts/version.ts</h1>
 </a>
 <p>&nbsp;</p>
@@ -9189,17 +9411,17 @@ findings the new tests surfaced.</li>
 <ul>
 <li>Merge branch &#39;main&#39; into worktree-agent-a8562119fe10fe2f0</li>
 <li>
-<a href="#conflicts-11" id="conflicts-11" style="color: inherit; text-decoration: none;">
+<a href="#conflicts-12" id="conflicts-12" style="color: inherit; text-decoration: none;">
   <h1>Conflicts:</h1>
 </a>
 </li>
 </ul>
 
-<a href="#distdenoreadmemd-4" id="distdenoreadmemd-4" style="color: inherit; text-decoration: none;">
+<a href="#distdenoreadmemd-5" id="distdenoreadmemd-5" style="color: inherit; text-decoration: none;">
   <h1>dist/deno/README.md</h1>
 </a>
 
-<a href="#distdenojssmjs-7" id="distdenojssmjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distdenojssmjs-8" id="distdenojssmjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/deno/jssm.js</h1>
 </a>
 
@@ -9207,51 +9429,51 @@ findings the new tests surfaced.</li>
   <h1>dist/es6/fsl_parser.js</h1>
 </a>
 
-<a href="#distes6versionjs-7" id="distes6versionjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distes6versionjs-8" id="distes6versionjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/es6/version.js</h1>
 </a>
 
-<a href="#distjssmes5cjs-7" id="distjssmes5cjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5cjs-8" id="distjssmes5cjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.cjs</h1>
 </a>
 
-<a href="#distjssmes5iifejs-7" id="distjssmes5iifejs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5iifejs-8" id="distjssmes5iifejs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.iife.js</h1>
 </a>
 
-<a href="#distjssmes5nonmincjs-7" id="distjssmes5nonmincjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes5nonmincjs-8" id="distjssmes5nonmincjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssmes6mjs-7" id="distjssmes6mjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6mjs-8" id="distjssmes6mjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.mjs</h1>
 </a>
 
-<a href="#distjssmes6nonmincjs-7" id="distjssmes6nonmincjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssmes6nonmincjs-8" id="distjssmes6nonmincjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizcjs-7" id="distjssm_vizcjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizcjs-8" id="distjssm_vizcjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5iifenonmincjs-7" id="distjssm_vizes5iifenonmincjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5iifenonmincjs-8" id="distjssm_vizes5iifenonmincjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.iife.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes5nonmincjs-7" id="distjssm_vizes5nonmincjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes5nonmincjs-8" id="distjssm_vizes5nonmincjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es5.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_vizes6nonmincjs-7" id="distjssm_vizes6nonmincjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizes6nonmincjs-8" id="distjssm_vizes6nonmincjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.es6.nonmin.cjs</h1>
 </a>
 
-<a href="#distjssm_viziifecjs-7" id="distjssm_viziifecjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_viziifecjs-8" id="distjssm_viziifecjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.iife.cjs</h1>
 </a>
 
-<a href="#distjssm_vizmjs-7" id="distjssm_vizmjs-7" style="color: inherit; text-decoration: none;">
+<a href="#distjssm_vizmjs-8" id="distjssm_vizmjs-8" style="color: inherit; text-decoration: none;">
   <h1>dist/jssm_viz.mjs</h1>
 </a>
 
@@ -9259,7 +9481,7 @@ findings the new tests surfaced.</li>
   <h1>package.json</h1>
 </a>
 
-<a href="#srctsversionts-7" id="srctsversionts-7" style="color: inherit; text-decoration: none;">
+<a href="#srctsversionts-8" id="srctsversionts-8" style="color: inherit; text-decoration: none;">
   <h1>src/ts/version.ts</h1>
 </a>
 <p>&nbsp;</p>
