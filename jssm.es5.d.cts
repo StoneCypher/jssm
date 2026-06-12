@@ -119,11 +119,20 @@ declare type JssmSerialization<DataType> = {
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
  *  provide `default_value` to fall back when the state does not specify it.
+ *
+ *  For state-property *bindings* (the `state_property` config list), the
+ *  compiler also writes `property` and `state` — the unserialized pair behind
+ *  the serialized `name` — so the Machine constructor can validate bindings
+ *  without parsing `name` back apart.  Both are optional: hand-built configs
+ *  may carry only the serialized `name`, and global property definitions
+ *  never set them.
  */
 declare type JssmPropertyDefinition = {
     name: string;
     default_value?: any;
     required?: boolean;
+    property?: string;
+    state?: string;
 };
 declare type JssmTransitionPermitter<DataType> = (OldState: StateType$1, NewState: StateType$1, OldData: DataType, NewData: DataType) => boolean;
 declare type JssmTransitionPermitterMaybeArray<DataType> = JssmTransitionPermitter<DataType> | Array<JssmTransitionPermitter<DataType>>;
@@ -1622,12 +1631,12 @@ declare class Machine<mDT> {
     _has_global_action_hooks: boolean;
     _has_transition_hooks: boolean;
     _has_forced_transitions: boolean;
-    _hooks: Map<string, Map<string, HookHandler<mDT>>>;
-    _named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-    _entry_hooks: Map<string, HookHandler<mDT>>;
-    _exit_hooks: Map<string, HookHandler<mDT>>;
+    _hooks: Map<number, HookHandler<mDT>>;
+    _named_hooks: Map<number, Map<number, HookHandler<mDT>>>;
+    _entry_hooks: Map<number, HookHandler<mDT>>;
+    _exit_hooks: Map<number, HookHandler<mDT>>;
     _after_hooks: Map<string, HookHandler<mDT>>;
-    _global_action_hooks: Map<string, HookHandler<mDT>>;
+    _global_action_hooks: Map<number, HookHandler<mDT>>;
     _any_action_hook: HookHandler<mDT> | undefined;
     _standard_transition_hook: HookHandler<mDT> | undefined;
     _main_transition_hook: HookHandler<mDT> | undefined;
@@ -1643,11 +1652,11 @@ declare class Machine<mDT> {
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
     _allow_islands: JssmAllowIslands;
-    _post_hooks: Map<string, Map<string, HookHandler<mDT>>>;
-    _post_named_hooks: Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-    _post_entry_hooks: Map<string, HookHandler<mDT>>;
-    _post_exit_hooks: Map<string, HookHandler<mDT>>;
-    _post_global_action_hooks: Map<string, HookHandler<mDT>>;
+    _post_hooks: Map<number, HookHandler<mDT>>;
+    _post_named_hooks: Map<number, Map<number, HookHandler<mDT>>>;
+    _post_entry_hooks: Map<number, HookHandler<mDT>>;
+    _post_exit_hooks: Map<number, HookHandler<mDT>>;
+    _post_global_action_hooks: Map<number, HookHandler<mDT>>;
     _post_any_action_hook: HookHandler<mDT> | undefined;
     _post_standard_transition_hook: HookHandler<mDT> | undefined;
     _post_main_transition_hook: HookHandler<mDT> | undefined;
@@ -1661,6 +1670,7 @@ declare class Machine<mDT> {
     _default_properties: Map<string, any>;
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
+    _state_property_first_state: Map<string, StateType>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     _state_style: JssmStateConfig;
