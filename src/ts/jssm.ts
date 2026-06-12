@@ -5359,9 +5359,17 @@ function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mD
 
 
 /**
- * Compares two semantic version strings.
+ * Compares two semantic version strings, including prerelease versions.
  *
- * @param {string} v1 - First version string (e.g., "5.104.2")
+ * The numeric (`major.minor.patch`) parts compare numerically, with missing
+ * segments treated as zero.  Prerelease parts (everything after the first
+ * `-`) follow semver precedence: a version *with* a prerelease precedes the
+ * same version *without* one; prerelease identifiers compare dot-by-dot,
+ * numeric identifiers numerically and below alphanumeric ones, alphanumeric
+ * identifiers in ASCII order, and a shorter identifier set precedes a longer
+ * one that it prefixes.
+ *
+ * @param {string} v1 - First version string (e.g., "5.104.2" or "6.0.0-alpha.1")
  * @param {string} v2 - Second version string (e.g., "5.103.1")
  *
  * @returns {number} - Negative if v1 < v2, 0 if equal, positive if v1 > v2
@@ -5377,12 +5385,32 @@ function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mD
  * @example
  * import { compareVersions } from 'jssm';
  * compareVersions("5.104.2", "5.104.2");  // => 0
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-alpha.1", "6.0.0-alpha.2");  // => -1
+ *
+ * @example
+ * import { compareVersions } from 'jssm';
+ * compareVersions("6.0.0-beta.1", "6.0.0-alpha.1");  // => 1
  */
 
 function compareVersions(v1: string, v2: string): number {
 
-  const parts1 = v1.split('.').map(Number);
-  const parts2 = v2.split('.').map(Number);
+  const hyphen1 = v1.indexOf('-'),
+        hyphen2 = v2.indexOf('-');
+
+  const main1 = (hyphen1 === -1)? v1 : v1.slice(0, hyphen1),
+        main2 = (hyphen2 === -1)? v2 : v2.slice(0, hyphen2),
+        pre1  = (hyphen1 === -1)? undefined : v1.slice(hyphen1 + 1),
+        pre2  = (hyphen2 === -1)? undefined : v2.slice(hyphen2 + 1);
+
+  const parts1 = main1.split('.').map(Number);
+  const parts2 = main2.split('.').map(Number);
 
   for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
     const num1 = parts1[i] ?? 0;
@@ -5391,6 +5419,34 @@ function compareVersions(v1: string, v2: string): number {
     if (num1 !== num2) {
       return num1 - num2;
     }
+  }
+
+  // numeric parts equal; a version with a prerelease precedes one without
+  if (pre1 === undefined && pre2 === undefined) { return  0; }
+  if (pre1 === undefined)                       { return  1; }
+  if (pre2 === undefined)                       { return -1; }
+
+  // both have prereleases: compare dot-separated identifiers per semver
+  const ids1 = pre1.split('.'),
+        ids2 = pre2.split('.');
+
+  for (let i = 0; i < Math.max(ids1.length, ids2.length); i++) {
+
+    const id1 = ids1[i],
+          id2 = ids2[i];
+
+    if (id1 === undefined) { return -1; }  // shorter identifier set precedes
+    if (id2 === undefined) { return  1; }
+
+    const n1 = /^[0-9]+$/.test(id1)? Number(id1) : undefined,
+          n2 = /^[0-9]+$/.test(id2)? Number(id2) : undefined;
+
+    if (n1 !== undefined && n2 !== undefined) {
+      if (n1 !== n2) { return n1 - n2; }
+    } else if (n1 !== undefined) { return -1; }  // numeric below alphanumeric
+      else if (n2 !== undefined) { return  1; }
+      else if (id1 !== id2)      { return (id1 < id2)? -1 : 1; }
+
   }
 
   return 0;
