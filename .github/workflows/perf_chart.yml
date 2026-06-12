@@ -1,0 +1,58 @@
+name: perf chart
+
+# Renders the graviton perf trend after every data publish to perf_results —
+# both the SSH-driven PR runs and the detached release runs end by pushing
+# that branch — and posts the chart to the perf-tracking issue (#748).
+#
+# Loop safety, twice over: this workflow's own chart commits land under
+# charts/ (path-ignored below), and pushes made with the default GITHUB_TOKEN
+# never start workflows in any case.  Nothing here touches main, so the
+# release -> graviton run -> publish chain terminates at a comment.
+
+on:
+  push:
+    branches:
+      - perf_results
+    paths-ignore:
+      - 'charts/**'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+
+  chart:
+    name: render and post the perf trend
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # The push event is on perf_results, which carries only data; the chart
+      # script lives on main.
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # publish_charts pushes charts/<stamp>/ back to perf_results over https;
+      # route that through the workflow token.
+      - name: Authenticate git pushes with the workflow token
+        run: git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Identify the chart bot for the perf_results commit
+        run: |
+          git config --global user.email "stonecypher@users.noreply.github.com"
+          git config --global user.name  "jssm perf chart bot"
+
+      # The composite SVG/JSON also land in a scratch dir here; only the
+      # per-operation panels pushed to charts/ and the comment leave the job.
+      - name: Render and post
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node src/scripts/make_perf_chart.cjs --out build/perf_chart_out --comment
