@@ -22,24 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 10:07:08 AM
-
-Commit [f95ce55ea615dd6af1963f24e49b859afb403c66](https://github.com/StoneCypher/jssm/commit/f95ce55ea615dd6af1963f24e49b859afb403c66)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): v5.143.16 — re-bump past the parallel 5.143.15 release; regenerate artifacts after third main sync
-  * The full stoch suite (756 property tests) passes over the interned hook
-registry from #742 — including the 22-kind set_hook/remove_hook sweep
-that drives exactly the storage that PR rewrote.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 10:02:21 AM
 
 Commit [95fcd412a32976fa1680f0f80d7da8c75edc9df9](https://github.com/StoneCypher/jssm/commit/95fcd412a32976fa1680f0f80d7da8c75edc9df9)
@@ -305,3 +287,44 @@ files, 756 stoch tests total.
 - dispatcher spawn path with real spawned node fixtures and the
   --verbose resolution trace
   * Includes the v5.143.13 bump and regenerated build artifacts.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 12, 2026 9:31:17 AM
+
+Commit [082f2d78454e79c136738f70057c1b9f478dd205](https://github.com/StoneCypher/jssm/commit/082f2d78454e79c136738f70057c1b9f478dd205)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(shootout): cached recreatable pipeline + Borland grid renderer + scaling timeouts
+  * Turns the shootout from a one-off run into a recreatable, incremental,
+scale-ready data pipeline (built for tracking hundreds of competitors):
+  * - measure_lib.cjs: measures ONE library across every dimension (static,
+  behavior, memory, capability throughput, all 10 machine-type shapes),
+  writing its data/<host>/<lib>.json progressively so a hang on a huge
+  machine still keeps the cheaper shapes (the rest read as timeout).
+- run.cjs: orchestrator keyed by installed version — re-measures ONLY the
+  libraries whose version changed (or are new), reuses the rest from
+  cache, isolates each in a killable child, then assembles a combined
+  report, renders the grid, and promotes both into src/generated_docs/.
+- grid.cjs: the Borland-style feature grid — rotated/uniform headers with
+  a custom tooltip widget, pass/fail green/red cells, ✓<sub>F</sub> for
+  return-false rejection, ☢️ for state corruption, ⏱ scaling-timeout
+  rows, jssm 5 + jssm 6 editions, per-machine-type numeric tables. Every
+  FSL demo is executed as a test vector at render time (stale demo fails
+  the render).
+- suite.cjs / preflight_one.cjs: child-process feasibility ceiling so a
+  competitor that can't build a large machine in time is recorded as a
+  timeout, never hangs the run (statebot: dense-200 + messy-5000).
+  * data/local-x64/ and src/generated_docs here are a DIRECTIONAL local-host
+seed (self-labeled by host in the path and the report); canonical
+throughput/memory come from the graviton host (data/c7g.medium/) on the
+dispatched run. Behavior / static / feasibility are host-independent.
+  * Fixed a worker bug found in the first full run: the action benchmark
+sent an off-cycle event (100 steps over a 3-state cycle), crashing the
+four strict-rejection libraries; it now runs whole cycles.

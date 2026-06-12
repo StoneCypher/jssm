@@ -22,24 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 10:07:08 AM
-
-Commit [f95ce55ea615dd6af1963f24e49b859afb403c66](https://github.com/StoneCypher/jssm/commit/f95ce55ea615dd6af1963f24e49b859afb403c66)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(release): v5.143.16 — re-bump past the parallel 5.143.15 release; regenerate artifacts after third main sync
-  * The full stoch suite (756 property tests) passes over the interned hook
-registry from #742 — including the 22-kind set_hook/remove_hook sweep
-that drives exactly the storage that PR rewrote.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 10:02:21 AM
 
 Commit [95fcd412a32976fa1680f0f80d7da8c75edc9df9](https://github.com/StoneCypher/jssm/commit/95fcd412a32976fa1680f0f80d7da8c75edc9df9)
