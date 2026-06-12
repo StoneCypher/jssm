@@ -11,6 +11,45 @@
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
+<a href="#untagged---jun-12-2026-80257-am" id="untagged---jun-12-2026-80257-am" style="color: inherit; text-decoration: none;">
+  <h2>[Untagged] - Jun 12, 2026 8:02:57 AM</h2>
+</a>
+<p>Commit <a href="https://github.com/StoneCypher/jssm/commit/bac38e1edf2ae291c717fc205702eff4d929c5ca">bac38e1edf2ae291c717fc205702eff4d929c5ca</a></p>
+<p>Author: <code>John Haugeland &lt;stonecypher@gmail.com&gt;</code></p>
+<ul>
+<li>feat(shootout): static / lifecycle runner — size, deps, types, packaging, cold start, age</li>
+<li>static.cjs collects the facts that need no machine run, just the
+installed package and a cold require:</li>
+<li><ul>
+<li>installSizeKB — on-disk size of the package&#39;s own directory. Wide
+spread: easy-fsm 9 KB ... jssm 12.7 MB (the breadth tax — viz, web
+components, CLI, fonts all ship in one package).</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>directDeps, types (bundled/none), modules (esm/cjs/dual), postinstall.</li>
+<li>ageYears via npm view (best-effort; omitted, never faked, on failure).
+Half the field hasn&#39;t shipped in ~4 years (javascript-state-machine,
+nanostate, typestate, finity, stately.js, pastafarian) — a real
+maintenance signal; jssm/xstate/machina are fresh.</li>
+<li>coldStartMs — median child-process require() time, the cost that
+dominates CLI/serverless and is invisible to transition benchmarks
+(pastafarian ~10 ms ... fseh ~72 ms).<ul>
+<li>Fixed a types false-negative in my own detector: it now reads the
+exports-map &quot;types&quot; condition and dist/types subdirs, so TS-first
+libraries (xstate et al.) correctly read as bundled rather than none.
+npm view uses a shell only on Windows (avoids the args-via-shell
+deprecation on the Linux instance; names come from our pinned list, so
+no injection surface).</li>
+<li>Wired into launch.cjs (conformance -&gt; suite -&gt; memory -&gt; probes -&gt;
+static) and published as static.json. README updated.</li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 <a href="#untagged---jun-12-2026-75639-am" id="untagged---jun-12-2026-75639-am" style="color: inherit; text-decoration: none;">
   <h2>[Untagged] - Jun 12, 2026 7:56:39 AM</h2>
 </a>

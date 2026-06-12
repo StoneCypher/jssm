@@ -3869,10 +3869,14 @@ class Machine<mDT> {
 
     if (valid) {
 
-      if (this._has_hooks) {
+      // once validity is known, clear old 'after' timeout clause.  This must
+      // happen for hook-free machines too: leaving it inside the hooks branch
+      // let a pending 'after' timer survive a manual transition away, firing a
+      // ghost go() later and crashing re-entry to the after-state with
+      // "already timing out".
+      this.clear_state_timeout();
 
-        // once validity is known, clear old 'after' timeout clause
-        this.clear_state_timeout();
+      if (this._has_hooks) {
 
         let data_changed = false;
 

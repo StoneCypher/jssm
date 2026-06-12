@@ -22,6 +22,42 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 12, 2026 8:02:57 AM
+
+Commit [bac38e1edf2ae291c717fc205702eff4d929c5ca](https://github.com/StoneCypher/jssm/commit/bac38e1edf2ae291c717fc205702eff4d929c5ca)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(shootout): static / lifecycle runner — size, deps, types, packaging, cold start, age
+  * static.cjs collects the facts that need no machine run, just the
+installed package and a cold require:
+  * - installSizeKB — on-disk size of the package's own directory. Wide
+  spread: easy-fsm 9 KB ... jssm 12.7 MB (the breadth tax — viz, web
+  components, CLI, fonts all ship in one package).
+- directDeps, types (bundled/none), modules (esm/cjs/dual), postinstall.
+- ageYears via npm view (best-effort; omitted, never faked, on failure).
+  Half the field hasn't shipped in ~4 years (javascript-state-machine,
+  nanostate, typestate, finity, stately.js, pastafarian) — a real
+  maintenance signal; jssm/xstate/machina are fresh.
+- coldStartMs — median child-process require() time, the cost that
+  dominates CLI/serverless and is invisible to transition benchmarks
+  (pastafarian ~10 ms ... fseh ~72 ms).
+  * Fixed a types false-negative in my own detector: it now reads the
+exports-map "types" condition and dist/types subdirs, so TS-first
+libraries (xstate et al.) correctly read as bundled rather than none.
+npm view uses a shell only on Windows (avoids the args-via-shell
+deprecation on the Linux instance; names come from our pinned list, so
+no injection surface).
+  * Wired into launch.cjs (conformance -> suite -> memory -> probes ->
+static) and published as static.json. README updated.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 12, 2026 7:56:39 AM
 
 Commit [b320d33ef6369a41931f79888bfea33bc7fae6f1](https://github.com/StoneCypher/jssm/commit/b320d33ef6369a41931f79888bfea33bc7fae6f1)
