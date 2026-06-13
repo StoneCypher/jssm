@@ -61,10 +61,12 @@ describe('StoneCypher/fsl#358 - edge-color / edge_color aliases', () => {
      *
      * NOTE: the `transition: { ... };` statement is accepted by the
      * grammar but is not currently wired into `compile_rule_handler`
-     * (it throws `Unknown rule: {"config_kind":"transition", ...}`).
-     * That's a pre-existing bug independent of fsl#358 — these tests
-     * only exercise the parser, which is the surface area the issue
-     * is actually about.
+     * (it emits `{ key:'default_transition_config', value:[…] }` but
+     * the compiler throws `Unknown rule: default_transition_config`).
+     * Wiring `default_transition_config` (and `default_graph_config`)
+     * through the compiler's dispatch is Task 2 of the
+     * overlapping-state-groups plan — these tests only exercise the
+     * parser, which is the surface area the issue is actually about.
      */
     test('underscore form parses and emits key "graph_default_edge_color"', () => {
       const ast = jssm.parse('transition: { edge_color: blue; }; a -> b;');

@@ -484,7 +484,8 @@ function buildUserData(shutdownMinutes) {
 
 /**
  *  Build the remote provisioning script that installs Node, clones the PR's
- *  commit, builds `dist/`, runs the benchmark, and captures a bounded profiled
+ *  commit, builds `dist/`, runs both benchmark suites (scaling, then the
+ *  general hook microbenchmark suite), and captures a bounded profiled
  *  construct pass.  Chains freely because it runs in the *instance's* shell, not
  *  the local dev shell.
  *
@@ -492,9 +493,12 @@ function buildUserData(shutdownMinutes) {
  *         prNumber, harnessFrom }`.  `commitSha` pins the exact PR commit;
  *         `refs/pull/<prNumber>/head` is fetched (with `headRefName` as fallback) so
  *         the SHA is reachable even for a deleted-branch PR.  `deep` toggles
- *         `BENNY_DEEP=1`.  `harnessFrom`, when set, overlays that ref's scaling
- *         harness onto the checkout and runs it directly instead of the PR's own
- *         `benny:scaling`, so a PR predating the suite can still be measured.
+ *         `BENNY_DEEP=1` (scaling suite only; the general suite never deepens).
+ *         `harnessFrom`, when set, overlays that ref's scaling AND general
+ *         harnesses onto the checkout and runs them directly instead of the
+ *         PR's own npm scripts, so a PR predating either suite can still be
+ *         measured — the general suite feature-probes hook kinds and degrades
+ *         to a partial suite on an older library.
  *  @returns A `#!/bin/bash -e` script string with a `JSSM_PERF_DONE` sentinel on
  *           success.
  *  @throws Error if `commitSha` is not a 40/64-char hex SHA, `headRefName` or
@@ -532,15 +536,19 @@ function buildRemoteScript(params) {
   // library may lack.
   const benchSteps = harnessFrom
     ? [
-        `# 4. Overlay the current scaling harness from "${harnessFrom}" and run it directly.`,
+        `# 4. Overlay the current benchmark harnesses from "${harnessFrom}" and run them directly.`,
         `git fetch origin "${harnessFrom}"`,
-        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_plan.cjs benchmark/fixtures',
+        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
         'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
-        `${deep ? 'BENNY_DEEP=1 ' : ''}node ./src/buildjs/benchmark_scaling.cjs`
+        `${deep ? 'BENNY_DEEP=1 ' : ''}node ./src/buildjs/benchmark_scaling.cjs`,
+        '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
+        'node ./src/buildjs/benchmark.cjs'
       ]
     : [
         '# 4. Benchmark (mode-dependent).',
-        deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling'
+        deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling',
+        '# 4b. General (hook microbenchmark) suite — BENNY_DEEP does not apply to it.',
+        'npm run benny'
       ];
 
   return [
@@ -591,11 +599,14 @@ function buildRemoteScript(params) {
  *  Unlike {@link buildRemoteScript} (which the client uploads + drives over SSH),
  *  this script runs at instance boot via cloud-init and does the ENTIRE job with
  *  no client involvement: arm the dead-man's-switch, install Node+git, clone and
- *  check out the released commit, build `dist/`, run benny, capture a bounded
- *  profiled construct pass, upload artifacts to {@link PERF_RESULTS_BUCKET}
- *  under `<instance-type>/release-<version>/` via the instance profile (no
- *  GitHub credential on the box; the nightly `perf_results_sync` workflow
- *  lands the bucket's contents on the branch), and finally self-terminate.
+ *  check out the released commit, build `dist/`, run both benny suites (scaling,
+ *  then the general hook microbenchmark suite — together a few minutes, well
+ *  inside the dead-man budget), capture a bounded profiled construct pass, and
+ *  upload artifacts (including `general.json`, best-effort) to
+ *  {@link PERF_RESULTS_BUCKET} under `<instance-type>/release-<version>/` via
+ *  the instance profile (no GitHub credential on the box; the nightly
+ *  `perf_results_sync` workflow lands the bucket's contents on the branch),
+ *  finally self-terminating.
  *
  *  @param params `{ repoUrl, commitSha, release, instanceType, region, deep,
  *         shutdownMinutes, bucket }`. `commitSha` pins the exact released commit;
@@ -668,6 +679,8 @@ function buildDetachedUserData(params) {
     '',
     '# 4. Benchmark (mode-dependent).',
     benchLine,
+    '# 4b. General (hook microbenchmark) suite.',
+    'npm run benny',
     '',
     '# 5. Bounded profiled construct pass (non-min bundle for readable frames).',
     'cat > perf_probe.cjs <<\'PROBE\'',
@@ -706,8 +719,9 @@ function buildDetachedUserData(params) {
     '  UPLOADED=yes',
     `  aws s3 cp benchmark/results/scaling.json "$DEST/scaling.json" --region ${region} || UPLOADED=no`,
     `  aws s3 cp meta.json                      "$DEST/meta.json"    --region ${region} || UPLOADED=no`,
-    '  # the profile is best-effort; its absence must not fail the publish',
+    '  # the profile and the general suite are best-effort; their absence must not fail the publish',
     `  aws s3 cp construct.prof.txt "$DEST/construct.prof.txt" --region ${region} || echo "JSSM_PERF: prof upload failed; continuing"`,
+    `  aws s3 cp benchmark/results/general.json "$DEST/general.json" --region ${region} || echo "JSSM_PERF: general.json upload failed; continuing"`,
     '  if [ "$UPLOADED" = "yes" ]; then',
     '    echo "JSSM_PERF: uploaded to $DEST (lands on perf_results at the nightly sync)"',
     '  else',
@@ -1108,13 +1122,15 @@ function provision(exec, opts, state) {
  *  Configure + run the benchmark on the instance over SSH, then retrieve the
  *  artifacts.  Waits for the instance to pass status checks, polls SSH, uploads
  *  and runs the remote script ({@link buildRemoteScript}), and `scp`s back
- *  `scaling.json`, `scaling.md`, and `construct.prof.txt`.
+ *  `scaling.json`, `scaling.md`, `general.json` (best-effort), and
+ *  `construct.prof.txt`.
  *
  *  @param exec An executor from {@link makeExecutor}.
  *  @param opts Parsed options.
  *  @param state Run-state with `instanceId`, `keyPath`, etc.
  *  @param refInfo `{ headRefName, headRefOid }` for the remote checkout.
- *  @returns `{ scalingJson, scalingMd, profTxt }` absolute local paths.
+ *  @returns `{ scalingJson, scalingMd, profTxt, generalJson }` absolute local
+ *           paths; `generalJson` may not exist on disk for old commits.
  *  @throws Error if the remote build/benchmark exits non-zero (surfaced eagerly,
  *          so a failed build can't masquerade as the repo's committed stale
  *          `scaling.json`), or if no non-empty `scaling.json` came back.
@@ -1164,13 +1180,16 @@ function configureAndRun(exec, opts, state, refInfo) {
     );
   }
 
-  // Retrieve artifacts.
+  // Retrieve artifacts.  general.json is best-effort: a sufficiently old
+  // commit measured without --harness-from may predate the general save name.
   const outDir = state.tmpDir;
   const scalingJson = path.join(outDir, 'scaling.json');
   const scalingMd   = path.join(outDir, 'scaling.md');
   const profTxt     = path.join(outDir, 'construct.prof.txt');
+  const generalJson = path.join(outDir, 'general.json');
   exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/benchmark/results/scaling.json`, scalingJson]);
   exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/benchmark/results/scaling.md`,   scalingMd]);
+  exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/benchmark/results/general.json`, generalJson]);
   exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/construct.prof.txt`,              profTxt]);
 
   if (!exec.dryRun) {
@@ -1178,7 +1197,7 @@ function configureAndRun(exec, opts, state, refInfo) {
       throw new Error('remote run produced no scaling.json (benchmark failed)');
     }
   }
-  return { scalingJson, scalingMd, profTxt };
+  return { scalingJson, scalingMd, profTxt, generalJson };
 }
 
 /**
@@ -1336,7 +1355,11 @@ function runMeasurement(exec, opts, ctx) {
       files         : {
         [perfResultPath(opts.instanceType, opts.prNumber, 'scaling.json')]      : artifacts.scalingJson,
         [perfResultPath(opts.instanceType, opts.prNumber, 'construct.prof.txt')]: artifacts.profTxt,
-        [perfResultPath(opts.instanceType, opts.prNumber, 'meta.json')]         : metaPath
+        [perfResultPath(opts.instanceType, opts.prNumber, 'meta.json')]         : metaPath,
+        // general.json is best-effort: an old commit's run may not produce it.
+        ...((exec.dryRun || fs.existsSync(artifacts.generalJson))
+          ? { [perfResultPath(opts.instanceType, opts.prNumber, 'general.json')]: artifacts.generalJson }
+          : {})
       },
       commitMessage : `perf: ${opts.instanceType} results for PR #${opts.prNumber} (${opts.mode})`
     });

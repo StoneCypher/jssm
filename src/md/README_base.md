@@ -227,6 +227,37 @@ observation point.
 returns `false`.  An unknown state throws.  Branching code can rely on the
 distinction.
 
+**Overlapping state groups** let a state belong to several groups at once -
+something a strict hierarchy can't express.  A group is declared with `&`,
+and the same `&name` then drives transitions, shared metadata, boundary
+hooks, and runtime queries:
+
+```javascript
+const req = sm`
+  &InProgress : [connecting sending receiving];
+  &Receiving  : [receiving draining];
+
+  idle 'send'    -> connecting 'open' -> sending 'reply' -> receiving;
+  receiving 'eof' -> draining 'done'  -> idle;
+
+  &InProgress 'abort' -> idle;        // a transition from every group member
+  on enter &Receiving do 'log_rx';    // boundary hook fires crossing in
+`;
+
+req.action('send');
+req.isIn('InProgress');     // true  - connecting is in &InProgress
+req.groupsOf('receiving');  // Set { 'InProgress', 'Receiving' }  - overlap
+```
+
+`receiving` is in **both** groups simultaneously - it is in-progress *and*
+receiving.  When two groups disagree about the same action, a CSS-like
+cascade decides: state-specific edges win, then the innermost (nearest)
+group, then the later-declared one.  Groups render as nested Graphviz
+clusters, or as bracketed chips on the node label where memberships
+genuinely overlap.
+
+See the cookbook's overlapping-groups recipes for fuller worked examples.
+
 
 
 <br/>

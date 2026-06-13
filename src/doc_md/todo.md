@@ -585,9 +585,11 @@ candidates as quick credibility wins alongside the larger tooling work.
       (vertical-flow visual language); rendering probably needs a custom
       layout engine, not graphviz. Sub-question: render from within
       gviz/viz.js or out-of-band?
-- [ ] **Harel statechart representation** `[hard]` — depends on
-      hierarchical states existing (see Architectural). Cannot do until
-      that lands.
+- [ ] **Harel statechart representation** `[hard]` — the
+      hierarchical-state substrate it needs now exists via
+      **Overlapping state groups** (nested groups; shipped), so this is
+      unblocked. The remaining work is the Harel-specific export format
+      itself, on top of group nesting.
 - [ ] **Web Components renderer** `[medium]` — ship a Lit-based
       `<jssm-machine>` custom element that takes an FSL string
       and renders a live, embeddable state-machine view,
@@ -1059,14 +1061,18 @@ machine; one Dockerfile per machine).
 ### Architectural — months, breaking changes
 
 These items are a smaller project than the original four-item
-framing implied. The **overlapping-groups** item (first below)
-covers most hierarchical-state and state-subtype use cases without
-an engine rewrite. The **FSMs-as-machine-data-members** item
-(second below) covers the multi-FSM-with-co-identity use cases
-through composition rather than parallel-region grammar. Both
-still touch every file (types, parser, comparison, history, viz)
-and should ship together as a major version with its own plan, but
-the multi-year-monolith framing was overblown. **Multiple
+framing implied. The **overlapping-groups** item (first below) has
+now **shipped** — it covers most hierarchical-state and
+state-subtype use cases without an engine rewrite, and accordingly
+*Hierarchical states* and *State subtypes* are marked `[done]`
+(subsumed) below. What remains open in this tier is the
+**FSMs-as-machine-data-members** item (covers the
+multi-FSM-with-co-identity use cases through composition rather
+than parallel-region grammar) and **States as objects** (independent,
+may still be wanted on its own merits). The remaining work still
+touches many files (types, parser, comparison, history, viz) and
+should ship as a major version with its own plan, but the
+multi-year-monolith framing was overblown. **Multiple
 concurrent states** has been demoted from this tier (now under
 Proposed — high value, larger scope) because composition via FSM-
 properties handles the substantive cases; only specialized
@@ -1074,10 +1080,10 @@ protocol/embedded/simulation audiences need true parallel-region
 grammar, and that decision can be made later from a position of
 strength.
 
-- [ ] **Overlapping state groups** `[architectural]` — extend
-      `NamedList` (currently `&group : [a b c];`, used today only
-      as a fan-out transition-target alias) into a first-class
-      *state group* with shared behaviour. Groups then support:
+- [x] **Overlapping state groups** `[done]` — shipped. Extended
+      `NamedList` (formerly `&group : [a b c];`, used only as a
+      fan-out transition-target alias) into a first-class
+      *state group* with shared behaviour. Groups now support:
       transitions from group members (`&busy 'CANCEL' -> idle`),
       default state metadata (`state &busy : { color : amber; }`),
       boundary hooks (`on enter &busy do ...`), and runtime
@@ -1105,31 +1111,36 @@ strength.
       substitute for true simultaneous states, but FSMs-as-
       properties does for most practical purposes.
 
-      Design questions to settle before implementation:
+      Shipped behaviour (design questions, as resolved):
 
-      1. **Conflict resolution** when a state's groups specify
-         different transitions for the same action. Recommended
-         rule: state-specific transitions always win; among
-         groups, most-recently-declared wins. CSS-style cascade
-         intuition — most developers have it already.
+      1. **Conflict resolution** for the same `(state, action)`:
+         a state-specific transition always wins; otherwise the
+         innermost (nearest, smallest membership-distance) group
+         wins; an equal-distance tie goes to the later-declared
+         group, with a `console.warn` on a group-vs-group
+         override. The CSS-style cascade intuition, as planned.
 
-      2. **Group entry/exit semantics.** Group enter/exit fires
-         when the transition crosses the group boundary
-         (current-not-in, next-in = enter; current-in, next-not-
-         in = exit). Transitions wholly within a group don't
-         fire boundary hooks. Mirrors XState's hierarchical
-         entry/exit but generalized to non-tree memberships.
+      2. **Group entry/exit semantics.** Boundary hooks fire on
+         crossing the (deep) group boundary — `on enter`/`on
+         exit`, with `do` as the action synonym. Exits fire
+         before enters; declaration order within a side;
+         transitions wholly within a group fire nothing.
+         Cascades are loop-protected by a configurable
+         `boundary_depth_limit` (default 100). `override()` also
+         fires boundary hooks.
 
-      3. **History semantics.** Per-group history slot accessible
-         via `&group.last` or similar. If a state is in multiple
-         groups, each group has independent history. Composes
-         correctly with overlap.
+      3. **History semantics.** *Not shipped in this pass.* The
+         per-group history slot (`&group.last` or similar) was
+         deferred; the runtime currently exposes deep membership
+         queries (`isIn`, `groupsOf`, `groups`, `statesIn`) but
+         no per-group history. Tracked for a follow-up if demand
+         surfaces.
 
-      Visualization: render groups as cluster regions (Graphviz
-      subgraphs) for the non-overlapping case; overlapping
-      regions need a different convention — likely Venn-style
-      explicit overlap, or colour-coded tag chips next to state
-      names. Worth thinking through during implementation.
+      Visualization (shipped): groups render as nested Graphviz
+      clusters where they form a nesting tree; genuinely
+      overlapping memberships render as bracketed chips on the
+      node label. `render_groups: 'cluster' | 'chips' | 'off'`
+      selects the convention.
 
       Notation recommendation: extend the existing `NamedList`
       grammar rather than introducing parallel syntax. Today
@@ -1254,11 +1265,19 @@ strength.
       makes inheritance, hierarchy, and state-associated data (e.g.
       walking-state with frame#) easier; makes the underlying impl much
       harder. Per `@burny`'s original suggestion.
-- [ ] **State subtypes** `[architectural]` — depends on states-as-
-      objects.
-- [ ] **Hierarchical states** `[architectural]` — triggered by
-      subordinate on transfer callback to superior, or polling. Required
-      for Harel rendering.
+- [x] **State subtypes** `[done]` — subsumed by **Overlapping state
+      groups** (shipped). A group used as a categorical label
+      (`&Paid : [Premium];`, queried via `isIn` / `groupsOf`) covers
+      the state-subtype / categorical-labelling use cases without a
+      states-as-objects rewrite.
+- [x] **Hierarchical states** `[done]` — subsumed by **Overlapping
+      state groups** (shipped). Nested groups (`&outer : [&inner …]`)
+      give shared-behaviour-across-states and depth-ordered metadata /
+      transition cascade — the hierarchy use cases — generalized to
+      non-tree (overlapping) membership. The Harel-rendering motivation
+      is now served by cluster rendering (`render_groups: 'cluster'`);
+      true Harel statechart *export* remains a separate render-target
+      item under Render targets.
 
 ## Grammar bugs
 
