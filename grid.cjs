@@ -149,17 +149,26 @@ function highlightFSL(src) {
 const YES = '✓', NO = '✗', NA = '—', DECL = '◐';
 const TIMEOUT = '⏱', ERRMARK = '✗', RADIOACTIVE = '☢️';   // ☢️ = state corruption
 const CHECK_F = '✓F';   // illegal-move rejection by returning false; rendered ✓ + subscript F
+const CHECK_N = '✓N';   // illegal-move rejection by throwing AND naming the offending states; ✓ + subscript N (Names)
+const CHECK_T = '✓T';   // illegal-move rejection by throwing (no state names); ✓ + subscript T (Throws)
 const CROSS_T = '✗T';   // hostile-name rejection by throwing; rendered ✗ + subscript T (keeps the column narrow)
 const WARN_N  = '⚠N';   // illegal-move rejection by silent no-op; rendered ⚠ + subscript N (safe, but signals nothing to the caller)
 const CROSS_C = '✗C';   // CJS-only packaging (no ESM entry point); rendered ✗ + subscript C
+const CHECK_D = '✓D';   // documented-present (the library's own docs say yes); ✓ + subscript D (Documented)
+const CROSS_D = '✗D';   // documented-absent (the library's own docs say no); ✗ + subscript D (Documented)
 const WARN = '⚠';       // builds, but >10x slower than jssm
 
-/** Render a mark to HTML — most are plain glyphs; CHECK_F gets a subscript F. */
+/** Render a mark to HTML — most are plain glyphs; the compound marks get a
+ *  subscript capital letter (F/N/T/C/D) that keeps the column narrow. */
 function markHtml(mark) {
   if (mark === CHECK_F) return '✓<sub class="submark">F</sub>';
+  if (mark === CHECK_N) return '✓<sub class="submark">N</sub>';
+  if (mark === CHECK_T) return '✓<sub class="submark">T</sub>';
+  if (mark === CHECK_D) return '✓<sub class="submark">D</sub>';
   if (mark === CROSS_T) return '✗<sub class="submark">T</sub>';
-  if (mark === WARN_N)  return '⚠<sub class="submark">N</sub>';
   if (mark === CROSS_C) return '✗<sub class="submark">C</sub>';
+  if (mark === CROSS_D) return '✗<sub class="submark">D</sub>';
+  if (mark === WARN_N)  return '⚠<sub class="submark">N</sub>';
   return esc(String(mark));
 }
 
@@ -169,7 +178,7 @@ function markHtml(mark) {
 // column's mark and is classified through this function, so an unrecognised
 // compound mark would fall through to a bare neutral instead of its real colour.
 function classifyMark(m) {
-  if (m === YES || m === CHECK_F) return 'pass';
+  if (m === YES || m === CHECK_F || m === CHECK_N || m === CHECK_T) return 'pass';
   if (m === WARN_N) return 'warn';
   if (m === NO || m === ERRMARK || m === RADIOACTIVE || m === TIMEOUT || m === CROSS_C || m === CROSS_T) return 'fail';
   if (m === '?') return 'unknown';
@@ -262,10 +271,13 @@ const ROWS = [
         'noop'                   : 'rejects by silent no-op — state unchanged, but nothing thrown or returned, so the caller is never told the move was illegal',
       }[b.category] || `rejects: ${b.category}`;
       // A silent no-op is safe (state stays consistent) but gives the caller no
-      // signal, so it warns rather than cleanly passing; returning false is a
-      // pass with the F mark; throwing is the ideal clean pass.
-      if (b.category === 'noop')          return { mark: WARN_N, status: 'warn', note };
-      if (b.category === 'returns-false') return { mark: CHECK_F, status: 'pass', note };
+      // signal, so it warns rather than cleanly passing. The rest are passes,
+      // distinguished by HOW they reject: throwing and naming the offending
+      // states (✓N, ideal), throwing without names (✓T), or returning false (✓F).
+      if (b.category === 'noop')                    return { mark: WARN_N, status: 'warn', note };
+      if (b.category === 'returns-false')           return { mark: CHECK_F, status: 'pass', note };
+      if (b.category === 'throws-with-state-names') return { mark: CHECK_N, status: 'pass', note };
+      if (b.category === 'throws')                  return { mark: CHECK_T, status: 'pass', note };
       return { mark: YES, status: 'pass', note };
     },
     (m) => true),
@@ -421,8 +433,8 @@ function featureRows() {
         const fact = docFact(lib, key);
         if (!fact) return { mark: FQ, status: 'unknown', note: 'not assessed for this library yet' };
         const cite = `${fact.source} (${fact.fetchedAt}, v${fact.version})` + (fact.e ? ` — ${fact.e}` : '');
-        if (fact.v === 'YES') return { mark: YES, status: 'doc-yes', note: `documented: ${cite}` };
-        if (fact.v === 'NO')  return { mark: NO,  status: 'doc-no',  note: `documented absent: ${cite}` };
+        if (fact.v === 'YES') return { mark: CHECK_D, status: 'doc-yes', note: `documented: ${cite}` };
+        if (fact.v === 'NO')  return { mark: CROSS_D, status: 'doc-no',  note: `documented absent: ${cite}` };
         return { mark: FQ, status: 'unknown', note: `documentation does not say (${fact.source})` };
       }
       // DSL gate: textual-notation features. A config-object library (no DSL)
@@ -647,7 +659,9 @@ const html = `<!doctype html>
   /* Uniform narrow columns for every library; the row-label column is wide. */
   table.grid col.libcol { width: 26px; }
   table.grid col.labelcol { width: 300px; }
-  table.grid thead th { background:#e9e4d4; position: sticky; top: 0; vertical-align: bottom; height: 96px; }
+  /* z-index keeps the sticky header above scrolling cell content — including
+     subscript marks, which otherwise paint over it. */
+  table.grid thead th { background:#e9e4d4; position: sticky; top: 0; z-index: 5; vertical-align: bottom; height: 96px; }
   th.col-jssm { background: var(--jssm); }
   /* jssm + jssm6 columns marked by side borders so pass/fail backgrounds still show through. */
   td.col-jssm { border-left:2px solid #d9c25e; border-right:2px solid #d9c25e; }
@@ -672,11 +686,10 @@ const html = `<!doctype html>
   .c-neutral { color:#666; background:#e8e3d5; }
   .c-unknown { color:#a99f86; font-style:italic; background:repeating-linear-gradient(45deg,#f1ede1,#f1ede1 5px,#e4ddc8 5px,#e4ddc8 10px); }
   /* documented tier — same pass/fail VERDICT colours as measured cells (a
-     documented absence is still a failure), with a ᵈ badge marking the
+     documented absence is still a failure); the ✓D / ✗D subscript marks the
      EVIDENCE as a doc claim rather than a machine test; tooltip cites the source. */
   .c-doc-yes { background:#e2f1e0; color:#1d7a33; font-weight:700; }
   .c-doc-no  { background:#fbe1de; color:#b03030; font-weight:700; }
-  .c-doc-yes::after, .c-doc-no::after { content:'ᵈ'; font-size:.82em; opacity:.5; margin-left:1px; font-weight:400; }
   sub.submark { font-size:0.7em; font-weight:700; }
   [data-tip] { cursor: help; }
   /* custom tooltip widget */
@@ -710,11 +723,12 @@ const html = `<!doctype html>
 </style></head>
 <body>
   <h1>The FSM Shootout Grid<span class="tm">™</span></h1>
-  <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Cells are machine-verified against a pinned version; a <b>ᵈ</b> badge marks the few sourced from each library's own published documentation (same pass/fail colours, doc-claimed evidence).</p>
+  <p class="sub">JavaScript finite-state-machine libraries, measured. ${COMPETITORS.length} competitors + 2 jssm editions. Cells are machine-verified against a pinned version; a <b>✓<sub class="submark">D</sub></b>/<b>✗<sub class="submark">D</sub></b> subscript marks the few sourced from each library's own published documentation (same pass/fail colours, doc-claimed evidence).</p>
   <div class="caveat"><strong>LOCAL PREVIEW.</strong> These numbers were measured on a developer workstation (and a <code>--quick</code> throughput pass), not the graviton reference runner — directional only. Capability and behavior checkmarks are environment-independent and final. Canonical numbers come from a dispatched <code>perf_results/shootout/</code> run.</div>
   <p class="legend">Hover any cell for detail. Backgrounds: <b style="background:#cdf3f4;color:#0a6b78;padding:0 4px;border-radius:3px">cyan</b> beats jssm · <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">green</b> pass · <b style="background:#fdeccb;color:#9a6512;padding:0 4px;border-radius:3px">amber</b> &gt;${WARN_FACTOR}× slower than jssm · <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">red</b> fail.
-  &nbsp; <b class="m-yes">✓<sub class="submark">F</sub></b> rejects by returning false · <b class="m-no">✗<sub class="submark">T</sub></b> throws (can't use the name) · <b style="color:#9a6512">⚠<sub class="submark">N</sub></b> silent no-op (safe, but tells the caller nothing) · <b class="m-no">✗<sub class="submark">C</sub></b> CJS-only (no ESM) · <b class="m-no">${RADIOACTIVE}</b> corrupts state · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a
-  &nbsp; <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">✓ᵈ</b> / <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">✗ᵈ</b> verdict from the library's own docs — same pass/fail colours, the ᵈ badge means doc-claimed (not machine-verified); hover for the source.</p>
+  &nbsp; Illegal move: <b class="m-yes">✓<sub class="submark">N</sub></b> throws &amp; names the states · <b class="m-yes">✓<sub class="submark">T</sub></b> throws · <b class="m-yes">✓<sub class="submark">F</sub></b> returns false · <b style="color:#9a6512">⚠<sub class="submark">N</sub></b> silent no-op (safe, but tells the caller nothing) · <b class="m-no">${RADIOACTIVE}</b> corrupts state.
+  &nbsp; <b class="m-no">✗<sub class="submark">T</sub></b> hostile name throws · <b class="m-no">✗<sub class="submark">C</sub></b> CJS-only (no ESM) · <b>${WARN}</b> slow · <b class="m-timeout">${TIMEOUT}</b> timed out building · <b class="m-decl">${DECL}</b> declared (jssm 6) · <b class="m-na">${NA}</b> n/a
+  &nbsp; <b style="background:#e2f1e0;color:#1d7a33;padding:0 4px;border-radius:3px">✓<sub class="submark">D</sub></b> / <b style="background:#fbe1de;color:#b03030;padding:0 4px;border-radius:3px">✗<sub class="submark">D</sub></b> verdict from the library's own docs — same pass/fail colours, the D subscript means doc-claimed (not machine-verified); hover for the source.</p>
 
   <table class="grid">
     <colgroup><col class="labelcol">${COLS.map(() => '<col class="libcol">').join('')}</colgroup>
