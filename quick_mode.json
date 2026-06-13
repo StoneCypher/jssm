@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "purpose": "Parallelizable v6 implementation tasks for a second Claude instance to execute independently, each in its own branch off `v6`. Pick the hardest UNBLOCKED task (lowest pick_order whose depends_on are all merged). One branch per task; PR back into v6.",
+    "generated": "2026-06-12",
+    "base_branch": "v6",
+    "worktree_note": "Create each task's worktree OUTSIDE the repo tree (e.g. C:/Users/john/projects/worktrees/<owner>_<repo>_<type>_<yy-mm-dd>_<branch>). Never nest a worktree under the repo — it double-loads TypeDoc and breaks the build.",
+    "canonical_spec": "notes/superpowers/specs/2026-06-09-fsl-megaspec.md",
+    "naming_conventions": {
+      "val": "machine-level typed MUTABLE extended-state variable (megaspec §5). The keyword is `val`, NOT `var` (the phase-1 PLAN file predates the rename and says `var`/JssmVarType/.var() throughout — implement everything as `val`/JssmValType/.val()). Using `val` also avoids the reserved-word problem a method named `var` would hit.",
+      "prop": "typed (optionally) per-machine/per-state property. In CODE today the pipeline is still named `property_definition` / `_property_keys` / `known_props` — the property->prop rename is NOT yet applied to code; mirror the existing `property` pipeline names when adding parallel tracks, do not rename property yet.",
+      "sensor": "read-only externally-sourced typed slot (later).",
+      "accessor_family": ".val() / .vals() / .set_val() / .known_val() / .known_vals() / .val_type() — mirror the .prop()/.props()/.known_props() family."
+    },
+    "project_rules": [
+      "NO COMPOUND COMMANDS: never join shell commands with && || ; or a pipe. Run `git add` and `git commit` as separate commands. (npm scripts that contain && internally are fine.)",
+      "git verb-first: never put an option between `git` and its subcommand (no `git -C`). cd as its own command to act elsewhere.",
+      "npm verb-first: never put an option between `npm` and its subcommand. Flags go after the verb.",
+      "DO NOT bump package version during tasks. The version bump + full build happen once via /sc-commit on the branch before the PR.",
+      "100% spec-coverage gate: vitest-spec requires 100% line/branch coverage over src/ts/** (excluding the generated fsl_parser). Every branch you add must be exercised by a spec test. Do NOT write unreachable branches (e.g. a default: on an exhaustive discriminated union) — they cannot be covered and fail the gate.",
+      "No fake tests, no golden/snapshot tests, no bug-pinning. Tests validate real parse->construct->accessor behavior; assert thrown error types and message substrings, not whole-object snapshots.",
+      "Stochastic tests go in *.stoch.ts (vitest.stoch.config.ts); spec tests in *.spec.ts (vitest.spec.config.ts). They report coverage independently — keep them separate.",
+      "Grammar: edit src/ts/fsl_parser.peg, then run `npm run peg` to regenerate src/ts/fsl_parser.ts. NEVER hand-edit the generated fsl_parser.ts.",
+      "After editing .ts files, check IDE diagnostics (mcp__ide__getDiagnostics) before considering a task done.",
+      "Build before merge: `npm run build` (not `npm run make`) regenerates every tracked artifact; a make-only tree is an invalid release state.",
+      "main and v6 release on push — never push to v6 directly; open a PR. Ask before merging into v6.",
+      "Durable docs live in notes/ (npm run clean does rm -rf docs/)."
+    ],
+    "tech_stack": "TypeScript 4.7; PEG.js 0.10 grammar (src/ts/fsl_parser.peg -> src/ts/fsl_parser.ts via `npm run peg`); Vitest (vitest.spec.config.ts / vitest.stoch.config.ts); fast-check for stochastic tests.",
+    "hot_files_warning": "src/ts/fsl_parser.peg, src/ts/jssm.ts, src/ts/jssm_compiler.ts, src/ts/jssm_types.ts are touched by several tasks. To minimize merge conflicts, land val-phase1 (T1) FIRST, then rebase the other grammar/runtime tasks on it. The cli-* and docs tasks touch disjoint files and are safe to run fully in parallel."
+  },
+
+  "tasks": [
+    {
+      "id": "T1-val-phase1",
+      "title": "FSL `val` extended state — Phase 1 (scalar core)",
+      "pick_order": 1,
+      "difficulty": "hard",
+      "depends_on": [],
+      "branch": "feat_26-06-12_fsl-val-phase1",
+      "plan": "notes/superpowers/plans/2026-06-09-fsl-var-extended-state-phase1.md",
+      "spec_refs": ["megaspec §4 (type system, scalars)", "megaspec §5 (declarations)"],
+      "files": ["src/ts/fsl_parser.peg", "src/ts/jssm_types.ts", "src/ts/jssm_compiler.ts", "src/ts/jssm.ts", "src/ts/tests/vals.spec.ts (create)", "src/ts/tests/vals.stoch.ts (create)"],
+      "description": "Add a machine-level `val` declaration: a named, typed, validated, MUTABLE extended-state variable (the mutable sibling of prop) for the scalar type core (boolean, int, bounded int lo..hi, string, enum(...)), with construction-time type validation and a typed runtime mutation API (set_val). No expression evaluation / assign / where / source-level mutation yet (that is Phase 2). Mirror the existing `property` pipeline end-to-end (grammar -> compiler -> runtime storage/validation -> accessors), adding a parallel `val` track. The one genuinely new piece vs property is a type descriptor (JssmValType) carried grammar->runtime and a validate_val_value function enforcing it at construction and on every write. Initial value resolves: supplied `vals` config option > declared `default` > (required -> throw) > undefined.",
+      "execution": "Follow the 12-task plan file step-by-step (Tasks 0-12), but RENAME everything from `var` to `val` mechanically: keyword `val`, JssmValType, JssmValDefinition, val_definition AST key, validate_val_value, _val_keys/_val_types/_val_values/_required_vals fields, accessors val/vals/set_val/known_val/known_vals/val_type, config option `vals`, test files vals.spec.ts / vals.stoch.ts. The plan's grammar/compiler/runtime code blocks are correct apart from the rename. Mirror the live `property_definition` pipeline (jssm_compiler.ts ~line 340; jssm_types.ts ~line 201 JssmPropertyDefinition, ~line 558 config; jssm.ts ~line 471 _property_keys, ~line 867 property_definition loop, ~line 1335 known_props).",
+      "acceptance": [
+        "`jssm.from('val ok : boolean default true; a -> b;').val('ok')` === true",
+        "boolean/int/bounded-int/string/enum all parse, validate at construction, and read back",
+        "set_val mutates with type validation; unknown-name throws; required/default conflict throws; undeclared supplied-val throws",
+        "vals()/known_val/known_vals/val_type accessors; duplicate val-name rejected at compile time",
+        "vals.spec.ts + vals.stoch.ts; `npm run vitest-spec` green at 100% coverage; `npm run vet` clean"
+      ],
+      "conflict_risk": "high (grammar + jssm.ts + compiler). Land first."
+    },
+
+    {
+      "id": "T2-overlapping-state-groups",
+      "title": "Overlapping state groups (§19)",
+      "pick_order": 2,
+      "difficulty": "hard",
+      "depends_on": [],
+      "branch": "feat_26-06-12_overlapping-state-groups",
+      "plan": "notes/superpowers/plans/2026-05-12-overlapping-state-groups.md",
+      "spec_refs": ["megaspec §19 (overlapping state groups)"],
+      "files": ["src/ts/fsl_parser.peg", "src/ts/jssm.ts", "src/ts/jssm_types.ts", "src/ts/tests/*.spec.ts (create)"],
+      "description": "Implement overlapping state groups: a state may belong to multiple named groups at once. A complete task-by-task plan exists (see plan path) but predates the jest->vitest migration — refresh the test runner invocations to vitest (vitest.spec.config.ts) before executing. No logical dependency on val, but shares grammar/jssm.ts with T1, so rebase on T1 once it lands.",
+      "acceptance": ["group membership parses + is queryable at runtime", "overlap (a state in 2+ groups) works", "spec tests cover every branch at 100%", "vet clean"],
+      "conflict_risk": "high (grammar + jssm.ts). Rebase on T1."
+    },
+
+    {
+      "id": "T3-hooks-registry",
+      "title": "Uniform observational-hook registry + introspection (#1357, §12)",
+      "pick_order": 3,
+      "difficulty": "hard",
+      "depends_on": [],
+      "branch": "feat_26-06-12_hooks-uniform-registry",
+      "plan": null,
+      "spec_refs": ["megaspec §12 (lifecycle hooks)", "megaspec §27 decision-log row 'observational hooks'"],
+      "files": ["src/ts/jssm.ts", "src/ts/jssm_types.ts", "src/ts/tests/*.spec.ts"],
+      "description": "Build the generated uniform observational-hook registry keyed by (kind, target, phase), and complete the currently-STUBBED introspection: has_hooks(state) is commented out, leaving dead `hooked_state` styling. Deliver has_hook / hooks_on introspection and wire hooked_state styling off the real registry. Pure observers (veto/mutate stays in source). Independent of val; shares jssm.ts with T1/T2 so rebase after they land.",
+      "acceptance": ["registry enumerates hooks by (kind,target,phase)", "has_hook / hooks_on return correct results", "hooked_state styling driven by the registry (no longer dead)", "100% spec coverage on new branches; vet clean"],
+      "conflict_risk": "medium-high (jssm.ts)."
+    },
+
+    {
+      "id": "T4-factories-f1",
+      "title": "Factories — F1 (§21)",
+      "pick_order": 4,
+      "difficulty": "hard",
+      "depends_on": ["T1-val-phase1"],
+      "branch": "feat_26-06-12_fsl-factories-f1",
+      "plan": null,
+      "spec_refs": ["megaspec §20 (F-phase table, F1 row)", "megaspec §21 (factories & parameterized construction)"],
+      "files": ["src/ts/fsl_parser.peg", "src/ts/jssm_compiler.ts", "src/ts/jssm.ts", "src/ts/jssm_factory.ts (likely new)", "src/ts/tests/*.spec.ts (create)"],
+      "description": "Implement F1: the `factory` block (literal bindings + seq() + identity targets); the `fsl`/`fslf` template tags + deprecate `sm`; the Factory API; the seed tree + derive() with vectors; cursor semantics. Per the spec F1 makes factories useful from here. NEEDS Phase 1 (T1) merged first (factory bindings reference vals).",
+      "acceptance": ["factory block parses; Factory API constructs machines from literal bindings", "derive() with a seed vector is deterministic; cursor semantics per §21.3", "fsl/fslf tags work; sm emits a deprecation", "100% spec coverage; vet clean"],
+      "conflict_risk": "high (grammar + compiler + jssm.ts). After T1."
+    },
+
+    {
+      "id": "T5-cli-typegen",
+      "title": "CLI `typegen` verb (§25)",
+      "pick_order": 5,
+      "difficulty": "medium-hard",
+      "depends_on": [],
+      "branch": "feat_26-06-12_cli-typegen-verb",
+      "plan": null,
+      "spec_refs": ["megaspec §25 (the CLI)", "see also notes/superpowers/specs/2026-05-22-fsl-cli-config-design.md and the landed src/ts/cli/config/* for the established CLI patterns"],
+      "files": ["src/ts/cli/**", "src/ts/tests/cli/**"],
+      "description": "Add `typegen` as a first-class CLI verb DISTINCT from codegen: typegen emits the TYPE SURFACE callers compile against (declarations only — never an implementation), where codegen emits executable source and render emits images. Scaffold the verb following the existing src/ts/cli/ subcommand + config patterns (the fsl-cli-config track already landed). Touches only the CLI dir, so it runs fully in parallel with the grammar/runtime tasks. Richer type output deepens once T1 lands, but the verb + declaration emit can ship against current types.",
+      "acceptance": ["`typegen` registered as its own verb with help text distinguishing it from codegen", "emits .d.ts-style declarations for a machine's surface", "cli integration + unit specs; vet clean"],
+      "conflict_risk": "low (cli/ dir is disjoint from grammar/runtime)."
+    },
+
+    {
+      "id": "T6-fsl-manual",
+      "title": "Write the FSL manual content (docs)",
+      "pick_order": 6,
+      "difficulty": "medium",
+      "depends_on": [],
+      "branch": "docs_26-06-12_fsl-manual",
+      "plan": null,
+      "spec_refs": ["notes/superpowers/specs/2026-06-09-fsl-manual-topics.md (topic list)", "notes/superpowers/specs/2026-06-11-fsl-manual-templates.md (templates)"],
+      "files": ["notes/** or src/doc_md/** (whichever the manual build consumes)", "no src/ts code"],
+      "description": "Author the FSL manual from the topics + templates specs. Pure documentation — zero code-file collision, fully parallel-safe. Confirm where the manual build sources from (src/doc_md vs notes) before writing, and follow the templates spec's structure.",
+      "acceptance": ["each topic in the topics spec has a written section following the templates", "manual builds via the project's doc pipeline without error"],
+      "conflict_risk": "none (docs only)."
+    },
+
+    {
+      "id": "T7-use-case-taxonomy",
+      "title": "Use-case taxonomy example machines (example library)",
+      "pick_order": 7,
+      "difficulty": "medium-low",
+      "depends_on": [],
+      "branch": "docs_26-06-12_fsl-use-case-taxonomy",
+      "plan": null,
+      "spec_refs": ["notes/superpowers/specs/2026-06-11-fsl-use-case-taxonomy.md"],
+      "files": ["the example/taxonomy collection location named in the spec", "no src/ts code"],
+      "description": "Build out the example machines enumerated by the use-case taxonomy spec (the cs-pedagogy and sibling collections referenced in recent commits). Each item is a small, valid FSL machine illustrating a use case. Parallel-safe (data/docs only). Validate each machine parses.",
+      "acceptance": ["every taxonomy item has a valid, parseable FSL machine", "collection manifest updated to match"],
+      "conflict_risk": "none (examples/docs only)."
+    }
+  ]
+}
