@@ -2,6 +2,11 @@
   "meta": {
     "purpose": "Parallelizable v6 implementation tasks for a second Claude instance to execute independently, each in its own branch off `v6`. Pick the hardest UNBLOCKED task (lowest pick_order whose depends_on are all merged). One branch per task; PR back into v6.",
     "generated": "2026-06-12",
+    "coordination": {
+      "READ_THIS_FIRST": "TWO NON-OVERLAPPING POOLS. The SECOND (manual) instance works ONLY from `yours_pick_top_down`. The PRIMARY session's background agents own `primary_owned_do_not_touch` — the second instance must NOT start any of those. We were colliding on T2/T8/T12; the primary has now yielded T2 and T8 to the second instance and they are in `yours`. The primary keeps this block current and refills `yours_pick_top_down` as it drains.",
+      "primary_owned_do_not_touch": ["T1", "T3", "T5", "T6", "T7", "T10", "T11", "T12", "T13", "T14", "T17", "T18", "T21", "T23", "T25", "T29"],
+      "yours_pick_top_down": ["T2", "T4", "T8", "T9", "T15", "T16", "T19", "T20", "T22", "T24", "T26", "T27", "T28", "T30"]
+    },
     "base_branch": "v6",
     "worktree_note": "Create each task's worktree OUTSIDE the repo tree (e.g. C:/Users/john/projects/worktrees/<owner>_<repo>_<type>_<yy-mm-dd>_<branch>). Never nest a worktree under the repo — it double-loads TypeDoc and breaks the build.",
     "canonical_spec": "notes/superpowers/specs/2026-06-09-fsl-megaspec.md",
