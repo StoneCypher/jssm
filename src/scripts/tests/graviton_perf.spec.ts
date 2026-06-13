@@ -560,7 +560,7 @@ describe('buildDetachedUserData — self-contained release run', () => {
     instanceType: 'c7g.medium',
     region: 'us-east-1',
     shutdownMinutes: 30,
-    ssmParam: '/jssm/perf-push-pat'
+    bucket: 'jssm-perf-results-test'
   };
 
   test('arms the dead-man\'s-switch and ends by self-terminating', () => {
@@ -594,19 +594,22 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('jssm.es5.nonmin.cjs');
   });
 
-  test('runs the general suite and publishes general.json', () => {
+  test('runs the general suite and uploads general.json best-effort', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
     // line-exact: 'npm run benny:scaling' contains 'npm run benny' as a substring
     expect(s.split('\n')).toContain('npm run benny');
-    expect(s).toContain('cp benchmark/results/general.json');
+    expect(s).toContain('benchmark/results/general.json');
+    expect(s).toContain('JSSM_PERF: general.json upload failed; continuing');
   });
 
-  test('fetches the PAT from SSM and pushes with the token, to the release dir', () => {
+  test('uploads to the S3 bucket under the release dir, with no GitHub credential anywhere', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
-    expect(s).toContain('aws ssm get-parameter');
-    expect(s).toContain('/jssm/perf-push-pat');
-    expect(s).toContain('x-access-token:${TOKEN}@github.com/StoneCypher/jssm.git');
-    expect(s).toContain('c7g.medium/release-5.141.5');
+    expect(s).toContain('aws s3 cp');
+    expect(s).toContain('s3://jssm-perf-results-test/c7g.medium/release-5.141.5');
+    // the whole point of the S3 design: no token machinery on the instance
+    expect(s).not.toContain('x-access-token');
+    expect(s).not.toContain('ssm get-parameter --region us-east-1 --name "/jssm/perf-push-pat"');
+    expect(s).not.toContain('git push');
   });
 
   test('writes a meta.json stamped arm64 + release', () => {
@@ -615,15 +618,24 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('"release": "5.141.5"');
   });
 
-  test('retries the perf_results push on non-fast-forward', () => {
+  test('reports upload success and failure explicitly, naming the likely fix on failure', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
-    expect(s).toContain('git rebase origin/perf_results');
+    expect(s).toContain('JSSM_PERF: uploaded to $DEST');
+    expect(s).toContain('JSSM_PERF: upload FAILED; results were not published');
+    expect(s).toContain('s3:PutObject');
+    // the misleading failure label from the git-publish era must never return
+    expect(s).not.toContain('rebase conflict');
   });
 
-  test('guards the publish on a produced scaling.json (no dedup poisoning on a failed build)', () => {
+  test('a failed profile upload continues rather than failing the publish', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('JSSM_PERF: prof upload failed; continuing');
+  });
+
+  test('guards the upload on a produced scaling.json (no dedup poisoning on a failed build)', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
     expect(s).toContain('if [ -s benchmark/results/scaling.json ]; then');
-    expect(s).toContain('skipping perf_results publish');
+    expect(s).toContain('skipping upload');
   });
 
   test('rejects an unsafe commit SHA', () => {
@@ -641,9 +653,11 @@ describe('buildDetachedUserData — self-contained release run', () => {
       .toThrow(/unsafe region/);
   });
 
-  test('rejects an unsafe ssm param name', () => {
-    expect(() => gp.buildDetachedUserData({ ...ok, ssmParam: 'a;b', deep: false }))
-      .toThrow(/unsafe ssm/);
+  test('rejects an unsafe bucket name', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, bucket: 'a;b', deep: false }))
+      .toThrow(/unsafe bucket/);
+    expect(() => gp.buildDetachedUserData({ ...ok, bucket: 'Has_Uppercase', deep: false }))
+      .toThrow(/unsafe bucket/);
   });
 
 });

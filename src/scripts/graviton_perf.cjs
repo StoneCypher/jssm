@@ -13,11 +13,14 @@
  *      node src/scripts/graviton_perf.cjs --detached --release <v> --commit <sha>  # fire-and-forget release run (CI)
  *
  *  The PR form drives the run from this machine over SSH. The `--detached` form
- *  launches one instance that runs the whole job itself (build, benchmark, push to
- *  perf_results under `<type>/release-<v>/`, self-terminate) and returns at once —
- *  used by the release workflow after npm publish. It needs an AWS instance profile
- *  ({@link PERF_INSTANCE_PROFILE}) and an SSM PAT ({@link PERF_PUSH_PAT_SSM_PARAM});
- *  see notes/superpowers/graviton-ci-aws-setup.md.
+ *  launches one instance that runs the whole job itself (build, benchmark, upload
+ *  to S3 under `<type>/release-<v>/`, self-terminate) and returns at once — used
+ *  by the release workflow after npm publish. The instance writes results to
+ *  {@link PERF_RESULTS_BUCKET} via its instance profile
+ *  ({@link PERF_INSTANCE_PROFILE}); the nightly `perf_results_sync` workflow then
+ *  lands them on the `perf_results` branch with the workflow's own ephemeral
+ *  token, so no GitHub credential ever exists outside Actions.  See
+ *  notes/superpowers/graviton-ci-aws-setup.md.
  *
  *  Primary argument is a GitHub PR number; the runner resolves its head branch
  *  via `gh pr view <num>` and benchmarks *that PR's* commit (not main).
@@ -100,10 +103,17 @@ const AL2023_ARM64_SSM_PARAM =
 /** Tag every created resource so a partial-failure stray is always reapable. */
 const BENCH_TAG_KEY = 'jssm-perf';
 
-/** SSM SecureString holding the contents:write PAT the instance uses to push perf_results. */
-const PERF_PUSH_PAT_SSM_PARAM = '/jssm/perf-push-pat';
+/**
+ *  S3 bucket the detached runner uploads result artifacts to, keyed exactly
+ *  like the `perf_results` branch (`<instance-type>/release-<v>/<file>`).  The
+ *  nightly `perf_results_sync` workflow drains it onto the branch.  Chosen over
+ *  a direct git push so the instance needs no GitHub credential at all — the
+ *  predecessor design's stored PAT was exactly the thing that went stale,
+ *  leaked, and failed silently (2026-06-12).
+ */
+const PERF_RESULTS_BUCKET = 'jssm-perf-results-032239181269';
 
-/** IAM instance profile attached to the detached instance so it can read PERF_PUSH_PAT_SSM_PARAM. */
+/** IAM instance profile attached to the detached instance so it can write PERF_RESULTS_BUCKET. */
 const PERF_INSTANCE_PROFILE = 'jssm-graviton-perf';
 
 // ---------------------------------------------------------------------------
@@ -328,6 +338,11 @@ function perfResultDir(instanceType, prNumber) {
  *  Decide whether to measure a (instanceType, slug) target or skip it as already
  *  measured: if any path under `<instanceType>/<slug>/` exists on perf_results,
  *  skip unless `force`. The slug is `pr-<n>` or `release-<v>`.
+ *
+ *  Window caveat: detached release results travel via S3 and land on the
+ *  branch at the nightly sync, so a release measured within the last day may
+ *  not be visible here yet.  A duplicate fire in that window re-measures
+ *  harmlessly (the S3 upload simply overwrites the same keys).
  *
  *  @param existingPaths The flat list of paths present on `perf_results` (e.g.
  *         from `git ls-tree -r origin/perf_results --name-only`).  An empty list
@@ -586,29 +601,29 @@ function buildRemoteScript(params) {
  *  no client involvement: arm the dead-man's-switch, install Node+git, clone and
  *  check out the released commit, build `dist/`, run both benny suites (scaling,
  *  then the general hook microbenchmark suite — together a few minutes, well
- *  inside the dead-man budget), capture a bounded profiled construct pass, fetch
- *  a push PAT from SSM (via the instance profile), publish artifacts (including
- *  `general.json`, best-effort) to `perf_results` under
- *  `<instance-type>/release-<version>/` (orphan-creating +
- *  non-fast-forward-retrying, like {@link publishPerfResults} /
- *  {@link pushPerfResults}), and finally self-terminate.
+ *  inside the dead-man budget), capture a bounded profiled construct pass, and
+ *  upload artifacts (including `general.json`, best-effort) to
+ *  {@link PERF_RESULTS_BUCKET} under `<instance-type>/release-<version>/` via
+ *  the instance profile (no GitHub credential on the box; the nightly
+ *  `perf_results_sync` workflow lands the bucket's contents on the branch),
+ *  finally self-terminating.
  *
  *  @param params `{ repoUrl, commitSha, release, instanceType, region, deep,
- *         shutdownMinutes, ssmParam }`. `commitSha` pins the exact released commit;
- *         `release` is the version label used only for keying; `ssmParam` is the
- *         SecureString name holding the contents:write PAT.
+ *         shutdownMinutes, bucket }`. `commitSha` pins the exact released commit;
+ *         `release` is the version label used only for keying; `bucket` is the
+ *         S3 bucket name the artifacts are uploaded to.
  *  @returns A `#!/bin/bash` script string.
- *  @throws Error on an unsafe `commitSha`, `release`, `region`, `ssmParam`, or
+ *  @throws Error on an unsafe `commitSha`, `release`, `region`, `bucket`, or
  *          `repoUrl` (defense against command injection into the boot script).
  *
  *  @example
  *  buildDetachedUserData({ repoUrl: 'https://github.com/StoneCypher/jssm.git',
  *    commitSha: 'a'.repeat(40), release: '5.1.0', instanceType: 'c7g.medium',
  *    region: 'us-east-1', deep: false, shutdownMinutes: 30,
- *    ssmParam: '/jssm/perf-push-pat' }).includes('shutdown -h now') // => true
+ *    bucket: 'jssm-perf-results-x' }).includes('shutdown -h now') // => true
  */
 function buildDetachedUserData(params) {
-  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, ssmParam } = params;
+  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, bucket } = params;
 
   if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(commitSha)) {
     throw new Error(`refusing to build user-data: unsafe commit SHA "${commitSha}"`);
@@ -619,15 +634,15 @@ function buildDetachedUserData(params) {
   if (!/^[\w-]+$/.test(String(region))) {
     throw new Error(`refusing to build user-data: unsafe region "${region}"`);
   }
-  if (!/^[\w./-]+$/.test(String(ssmParam))) {
-    throw new Error(`refusing to build user-data: unsafe ssm param "${ssmParam}"`);
+  // S3 bucket-name charset: lowercase alphanumerics, dots, hyphens.
+  if (!/^[a-z0-9.-]{3,63}$/.test(String(bucket))) {
+    throw new Error(`refusing to build user-data: unsafe bucket "${bucket}"`);
   }
   if (!/^https?:\/\/[\w./:@-]+$/.test(repoUrl)) {
     throw new Error(`refusing to build user-data: unsafe repo url "${repoUrl}"`);
   }
 
   const destDir   = perfResultDirForSlug(instanceType, releaseSlug(release)); // c7g.medium/release-5.1.0
-  const authUrl   = repoUrl.replace('https://', 'https://x-access-token:${TOKEN}@');
   const benchLine = deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling';
 
   return [
@@ -692,43 +707,28 @@ function buildDetachedUserData(params) {
     '}',
     'META',
     '',
-    '# 7. Publish to perf_results — ONLY if the benchmark actually produced',
-    '#    scaling.json. A failed build/benchmark must not push a meta-only dir,',
-    '#    which would poison the release-<version>/ dedup (it would read as',
-    '#    "already measured" and block a real re-run). Mirrors the SSH path, which',
-    '#    refuses to publish without a non-empty scaling.json.',
+    '# 7. Upload to S3 — ONLY if the benchmark actually produced scaling.json.',
+    '#    A failed build/benchmark must not upload a meta-only dir, which would',
+    '#    poison the release-<version>/ dedup once synced (it would read as',
+    '#    "already measured" and block a real re-run).  The instance profile is',
+    '#    the only credential involved — there is deliberately no GitHub token',
+    '#    on this box; the nightly perf_results_sync workflow lands the bucket',
+    '#    contents on the perf_results branch.',
     'if [ -s benchmark/results/scaling.json ]; then',
-    `  TOKEN=$(aws ssm get-parameter --region ${region} --name "${ssmParam}" --with-decryption --query Parameter.Value --output text)`,
-    '  if [ -z "$TOKEN" ] || [ "$TOKEN" = "None" ]; then',
-    '    echo "JSSM_PERF: no PAT from SSM; cannot publish"',
+    `  DEST="s3://${bucket}/${destDir}"`,
+    '  UPLOADED=yes',
+    `  aws s3 cp benchmark/results/scaling.json "$DEST/scaling.json" --region ${region} || UPLOADED=no`,
+    `  aws s3 cp meta.json                      "$DEST/meta.json"    --region ${region} || UPLOADED=no`,
+    '  # the profile and the general suite are best-effort; their absence must not fail the publish',
+    `  aws s3 cp construct.prof.txt "$DEST/construct.prof.txt" --region ${region} || echo "JSSM_PERF: prof upload failed; continuing"`,
+    `  aws s3 cp benchmark/results/general.json "$DEST/general.json" --region ${region} || echo "JSSM_PERF: general.json upload failed; continuing"`,
+    '  if [ "$UPLOADED" = "yes" ]; then',
+    '    echo "JSSM_PERF: uploaded to $DEST (lands on perf_results at the nightly sync)"',
     '  else',
-    `    AUTH_URL="${authUrl}"`,
-    '    RESULTS=$(mktemp -d)',
-    '    if ! git clone --depth 1 --branch perf_results "$AUTH_URL" "$RESULTS"; then',
-    '      git clone --depth 1 "$AUTH_URL" "$RESULTS"',
-    '      git -C "$RESULTS" checkout --orphan perf_results',
-    '      git -C "$RESULTS" rm -rf --ignore-unmatch . || true',
-    '    fi',
-    `    mkdir -p "$RESULTS/${destDir}"`,
-    `    cp benchmark/results/scaling.json "$RESULTS/${destDir}/scaling.json"`,
-    `    cp benchmark/results/general.json "$RESULTS/${destDir}/general.json" || true`,
-    `    cp construct.prof.txt           "$RESULTS/${destDir}/construct.prof.txt" || true`,
-    `    cp meta.json                    "$RESULTS/${destDir}/meta.json"`,
-    '    git -C "$RESULTS" config user.email "stonecypher@users.noreply.github.com"',
-    '    git -C "$RESULTS" config user.name  "jssm graviton perf bot"',
-    '    git -C "$RESULTS" add -A',
-    `    git -C "$RESULTS" commit -m "perf: ${instanceType} results for release ${release}"`,
-    '    # Push with non-fast-forward retry (a concurrent run may have advanced the branch).',
-    '    cd "$RESULTS"',
-    '    for i in 1 2 3 4 5 6; do',
-    '      if git push origin perf_results; then break; fi',
-    '      git fetch origin perf_results || true',
-    '      git rebase origin/perf_results || { git rebase --abort; echo "JSSM_PERF: rebase conflict"; break; }',
-    '    done',
-    '    cd -',
+    '    echo "JSSM_PERF: upload FAILED; results were not published (check the instance profile s3:PutObject grant)"',
     '  fi',
     'else',
-    '  echo "JSSM_PERF: no scaling.json (build/benchmark failed); skipping perf_results publish"',
+    '  echo "JSSM_PERF: no scaling.json (build/benchmark failed); skipping upload"',
     'fi',
     '',
     'echo JSSM_PERF_DONE',
@@ -1410,7 +1410,7 @@ function provisionDetached(exec, opts, state) {
       region          : region,
       deep            : opts.deep,
       shutdownMinutes : opts.shutdownMinutes,
-      ssmParam        : PERF_PUSH_PAT_SSM_PARAM
+      bucket          : PERF_RESULTS_BUCKET
     }));
   }
 
@@ -1447,8 +1447,9 @@ function runDetached(exec, opts) {
   try {
     provisionDetached(exec, opts, state);
     process.stdout.write(
-      `not waiting on the runner; the instance publishes results to perf_results at ` +
-      `${perfResultDirForSlug(opts.instanceType, releaseSlug(opts.release))}/ and self-terminates.\n` +
+      `not waiting on the runner; the instance uploads results to s3://${PERF_RESULTS_BUCKET}/` +
+      `${perfResultDirForSlug(opts.instanceType, releaseSlug(opts.release))}/ and self-terminates ` +
+      `(the nightly perf_results_sync workflow lands them on the branch).\n` +
       `(reclaim a stuck run with: node src/scripts/graviton_perf.cjs --cleanup-only --run-id ${runId} --region ${opts.region})\n`
     );
     return 0;
@@ -1648,7 +1649,7 @@ module.exports = {
   DEFAULTS,
   AL2023_ARM64_SSM_PARAM,
   BENCH_TAG_KEY,
-  PERF_PUSH_PAT_SSM_PARAM,
+  PERF_RESULTS_BUCKET,
   PERF_INSTANCE_PROFILE
 };
 
