@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.143.29",
+  "version": "5.143.31",
   "engines": {
     "node": ">=10.0.0"
   },

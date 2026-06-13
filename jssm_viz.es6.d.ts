@@ -2507,10 +2507,31 @@ declare class Machine<mDT> {
      *  @returns `this` for chaining.
      */
     hook_exit(from: string, handler: HookHandler<mDT>): Machine<mDT>;
-    /** Register a hook that fires after leaving a specific state (post-exit).
-     *  @param from    - The state that was exited.
-     *  @param handler - Callback invoked after exit completes.
+    /** Register a hook that fires when a state's `after` timer elapses — the
+     *  delay-over companion to `a after 5s -> b;` style time transitions.  It
+     *  does NOT fire when the state is entered or left by ordinary dispatch;
+     *  use {@link hook_entry} / {@link hook_exit} for those.  (Versions through
+     *  5.143.28 also spuriously fired it on entering the state, the jssm side
+     *  of StoneCypher/fsl#1327.)
+     *  @param from    - The state whose `after` timer is being watched.
+     *  @param handler - Callback invoked when the timer fires, just before the
+     *                   timed transition is taken; informational — its outcome
+     *                   cannot reject the transition.
      *  @returns `this` for chaining.
+     *
+     *  @example
+     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+     *    let calls = 0;
+     *    m.hook_after('a', () => { calls += 1; });
+     *    m.go('c');
+     *    m.go('a');
+     *    // ordinary dispatch never fires it; only the timer elapsing does:
+     *    calls;  // => 0
+     *    m.clear_state_timeout();
+     *
+     *  @see hook_entry
+     *  @see hook_exit
+     *  @see set_state_timeout
      */
     hook_after(from: string, handler: HookHandler<mDT>): Machine<mDT>;
     /** Post-transition hook on a specific edge.  Fires after the transition
