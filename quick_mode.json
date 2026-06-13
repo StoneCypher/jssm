@@ -140,6 +140,104 @@
       "description": "Build out the example machines enumerated by the use-case taxonomy spec (the cs-pedagogy and sibling collections referenced in recent commits). Each item is a small, valid FSL machine illustrating a use case. Parallel-safe (data/docs only). Validate each machine parses.",
       "acceptance": ["every taxonomy item has a valid, parseable FSL machine", "collection manifest updated to match"],
       "conflict_risk": "none (examples/docs only)."
+    },
+
+    {
+      "id": "T8-cli-codegen",
+      "title": "CLI `codegen` verb (§25)",
+      "pick_order": 8,
+      "difficulty": "medium-hard",
+      "depends_on": [],
+      "branch": "feat_26-06-12_cli-codegen-verb",
+      "spec_refs": ["megaspec §25 (the CLI; codegen = executable source for hosts, the host:library coordinates)", "mirror the landed src/ts/cli/config/* and src/ts/cli/subcommands/* patterns"],
+      "files": ["src/ts/cli/**", "src/ts/tests/cli/**"],
+      "description": "Add `codegen` as a CLI verb that emits EXECUTABLE source for a host runtime (distinct from `typegen` declarations and `render` images). Scaffold the verb + a `native:*` certified-runtime target following the existing cli subcommand patterns. 100% spec coverage; cli/ dir only (parallel-safe with grammar/runtime tasks).",
+      "acceptance": ["codegen verb registered with help text distinguishing it from typegen/render", "emits runnable source for at least one native target", "cli specs cover every branch; vet clean"],
+      "conflict_risk": "low (cli/ dir)."
+    },
+
+    {
+      "id": "T9-cli-import-export",
+      "title": "CLI `import` / `export` verbs (§25)",
+      "pick_order": 9,
+      "difficulty": "medium",
+      "depends_on": [],
+      "branch": "feat_26-06-12_cli-import-export",
+      "spec_refs": ["megaspec §25 (import/export = tool interchange; package fetching is NOT import's job)"],
+      "files": ["src/ts/cli/**", "src/ts/tests/cli/**"],
+      "description": "Add `import` and `export` CLI verbs for tool interchange (convert between FSL and interchange formats). Explicitly NOT a package fetcher. Mirror the existing cli subcommand patterns; 100% spec coverage; cli/ dir only.",
+      "acceptance": ["import + export verbs registered with help text", "round-trip FSL -> format -> FSL where lossless", "cli specs cover every branch; vet clean"],
+      "conflict_risk": "low (cli/ dir; coordinate file layout with T5/T8)."
+    },
+
+    {
+      "id": "T10-stdlib-math",
+      "title": "Standard library / math module (§7)",
+      "pick_order": 10,
+      "difficulty": "medium",
+      "depends_on": [],
+      "branch": "feat_26-06-12_fsl-stdlib-math",
+      "spec_refs": ["megaspec §7 (standard library / math)"],
+      "files": ["src/ts/fsl_stdlib.ts (new)", "src/ts/tests/fsl_stdlib.spec.ts (new)", "src/ts/tests/fsl_stdlib.stoch.ts (new)"],
+      "description": "Implement the §7 math/standard-library functions as a SELF-CONTAINED pure-function module (no parser/runtime coupling yet — the expression language will call into it in Phase 2). Each function pure, typed, DocBlock'd with @example. Spec + stochastic tests. New files only — fully parallel-safe.",
+      "acceptance": ["every §7 function implemented as a pure typed function with a DocBlock @example", "spec + stoch tests; 100% coverage on the new module; vet clean"],
+      "conflict_risk": "none (new files)."
+    },
+
+    {
+      "id": "T11-string-model",
+      "title": "String model module (§8)",
+      "pick_order": 11,
+      "difficulty": "medium",
+      "depends_on": [],
+      "branch": "feat_26-06-12_fsl-string-model",
+      "spec_refs": ["megaspec §8 (string model)"],
+      "files": ["src/ts/fsl_strings.ts (new)", "src/ts/tests/fsl_strings.spec.ts (new)", "src/ts/tests/fsl_strings.stoch.ts (new)"],
+      "description": "Implement the §8 string model as a SELF-CONTAINED pure-function module (graphemes/codepoints/operations per the spec). No parser coupling yet. Pure, typed, DocBlock'd. Spec + stoch tests. New files only — parallel-safe.",
+      "acceptance": ["§8 string operations implemented as pure typed functions with @example", "spec + stoch tests; 100% coverage on the new module; vet clean"],
+      "conflict_risk": "none (new files)."
+    },
+
+    {
+      "id": "T12-units-prelude",
+      "title": "Units — SI prelude (§4.5)",
+      "pick_order": 12,
+      "difficulty": "medium-hard",
+      "depends_on": [],
+      "branch": "feat_26-06-12_fsl-units-prelude",
+      "spec_refs": ["megaspec §4.5 (dimensioned types / units)", "megaspec §27 decision-log 'units' row"],
+      "files": ["src/ts/fsl_units.ts (new)", "src/ts/tests/fsl_units.spec.ts (new)"],
+      "description": "Implement the SI units prelude as a SELF-CONTAINED module: base units + the prefix system (km/ms/μA), derived units via * and /, dimension tracking, auto-convert within a dimension and type-error across. Compile-time phantom types, zero runtime cost. Ship the SI prelude; leave data/imperial/angle/time as opt-in stubs. New files — parallel-safe.",
+      "acceptance": ["base + derived units; prefix system; same-dimension conversion; cross-dimension is a type error", "spec tests cover every branch; vet clean"],
+      "conflict_risk": "none (new files)."
+    },
+
+    {
+      "id": "T13-error-model",
+      "title": "Error model taxonomy (§11)",
+      "pick_order": 13,
+      "difficulty": "medium",
+      "depends_on": [],
+      "branch": "feat_26-06-12_fsl-error-model",
+      "spec_refs": ["megaspec §11 (error model)"],
+      "files": ["src/ts/fsl_errors.ts (new) or extend src/ts/jssm_error.ts", "src/ts/tests/fsl_errors.spec.ts (new)"],
+      "description": "Implement the §11 error model: the typed error taxonomy (named error kinds, structured fields, messages that name the offending entities). Self-contained type + helper module with tests. If extending jssm_error.ts, keep additions append-only to avoid conflicts. Mostly parallel-safe.",
+      "acceptance": ["the §11 error kinds exist as typed structured errors with named-entity messages", "spec tests cover construction + message shape; vet clean"],
+      "conflict_risk": "low (new file or append-only to jssm_error.ts)."
+    },
+
+    {
+      "id": "T14-conformance-doc",
+      "title": "Conformance mechanics & certification tiers (§26) — doc",
+      "pick_order": 14,
+      "difficulty": "medium-low",
+      "depends_on": [],
+      "branch": "docs_26-06-12_conformance-tiers",
+      "spec_refs": ["megaspec §26 (conformance mechanics & certification tiers)", "megaspec §6 verifiability bands / the finite attribute (§3)"],
+      "files": ["notes/ or src/doc_md/ (whichever the doc build consumes)"],
+      "description": "Write the conformance-and-certification documentation from §26 (and the T1-T3 verifiability bands of §3/§17): what each certification tier (native T1-T3, adapter) means, how a host is certified, and the conformance corpus mechanics. Pure docs — parallel-safe.",
+      "acceptance": ["each certification tier documented with its guarantees and certification procedure", "builds via the doc pipeline"],
+      "conflict_risk": "none (docs only)."
     }
   ]
 }
