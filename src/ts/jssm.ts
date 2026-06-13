@@ -1460,6 +1460,119 @@ class Machine<mDT> {
   }
 
 
+  /*********
+   *
+   *  Set the value of a declared machine `val`, validating it against the val's
+   *  declared type.  This is the runtime mutation surface; source-level `assign`
+   *  arrives in a later phase.
+   *
+   *  ```typescript
+   *  const m = sm`val n : int default 0; a -> b;`;
+   *
+   *  m.set_val('n', 5);
+   *  m.val('n');   // 5
+   *  ```
+   *
+   *  @param name  The declared val name to write.
+   *  @param value The new value; must satisfy the val's declared type.
+   *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+   *
+   */
+
+  set_val(name: string, value: any): void {
+    if (!this._val_keys.has(name)) {
+      throw new JssmError(this, `No such val "${name}"`);
+    }
+    validate_val_value(name, this._val_types.get(name) as JssmValType, value, this);
+    this._val_values.set(name, value);
+  }
+
+
+  /*********
+   *
+   *  Return a plain object mapping every declared val name to its current value.
+   *
+   *  ```typescript
+   *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+   *
+   *  m.vals();   // { a: 1, b: false }
+   *  ```
+   *
+   *  @returns An object of every declared val name to its current value.
+   *
+   */
+
+  vals(): object {
+    const result: { [name: string]: any } = {};
+    this._val_keys.forEach(name => { result[name] = this._val_values.get(name); });
+    return result;
+  }
+
+
+  /*********
+   *
+   *  Check whether a string is the name of a declared `val`.
+   *
+   *  ```typescript
+   *  const m = sm`val a : int default 1; x -> y;`;
+   *
+   *  m.known_val('a');   // true
+   *  m.known_val('z');   // false
+   *  ```
+   *
+   *  @param name The candidate val name.
+   *  @returns Whether the name is a declared val.
+   *
+   */
+
+  known_val(name: string): boolean {
+    return this._val_keys.has(name);
+  }
+
+
+  /*********
+   *
+   *  List every declared `val` name, in declaration order.
+   *
+   *  ```typescript
+   *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+   *
+   *  m.known_vals();   // ['a', 'b']
+   *  ```
+   *
+   *  @returns The declared val names in declaration order.
+   *
+   */
+
+  known_vals(): string[] {
+    return [... this._val_keys];
+  }
+
+
+  /*********
+   *
+   *  Return the declared type descriptor of a `val`.
+   *
+   *  ```typescript
+   *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+   *
+   *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
+   *  ```
+   *
+   *  @param name The declared val name.
+   *  @returns The val's declared type descriptor.
+   *  @throws {JssmError} If `name` is not a declared val.
+   *
+   */
+
+  val_type(name: string): JssmValType {
+    if (!this._val_keys.has(name)) {
+      throw new JssmError(this, `No such val "${name}"`);
+    }
+    return this._val_types.get(name) as JssmValType;
+  }
+
+
 
 
 

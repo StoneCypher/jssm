@@ -585,6 +585,17 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     );
   }
 
+  const val_keys    = results['val_definition'].map(vd => vd.name),
+        repeat_vals = find_repeated(val_keys);
+
+  if (repeat_vals.length) {
+    const dup = repeat_vals[0][0];
+    throw new JssmError(undefined,
+      `Cannot redefine val names.  Saw ${JSON.stringify(repeat_vals)}`,
+      { source_location: nth_matching_loc(tree, (n) => n.key === 'val_definition' && n.name === dup, 2) }
+    );
+  }
+
   const assembled_transitions: JssmTransitions<StateType, mDT> = [].concat(...results['transition']);
 
   const result_cfg: JssmGenericConfig<StateType, mDT> = {

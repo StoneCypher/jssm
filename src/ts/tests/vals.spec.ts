@@ -111,3 +111,104 @@ describe('val: unknown name', () => {
   });
 
 });
+
+
+
+describe('val: required and supplied values', () => {
+
+  test('a required val supplied via the vals option is accepted', () => {
+    const m = jssm.from('val tier : enum(free, pro) required; a -> b;', { vals: { tier: 'pro' } });
+    expect( m.val('tier') ).toBe('pro');
+  });
+
+  test('a required val with no supplied value throws', () => {
+    expect( () => jssm.from('val tier : enum(free, pro) required; a -> b;') )
+      .toThrow(/is required, but no value was supplied/);
+  });
+
+  test('declaring required and default together throws', () => {
+    expect( () => jssm.from('val n : int default 0 required; a -> b;') )
+      .toThrow(/required, but also has a default/);
+  });
+
+  test('supplying a value for an undeclared val throws', () => {
+    expect( () => jssm.from('val n : int default 0; a -> b;', { vals: { nope: 1 } }) )
+      .toThrow(/undeclared val "nope"/);
+  });
+
+  test('a supplied value is type-validated', () => {
+    expect( () => jssm.from('val n : int 0..3 required; a -> b;', { vals: { n: 99 } }) )
+      .toThrow(/above the maximum 3/);
+  });
+
+  test('a supplied value overrides the default', () => {
+    const m = jssm.from('val n : int default 1; a -> b;', { vals: { n: 2 } });
+    expect( m.val('n') ).toBe(2);
+  });
+
+});
+
+
+
+describe('val: set_val mutation', () => {
+
+  test('set_val updates the current value', () => {
+    const m = jssm.from('val n : int default 0; a -> b;');
+    m.set_val('n', 5);
+    expect( m.val('n') ).toBe(5);
+  });
+
+  test('set_val type-validates the new value', () => {
+    const m = jssm.from('val n : int 0..3 default 0; a -> b;');
+    expect( () => m.set_val('n', 7) ).toThrow(/above the maximum 3/);
+  });
+
+  test('set_val on an unknown val throws', () => {
+    const m = jssm.from('val n : int default 0; a -> b;');
+    expect( () => m.set_val('ghost', 1) ).toThrow(/No such val "ghost"/);
+  });
+
+});
+
+
+
+describe('val: accessors', () => {
+
+  test('vals() returns every val and its value', () => {
+    const m = jssm.from('val a : int default 1; val b : boolean default false; x -> y;');
+    expect( m.vals() ).toEqual({ a: 1, b: false });
+  });
+
+  test('known_val reports declared and undeclared names', () => {
+    const m = jssm.from('val a : int default 1; x -> y;');
+    expect( m.known_val('a') ).toBe(true);
+    expect( m.known_val('z') ).toBe(false);
+  });
+
+  test('known_vals lists declared names', () => {
+    const m = jssm.from('val a : int default 1; val b : int default 2; x -> y;');
+    expect( m.known_vals() ).toEqual(['a', 'b']);
+  });
+
+  test('val_type returns the declared type descriptor', () => {
+    const m = jssm.from('val n : int 0..3 default 0; x -> y;');
+    expect( m.val_type('n') ).toEqual({ kind: 'int', lo: 0, hi: 3 });
+  });
+
+  test('val_type on an unknown val throws', () => {
+    const m = jssm.from('val n : int default 0; x -> y;');
+    expect( () => m.val_type('ghost') ).toThrow(/No such val "ghost"/);
+  });
+
+});
+
+
+
+describe('val: duplicate names', () => {
+
+  test('redefining a val name throws', () => {
+    expect( () => jssm.from('val n : int default 0; val n : int default 1; a -> b;') )
+      .toThrow(/redefine val/);
+  });
+
+});
