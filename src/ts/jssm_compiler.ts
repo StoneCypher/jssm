@@ -26,6 +26,7 @@ import {
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
+  JssmValDefinition,
   JssmAllowsOverride,
   FslSourceLocation,
   JssmAllowIslands,
@@ -352,6 +353,23 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     return ret;
   }
 
+  // manually rehandled, mirroring property_definition, so an `undefined`
+  // default and the optional required flag stay safe to carry through
+  if (rule.key === 'val_definition') {
+    const ret: { agg_as: string, val: JssmValDefinition }
+             = { agg_as: 'val_definition', val: { name: rule.name as string, val_type: rule.val_type } };
+
+    if (rule.hasOwnProperty('default_value')) {
+      ret.val.default_value = rule.default_value;
+    }
+
+    if (rule.hasOwnProperty('required')) {
+      ret.val.required = rule.required;
+    }
+
+    return ret;
+  }
+
   // state properties are in here
   if (rule.key === 'state_declaration') {
     if (!rule.name) {
@@ -491,6 +509,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     npm_name                      : Array<string>,
     default_size                  : Array<JssmDefaultSize>,
     property_definition           : Array<JssmPropertyDefinition>,
+    val_definition                : Array<JssmValDefinition>,
     state_property                : { [name: string]: JssmPropertyDefinition },
     theme                         : Array<string>,
     flow                          : Array<string>,
@@ -527,6 +546,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     npm_name                      : [],
     default_size                  : [],
     property_definition           : [],
+    val_definition                : [],
     state_property                : {},
     theme                         : [],
     flow                          : [],
@@ -574,6 +594,17 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     );
   }
 
+  const val_keys   = results['val_definition'].map(vd => vd.name),
+        repeat_vals = find_repeated(val_keys);
+
+  if (repeat_vals.length) {
+    const dup = repeat_vals[0][0];
+    throw new JssmError(undefined,
+      `Cannot redefine val names: ${repeat_vals.map(r => r[0]).join(', ')}`,
+      { source_location: nth_matching_loc(tree, (n) => n.key === 'val_definition' && n.name === dup, 2) }
+    );
+  }
+
   const assembled_transitions: JssmTransitions<StateType, mDT> = [].concat(...results['transition']);
 
   const result_cfg: JssmGenericConfig<StateType, mDT> = {
@@ -605,7 +636,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
    'machine_author', 'machine_contributor', 'machine_reference', 'theme',
-   'state_declaration', 'property_definition', 'default_state_config',
+   'state_declaration', 'property_definition', 'val_definition', 'default_state_config',
    'default_start_state_config', 'default_end_state_config',
    'default_hooked_state_config', 'default_terminal_state_config',
    'default_active_state_config'].map(

@@ -208,6 +208,36 @@ type JssmPropertyDefinition = {
 
 
 
+/**
+ *  The declared type of a machine-level `val` (extended-state variable).
+ *  Phase 1 covers the scalar type core: `boolean`, `string`, `int`
+ *  (optionally bounded `lo..hi`), and `enum(...)` over a fixed member set.
+ *  Carried from grammar through the compiler to the runtime, where it
+ *  drives {@link validate_val_value} at construction and on every write.
+ */
+type JssmValType =
+  | { kind: 'boolean' }
+  | { kind: 'string' }
+  | { kind: 'int', lo?: number, hi?: number }
+  | { kind: 'enum', members: string[] };
+
+/**
+ *  Declaration of a named machine-level `val`: a typed, validated, mutable
+ *  extended-state variable (the mutable sibling of a property).  `required`
+ *  forces a value to be supplied at construction; `default_value` supplies a
+ *  fallback.  The two are mutually exclusive.
+ */
+type JssmValDefinition = {
+  name           : string,
+  val_type       : JssmValType,
+  default_value? : any,
+  required?      : boolean
+};
+
+
+
+
+
 type JssmTransitionPermitter<DataType> =
   (OldState: StateType, NewState: StateType, OldData: DataType, NewData: DataType) => boolean;
 
@@ -556,7 +586,10 @@ type JssmGenericConfig<StateType, DataType> = {
 
   state_declaration?             : Object[],
   property_definition?           : JssmPropertyDefinition[],
-  state_property?                : JssmPropertyDefinition[]
+  state_property?                : JssmPropertyDefinition[],
+
+  val_definition?                : JssmValDefinition[],
+  vals?                          : { [name: string]: any }
 
   arrange_declaration?           : Array<Array<StateType>>,
   arrange_start_declaration?     : Array<Array<StateType>>,
@@ -666,8 +699,9 @@ type JssmCompileSeStart<StateType, DataType> = {
   value?         : string | number | Array<JssmStateDeclarationRule>,
   name?          : string,
   state?         : string,
-  default_value? : any,     // for properties
-  required?      : boolean, // for properties
+  default_value? : any,     // for properties and vals
+  required?      : boolean, // for properties and vals
+  val_type?      : JssmValType, // for vals
 
   loc            ? : FslSourceLocation,
   from_loc       ? : FslSourceLocation,
@@ -1305,6 +1339,8 @@ export {
   JssmHistory,
   JssmSerialization,
   JssmPropertyDefinition,
+  JssmValType,
+  JssmValDefinition,
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmDefaultSize,
