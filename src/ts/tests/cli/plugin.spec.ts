@@ -109,6 +109,16 @@ describe('fsl-render plugin cli()', () => {
     expect(stderrChunks.join('')).toMatch(/--width, --height, and --scale are mutually exclusive/);
   });
 
+  it('reports a config-load failure on stderr and exits 1', async () => {
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-render-test-'));
+    const badConfig = join(work, 'config.json');
+    await fs.writeFile(badConfig, '{ this is not json', 'utf8');
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--stdout', '--config', badConfig]);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toMatch(/malformed JSON/);
+  });
+
   it('reads FSL from piped stdin when no input path is given', async () => {
     const { Readable } = await import('stream');
     const realStdin = process.stdin;

@@ -305,7 +305,7 @@ abstract class ConfigError extends Error {
 class ConfigParseError    extends ConfigError { readonly kind = 'parse'; }
 class ConfigSchemaError   extends ConfigError { readonly kind = 'schema'; readonly violations: AjvError[]; }
 class ConfigExtendsError  extends ConfigError { readonly kind = 'extends'; readonly chain: string[]; }
-class ConfigIOError       extends ConfigError { readonly kind = 'io'; readonly cause: NodeJS.ErrnoException; }
+class ConfigIOError       extends ConfigError { readonly kind = 'io'; readonly errno: NodeJS.ErrnoException; }
 ```
 
 All formatted by the CLI's existing FSL-error formatter for visual consistency.

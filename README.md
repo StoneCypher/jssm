@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 6.0.0-alpha.1 at 6/12/2026, 1:11:06 AM
+* Generated for version 6.0.0-alpha.2 at 6/12/2026, 1:18:08 AM
 
 -->
-# jssm 6.0.0-alpha.1
+# jssm 6.0.0-alpha.2
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -162,6 +162,24 @@ Pipe FSL via stdin:
 cat machine.fsl | fsl render --target=dot | dot -Tpng > out.png
 ```
 
+### Configuration
+
+The `fsl` CLI reads a layered JSON config from `<project>/.fsl/config.json` (discovered by walking up from the working directory), with optional `~/.fsl/config.json` for user-global defaults. Both support an `extends` chain.
+
+```json
+{
+  "$schema": "https://stonecypher.github.io/jssm/schemas/fsl-config.json",
+  "render": {
+    "defaultTarget": "png",
+    "scale": 4
+  }
+}
+```
+
+CLI flags override config values. Use `--config <path>` for an explicit file or `--no-config` to skip discovery entirely.
+
+See [notes/fsl-config.md](notes/fsl-config.md) for the full reference: layering order, merge semantics, `extends`, per-verb sections, the `registry` map, error types, and the `jssm/cli` library API.
+
 ### Plugin architecture
 
 Every `fsl-<name>` executable on PATH is dispatched when you run `fsl <name>`. Third-party plugins follow the same contract as first-party `fsl-render`. See `notes/superpowers/specs/2026-05-12-fsl-cli-design.md` for the contract.
@@ -281,7 +299,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  6,733 tests at 100.0% line coverage
+  library.**  6,844 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -414,11 +432,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***6,733 tests***, run 58,807 times.
+***6,844 tests***, run 59,314 times.
 
-- 6,207 specs with 100.0% coverage
-- 526 fuzz tests with 3.2% coverage
-- 5,804 TypeScript lines - 1.2 tests per line, 10.1 generated tests per line
+- 6,314 specs with 100.0% coverage
+- 530 fuzz tests with 3.8% coverage
+- 6,298 TypeScript lines - 1.1 tests per line, 9.4 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)
