@@ -26,6 +26,7 @@ import {
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
+  JssmValDefinition,
   JssmAllowsOverride,
   FslSourceLocation,
   JssmAllowIslands,
@@ -352,6 +353,14 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     return ret;
   }
 
+  // manually rehandled to carry the val type descriptor through
+  if (rule.key === 'val_definition') {
+    const ret: any = { agg_as: 'val_definition', val: { name: rule.name, val_type: rule.val_type } };
+    if (rule.hasOwnProperty('default_value')) { ret.val.default_value = rule.default_value; }
+    if (rule.hasOwnProperty('required'))      { ret.val.required      = rule.required;      }
+    return ret;
+  }
+
   // state properties are in here
   if (rule.key === 'state_declaration') {
     if (!rule.name) {
@@ -491,6 +500,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     npm_name                      : Array<string>,
     default_size                  : Array<JssmDefaultSize>,
     property_definition           : Array<JssmPropertyDefinition>,
+    val_definition                : Array<JssmValDefinition>,
     state_property                : { [name: string]: JssmPropertyDefinition },
     theme                         : Array<string>,
     flow                          : Array<string>,
@@ -527,6 +537,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     npm_name                      : [],
     default_size                  : [],
     property_definition           : [],
+    val_definition                : [],
     state_property                : {},
     theme                         : [],
     flow                          : [],
@@ -605,7 +616,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
    'machine_author', 'machine_contributor', 'machine_reference', 'theme',
-   'state_declaration', 'property_definition', 'default_state_config',
+   'state_declaration', 'property_definition', 'val_definition', 'default_state_config',
    'default_start_state_config', 'default_end_state_config',
    'default_hooked_state_config', 'default_terminal_state_config',
    'default_active_state_config'].map(
