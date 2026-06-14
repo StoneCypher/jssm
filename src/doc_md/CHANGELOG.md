@@ -22,6 +22,52 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 14, 2026 1:58:50 PM
+
+Commit [2e28946b25446dba0b1b9ddbd43a71ee47da0df0](https://github.com/StoneCypher/jssm/commit/2e28946b25446dba0b1b9ddbd43a71ee47da0df0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(val): vals are non-null by default — reject a val with no value (#755); reconcile megaspec §5
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 14, 2026 1:44:56 PM
+
+Commit [265dc647cdc154a0301c6504be11055e3e440178](https://github.com/StoneCypher/jssm/commit/265dc647cdc154a0301c6504be11055e3e440178)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(v6): mark Atom-charset restriction (#754) accepted in the breaking-changes manifest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 14, 2026 3:21:25 AM
+
+Commit [f74d1e915c0ce503e3fafeb12c8084c04352e989](https://github.com/StoneCypher/jssm/commit/f74d1e915c0ce503e3fafeb12c8084c04352e989)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(val): v6.0.0-alpha.3 — val name/enum/exhaustiveness fixes (#757 #758 #759); typegen + TypegenError coverage restores the 100% spec gate; fsl_containers -0 stoch de-flake; seed v6_breaking_changes.json
+  * Regenerated dist/docs/changelog/readme via the full build. All suites green: spec 100% coverage (7169), stoch (643), docs (14).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 14, 2026 3:15:42 AM
 
 Commit [6c4729beb99864d36cde094444ed59f36489dd53](https://github.com/StoneCypher/jssm/commit/6c4729beb99864d36cde094444ed59f36489dd53)
@@ -149,75 +195,3 @@ adapter); resolves the fsl #1172/#1173 capability-manifest references.
 files. Open FslFeature union keeps the matrix data-driven so new
 targets can self-advertise unknown features. 100% test coverage in
 src/ts/tests/fsl_capabilities.spec.ts (20 tests).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:46:40 PM
-
-Commit [b435a23da35eea298819b1d937dd160336672b9b](https://github.com/StoneCypher/jssm/commit/b435a23da35eea298819b1d937dd160336672b9b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(scheduler): add pure RTC microstep scheduler (fsl_scheduler)
-  * Self-contained run-to-completion macrostep/microstep scheduler over an
-abstract step function, per megaspec §12 (lifecycle/RTC execution model)
-and §13 (totality & termination — the microstep bound).
-  * - settle_microsteps drives microsteps to a stable (quiescent) config
-- enforces the §13 microstep bound, raising microstep_overflow past the
-  cap (default 100,000 per reaction; configurable; "unbounded" opt-out)
-- orders the pre (before-macrostep) and post (at-stable) hook phases
-- run_macrostep alias + is_stable predicate
-- pure, typed, no parser/runtime coupling, DocBlock @examples
-  * Tests: 32 specs, 100% coverage of the new module.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:46:40 PM
-
-Commit [1743f76337294f670060f557afc56f6f9b3ac2e0](https://github.com/StoneCypher/jssm/commit/1743f76337294f670060f557afc56f6f9b3ac2e0)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-feat(scheduler): add pure RTC microstep scheduler (fsl_scheduler)
-  * Self-contained run-to-completion macrostep/microstep scheduler over an
-abstract step function, per megaspec §12 (lifecycle/RTC execution model)
-and §13 (totality & termination — the microstep bound).
-  * - settle_microsteps drives microsteps to a stable (quiescent) config
-- enforces the §13 microstep bound, raising microstep_overflow past the
-  cap (default 100,000 per reaction; configurable; "unbounded" opt-out)
-- orders the pre (before-macrostep) and post (at-stable) hook phases
-- run_macrostep alias + is_stable predicate
-- pure, typed, no parser/runtime coupling, DocBlock @examples
-  * Tests: 32 specs, 100% coverage of the new module.
-@
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:42:36 PM
-
-Commit [21a860fb19661fd1d8302e6ca6462d6f7284ca3f](https://github.com/StoneCypher/jssm/commit/21a860fb19661fd1d8302e6ca6462d6f7284ca3f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(conformance): add T2 rich-portable and T3 pinned-unicode vectors
-  * T2 (rich-portable): opaque data-blob threading (forbidden on finite per
-section 3) and seeded probabilistic walks with exact reference-runtime
-traces. T3 (pinned-unicode): code-point/grapheme state and action
-identifiers (Latin diacritics, CJK, RTL scripts, NFD combining mark,
-emoji ZWJ sequence, regional-indicator flag) per section 8.

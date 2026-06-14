@@ -22,6 +22,52 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 14, 2026 1:58:50 PM
+
+Commit [2e28946b25446dba0b1b9ddbd43a71ee47da0df0](https://github.com/StoneCypher/jssm/commit/2e28946b25446dba0b1b9ddbd43a71ee47da0df0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(val): vals are non-null by default — reject a val with no value (#755); reconcile megaspec §5
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 14, 2026 1:44:56 PM
+
+Commit [265dc647cdc154a0301c6504be11055e3e440178](https://github.com/StoneCypher/jssm/commit/265dc647cdc154a0301c6504be11055e3e440178)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(v6): mark Atom-charset restriction (#754) accepted in the breaking-changes manifest
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 14, 2026 3:21:25 AM
+
+Commit [f74d1e915c0ce503e3fafeb12c8084c04352e989](https://github.com/StoneCypher/jssm/commit/f74d1e915c0ce503e3fafeb12c8084c04352e989)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(val): v6.0.0-alpha.3 — val name/enum/exhaustiveness fixes (#757 #758 #759); typegen + TypegenError coverage restores the 100% spec gate; fsl_containers -0 stoch de-flake; seed v6_breaking_changes.json
+  * Regenerated dist/docs/changelog/readme via the full build. All suites green: spec 100% coverage (7169), stoch (643), docs (14).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 14, 2026 3:15:42 AM
 
 Commit [6c4729beb99864d36cde094444ed59f36489dd53](https://github.com/StoneCypher/jssm/commit/6c4729beb99864d36cde094444ed59f36489dd53)
