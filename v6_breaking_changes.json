@@ -6,12 +6,14 @@
     {
       "id": "atom-charset-restriction",
       "title": "Bareword names restricted to identifier-like characters",
-      "status": "proposed",
-      "decided": false,
+      "status": "accepted",
+      "decided": true,
       "issue": "StoneCypher/jssm#754",
-      "summary": "Unquoted state / val / property names (the grammar's Atom rule) no longer permit symbols beyond underscore. 5.x accepted symbol-bearing barewords (',', '(', ')', '.', '+', '&', '#', '@', '$', '^', '*', '!', '?', and a leading digit); v6 requires such names to be quoted strings.",
-      "breaks": "Any 5.x document whose unquoted state / transition / property names contain symbols, or — if the leading-digit ban is adopted — begin with a digit.",
-      "migration": "Quote the affected names (\"in-progress\", \"node.start\", \"1\") or rename them to identifier form (in_progress)."
+      "decision": "Accepted 2026-06-14: the break is unavoidable and is accepted rather than engineered around. Decided charset: a bareword is [A-Za-z_][A-Za-z0-9_]* — letters, digits, and underscore, never starting with a digit. Every other character (',', '(', ')', '.', '+', '&', '#', '@', '$', '^', '*', '!', '?', dash, colon, and a leading digit) requires a quoted-string name. Dash and dot are excluded deliberately: dash collides with the arrow operators and numeric sign, and dot is reserved for member access in the expression language.",
+      "summary": "Unquoted state / val / property names (the grammar's Atom rule, plus the enum-member rule) are restricted to identifier-like names. 5.x accepted symbol-bearing barewords and leading-digit barewords; v6 requires those to be quoted strings.",
+      "breaks": "Any 5.x document whose unquoted state / transition / property / enum-member names contain a non-[A-Za-z0-9_] character, or begin with a digit.",
+      "migration": "Quote the affected names (\"in-progress\", \"node.start\", \"1\") or rename them to identifier form (in_progress).",
+      "implementation": "Grammar change to AtomFirstLetter / AtomLetter / ValEnumMember plus a corpus + test sweep — tracked in #754, not yet landed."
     }
   ]
 }
