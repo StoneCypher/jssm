@@ -18,6 +18,52 @@ import { JssmError } from './jssm_error';
  *  @internal
  *
  */
+/*********
+ *
+ *  Validate a candidate `value` against a val's declared `JssmValType`, throwing
+ *  a {@link JssmError} on a type or range violation.  Used both at construction
+ *  (initial values) and on every `set_val` write.
+ *
+ */
+function validate_val_value(name, vtype, value, machine) {
+    switch (vtype.kind) {
+        case 'boolean':
+            if (typeof value !== 'boolean') {
+                throw new JssmError(machine, `val "${name}" expects boolean, got ${JSON.stringify(value)}`);
+            }
+            break;
+        case 'string':
+            if (typeof value !== 'string') {
+                throw new JssmError(machine, `val "${name}" expects string, got ${JSON.stringify(value)}`);
+            }
+            break;
+        case 'int':
+            if (!Number.isInteger(value)) {
+                throw new JssmError(machine, `val "${name}" expects an integer, got ${JSON.stringify(value)}`);
+            }
+            if (vtype.hasOwnProperty('lo') && value < vtype.lo) {
+                throw new JssmError(machine, `val "${name}" value ${value} is below the minimum ${vtype.lo}`);
+            }
+            if (vtype.hasOwnProperty('hi') && value > vtype.hi) {
+                throw new JssmError(machine, `val "${name}" value ${value} is above the maximum ${vtype.hi}`);
+            }
+            break;
+        case 'enum':
+            if (!vtype.members.includes(value)) {
+                throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
+            }
+            break;
+        // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
+        // only ever emits four kinds of, so this default is unreachable at runtime;
+        // the `never` assignment turns an unhandled future kind into a compile error.
+        /* v8 ignore start */
+        default: {
+            const _exhaustive = vtype;
+            throw new JssmError(machine, `val "${name}" has an unhandled type kind: ${JSON.stringify(_exhaustive)}`);
+        }
+        /* v8 ignore stop */
+    }
+}
 function transfer_state_properties(state_decl) {
     state_decl.declarations.map((d) => {
         switch (d.key) {
@@ -246,7 +292,7 @@ function find_connected_components(states, edges) {
 }
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         this._time_source = () => new Date().getTime();
         this._create_started = this._time_source();
         this._instance_name = instance_name;
@@ -335,6 +381,10 @@ class Machine {
         this._default_properties = new Map();
         this._state_properties = new Map();
         this._required_properties = new Set();
+        this._val_keys = new Set();
+        this._val_types = new Map();
+        this._val_values = new Map();
+        this._required_vals = new Set();
         this._state_style = state_style_condense(default_state_config, this);
         this._active_state_style = state_style_condense(default_active_state_config, this);
         this._hooked_state_style = state_style_condense(default_hooked_state_config, this);
@@ -503,6 +553,47 @@ class Machine {
                 if (pr.hasOwnProperty('required') && (pr.required === true)) {
                     this._required_properties.add(pr.name);
                 }
+            });
+        }
+        if (Array.isArray(val_definition)) {
+            val_definition.forEach(vd => {
+                this._val_keys.add(vd.name);
+                this._val_types.set(vd.name, vd.val_type);
+                if (vd.hasOwnProperty('required') && (vd.required === true)) {
+                    if (vd.hasOwnProperty('default_value')) {
+                        throw new JssmError(this, `The val "${vd.name}" is required, but also has a default; these conflict`);
+                    }
+                    this._required_vals.add(vd.name);
+                }
+            });
+            const supplied = (vals && (typeof vals === 'object')) ? vals : {};
+            Object.keys(supplied).forEach(name => {
+                if (!this._val_keys.has(name)) {
+                    throw new JssmError(this, `Cannot supply value for undeclared val "${name}"`);
+                }
+            });
+            this._val_keys.forEach(name => {
+                const vtype = this._val_types.get(name);
+                let value;
+                if (Object.prototype.hasOwnProperty.call(supplied, name)) {
+                    value = supplied[name];
+                }
+                else {
+                    const vd = val_definition.find(d => d.name === name);
+                    if (vd && vd.hasOwnProperty('default_value')) {
+                        value = vd.default_value;
+                    }
+                    else if (this._required_vals.has(name)) {
+                        throw new JssmError(this, `The val "${name}" is required, but no value was supplied`);
+                    }
+                    else {
+                        value = undefined;
+                    }
+                }
+                if (value !== undefined) {
+                    validate_val_value(name, vtype, value, this);
+                }
+                this._val_values.set(name, value);
             });
         }
         if (Array.isArray(state_property)) {
@@ -856,6 +947,125 @@ class Machine {
      */
     known_props() {
         return [...this._property_keys];
+    }
+    /*********
+     *
+     *  Read the current value of a declared machine `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val ok : boolean default true; a -> b;`;
+     *
+     *  m.val('ok');   // true
+     *  ```
+     *
+     *  @param name The declared val name to read.
+     *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val(name) {
+        if (!this._val_keys.has(name)) {
+            throw new JssmError(this, `No such val "${name}"`);
+        }
+        return this._val_values.get(name);
+    }
+    /*********
+     *
+     *  Set the value of a declared machine `val`, validating it against the val's
+     *  declared type.  This is the runtime mutation surface; source-level `assign`
+     *  arrives in a later phase.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int default 0; a -> b;`;
+     *
+     *  m.set_val('n', 5);
+     *  m.val('n');   // 5
+     *  ```
+     *
+     *  @param name  The declared val name to write.
+     *  @param value The new value; must satisfy the val's declared type.
+     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+     *
+     */
+    set_val(name, value) {
+        if (!this._val_keys.has(name)) {
+            throw new JssmError(this, `No such val "${name}"`);
+        }
+        validate_val_value(name, this._val_types.get(name), value, this);
+        this._val_values.set(name, value);
+    }
+    /*********
+     *
+     *  Return a plain object mapping every declared val name to its current value.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+     *
+     *  m.vals();   // { a: 1, b: false }
+     *  ```
+     *
+     *  @returns An object of every declared val name to its current value.
+     *
+     */
+    vals() {
+        const result = {};
+        this._val_keys.forEach(name => { result[name] = this._val_values.get(name); });
+        return result;
+    }
+    /*********
+     *
+     *  Check whether a string is the name of a declared `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; x -> y;`;
+     *
+     *  m.known_val('a');   // true
+     *  m.known_val('z');   // false
+     *  ```
+     *
+     *  @param name The candidate val name.
+     *  @returns Whether the name is a declared val.
+     *
+     */
+    known_val(name) {
+        return this._val_keys.has(name);
+    }
+    /*********
+     *
+     *  List every declared `val` name, in declaration order.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+     *
+     *  m.known_vals();   // ['a', 'b']
+     *  ```
+     *
+     *  @returns The declared val names in declaration order.
+     *
+     */
+    known_vals() {
+        return [...this._val_keys];
+    }
+    /*********
+     *
+     *  Return the declared type descriptor of a `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+     *
+     *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
+     *  ```
+     *
+     *  @param name The declared val name.
+     *  @returns The val's declared type descriptor.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val_type(name) {
+        if (!this._val_keys.has(name)) {
+            throw new JssmError(this, `No such val "${name}"`);
+        }
+        return this._val_types.get(name);
     }
     /********
      *
