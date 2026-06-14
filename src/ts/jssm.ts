@@ -140,6 +140,15 @@ function validate_val_value(name: string, vtype: JssmValType, value: any, machin
         throw new JssmError(machine, `val "${name}" expects one of [${vtype.members.join(', ')}], got ${JSON.stringify(value)}`);
       }
       break;
+    // defense-in-depth (jssm#758): JssmValType is a closed union the grammar
+    // only ever emits four kinds of, so this default is unreachable at runtime;
+    // the `never` assignment turns an unhandled future kind into a compile error.
+    /* v8 ignore start */
+    default: {
+      const _exhaustive: never = vtype;
+      throw new JssmError(machine, `val "${name}" has an unhandled type kind: ${JSON.stringify(_exhaustive)}`);
+    }
+    /* v8 ignore stop */
   }
 }
 

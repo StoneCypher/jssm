@@ -212,3 +212,25 @@ describe('val: duplicate names', () => {
   });
 
 });
+
+
+
+describe('val: val/property name collision (jssm#757)', () => {
+
+  test('a val and a property sharing a name throws', () => {
+    expect( () => jssm.from('val color : int default 0; property color default 1; a -> b;') )
+      .toThrow(/val and a property cannot share the name/);
+  });
+
+});
+
+
+
+describe('val: numeric-looking enum members (jssm#759)', () => {
+
+  test('an enum member that begins with a digit throws', () => {
+    expect( () => jssm.from('val tier : enum(1, 2) default 1; a -> b;') )
+      .toThrow(/must not begin with a digit/);
+  });
+
+});
