@@ -36,9 +36,14 @@ describe('val: int declaration', () => {
       .toThrow(/expects an integer/);
   });
 
-  test('an int val with no default reads as undefined', () => {
-    const m = jssm.from('val n : int; a -> b;');
-    expect( m.val('n') ).toBeUndefined();
+  test('an int val that is neither required, defaulted, nor supplied is rejected (non-null by default)', () => {
+    expect( () => jssm.from('val n : int; a -> b;') )
+      .toThrow(/has no value/);
+  });
+
+  test('an int val with no default may still be supplied at construction', () => {
+    const m = jssm.from('val n : int; a -> b;', { vals: { n: 7 } });
+    expect( m.val('n') ).toBe(7);
   });
 
 });
