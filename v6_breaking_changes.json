@@ -1,0 +1,17 @@
+{
+  "note": "Changes that break compatibility with the published 5.x line for documents migrating to v6. Changes that only affect v6's own in-progress spec (the language is still being defined) are deliberately NOT tracked here — this file is strictly the 5 -> 6 migration surface.",
+  "from_major": 5,
+  "to_major": 6,
+  "changes": [
+    {
+      "id": "atom-charset-restriction",
+      "title": "Bareword names restricted to identifier-like characters",
+      "status": "proposed",
+      "decided": false,
+      "issue": "StoneCypher/jssm#754",
+      "summary": "Unquoted state / val / property names (the grammar's Atom rule) no longer permit symbols beyond underscore. 5.x accepted symbol-bearing barewords (',', '(', ')', '.', '+', '&', '#', '@', '$', '^', '*', '!', '?', and a leading digit); v6 requires such names to be quoted strings.",
+      "breaks": "Any 5.x document whose unquoted state / transition / property names contain symbols, or — if the leading-digit ban is adopted — begin with a digit.",
+      "migration": "Quote the affected names (\"in-progress\", \"node.start\", \"1\") or rename them to identifier form (in_progress)."
+    }
+  ]
+}
