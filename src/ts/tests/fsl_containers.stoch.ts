@@ -216,9 +216,17 @@ describe('structural protocol invariants', () => {
   });
 
   test('snapshot is JSON-round-trippable (plain data only)', () => {
+    // JSON cannot represent -0 (it serialises to "0"), so a snapshot carrying
+    // -0 round-trips to +0.  Fold -0 to 0 on the expected side before the
+    // structural compare — the snapshot is canonical JSON, where -0 ≡ 0.
+    const fold_neg_zero = (v: any): any =>
+      Array.isArray(v)                          ? v.map(fold_neg_zero)
+      : (v !== null && typeof v === 'object')   ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, fold_neg_zero(x)]))
+      : Object.is(v, -0)                         ? 0
+      :                                            v;
     fc.assert(fc.property(fc.oneof(list_arb.map(list_from), set_arb, map_arb), c => {
       const json = JSON.stringify(snapshot(c));
-      expect( JSON.parse(json) ).toEqual( snapshot(c) );
+      expect( JSON.parse(json) ).toEqual( fold_neg_zero(snapshot(c)) );
     }), { numRuns: RUNS });
   });
 
@@ -238,7 +246,7 @@ describe('structural protocol invariants', () => {
   test('compare is antisymmetric (sign flips when arguments swap)', () => {
     const kinds = fc.oneof(list_arb.map(list_from), set_arb, map_arb);
     fc.assert(fc.property(kinds, kinds, (a, b) =>
-      void expect( compare(a, b) ).toBe( -compare(b, a) )
+      void expect( compare(a, b) ).toBe( (-compare(b, a)) || 0 )   // `|| 0` folds -0 (from negating 0) to +0
     ), { numRuns: RUNS });
   });
 
@@ -258,7 +266,7 @@ describe('scalar guard and ordering invariants', () => {
     fc.assert(fc.property(scalar_arb, scalar_arb, (a, b) => {
       const ab = scalar_compare(a, b);
       const ba = scalar_compare(b, a);
-      expect( ab ).toBe( (-ba) as -1 | 0 | 1 );
+      expect( ab ).toBe( ((-ba) || 0) as -1 | 0 | 1 );   // `|| 0` folds -0 (from negating 0) to +0
       expect( deep_equal(a, b) ).toBe( ab === 0 );
     }), { numRuns: RUNS });
   });
