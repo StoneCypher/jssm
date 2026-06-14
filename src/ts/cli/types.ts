@@ -68,3 +68,26 @@ export class RasterizationUnsupportedError extends RenderError {
     Object.setPrototypeOf(this, RasterizationUnsupportedError.prototype);
   }
 }
+
+/**
+ * Error class for `typegen`-time failures (parse error, unsupported target).
+ *
+ * Carries the same optional source-location fields as {@link RenderError} so
+ * the plugin's error printer can report a path and line uniformly across
+ * verbs. Distinct from `RenderError` because `typegen` is a separate verb
+ * with its own failure surface — declarations, not images.
+ */
+export class TypegenError extends Error {
+  public readonly path?: string;
+  public readonly line?: number;
+  public readonly column?: number;
+
+  constructor(message: string, opts: { path?: string; line?: number; column?: number } = {}) {
+    super(message);
+    this.name = 'TypegenError';
+    this.path = opts.path;
+    this.line = opts.line;
+    this.column = opts.column;
+    Object.setPrototypeOf(this, TypegenError.prototype);
+  }
+}

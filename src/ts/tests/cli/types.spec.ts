@@ -1,5 +1,5 @@
 import type { RenderTarget, RenderOptions, RenderResult, RasterResult, TextResult } from '../../cli/types';
-import { RenderError, RasterizationUnsupportedError } from '../../cli/types';
+import { RenderError, RasterizationUnsupportedError, TypegenError } from '../../cli/types';
 
 describe('cli/types', () => {
 
@@ -27,6 +27,23 @@ describe('cli/types', () => {
     const rasterResult: RasterResult = { target: 'png', kind: 'raster', buffer: new Uint8Array([0]) };
     const all: RenderResult[] = [textResult, rasterResult];
     expect(all.length).toBe(2);
+  });
+
+  it('TypegenError is a real Error subclass carrying source-location fields', () => {
+    const e = new TypegenError('boom', { path: 'm.fsl', line: 3, column: 5 });
+    expect(e).toBeInstanceOf(Error);
+    expect(e.name).toBe('TypegenError');
+    expect(e.message).toBe('boom');
+    expect(e.path).toBe('m.fsl');
+    expect(e.line).toBe(3);
+    expect(e.column).toBe(5);
+  });
+
+  it('TypegenError defaults its location fields to undefined', () => {
+    const e = new TypegenError('boom');
+    expect(e.path).toBeUndefined();
+    expect(e.line).toBeUndefined();
+    expect(e.column).toBeUndefined();
   });
 
 });

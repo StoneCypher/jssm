@@ -205,6 +205,37 @@ type JssmPropertyDefinition = {
 };
 
 
+/*********
+ *
+ *  The declared type of a machine `val` (extended-state variable): the scalar
+ *  type core — `boolean`, `string`, unbounded or bounded `int lo..hi`, and
+ *  `enum(...)`.  Carried from the grammar to the runtime, where
+ *  `validate_val_value` enforces it at construction and on every write.
+ *
+ */
+
+type JssmValType =
+  | { kind: 'boolean' }
+  | { kind: 'string' }
+  | { kind: 'int', lo?: number, hi?: number }
+  | { kind: 'enum', members: string[] };
+
+
+/*********
+ *
+ *  A machine `val` declaration: a named, typed, validated, mutable
+ *  extended-state variable (the mutable sibling of a `property`).
+ *
+ */
+
+type JssmValDefinition = {
+  name           : string,
+  val_type       : JssmValType,
+  default_value? : any,
+  required?      : boolean
+};
+
+
 
 
 
@@ -556,6 +587,8 @@ type JssmGenericConfig<StateType, DataType> = {
 
   state_declaration?             : Object[],
   property_definition?           : JssmPropertyDefinition[],
+  val_definition?                : JssmValDefinition[],
+  vals?                          : { [name: string]: any },
   state_property?                : JssmPropertyDefinition[]
 
   arrange_declaration?           : Array<Array<StateType>>,
@@ -668,6 +701,7 @@ type JssmCompileSeStart<StateType, DataType> = {
   state?         : string,
   default_value? : any,     // for properties
   required?      : boolean, // for properties
+  val_type?      : JssmValType, // for vals
 
   loc            ? : FslSourceLocation,
   from_loc       ? : FslSourceLocation,
@@ -1305,6 +1339,8 @@ export {
   JssmHistory,
   JssmSerialization,
   JssmPropertyDefinition,
+  JssmValType,
+  JssmValDefinition,
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmDefaultSize,

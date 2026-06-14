@@ -1,6 +1,6 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmRng } from './jssm_types';
+JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmLayout, JssmHistory, JssmSerialization, JssmValType, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmRng } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util';
@@ -28,15 +28,6 @@ declare type JssmEventEntry<mDT, Ev extends JssmEventName> = {
     filter?: JssmEventFilter<mDT, Ev>;
     once: boolean;
 };
-/*********
- *
- *  An internal method meant to take a series of declarations and fold them into
- *  a single multi-faceted declaration, in the process of building a state.  Not
- *  generally meant for external use.
- *
- *  @internal
- *
- */
 declare function transfer_state_properties(state_decl: JssmStateDeclaration): JssmStateDeclaration;
 /**
  *
@@ -166,6 +157,10 @@ declare class Machine<mDT> {
     _default_properties: Map<string, any>;
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
+    _val_keys: Set<string>;
+    _val_types: Map<string, JssmValType>;
+    _val_values: Map<string, any>;
+    _required_vals: Set<string>;
     _history: JssmHistory<mDT>;
     _history_length: number;
     _state_style: JssmStateConfig;
@@ -187,7 +182,7 @@ declare class Machine<mDT> {
     _event_handlers: Map<JssmEventName, Set<JssmEventEntry<any, any>>>;
     _event_listener_count: number;
     _firing_error: boolean;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -399,6 +394,101 @@ declare class Machine<mDT> {
      *
      */
     known_props(): string[];
+    /*********
+     *
+     *  Read the current value of a declared machine `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val ok : boolean default true; a -> b;`;
+     *
+     *  m.val('ok');   // true
+     *  ```
+     *
+     *  @param name The declared val name to read.
+     *  @returns The val's current value (or `undefined` if it has no default and was not supplied).
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val(name: string): any;
+    /*********
+     *
+     *  Set the value of a declared machine `val`, validating it against the val's
+     *  declared type.  This is the runtime mutation surface; source-level `assign`
+     *  arrives in a later phase.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int default 0; a -> b;`;
+     *
+     *  m.set_val('n', 5);
+     *  m.val('n');   // 5
+     *  ```
+     *
+     *  @param name  The declared val name to write.
+     *  @param value The new value; must satisfy the val's declared type.
+     *  @throws {JssmError} If `name` is not a declared val, or `value` violates the type.
+     *
+     */
+    set_val(name: string, value: any): void;
+    /*********
+     *
+     *  Return a plain object mapping every declared val name to its current value.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : boolean default false; x -> y;`;
+     *
+     *  m.vals();   // { a: 1, b: false }
+     *  ```
+     *
+     *  @returns An object of every declared val name to its current value.
+     *
+     */
+    vals(): object;
+    /*********
+     *
+     *  Check whether a string is the name of a declared `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; x -> y;`;
+     *
+     *  m.known_val('a');   // true
+     *  m.known_val('z');   // false
+     *  ```
+     *
+     *  @param name The candidate val name.
+     *  @returns Whether the name is a declared val.
+     *
+     */
+    known_val(name: string): boolean;
+    /*********
+     *
+     *  List every declared `val` name, in declaration order.
+     *
+     *  ```typescript
+     *  const m = sm`val a : int default 1; val b : int default 2; x -> y;`;
+     *
+     *  m.known_vals();   // ['a', 'b']
+     *  ```
+     *
+     *  @returns The declared val names in declaration order.
+     *
+     */
+    known_vals(): string[];
+    /*********
+     *
+     *  Return the declared type descriptor of a `val`.
+     *
+     *  ```typescript
+     *  const m = sm`val n : int 0..3 default 0; x -> y;`;
+     *
+     *  m.val_type('n');   // { kind: 'int', lo: 0, hi: 3 }
+     *  ```
+     *
+     *  @param name The declared val name.
+     *  @returns The val's declared type descriptor.
+     *  @throws {JssmError} If `name` is not a declared val.
+     *
+     */
+    val_type(name: string): JssmValType;
     /********
      *
      *  Check whether a given state is a valid start state (either because it was
