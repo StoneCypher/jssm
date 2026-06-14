@@ -117,7 +117,7 @@ sensor temp  : int 0..200;                                          % read-only,
 val loot     : stream(seed: 42);                                    % an RNG stream is a stream-typed val
 ```
 - `val`/`prop`/`sensor` share grammar shape and the `.prop()`-style accessor families (`.val()`, `.vals()`, `.set_val()`, `.known_val()`, `.val_type()`; `.prop()` etc.; `.sensor()` read-only).
-- Initial value resolves: supplied `vals` config > `default` > (`required` → throw) > `undefined`; validated against the declared type at construction.
+- Initial value resolves: supplied `vals` config > `default` > (`required` → throw if unsupplied) > **construction error** (a val with none of these has no value of its declared type — **vals are non-null by default**, §4.4; the earlier `> undefined` terminal is removed as it contradicted §4.4). Validated against the declared type at construction.
 - **Type annotations are optional on `prop`** (an unannotated `prop`, and the legacy `property` alias, infer or stay untyped — backward-compat); `val` and `sensor` are typed.
 - **`property`→`prop` and `var`→`val`** renames; `property` kept as a **deprecated alias, removed in v7**.
 - **Name collisions:** `val`/`prop`/`sensor` sharing a name = error; a user name shadowing a constant = allowed + lint-warn.
