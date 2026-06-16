@@ -26,6 +26,7 @@ import {
   JssmStateDeclaration,
   JssmLayout,
   JssmPropertyDefinition,
+  JssmValDefinition,
   JssmAllowsOverride,
   FslSourceLocation,
   JssmAllowIslands,
@@ -352,6 +353,30 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
     return ret;
   }
 
+  // manually rehandled to carry the val type descriptor through
+  if (rule.key === 'val_definition') {
+
+    // numeric-looking enum members would type-mismatch their own defaults: an
+    // enum member parses as a string, but a numeric default parses as a number,
+    // so they never compare equal.  Reject them at compile time (jssm#759).
+    if (rule.val_type.kind === 'enum') {
+      const numeric_members = rule.val_type.members.filter((m: string) => /^[0-9]/.test(m));
+      if (numeric_members.length) {
+        throw new JssmError(undefined,
+          `Enum val "${rule.name}" has numeric-looking members ${JSON.stringify(numeric_members)}; `
+          + 'enum members must not begin with a digit (a numeric default parses as a number and never '
+          + 'matches the string member) — quote or rename them',
+          { source_location: rule.loc }
+        );
+      }
+    }
+
+    const ret: any = { agg_as: 'val_definition', val: { name: rule.name, val_type: rule.val_type } };
+    if (rule.hasOwnProperty('default_value')) { ret.val.default_value = rule.default_value; }
+    if (rule.hasOwnProperty('required'))      { ret.val.required      = rule.required;      }
+    return ret;
+  }
+
   // state properties are in here
   if (rule.key === 'state_declaration') {
     if (!rule.name) {
@@ -491,6 +516,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     npm_name                      : Array<string>,
     default_size                  : Array<JssmDefaultSize>,
     property_definition           : Array<JssmPropertyDefinition>,
+    val_definition                : Array<JssmValDefinition>,
     state_property                : { [name: string]: JssmPropertyDefinition },
     theme                         : Array<string>,
     flow                          : Array<string>,
@@ -527,6 +553,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     npm_name                      : [],
     default_size                  : [],
     property_definition           : [],
+    val_definition                : [],
     state_property                : {},
     theme                         : [],
     flow                          : [],
@@ -574,6 +601,28 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     );
   }
 
+  const val_keys    = results['val_definition'].map(vd => vd.name),
+        repeat_vals = find_repeated(val_keys);
+
+  if (repeat_vals.length) {
+    const dup = repeat_vals[0][0];
+    throw new JssmError(undefined,
+      `Cannot redefine val names.  Saw ${JSON.stringify(repeat_vals)}`,
+      { source_location: nth_matching_loc(tree, (n) => n.key === 'val_definition' && n.name === dup, 2) }
+    );
+  }
+
+  // a val and a property may not share a name (megaspec §5; jssm#757)
+  const val_prop_collisions = val_keys.filter(name => property_keys.includes(name));
+
+  if (val_prop_collisions.length) {
+    const dup = val_prop_collisions[0];
+    throw new JssmError(undefined,
+      `A val and a property cannot share the name ${JSON.stringify(dup)}.  Saw collisions ${JSON.stringify(val_prop_collisions)}`,
+      { source_location: nth_matching_loc(tree, (n) => n.key === 'val_definition' && n.name === dup, 1) }
+    );
+  }
+
   const assembled_transitions: JssmTransitions<StateType, mDT> = [].concat(...results['transition']);
 
   const result_cfg: JssmGenericConfig<StateType, mDT> = {
@@ -605,7 +654,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
    'machine_author', 'machine_contributor', 'machine_reference', 'theme',
-   'state_declaration', 'property_definition', 'default_state_config',
+   'state_declaration', 'property_definition', 'val_definition', 'default_state_config',
    'default_start_state_config', 'default_end_state_config',
    'default_hooked_state_config', 'default_terminal_state_config',
    'default_active_state_config'].map(

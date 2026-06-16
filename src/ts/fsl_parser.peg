@@ -1521,6 +1521,66 @@ MachineProperty
 
 
 
+MachineVal
+  = WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS "default" WS dval:ValVal WS "required" WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype, default_value: dval, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS "required" WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS "default" WS dval:ValVal WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype, default_value: dval };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "val" WS name:Label WS? ":" WS? vtype:ValType WS? ";" WS? {
+      const node: any = { key: 'val_definition', name, val_type: vtype };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+ValType
+  = ValTypeInt
+  / ValTypeBoolean
+  / ValTypeString
+  / ValTypeEnum
+
+ValTypeBoolean = "boolean" { return { kind: 'boolean' }; }
+ValTypeString  = "string"  { return { kind: 'string' }; }
+
+ValTypeInt
+  = "int" range:ValIntRange? {
+      return range === null ? { kind: 'int' } : { kind: 'int', lo: range.lo, hi: range.hi };
+    }
+
+ValIntRange
+  = WS lo:ValSignedInt WS? ".." WS? hi:ValSignedInt { return { lo, hi }; }
+
+ValSignedInt
+  = chars:$("-"? [0-9]+) { return parseInt(chars, 10); }
+
+ValTypeEnum
+  = "enum" WS? "(" WS? first:ValEnumMember rest:(WS? "," WS? m:ValEnumMember { return m; })* WS? ")" {
+      return { kind: 'enum', members: [first, ...rest] };
+    }
+
+// An enum member is an atom-like identifier that, crucially, excludes the comma
+// (the real Atom rule includes ",", so it would swallow the list separator).
+ValEnumMember
+  = chars:$([0-9a-zA-Z\.\_\!\$\^\*\?\x80-￿]+) { return chars; }
+
+ValVal
+  = String
+  / Boolean
+  / neg:"-"? num:JsNumericLiteral { return neg ? -num : num; }
+  / Atom
+
+
+
 RegularArrangeDeclaration
   = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? {
       const node: any = { key: 'arrange_declaration', value };
@@ -1558,6 +1618,7 @@ Term
   / NamedList
   / MachineAttribute
   / MachineProperty
+  / MachineVal
   / Config
 
 TermList
