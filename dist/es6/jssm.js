@@ -587,12 +587,13 @@ class Machine {
                         throw new JssmError(this, `The val "${name}" is required, but no value was supplied`);
                     }
                     else {
-                        value = undefined;
+                        // vals are non-null by default (megaspec §4.4): a val that is
+                        // neither supplied, defaulted, nor required has no value of its
+                        // declared type, so it is a construction error rather than undefined.
+                        throw new JssmError(this, `The val "${name}" has no value: give it a default, declare it required, or supply it at construction (vals are non-null by default)`);
                     }
                 }
-                if (value !== undefined) {
-                    validate_val_value(name, vtype, value, this);
-                }
+                validate_val_value(name, vtype, value, this);
                 this._val_values.set(name, value);
             });
         }
