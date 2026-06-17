@@ -14,6 +14,18 @@
       "breaks": "Any 5.x document whose unquoted state / transition / property / enum-member names contain a non-[A-Za-z0-9_] character, or begin with a digit.",
       "migration": "Quote the affected names (\"in-progress\", \"node.start\", \"1\") or rename them to identifier form (in_progress).",
       "implementation": "Grammar change to AtomFirstLetter / AtomLetter / ValEnumMember plus a corpus + test sweep — tracked in #754, not yet landed."
+    },
+    {
+      "id": "bare-functions-default-api",
+      "title": "Default jssm import is bare functions, not the Machine class",
+      "status": "accepted",
+      "decided": true,
+      "issue": null,
+      "decision": "Decided 2026-06-17 (megaspec §27): the v6 public JS API is bare functions over an opaque machine value, individually importable for tree-shakeability (serves the long-standing #1167 ask). The entire 5.x Machine class is preserved unmodified as an opt-in compatibility layer at the 'jssm/compat' subpath, mechanically delegating to the bare functions (single source of truth; proven by running the 5.x test suite against it verbatim). The default 'jssm' entry resolves to the bare functions.",
+      "summary": "v6 moves the default 'jssm' import from the Machine class to bare functions (create / transition / can / currentState / addHook / ...), with the machine an opaque data value passed as the first argument. The full 5.x class interface remains available, unchanged, from 'jssm/compat'.",
+      "breaks": "Any 5.x code using 'new Machine(...)' or class-method calls (m.transition(x)) through the default 'jssm' import.",
+      "migration": "Zero-edit escape hatch: change the import specifier to 'jssm/compat' (import { Machine } from 'jssm/compat') for verbatim 5.x behavior. Or migrate to the bare-function form: transition(m, x) instead of m.transition(x).",
+      "implementation": "Extract the state-record type + bare functions from the current class internals; regenerate Machine as a delegating wrapper over them; split entry points + sideEffects:false + a bundle-size test; run the 5.x suite against the compat class as the contract check (megaspec §27, §20 phasing). Not yet landed."
     }
   ]
 }
