@@ -10,7 +10,7 @@ runtime does with it.  A few productions are accepted by the parser and
 either ignored or only partially honoured downstream; those are flagged
 inline.
 
-*Last verified against `src/ts/fsl_parser.peg` on 2026-06-09* (the
+*Last verified against `src/ts/fsl_parser.peg` on 2026-06-16* (the
 overlapping-state-groups section additionally tracks compile/runtime
 behaviour, verified against the `*_overlapping_groups.spec.ts` and
 `transition_graph_config.spec.ts` suites).  When re-syncing, `git log
@@ -56,6 +56,11 @@ A term is exactly one of:
 7. **`Config`** — block configuration (`graph_layout`, `start_states`, `transition`, `state`, `validation`, …)
 8. **`HookDeclaration`** — boundary-hook statement (`on enter|exit <state|&group> do '<action>';`) (see section 12)
 
+The numbering above is *categorical*, not grammar order.  In the PEG
+`HookDeclaration` is the **first** `Term` alternative tried, so an
+`on enter …` line isn't mis-parsed as an `Exp` whose source is the atom
+`on`; the remaining alternatives follow roughly as numbered.
+
 Each of these is described in its own section below.
 
 
@@ -65,10 +70,12 @@ Each of these is described in its own section below.
 ### Whitespace and comments — `WS`
 
 ```
-WS = BlockComment WS?
-   / LineComment  WS?
-   / [ \t\r\n\v]+ WS?
+WS = ([ \t\r\n\v]+ / BlockComment / LineComment)+
 ```
+
+This is the de-recursed form (one repetition over the three
+alternatives) introduced for parse performance in StoneCypher/fsl#676;
+it is equivalent to the older right-recursive `… WS?` spelling.
 
 Whitespace runs may interleave block comments (`/* … */`) and line
 comments (`// …` to end-of-line/EOF).  Comments are *only* recognized
@@ -377,9 +384,13 @@ A transition's destination can be:
   `{ key:'cycle', value: ±N }`.  Note the asymmetry: only `+0` is
   valid (no `-0`), and `0` alone is not a cycle.
 - **`LabelList`** — `[a b c]` for fan-out/fan-in
+- **`GroupRef`** — `&Name`, a reference to a declared group used as a
+  transition source or target; expands to one edge per transitive
+  member (see §12).
 - **`Label`** — single state name
 
-The grammar tries them in that order so e.g. `+1` is parsed as Cycle,
+The grammar tries them in that order (`GroupRef` before `Label` so a
+leading `&` is read as a group reference) so e.g. `+1` is parsed as Cycle,
 not as the start of a label that begins with `+`.
 
 ### Arrow decorations
@@ -497,13 +508,13 @@ the bio/circuit set (`promoter`, `cds`, `terminator`, `utr`,
 
 ## 8. Configuration blocks — `Config`
 
-A `Config` is one of nine block forms, all of shape
+A `Config` is one of ten block forms, all of shape
 
 ```
 <keyword> : { <items>? };
 ```
 
-except the four that take a single value plus `;`.
+plus seven that take a single value plus `;`.
 
 ### Block-style configs
 
@@ -513,19 +524,35 @@ except the four that take a single value plus `;`.
 - **`active_state`**   — defaults for the currently-active state
 - **`terminal_state`** — defaults for terminal states
 - **`hooked_state`**   — defaults for states with hooks attached
-- **`transition`**     — global transition defaults (currently
-  accepts either a `GraphDefaultEdgeColor` (`edge-color : <Color>;`,
-  with `edge_color` accepted as a legacy alias — see
-  StoneCypher/fsl#358) or a list of `TransitionItem+` whose only
-  legal keys are `whargarbl`/`todo` placeholders — i.e. real
-  transition-default surface area is just the edge colour today)
-- **`action`**         — same placeholder shape; only `whargarbl`/
-  `todo` accepted
-- **`validation`**     — same placeholder shape; only `whargarbl`/
-  `todo` accepted
+- **`transition`**     — default **edge** attributes.  Via the shared
+  `ConfigStyleItems` body it accepts *either* a `GraphDefaultEdgeColor`
+  (`edge-color : <Color>;`, with `edge_color` accepted as a legacy
+  alias — see StoneCypher/fsl#358) *or* a run of style items drawn from
+  the **same vocabulary as a `state: {}` block** (`StateDeclarationItem`
+  — `color`, `text-color`, `background-color`, `border-color`, `shape`,
+  `corners`, `line-style`, `image`, `url`, `property`) freely
+  intermixed with the `whargarbl`/`todo` `TransitionItem` placeholders.
+  (The node-styling items *parse* but are mostly edge-meaningless;
+  `color` and `line-style` are the practically useful ones.)
+  Normalizes to `{ key: 'default_transition_config', value: […] }`.
+- **`graph`**          — graph-scope defaults: the Graphviz graph-level
+  mirror of `state:` (for nodes) and `transition:` (for edges).  Shares
+  the *same* `ConfigStyleItems` body as `transition`, so it accepts the
+  full state-styling vocabulary, e.g.
+  `graph: { background-color: #ffffff; color: green; };`.  Normalizes to
+  `{ key: 'default_graph_config', value: […] }`.  It supersedes the
+  legacy scattered top-level graph keys (`graph_layout`,
+  `graph_bg_color`, `dot_preamble`, `theme`, `flow`) — see §12 for the
+  folding rules and the `graph_bg_color` deprecation warning.
+- **`action`**         — placeholder shape; only `whargarbl`/`todo`
+  accepted
+- **`validation`**     — placeholder shape; only `whargarbl`/`todo`
+  accepted
 
 The `whargarbl`/`todo` placeholders are explicit grammar stubs, not
-real keys — they are scaffolding for future config schemas.
+real keys — they are scaffolding for future config schemas.  Only
+`action` and `validation` are *limited* to them now; `transition` and
+`graph` accept the real style vocabulary above.
 
 ### Single-value configs
 
