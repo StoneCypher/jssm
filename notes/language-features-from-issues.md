@@ -34,7 +34,7 @@ The single biggest category of language feature requests. Grammar-level hook key
 
 **Hook architecture / meta-features:**
 - Hooks should be "open" or "closed" (#617)
-- `hooks: open;` and `hooks: closed;` in compiler (#645)
+x `hooks: open;` and `hooks: closed;` in compiler (#645)
 - Hook notation overall (#622)
 - Hook requirement (#620)
 - Named hooks: how to actually do it (#648); short notation (#619)
@@ -85,10 +85,10 @@ The single biggest category of language feature requests. Grammar-level hook key
 The conceptual ancestors of the overlapping-groups feature we just designed.
 
 - Hierarchical state charts (#7)
-- Named sequential groups (#70), should be subordinable (#244)
-- Cycles (#400), Stripes (#401)
+x Named sequential groups (#70), should be subordinable (#244)
+x Cycles (#400), Stripes (#401)
 - Spread (#72), No-self spread (#142), State spread (#453)
-- Apparently named lists parse — implement and test their use (#279)
+x Apparently named lists parse — implement and test their use (#279)
 - Explicit ability to mark a group as a subgraph (#118)
 - Containing box and descriptive title (#243)
 - A notation for breaking into a remote subgraph (#173)
@@ -138,13 +138,13 @@ The conceptual ancestors of the overlapping-groups feature we just designed.
 
 ### A.6 Machine-attribute language features
 
-- Module attribute `allow_islands` (#138); islands compile-time detection (#402)
-- Machine attribute for whether islands are allowed; default `allow_with_start` (#403)
-- Module attribute `failed_outputs` (#378)
-- Module attribute `npm_name` (#406)
-- Machine attribute indicating minimum FSL language version (#410)
-- Default size attribute (#859)
-- Hooks open/closed machine attribute (#617, #645)
++ Module attribute `allow_islands` (#138); islands compile-time detection (#402)
++ Machine attribute for whether islands are allowed; default `allow_with_start` (#403)
++ Module attribute `failed_outputs` (#378)
++ Module attribute `npm_name` (#406)
++ Machine attribute indicating minimum FSL language version (#410)
++ Default size attribute (#859)
++ Hooks open/closed machine attribute (#617, #645)
 - Mechanism to control background color of graphs (#176)
 - Transparent as a state background color (#312)
 - Default border color on all nodes (#347)
