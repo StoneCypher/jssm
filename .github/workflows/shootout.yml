@@ -1,0 +1,69 @@
+# FSM shootout — MANUAL ONLY.
+#
+# This shim exists on main solely so the Actions UI / `gh workflow run` can
+# dispatch it; everything real (adapters, suite, launcher, competitor deps)
+# lives on the orphan `shootout` branch and never merges here.  The single
+# trigger below is workflow_dispatch: there is no push, schedule, or PR
+# trigger, and there must never be — the shootout runs only on request.
+#
+# It assumes the same OIDC role as the release benchmark (secret
+# AWS_GRAVITON_OIDC_ROLE; see notes/superpowers/graviton-ci-aws-setup.md) and
+# fires one self-terminating Graviton instance that publishes results to the
+# perf_results branch under shootout/<run-id>/.
+
+name: FSM shootout (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      instance_type:
+        description: EC2 instance type for the run
+        required: false
+        default: c7g.medium
+      run_id:
+        description: Result key (perf_results shootout/<run-id>/); blank = UTC timestamp
+        required: false
+        default: ''
+
+permissions:
+  id-token: write   # OIDC token for aws-actions/configure-aws-credentials
+  contents: read
+
+jobs:
+
+  fire:
+
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_GRAVITON_OIDC_ROLE: ${{ secrets.AWS_GRAVITON_OIDC_ROLE }}
+
+    steps:
+
+    - name: Guard — OIDC role secret must be configured
+      if: env.AWS_GRAVITON_OIDC_ROLE == ''
+      run: |
+        echo "AWS_GRAVITON_OIDC_ROLE is not set; see notes/superpowers/graviton-ci-aws-setup.md"
+        exit 1
+
+    # The launcher and suite live on the shootout branch, not on main.
+    - uses: actions/checkout@v5
+      with:
+        ref: shootout
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_GRAVITON_OIDC_ROLE }}
+        aws-region: us-east-1
+
+    - name: Fire detached shootout run (instance self-publishes and terminates)
+      run: |
+        ARGS=(--instance-type "${{ inputs.instance_type }}")
+        if [ -n "${{ inputs.run_id }}" ]; then ARGS+=(--run-id "${{ inputs.run_id }}"); fi
+        node launch.cjs "${ARGS[@]}"
