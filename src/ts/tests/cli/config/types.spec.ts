@@ -3,7 +3,7 @@ import type {
   ResolvedConfig,
   RenderConfig,
   LintConfig,
-  FmtConfig,
+  FormatConfig,
   TestConfig,
   CheckConfig,
   TypegenConfig,
