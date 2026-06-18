@@ -2683,10 +2683,31 @@ class Machine {
         this.set_hook({ kind: 'exit', from, handler });
         return this;
     }
-    /** Register a hook that fires after leaving a specific state (post-exit).
-     *  @param from    - The state that was exited.
-     *  @param handler - Callback invoked after exit completes.
+    /** Register a hook that fires when a state's `after` timer elapses — the
+     *  delay-over companion to `a after 5s -> b;` style time transitions.  It
+     *  does NOT fire when the state is entered or left by ordinary dispatch;
+     *  use {@link hook_entry} / {@link hook_exit} for those.  (Versions through
+     *  5.143.28 also spuriously fired it on entering the state, the jssm side
+     *  of StoneCypher/fsl#1327.)
+     *  @param from    - The state whose `after` timer is being watched.
+     *  @param handler - Callback invoked when the timer fires, just before the
+     *                   timed transition is taken; informational — its outcome
+     *                   cannot reject the transition.
      *  @returns `this` for chaining.
+     *
+     *  @example
+     *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+     *    let calls = 0;
+     *    m.hook_after('a', () => { calls += 1; });
+     *    m.go('c');
+     *    m.go('a');
+     *    // ordinary dispatch never fires it; only the timer elapsing does:
+     *    calls;  // => 0
+     *    m.clear_state_timeout();
+     *
+     *  @see hook_entry
+     *  @see hook_exit
+     *  @see set_state_timeout
      */
     hook_after(from, handler) {
         this.set_hook({ kind: 'after', from, handler });
@@ -3296,15 +3317,12 @@ class Machine {
                         data_changed = true;
                     }
                 }
-                // 2. after hook
-                if (this._has_after_hooks) {
-                    const ah = this._after_hooks.get(newStateOrAction);
-                    const outcome = abstract_hook_step(ah, hook_args);
-                    // there's no such thing as after not passing, so, omit the result pass check.
-                    // after hooks are post-exit and informational — their outcome never changes
-                    // data, so there's no data_changed branch here (it would be unreachable).
-                    _update_hook_fields(hook_args, outcome);
-                }
+                // 2. (removed) After hooks do NOT fire on dispatch.  They are the
+                // `after`-timer's companion (fsl#698: "delay over!") and fire only from
+                // the state-timeout path.  Through v5.143.28 a probe here keyed on
+                // newStateOrAction spuriously fired them on entering the hooked state —
+                // or on a same-named action — making one timer elapse read as two
+                // handler calls (StoneCypher/fsl#1327).
                 // 3. any transition hook
                 if (this._any_transition_hook !== undefined) {
                     const outcome = abstract_hook_step(this._any_transition_hook, hook_args);

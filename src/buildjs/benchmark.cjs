@@ -297,12 +297,14 @@ function addIfSupported(guardDesc, makeCase) {
 }
 
 addIfSupported({ kind: 'after', from: 'fpb', handler: noop_true }, () =>
-  verified('After hook keyed by state, 100 cycles by transition',
-    hooked(TL_MAIN, h => [{ kind: 'after', from: 'green', handler: h }], cycleByTransition)));
-
-addIfSupported({ kind: 'after', from: 'fpgo', handler: noop_true }, () =>
-  verified('After hook keyed by action, 100 cycles by action',
-    hooked(TL_MAIN_LABELED, h => [{ kind: 'after', from: 'next', handler: h }], cycleByAction)));
+  // After hooks are timer-only (fsl#1327 fix): they fire from the state-timeout
+  // path, never on dispatch.  v5.143.28's two "After hook keyed by ..." cases
+  // measured the spurious dispatch probe and die with that bug; what remains
+  // measurable on the dispatch path is the carrying cost of the
+  // _has_after_hooks guard, pinned by expectFire:false.
+  verified('Carry an after hook (timer-only, cannot fire in dispatch), 100 cycles by transition',
+    hooked(TL_MAIN, h => [{ kind: 'after', from: 'green', handler: h }], cycleByTransition),
+    { expectFire: false }));
 
 addIfSupported({ kind: 'post hook', from: 'fpa', to: 'fpb', handler: noop_true }, () =>
   verified('Post basic hook, 100 cycles by transition',
@@ -328,6 +330,8 @@ addIfSupported({ kind: 'post global action', action: 'fpgo', handler: noop_true 
   verified('Post global action hook, 100 cycles by action',
     hooked(TL_MAIN_LABELED, h => [{ kind: 'post global action', action: 'next', handler: h }], cycleByAction)));
 
+// The sink's after-hook slot is carrying-cost only post-fsl#1327 (timer-only
+// semantics); its aggregate fire count stays positive through the other slots.
 if (    kindSupported({ kind: 'after',     from: 'fpb',            handler: noop_true })
      && kindSupported({ kind: 'post hook', from: 'fpa', to: 'fpb', handler: noop_true }) ) {
   cases.push(verified('Kitchen sink (15 hooks) 100 times v2', kitchenSink));
