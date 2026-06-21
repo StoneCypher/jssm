@@ -28,6 +28,7 @@ import {
   JssmPropertyDefinition,
   FslDirection, FslDirections, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler,
+  HookPhase, HookTarget, HookRegistryEntry, HookQuery,
   JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
   JssmBaseTheme,
   JssmRng
@@ -4490,14 +4491,307 @@ class Machine<mDT> {
 
 
 
-  /*
+  /********
+   *
+   *  Generate the uniform observational-hook registry — every currently
+   *  registered hook projected onto a normalized `(kind, target, phase)` row
+   *  (megaspec §12, → #1357).  The registry is *generated* on demand by
+   *  walking the concrete per-kind storage tables rather than maintained as a
+   *  second copy, so it can never drift from the tables {@link Machine.set_hook}
+   *  actually dispatches into.  It is the single source of truth behind the
+   *  introspection accessors ({@link Machine.has_hook}, {@link Machine.hooks_on})
+   *  and the `hooked_state` viz styling.
+   *
+   *  Targets are normalized: edge hooks become `{ scope: 'edge', from, to }`
+   *  (named hooks add `action`), entry/exit/after become `{ scope: 'state' }`,
+   *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
+   *  transition-class, and `everything` observers become `{ scope: 'global' }`.
+   *
+   *  ```typescript
+   *  const m = sm`a 'go' -> b;`;
+   *  m.hook_entry('b', () => true);
+   *  m.hook_registry();
+   *  // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
+   *  ```
+   *
+   *  @returns Every registered hook as a {@link HookRegistryEntry}, in a stable
+   *  table-walk order (pre-phase tables first, then post-phase).
+   *
    */
 
-  // TODO COMEBACK IMPLEMENTME FIXME
+  hook_registry(): HookRegistryEntry[] {
 
-  // has_hooks(state: StateType): false {
-  //   return false;
-  // }
+    const entries: HookRegistryEntry[] = [];
+
+    const push_edges = (
+      table : Map<string, Map<string, HookHandler<mDT>>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((byTo, from) => {
+        byTo.forEach((_handler, to) => {
+          entries.push({ kind, phase, target: { scope: 'edge', from, to } });
+        });
+      });
+    };
+
+    const push_named = (
+      table : Map<string, Map<string, Map<string, HookHandler<mDT>>>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((byTo, from) => {
+        byTo.forEach((byAction, to) => {
+          byAction.forEach((_handler, action) => {
+            entries.push({ kind, phase, target: { scope: 'edge', from, to, action } });
+          });
+        });
+      });
+    };
+
+    const push_states = (
+      table     : Map<string, HookHandler<mDT>>,
+      kind      : HookRegistryEntry['kind'],
+      phase     : HookPhase
+    ): void => {
+      table.forEach((_handler, state) => {
+        entries.push({ kind, phase, target: { scope: 'state', state } });
+      });
+    };
+
+    const push_actions = (
+      table : Map<string, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, action) => {
+        entries.push({ kind, phase, target: { scope: 'action', action } });
+      });
+    };
+
+    const push_global = (
+      handler : HookHandler<mDT> | EverythingHookHandler<mDT> | PostEverythingHookHandler<mDT> | undefined,
+      kind    : HookRegistryEntry['kind'],
+      phase   : HookPhase
+    ): void => {
+      if (handler !== undefined) {
+        entries.push({ kind, phase, target: { scope: 'global' } });
+      }
+    };
+
+    // pre-phase, edge- and state-keyed tables
+    push_edges (this._hooks,                'hook',          'pre');
+    push_named (this._named_hooks,          'named',         'pre');
+    push_states(this._entry_hooks,          'entry',         'pre');
+    push_states(this._exit_hooks,           'exit',          'pre');
+    push_states(this._after_hooks,          'after',         'pre');
+    push_actions(this._global_action_hooks, 'global action', 'pre');
+
+    // pre-phase, global singletons
+    push_global(this._any_action_hook,          'any action',          'pre');
+    push_global(this._standard_transition_hook, 'standard transition', 'pre');
+    push_global(this._main_transition_hook,     'main transition',     'pre');
+    push_global(this._forced_transition_hook,   'forced transition',   'pre');
+    push_global(this._any_transition_hook,      'any transition',      'pre');
+    push_global(this._pre_everything_hook,      'pre everything',      'pre');
+    push_global(this._everything_hook,          'everything',          'pre');
+
+    // post-phase, edge- and state-keyed tables
+    push_edges (this._post_hooks,                'post hook',          'post');
+    push_named (this._post_named_hooks,          'post named',         'post');
+    push_states(this._post_entry_hooks,          'post entry',         'post');
+    push_states(this._post_exit_hooks,           'post exit',          'post');
+    push_actions(this._post_global_action_hooks, 'post global action', 'post');
+
+    // post-phase, global singletons
+    push_global(this._post_any_action_hook,          'post any action',          'post');
+    push_global(this._post_standard_transition_hook, 'post standard transition', 'post');
+    push_global(this._post_main_transition_hook,     'post main transition',     'post');
+    push_global(this._post_forced_transition_hook,   'post forced transition',   'post');
+    push_global(this._post_any_transition_hook,      'post any transition',      'post');
+    push_global(this._pre_post_everything_hook,      'pre post everything',      'post');
+    push_global(this._post_everything_hook,          'post everything',          'post');
+
+    return entries;
+
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry reference the state `state`?  An entry
+   *  references a state when it is a `'state'`-scoped hook on that state, or an
+   *  `'edge'`-scoped hook whose `from` or `to` is that state.  `'action'`- and
+   *  `'global'`-scoped entries reference no particular state.  This is the
+   *  predicate behind both per-state introspection and the `hooked_state`
+   *  styling layer.
+   *
+   *  @param entry The registry entry to test.
+   *  @param state The state name to test membership of.
+   *  @returns `true` when the entry observes that state.
+   *
+   */
+
+  private static _entry_touches_state(entry: HookRegistryEntry, state: StateType): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'state') { return t.state === state; }
+    if (t.scope === 'edge')  { return t.from === state || t.to === state; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match a `{ from, to, action? }` edge query?
+   *  Only `'edge'`-scoped entries can match.  When the query omits `action`
+   *  the entry's action (if any) is ignored; when the query supplies `action`
+   *  it must match exactly.
+   *
+   *  @param entry The registry entry to test.
+   *  @param from  The edge origin to match.
+   *  @param to    The edge destination to match.
+   *  @param action Optional named action to match exactly.
+   *  @returns `true` when the entry observes that edge.
+   *
+   */
+
+  private static _entry_matches_edge(entry: HookRegistryEntry, from: StateType, to: StateType, action?: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope !== 'edge') {
+      return false;
+    }
+    if (t.from !== from || t.to !== to) {
+      return false;
+    }
+    if (action !== undefined) {
+      return t.action === action;
+    }
+    return true;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match an action name?  Both `'action'`-scoped
+   *  hooks (global-action hooks) and named-edge hooks carrying that action
+   *  count as matches.
+   *
+   *  @param entry  The registry entry to test.
+   *  @param action The action name to match.
+   *  @returns `true` when the entry observes that action.
+   *
+   */
+
+  private static _entry_matches_action(entry: HookRegistryEntry, action: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'action') { return t.action === action; }
+    if (t.scope === 'edge')   { return t.action === action; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Return every registry entry observing the given target (megaspec §12).
+   *  The `query` selects the target shape:
+   *
+   *  - a bare **state name** matches entry/exit/after hooks on that state and
+   *    every edge hook touching it (`from` or `to`),
+   *  - a `{ from, to, action? }` **edge** matches edge hooks on that
+   *    transition (optionally narrowed to the named action),
+   *  - a `{ action }` **action** matches global-action and named-edge hooks
+   *    carrying that action.
+   *
+   *  ```typescript
+   *  const m = sm`a 'go' -> b;`;
+   *  m.hook_entry('b', () => true);
+   *  m.hooks_on('b').length;             // 1
+   *  m.hooks_on({ from: 'a', to: 'b' }); // []  (no edge hook registered)
+   *  ```
+   *
+   *  @param query The {@link HookQuery} naming the target to inspect.
+   *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
+   *
+   */
+
+  hooks_on(query: HookQuery): HookRegistryEntry[] {
+
+    const registry = this.hook_registry();
+
+    if (typeof query === 'string') {
+      return registry.filter(e => Machine._entry_touches_state(e, query));
+    }
+
+    // An edge query is distinguished by carrying `from` (it may *also* carry
+    // `action`, which narrows the edge — so this must be tested before the
+    // action-only case, whose discriminator `action` an edge query can share).
+    if ('from' in query) {
+      return registry.filter(e => Machine._entry_matches_edge(e, query.from, query.to, query.action));
+    }
+
+    return registry.filter(e => Machine._entry_matches_action(e, query.action));
+
+  }
+
+
+
+  /********
+   *
+   *  Is at least one observational hook bound to the given target (megaspec
+   *  §12)?  The `query` is read exactly as in {@link Machine.hooks_on}.  An
+   *  optional `phase` narrows the test to pre- or post-transition hooks only;
+   *  omitted, either phase satisfies it.
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.has_hook('b');                 // false
+   *  m.hook_entry('b', () => true);
+   *  m.has_hook('b');                 // true
+   *  m.has_hook('b', 'post');         // false  (the entry hook is pre-phase)
+   *  ```
+   *
+   *  @param query The {@link HookQuery} naming the target to inspect.
+   *  @param phase Optional {@link HookPhase} to restrict the test to.
+   *  @returns `true` when a matching hook exists.
+   *
+   */
+
+  has_hook(query: HookQuery, phase?: HookPhase): boolean {
+    const matches = this.hooks_on(query);
+    if (phase === undefined) { return matches.length > 0; }
+    return matches.some(e => e.phase === phase);
+  }
+
+
+
+  /********
+   *
+   *  Does the given state carry any observational hook — i.e. should it receive
+   *  the `hooked_state` viz styling?  True when an entry/exit/after hook is
+   *  bound to the state or any edge hook touches it.  Powers the `hooked`
+   *  styling layer in {@link Machine.style_for}; replaces the long-stubbed
+   *  `has_hooks` placeholder (megaspec §12).
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.state_has_hooks('a');          // false
+   *  m.hook_exit('a', () => true);
+   *  m.state_has_hooks('a');          // true
+   *  ```
+   *
+   *  @param state The state to test.
+   *  @returns `true` when the state is observed by at least one hook.
+   *
+   */
+
+  state_has_hooks(state: StateType): boolean {
+    if (!this._has_hooks && !this._has_post_hooks) { return false; }
+    return this.hook_registry().some(e => Machine._entry_touches_state(e, state));
+  }
 
 
 
@@ -4555,13 +4849,13 @@ class Machine<mDT> {
 
 
     // hooked state style
-    // if (this.has_hooks(state)) {
-    //   layers.push(base_theme.hooked);
-    //   themes.map(theme => {
-    //     if (theme.hooked) { layers.push(theme.hooked); }
-    //   });
-    //   if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
-    // }
+    if (this.state_has_hooks(state)) {
+      layers.push(base_theme.hooked);
+      themes.map(theme => {
+        if (theme.hooked) { layers.push(theme.hooked); }
+      });
+      layers.push(this._hooked_state_style);
+    }
 
 
     // terminal state style
