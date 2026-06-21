@@ -1,4 +1,4 @@
-import { Interner, pair_key } from '../jssm_intern';
+import { Interner, pair_key, un_pair_key } from '../jssm_intern';
 
 describe('jssm_intern', () => {
 
@@ -70,6 +70,24 @@ describe('jssm_intern', () => {
       // can never equal any stored (always-real) key, so Map.get misses.
       expect(Number.isNaN(pair_key(NaN, 3))).toBe(true);
       expect(Number.isNaN(pair_key(3, NaN))).toBe(true);
+    });
+
+  });
+
+  describe('un_pair_key', () => {
+
+    test('round-trips every ordered pair over a dense id grid', () => {
+      // un_pair_key must exactly invert pair_key for all non-negative inputs.
+      for (let a = 0; a < 60; a++) {
+        for (let b = 0; b < 60; b++) {
+          expect(un_pair_key(pair_key(a, b))).toStrictEqual([a, b]);
+        }
+      }
+    });
+
+    test('matches the documented worked examples and preserves order', () => {
+      expect(un_pair_key(27)).toStrictEqual([2, 5]);
+      expect(un_pair_key(32)).toStrictEqual([5, 2]);
     });
 
   });
