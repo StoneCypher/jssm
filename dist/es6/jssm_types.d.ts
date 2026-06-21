@@ -923,6 +923,87 @@ declare type PostEverythingHook<mDT> = {
  */
 declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 /**
+ *  Whether an observational hook runs in the pre-transition phase (where it
+ *  may veto/mutate the transition) or the post-transition phase (a pure
+ *  observer that runs only after a successful transition commits).
+ */
+declare type HookPhase = 'pre' | 'post';
+/**
+ *  Coarse classification of *what* a hook observes, used to bucket every hook
+ *  kind into the uniform registry.  `'edge'` hooks watch a `from→to`
+ *  transition (optionally narrowed to a named `action`); `'state'` hooks watch
+ *  a single state (entry/exit/after, or a state boundary hook); `'action'`
+ *  hooks watch a named action regardless of edge; `'global'` hooks watch every
+ *  transition or every action (the `any-*`, transition-class, and `everything`
+ *  observers); `'group'` hooks watch a named state group's enter/exit boundary.
+ */
+declare type HookTargetScope = 'edge' | 'state' | 'action' | 'global' | 'group';
+/**
+ *  Normalized description of the target a registry entry is bound to.  Exactly
+ *  one scope variant applies; the present fields depend on the scope:
+ *
+ *  - `'edge'`   carries `from` + `to` (+ optional `action` for named hooks),
+ *  - `'state'`  carries `state`,
+ *  - `'action'` carries `action`,
+ *  - `'global'` carries no further keys (it matches everything),
+ *  - `'group'`  carries `group` (a named state group with a boundary hook).
+ */
+declare type HookTarget = {
+    scope: 'edge';
+    from: StateType;
+    to: StateType;
+    action?: string;
+} | {
+    scope: 'state';
+    state: StateType;
+} | {
+    scope: 'action';
+    action: string;
+} | {
+    scope: 'global';
+} | {
+    scope: 'group';
+    group: string;
+};
+/**
+ *  Kinds for FSL boundary hooks (`on enter/exit &group do 'X'` and the plain-
+ *  state analogue).  These fire post-commit when a transition crosses the
+ *  subject's boundary and are not part of {@link HookDescription} (that union
+ *  covers only the programmatically-registered observational hooks), so the
+ *  registry widens its `kind` field with them.
+ */
+declare type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | 'state exit';
+/**
+ *  One row of the generated uniform observational-hook registry.  `kind` is
+ *  either an original {@link HookDescription} discriminator (e.g. `'entry'`,
+ *  `'post named'`) or a {@link HookBoundaryKind} for an FSL boundary hook,
+ *  `phase` is the {@link HookPhase} the hook runs in, and `target` is the
+ *  normalized {@link HookTarget} it is bound to.  The triple
+ *  `(kind, target, phase)` is the registry key the spec calls for.
+ */
+declare type HookRegistryEntry = {
+    kind: HookDescription<unknown>['kind'] | HookBoundaryKind;
+    phase: HookPhase;
+    target: HookTarget;
+};
+/**
+ *  Query for {@link Machine.has_hook} / {@link Machine.hooks_on}.  A bare
+ *  string is read as a state name; an `{ from, to, action? }` object is read
+ *  as an edge (optionally a named edge); an `{ action }` object is read as a
+ *  named action; a `{ group }` object is read as a named state group.  This
+ *  mirrors the spec's `hooks_on(state)` / `hooks_on(from→to)` /
+ *  `hooks_on(action)` / `hooks_on(&group)` set with one parameter shape.
+ */
+declare type HookQuery = StateType | {
+    from: StateType;
+    to: StateType;
+    action?: string;
+} | {
+    action: string;
+} | {
+    group: string;
+};
+/**
  *  Richer hook return value used when a hook needs to do more than just
  *  accept or veto a transition.  `pass` is the required accept/veto flag
  *  (kept non-optional so that returning a stray object doesn't accidentally
@@ -1218,4 +1299,4 @@ declare type JssmEventHandler<mDT, Ev extends JssmEventName> = (detail: JssmEven
  *  removes the subscription.  Calling it more than once is a no-op.
  */
 declare type JssmUnsubscribe = () => void;
-export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmGraphDefaultEdgeColor, JssmTransitionStyleKey, JssmTransitionConfig, JssmGraphAliasKey, JssmGraphStyleKey, JssmGraphConfig, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmGroupRef, JssmGroupMemberRef, JssmGroupRegistry, JssmHookDeclaration, JssmBoundaryHooks, JssmGroupHooks, JssmStateHooks, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
+export { JssmColor, JssmShape, JssmTransition, JssmTransitions, JssmTransitionList, JssmTransitionRule, JssmArrow, JssmArrowKind, JssmArrowDirection, JssmGenericConfig, JssmGenericState, JssmGenericMachine, JssmParseTree, JssmCompileSe, JssmCompileSeStart, JssmCompileRule, JssmPermitted, JssmPermittedOpt, JssmResult, JssmStateDeclaration, JssmStateDeclarationRule, JssmStateConfig, JssmStateStyleKey, JssmStateStyleKeyList, JssmGraphDefaultEdgeColor, JssmTransitionStyleKey, JssmTransitionConfig, JssmGraphAliasKey, JssmGraphStyleKey, JssmGraphConfig, JssmBaseTheme, JssmTheme, JssmLayout, JssmHistory, JssmSerialization, JssmPropertyDefinition, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmGroupRef, JssmGroupMemberRef, JssmGroupRegistry, JssmHookDeclaration, JssmBoundaryHooks, JssmGroupHooks, JssmStateHooks, JssmParseFunctionType, JssmMachineInternalState, JssmErrorExtendedInfo, FslDirections, FslDirection, FslThemes, FslTheme, FslSourcePoint, FslSourceLocation, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookTargetScope, HookTarget, HookBoundaryKind, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilterMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmTransitionEventDetail, JssmRejectionEventDetail, JssmActionEventDetail, JssmEntryEventDetail, JssmExitEventDetail, JssmTerminalEventDetail, JssmCompleteEventDetail, JssmErrorEventDetail, JssmDataChangeEventDetail, JssmOverrideEventDetail, JssmTimeoutEventDetail, JssmHookLifecycleEventDetail, JssmRng };
