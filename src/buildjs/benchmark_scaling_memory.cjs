@@ -71,4 +71,35 @@ function measureAllocBytes(runBatch, seam = defaultSeam()) {
   return after - base;
 }
 
-module.exports = { defaultSeam, measureRetainedBytes, measureAllocBytes };
+/**
+ *  Inject the memory metrics into a parsed `scaling.json` in place.  Footprint
+ *  fields (`footprintBytes`, `bytesPerState`, `bytesPerEdge`) go on the
+ *  `<shape> construct()` row for each measured shape; `allocBytesPerOp` goes on
+ *  every result whose full name is a key in `allocs`.  Additive and total — rows
+ *  without a measurement are left exactly as they were.
+ *
+ *  @param data Parsed scaling.json (`{ results: [...] }`); mutated in place.
+ *  @param footprints Map of shape name -> `{ bytes, bytesPerState, bytesPerEdge }`.
+ *  @param allocs Map of full result name -> bytes/op.
+ *  @returns void.
+ *
+ *  @example injectMemoryFields(data, new Map([['chain-10', f]]), new Map())
+ */
+function injectMemoryFields(data, footprints, allocs) {
+  for (const r of data.results) {
+    const sp    = r.name.lastIndexOf(' ');
+    const shape = r.name.slice(0, sp);
+    const op    = r.name.slice(sp + 1);
+    if (op === 'construct()' && footprints.has(shape)) {
+      const f = footprints.get(shape);
+      r.footprintBytes = f.bytes;
+      r.bytesPerState  = f.bytesPerState;
+      r.bytesPerEdge   = f.bytesPerEdge;
+    }
+    if (allocs.has(r.name)) {
+      r.allocBytesPerOp = allocs.get(r.name);
+    }
+  }
+}
+
+module.exports = { defaultSeam, measureRetainedBytes, measureAllocBytes, injectMemoryFields };

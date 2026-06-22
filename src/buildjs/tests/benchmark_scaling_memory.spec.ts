@@ -36,6 +36,34 @@ describe('measureAllocBytes', () => {
   });
 });
 
+describe('injectMemoryFields', () => {
+  test('puts footprint on construct rows and allocs on matching op rows', () => {
+    const data = { results: [
+      { name: 'dense-200 construct()',      ops: 1 },
+      { name: 'dense-200 edges_between()',  ops: 5 },
+      { name: 'dense-200 transition()',     ops: 9 },
+    ]};
+    const footprints = new Map([['dense-200', { bytes: 40000, bytesPerState: 200, bytesPerEdge: 1 }]]);
+    const allocs     = new Map([['dense-200 edges_between()', 12], ['dense-200 transition()', 64]]);
+
+    mem.injectMemoryFields(data, footprints, allocs);
+
+    const byName = Object.fromEntries(data.results.map((r: any) => [r.name, r]));
+    expect(byName['dense-200 construct()'].footprintBytes).toBe(40000);
+    expect(byName['dense-200 construct()'].bytesPerEdge).toBe(1);
+    expect(byName['dense-200 construct()'].allocBytesPerOp).toBeUndefined();      // construct not in allocs map
+    expect(byName['dense-200 edges_between()'].allocBytesPerOp).toBe(12);
+    expect(byName['dense-200 edges_between()'].footprintBytes).toBeUndefined();   // footprint only on construct
+    expect(byName['dense-200 transition()'].allocBytesPerOp).toBe(64);
+  });
+
+  test('leaves rows with no match untouched', () => {
+    const data = { results: [{ name: 'chain-10 has_state()', ops: 3 }] };
+    mem.injectMemoryFields(data, new Map(), new Map());
+    expect(data.results[0]).toEqual({ name: 'chain-10 has_state()', ops: 3 });
+  });
+});
+
 function mkHeap(values: number[]) {
   let i = 0;
   return () => values[Math.min(i++, values.length - 1)];
