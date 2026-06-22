@@ -30,10 +30,16 @@ import {
   reachable_predecessors,
   trace_to,
   resolve_starts,
-  check_safety
+  check_safety,
+  // machine-decoupled verification graph
+  node_has_label,
+  build_adjacency,
+  bfs_find_path,
+  check_graph_safety,
+  check_all_graph_safety
 } from '../fsl_verify';
 
-import type { StatePredicate } from '../fsl_verify';
+import type { StatePredicate, VerificationGraph, VerificationNode, GraphSafetyProperty } from '../fsl_verify';
 
 
 
@@ -321,6 +327,271 @@ describe('check_safety — options & determinism', () => {
     expect(r.holds).toBe(false);
     // 'idle' (error) is the start, so the shortest witness is itself.
     expect(r.trace).toStrictEqual(['idle']);
+  });
+
+});
+
+
+
+// ---------------------------------------------------------------------------
+//  Machine-decoupled verification graph
+// ---------------------------------------------------------------------------
+
+// A linear traffic ring; 'go' only at Green, 'safe' everywhere, 'crash' nowhere.
+const traffic_graph: VerificationGraph = {
+  nodes: [
+    { id: 'Green',  labels: ['go',   'safe'] },
+    { id: 'Yellow', labels: [        'safe'] },
+    { id: 'Red',    labels: ['stop', 'safe'] }
+  ],
+  edges: [
+    { from: 'Green',  to: 'Yellow', label: 'tick' },
+    { from: 'Yellow', to: 'Red',    label: 'tick' },
+    { from: 'Red',    to: 'Green',  label: 'tick' }
+  ],
+  start_states: ['Green']
+};
+
+// A machine that can reach a tagged error state: Boot -> Running -> Crashed.
+const crashable_graph: VerificationGraph = {
+  nodes: [
+    { id: 'Boot',    labels: ['safe'] },
+    { id: 'Running', labels: ['safe'] },
+    { id: 'Crashed', labels: ['error'] }
+  ],
+  edges: [
+    { from: 'Boot',    to: 'Running' },
+    { from: 'Running', to: 'Crashed' }
+  ],
+  start_states: ['Boot']
+};
+
+
+
+describe('node_has_label', () => {
+
+  test('label present', () => {
+    expect(node_has_label({ id: 'a', labels: ['x', 'y'] }, 'x')).toBe(true);
+  });
+
+  test('label absent from a populated set', () => {
+    expect(node_has_label({ id: 'a', labels: ['x', 'y'] }, 'z')).toBe(false);
+  });
+
+  test('node with no labels array carries nothing', () => {
+    expect(node_has_label({ id: 'a' }, 'x')).toBe(false);
+  });
+
+  test('node with empty labels array carries nothing', () => {
+    expect(node_has_label({ id: 'a', labels: [] }, 'x')).toBe(false);
+  });
+
+});
+
+
+
+describe('build_adjacency', () => {
+
+  test('maps every source to its one-step successors', () => {
+    const adj = build_adjacency(traffic_graph);
+    expect(adj.get('Green')).toStrictEqual(['Yellow']);
+    expect(adj.get('Yellow')).toStrictEqual(['Red']);
+    expect(adj.get('Red')).toStrictEqual(['Green']);
+  });
+
+  test('a pure-sink target still appears as a key with an empty list', () => {
+    const adj = build_adjacency(crashable_graph);
+    expect(adj.get('Crashed')).toStrictEqual([]);
+  });
+
+  test('a node declared but never an edge endpoint appears with an empty list', () => {
+    const island: VerificationGraph = {
+      nodes: [{ id: 'Lonely' }],
+      edges: [],
+      start_states: ['Lonely']
+    };
+    expect(build_adjacency(island).get('Lonely')).toStrictEqual([]);
+  });
+
+  test('a source seen by both the node list and an edge is created once, pushed twice', () => {
+    // 'A' is declared (first creation), is an edge source (list_for re-read),
+    // and has two out-edges (push twice).
+    const graph: VerificationGraph = {
+      nodes: [{ id: 'A' }, { id: 'B' }, { id: 'C' }],
+      edges: [
+        { from: 'A', to: 'B' },
+        { from: 'A', to: 'C' }
+      ],
+      start_states: ['A']
+    };
+    expect(build_adjacency(graph).get('A')).toStrictEqual(['B', 'C']);
+  });
+
+  test('an edge endpoint not in the node list is still keyed', () => {
+    const graph: VerificationGraph = {
+      nodes: [],
+      edges: [{ from: 'X', to: 'Y' }],
+      start_states: ['X']
+    };
+    const adj = build_adjacency(graph);
+    expect(adj.get('X')).toStrictEqual(['Y']);
+    expect(adj.get('Y')).toStrictEqual([]);
+  });
+
+});
+
+
+
+describe('bfs_find_path', () => {
+
+  test('finds the shortest path to a satisfying node', () => {
+    const path = bfs_find_path(crashable_graph, (n: VerificationNode) => node_has_label(n, 'error'));
+    expect(path).toStrictEqual(['Boot', 'Running', 'Crashed']);
+  });
+
+  test('returns undefined when no reachable node satisfies the predicate', () => {
+    const path = bfs_find_path(crashable_graph, (n: VerificationNode) => node_has_label(n, 'nope'));
+    expect(path).toBeUndefined();
+  });
+
+  test('matches a start state immediately (single-node witness)', () => {
+    const path = bfs_find_path(traffic_graph, (n: VerificationNode) => node_has_label(n, 'go'));
+    expect(path).toStrictEqual(['Green']);
+  });
+
+  test('explores past a cycle without looping (visited-successor branch)', () => {
+    const path = bfs_find_path(traffic_graph, (n: VerificationNode) => node_has_label(n, 'stop'));
+    expect(path).toStrictEqual(['Green', 'Yellow', 'Red']);
+  });
+
+  test('deduplicates repeated start states (visited-start branch)', () => {
+    const dup: VerificationGraph = {
+      nodes: [{ id: 'S', labels: ['target'] }],
+      edges: [],
+      start_states: ['S', 'S']
+    };
+    const path = bfs_find_path(dup, (n: VerificationNode) => node_has_label(n, 'target'));
+    expect(path).toStrictEqual(['S']);
+  });
+
+  test('explores a start state with no declared node (node_for fallback)', () => {
+    const ghostly: VerificationGraph = {
+      nodes: [],
+      edges: [],
+      start_states: ['Ghost']
+    };
+    const path = bfs_find_path(ghostly, (n: VerificationNode) => node_has_label(n, 'anything'));
+    expect(path).toBeUndefined();
+  });
+
+  test('a start with no adjacency entry uses the empty-successors branch', () => {
+    const solo: VerificationGraph = {
+      nodes: [],
+      edges: [],
+      start_states: ['Solo']
+    };
+    const path = bfs_find_path(solo, (n: VerificationNode) => node_has_label(n, 'x'));
+    expect(path).toBeUndefined();
+  });
+
+  test('a diamond re-converges without revisiting the join (visited-successor branch)', () => {
+    // A -> B, A -> C, B -> D, C -> D : D is enqueued once via B; C->D hits visited.
+    const diamond: VerificationGraph = {
+      nodes: [
+        { id: 'A' },
+        { id: 'B' },
+        { id: 'C' },
+        { id: 'D', labels: ['goal'] }
+      ],
+      edges: [
+        { from: 'A', to: 'B' },
+        { from: 'A', to: 'C' },
+        { from: 'B', to: 'D' },
+        { from: 'C', to: 'D' }
+      ],
+      start_states: ['A']
+    };
+    const path = bfs_find_path(diamond, (n: VerificationNode) => node_has_label(n, 'goal'));
+    expect(path).toStrictEqual(['A', 'B', 'D']);
+  });
+
+});
+
+
+
+describe('check_graph_safety — reachability', () => {
+
+  test('reachable target: holds with a witness path', () => {
+    const result = check_graph_safety(traffic_graph, { kind: 'reachability', label: 'stop', name: 'red-reachable' });
+    expect(result.holds).toBe(true);
+    expect(result.witness).toStrictEqual(['Green', 'Yellow', 'Red']);
+    expect(result.property.name).toBe('red-reachable');
+  });
+
+  test('unreachable target: fails with no witness', () => {
+    const result = check_graph_safety(traffic_graph, { kind: 'reachability', label: 'crash' });
+    expect(result.holds).toBe(false);
+    expect(result.witness).toBeUndefined();
+  });
+
+});
+
+
+
+describe('check_graph_safety — invariant', () => {
+
+  test('invariant that holds at every reachable node: proved, no witness', () => {
+    const result = check_graph_safety(traffic_graph, { kind: 'invariant', label: 'safe' });
+    expect(result.holds).toBe(true);
+    expect(result.witness).toBeUndefined();
+  });
+
+  test('invariant that is violated: refuted with a counterexample path', () => {
+    const result = check_graph_safety(traffic_graph, { kind: 'invariant', label: 'go' });
+    expect(result.holds).toBe(false);
+    expect(result.witness).toStrictEqual(['Green', 'Yellow']);
+  });
+
+  test('error-state reachability refutes the no-error invariant with a tape', () => {
+    const result = check_graph_safety(crashable_graph, { kind: 'invariant', label: 'safe' });
+    expect(result.holds).toBe(false);
+    expect(result.witness).toStrictEqual(['Boot', 'Running', 'Crashed']);
+  });
+
+});
+
+
+
+describe('check_graph_safety — unknown kind', () => {
+
+  test('throws on an unrecognized property kind', () => {
+    const bogus = { kind: 'liveness', label: 'eventually-done' } as unknown as GraphSafetyProperty;
+    expect(() => check_graph_safety(traffic_graph, bogus)).toThrow(/unknown safety property kind/);
+  });
+
+  test('the thrown message names the offending kind', () => {
+    const bogus = { kind: 'whatever', label: 'x' } as unknown as GraphSafetyProperty;
+    expect(() => check_graph_safety(traffic_graph, bogus)).toThrow(/whatever/);
+  });
+
+});
+
+
+
+describe('check_all_graph_safety', () => {
+
+  test('discharges a batch in input order', () => {
+    const results = check_all_graph_safety(traffic_graph, [
+      { kind: 'reachability', label: 'stop' },
+      { kind: 'invariant',    label: 'safe' },
+      { kind: 'invariant',    label: 'go'   }
+    ]);
+    expect(results.map(r => r.holds)).toStrictEqual([true, true, false]);
+    expect(results[2].witness).toStrictEqual(['Green', 'Yellow']);
+  });
+
+  test('an empty batch yields an empty result list', () => {
+    expect(check_all_graph_safety(traffic_graph, [])).toStrictEqual([]);
   });
 
 });

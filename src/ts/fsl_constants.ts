@@ -8,8 +8,8 @@
  *  here are *measured* quantities sourced from CODATA, each carrying a
  *  standard uncertainty and the CODATA adjustment year it came from.
  *
- *  Every constant is a {@link PhysicalConstant} record: a numeric `value`,
- *  an SI `unit` string, a standard `uncertainty` (`0` for constants that are
+ *  Every constant is a {@link PhysicalConstant} record: a human-readable
+ *  `name`, a numeric `value`, an SI `unit` string, a standard `uncertainty` (`0` for constants that are
  *  exact by SI definition since the 2019 redefinition), and the `codata_year`
  *  the figure is drawn from.  Constants are grouped by CODATA adjustment year
  *  in {@link physical_constants_by_year}; the latest supported year is
@@ -35,8 +35,8 @@
  *  A single measured physical constant, as published by a CODATA adjustment.
  *
  *  Fields are intentionally minimal and host-agnostic so the record
- *  serializes cleanly (numbers and strings only): `value` is the recommended
- *  magnitude in the stated SI `unit`; `uncertainty` is the one-sigma standard
+ *  serializes cleanly (numbers and strings only): `name` is a human-readable
+ *  label; `value` is the recommended magnitude in the stated SI `unit`; `uncertainty` is the one-sigma standard
  *  uncertainty in the same unit (`0` when the constant is exact by SI
  *  definition); `codata_year` records the adjustment the figure came from.
  *
@@ -45,6 +45,9 @@
  */
 
 type PhysicalConstant = Readonly<{
+
+  /** Human-readable name of the constant (e.g. `'speed of light in vacuum'`). */
+  name        : string;
 
   /** Recommended magnitude of the constant, expressed in `unit`. */
   value       : number;
@@ -94,7 +97,8 @@ type PhysicalConstantSymbol =
   | 'epsilon0' // vacuum electric permittivity
   | 'mu0'      // vacuum magnetic permeability
   | 'sigma'    // Stefan-Boltzmann constant
-  | 'F';       // Faraday constant
+  | 'F'        // Faraday constant
+  | 'g_n';     // standard acceleration of gravity
 
 
 
@@ -112,22 +116,23 @@ type PhysicalConstantSymbol =
 
 const codata_2018: Readonly<Record<PhysicalConstantSymbol, PhysicalConstant>> = Object.freeze({
 
-  c:        Object.freeze({ value: 299792458,             unit: 'm s^-1',         uncertainty: 0,            codata_year: 2018 }),
-  G:        Object.freeze({ value: 6.67430e-11,           unit: 'm^3 kg^-1 s^-2', uncertainty: 1.5e-15,      codata_year: 2018 }),
-  h:        Object.freeze({ value: 6.62607015e-34,        unit: 'J Hz^-1',        uncertainty: 0,            codata_year: 2018 }),
-  hbar:     Object.freeze({ value: 1.054571817e-34,       unit: 'J s',            uncertainty: 0,            codata_year: 2018 }),
-  e:        Object.freeze({ value: 1.602176634e-19,       unit: 'C',              uncertainty: 0,            codata_year: 2018 }),
-  k:        Object.freeze({ value: 1.380649e-23,          unit: 'J K^-1',         uncertainty: 0,            codata_year: 2018 }),
-  NA:       Object.freeze({ value: 6.02214076e23,         unit: 'mol^-1',         uncertainty: 0,            codata_year: 2018 }),
-  R:        Object.freeze({ value: 8.314462618,           unit: 'J mol^-1 K^-1',  uncertainty: 0,            codata_year: 2018 }),
-  me:       Object.freeze({ value: 9.1093837015e-31,      unit: 'kg',             uncertainty: 2.8e-40,      codata_year: 2018 }),
-  mp:       Object.freeze({ value: 1.67262192369e-27,     unit: 'kg',             uncertainty: 5.1e-37,      codata_year: 2018 }),
-  mn:       Object.freeze({ value: 1.67492749804e-27,     unit: 'kg',             uncertainty: 9.5e-37,      codata_year: 2018 }),
-  alpha:    Object.freeze({ value: 7.2973525693e-3,       unit: '1',              uncertainty: 1.1e-12,      codata_year: 2018 }),
-  epsilon0: Object.freeze({ value: 8.8541878128e-12,      unit: 'F m^-1',         uncertainty: 1.3e-21,      codata_year: 2018 }),
-  mu0:      Object.freeze({ value: 1.25663706212e-6,      unit: 'N A^-2',         uncertainty: 1.9e-16,      codata_year: 2018 }),
-  sigma:    Object.freeze({ value: 5.670374419e-8,        unit: 'W m^-2 K^-4',    uncertainty: 0,            codata_year: 2018 }),
-  F:        Object.freeze({ value: 96485.33212,           unit: 'C mol^-1',       uncertainty: 0,            codata_year: 2018 })
+  c:        Object.freeze({ name: 'speed of light in vacuum',          value: 299792458,         unit: 'm s^-1',         uncertainty: 0,       codata_year: 2018 }),
+  G:        Object.freeze({ name: 'Newtonian constant of gravitation', value: 6.67430e-11,       unit: 'm^3 kg^-1 s^-2', uncertainty: 1.5e-15, codata_year: 2018 }),
+  h:        Object.freeze({ name: 'Planck constant',                   value: 6.62607015e-34,    unit: 'J Hz^-1',        uncertainty: 0,       codata_year: 2018 }),
+  hbar:     Object.freeze({ name: 'reduced Planck constant',           value: 1.054571817e-34,   unit: 'J s',            uncertainty: 0,       codata_year: 2018 }),
+  e:        Object.freeze({ name: 'elementary charge',                 value: 1.602176634e-19,   unit: 'C',              uncertainty: 0,       codata_year: 2018 }),
+  k:        Object.freeze({ name: 'Boltzmann constant',                value: 1.380649e-23,      unit: 'J K^-1',         uncertainty: 0,       codata_year: 2018 }),
+  NA:       Object.freeze({ name: 'Avogadro constant',                 value: 6.02214076e23,     unit: 'mol^-1',         uncertainty: 0,       codata_year: 2018 }),
+  R:        Object.freeze({ name: 'molar gas constant',                value: 8.314462618,       unit: 'J mol^-1 K^-1',  uncertainty: 0,       codata_year: 2018 }),
+  me:       Object.freeze({ name: 'electron mass',                     value: 9.1093837015e-31,  unit: 'kg',             uncertainty: 2.8e-40, codata_year: 2018 }),
+  mp:       Object.freeze({ name: 'proton mass',                       value: 1.67262192369e-27, unit: 'kg',             uncertainty: 5.1e-37, codata_year: 2018 }),
+  mn:       Object.freeze({ name: 'neutron mass',                      value: 1.67492749804e-27, unit: 'kg',             uncertainty: 9.5e-37, codata_year: 2018 }),
+  alpha:    Object.freeze({ name: 'fine-structure constant',          value: 7.2973525693e-3,   unit: '1',              uncertainty: 1.1e-12, codata_year: 2018 }),
+  epsilon0: Object.freeze({ name: 'vacuum electric permittivity',      value: 8.8541878128e-12,  unit: 'F m^-1',         uncertainty: 1.3e-21, codata_year: 2018 }),
+  mu0:      Object.freeze({ name: 'vacuum magnetic permeability',      value: 1.25663706212e-6,  unit: 'N A^-2',         uncertainty: 1.9e-16, codata_year: 2018 }),
+  sigma:    Object.freeze({ name: 'Stefan-Boltzmann constant',         value: 5.670374419e-8,    unit: 'W m^-2 K^-4',    uncertainty: 0,       codata_year: 2018 }),
+  F:        Object.freeze({ name: 'Faraday constant',                  value: 96485.33212,       unit: 'C mol^-1',       uncertainty: 0,       codata_year: 2018 }),
+  g_n:      Object.freeze({ name: 'standard acceleration of gravity',  value: 9.80665,           unit: 'm s^-2',         uncertainty: 0,       codata_year: 2018 })
 
 });
 
@@ -156,6 +161,18 @@ const physical_constants_by_year: Readonly<Record<CodataYear, Readonly<Record<Ph
  *  latest_codata_year;  // => 2018
  */
 const latest_codata_year: CodataYear = 2018;
+
+
+/**
+ *  A human-readable provenance tag for this constants library — the source
+ *  body (`CODATA`) joined with {@link latest_codata_year}.  Handy for
+ *  provenance lines in serialized machine state or diagnostics.
+ *
+ *  @example
+ *  import { CONSTANTS_VERSION } from 'jssm';
+ *  CONSTANTS_VERSION;  // => 'CODATA 2018'
+ */
+const CONSTANTS_VERSION: string = `CODATA ${latest_codata_year}`;
 
 
 
@@ -215,7 +232,7 @@ function supported_codata_years(): ReadonlyArray<CodataYear> {
  *
  *  @example
  *  import { physical_constant_symbols } from 'jssm';
- *  physical_constant_symbols(2018).length;     // => 16
+ *  physical_constant_symbols(2018).length;     // => 17
  */
 function physical_constant_symbols(year: CodataYear = latest_codata_year): ReadonlyArray<PhysicalConstantSymbol> {
   return Object.keys(physical_constants_by_year[year]) as PhysicalConstantSymbol[];
@@ -288,6 +305,75 @@ function physical_constant(symbol: PhysicalConstantSymbol, year: CodataYear = la
 
 
 
+/*******
+ *
+ *  Error thrown by {@link lookup_constant} when asked for a symbol that is not
+ *  registered in this library.  A dedicated typed error — rather than the
+ *  general {@link FslError} taxonomy — keeps the constants module
+ *  self-contained (it needs no machine context and no taxonomy `kind`), while
+ *  still letting callers discriminate the miss path with `instanceof` and read
+ *  the offending `symbol` directly.  Follows the `fsl_errors` convention of
+ *  setting `name` and naming the offending entity in the message.
+ *
+ *  @param symbol - The unknown symbol that was requested.
+ *
+ *  @example
+ *  import { lookup_constant, UnknownConstantError } from 'jssm';
+ *  try { lookup_constant('nope'); }
+ *  catch (e) { e instanceof UnknownConstantError; }  // => true
+ *
+ */
+
+class UnknownConstantError extends Error {
+
+  /** The unrecognized symbol that was requested. */
+  symbol : string;
+
+  constructor(symbol: string) {
+    super(`unknown physical constant "${symbol}"`);
+    Object.setPrototypeOf(this, UnknownConstantError.prototype);
+    this.name   = 'UnknownConstantError';
+    this.symbol = symbol;
+  }
+
+}
+
+
+/**
+ *  String-tolerant lookup of a physical constant by symbol — the forgiving
+ *  companion to {@link physical_constant}, for callsites that hold an
+ *  untyped string (parser output, user input) rather than a statically-known
+ *  {@link PhysicalConstantSymbol}.  Resolves against the latest CODATA year.
+ *
+ *  @param symbol - The short symbol to read (e.g. `'c'`); any string is
+ *                  accepted, and an unrecognized one throws.
+ *  @returns The {@link PhysicalConstant} record for `symbol`.
+ *
+ *  @throws {UnknownConstantError} When `symbol` is not a registered constant.
+ *
+ *  @example
+ *  import { lookup_constant } from 'jssm';
+ *  lookup_constant('c').value;   // => 299792458
+ *  lookup_constant('k').unit;    // => 'J K^-1'
+ *
+ *  @see physical_constant
+ *  @see UnknownConstantError
+ */
+function lookup_constant(symbol: string): PhysicalConstant {
+
+  const table = physical_constants_by_year[latest_codata_year];
+
+  if (Object.prototype.hasOwnProperty.call(table, symbol)) {
+    return table[symbol as PhysicalConstantSymbol];
+  }
+
+  throw new UnknownConstantError(symbol);
+
+}
+
+
+
+
 export {
 
   PhysicalConstant,
@@ -296,11 +382,14 @@ export {
 
   physical_constants_by_year,
   latest_codata_year,
+  CONSTANTS_VERSION,
 
   ascending_year_order,
   supported_codata_years,
   physical_constant_symbols,
   known_physical_constant,
   physical_constant,
+  lookup_constant,
+  UnknownConstantError,
 
 };

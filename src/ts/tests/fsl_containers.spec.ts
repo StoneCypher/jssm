@@ -2,13 +2,15 @@
 import {
   // list
   list_of, list_from, list_length, resolve_list_index,
-  list_get, list_set, list_push, list_pop, list_slice, list_includes,
+  list_get, list_at, list_set, list_push, list_pop, list_slice, list_includes,
   // set
   set_of, set_from, set_size, set_has, set_add, set_remove,
   set_union, set_intersection, set_difference,
   // map
-  map_of, map_size, map_has, map_get, map_put, map_remove,
+  map_of, map_size, map_has, map_get, map_get_strict, map_get_or, map_put, map_remove,
   map_keys, map_values, map_entries,
+  // typed errors + key predicate
+  is_container_key, ContainerKeyError, ContainerRangeError,
   // structural protocol
   is_container, deep_equal, same_value_zero, equals, snapshot, deep_clone, compare, KIND_RANK,
   // helpers
@@ -583,6 +585,173 @@ describe('immutability — no operation mutates its input', () => {
     map_put(m, 'a', 9);
     map_remove(m, 'a');
     expect( map_entries(m) ).toEqual([['a', 1], ['b', 2]]);
+  });
+
+});
+
+
+
+
+describe('is_container_key — §4.2 key / member predicate', () => {
+
+  test('accepts strings and finite numbers', () => {
+    expect( is_container_key('a') ).toBe(true);
+    expect( is_container_key('')  ).toBe(true);
+    expect( is_container_key(0)   ).toBe(true);
+    expect( is_container_key(-3.5) ).toBe(true);
+  });
+
+  test('rejects NaN, infinities, and non-scalars', () => {
+    expect( is_container_key(NaN) ).toBe(false);
+    expect( is_container_key(Infinity) ).toBe(false);
+    expect( is_container_key(-Infinity) ).toBe(false);
+    expect( is_container_key(true) ).toBe(false);
+    expect( is_container_key(null) ).toBe(false);
+    expect( is_container_key(undefined) ).toBe(false);
+    expect( is_container_key({}) ).toBe(false);
+  });
+
+});
+
+
+
+
+describe('typed container errors (§11)', () => {
+
+  test('ContainerKeyError carries kind, role, key, and is an FslError', () => {
+    let caught: unknown;
+    try { require_scalar({}, 'member'); } catch (e) { caught = e; }
+    expect( caught ).toBeInstanceOf(ContainerKeyError);
+    const err = caught as ContainerKeyError;
+    expect( err.name ).toBe('ContainerKeyError');
+    expect( err.kind ).toBe('type_error');
+    expect( err.role ).toBe('member');
+    expect( err.key  ).toEqual({});
+    expect( err.message ).toContain('member');
+  });
+
+  test('require_scalar defaults role to key and rejects NaN / Infinity', () => {
+    const grab = (fn: () => unknown): ContainerKeyError => {
+      try { fn(); } catch (e) { return e as ContainerKeyError; }
+      throw new Error('expected throw');
+    };
+    expect( grab(() => require_scalar(NaN)).role ).toBe('key');
+    expect( grab(() => require_scalar(Infinity)).role ).toBe('key');
+    expect( require_scalar('ok') ).toBe('ok');
+    expect( require_scalar(5) ).toBe(5);
+  });
+
+  test('ContainerRangeError carries the out_of_bounds kind and is an FslError', () => {
+    let caught: unknown;
+    try { list_at(list_of(1), 9); } catch (e) { caught = e; }
+    expect( caught ).toBeInstanceOf(ContainerRangeError);
+    const err = caught as ContainerRangeError;
+    expect( err.name ).toBe('ContainerRangeError');
+    expect( err.kind ).toBe('out_of_bounds');
+  });
+
+});
+
+
+
+
+describe('key validation on read / membership / remove (§4.2)', () => {
+
+  test('set_has and set_remove reject non-scalar members', () => {
+    expect( () => set_has(set_of(1), NaN) ).toThrow(ContainerKeyError);
+    // @ts-expect-error — deliberately illegal member type for the runtime guard
+    expect( () => set_has(set_of(1), {}) ).toThrow(ContainerKeyError);
+    expect( () => set_remove(set_of(1), Infinity) ).toThrow(ContainerKeyError);
+  });
+
+  test('set_has / set_remove still work for valid members', () => {
+    expect( set_has(set_of(1, 2), 2) ).toBe(true);
+    expect( set_has(set_of(1, 2), 9) ).toBe(false);
+    const s = set_of(1, 2, 3);
+    expect( set_remove(s, 2).members ).toEqual([1, 3]);
+    expect( set_remove(s, 9) ).toBe(s);          // absent → original
+  });
+
+  test('map_has / map_get / map_remove reject non-scalar keys', () => {
+    expect( () => map_has(map_of([['a', 1]]), NaN) ).toThrow(ContainerKeyError);
+    expect( () => map_get(map_of([['a', 1]]), NaN) ).toThrow(ContainerKeyError);
+    // @ts-expect-error — deliberately illegal key type for the runtime guard
+    expect( () => map_remove(map_of([['a', 1]]), {}) ).toThrow(ContainerKeyError);
+  });
+
+  test('validated reads/removes still behave leniently for valid keys', () => {
+    const m = map_of([['a', 1], ['b', 2]]);
+    expect( map_has(m, 'a') ).toBe(true);
+    expect( map_has(m, 'z') ).toBe(false);
+    expect( map_get(m, 'b') ).toBe(2);
+    expect( map_get(m, 'z') ).toBeUndefined();   // absent → undefined (lenient kept)
+    expect( map_remove(m, 'a').keys ).toEqual(['b']);
+    expect( map_remove(m, 'z') ).toBe(m);         // absent → original
+  });
+
+});
+
+
+
+
+describe('strict reads — list_at / map_get_strict (additive to lenient default)', () => {
+
+  test('list_at reads positive and negative indices', () => {
+    const l = list_of(10, 20, 30);
+    expect( list_at(l, 0) ).toBe(10);
+    expect( list_at(l, 1) ).toBe(20);
+    expect( list_at(l, -1) ).toBe(30);
+  });
+
+  test('list_at throws ContainerRangeError on out-of-range', () => {
+    expect( () => list_at(list_of(1, 2, 3), 9) ).toThrow(ContainerRangeError);
+    expect( () => list_at(list_of(1, 2, 3), -4) ).toThrow(ContainerRangeError);
+    expect( () => list_at(list_of<number>(), 0) ).toThrow(ContainerRangeError);
+  });
+
+  test('list_get stays lenient (the default) while list_at throws', () => {
+    const l = list_of(1, 2, 3);
+    expect( list_get(l, 9) ).toBeUndefined();
+    expect( () => list_at(l, 9) ).toThrow(ContainerRangeError);
+  });
+
+  test('map_get_strict returns present values', () => {
+    expect( map_get_strict(map_of([['a', 1], ['b', 2]]), 'b') ).toBe(2);
+    expect( map_get_strict(map_of([[7, 'x']]), 7) ).toBe('x');
+  });
+
+  test('map_get_strict throws ContainerRangeError for an absent key (string and number printables)', () => {
+    expect( () => map_get_strict(map_of([['a', 1]]), 'z') ).toThrow(ContainerRangeError);
+    expect( () => map_get_strict(map_of([[1, 'a']]), 9) ).toThrow(ContainerRangeError);
+  });
+
+  test('map_get_strict rejects non-scalar keys with ContainerKeyError', () => {
+    expect( () => map_get_strict(map_of([['a', 1]]), NaN) ).toThrow(ContainerKeyError);
+  });
+
+});
+
+
+
+
+describe('map_get_or — defaulting read', () => {
+
+  test('returns the stored value when present', () => {
+    expect( map_get_or(map_of([['a', 1]]), 'a', 0) ).toBe(1);
+  });
+
+  test('returns the fallback when absent', () => {
+    expect( map_get_or(map_of([['a', 1]]), 'z', 0) ).toBe(0);
+  });
+
+  test('a key stored with value undefined returns that undefined, not the fallback', () => {
+    const m = map_of<number | undefined>([['a', undefined]]);
+    expect( map_get_or(m, 'a', 99) ).toBeUndefined();
+    expect( map_get_or(m, 'z', 99) ).toBe(99);
+  });
+
+  test('rejects a non-scalar key with ContainerKeyError', () => {
+    expect( () => map_get_or(map_of([['a', 1]]), NaN, 0) ).toThrow(ContainerKeyError);
   });
 
 });
