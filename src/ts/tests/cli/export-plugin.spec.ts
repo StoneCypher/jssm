@@ -137,7 +137,23 @@ describe('fsl-export plugin cli()', () => {
     expect(stderrChunks.join('')).toContain('cannot write');
   });
 
-  it('returns 2 on a non-InterchangeError thrown by exportMachine', async () => {
+  it('reads Buffer chunks from stdin (the Buffer.isBuffer branch)', async () => {
+    const { Readable } = await import('stream');
+    const real = process.stdin;
+    const fake = Object.assign(
+      new Readable({ read() { this.push(Buffer.from(FSL)); this.push(null); } }),
+      { isTTY: false },
+    );
+    Object.defineProperty(process, 'stdin', { value: fake, configurable: true });
+    try {
+      expect(await cli(['--format=json'])).toBe(0);
+      expect(stdoutChunks.join('')).toContain('"a"');
+    } finally {
+      Object.defineProperty(process, 'stdin', { value: real, configurable: true });
+    }
+  });
+
+  it('returns 2 on a non-InterchangeError (with a message) thrown by exportMachine', async () => {
     vi.resetModules();
     vi.doMock('../../cli/subcommands/export/export', () => ({
       exportMachine: () => { throw new Error('boom non-interchange'); },
@@ -146,6 +162,19 @@ describe('fsl-export plugin cli()', () => {
     await withStdin(FSL, async () => {
       expect(await mockedCli(['--format=json'])).toBe(2);
       expect(stderrChunks.join('')).toContain('boom non-interchange');
+    });
+    vi.doUnmock('../../cli/subcommands/export/export');
+  });
+
+  it('String()s a non-Error value thrown by exportMachine (the ?? fallback)', async () => {
+    vi.resetModules();
+    vi.doMock('../../cli/subcommands/export/export', () => ({
+      exportMachine: () => { throw 'plain-string-failure'; },
+    }));
+    const { cli: mockedCli } = await import('../../cli/subcommands/export/plugin');
+    await withStdin(FSL, async () => {
+      expect(await mockedCli(['--format=json'])).toBe(2);
+      expect(stderrChunks.join('')).toContain('plain-string-failure');
     });
     vi.doUnmock('../../cli/subcommands/export/export');
   });

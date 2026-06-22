@@ -25,10 +25,10 @@ describe('modelToMermaid', () => {
     expect(out).toContain('#quot;c');
   });
 
-  it('falls back to the raw endpoint when an edge names an undeclared state', () => {
-    // 'ghost' is not in states → ids.get() is undefined → the raw name is used
-    const m: InterchangeModel = { states: ['a'], edges: [{ from: 'a', to: 'ghost', kind: 'legal' }] };
-    expect(modelToMermaid(m)).toContain('s0 --> ghost');
+  it('falls back to the raw endpoints when an edge names undeclared states', () => {
+    // neither endpoint is in states → ids.get() is undefined for both → raw names
+    const m: InterchangeModel = { states: ['a'], edges: [{ from: 'ghostA', to: 'ghostB', kind: 'legal' }] };
+    expect(modelToMermaid(m)).toContain('ghostA --> ghostB');
   });
 
 });

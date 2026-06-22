@@ -53,4 +53,16 @@ describe('exportMachine', () => {
     }
   });
 
+  it('String()s a non-Error thrown by the FSL compiler (fsl-bridge ?? fallback)', async () => {
+    vi.resetModules();
+    vi.doMock('../../jssm', () => ({ from: () => { throw 'plain-string-parse-failure'; } }));
+    const { exportMachine: mockedExport } = await import('../../cli/subcommands/export/export');
+    const { InterchangeError: IE } = await import('../../cli/subcommands/interchange/types');
+    let thrown: unknown;
+    try { mockedExport('whatever', { format: 'json' }); } catch (e) { thrown = e; }
+    expect(thrown).toBeInstanceOf(IE);
+    expect((thrown as Error).message).toContain('plain-string-parse-failure');
+    vi.doUnmock('../../jssm');
+  });
+
 });

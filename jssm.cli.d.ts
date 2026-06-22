@@ -320,6 +320,179 @@ interface MachineSurface {
  */
 declare function extractSurface(fsl: string): MachineSurface;
 
+/**
+ * Shared types and errors for the `import` / `export` tool-interchange verbs
+ * (megaspec §25). These verbs convert *between* FSL and other state-machine
+ * interchange formats; they are explicitly **not** a package fetcher — fetching
+ * a machine by name is the registry's job, never `import`'s.
+ *
+ * The model deliberately mirrors the structural surface jssm already exposes
+ * (`Machine.states()` + `Machine.list_edges()`): a set of named states and a
+ * list of typed edges. Anything an interchange format cannot express against
+ * that surface is reported as a *lossy* note rather than silently dropped, so
+ * a conversion's fidelity is always visible to the caller.
+ */
+/**
+ * The interchange formats `export` can target. `fsl` is included so the verb
+ * surface is uniform (export to FSL is the canonical-formatter identity), but
+ * the typical targets are the non-FSL ones.
+ *
+ * Fully implemented in this phase: `json`, `mermaid`. The remainder are
+ * documented opt-ins (megaspec §25's "formal-methods bridges" and "grammar
+ * artifacts") that parse and validate but report `unsupported` until their
+ * own phase lands — so the flag surface is stable and discoverable now.
+ */
+declare type ExportFormat = 'json' | 'mermaid' | 'scxml' | 'xstate' | 'dot' | 'tla+' | 'alloy' | 'smv' | 'promela' | 'gbnf' | 'lark' | 'ebnf';
+/**
+ * The interchange formats `import` can read and convert *into* FSL.
+ *
+ * Fully implemented in this phase: `json`, `mermaid`. The remainder are
+ * documented opt-ins reported as `unsupported` until their phase lands.
+ */
+declare type ImportFormat = 'json' | 'mermaid' | 'scxml' | 'xstate' | 'dot';
+/**
+ * The format-neutral structural model `export` produces and `import` consumes.
+ *
+ * It is intentionally small — the lossless core that every supported format
+ * can carry. Format-specific detail that does not fit (hooks, contracts,
+ * vals, themes) is surfaced via {@link ConversionResult.lossy} rather than
+ * encoded here, keeping the model honest about what round-trips.
+ */
+interface InterchangeModel {
+    /** All state names, in declaration order. */
+    states: string[];
+    /** All transitions between states. */
+    edges: InterchangeEdge[];
+    /** The states the machine may start in, when known. */
+    start_states?: string[];
+}
+/**
+ * One directed transition in an {@link InterchangeModel}.
+ *
+ * `kind` is FSL's arrow semantics: `legal` (`->`), `main` (`=>`), or `forced`
+ * (`~>`). `action` is the optional event/action label that drives the edge.
+ */
+interface InterchangeEdge {
+    from: string;
+    to: string;
+    kind: 'legal' | 'main' | 'forced';
+    action?: string;
+}
+/**
+ * The outcome of a conversion: the produced text plus any fidelity notes.
+ *
+ * `lossy` is the spec's "lossy conversions marked" contract (megaspec §25,
+ * `import` row) made concrete: each entry names a construct the target format
+ * could not represent. An empty `lossy` array means the conversion was
+ * faithful for everything the model carried.
+ */
+interface ConversionResult {
+    /** The converted output text (FSL for `import`, the target format for `export`). */
+    output: string;
+    /** Human-readable notes naming each piece of fidelity that was lost. */
+    lossy: string[];
+}
+/**
+ * Thrown when an interchange conversion cannot complete: malformed input, an
+ * unknown format name, or a format whose direction is not yet implemented.
+ *
+ * `format` names the interchange format involved (when known) and `reason`
+ * discriminates the failure class so callers can branch without string
+ * matching — `unsupported` is the "documented opt-in, not yet implemented"
+ * case, distinct from `parse` (bad input) and `unknown-format` (typo'd flag).
+ *
+ * @throws is itself — this is the error type other interchange code throws.
+ *
+ * @example
+ *   try { exportMachine(fsl, { format: 'scxml' }); }
+ *   catch (e) {
+ *     if (e instanceof InterchangeError && e.reason === 'unsupported') {
+ *       // tell the user the format is a known-but-pending opt-in
+ *     }
+ *   }
+ */
+declare class InterchangeError extends Error {
+    readonly reason: 'parse' | 'unsupported' | 'unknown-format';
+    readonly format?: string;
+    constructor(message: string, opts: {
+        reason: 'parse' | 'unsupported' | 'unknown-format';
+        format?: string;
+    });
+}
+
+/** Options accepted by {@link exportMachine}. */
+interface ExportOptions {
+    /** The interchange format to produce. */
+    format: ExportFormat;
+}
+/**
+ * Convert FSL source to an interchange format (megaspec §25's `export`).
+ *
+ * `export` is for **tool interchange** — handing an FSL machine to another
+ * state-machine tool, a formal-methods checker, or a constrained-decoding
+ * grammar consumer. It is not a code generator (`codegen` emits an
+ * implementation) and not an image renderer (`render` does that).
+ *
+ * Implemented in this phase: `json` (lossless) and `mermaid` (lossy — folds
+ * arrow kinds). The remaining §25 targets (SCXML, xstate, dot, the
+ * formal-methods bridges `tla+`/`alloy`/`smv`/`promela`, and the grammar
+ * artifacts `gbnf`/`lark`/`ebnf`) are recognized but raise an `unsupported`
+ * {@link InterchangeError} until their own phase lands — so the flag surface
+ * is discoverable and stable now.
+ *
+ * @param fsl - FSL source text
+ * @param opts.format - The target interchange format
+ * @returns The produced text plus any fidelity notes (`lossy`)
+ * @throws InterchangeError (reason `'parse'`) if the FSL fails to compile
+ * @throws InterchangeError (reason `'unknown-format'`) for an unrecognized format
+ * @throws InterchangeError (reason `'unsupported'`) for a known-but-pending format
+ *
+ * @example
+ *   const { output } = exportMachine("a -> b;", { format: 'json' });
+ *   // output is a JSON document describing states ['a','b'] and one edge
+ *
+ * @example
+ *   exportMachine("a -> b;", { format: 'scxml' });
+ *   // throws InterchangeError { reason: 'unsupported' }
+ */
+declare function exportMachine(fsl: string, opts: ExportOptions): ConversionResult;
+
+/** Options accepted by {@link importMachine}. */
+interface ImportOptions {
+    /** The interchange format the input is written in. */
+    format: ImportFormat;
+}
+/**
+ * Convert an interchange format into FSL (megaspec §25's `import`).
+ *
+ * `import` is for **tool interchange** — bringing a machine *from* another
+ * tool's format *into* FSL. It is emphatically **not a package fetcher**:
+ * fetching a machine by name from a registry is a separate concern and never
+ * `import`'s job (megaspec §25, verb-boundaries note).
+ *
+ * Implemented in this phase: `json` (lossless inverse of `export json`) and
+ * `mermaid` (lossy — mermaid carries no arrow kind, so every transition
+ * imports as a `legal` `->` edge, reported in `lossy`). The remaining §25
+ * sources (`scxml`, `xstate`, `dot`) are recognized but raise an `unsupported`
+ * {@link InterchangeError} until their phase lands.
+ *
+ * @param source - The interchange-format source text
+ * @param opts.format - The format `source` is written in
+ * @returns The produced FSL plus any fidelity notes (`lossy`)
+ * @throws InterchangeError (reason `'parse'`) if the source fails to parse
+ * @throws InterchangeError (reason `'unknown-format'`) for an unrecognized format
+ * @throws InterchangeError (reason `'unsupported'`) for a known-but-pending format
+ *
+ * @example
+ *   const { output } = importMachine('stateDiagram-v2\n  s0 --> s1', { format: 'mermaid' });
+ *   // output is FSL: '"s0" -> "s1";\n'
+ *
+ * @example
+ *   importMachine('<scxml/>', { format: 'scxml' });
+ *   // throws InterchangeError { reason: 'unsupported' }
+ */
+declare function importMachine(source: string, opts: ImportOptions): ConversionResult;
+
 declare type FlagType = 'string' | 'number' | 'boolean';
 interface FlagSpec {
     short?: string;
@@ -980,5 +1153,5 @@ declare function discoverProjectConfig(opts: {
 
 declare function extractMachineAttributes(_machineSource: string): PartialConfig;
 
-export { CONFIG_SCHEMA, CodegenError, CodegenUndecidedError, ConfigError, ConfigExtendsError, ConfigIOError, ConfigParseError, ConfigSchemaError, RasterizationUnsupportedError, RenderError, codegen, codegenSet, defaults, discoverProjectConfig, discoverUserGlobalConfig, extractMachineAttributes, extractSurface, flagsToConfig, loadConfig, loadConfigFile, mergeConfigs, parseFslArgs, render, renderSet, resolveExtends, validateConfig };
-export type { CheckConfig, CodegenArtifact, CodegenConfig, CodegenOptions, CodegenSetItem, CodegenSetItemErr, CodegenSetItemOk, CodegenTarget, ExportConfig, FlagMapping, FlagSpec, FlagType, FormatConfig, ImportConfig, InitConfig, LintConfig, LoadConfigOptions, LspConfig, MachineSurface, McpConfig, ParseResult, ParseSpec, PartialConfig, RasterResult, Reader, RegistryConfig, RenderConfig, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, ReplConfig, ResolvedConfig, SurfaceTransition, TestConfig, TextResult, TypegenConfig };
+export { CONFIG_SCHEMA, CodegenError, CodegenUndecidedError, ConfigError, ConfigExtendsError, ConfigIOError, ConfigParseError, ConfigSchemaError, InterchangeError, RasterizationUnsupportedError, RenderError, codegen, codegenSet, defaults, discoverProjectConfig, discoverUserGlobalConfig, exportMachine, extractMachineAttributes, extractSurface, flagsToConfig, importMachine, loadConfig, loadConfigFile, mergeConfigs, parseFslArgs, render, renderSet, resolveExtends, validateConfig };
+export type { CheckConfig, CodegenArtifact, CodegenConfig, CodegenOptions, CodegenSetItem, CodegenSetItemErr, CodegenSetItemOk, CodegenTarget, ConversionResult, ExportConfig, ExportFormat, ExportOptions, FlagMapping, FlagSpec, FlagType, FormatConfig, ImportConfig, ImportFormat, ImportOptions, InitConfig, InterchangeEdge, InterchangeModel, LintConfig, LoadConfigOptions, LspConfig, MachineSurface, McpConfig, ParseResult, ParseSpec, PartialConfig, RasterResult, Reader, RegistryConfig, RenderConfig, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, ReplConfig, ResolvedConfig, SurfaceTransition, TestConfig, TextResult, TypegenConfig };

@@ -145,4 +145,33 @@ describe('fsl-import plugin cli()', () => {
     vi.doUnmock('../../cli/subcommands/import/import');
   });
 
+  it('reads Buffer chunks from stdin (the Buffer.isBuffer branch)', async () => {
+    const { Readable } = await import('stream');
+    const real = process.stdin;
+    const fake = Object.assign(
+      new Readable({ read() { this.push(Buffer.from(MERMAID)); this.push(null); } }),
+      { isTTY: false },
+    );
+    Object.defineProperty(process, 'stdin', { value: fake, configurable: true });
+    try {
+      expect(await cli(['--format=mermaid', '--quiet'])).toBe(0);
+      expect(stdoutChunks.join('')).toContain('->');
+    } finally {
+      Object.defineProperty(process, 'stdin', { value: real, configurable: true });
+    }
+  });
+
+  it('String()s a non-Error value thrown by importMachine (the ?? fallback)', async () => {
+    vi.resetModules();
+    vi.doMock('../../cli/subcommands/import/import', () => ({
+      importMachine: () => { throw 'plain-string-failure'; },
+    }));
+    const { cli: mockedCli } = await import('../../cli/subcommands/import/plugin');
+    await withStdin(MERMAID, async () => {
+      expect(await mockedCli(['--format=mermaid'])).toBe(2);
+      expect(stderrChunks.join('')).toContain('plain-string-failure');
+    });
+    vi.doUnmock('../../cli/subcommands/import/import');
+  });
+
 });

@@ -145,7 +145,9 @@ export function mermaidToModel(text: string): InterchangeModel {
 
   // Re-key states and edges by display name so the produced FSL uses human
   // names, not mermaid ids.
-  const nameOf = (id: string): string => labelOf.get(id) ?? id;
+  // Every id reaching here was registered by note() (which seeds labelOf with
+  // the id itself), so the lookup is always defined.
+  const nameOf = (id: string): string => labelOf.get(id) as string;
   return {
     states: order.map(nameOf),
     edges:  edges.map((e) => ({ ...e, from: nameOf(e.from), to: nameOf(e.to) })),
