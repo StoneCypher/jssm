@@ -15,6 +15,22 @@ export { render }    from './subcommands/render/render';
 export { renderSet } from './subcommands/render/renderSet';
 export type { RenderSetItem, RenderSetItemOk, RenderSetItemErr } from './subcommands/render/renderSet';
 
+// ─── Codegen verb (megaspec §25) ─────────────────────────────────────────
+
+export { codegen }    from './subcommands/codegen/codegen';
+export { codegenSet } from './subcommands/codegen/codegenSet';
+export type { CodegenSetItem, CodegenSetItemOk, CodegenSetItemErr } from './subcommands/codegen/codegenSet';
+export { extractSurface } from './subcommands/codegen/surface';
+export type { MachineSurface, SurfaceTransition } from './subcommands/codegen/surface';
+
+export type {
+  CodegenTarget,
+  CodegenOptions,
+  CodegenArtifact,
+} from './codegen-types';
+
+export { CodegenError, CodegenUndecidedError } from './codegen-types';
+
 export { parseFslArgs } from './cli-utils';
 export type { ParseSpec, ParseResult, FlagSpec, FlagType } from './cli-utils';
 
