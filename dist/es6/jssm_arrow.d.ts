@@ -1,4 +1,4 @@
-import { JssmArrow, JssmArrowDirection, JssmArrowKind } from './jssm_types';
+import { JssmArrow, JssmArrowDirection, JssmArrowKind } from './jssm_types.js';
 /*********
  *
  *  Return the direction of an arrow - `right`, `left`, or `both`.

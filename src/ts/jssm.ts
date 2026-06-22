@@ -35,16 +35,16 @@ import {
   JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmBoundaryHooks,
   JssmRng
 
-} from './jssm_types';
+} from './jssm_types.js';
 
 
 
 
 
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
 import { compile, make, makeTransition, wrap_parse,
-         transitive_members, membership_distance }            from './jssm_compiler';
-import { theme_mapping, base_theme }                          from './jssm_theme';
+         transitive_members, membership_distance }            from './jssm_compiler.js';
+import { theme_mapping, base_theme }                          from './jssm_theme.js';
 
 
 
@@ -59,26 +59,65 @@ import {
   name_bind_prop_and_state,
   gen_splitmix32,
   sleep
-} from './jssm_util';
+} from './jssm_util.js';
 
-import { Interner, pair_key, un_pair_key } from './jssm_intern';
-
-
+import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
 
 
 
-import * as constants from './jssm_constants';
+
+
+import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
 const empty_string_set: ReadonlySet<string> = new Set<string>();
 
+// The spatial fields (besides `handler`, which every hook needs) that each
+// hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
+// to validate a HookDescription so a mis-shaped one is rejected rather than
+// silently registering a dead hook — e.g. an `exit` hook given `to` instead of
+// `from` would otherwise intern `undefined` and never fire (#734).  Typed as a
+// `Record` over the kind union so the table is exhaustive at compile time:
+// adding a hook kind without listing its fields is a build error.
+const hook_required_fields: Record<HookDescription<unknown>['kind'], ReadonlyArray<'from' | 'to' | 'action'>> = {
+  'hook'                     : ['from', 'to'],
+  'named'                    : ['from', 'to', 'action'],
+  'global action'            : ['action'],
+  'any action'               : [],
+  'standard transition'      : [],
+  'main transition'          : [],
+  'forced transition'        : [],
+  'any transition'           : [],
+  'entry'                    : ['to'],
+  'exit'                     : ['from'],
+  'after'                    : ['from'],
+  'post hook'                : ['from', 'to'],
+  'post named'               : ['from', 'to', 'action'],
+  'post global action'       : ['action'],
+  'post any action'          : [],
+  'post standard transition' : [],
+  'post main transition'     : [],
+  'post forced transition'   : [],
+  'post any transition'      : [],
+  'post entry'               : ['to'],
+  'post exit'                : ['from'],
+  'pre everything'           : [],
+  'everything'               : [],
+  'pre post everything'      : [],
+  'post everything'          : [],
+};
+
+// The spatial fields a hook descriptor can carry, checked against the per-kind
+// requirements above.
+const hook_spatial_fields = ['from', 'to', 'action'] as const;
 
 
 
 
-import { parse }               from './fsl_parser';
-import { version, build_time } from './version';    // replaced from package.js in build
-import { JssmError }           from './jssm_error';
+
+import { parse }               from './fsl_parser.js';
+import { version, build_time } from './version.js';    // replaced from package.js in build
+import { JssmError }           from './jssm_error.js';
 
 
 
@@ -920,11 +959,17 @@ class Machine<mDT> {
 
 
 
-    // O(1) duplicate-edge guard for the construction loop below: from -> Set<to>.
-    // Keyed by source state; mirrors each state's `to` array with constant-time
-    // membership so the dedup check is O(1) per edge rather than an O(out-degree)
-    // array scan (which made construction O(V*E) on dense graphs).  #673
-    const seen_edges: Map<StateType, Set<StateType>> = new Map();
+    // Duplicate-edge guard for the construction loop below, keyed
+    // from -> (to -> Set<slot>).  A "slot" distinguishes edges that share a
+    // (from, to) pair: an action's name for an actioned edge, or '' for the one
+    // permitted plain action-less edge.  Multiple edges between the same pair
+    // are allowed when they carry distinct actions (#325; the self-loop case is
+    // #531), since they dispatch unambiguously through `action(name)`.  A
+    // probability-bearing action-less edge is exempt from the guard entirely,
+    // so a weighted fan-out may name the same target more than once.  The
+    // nested Map+Set keeps the check O(1) per edge rather than an O(out-degree)
+    // scan (which made construction O(V*E) on dense graphs).  #673
+    const seen_edges: Map<StateType, Map<StateType, Set<string>>> = new Map();
 
     // walk the transitions.  single-lookup cursor fetches: each endpoint was
     // previously a get followed by a has on the same key (four hashes per
@@ -948,21 +993,35 @@ class Machine<mDT> {
         this._new_state(cursor_to);
       }
 
-      // guard against existing connections being re-added — O(1) via the
-      // from -> Set<to> index instead of an O(out-degree) `cursor_from.to`
-      // array scan.  Behaviour is identical: the same duplicate (from, to)
-      // pair throws the same JssmError.  #673
-      let seen_to: Set<StateType> | undefined = seen_edges.get(tr.from);
-      if (seen_to === undefined) {
-        seen_to = new Set();
-        seen_edges.set(tr.from, seen_to);
+      // record (from -> to) adjacency once per distinct target, even when
+      // several edges connect the pair, so the `to`/`from` arrays stay sets of
+      // state names.  #673
+      let to_slots: Map<StateType, Set<string>> | undefined = seen_edges.get(tr.from);
+      if (to_slots === undefined) {
+        to_slots = new Map();
+        seen_edges.set(tr.from, to_slots);
       }
-      if (seen_to.has(tr.to)) {
-        throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
-      } else {
-        seen_to.add(tr.to);
+      let slots: Set<string> | undefined = to_slots.get(tr.to);
+      if (slots === undefined) {
+        slots = new Set();
+        to_slots.set(tr.to, slots);
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
+      }
+
+      // duplicate-edge guard.  A probability-bearing action-less edge is exempt
+      // (a weighted fan-out may repeat a target); every other edge claims a slot
+      // — its action name, or '' for the one plain action-less edge — and a
+      // repeated slot throws.  Distinct actions between the same pair coexist
+      // (#325/#531).
+      const edge_exempt: boolean = (!tr.action) && (tr.probability !== undefined);
+      if (!edge_exempt) {
+        const slot: string = tr.action ? tr.action : '';
+        if (slots.has(slot)) {
+          throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`
+            + (tr.action ? ` on action ${JSON.stringify(tr.action)}` : ''));
+        }
+        slots.add(slot);
       }
 
       // add the edge; note its id
@@ -991,15 +1050,24 @@ class Machine<mDT> {
         this._edge_map.set(tr.from, from_mapping);
       }
 
-      //    const to_mapping = from_mapping.get(tr.to);
-      from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
+      // first-declared wins: when several edges share a (from, to) pair (parallel
+      // action edges, #325), lookup_transition_for resolves to the first one
+      // declared, so it agrees with edges_between(...)[0].
+      if (!from_mapping.has(tr.to)) {
+        from_mapping.set(tr.to, thisEdgeId);
+      }
 
       // numeric mirror of the (from, to) endpoint mapping.  intern() rather
       // than id_of(): idempotent, and returns number (not number|undefined)
       // since both endpoints were just created above if missing.
       const from_id = this._state_interner.intern(tr.from);
       const to_id   = this._state_interner.intern(tr.to);
-      this._edge_id_by_pair.set(pair_key(from_id, to_id), thisEdgeId);
+      // first-declared wins (see _edge_map above): the transition fast-path that
+      // reads this index resolves parallel (from, to) pairs to the first edge.
+      const pair = pair_key(from_id, to_id);
+      if (!this._edge_id_by_pair.has(pair)) {
+        this._edge_id_by_pair.set(pair, thisEdgeId);
+      }
       this._edge_to_ids[thisEdgeId] = to_id;
 
       // outbound adjacency: every edge originating at tr.from, regardless of action/target.
@@ -3187,7 +3255,53 @@ class Machine<mDT> {
    *  calling this directly.
    *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
    */
+  /**
+   *  Validate a {@link HookDescription} before registration.  Every hook needs
+   *  a `handler` function, and each kind's identifying spatial fields
+   *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+   *  kind — present when required, absent otherwise.  This turns a mis-shaped
+   *  descriptor into a thrown error instead of a silently dead hook keyed on
+   *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+   *
+   *  @param HookDesc - The descriptor about to be registered.
+   *  @throws JssmError if the kind is unknown, the handler is not a function, a
+   *          required field is missing, or an inapplicable field is present.
+   *
+   *  @example
+   *    const m = sm`a -> b;`;
+   *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+   *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+   */
+  _validate_hook_description(HookDesc: HookDescription<mDT>): void {
+
+    const required: ReadonlyArray<'from' | 'to' | 'action'> | undefined =
+      hook_required_fields[HookDesc.kind];
+
+    if (required === undefined) {
+      throw new JssmError(this, `unknown hook kind ${JSON.stringify((HookDesc as { kind?: unknown }).kind)}`);
+    }
+
+    if (typeof HookDesc.handler !== 'function') {
+      throw new JssmError(this, `${HookDesc.kind} hook requires a handler function`);
+    }
+
+    for (const field of hook_spatial_fields) {
+      const needed  = required.includes(field);
+      const present = (HookDesc as Record<string, unknown>)[field] !== undefined;
+      if (needed && !present) {
+        throw new JssmError(this, `${HookDesc.kind} hook requires '${field}'`);
+      }
+      if (!needed && present) {
+        throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
+      }
+    }
+
+  }
+
+
   set_hook(HookDesc: HookDescription<mDT>) {
+
+    this._validate_hook_description(HookDesc);
 
     switch (HookDesc.kind) {
 
@@ -3363,9 +3477,8 @@ class Machine<mDT> {
         this._has_post_hooks       = true;
         break;
 
-
-      default:
-        throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+      // No default: `_validate_hook_description` above rejects any unknown kind
+      // before we reach here, so the switch is exhaustive over the known kinds.
 
     }
 

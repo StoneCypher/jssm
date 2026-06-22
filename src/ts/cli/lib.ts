@@ -11,12 +11,12 @@
  * from this file, (3) ship its binary as `fsl-<name>.ts`.
  */
 
-export { render }    from './subcommands/render/render';
-export { renderSet } from './subcommands/render/renderSet';
-export type { RenderSetItem, RenderSetItemOk, RenderSetItemErr } from './subcommands/render/renderSet';
+export { render }    from './subcommands/render/render.js';
+export { renderSet } from './subcommands/render/renderSet.js';
+export type { RenderSetItem, RenderSetItemOk, RenderSetItemErr } from './subcommands/render/renderSet.js';
 
-export { parseFslArgs } from './cli-utils';
-export type { ParseSpec, ParseResult, FlagSpec, FlagType } from './cli-utils';
+export { parseFslArgs } from './cli-utils.js';
+export type { ParseSpec, ParseResult, FlagSpec, FlagType } from './cli-utils.js';
 
 export type {
   RenderTarget,
@@ -24,6 +24,6 @@ export type {
   RenderResult,
   TextResult,
   RasterResult,
-} from './types';
+} from './types.js';
 
-export { RenderError, RasterizationUnsupportedError } from './types';
+export { RenderError, RasterizationUnsupportedError } from './types.js';

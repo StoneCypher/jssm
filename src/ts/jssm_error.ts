@@ -1,5 +1,5 @@
 
-import { JssmErrorExtendedInfo, FslSourceLocation } from './jssm_types';
+import { JssmErrorExtendedInfo, FslSourceLocation } from './jssm_types.js';
 
 
 

@@ -1,5 +1,5 @@
-import type { RenderOptions, RenderResult } from '../../types';
-import { render } from './render';
+import type { RenderOptions, RenderResult } from '../../types.js';
+import { render } from './render.js';
 
 export interface RenderSetItemOk {
   ok: true;

@@ -38,6 +38,14 @@ describe('htmlTarget', () => {
     expect(out).toContain('<title>My &lt;Custom&gt; &quot;Title&quot;</title>');
   });
 
+  it('escapes single quotes in opts.title', async () => {
+    // Guards the apostrophe arm of escapeHtml (#774): a single quote must
+    // become &#39; so a title can never break out of a quoted context.
+    const out = await htmlTarget(trafficLight, { title: "O'Brien's" });
+    expect(out).toContain('<title>O&#39;Brien&#39;s</title>');
+    expect(out).not.toContain("O'Brien");
+  });
+
   it('throws RenderError for invalid FSL', async () => {
     const { RenderError } = await import('../../cli/types');
     await expect(htmlTarget('not valid fsl at all !!')).rejects.toBeInstanceOf(RenderError);

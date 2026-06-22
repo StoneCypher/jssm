@@ -1423,7 +1423,7 @@ declare const weighted_rand_select: Function;
  *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
  *
  *  ```typescript
- *  import { seq } from './jssm';
+ *  import { seq } from './jssm.js';
  *
  *  seq(5);  // [0, 1, 2, 3, 4]
  *  seq(0);  // []
@@ -1437,7 +1437,7 @@ declare function seq(n: number): number[];
  *  with deep equality; will fail for complex contents, as such.
  *
  *  ```typescript
- *  import { histograph } from './jssm';
+ *  import { histograph } from './jssm.js';
  *
  *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
  *  ```
@@ -3153,6 +3153,24 @@ declare class Machine<mDT> {
      *  calling this directly.
      *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
      */
+    /**
+     *  Validate a {@link HookDescription} before registration.  Every hook needs
+     *  a `handler` function, and each kind's identifying spatial fields
+     *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+     *  kind — present when required, absent otherwise.  This turns a mis-shaped
+     *  descriptor into a thrown error instead of a silently dead hook keyed on
+     *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+     *
+     *  @param HookDesc - The descriptor about to be registered.
+     *  @throws JssmError if the kind is unknown, the handler is not a function, a
+     *          required field is missing, or an inapplicable field is present.
+     *
+     *  @example
+     *    const m = sm`a -> b;`;
+     *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+     *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+     */
+    _validate_hook_description(HookDesc: HookDescription<mDT>): void;
     set_hook(HookDesc: HookDescription<mDT>): void;
     /**
      *  Remove a previously-registered hook described by a

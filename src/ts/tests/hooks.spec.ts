@@ -111,6 +111,45 @@ describe('Basic hooks on API callpoint', () => {
 
 
 
+describe('set_hook descriptor validation (#734)', () => {
+
+  // exit hooks are keyed by `from`; the issue passed `to` instead, which used
+  // to silently register a dead hook keyed on undefined.
+
+  test('exit hook given `to` instead of `from` throws (missing required field)', () => {
+    const _foo = sm`a <=> b;`;
+    expect( () => _foo.set_hook({ to: 'a', handler: () => true, kind: 'exit' } as any) )
+      .toThrow();
+  });
+
+  test('exit hook carrying a stray `to` alongside `from` throws (inapplicable field)', () => {
+    const _foo = sm`a <=> b;`;
+    expect( () => _foo.set_hook({ from: 'a', to: 'b', handler: () => true, kind: 'exit' } as any) )
+      .toThrow();
+  });
+
+  test('entry hook missing its `to` throws', () => {
+    const _foo = sm`a <=> b;`;
+    expect( () => _foo.set_hook({ handler: () => true, kind: 'entry' } as any) )
+      .toThrow();
+  });
+
+  test('hook with a non-function handler throws', () => {
+    const _foo = sm`a <=> b;`;
+    expect( () => _foo.set_hook({ from: 'a', to: 'b', handler: 'not a function', kind: 'hook' } as any) )
+      .toThrow();
+  });
+
+  test('a correctly-shaped exit hook still registers without throwing', () => {
+    const _foo = sm`a <=> b;`;
+    expect( () => _foo.set_hook({ from: 'a', handler: () => true, kind: 'exit' }) )
+      .not.toThrow();
+  });
+
+});
+
+
+
 
 
 test('Basic hook rejection works', () => {

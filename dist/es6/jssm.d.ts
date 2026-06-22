@@ -1,11 +1,11 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmTransitionConfig, JssmGraphConfig, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmBaseTheme, JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmRng } from './jssm_types';
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
-import { compile, make, wrap_parse } from './jssm_compiler';
-import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util';
-import { Interner } from './jssm_intern';
-import * as constants from './jssm_constants';
+JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmTransitionConfig, JssmGraphConfig, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmBaseTheme, JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmRng } from './jssm_types.js';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
+import { compile, make, wrap_parse } from './jssm_compiler.js';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util.js';
+import { Interner } from './jssm_intern.js';
+import * as constants from './jssm_constants.js';
 declare const shapes: string[], gviz_shapes: string[], named_colors: string[], state_name_chars: readonly {
     from: string;
     to: string;
@@ -16,7 +16,7 @@ declare const shapes: string[], gviz_shapes: string[], named_colors: string[], s
     from: string;
     to: string;
 }[];
-import { version, build_time } from './version';
+import { version, build_time } from './version.js';
 /**
  *  Internal record holding a single registered event subscription: the
  *  handler, its optional filter, and a flag for `once` semantics.  Not
@@ -1355,6 +1355,24 @@ declare class Machine<mDT> {
      *  calling this directly.
      *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
      */
+    /**
+     *  Validate a {@link HookDescription} before registration.  Every hook needs
+     *  a `handler` function, and each kind's identifying spatial fields
+     *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+     *  kind — present when required, absent otherwise.  This turns a mis-shaped
+     *  descriptor into a thrown error instead of a silently dead hook keyed on
+     *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+     *
+     *  @param HookDesc - The descriptor about to be registered.
+     *  @throws JssmError if the kind is unknown, the handler is not a function, a
+     *          required field is missing, or an inapplicable field is present.
+     *
+     *  @example
+     *    const m = sm`a -> b;`;
+     *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+     *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+     */
+    _validate_hook_description(HookDesc: HookDescription<mDT>): void;
     set_hook(HookDesc: HookDescription<mDT>): void;
     /**
      *  Remove a previously-registered hook described by a

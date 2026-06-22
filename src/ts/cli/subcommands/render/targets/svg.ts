@@ -1,5 +1,5 @@
-import { fsl_to_svg_string } from '../../../../jssm_viz';
-import { RenderError } from '../../../types';
+import { fsl_to_svg_string } from '../../../../jssm_viz.js';
+import { RenderError } from '../../../types.js';
 
 /**
  * Render FSL source to an SVG string via the `jssm/viz` pipeline.

@@ -126,7 +126,9 @@ describe('set_hook / remove_hook across the full kind vocabulary', () => {
         word.map( w => `not a kind ${w}` ),
         (kind) => {
           const machine = jssm.from(HOOK_FSL);
-          expect(() => machine.set_hook({ kind, handler: () => true } as never)).toThrow(/Unknown hook type/);
+          // set_hook validates the descriptor up front (#734); remove_hook
+          // still rejects an unknown kind via its switch default.
+          expect(() => machine.set_hook({ kind, handler: () => true } as never)).toThrow(/unknown hook kind/);
           expect(() => machine.remove_hook({ kind, handler: () => true } as never)).toThrow(/Unknown hook type/);
         }
       ),
