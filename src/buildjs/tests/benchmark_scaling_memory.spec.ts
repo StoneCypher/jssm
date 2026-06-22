@@ -43,7 +43,7 @@ describe('injectMemoryFields', () => {
       { name: 'dense-200 edges_between()',  ops: 5 },
       { name: 'dense-200 transition()',     ops: 9 },
     ]};
-    const footprints = new Map([['dense-200', { bytes: 40000, bytesPerState: 200, bytesPerEdge: 1 }]]);
+    const footprints = new Map([['dense-200', { bytes: 40000, bytesPerState: 200, bytesPerEdge: 1, maps: 5, sets: 2, arrays: 3, entries: 100 }]]);
     const allocs     = new Map([['dense-200 edges_between()', 12], ['dense-200 transition()', 64]]);
 
     mem.injectMemoryFields(data, footprints, allocs);
@@ -51,6 +51,8 @@ describe('injectMemoryFields', () => {
     const byName = Object.fromEntries(data.results.map((r: any) => [r.name, r]));
     expect(byName['dense-200 construct()'].footprintBytes).toBe(40000);
     expect(byName['dense-200 construct()'].bytesPerEdge).toBe(1);
+    expect(byName['dense-200 construct()'].mapCount).toBe(5);
+    expect(byName['dense-200 construct()'].containerEntries).toBe(100);
     expect(byName['dense-200 construct()'].allocBytesPerOp).toBeUndefined();      // construct not in allocs map
     expect(byName['dense-200 edges_between()'].allocBytesPerOp).toBe(12);
     expect(byName['dense-200 edges_between()'].footprintBytes).toBeUndefined();   // footprint only on construct
@@ -66,7 +68,7 @@ describe('injectMemoryFields', () => {
 
 describe('collectMemory', () => {
   test('builds footprint + alloc maps from shapes via the seam', () => {
-    const shape = { name: 'chain-3', machine: { list_edges: () => [{}, {}, {}] } };
+    const shape = { name: 'chain-3', machine: { list_edges: () => [{}, {}, {}], _t: new Map([['a', 1]]) } };
     const rebuild = () => ({});                          // fake machine
     const opBatches = () => [['chain-3 transition()', () => {}]];
     // heapUsed sequence: footprint(base, after) then alloc(base, after)
@@ -77,6 +79,8 @@ describe('collectMemory', () => {
     expect(footprints.get('chain-3').bytes).toBe(300);
     expect(footprints.get('chain-3').bytesPerEdge).toBe(100);    // 300 / 3 edges
     expect(footprints.get('chain-3').bytesPerState).toBe(100);   // 300 / 3 states (from name)
+    expect(footprints.get('chain-3').maps).toBe(1);              // structural count of the machine
+    expect(footprints.get('chain-3').entries).toBe(1);           // total container entries
     expect(allocs.get('chain-3 transition()')).toBeCloseTo(0.6, 5);   // 60 / 100
   });
 
@@ -86,6 +90,19 @@ describe('collectMemory', () => {
     const { footprints, allocs } = mem.collectMemory([shape], 100, () => ({}), () => [], seam);
     expect(footprints.size).toBe(0);
     expect(allocs.size).toBe(0);
+  });
+});
+
+describe('countStructures', () => {
+  test('counts Maps, Sets, Arrays and their total entries on an object', () => {
+    const obj = {
+      a: new Map([['x', 1], ['y', 2]]),
+      b: new Set([1, 2, 3]),
+      c: [10, 20],
+      d: 'ignored',
+      e: 42,
+    };
+    expect(mem.countStructures(obj)).toEqual({ maps: 1, sets: 1, arrays: 1, entries: 7 });
   });
 });
 

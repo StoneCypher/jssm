@@ -92,14 +92,39 @@ function injectMemoryFields(data, footprints, allocs) {
     const op    = r.name.slice(sp + 1);
     if (op === 'construct()' && footprints.has(shape)) {
       const f = footprints.get(shape);
-      r.footprintBytes = f.bytes;
-      r.bytesPerState  = f.bytesPerState;
-      r.bytesPerEdge   = f.bytesPerEdge;
+      r.footprintBytes   = f.bytes;
+      r.bytesPerState    = f.bytesPerState;
+      r.bytesPerEdge     = f.bytesPerEdge;
+      r.mapCount         = f.maps;
+      r.setCount         = f.sets;
+      r.arrayCount       = f.arrays;
+      r.containerEntries = f.entries;
     }
     if (allocs.has(r.name)) {
       r.allocBytesPerOp = allocs.get(r.name);
     }
   }
+}
+
+/**
+ *  Structural container census of a machine: how many Map / Set / Array fields it
+ *  holds and their total entry count.  A direct read on the object weight that
+ *  the interning + overlapping-groups work inflated — rising map/entry counts
+ *  are the structural side of the per-edge byte growth.
+ *
+ *  @param machine Any object (a constructed machine).
+ *  @returns `{ maps, sets, arrays, entries }`.
+ *
+ *  @example countStructures({ a: new Map([['x',1]]), b: [1,2] }) // => {maps:1,sets:0,arrays:1,entries:3}
+ */
+function countStructures(machine) {
+  let maps = 0, sets = 0, arrays = 0, entries = 0;
+  for (const v of Object.values(machine)) {
+    if (v instanceof Map)      { maps++;   entries += v.size; }
+    else if (v instanceof Set) { sets++;   entries += v.size; }
+    else if (Array.isArray(v)) { arrays++; entries += v.length; }
+  }
+  return { maps, sets, arrays, entries };
 }
 
 /**
@@ -150,6 +175,7 @@ function collectMemory(shapes, K, rebuild, opBatches, seam = defaultSeam()) {
         bytes,
         bytesPerState : states ? bytes / states : null,
         bytesPerEdge  : edges  ? bytes / edges  : null,
+        ...countStructures(shape.machine),
       });
     }
     for (const [resultName, batch] of opBatches(shape)) {
@@ -160,4 +186,4 @@ function collectMemory(shapes, K, rebuild, opBatches, seam = defaultSeam()) {
   return { footprints, allocs };
 }
 
-module.exports = { defaultSeam, measureRetainedBytes, measureAllocBytes, injectMemoryFields, collectMemory, statesFromName };
+module.exports = { defaultSeam, measureRetainedBytes, measureAllocBytes, injectMemoryFields, collectMemory, statesFromName, countStructures };
