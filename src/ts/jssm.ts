@@ -959,11 +959,17 @@ class Machine<mDT> {
 
 
 
-    // O(1) duplicate-edge guard for the construction loop below: from -> Set<to>.
-    // Keyed by source state; mirrors each state's `to` array with constant-time
-    // membership so the dedup check is O(1) per edge rather than an O(out-degree)
-    // array scan (which made construction O(V*E) on dense graphs).  #673
-    const seen_edges: Map<StateType, Set<StateType>> = new Map();
+    // Duplicate-edge guard for the construction loop below, keyed
+    // from -> (to -> Set<slot>).  A "slot" distinguishes edges that share a
+    // (from, to) pair: an action's name for an actioned edge, or '' for the one
+    // permitted plain action-less edge.  Multiple edges between the same pair
+    // are allowed when they carry distinct actions (#325; the self-loop case is
+    // #531), since they dispatch unambiguously through `action(name)`.  A
+    // probability-bearing action-less edge is exempt from the guard entirely,
+    // so a weighted fan-out may name the same target more than once.  The
+    // nested Map+Set keeps the check O(1) per edge rather than an O(out-degree)
+    // scan (which made construction O(V*E) on dense graphs).  #673
+    const seen_edges: Map<StateType, Map<StateType, Set<string>>> = new Map();
 
     // walk the transitions.  single-lookup cursor fetches: each endpoint was
     // previously a get followed by a has on the same key (four hashes per
@@ -987,21 +993,35 @@ class Machine<mDT> {
         this._new_state(cursor_to);
       }
 
-      // guard against existing connections being re-added — O(1) via the
-      // from -> Set<to> index instead of an O(out-degree) `cursor_from.to`
-      // array scan.  Behaviour is identical: the same duplicate (from, to)
-      // pair throws the same JssmError.  #673
-      let seen_to: Set<StateType> | undefined = seen_edges.get(tr.from);
-      if (seen_to === undefined) {
-        seen_to = new Set();
-        seen_edges.set(tr.from, seen_to);
+      // record (from -> to) adjacency once per distinct target, even when
+      // several edges connect the pair, so the `to`/`from` arrays stay sets of
+      // state names.  #673
+      let to_slots: Map<StateType, Set<string>> | undefined = seen_edges.get(tr.from);
+      if (to_slots === undefined) {
+        to_slots = new Map();
+        seen_edges.set(tr.from, to_slots);
       }
-      if (seen_to.has(tr.to)) {
-        throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
-      } else {
-        seen_to.add(tr.to);
+      let slots: Set<string> | undefined = to_slots.get(tr.to);
+      if (slots === undefined) {
+        slots = new Set();
+        to_slots.set(tr.to, slots);
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
+      }
+
+      // duplicate-edge guard.  A probability-bearing action-less edge is exempt
+      // (a weighted fan-out may repeat a target); every other edge claims a slot
+      // — its action name, or '' for the one plain action-less edge — and a
+      // repeated slot throws.  Distinct actions between the same pair coexist
+      // (#325/#531).
+      const edge_exempt: boolean = (!tr.action) && (tr.probability !== undefined);
+      if (!edge_exempt) {
+        const slot: string = tr.action ? tr.action : '';
+        if (slots.has(slot)) {
+          throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`
+            + (tr.action ? ` on action ${JSON.stringify(tr.action)}` : ''));
+        }
+        slots.add(slot);
       }
 
       // add the edge; note its id
@@ -1030,15 +1050,24 @@ class Machine<mDT> {
         this._edge_map.set(tr.from, from_mapping);
       }
 
-      //    const to_mapping = from_mapping.get(tr.to);
-      from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
+      // first-declared wins: when several edges share a (from, to) pair (parallel
+      // action edges, #325), lookup_transition_for resolves to the first one
+      // declared, so it agrees with edges_between(...)[0].
+      if (!from_mapping.has(tr.to)) {
+        from_mapping.set(tr.to, thisEdgeId);
+      }
 
       // numeric mirror of the (from, to) endpoint mapping.  intern() rather
       // than id_of(): idempotent, and returns number (not number|undefined)
       // since both endpoints were just created above if missing.
       const from_id = this._state_interner.intern(tr.from);
       const to_id   = this._state_interner.intern(tr.to);
-      this._edge_id_by_pair.set(pair_key(from_id, to_id), thisEdgeId);
+      // first-declared wins (see _edge_map above): the transition fast-path that
+      // reads this index resolves parallel (from, to) pairs to the first edge.
+      const pair = pair_key(from_id, to_id);
+      if (!this._edge_id_by_pair.has(pair)) {
+        this._edge_id_by_pair.set(pair, thisEdgeId);
+      }
       this._edge_to_ids[thisEdgeId] = to_id;
 
       // outbound adjacency: every edge originating at tr.from, regardless of action/target.

@@ -227,3 +227,31 @@ describe('configure() input validation', () => {
   });
 
 });
+
+
+
+describe('parallel action edges render as separate labelled edges (#325, #531)', () => {
+
+  test('two actions to the same target emit two labelled edges', () => {
+    const dot = jv.fsl_to_dot(`a 'f' -> c; a 'g' -> c;`);
+    expect(dot).toContain('taillabel="f"');
+    expect(dot).toContain('taillabel="g"');
+  });
+
+  test('a self-loop with two actions emits both labels (#531)', () => {
+    const dot = jv.fsl_to_dot(`A 'blah' -> A; A 'foo' -> A;`);
+    expect(dot).toContain('taillabel="blah"');
+    expect(dot).toContain('taillabel="foo"');
+  });
+
+  test('an ordinary single edge is unchanged (one taillabel)', () => {
+    const dot = jv.fsl_to_dot(`a 'go' -> b;`);
+    expect(dot).toContain('taillabel="go"');
+  });
+
+  test('a bidirectional pair still merges into one dir=both edge', () => {
+    const dot = jv.fsl_to_dot(`a -> b; b -> a;`);
+    expect(dot).toContain('dir=both');
+  });
+
+});
