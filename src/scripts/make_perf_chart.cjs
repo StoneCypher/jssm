@@ -188,8 +188,9 @@ function summary_line(runs) {
 /**
  *  Render one operation's panel as a standalone SVG: log-scale ops/sec, one
  *  line per machine shape, x ticks per run (releases angled and tinted), a
- *  legend, and an opaque background (panels are embedded in GitHub comments,
- *  where a transparent canvas is illegible in dark mode).
+ *  faint vertical guide behind every run column (to line a point up with its
+ *  source version), a legend, and an opaque background (panels are embedded in
+ *  GitHub comments, where a transparent canvas is illegible in dark mode).
  *
  *  @param op Operation name, e.g. `construct()`.
  *  @param by_shape Map of shape to ordered `{ key, ops }` points.
@@ -221,6 +222,14 @@ function panel_svg(op, by_shape, keys, width, height) {
     const yy = y(Math.pow(10, d));
     els.push(`<line x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" stroke="#eee"/>`);
     els.push(`<text x="${m.l - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#888">1e${d}</text>`);
+  }
+
+  // Very faint vertical guide behind every run, so a data point can be lined
+  // up with its source version/PR column at a glance.  Drawn before the data
+  // paths and markers so it stays behind them.
+  for (const key of keys) {
+    const vx = x(key).toFixed(1);
+    els.push(`<line x1="${vx}" y1="${m.t}" x2="${vx}" y2="${m.t + ih}" stroke="#f4f4f4"/>`);
   }
 
   for (const [i, key] of keys.entries()) {
@@ -260,10 +269,12 @@ function panel_svg(op, by_shape, keys, width, height) {
  *  @param runs Sorted runs.
  *  @param width Panel width in px.
  *  @param panel_height Height of each operation panel in px.
+ *  @param panel_gap Vertical gap between stacked panels in px (~2em at the
+ *                   16px root font), so the panels read as distinct charts.
  *  @returns `{ svg, panels }` — the composite document and the individual
  *           panel SVGs keyed by operation (the comment flow embeds those).
  */
-function render_chart(runs, width = 960, panel_height = 372) {
+function render_chart(runs, width = 960, panel_height = 372, panel_gap = 32) {
   const series = pivot_series(runs);
   const keys   = runs.map(key_of);
 
@@ -273,7 +284,7 @@ function render_chart(runs, width = 960, panel_height = 372) {
   }
 
   const header_h = 56;
-  const total_h  = header_h + panels.size * panel_height;
+  const total_h  = header_h + panels.size * panel_height + Math.max(0, panels.size - 1) * panel_gap;
   const parts    = [];
   parts.push(`<svg width="${width}" height="${total_h}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">`);
   parts.push(`<rect width="${width}" height="${total_h}" fill="#ffffff"/>`);
@@ -282,9 +293,10 @@ function render_chart(runs, width = 960, panel_height = 372) {
 
   let oy = header_h;
   for (const svg of panels.values()) {
-    // re-host each standalone panel at its vertical offset
+    // re-host each standalone panel at its vertical offset, with panel_gap of
+    // breathing room between successive charts
     parts.push(`<g transform="translate(0 ${oy})">${svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')}</g>`);
-    oy += panel_height;
+    oy += panel_height + panel_gap;
   }
   parts.push('</svg>');
 
