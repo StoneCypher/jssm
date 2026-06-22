@@ -5,7 +5,8 @@ const escapeHtml = (s: string): string => s
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;');
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
 
 /**
  * Render FSL source to an HTML document with the SVG embedded inline.
