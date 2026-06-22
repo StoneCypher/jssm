@@ -12,6 +12,9 @@ const memory = require('./benchmark_scaling_memory.cjs');
 const exponents = require('./benchmark_scaling_exponents.cjs');
 const bundleSize = require('./benchmark_bundle_size.cjs');
 const latency = require('./benchmark_scaling_latency.cjs');
+const gc = require('./benchmark_gc.cjs');
+const timing = require('./benchmark_timing.cjs');
+const load = require('./benchmark_load.cjs');
 
 // ----------------------------------------------------------------------------
 // Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
@@ -495,6 +498,27 @@ function memoryPass() {
         for (let k = 0; k < K; ++k) { const [f, t] = shape.edgePairs[k]; shape.machine.edges_between(f, t); }
       }]);
     }
+    if (HAS.has_state) {
+      out.push([`${shape.name} has_state()`, () => {
+        for (let k = 0; k < K; ++k) shape.machine.has_state(shape.transitionSeq[k]);
+      }]);
+    }
+    if (shape.actionMachine && HAS.action) {
+      out.push([`${shape.name} action()`, () => {
+        shape.actionMachine.override('s0');
+        for (let k = 0; k < K; ++k) shape.actionMachine.action(shape.actionSeq[k]);
+      }]);
+    }
+    if (shape.actionMachine && HAS.list_exit_actions) {
+      out.push([`${shape.name} list_exit_actions()`, () => {
+        for (let k = 0; k < K; ++k) shape.actionMachine.list_exit_actions(shape.actionStates[k]);
+      }]);
+    }
+    if (shape.actionMachine && HAS.probable_action_exits) {
+      out.push([`${shape.name} probable_action_exits()`, () => {
+        for (let k = 0; k < K; ++k) shape.actionMachine.probable_action_exits(shape.actionStates[k]);
+      }]);
+    }
     return out;
   };
   const { footprints, allocs } = memory.collectMemory(shapes, K, rebuild, opBatches);
@@ -542,6 +566,66 @@ function latencyPass(summary) {
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
 }
 
+/** Parse-vs-construct split: median time of jssm.parse vs full sm per shape (hrtime). */
+function parsePass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  const byName   = new Map(data.results.map((r) => [r.name, r]));
+  const ns       = () => Number(process.hrtime.bigint());
+  for (const shape of shapes) {
+    const source = sourceForShape(shape.name);
+    const p = [], c = [];
+    for (let i = 0; i < 5; ++i) {
+      let t = ns(); jssm.parse(source); p.push((ns() - t) / 1e6);
+      t = ns();     sm([source]);       c.push((ns() - t) / 1e6);
+    }
+    const split = timing.splitBuild(timing.median(p), timing.median(c));
+    const row   = byName.get(`${shape.name} construct()`);
+    if (row) { row.parseMs = split.parseMs; row.constructMs = split.constructMs; row.buildMs = split.buildMs; }
+  }
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/** Warmup: cold (first batch) vs warm (median of rest) transition batch times per shape. */
+function warmupPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  const byName   = new Map(data.results.map((r) => [r.name, r]));
+  const ns       = () => Number(process.hrtime.bigint());
+  for (const shape of shapes) {
+    const batches = [];
+    for (let i = 0; i < 6; ++i) {
+      shape.machine.override('s0');
+      const t = ns();
+      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+      batches.push((ns() - t) / 1e6);
+    }
+    const w   = timing.summarizeWarmup(batches);
+    const row = byName.get(`${shape.name} transition()`);
+    if (row) { row.coldMs = w.coldMs; row.warmMs = w.warmMs; row.warmupRatio = w.warmupRatio; }
+  }
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/** Cold bundle load time -> scaling.json `loadMs` (fresh-process require). */
+function loadPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.loadMs    = load.measureLoadMs(path.join(__dirname, '..', '..', 'dist', 'jssm.es5.cjs'));
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/** Total GC pause/count observed across the whole run -> scaling.json `gc`. */
+function gcPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.gc        = gcTracker.stop();
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+// Observe GC for the whole run (the suite below); gcPass() stops + records it.
+const gcTracker = gc.createGcTracker();
+
 b.suite(
   'jssm scaling diagnostic suite',
   ...plan.plannedCaseKinds(HAS).flatMap(casesForKind),
@@ -559,6 +643,10 @@ b.suite(
       exponentsPass();
       bundlesPass();
       latencyPass(summary);
+      parsePass();
+      warmupPass();
+      loadPass();
+      gcPass();
       writeMarkdownPivot();
     });
   }),
