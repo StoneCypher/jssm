@@ -11,6 +11,7 @@ const plan = require('./benchmark_scaling_plan.cjs');
 const memory = require('./benchmark_scaling_memory.cjs');
 const exponents = require('./benchmark_scaling_exponents.cjs');
 const bundleSize = require('./benchmark_bundle_size.cjs');
+const latency = require('./benchmark_scaling_latency.cjs');
 
 // ----------------------------------------------------------------------------
 // Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
@@ -529,6 +530,18 @@ function bundlesPass() {
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
 }
 
+/**
+ *  Inject the per-op latency spread (min/median/max ms) from the benny summary
+ *  into scaling.json. Runs always — the spread is meaningful even at the default
+ *  sample count, since the max captures the worst (tail) sample.
+ */
+function latencyPass(summary) {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  latency.injectLatency(data, summary);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
 b.suite(
   'jssm scaling diagnostic suite',
   ...plan.plannedCaseKinds(HAS).flatMap(casesForKind),
@@ -545,6 +558,7 @@ b.suite(
       memoryPass();
       exponentsPass();
       bundlesPass();
+      latencyPass(summary);
       writeMarkdownPivot();
     });
   }),
