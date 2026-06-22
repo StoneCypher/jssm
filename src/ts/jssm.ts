@@ -35,16 +35,16 @@ import {
   JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmBoundaryHooks,
   JssmRng
 
-} from './jssm_types';
+} from './jssm_types.js';
 
 
 
 
 
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
 import { compile, make, makeTransition, wrap_parse,
-         transitive_members, membership_distance }            from './jssm_compiler';
-import { theme_mapping, base_theme }                          from './jssm_theme';
+         transitive_members, membership_distance }            from './jssm_compiler.js';
+import { theme_mapping, base_theme }                          from './jssm_theme.js';
 
 
 
@@ -59,15 +59,15 @@ import {
   name_bind_prop_and_state,
   gen_splitmix32,
   sleep
-} from './jssm_util';
+} from './jssm_util.js';
 
-import { Interner, pair_key, un_pair_key } from './jssm_intern';
-
-
+import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
 
 
 
-import * as constants from './jssm_constants';
+
+
+import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
 const empty_string_set: ReadonlySet<string> = new Set<string>();
@@ -76,9 +76,9 @@ const empty_string_set: ReadonlySet<string> = new Set<string>();
 
 
 
-import { parse }               from './fsl_parser';
-import { version, build_time } from './version';    // replaced from package.js in build
-import { JssmError }           from './jssm_error';
+import { parse }               from './fsl_parser.js';
+import { version, build_time } from './version.js';    // replaced from package.js in build
+import { JssmError }           from './jssm_error.js';
 
 
 

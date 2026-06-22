@@ -131,7 +131,7 @@ const weighted_rand_select: Function = (options: Array<any>, probability_propert
  *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
  *
  *  ```typescript
- *  import { seq } from './jssm';
+ *  import { seq } from './jssm.js';
  *
  *  seq(5);  // [0, 1, 2, 3, 4]
  *  seq(0);  // []
@@ -165,7 +165,7 @@ function seq(n: number): number[] {
  *  with deep equality; will fail for complex contents, as such.
  *
  *  ```typescript
- *  import { histograph } from './jssm';
+ *  import { histograph } from './jssm.js';
  *
  *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
  *  ```

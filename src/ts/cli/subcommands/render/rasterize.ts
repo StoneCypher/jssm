@@ -1,5 +1,5 @@
-import { RasterizationUnsupportedError, RenderError } from '../../types';
-import { bundledFontBytes } from './bundled-font';
+import { RasterizationUnsupportedError, RenderError } from '../../types.js';
+import { bundledFontBytes } from './bundled-font.js';
 
 // `OffscreenCanvas` lives in the DOM lib, which the CLI's tsconfig doesn't
 // pull in (CLI tooling targets Node primarily). At runtime we feature-detect

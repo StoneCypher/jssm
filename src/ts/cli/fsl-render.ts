@@ -1,4 +1,4 @@
-import { cli } from './subcommands/render/plugin';
+import { cli } from './subcommands/render/plugin.js';
 
 /**
  * Binary entry for `fsl-render`. Calls the plugin's `cli()` function and

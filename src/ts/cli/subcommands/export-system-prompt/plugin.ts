@@ -1,4 +1,4 @@
-import { parseFslArgs } from '../../cli-utils';
+import { parseFslArgs } from '../../cli-utils.js';
 
 const getVersion = (): string => '__JSSM_VERSION__';
 
