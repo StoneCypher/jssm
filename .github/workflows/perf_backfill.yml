@@ -1,0 +1,83 @@
+# Perf backfill — MANUAL ONLY.
+#
+# Fires one self-terminating Graviton instance per release tag to (re)benchmark
+# it with TODAY's harness overlaid (`--harness-from main`), so historical
+# versions gain the current metric set. Results land on the perf_results branch
+# under <instance-type>/release-<tag>/ via the nightly perf_results_sync.
+#
+# Get the tag list from `node src/scripts/fill_perf_gaps.cjs --since <v>
+# --instance-type <t>` (it prints exactly the releases missing a result), or
+# pass an explicit comma-separated list. Each tag launches its own instance, so
+# mind the EC2 concurrent-instance limit when passing many at once.
+#
+# Same OIDC role as the release benchmark (secret AWS_GRAVITON_OIDC_ROLE; see
+# notes/superpowers/graviton-ci-aws-setup.md). workflow_dispatch only — never a
+# push/schedule trigger.
+
+name: Perf backfill (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: Comma-separated release tags to benchmark (e.g. 5.50.0,5.51.0,5.130.0)
+        required: true
+      instance_type:
+        description: EC2 instance type (pin this — the trail is keyed by it)
+        required: false
+        default: c8g.medium
+      spot:
+        description: Use spot instances (~70% cheaper)
+        required: false
+        default: 'true'
+
+permissions:
+  id-token: write   # OIDC token for aws-actions/configure-aws-credentials
+  contents: read
+
+jobs:
+
+  fire:
+
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_GRAVITON_OIDC_ROLE: ${{ secrets.AWS_GRAVITON_OIDC_ROLE }}
+
+    steps:
+
+    - name: Guard — OIDC role secret must be configured
+      if: env.AWS_GRAVITON_OIDC_ROLE == ''
+      run: |
+        echo "AWS_GRAVITON_OIDC_ROLE is not set; see notes/superpowers/graviton-ci-aws-setup.md"
+        exit 1
+
+    # Full history so every tag resolves to its commit via git rev-list.
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ env.AWS_GRAVITON_OIDC_ROLE }}
+        aws-region: us-east-1
+
+    - name: Fire one detached backfill run per tag (each self-publishes and terminates)
+      run: |
+        IFS=',' read -ra TAGS <<< "${{ inputs.tags }}"
+        for raw in "${TAGS[@]}"; do
+          tag="$(echo "$raw" | xargs)"          # trim whitespace
+          [ -z "$tag" ] && continue
+          sha="$(git rev-list -n 1 "$tag")"
+          if [ -z "$sha" ]; then echo "::error::tag $tag does not resolve to a commit"; exit 1; fi
+          ARGS=(--detached --release "$tag" --commit "$sha" --harness-from main --instance-type "${{ inputs.instance_type }}")
+          if [ "${{ inputs.spot }}" = "true" ]; then ARGS+=(--spot); fi
+          echo "firing backfill: $tag @ $sha  (${{ inputs.instance_type }})"
+          node src/scripts/graviton_perf.cjs "${ARGS[@]}"
+        done
