@@ -661,26 +661,24 @@ function resolve_group_refs(tree, registry) {
  *
  */
 function compile_rule_transition_step(acc, from, to, this_se, next_se) {
-    const edges = [];
     const uFrom = (Array.isArray(from) ? from : [from]), uTo = (Array.isArray(to) ? to : [to]);
-    uFrom.map((f) => {
-        uTo.map((t) => {
+    for (const f of uFrom) {
+        for (const t of uTo) {
             const right = makeTransition(this_se, f, t, true);
             if (right.kind !== 'none') {
-                edges.push(right);
+                acc.push(right);
             }
             const left = makeTransition(this_se, t, f, false);
             if (left.kind !== 'none') {
-                edges.push(left);
+                acc.push(left);
             }
-        });
-    });
-    const new_acc = acc.concat(edges);
+        }
+    }
     if (next_se) {
-        return compile_rule_transition_step(new_acc, to, next_se.to, next_se, next_se.se);
+        return compile_rule_transition_step(acc, to, next_se.to, next_se, next_se.se);
     }
     else {
-        return new_acc;
+        return acc;
     }
 }
 /*********

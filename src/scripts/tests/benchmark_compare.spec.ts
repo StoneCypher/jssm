@@ -65,11 +65,17 @@ describe('benchmark_compare three-file comparison', () => {
     expect(render()).toContain('| chain-99 | — | — | 5 | — | — |');
   });
 
+  test('emits action comparison rows', () => {
+    expect(render()).toMatch(/\| chain-10 \| 80 \| 120 \| 240 \| 2\.00. \| 3\.00. \|/);
+  });
+
   test('groups tables by operation in canonical order', () => {
     const out = render();
     expect(out).toContain('### `transition()` ops/sec');
+    expect(out).toContain('### `action()` ops/sec');
     expect(out).toContain('### `edges_between()` ops/sec');
-    expect(out.indexOf('transition()')).toBeLessThan(out.indexOf('edges_between()'));
+    expect(out.indexOf('transition()')).toBeLessThan(out.indexOf('action()'));
+    expect(out.indexOf('action()')).toBeLessThan(out.indexOf('edges_between()'));
   });
 
 });

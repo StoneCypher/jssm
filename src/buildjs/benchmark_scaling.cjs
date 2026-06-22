@@ -16,9 +16,9 @@ const plan = require('./benchmark_scaling_plan.cjs');
 // When BENNY_DEEP is truthy, the suite is measured more thoroughly and emits an
 // ADDITIVE `msPerOp` (plus `samples`) field per result, so sub-1-ops/sec cases
 // (e.g. `dense-200 construct()`) surface as a real number instead of rounding to
-// `0`. Deep mode is purely additive: when BENNY_DEEP is unset the per-case
-// options object is `{}` and the saved JSON envelope is byte-identical to before,
-// so `benchmark_compare.cjs` and committed `scaling.json` snapshots keep working.
+// `0`. Deep mode is purely additive on top of the normal result set: when
+// BENNY_DEEP is unset the per-case options object is `{}` and the saved JSON
+// omits the deep-only `msPerOp` / `samples` fields.
 //
 // To stay under the ~10-minute run cap, deepening is SELECTIVE — only the slow,
 // sample-starved `construct()` cases get raised sample counts; the fast read-only
@@ -28,7 +28,7 @@ const DEEP = Boolean(process.env.BENNY_DEEP);
 
 /**
  *  Per-benny-case options object, threaded through every `b.add` call.  In
- *  normal mode this is always `{}` (preserving the legacy behavior exactly). In
+ *  normal mode this is always `{}`. In
  *  deep mode the slow `construct()` cases get raised `minSamples`/`maxTime` so
  *  their near-zero ops/sec collect a stable distribution; everything else stays
  *  on benny defaults so the benchmark phase stays bounded.
@@ -81,7 +81,7 @@ function writeMarkdownPivot() {
   const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
 
   // A `ms/op` column is added ONLY when results carry msPerOp (deep mode); in
-  // normal mode the markdown is byte-identical to before.
+  // normal mode the markdown omits that column.
   const deep = data.results.some((r) => typeof r.msPerOp === 'number');
 
   // Group results by trailing operation token, e.g. "chain-10 transition()" -> op "transition()".
@@ -156,8 +156,7 @@ function buildHubFSL(n) {
   return lines.join('\n');
 }
 
-function buildHookedHub(n) {
-  const machine = sm([buildHubFSL(n)]);
+function installHubHooks(machine, n) {
   // One per-edge hook for every edge in the hub topology.
   for (let i = 1; i < n; ++i) {
     machine.set_hook({ from: `s${i}`, to: 's0', handler: () => true, kind: 'hook' });
@@ -168,11 +167,64 @@ function buildHookedHub(n) {
   return machine;
 }
 
+function buildHookedHub(n) {
+  return installHubHooks(sm([buildHubFSL(n)]), n);
+}
+
 // ----------------------------------------------------------------------------
-// Shape registry — populated below; each entry: { name, machine, transitionSeq }
+// Shape registry — populated below; each entry carries the base machine and
+// precomputed transition probes, plus action probes when that overlay is safe.
 // ----------------------------------------------------------------------------
 
 const K = 100;   // per-call work, matches existing benny convention
+
+function edgePairKey(from, to) {
+  return `${from}\u0000${to}`;
+}
+
+function arrowForEdge(edge) {
+  if (edge.forced_only || edge.kind === 'forced') { return '~>'; }
+  if (edge.main_path   || edge.kind === 'main')   { return '=>'; }
+  return '->';
+}
+
+function attachActionSupport(shape, decorateActionMachine) {
+  if (typeof shape.machine.list_edges !== 'function') { return shape; }
+
+  const labelsByPair = new Map();
+  const lines        = ['allows_override: true;'];
+  let actionId       = 0;
+
+  for (const edge of shape.machine.list_edges()) {
+    const label = `act_${actionId++}`;
+    labelsByPair.set(edgePairKey(edge.from, edge.to), label);
+    lines.push(`${edge.from} '${label}' ${arrowForEdge(edge)} ${edge.to};`);
+  }
+
+  const actionSeq    = [];
+  const actionStates = [];
+  for (const [from, to] of shape.edgePairs) {
+    const label = labelsByPair.get(edgePairKey(from, to));
+    if (label === undefined) { return shape; }
+    actionSeq.push(label);
+    actionStates.push(from);
+  }
+
+  const actionMachine = sm([lines.join('\n')]);
+  if (decorateActionMachine) { decorateActionMachine(actionMachine); }
+
+  // Instrument integrity: every action benchmark must measure successful
+  // dispatch, not the cheap rejected-action path.
+  actionMachine.override('s0');
+  for (let k = 0; k < K; ++k) {
+    if (actionMachine.action(actionSeq[k]) !== true) {
+      throw new Error(`instrument bug: ${shape.name} action() failed at step ${k}`);
+    }
+  }
+  actionMachine.override('s0');
+
+  return { ...shape, actionMachine, actionSeq, actionStates };
+}
 
 function buildShapeChain(n) {
   const machine = sm([buildChainFSL(n)]);
@@ -189,7 +241,7 @@ function buildShapeChain(n) {
     const j = (i + 1) % n;
     edgePairs.push([`s${i}`, `s${j}`]);
   }
-  return { name: `chain-${n}`, machine, transitionSeq: seq, edgePairs };
+  return attachActionSupport({ name: `chain-${n}`, machine, transitionSeq: seq, edgePairs });
 }
 
 function buildShapeDense(n) {
@@ -207,7 +259,7 @@ function buildShapeDense(n) {
     const j = (i + 1) % n;
     edgePairs.push([`s${i}`, `s${j}`]);
   }
-  return { name: `dense-${n}`, machine, transitionSeq: seq, edgePairs };
+  return attachActionSupport({ name: `dense-${n}`, machine, transitionSeq: seq, edgePairs });
 }
 
 function buildHubTraversal(n) {
@@ -240,12 +292,15 @@ function buildHubEdgePairs(n) {
 
 function buildShapeHub(n) {
   const machine = sm([buildHubFSL(n)]);
-  return { name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) };
+  return attachActionSupport({ name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) });
 }
 
 function buildShapeHookedHub(n) {
   const machine = buildHookedHub(n);
-  return { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) };
+  return attachActionSupport(
+    { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) },
+    (actionMachine) => installHubHooks(actionMachine, n)
+  );
 }
 
 function loadMessyFixture(n) {
@@ -297,13 +352,16 @@ function buildShapeByName(name) {
 // Feature-detect the optional operations so an older library — e.g. one benchmarked
 // via the graviton runner's `--harness-from` overlay — degrades to a partial suite
 // instead of crashing on a method it doesn't have yet. With a current build every
-// flag is true and the suite is identical to before.
+// flag is true and the suite includes every planned column.
 const probe = sm(['allows_override: true;\ns0 -> s1;']);
 const HAS   = {
-  set_hook      : typeof probe.set_hook      === 'function',
-  list_exits    : typeof probe.list_exits    === 'function',
-  edges_between : typeof probe.edges_between === 'function',
-  has_state     : typeof probe.has_state     === 'function',
+  set_hook               : typeof probe.set_hook               === 'function',
+  list_exits             : typeof probe.list_exits             === 'function',
+  action                 : typeof probe.action                 === 'function',
+  edges_between          : typeof probe.edges_between          === 'function',
+  has_state              : typeof probe.has_state              === 'function',
+  list_exit_actions      : typeof probe.list_exit_actions      === 'function',
+  probable_action_exits  : typeof probe.probable_action_exits  === 'function',
 };
 
 const shapes = plan.plannedShapeNames(HAS).map(buildShapeByName);
@@ -317,10 +375,19 @@ function transitionCase(shape) {
   return b.add(name, () => {
     // Reset to s0 each iteration so the precomputed transitionSeq stays valid across
     // shapes whose cycle length doesn't divide K (chain-200, hub-N, messy-N, ...).
-    // The override adds ~1% to per-iteration time for transition()-style cases; it
-    // is omitted for read-only cases (edges_between, has_state) that don't mutate state.
+    // The override adds ~1% to per-iteration time for mutation-style cases; it
+    // is omitted for read-only cases that don't mutate state.
     shape.machine.override('s0');
     for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+  }, bennyOpts(name));
+}
+
+function actionCase(shape) {
+  if (!shape.actionMachine) { return null; }
+  const name = `${shape.name} action()`;
+  return b.add(name, () => {
+    shape.actionMachine.override('s0');
+    for (let k = 0; k < K; ++k) shape.actionMachine.action(shape.actionSeq[k]);
   }, bennyOpts(name));
 }
 
@@ -339,6 +406,22 @@ function hasStateCase(shape) {
   // Use the transition targets as the state list to probe - they're real states.
   return b.add(name, () => {
     for (let k = 0; k < K; ++k) shape.machine.has_state(shape.transitionSeq[k]);
+  }, bennyOpts(name));
+}
+
+function listExitActionsCase(shape) {
+  if (!shape.actionMachine) { return null; }
+  const name = `${shape.name} list_exit_actions()`;
+  return b.add(name, () => {
+    for (let k = 0; k < K; ++k) shape.actionMachine.list_exit_actions(shape.actionStates[k]);
+  }, bennyOpts(name));
+}
+
+function probableActionExitsCase(shape) {
+  if (!shape.actionMachine) { return null; }
+  const name = `${shape.name} probable_action_exits()`;
+  return b.add(name, () => {
+    for (let k = 0; k < K; ++k) shape.actionMachine.probable_action_exits(shape.actionStates[k]);
   }, bennyOpts(name));
 }
 
@@ -364,26 +447,28 @@ function constructionCase(shape) {
   }, bennyOpts(name));
 }
 
-// NOTE: action() is deliberately deferred from this scaling suite. Adding it would require
-// giving every edge in chain/dense/hub a named action, which is a topology choice that
-// would invalidate trend continuity if the naming convention later changes. Pick it up in
-// a follow-up if action() turns out to be on a hot path the scaling diagnostic should cover.
-
 // ----------------------------------------------------------------------------
 // Suite
 // ----------------------------------------------------------------------------
 
 /** Case factories keyed by the operation token used in {@link plan.plannedCaseKinds}. */
 const CASE_FACTORIES = {
-  'transition()'    : transitionCase,
-  'edges_between()' : edgesBetweenCase,
-  'has_state()'     : hasStateCase,
-  'construct()'     : constructionCase,
+  'transition()'              : transitionCase,
+  'action()'                  : actionCase,
+  'edges_between()'           : edgesBetweenCase,
+  'has_state()'               : hasStateCase,
+  'list_exit_actions()'       : listExitActionsCase,
+  'probable_action_exits()'   : probableActionExitsCase,
+  'construct()'               : constructionCase,
 };
+
+function casesForKind(kind) {
+  return shapes.map(CASE_FACTORIES[kind]).filter(Boolean);
+}
 
 b.suite(
   'jssm scaling diagnostic suite',
-  ...plan.plannedCaseKinds(HAS).flatMap((kind) => shapes.map(CASE_FACTORIES[kind])),
+  ...plan.plannedCaseKinds(HAS).flatMap(casesForKind),
   b.cycle(),
   b.complete((summary) => {
     // benny writes scaling.json synchronously during the b.save calls below in this

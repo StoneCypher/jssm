@@ -16,10 +16,12 @@ const run = (over: object) => ({
 const two_runs = [
   run({ pr: 598, version: '5.128.0', date: '2026-06-01T10:00:00.000Z',
         results: [ { name: 'chain-200 transition()', ops: 100 },
+                   { name: 'chain-200 action()',     ops: 90  },
                    { name: 'dense-200 transition()', ops: 50  },
                    { name: 'chain-200 construct()',  ops: 10  } ] }),
   run({ pr: 700, version: '5.143.2', date: '2026-06-11T01:02:03.000Z',
         results: [ { name: 'chain-200 transition()', ops: 200 },
+                   { name: 'chain-200 action()',     ops: 180 },
                    { name: 'dense-200 transition()', ops: 75  },
                    { name: 'chain-200 construct()',  ops: 40  } ] })
 ];
@@ -108,7 +110,7 @@ describe('render_chart', () => {
 
   test('emits one panel per present operation and a composite header', () => {
     const { svg, panels } = mpc.render_chart(two_runs);
-    expect( [...panels.keys()] ).toEqual(['construct()', 'transition()']);
+    expect( [...panels.keys()] ).toEqual(['construct()', 'transition()', 'action()']);
     expect(svg).toContain('jssm performance trend');
     expect(svg).toContain('Data through 20260611-010203');
     expect(svg).toContain('chain-200');     // legend entries survive compositing
@@ -126,6 +128,31 @@ describe('render_chart', () => {
     for (const svg of panels.values()) {
       expect(svg).toContain('fill="#ffffff"');
     }
+  });
+
+  test('panels draw a faint per-run vertical guide behind the data', () => {
+    const { svg, panels } = mpc.render_chart(two_runs);
+    expect(svg).toContain('stroke="#f4f4f4"');
+    for (const p of panels.values()) {
+      expect(p).toContain('stroke="#f4f4f4"');
+    }
+  });
+
+  test('stacks panels with a vertical gap between charts', () => {
+    // three panels (construct/transition/action), header 56, default gap 32:
+    // 56 -> +372 +32 -> 460 -> +372 +32 -> 864
+    const { svg } = mpc.render_chart(two_runs);
+    expect(svg).toContain('translate(0 56)');
+    expect(svg).toContain('translate(0 460)');
+    expect(svg).toContain('translate(0 864)');
+  });
+
+  test('panel_gap is configurable and widens the composite height', () => {
+    const height = (s: string) => Number((s.match(/<svg[^>]*height="(\d+)"/) || [])[1]);
+    const gapped = mpc.render_chart(two_runs, 960, 372, 40);
+    const flush  = mpc.render_chart(two_runs, 960, 372, 0);
+    expect(height(gapped.svg)).toBeGreaterThan(height(flush.svg));
+    expect(flush.svg).toContain('translate(0 428)');   // 56 + 372, no gap
   });
 
 });

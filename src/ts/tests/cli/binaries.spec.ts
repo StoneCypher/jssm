@@ -76,3 +76,29 @@ describe('cli binary entry: fsl-render.ts', () => {
   });
 
 });
+
+describe('cli binary entry: fsl-export-system-prompt.ts', () => {
+
+  it('forwards argv (minus first two slots) to cli() and exits with its return code', async () => {
+    vi.resetModules();
+    let cliReceived: string[] | null = null;
+    vi.doMock('../../cli/subcommands/export-system-prompt/plugin', () => ({
+      cli: async (argv: string[]) => { cliReceived = argv; return 5; },
+    }));
+
+    const { captured, restore } = installExitCapture();
+    const origArgv = process.argv;
+    process.argv = ['node', '/fake/path/fsl-export-system-prompt.cjs', '--help'];
+    try {
+      await import('../../cli/fsl-export-system-prompt');
+      const code = await captured;
+      expect(code).toBe(5);
+      expect(cliReceived).toEqual(['--help']);
+    } finally {
+      restore();
+      process.argv = origArgv;
+      vi.doUnmock('../../cli/subcommands/export-system-prompt/plugin');
+    }
+  });
+
+});

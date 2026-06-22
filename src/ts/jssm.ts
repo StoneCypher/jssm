@@ -70,6 +70,7 @@ import { Interner, pair_key, un_pair_key } from './jssm_intern';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
+const empty_string_set: ReadonlySet<string> = new Set<string>();
 
 
 
@@ -2658,10 +2659,10 @@ class Machine<mDT> {
       throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
     }
 
-    return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
-      .map((filtered: JssmTransition<StateType, mDT>): StateType => filtered.action);
+    // `_reverse_actions` is keyed by edge.from (see its population), so every
+    // action stored under whichState belongs to whichState by construction — no
+    // from-filter is needed, and the keys are exactly the exit actions.
+    return Array.from(ra_base.keys());
 
   }
 
@@ -2683,14 +2684,18 @@ class Machine<mDT> {
       throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
     }
 
-    return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
-      .map((filtered): any => ({
-        action: filtered.action,          // TODO FIXME no any
-        probability: filtered.probability
-      })
-      );
+    const exits: Array<any> = [];          // TODO FIXME no any
+
+    // `_reverse_actions` is keyed by edge.from, so every entry belongs to
+    // whichState by construction; no from-filter is needed.
+    ra_base.forEach((edgeId: number, action: StateType) => {
+      exits.push({
+        action,
+        probability: this._edges[edgeId].probability
+      });
+    });
+
+    return exits;
   }
 
 
@@ -4207,8 +4212,8 @@ class Machine<mDT> {
       );
     }
 
-    const prev_groups: Set<string> = this._state_to_groups.get(prev_state) ?? new Set();
-    const next_groups: Set<string> = this._state_to_groups.get(next_state) ?? new Set();
+    const prev_groups: ReadonlySet<string> = this._state_to_groups.get(prev_state) ?? empty_string_set;
+    const next_groups: ReadonlySet<string> = this._state_to_groups.get(next_state) ?? empty_string_set;
 
     // The labels to dispatch, gathered before any firing so that re-entrant
     // transitions caused by an early action cannot perturb which boundaries the
