@@ -247,7 +247,22 @@ function gen_splitmix32(a) {
  *  ```
  *
  */
-const unique = (arr) => arr.filter((v, i, a) => a.indexOf(v) === i);
+const unique = (arr) => {
+    // Set membership makes this O(n); the old indexOf-per-element filter was
+    // O(n^2).  NaN is dropped *explicitly* here because Sets self-match NaN
+    // (SameValueZero) where the documented indexOf behavior (===) never did.
+    const seen = new Set();
+    return arr.filter((v) => {
+        if (v !== v) {
+            return false;
+        } // NaN: preserve documented dropping
+        if (seen.has(v)) {
+            return false;
+        }
+        seen.add(v);
+        return true;
+    });
+};
 /*******
  *
  *  Lists all repeated items in an array along with their counts.  Subject to

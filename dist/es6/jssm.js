@@ -381,6 +381,7 @@ class Machine {
         this._default_properties = new Map();
         this._state_properties = new Map();
         this._required_properties = new Set();
+        this._state_property_first_state = new Map();
         this._val_keys = new Set();
         this._val_types = new Map();
         this._val_values = new Map();
@@ -429,8 +430,11 @@ class Machine {
         // membership so the dedup check is O(1) per edge rather than an O(out-degree)
         // array scan (which made construction O(V*E) on dense graphs).  #673
         const seen_edges = new Map();
-        // walk the transitions
-        transitions.map((tr) => {
+        // walk the transitions.  single-lookup cursor fetches: each endpoint was
+        // previously a get followed by a has on the same key (four hashes per
+        // edge); the undefined check on the get's result carries the same
+        // information.  #706
+        for (const tr of transitions) {
             if (tr.from === undefined) {
                 throw new JssmError(this, `transition must define 'from': ${JSON.stringify(tr)}`);
             }
@@ -438,14 +442,14 @@ class Machine {
                 throw new JssmError(this, `transition must define 'to': ${JSON.stringify(tr)}`);
             }
             // get the cursors.  what a mess
-            const cursor_from = this._states.get(tr.from)
-                || { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
-            if (!(this._states.has(tr.from))) {
+            let cursor_from = this._states.get(tr.from);
+            if (cursor_from === undefined) {
+                cursor_from = { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
                 this._new_state(cursor_from);
             }
-            const cursor_to = this._states.get(tr.to)
-                || { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
-            if (!(this._states.has(tr.to))) {
+            let cursor_to = this._states.get(tr.to);
+            if (cursor_to === undefined) {
+                cursor_to = { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
                 this._new_state(cursor_to);
             }
             // guard against existing connections being re-added — O(1) via the
@@ -485,8 +489,9 @@ class Machine {
                 this._after_mapping.set(tr.from, [tr.to, tr.after_time]);
             }
             // set up the mapping, so that edges can be looked up by endpoint pairs
-            const from_mapping = this._edge_map.get(tr.from) || new Map();
-            if (!(this._edge_map.has(tr.from))) {
+            let from_mapping = this._edge_map.get(tr.from);
+            if (from_mapping === undefined) {
+                from_mapping = new Map();
                 this._edge_map.set(tr.from, from_mapping);
             }
             //    const to_mapping = from_mapping.get(tr.to);
@@ -543,7 +548,7 @@ class Machine {
                         }
                 */
             }
-        });
+        }
         if (Array.isArray(property_definition)) {
             property_definition.forEach(pr => {
                 this._property_keys.add(pr.name);
@@ -600,6 +605,19 @@ class Machine {
         if (Array.isArray(state_property)) {
             state_property.forEach(sp => {
                 this._state_properties.set(sp.name, sp.default_value);
+                // Record the unserialized (property, state) pair for post-build
+                // validation.  The compiler writes both fields; a hand-built config
+                // that carries only the serialized name pays one JSON.parse here,
+                // which is what every binding used to pay at validation time (#734).
+                let j_property = sp.property, j_state = sp.state;
+                if ((j_property === undefined) || (j_state === undefined)) {
+                    const inside = JSON.parse(sp.name);
+                    j_property = inside[0];
+                    j_state = inside[1];
+                }
+                if (!(this._state_property_first_state.has(j_property))) {
+                    this._state_property_first_state.set(j_property, j_state);
+                }
             });
         }
         // set initial state either from the specified or the start state list.  validate admission behavior.
@@ -617,32 +635,25 @@ class Machine {
         }
         // done building, do checks
         // assert all props are valid
-        // _state_properties keys are always JSON.stringify([string, string]),
-        // built by name_bind_prop_and_state which throws on non-strings — so the
-        // non-array / non-string else-arms below are unreachable, not untested.
-        this._state_properties.forEach((_value, key) => {
-            const inside = JSON.parse(key);
-            /* v8 ignore else */
-            if (Array.isArray(inside)) {
-                const j_property = inside[0];
-                /* v8 ignore else */
-                if (typeof j_property === 'string') {
-                    const j_state = inside[1];
-                    /* v8 ignore else */
-                    if (typeof j_state === 'string') {
-                        if (!(this.known_prop(j_property))) {
-                            throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
-                        }
-                    }
-                }
+        // provenance pairs were recorded at insertion — first state per property,
+        // in first-binding order — replacing the old JSON.parse of every
+        // serialized key; the error fires for the same binding it always did,
+        // because the first property in first-binding order whose name is
+        // undeclared owns the earliest undeclared binding.
+        this._state_property_first_state.forEach((j_state, j_property) => {
+            if (!(this.known_prop(j_property))) {
+                throw new JssmError(this, `State "${j_state}" has property "${j_property}" which is not globally declared`);
             }
         });
         // assert all required properties are serviced
+        // states() allocates a fresh array per call, so take it once rather than
+        // once per required property
+        const all_states_for_props = this.states();
         this._required_properties.forEach(dp_key => {
             if (this._default_properties.has(dp_key)) {
                 throw new JssmError(this, `The property "${dp_key}" is required, but also has a default; these conflict`);
             }
-            this.states().forEach(s => {
+            all_states_for_props.forEach(s => {
                 const bound_name = name_bind_prop_and_state(dp_key, s);
                 if (!(this._state_properties.has(bound_name))) {
                     throw new JssmError(this, `State "${s}" is missing required property "${dp_key}"`);
@@ -1471,7 +1482,8 @@ class Machine {
      *  @returns `true` if the machine has at least one action.
      */
     get uses_actions() {
-        return Array.from(this._actions.keys()).length > 0;
+        // Map.size answers emptiness without materializing the key list
+        return this._actions.size > 0;
     }
     /** Whether any forced (`~>`) transitions exist in this machine.
      *  @returns `true` if at least one forced transition is defined.
@@ -1748,17 +1760,31 @@ class Machine {
         if (!(wstate)) {
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)} in probable_exits_for`);
         }
-        const wstate_to = wstate.to, 
-        // every transition that exits whichState
-        all_exits = wstate_to
-            .map((ws) => this.lookup_transition_for(whichState, ws))
-            .filter(Boolean), 
-        // forced-only exits cannot be reached by transition(), so they are
-        // never legal probabilistic outcomes
-        legal_exits = all_exits.filter((e) => !e.forced_only), 
-        // if any legal exit declares a probability, filter to those only so
-        // that probability-bearing edges are not diluted by their peers
-        probability_bearing = legal_exits.filter((e) => e.probability !== undefined);
+        // single pass over the state's exits, replacing the old map -> filter ->
+        // filter -> filter chain and its three intermediate arrays; selection and
+        // ordering semantics are unchanged
+        const legal_exits = [], probability_bearing = [];
+        for (const ws of wstate.to) {
+            // wstate.to is built from the same edge set lookup_transition_for
+            // resolves against, so the lookup cannot miss; the guard mirrors the
+            // old defensive .filter(Boolean) and is equally unreachable.
+            const edge = this.lookup_transition_for(whichState, ws);
+            /* v8 ignore next */
+            if (!edge) {
+                continue;
+            }
+            // forced-only exits cannot be reached by transition(), so they are
+            // never legal probabilistic outcomes
+            if (edge.forced_only) {
+                continue;
+            }
+            legal_exits.push(edge);
+            // if any legal exit declares a probability, only those are returned, so
+            // that probability-bearing edges are not diluted by their peers
+            if (edge.probability !== undefined) {
+                probability_bearing.push(edge);
+            }
+        }
         return (probability_bearing.length > 0) ? probability_bearing : legal_exits;
     }
     /** Take a single random transition from the current state, weighted by
@@ -2998,7 +3024,19 @@ class Machine {
         else {
             if (this.valid_transition(newStateOrAction, newData)) {
                 if (this._has_transition_hooks || this._has_post_transition_hooks) {
-                    trans_type = this.edges_between(this._state, newStateOrAction)[0].kind; // TODO this won't do the right thing if various edges have different types
+                    // first matching outbound edge's kind, without building the result
+                    // array edges_between allocated here on every hooked transition.
+                    // First-match semantics are kept deliberately: _edge_map is
+                    // last-wins for multi-edge (from, to) pairs, so lookup_transition_for
+                    // could disagree with the old edges_between(...)[0].  #735
+                    // TODO this won't do the right thing if various edges have different types
+                    for (const ob_eid of this._outbound_edge_ids.get(this._state)) {
+                        const ob_edge = this._edges[ob_eid];
+                        if (ob_edge.to === newStateOrAction) {
+                            trans_type = ob_edge.kind;
+                            break;
+                        }
+                    }
                 }
                 valid = true;
                 newState = newStateOrAction;
@@ -3011,6 +3049,11 @@ class Machine {
         // unchanged for all downstream uses without introducing an impossible
         // (uncoverable) branch; the value is only dereferenced under the guards
         // that imply it was built.  #670
+        // NOTE (#735): the { ...hook_args, hook_name } spreads at the four
+        // everything-hook sites are contractual, not waste — handlers may capture
+        // their context, and each captured context must durably carry its own
+        // hook_name (pinned by the simultaneous-everything-hook specs).  A shared
+        // mutated object cannot satisfy that; do not "optimize" the spreads away.
         const hook_args_obj = (this._has_hooks || this._has_post_hooks)
             ? {
                 data: this._data,
@@ -3367,10 +3410,15 @@ class Machine {
                     cause: 'transition'
                 });
             }
-            if (this.state_is_terminal(newState)) {
+            // one state-record fetch answers both checks; newState is known-valid
+            // here, and the public state_is_terminal / state_is_complete pair would
+            // each redo has_state plus its own map walk.  Same predicates:
+            // terminal = no exits, complete = the constructor-set flag.  #735
+            const new_state_rec = this._states.get(newState);
+            if (new_state_rec.to.length === 0) {
                 this._fire('terminal', { state: newState, data: newData_after });
             }
-            if (this.state_is_complete(newState)) {
+            if (new_state_rec.complete) {
                 this._fire('complete', { state: newState, data: newData_after });
             }
         }

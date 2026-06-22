@@ -353,9 +353,21 @@ function gen_splitmix32(a? : number | undefined) {
  *
  */
 
-const unique = <T>(arr: T[]) =>
+const unique = <T>(arr: T[]) => {
 
-  arr.filter( (v, i, a) => a.indexOf(v) === i );
+  // Set membership makes this O(n); the old indexOf-per-element filter was
+  // O(n^2).  NaN is dropped *explicitly* here because Sets self-match NaN
+  // (SameValueZero) where the documented indexOf behavior (===) never did.
+  const seen = new Set<T>();
+
+  return arr.filter( (v: T): boolean => {
+    if (v !== v)     { return false; }   // NaN: preserve documented dropping
+    if (seen.has(v)) { return false; }
+    seen.add(v);
+    return true;
+  });
+
+};
 
 
 

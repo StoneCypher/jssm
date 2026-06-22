@@ -497,7 +497,9 @@ function compile(tree) {
                     throw new JssmError(undefined, `A state may only bind a property once (${sd.state} re-binds ${decl.name})`, { source_location: nth_matching_loc(tree, (n) => n.key === 'state_declaration' && n.name === sd.state, 1) });
                 }
                 else {
-                    result_cfg.state_property.push({ name: label, default_value: decl.value });
+                    // property/state carry the unserialized pair so the constructor can
+                    // validate bindings without JSON.parse-ing label back apart (#734)
+                    result_cfg.state_property.push({ name: label, default_value: decl.value, property: decl.name, state: sd.state });
                 }
             }
         });
