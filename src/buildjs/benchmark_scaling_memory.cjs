@@ -167,7 +167,7 @@ function collectMemory(shapes, K, rebuild, opBatches, seam = defaultSeam()) {
   if (typeof seam.gc !== 'function') { return { footprints, allocs }; }
 
   for (const shape of shapes) {
-    const edges  = shape.machine.list_edges().length;
+    const edges  = (typeof shape.machine.list_edges === 'function') ? shape.machine.list_edges().length : 0;
     const states = statesFromName(shape.name);
     const bytes  = measureRetainedBytes(() => rebuild(shape.name), seam);
     if (bytes !== null) {

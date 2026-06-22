@@ -568,6 +568,7 @@ function latencyPass(summary) {
 
 /** Parse-vs-construct split: median time of jssm.parse vs full sm per shape (hrtime). */
 function parsePass() {
+  if (typeof jssm.parse !== 'function') { return; }   // pre-`parse`-export library: skip the split, don't crash
   const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
   const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   const byName   = new Map(data.results.map((r) => [r.name, r]));

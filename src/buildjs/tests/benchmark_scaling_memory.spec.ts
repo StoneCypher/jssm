@@ -91,6 +91,14 @@ describe('collectMemory', () => {
     expect(footprints.size).toBe(0);
     expect(allocs.size).toBe(0);
   });
+
+  test('degrades to null bytes/edge when the library lacks list_edges (old-version safety)', () => {
+    const shape = { name: 'chain-3', machine: {} };   // no list_edges (a pre-list_edges build)
+    const seam  = { gc: () => {}, heapUsed: mkHeap([0, 300]) };
+    const { footprints } = mem.collectMemory([shape], 100, () => ({}), () => [], seam);
+    expect(footprints.get('chain-3').bytes).toBe(300);
+    expect(footprints.get('chain-3').bytesPerEdge).toBeNull();   // no edges countable -> null, never a throw
+  });
 });
 
 describe('countStructures', () => {
