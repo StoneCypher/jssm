@@ -24,6 +24,18 @@ describe('measureRetainedBytes', () => {
   });
 });
 
+describe('measureAllocBytes', () => {
+  test('returns the heap delta across the batch (no trailing collect)', () => {
+    const seam = { gc: () => {}, heapUsed: mkHeap([2_000, 2_240]) };
+    expect(mem.measureAllocBytes(() => {}, seam)).toBe(240);
+  });
+
+  test('returns null when gc is unavailable', () => {
+    const seam = { gc: null, heapUsed: () => 0 };
+    expect(mem.measureAllocBytes(() => {}, seam)).toBeNull();
+  });
+});
+
 function mkHeap(values: number[]) {
   let i = 0;
   return () => values[Math.min(i++, values.length - 1)];

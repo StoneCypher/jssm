@@ -50,4 +50,25 @@ function measureRetainedBytes(buildMachine, seam = defaultSeam()) {
   return after - base;
 }
 
-module.exports = { defaultSeam, measureRetainedBytes };
+/**
+ *  Bytes allocated across one batch of work: collect, read baseline, run the
+ *  batch, read again — WITHOUT a trailing collect, so transient allocations are
+ *  included (this is allocation pressure, not retained size).  Divide by the
+ *  batch's op count at the call site to get bytes/op.
+ *
+ *  @param runBatch Thunk that performs one batch of the operation under test.
+ *  @param seam Injectable `{ gc, heapUsed }`; defaults to {@link defaultSeam}.
+ *  @returns Allocated bytes for the batch, or `null` when `seam.gc` is not callable.
+ *
+ *  @example measureAllocBytes(() => { for (let i = 0; i < 100; i++) m.transition(t[i]); })
+ */
+function measureAllocBytes(runBatch, seam = defaultSeam()) {
+  if (typeof seam.gc !== 'function') { return null; }
+  seam.gc();
+  const base  = seam.heapUsed();
+  runBatch();
+  const after = seam.heapUsed();
+  return after - base;
+}
+
+module.exports = { defaultSeam, measureRetainedBytes, measureAllocBytes };
