@@ -102,4 +102,62 @@ function injectMemoryFields(data, footprints, allocs) {
   }
 }
 
-module.exports = { defaultSeam, measureRetainedBytes, measureAllocBytes, injectMemoryFields };
+/**
+ *  Count states from a shape name like `chain-200` / `dense-50` / `messy-1000`.
+ *  For structured shapes the count is the suffix N; messy shapes return `null`
+ *  (their state count isn't encoded in the name), so `bytesPerState` is omitted
+ *  for them.
+ *
+ *  @param name Shape name.
+ *  @returns State count, or `null` when not derivable from the name.
+ *
+ *  @example statesFromName('dense-50') // => 50
+ *  @example statesFromName('messy-1000') // => null
+ */
+function statesFromName(name) {
+  const m = name.match(/-(\d+)$/);
+  if (!m) { return null; }
+  if (name.startsWith('messy-')) { return null; }
+  return parseInt(m[1], 10);
+}
+
+/**
+ *  Build footprint and per-op allocation maps for every shape.  Footprint uses a
+ *  fresh machine from `rebuild(name)`; allocations use the per-op batch thunks
+ *  from `opBatches(shape)`.  All measurement goes through the seam, so a missing
+ *  gc yields empty maps (graceful).
+ *
+ *  @param shapes The shape registry (each `{ name, machine, ... }`).
+ *  @param K Ops per batch (to divide alloc bytes into bytes/op).
+ *  @param rebuild `(name) => machine` — constructs a fresh machine for a shape.
+ *  @param opBatches `(shape) => Array<[resultName, ()=>void]>` — batch thunks to alloc-measure.
+ *  @param seam Injectable `{ gc, heapUsed }`; defaults to {@link defaultSeam}.
+ *  @returns `{ footprints, allocs }` ready for {@link injectMemoryFields}.
+ *
+ *  @example collectMemory(shapes, 100, name => sm([src(name)]), opBatches)
+ */
+function collectMemory(shapes, K, rebuild, opBatches, seam = defaultSeam()) {
+  const footprints = new Map();
+  const allocs     = new Map();
+  if (typeof seam.gc !== 'function') { return { footprints, allocs }; }
+
+  for (const shape of shapes) {
+    const edges  = shape.machine.list_edges().length;
+    const states = statesFromName(shape.name);
+    const bytes  = measureRetainedBytes(() => rebuild(shape.name), seam);
+    if (bytes !== null) {
+      footprints.set(shape.name, {
+        bytes,
+        bytesPerState : states ? bytes / states : null,
+        bytesPerEdge  : edges  ? bytes / edges  : null,
+      });
+    }
+    for (const [resultName, batch] of opBatches(shape)) {
+      const a = measureAllocBytes(batch, seam);
+      if (a !== null) { allocs.set(resultName, a / K); }
+    }
+  }
+  return { footprints, allocs };
+}
+
+module.exports = { defaultSeam, measureRetainedBytes, measureAllocBytes, injectMemoryFields, collectMemory, statesFromName };

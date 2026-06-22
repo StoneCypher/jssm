@@ -64,6 +64,31 @@ describe('injectMemoryFields', () => {
   });
 });
 
+describe('collectMemory', () => {
+  test('builds footprint + alloc maps from shapes via the seam', () => {
+    const shape = { name: 'chain-3', machine: { list_edges: () => [{}, {}, {}] } };
+    const rebuild = () => ({});                          // fake machine
+    const opBatches = () => [['chain-3 transition()', () => {}]];
+    // heapUsed sequence: footprint(base, after) then alloc(base, after)
+    const seam = { gc: () => {}, heapUsed: mkHeap([0, 300, 0, 60]) };
+
+    const { footprints, allocs } = mem.collectMemory([shape], 100, rebuild, opBatches, seam);
+
+    expect(footprints.get('chain-3').bytes).toBe(300);
+    expect(footprints.get('chain-3').bytesPerEdge).toBe(100);    // 300 / 3 edges
+    expect(footprints.get('chain-3').bytesPerState).toBe(100);   // 300 / 3 states (from name)
+    expect(allocs.get('chain-3 transition()')).toBeCloseTo(0.6, 5);   // 60 / 100
+  });
+
+  test('skips shapes when gc is unavailable', () => {
+    const shape = { name: 'chain-3', machine: { list_edges: () => [] } };
+    const seam = { gc: null, heapUsed: () => 0 };
+    const { footprints, allocs } = mem.collectMemory([shape], 100, () => ({}), () => [], seam);
+    expect(footprints.size).toBe(0);
+    expect(allocs.size).toBe(0);
+  });
+});
+
 function mkHeap(values: number[]) {
   let i = 0;
   return () => values[Math.min(i++, values.length - 1)];

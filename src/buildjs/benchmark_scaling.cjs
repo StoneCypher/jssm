@@ -8,6 +8,7 @@ const jssm = require('../../dist/jssm.es5.cjs');
 const sm   = jssm.sm;
 const pkg  = require('../../package.json');
 const plan = require('./benchmark_scaling_plan.cjs');
+const memory = require('./benchmark_scaling_memory.cjs');
 
 // ----------------------------------------------------------------------------
 // Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
@@ -425,22 +426,27 @@ function probableActionExitsCase(shape) {
   }, bennyOpts(name));
 }
 
+/**
+ * Map a shape name to its FSL source string. Shared by constructionCase (parse
+ * cost) and the memory pass (footprint rebuild) so the derivation lives once.
+ */
+function sourceForShape(name) {
+  if (name.startsWith('chain-'))  return buildChainFSL(parseInt(name.slice(6), 10));
+  if (name.startsWith('dense-'))  return buildDenseFSL(parseInt(name.slice(6), 10));
+  if (name.startsWith('hub-'))    return buildHubFSL(parseInt(name.slice(4), 10));
+  if (name.startsWith('hooked-')) return buildHubFSL(parseInt(name.slice(7), 10));
+  if (name.startsWith('messy-'))  return loadMessyFixture(parseInt(name.slice(6), 10));
+  throw new Error(`unknown shape: ${name}`);
+}
+
 function constructionCase(shape) {
   // Re-derive the FSL source for each shape at registration time, then time only
   // sm`...` in the inner loop so we measure full parse + build, including the
   // FSL grammar pass. For hooked-* we time the underlying hub build, not the hook
   // attachments — hook setup cost is implicit in the hooked shape's transition()
   // measurement, and this case is intentionally a parse-cost probe.
-  let source;
-  switch (true) {
-    case shape.name.startsWith('chain-'):  source = buildChainFSL(parseInt(shape.name.slice(6), 10)); break;
-    case shape.name.startsWith('dense-'):  source = buildDenseFSL(parseInt(shape.name.slice(6), 10)); break;
-    case shape.name.startsWith('hub-'):    source = buildHubFSL(parseInt(shape.name.slice(4), 10));   break;
-    case shape.name.startsWith('hooked-'): source = buildHubFSL(parseInt(shape.name.slice(7), 10));   break;
-    case shape.name.startsWith('messy-'):  source = loadMessyFixture(parseInt(shape.name.slice(6), 10)); break;
-    default: throw new Error(`unknown shape: ${shape.name}`);
-  }
-  const name = `${shape.name} construct()`;
+  const source = sourceForShape(shape.name);
+  const name   = `${shape.name} construct()`;
   return b.add(name, () => {
     const m = sm([source]);
     if (m === undefined) throw 'not defined!';   // prevent tree-shaking
@@ -466,6 +472,35 @@ function casesForKind(kind) {
   return shapes.map(CASE_FACTORIES[kind]).filter(Boolean);
 }
 
+/**
+ *  Re-measure every shape's footprint and per-op allocation after the timing
+ *  suite, and inject the additive fields into the saved scaling.json. Uses a
+ *  fresh machine per footprint (via sourceForShape) and the same K-batch shape
+ *  as the timing cases. Requires `--expose-gc`; without it collectMemory returns
+ *  empty maps and the JSON is left untouched.
+ */
+function memoryPass() {
+  const rebuild   = (name) => sm([sourceForShape(name)]);
+  const opBatches = (shape) => {
+    const out = [];
+    out.push([`${shape.name} transition()`, () => {
+      shape.machine.override('s0');
+      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+    }]);
+    if (HAS.edges_between) {
+      out.push([`${shape.name} edges_between()`, () => {
+        for (let k = 0; k < K; ++k) { const [f, t] = shape.edgePairs[k]; shape.machine.edges_between(f, t); }
+      }]);
+    }
+    return out;
+  };
+  const { footprints, allocs } = memory.collectMemory(shapes, K, rebuild, opBatches);
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  memory.injectMemoryFields(data, footprints, allocs);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
 b.suite(
   'jssm scaling diagnostic suite',
   ...plan.plannedCaseKinds(HAS).flatMap(casesForKind),
@@ -479,6 +514,7 @@ b.suite(
       // Deep mode: inject the additive msPerOp/samples fields into the saved
       // JSON before the markdown writer reads it, so the ms/op column appears.
       if (DEEP) { augmentDeepJson(summary); }
+      memoryPass();
       writeMarkdownPivot();
     });
   }),
