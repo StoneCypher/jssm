@@ -23,3 +23,21 @@ describe('findRegressions', () => {
     expect(out).toEqual([]);
   });
 });
+
+describe('findFieldRegressions (direction-aware, any metric)', () => {
+  test('higher-is-better flags ops drops, worst first', () => {
+    const out = alarm.findFieldRegressions(
+      [{ name: 'a', ops: 50 }], [{ name: 'a', ops: 100 }],
+      { field: 'ops', higherIsBetter: true, threshold: 0.08 });
+    expect(out[0].deltaPct).toBeCloseTo(-50, 6);
+  });
+
+  test('lower-is-better flags bytesPerEdge increases, worst first', () => {
+    const current  = [{ name: 'a', bytesPerEdge: 200 }, { name: 'b', bytesPerEdge: 101 }];
+    const previous = [{ name: 'a', bytesPerEdge: 100 }, { name: 'b', bytesPerEdge: 100 }];
+    const out = alarm.findFieldRegressions(current, previous,
+      { field: 'bytesPerEdge', higherIsBetter: false, threshold: 0.08 });
+    expect(out.map((r: { name: string }) => r.name)).toEqual(['a']);   // b +1% within threshold
+    expect(out[0].deltaPct).toBeCloseTo(100, 6);                       // a +100% worst
+  });
+});

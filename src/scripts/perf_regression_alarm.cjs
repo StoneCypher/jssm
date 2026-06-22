@@ -39,4 +39,35 @@ function findRegressions(current, previous, threshold = 0.08) {
   return out.sort((a, b) => a.deltaPct - b.deltaPct);
 }
 
-module.exports = { findRegressions };
+/**
+ *  Direction-aware regression detector for any numeric metric field — generalizes
+ *  {@link findRegressions} so the new metrics are actionable too: ops/latency
+ *  throughput is higher-is-better, while `bytesPerEdge`, `latencyMsMax`,
+ *  `footprintBytes`, and the scaling `exponent` are lower-is-better (a rise is a
+ *  regression).  New cases and non-positive values on either side are skipped.
+ *
+ *  @param current Current results.
+ *  @param previous Previous results.
+ *  @param opts `{ field='ops', threshold=0.08, higherIsBetter=true }`.
+ *  @returns `{ name, field, prev, value, deltaPct }[]`, worst regression first.
+ *
+ *  @example findFieldRegressions(cur, prev, { field: 'bytesPerEdge', higherIsBetter: false })
+ */
+function findFieldRegressions(current, previous, opts = {}) {
+  const { field = 'ops', threshold = 0.08, higherIsBetter = true } = opts;
+  const prev = new Map(previous.map((r) => [r.name, r[field]]));
+  const out  = [];
+  for (const r of current) {
+    const p = prev.get(r.name);
+    const c = r[field];
+    if (p > 0 && c > 0) {
+      const ratio = c / p - 1;
+      const bad   = higherIsBetter ? (ratio <= -threshold) : (ratio >= threshold);
+      if (bad) { out.push({ name: r.name, field, prev: p, value: c, deltaPct: ratio * 100 }); }
+    }
+  }
+  // Worst first: most-negative for higher-is-better, most-positive for lower-is-better.
+  return out.sort((a, b) => higherIsBetter ? (a.deltaPct - b.deltaPct) : (b.deltaPct - a.deltaPct));
+}
+
+module.exports = { findRegressions, findFieldRegressions };
