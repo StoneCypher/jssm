@@ -384,6 +384,3 @@ jobs:
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
         echo '### Results!' >> $GITHUB_STEP_SUMMARY
         echo "* Published $TAG to NPM" >> $GITHUB_STEP_SUMMARY
-        echo '* Bumping `jssm-viz`' >> $GITHUB_STEP_SUMMARY
-        echo '    * which will bump `jssm-viz-cli`' >> $GITHUB_STEP_SUMMARY
-        echo '    * which will bump `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY
