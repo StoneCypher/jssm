@@ -874,6 +874,58 @@ describe('After hook callback', () => {
 
   });
 
+  // StoneCypher/fsl#1327 "After hook handler invoked twice."  After hooks are
+  // the timer's companion (fsl#698: "delay over!") — they fire when a state's
+  // `after` delay elapses, and ONLY then.  Through v5.143.28 the dispatch path
+  // also probed _after_hooks with the transition target (or the action name,
+  // under action dispatch), so entering the hooked state — or performing a
+  // same-named action — spuriously invoked the handler, and a leave-and-return
+  // before the timer elapsed invoked it twice for one elapse.
+
+  test('entering the hooked state by transition does not invoke the handler (fsl#1327)', () => {
+
+    let calls = 0;
+
+    const foo = jssm.sm`a after 1000 -> b; a -> c; c -> a;`;
+    foo.hook_after('a', () => { calls += 1; });
+
+    foo.go('c');
+    foo.go('a');                 // entering 'a' must not fire its after hook
+    expect(calls).toBe(0);
+
+    foo.clear_state_timeout();   // don't leak the re-armed timer into the suite
+
+  });
+
+  test('leave and return: the handler fires exactly once, from the timer (fsl#1327)', async () => {
+
+    let calls = 0;
+
+    const foo = jssm.sm`a after 0.05s -> b; a -> c; c -> a;`;
+    foo.hook_after('a', () => { calls += 1; });
+
+    foo.go('c');
+    foo.go('a');                 // re-arms; the stale timer must already be dead
+
+    await jssm.sleep(400);
+    expect(foo.state()).toBe('b');
+    expect(calls).toBe(1);
+
+  });
+
+  test('an action sharing the hooked name does not invoke the handler (fsl#1327, fsl#710 shape)', () => {
+
+    let calls = 0;
+
+    const foo = jssm.sm`a 'go' => b 'go' => a;`;
+    foo.set_hook({ kind: 'after', from: 'go', handler: () => { calls += 1; return true; } });
+
+    foo.action('go');
+    foo.action('go');
+    expect(calls).toBe(0);
+
+  });
+
 });
 
 

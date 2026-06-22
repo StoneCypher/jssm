@@ -149,9 +149,9 @@ function seq(n: number): number[] {
     throw new TypeError('seq/1 takes a non-negative integer n as an argument');
   }
 
-  return (new Array(n))
-           .fill(true)
-           .map( (_, i): number => i );
+  // single-allocation form; the old new Array(n).fill().map() chain built
+  // three arrays per call, and seq runs per probabilistic walk / sample
+  return Array.from( {length: n}, (_, i): number => i );
 
 }
 
