@@ -84,7 +84,7 @@ async function invokeBySpawn(pluginPath, argv) {
 }
 const RESERVED_FLAGS = /* @__PURE__ */ new Set(["--help", "-h", "--version", "-V"]);
 const RESERVED_NAMES = /* @__PURE__ */ new Set(["help", "version"]);
-const getDispatcherVersion = () => "5.143.35";
+const getDispatcherVersion = () => "5.144.0";
 const printDispatcherHelp = () => {
   process.stdout.write(`fsl \u2014 finite-state language toolchain dispatcher
 

@@ -1155,6 +1155,92 @@ type HookDescription<mDT>
 
 
 
+/* ===========================================================================
+ *  Observational-hook registry (megaspec §12, → #1357)
+ *
+ *  The uniform registry projects the many concrete hook-storage tables onto a
+ *  single normalized shape keyed by `(kind, target, phase)`, so introspection
+ *  (`has_hook` / `hooks_on` / `hook_registry`) and `hooked_state` viz styling
+ *  read from one generated source of truth rather than hand-written per-kind
+ *  pairs.  Pure-observer surface only; veto/mutate stays in source constructs.
+ * ===========================================================================
+ */
+
+/**
+ *  Whether an observational hook runs in the pre-transition phase (where it
+ *  may veto/mutate the transition) or the post-transition phase (a pure
+ *  observer that runs only after a successful transition commits).
+ */
+type HookPhase = 'pre' | 'post';
+
+/**
+ *  Coarse classification of *what* a hook observes, used to bucket every hook
+ *  kind into the uniform registry.  `'edge'` hooks watch a `from→to`
+ *  transition (optionally narrowed to a named `action`); `'state'` hooks watch
+ *  a single state (entry/exit/after, or a state boundary hook); `'action'`
+ *  hooks watch a named action regardless of edge; `'global'` hooks watch every
+ *  transition or every action (the `any-*`, transition-class, and `everything`
+ *  observers); `'group'` hooks watch a named state group's enter/exit boundary.
+ */
+type HookTargetScope = 'edge' | 'state' | 'action' | 'global' | 'group';
+
+/**
+ *  Normalized description of the target a registry entry is bound to.  Exactly
+ *  one scope variant applies; the present fields depend on the scope:
+ *
+ *  - `'edge'`   carries `from` + `to` (+ optional `action` for named hooks),
+ *  - `'state'`  carries `state`,
+ *  - `'action'` carries `action`,
+ *  - `'global'` carries no further keys (it matches everything),
+ *  - `'group'`  carries `group` (a named state group with a boundary hook).
+ */
+type HookTarget =
+  | { scope : 'edge',   from : StateType, to : StateType, action? : string }
+  | { scope : 'state',  state : StateType }
+  | { scope : 'action', action : string }
+  | { scope : 'global' }
+  | { scope : 'group',  group : string };
+
+/**
+ *  Kinds for FSL boundary hooks (`on enter/exit &group do 'X'` and the plain-
+ *  state analogue).  These fire post-commit when a transition crosses the
+ *  subject's boundary and are not part of {@link HookDescription} (that union
+ *  covers only the programmatically-registered observational hooks), so the
+ *  registry widens its `kind` field with them.
+ */
+type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | 'state exit';
+
+/**
+ *  One row of the generated uniform observational-hook registry.  `kind` is
+ *  either an original {@link HookDescription} discriminator (e.g. `'entry'`,
+ *  `'post named'`) or a {@link HookBoundaryKind} for an FSL boundary hook,
+ *  `phase` is the {@link HookPhase} the hook runs in, and `target` is the
+ *  normalized {@link HookTarget} it is bound to.  The triple
+ *  `(kind, target, phase)` is the registry key the spec calls for.
+ */
+type HookRegistryEntry = {
+  kind   : HookDescription<unknown>['kind'] | HookBoundaryKind,
+  phase  : HookPhase,
+  target : HookTarget
+};
+
+/**
+ *  Query for {@link Machine.has_hook} / {@link Machine.hooks_on}.  A bare
+ *  string is read as a state name; an `{ from, to, action? }` object is read
+ *  as an edge (optionally a named edge); an `{ action }` object is read as a
+ *  named action; a `{ group }` object is read as a named state group.  This
+ *  mirrors the spec's `hooks_on(state)` / `hooks_on(from→to)` /
+ *  `hooks_on(action)` / `hooks_on(&group)` set with one parameter shape.
+ */
+type HookQuery =
+  | StateType
+  | { from : StateType, to : StateType, action? : string }
+  | { action : string }
+  | { group : string };
+
+
+
+
 
 /**
  *  Richer hook return value used when a hook needs to do more than just
@@ -1602,6 +1688,13 @@ export {
     EverythingHookContext,
     EverythingHookHandler,
     PostEverythingHookHandler,
+
+  HookPhase,
+    HookTargetScope,
+    HookTarget,
+    HookBoundaryKind,
+    HookRegistryEntry,
+    HookQuery,
 
   JssmEventName,
     JssmEventDetailMap,

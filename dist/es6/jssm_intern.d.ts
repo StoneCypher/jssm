@@ -90,4 +90,24 @@ declare class Interner {
  * @see Interner
  */
 declare function pair_key(a: number, b: number): number;
-export { Interner, pair_key };
+/**
+ * Inverse of {@link pair_key}: recovers the ordered pair `(a, b)` that was
+ * packed into a Szudzik key.  Exact for any key produced by `pair_key` over
+ * non-negative integer inputs, so `un_pair_key(pair_key(a, b))` round-trips
+ * to `[a, b]`.  Used to walk interned, pair-keyed maps (e.g. the hook tables)
+ * back to their original `(from_id, to_id)` ids for {@link Interner.name_of}.
+ *
+ * Behavior is only defined for keys `pair_key` actually emits; a NaN key (the
+ * unknown-name sentinel) yields `[NaN, NaN]`, never a spurious real pair.
+ *
+ * @param z - A key produced by `pair_key`.
+ * @returns The ordered pair `[a, b]` such that `pair_key(a, b) === z`.
+ *
+ * @example
+ *   un_pair_key(27);  // [2, 5]
+ *   un_pair_key(32);  // [5, 2] — order preserved
+ *
+ * @see pair_key
+ */
+declare function un_pair_key(z: number): [number, number];
+export { Interner, pair_key, un_pair_key };
