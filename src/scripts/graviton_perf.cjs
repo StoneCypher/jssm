@@ -538,9 +538,9 @@ function buildRemoteScript(params) {
     ? [
         `# 4. Overlay the current benchmark harnesses from "${harnessFrom}" and run them directly.`,
         `git fetch origin "${harnessFrom}"`,
-        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
+        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_memory.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
         'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
-        `${deep ? 'BENNY_DEEP=1 ' : ''}node ./src/buildjs/benchmark_scaling.cjs`,
+        `${deep ? 'BENNY_DEEP=1 ' : ''}node --expose-gc ./src/buildjs/benchmark_scaling.cjs`,
         '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
         'node ./src/buildjs/benchmark.cjs'
       ]

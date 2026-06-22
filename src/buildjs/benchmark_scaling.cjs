@@ -8,6 +8,13 @@ const jssm = require('../../dist/jssm.es5.cjs');
 const sm   = jssm.sm;
 const pkg  = require('../../package.json');
 const plan = require('./benchmark_scaling_plan.cjs');
+const memory = require('./benchmark_scaling_memory.cjs');
+const exponents = require('./benchmark_scaling_exponents.cjs');
+const bundleSize = require('./benchmark_bundle_size.cjs');
+const latency = require('./benchmark_scaling_latency.cjs');
+const gc = require('./benchmark_gc.cjs');
+const timing = require('./benchmark_timing.cjs');
+const load = require('./benchmark_load.cjs');
 
 // ----------------------------------------------------------------------------
 // Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
@@ -425,22 +432,27 @@ function probableActionExitsCase(shape) {
   }, bennyOpts(name));
 }
 
+/**
+ * Map a shape name to its FSL source string. Shared by constructionCase (parse
+ * cost) and the memory pass (footprint rebuild) so the derivation lives once.
+ */
+function sourceForShape(name) {
+  if (name.startsWith('chain-'))  return buildChainFSL(parseInt(name.slice(6), 10));
+  if (name.startsWith('dense-'))  return buildDenseFSL(parseInt(name.slice(6), 10));
+  if (name.startsWith('hub-'))    return buildHubFSL(parseInt(name.slice(4), 10));
+  if (name.startsWith('hooked-')) return buildHubFSL(parseInt(name.slice(7), 10));
+  if (name.startsWith('messy-'))  return loadMessyFixture(parseInt(name.slice(6), 10));
+  throw new Error(`unknown shape: ${name}`);
+}
+
 function constructionCase(shape) {
   // Re-derive the FSL source for each shape at registration time, then time only
   // sm`...` in the inner loop so we measure full parse + build, including the
   // FSL grammar pass. For hooked-* we time the underlying hub build, not the hook
   // attachments — hook setup cost is implicit in the hooked shape's transition()
   // measurement, and this case is intentionally a parse-cost probe.
-  let source;
-  switch (true) {
-    case shape.name.startsWith('chain-'):  source = buildChainFSL(parseInt(shape.name.slice(6), 10)); break;
-    case shape.name.startsWith('dense-'):  source = buildDenseFSL(parseInt(shape.name.slice(6), 10)); break;
-    case shape.name.startsWith('hub-'):    source = buildHubFSL(parseInt(shape.name.slice(4), 10));   break;
-    case shape.name.startsWith('hooked-'): source = buildHubFSL(parseInt(shape.name.slice(7), 10));   break;
-    case shape.name.startsWith('messy-'):  source = loadMessyFixture(parseInt(shape.name.slice(6), 10)); break;
-    default: throw new Error(`unknown shape: ${shape.name}`);
-  }
-  const name = `${shape.name} construct()`;
+  const source = sourceForShape(shape.name);
+  const name   = `${shape.name} construct()`;
   return b.add(name, () => {
     const m = sm([source]);
     if (m === undefined) throw 'not defined!';   // prevent tree-shaking
@@ -466,6 +478,155 @@ function casesForKind(kind) {
   return shapes.map(CASE_FACTORIES[kind]).filter(Boolean);
 }
 
+/**
+ *  Re-measure every shape's footprint and per-op allocation after the timing
+ *  suite, and inject the additive fields into the saved scaling.json. Uses a
+ *  fresh machine per footprint (via sourceForShape) and the same K-batch shape
+ *  as the timing cases. Requires `--expose-gc`; without it collectMemory returns
+ *  empty maps and the JSON is left untouched.
+ */
+function memoryPass() {
+  const rebuild   = (name) => sm([sourceForShape(name)]);
+  const opBatches = (shape) => {
+    const out = [];
+    out.push([`${shape.name} transition()`, () => {
+      shape.machine.override('s0');
+      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+    }]);
+    if (HAS.edges_between) {
+      out.push([`${shape.name} edges_between()`, () => {
+        for (let k = 0; k < K; ++k) { const [f, t] = shape.edgePairs[k]; shape.machine.edges_between(f, t); }
+      }]);
+    }
+    if (HAS.has_state) {
+      out.push([`${shape.name} has_state()`, () => {
+        for (let k = 0; k < K; ++k) shape.machine.has_state(shape.transitionSeq[k]);
+      }]);
+    }
+    if (shape.actionMachine && HAS.action) {
+      out.push([`${shape.name} action()`, () => {
+        shape.actionMachine.override('s0');
+        for (let k = 0; k < K; ++k) shape.actionMachine.action(shape.actionSeq[k]);
+      }]);
+    }
+    if (shape.actionMachine && HAS.list_exit_actions) {
+      out.push([`${shape.name} list_exit_actions()`, () => {
+        for (let k = 0; k < K; ++k) shape.actionMachine.list_exit_actions(shape.actionStates[k]);
+      }]);
+    }
+    if (shape.actionMachine && HAS.probable_action_exits) {
+      out.push([`${shape.name} probable_action_exits()`, () => {
+        for (let k = 0; k < K; ++k) shape.actionMachine.probable_action_exits(shape.actionStates[k]);
+      }]);
+    }
+    return out;
+  };
+  const { footprints, allocs } = memory.collectMemory(shapes, K, rebuild, opBatches);
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  memory.injectMemoryFields(data, footprints, allocs);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/**
+ *  Compute the per-op/family scaling exponents from the saved ops and write them
+ *  to scaling.json as an additive `exponents` block. Pure post-processing — runs
+ *  every time (no gc needed), unlike the memory pass.
+ */
+function exponentsPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.exponents = exponents.computeExponents(data.results);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/**
+ *  Measure the published dist bundles (raw/gzip/brotli) and write them to
+ *  scaling.json as an additive `bundles` block. Pure file sizing — no benny, no
+ *  gc; tracks package weight per release.
+ */
+function bundlesPass() {
+  const dist     = (f) => path.join(__dirname, '..', '..', 'dist', f);
+  const files    = [dist('jssm.es5.cjs'), dist('jssm.es6.mjs'), dist('jssm.es5.iife.js')];
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.bundles   = bundleSize.collectBundleSizes(files);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/**
+ *  Inject the per-op latency spread (min/median/max ms) from the benny summary
+ *  into scaling.json. Runs always — the spread is meaningful even at the default
+ *  sample count, since the max captures the worst (tail) sample.
+ */
+function latencyPass(summary) {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  latency.injectLatency(data, summary);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/** Parse-vs-construct split: median time of jssm.parse vs full sm per shape (hrtime). */
+function parsePass() {
+  if (typeof jssm.parse !== 'function') { return; }   // pre-`parse`-export library: skip the split, don't crash
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  const byName   = new Map(data.results.map((r) => [r.name, r]));
+  const ns       = () => Number(process.hrtime.bigint());
+  for (const shape of shapes) {
+    const source = sourceForShape(shape.name);
+    const p = [], c = [];
+    for (let i = 0; i < 5; ++i) {
+      let t = ns(); jssm.parse(source); p.push((ns() - t) / 1e6);
+      t = ns();     sm([source]);       c.push((ns() - t) / 1e6);
+    }
+    const split = timing.splitBuild(timing.median(p), timing.median(c));
+    const row   = byName.get(`${shape.name} construct()`);
+    if (row) { row.parseMs = split.parseMs; row.constructMs = split.constructMs; row.buildMs = split.buildMs; }
+  }
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/** Warmup: cold (first batch) vs warm (median of rest) transition batch times per shape. */
+function warmupPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  const byName   = new Map(data.results.map((r) => [r.name, r]));
+  const ns       = () => Number(process.hrtime.bigint());
+  for (const shape of shapes) {
+    const batches = [];
+    for (let i = 0; i < 6; ++i) {
+      shape.machine.override('s0');
+      const t = ns();
+      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+      batches.push((ns() - t) / 1e6);
+    }
+    const w   = timing.summarizeWarmup(batches);
+    const row = byName.get(`${shape.name} transition()`);
+    if (row) { row.coldMs = w.coldMs; row.warmMs = w.warmMs; row.warmupRatio = w.warmupRatio; }
+  }
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/** Cold bundle load time -> scaling.json `loadMs` (fresh-process require). */
+function loadPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.loadMs    = load.measureLoadMs(path.join(__dirname, '..', '..', 'dist', 'jssm.es5.cjs'));
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+/** Total GC pause/count observed across the whole run -> scaling.json `gc`. */
+function gcPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.gc        = gcTracker.stop();
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
+// Observe GC for the whole run (the suite below); gcPass() stops + records it.
+const gcTracker = gc.createGcTracker();
+
 b.suite(
   'jssm scaling diagnostic suite',
   ...plan.plannedCaseKinds(HAS).flatMap(casesForKind),
@@ -479,6 +640,14 @@ b.suite(
       // Deep mode: inject the additive msPerOp/samples fields into the saved
       // JSON before the markdown writer reads it, so the ms/op column appears.
       if (DEEP) { augmentDeepJson(summary); }
+      memoryPass();
+      exponentsPass();
+      bundlesPass();
+      latencyPass(summary);
+      parsePass();
+      warmupPass();
+      loadPass();
+      gcPass();
       writeMarkdownPivot();
     });
   }),

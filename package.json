@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.145.0",
+  "version": "5.145.1",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -155,7 +155,7 @@
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
-    "benny:scaling": "node ./src/buildjs/benchmark_scaling.cjs",
+    "benny:scaling": "node --expose-gc ./src/buildjs/benchmark_scaling.cjs",
     "benny:all": "npm run benny && npm run benny:scaling",
     "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
     "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
