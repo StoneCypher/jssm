@@ -9,6 +9,7 @@ const sm   = jssm.sm;
 const pkg  = require('../../package.json');
 const plan = require('./benchmark_scaling_plan.cjs');
 const memory = require('./benchmark_scaling_memory.cjs');
+const exponents = require('./benchmark_scaling_exponents.cjs');
 
 // ----------------------------------------------------------------------------
 // Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
@@ -501,6 +502,18 @@ function memoryPass() {
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
 }
 
+/**
+ *  Compute the per-op/family scaling exponents from the saved ops and write them
+ *  to scaling.json as an additive `exponents` block. Pure post-processing — runs
+ *  every time (no gc needed), unlike the memory pass.
+ */
+function exponentsPass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.exponents = exponents.computeExponents(data.results);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
 b.suite(
   'jssm scaling diagnostic suite',
   ...plan.plannedCaseKinds(HAS).flatMap(casesForKind),
@@ -515,6 +528,7 @@ b.suite(
       // JSON before the markdown writer reads it, so the ms/op column appears.
       if (DEEP) { augmentDeepJson(summary); }
       memoryPass();
+      exponentsPass();
       writeMarkdownPivot();
     });
   }),
