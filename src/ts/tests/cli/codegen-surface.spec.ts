@@ -21,13 +21,14 @@ describe('extractSurface', () => {
     ]);
   });
 
-  it('skips edges that carry no action', () => {
-    // `a -> b` is unnamed: it has no caller-visible trigger, so it is omitted
-    // from transitions but its endpoints still appear in states.
+  it('surfaces edges that carry no action as eventless', () => {
+    // `a -> b` is unnamed: no caller-visible action trigger, so it is not in
+    // `transitions`, but it IS surfaced as an eventless/automatic edge.
     const s = extractSurface('a -> b;');
     expect(s.states).toEqual(['a', 'b']);
     expect(s.actions).toEqual([]);
     expect(s.transitions).toEqual([]);
+    expect(s.eventless).toEqual([{ from: 'a', to: 'b' }]);
   });
 
   it('surfaces the traffic-light fixture faithfully', () => {

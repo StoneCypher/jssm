@@ -26,17 +26,19 @@ export interface MachineSurface {
   actions: string[];
   /** Every state that is final (terminal or complete). */
   finals: string[];
-  /** Every action-bearing transition. Unnamed/eventless edges are omitted. */
+  /** Every action-bearing transition. */
   transitions: SurfaceTransition[];
+  /** Every eventless/unnamed edge (an automatic transition with no action). */
+  eventless: { from: string; to: string }[];
 }
 
 /**
  * Compile FSL source and extract its host-agnostic {@link MachineSurface}.
  *
- * Only *named* transitions (edges carrying an action) are surfaced — they are
- * the ones a generated `action(name)` dispatcher can fire. Eventless / unnamed
- * edges have no caller-visible trigger and are intentionally skipped; a target
- * that later grows eventless support reads them from `list_edges` directly.
+ * Named transitions (edges carrying an action) populate `transitions` — the
+ * ones a generated `action(name)` dispatcher can fire. Eventless / unnamed
+ * edges (automatic transitions with no caller-visible trigger) are surfaced
+ * separately in `eventless`, which a target emits as a `step()` transition.
  *
  * @param fsl - FSL source text
  * @returns The extracted surface
@@ -49,6 +51,7 @@ export interface MachineSurface {
  *   // s.actions === ['go']
  *   // s.finals  === ['b']
  *   // s.transitions === [{ from: 'a', action: 'go', to: 'b' }]
+ *   // s.eventless === []
  */
 export function extractSurface(fsl: string): MachineSurface {
   let machine;
@@ -64,8 +67,12 @@ export function extractSurface(fsl: string): MachineSurface {
   const finals  = states.filter(s => machine.state_is_final(s));
 
   const transitions: SurfaceTransition[] = [];
+  const eventless: { from: string; to: string }[] = [];
   for (const edge of machine.list_edges()) {
-    if (edge.action === undefined) continue;
+    if (edge.action === undefined) {
+      eventless.push({ from: String(edge.from), to: String(edge.to) });
+      continue;
+    }
     transitions.push({
       from:   String(edge.from),
       action: String(edge.action),
@@ -73,5 +80,5 @@ export function extractSurface(fsl: string): MachineSurface {
     });
   }
 
-  return { states, initial, actions, finals, transitions };
+  return { states, initial, actions, finals, transitions, eventless };
 }

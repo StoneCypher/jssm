@@ -73,6 +73,17 @@ describe('emitNativeJavascript', () => {
     expect(m.isFinal()).toBe(true);    // 'b' is terminal → final
   });
 
+  it('surfaces eventless edges and advances via step()', async () => {
+    const surface = extractSurface('a -> b;');
+    expect(surface.eventless).toEqual([{ from: 'a', to: 'b' }]);
+    const Auto = await loadGenerated(emitNativeJavascript(surface, 'Auto'), 'Auto');
+    const m = new Auto();
+    expect(m.state).toBe('a');
+    expect(m.step()).toBe(true);
+    expect(m.state).toBe('b');
+    expect(m.step()).toBe(false);   // 'b' has no eventless edge
+  });
+
 });
 
 describe('emitNativeTypescript', () => {
