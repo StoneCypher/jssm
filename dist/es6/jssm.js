@@ -8,6 +8,7 @@ import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_selec
 import { Interner, pair_key, un_pair_key } from './jssm_intern';
 import * as constants from './jssm_constants';
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
+const empty_string_set = new Set();
 import { version, build_time } from './version'; // replaced from package.js in build
 import { JssmError } from './jssm_error';
 /*********
@@ -1871,10 +1872,10 @@ class Machine {
             }
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
         }
-        return Array.from(ra_base.values())
-            .map((edgeId) => this._edges[edgeId])
-            .filter((o) => o.from === whichState)
-            .map((filtered) => filtered.action);
+        // `_reverse_actions` is keyed by edge.from (see its population), so every
+        // action stored under whichState belongs to whichState by construction — no
+        // from-filter is needed, and the keys are exactly the exit actions.
+        return Array.from(ra_base.keys());
     }
     /** List all action exits from a state with their probabilities.
      *  @param whichState - The state to inspect.  Defaults to the current state.
@@ -1889,13 +1890,16 @@ class Machine {
             }
             throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
         }
-        return Array.from(ra_base.values())
-            .map((edgeId) => this._edges[edgeId])
-            .filter((o) => o.from === whichState)
-            .map((filtered) => ({
-            action: filtered.action,
-            probability: filtered.probability
-        }));
+        const exits = []; // TODO FIXME no any
+        // `_reverse_actions` is keyed by edge.from, so every entry belongs to
+        // whichState by construction; no from-filter is needed.
+        ra_base.forEach((edgeId, action) => {
+            exits.push({
+                action,
+                probability: this._edges[edgeId].probability
+            });
+        });
+        return exits;
     }
     /** Check whether a state has no incoming transitions (unreachable after start).
      *  @param whichState - The state to check.
@@ -3091,8 +3095,8 @@ class Machine {
                 + `crossing from ${JSON.stringify(prev_state)} to ${JSON.stringify(next_state)} `
                 + `(possible infinite loop)`);
         }
-        const prev_groups = (_a = this._state_to_groups.get(prev_state)) !== null && _a !== void 0 ? _a : new Set();
-        const next_groups = (_b = this._state_to_groups.get(next_state)) !== null && _b !== void 0 ? _b : new Set();
+        const prev_groups = (_a = this._state_to_groups.get(prev_state)) !== null && _a !== void 0 ? _a : empty_string_set;
+        const next_groups = (_b = this._state_to_groups.get(next_state)) !== null && _b !== void 0 ? _b : empty_string_set;
         // The labels to dispatch, gathered before any firing so that re-entrant
         // transitions caused by an early action cannot perturb which boundaries the
         // *current* crossing fires.  Exits precede enters (statechart convention).

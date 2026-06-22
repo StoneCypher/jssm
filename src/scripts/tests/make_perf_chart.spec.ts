@@ -16,10 +16,12 @@ const run = (over: object) => ({
 const two_runs = [
   run({ pr: 598, version: '5.128.0', date: '2026-06-01T10:00:00.000Z',
         results: [ { name: 'chain-200 transition()', ops: 100 },
+                   { name: 'chain-200 action()',     ops: 90  },
                    { name: 'dense-200 transition()', ops: 50  },
                    { name: 'chain-200 construct()',  ops: 10  } ] }),
   run({ pr: 700, version: '5.143.2', date: '2026-06-11T01:02:03.000Z',
         results: [ { name: 'chain-200 transition()', ops: 200 },
+                   { name: 'chain-200 action()',     ops: 180 },
                    { name: 'dense-200 transition()', ops: 75  },
                    { name: 'chain-200 construct()',  ops: 40  } ] })
 ];
@@ -108,7 +110,7 @@ describe('render_chart', () => {
 
   test('emits one panel per present operation and a composite header', () => {
     const { svg, panels } = mpc.render_chart(two_runs);
-    expect( [...panels.keys()] ).toEqual(['construct()', 'transition()']);
+    expect( [...panels.keys()] ).toEqual(['construct()', 'transition()', 'action()']);
     expect(svg).toContain('jssm performance trend');
     expect(svg).toContain('Data through 20260611-010203');
     expect(svg).toContain('chain-200');     // legend entries survive compositing

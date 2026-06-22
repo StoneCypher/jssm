@@ -5,6 +5,7 @@
   "results": [
     { "name": "chain-10 transition()", "ops": 100 },
     { "name": "chain-50 transition()", "ops": 50 },
+    { "name": "chain-10 action()", "ops": 80 },
     { "name": "chain-10 edges_between()", "ops": 10 }
   ]
 }

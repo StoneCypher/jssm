@@ -55,7 +55,15 @@ const DEFAULTS = Object.freeze({
 });
 
 /** Operations charted, in panel order; absent operations are skipped. */
-const OPERATIONS = Object.freeze(['construct()', 'transition()', 'edges_between()', 'has_state()']);
+const OPERATIONS = Object.freeze([
+  'construct()',
+  'transition()',
+  'action()',
+  'edges_between()',
+  'has_state()',
+  'list_exit_actions()',
+  'probable_action_exits()'
+]);
 
 /** Paul Tol-ish categorical palette; cycles when a panel has more shapes. */
 const PALETTE = Object.freeze([

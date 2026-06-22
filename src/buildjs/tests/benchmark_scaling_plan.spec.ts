@@ -8,8 +8,24 @@ const plan = require('../benchmark_scaling_plan.cjs');
 // (benchmarked via graviton_perf --harness-from) degrades to a partial suite
 // instead of crashing on a missing method.
 
-const ALL = { set_hook: true, list_exits: true, edges_between: true, has_state: true };
-const NONE = { set_hook: false, list_exits: false, edges_between: false, has_state: false };
+const ALL = {
+  set_hook              : true,
+  list_exits            : true,
+  action                : true,
+  edges_between         : true,
+  has_state             : true,
+  list_exit_actions     : true,
+  probable_action_exits : true
+};
+const NONE = {
+  set_hook              : false,
+  list_exits            : false,
+  action                : false,
+  edges_between         : false,
+  has_state             : false,
+  list_exit_actions     : false,
+  probable_action_exits : false
+};
 
 describe('plannedShapeNames — feature-gated shape selection', () => {
 
@@ -51,19 +67,58 @@ describe('plannedShapeNames — feature-gated shape selection', () => {
 
 describe('plannedCaseKinds — feature-gated case selection', () => {
 
-  test('a full-API build runs all four case kinds in column order', () => {
+  test('a full-API build runs every case kind in column order', () => {
     expect(plan.plannedCaseKinds(ALL))
-      .toEqual(['transition()', 'edges_between()', 'has_state()', 'construct()']);
+      .toEqual([
+        'transition()',
+        'action()',
+        'edges_between()',
+        'has_state()',
+        'list_exit_actions()',
+        'probable_action_exits()',
+        'construct()'
+      ]);
+  });
+
+  test('drops action() when the op is absent', () => {
+    expect(plan.plannedCaseKinds({ ...ALL, action: false }))
+      .toEqual([
+        'transition()',
+        'edges_between()',
+        'has_state()',
+        'list_exit_actions()',
+        'probable_action_exits()',
+        'construct()'
+      ]);
   });
 
   test('drops edges_between() when the op is absent', () => {
     expect(plan.plannedCaseKinds({ ...ALL, edges_between: false }))
-      .toEqual(['transition()', 'has_state()', 'construct()']);
+      .toEqual([
+        'transition()',
+        'action()',
+        'has_state()',
+        'list_exit_actions()',
+        'probable_action_exits()',
+        'construct()'
+      ]);
   });
 
   test('drops has_state() when the op is absent', () => {
     expect(plan.plannedCaseKinds({ ...ALL, has_state: false }))
-      .toEqual(['transition()', 'edges_between()', 'construct()']);
+      .toEqual([
+        'transition()',
+        'action()',
+        'edges_between()',
+        'list_exit_actions()',
+        'probable_action_exits()',
+        'construct()'
+      ]);
+  });
+
+  test('drops action-list helpers independently when absent', () => {
+    expect(plan.plannedCaseKinds({ ...ALL, list_exit_actions: false, probable_action_exits: false }))
+      .toEqual(['transition()', 'action()', 'edges_between()', 'has_state()', 'construct()']);
   });
 
   test('transition() and construct() are always present, even with no optional ops', () => {
