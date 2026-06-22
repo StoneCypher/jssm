@@ -1,4 +1,4 @@
-import { LitElement, html, css, TemplateResult } from 'lit';
+import { LitElement, html, css, TemplateResult, type PropertyValues } from 'lit';
 import { Machine, sm } from '../jssm.js';
 import { install_bindings, type FslBindUnsub } from './fsl_bind_wc.js';
 import {
@@ -318,10 +318,16 @@ export function resolve_fsl_source(host: HTMLElement, fsl_attr: string): JssmIns
  * @cssproperty [--current-state] - The machine's current state name as a CSS string token.
  * @slot title - Heading area for the instance.
  * @slot viz - Visualization slot; fallback is a placeholder string.
- * @slot editor - Editor surface slot.
+ * @slot editor - Editor surface slot (`<fsl-editor>`, #659).
  * @slot actions - Slot for action buttons / UI.
- * @slot toolbar - Slot for toolbar UI.
- * @slot info-panel - Slot for an info / status panel.
+ * @slot toolbar - Slot for toolbar UI (`<fsl-toolbar>`, #660).
+ * @slot info-panel - Slot for an info / status panel (`<fsl-info-panel>`, #661).
+ * @slot history - Slot for the visited-state timeline (`<fsl-history>`, #662).
+ * @slot data-inspector - Slot for the typed-data tree view (`<fsl-data-inspector>`, #663).
+ * @slot hook-log - Slot for the hook-firing log (`<fsl-hook-log>`, #664).
+ * @slot effective-properties - Slot for the resolved-properties panel (`<fsl-effective-properties>`, #665).
+ * @slot simulation - Slot for the random-walk simulation (`<fsl-simulation>`, #668).
+ * @slot export - Slot for the export menu (`<fsl-export>`, #667).
  * @slot footer - Footer slot.
  */
 export class FslInstance extends LitElement {
@@ -371,6 +377,38 @@ export class FslInstance extends LitElement {
    * `connectedCallback`.  Walked in `disconnectedCallback`.
    */
   private _on_unsubscribes: Array<() => void> = [];
+
+  /**
+   * Library event names this WC re-emits as DOM `CustomEvent`s, fulfilling
+   * mechanism 4 of #639.  Each library `machine.on(name, ...)` is bridged to
+   * a `fsl-<name>` DOM event (`composed`, `bubbling`) so slotted content and
+   * outside consumers can observe machine activity declaratively.
+   *
+   * `fsl-` is the canonical prefix (matching the canonical `<fsl-*>` tag
+   * names); the older `jssm-*` event prose in #639 predates that naming flip.
+   * Events are NOT double-emitted under both prefixes — a symmetric listener
+   * would otherwise run twice per machine event.
+   */
+  private static readonly REEMITTED_EVENTS: readonly string[] = [
+    'transition', 'entry', 'exit', 'terminal', 'complete',
+    'action', 'rejection', 'override', 'data-change', 'timeout', 'error',
+  ];
+
+  /**
+   * Unsubscribe callbacks for the host-level mechanism-4 re-emission
+   * subscriptions installed in {@link _install_event_reemission}.  Distinct
+   * from {@link _on_unsubscribes} (which belongs to `<jssm-on>` children).
+   */
+  private _reemit_unsubscribes: Array<() => void> = [];
+
+  /**
+   * Library events captured during the current transition, awaiting DOM
+   * re-dispatch once Lit commits the next render.  Dispatching here (rather
+   * than synchronously from the machine subscription) guarantees the #639
+   * ordering: mechanism 1/3 reflection and mechanism 2 slot re-pick are all
+   * in place before a mechanism-4 listener runs.
+   */
+  private _pending_dom_events: Array<{ name: string; detail: unknown }> = [];
 
   /**
    * Per-instance registry of named hook handlers consulted before
@@ -477,8 +515,9 @@ export class FslInstance extends LitElement {
     // here ensures the first paint sees the freshly painted attributes.
     this.requestUpdate();
 
-    // TODO #638: subscribe to machine.on('transition', ...) once available
-    //            and dispatch DOM CustomEvents from this element.
+    // #639 mechanism 4: subscribe to library events and re-emit them as
+    // DOM CustomEvents from this host (#638 supplies the event API).
+    this._install_event_reemission();
 
     // #641: <jssm-hook> declarative discovery.
     this._install_declarative_hooks();
@@ -577,13 +616,88 @@ export class FslInstance extends LitElement {
   }
 
   /**
+   * Install the mechanism-4 (#639) re-emission subscriptions: one
+   * `machine.on(name, ...)` per entry in {@link REEMITTED_EVENTS}.  Each
+   * captured library event is queued and re-dispatched as a `fsl-<name>` DOM
+   * event after the next render commit (see {@link updated}).
+   *
+   * Subscribing is also what *enables* the gated observation events: the
+   * library suppresses `transition` / `entry` / `exit` / etc. while no
+   * listeners exist (#670), so this host subscription is the bridge that
+   * turns them on.
+   *
+   * The subscription handler paints state reflection eagerly so that a host
+   * driven directly via `host.machine.action(...)` (bypassing {@link do})
+   * still updates its `current-state` attribute and `--current-state`
+   * property.
+   */
+  private _install_event_reemission(): void {
+    const machine = this._machine as Machine<unknown>;
+    for (const name of FslInstance.REEMITTED_EVENTS) {
+      // `as any` collapses the per-event detail typing — the WC is a
+      // schema-erased entry point; per-event payload typing belongs upstream.
+      const off = (machine.on as any)(name, (detail: unknown) => {
+        this._pending_dom_events.push({ name, detail });
+        this._paint_state_reflection();
+        this.requestUpdate();
+      });
+      this._reemit_unsubscribes.push(off);
+    }
+  }
+
+  /**
+   * Lit lifecycle.  After every committed render, flush any library events
+   * captured since the last commit as DOM `CustomEvent`s.  Deferring to this
+   * point is what gives mechanism-4 listeners the #639 ordering guarantee:
+   * host attributes (mechanism 1), CSS custom properties (mechanism 3), and
+   * the state-specific slot (mechanism 2) are all current by the time a
+   * `fsl-*` listener runs.
+   *
+   * @param changed - Lit's changed-property map (forwarded to super).
+   */
+  updated(changed: PropertyValues): void {
+    super.updated(changed);
+    this._flush_pending_dom_events();
+  }
+
+  /**
+   * Dispatch and clear the queue of pending DOM events.  The queue is
+   * snapshotted and reset *before* dispatching so that a listener which
+   * re-enters the machine (e.g. calls `host.machine.action(...)`
+   * synchronously) enqueues into a fresh batch handled by the next update
+   * cycle, rather than mutating the array mid-iteration.  This is the
+   * documented re-entrancy behavior: re-entrant transitions are deferred,
+   * not dropped.
+   */
+  private _flush_pending_dom_events(): void {
+    if (this._pending_dom_events.length === 0) {
+      return;
+    }
+    const batch = this._pending_dom_events;
+    this._pending_dom_events = [];
+    for (const ev of batch) {
+      this.dispatchEvent(new CustomEvent(`fsl-${ev.name}`, {
+        detail   : ev.detail,
+        bubbles  : true,
+        composed : true,
+      }));
+    }
+  }
+
+  /**
    * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
    * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
-   * and DOM listeners from `<jssm-action>` / `data-jssm-action`.
+   * mechanism-4 re-emission subscriptions, and DOM listeners from
+   * `<jssm-action>` / `data-jssm-action`.
    */
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    // TODO #638: unsubscribe from any direct machine.on(...) handlers added by host.
+
+    // #639 mechanism 4: release host-level re-emission subscriptions and drop
+    // any events that were queued but not yet flushed.
+    for (const off of this._reemit_unsubscribes) { off(); }
+    this._reemit_unsubscribes = [];
+    this._pending_dom_events = [];
 
     // #641: remove installed hooks.
     if (this._machine !== undefined) {
@@ -760,6 +874,24 @@ export class FslInstance extends LitElement {
         </section>
         <section class="info-panel">
           <slot name="info-panel"></slot>
+        </section>
+        <section class="history">
+          <slot name="history"></slot>
+        </section>
+        <section class="data-inspector">
+          <slot name="data-inspector"></slot>
+        </section>
+        <section class="hook-log">
+          <slot name="hook-log"></slot>
+        </section>
+        <section class="effective-properties">
+          <slot name="effective-properties"></slot>
+        </section>
+        <section class="simulation">
+          <slot name="simulation"></slot>
+        </section>
+        <section class="export">
+          <slot name="export"></slot>
         </section>
         <section class="state-section">
           <slot name=${state_slot_name}></slot>
