@@ -323,4 +323,87 @@ describe('fsl-codegen plugin cli()', () => {
     }
   });
 
+  it('--json emits a success envelope to stdout', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--stdout', '--json']);
+    expect(code).toBe(0);
+    const env = JSON.parse(stdoutChunks.join(''));
+    expect(env.ok).toBe(true);
+    expect(env.status).toBe('generated');
+    expect(env.target).toBe('native:typescript');
+    expect(env.content).toContain('export class TrafficLight');
+  });
+
+  it('--json emits a success envelope with outputPath when writing a file', async () => {
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-codegen-test-'));
+    const src  = join(fixturesDir, 'traffic-light.fsl');
+    const out  = join(work, 'gen.ts');
+    const code = await cli([src, '-o', out, '--json']);
+    expect(code).toBe(0);
+    const env = JSON.parse(stdoutChunks.join(''));
+    expect(env.ok).toBe(true);
+    expect(env.outputPath).toBe(out);
+  });
+
+  it('--json emits an error envelope on bad FSL', async () => {
+    const src = join(fixturesDir, 'invalid.fsl');
+    const code = await cli([src, '--stdout', '--json']);
+    expect(code).toBe(1);
+    const env = JSON.parse(stdoutChunks.join(''));
+    expect(env.ok).toBe(false);
+    expect(env.status).toBe('error');
+  });
+
+  it('--json emits an undecided envelope for --certify', async () => {
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await cli([src, '--stdout', '--json', '--certify']);
+    expect(code).toBe(1);
+    const env = JSON.parse(stdoutChunks.join(''));
+    expect(env.status).toBe('undecided');
+  });
+
+  it('reports a file-write failure on stderr and returns 1', async () => {
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-codegen-test-'));
+    const src  = join(fixturesDir, 'traffic-light.fsl');
+    const out  = join(work, 'no-such-subdir', 'out.ts');  // parent dir is missing
+    const code = await cli([src, '-o', out]);
+    expect(code).toBe(1);
+    expect(stderrChunks.join('')).toContain('cannot write');
+  });
+
+  it('reports a file-write failure as a --json error envelope and returns 1', async () => {
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-codegen-test-'));
+    const src  = join(fixturesDir, 'traffic-light.fsl');
+    const out  = join(work, 'no-such-subdir', 'out.ts');
+    const code = await cli([src, '-o', out, '--json']);
+    expect(code).toBe(1);
+    const env = JSON.parse(stdoutChunks.join(''));
+    expect(env.ok).toBe(false);
+  });
+
+  it('writes a .js sibling file for native:javascript', async () => {
+    const work = await fs.mkdtemp(join(tmpdir(), 'fsl-codegen-test-'));
+    const src  = join(work, 'traffic-light.fsl');
+    await fs.copyFile(join(fixturesDir, 'traffic-light.fsl'), src);
+    const code = await cli([src, '--target', 'native:javascript']);
+    expect(code).toBe(0);
+    const out = await fs.readFile(join(work, 'traffic-light.js'), 'utf8');
+    expect(out).toContain('export class TrafficLight');
+  });
+
+  it('--json error envelope includes line when the CodegenError carries one', async () => {
+    vi.resetModules();
+    vi.doMock('../../cli/subcommands/codegen/codegen', async () => {
+      const { CodegenError } = await import('../../cli/codegen-types');
+      return { codegen: () => { throw new CodegenError('boom', { line: 7 }); } };
+    });
+    const { cli: mockedCli } = await import('../../cli/subcommands/codegen/plugin');
+    const src = join(fixturesDir, 'traffic-light.fsl');
+    const code = await mockedCli([src, '--stdout', '--json']);
+    expect(code).toBe(1);
+    const env = JSON.parse(stdoutChunks.join(''));
+    expect(env.line).toBe(7);
+    vi.doUnmock('../../cli/subcommands/codegen/codegen');
+  });
+
 });

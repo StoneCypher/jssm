@@ -31,24 +31,6 @@ export type {
 
 export { CodegenError, CodegenUndecidedError } from './codegen-types';
 
-// ─── Interchange (megaspec §25 import / export) ───────────────────────────
-
-export { exportMachine } from './subcommands/export/export';
-export type { ExportOptions } from './subcommands/export/export';
-
-export { importMachine } from './subcommands/import/import';
-export type { ImportOptions } from './subcommands/import/import';
-
-export type {
-  ExportFormat,
-  ImportFormat,
-  InterchangeModel,
-  InterchangeEdge,
-  ConversionResult,
-} from './subcommands/interchange/types';
-
-export { InterchangeError } from './subcommands/interchange/types';
-
 export { parseFslArgs } from './cli-utils';
 export type { ParseSpec, ParseResult, FlagSpec, FlagType } from './cli-utils';
 
