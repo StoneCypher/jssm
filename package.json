@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.144.0",
+  "version": "5.144.1",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -10,7 +10,8 @@
   "bin": {
     "fsl": "./dist/cli/fsl.cjs",
     "jssm": "./dist/cli/fsl.cjs",
-    "fsl-render": "./dist/cli/fsl-render.cjs"
+    "fsl-render": "./dist/cli/fsl-render.cjs",
+    "fsl-export-system-prompt": "./dist/cli/fsl-export-system-prompt.cjs"
   },
   "exports": {
     ".": {
