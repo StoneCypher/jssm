@@ -279,4 +279,12 @@ describe('name_bind_prop_and_state', () => {
     expect(() => name_bind_prop_and_state('a', false as any)).toThrow();
   });
 
+  test('a,false error message references state not prop', () => {
+    expect(() => name_bind_prop_and_state('a', false as any)).toThrow(/got false/);
+  });
+
+  test('false,b error message references prop', () => {
+    expect(() => name_bind_prop_and_state(false as any, 'b')).toThrow(/got false/);
+  });
+
 });

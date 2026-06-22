@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "stately",
+    "npm": "stately.js",
+    "homepage": "https://github.com/fschaefer/Stately.js",
+    "languages": ["javascript"]
+  },
+  "machine": "matter",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/fschaefer/Stately.js#examples",
+    "note": "stately did not have a states of matter example. I made this, following this unrelated machine as a style guide."
+  },
+  "code": "export const matter = Stately.machine({\n  solid: {\n    melt: () => {\n      console.log(\"I melted\");\n      return this.liquid;\n    },\n  },\n  liquid: {\n    freeze: () => {\n      console.log(\"I froze\");\n      return this.solid;\n    },\n    vaporize: () => {\n      console.log(\"I vaporized\");\n      return this.gas;\n    },\n  },\n  gas: {\n    condense: () => {\n      console.log(\"I condensed\");\n      return this.liquid;\n    },\n  },\n});",
+  "formattedWith": "prettier"
+}

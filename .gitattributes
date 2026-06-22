@@ -1,6 +1,17 @@
-docs/* linguist-generated=true
-build/* linguist-generated=true
-dist/* linguist-generated=true
-src/ts/generated_code/* linguist-generated=true
-benchmark/* linguist-generated=true
-coverage/* linguist-generated=true
+# Build outputs
+build/** linguist-generated
+dist/** linguist-generated
+
+# Generated documentation
+docs/** linguist-generated
+
+# Generated source (PEG.js parser output, ~18k lines)
+src/ts/fsl_parser.ts linguist-generated
+src/ts/generated_code/** linguist-generated
+
+# Test/benchmark artifacts
+benchmark/** linguist-generated
+coverage/** linguist-generated
+
+# Lockfiles (also keeps Languages sidebar accurate)
+package-lock.json linguist-generated

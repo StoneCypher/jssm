@@ -47,9 +47,10 @@ module.exports = {
         ] },
       ] },
       { title: 'Tools', childrenDir: './', children: [
-        { title: 'Live Editor',   source: 'live_editor.md' },
-        { title: 'Github Action', source: 'todo.md' },
-        { title: 'CLI',           source: 'todo.md' },
+        { title: 'Live Editor',    source: 'live_editor.md' },
+        { title: 'Visualization',  source: 'Visualization.md' },
+        { title: 'Github Action',  source: 'todo.md' },
+        { title: 'CLI',            source: 'todo.md' },
       ] },
       { title: 'VIRTUAL', childrenDir: './', children: [
         { title: 'Community', source: 'community.md' }

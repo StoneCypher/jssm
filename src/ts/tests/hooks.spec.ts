@@ -131,6 +131,18 @@ test('Basic hook rejection works', () => {
 
 
 
+test('Hook returning null does not crash and rejects the transition', () => {
+
+  const foo = sm`a => b;`;
+
+  foo.set_hook({ from: 'a', to: 'b', kind: 'hook', handler: () => null as any });
+  expect(foo.transition('b')).toBe(false);
+  expect(foo.state()).toBe('a');
+
+});
+
+
+
 test('Basic hook rejection works on forced edges', () => {
 
   const foo = sm`a ~> b ~> c;`;
@@ -846,6 +858,80 @@ describe('Hooks can change data (basic)', () => {
 
 
 
+describe('After hook callback', () => {
+
+  test('Callback fires', async () => {
+
+    let hook_fired: false | Object = false;
+
+    const foo = jssm.from('a after 0.01s -> b;', { data: 'foo' });
+    foo.hook_after( 'a', (res: Object) => { hook_fired = res; } );
+    expect(foo.state()).toBe('a');
+
+    await jssm.sleep(1000);
+    expect(foo.state()).toBe('b');
+    expect(hook_fired).toStrictEqual({ data: 'foo', next_data: 'foo' });
+
+  });
+
+  // StoneCypher/fsl#1327 "After hook handler invoked twice."  After hooks are
+  // the timer's companion (fsl#698: "delay over!") — they fire when a state's
+  // `after` delay elapses, and ONLY then.  Through v5.143.28 the dispatch path
+  // also probed _after_hooks with the transition target (or the action name,
+  // under action dispatch), so entering the hooked state — or performing a
+  // same-named action — spuriously invoked the handler, and a leave-and-return
+  // before the timer elapsed invoked it twice for one elapse.
+
+  test('entering the hooked state by transition does not invoke the handler (fsl#1327)', () => {
+
+    let calls = 0;
+
+    const foo = jssm.sm`a after 1000 -> b; a -> c; c -> a;`;
+    foo.hook_after('a', () => { calls += 1; });
+
+    foo.go('c');
+    foo.go('a');                 // entering 'a' must not fire its after hook
+    expect(calls).toBe(0);
+
+    foo.clear_state_timeout();   // don't leak the re-armed timer into the suite
+
+  });
+
+  test('leave and return: the handler fires exactly once, from the timer (fsl#1327)', async () => {
+
+    let calls = 0;
+
+    const foo = jssm.sm`a after 0.05s -> b; a -> c; c -> a;`;
+    foo.hook_after('a', () => { calls += 1; });
+
+    foo.go('c');
+    foo.go('a');                 // re-arms; the stale timer must already be dead
+
+    await jssm.sleep(400);
+    expect(foo.state()).toBe('b');
+    expect(calls).toBe(1);
+
+  });
+
+  test('an action sharing the hooked name does not invoke the handler (fsl#1327, fsl#710 shape)', () => {
+
+    let calls = 0;
+
+    const foo = jssm.sm`a 'go' => b 'go' => a;`;
+    foo.set_hook({ kind: 'after', from: 'go', handler: () => { calls += 1; return true; } });
+
+    foo.action('go');
+    foo.action('go');
+    expect(calls).toBe(0);
+
+  });
+
+});
+
+
+
+
+
 describe('Hooks can change data (full matrix)', () => {
 
   const matrix_priors = [true, false],
@@ -1022,6 +1108,10 @@ describe('is_hook_complex_result', () => {
     expect( jssm.is_hook_complex_result( { pass: false } ) )
       .toBe(true) );
 
+  test('null', () =>
+    expect( jssm.is_hook_complex_result(null) )
+      .toBe(false) );
+
 });
 
 
@@ -1101,9 +1191,626 @@ describe('abstract_hook_step', () => {
     expect(fn).toHaveBeenCalled();
   });
 
+  test('generates reject for function returning null', () => {
+    const fn = jest.fn( () => null as any );
+    expect( jssm.abstract_hook_step(fn, { data: undefined, next_data: undefined }) )
+      .toStrictEqual({ pass: false })
+    expect(fn).toHaveBeenCalled();
+  });
+
   test('throws for hook returning illegal value', () => {
     expect( () => jssm.abstract_hook_step( () => "squid" as any, { data: undefined, next_data: undefined }) )
       .toThrow()
   });
+
+});
+
+
+
+
+
+describe('Everything hooks on API callpoint', () => {
+
+
+  test('Setting a pre everything hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a -> b;`;
+      _foo.set_hook({ handler: () => true, kind: 'pre everything' })
+    })
+      .not.toThrow();
+
+  });
+
+
+  test('Setting an everything hook doesn\'t throw', () => {
+
+    expect( () => {
+      const _foo = sm`a -> b;`;
+      _foo.set_hook({ handler: () => true, kind: 'everything' })
+    })
+      .not.toThrow();
+
+  });
+
+
+});
+
+
+
+
+
+describe('Pre everything hook', () => {
+
+
+  test('Pre everything hook rejection works', () => {
+
+    const foo = sm`a => b;`;
+
+    foo.set_hook({ kind: 'pre everything', handler: () => false });
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+
+    foo.set_hook({ kind: 'pre everything', handler: () => true });
+    expect(foo.transition('b')).toBe(true);
+    expect(foo.state()).toBe('b');
+
+  });
+
+
+  test('Pre everything fluent hook rejection works', () => {
+
+    const foo = sm`a => b;`
+      .hook_pre_everything( () => false );
+
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+
+    foo.hook_pre_everything( () => true );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(foo.state()).toBe('b');
+
+  });
+
+
+  test('Pre everything hook fires before other hooks', () => {
+
+    const order = [];
+
+    const foo = sm`a => b;`;
+    foo.hook_pre_everything( () => { order.push('pre_everything'); return true; } );
+    foo.set_hook({ kind: 'entry', to: 'b', handler: () => { order.push('entry'); return true; } });
+    foo.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: () => { order.push('basic'); return true; } });
+
+    foo.transition('b');
+
+    expect(order).toEqual(['pre_everything', 'basic', 'entry']);
+
+  });
+
+
+  test('Pre everything hook rejection prevents subsequent hooks from firing', () => {
+
+    const cnt = jest.fn(x => true);
+
+    const foo = sm`a => b;`;
+    foo.hook_pre_everything( () => false );
+    foo.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: cnt });
+
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+    expect(cnt.mock.calls.length).toBe(0);
+
+  });
+
+
+  test('Pre everything hook receives hook_name in context', () => {
+
+    let received_name;
+
+    const foo = sm`a => b;`;
+    foo.hook_pre_everything( (ctx) => { received_name = ctx.hook_name; return true; } );
+
+    foo.transition('b');
+    expect(received_name).toBe('pre everything');
+
+  });
+
+
+});
+
+
+
+
+
+describe('Everything hook', () => {
+
+
+  test('Everything hook rejection works', () => {
+
+    const foo = sm`a => b;`;
+
+    foo.set_hook({ kind: 'everything', handler: () => false });
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+
+    foo.set_hook({ kind: 'everything', handler: () => true });
+    expect(foo.transition('b')).toBe(true);
+    expect(foo.state()).toBe('b');
+
+  });
+
+
+  test('Everything fluent hook rejection works', () => {
+
+    const foo = sm`a => b;`
+      .hook_everything( () => false );
+
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+
+    foo.hook_everything( () => true );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(foo.state()).toBe('b');
+
+  });
+
+
+  test('Everything hook fires after other hooks', () => {
+
+    const order = [];
+
+    const foo = sm`a => b;`;
+    foo.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: () => { order.push('basic'); return true; } });
+    foo.set_hook({ kind: 'entry', to: 'b', handler: () => { order.push('entry'); return true; } });
+    foo.hook_everything( () => { order.push('everything'); return true; } );
+
+    foo.transition('b');
+
+    expect(order).toEqual(['basic', 'entry', 'everything']);
+
+  });
+
+
+  test('Everything hook does not fire if an earlier hook rejects', () => {
+
+    const cnt = jest.fn(x => true);
+
+    const foo = sm`a => b;`;
+    foo.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: () => false });
+    foo.hook_everything( cnt );
+
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+    expect(cnt.mock.calls.length).toBe(0);
+
+  });
+
+
+  test('Everything hook receives hook_name in context', () => {
+
+    let received_name;
+
+    const foo = sm`a => b;`;
+    foo.hook_everything( (ctx) => { received_name = ctx.hook_name; return true; } );
+
+    foo.transition('b');
+    expect(received_name).toBe('everything');
+
+  });
+
+
+  test('Everything hook fires on forced transitions', () => {
+
+    const cnt = jest.fn(x => true);
+
+    const foo = sm`a ~> b;`;
+    foo.hook_everything( cnt );
+
+    foo.force_transition('b');
+
+    expect(cnt.mock.calls.length).toBe(1);
+
+  });
+
+
+  test('Everything hook fires on action transitions', () => {
+
+    const cnt = jest.fn(x => true);
+
+    const foo = sm`a 'go' => b;`;
+    foo.hook_everything( cnt );
+
+    foo.action('go');
+
+    expect(cnt.mock.calls.length).toBe(1);
+
+  });
+
+
+});
+
+
+
+
+
+describe('abstract_everything_hook_step', () => {
+
+  test('generates pass for undefined', () => {
+    expect( jssm.abstract_everything_hook_step(undefined, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toStrictEqual({ pass: true });
+  });
+
+  test('generates pass for function returning true', () => {
+    const fn = jest.fn( () => true );
+    expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toStrictEqual({ pass: true });
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates reject for function returning false', () => {
+    const fn = jest.fn( () => false );
+    expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toStrictEqual({ pass: false });
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates pass for function returning undefined', () => {
+    const fn = jest.fn( () => undefined );
+    expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toStrictEqual({ pass: true });
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates pass for function returning complex pass', () => {
+    const fn = jest.fn( () => ({pass: true}) );
+    expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toStrictEqual({ pass: true });
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates reject for function returning complex reject', () => {
+    const fn = jest.fn( () => ({pass: false}) );
+    expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toStrictEqual({ pass: false });
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('generates reject for function returning null', () => {
+    const fn = jest.fn( () => null as any );
+    expect( jssm.abstract_everything_hook_step(fn, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toStrictEqual({ pass: false });
+    expect(fn).toHaveBeenCalled();
+  });
+
+  test('throws for hook returning illegal value', () => {
+    expect( () => jssm.abstract_everything_hook_step( () => "squid" as any, { data: undefined, next_data: undefined, hook_name: 'everything' }) )
+      .toThrow()
+  });
+
+});
+
+
+
+
+
+describe('Everything hooks data mutation', () => {
+
+
+  test('Pre everything hook can mutate data via complex result', () => {
+
+    const foo = jssm.from('a -> b;', { data: 10 });
+    foo.hook_pre_everything( () => ({ pass: true, data: 99, next_data: 99 }) );
+
+    foo.transition('b');
+    expect(foo.data()).toBe(99);
+
+  });
+
+
+  test('Everything hook can mutate data via complex result', () => {
+
+    const foo = jssm.from('a -> b;', { data: 10 });
+    foo.hook_everything( () => ({ pass: true, data: 42, next_data: 42 }) );
+
+    foo.transition('b');
+    expect(foo.data()).toBe(42);
+
+  });
+
+
+  test('Pre everything data mutation flows through to subsequent hooks', () => {
+
+    let received_data: any;
+
+    const foo = jssm.from('a -> b;', { data: 1 });
+    foo.hook_pre_everything( () => ({ pass: true, data: 777, next_data: 777 }) );
+    foo.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: (ctx) => { received_data = ctx.data; return true; } });
+
+    foo.transition('b');
+    expect(received_data).toBe(777);
+
+  });
+
+
+  test('Everything hook data mutation is reflected after transition', () => {
+
+    let entry_data: any;
+
+    const foo = jssm.from('a -> b;', { data: 1 });
+    foo.set_hook({ kind: 'entry', to: 'b', handler: (ctx) => { entry_data = ctx.data; return true; } });
+    foo.hook_everything( () => ({ pass: true, data: 500, next_data: 500 }) );
+
+    foo.transition('b');
+    // entry fires before everything, so entry_data should still be 1
+    expect(entry_data).toBe(1);
+    // but the machine's data should be what everything set
+    expect(foo.data()).toBe(500);
+
+  });
+
+
+});
+
+
+
+
+
+describe('Everything hooks null rejection', () => {
+
+
+  test('Pre everything hook returning null rejects', () => {
+
+    const foo = sm`a => b;`;
+    foo.hook_pre_everything( () => null as any );
+
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+
+  });
+
+
+  test('Everything hook returning null rejects', () => {
+
+    const foo = sm`a => b;`;
+    foo.hook_everything( () => null as any );
+
+    expect(foo.transition('b')).toBe(false);
+    expect(foo.state()).toBe('a');
+
+  });
+
+
+});
+
+
+
+
+
+describe('All four everything hooks simultaneously', () => {
+
+
+  test('All four everything hooks fire on a single transition', () => {
+
+    const order: string[] = [];
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_everything( (ctx) => { order.push(ctx.hook_name); return true; } );
+    foo.hook_everything( (ctx) => { order.push(ctx.hook_name); return true; } );
+    foo.hook_pre_post_everything( (ctx) => { order.push(ctx.hook_name); } );
+    foo.hook_post_everything( (ctx) => { order.push(ctx.hook_name); } );
+
+    expect(foo.transition('b')).toBe(true);
+    expect(order).toEqual([
+      'pre everything',
+      'everything',
+      'pre post everything',
+      'post everything'
+    ]);
+
+  });
+
+
+  test('All four everything hooks fire on action transitions', () => {
+
+    const order: string[] = [];
+
+    const foo = sm`a 'go' -> b;`;
+    foo.hook_pre_everything( (ctx) => { order.push(ctx.hook_name); return true; } );
+    foo.hook_everything( (ctx) => { order.push(ctx.hook_name); return true; } );
+    foo.hook_pre_post_everything( (ctx) => { order.push(ctx.hook_name); } );
+    foo.hook_post_everything( (ctx) => { order.push(ctx.hook_name); } );
+
+    expect(foo.action('go')).toBe(true);
+    expect(order).toEqual([
+      'pre everything',
+      'everything',
+      'pre post everything',
+      'post everything'
+    ]);
+
+  });
+
+
+  test('All four everything hooks fire on forced transitions', () => {
+
+    const order: string[] = [];
+
+    const foo = sm`a ~> b;`;
+    foo.hook_pre_everything( (ctx) => { order.push(ctx.hook_name); return true; } );
+    foo.hook_everything( (ctx) => { order.push(ctx.hook_name); return true; } );
+    foo.hook_pre_post_everything( (ctx) => { order.push(ctx.hook_name); } );
+    foo.hook_post_everything( (ctx) => { order.push(ctx.hook_name); } );
+
+    expect(foo.force_transition('b')).toBe(true);
+    expect(order).toEqual([
+      'pre everything',
+      'everything',
+      'pre post everything',
+      'post everything'
+    ]);
+
+  });
+
+
+  test('Pre everything rejection prevents everything and all post hooks', () => {
+
+    const everything_fn = jest.fn( () => true );
+    const pre_post_fn   = jest.fn();
+    const post_fn       = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_everything( () => false );
+    foo.hook_everything( everything_fn );
+    foo.hook_pre_post_everything( pre_post_fn );
+    foo.hook_post_everything( post_fn );
+
+    expect(foo.transition('b')).toBe(false);
+    expect(everything_fn).not.toHaveBeenCalled();
+    expect(pre_post_fn).not.toHaveBeenCalled();
+    expect(post_fn).not.toHaveBeenCalled();
+
+  });
+
+
+  test('Everything rejection prevents post hooks but not other pre hooks', () => {
+
+    const basic_fn    = jest.fn( () => true );
+    const pre_post_fn = jest.fn();
+    const post_fn     = jest.fn();
+
+    const foo = sm`a -> b;`;
+    foo.set_hook({ kind: 'hook', from: 'a', to: 'b', handler: basic_fn });
+    foo.hook_everything( () => false );
+    foo.hook_pre_post_everything( pre_post_fn );
+    foo.hook_post_everything( post_fn );
+
+    expect(foo.transition('b')).toBe(false);
+    expect(basic_fn).toHaveBeenCalledTimes(1);  // basic fires before everything
+    expect(pre_post_fn).not.toHaveBeenCalled();
+    expect(post_fn).not.toHaveBeenCalled();
+
+  });
+
+
+  test('Everything hooks fire multiple times across multiple transitions', () => {
+
+    const cnt = jest.fn( () => true );
+
+    const foo = sm`a -> b -> c;`;
+    foo.hook_everything( cnt );
+
+    foo.transition('b');
+    foo.transition('c');
+
+    expect(cnt).toHaveBeenCalledTimes(2);
+
+  });
+
+
+  test('Pre everything hook context includes from/to/data', () => {
+
+    let captured: any;
+
+    const foo = jssm.from('a -> b;', { data: 'hello' });
+    foo.hook_pre_everything( (ctx) => { captured = ctx; return true; } );
+
+    foo.transition('b');
+
+    expect(captured.hook_name).toBe('pre everything');
+    expect(captured.from).toBe('a');
+    expect(captured.to).toBe('b');
+    expect(captured.data).toBe('hello');
+
+  });
+
+
+  test('Everything hook context includes from/to/data', () => {
+
+    let captured: any;
+
+    const foo = jssm.from('a -> b;', { data: 'world' });
+    foo.hook_everything( (ctx) => { captured = ctx; return true; } );
+
+    foo.transition('b');
+
+    expect(captured.hook_name).toBe('everything');
+    expect(captured.from).toBe('a');
+    expect(captured.to).toBe('b');
+    expect(captured.data).toBe('world');
+
+  });
+
+
+  test('Post everything hook context includes from/to', () => {
+
+    let captured: any;
+
+    const foo = sm`a -> b;`;
+    foo.hook_post_everything( (ctx) => { captured = ctx; } );
+
+    foo.transition('b');
+
+    expect(captured.hook_name).toBe('post everything');
+    expect(captured.from).toBe('a');
+    expect(captured.to).toBe('b');
+
+  });
+
+
+  test('Pre post everything hook context includes from/to', () => {
+
+    let captured: any;
+
+    const foo = sm`a -> b;`;
+    foo.hook_pre_post_everything( (ctx) => { captured = ctx; } );
+
+    foo.transition('b');
+
+    expect(captured.hook_name).toBe('pre post everything');
+    expect(captured.from).toBe('a');
+    expect(captured.to).toBe('b');
+
+  });
+
+
+  // Regression coverage for #642: nested-Map dispatch must short-circuit when
+  // there is no inner map for the current `from` state.  The named hook is
+  // registered for a *different* from-state than the one we transition from,
+  // so the dispatch walks the inner-Map chain through an `undefined` link.
+  test('Named hook with non-matching from-state is silently skipped (no inner Map)', () => {
+
+    const uncalled = jest.fn();
+    const foo = sm`a 'go' -> b; b 'go' -> c;`;
+    foo.set_hook({ from: 'b', to: 'c', action: 'go', kind: 'named', handler: uncalled });
+
+    // Action 'go' from 'a' should resolve to a -> b; _named_hooks only has 'b' as
+    // outer key, so the from='a' lookup hits undefined and the dispatch skips.
+    expect(foo.action('go')).toBe(true);
+    expect(uncalled).not.toHaveBeenCalled();
+
+  });
+
+
+});
+
+
+
+
+// Coverage for the #735 trans_type scan: a multi-exit state whose taken edge
+// is not the first outbound edge, so the scan must pass over a non-matching
+// outbound edge before finding the match.
+test('Standard transition hook fires when the taken edge is not the first outbound edge', () => {
+
+  const foo = sm`a -> b; a -> c; c -> a;`;
+
+  let saw = 0;
+  foo.hook_standard_transition( () => { saw += 1; return true; } );
+
+  expect(foo.transition('c')).toBe(true);   // a -> c is a's *second* outbound edge
+  expect(foo.state()).toBe('c');
+  expect(saw).toBe(1);
 
 });

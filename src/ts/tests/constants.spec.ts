@@ -22,7 +22,7 @@ const Shapes      = jssm.shapes,
 
 
 
-const Themes         = ['default', 'ocean', 'none', 'modern', 'bold'],
+const Themes         = ['default', 'ocean', 'plain', 'modern', 'bold'],
       FlowDirections = ['up','down','left','right'],
       LineStyles     = ['solid', 'dotted', 'dashed'];
 

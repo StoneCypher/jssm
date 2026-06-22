@@ -1,0 +1,19 @@
+{
+  "root"         : true,
+  "parser"       : "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType" : "module"
+  },
+
+  "plugins" : [ "@typescript-eslint" ],
+  "env"     : { "es6": true, "commonjs": true },
+
+  "extends" : [
+    "plugin:@typescript-eslint/eslint-recommended"
+  ],
+
+  "rules": {
+    "no-unused-vars": 0,
+    "@typescript-eslint/no-unused-vars": 0
+  }
+}

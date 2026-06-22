@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>JSSM CodeMirror 6 editor sketch</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "@codemirror/state":    "https://esm.sh/@codemirror/state@6.5.2",
+      "@codemirror/view":     "https://esm.sh/@codemirror/view@6.37.2?external=@codemirror/state",
+      "@codemirror/language": "https://esm.sh/@codemirror/language@6.10.8?external=@codemirror/state,@codemirror/view",
+      "@codemirror/commands": "https://esm.sh/@codemirror/commands@6.7.1?external=@codemirror/state,@codemirror/view,@codemirror/language",
+      "@codemirror/lint":     "https://esm.sh/@codemirror/lint@6.8.5?external=@codemirror/state,@codemirror/view"
+    }
+  }
+  </script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex;
+      flex-direction: column;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #fff;
+      color: #222;
+    }
+    header {
+      padding: 10px 14px;
+      background: #1f1f23;
+      color: #eee;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+    header .sub { font-size: 11px; opacity: 0.6; }
+    #editor { flex: 1; overflow: hidden; }
+    .cm-editor { height: 100%; }
+    footer {
+      padding: 6px 14px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 12px;
+      background: #f5f5f5;
+      border-top: 1px solid #e5e5e5;
+      color: #555;
+    }
+    footer #status[data-state="ok"]  { color: #197d2c; }
+    footer #status[data-state="err"] { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>JSSM &middot; CodeMirror 6 sketch</h1>
+    <span class="sub">stream tokenizer + fsl_parser linter</span>
+  </header>
+  <div id="editor"></div>
+  <footer>parser status: <span id="status">(initializing)</span></footer>
+  <script type="module" src="./editor.js"></script>
+</body>
+</html>

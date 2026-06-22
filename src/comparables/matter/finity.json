@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "finity",
+    "npm": "finity",
+    "homepage": "https://github.com/nickuraltsev/finity",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "matter",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js",
+    "note": "finity did not have a states of matter example. I made this, following this unrelated machine as a style guide."
+  },
+  "code": "const matter = Finity\n  .configure()\n    .initialState('solid')\n      .on('melt').transitionTo('liquid')\n    .state('liquid')\n      .on('vaporize').transitionTo('gas')\n      .on('freeze').transitionTo('solid')\n    .state('gas')\n      .on('condense').transitionTo('liquid')\n    .global()\n      .onTransition( (fromState, toState) => {\n        switch (fromState) {\n          case 'solid':\n            console.log('I melted');\n            break;\n          case 'liquid':\n            if (toState === solid) {\n              console.log('I froze');\n            } else if (toState === gas) {\n              console.log('I vaporized');\n            }\n            break;\n          case 'gas':\n            console.log('I condensed');\n            break;\n        }\n      })\n  .start();",
+  "formattedWith": null
+}

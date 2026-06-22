@@ -175,3 +175,11 @@ Correct.  Easy.  Brief.  Powerful.  Fast.
 Meet your new state machine.
 
 `Next`: {@page GettingStarted.md Let's get started}.
+
+&nbsp;
+
+&nbsp;
+
+## See also
+
+- [Web Components](WebComponents.md) — Lit-based reusable widgets (`<fsl-viz>` etc.; `<jssm-viz>` accepted as alias)

@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "nanostate",
+    "npm": "nanostate",
+    "homepage": "https://github.com/choojs/nanostate",
+    "languages": ["javascript"]
+  },
+  "machine": "matter",
+  "language": "javascript",
+  "official": false,
+  "canImplement": false,
+  "source": {
+    "url": "https://github.com/choojs/nanostate/blob/master/README.md",
+    "note": "nanostate did not have a states of matter example.  I made this, following this unrelated machine as a style guide.  nanostate does not appear to support on-action hooks, and does not appear to pass the previous state when calling its global enter hook.  Therefore there is no way to correctly implement the hooks leading to liquid - condense and melt - because you can't tell whether they're coming from solid or gas.  On these grounds, nanostate cannot implement this machine correctly."
+  },
+  "code": "export const trafficLight = nanostate(\"solid\", {\n  solid: {\n    melt: \"liquid\",\n  },\n  liquid: {\n    freeze: \"solid\",\n    vaporize: \"gas\",\n  },\n  gas: {\n    condense: \"liquid\",\n  },\n});\n\ntrafficLight.on(\"solid\", () => console.log(\"I froze\"));\ntrafficLight.on(\"gas\", () => console.log(\"I vaporized\"));\n\ntrafficLight.on(\"liquid\", () =>\n  console.log(\"❌ FAIL: cannot tell if melt or condense\")\n);",
+  "formattedWith": "prettier"
+}

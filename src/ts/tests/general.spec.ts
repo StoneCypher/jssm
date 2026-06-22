@@ -161,6 +161,23 @@ describe('probable exits for', () => {
 });
 
 
+describe('probable_exits_for with non-current state', () => {
+
+  const machine = jssm.sm`a -> b -> c;`;
+
+  test('machine starts at a', () =>
+    expect(machine.state())
+      .toBe('a') );
+
+  test('probable_exits_for b returns exit to c, not from current state a', () => {
+    const exits = machine.probable_exits_for('b');
+    expect(exits.length).toBe(1);
+    expect(exits[0].from).toBe('b');
+    expect(exits[0].to).toBe('c');
+  });
+
+});
+
 
 
 
@@ -640,8 +657,54 @@ describe('returns states', () => {
   });
 
   test('that it has', () =>
-    expect(typeof machine.machine_state() )
+    expect( typeof machine.machine_state() )
       .toBe('object') );
+
+});
+
+
+
+
+
+describe('initializes with states', () => {
+
+
+  describe('without start state list', () => {
+
+    ['Red', 'Yellow', 'Green'].forEach( color => {
+
+      const machine = jssm.from(`start_states: [Red Yellow Green]; Red => Green => Yellow => Red;`, { initial_state: color });
+      test(`Initial state in traffic light is ${color}`, () =>
+        expect(machine.state()).toBe(color));
+
+    });
+
+  });
+
+
+  test('fails because that state is absent', () =>
+    expect(() => jssm.from(`start_states: [Red Yellow Green]; Red => Green => Yellow => Red;`, { initial_state: 'Blue' }))
+      .toThrow());
+
+  test('fails because that state is not in start state list', () =>
+    expect(() => jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Green' }))
+      .toThrow());
+
+  test('accepts state not in start state list due to flag', () => {
+    const machine = jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Green', start_states_no_enforce: true });
+    expect(machine.state()).toBe('Green');
+  });
+
+  test('rejects absent state despite flag', () =>
+    expect(() => jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Blue', start_states_no_enforce: true }))
+      .toThrow());
+
+  test('initial_state and data co-exist', () => {
+    const machine = jssm.from(`start_states: [Red Yellow]; Red => Green => Yellow => Red;`, { initial_state: 'Red', data: 2 });
+    expect(machine.state()).toBe('Red');
+    expect(machine.data()).toBe(2);
+  });
+
 
 });
 
@@ -677,7 +740,7 @@ describe('reports on transitions', () => {
       .toBe('object') );
 
   test('specified transition correct entrance count', () =>
-   expect(machine.list_transitions('off').entrances.length)
+    expect(machine.list_transitions('off').entrances.length)
       .toBe(0) );
 
   test('specified transition correct exit count', () =>

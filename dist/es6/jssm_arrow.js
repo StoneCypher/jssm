@@ -99,8 +99,12 @@ function arrow_left_kind(arrow) {
         case '↔':
         case '<-=>':
         case '←⇒':
+        case '←=>':
+        case '<-⇒':
         case '<-~>':
         case '←↛':
+        case '←~>':
+        case '<-↛':
             return 'legal';
         case '<=':
         case '⇐':
@@ -108,8 +112,12 @@ function arrow_left_kind(arrow) {
         case '⇔':
         case '<=->':
         case '⇐→':
+        case '⇐->':
+        case '<=→':
         case '<=~>':
         case '⇐↛':
+        case '⇐~>':
+        case '<=↛':
             return 'main';
         case '<~':
         case '↚':
@@ -117,8 +125,12 @@ function arrow_left_kind(arrow) {
         case '↮':
         case '<~->':
         case '↚→':
+        case '↚->':
+        case '<~→':
         case '<~=>':
         case '↚⇒':
+        case '↚=>':
+        case '<~⇒':
             return 'forced';
         default:
             throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);
@@ -158,8 +170,12 @@ function arrow_right_kind(arrow) {
         case '↔':
         case '<=->':
         case '⇐→':
+        case '⇐->':
+        case '<=→':
         case '<~->':
         case '↚→':
+        case '↚->':
+        case '<~→':
             return 'legal';
         case '=>':
         case '⇒':
@@ -167,8 +183,12 @@ function arrow_right_kind(arrow) {
         case '⇔':
         case '<-=>':
         case '←⇒':
+        case '←=>':
+        case '<-⇒':
         case '<~=>':
         case '↚⇒':
+        case '↚=>':
+        case '<~⇒':
             return 'main';
         case '~>':
         case '↛':
@@ -176,8 +196,12 @@ function arrow_right_kind(arrow) {
         case '↮':
         case '<-~>':
         case '←↛':
+        case '←~>':
+        case '<-↛':
         case '<=~>':
         case '⇐↛':
+        case '⇐~>':
+        case '<=↛':
             return 'forced';
         default:
             throw new JssmError(undefined, `arrow_direction: unknown arrow type ${arrow}`);

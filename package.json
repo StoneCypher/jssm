@@ -1,14 +1,74 @@
 {
   "name": "jssm",
-  "version": "5.96.1",
+  "version": "5.144.6",
   "engines": {
     "node": ">=10.0.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "fsl": "./dist/cli/fsl.cjs",
+    "jssm": "./dist/cli/fsl.cjs",
+    "fsl-render": "./dist/cli/fsl-render.cjs",
+    "fsl-export-system-prompt": "./dist/cli/fsl-export-system-prompt.cjs"
+  },
   "exports": {
-    "require": "./dist/jssm.es5.cjs",
-    "import": "./dist/es6/jssm.js",
-    "default": "./dist/jssm.es5.cjs",
-    "browser": "dist/jssm.es5.iife.js"
+    ".": {
+      "require": {
+        "types": "./jssm.es5.d.cts",
+        "default": "./dist/jssm.es5.cjs"
+      },
+      "import": {
+        "types": "./jssm.es6.d.ts",
+        "default": "./dist/jssm.es6.mjs"
+      },
+      "default": {
+        "types": "./jssm.es5.d.cts",
+        "default": "./dist/jssm.es5.cjs"
+      },
+      "browser": "./dist/jssm.es5.iife.js"
+    },
+    "./viz": {
+      "require": {
+        "types": "./jssm_viz.es5.d.cts",
+        "default": "./dist/jssm_viz.cjs"
+      },
+      "import": {
+        "types": "./jssm_viz.es6.d.ts",
+        "default": "./dist/jssm_viz.mjs"
+      },
+      "browser": "./dist/jssm_viz.iife.cjs"
+    },
+    "./cli": {
+      "require": {
+        "types": "./jssm.cli.d.cts",
+        "default": "./dist/cli/lib.cjs"
+      },
+      "import": {
+        "types": "./jssm.cli.d.ts",
+        "default": "./dist/cli/lib.mjs"
+      }
+    },
+    "./wc/viz": {
+      "import": "./dist/wc/viz.js",
+      "default": "./dist/wc/viz.js"
+    },
+    "./wc/viz/define": {
+      "import": "./dist/wc/viz.define.js",
+      "default": "./dist/wc/viz.define.js"
+    },
+    "./wc/instance": {
+      "import": "./dist/wc/instance.js",
+      "default": "./dist/wc/instance.js"
+    },
+    "./wc/instance/define": {
+      "import": "./dist/wc/instance.define.js",
+      "default": "./dist/wc/instance.define.js"
+    },
+    "./cdn/viz": "./dist/cdn/viz.js",
+    "./cdn/instance": "./dist/cdn/instance.js",
+    "./custom-elements.json": "./custom-elements.json"
   },
   "autoupdate": {
     "source": "git",
@@ -23,45 +83,101 @@
     ]
   },
   "type": "module",
+  "sideEffects": [
+    "./dist/wc/*.define.js",
+    "./dist/cdn/**"
+  ],
+  "files": [
+    "dist/jssm.es5.cjs",
+    "dist/jssm.es5.iife.js",
+    "dist/jssm.es6.mjs",
+    "dist/jssm_viz.cjs",
+    "dist/jssm_viz.iife.cjs",
+    "dist/jssm_viz.mjs",
+    "dist/wc/viz.js",
+    "dist/wc/viz.define.js",
+    "dist/wc/instance.js",
+    "dist/wc/instance.define.js",
+    "dist/cdn/viz.js",
+    "dist/cdn/instance.js",
+    "dist/cli/lib.cjs",
+    "dist/cli/lib.mjs",
+    "dist/deno/jssm.js",
+    "dist/deno/*.d.ts",
+    "dist/deno/README.md",
+    "jssm.es5.d.cts",
+    "jssm.es6.d.ts",
+    "jssm_viz.es5.d.cts",
+    "jssm_viz.es6.d.ts",
+    "jssm.cli.d.cts",
+    "jssm.cli.d.ts",
+    "MIGRATING-jssm-viz.md",
+    "custom-elements.json"
+  ],
   "description": "A Javascript finite state machine (FSM) with a terse DSL and a simple API.  Most FSMs are one-liners.  Fast, easy, powerful, well tested, typed with TypeScript, and visualizations. MIT License.",
   "main": "dist/jssm.es5.cjs",
-  "module": "dist/es6/jssm.js",
-  "browser": "dist/jssm.es5.iife.cjs",
-  "types": "./jssm.d.ts",
+  "module": "dist/jssm.es6.mjs",
+  "browser": "dist/jssm.es5.iife.js",
+  "types": "./jssm.es5.d.cts",
   "scripts": {
-    "jest-unicode-action": "jest unicode-actions.uspec.ts -c jest-unicode.config.cjs --color --verbose",
-    "jest-unicode-string": "jest unicode-strings.uspec.ts -c jest-unicode.config.cjs --color --verbose",
-    "jest-unicode-atom": "jest unicode-atoms.uspec.ts -c jest-unicode.config.cjs --color --verbose",
-    "jest-unicode-string-label": "jest unicode-atoms.uspec.ts -c jest-unicode.config.cjs --color --verbose",
-    "jest-unicode-atom-label": "jest unicode-atoms.uspec.ts -c jest-unicode.config.cjs --color --verbose",
-    "jest-unicode-full-slow": "npm run jest-unicode-atom && npm run jest-unicode-string && npm run jest-unicode-atom-label && npm run jest-unicode-string-label && jest-unicode-action",
-    "jest-stoch": "jest -c jest-stoch.config.cjs --color --verbose",
-    "jest-dragon": "jest -c jest-dragon.config.cjs --color --verbose",
-    "jest-spec": "jest -c jest-spec.config.cjs --color --verbose",
-    "jest": "npm run jest-stoch && npm run jest-spec",
-    "test": "npm run make && npm run jest",
-    "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f *.d.ts && mkdir dist && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.cjs",
+    "vitest-unicode-action": "vitest run --config vitest.unicode.config.ts unicode-actions.uspec.ts",
+    "vitest-unicode-string": "vitest run --config vitest.unicode.config.ts unicode-strings.uspec.ts",
+    "vitest-unicode-atom": "vitest run --config vitest.unicode.config.ts unicode-atoms.uspec.ts",
+    "vitest-unicode-string-label": "vitest run --config vitest.unicode.config.ts unicode-string-labels.uspec.ts",
+    "vitest-unicode-atom-label": "vitest run --config vitest.unicode.config.ts unicode-atom-labels.uspec.ts",
+    "vitest-unicode-full-slow": "npm run vitest-unicode-atom && npm run vitest-unicode-string && npm run vitest-unicode-atom-label && npm run vitest-unicode-string-label && npm run vitest-unicode-action",
+    "vitest-stoch": "vitest run --config vitest.stoch.config.ts",
+    "vitest-dragon": "vitest run --config vitest.dragon.config.ts",
+    "vitest-spec": "vitest run --config vitest.spec.config.ts",
+    "vitest-docs": "vitest run --config vitest.docs.config.ts",
+    "vitest": "npm run vitest-stoch && npm run vitest-spec && npm run vitest-docs",
+    "test": "npm run make && npm run vitest",
+    "make_cli": "rollup -c rollup.config.cli.js",
+    "typecheck_cli": "tsc --noEmit -p tsconfig.cli.json",
+    "min_cli": "terser dist/cli/fsl.cjs -o dist/cli/fsl.cjs --comments=/^#!/ && terser dist/cli/fsl-render.cjs -o dist/cli/fsl-render.cjs --comments=/^#!/ && terser dist/cli/lib.cjs -o dist/cli/lib.cjs && terser dist/cli/lib.mjs -o dist/cli/lib.mjs",
+    "clean": "rm -rf dist && rm -rf docs && cd coverage && rm -rf cloc && cd .. && rm -f src/ts/fsl_parser.ts && rm -f src/ts/version.ts && rm -f src/ts/tests/generated/*.docex.ts && rm -f *.d.ts && mkdir dist && cd dist && mkdir wc && mkdir cdn && cd .. && mkdir docs && cd coverage && mkdir cloc && cd .. && rm -f ./src/tools/jssm.es5.iife.nonmin.js",
     "peg": "rm -f src/ts/fsl_parser.js && pegjs src/ts/fsl_parser.peg && node src/buildjs/fixparser.cjs",
-    "make_cjs": "rollup -c",
-    "make_iife": "rollup -c rollup.config.iife.js",
+    "build:cem": "custom-elements-manifest analyze --config custom-elements-manifest.config.mjs",
+    "make_core": "rollup -c rollup.config.core.js",
     "make_deno": "rollup -c rollup.config.deno.js && cp dist/es6/*.d.ts dist/deno",
-    "typescript": "tsc --build tsconfig.json && cp dist/es6/*.d.ts .",
+    "make_viz": "rollup -c rollup.config.viz.js",
+    "make_wc_viz_es6": "rollup -c rollup.config.wc.viz.es6.js",
+    "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
+    "make_wc_instance_es6": "rollup -c rollup.config.wc.instance.es6.js",
+    "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
+    "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
-    "make": "npm run clean && npm run makever && npm run peg && npm run typescript && npm run make_iife && npm run make_deno && npm run make_cjs && npm run minify && npm run min_iife && npm run min_cjs && npm run min_deno && rm ./dist/es6/*.nonmin.js",
+    "make_doctests": "node src/buildjs/extract_examples.cjs",
+    "prep": "npm run makever && npm run peg",
+    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
+    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
-    "build": "npm run vet && npm run test && npm run site && npm run changelog && npm run docs && npm run cloc && npm run readme",
+    "benny:scaling": "node ./src/buildjs/benchmark_scaling.cjs",
+    "benny:all": "npm run benny && npm run benny:scaling",
+    "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
+    "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
+    "ci_profile": "node ./src/buildjs/ci_profile.cjs",
+    "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run perf_chart && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
     "ci_build": "npm run vet && npm run test",
+    "ci_test": "npm run vet && npm run make_ci && npm run vitest",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
-    "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.cjs && terser dist/jssm.es5.iife.nonmin.cjs > dist/jssm.es5.iife.cjs && cp dist/jssm.es5.iife.nonmin.cjs ./src/tools/",
+    "min_iife": "mv dist/jssm.es5.iife.js dist/jssm.es5.iife.nonmin.js && terser dist/jssm.es5.iife.nonmin.js > dist/jssm.es5.iife.js && cp dist/jssm.es5.iife.nonmin.js ./src/tools/",
     "min_cjs": "mv dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs && terser dist/jssm.es5.nonmin.cjs > dist/jssm.es5.cjs",
+    "min_es6": "mv dist/jssm.es6.js dist/jssm.es6.nonmin.cjs && terser dist/jssm.es6.nonmin.cjs > dist/jssm.es6.mjs",
     "min_deno": "terser dist/deno/jssm.deno-esm.nonmin.js > dist/deno/jssm.js",
-    "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/",
-    "docs": "typedoc src/ts/jssm.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
+    "min_viz_iife": "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.cjs && terser dist/jssm_viz.es5.iife.nonmin.cjs > dist/jssm_viz.iife.cjs",
+    "min_viz_cjs": "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
+    "min_viz_es6": "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
+    "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/ && cp -r src/demo docs/ && cp dist/jssm.es5.iife.js docs/demo",
+    "make_cookbook": "node src/fsl.tools/site/scripts/build.cjs",
+    "site_fsl_tools": "cd docs && mkdir fsl.tools && cd .. && cp -r src/fsl.tools/site/* docs/fsl.tools/ && rm -rf docs/fsl.tools/recipes docs/fsl.tools/scripts",
+    "build:shootout": "node src/buildjs/build_shootout.mjs",
+    "docs": "typedoc src/ts/jssm.ts src/ts/jssm_viz.ts src/ts/jssm_types.ts src/ts/jssm_constants.ts src/ts/jssm_error.ts src/ts/jssm_util.ts src/ts/version.ts --options typedoc-options.cjs",
     "cloc": "cloc --quiet ./src/** --exclude-list-file=./.clocignore --3 --json --out=./coverage/cloc/report_wt.json && cloc --quiet ./src/** --exclude-list-file=./.clocignore --exclude-dir=tests --3 --json --out=./coverage/cloc/report_nt.json && node ./src/buildjs/cloc_report.cjs",
     "readme": "rm -f ./README.md && node ./src/buildjs/make_readme.cjs && cp README.md dist/deno",
     "changelog": "rm -f CHANGELOG.md && rm -f ./src/doc_md/CHANGELOG.md && better_git_changelog -b && cp CHANGELOG.* ./src/doc_md/"
@@ -109,15 +225,23 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.10.4",
     "@knodes/typedoc-plugin-pages": "^0.22.5",
-    "@rollup/plugin-commonjs": "^22.0.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-replace": "^6.0.1",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@swc/core": "^1.15.33",
     "@types/chalk": "^2.2.0",
-    "@types/jest": "^27.0.2",
+    "@types/jsdom": "^21.1.7",
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
+    "@vitest/coverage-v8": "^4.1.6",
+    "@viz-js/viz": "^3.26.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "benny": "^3.7.1",
+    "better_git_changelog": "^1.6.20",
     "cloc": "^2.10.0",
     "eslint": "^7.32.0",
     "eslint-plugin-fp": "^2.3.0",
@@ -127,24 +251,41 @@
     "eslint-plugin-unicorn": "^37.0.1",
     "fast-check": "^2.12.0",
     "glob": "^7.1.6",
-    "jest": "^27.3.1",
-    "jest-json-reporter2": "^1.1.0",
+    "jsdom": "^24.1.0",
+    "lit": "^3.2.1",
     "pegjs": "^0.10.0",
     "picocolors": "^1.0.0",
-    "rollup": "^2.72.1",
+    "rollup": "^4.24.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-esbuild": "^6.2.1",
     "semver": "^7.5.4",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
-    "ts-jest": "^27.0.7",
+    "tslib": "^2.8.1",
     "twitter-api-client": "^1.6.0",
     "typedoc": "^0.22.18",
     "typedoc-plugin-missing-exports": "^0.23.0",
     "typescript": "^4.7.4",
+    "vitest": "^4.1.6",
     "xml2js": "^0.6.2"
   },
   "dependencies": {
-    "better_git_changelog": "^1.6.1",
     "circular_buffer_js": "^1.10.0",
     "reduce-to-639-1": "^1.1.0"
+  },
+  "peerDependencies": {
+    "lit": ">=3"
+  },
+  "peerDependenciesMeta": {
+    "lit": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "@resvg/resvg-wasm": "^2.6.0",
+    "@viz-js/viz": "^3.26.0"
+  },
+  "overrides": {
+    "js-yaml": "^4.2.0"
   }
 }

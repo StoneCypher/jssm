@@ -17,6 +17,18 @@ import { bold_theme }    from './themes/jssm_theme_bold.js';
 
 
 
+/*******
+ *
+ *  Registry mapping theme names to their stylesheet definitions.  Each entry
+ *  maps an {@link FslTheme} string (e.g. `'default'`, `'ocean'`) to a
+ *  {@link JssmBaseTheme} object containing colors, shapes, and other visual
+ *  defaults used by jssm-viz when rendering state machine diagrams.
+ *
+ *  Add new themes by importing their definition and calling
+ *  `theme_mapping.set(name, theme)`.
+ *
+ */
+
 const theme_mapping: Map<FslTheme, JssmBaseTheme> = new Map();
 
 theme_mapping.set('default', default_theme);

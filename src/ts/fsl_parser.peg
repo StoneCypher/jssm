@@ -20,14 +20,14 @@ Document
 
 
 Theme
-  = "none"
-  / "default"
-  / "modern"
+  = "default"
   / "ocean"
+  / "modern"
+  / "plain"
   / "bold"
 
 ThemeOrThemeList
-  = '[' WS? ths:(Theme WS)* th:Theme? ']' { const themes = ths.map(t => t[0]); themes.push(th); return themes; }
+  = '[' WS? ths:(Theme WS)* th:Theme? ']' { const themes = ths.map(t => t[0]); if (th) themes.push(th); return themes; }
   / th:Theme                              { return [th]; }
 
 
@@ -245,31 +245,17 @@ ActionLabel "action label"
 LineTerminator
   = [\n\r\u2028\u2029]
 
-Whitespace
-  = [ \t\n\r\v]+
-
-BlockCommentTail
-  = "*/"
-  / . BlockCommentTail
-
 BlockComment "block comment"
-  = "/*" BlockCommentTail
+  = "/*" (!"*/" .)* "*/"
 
 EOF
   = !.
 
-LineCommentTail
-  = LineTerminator
-  / EOF
-  / . LineCommentTail
-
 LineComment "line comment"
-  = "//" LineCommentTail
+  = "//" (!LineTerminator .)* (LineTerminator / EOF)
 
 WS "whitespace"
-  = BlockComment WS?
-  / LineComment  WS?
-  / [ \t\r\n\v]+ WS?
+  = ([ \t\r\n\v]+ / BlockComment / LineComment)+
 
 String "string"
   = QuoteMark chars:Char* QuoteMark { return chars.join(""); }
@@ -290,8 +276,7 @@ Label "label"
   / string:String
 
 IntegerLiteral
-  = "0"
-  / NonZeroDigit DecimalDigit*
+  = $("0" / NonZeroDigit DecimalDigit*)
 
 DecimalDigit
   = [0-9]
@@ -306,7 +291,7 @@ BinaryDigit
   = [0-1]
 
 OctalDigit
-  = [0-1]
+  = [0-7]
 
 NonNegNumber "nonneg number"
   = IntegerLiteral "." DecimalDigit* WS? { return parseFloat(text()); }
@@ -363,9 +348,8 @@ JsNumericLiteral "number"
   / 'ϕ'                              { return 1.61803398874989484820; }
   / 'φ'                              { return 1.61803398874989484820; }
   / 'EulerConstant'                  { return 0.57721566490153286060; }
-  / 'γ'                              { return 0.57721566490153286060; }
-  / '𝛾'                              { return 0.57721566490153286060; }
-  / 'γ'                              { return 0.57721566490153286060; }
+  / 'γ'                              { return 0.57721566490153286060; }            // greek small letter gamma U+03B3
+  / '𝛾'                              { return 0.57721566490153286060; }            // mathematical italic small gamma U+1D6FE
 
 JsDecimalLiteral
   = JsDecimalIntegerLiteral "." DecimalDigit* JsNExponentPart? { return parseFloat(text()); }
@@ -406,12 +390,16 @@ NonJsOctalIntegerLiteral
 
 SemVer
   = major:IntegerLiteral "." minor:IntegerLiteral "." patch:IntegerLiteral
-  { return {
-    major: parseInt(major,10),
-    minor: parseInt(minor,10),
-    patch: parseInt(patch,10),
-    full: text()
-  }; }
+  {
+    const node: any = {
+      major: parseInt(major,10),
+      minor: parseInt(minor,10),
+      patch: parseInt(patch,10),
+      full: text()
+    };
+    if (options.locations) { node.loc = location(); }
+    return node;
+  }
 
 SemVerOper
   = "^"
@@ -643,13 +631,36 @@ ArrowItemKey
   / "tail_label"
 
 ArrowItem
-  = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? { return {key:key, value:value}; }
+  = WS? key:ArrowItemKey WS? ":" WS? value:Label WS? ";" WS? {
+      const node: any = { key:key, value:value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SingleEdgeColor "single edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return {key:'single_edge_color', value:value}; }
+  = WS? "edge-color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'single_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+  / WS? "edge_color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'single_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 TransitionLineStyle "transition line style"
-  = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? { return {key:'transition_line_style', value:value}; }
+  = WS? "line-style" WS? ":" WS? value:LineStyle WS? ";" WS? {
+      const node: any = { key:'transition_line_style', value:value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrowItems
   = SingleEdgeColor
@@ -660,7 +671,11 @@ ArrowDesc
   = "{" WS? items:ArrowItems? WS? "}" { return items; }
 
 ArrowProbability
-  = value:NonNegNumber "%" { return { key: 'arrow probability', value: value }; }
+  = value:NonNegNumber "%" {
+      const node: any = { key: 'arrow probability', value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -716,53 +731,130 @@ LabelOrLabelList
   = LabelList
   / Label
 
+// A bare reference to a named group, written `&Name`.  Used wherever a
+// group may stand in for a state: as a transition source/target, as a
+// `state` declaration subject, and as a hook subject.  Distinct from the
+// `&Name : [...]` declaration form (NamedList), which defines a group.
+GroupRef "group reference"
+  = "&" WS? name:Label { return { key: 'group_ref', name }; }
+
+// A single member inside a group-membership list.  Members are ordered.
+// A `&child` member nests the child group (structure-preserving); a
+// `...&child` member spreads the child's members in flat (identity-
+// erasing).  A bare label is an ordinary state member.
+GroupMember
+  = "..." WS? "&" WS? name:Label { return { kind: 'group', name, mode: 'spread' }; }
+  /            "&" WS? name:Label { return { kind: 'group', name, mode: 'nest'   }; }
+  /            name:Label         { return { kind: 'state', name             }; }
+
+// The membership list for a NamedList declaration.  Backward-compatible:
+// when every member is a plain label the result is a bare `string[]`
+// (the historical NamedList value shape, relied on across the suite); as
+// soon as any member is a `&`/`...&` group reference the whole list is
+// returned as ordered member objects so nest/spread structure survives.
+GroupMemberList
+  = "[" WS? members:(GroupMember WS?)* "]" {
+      const items = members.map(m => m[0]);
+      const has_group = items.some(m => m.kind === 'group');
+      return has_group ? items : items.map(m => m.name);
+    }
+
 Stripe
-  = '+|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value:      parseInt(`${nzd}${dd}`, 10) }; }
-  / '-|' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'stripe', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
+  = '+|' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'stripe', value:      parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / '-|' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'stripe', value: -1 * parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 Cycle
-  = '+' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value:      parseInt(`${nzd}${dd}`, 10) }; }
-  / '-' nzd:NonZeroDigit dd:DecimalDigit* { return { key: 'cycle', value: -1 * parseInt(`${nzd}${dd}`, 10) }; }
-  / '+0'                                  { return { key: 'cycle', value: 0                                }; }
+  = '+' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'cycle', value:      parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / '-' n:$(NonZeroDigit DecimalDigit*) {
+      const node: any = { key: 'cycle', value: -1 * parseInt(n, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / '+0'                                 {
+      const node: any = { key: 'cycle', value: 0 };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrowTarget
   = Stripe
   / Cycle
   / LabelList
+  / GroupRef
   / Label
 
 
 
 
 
-// todo these shouldn't be ordered, this is dumb // whargarbl comeback major
+// Decorations on either side of an arrow may appear in any order.
+// Each kind may appear at most once per side; duplicates are a parse
+// error.  The shared ArrowDecoration rule is used on both sides; the
+// asymmetric AST mapping (which side stores under which prefix) lives
+// in the Subexp action block below.
+
+ArrowDecoration
+  = v:ArrowAfter        { return { _kind: 'after',  v: v }; }
+  / v:ActionLabel       { return { _kind: 'action', v: v, loc: location() }; }
+  / v:ArrowProbability  { return { _kind: 'prob',   v: v }; }
+  / v:ArrowDesc         { return { _kind: 'desc',   v: v }; }
+
+ArrowDecorations
+  = (d:ArrowDecoration WS? { return d; })*
 
 Subexp
-  = WS? r_after  : ArrowAfter?
-    WS? r_action : ActionLabel?
-    WS? r_prob   : ArrowProbability?
-    WS? l_desc   : ArrowDesc?
-    WS? arrow    : Arrow
-    WS? r_desc   : ArrowDesc?
-    WS? l_prob   : ArrowProbability?
-    WS? l_action : ActionLabel?
-    WS? l_after  : ArrowAfter?
-    WS? label    : ArrowTarget
-    WS? tail     : Subexp? {
+  = WS? pre   : ArrowDecorations
+    WS? arrow : Arrow
+    WS? post  : ArrowDecorations
+    WS? label : ( l:ArrowTarget { return options.locations ? { __v: l, __loc: location() } : l; } )
+    WS? tail  : Subexp? {
 
       // Reminder: remove this type and the one in Exp if you want to work in pegjs online
       // TODO: properly type this
-      const base: any = { kind: arrow, to: label };
+      const toVal = options.locations ? label.__v : label;
+      const base: any = { kind: arrow, to: toVal };
 
-      if (l_after)               { base.l_after       = l_after;      }
-      if (tail && (tail !== [])) { base.se            = tail;         }
-      if (l_desc)                { base.l_desc        = l_desc;       }
-      if (r_desc)                { base.r_desc        = r_desc;       }
-      if (l_action)              { base.l_action      = l_action;     }
-      if (r_action)              { base.r_action      = r_action;     }
-      if (l_prob)                { base.l_probability = l_prob.value; }
-      if (r_prob)                { base.r_probability = r_prob.value; }
-      if (r_after)               { base.r_after       = r_after;      }
+      // AST field-name conventions inherited from the original
+      // fixed-order rule:
+      //   pre-arrow:  after→r_after  action→r_action  prob→r_probability  desc→l_desc
+      //   post-arrow: after→l_after  action→l_action  prob→l_probability  desc→r_desc
+      // The `!= null` guard suppresses missing-value sentinels (the
+      // `null` returned by an empty `{}` brace block) while letting
+      // legitimately-empty primitives through — notably the empty
+      // string from an empty action label `''`.
+      const seen: any = {};
+      for (const d of pre) {
+        if (seen['pre:' + d._kind]) { error('duplicate ' + d._kind + ' decoration before arrow', location()); }
+        seen['pre:' + d._kind] = true;
+        if (d._kind === 'after'  && d.v != null) { base.r_after       = d.v;       }
+        if (d._kind === 'action' && d.v != null) { base.r_action = d.v; if (options.locations) { base.r_action_loc = d.loc; } }
+        if (d._kind === 'prob'   && d.v != null) { base.r_probability = d.v.value; }
+        if (d._kind === 'desc'   && d.v != null) { base.l_desc        = d.v;       }
+      }
+      for (const d of post) {
+        if (seen['post:' + d._kind]) { error('duplicate ' + d._kind + ' decoration after arrow', location()); }
+        seen['post:' + d._kind] = true;
+        if (d._kind === 'after'  && d.v != null) { base.l_after       = d.v;       }
+        if (d._kind === 'action' && d.v != null) { base.l_action = d.v; if (options.locations) { base.l_action_loc = d.loc; } }
+        if (d._kind === 'prob'   && d.v != null) { base.l_probability = d.v.value; }
+        if (d._kind === 'desc'   && d.v != null) { base.r_desc        = d.v;       }
+      }
+
+      if (tail) { base.se = tail; }
+
+      if (options.locations) { base.loc = location(); base.to_loc = label.__loc; }
 
       return base;
 
@@ -773,11 +865,14 @@ Subexp
 
 
 Exp
-  = label:ArrowTarget se:Subexp WS? ';' WS? {
+  = label:( l:ArrowTarget { return options.locations ? { __v: l, __loc: location() } : l; } )
+    se:Subexp WS? ';' WS? {
     // Reminder: remove this type and the one in subexp if you want to work in pegjs online
     // TODO: properly type this
-    const base: any = { key: 'transition', from: label };
-    if (se && (se !== [])) { base.se = se; }
+    const fromVal = options.locations ? label.__v : label;
+    const base: any = { key: 'transition', from: fromVal };
+    if (se) { base.se = se; }
+    if (options.locations) { base.loc = location(); base.from_loc = label.__loc; }
     return base;
   }
 
@@ -790,15 +885,21 @@ ValidationKey
   / "todo"
 
 ValidationItem
-  = validationkey:ValidationKey ":" value:Label ";" { return {key:validationkey, value:value}; }
+  = validationkey:ValidationKey ":" value:Label ";" {
+      const node: any = { key: validationkey, value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ValidationItems
   = ValidationItem+
 
 ConfigValidation
   = WS? "validation" WS? ":" WS? "{" WS? validation_items:ValidationItems? WS? "};" WS? {
-    return { config_kind: "validation", config_items: validation_items || [] };
-  }
+      const node: any = { config_kind: "validation", config_items: validation_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -809,6 +910,7 @@ GvizLayout
   / "circo"
   / "fdp"
   / "neato"
+  / "twopi";
 
 // StateItemShapeKey
 //   = "shape"
@@ -824,33 +926,45 @@ StateItems
 
 ConfigState
   = WS? "state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigStartState
   = WS? "start_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_start_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_start_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigEndState
   = WS? "end_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_end_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_end_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigActiveState
   = WS? "active_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_active_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_active_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigTerminalState
   = WS? "terminal_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_terminal_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_terminal_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigHookedState
   = WS? "hooked_state" WS? ":" WS? "{" WS? state_items:StateItems? WS? "};" WS? {
-    return { key: "default_hooked_state_config", value: state_items || [] };
-  }
+      const node: any = { key: "default_hooked_state_config", value: state_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigAnyState
   = ConfigState
@@ -869,15 +983,21 @@ ActionKey
   / "todo"
 
 ActionItem
-  = actionkey:ActionKey ":" value:Label ";" { return {key:actionkey, value:value}; }
+  = actionkey:ActionKey ":" value:Label ";" {
+      const node: any = { key: actionkey, value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ActionItems
   = ActionItem+
 
 ConfigAction
   = WS? "action" WS? ":" WS? "{" WS? action_items:ActionItems? WS? "};" WS? {
-    return { config_kind: "action", config_items: action_items || [] };
-  }
+      const node: any = { config_kind: "action", config_items: action_items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -888,38 +1008,117 @@ TransitionKey
   / "todo"
 
 TransitionItem
-  = key:TransitionKey ":" value:Label ";" { return { key, value }; }
-
-TransitionItems
-  = GraphDefaultEdgeColor
-  / TransitionItem+
+  = key:TransitionKey ":" value:Label ";" {
+      const node: any = { key, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 GraphDefaultEdgeColor "graph default edge color"
-  = WS? "edge_color" WS? ":" WS? value:Color WS? ";" WS? { return { key:'graph_default_edge_color', value }; }
+  = WS? "edge-color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'graph_default_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+  / WS? "edge_color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'graph_default_edge_color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
+// The shared style-items body for the `transition: {}` and `graph: {}`
+// default-config blocks.  It accepts the same per-state style items as a
+// `state: {}` block (so `color: red;` parses), plus the graph-default
+// edge-color line (`edge-color`/`edge_color`) and the legacy
+// whargarbl/todo TransitionItem stubs — all backward-compatible.
+ConfigStyleItems
+  = GraphDefaultEdgeColor
+  / items:(StateDeclarationItem / TransitionItem)+ { return items; }
 
 ConfigTransition
-  = WS? "transition" WS? ":" WS? "{" WS? transition_items:TransitionItems? WS? "};" WS? {
-    return { config_kind: "transition", config_items: transition_items || [] };
-  }
+  = WS? "transition" WS? ":" WS? "{" WS? items:ConfigStyleItems? WS? "};" WS? {
+      const node: any = { key: "default_transition_config", value: items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+// `graph: { ... };` — graph-scope styling defaults, the Graphviz
+// *graph*-scope mirror of `state:` (node) and `transition:` (edge).
+// Distinct from `start_states`/`end_states`, which are structural config.
+ConfigGraph
+  = WS? "graph" WS? ":" WS? "{" WS? items:ConfigStyleItems? WS? "};" WS? {
+      const node: any = { key: "default_graph_config", value: items || [] };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
 
 
 ConfigGraphLayout
-  = WS? "graph_layout"    WS? ":" WS? value:GvizLayout WS? ";" WS? { return { key: "graph_layout",    value: value }; }
+  = WS? "graph_layout"    WS? ":" WS? value:GvizLayout WS? ";" WS? {
+      const node: any = { key: "graph_layout", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigStartNodes
-  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "start_states",    value: value }; }
+  = WS? "start_states"    WS? ":" WS? value:LabelList  WS? ";" WS? {
+      const node: any = { key: "start_states", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ConfigEndNodes
-  = WS? "end_states"      WS? ":" WS? value:LabelList  WS? ";" WS? { return { key: "end_states",      value: value }; }
+  = WS? "end_states"      WS? ":" WS? value:LabelList  WS? ";" WS? {
+      const node: any = { key: "end_states", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+ConfigFailedOutputs
+  = WS? "failed_outputs"  WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "failed_outputs", value: typeof raw === 'string' ? [raw] : raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 ConfigGraphBgColor
-  = WS? "graph_bg_color"  WS? ":" WS? value:Color      WS? ";" WS? { return { key: "graph_bg_color",  value: value }; }
+  = WS? "graph_bg_color"  WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "graph_bg_color", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 ConfigAllowsOverride
-  = WS? "allows_override" WS? ":" WS? value:OverrideT  WS? ";" WS? { return { key: "allows_override", value: value }; }
+  = WS? "allows_override" WS? ":" WS? value:OverrideT  WS? ";" WS? {
+      const node: any = { key: "allows_override", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+ConfigAllowIslands
+  = WS? "allow_islands" WS? ":" WS?
+    value:( v:IslandsT { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "allow_islands", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 
 
@@ -930,6 +1129,11 @@ OverrideT
   / 'false'     { return false;     }
   / 'undefined' { return undefined; }
 
+IslandsT
+  = 'with_start' { return 'with_start'; }
+  / 'true'       { return true;         }
+  / 'false'      { return false;        }
+
 
 
 
@@ -938,12 +1142,15 @@ Config "configuration"
   = ConfigGraphLayout
   / ConfigStartNodes
   / ConfigEndNodes
+  / ConfigFailedOutputs
   / ConfigTransition
+  / ConfigGraph
   / ConfigAction
   / ConfigAnyState
   / ConfigValidation
   / ConfigGraphBgColor
   / ConfigAllowsOverride
+  / ConfigAllowIslands
 
 
 
@@ -987,55 +1194,180 @@ HookDefinition "hook definition (open/closed)"
 
 
 MachineAuthor
-  = WS? "machine_author"      WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_author", value }; }
+  = WS? "machine_author"      WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_author", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineContributor
-  = WS? "machine_contributor" WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_contributor", value }; }
+  = WS? "machine_contributor" WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_contributor", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineComment
-  = WS? "machine_comment"     WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_comment", value }; }
+  = WS? "machine_comment"     WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_comment", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineDefinition
-  = WS? "machine_definition"  WS? ":" WS? value:URL                  WS? ";" WS? { return { key: "machine_definition", value }; }
+  = WS? "machine_definition"  WS? ":" WS?
+    value:( v:URL { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_definition", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineName
-  = WS? "machine_name"        WS? ":" WS? value:Label                WS? ";" WS? { return { key: "machine_name", value }; }
+  = WS? "machine_name"        WS? ":" WS?
+    value:( v:Label { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_name", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
+NpmName
+  = WS? "npm_name"            WS? ":" WS?
+    value:( v:Label { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "npm_name", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineReference
-  = WS? "machine_reference"   WS? ":" WS? value:LabelOrLabelList     WS? ";" WS? { return { key: "machine_reference", value }; }
+  = WS? "machine_reference"   WS? ":" WS?
+    value:( v:LabelOrLabelList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_reference", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineVersion
-  = WS? "machine_version"     WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "machine_version", value }; }
+  = WS? "machine_version"     WS? ":" WS?
+    value:( v:SemVer { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_version", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineLicense
-  = WS? "machine_license"     WS? ":" WS? value:LicenseOrLabelOrList WS? ";" WS? { return { key: "machine_license", value }; }
+  = WS? "machine_license"     WS? ":" WS?
+    value:( v:LicenseOrLabelOrList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_license", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineLanguage
-  = WS? "machine_language"    WS? ":" WS? value:Label                WS? ";" WS? { return { key: "machine_language", value }; }
+  = WS? "machine_language"    WS? ":" WS?
+    value:( v:Label { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "machine_language", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 FslVersion
-  = WS? "fsl_version"         WS? ":" WS? value:SemVer               WS? ";" WS? { return { key: "fsl_version", value }; }
+  = WS? "fsl_version"         WS? ":" WS?
+    value:( v:SemVer { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "fsl_version", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineTheme
-  = WS? "theme"               WS? ":" WS? value:ThemeOrThemeList     WS? ";" WS? { return { key: "theme", value }; }
+  = WS? "theme"               WS? ":" WS?
+    value:( v:ThemeOrThemeList { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "theme", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineFlow
-  = WS? "flow"                WS? ":" WS? value:Direction            WS? ";" WS? { return { key: "flow", value }; }
+  = WS? "flow"                WS? ":" WS?
+    value:( v:Direction { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "flow", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 MachineHookDefinition
-  = WS? "hooks"               WS? ":" WS? value:HookDefinition       WS? ";" WS? { return { key: "hook_definition", value }; }
+  = WS? "hooks"               WS? ":" WS?
+    value:( v:HookDefinition { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "hook_definition", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 DotPreamble
-  = WS? "dot_preamble"        WS? ":" WS? value:String               WS? ";" WS? { return { key: "dot_preamble", value }; }
+  = WS? "dot_preamble"        WS? ":" WS?
+    value:( v:String { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "dot_preamble", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
+
+DefaultSizeVal
+  = "height" WS n:NonNegNumber { return { height: n }; }
+  / w:NonNegNumber h:NonNegNumber { return { width: w, height: h }; }
+  / w:NonNegNumber { return { width: w }; }
+
+DefaultSize
+  = WS? "default_size"        WS? ":" WS?
+    value:( v:DefaultSizeVal { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: "default_size", value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 
 MachineAttribute "machine attribute"
   = FslVersion
   / MachineName
+  / NpmName
   / MachineAuthor
   / MachineContributor
   / MachineComment
   / MachineDefinition
+  / MachineReference
   / MachineVersion
   / MachineLicense
   / MachineLanguage
@@ -1043,6 +1375,7 @@ MachineAttribute "machine attribute"
   / DotPreamble
   / MachineFlow
   / MachineHookDefinition
+  / DefaultSize
 
 
 
@@ -1059,39 +1392,106 @@ PropertyVal
 
 
 
-SdStateLabel "color"
-  = WS? "label"            WS? ":" WS? value:Label     WS? ";" WS? { return { key:'state-label', value }; }
+SdStateLabel "label"
+  = WS? "label"            WS? ":" WS? value:Label     WS? ";" WS? {
+      const node: any = { key:'state-label', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateColor "color"
-  = WS? "color"            WS? ":" WS? value:Color     WS? ";" WS? { return { key:'color', value }; }
+  = WS? "color"            WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 SdStateTextColor "text color"
-  = WS? "text-color"       WS? ":" WS? value:Color     WS? ";" WS? { return { key:'text-color', value }; }
+  = WS? "text-color"       WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'text-color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 SdStateBackgroundColor "background color"
-  = WS? "background-color" WS? ":" WS? value:Color     WS? ";" WS? { return { key:'background-color', value }; }
+  = WS? "background-color" WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'background-color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 SdStateBorderColor "border color"
-  = WS? "border-color"     WS? ":" WS? value:Color     WS? ";" WS? { return { key:'border-color', value }; }
+  = WS? "border-color"     WS? ":" WS?
+    value:( v:Color { return options.locations ? { __v: v, __loc: location() } : v; } )
+    WS? ";" WS? {
+      const raw = options.locations ? value.__v : value;
+      const node: any = { key: 'border-color', value: raw };
+      if (options.locations) { node.loc = location(); node.value_loc = value.__loc; }
+      return node;
+    }
 
 SdStateShape "shape"
-  = WS? "shape"            WS? ":" WS? value:GvizShape WS? ";" WS? { return { key:'shape', value }; }
+  = WS? "shape"            WS? ":" WS? value:GvizShape WS? ";" WS? {
+      const node: any = { key:'shape', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateCorners "corners"
-  = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? { return { key:'corners', value }; }
+  = WS? "corners"          WS? ":" WS? value:Corners   WS? ";" WS? {
+      const node: any = { key:'corners', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 SdStateLineStyle "linestyle"
-  = WS? "line-style"       WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
-  / WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? { return { key:'line-style', value }; }
+  = WS? "line-style"       WS? ":" WS? value:LineStyle WS? ";" WS? {
+      const node: any = { key:'line-style', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "linestyle"        WS? ":" WS? value:LineStyle WS? ";" WS? {
+      const node: any = { key:'line-style', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+
+SdStateImage "image"
+  = WS? "image"            WS? ":" WS? value:String    WS? ";" WS? {
+      const node: any = { key:'image', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+SdStateUrl "url"
+  = WS? "url"              WS? ":" WS? value:String    WS? ";" WS? {
+      const node: any = { key:'url', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 SdStateProperty "state property"
   = WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal               WS? ";" WS? {
-    return { key: 'state_property', name, value }
-  }
+      const node: any = { key: 'state_property', name, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
   / WS? "property" WS? ":" WS? name:Atom WS value:PropertyVal WS 'required' WS? ";" WS? {
-    return { key: 'state_property', name, value, required: true }
-  }
+      const node: any = { key: 'state_property', name, value, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 StateDeclarationItem
@@ -1103,20 +1503,65 @@ StateDeclarationItem
   / SdStateShape
   / SdStateCorners
   / SdStateLineStyle
+  / SdStateImage
+  / SdStateUrl
   / SdStateProperty
 
 StateDeclarationDesc
   = "{" WS? items:StateDeclarationItem* WS? "}" { return items; }
 
 StateDeclaration
-  = WS? "state" WS name:Label WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? { return { key:'state_declaration', name, value }; }
+  = WS? "state" WS
+    name:( n:GroupRef { return options.locations ? { __v: n, __loc: location() } : n; } )
+    WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? {
+      const raw  = options.locations ? name.__v : name;
+      const node: any = { key: 'state_declaration', name: raw, value };
+      if (options.locations) { node.loc = location(); node.name_loc = name.__loc; }
+      return node;
+    }
+  / WS? "state" WS
+    name:( n:Label { return options.locations ? { __v: n, __loc: location() } : n; } )
+    WS? ":" WS? value:StateDeclarationDesc WS? ";" WS? {
+      const raw  = options.locations ? name.__v : name;
+      const node: any = { key: 'state_declaration', name: raw, value };
+      if (options.locations) { node.loc = location(); node.name_loc = name.__loc; }
+      return node;
+    }
 
 
 
 
 
 NamedList
-  = WS? "&" WS? name:Label WS? ":" WS? value:LabelOrLabelList WS? ";" WS? { return { key:'named_list', name, value }; }
+  = WS? "&" WS? name:Label WS? ":" WS? value:GroupMemberList WS? ";" WS? {
+      const node: any = { key:'named_list', name, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "&" WS? name:Label WS? ":" WS? value:Label WS? ";" WS? {
+      const node: any = { key:'named_list', name, value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+
+
+
+// The boundary event a hook listens for: `enter` fires when a transition
+// crosses into the subject's boundary, `exit` when it crosses out.
+HookEvent "hook event (enter/exit)"
+  = "enter"
+  / "exit"
+
+// `on <enter|exit> <&group|state> do '<action>';` — registers a boundary
+// hook on a group reference or a plain state.  The action is an
+// ActionLabel (a quoted action name).
+HookDeclaration "hook declaration"
+  = WS? "on" WS event:HookEvent WS subject:(GroupRef / Label) WS "do" WS action:ActionLabel WS? ";" WS? {
+      const node: any = { key: 'hook_decl', event, subject, action };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
@@ -1128,23 +1573,51 @@ MachinePropertyDefault
 //   / MachinePropertyDefaultObject
 
 MachineProperty
-  = WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault WS  'required' WS? ";" WS? { return { key:'property_definition', name, default_value, required: true }; }
-  / WS? "property" WS name:Label                                                      WS  'required' WS? ";" WS? { return { key:'property_definition', name,                required: true }; }
-  / WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault                WS? ";" WS? { return { key:'property_definition', name, default_value                 }; }
-  / WS? "property" WS name:Label                                                                     WS? ";" WS? { return { key:'property_definition', name                                }; }
+  = WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault WS  'required' WS? ";" WS? {
+      const node: any = { key:'property_definition', name, default_value, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "property" WS name:Label                                                      WS  'required' WS? ";" WS? {
+      const node: any = { key:'property_definition', name, required: true };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "property" WS name:Label WS 'default' WS default_value:MachinePropertyDefault                WS? ";" WS? {
+      const node: any = { key:'property_definition', name, default_value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+  / WS? "property" WS name:Label                                                                     WS? ";" WS? {
+      const node: any = { key:'property_definition', name };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 
 
 
 
 RegularArrangeDeclaration
-  = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_declaration', value }; }
+  = "arrange"       WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'arrange_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrangeStartDeclaration
-  = "arrange-start" WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_start_declaration', value }; }
+  = "arrange-start" WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'arrange_start_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrangeEndDeclaration
-  = "arrange-end"   WS? value:LabelOrLabelList WS? ";" WS? { return { key: 'arrange_end_declaration', value }; }
+  = "arrange-end"   WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'arrange_end_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
 
 ArrangeDeclaration "arrange declaration"
   = ArrangeStartDeclaration
@@ -1156,7 +1629,8 @@ ArrangeDeclaration "arrange declaration"
 
 
 Term
-  = Exp
+  = HookDeclaration
+  / Exp
   / StateDeclaration
   / ArrangeDeclaration
   / NamedList

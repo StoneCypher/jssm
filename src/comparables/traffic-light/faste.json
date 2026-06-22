@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "faste",
+    "npm": "faste",
+    "homepage": "https://github.com/theKashey/faste",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "traffic-light",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://www.npmjs.com/package/faste#example",
+    "note": "Taken from the readme. Only change was to rename and export the variable."
+  },
+  "code": "export const trafficLight = faste()\n  .withPhases([\"red\", \"yellow\", \"green\"])\n  .withTransitions({\n    green: [\"yellow\"],\n    yellow: [\"red\"],\n    red: [\"green\"],\n  })\n  .withMessages([\"switch\"])\n  .on(\"switch\", [\"red\"], ({ transitTo }) => transitTo(\"green\"))\n  .on(\"switch\", [\"green\"], ({ transitTo }) => transitTo(\"yellow\"))\n  .on(\"switch\", [\"yellow\"], ({ transitTo }) => {\n    console.log(\"Red light!\");\n    transitTo(\"red\");\n  });",
+  "formattedWith": "prettier"
+}

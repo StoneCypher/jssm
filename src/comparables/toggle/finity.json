@@ -1,0 +1,18 @@
+{
+  "library": {
+    "name": "finity",
+    "npm": "finity",
+    "homepage": "https://github.com/nickuraltsev/finity",
+    "languages": ["javascript", "typescript"]
+  },
+  "machine": "toggle",
+  "language": "javascript",
+  "official": false,
+  "canImplement": true,
+  "source": {
+    "url": "https://github.com/nickuraltsev/finity/blob/master/examples/hierarchical/index.js",
+    "note": "Finity did not have a light switch example. I made this, following this unrelated machine as a style guide."
+  },
+  "code": "export const toggleMachine = Finity\n  .configure()\n    .initialState('inactive')\n      .on('toggle').transitionTo('active')\n    .state('active')\n      .on('toggle').transitionTo('inactive')\n  .start();",
+  "formattedWith": null
+}

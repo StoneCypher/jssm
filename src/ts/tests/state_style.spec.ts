@@ -285,6 +285,12 @@ describe('Default state style', () => {
       expect( () => sm`a->b; state: { border-color: yellow; border-color: yellow; };` ).toThrow();
     });
 
+    test('url blocks doublings', () => {
+      // First occurrence falls through and assigns; the second hits the
+      // redefine-throws guard in state_style_condense's `case 'url':` arm.
+      expect( () => sm`a->b; state: { url: "https://example.com"; url: "https://example.com"; };` ).toThrow();
+    });
+
   });
 
 });

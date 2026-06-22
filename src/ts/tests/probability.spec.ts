@@ -151,6 +151,100 @@ describe('probabilistic_histo_walk', () => {
 
 
 
+describe('probable_exits_for filters by probability data (StoneCypher/fsl#1325)', () => {
+
+  test('returns only probability-bearing exits when any exit declares one', () => {
+
+    // 'b' has a declared probability, 'c' does not.  Before the fix,
+    // probable_exits_for returned both, letting 'c' (default weight 1)
+    // sit alongside 'b' (weight 50) and distort the distribution.
+    const m = sm`a 50% -> b; a -> c; b -> a; c -> a;`;
+    const exits = m.probable_exits_for('a');
+
+    expect(exits.length).toBe(1);
+    expect(exits[0].to).toBe('b');
+    expect(exits[0].probability).toBe(50);
+
+  });
+
+  test('returns all legal exits when no exit declares a probability', () => {
+
+    // No probability decorations on any edge — falls back to returning
+    // every legal exit so that weighted_rand_select gives them equal weight.
+    const m = sm`a -> b; a -> c;`;
+    const exits = m.probable_exits_for('a');
+    const targets = exits.map(e => e.to).sort();
+
+    expect(exits.length).toBe(2);
+    expect(targets).toEqual(['b', 'c']);
+
+  });
+
+  test('excludes forced-only exits even when no probability is declared', () => {
+
+    // Forced-only (~>) exits cannot be reached via transition(), so they
+    // must not be candidates for probabilistic selection.
+    const m = sm`a -> b; a ~> c;`;
+    const exits = m.probable_exits_for('a');
+
+    expect(exits.length).toBe(1);
+    expect(exits[0].to).toBe('b');
+    expect(exits.every(e => e.forced_only === false)).toBe(true);
+
+  });
+
+  test('excludes forced-only exits even when a probability is declared on them', () => {
+
+    // A forced-only edge with a probability decoration is still unreachable
+    // by transition(), so it must not appear in probable_exits_for.
+    const m = sm`a 50% -> b; a 50% ~> c;`;
+    const exits = m.probable_exits_for('a');
+
+    expect(exits.length).toBe(1);
+    expect(exits[0].to).toBe('b');
+
+  });
+
+  test('probabilistic_transition respects the probability filter', () => {
+
+    // With the bug, 'c' (default weight 1) would occasionally beat 'b'
+    // (weight 99).  After the fix, only 'b' is a candidate, so every
+    // probabilistic step from 'a' must land on 'b'.
+    const m = sm`a 99% -> b; a -> c; b -> a; c -> a;`;
+    m.rng_seed = 42;
+
+    for (let i = 0; i < 25; i++) {
+      m.force_transition('a');
+      m.probabilistic_transition();
+      expect(m.state()).toBe('b');
+    }
+
+  });
+
+  test('every returned exit has probability defined when any declared it', () => {
+
+    const m = sm`a 10% -> b; a 90% -> c; a -> d;`;
+    const exits = m.probable_exits_for('a');
+    const targets = exits.map(e => e.to).sort();
+
+    expect(targets).toEqual(['b', 'c']);
+    expect(exits.every(e => typeof e.probability === 'number')).toBe(true);
+
+  });
+
+  test('throws on unknown state', () => {
+
+    const m = sm`a -> b;`;
+    expect(() => m.probable_exits_for('nope')).toThrow();
+
+  });
+
+});
+
+
+
+
+
 describe('random seed', () => {
 
   const a = sm`a -> b;`;
@@ -200,6 +294,35 @@ describe('random seed', () => {
     a.rng_seed = undefined;
     expect(a.rng_seed).not.toBe(undefined);
     expect(a.rng_seed).not.toBe(1);
+
+  });
+
+  test('Setting rng_seed at runtime regenerates the RNG and produces deterministic results', () => {
+
+    const m = sm`a 50% -> b; a 50% -> c; b -> a; c -> a;`;
+
+    // Run N probabilistic transitions with a known seed
+    const N = 20;
+
+    m.rng_seed = 12345;
+    const run1: string[] = [];
+    for (let i = 0; i < N; i++) {
+      m.force_transition('a');
+      m.probabilistic_transition();
+      run1.push(m.state());
+    }
+
+    // Reset to same seed and repeat
+    m.rng_seed = 12345;
+    const run2: string[] = [];
+    for (let i = 0; i < N; i++) {
+      m.force_transition('a');
+      m.probabilistic_transition();
+      run2.push(m.state());
+    }
+
+    // Both runs must be identical, proving the setter regenerated the RNG
+    expect(run1).toEqual(run2);
 
   });
 

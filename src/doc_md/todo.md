@@ -1,3 +1,2051 @@
 # todo
 
-This help page has not yet been written.
+Complexity tags: `[trivial]` (under a day), `[straightforward]` (1–3 days,
+well-bounded), `[medium]` (multi-day, design choices needed), `[hard]`
+(substantial design + implementation), `[architectural]` (months, breaking
+changes), `[done]`.
+
+## Test data
+
+- [ ] Have Claude generate language test data for the languages currently
+      missing from `src/ts/tests/language_data/` — the README claims
+      coverage of Italian and Punjabi but no test data exists for them.
+      Existing files (`english.json`, `german.json`, `french.json`,
+      `spanish.json`, `hebrew.json`, `russian.json`, `ukrainian.json`,
+      `belarussian.json`, `bengali.json`, `portuguese.json`, `emoji.json`)
+      define the expected schema.
+
+## Language tooling
+
+The full toolchain for treating FSL as a first-class language. Worked one
+at a time.
+
+### Tooling architecture
+
+- [ ] **Adopt a unified CLI with constellation library API**
+      `[medium]` — the tooling items below (Machine CLI,
+      Visualization CLI, Formatter, Linter, Static analyzer,
+      Test framework, Doc generator, Scaffolder, Format-
+      converter, Web playground, etc.) ship as **subcommands of
+      one CLI**, not as separate binaries. One install
+      (`npm i -g fsl` or `npm i -g jssm-cli`), one help system,
+      one config file (`.fslrc.toml`), one consistent flag
+      vocabulary, one brand.
+
+      Architecture principle: **constellation at the library
+      level, unified at the CLI level.** Each subcommand is
+      implemented as an exported function in `@jssm/cli` (or a
+      per-tool `@jssm/lint`, `@jssm/test`, etc.), so other
+      tools — the VS Code extension, the LSP server, the MCP
+      server, the test framework, third-party tooling —
+      consume the same code programmatically without shelling
+      out. The CLI is the human-facing wrapper around the
+      library; the library is the canonical implementation.
+
+      Companion principle: **multi-machine input is the
+      universal contract, exposed via paired
+      single / set functions.** Every library-level
+      operation that takes a machine argument exposes two
+      functions — a single-machine version (`render`,
+      `lint`, `test`, `fmt`, `typegen`, `check`) and a set
+      version (`renderSet`, `lintSet`, `testSet`, `fmtSet`,
+      `typegenSet`, `checkSet`). The set version is the
+      canonical implementation; the single version is a
+      one-line convenience wrapper that takes `Machine`
+      instead of `Machine[]` and unwraps the result for the
+      N=1 case.
+
+      The pairing exists for two reasons:
+
+      1. **Call-site legibility.** A call to `renderSet`
+         announces multi-machine intent in the name; a call
+         to `render` announces single-machine intent. Code-
+         review and onboarding readers learn which case
+         they're looking at without having to trace
+         argument types or count arguments.
+
+      2. **Per-function options correctness.** Multi-only
+         options live exclusively on the set-version
+         options types — `combineStrategy: 'array' |
+         'merge' | 'manifest'` for `renderSet`,
+         `crossMachine: 'check' | 'ignore'` for `lintSet`,
+         `coverage: 'union' | 'product' | 'each'` for
+         `testSet`, `bundling: 'one-module' |
+         'one-per-machine'` for `typegenSet`, etc. A
+         single-machine caller of `render` can't
+         accidentally pass a multi-machine-only option; the
+         type system rejects it at compile time. Each
+         option lives exactly where it's meaningful.
+
+      Whether multiple machines combine into one output or
+      each produces its own output is target-specific
+      (image-format render targets typically produce one
+      file per machine; project codegen targets typically
+      produce one combined deliverable; playground targets
+      produce a single multi-machine playground).
+
+      CLI parsing accepts globs and lists of file paths
+      positionally — `fsl render m1.fsl m2.fsl
+      --target=svg` produces multiple SVGs; `fsl render
+      m1.fsl m2.fsl --target=website` produces one website
+      hosting both. The CLI doesn't expose the single / set
+      distinction directly to users; it always constructs a
+      list internally and dispatches to the set version of
+      the appropriate library function. CLI users see one
+      subcommand per operation; library users see two
+      paired functions per operation.
+
+      This is a universal contract because almost every
+      real use case involves more than one machine in
+      proximity (a system with multiple machines, a
+      tutorial with progressive examples, a comparison
+      demo, a state-of-the-codebase audit), and the
+      friction of running the same command N times for N
+      machines compounds quickly. Single-machine input is
+      just the N=1 case of multi-machine input, exposed
+      through the single-version convenience wrapper for
+      the most common call-site shape.
+
+      Concrete shape:
+
+      ```
+      fsl lint machine.fsl                ← lint
+      fsl render machine.fsl --svg        ← visualization
+      fsl fmt machine.fsl                 ← formatter
+      fsl test machine.fsl                ← model-based testing
+      fsl typegen machine.fsl             ← TypeScript types
+      fsl check machine.fsl               ← static analyzer
+      fsl new my-project                  ← scaffolder
+      fsl playground                      ← web playground server
+      fsl mcp                             ← MCP server (long-running)
+      fsl lsp                             ← LSP server (long-running)
+      fsl convert --from fsl --to mermaid ← format converter
+      ```
+
+      **REPL mode.** Invoking `fsl` (or `jssm`) with no
+      subcommand drops into an interactive REPL. Inside the
+      REPL, users can paste FSL strings, load machines from
+      files, step through transitions, inspect state and
+      actions, render diagrams inline, and invoke any
+      subcommand. Sample session:
+
+      ```
+      $ fsl
+      fsl> load traffic-light.fsl
+      loaded: traffic-light (3 states, 3 transitions)
+      fsl> state
+      red
+      fsl> actions
+      [ next ]
+      fsl> go next
+      red -> green
+      fsl> render --target=ascii
+      [ASCII diagram printed]
+      fsl> :quit
+      ```
+
+      Same code path as the non-interactive CLI — REPL
+      commands dispatch to the same `@jssm/cli` library
+      functions, so REPL and non-interactive CLI behaviour
+      are guaranteed identical. The REPL is the natural
+      shape for first-time users learning FSL syntax, for
+      debugging specific machine behaviours during
+      development, and for the "give me a quick state-
+      machine sketch" workflow that otherwise needs a
+      playground. The Machine CLI item under Committed
+      captures these interactive run / inspect / step
+      behaviours; the REPL is where those behaviours live
+      — the two items are not separate features, they're
+      one interactive mode of the unified CLI.
+
+      Naming: primary CLI is `fsl` (matches the language brand,
+      memorable, separates language from runtime); ship `jssm`
+      as an alias for brand continuity. Both invocations
+      dispatch to the same code; users pick whichever feels
+      natural.
+
+      Plugin discovery: like `git foo` / `cargo foo`, an
+      unrecognised `fsl <name>` dispatches to a `fsl-<name>`
+      binary on `PATH` if one exists. Third parties can ship
+      `fsl-prettier-plugin`, `fsl-azure-state-machine-import`,
+      etc., without modifying the core CLI. Pairs naturally
+      with the constellation-library principle: every external
+      plugin gets the same library access as the built-in
+      subcommands.
+
+      Package layout the architecture implies:
+      - `@jssm/core` — engine, parser, types (the heart)
+      - `@jssm/cli` — every subcommand as both library and CLI
+      - `@jssm/lsp` — LSP server (consumes `@jssm/cli`)
+      - `@jssm/mcp` — MCP server (consumes `@jssm/cli`)
+      - `@jssm/vscode` — VS Code extension (consumes `@jssm/lsp`)
+      - `@jssm/test` — test framework
+      - `@jssm/react`, `@jssm/vue`, `@jssm/angular`, etc. —
+        thin WC framework wrappers (consumes `@jssm/core`)
+
+      Consequence for existing TODO items: every tooling item
+      below is now framed as "a subcommand of the unified CLI
+      with its own library export," not as a separate ship.
+      This consolidates the implementation work without
+      changing the per-tool scope.
+
+      Architectural precedents: Biome (replaced ESLint +
+      Prettier + N others with one binary), Deno (`deno fmt` /
+      `deno lint` / `deno test` / `deno bundle` / etc.), Bun
+      (`bun run` / `bun install` / `bun test` / `bun build` /
+      etc.), Cargo and Git (built-in subcommands plus
+      external-binary plugin discovery). The industry has
+      converged on this pattern over the last 5-7 years; the
+      contrarian path (constellation-only) has well-known
+      ergonomic costs without compensating benefits at this
+      scale.
+
+### Committed
+
+- [ ] **Machine CLI** `[medium]` — run/inspect machines from the shell;
+      load `.fsl` files, step through transitions interactively, dump
+      current state and available transitions, support non-interactive
+      scripted runs from a stdin event stream.
+- [ ] **Visualization CLI** `[straightforward]` — render machines to
+      image/SVG; reuse the embedded `/viz` subpath that was just folded in.
+      Should also offer format converters for Mermaid, PlantUML, DOT,
+      and SCXML export.
+- [ ] **Formatter** `[straightforward]` — auto-fix style; canonical
+      whitespace/ordering/alignment, `--check` mode for CI, stdin/stdout
+      for editor integration. Ships paired with the linter.
+- [ ] **Linter** `[medium]` — surfaces style and simple-correctness
+      issues; rule plugin/extension hook; shared config file format.
+- [ ] **Static analyzer** `[medium]` — reachability of every declared
+      state, dead/orphan state detection, hook signature validation
+      against machine data.
+- [ ] **TextMate grammar** `[straightforward]` — syntax highlighting on
+      GitHub, VS Code, and most editors. Publish as a VS Code extension
+      and submit to github-linguist for native GitHub highlighting.
+- [ ] **MCP server** `[medium]` — expose machines and tooling to AI
+      agents.
+- [ ] **LSP server** `[hard]` — editor integration; depends on linter,
+      analyzer, and formatter being usable as libraries first.
+      Structural advantage over XState's VS-Code-specific extension:
+      one LSP implementation enables VS Code, Neovim, Helix, Emacs
+      (via lsp-mode), Sublime Text, Zed, JetBrains IDEs (via plugin),
+      and any future editor. Same investment, much broader reach.
+      Build the LSP first, then per-editor thin adapters get cheap.
+      Pairs naturally with a future DAP-based debugger (see Proposed
+      — high value, larger scope): both protocols are editor-agnostic
+      and turn one investment into many editor integrations.
+
+### Proposed — high value, modest scope
+
+- [ ] **Tree-sitter grammar** `[medium]` — incremental parsing for
+      Neovim, Helix, and GitHub code search.
+- [ ] **Test framework for machines** `[medium]` — model-based
+      testing that auto-generates test cases from the machine graph:
+      reachability assertions, transition coverage, hook behaviour,
+      property-based input sequences. Likely the most distinctive
+      piece of FSL tooling — model-based testing is something most
+      developers have never encountered, and the reaction on first
+      contact is usually "wait, this is how testing should always
+      work for state-shaped code." Demo target: `fsl-test
+      machine.fsl > coverage.html` produces a coverage report
+      listing tested vs untested transitions. That single command +
+      visual report pairs naturally with the canonical comparison
+      article (auto-generated tests is a genuinely uncommon claim
+      in the JS state-machine space) and with the cookbook (every
+      recipe could ship a coverage assertion). Worth promoting on
+      demo-leverage, not just utility. Heads-up: XState's
+      equivalent (`@xstate/test`) is in transitional state after
+      their v5 actor-model rewrite, so jssm's window to ship a
+      comparable tool while theirs is rebuilding is open today and
+      won't be forever.
+- [ ] **Doc generator** `[medium]` — extract machine definitions, render
+      a navigable site (states, transitions, invariants, hooks).
+      "rustdoc for state machines."
+- [ ] **Project scaffolder** `[straightforward]` — `jssm new <name>`
+      bootstrap with tsconfig, tests, viz output.
+- [ ] **Format-converter library** `[straightforward]` — round-trip
+      between FSL and Mermaid/PlantUML/DOT/SCXML. Subsumes part of the
+      visualization CLI.
+
+- [ ] **Formatter plugins for Prettier and modern
+      alternatives** `[medium]` — wrap the Formatter (under
+      Committed) as plugins for the three dominant
+      JavaScript-ecosystem code formatters. Each is a thin
+      adapter over the same underlying Formatter library;
+      per-formatter work is bounded.
+
+      **Prettier plugin** (`prettier-plugin-fsl`):
+      - Whole-file formatting for `.fsl` files (Prettier
+        parser/printer hooks).
+      - Embedded FSL inside `sm\`...\`` tagged template
+        literals in JS / TS / TSX / JSX — same shape as
+        how `prettier-plugin-tailwindcss` intercepts
+        `className` strings in JSX or `prettier-plugin-prisma`
+        formats `.prisma` schema files.
+      - Naming convention: `prettier-plugin-fsl` (not
+        `fsl-prettier-plugin`) so Prettier's auto-discovery
+        picks it up.
+
+      **Biome plugin** (`@biomejs/plugin-fsl` or equivalent):
+      - Biome's plugin system is in beta as of 2025 / 2026;
+        track its stabilization and ship when the API is
+        stable. Biome is the fastest-growing Prettier
+        alternative — Rust-based, ~10× faster than Prettier,
+        replaces ESLint + Prettier + several others in one
+        binary. Adoption curve is steep.
+      - Same formatting logic as the Prettier plugin —
+        different adapter glue.
+
+      **dprint plugin** (`@jssm/dprint-plugin-fsl` or similar):
+      - dprint uses WASM plugins, so the FSL formatter needs
+        a WASM build (or a WASM shim around a JS build).
+        Larger build-side lift than the JS-native Prettier
+        and Biome integrations.
+      - Bonus coverage: `deno fmt` uses dprint under the
+        hood, so a dprint plugin benefits every Deno user
+        automatically — without writing a Deno-specific
+        integration.
+
+      Editor integration multiplier: between Prettier, Biome,
+      and dprint, essentially every editor with format-on-save
+      in 2026 picks up FSL formatting transparently — VS Code
+      (multiple), Neovim, Helix, Zed, JetBrains IDEs, Sublime,
+      Emacs (via lsp-mode or direct integration). Much
+      broader formatting reach than the LSP path can offer
+      for formatting specifically, without the Formatter
+      implementation itself growing.
+
+      Implementation prerequisites:
+      - Formatter (Committed) is usable as a library exposing
+        an AST → formatted-string API.
+      - The FSL parser exposes a stable AST shape that each
+        plugin's adapter can consume.
+
+      Sequencing: **Prettier first** (largest install base,
+      most mature and stable plugin API, biggest immediate
+      audience). **Biome second** (highest growth trajectory;
+      plugin API stabilizing; ship when stable). **dprint
+      third** (more build complexity due to WASM; gives Deno
+      coverage for free as a bonus).
+
+      Pairs with:
+      - The Formatter item under Committed (provides the
+        library these plugins wrap)
+      - The "Get jssm bundled into a high-traffic starter
+        template" item under Marketing and SEO (Prettier
+        configuration in starter templates is the natural
+        delivery vector)
+      - The VS Code extension (LSP client) item — overlapping
+        but not redundant. The LSP handles completions /
+        hovers / diagnostics; the formatter plugin handles
+        formatting. They can coexist or share the underlying
+        Formatter; users get a fuller editor experience when
+        both are installed.
+- [ ] **`jssm/lite` subpath export under 2KB** `[medium]` — ship a
+      slimmer `jssm/lite` package.json subpath (analogous to the
+      recently-folded `jssm/viz` subpath) that contains only the
+      core runtime and a smaller FSL parser, omitting visualization,
+      full action/hook plumbing, and any feature that costs bundle
+      size disproportionate to its usage. Targets the "smaller than
+      Robot3" niche — Robot3 owns that segment right now, and
+      beating it on size while keeping FSL ergonomics splits its
+      niche. Writes its own marketing copy: "the only state-machine
+      library smaller than Robot3 with a readable DSL."
+- [ ] **VS Code extension (LSP client)** `[medium]` — start as
+      a `vscode-extension/` subdirectory in this repo, ship as
+      a thin LSP client that consumes the LSP server (Committed
+      tier). Trigger to split into its own repo: when the
+      extension grows past ~1,000 LOC of editor-specific logic
+      (richer commands, inline rendering, machine-visualisation
+      pane), which is roughly when the LSP server lands and the
+      extension stops being a TextMate-grammar wrapper.
+      Structural advantage of the LSP-first sequencing: the
+      same LSP serves Neovim, Helix, Emacs (via lsp-mode),
+      Sublime Text, Zed, JetBrains IDEs, and any other editor
+      with an LSP client. Investing in VS Code-specific
+      features ahead of the LSP would lock value into one
+      editor; LSP-first multiplies the same investment across
+      the whole editor ecosystem. Pairs with the unified-CLI
+      architecture above — the extension consumes `@jssm/lsp`,
+      which consumes `@jssm/cli`, which is the same code path
+      a terminal user takes when running `fsl lint`.
+
+- [ ] **FSL → TypeScript type inference** `[medium]` — generate a
+      discriminated union of valid states and actions from an FSL
+      string at the *type* level, so `machine.go('typo')` is caught
+      at compile time instead of runtime. Two implementation paths:
+      (a) a build-time typegen step (`fsl typegen machine.fsl`) that
+      emits a `.d.ts` sibling per machine file, same model as
+      `@xstate/typegen`; (b) a pure-TypeScript template-literal-
+      types trick that parses FSL within the type system itself,
+      similar to what `ts-pattern` and `hotscript` do for their
+      respective DSLs. Path (b) is more elegant (no build step,
+      types track the FSL string automatically) but bounded by
+      what TS's type system can express; path (a) is
+      unconditional but needs a build-pipeline integration. Closes
+      the most-requested `@xstate/typegen`-equivalent gap. Natural
+      home for the CLI half: the Machine CLI under Committed.
+
+### Proposed — high value, larger scope
+
+- [ ] **Web playground** `[medium]` — paste FSL, see viz, drive
+      transitions in-browser.
+- [ ] **Debugger** `[hard]` — step through transitions, breakpoints on
+      states/hooks, inspect data. Consider DAP (Debug Adapter Protocol)
+      for editor reuse.
+- [ ] **Model checker** `[hard]` — formal property verification
+      (deadlock-free, liveness, etc.). Distinct from the static analyzer:
+      looks at all reachable behaviour, not single-pass structural rules.
+- [ ] **Coverage tool** `[straightforward]` — which states/transitions
+      did the test suite exercise?
+- [ ] **Standard library / pattern catalog** `[medium]` — reusable
+      machines (timeout, retry, circuit breaker, auth flow, wizard,
+      etc.). Lowers the "what do I write?" barrier for newcomers.
+- [ ] **Multiple concurrent states (parallel regions)** `[hard]` —
+      true XState-style parallel state regions where the machine is
+      in multiple states simultaneously across independent axes.
+      Largely subsumed in practice by the *FSMs as machine data
+      members* item under Architectural — composition with
+      co-identity gives each region its full FSM semantics
+      (entry/exit hooks, history, transitions, type) without
+      parallel-region grammar. Demoted from architectural to here
+      because the composition workaround is good enough for the
+      common cases. The residual that parallel regions still
+      uniquely offer: declarative cross-region invariants in a
+      single grammar construct, atomic snapshots across regions,
+      synchronized cross-region history. These matter in specific
+      domains (network protocols, device modeling, simulation,
+      multi-protocol orchestration) but not in everyday
+      application territory. Ship the grammar feature only if the
+      audience grows into those domains; meanwhile the
+      composition pattern is documented as the recommended path.
+
+### Proposed — speculative or lower priority
+
+- [ ] **Fuzzer** `[medium]` — random transition sequences to find
+      unreachable-but-claimed states.
+- [ ] **Profiler** `[straightforward]` — transition timing, hot states.
+      Probably premature; JS profilers already work on machine code.
+- [ ] **Semantic diff / bisect tool** `[medium]` — structural changes
+      between two machine versions.
+
+### Boring-but-essential infrastructure
+
+- [~] **Language specification document** `[straightforward]` — human-
+      readable grammar reference. The `.peg` file is the de facto spec
+      but a written version helps adoption. **Partially done:**
+      `notes/fsl-grammar-reference.md` is a complete feature-by-feature
+      catalogue of the syntax (all 14 areas: lexical, numeric, colours,
+      arrows, transitions, states, configs, attributes, properties,
+      named lists, arrange, cheat sheet, quirks). Explicitly out of
+      scope there: runtime semantics — what each construct *means* once
+      parsed. A second "Runtime Semantics" companion is the missing half.
+- [ ] **Style guide** `[straightforward]` — community naming/layout
+      conventions.
+- [ ] **Build-tool integrations** `[medium]` — Vite/Webpack/Rollup/
+      esbuild plugins for importing `.fsl` files directly. Only if real
+      demand surfaces.
+
+## Core machine features
+
+Items previously tracked in `notes/do want.md`. Several are good
+candidates as quick credibility wins alongside the larger tooling work.
+
+### Trivial / quick wins
+
+- [ ] **`is_changing`** `[trivial]` — there's a commented-out reference
+      at `jssm.ts:1281`. Add a private flag set during transition
+      execution, expose as a getter. ~10–20 LoC plus tests.
+- [x] **`initial_state` must be a valid state** `[done]` — already
+      enforced at `jssm.ts:748`.
+
+### Graph and analysis
+
+- [ ] **Tolerate-islands check** `[straightforward]` — graph
+      connectivity sanity check (warn or error if the machine has more
+      than one weakly-connected component). Natural fit as a static-
+      analyzer rule once that tool exists.
+- [ ] **Compare two state machines** `[medium]` — depends entirely on
+      what "compare" means. Structural diff is straightforward; semantic
+      equivalence (do they accept the same inputs?) is a model-checking
+      problem. Brainstorm scope before writing code.
+
+### History and introspection
+
+- [ ] **Rewind state history** `[straightforward]` — history exists as a
+      circular buffer at `jssm.ts:377`; what's missing is a `.rewind()` /
+      `.go_back(n)` method that replays state from history. ~30–50 LoC.
+      Originally requested by `@kz`.
+- [ ] **Transition probability long-term measurement** `[straightforward]`
+      — counters on transition, expose as ratios. Behind a config flag.
+- [ ] **State probability long-term measurement** `[straightforward]` —
+      counters on state entry, expose as ratios. Pairs with above; ~100
+      LoC for both.
+
+### API ergonomics
+
+- [ ] **Autocreate API from action names** `[straightforward]` — an
+      action `melt` becomes a `.melt()` method on the instance. Runtime
+      via `Object.defineProperty`; the type side needs mapped types over
+      the action union. With optional prefixes as a config option.
+- [ ] **Fluent API for creation** `[straightforward]` — builder-pattern
+      wrapper over the existing config object. No semantic changes; pure
+      ergonomics.
+- [x] **DOT-like string API for creation** `[done]` — the FSL string
+      syntax fills this role.
+
+### Edges and tagging
+
+- [ ] **Describe edges as members of groups** `[straightforward]` —
+      small grammar addition for tags, plus query API. Grammar change is
+      the longest part.
+
+- [ ] **First-class guards in FSL syntax (via sensors)**
+      `[medium]` — add a `where` clause to transitions that
+      references one or more named *sensors* (the forthcoming
+      sensors concept — separate TODO will define what sensors
+      actually are; for the purposes of this entry, treat them
+      as named, pure boolean predicates exposed to the FSL
+      runtime via a registration mechanism). Syntax:
+
+      ```
+      form 'submit' where isValid           -> submitted;
+      form 'submit' where isValid, !locked  -> submitted;
+      form 'submit' where !isValid          -> error;
+      ```
+
+      Semantics:
+
+      - **Position.** After the action label, before the
+        arrow. Reads naturally as "on submit, where valid,
+        transition." Forward-direction only on two-way arrows
+        (mixed-direction guards would be a separate per-side
+        construct if ever wanted).
+      - **Composition (Tier 1 only).** Comma-separated AND;
+        `!sensorName` for negation. No `||`, no parentheses,
+        no inline boolean expressions in v1 — the moment FSL
+        admits an expression sublanguage, the grammar
+        balloons. Compound conditions are always achievable
+        by registering a new named sensor that combines the
+        underlying ones in code.
+      - **Failure semantics.** If a sensor returns false the
+        transition is skipped; among multiple matching
+        transitions, FSL tries them in declared order and
+        fires the first whose guards all pass; if none match,
+        the event is dropped silently. Add an optional
+        machine attribute `unmatched_event : drop | warn |
+        error;` (defaults to `drop`) for dev workflows that
+        want louder behaviour.
+      - **Registration.** Constructor option by default —
+        `sm\`...\`({ sensors: { isValid: (ctx) => ... } })` —
+        with `machine.registerSensor(...)` available as an
+        escape hatch for late binding (testing, DI).
+        Constructor binding fails loudly at construction time
+        if a sensor referenced in the FSL is missing.
+      - **Purity invariant.** Sensors are pure boolean
+        predicates. They must not fire events, mutate state,
+        or have observable side effects. The API contract
+        should make impurity *hard*, not just discouraged.
+        Guards *gate* transitions; hooks *do* things —
+        keeping these conceptually separate is what makes
+        machines testable and replayable.
+      - **Visualization.** Render the sensor reference on
+        the arrow label. Bracketed style mirrors XState
+        (`form ──submit [where isValid]──▶ submitted`);
+        slashed style mirrors SDL / Mealy-machine convention
+        (`form ──submit /isValid/──▶ submitted`). Pick one
+        canonical form for the cookbook and stick with it
+        across the renderer pipeline.
+      - **Type safety.** Once the FSL → TypeScript typegen
+        item lands, registered sensors are type-checked
+        against the FSL — missing sensor is a compile error,
+        extra sensor is a compile error, mistyped sensor
+        signature is a compile error.
+
+      Closes the most-cited small-XState-comparison gap.
+      `@xstate/cond` is XState's analogue but lives at the
+      "any JS arrow function" tier because XState gets the
+      expression language for free from JavaScript. FSL
+      doesn't have that luxury, so Tier 1 (named-sensor-only)
+      is the right design point — it preserves the legibility
+      that's jssm's whole positioning.
+
+      **Depends on the sensors design.** Sensors are the
+      substrate guards reference. This item can't ship before
+      sensors are specified; once sensors land, this guards
+      item picks up its implementation details from the
+      sensors design.
+
+### Render targets
+
+- [ ] **UML statechart representation** `[straightforward]` — render-
+      format addition to the viz pipeline.
+- [ ] **SDL representation** `[straightforward]` — render-format
+      addition.
+- [ ] **Drakon representation** `[medium]` — Drakon is unusual
+      (vertical-flow visual language); rendering probably needs a custom
+      layout engine, not graphviz. Sub-question: render from within
+      gviz/viz.js or out-of-band?
+- [ ] **Harel statechart representation** `[hard]` — the
+      hierarchical-state substrate it needs now exists via
+      **Overlapping state groups** (nested groups; shipped), so this is
+      unblocked. The remaining work is the Harel-specific export format
+      itself, on top of group nesting.
+- [ ] **Web Components renderer** `[medium]` — ship a Lit-based
+      `<jssm-machine>` custom element that takes an FSL string
+      and renders a live, embeddable state-machine view,
+      exposing transition controls and the current state.
+      Implementation: use Lit (~5KB, Google-maintained,
+      standards-aligned) rather than rolling raw
+      `customElements.define` — Lit handles render diffing,
+      reactive properties, scoped styles via
+      `adoptedStyleSheets`, and the class metadata that
+      `@lit-labs/react` consumes to auto-generate framework
+      wrappers. Distinct from the static diagram formats above
+      and from `jssm/viz`'s SVG output: this is a drop-in
+      interactive embed for docs sites, the fsl.tools homepage,
+      tutorials, blog posts, and any framework's WebView.
+
+      Architectural notes:
+      - **Leaf-shape only.** Props in (FSL string, current
+        state, disabled flag, …), events out (`state-change`,
+        `transition`). No deep framework integration; no form-
+        element participation; no slot composition beyond
+        styling. Resist growing it into a framework-component
+        shape; that's where WC ergonomics get rough.
+      - **Subsumes the "Replace the bespoke renderer widget"
+        item under fsl.tools site.** A single `<jssm-machine>`
+        replaces both the build-time `renderGraph` function in
+        `src/fsl.tools/site/scripts/build.cjs` and the SPA-side
+        `components/CookbookGraph.jsx` — same component renders
+        whether the page is fully static or SPA-driven. Two
+        TODO items collapse into one.
+      - **Auto-generated framework wrappers** ship as
+        `@jssm/react`, `@jssm/vue`, `@jssm/angular`,
+        `@jssm/svelte`, `@jssm/solid` packages. React is the
+        only one that's load-bearing (auto-generated by
+        `@lit-labs/react`); the others are mostly one-line
+        re-export imports of the base WC.
+      - **Design choices to settle first:** API surface (which
+        props / events / methods are public), styling
+        extensibility (Shadow DOM with CSS custom-property
+        theming versus light DOM), whether the element owns
+        its machine instance or proxies to one passed in
+        (recommended: owns by default, with an opt-in proxy
+        mode).
+
+      Pairs with the Integration targets section below — the
+      WC is the thing that lets jssm reach the ~110 enumerated
+      consuming environments via thin per-framework wrappers.
+
+- [ ] **Modern image formats — WebP, AVIF**
+      `[straightforward]` — modern raster output. Both
+      replace PNG/JPEG with much better compression. AVIF is
+      the cutting-edge choice; WebP is the broad-
+      compatibility default. Both derive trivially from
+      SVG → resvg-js / sharp.
+
+- [ ] **Publication-grade vector — EPS, TikZ via LaTeX**
+      `[straightforward]` — EPS for academic CS publishing
+      (still required by many journals). TikZ for native
+      LaTeX diagram embedding — emits `\tikzset` output that
+      integrates directly into a `.tex` document, much better
+      typography than embedded raster images. Both close the
+      academic/publishing niche where SVG/PDF aren't enough.
+
+- [ ] **Modern diagram-source languages — D2, Excalidraw,
+      tldraw** `[medium]` — declarative-diagram-language
+      exports. D2 (Terrastruct, 2022) is growing fast in the
+      developer-docs space. Excalidraw and tldraw JSON let
+      users drop a jssm machine into collaborative
+      whiteboards. Mermaid / PlantUML / SCXML already covered
+      by the Format-converter library item.
+
+- [ ] **Graph-tool interop formats — GraphML, GEXF, ELK
+      JSON** `[straightforward]` — interchange with the
+      broader graph-analysis ecosystem: Gephi (GEXF),
+      yEd / yWorks (GraphML), Eclipse Layout Kernel (ELK
+      JSON), Cytoscape (its own JSON). Lets users move jssm
+      machines into network-analysis tools that already
+      exist for non-state-machine graph work.
+
+- [ ] **Text-document formats — Markdown, AsciiDoc, RST,
+      ePub** `[medium]` — textual descriptions of the
+      machine (state list, transition tables, embedded code
+      blocks) for inline embedding in technical docs.
+      Markdown is the default; AsciiDoc and reStructuredText
+      cover the Python/Sphinx and enterprise-docs worlds.
+      ePub is for the gitbook publication path — turning the
+      eventual gitbook into a Kindle-readable artifact.
+
+- [ ] **Office-document formats — DOCX, ODT, RTF**
+      `[medium]` — for business / enterprise / compliance
+      environments where Microsoft Word is the lingua
+      franca. Lower priority than the open formats; ship if
+      user demand surfaces.
+
+- [ ] **Slide-deck formats — Reveal.js, Marp**
+      `[straightforward]` — presentation slides with embedded
+      machines. Reveal.js (HTML-based) is the dominant choice
+      in tech-talk land; Marp is the Markdown-driven option.
+      Lets a single FSL file generate the diagram, the
+      transition narrative, and the slide deck in one pass.
+
+- [ ] **Data-interchange formats — JSON, YAML, TOML, SQL
+      DDL, CSV** `[straightforward]` — the machine as data,
+      not a diagram. JSON / YAML / TOML for structured-data
+      tooling; SQL DDL (CREATE TABLE for states + transitions)
+      for persistence-layer integration; CSV transition table
+      for spreadsheet workflow. Useful for tooling interop
+      and for declarative database-backed state-tracking.
+
+- [ ] **Animation formats — animated GIF, APNG, Lottie, WebM,
+      MP4** `[medium]` — state machines naturally animate as
+      you traverse them. Animated GIF / APNG for README/blog
+      tutorials. WebM / MP4 for longer demonstration videos
+      with controlled timing. Lottie (JSON-based interactive
+      vector animation, runs on iOS / Android / web) is the
+      most interesting target — state-machine animations map
+      naturally to Lottie's timeline model. Useful for the
+      cookbook and for any "look how this thing works"
+      marketing demo.
+
+- [ ] **Hardware description languages — VHDL, Verilog**
+      `[hard]` — speculative but uniquely defensible. FSMs
+      are literally how FPGAs implement sequential logic;
+      generating synthesizable HDL from FSL gives jssm a
+      niche no other state-machine library targets (hardware
+      engineers, formal-verification work). Small audience
+      but they have no comparable tool today. Likely lands
+      after v1 stabilizes; flagged early so the architecture
+      stays open to it.
+
+- [ ] **Game-engine native resources — Unity
+      ScriptableObject, Unreal Blueprint, Godot Resource**
+      `[hard]` — speculative. Different from the game-engine
+      integrations under Integration targets (those embed the
+      WC in a WebView); this would compile FSL down to the
+      engine's native state-machine representation. Heavier
+      work, tighter integration. Pursue if game-engine
+      audiences surface specific demand; otherwise the
+      WC-in-WebView path is good enough for most uses.
+
+### Code-generation targets
+
+A render target above produces a single file describing the
+machine (an SVG, a JSON, a PDF, an HDL file, etc.). A codegen
+target produces *code* — code that consumes or wraps the
+machine, or code that *is* the machine translated into another
+language. Two broad flavours under this subsection:
+**cross-language codegen** translates the machine itself into
+another language's idioms; **project codegen** generates a
+project around the machine (a site, an npm package, a CI
+configuration, a container build). Both invoke the shared
+backend (template engine, AST consumer, config knobs) and ship
+as `fsl render --target=X` subcommand flags. As with every
+subcommand, **multi-machine input is the universal contract**
+(see Tooling architecture): every codegen target accepts a
+list of machines, and per-target conventions decide whether
+that produces one combined output (a website hosting all the
+machines; an npm package exposing all of them as named
+exports) or one output per machine (one Python file per
+machine; one Dockerfile per machine).
+
+- [ ] **Cross-language codegen — Python, Go, Rust, Java, C#,
+      Swift, Kotlin** `[hard]` — emit native state-machine
+      implementations in other languages from FSL. Each
+      target's idiomatic shape is different (Rust uses
+      `enum` + `match`; Go uses `interface` + `switch`;
+      Python uses class + method dispatch; Swift uses
+      `enum` + `switch`; C# uses class + state pattern;
+      Kotlin uses sealed classes). Heaviest item in this
+      subsection — adding a new language target requires a
+      per-language template plus type-mapping rules — but
+      uniquely defensible: the "FSL is the portable lingua
+      franca, and your favourite language runs the generated
+      code" pitch is the natural extension of the cross-site-
+      content-centralization strategy under Shared content
+      infrastructure. Pairs with the per-language port story
+      (`jssm-py`, `jssm-rs`, etc.) — codegen produces the
+      ported machines that the language ports execute.
+      Promoted from the Speculative tier on conceptual
+      grounds: it's the same shape of work as the project
+      codegen below, and lives more naturally alongside its
+      siblings than separated by tier.
+
+- [ ] **Website generator** `[medium]` — `fsl render
+      machine.fsl --target=website` produces a complete static
+      website (HTML + CSS + JS bundle) showcasing the machine:
+      state list, transition table, embedded `<jssm-machine>`
+      interactive playground, code examples for embedding in
+      JS/TS, narrative description from `machine_comment` /
+      `machine_definition`. Output deployable as-is to GitHub
+      Pages, Netlify, Vercel, Cloudflare Pages, or any static
+      host. Templates select between minimal (single-page),
+      documentation (multi-page with examples), and showcase
+      (rich, animated, blog-post-style) modes. Subflag
+      `--target=github-pages` applies the gh-pages
+      conventions (`.nojekyll`, relative asset paths, optional
+      `CNAME`). AWS-specific deployment via CloudFront + S3
+      is the recommended path for production-scale sites
+      (`--target=aws-cloudfront` emits an S3-ready bundle
+      plus an optional CloudFront distribution configuration
+      stub).
+
+- [ ] **README.md generator** `[straightforward]` — `fsl
+      render machine.fsl --target=readme` produces a complete
+      README.md for a machine: title, description, ASCII state
+      diagram (from the terminal renderer), Mermaid / SVG
+      diagram, transitions table, install / quick-start
+      example, contribution guidance, license badge. Useful
+      for any FSL-defined machine that's shared as a
+      standalone artefact, and as a starting point any user
+      will then edit by hand.
+
+- [ ] **npm package generator** `[medium]` — `fsl render
+      machine.fsl --target=npm --name=my-machine` produces a
+      publishable npm package wrapping a single FSL machine:
+      `package.json` with proper `main` / `types` / `exports`,
+      `index.ts` exporting the parsed machine and a typed
+      factory function, TypeScript types generated from the
+      FSL (via the typegen subcommand), README.md (via the
+      readme target), tests covering reachability and basic
+      transition behaviour, CI configuration. The output is
+      directly publishable via `npm publish`. Lets users
+      distribute a state machine as a library without writing
+      the wrapper code by hand. The "FSL author publishes a
+      machine, downstream users consume it as a typed library"
+      flow becomes one command.
+
+- [ ] **Shareable-playground template generator**
+      `[straightforward]` — generate a CodeSandbox,
+      StackBlitz, Codepen, or Replit template URL with **one
+      or more machines** pre-loaded into a live editor.
+      Output is a shareable URL (or an `index.html` template)
+      that lets the recipient experiment with the machines
+      in seconds. Multi-machine support is load-bearing here
+      — useful for tutorials that introduce one machine and
+      then build on it, for before/after refactor
+      comparisons, for cookbook recipes that show a system
+      of related machines, and for any "here, try this small
+      system" scenario. Useful for issue reproductions,
+      blog-post embeds, and "here, try this" links in chat
+      threads. Pairs naturally with the AI-host artifact-
+      surface integration — Claude / ChatGPT / etc. can hand
+      a user a playground link inline in the conversation.
+
+- [ ] **Shareable URL target (compressed-URI sharing)**
+      `[straightforward]` — `fsl render machine.fsl
+      --target=share-url` produces a self-contained URL
+      where the machine is encoded in a heavily compressed
+      query parameter, reusing the existing FSL compression
+      code in jssm. Format: something like
+      `https://fsl.tools/play?m=<COMPRESSED_FSL>`. Recipient
+      clicks the URL, the FSL is decompressed and loaded
+      into a hosted playground in ~200ms — no server-side
+      storage, no project provisioning, no `npm install`,
+      no CodeSandbox round-trip. The URL *is* the machine.
+      Multi-machine support same as the playground item
+      above: encode an array of machines into the parameter
+      and have the hosted playground render all of them.
+
+      Compression target: ~70-80% smaller than raw FSL, so
+      most machines fit comfortably under common URL length
+      limits (≈2 KB practical, ≈8 KB hard ceiling in some
+      browsers / chat clients). For larger machines, the
+      generator emits a warning and suggests the
+      `--target=playground` flow (CodeSandbox / StackBlitz)
+      instead.
+
+      Distinct from the shareable-playground template
+      generator above — that one creates a *new project* on
+      a third-party host; this one creates a *stateless URL*
+      on jssm's own hosted playground. Same ergonomics
+      ("send a URL, recipient experiments") but different
+      friction profiles, target audiences (quick issue
+      reproductions vs. longer-form playgrounds), and
+      whether the recipient ends up with editable project
+      structure (no vs. yes).
+
+      Useful anywhere a URL is the natural sharing medium:
+      GitHub issues, commit messages, chat threads, Slack /
+      Discord, plain-text email, code-review comments, and
+      especially the AI-host artifact surfaces where "click
+      this to see the machine" is a much better affordance
+      than "paste this FSL into the chat."
+
+- [ ] **Storybook stories generator** `[medium]` — `fsl
+      render machine.fsl --target=storybook` produces a set
+      of `.stories.ts` files for Storybook: one story per
+      machine state showing the visual representation of
+      that state, plus an interactive story that lets the
+      reader step through transitions. Useful for design-
+      system integration where the machine drives a
+      component's visual states.
+
+- [ ] **Devcontainer / Codespaces template generator**
+      `[trivial]` — `fsl render machine.fsl
+      --target=devcontainer` generates a `.devcontainer/`
+      directory pre-configured for editing the machine with
+      the LSP server, viz preview, and test runner all wired
+      up. Useful for "try jssm in your browser" onboarding
+      via GitHub Codespaces or any other devcontainer-aware
+      host.
+
+- [ ] **CI/CD workflow YAML generator** `[medium]` —
+      speculative. When the FSL machine represents a build or
+      deployment pipeline, `fsl render machine.fsl
+      --target=github-actions` (or `gitlab-ci`, `jenkinsfile`,
+      `circle-config`, `azure-pipelines`, `tekton`) could
+      generate the corresponding CI configuration. Niche but
+      uniquely defensible — declarative pipelines are
+      essentially state machines, and most CI YAML is already
+      hand-written FSM logic without the FSM machinery.
+
+- [ ] **Schema and API-spec generators** `[medium]` —
+      speculative. When the FSL machine represents an API
+      workflow or state-tracking persistence layer, generate
+      complementary artefacts: JSON Schema for validating
+      incoming state values, OpenAPI / Swagger spec for the
+      state-tracking endpoints, Postman collection for
+      testing, JSON-RPC / GraphQL schema as appropriate. Most
+      useful for API-workflow machines (order fulfillment,
+      approval pipelines, ETL orchestrators).
+
+- [ ] **Docker image / container generator** `[hard]` —
+      speculative. Produces a `Dockerfile` + supporting files
+      that build a container running the machine as a
+      long-lived service (with REST/gRPC/WebSocket API).
+      Useful when the machine represents a workflow service
+      that needs to be deployed independently — e.g., a
+      shipment-tracking workflow exposed as an HTTP endpoint
+      that downstream services can call to advance state.
+
+### Display and rendering options
+
+- [ ] **Render-only-last-segment display flag**
+      `[straightforward]` — new machine attribute (e.g.,
+      `display_short_names : true;`) that, when set, instructs
+      the visualization to render only the last segment of each
+      state name following the chain delimiter, rather than the
+      full name. So a state named `active.paused` renders in
+      the graph as `paused`. The full name remains canonical
+      for transitions, hooks, runtime addressing, and the AST —
+      this is purely a display-layer shortcut for cases where
+      state names share long common prefixes for organizational
+      reasons but the prefix duplication clutters the diagram.
+      Should be a per-machine attribute, not a global config.
+      Disambiguation strategy needed for the case where two
+      states share a short name (e.g., `loading.error` and
+      `saving.error` both render as `error`): recommended rule
+      is to fall back to the longest unambiguous suffix, with
+      the full name available in the hover tooltip. Pairs
+      naturally with the overlapping-groups feature — clusters
+      can render short names because the cluster boundary makes
+      the namespace obvious from context.
+
+- [ ] **Custom name-chain delimiter** `[trivial]` — new machine
+      attribute (e.g., `chain_delimiter : "/";`) that overrides
+      the default `.` chain delimiter used by the render-short-
+      names display flag and by any future namespace-aware
+      tooling. Defaults to `.`. Allows alternatives like `/` for
+      path-style names (`auth/login/pending`), `::` for
+      C++-style (`std::vec::Vec`), `>` for breadcrumb style, or
+      any multi-character separator. Implementation heads-up:
+      states whose names use characters outside the existing
+      atom char set (`[0-9a-zA-Z._!$^*?,]`) — anything with
+      `/`, `>`, `::`, etc. — must currently be declared with
+      the quoted-string form (`state "auth/login/pending" : {
+      ... };`) because the atom grammar can't express those
+      characters. Worth considering as part of this feature
+      whether the atom char set should also expand to include
+      the chosen delimiter, so users don't have to quote-wrap
+      every state name. Pairs with the render-short-names flag
+      above; together they cover the "namespace-style state
+      naming" pattern that is otherwise awkward in FSL today.
+
+- [ ] **Image backgrounds — nodes, groups, graphs**
+      `[medium]` — enable image backgrounds across the three
+      Graphviz region types. Each has a different implementation
+      path because Graphviz's native support is asymmetric:
+
+      - **Node images:** *already native* (`image="..."`
+        attribute; already emitted by `image_for_state` in
+        `jssm_viz.ts`). What's missing is documentation: a
+        cookbook recipe showing the `image:` state-declaration
+        form, the `images: [...]` array consumers must pass to
+        `@viz-js/viz@3`'s `render` call (the WebAssembly viz
+        has no filesystem and registers images explicitly), and
+        the `shape=none` / `imagepos` / `imagescale`
+        accompanying attributes for image-as-node-visual mode.
+      - **Group (cluster) images:** *not native* in Graphviz;
+        doable via SVG post-processing. Walk the rendered SVG
+        tree, identify `<g class="cluster">` elements, inject
+        `<image>` children using the cluster's
+        `<polygon>`/`<path>` outline as a clip path with
+        `preserveAspectRatio="xMidYMid slice"` for cover-style
+        cropping. Roughly 30-50 lines of TypeScript. Pairs
+        directly with the overlapping-groups visualization in
+        the Phase 4 design decision from the plan.
+      - **Graph (whole-document) image:** *not native* as an
+        image attribute (`bgcolor` is colour-only). Doable via
+        SVG post-processing (insert root `<image>` element
+        before the first child of `<svg>`, sized to viewbox)
+        or via HTML envelope (CSS `background-image` on the
+        wrapping div) when the render target is the website
+        rather than raw SVG. The HTML-envelope path is simpler
+        for website/playground render targets; the SVG-post-
+        processing path is required for raster export (PNG /
+        JPEG / PDF) because CSS doesn't survive rasterization.
+
+      Marketing wins from this work: branded OG cards
+      (per the OG-cards item under Marketing and SEO), cookbook
+      recipes with character/scene backgrounds for game-engine
+      examples, professional-looking machine diagrams for
+      technical talks and conference materials. All three
+      sub-items share the SVG post-processor infrastructure
+      below.
+
+- [ ] **SVG post-processor pipeline** `[medium]` — generalize
+      visualization output through an ordered list of optional
+      post-processors with shape `(svg: SVGElement, ctx:
+      MachineMetadata) => SVGElement`. Threading: add an
+      `svgPostProcessors: PostProcessor[]` option to the
+      `render` / `renderSet` calls; each rendered SVG passes
+      through the chain in order. Pure, composable, testable.
+      Use cases that pay for the abstraction:
+
+      - Image-background injection for nodes / groups / graphs
+        (see item above)
+      - Theme-based color overrides applied at rendering time
+        (alternative to compile-time theme merging)
+      - Accessibility annotations (aria-labels, title elements,
+        per-state region descriptions for screen readers)
+      - OG-card framing and cropping for the per-page OG image
+        generation item under Marketing and SEO
+      - Watermark insertion for branded outputs (logo bottom-
+        right on technical-talk slide diagrams)
+      - Per-element interactivity hooks for the cookbook's
+        interactive recipes (data-state attributes that the
+        cookbook's JS layer can hook into for click-to-trigger
+        transitions)
+      - Cluster-bound rendering for the overlapping-groups
+        visualization (see Phase 4 of the overlapping-groups
+        plan)
+
+      The existing `*_svg_element` family in `jssm_viz.ts`
+      already produces SVGElement output; threading a
+      post-processor list through is additive, not disruptive.
+      Far cleaner than inlining each of these features into
+      `machine_to_dot` would be. The abstraction is the right
+      shape for arbitrary future enhancements without growing
+      the renderer's core complexity.
+
+### Input formats
+
+- [ ] **Consume `.dfa` files** `[medium]` — depends which DFA dialect
+      (JFLAP, FAdo, Grail, custom). Once decided, parse-and-build.
+
+### Async and control flow
+
+- [ ] **Promise / async-await support** `[medium]` — these are the same
+      mechanism. Real question: does an async transition block other
+      transitions until resolved? What happens on rejection? Design
+      first.
+- [ ] **Generator support** `[hard]` — different control-flow model
+      than promises; needs to define what a "generator-driven transition"
+      means semantically.
+- [ ] **Observable support** `[hard]` — implies a streaming model where
+      machines react to event streams. Affects the public API
+      significantly.
+
+### Architectural — months, breaking changes
+
+These items are a smaller project than the original four-item
+framing implied. The **overlapping-groups** item (first below) has
+now **shipped** — it covers most hierarchical-state and
+state-subtype use cases without an engine rewrite, and accordingly
+*Hierarchical states* and *State subtypes* are marked `[done]`
+(subsumed) below. What remains open in this tier is the
+**FSMs-as-machine-data-members** item (covers the
+multi-FSM-with-co-identity use cases through composition rather
+than parallel-region grammar) and **States as objects** (independent,
+may still be wanted on its own merits). The remaining work still
+touches many files (types, parser, comparison, history, viz) and
+should ship as a major version with its own plan, but the
+multi-year-monolith framing was overblown. **Multiple
+concurrent states** has been demoted from this tier (now under
+Proposed — high value, larger scope) because composition via FSM-
+properties handles the substantive cases; only specialized
+protocol/embedded/simulation audiences need true parallel-region
+grammar, and that decision can be made later from a position of
+strength.
+
+- [x] **Overlapping state groups** `[done]` — shipped. Extended
+      `NamedList` (formerly `&group : [a b c];`, used only as a
+      fan-out transition-target alias) into a first-class
+      *state group* with shared behaviour. Groups now support:
+      transitions from group members (`&busy 'CANCEL' -> idle`),
+      default state metadata (`state &busy : { color : amber; }`),
+      boundary hooks (`on enter &busy do ...`), and runtime
+      queries (`machine.isIn('busy')`). The killer feature:
+      **groups overlap.** A state can belong to multiple groups
+      (Suspended ∈ Active AND Suspended ∈ RestrictedAccess),
+      which is strictly more expressive than hierarchy (where each
+      state has exactly one parent). Real-world state machines
+      often have multiple orthogonal axes of membership that don't
+      fit a tree — user-account states are simultaneously "active",
+      "paid", "authenticated"; HTTP request states are
+      simultaneously "in-progress" and "receiving"; form states
+      are simultaneously "editable" and "validatable".
+
+      Subsumes two of the original four architectural items in
+      this subsection — *Hierarchical states* (groups cover the
+      shared-behaviour-across-states use cases) and *State
+      subtypes* (groups cover the categorical-labelling use
+      cases). The companion *FSMs as machine data members* item
+      below subsumes the multi-region-with-co-identity use
+      cases via composition. *States as objects* is independent
+      and may still be wanted on its own merits. *Multiple
+      concurrent states* (parallel regions) is now under
+      Proposed — high value, larger scope; groups don't
+      substitute for true simultaneous states, but FSMs-as-
+      properties does for most practical purposes.
+
+      Shipped behaviour (design questions, as resolved):
+
+      1. **Conflict resolution** for the same `(state, action)`:
+         a state-specific transition always wins; otherwise the
+         innermost (nearest, smallest membership-distance) group
+         wins; an equal-distance tie goes to the later-declared
+         group, with a `console.warn` on a group-vs-group
+         override. The CSS-style cascade intuition, as planned.
+
+      2. **Group entry/exit semantics.** Boundary hooks fire on
+         crossing the (deep) group boundary — `on enter`/`on
+         exit`, with `do` as the action synonym. Exits fire
+         before enters; declaration order within a side;
+         transitions wholly within a group fire nothing.
+         Cascades are loop-protected by a configurable
+         `boundary_depth_limit` (default 100). `override()` also
+         fires boundary hooks.
+
+      3. **History semantics.** *Not shipped in this pass.* The
+         per-group history slot (`&group.last` or similar) was
+         deferred; the runtime currently exposes deep membership
+         queries (`isIn`, `groupsOf`, `groups`, `statesIn`) but
+         no per-group history. Tracked for a follow-up if demand
+         surfaces.
+
+      Visualization (shipped): groups render as nested Graphviz
+      clusters where they form a nesting tree; genuinely
+      overlapping memberships render as bracketed chips on the
+      node label. `render_groups: 'cluster' | 'chips' | 'off'`
+      selects the convention.
+
+      Notation recommendation: extend the existing `NamedList`
+      grammar rather than introducing parallel syntax. Today
+      `&foo : [a b c];` declares a label list used only as a
+      fan-out transition target; the group concept is the same
+      construct with a wider semantic surface. So:
+
+      ```
+      &busy : [loading saving];            ← declaration
+      &busy 'CANCEL' -> idle;              ← transition from group
+      state &busy : { color : amber; };    ← group default metadata
+      on enter &busy do ...;               ← group boundary hook
+      foo -> &mylist;                      ← group as fan-out target
+      machine.isIn('busy');                ← runtime query
+      ```
+
+      Keep `:` (consistent with every other "name : value"
+      pair in FSL); require `&` at all reference sites
+      (disambiguates group names from state names — `&busy
+      'CANCEL' -> idle` is unambiguous, where `busy 'CANCEL'
+      -> idle` could mean either a state or a group). The
+      alternative `&group = [...]` notation was considered but
+      rejected: introducing `=` as a new separator costs
+      uniformity, and the visual-distinction benefit is small.
+      One declaration syntax, four reference-site usages,
+      minimal grammar change.
+
+      Uniquely defensible: no major state-machine library has
+      overlapping groups, and XState structurally can't add
+      them without rewriting its hierarchical-tree assumption.
+      Pairs with the "do something XState structurally can't
+      do" framing for the canonical comparison article.
+
+- [ ] **FSMs as machine data members** `[architectural]` — allow
+      a `property` slot to hold another machine instance as its
+      value, so a machine can compose nested machines as part of
+      its state. Grammar extension is small (a new `machine`
+      property type joining the existing `String`, `Boolean`,
+      `JsNumericLiteral`, `Null`, `Undefined` set in
+      `PropertyVal`):
+
+      ```
+      property dataLink machine;
+      property worker default sm`idle 'start' -> running;
+                                  running 'done' -> idle;`;
+      ```
+
+      Use cases:
+      - **Multi-FSM systems with shared identity.** A connection
+        machine contains its data-link as a property; both are
+        part of one logical machine but each has its own
+        independent FSM semantics. Closes most of the residual
+        gap from the now-smaller "Multiple concurrent states"
+        item below.
+      - **Per-instance state.** A list machine where each item
+        carries its own state machine — modeled as an array
+        property whose elements are themselves machines.
+      - **Optional sub-systems.** A media-player machine with an
+        optional captions sub-machine that may or may not be
+        present.
+      - **Composition over inheritance.** Build complex
+        behaviour by composing simpler machines rather than by
+        extending one large machine — same architectural posture
+        as React component composition vs. class inheritance.
+
+      Combined with **overlapping groups** (above) plus
+      **group-level entry/exit hooks**, this covers ~all of what
+      XState uses parallel states for, *without adding parallel-
+      region grammar*. The "Multiple concurrent states"
+      architectural item is therefore likely subsumed by this
+      one in combination with groups — worth re-evaluating its
+      tier once these two land.
+
+      Design questions to settle:
+
+      1. **Lifecycle ownership.** When does a child machine
+         start? When the parent is constructed; can be reset via
+         API. Child machine lifetime is bounded by parent's.
+
+      2. **Event routing.** Do events fired on the parent
+         propagate to child machines? Default: no — explicit
+         `machine.get('child').go(...)`. Optional opt-in for
+         event forwarding via a hook so users who want
+         broadcast-style propagation can express it.
+
+      3. **State queries and serialization.** `machine.state()`
+         returns the parent's current state. To snapshot the
+         whole tree, add `machine.fullState()` which walks the
+         property tree and returns a serializable record of
+         every nested machine's state. Inverse: `machine.load
+         (snapshot)` rehydrates.
+
+      4. **History composition.** Each machine has its own
+         history buffer. Parent does not see child transitions
+         in its own history. Replay reproduces each machine's
+         history independently — accept this loses cross-
+         machine ordering for true synchronous replay (rare
+         need; document the trade-off).
+
+      5. **Visualization.** Child machines render as nested
+         cluster regions in the parent's diagram, with a
+         labelled boundary indicating the property name. Visually
+         resembles Harel-statechart nesting even though
+         semantically it's composition, not hierarchy. Closes
+         the visual-organization concern that parallel states
+         would otherwise address.
+
+      6. **Type safety.** Once the FSL → TypeScript typegen item
+         lands, child machine types should propagate through the
+         parent's property typing — `machine.get('worker')` is
+         typed as the worker machine type, not as an opaque
+         value.
+
+      Heads-up on naming: XState's equivalent is `invoke`
+      (spawning child actors). The semantic shape here is
+      similar but more declarative — child machines are *data*
+      members rather than *invoked actors*, which fits jssm's
+      property-shaped state philosophy and avoids importing the
+      actor-model vocabulary unless that's actually wanted.
+
+- [ ] **States as objects rather than strings** `[architectural]` —
+      makes inheritance, hierarchy, and state-associated data (e.g.
+      walking-state with frame#) easier; makes the underlying impl much
+      harder. Per `@burny`'s original suggestion.
+- [x] **State subtypes** `[done]` — subsumed by **Overlapping state
+      groups** (shipped). A group used as a categorical label
+      (`&Paid : [Premium];`, queried via `isIn` / `groupsOf`) covers
+      the state-subtype / categorical-labelling use cases without a
+      states-as-objects rewrite.
+- [x] **Hierarchical states** `[done]` — subsumed by **Overlapping
+      state groups** (shipped). Nested groups (`&outer : [&inner …]`)
+      give shared-behaviour-across-states and depth-ordered metadata /
+      transition cascade — the hierarchy use cases — generalized to
+      non-tree (overlapping) membership. The Harel-rendering motivation
+      is now served by cluster rendering (`render_groups: 'cluster'`);
+      true Harel statechart *export* remains a separate render-target
+      item under Render targets.
+
+## Grammar bugs
+
+Surfaced by `notes/fsl-grammar-reference.md` while cataloguing the
+parser. Each is concrete and isolated.
+
+- [x] **`OctalDigit` accepts only `[0-1]`** `[done]` — fixed; now
+      `[0-7]`. Regression tests in
+      `src/ts/tests/grammar_regressions.spec.ts` verify `0o27 === 23`
+      and that `0o8`/`0o9` are still rejected.
+- [x] **`machine_reference` is parsed but unwired** `[done]` — added
+      to the `MachineAttribute` alternation. Surprise: the runtime was
+      already fully wired (`jssm_compiler.ts:297, 385, 417, 481`), so
+      only the grammar exposure was missing. Regression tests cover
+      single-label, label-list, and quoted-string forms.
+- [x] **`Whitespace` named rule is dead code** `[done]` — pruned.
+      Regression test asserts the orphan rule cannot return.
+- [x] **`SdStateLabel` mislabeled in error messages** `[done]` —
+      display name corrected from `"color"` to `"label"`. Regression
+      test asserts the correct `.peg` source label.
+
+## fsl.tools site
+
+- [ ] **Replace the bespoke renderer widget with the official one**
+      `[straightforward]` — when the time comes. `src/fsl.tools/site/`
+      currently ships a hand-rolled SVG graph renderer
+      (`scripts/build.cjs#renderGraph` for the static cookbook,
+      `components/CookbookGraph.jsx` for the homepage SPA) so the site
+      can render graphs without dragging the full `jssm/viz` pipeline
+      in at build time. Once `jssm/viz` is the right tool for both
+      surfaces, swap the bespoke widget out so the cookbook and the
+      rest of the ecosystem stay visually consistent.
+
+- [ ] **Evolve the cookbook into the best state-machine learning
+      resource on the internet** `[medium]` — not the best *jssm*
+      learning resource, the best resource period. Recipes that
+      teach concepts (debouncing, retry-with-backoff, multi-step
+      forms, optimistic UI, circuit breakers) where FSL happens to
+      be the syntax. People landing for the *concept*, learning
+      it, and discovering FSL as the format that makes it readable.
+      XState's docs almost do this but stop at XState-first
+      framing. The cookbook generator and recipe format are
+      already in place; the work is content depth and breadth,
+      plus a concept-led categorisation/learning-path overlay.
+
+- [ ] **Move the jssm website to `fsl.tools/jssm`** `[medium]`
+      — consolidate the URL story so `fsl.tools/` is the
+      umbrella language site and `fsl.tools/jssm/` hosts the
+      JS-implementation documentation specifically. The
+      current arrangement has the ecosystem hierarchy
+      inverted: the jssm site lives at
+      `stonecypher.github.io/jssm/`, with the fsl.tools site
+      currently at `stonecypher.github.io/jssm/fsl.tools/` —
+      meaning the *language brand* (`fsl`) is a sub-path of
+      *one specific implementation* (`jssm`), when
+      conceptually the implementation should sit under the
+      language.
+
+      Target URL hierarchy:
+      ```
+      fsl.tools/                  — umbrella landing for the
+                                    FSL language ecosystem
+      fsl.tools/jssm/             — current jssm site,
+                                    moved here
+      fsl.tools/cookbook/         — already at this path;
+                                    no move needed
+      fsl.tools/jssm-py/          — future Python port
+      fsl.tools/jssm-rs/          — future Rust port
+      fsl.tools/jssm-go/          — future Go port
+      fsl.tools/jssm-cpp/         — future C++ port
+      ```
+
+      Implementation work:
+      - Restructure the `site` and `docs` npm-script
+        outputs so docs land in `docs/fsl.tools/jssm/`
+        rather than `docs/`. The CloudFront origin then
+        serves `fsl.tools/` from the new root.
+      - Set up 301 redirects from `stonecypher.github.io/
+        jssm/*` to `fsl.tools/jssm/*` so existing inbound
+        links survive (Google Search Console results, blog
+        references, npm-package "homepage" links, etc.).
+      - Update `package.json#homepage` to point at the new
+        canonical location.
+      - Update README badges and links throughout.
+      - Generate a unified sitemap covering the umbrella
+        site.
+      - Add `<link rel="canonical">` tags to migrated
+        pages so search engines transfer SEO equity to the
+        new URLs.
+
+      SEO concerns:
+      - Existing jssm SEO equity transfers via 301 redirects;
+        Google handles the move cleanly if redirects are in
+        place at crawl time. Submit an updated sitemap via
+        Search Console to accelerate.
+      - The XState-comparison and other inbound search
+        traffic flows mostly via README → npm → site, so
+        update each link surface in coordinated order to
+        keep the funnel intact.
+      - Some inbound blog posts permanent-link the old
+        URLs; the 301s handle them indefinitely.
+
+      Strategic implications:
+      - Reinforces the "FSL is the portable lingua franca"
+        story. New users land on `fsl.tools/` and see the
+        language first, then pick an implementation.
+      - Unblocks the per-language-port architecture: the
+        `jssm-py` / `jssm-rs` / etc. ports each get a
+        natural URL sub-path without re-debating the URL
+        question per port.
+      - Cookbook URL stays unchanged (`fsl.tools/cookbook/`),
+        so existing cookbook bookmarks survive without
+        redirects.
+
+      Pairs with:
+      - The cross-language codegen targets under Code-
+        generation-targets — those ports are the consumers
+        of the per-port URL sub-paths.
+      - The "Centralize examples, demos, and shootouts for
+        cross-site reuse" item under Shared content
+        infrastructure — centralized examples render
+        differently under each per-port sub-path.
+      - The "Begin to internationalize the websites" item
+        under Marketing and SEO — the i18n directory
+        structure (`fsl.tools/<lang>/jssm/`) interacts with
+        the per-port structure and is cheaper to design
+        once than retrofit twice.
+
+## In-GitHub support
+
+Making jssm and FSL feel native within GitHub's surfaces —
+syntax highlighting in repos, auto-rendering in markdown,
+linter bots in pull requests, Actions for CI workflows.
+Each is a discrete integration with GitHub's platform; the
+leverage is high because GitHub is the dominant source of
+FSL code (in repos), of FSL prose (in READMEs, issues, PR
+descriptions), and of FSL discovery (via Code Search,
+trending, etc.). Cross-references issue #15 ("Try to get
+into GitHub both as a source and as a rendered language")
+and #409 ("Github Linguist") in the StoneCypher/fsl
+tracker.
+
+- [ ] **Get FSL into github-linguist** `[medium]` —
+      register FSL as a recognized language with
+      github-linguist so `.fsl` files get syntax
+      highlighting in repo views, PR diffs, gists, GitHub
+      Code Search, file tree icons, and the language-
+      breakdown bar on repo home pages. Requires a
+      submission to the `github/linguist` repo with: a
+      TextMate grammar (already in the TODO under Language
+      tooling → Committed), sample `.fsl` files at
+      multiple complexity levels, and demonstration of
+      sufficient usage (Linguist's threshold is
+      historically ~200 unique repositories with the
+      language; reach this organically via the Get-bundled
+      and starter-template items, or surge via outreach).
+      Once accepted, FSL appears in GitHub's language
+      dropdowns, file pickers, and Code Search filters.
+      Pairs with the TextMate grammar work (same artifact
+      consumed by Linguist).
+
+- [ ] **Get FSL into GitHub's renderable-block whitelist**
+      `[hard]` — pursue Mermaid-style auto-rendering of
+      FSL code blocks in markdown so every \`\`\`fsl block
+      in any README, issue, PR comment, or discussion
+      renders as a state-machine diagram automatically.
+      GitHub adds new renderable languages slowly and
+      selectively (mermaid 2022, geojson ~2014, mathjax/
+      latex 2022, ascii-stl earlier); requires
+      demonstrating substantial real usage first, then
+      formal outreach. Long-term goal that compounds when
+      achieved — every shared FSL machine becomes
+      self-documenting in any GitHub context, which is
+      transformational for discovery and onboarding.
+      Realistic timeline: after the in-linguist work
+      lands plus a year or two of organic adoption.
+
+- [ ] **GitHub App: FSL bot for PR linting and rendering**
+      `[medium]` — a GitHub App that, when installed on a
+      repo, watches PRs for `.fsl` files or `sm\`...\``
+      template literals, lints them via fsl-lint, comments
+      with rendered SVG diagrams via jssm/viz, flags
+      broken transitions, and surfaces lint warnings
+      inline as PR review comments. Distinct from
+      jssm-viz-action (which runs on every commit and
+      writes back to the repo); the App runs on PR open /
+      synchronize / reopen and posts as a bot user. Builds
+      visibility every time a contributor encounters an
+      FSL change in a PR they're reviewing. Ships either
+      as a public app on the GitHub Marketplace or as a
+      self-hosted reference implementation.
+
+- [ ] **GitHub Actions ecosystem for FSL** `[medium]` —
+      a coherent collection of actions covering common
+      FSL workflows:
+      - `jssm-viz-action` — render diagrams on commit
+        (already exists; needs continued maintenance,
+        see related items in the issue tracker #227, #228,
+        #233).
+      - `fsl-lint-action` — lint FSL files on PR; fail
+        the build on lint errors.
+      - `fsl-test-action` — run model-based tests
+        (depends on the Test framework for machines
+        item under Language tooling).
+      - `fsl-codegen-action` — run cross-language codegen
+        to emit target-language source files (depends on
+        the cross-language codegen item under Code-
+        generation targets).
+      - **Starter workflow template** — a one-click
+        "Add jssm CI" entry in GitHub's New Workflow
+        page under the Suggested for this repo section.
+        Requires submitting a starter workflow YAML to
+        `actions/starter-workflows`.
+
+      Each action is small in isolation; their value is
+      cumulative — a repo with all four can ship FSL with
+      lint, test, viz, and codegen running on every PR.
+
+- [ ] **Native rendering in GitHub Issues and Discussions**
+      `[straightforward]` — separate from the
+      markdown-block whitelist (the bigger goal): support
+      FSL via the *Bot-comment-with-rendered-image*
+      pattern as a stopgap. The bot watches Issues and
+      Discussions for `\`\`\`fsl` blocks, posts a follow-up
+      comment with the rendered SVG (or PNG), and updates
+      its own comment on edits. Lower bar to ship than the
+      whitelist; covers the same visibility win for the
+      Issues / Discussions / Wiki surfaces specifically.
+
+## Shared content infrastructure
+
+- [ ] **Centralize examples, demos, and shootouts for cross-site
+      reuse** `[medium]` — example content currently scatters across
+      `src/demo/` (main jssm site), `src/fsl.tools/site/recipes/`
+      (cookbook), the language-shootout comparisons, and ad-hoc
+      snippets in the README. Extract them into a single canonical
+      source so the main jssm site, fsl.tools, and future per-
+      language implementation sites (jssm-py, jssm-rs, jssm-go, etc.)
+      can all consume the same content rather than each maintaining
+      its own copy. Format must be language-agnostic enough that a
+      non-JS site can render it — the existing recipe-file shape in
+      `src/fsl.tools/site/recipes/` with a `language` (or target-
+      implementation) tag axis added is the natural starting point.
+      Open design questions: where lives canonical (a top-level
+      `examples/` sibling to `src/`? a separate sibling repo so the
+      Python and Rust ports can vendor it without pulling all of
+      jssm?), how each site declares which examples it surfaces, and
+      how translations of prose (problem statements, notes) are
+      managed when the same example renders FSL → JS, FSL → Python,
+      FSL → Rust.
+
+## Integration targets
+
+These six items capture how `<jssm-machine>` (see "Web Components
+renderer" under Core machine features) reaches each major class of
+consuming environment. Per-target wrapper effort is small; the
+leverage comes from coverage breadth as a marketing artefact and
+from each placement compounding into a slot in starter templates,
+documentation, and search results. Deprecated engines (MSHTML,
+EdgeHTML, UIWebView, Servo, etc.) deliberately omitted; the
+non-DOM exceptions are split out into the terminal-rendering and
+engine-port items below.
+
+- [ ] **Browser-DOM frameworks via WC + flimsy wrappers**
+      `[medium]` — ship a `<jssm-machine>` Lit web component and
+      one lightweight per-framework wrapper as needed. Wrapper
+      effort is bounded: most frameworks need zero, a few need
+      ~10 lines, Angular needs ~30 per component. Native-
+      consumption targets (the WC works with just an `import`):
+      vanilla / plain HTML, React 19+, Preact, Inferno, Vue 3,
+      petite-vue, Svelte 3 / 4 / 5, SvelteKit, SolidJS, Lit, FAST,
+      Stencil, Atomico, Hybrids, Qwik, Mithril, Marko, Riot.js,
+      Hyperapp, Alpine.js, HTMX, Stimulus, µce, uhtml, omijs,
+      san.js, choo, Aurelia 2. Light-wrapper targets (auto-
+      generated via `@lit-labs/react` or equivalent): React 16 /
+      17 / 18, Million.js, Vue 2 (legacy LTS), Ember Octane,
+      Aurelia 1, nervjs. Heavier-wrapper targets (custom directive
+      + change-detection bridge): Angular 2+, AngularJS 1.x.
+      Sequencing: WC + React-19-native + Vue 3 first (largest
+      audience), Angular wrapper second (enterprise demand), the
+      rest in response to filed issues.
+
+- [ ] **SSR and headless-browser environments**
+      `[straightforward]` — the WC works automatically through
+      any server that emits HTML and any headless browser running
+      Chromium / WebKit / Gecko. No per-target wrapper code
+      required, but the hydration path and the OG-image
+      generation path both deserve example integrations plus a
+      "yes this works" smoke test: React SSR (`renderToString`,
+      `renderToPipeableStream`, React Server Components), Vue
+      SSR, Svelte SSR, SolidJS SSR, Lit SSR (`@lit-labs/ssr`),
+      Preact SSR, Qwik SSR, Puppeteer, Playwright, Selenium
+      WebDriver. For dynamic OG-image generation specifically,
+      Satori is the dominant tool but doesn't execute JS — see
+      the separate Satori-based-OG-card item under Marketing
+      and SEO.
+
+- [ ] **Static-site-generator compatibility matrix** `[trivial]`
+      — every SSG that outputs HTML automatically supports the
+      WC because the tag passes through to the final page.
+      No wrappers needed; ship a tiny demo per generator plus a
+      published compatibility table. Coverage: Astro, Eleventy,
+      Hugo, Jekyll, Hexo, Zola, Pelican, Cobalt, Gatsby (via
+      React wrapper), Next.js (SSG mode), Nuxt (static
+      generation), SvelteKit (prerender), Gridsome, VuePress,
+      VitePress, Slidev, Docusaurus, Nextra, Docsify, GitBook,
+      MkDocs, MkDocs Material, Sphinx, mdBook, Storybook (tier
+      follows chosen framework).
+
+- [ ] **Embedded-WebView compatibility matrix** `[trivial]` —
+      every modern WebView runs the WC unchanged. Worth
+      confirming, smoke-testing, and documenting for the long
+      tail of "I want to use jssm inside my Electron app / Tauri
+      app / mobile-WebView / smart-TV / VR" scenarios. Coverage:
+      CEF, Electron, NW.js, WebView2, Tauri, Wails, Neutralino,
+      Cordova / Capacitor, Ionic, iOS WKWebView, Android WebView,
+      WPE WebKit, WebKitGTK, Safari Mobile, Chrome for Android,
+      Firefox for Android, Samsung Internet, Opera Mobile, Brave
+      Mobile, DuckDuckGo Browser, Tizen, webOS, Fire TV browser,
+      Meta Quest browser, visionOS Safari, Pico browser.
+
+- [ ] **Game-engine integrations** `[medium]` — game engines
+      that ship a WebView component can host `<jssm-machine>`
+      directly inside the game's UI layer. Useful for visualizing
+      AI behaviour trees, quest-state machines, input/control-
+      state diagrams, and tutorial flows where the developer
+      wants the same diagram in their docs AND in their in-game
+      debug overlay. Target list:
+      - **Unreal Engine** — built-in Web Browser Widget
+        (CEF-based); drop the WC tag into the widget's URL.
+        Works on Windows / Mac / Linux desktop targets; mobile
+        WebView support varies.
+      - **Unity** — multiple options: UnityWebView (free,
+        community-maintained), Vuplex 3D WebView (commercial,
+        professional support), Unity's native platform WebView
+        for mobile builds, Cordova-style hybrid plugins.
+      - **Godot** — third-party WebView plugins
+        (`gdscript-webview`, `godot-cef`). Godot 4 has improving
+        first-party HTML5 export but no built-in WebView yet;
+        watch for that to change.
+      - **Native web game engines** (already in a browser, no
+        engine-specific work — ship example integrations and
+        templates rather than wrappers): PlayCanvas, Three.js,
+        Babylon.js, Phaser, Construct 3, GameMaker HTML5,
+        RPG Maker MV / MZ.
+      - **Narrative engines** (output HTML, host any WC): Twine,
+        Inkle Ink, ChoiceScript-with-web-export. Pairs
+        naturally with state-machine-driven story branching;
+        good demo material for the cookbook.
+
+- [ ] **Terminal rendering — ASCII + interactive TUI** `[medium]`
+      — non-DOM, non-WC; this is a *sibling* renderer to the web
+      component, not a wrapper around it. The jssm engine is
+      pure JS and runs in Node fine; the renderer is what
+      changes.
+      
+      Two artefacts:
+      
+      (a) **Static ASCII renderer**, exposed as a flag on the
+      visualization CLI (e.g. `jssm-viz --ascii`). Takes FSL,
+      outputs box-drawing-character art (`┌─┐│└─┘`) plus ANSI
+      colour for the current state. Static one-shot output;
+      pipes cleanly into README.md, error messages, CI logs,
+      git commit bodies, chat threads, plain-text email, and
+      anywhere else monospaced text travels. High-leverage
+      because ASCII diagrams are the most portable possible
+      visualization format — they render in code review, in
+      `cat`, in `less`, in `git log`. Layout algorithm can
+      borrow the level-based approach from `graph-easy` (the
+      canonical Perl ASCII-graph tool); ASCII-art graph layout
+      is a well-understood problem with 25+ years of prior art.
+      Also valuable for *error messages* — a failed transition
+      could include an ASCII rendering showing where the user
+      tried to go and why it's not legal.
+      
+      (b) **Interactive TUI component**, built on Ink (Vadim
+      Demedes' React-for-CLIs library). `import { Machine } from
+      '@jssm/ink'` and embed in any Ink-based CLI to get a live
+      diagram with keyboard-triggered transitions; current state
+      highlighted, transitions enabled/disabled by
+      `machine.actions()`. Effectively a state-machine debugger
+      in a terminal. Architecturally a peer of the WC: same
+      engine, platform-specific renderer.
+      
+      Pairs with the cookbook (terminal demos of recipes) and
+      with the eventual gitbook (printable ASCII versions of
+      every diagram, so the book reads on Kindle / paper / any
+      monospace-text context).
+
+- [ ] **AI hosts (chat and artifact surfaces)**
+      `[straightforward]` — modern LLM products increasingly
+      provide sandboxed HTML-rendering surfaces alongside the
+      conversation: Claude Artifacts, ChatGPT Canvas, Gemini's
+      preview pane, Mistral Le Chat artifacts, et cetera. These
+      are Chromium-based browser sandboxes that should run the
+      `<jssm-machine>` WC unchanged. Coverage is mostly
+      verification + documentation, similar in shape to the SSG
+      matrix item above. Targets:
+      - **Claude / claude.ai** — Artifacts; verify the WC works,
+        provide a "share FSL with Claude" guide, ship a Claude
+        Skill for FSL authoring help.
+      - **ChatGPT** — Canvas; same verification + guide.
+      - **Gemini** — currently more limited HTML surface; track
+        as it grows. Workspace and Gems also have rendering.
+      - **Mistral Le Chat** — has Artifacts.
+      - **Microsoft Copilot** — varies by host product
+        (Word/Excel/Teams/Edge sidebar/etc.).
+      - **Perplexity** — Pages feature; primarily article-shaped
+        rather than canvas-shaped.
+      - **xAI Grok** — has some artifact rendering.
+      - **DeepSeek Chat**, **Qwen Chat**, **Kimi**, **Doubao**,
+        **Yi**, **Moonshot** — Chinese-market hosts with
+        varying artifact support; growing fast.
+      - **Local model UIs** — Open WebUI (the common Ollama
+        shell), LM Studio, Jan, HuggingChat, Anything LLM, GPT4All.
+        Each has its own rendering policy; verify per host and
+        document.
+
+      The WC works in each by virtue of running in a browser;
+      the value is making sure users know it works and giving
+      them shareable workflows. Pairs naturally with the
+      "Plant the flag on AI/agent tooling" item under Marketing
+      and SEO — being the state-machine library that LLMs
+      visualize natively in chat is the kind of demo that
+      compounds, especially for the "show me an FSL diagram"
+      use case where the user pastes FSL into the chat and the
+      host renders it inline.
+
+- [ ] **AI agents and coding harnesses** `[medium]` —
+      different in shape from the AI-host artifact surfaces
+      above: agents *execute code*, call tools, and manipulate
+      files. The integration story has four distinct shapes:
+
+      1. **MCP-server consumers.** Anything that speaks the
+         Model Context Protocol can call jssm-specific tools
+         exposed by the MCP server item under Language tooling.
+         Coverage grows automatically as MCP adoption grows:
+         Claude Code, Claude Desktop, Cursor, Cline, Codex,
+         Goose, OpenCode, the Anthropic Agent SDK, the IBM Bee
+         Agent Framework, Continue, and a growing list. One
+         MCP server implementation, every MCP host benefits.
+
+      2. **Agentic IDEs with code-intelligence surfaces.**
+         Cursor, Continue, Cody (Sourcegraph), Windsurf
+         (Codeium), GitHub Copilot Chat, Zed AI, JetBrains AI
+         Assistant. These consume the LSP server item under
+         Language tooling for completions, hovers, and
+         diagnostics on FSL inside `.ts`/`.js` files. Same
+         investment as the editor-LSP push, broader audience
+         because LLM-driven coding workflows lean heavily on
+         these IDEs.
+
+      3. **Agent frameworks that need a state-machine
+         substrate.** LangGraph, CrewAI, Mastra, Vercel AI
+         SDK's agent layer, Pydantic AI, Smolagents
+         (HuggingFace), Inngest agent flows, AutoGen, Bee Agent
+         Framework. These frameworks orchestrate multi-step
+         agent workflows; many implement their own ad-hoc
+         state-machine layer for the workflow graph. jssm-as-
+         substrate is a natural fit: framework authors can
+         adopt jssm for their internal workflow-orchestration
+         primitive rather than reinventing FSM logic. Reach out
+         to maintainers as part of the AI/agent flag-planting
+         work; the win is "jssm powers agent framework X's
+         workflow orchestration" as a credibility signal.
+         LangGraph in particular is *literally* a state-machine-
+         shaped agent orchestrator with a less ergonomic DSL
+         than FSL — the most compelling outreach target.
+
+      4. **Sandboxed code-execution agents.** Anthropic Computer
+         Use, OpenAI's Operator, Replit Agent, E2B, Daytona.
+         These run actual JS/TS/Python/etc. in cloud or local
+         sandboxes; jssm works wherever Node or a browser is
+         reachable. No engineering integration needed —
+         coverage by virtue of being a normal library on npm.
+         The work here is *examples and demo materials* that
+         show jssm being used by an agent in a sandbox, not
+         engineering work.
+
+      The strategic prize across all four shapes: state
+      machines are how serious agentic systems get built
+      (deterministic transitions, auditable decisions, formal
+      reachability, structured failure recovery). jssm's
+      compactness makes it uniquely well-suited as the
+      substrate — an FSL string is the *only* state-machine
+      notation that LLMs can read, write, and modify
+      comfortably; XState's nested-object syntax is
+      structurally less LLM-friendly. This category is where
+      the AI-positioning item under Marketing and SEO actually
+      cashes in: winning here shapes the "what library should
+      this agent's state layer use" decision before the
+      agent-tooling space settles around an incumbent.
+
+## Project maintenance
+
+- [ ] **Sweep the GitHub issue list** `[straightforward]` — triage the
+      open issues at `github.com/StoneCypher/jssm/issues`: close stale
+      ones, label and prioritize the rest, and roll anything still
+      live into this TODO so it's not invisible.
+
+- [ ] **Render the in-repo example machines via the image CLI**
+      `[trivial]` — once the Visualization CLI lands, dogfood it on
+      the `src/machines/*.fsl` examples (`issue trees.how a company
+      can show profitability`, `extensive states of matter`,
+      `problem_solving_flowchart`, `sequential_function_chart`,
+      `should_you_use_twitter`, `why_i_broke_my_wrist`, etc.).
+      Outputs become a "gallery" page on fsl.tools showing what
+      real-world FSL machines look like rendered. Free content,
+      dogfoods the CLI on machines that already exist in the repo,
+      and surfaces the issue-tree examples as a distinct sub-genre
+      worth naming and promoting separately — issue trees are a
+      named consulting/strategy technique and FSL is unusually
+      well-suited to writing them as text, which is a discovery
+      angle the README doesn't currently mention. Pairs with the
+      Visualization CLI item under Language tooling → Committed.
+
+- [ ] **Build out stochastic / property-based test coverage**
+      `[medium]` — the project's stochastic test infrastructure
+      is set up (`jest-stoch.config.cjs` runs, `fast-check` is
+      in `devDependencies`, the `audit` script flags
+      `STOCHABLE` markers in source, `npm run jest-stoch` is
+      wired into `npm run jest`) but the population of tests is
+      essentially empty:
+
+      - `src/ts/tests/seq.stoch.ts` — covers only the `seq(N)`
+        utility function, not a language feature.
+      - `src/ts/tests/arrange.stoch.ts` — *placeholder file*
+        with a single `expect(1).toBe(1)` test. The `import { sm }`
+        line is commented out. No actual `arrange`-feature
+        stochastic tests are written.
+
+      Cross-referenced against the 14-section FSL grammar
+      reference (`notes/fsl-grammar-reference.md`), **zero of
+      the grammar's sections have real stochastic test
+      coverage**. Property-based testing is uniquely well-
+      suited to a grammar-based DSL:
+
+      - Generate random valid FSL strings, parse them, verify
+        round-trip equality after format → reparse.
+      - Generate random machines, walk them via random event
+        sequences, verify invariants (no transition produces
+        an undefined state; transitions only fire from the
+        current state's exit set; etc.).
+      - Generate random transition tables, fuzz over arrow-
+        decoration order-independence to confirm the
+        already-fixed "any-order" behaviour holds under
+        permutation.
+      - Generate random colour / shape / numeric inputs near
+        lexical boundaries to catch parser edge cases (the
+        `OctalDigit` bug fixed recently is exactly the shape
+        of issue a fuzzer would have caught years earlier).
+
+      Suggested phasing: start with arrow-decoration property
+      tests (small surface area, high regression value),
+      expand to numeric-literal lexical edges (the
+      historically buggiest area), then transition-graph
+      invariant tests (highest functional value). Treat the
+      `arrange.stoch.ts` placeholder as the first slot to fill.
+      Pairs with the Test framework for machines item under
+      Language tooling — that one is model-based testing of
+      *user* machines; this one is property-based testing of
+      *the grammar itself*.
+
+## Marketing and SEO
+
+- [ ] **Write a gitbook for SEO** `[medium]` — long-form hosted book
+      covering state machines as a concept, FSL as the syntax, and
+      jssm as the runtime. Targets search visibility for state-
+      machine *learning* queries ("how do state machines work",
+      "finite state machine tutorial", "when to use a state machine
+      in JS", etc.) rather than jssm-specific queries — pulls in
+      developers who don't yet know jssm exists. Distinct from the
+      cookbook (recipes for existing users) and from the typedoc-
+      generated reference docs (API surface): this is the
+      "concept + tutorial + comparison" tier that the other two
+      deliberately omit. Gitbook ranks unusually well on technical-
+      tutorial queries, so the format itself is part of the SEO play,
+      not just a content choice.
+
+- [ ] **Write the canonical jssm-vs-everyone comparison piece**
+      `[straightforward]` — one essay-length article ("I built six
+      apps with six state machine libraries — here's the unvarnished
+      truth"), honest about every library's strengths and failure
+      modes, framed as a critical review rather than marketing.
+      Becomes the citation that "Top N state machine libraries"
+      listicles point to, which is the actual mechanism by which
+      mindshare moves in this space. One weekend of writing pays
+      dividends for years.
+
+- [ ] **Pin "state machines you can actually read" as the single
+      vivid claim** `[trivial]` — strategic copywriting exercise:
+      every public surface (README, npm page, fsl.tools homepage,
+      typedoc landing) leads with one consistent positioning line.
+      Strongest contender is *"state machines you can actually
+      read"* because the DSL legibility is the genuine
+      differentiator and no competitor can match it without
+      rewriting. Indie OSS libraries that own one vivid claim
+      outperform those that offer four diffuse ones (Robot3 =
+      "tiny", XState = "statecharts in JS", Redux = "predictable
+      state container"); jssm currently lacks one.
+
+- [ ] **Plant the flag on AI/agent tooling as jssm's wave**
+      `[medium]` — promote the MCP-server work (currently mid-list
+      under Language tooling) into a headline positioning story.
+      State machines are exactly the right primitive for agent
+      control flow: deterministic transitions, auditable
+      decisions, formal reachability. LLMs read FSL natively in a
+      way they can't quite read XState's nested object syntax.
+      The field has no entrenched winner yet, and XState's design
+      is structurally less LLM-friendly. Viral-shaped demo
+      target: Claude inspects a running jssm machine via MCP,
+      proposes a new transition, generates the FSL, validates
+      it, and hot-loads it. Pair the technical work with a
+      dedicated section in the eventual gitbook.
+
+- [ ] **Write LLM-consumer instructions** `[straightforward]` —
+      curate a canonical set of instructions that LLMs consume
+      when working with jssm/FSL, so models produce clean
+      idiomatic FSL on first try rather than approximating
+      with XState or hand-rolling switch statements. Likely
+      surfaces: `llms.txt` at the site root (the emerging
+      convention for LLM-discoverable site context),
+      `llms-full.txt` with the full grammar + canonical
+      patterns, an `AGENTS.md` at the repo root mirroring the
+      one already in `src/fsl.tools/`, a curated "writing FSL
+      with an LLM" cookbook recipe, and a short system-prompt
+      snippet users can paste into Claude/Copilot/Gemini
+      project settings. Open questions: whether to publish a
+      Claude Code skill / Cursor rule / Continue config as
+      first-class artifacts, and how to keep the instructions
+      synchronized with the grammar reference automatically.
+      Pairs with the AI/agent tooling positioning above and
+      with the MCP server item under Language tooling.
+
+- [ ] **Get jssm bundled into a high-traffic starter template**
+      `[medium]` — one distribution placement is worth roughly a
+      year of organic SEO. Targets in priority order: an Astro
+      state-management example, a Remix loader-with-machine
+      pattern, a Next.js form-wizard template, a Bun project
+      starter, the T3 stack. Doesn't need official endorsement —
+      just being the example in one widely-cloned template ships
+      jssm into every new project that uses that template. PR-
+      shaped work, low cost per attempt, high variance on which
+      lands.
+
+- [ ] **Submit to Awesome Lists** `[trivial]` — PRs to
+      `awesome-javascript`, `awesome-typescript`, `awesome-nodejs`,
+      `awesome-react`, and any state-machine-specific awesome
+      lists. Passive discovery channel, cheap to set up once,
+      compounds quietly over years.
+
+- [ ] **Sponsor third-party comparison-article authors**
+      `[straightforward]` — reach out to authors of recent "Top N
+      state machine libraries" or "XState alternatives" articles
+      where jssm is missing or under-described. Offer a paid demo,
+      a guest paragraph, or just a "you missed this" pitch with a
+      five-minute demo video. Those articles get organic traffic
+      for years; the marginal cost per article is small, the
+      cumulative visibility is large. Pairs with the canonical
+      comparison piece — your article becomes the artifact you
+      hand them.
+
+- [ ] **Dynamic per-page Open Graph cards** `[straightforward]`
+      — every shareable page on jssm's hosted properties (the
+      cookbook, the eventual gitbook, the main jssm docs site)
+      gets a unique OG image generated at build time that shows
+      the *content* of the page rather than a generic logo. For
+      cookbook recipes, the OG card shows the recipe's machine
+      diagram with the recipe title and a one-line description.
+      For gitbook chapters, the chapter title plus a
+      representative machine. For docs pages, a contextually
+      relevant diagram. When someone shares a link to one of
+      these pages on Twitter / Bluesky / Slack / Discord /
+      Mastodon / LinkedIn, the preview *shows the actual
+      content* — a much stronger signal than a generic site
+      logo, and unusually uncommon in the state-machine library
+      space (XState, Robot3, and every long-tail library show
+      generic branded cards). Compounds across thousands of
+      shares over time.
+
+      Implementation options (decision deferred to
+      implementation time):
+      - **Hand-rolled SVG + sharp** — generate SVG with the
+        existing `jssm/viz` pipeline, composite into an
+        OG-card template via SVG manipulation, rasterize via
+        `sharp`. Lowest-dependency option; uses tooling
+        already adjacent to the existing stack.
+      - **Satori + resvg-js** — Vercel's JSX→SVG renderer
+        plus a Rust-WASM rasterizer. Industry-default OG-card
+        stack in 2026; ergonomic JSX-flavoured templates;
+        not currently in jssm's dependencies but easy to
+        add. Worth installing for evaluation when this item
+        is picked up.
+      - **Headless Chromium (Puppeteer/Playwright)** —
+        render a real HTML page that includes the
+        `<jssm-machine>` WC, then screenshot. Heaviest path,
+        but the only one that uses the production renderer
+        directly with full visual fidelity.
+
+      Build-step integration: each generator is a one-shot at
+      build time, writes `*.og.png` siblings next to each
+      page's output, and the page HTML includes the
+      appropriate `<meta property="og:image" content="...">`
+      tag. Pairs with the multi-machine-input universal
+      contract: a recipe with multiple machines produces an
+      OG card showing all of them together (composed
+      visually within the 1200×630 frame), not just the
+      first one. Deployment via CloudFront + S3 (or any
+      static host) — the OG images are just static assets.
+
+- [ ] **Begin to internationalize the websites** `[medium]` — start
+      translating the jssm main site and the fsl.tools cookbook into
+      other languages. The English-speaking developer audience is a
+      small fraction of the JS dev world; Spanish, Mandarin,
+      Japanese, Korean, Portuguese, French, German, and Hindi all
+      have huge underserved populations whose state-machine docs are
+      currently English-only or machine-translated. Real i18n
+      unlocks SEO in those markets and meets non-English devs where
+      they read. Sequencing: cookbook recipes first (smallest,
+      highest-value unit of content), then reference docs, then the
+      eventual gitbook. Open design questions: who translates (paid
+      / community / LLM-with-human-review), how the build pipeline
+      structures language variants (subdirectories + `hreflang`
+      tags is the SEO-standard answer), and whether FSL keywords
+      themselves are localized — keeping English keywords with
+      translated prose is by far the smaller commitment and
+      probably the right v1 scope.
+
+- [ ] **Lean into XState's v4 → v5 transition window**
+      `[straightforward]` — XState's actor-model rewrite in v5
+      (2024) broke `@xstate/test`, broke several third-party
+      utilities, broke some IDE integrations, and forced v4
+      codebases to coexist with v5 ones for a year+. Stately is
+      rebuilding the v5 tooling but the gap is open *today* and
+      won't be forever. Truthful framing for the comparison
+      article, the gitbook, and any conference-talk pitches:
+      "jssm's tooling is being built additively on a stable
+      runtime; XState users are rebuilding their tooling to
+      match a runtime that just changed." This is a related
+      observation: jssm's tooling gap to XState is closable in
+      12–18 months of sustained work because most TODO items
+      under Language tooling are `[straightforward]` or
+      `[medium]`; the language gap (statecharts, parallelism,
+      context) is multi-year because it's `[architectural]`.
+      So for the next year, lean hard on the tooling story
+      ("complete toolchain: compactness + visualization +
+      cookbook + LSP + test framework + viz CLI + scaffolder")
+      and defer the statechart story until the architectural
+      work catches up. Time-sensitive — revisit in 12 months
+      and probably retire the framing once Stately's v5 tooling
+      stabilizes.
+
+## Notes
+
+- Difference between event and action: if an action isn't handled, it's
+  an error; if an event, meh. (Carried forward from `notes/do want.md`
+  for context — informs the test framework and language-spec items.)
+
+## Ordering rationale
+
+Rough credibility-per-effort ranking if starting over with no prior
+commitments. Descriptive, not prescriptive — the Committed list above
+reflects the actually-chosen order.
+
+1. Formatter — regret-avoidance; wanted on every contribution
+2. TextMate grammar — cheapest visibility multiplier in the toolchain
+3. Machine CLI + Visualization CLI — usable end-to-end story
+4. Linter + Static analyzer — quality floor
+5. Doc generator + Web playground — ecosystem amplifiers
+6. Test framework for machines — the differentiating capability
+7. MCP and LSP last — both benefit from having the other tools to expose

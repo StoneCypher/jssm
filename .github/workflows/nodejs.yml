@@ -1,148 +1,166 @@
 name: Full publish pipeline
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
 
 
 
-  unicode-atoms:
+  pr-check:
+
+    if: github.event_name == 'pull_request'
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v5
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
+    - name: npm install and ci_build (vet + test)
+      run: |
+        npm install && npm run ci_build
+      env:
+        CI: true
+
+
+
+  unicode-atoms:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
 
     - name: Check full unicode over atoms
       run: |
-        npm install && npm run make && npm run jest-unicode-atom
+        npm install && npm run prep && npm run vitest-unicode-atom
 
 
 
   unicode-strings:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over strings
       run: |
-        npm install && npm run make && npm run jest-unicode-string
+        npm install && npm run prep && npm run vitest-unicode-string
 
 
 
   unicode-atom-labels:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over atom labels
       run: |
-        npm install && npm run make && npm run jest-unicode-atom-label
+        npm install && npm run prep && npm run vitest-unicode-atom-label
 
 
 
   unicode-string-labels:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over string labels
       run: |
-        npm install && npm run make && npm run jest-unicode-string-label
+        npm install && npm run prep && npm run vitest-unicode-string-label
 
 
 
   unicode-actions:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Check full unicode over action statements
       run: |
-        npm install && npm run make && npm run jest-unicode-action
+        npm install && npm run prep && npm run vitest-unicode-action
 
 
 
   build:
 
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     strategy:
       matrix:
         include:
-          - node-version: 20.x   # fastest, so run first, to error fast
+          - node-version: 24.x   # fastest, so run first, to error fast
             os: ubuntu-latest
-          - node-version: 20.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
+          - node-version: 24.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
             os: macos-latest
-          - node-version: 20.x   # finish check big-3 on latest current
+          - node-version: 24.x   # finish check big-3 on latest current
             os: windows-latest
-          - node-version: 21.x   # check newest non-lts too
+          - node-version: 23.x   # check newest non-lts too
             os: ubuntu-latest
-          - node-version: 21.x   # check newest non-lts too
+          - node-version: 23.x   # check newest non-lts too
             os: macos-latest
-          - node-version: 21.x   # check newest non-lts too
+          - node-version: 23.x   # check newest non-lts too
             os: windows-latest
-          - node-version: 11.x   # lastly check just ubuntu on historic node versions because speed, oldest (slowest) first
+          - node-version: 20.x   # vitest 4 / rolldown require Node ^20.19 || >=22.12 — that engine gap is why 21.x is absent
             os: ubuntu-latest
-          - node-version: 12.x
-            os: ubuntu-latest
-          - node-version: 13.x
-            os: ubuntu-latest
-          - node-version: 14.x
-            os: ubuntu-latest
-          - node-version: 15.x
-            os: ubuntu-latest
-          - node-version: 16.x
-            os: ubuntu-latest
-          - node-version: 17.x
-            os: ubuntu-latest
-          - node-version: 18.x
-            os: ubuntu-latest
-          - node-version: 19.x
+          - node-version: 22.x
             os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
+    - name: npm install, build, and test (trimmed; full bundles+minify covered by pr-check and full-build)
       run: |
-        npm install && npm run ci_build
+        npm install && npm run ci_test
       env:
         CI: true
     - name: Coveralls GitHub Action
@@ -153,17 +171,83 @@ jobs:
 
 
 
-  benchmark:
+  full-build:
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v5
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
+    - name: npm install and full build (site, docs, cookbook, changelog, cloc, readme)
+      run: |
+        npm install && npm run build
+      env:
+        CI: true
+
+
+
+  deploy-docs:
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    needs: [full-build]
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # to force-push the built site to the gh-pages branch
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Build the site
+      run: |
+        npm install && npm run build
+      env:
+        CI: true
+
+    # Publish docs/ to gh-pages with plain git and the built-in GITHUB_TOKEN —
+    # no third-party action. A throwaway single-commit repo is created inside
+    # docs/ and force-pushed, so gh-pages always equals the current build.
+    # .nojekyll keeps GitHub Pages from dropping TypeDoc's _-prefixed assets.
+    - name: Publish docs/ to gh-pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        cd docs
+        touch .nojekyll
+        git init -q
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add -A
+        git commit -q -m "docs: publish site for ${GITHUB_SHA}"
+        git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:gh-pages
+
+
+
+  benchmark:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
 
     - name: Run the benchmarks
       run: |
@@ -173,15 +257,17 @@ jobs:
 
   verify-version-bump:
 
+    if: github.event_name == 'push'
+
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
 
     - name: Verify the version was bumped
       run: |
@@ -194,14 +280,27 @@ jobs:
 
   release:
 
-    if: (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
+    if: (github.event_name == 'push') && (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
 
-    needs: [build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
+    needs: [build, full-build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
 
     runs-on: ubuntu-latest
 
+    env:
+      AWS_GRAVITON_OIDC_ROLE: ${{ secrets.AWS_GRAVITON_OIDC_ROLE }}
+
+    # npm Trusted Publishing via OIDC.  Replaces the long-lived
+    # NPM_TOKEN secret with short-lived tokens that GitHub Actions
+    # exchanges with npm at publish time, scoped to this specific
+    # workflow run.  Requires a Trusted Publisher entry on the npm
+    # package settings page matching org=StoneCypher, repo=jssm,
+    # workflow=nodejs.yml.
+    permissions:
+      contents: write   # for actions/checkout, git push --tags, and create-release
+      id-token: write   # for OIDC token issuance to npm
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
     - name: Export tag to envvars
       run: |
@@ -209,75 +308,79 @@ jobs:
         echo "TAG=$TAG" >> $GITHUB_ENV
         echo $TAG
 
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v1
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
       with:
-        node-version: 18.x
+        node-version: 24.x
         registry-url: https://registry.npmjs.org/
 
     - name: Push tags
       run: git push origin --tags
 
-    - name: Create the release
-      uses: actions/create-release@v1
+    - name: Create or update the release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        if gh release view "${{ env.TAG }}" >/dev/null 2>&1; then
+          echo "Release ${{ env.TAG }} already exists; updating title and notes."
+          gh release edit "${{ env.TAG }}" --title "${{ env.TAG }}" --notes-file CHANGELOG.md
+        else
+          gh release create "${{ env.TAG }}" --title "${{ env.TAG }}" --notes-file CHANGELOG.md
+        fi
+
+    - name: Publish to npm (skip if version already on registry)
+      run: |
+        if npm view "jssm@${TAG}" version >/dev/null 2>&1; then
+          echo "jssm@${TAG} already published; skipping."
+        else
+          npm publish --provenance --access public
+        fi
+
+    # Fire-and-forget Graviton benchmark of the released version. Both steps are
+    # gated on the AWS OIDC role secret existing and are continue-on-error, so the
+    # release (already published above) never fails on a benchmark hiccup, and the
+    # whole thing no-ops until the AWS prerequisites are in place. The script only
+    # launches an EC2 that self-runs/publishes/terminates, then returns at once —
+    # the workflow does not wait on the runner. See notes/superpowers/graviton-ci-aws-setup.md.
+    - name: Configure AWS credentials (OIDC)
+      if: env.AWS_GRAVITON_OIDC_ROLE != ''
+      continue-on-error: true
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        tag_name: ${{ env.TAG }}
-        release_name: ${{ env.TAG }}
-        body_path: CHANGELOG.md
+        role-to-assume: ${{ env.AWS_GRAVITON_OIDC_ROLE }}
+        aws-region: us-east-1
 
-    - name: Publish to npm
+    - name: Fire Graviton benchmark of the released version (non-blocking)
+      if: env.AWS_GRAVITON_OIDC_ROLE != ''
+      continue-on-error: true
       run: |
-        npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.JSSM_PUBLISH_TOKEN_FOR_GH_CI_CD }}
+        node src/scripts/graviton_perf.cjs --detached --release "${TAG}" --commit "${GITHUB_SHA}"
 
-    - name: Tweet notice
-      run: |
-        npm install && node ./src/buildjs/tweet.cjs
-      env:
-        JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
-        JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
-        JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
-        JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
-        TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+    # - name: Tweet notice
+    #   run: |
+    #     npm install && node ./src/buildjs/tweet.cjs
+    #   env:
+    #     JSSM_TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.JSSM_TWITTER_ACCESS_TOKEN_SECRET }}
+    #     JSSM_TWITTER_API_ACCESS_TOKEN: ${{ secrets.JSSM_TWITTER_API_ACCESS_TOKEN }}
+    #     JSSM_TWITTER_API_KEY: ${{ secrets.JSSM_TWITTER_API_KEY }}
+    #     JSSM_TWITTER_API_SECRET: ${{ secrets.JSSM_TWITTER_API_SECRET }}
+    #     TW_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
 
 
 
-  bump-jssm-viz:
+
+
+  finish:
 
     needs: [release]
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Export tag to envvars
-      run: |
-        export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
-        echo "TAG=$TAG" >> $GITHUB_ENV
-
-    - name: CURL RPC to jssm-viz action
-      run: |
-        curl -X POST "https://api.github.com/repos/StoneCypher/jssm-viz/dispatches" -H 'Accept: application/vnd.github.everest-preview+json' -u ${{ secrets.JSSM_UPGRADE_PERSONAL_ACCESS_TOKEN }} --data '{"event_type": "upgrade_jssm", "client_payload": { "lib_version": "${{ env.TAG }}" }}'
-
-
-
-  finish:
-
-    needs: [bump-jssm-viz]
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
     - name: Results page
       run: |
         export TAG=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)
         echo '### Results!' >> $GITHUB_STEP_SUMMARY
         echo "* Published $TAG to NPM" >> $GITHUB_STEP_SUMMARY
-        echo '* Bumping `jssm-viz`' >> $GITHUB_STEP_SUMMARY
-        echo '    * which will bump `jssm-viz-cli`' >> $GITHUB_STEP_SUMMARY
-        echo '    * which will bump `jssm-viz-demo`' >> $GITHUB_STEP_SUMMARY

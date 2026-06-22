@@ -20,7 +20,32 @@ describe('weighted_rand_select/2', () => {
   test('banana baseline',                () => expect( acc.banana > 3000 ).toBe(true) );
 
   test('requires an array',              () => expect( () => jssm.weighted_rand_select( 'not_an_array' )).toThrow() );
+  test('requires a non-empty array',    () => expect( () => jssm.weighted_rand_select( [] )).toThrow() );
   test('requires members to be objects', () => expect( () => jssm.weighted_rand_select( ['not_an_obj'] )).toThrow() );
+
+  test('uses rng when provided', () => {
+
+    const rng1 = jssm.gen_splitmix32(12345);
+    const rng2 = jssm.gen_splitmix32(12345);
+
+    const results1 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng1).label);
+    const results2 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng2).label);
+
+    expect(results1).toEqual(results2);
+
+  });
+
+  test('different rng seeds produce different results', () => {
+
+    const rng1 = jssm.gen_splitmix32(12345);
+    const rng2 = jssm.gen_splitmix32(99999);
+
+    const results1 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng1).label);
+    const results2 = Array.from({length: 100}, () => jssm.weighted_rand_select(fruit, 'probability', rng2).label);
+
+    expect(results1).not.toEqual(results2);
+
+  });
 
 });
 

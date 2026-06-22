@@ -1,0 +1,14 @@
+{
+  "toggle": {
+    "title": "Toggle machine",
+    "blurb": "In essence, a simple light switch.  Just shows the basics of making states, and linking them with actions."
+  },
+  "traffic-light": {
+    "title": "Traffic light",
+    "blurb": "Three state, no `off`, no `flashing red`.  Emit a console log of `'Red light!'` whenever the red state is entered.\n\nShows the basics, as well as putting a hook on a state (or a node in some systems' lingo.)"
+  },
+  "matter": {
+    "title": "States of Matter",
+    "blurb": "Three basic states of matter.  Hook each of the four transitions with chatter on follow.\n\nIn addition to the basics, shows how to put a hook on a transition (or an action or an edge, in other machines' terminology.)"
+  }
+}
