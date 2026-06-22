@@ -202,6 +202,7 @@ Usage:
 
 Built-in subcommands (resolved via PATH):
   render    Render FSL machines to SVG, DOT, PNG, JPEG, or HTML
+  codegen   Generate executable host source (native:typescript, native:javascript)
 
 Discovery:
   Any \`fsl-<name>\` executable on PATH is dispatched when you run

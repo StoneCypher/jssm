@@ -108,6 +108,218 @@ declare type RenderSetItem = RenderSetItemOk | RenderSetItemErr;
  */
 declare function renderSet(inputs: string[], opts: RenderOptions): Promise<RenderSetItem[]>;
 
+/**
+ * Types for the `codegen` CLI verb — FSL → host *source*.
+ *
+ * `codegen` emits an **executable implementation** of a machine for a host
+ * runtime (megaspec §25). It is deliberately distinct from its siblings:
+ *   - `render`  → images for eyes,
+ *   - `typegen` → *declarations* a caller compiles against (no behavior),
+ *   - `codegen` → *source* that, when run on its host, behaves as the machine.
+ *
+ * Targets are addressed by `host:library` coordinates. A `native:*` target
+ * emits source against FSL's own certified runtime for that host (T1–T3, §26);
+ * adapter targets (xstate/stent/…) are a later, separately-gated seam.
+ *
+ * These types live in their own module rather than the shared `types.ts` so
+ * the codegen verb can grow without touching render's surface.
+ */
+/**
+ * The set of code-generation targets recognized in this build, as
+ * `host:library` coordinates.
+ *
+ * `native:typescript` and `native:javascript` emit a self-contained
+ * implementation against FSL's own minimal runtime (no third-party import) —
+ * the first two `native:*` targets. Adapter targets (e.g. `xstate:xstate`)
+ * arrive later through the same coordinate seam.
+ */
+declare type CodegenTarget = 'native:typescript' | 'native:javascript';
+/**
+ * Options accepted by `codegen()` and `codegenSet()`.
+ */
+interface CodegenOptions {
+    /** The `host:library` target coordinate. */
+    target: CodegenTarget;
+    /**
+     * Symbol name for the generated machine class/factory. Defaults to a name
+     * derived from the source label, falling back to `Machine`.
+     */
+    name?: string;
+    /**
+     * Run the conformance suite against the emitted artifact before returning
+     * (`--certify`, §26). Off by default. A reserved hook in this build: the
+     * conformance harness is gated on the runtime landing (§25 verb phasing),
+     * so requesting it on an un-certifiable target is a structured refusal
+     * rather than a silent pass.
+     */
+    certify?: boolean;
+    /**
+     * A coarse work budget in milliseconds for long-running generation
+     * (`--budget`, the agent verb contract). `0` / omitted means "no budget".
+     * Exceeding it yields an `undecided`-style refusal rather than a hang.
+     */
+    budgetMs?: number;
+    /**
+     * Clock used for the budget check. A test seam; defaults to `Date.now`.
+     * Never set by the CLI — present only so the budget-exceeded branch is
+     * deterministically exercisable without depending on wall-clock timing.
+     */
+    now?: () => number;
+}
+/**
+ * A generated source artifact: the emitted text plus the metadata an agent or
+ * build tool needs to place and trust it.
+ */
+interface CodegenArtifact {
+    /** The target this artifact was generated for. */
+    target: CodegenTarget;
+    /** The host language family (`'typescript'` | `'javascript'`). */
+    host: string;
+    /** The conventional file extension for this artifact, without the dot. */
+    extension: string;
+    /** The generated source text. */
+    content: string;
+    /** The symbol name the artifact exposes (class/factory name). */
+    symbol: string;
+}
+/**
+ * Base error class for codegen-time failures. Carries optional source
+ * location so a `--json` caller can map the failure back to FSL text.
+ */
+declare class CodegenError extends Error {
+    readonly path?: string;
+    readonly line?: number;
+    readonly column?: number;
+    constructor(message: string, opts?: {
+        path?: string;
+        line?: number;
+        column?: number;
+    });
+}
+/**
+ * Thrown when generation cannot complete within the requested budget, or when
+ * a gated capability (`--certify` against an un-certifiable target) is
+ * requested. Distinct class so a `--json` caller can surface the third
+ * answer — `undecided` — beside success and a hard failure.
+ */
+declare class CodegenUndecidedError extends CodegenError {
+    constructor(message: string, opts?: {
+        path?: string;
+        line?: number;
+        column?: number;
+    });
+}
+
+/**
+ * Generate executable host source from a single FSL document.
+ *
+ * Emits an *implementation* of the machine for the requested `host:library`
+ * target — distinct from `render` (images) and `typegen` (declarations). The
+ * `native:*` targets emit a self-contained class with no runtime dependency.
+ *
+ * @param fsl - FSL source text
+ * @param opts.target - The `host:library` target coordinate
+ * @param opts.name - Symbol name for the generated class (defaults to `Machine`)
+ * @param opts.certify - Run conformance before returning (gated; see below)
+ * @param opts.budgetMs - Soft work budget in ms; 0/omitted means unbounded
+ * @param opts.now - Clock for the budget check (test seam; defaults to Date.now)
+ * @returns The generated {@link CodegenArtifact}
+ * @throws CodegenError if the FSL fails to compile or the target is unknown
+ * @throws CodegenUndecidedError if `certify` is requested (conformance harness
+ *   is gated on the runtime landing, §25 verb phasing) or the budget is exhausted
+ *
+ * @example
+ *   const art = codegen("a 'go' -> b;", { target: 'native:typescript' });
+ *   // art.extension === 'ts'
+ *   // art.content contains "export class Machine"
+ */
+declare function codegen(fsl: string, opts: CodegenOptions): CodegenArtifact;
+
+interface CodegenSetItemOk {
+    ok: true;
+    index: number;
+    artifact: CodegenArtifact;
+}
+interface CodegenSetItemErr {
+    ok: false;
+    index: number;
+    error: Error;
+}
+declare type CodegenSetItem = CodegenSetItemOk | CodegenSetItemErr;
+/**
+ * Generate host source for multiple FSL documents, returning one result per
+ * input. Errors are captured per-input rather than aborting the batch — so a
+ * caller learns exactly which documents generated and which failed, mirroring
+ * `renderSet`.
+ *
+ * @param inputs - FSL source strings
+ * @param opts - Codegen options applied to every input
+ * @returns Per-input results, same length and order as `inputs`
+ *
+ * @example
+ *   const results = codegenSet([fslA, fslB], { target: 'native:javascript' });
+ *   for (const item of results) {
+ *     if (item.ok) console.log('generated #', item.index);
+ *     else         console.error('failed #', item.index, item.error.message);
+ *   }
+ */
+declare function codegenSet(inputs: string[], opts: CodegenOptions): CodegenSetItem[];
+
+/**
+ * One named transition in the extracted surface: firing `action` while in
+ * `from` moves the machine to `to`.
+ */
+interface SurfaceTransition {
+    from: string;
+    action: string;
+    to: string;
+}
+/**
+ * A host-language-neutral description of a compiled machine — exactly the
+ * facts a `native:*` target needs to emit an implementation. Extracted once,
+ * consumed by every target, and trivially serializable (so it is itself
+ * test-inspectable without rendering source).
+ */
+interface MachineSurface {
+    /** Every state name, declaration order. */
+    states: string[];
+    /** The start state (the machine's state immediately after construction). */
+    initial: string;
+    /** Every distinct action name (the input alphabet). */
+    actions: string[];
+    /** Every state that is final (terminal or complete). */
+    finals: string[];
+    /** Every action-bearing transition. */
+    transitions: SurfaceTransition[];
+    /** Every eventless/unnamed edge (an automatic transition with no action). */
+    eventless: {
+        from: string;
+        to: string;
+    }[];
+}
+/**
+ * Compile FSL source and extract its host-agnostic {@link MachineSurface}.
+ *
+ * Named transitions (edges carrying an action) populate `transitions` — the
+ * ones a generated `action(name)` dispatcher can fire. Eventless / unnamed
+ * edges (automatic transitions with no caller-visible trigger) are surfaced
+ * separately in `eventless`, which a target emits as a `step()` transition.
+ *
+ * @param fsl - FSL source text
+ * @returns The extracted surface
+ * @throws CodegenError if the FSL fails to parse or compile
+ *
+ * @example
+ *   const s = extractSurface("a 'go' -> b;");
+ *   // s.states  === ['a', 'b']
+ *   // s.initial === 'a'
+ *   // s.actions === ['go']
+ *   // s.finals  === ['b']
+ *   // s.transitions === [{ from: 'a', action: 'go', to: 'b' }]
+ *   // s.eventless === []
+ */
+declare function extractSurface(fsl: string): MachineSurface;
+
 declare type FlagType = 'string' | 'number' | 'boolean';
 interface FlagSpec {
     short?: string;
@@ -210,8 +422,12 @@ interface CheckConfig {
 /** Typegen subcommand configuration — empty in v1; fields land with issue #624. Typegen exports *types* so a consumer of the machine gets a typed surface; it is distinct from codegen, which emits an implementation. */
 interface TypegenConfig {
 }
-/** Codegen subcommand configuration — empty in v1; fields land with the v6 `codegen` verb (megaspec §25). Codegen generates an *implementation* of the machine, frequently in another language (cross-compilation); distinct from typegen's consumer-facing type exports. */
+/** Codegen subcommand configuration (megaspec §25). Codegen generates an *implementation* of the machine, frequently in another language (cross-compilation); distinct from typegen's consumer-facing type exports. */
 interface CodegenConfig {
+    /** Default codegen target when none is specified on the CLI. Default: `'native:typescript'`. */
+    defaultTarget?: string;
+    /** Output directory for multi-file codegen. */
+    outDir?: string;
 }
 /** Init (project scaffolder) subcommand configuration — empty in v1; fields land with the v6 `init` verb (megaspec §25; formerly issue #625's `new`). */
 interface InitConfig {
@@ -764,5 +980,5 @@ declare function discoverProjectConfig(opts: {
 
 declare function extractMachineAttributes(_machineSource: string): PartialConfig;
 
-export { CONFIG_SCHEMA, ConfigError, ConfigExtendsError, ConfigIOError, ConfigParseError, ConfigSchemaError, RasterizationUnsupportedError, RenderError, defaults, discoverProjectConfig, discoverUserGlobalConfig, extractMachineAttributes, flagsToConfig, loadConfig, loadConfigFile, mergeConfigs, parseFslArgs, render, renderSet, resolveExtends, validateConfig };
-export type { CheckConfig, CodegenConfig, ExportConfig, FlagMapping, FlagSpec, FlagType, FormatConfig, ImportConfig, InitConfig, LintConfig, LoadConfigOptions, LspConfig, McpConfig, ParseResult, ParseSpec, PartialConfig, RasterResult, Reader, RegistryConfig, RenderConfig, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, ReplConfig, ResolvedConfig, TestConfig, TextResult, TypegenConfig };
+export { CONFIG_SCHEMA, CodegenError, CodegenUndecidedError, ConfigError, ConfigExtendsError, ConfigIOError, ConfigParseError, ConfigSchemaError, RasterizationUnsupportedError, RenderError, codegen, codegenSet, defaults, discoverProjectConfig, discoverUserGlobalConfig, extractMachineAttributes, extractSurface, flagsToConfig, loadConfig, loadConfigFile, mergeConfigs, parseFslArgs, render, renderSet, resolveExtends, validateConfig };
+export type { CheckConfig, CodegenArtifact, CodegenConfig, CodegenOptions, CodegenSetItem, CodegenSetItemErr, CodegenSetItemOk, CodegenTarget, ExportConfig, FlagMapping, FlagSpec, FlagType, FormatConfig, ImportConfig, InitConfig, LintConfig, LoadConfigOptions, LspConfig, MachineSurface, McpConfig, ParseResult, ParseSpec, PartialConfig, RasterResult, Reader, RegistryConfig, RenderConfig, RenderOptions, RenderResult, RenderSetItem, RenderSetItemErr, RenderSetItemOk, RenderTarget, ReplConfig, ResolvedConfig, SurfaceTransition, TestConfig, TextResult, TypegenConfig };

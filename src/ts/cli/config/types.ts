@@ -55,9 +55,13 @@ export interface CheckConfig {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TypegenConfig {}
 
-/** Codegen subcommand configuration — empty in v1; fields land with the v6 `codegen` verb (megaspec §25). Codegen generates an *implementation* of the machine, frequently in another language (cross-compilation); distinct from typegen's consumer-facing type exports. */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CodegenConfig {}
+/** Codegen subcommand configuration (megaspec §25). Codegen generates an *implementation* of the machine, frequently in another language (cross-compilation); distinct from typegen's consumer-facing type exports. */
+export interface CodegenConfig {
+  /** Default codegen target when none is specified on the CLI. Default: `'native:typescript'`. */
+  defaultTarget?: string;
+  /** Output directory for multi-file codegen. */
+  outDir?: string;
+}
 
 /** Init (project scaffolder) subcommand configuration — empty in v1; fields land with the v6 `init` verb (megaspec §25; formerly issue #625's `new`). */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

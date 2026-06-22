@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-402 merges; 305 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+407 merges; 305 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,49 +22,30 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 21, 2026 3:31:52 PM
+## [Untagged] - Jun 21, 2026 7:31:42 PM
 
-Commit [17f1b148da305a16992784a16bfe2bf897a4285f](https://github.com/StoneCypher/jssm/commit/17f1b148da305a16992784a16bfe2bf897a4285f)
-
-Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
-
-  * docs: publish site for 611c9753706c07e0ead53ed46cd6ffb2cfc8238e
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__144__0" />
-
-## [5.144.0] - Jun 21, 2026 3:27:24 PM
-
-Commit [611c9753706c07e0ead53ed46cd6ffb2cfc8238e](https://github.com/StoneCypher/jssm/commit/611c9753706c07e0ead53ed46cd6ffb2cfc8238e)
+Commit [2287cb2cd7b48bd20f79c6b77fcb60925003ecd6](https://github.com/StoneCypher/jssm/commit/2287cb2cd7b48bd20f79c6b77fcb60925003ecd6)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [5811eae9, c0c52145]
+Merges [947f543f, 0ffdef3d]
 
-  * Merge pull request #772 from StoneCypher/feat_26-06-21_hooks-uniform-registry_1357
-  * feat(hooks): uniform observational-hook registry + introspection (megaspec §12, #1357)
-
+  * Merge remote-tracking branch 'origin/v6' into feat_26-06-21_v6-codegen-reconciled
 
 
 
-&nbsp;
 
 &nbsp;
 
-## [Untagged] - Jun 21, 2026 3:14:59 PM
+&nbsp;
 
-Commit [c0c5214578a304008aca7cf62a92f1c30aca0cf9](https://github.com/StoneCypher/jssm/commit/c0c5214578a304008aca7cf62a92f1c30aca0cf9)
+## [Untagged] - Jun 21, 2026 6:38:35 PM
+
+Commit [0ffdef3dde3d5f4ac6ceea03248e3a6c0a02e6e1](https://github.com/StoneCypher/jssm/commit/0ffdef3dde3d5f4ac6ceea03248e3a6c0a02e6e1)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * chore(release): build artifacts + version bump to 5.144.0
-  * Regenerated dist, docs, changelog, readme, and cloc for the uniform observational-hook registry feature (#1357). Version bumped 5.143.35 to 5.144.0 (minor, new public API).
+  * docs: append V7 Registry and Paradigm Shifts to Gemini plan
 
 
 
@@ -73,19 +54,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 21, 2026 1:09:21 PM
+## [Untagged] - Jun 21, 2026 6:34:16 PM
 
-Commit [f550faef71659b173b217ae337e3699ddf345f26](https://github.com/StoneCypher/jssm/commit/f550faef71659b173b217ae337e3699ddf345f26)
+Commit [d77603a0e4ac67e2e8bc98aa3cb675fcff2ad506](https://github.com/StoneCypher/jssm/commit/d77603a0e4ac67e2e8bc98aa3cb675fcff2ad506)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(hooks): uniform observational-hook registry + introspection, ported to 5.x (megaspec section 12, #1357)
-  * Ports the registry feature (drafted on the v6 base) onto main's diverged internals and extends it to cover FSL boundary hooks.
-  * hook_registry generates a (kind, target, phase) projection over every hook table, rewritten to decode main's interned, pair_key-keyed storage back to state and action names. un_pair_key added to jssm_intern as the Szudzik inverse of pair_key.
-  * hooks_on, has_hook, and state_has_hooks introspection. state_has_hooks now also consults the boundary tables so a boundary-only state reports hooked.
-  * hooked_state viz styling wired live into resolve_state_config at tier 2.5, with the static config cache invalidated on set_hook and remove_hook so styling stays coherent when hooks change after a style is memoized.
-  * Boundary hooks: group and state boundary tables are walked into the registry as group- and state-scoped post rows, with a new group scope, HookBoundaryKind, and group query. Group hooks match by name only, with no propagation to member states.
-  * New exported types: HookPhase, HookTargetScope, HookTarget, HookBoundaryKind, HookRegistryEntry, HookQuery. Source-only, generated artifacts excluded.
+  * docs: add open mic paradigm shifts to megaspec
 
 
 
@@ -94,14 +69,56 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 21, 2026 1:09:21 PM
+## [Untagged] - Jun 21, 2026 6:33:24 PM
 
-Commit [6a6fb8666441624fe4d5624280f1839237ce63b4](https://github.com/StoneCypher/jssm/commit/6a6fb8666441624fe4d5624280f1839237ce63b4)
+Commit [947f543f0b074c25c7f9fc6d99273852f26e4f4e](https://github.com/StoneCypher/jssm/commit/947f543f0b074c25c7f9fc6d99273852f26e4f4e)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(hooks): uniform observational-hook registry + introspection (megaspec §12, #1357)
-  * Adds hook_registry() (generated (kind,target,phase) projection over all 26 concrete hook tables), hooks_on()/has_hook() introspection, state_has_hooks(), and activates the dormant hooked_state viz styling. Exported types: HookPhase, HookTargetScope, HookTarget, HookRegistryEntry, HookQuery. Source-only preservation commit; generated artifacts (fsl_parser.ts, version.ts, dist) excluded.
+Merges [d6bd72c3, 8a7e1b30]
+
+  * Merge remote-tracking branch 'origin/v6' into feat_26-06-21_v6-codegen-reconciled
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/cdn/instance.js
+#       dist/cdn/viz.js
+#       dist/cli/fsl-render.cjs
+#       dist/cli/fsl.cjs
+#       dist/cli/lib.cjs
+#       dist/cli/lib.mjs
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       docs/demo/jssm.es5.iife.js
+#       docs/docs/classes/jssm.Machine.html
+#       docs/docs/classes/jssm_error.JssmError.html
+#       docs/docs/modules/jssm._internal_.html
+#       docs/docs/modules/jssm.html
+#       docs/docs/modules/jssm_constants.html
+#       docs/docs/modules/jssm_types._internal_.html
+#       docs/docs/modules/jssm_types.html
+#       docs/docs/modules/jssm_util.html
+#       docs/docs/modules/jssm_viz.html
+#       docs/docs/modules/version.html
+#       docs/docs/pages/CHANGELOG.long.html
+#       docs/fsl.tools/cookbook/manifest.json
+#       package.json
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
 
 
 
@@ -110,16 +127,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 18, 2026 3:22:59 PM
+## [Untagged] - Jun 21, 2026 6:29:45 PM
 
-Commit [3f1e7d9815d875c60d74515242bf472ec4fe2e98](https://github.com/StoneCypher/jssm/commit/3f1e7d9815d875c60d74515242bf472ec4fe2e98)
+Commit [e78d505ba0d0e6e21b866fe49013b704269288b8](https://github.com/StoneCypher/jssm/commit/e78d505ba0d0e6e21b866fe49013b704269288b8)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [45c942fc, 12e18280]
-
-  * Merge pull request #771 from StoneCypher/docs_26-06-17_v6-spec-review-adopt
-  * docs(v6): adopt agreed Codex-review fixes into the megaspec
+  * docs: add Agent-Native Provable Component Registry (v7 Vision) to megaspec
 
 
 
@@ -128,57 +142,13 @@ Merges [45c942fc, 12e18280]
 
 &nbsp;
 
-## [Untagged] - Jun 18, 2026 3:50:11 AM
+## [Untagged] - Jun 21, 2026 6:29:45 PM
 
-Commit [35f487824f9165a8d878936bd5cc248e065b8e62](https://github.com/StoneCypher/jssm/commit/35f487824f9165a8d878936bd5cc248e065b8e62)
-
-Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
-
-  * chart: graviton perf trend 20260618-045852
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 18, 2026 3:49:56 AM
-
-Commit [274749e1c9baef68b65cd4037e13ccd076bce7f6](https://github.com/StoneCypher/jssm/commit/274749e1c9baef68b65cd4037e13ccd076bce7f6)
-
-Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
-
-  * perf: nightly sync of graviton runner results from S3
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 17, 2026 10:24:59 PM
-
-Commit [12e18280eb96827297069176237a408a2246ad78](https://github.com/StoneCypher/jssm/commit/12e18280eb96827297069176237a408a2246ad78)
+Commit [bbe1a048e09bf6fbc220cd4779b69bc2de1239d3](https://github.com/StoneCypher/jssm/commit/bbe1a048e09bf6fbc220cd4779b69bc2de1239d3)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(v6): adopt agreed Codex-review fixes into the megaspec
-  * Borders & clarifications (declined the 4-doc restructure; reconciled rather than
-renamed finite/checkable; recorded the big appendices rather than fabricating):
-- add a 'how to read / status' note: core (§1-§24) is the v6 commitment; the
-  decision-log rings and most §25 verbs are roadmap, not promises
-- reconcile 'finite vs checkable' with §3's bands (drop the contradictory
-  'finite = small-finite only' wording)
-- define the 'stream' type (§4.6) and resolve it out of Open/deferred
-- clarify the journal in §12 (immediate writes + undo-log, discard at commit)
-- specify the named-hook effect boundary in §11 (pure-in-transaction;
-  irreversible post-commit; replay uses recorded returns)
-- add a one tape-class taxonomy (§14)
-- decide the comment token: '//' (matches the parser); '%' examples are legacy
-- record planned normative appendices (operational semantics, grammar incl. the
-  weighted-list sketch, verifier complexity/budget, security/effects, compat)
+  * docs: add Agent-Native Provable Component Registry (v7 Vision) to megaspec
 
 
 
@@ -187,13 +157,60 @@ renamed finite/checkable; recorded the big appendices rather than fabricating):
 
 &nbsp;
 
-## [Untagged] - Jun 17, 2026 10:12:27 PM
+## [Untagged] - Jun 21, 2026 6:25:33 PM
 
-Commit [45c942fcef2c8db432fd8859966bd594f1137270](https://github.com/StoneCypher/jssm/commit/45c942fcef2c8db432fd8859966bd594f1137270)
+Commit [8a7e1b30d99bd64bc5bde7981478de5da405db0d](https://github.com/StoneCypher/jssm/commit/8a7e1b30d99bd64bc5bde7981478de5da405db0d)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [94b1ca80, 543fefc2]
+Merges [12ac07de, 4c00e7bf]
 
-  * Merge pull request #770 from StoneCypher/fix_26-06-17_v6-cli-files
-  * fix(v6): ship the jssm/cli subpath (files allowlist) on v6
+  * Merge pull request #773 from StoneCypher/feat_26-06-21_fsl-totality
+  * feat(totality): FSL totality/termination analysis module (megaspec §13)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 21, 2026 6:21:16 PM
+
+Commit [12ac07de8261e43991dd096693ff939eeeb39785](https://github.com/StoneCypher/jssm/commit/12ac07de8261e43991dd096693ff939eeeb39785)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: massively expand machine testing and verification paradigms in FSL megaspec
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 21, 2026 6:19:50 PM
+
+Commit [d6bd72c32c1ee330bc0022c92cfaae7fadd6fb94](https://github.com/StoneCypher/jssm/commit/d6bd72c32c1ee330bc0022c92cfaae7fadd6fb94)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(codegen): finalize reconciled codegen + build artifacts (6.0.0-alpha.6)
+  * Adds CodegenConfig.defaultTarget/outDir (the fields A's config graft needs; absent on the v6 base, caught by the CLI typecheck), --json + branch-coverage tests for the codegen plugin, the v6 alpha bump, and all regenerated artifacts. Full build green at 100% coverage.
+  * Defers import/export/interchange to a dedicated follow-up PR: that ecosystem (two plugins, two lib fns, the mermaid format, two binary entries) is test-incomplete, and reaching the 100% gate would mean writing its whole suite — out of scope for the codegen reconciliation, and not worth rushing into thin tests. Removed from this branch; the source remains in the feat_26-06-11_v6 worktree.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 21, 2026 6:17:47 PM
+
+Commit [6d5b16345b037dcf6009bf31e7c1ca589604f9ee](https://github.com/StoneCypher/jssm/commit/6d5b16345b037dcf6009bf31e7c1ca589604f9ee)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: add comprehensive machine testing paradigms to FSL megaspec
