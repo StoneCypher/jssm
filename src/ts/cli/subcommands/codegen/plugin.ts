@@ -12,7 +12,7 @@ const TARGETS = ['native:typescript', 'native:javascript'] as const;
 
 const SPEC = {
   flags: {
-    target:     { short: 't' as const, enum: TARGETS, default: 'native:typescript' as const },
+    target:     { short: 't' as const, enum: TARGETS },
     name:       { short: 'n' as const },
     output:     { short: 'o' as const },
     'out-dir':  {},
@@ -29,16 +29,16 @@ const SPEC = {
 };
 
 /**
- * Every codegen flag is per-invocation-only — none is sourced from or written
- * to the config `codegen` section. `loadConfig` is still consulted (for
- * registry/include layers and to surface a malformed config file), but the
- * generation parameters come straight off the parsed flags.
+ * Maps each codegen-plugin flag to its dotted config path, or `null` to mark
+ * the flag as per-invocation-only. `target` and `out-dir` are config-backed
+ * (`codegen.defaultTarget` / `codegen.outDir`) so a config file or machine
+ * attribute can supply them; the rest are per-invocation-only.
  */
 const CODEGEN_FLAG_TO_CONFIG = {
-  target:      null,
+  target:      'codegen.defaultTarget',
   name:        null,
   output:      null,
-  'out-dir':   null,
+  'out-dir':   'codegen.outDir',
   stdout:      null,
   json:        null,
   certify:     null,
@@ -48,6 +48,12 @@ const CODEGEN_FLAG_TO_CONFIG = {
   help:        null,
   version:     null,
 } as const;
+
+/**
+ * Hard fallback target when neither `--target` nor any config layer supplies
+ * one.
+ */
+const DEFAULT_TARGET: CodegenTarget = 'native:typescript';
 
 const writeStdout = (s: string): void => { process.stdout.write(s); };
 const writeStderr = (s: string): void => { process.stderr.write(s); };
@@ -127,11 +133,11 @@ export async function cli(argv: string[]): Promise<number> {
     return 0;
   }
 
+  let config: Awaited<ReturnType<typeof loadConfig>>;
   try {
-    // Surfaces a malformed --config file as a user error; codegen itself does
-    // not currently read any field from the resolved config.
-    await loadConfig({
+    config = await loadConfig({
       cwd:                process.cwd(),
+      machinePath:        parsed.positional[0],
       flags:              parsed.flags,
       flagMapping:        CODEGEN_FLAG_TO_CONFIG,
       explicitConfigPath: parsed.flags.config as string | undefined,
@@ -142,10 +148,11 @@ export async function cli(argv: string[]): Promise<number> {
     return 1;
   }
 
-  const target  = parsed.flags.target as CodegenTarget;
+  const codegenCfg = config.codegen;
+  const target  = (codegenCfg.defaultTarget ?? DEFAULT_TARGET) as CodegenTarget;
   const name    = parsed.flags.name as string | undefined;
   const output  = parsed.flags.output as string | undefined;
-  const outDir  = parsed.flags['out-dir'] as string | undefined;
+  const outDir  = (parsed.flags['out-dir'] as string | undefined) ?? codegenCfg.outDir;
   const stdout  = parsed.flags.stdout === true;
   const json    = parsed.flags.json === true;
   const certify = parsed.flags.certify === true;
