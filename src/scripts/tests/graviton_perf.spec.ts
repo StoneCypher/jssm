@@ -275,6 +275,22 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     prNumber: 677
   };
 
+  test('the scaling benchmark exposes gc on the --harness-from direct-node path', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
+  });
+
+  test('the --harness-from overlay also checks out the memory module', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('benchmark_scaling_memory.cjs');
+  });
+
+  test('benny:scaling npm script exposes gc (covers the non-overlay run paths)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pkg = require('../../../package.json');
+    expect(pkg.scripts['benny:scaling']).toContain('--expose-gc');
+  });
+
   test('normal mode runs benny without BENNY_DEEP', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: false });
     expect(s).toContain('npm run benny:scaling');
@@ -336,13 +352,13 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs');
     expect(s).toContain('benchmark/fixtures');
     expect(s).toContain('npm install benny');
-    expect(s).toContain('node ./src/buildjs/benchmark_scaling.cjs');
+    expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
     expect(s).not.toContain('npm run benny:scaling');
   });
 
   test('--harness-from honors deep mode', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: true, harnessFrom: 'main' });
-    expect(s).toContain('BENNY_DEEP=1 node ./src/buildjs/benchmark_scaling.cjs');
+    expect(s).toContain('BENNY_DEEP=1 node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
   });
 
   test('runs the general (hook microbenchmark) suite as its own line', () => {
