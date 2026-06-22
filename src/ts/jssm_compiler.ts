@@ -875,29 +875,25 @@ function compile_rule_transition_step<StateType, mDT>(
 
 ): Array<JssmTransition<StateType, mDT>> { // todo typescript describe the parser representation of a transition step extension
 
-  const edges: Array<JssmTransition<StateType, mDT>> = [];
-
   const uFrom : Array<StateType> = ( Array.isArray(from) ? from : [from] ),
         uTo   : Array<StateType> = ( Array.isArray(to)   ? to   : [to]   );
 
-  uFrom.map( (f: StateType) => {
-    uTo.map( (t: StateType) => {
+  for (const f of uFrom) {
+    for (const t of uTo) {
 
       const right: JssmTransition<StateType, mDT> = makeTransition(this_se, f, t, true);
-      if (right.kind !== 'none') { edges.push(right); }
+      if (right.kind !== 'none') { acc.push(right); }
 
       const left: JssmTransition<StateType, mDT> = makeTransition(this_se, t, f, false);
-      if (left.kind !== 'none') { edges.push(left); }
+      if (left.kind !== 'none') { acc.push(left); }
 
-    });
-  });
-
-  const new_acc: Array<JssmTransition<StateType, mDT>> = acc.concat(edges);
+    }
+  }
 
   if (next_se) {
-    return compile_rule_transition_step(new_acc, to, next_se.to, next_se, next_se.se);
+    return compile_rule_transition_step(acc, to, next_se.to, next_se, next_se.se);
   } else {
-    return new_acc;
+    return acc;
   }
 
 }
