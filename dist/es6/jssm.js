@@ -1,16 +1,16 @@
 // whargarbl lots of these return arrays could/should be sets
 import { circular_buffer } from 'circular_buffer_js';
-import { FslDirections } from './jssm_types';
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
-import { compile, make, wrap_parse, transitive_members, membership_distance } from './jssm_compiler';
-import { theme_mapping, base_theme } from './jssm_theme';
-import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep } from './jssm_util';
-import { Interner, pair_key, un_pair_key } from './jssm_intern';
-import * as constants from './jssm_constants';
+import { FslDirections } from './jssm_types.js';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
+import { compile, make, wrap_parse, transitive_members, membership_distance } from './jssm_compiler.js';
+import { theme_mapping, base_theme } from './jssm_theme.js';
+import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep } from './jssm_util.js';
+import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
+import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 const empty_string_set = new Set();
-import { version, build_time } from './version'; // replaced from package.js in build
-import { JssmError } from './jssm_error';
+import { version, build_time } from './version.js'; // replaced from package.js in build
+import { JssmError } from './jssm_error.js';
 /*********
  *
  *  An internal method meant to take a series of declarations and fold them into

@@ -1,4 +1,4 @@
-import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation } from './jssm_types';
+import { JssmTransition, JssmCompileSe, JssmCompileSeStart, JssmParseTree, JssmGenericConfig, JssmGroupRegistry, FslSourceLocation } from './jssm_types.js';
 /*********
  *
  *  Returns the source span of the `n`-th parse-tree node (1-based) matching

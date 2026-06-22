@@ -1,4 +1,4 @@
-import { JssmErrorExtendedInfo, FslSourceLocation } from './jssm_types';
+import { JssmErrorExtendedInfo, FslSourceLocation } from './jssm_types.js';
 /*******
  *
  *  Custom error class for jssm.  Enriches the standard `Error` with

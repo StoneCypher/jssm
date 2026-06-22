@@ -1,7 +1,7 @@
-import { JssmError } from './jssm_error';
-import { parse } from './fsl_parser';
-import { arrow_left_kind, arrow_right_kind } from './jssm_arrow';
-import { find_repeated, name_bind_prop_and_state } from './jssm_util';
+import { JssmError } from './jssm_error.js';
+import { parse } from './fsl_parser.js';
+import { arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
+import { find_repeated, name_bind_prop_and_state } from './jssm_util.js';
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 /*********
  *
