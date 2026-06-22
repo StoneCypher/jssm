@@ -448,7 +448,13 @@ function compile(tree) {
         const dup = val_prop_collisions[0];
         throw new JssmError(undefined, `A val and a property cannot share the name ${JSON.stringify(dup)}.  Saw collisions ${JSON.stringify(val_prop_collisions)}`, { source_location: nth_matching_loc(tree, (n) => n.key === 'val_definition' && n.name === dup, 1) });
     }
-    const assembled_transitions = [].concat(...results['transition']);
+    // The accumulator is already flat (#700's per-rule push spreads one level)
+    // and function-local, so it is used directly.  The previous
+    // `[].concat(...results['transition'])` both copied it for nothing and
+    // capped machines near 65k transition statements: spreading into an
+    // argument list is bounded by the engine's maximum argument count, so e.g.
+    // dense-300 (89,700 edges) threw RangeError inside the compiler.  #703
+    const assembled_transitions = results['transition'];
     const result_cfg = {
         start_states: results.start_states.length ? results.start_states : [assembled_transitions[0].from],
         end_states: results.end_states,
