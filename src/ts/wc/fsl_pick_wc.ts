@@ -2,13 +2,15 @@ import { LitElement, html, css } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { sm } from '../jssm.js';
 import { find_differentiating_trace, PickResult } from '../jssm_pick.js';
+import { evaluate_trace } from '../oracle/nli_oracle.js';
 import type { Machine } from '../jssm.js';
 import './fsl_viz_wc.define.js';
 
 /**
  * Web component that implements the PICK Disambiguation visualizer.
  * Takes an array of candidate FSL strings, finds their differences, and
- * presents a UI to the user to narrow them down.
+ * presents a UI to the user to narrow them down, or resolves them automatically
+ * if a rubric is provided.
  * 
  * @element fsl-pick
  */
@@ -61,10 +63,17 @@ export class FslPick extends LitElement {
       background: #e8f5e9;
       border-radius: 8px;
     }
+    .evaluating {
+      color: #666;
+      font-style: italic;
+    }
   `;
 
   @property({ type: Array })
   candidates: string[] = [];
+
+  @property({ type: String })
+  rubric: string = '';
 
   @state()
   private _machines: Machine<unknown>[] = [];
@@ -72,16 +81,41 @@ export class FslPick extends LitElement {
   @state()
   private _currentDiff: PickResult | null = null;
 
+  @state()
+  private _isEvaluating: boolean = false;
+
   updated(changedProperties: Map<string, any>) {
-    if (changedProperties.has('candidates')) {
+    if (changedProperties.has('candidates') || changedProperties.has('rubric')) {
       this._machines = this.candidates.map(c => sm(c));
       this._recalculate();
     }
   }
 
-  private _recalculate() {
+  private async _recalculate() {
     if (this._machines.length > 1) {
       this._currentDiff = find_differentiating_trace(this._machines);
+      
+      // Auto-evaluate if rubric is present
+      if (this.rubric && this._currentDiff) {
+        this._isEvaluating = true;
+        
+        try {
+          // Delay briefly to allow UI to render 'Evaluating...'
+          await new Promise(r => setTimeout(r, 50));
+          
+          const isTraceValid = await evaluate_trace(this._currentDiff.trace, this.rubric);
+          
+          if (isTraceValid) {
+            this._handleAccept();
+          } else {
+            this._handleReject();
+          }
+        } catch (e) {
+          console.error("Builtin Oracle failed in the browser:", e);
+        } finally {
+          this._isEvaluating = false;
+        }
+      }
     } else {
       this._currentDiff = null;
     }
@@ -89,16 +123,12 @@ export class FslPick extends LitElement {
 
   private _handleAccept() {
     if (!this._currentDiff) return;
-    // The trace is valid. Machine A accepts it, Machine B rejects it.
-    // Drop Machine B.
     this._machines.splice(this._currentDiff.machine_b_index, 1);
     this._recalculate();
   }
 
   private _handleReject() {
     if (!this._currentDiff) return;
-    // The trace is invalid. Machine A accepted it (wrong), Machine B rejected it (correct).
-    // Drop Machine A.
     this._machines.splice(this._currentDiff.machine_a_index, 1);
     this._recalculate();
   }
@@ -113,7 +143,7 @@ export class FslPick extends LitElement {
         <div class="winner">
           <h2>Disambiguation Complete!</h2>
           <p>Winning Machine:</p>
-          <fsl-viz .fsl=${this._machines[0].list_edges().length > 0 ? "TODO: serialize machine back to fsl if possible or just use original string" : "..."}></fsl-viz>
+          <fsl-viz .fsl=${this._machines[0].list_edges().length > 0 ? "TODO: map to fsl string" : "..."}></fsl-viz>
         </div>
       `;
     }
@@ -122,30 +152,31 @@ export class FslPick extends LitElement {
       return html`<div>No behavioral differences found among the ${this._machines.length} remaining candidates.</div>`;
     }
 
-    const mA = this._machines[this._currentDiff.machine_a_index];
-    const mB = this._machines[this._currentDiff.machine_b_index];
     const traceStr = this._currentDiff.trace.join(" ➔ ");
 
-    // For MVP without the Graph Highlighter, we just display the text trace
     return html`
       <div>
         <h3>Candidate Disambiguation</h3>
         <p>Remaining Candidates: ${this._machines.length}</p>
         
         <div class="trace-box">
-          <p>Is this sequence of actions valid according to your spec?</p>
+          <p>Trace under consideration:</p>
           <div class="trace-path">${traceStr}</div>
+          
+          ${this._isEvaluating ? html`<div class="evaluating">🤖 Auto-evaluating via Built-in NLI Oracle...</div>` : ''}
+          
+          ${(!this.rubric && !this._isEvaluating) ? html`
           <div class="controls">
             <button class="btn-yes" @click=${this._handleAccept}>Yes, this is valid</button>
             <button class="btn-no" @click=${this._handleReject}>No, this should be blocked</button>
           </div>
+          ` : ''}
         </div>
 
         <div class="split-screen">
           <div class="candidate">
             <h4>Candidate A (Accepts Trace)</h4>
             <fsl-viz></fsl-viz> 
-            <!-- Note: <fsl-viz> requires an fsl string. For full implementation, we need to map the Machine back to its source string or just store the source strings array in sync. -->
           </div>
           <div class="candidate">
             <h4>Candidate B (Rejects Trace)</h4>

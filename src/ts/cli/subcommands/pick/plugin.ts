@@ -3,11 +3,14 @@ import readline from 'readline';
 import { exec } from 'child_process';
 import { sm } from '../../jssm';
 import { find_differentiating_trace } from '../../jssm_pick';
+import { evaluate_trace } from '../../oracle/nli_oracle';
 import type { CommandModule } from 'yargs';
 
 interface PickOptions {
   files: (string | number)[];
   steer?: string;
+  oracle?: string;
+  rubric?: string;
 }
 
 export const pickPlugin: CommandModule<{}, PickOptions> = {
@@ -24,6 +27,14 @@ export const pickPlugin: CommandModule<{}, PickOptions> = {
         describe: 'Path to an agent script to automatically evaluate traces (Agent Oracle Mode)',
         type: 'string',
         requiresArg: true
+      })
+      .option('oracle', {
+        describe: 'Use a builtin zero-dependency ONNX oracle (e.g. "builtin")',
+        type: 'string'
+      })
+      .option('rubric', {
+        describe: 'Path to a text file containing the rules for the builtin oracle',
+        type: 'string'
       });
   },
   handler: async (argv) => {
@@ -43,6 +54,16 @@ export const pickPlugin: CommandModule<{}, PickOptions> = {
       }
     });
 
+    let rubricText = '';
+    if (argv.oracle === 'builtin' && argv.rubric) {
+      try {
+        rubricText = fs.readFileSync(argv.rubric, 'utf8');
+      } catch(e: any) {
+        console.error(`Failed to read rubric file: ${e.message}`);
+        process.exit(1);
+      }
+    }
+
     let remainingCandidates = [...candidates];
     let remainingFiles = [...filePaths];
 
@@ -58,7 +79,17 @@ export const pickPlugin: CommandModule<{}, PickOptions> = {
       
       let isTraceValid = false;
 
-      if (argv.steer) {
+      if (argv.oracle === 'builtin' && rubricText) {
+        console.log(`[Builtin NLI Oracle] Evaluating trace: ${traceStr}`);
+        try {
+          isTraceValid = await evaluate_trace(result.trace, rubricText);
+          console.log(`[Oracle] Result: ${isTraceValid ? 'Accepted' : 'Rejected'}`);
+        } catch (e: any) {
+          console.error(`Builtin oracle failed: ${e.message}`);
+          console.error(`If you haven't downloaded the ONNX model yet, please run 'npm run init:oracle'`);
+          process.exit(1);
+        }
+      } else if (argv.steer) {
         // Agent Oracle Mode
         console.log(`[Agent Oracle Mode] Evaluating trace: ${traceStr}`);
         try {
@@ -89,15 +120,11 @@ export const pickPlugin: CommandModule<{}, PickOptions> = {
       }
 
       // Prune candidate list
-      // For a full implementation we would actually simulate the trace on ALL machines and partition the list.
-      // Since this is MVP and we only compare A and B, we drop the incorrect one.
       if (isTraceValid) {
-        // Machine A was correct
         console.log(`Dropping candidate: ${remainingFiles[result.machine_b_index]}`);
         remainingCandidates.splice(result.machine_b_index, 1);
         remainingFiles.splice(result.machine_b_index, 1);
       } else {
-        // Machine B was correct (it correctly rejected it)
         console.log(`Dropping candidate: ${remainingFiles[result.machine_a_index]}`);
         remainingCandidates.splice(result.machine_a_index, 1);
         remainingFiles.splice(result.machine_a_index, 1);

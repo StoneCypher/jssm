@@ -159,7 +159,7 @@
     "benny:all": "npm run benny && npm run benny:scaling",
     "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
     "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
-    "init:oracle": "node scripts/download_oracle.js",
+    "init:oracle": "node scripts/download_oracle.cjs",
     "ci_profile": "node ./src/buildjs/ci_profile.cjs",
     "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run perf_chart && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
