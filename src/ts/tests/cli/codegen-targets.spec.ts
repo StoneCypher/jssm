@@ -61,6 +61,18 @@ describe('emitNativeJavascript', () => {
     expect(m.state).toBe('a');
   });
 
+  it('exposes final states via finals + isFinal()', async () => {
+    const src = emitNativeJavascript(extractSurface("a 'go' -> b;"), 'Gate');
+    const Gate = await loadGenerated(src, 'Gate');
+    expect(Gate.finals).toContain('b');
+    expect(Gate.finals).not.toContain('a');
+    const m = new Gate();
+    expect(m.isFinal()).toBe(false);   // starts at 'a'
+    m.action('go');
+    expect(m.state).toBe('b');
+    expect(m.isFinal()).toBe(true);    // 'b' is terminal → final
+  });
+
 });
 
 describe('emitNativeTypescript', () => {
@@ -82,6 +94,15 @@ describe('emitNativeTypescript', () => {
   it('emits a typed empty transition map for action-less states', () => {
     const src = emitNativeTypescript(extractSurface(lonely), 'Lonely');
     expect(src).toContain("'a': {}");
+  });
+
+  it('surfaces final states and emits finals + isFinal()', () => {
+    const surface = extractSurface("a 'go' -> b;");
+    expect(surface.finals).toContain('b');
+    expect(surface.finals).not.toContain('a');
+    const src = emitNativeTypescript(surface, 'Gate');
+    expect(src).toContain('isFinal(): boolean');
+    expect(src).toContain('static readonly finals');
   });
 
 });

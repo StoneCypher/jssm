@@ -63,6 +63,7 @@ export type ${actionType} = ${emitUnion(surface.actions)};
 export class ${symbol} {
   static readonly states: readonly ${stateType}[] = [${surface.states.map(s => `'${jsStringLiteralBody(s)}'`).join(', ')}];
   static readonly actions: readonly ${actionType}[] = [${surface.actions.map(a => `'${jsStringLiteralBody(a)}'`).join(', ')}];
+  static readonly finals: readonly ${stateType}[] = [${surface.finals.map(s => `'${jsStringLiteralBody(s)}'`).join(', ')}];
 
   private static readonly transitions: Readonly<Record<${stateType}, Partial<Record<${actionType}, ${stateType}>>>> = ${table};
 
@@ -89,6 +90,11 @@ export class ${symbol} {
     if (next === undefined) return false;
     this.current = next;
     return true;
+  }
+
+  /** Whether the current state is a final (terminal or complete) state. */
+  isFinal(): boolean {
+    return (${symbol}.finals as readonly ${stateType}[]).includes(this.current);
   }
 }
 `;

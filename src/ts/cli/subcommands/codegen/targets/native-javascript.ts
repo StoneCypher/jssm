@@ -52,6 +52,7 @@ export function emitNativeJavascript(surface: MachineSurface, symbol: string): s
 export class ${symbol} {
   static states = [${surface.states.map(s => `'${jsStringLiteralBody(s)}'`).join(', ')}];
   static actions = [${surface.actions.map(a => `'${jsStringLiteralBody(a)}'`).join(', ')}];
+  static finals = [${surface.finals.map(s => `'${jsStringLiteralBody(s)}'`).join(', ')}];
 
   static #transitions = ${table};
 
@@ -78,6 +79,11 @@ export class ${symbol} {
     if (next === undefined) return false;
     this.#state = next;
     return true;
+  }
+
+  /** Whether the current state is a final (terminal or complete) state. */
+  isFinal() {
+    return ${symbol}.finals.includes(this.#state);
   }
 }
 `;

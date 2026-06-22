@@ -24,6 +24,8 @@ export interface MachineSurface {
   initial: string;
   /** Every distinct action name (the input alphabet). */
   actions: string[];
+  /** Every state that is final (terminal or complete). */
+  finals: string[];
   /** Every action-bearing transition. Unnamed/eventless edges are omitted. */
   transitions: SurfaceTransition[];
 }
@@ -45,6 +47,7 @@ export interface MachineSurface {
  *   // s.states  === ['a', 'b']
  *   // s.initial === 'a'
  *   // s.actions === ['go']
+ *   // s.finals  === ['b']
  *   // s.transitions === [{ from: 'a', action: 'go', to: 'b' }]
  */
 export function extractSurface(fsl: string): MachineSurface {
@@ -58,6 +61,7 @@ export function extractSurface(fsl: string): MachineSurface {
   const states  = machine.states().map(s => String(s));
   const initial = String(machine.state());
   const actions = machine.list_actions().map(a => String(a));
+  const finals  = states.filter(s => machine.state_is_final(s));
 
   const transitions: SurfaceTransition[] = [];
   for (const edge of machine.list_edges()) {
@@ -69,5 +73,5 @@ export function extractSurface(fsl: string): MachineSurface {
     });
   }
 
-  return { states, initial, actions, transitions };
+  return { states, initial, actions, finals, transitions };
 }
