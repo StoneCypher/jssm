@@ -52,6 +52,14 @@ export default [
     plugins: jsPlugins(),
   },
 
+  // fsl-export-system-prompt binary
+  {
+    input: 'src/ts/cli/fsl-export-system-prompt.ts',
+    output: { file: 'dist/cli/fsl-export-system-prompt.cjs', format: 'cjs', banner: '#!/usr/bin/env node', sourcemap: false },
+    external,
+    plugins: jsPlugins(),
+  },
+
   // jssm/cli library — one build, both module formats
   {
     input: 'src/ts/cli/lib.ts',
