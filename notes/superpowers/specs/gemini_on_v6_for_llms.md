@@ -390,3 +390,81 @@ Because FSL exists to power autonomous AI coders and complex orchestration, we c
 *   **Fuzzing with "Host Call" Emulation:** Instead of just testing the pure FSL state machine, generating tests that randomly fail the *host system side-effects* (e.g., simulating the host database returning a 500 when FSL asks to commit). This ensures the FSL machine logic correctly handles and recovers from dirty host-side exceptions.
 *   **Self-Healing Simulation (Chaos Engineering for Agents):** Testing how an *LLM Agent* reacts to state machine errors in the wild. The test suite fires an action that breaks a production invariant, yielding a JSON error log, and tests if the connected Level-1 On-Call LLM Agent can successfully provide an AST patch that fixes the invariant violation autonomously within 5 minutes.
 *   **Cost Profiling / Cloud Resource Fuzzing:** If states correspond to lambda executions or database queries, the toolchain calculates the maximum potential "monetary cost" of a user journey. This ensures a bad actor cannot trigger a DDOS loop in the state machine that drains your cloud budget.
+
+---
+
+## Part 12: The Agent-Native Provable Component Registry (v7 Vision)
+
+*Note: The following concepts are structured to be easily migrated into individual GitHub Issues when planning the v7 Registry.*
+
+### [Issue] The Contract Broker (Query by Proof)
+**The Concept:** Agents should not download code by name; they should query by constraint.
+**The Workflow:** 
+1. An agent queries the registry: *"Give me a machine with Input Schema `A`, Output Schema `B`, that guarantees it emits `B` within 3 steps, and runs in the `finite` profile."*
+2. The registry returns a verified component (e.g., `fsl-stdlib/token-bucket`) along with its **Verification Certificate**. 
+3. The agent mechanically wires it in without needing to read documentation, mathematically guaranteed that the component behaves exactly as expected.
+
+### [Issue] Structural Behavioral Typing (Named Semantic Interfaces)
+**The Concept:** FSL should unlock behavioral "duck typing" via published interfaces.
+**The Workflow:** 
+1. The registry hosts Named Semantic Interfaces (e.g., `@fsl-contracts/SagaParticipant`) completely divorced from implementations.
+2. The interface declares an assumption (e.g., *"Will receive `Commit` or `Rollback`"*) and a guarantee (e.g., *"If `Rollback` is received, will reach `Compensated`"*).
+3. Agents writing orchestrators can program strictly against these interfaces. Any concrete machine plugged in later that mathematically fulfills the interface is guaranteed to work, eliminating integration bugs.
+
+### [Issue] Counterfactual Patches & The Adapter Economy
+**The Concept:** The registry should automatically supply verified glue code when composition fails.
+**The Workflow:** 
+1. An agent wires Machine A to Machine B, but the verifier returns a counterexample (e.g., *Machine A emits `null`, Machine B requires non-null*).
+2. The toolchain automatically queries the registry for an adapter.
+3. The registry returns a **Counterfactual Patch**: *"If you insert `@fsl-adapters/null-to-empty-string` between them, the composition mathematically verifies."* 
+4. The agent applies the patch and the system is safely connected.
+
+### [Issue] Behavioral Semver & "The Semantic Diff"
+**The Concept:** Using the SMT solver to mathematically prove that a PR is a non-breaking change.
+**The Workflow:** 
+1. An agent refactors the internal states of a machine and opens a PR.
+2. The CI pipeline calculates the **Semantic Diff** between `main` and the PR.
+3. The registry proves: *"This PR strictly relaxes internal transitions but perfectly preserves the external Assume/Guarantee contract."*
+4. Because regressions are physically impossible under the contract, the PR can be confidently auto-merged without human review.
+
+---
+
+## Part 13: FSL "Open Mic" Paradigm Shifts
+
+### [Issue] Automated Machine Slicing (Compiler-Synthesized Distributed Systems) [v7]
+**The Problem:** Building distributed microservices requires writing isolated machines and manually bridging them with fragile network code, leading to synchronization bugs.
+**The FSL Solution:** 
+Developers author a **single, unified** state machine representing an entire system flow. They simply annotate states with their physical execution environment (e.g., `@client`, `@payment_server`). 
+During compilation, the v7 toolchain mathematically "slices" the graph into discrete, autonomous `.fsl` files. Wherever a transition crosses an environment boundary, the compiler automatically injects the exact `channel` listeners, payload schemas, and `Network_Pending`/`Timeout` intermediate states required.
+**The Value:** The developer reasons about the system as a single flawless narrative, while the compiler mathematically guarantees a deadlock-free distributed network protocol for deployment.
+
+### [Issue] First-Class Compensations (Native Undo & Verified Sagas) [v6]
+**The Problem:** Writing rollback logic for distributed transactions (Sagas) or complex UI flows is notoriously error-prone.
+**The FSL Solution:**
+Because the FSL VM maintains a deterministic stimulus tape, it already knows the exact sequence of historical data states. By tagging a machine with `reversible: true;`, the compiler synthesizes a reverse edge for every transition. 
+When traversing backward via an `_fsl_reverse` action, standard `on_enter`/`on_exit` hooks do not fire (preventing double-firing of forward side-effects). Instead, the host binds to parallel **Compensation Hooks** (e.g., `on_compensate(Charge_Card)` -> `Refund_Card`). The VM automatically restores internal `vals` to their exact snapshot at each prior step. Physical boundaries can be tagged `[irreversible]` to mechanically truncate the undo stack.
+**The Value:** Every FSL machine gets a mathematically perfect "Undo/Redo" stack for free, ensuring safe, exact rollbacks without the host language writing complex data-restoration logic.
+
+### [Issue] Automated State Decay (Time-to-Live / TTL) [v6]
+**The Problem:** Cleaning up stale data (e.g. Abandoned Carts) usually requires external cron jobs and fragile database queries.
+**The FSL Solution:**
+Introduce native state TTLs: `state Abandoned_Cart [ttl: 30d -> Deleted];`
+**The Value:** The compiler inherently tracks state age. The SMT solver can mathematically prove that *no user data ever remains in the system for longer than X days without explicit intervention*. It turns GDPR compliance into a mathematically proven compilation target.
+
+### [Issue] FSL-Native Chaos Oracles (The Built-In Chaos Monkey) [v7]
+**The Problem:** Testing network resilience requires massive infrastructure and intercepting actual HTTP calls in staging.
+**The FSL Solution:**
+Compile your FSL machine in "Resilience Mode". Instead of waiting for real host errors, the compiled runtime *sporadically and intentionally* injects fake network timeouts, drops internal messages, or returns corrupt hook payloads. 
+**The Value:** Because FSL's bounds are absolute, the Chaos Oracle only injects errors that your machine *claims* to be able to handle. It physically proves that your compensation hooks and retry loops actually work, without manual testing.
+
+### [Issue] Machine Polymorphism (State Machine Inheritance) [v6 or v7]
+**The Problem:** Reusing common state machine patterns without copy-pasting is difficult in rigid finite systems.
+**The FSL Solution:**
+You define a base machine `Base_Crud` with `Create -> Read -> Update -> Delete`. Then you define `Secure_Crud extends Base_Crud` and inject an `Authenticate` state.
+**The Value:** The SMT solver mathematically proves that `Secure_Crud` is a strict behavioral refinement (Liskov Substitution) of `Base_Crud`. This brings true Object-Oriented polymorphism to finite state machines, allowing massive code reuse without breaking formal verification.
+
+### [Issue] Multi-Agent Protocol Arenas [v7]
+**The Problem:** Proving that two independent actors (or smart contracts) won't enter a deadlock when interacting.
+**The FSL Solution:**
+Instead of just defining a machine, you define an `arena {}`. You define a `Buyer` machine, a `Seller` machine, and a shared event channel. The compiler simulates both machines interacting simultaneously. 
+**The Value:** If there is *any* sequence of events where the Buyer transitions to `Paid` but the Seller doesn't transition to `Shipped`, the compiler throws an error. It becomes the ultimate DSL for decentralized protocols, smart contracts, and multi-agent systems where adversarial actors interact over a shared bus.
