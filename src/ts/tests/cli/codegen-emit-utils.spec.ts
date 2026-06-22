@@ -10,6 +10,10 @@ describe('jsStringLiteralBody', () => {
     expect(jsStringLiteralBody('a\nb\rc\td')).toBe('a\\nb\\rc\\td');
   });
 
+  it('escapes form feed, vertical tab, backspace, and NUL', () => {
+    expect(jsStringLiteralBody('a\fb\vc\bd\0e')).toBe('a\\fb\\vc\\bd\\x00e');
+  });
+
   it('leaves ordinary text untouched', () => {
     expect(jsStringLiteralBody('Green')).toBe('Green');
   });

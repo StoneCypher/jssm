@@ -8,8 +8,9 @@
 /**
  * Escape arbitrary text for embedding inside a single-quoted JS/TS string
  * literal. Backslashes and single quotes are escaped; control characters that
- * would break a one-line literal (newline, carriage return, tab) are turned
- * into their escape sequences.
+ * would break or silently corrupt a one-line literal (newline, carriage
+ * return, tab, form feed, vertical tab, backspace, NUL) are turned into their
+ * escape sequences.
  *
  * @param raw - The text to embed
  * @returns The escaped body (without the surrounding quotes)
@@ -24,7 +25,11 @@ export function jsStringLiteralBody(raw: string): string {
     .replace(/'/g, "\\'")
     .replace(/\n/g, '\\n')
     .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t');
+    .replace(/\t/g, '\\t')
+    .replace(/\f/g, '\\f')
+    .replace(/\v/g, '\\v')
+    .replace(/\x08/g, '\\b')   // \b in a regex is a word boundary; match the byte
+    .replace(/\0/g, '\\x00');  // NUL as \x00 to avoid octal-escape ambiguity
 }
 
 /**
