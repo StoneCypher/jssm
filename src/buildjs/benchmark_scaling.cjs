@@ -10,6 +10,7 @@ const pkg  = require('../../package.json');
 const plan = require('./benchmark_scaling_plan.cjs');
 const memory = require('./benchmark_scaling_memory.cjs');
 const exponents = require('./benchmark_scaling_exponents.cjs');
+const bundleSize = require('./benchmark_bundle_size.cjs');
 
 // ----------------------------------------------------------------------------
 // Deep mode (BENNY_DEEP) — graviton_perf #675 prerequisite
@@ -514,6 +515,20 @@ function exponentsPass() {
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
 }
 
+/**
+ *  Measure the published dist bundles (raw/gzip/brotli) and write them to
+ *  scaling.json as an additive `bundles` block. Pure file sizing — no benny, no
+ *  gc; tracks package weight per release.
+ */
+function bundlesPass() {
+  const dist     = (f) => path.join(__dirname, '..', '..', 'dist', f);
+  const files    = [dist('jssm.es5.cjs'), dist('jssm.es6.mjs'), dist('jssm.es5.iife.js')];
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  data.bundles   = bundleSize.collectBundleSizes(files);
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
 b.suite(
   'jssm scaling diagnostic suite',
   ...plan.plannedCaseKinds(HAS).flatMap(casesForKind),
@@ -529,6 +544,7 @@ b.suite(
       if (DEEP) { augmentDeepJson(summary); }
       memoryPass();
       exponentsPass();
+      bundlesPass();
       writeMarkdownPivot();
     });
   }),
