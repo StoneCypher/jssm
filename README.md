@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.144.4 at 6/22/2026, 10:40:41 AM
+* Generated for version 5.144.5 at 6/22/2026, 10:56:54 AM
 
 -->
-# jssm 5.144.4
+# jssm 5.144.5
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
