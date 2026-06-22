@@ -1,4 +1,4 @@
-import { JssmStateConfig, JssmBaseTheme } from '../jssm_types';
+import { JssmStateConfig, JssmBaseTheme } from '../jssm_types.js';
 declare const base_state_style: JssmStateConfig;
 declare const base_active_state_style: JssmStateConfig;
 declare const base_terminal_state_style: JssmStateConfig;

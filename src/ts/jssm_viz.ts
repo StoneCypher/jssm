@@ -1,13 +1,13 @@
 
-import * as jssm                 from './jssm';
-import { JssmError }              from './jssm_error';
-import { default_viz_colors }     from './jssm_viz_colors';
-import { version, build_time }    from './version';
-import { membership_distance }    from './jssm_compiler';
+import * as jssm                 from './jssm.js';
+import { JssmError }              from './jssm_error.js';
+import { default_viz_colors }     from './jssm_viz_colors.js';
+import { version, build_time }    from './version.js';
+import { membership_distance }    from './jssm_compiler.js';
 
 import type { Viz }               from '@viz-js/viz';
 import type { JssmTransition, JssmStateConfig, JssmGroupMemberRef,
-              JssmTransitionConfig, JssmGraphConfig } from './jssm_types';
+              JssmTransitionConfig, JssmGraphConfig } from './jssm_types.js';
 
 
 /**

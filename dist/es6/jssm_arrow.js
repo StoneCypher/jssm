@@ -1,4 +1,4 @@
-import { JssmError } from './jssm_error';
+import { JssmError } from './jssm_error.js';
 /* eslint-disable complexity */
 /*********
  *

@@ -1,4 +1,4 @@
-import { dispatch } from './dispatcher';
+import { dispatch } from './dispatcher.js';
 
 /**
  * Binary entry for `fsl` (and its alias `jssm`). Forwards argv to

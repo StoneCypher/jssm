@@ -1,4 +1,4 @@
-import { cli } from './subcommands/export-system-prompt/plugin';
+import { cli } from './subcommands/export-system-prompt/plugin.js';
 
 /**
  * Binary entry for `fsl-export-system-prompt`. Calls the plugin's `cli()` function and

@@ -1,5 +1,5 @@
-import { svgTarget } from './svg';
-import { RenderError } from '../../../types';
+import { svgTarget } from './svg.js';
+import { RenderError } from '../../../types.js';
 
 const escapeHtml = (s: string): string => s
   .replace(/&/g, '&amp;')
