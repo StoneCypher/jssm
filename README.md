@@ -18,7 +18,7 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 6.0.0-alpha.6 at 6/21/2026, 6:32:37 PM
+* Generated for version 6.0.0-alpha.6 at 6/21/2026, 7:35:42 PM
 
 -->
 # jssm 6.0.0-alpha.6
