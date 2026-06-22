@@ -112,6 +112,15 @@ metrics anyway, so the fresh run gets its own internal comparability.
   cutting 104 to a few dozen meaningful runs.
 - Absolute AWS cost is trivial (~$1 for all 104 on `c7g.medium`); optimize for wall-time and GitHub
   minutes, not dollars.
+- **Empty the old perfs before the new run, but archive — don't destroy.** The fresh, metric-rich
+  baseline should not be mixed with the old sparse ops-only points. Two things make this clean:
+  (1) `perf_results` is **keyed by instance type** (`c7g.medium/…` vs `c8g.medium/…`), so the new
+  `c8g.medium` runs land in a *separate namespace* and the chart (single-`instanceType` filter)
+  excludes the old `c7g.medium` data automatically — no deletion strictly required for a clean trail.
+  (2) Where we do want them gone from the active set, **move `c7g.medium/` under an `archive/`
+  prefix** (or rely on the `perf_results` git history) rather than hard-deleting — that old data is
+  the *evidence* that revealed the 5.142–5.143 regression and must stay recoverable. Net: switch the
+  runner/chart default to `c8g.medium`, archive the `c7g.medium/` tree, start the new trail empty.
 
 ### 2.4 How far back
 
