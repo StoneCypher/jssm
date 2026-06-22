@@ -536,3 +536,50 @@ test('Indiana General Assembly of 1897 Bill 246', () => {
   expect(TheLaw.prop('pi')).toBe(3.2);
 
 });
+
+
+
+
+
+
+describe('state_property provenance (#734)', () => {
+
+  // The compiler writes the unserialized (property, state) pair alongside the
+  // serialized binding name; hand-built configs that carry only the
+  // serialized name must still work via the constructor's parse fallback.
+  test('hand-built config with serialized-only binding name still constructs and resolves', () => {
+
+    const m = new jssm.Machine({
+      start_states        : ['a'],
+      transitions         : [
+        { from: 'a', to: 'b', kind: 'legal', forced_only: false, main_path: false }
+      ],
+      property_definition : [ { name: 'foo' } ],
+      state_property      : [ { name: JSON.stringify(['foo', 'b']), default_value: 7 } ]
+    });
+
+    m.go('b');
+    expect(m.prop('foo')).toBe(7);
+
+  });
+
+  test('hand-built config with an undeclared property still throws the original message', () => {
+
+    expect(() => new jssm.Machine({
+      start_states   : ['a'],
+      transitions    : [
+        { from: 'a', to: 'b', kind: 'legal', forced_only: false, main_path: false }
+      ],
+      state_property : [ { name: JSON.stringify(['mystery', 'b']), default_value: 1 } ]
+    })).toThrow('State "b" has property "mystery" which is not globally declared');
+
+  });
+
+  test('fsl-built machine with an undeclared property throws the original message', () => {
+
+    expect(() => sm`a -> b; state b: { property: mystery 1; };`)
+      .toThrow('State "b" has property "mystery" which is not globally declared');
+
+  });
+
+});

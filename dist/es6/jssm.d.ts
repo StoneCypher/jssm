@@ -157,6 +157,7 @@ declare class Machine<mDT> {
     _default_properties: Map<string, any>;
     _state_properties: Map<string, any>;
     _required_properties: Set<string>;
+    _state_property_first_state: Map<string, StateType>;
     _val_keys: Set<string>;
     _val_types: Map<string, JssmValType>;
     _val_values: Map<string, any>;

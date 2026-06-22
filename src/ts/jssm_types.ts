@@ -197,11 +197,20 @@ type JssmSerialization<DataType> = {
  *  Declaration of a named property that a machine's states may carry.
  *  Set `required: true` to force every state to define the property, or
  *  provide `default_value` to fall back when the state does not specify it.
+ *
+ *  For state-property *bindings* (the `state_property` config list), the
+ *  compiler also writes `property` and `state` — the unserialized pair behind
+ *  the serialized `name` — so the Machine constructor can validate bindings
+ *  without parsing `name` back apart.  Both are optional: hand-built configs
+ *  may carry only the serialized `name`, and global property definitions
+ *  never set them.
  */
 type JssmPropertyDefinition = {
   name           : string,
   default_value? : any,
-  required?      : boolean
+  required?      : boolean,
+  property?      : string,
+  state?         : string
 };
 
 

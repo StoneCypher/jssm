@@ -1795,3 +1795,22 @@ describe('All four everything hooks simultaneously', () => {
 
 
 });
+
+
+
+
+// Coverage for the #735 trans_type scan: a multi-exit state whose taken edge
+// is not the first outbound edge, so the scan must pass over a non-matching
+// outbound edge before finding the match.
+test('Standard transition hook fires when the taken edge is not the first outbound edge', () => {
+
+  const foo = sm`a -> b; a -> c; c -> a;`;
+
+  let saw = 0;
+  foo.hook_standard_transition( () => { saw += 1; return true; } );
+
+  expect(foo.transition('c')).toBe(true);   // a -> c is a's *second* outbound edge
+  expect(foo.state()).toBe('c');
+  expect(saw).toBe(1);
+
+});
