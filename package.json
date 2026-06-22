@@ -10,7 +10,8 @@
   "bin": {
     "fsl": "./dist/cli/fsl.cjs",
     "jssm": "./dist/cli/fsl.cjs",
-    "fsl-render": "./dist/cli/fsl-render.cjs"
+    "fsl-render": "./dist/cli/fsl-render.cjs",
+    "fsl-pick": "./dist/cli/fsl-pick.cjs"
   },
   "exports": {
     ".": {
