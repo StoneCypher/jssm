@@ -43,7 +43,13 @@ function createGcTracker() {
   });
   obs.observe({ entryTypes: ['gc'] });
   return {
-    stop() { obs.disconnect(); return summarizeGc(entries); },
+    stop() {
+      // Drain entries the observer has buffered but not yet delivered to the
+      // async callback, or they're lost when we disconnect synchronously.
+      for (const e of obs.takeRecords()) { entries.push({ duration: e.duration }); }
+      obs.disconnect();
+      return summarizeGc(entries);
+    },
   };
 }
 
