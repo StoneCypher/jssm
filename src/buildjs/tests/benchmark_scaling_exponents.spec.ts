@@ -28,3 +28,29 @@ describe('logLogFit', () => {
     expect(slope).toBeCloseTo(0, 6);
   });
 });
+
+describe('computeExponents', () => {
+  test('emits exponent (=-slope) and r2 per op and family', () => {
+    const results = [
+      { name: 'chain-10 edges_between()',   ops: 1000 },
+      { name: 'chain-100 edges_between()',  ops: 100 },     // ops ∝ 1/N -> cost exponent 1
+      { name: 'chain-1000 edges_between()', ops: 10 },
+      { name: 'dense-10 edges_between()',   ops: 50 },      // single dense point -> skipped
+    ];
+    const out = exp.computeExponents(results);
+    expect(out['edges_between()'].chain.exponent).toBeCloseTo(1, 6);
+    expect(out['edges_between()'].chain.r2).toBeCloseTo(1, 6);
+    expect(out['edges_between()'].chain.points).toBe(3);
+    expect(out['edges_between()'].dense).toBeUndefined();   // <2 points
+  });
+
+  test('skips non-positive ops and unparseable shapes without throwing', () => {
+    const results = [
+      { name: 'chain-10 transition()',  ops: 0 },
+      { name: 'weird transition()',     ops: 5 },
+      { name: 'chain-50 transition()',  ops: 5 },
+    ];
+    const out = exp.computeExponents(results);
+    expect(out['transition()']).toBeUndefined();   // only one usable point
+  });
+});

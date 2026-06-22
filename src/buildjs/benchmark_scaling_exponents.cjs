@@ -49,4 +49,43 @@ function logLogFit(points) {
   return { slope, r2 };
 }
 
-module.exports = { parseShape, logLogFit };
+/**
+ *  Compute the cost-scaling exponent per operation and shape-family from a
+ *  results set.  Groups `<family>-<N> <op>` rows by (op, family), fits
+ *  `log(ops)` vs `log(N)`, and reports `exponent = −slope` (so O(1)→~0,
+ *  O(N)→~1, O(N²)→~2) plus R² and the point count.  Families with fewer than
+ *  `minPoints` sizes, non-positive ops, and unparseable names are skipped.
+ *
+ *  @param results The `scaling.json` `results` array (`{ name, ops }`).
+ *  @param minPoints Minimum sizes in a family to fit (default 2).
+ *  @returns `{ [op]: { [family]: { exponent, r2, points } } }`.
+ *
+ *  @example computeExponents([{name:'chain-10 t()',ops:8},{name:'chain-100 t()',ops:4}])
+ */
+function computeExponents(results, minPoints = 2) {
+  const byOp = new Map();   // op -> Map(family -> [{x, y}])
+  for (const r of results) {
+    const sp     = r.name.lastIndexOf(' ');
+    const shape  = r.name.slice(0, sp);
+    const op     = r.name.slice(sp + 1);
+    const parsed = parseShape(shape);
+    if (!parsed || !(r.ops > 0)) { continue; }
+    if (!byOp.has(op)) { byOp.set(op, new Map()); }
+    const fam = byOp.get(op);
+    if (!fam.has(parsed.family)) { fam.set(parsed.family, []); }
+    fam.get(parsed.family).push({ x: parsed.n, y: r.ops });
+  }
+
+  const out = {};
+  for (const [op, fam] of byOp) {
+    for (const [family, pts] of fam) {
+      if (pts.length < minPoints) { continue; }
+      const { slope, r2 } = logLogFit(pts);
+      if (!out[op]) { out[op] = {}; }
+      out[op][family] = { exponent: -slope, r2, points: pts.length };
+    }
+  }
+  return out;
+}
+
+module.exports = { parseShape, logLogFit, computeExponents };
