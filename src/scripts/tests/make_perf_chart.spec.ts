@@ -130,6 +130,31 @@ describe('render_chart', () => {
     }
   });
 
+  test('panels draw a faint per-run vertical guide behind the data', () => {
+    const { svg, panels } = mpc.render_chart(two_runs);
+    expect(svg).toContain('stroke="#f4f4f4"');
+    for (const p of panels.values()) {
+      expect(p).toContain('stroke="#f4f4f4"');
+    }
+  });
+
+  test('stacks panels with a vertical gap between charts', () => {
+    // three panels (construct/transition/action), header 56, default gap 32:
+    // 56 -> +372 +32 -> 460 -> +372 +32 -> 864
+    const { svg } = mpc.render_chart(two_runs);
+    expect(svg).toContain('translate(0 56)');
+    expect(svg).toContain('translate(0 460)');
+    expect(svg).toContain('translate(0 864)');
+  });
+
+  test('panel_gap is configurable and widens the composite height', () => {
+    const height = (s: string) => Number((s.match(/<svg[^>]*height="(\d+)"/) || [])[1]);
+    const gapped = mpc.render_chart(two_runs, 960, 372, 40);
+    const flush  = mpc.render_chart(two_runs, 960, 372, 0);
+    expect(height(gapped.svg)).toBeGreaterThan(height(flush.svg));
+    expect(flush.svg).toContain('translate(0 428)');   // 56 + 372, no gap
+  });
+
 });
 
 
