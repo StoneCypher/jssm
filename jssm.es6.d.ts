@@ -3153,6 +3153,24 @@ declare class Machine<mDT> {
      *  calling this directly.
      *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
      */
+    /**
+     *  Validate a {@link HookDescription} before registration.  Every hook needs
+     *  a `handler` function, and each kind's identifying spatial fields
+     *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+     *  kind — present when required, absent otherwise.  This turns a mis-shaped
+     *  descriptor into a thrown error instead of a silently dead hook keyed on
+     *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+     *
+     *  @param HookDesc - The descriptor about to be registered.
+     *  @throws JssmError if the kind is unknown, the handler is not a function, a
+     *          required field is missing, or an inapplicable field is present.
+     *
+     *  @example
+     *    const m = sm`a -> b;`;
+     *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+     *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+     */
+    _validate_hook_description(HookDesc: HookDescription<mDT>): void;
     set_hook(HookDesc: HookDescription<mDT>): void;
     /**
      *  Remove a previously-registered hook described by a
