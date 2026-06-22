@@ -347,6 +347,35 @@ declare function option_of_nullable(value: FslAcyclic): AdtValue;
 declare function nullable_of_option(value: AdtValue): FslAcyclic;
 /*******
  *
+ *  Admits or rejects a value against a **declared-nullable** type `T?` (§4.4).
+ *  FSL values are non-null by default, so `null` and `undefined` pass only when
+ *  the slot was declared with the `?` suffix.  This makes "no `null` in
+ *  arithmetic" a single boundary check rather than a test threaded through every
+ *  operator: the value flows through unchanged when admissible, and is refused
+ *  otherwise.
+ *
+ *  ```typescript
+ *  nullable_check(7,         true);   // 7          (any value is fine)
+ *  nullable_check(null,      true);   // null       (declared nullable, allowed)
+ *  nullable_check(undefined, true);   // undefined  (declared nullable, allowed)
+ *  nullable_check(0,         false);  // 0          (a real value, not absent)
+ *  ```
+ *
+ *  @param value    - The value to admit or reject.
+ *  @param nullable - Whether the declared type carried the `?` suffix.
+ *
+ *  @returns `value` unchanged when admissible.
+ *
+ *  @throws {JssmError} If `value` is `null`/`undefined` but the slot is not
+ *                      declared nullable.
+ *
+ *  @see option_of_nullable
+ *  @see nullable_of_option
+ *
+ */
+declare function nullable_check(value: FslAcyclic, nullable: boolean): FslAcyclic;
+/*******
+ *
  *  A type-alias environment (§4.4): an immutable map from an alias name to the
  *  descriptor it stands for.  A descriptor is opaque acyclic data — typically a
  *  type descriptor record such as `{ base: 'int', lo: -273, hi: 1000 }` for
@@ -536,6 +565,36 @@ declare function fn_equal(a: FnValue, b: FnValue): boolean;
 declare function fn_hash(value: FnValue): string;
 /*******
  *
+ *  Derives a stable `fn` **tag** from the normalized source of a lambda body
+ *  (§4.4: "a content-hash of the normalized lambda AST, or an index into the
+ *  program's finite lambda table").  This is the value you hand to
+ *  {@link fn_value} as its body tag: two textually-identical normalized bodies
+ *  produce the same tag, differing bodies (with overwhelming probability) do
+ *  not — the foundation of the **intensional** function-value equality of
+ *  {@link fn_equal}.  The digest is the pinned, host-independent §15 content
+ *  hash, never a JS object identity, so a function value built from it
+ *  serializes and compares the same across hosts.
+ *
+ *  ```typescript
+ *  lambda_tag('(x) => x + 1');                       // e.g. '084fa3b1'
+ *  lambda_tag('(x) => x + 1') === lambda_tag('(x) => x + 1');   // true
+ *  fn_value(lambda_tag('(x) => x + n'), { n: 5 });   // a defunctionalized lambda
+ *  ```
+ *
+ *  @param normalized_source - The lambda body in canonical normalized form.
+ *
+ *  @returns An eight-hex-digit content-hash tag.
+ *
+ *  @throws {JssmError} If `normalized_source` is not a string.
+ *
+ *  @see fn_value
+ *  @see fn_equal
+ *  @see fnv1a_hex
+ *
+ */
+declare function lambda_tag(normalized_source: string): string;
+/*******
+ *
  *  Canonical serialization for every acyclic FSL value (§15): a deterministic
  *  JSON string with **sorted object keys**, so that two structurally-equal
  *  values always serialize to byte-identical text regardless of key insertion
@@ -549,6 +608,8 @@ declare function fn_hash(value: FnValue): string;
  *  canonical_json([1, 2, 3]);        // '[1,2,3]'
  *  canonical_json(null);             // 'null'
  *  canonical_json(undefined);        // '"undefined"'
+ *  canonical_json(NaN);              // 'nan'
+ *  canonical_json(-0);               // '0'
  *  ```
  *
  *  @param value - The acyclic value to serialize.
@@ -617,6 +678,7 @@ declare function hash_value(value: FslAcyclic): string;
  *  deep_equal( { a: [1, 2] }, { a: [1, 2] } );   // true
  *  deep_equal( [1, 2],        [1, 2, 3] );        // false
  *  deep_equal( null,          undefined );        // false  (distinct in FSL)
+ *  deep_equal( NaN,           NaN );              // true   (SameValueZero)
  *  deep_equal( variant('point'), variant('point') ); // true
  *  ```
  *
@@ -678,4 +740,4 @@ declare function assert_acyclic(value: FslAcyclic): void;
  *
  */
 declare function deep_freeze_copy(value: FslAcyclic): FslAcyclic;
-export { FslAcyclic, AdtValue, variant, is_variant, variant_tag, variant_field, match, some, none, is_some, is_none, option_unwrap_or, option_map, option_of_nullable, nullable_of_option, AliasEnv, make_alias_env, resolve_alias, FnValue, fn_value, is_fn_value, fn_equal, fn_hash, canonical_json, snapshot_value, hash_value, deep_equal, assert_acyclic, deep_freeze_copy };
+export { FslAcyclic, AdtValue, variant, is_variant, variant_tag, variant_field, match, some, none, is_some, is_none, option_unwrap_or, option_map, option_of_nullable, nullable_of_option, nullable_check, AliasEnv, make_alias_env, resolve_alias, FnValue, fn_value, is_fn_value, fn_equal, fn_hash, lambda_tag, canonical_json, snapshot_value, hash_value, deep_equal, assert_acyclic, deep_freeze_copy };

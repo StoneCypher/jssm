@@ -2,6 +2,7 @@
 import {
   unlimited,
   DEFAULT_INPUT_HISTORY,
+  FslTapeError,
   is_retained,
   Tape,
   Channel,
@@ -64,26 +65,26 @@ describe('fsl_tape: Tape construction and capacity validation', () => {
   });
 
   test('rejects a zero capacity', () => {
-    expect(() => new Tape<number>('input', 0)).toThrow(RangeError);
+    expect(() => new Tape<number>('input', 0)).toThrow(FslTapeError);
   });
 
   test('rejects a negative capacity', () => {
-    expect(() => new Tape<number>('input', -3)).toThrow(RangeError);
+    expect(() => new Tape<number>('input', -3)).toThrow(FslTapeError);
   });
 
   test('rejects a fractional capacity', () => {
-    expect(() => new Tape<number>('input', 2.5)).toThrow(RangeError);
+    expect(() => new Tape<number>('input', 2.5)).toThrow(FslTapeError);
   });
 
   test('rejects a NaN capacity', () => {
-    expect(() => new Tape<number>('input', NaN)).toThrow(RangeError);
+    expect(() => new Tape<number>('input', NaN)).toThrow(FslTapeError);
   });
 
   test('rejects an Infinity capacity (use `unlimited` instead)', () => {
-    expect(() => new Tape<number>('input', Infinity)).toThrow(RangeError);
+    expect(() => new Tape<number>('input', Infinity)).toThrow(FslTapeError);
   });
 
-  test('the RangeError message names the bad value', () => {
+  test('the FslTapeError message names the bad value', () => {
     expect(() => new Tape<number>('input', 0))
       .toThrow(/positive integer or `unlimited`/);
   });
@@ -225,8 +226,8 @@ describe('fsl_tape: Channel', () => {
     expect(c.tape.capacity).toBe(DEFAULT_INPUT_HISTORY);
   });
 
-  test('an invalid capacity surfaces as the Tape RangeError', () => {
-    expect(() => new Channel<number>('o', 'output', 0)).toThrow(RangeError);
+  test('an invalid capacity surfaces as the Tape FslTapeError', () => {
+    expect(() => new Channel<number>('o', 'output', 0)).toThrow(FslTapeError);
   });
 
   test('appending to the channel tape records values', () => {
@@ -485,6 +486,201 @@ describe('fsl_tape: end-to-end transducer slice', () => {
     expect(left.tape.values()).toEqual([]);
     // The input remains the source of truth, unaffected by the rollback.
     expect(input.tape.values()).toEqual(['go']);
+  });
+
+});
+
+
+
+
+describe('fsl_tape: FslTapeError', () => {
+
+  test('is an Error (instanceof holds across targets)', () => {
+    expect(new FslTapeError('boom') instanceof Error).toBe(true);
+  });
+
+  test('is an FslTapeError (prototype re-pinned)', () => {
+    expect(new FslTapeError('boom') instanceof FslTapeError).toBe(true);
+  });
+
+  test('carries its message', () => {
+    expect(new FslTapeError('boom').message).toBe('boom');
+  });
+
+  test('names itself FslTapeError', () => {
+    expect(new FslTapeError('boom').name).toBe('FslTapeError');
+  });
+
+});
+
+
+
+
+describe('fsl_tape: Tape.read', () => {
+
+  test('returns the live entry at a valid position', () => {
+    const t = new Tape<string>('input', 10);
+    t.append('x');
+    t.append('y');
+    expect(t.read(1)).toEqual({ value: 'y', seq: 1 });
+  });
+
+  test('rejects a negative index', () => {
+    const t = new Tape<string>('input', 10);
+    t.append('x');
+    expect(() => t.read(-1)).toThrow(FslTapeError);
+  });
+
+  test('rejects an index at length', () => {
+    const t = new Tape<string>('input', 10);
+    t.append('x');
+    expect(() => t.read(1)).toThrow(FslTapeError);
+  });
+
+  test('rejects an index beyond length', () => {
+    const t = new Tape<string>('input', 10);
+    t.append('x');
+    expect(() => t.read(99)).toThrow(FslTapeError);
+  });
+
+  test('rejects a non-integer index', () => {
+    const t = new Tape<string>('input', 10);
+    t.append('x');
+    expect(() => t.read(0.5)).toThrow(FslTapeError);
+  });
+
+  test('error message reports the length', () => {
+    const t = new Tape<string>('input', 10);
+    t.append('x');
+    expect(() => t.read(5)).toThrow(/length 1/);
+  });
+
+});
+
+
+
+
+describe('fsl_tape: Tape iterability', () => {
+
+  test('a tape is iterable via spread', () => {
+    const t = new Tape<number>('output', 10);
+    t.append(1);
+    t.append(2);
+    expect([...t]).toEqual([1, 2]);
+  });
+
+  test('the iterator yields each live value oldest-first in for…of', () => {
+    const t = new Tape<number>('output', 10);
+    t.append(10);
+    t.append(20);
+    const seen: number[] = [];
+    for (const v of t) { seen.push(v); }
+    expect(seen).toEqual([10, 20]);
+  });
+
+  test('iterating an empty tape yields nothing', () => {
+    const t = new Tape<number>('output', 10);
+    expect([...t]).toEqual([]);
+  });
+
+  test('the iterator reflects post-eviction live values only', () => {
+    const t = new Tape<number>('output', 2);
+    t.append(1);
+    t.append(2);
+    t.append(3);   // evicts 1
+    expect([...t]).toEqual([2, 3]);
+  });
+
+});
+
+
+
+
+describe('fsl_tape: Channel receive / emit / values', () => {
+
+  test('receive records an inbound value on an input channel', () => {
+    const c = new Channel<string>('events', 'input');
+    c.receive('go');
+    expect(c.values()).toEqual(['go']);
+  });
+
+  test('receive returns the stamped entry', () => {
+    const c = new Channel<string>('events', 'input');
+    expect(c.receive('go')).toEqual({ value: 'go', seq: 0 });
+  });
+
+  test('receive on a non-input channel throws FslTapeError', () => {
+    const c = new Channel<string>('o', 'output');
+    expect(() => c.receive('nope')).toThrow(FslTapeError);
+  });
+
+  test('receive error names the offending channel', () => {
+    const c = new Channel<string>('o', 'output');
+    expect(() => c.receive('nope')).toThrow(/"o"/);
+  });
+
+  test('emit records a value directly on an output channel', () => {
+    const c = new Channel<string>('out', 'output');
+    c.emit('LPAREN');
+    expect(c.values()).toEqual(['LPAREN']);
+  });
+
+  test('emit returns the stamped entry', () => {
+    const c = new Channel<string>('out', 'output');
+    expect(c.emit('x')).toEqual({ value: 'x', seq: 0 });
+  });
+
+  test('emit on an input channel throws FslTapeError', () => {
+    const c = new Channel<number>('in', 'input');
+    expect(() => c.emit(1)).toThrow(FslTapeError);
+  });
+
+  test('emit error names the offending input channel', () => {
+    const c = new Channel<number>('in', 'input');
+    expect(() => c.emit(1)).toThrow(/"in"/);
+  });
+
+  test('values mirrors the backing tape', () => {
+    const c = new Channel<number>('o', 'output', 10);
+    c.emit(1);
+    c.emit(2);
+    expect(c.values()).toEqual(c.tape.values());
+    expect(c.values()).toEqual([1, 2]);
+  });
+
+});
+
+
+
+
+describe('fsl_tape: TapeTransaction commit / rollback return values', () => {
+
+  test('commit returns the produced entries in stage order', () => {
+    const out = new Channel<string>('o', 'output', 10);
+    const tx  = new TapeTransaction([out]);
+    tx.emit('o', 'a');
+    tx.emit('o', 'b');
+    const produced = tx.commit();
+    expect(produced.map(e => e.value)).toEqual(['a', 'b']);
+    expect(produced.map(e => e.seq)).toEqual([0, 1]);
+  });
+
+  test('committing an emit-free transaction returns []', () => {
+    const tx = new TapeTransaction([]);
+    expect(tx.commit()).toEqual([]);
+  });
+
+  test('rollback returns the count of discarded emits', () => {
+    const out = new Channel<number>('o', 'output', 10);
+    const tx  = new TapeTransaction([out]);
+    tx.emit('o', 1);
+    tx.emit('o', 2);
+    expect(tx.rollback()).toBe(2);
+  });
+
+  test('rolling back an emit-free transaction returns 0', () => {
+    const tx = new TapeTransaction([]);
+    expect(tx.rollback()).toBe(0);
   });
 
 });

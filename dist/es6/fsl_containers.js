@@ -43,32 +43,113 @@
  *  ```
  *
  */
+import { FslError } from './fsl_errors';
+// ---------------------------------------------------------------------------
+//  Typed container errors (megaspec §11 — built on the FslError taxonomy)
+// ---------------------------------------------------------------------------
+/**
+ *  Raised when a value required to be a §4.2 container key or set member — a
+ *  finite number or a string — is something else.  A dedicated subclass of
+ *  {@link FslError} so callers can branch on either `instanceof ContainerKeyError`
+ *  or the shared `error.kind === 'type_error'` taxonomy discriminant of §11,
+ *  while the message still names the offending value and its role.
+ *
+ *  `NaN` and `±Infinity` are rejected even though they are `number`s: neither is
+ *  a usable key (`NaN` never compares equal to itself; infinities are not finite
+ *  scalars), so a key built from one could never be read back.
+ *
+ *  @param key   The offending value supplied where a key / member was required.
+ *  @param role  What it was being used as — `'key'` (map) or `'member'` (set) —
+ *               so the message names the right role.
+ *
+ *  @example
+ *    try { map_get(map_of<number>([]), {} as never); }
+ *    catch (e) {
+ *      e instanceof ContainerKeyError;   // → true
+ *      (e as ContainerKeyError).kind;    // → 'type_error'
+ *      (e as ContainerKeyError).role;    // → 'key'
+ *    }
+ */
+class ContainerKeyError extends FslError {
+    constructor(key, role) {
+        super('type_error', `container ${role} must be a finite number or string, got ${stringify_for_error(key)}`, { entity: role });
+        Object.setPrototypeOf(this, ContainerKeyError.prototype);
+        this.name = 'ContainerKeyError';
+        this.key = key;
+        this.role = role;
+    }
+}
+/**
+ *  Raised by a strict read that addresses something not present — an
+ *  out-of-range list index, or a missing map key on a strict read.  A dedicated
+ *  subclass of {@link FslError} (taxonomy `kind === 'out_of_bounds'`) so a
+ *  genuine miss can be told apart from any other failure by either
+ *  `instanceof ContainerRangeError` or the shared `error.kind` discriminant.
+ *
+ *  @param message  Human-readable description of what was out of range.
+ *
+ *  @example
+ *    try { list_at(list_of(1), 5); }
+ *    catch (e) {
+ *      e instanceof ContainerRangeError;   // → true
+ *      (e as ContainerRangeError).kind;    // → 'out_of_bounds'
+ *    }
+ */
+class ContainerRangeError extends FslError {
+    constructor(message) {
+        super('out_of_bounds', message);
+        Object.setPrototypeOf(this, ContainerRangeError.prototype);
+        this.name = 'ContainerRangeError';
+    }
+}
 // ---------------------------------------------------------------------------
 //  Internal helpers — key normalisation and scalar ordering
 // ---------------------------------------------------------------------------
+/**
+ *  Predicate for the §4.2 key / member rule: `true` exactly for a string, or a
+ *  **finite** number (rejecting `NaN` and `±Infinity`).  The boolean companion
+ *  to {@link require_scalar}, which throws on the same inputs this returns
+ *  `false` for; exposed so callers can test a candidate key without a try/catch.
+ *
+ *  @param value  The candidate key or member.
+ *  @returns      `true` iff `value` is a usable container key / member.
+ *
+ *  @example
+ *    is_container_key('a')        // → true
+ *    is_container_key(3)          // → true
+ *    is_container_key(NaN)        // → false
+ *    is_container_key(Infinity)   // → false
+ *    is_container_key(true)       // → false
+ */
+function is_container_key(value) {
+    if (typeof value === 'string') {
+        return true;
+    }
+    return typeof value === 'number' && Number.isFinite(value);
+}
 /**
  *  Reject a candidate set member / map key that is not a §4.2 decidable scalar
  *  (a finite number or a string).  `NaN`, `±Infinity`, booleans, objects, and
  *  `null`/`undefined` are all refused, because none of them has the stable,
  *  decidable equality and ordering a key store requires.
  *
- *  @param key  The candidate member or key.
- *  @returns    The same value, narrowed to {@link Scalar}, when it is valid.
- *  @throws     `Error` when `key` is not a finite number or a string.
+ *  @param key   The candidate member or key.
+ *  @param role  Whether it is used as a map `'key'` or a set `'member'`; only
+ *               affects the error wording.  Defaults to `'key'`.
+ *  @returns     The same value, narrowed to {@link Scalar}, when it is valid.
+ *  @throws      {ContainerKeyError} when `key` is not a finite number or string.
  *
  *  @example
- *    require_scalar('a')   // → 'a'
- *    require_scalar(7)     // → 7
- *    require_scalar(NaN)   // throws Error (not a decidable key)
+ *    require_scalar('a')              // → 'a'
+ *    require_scalar(7)                // → 7
+ *    require_scalar(NaN)              // throws ContainerKeyError (not a decidable key)
+ *    require_scalar({}, 'member')     // throws ContainerKeyError (role 'member')
  */
-function require_scalar(key) {
-    if (typeof key === 'string') {
+function require_scalar(key, role = 'key') {
+    if (is_container_key(key)) {
         return key;
     }
-    if (typeof key === 'number' && Number.isFinite(key)) {
-        return key;
-    }
-    throw new Error(`fsl container key/member must be a finite number or string, got ${stringify_for_error(key)}`);
+    throw new ContainerKeyError(key, role);
 }
 /**
  *  Render an arbitrary rejected key as a short, safe string for an error
@@ -215,6 +296,29 @@ function list_get(list, index) {
     return list.items[at];
 }
 /**
+ *  Strict element read — §4.2 access that throws on a miss instead of returning
+ *  `undefined`, so an out-of-range index is never silently confused with a
+ *  stored `undefined`.  Negative-from-the-back indexing applies, same as
+ *  {@link list_get}; for the lenient form use {@link list_get}.
+ *
+ *  @param list   The list.
+ *  @param index  The position; negative counts from the back.
+ *  @returns      The element at the resolved index.
+ *  @throws       {ContainerRangeError} if the resolved index is out of range.
+ *
+ *  @example
+ *    list_at(list_of(10, 20, 30), 1)    // → 20
+ *    list_at(list_of(10, 20, 30), -1)   // → 30
+ *    list_at(list_of(10, 20, 30), 9)    // throws ContainerRangeError
+ */
+function list_at(list, index) {
+    const at = resolve_list_index(index, list.items.length);
+    if (at === undefined) {
+        throw new ContainerRangeError(`list index ${index} out of range for length ${list.items.length}`);
+    }
+    return list.items[at];
+}
+/**
  *  Return a copy of `list` with the element at `index` replaced by `value` —
  *  §4.2 update (`items[i] := x` of §9, in its pure form).  The input is never
  *  mutated.  An out-of-range index returns the list unchanged (no element is
@@ -347,7 +451,7 @@ function set_of(...members) {
 function set_from(members) {
     const seen = [];
     for (const m of members) {
-        const member = require_scalar(m);
+        const member = require_scalar(m, 'member');
         if (!seen.includes(member)) {
             seen.push(member);
         }
@@ -375,6 +479,7 @@ function set_size(set) {
  *  @param set     The set.
  *  @param member  The candidate member.
  *  @returns       `true` iff `member` is in the set.
+ *  @throws        {ContainerKeyError} if `member` is not a finite number or string.
  *
  *  @example
  *    set_has(set_of(1, 2, 3), 2)     // → true
@@ -382,7 +487,7 @@ function set_size(set) {
  *    set_has(set_of('a'), 'b')       // → false
  */
 function set_has(set, member) {
-    return set.members.includes(member);
+    return set.members.includes(require_scalar(member, 'member'));
 }
 /**
  *  Return a copy of `set` with `member` added — §4.2 set update.  Adding a
@@ -399,7 +504,7 @@ function set_has(set, member) {
  *    set_add(set_of(1, 2), 2)    // → set {1, 2}      (idempotent)
  */
 function set_add(set, member) {
-    const m = require_scalar(member);
+    const m = require_scalar(member, 'member');
     if (set.members.includes(m)) {
         return set;
     }
@@ -412,16 +517,18 @@ function set_add(set, member) {
  *  @param set     The source set.
  *  @param member  The member to remove.
  *  @returns       A new set without `member`, or the original if it was absent.
+ *  @throws        {ContainerKeyError} if `member` is not a finite number or string.
  *
  *  @example
  *    set_remove(set_of(1, 2, 3), 2)   // → set {1, 3}
  *    set_remove(set_of(1, 2, 3), 9)   // → set {1, 2, 3}  (absent, unchanged)
  */
 function set_remove(set, member) {
-    if (!set.members.includes(member)) {
+    const m = require_scalar(member, 'member');
+    if (!set.members.includes(m)) {
         return set;
     }
-    const next = set.members.filter(m => m !== member);
+    const next = set.members.filter(x => x !== m);
     return { kind: 'set', members: Object.freeze(next) };
 }
 /**
@@ -525,13 +632,14 @@ function map_size(map) {
  *  @param map  The map.
  *  @param key  The key to test.
  *  @returns    `true` iff `key` has an entry.
+ *  @throws     {ContainerKeyError} if `key` is not a finite number or string.
  *
  *  @example
  *    map_has(map_of([['a', 1]]), 'a')   // → true
  *    map_has(map_of([['a', 1]]), 'z')   // → false
  */
 function map_has(map, key) {
-    return map.keys.includes(key);
+    return map.keys.includes(require_scalar(key));
 }
 /**
  *  Read the value at `key` — §4.2 map access.  Returns `undefined` for an
@@ -541,17 +649,63 @@ function map_has(map, key) {
  *  @param map  The map.
  *  @param key  The key to read.
  *  @returns    The value, or `undefined` if the key is absent.
+ *  @throws     {ContainerKeyError} if `key` is not a finite number or string.
  *
  *  @example
  *    map_get(map_of([['a', 1], ['b', 2]]), 'b')   // → 2
  *    map_get(map_of([['a', 1]]), 'z')             // → undefined
  */
 function map_get(map, key) {
-    const at = map.keys.indexOf(key);
+    const at = map.keys.indexOf(require_scalar(key));
     if (at === -1) {
         return undefined;
     }
     return map.values[at];
+}
+/**
+ *  Strict map read — §4.2 access that throws on an absent key instead of
+ *  returning `undefined`, so a miss is never confused with a key stored with
+ *  value `undefined`.  For the lenient form use {@link map_get}; for a default
+ *  fallback use {@link map_get_or}.
+ *
+ *  @param map  The map.
+ *  @param key  The key to read.
+ *  @returns    The value stored under `key`.
+ *  @throws     {ContainerKeyError}   if `key` is not a finite number or string.
+ *  @throws     {ContainerRangeError} if `key` is absent from the map.
+ *
+ *  @example
+ *    map_get_strict(map_of([['a', 1]]), 'a')   // → 1
+ *    map_get_strict(map_of([['a', 1]]), 'z')   // throws ContainerRangeError
+ */
+function map_get_strict(map, key) {
+    const k = require_scalar(key);
+    const at = map.keys.indexOf(k);
+    if (at === -1) {
+        const printable = typeof k === 'string' ? JSON.stringify(k) : String(k);
+        throw new ContainerRangeError(`map has no key ${printable}`);
+    }
+    return map.values[at];
+}
+/**
+ *  Defaulting map read — returns the value stored under `key`, or `fallback`
+ *  when the key is absent.  The middle ground between lenient {@link map_get}
+ *  (returns `undefined` on a miss) and strict {@link map_get_strict} (throws):
+ *  the caller supplies the miss value.
+ *
+ *  @param map       The map.
+ *  @param key       The key to read.
+ *  @param fallback  Value returned when `key` is absent.
+ *  @returns         The stored value, or `fallback` if `key` is absent.
+ *  @throws          {ContainerKeyError} if `key` is not a finite number or string.
+ *
+ *  @example
+ *    map_get_or(map_of([['a', 1]]), 'a', 0)   // → 1
+ *    map_get_or(map_of([['a', 1]]), 'z', 0)   // → 0   (absent → fallback)
+ */
+function map_get_or(map, key, fallback) {
+    const at = map.keys.indexOf(require_scalar(key));
+    return at === -1 ? fallback : map.values[at];
 }
 /**
  *  Return a copy of `map` with `key` set to `value` — §4.2 map update
@@ -589,13 +743,14 @@ function map_put(map, key, value) {
  *  @param map  The source map.
  *  @param key  The key to delete.
  *  @returns    A new map without `key`, or the original if it was absent.
+ *  @throws     {ContainerKeyError} if `key` is not a finite number or string.
  *
  *  @example
  *    map_remove(map_of([['a', 1], ['b', 2]]), 'a')   // → map {'b': 2}
  *    map_remove(map_of([['a', 1]]), 'z')             // → map {'a': 1}  (absent, unchanged)
  */
 function map_remove(map, key) {
-    const at = map.keys.indexOf(key);
+    const at = map.keys.indexOf(require_scalar(key));
     if (at === -1) {
         return map;
     }
@@ -1084,12 +1239,14 @@ function object_compare(a, b) {
 // ---------------------------------------------------------------------------
 export { 
 // list
-list_of, list_from, list_length, resolve_list_index, list_get, list_set, list_push, list_pop, list_slice, list_includes, 
+list_of, list_from, list_length, resolve_list_index, list_get, list_at, list_set, list_push, list_pop, list_slice, list_includes, 
 // set
 set_of, set_from, set_size, set_has, set_add, set_remove, set_union, set_intersection, set_difference, 
 // map
-map_of, map_size, map_has, map_get, map_put, map_remove, map_keys, map_values, map_entries, 
+map_of, map_size, map_has, map_get, map_get_strict, map_get_or, map_put, map_remove, map_keys, map_values, map_entries, 
 // structural protocol: equality, snapshot, clone, compare
 is_container, deep_equal, same_value_zero, equals, snapshot, deep_clone, compare, KIND_RANK, 
+// typed errors + key predicate
+ContainerKeyError, ContainerRangeError, is_container_key, 
 // internal helpers (exported for direct unit coverage)
 require_scalar, stringify_for_error, scalar_compare, container_equal, array_equal, is_plain_object, object_equal, compare_snapshots, type_rank, array_compare, object_compare };

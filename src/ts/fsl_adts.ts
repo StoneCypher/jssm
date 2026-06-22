@@ -527,6 +527,48 @@ function nullable_of_option(value: AdtValue): FslAcyclic {
 
 
 
+/*******
+ *
+ *  Admits or rejects a value against a **declared-nullable** type `T?` (§4.4).
+ *  FSL values are non-null by default, so `null` and `undefined` pass only when
+ *  the slot was declared with the `?` suffix.  This makes "no `null` in
+ *  arithmetic" a single boundary check rather than a test threaded through every
+ *  operator: the value flows through unchanged when admissible, and is refused
+ *  otherwise.
+ *
+ *  ```typescript
+ *  nullable_check(7,         true);   // 7          (any value is fine)
+ *  nullable_check(null,      true);   // null       (declared nullable, allowed)
+ *  nullable_check(undefined, true);   // undefined  (declared nullable, allowed)
+ *  nullable_check(0,         false);  // 0          (a real value, not absent)
+ *  ```
+ *
+ *  @param value    - The value to admit or reject.
+ *  @param nullable - Whether the declared type carried the `?` suffix.
+ *
+ *  @returns `value` unchanged when admissible.
+ *
+ *  @throws {JssmError} If `value` is `null`/`undefined` but the slot is not
+ *                      declared nullable.
+ *
+ *  @see option_of_nullable
+ *  @see nullable_of_option
+ *
+ */
+
+function nullable_check(value: FslAcyclic, nullable: boolean): FslAcyclic {
+
+  if (((value === null) || (value === undefined)) && (!nullable)) {
+    throw new JssmError(undefined, `null/undefined assigned to a non-nullable slot; declare it T? to allow (got ${value === null ? 'null' : 'undefined'})`);
+  }
+
+  return value;
+
+}
+
+
+
+
 
 /*******
  *
@@ -828,6 +870,91 @@ function fn_hash(value: FnValue): string {
 
 
 
+/*******
+ *
+ *  Derives a stable `fn` **tag** from the normalized source of a lambda body
+ *  (§4.4: "a content-hash of the normalized lambda AST, or an index into the
+ *  program's finite lambda table").  This is the value you hand to
+ *  {@link fn_value} as its body tag: two textually-identical normalized bodies
+ *  produce the same tag, differing bodies (with overwhelming probability) do
+ *  not — the foundation of the **intensional** function-value equality of
+ *  {@link fn_equal}.  The digest is the pinned, host-independent §15 content
+ *  hash, never a JS object identity, so a function value built from it
+ *  serializes and compares the same across hosts.
+ *
+ *  ```typescript
+ *  lambda_tag('(x) => x + 1');                       // e.g. '084fa3b1'
+ *  lambda_tag('(x) => x + 1') === lambda_tag('(x) => x + 1');   // true
+ *  fn_value(lambda_tag('(x) => x + n'), { n: 5 });   // a defunctionalized lambda
+ *  ```
+ *
+ *  @param normalized_source - The lambda body in canonical normalized form.
+ *
+ *  @returns An eight-hex-digit content-hash tag.
+ *
+ *  @throws {JssmError} If `normalized_source` is not a string.
+ *
+ *  @see fn_value
+ *  @see fn_equal
+ *  @see fnv1a_hex
+ *
+ */
+
+function lambda_tag(normalized_source: string): string {
+
+  if (typeof normalized_source !== 'string') {
+    throw new JssmError(undefined, `lambda_tag requires a string; got ${JSON.stringify(normalized_source)}`);
+  }
+
+  return fnv1a_hex(normalized_source);
+
+}
+
+
+
+
+
+/*******
+ *
+ *  Renders a number in a canonical, round-trippable textual form for §15
+ *  serialization.  `JSON.stringify` is not sufficient here: it collapses `NaN`
+ *  and `±Infinity` to `null` (erasing them, and colliding with a real `null`)
+ *  and renders `-0` as `0` only incidentally.  This helper instead gives those
+ *  IEEE edge values **stable, distinct spellings** and deliberately collapses
+ *  `-0` to `0`, matching the SameValueZero equality of {@link deep_equal} so
+ *  that values which compare equal also serialize — and therefore hash —
+ *  identically (§15 cross-host repro equality).
+ *
+ *  ```typescript
+ *  canonical_number(7);          // '7'
+ *  canonical_number(-0);         // '0'      (collapsed; +0 and -0 agree)
+ *  canonical_number(NaN);        // 'nan'
+ *  canonical_number(Infinity);   // 'inf'
+ *  canonical_number(-Infinity);  // '-inf'
+ *  ```
+ *
+ *  @param n - The number to render.
+ *
+ *  @returns A canonical decimal spelling, or one of the keywords
+ *           `nan` / `inf` / `-inf` for the non-finite values.
+ *
+ *  @see canonical_json
+ *
+ */
+
+function canonical_number(n: number): string {
+
+  if (Number.isNaN(n))                { return 'nan';  }
+  if (n === Number.POSITIVE_INFINITY) { return 'inf';  }
+  if (n === Number.NEGATIVE_INFINITY) { return '-inf'; }
+  if (n === 0)                        { return '0';    }   // collapses -0 to +0
+
+  return String(n);
+
+}
+
+
+
 
 /*******
  *
@@ -844,6 +971,8 @@ function fn_hash(value: FnValue): string {
  *  canonical_json([1, 2, 3]);        // '[1,2,3]'
  *  canonical_json(null);             // 'null'
  *  canonical_json(undefined);        // '"undefined"'
+ *  canonical_json(NaN);              // 'nan'
+ *  canonical_json(-0);               // '0'
  *  ```
  *
  *  @param value - The acyclic value to serialize.
@@ -859,6 +988,10 @@ function canonical_json(value: FslAcyclic): string {
 
   if (value === undefined) {
     return '"undefined"';
+  }
+
+  if (typeof value === 'number') {
+    return canonical_number(value);
   }
 
   if ((value === null) || (typeof value !== 'object')) {
@@ -913,6 +1046,45 @@ function snapshot_value(value: FslAcyclic): string {
 
 /*******
  *
+ *  32-bit FNV-1a hash of a string's UTF-16 code units, rendered as eight
+ *  lowercase zero-padded hex digits.  The pinned, host-independent §15 content
+ *  -hash primitive shared by {@link hash_value} and {@link lambda_tag}: the
+ *  algorithm is fixed here so the digest is reproducible across every host.
+ *
+ *  ```typescript
+ *  fnv1a_hex('');         // '811c9dc5'  (the FNV offset basis)
+ *  fnv1a_hex('a').length; // 8
+ *  ```
+ *
+ *  @param text - The string to digest.
+ *
+ *  @returns A stable eight-hex-digit hash string.
+ *
+ *  @see hash_value
+ *  @see lambda_tag
+ *
+ */
+
+function fnv1a_hex(text: string): string {
+
+  // FNV-1a 32-bit: a pinned, host-independent mix over the input's code units.
+  let h = 0x811c9dc5;
+
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h  = Math.imul(h, 0x01000193);
+  }
+
+  // >>> 0 forces unsigned; pad so the width is stable across magnitudes.
+  return (h >>> 0).toString(16).padStart(8, '0');
+
+}
+
+
+
+
+/*******
+ *
  *  Produces a stable content hash for every acyclic FSL value (§15), derived from
  *  its {@link snapshot_value} via a fixed, host-independent string mix.  Two
  *  values that are {@link deep_equal} hash identically; the algorithm is pinned
@@ -934,22 +1106,41 @@ function snapshot_value(value: FslAcyclic): string {
  */
 
 function hash_value(value: FslAcyclic): string {
-
-  const text = snapshot_value(value);
-
-  // FNV-1a 32-bit: a pinned, host-independent mix over the canonical bytes.
-  let h = 0x811c9dc5;
-
-  for (let i = 0; i < text.length; i++) {
-    h ^= text.charCodeAt(i);
-    h  = Math.imul(h, 0x01000193);
-  }
-
-  // >>> 0 forces unsigned; pad so the width is stable across magnitudes.
-  return (h >>> 0).toString(16).padStart(8, '0');
-
+  return fnv1a_hex(snapshot_value(value));
 }
 
+
+
+
+
+/*******
+ *
+ *  SameValueZero scalar equality — `===` except that `NaN` equals `NaN` (and
+ *  `+0` equals `-0`, which `===` already gives).  This is the leaf rule for
+ *  {@link deep_equal}, matching JS `Map`/`Set` membership and the project-wide
+ *  convention so that snapshot identity is reflexive on `NaN` (§15: a value is
+ *  always equal to itself, even when it is `NaN`).
+ *
+ *  ```typescript
+ *  same_value_zero(1, 1);       // true
+ *  same_value_zero(NaN, NaN);   // true   (unlike ===)
+ *  same_value_zero(0, -0);      // true
+ *  same_value_zero(1, 2);       // false
+ *  ```
+ *
+ *  @param a - The first scalar.
+ *  @param b - The second scalar.
+ *
+ *  @returns `true` when `a` and `b` are the same value, zero-style.
+ *
+ *  @see deep_equal
+ *
+ */
+
+function same_value_zero(a: FslAcyclic, b: FslAcyclic): boolean {
+  if (a === b) { return true; }
+  return (a !== a) && (b !== b);   // both NaN
+}
 
 
 
@@ -966,6 +1157,7 @@ function hash_value(value: FslAcyclic): string {
  *  deep_equal( { a: [1, 2] }, { a: [1, 2] } );   // true
  *  deep_equal( [1, 2],        [1, 2, 3] );        // false
  *  deep_equal( null,          undefined );        // false  (distinct in FSL)
+ *  deep_equal( NaN,           NaN );              // true   (SameValueZero)
  *  deep_equal( variant('point'), variant('point') ); // true
  *  ```
  *
@@ -980,7 +1172,7 @@ function hash_value(value: FslAcyclic): string {
 
 function deep_equal(a: FslAcyclic, b: FslAcyclic): boolean {
 
-  if (a === b) {
+  if (same_value_zero(a, b)) {
     return true;
   }
 
@@ -988,7 +1180,7 @@ function deep_equal(a: FslAcyclic, b: FslAcyclic): boolean {
   const b_obj = (typeof b === 'object') && (b !== null);
 
   if ((!a_obj) || (!b_obj)) {
-    return false;   // at least one is a scalar (or null) and they were not ===
+    return false;   // at least one is a scalar (or null) and they were not equal
   }
 
   const a_arr = Array.isArray(a);
@@ -1139,14 +1331,14 @@ export {
   some, none, is_some, is_none, option_unwrap_or, option_map,
 
   // nullability T? (§4.4)
-  option_of_nullable, nullable_of_option,
+  option_of_nullable, nullable_of_option, nullable_check,
 
   // type aliases (§4.4)
   AliasEnv, make_alias_env, resolve_alias,
 
   // defunctionalized function values (§4.4 / §15)
   FnValue,
-  fn_value, is_fn_value, fn_equal, fn_hash,
+  fn_value, is_fn_value, fn_equal, fn_hash, lambda_tag,
 
   // snapshot / hash / equality (§15)
   canonical_json, snapshot_value, hash_value, deep_equal,

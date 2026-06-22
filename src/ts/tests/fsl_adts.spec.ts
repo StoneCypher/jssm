@@ -3,9 +3,9 @@ import {
 
   variant, is_variant, variant_tag, variant_field, match,
   some, none, is_some, is_none, option_unwrap_or, option_map,
-  option_of_nullable, nullable_of_option,
+  option_of_nullable, nullable_of_option, nullable_check,
   make_alias_env, resolve_alias,
-  fn_value, is_fn_value, fn_equal, fn_hash,
+  fn_value, is_fn_value, fn_equal, fn_hash, lambda_tag,
   canonical_json, snapshot_value, hash_value, deep_equal,
   assert_acyclic, deep_freeze_copy
 
@@ -655,6 +655,152 @@ describe('deep_freeze_copy (§13)', () => {
     const cp = deep_freeze_copy([[1], [2]]) as FslAcyclic[];
     expect(Object.isFrozen(cp)).toBe(true);
     expect(Object.isFrozen(cp[0])).toBe(true);
+  });
+
+});
+
+
+
+
+describe('canonical_json IEEE edge values (§15)', () => {
+
+  test('NaN serializes to the nan keyword, not null', () => {
+    expect(canonical_json(NaN)).toBe('nan');
+    expect(canonical_json(NaN)).not.toBe(canonical_json(null));
+  });
+
+  test('positive Infinity serializes to inf', () => {
+    expect(canonical_json(Infinity)).toBe('inf');
+  });
+
+  test('negative Infinity serializes to -inf', () => {
+    expect(canonical_json(-Infinity)).toBe('-inf');
+  });
+
+  test('-0 and +0 both serialize to 0', () => {
+    expect(canonical_json(-0)).toBe('0');
+    expect(canonical_json(0)).toBe('0');
+  });
+
+  test('an ordinary finite number still serializes plainly', () => {
+    expect(canonical_json(42)).toBe('42');
+    expect(canonical_json(-3.5)).toBe('-3.5');
+  });
+
+});
+
+
+
+
+describe('deep_equal SameValueZero leaf (§6 / §15)', () => {
+
+  test('NaN is reflexively equal to itself', () => {
+    expect(deep_equal(NaN, NaN)).toBe(true);
+  });
+
+  test('NaN nested in a record is reflexively equal', () => {
+    expect(deep_equal({ x: NaN }, { x: NaN })).toBe(true);
+  });
+
+  test('NaN nested in an array is reflexively equal', () => {
+    expect(deep_equal([NaN], [NaN])).toBe(true);
+  });
+
+  test('-0 and +0 compare equal', () => {
+    expect(deep_equal(-0, 0)).toBe(true);
+  });
+
+  test('NaN is still unequal to a non-NaN number', () => {
+    expect(deep_equal(NaN, 1)).toBe(false);
+  });
+
+});
+
+
+
+
+describe('hash_value IEEE edge values (§15)', () => {
+
+  test('NaN, Infinity, -Infinity and null all hash distinctly', () => {
+    const hs = [NaN, Infinity, -Infinity, null].map(hash_value);
+    expect(new Set(hs).size).toBe(4);
+  });
+
+  test('equal NaN-bearing values hash equal', () => {
+    expect(hash_value(some(NaN))).toBe(hash_value(some(NaN)));
+  });
+
+});
+
+
+
+
+describe('nullable_check (§4.4)', () => {
+
+  test('passes a real value through when nullable', () => {
+    expect(nullable_check(7, true)).toBe(7);
+  });
+
+  test('passes a real value through when not nullable', () => {
+    expect(nullable_check(7, false)).toBe(7);
+  });
+
+  test('allows null when declared nullable', () => {
+    expect(nullable_check(null, true)).toBe(null);
+  });
+
+  test('allows undefined when declared nullable', () => {
+    expect(nullable_check(undefined, true)).toBe(undefined);
+  });
+
+  test('zero is a real value, admitted even when not nullable', () => {
+    expect(nullable_check(0, false)).toBe(0);
+  });
+
+  test('rejects null in a non-nullable slot', () => {
+    expect(() => nullable_check(null, false)).toThrow();
+  });
+
+  test('rejects undefined in a non-nullable slot', () => {
+    expect(() => nullable_check(undefined, false)).toThrow();
+  });
+
+  test('null-vs-undefined message branch both exercised', () => {
+    expect(() => nullable_check(null, false)).toThrow(/null/);
+    expect(() => nullable_check(undefined, false)).toThrow(/undefined/);
+  });
+
+});
+
+
+
+
+describe('lambda_tag (§4.4 / §15)', () => {
+
+  test('is an 8-character hex string', () => {
+    expect(lambda_tag('(x) => x + 1')).toMatch(/^[0-9a-f]{8}$/);
+  });
+
+  test('identical normalized bodies tag identically', () => {
+    expect(lambda_tag('(x) => x + 1')).toBe(lambda_tag('(x) => x + 1'));
+  });
+
+  test('differing bodies tag differently', () => {
+    expect(lambda_tag('(x) => x + 1')).not.toBe(lambda_tag('(x) => x + 2'));
+  });
+
+  test('the empty body hashes to the FNV offset basis', () => {
+    expect(lambda_tag('')).toBe('811c9dc5');
+  });
+
+  test('feeds fn_value as a body tag', () => {
+    const tag = lambda_tag('(x) => x + n');
+    const f   = fn_value(tag, { n: 5 });
+    expect(f.fn).toBe(tag);
+  });
+
+  test('throws on a non-string source', () => {
+    expect(() => lambda_tag(7 as unknown as string)).toThrow();
   });
 
 });

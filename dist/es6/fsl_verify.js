@@ -425,10 +425,206 @@ const check_safety = (machine, property, options = {}) => {
         }
     }
 };
+/**
+ *  Tests whether a node carries a given label.  A node with no `labels` array,
+ *  or one whose array omits `label`, does **not** carry it (closed-world).
+ *  Pure.
+ *
+ *  @param node  - The node whose labels are inspected.
+ *  @param label - The atomic proposition to look for.
+ *
+ *  @returns `true` when `node` carries `label`, otherwise `false`.
+ *
+ *  @example
+ *  ```typescript
+ *  node_has_label({ id: 'a', labels: ['x', 'y'] }, 'x');   // true
+ *  node_has_label({ id: 'a', labels: ['x', 'y'] }, 'z');   // false
+ *  node_has_label({ id: 'a' },                     'x');   // false
+ *  ```
+ */
+const node_has_label = (node, label) => Array.isArray(node.labels) && node.labels.indexOf(label) !== -1;
+/**
+ *  Build an adjacency map from a graph's edges: each node id mapped to the list
+ *  of ids directly reachable in one step.  Nodes appearing only as edge
+ *  sources, only as edge targets, or only in the node list are all represented,
+ *  so callers can index any declared id without an undefined hole.  Pure.
+ *
+ *  @param graph - The verification graph to index.
+ *
+ *  @returns A `Map` from node id to its array of one-step successor ids.
+ *
+ *  @example
+ *  ```typescript
+ *  build_adjacency({
+ *    nodes: [{ id: 'a' }, { id: 'b' }],
+ *    edges: [{ from: 'a', to: 'b' }],
+ *    start_states: ['a']
+ *  });
+ *  // Map { 'a' => ['b'], 'b' => [] }
+ *  ```
+ */
+const build_adjacency = (graph) => {
+    const adjacency = new Map();
+    // Returns the successor list for `id`, creating an empty one on first sight.
+    // Centralizing creation here guarantees every read is non-undefined, so no
+    // defensive (untestable) undefined branch is needed downstream.
+    const list_for = (id) => {
+        const existing = adjacency.get(id);
+        if (existing !== undefined) {
+            return existing;
+        }
+        const fresh = [];
+        adjacency.set(id, fresh);
+        return fresh;
+    };
+    for (const node of graph.nodes) {
+        list_for(node.id);
+    }
+    for (const edge of graph.edges) {
+        list_for(edge.to); // ensure pure-sink targets appear as keys
+        list_for(edge.from).push(edge.to);
+    }
+    return adjacency;
+};
+/**
+ *  Search a graph for a node satisfying `predicate` reachable from any start
+ *  state, by breadth-first exploration, returning the **shortest** witness path
+ *  (start → … → satisfying node) — or `undefined` when no reachable node
+ *  satisfies it.
+ *
+ *  BFS yields the shortest counterexample, the most useful failing tape (§17).
+ *  Finite and terminating on any graph: each node is enqueued at most once.
+ *  Start states with no declared node still seed the frontier (the search stays
+ *  total over slightly-malformed fixtures rather than throwing).  Pure.
+ *
+ *  @param graph     - The verification graph to search.
+ *  @param predicate - Tested against the *node object* for each id reached; the
+ *                     id is paired with its declared node, or a bare `{ id }`
+ *                     stand-in when the id has no declared node.
+ *
+ *  @returns The shortest path to a satisfying node, or `undefined` if none.
+ *
+ *  @example
+ *  ```typescript
+ *  bfs_find_path(graph, node => node_has_label(node, 'error'));
+ *  // ['Green', 'Crashed']  — or undefined if no error node is reachable
+ *  ```
+ */
+const bfs_find_path = (graph, predicate) => {
+    var _a;
+    const adjacency = build_adjacency(graph);
+    const node_by_id = new Map();
+    for (const node of graph.nodes) {
+        node_by_id.set(node.id, node);
+    }
+    const node_for = (id) => { var _a; return (_a = node_by_id.get(id)) !== null && _a !== void 0 ? _a : { id }; };
+    const visited = new Set();
+    // Each pending item carries the frontier node's id and the path that reached
+    // it, so the witness is reconstructed without ever indexing an array.
+    let frontier = [];
+    for (const start of graph.start_states) {
+        if (!visited.has(start)) {
+            visited.add(start);
+            frontier.push({ id: start, path: [start] });
+        }
+    }
+    while (frontier.length > 0) {
+        const next_frontier = [];
+        for (const item of frontier) {
+            if (predicate(node_for(item.id))) {
+                return item.path;
+            }
+            const successors = (_a = adjacency.get(item.id)) !== null && _a !== void 0 ? _a : [];
+            for (const successor of successors) {
+                if (!visited.has(successor)) {
+                    visited.add(successor);
+                    next_frontier.push({ id: successor, path: [...item.path, successor] });
+                }
+            }
+        }
+        frontier = next_frontier;
+    }
+    return undefined;
+};
+/**
+ *  Discharge a single {@link GraphSafetyProperty} against a
+ *  {@link VerificationGraph}, returning a {@link GraphSafetyResult} that is
+ *  either a proof or a finite counterexample path — the decoupled-graph
+ *  counterpart of the machine-coupled {@link check_safety}:
+ *
+ *  - `reachability` — BFS for a node carrying `label`.  Found → `holds: true`
+ *    with the path as `witness`; not found → `holds: false`, no witness.
+ *  - `invariant` — holds iff `not P` is unreachable, so BFS for a node *missing*
+ *    `label`.  Found → `holds: false` with the counterexample path; none →
+ *    `holds: true`, no witness.
+ *
+ *  Pure: depends only on its arguments and returns a fresh result.
+ *
+ *  @param graph    - The lowered, host-agnostic graph to verify over.
+ *  @param property - The safety property to discharge.
+ *
+ *  @returns A {@link GraphSafetyResult} — proved (`holds: true`) or refuted
+ *  (`holds: false`, with a counterexample `witness` where one exists).
+ *
+ *  @throws {Error} If `property.kind` is not a recognized safety kind.
+ *
+ *  @see check_all_graph_safety
+ *
+ *  @example
+ *  ```typescript
+ *  // an invariant that holds (proved, no witness)
+ *  check_graph_safety(traffic, { kind: 'invariant', label: 'safe' });
+ *  // { holds: true, property: {...} }
+ *
+ *  // a reachability that fails (target unreachable)
+ *  check_graph_safety(traffic, { kind: 'reachability', label: 'crash' });
+ *  // { holds: false, property: {...} }
+ *
+ *  // an invariant that fails (counterexample path returned)
+ *  check_graph_safety(traffic, { kind: 'invariant', label: 'go' });
+ *  // { holds: false, witness: ['Green', 'Yellow'], property: {...} }
+ *  ```
+ */
+const check_graph_safety = (graph, property) => {
+    if (property.kind === 'reachability') {
+        const witness = bfs_find_path(graph, node => node_has_label(node, property.label));
+        return (witness === undefined)
+            ? { holds: false, property }
+            : { holds: true, witness, property };
+    }
+    if (property.kind === 'invariant') {
+        const counterexample = bfs_find_path(graph, node => !node_has_label(node, property.label));
+        return (counterexample === undefined)
+            ? { holds: true, property }
+            : { holds: false, witness: counterexample, property };
+    }
+    throw new Error(`fsl_verify: unknown safety property kind "${property.kind}"`);
+};
+/**
+ *  Discharge a batch of {@link GraphSafetyProperty} values against one graph,
+ *  preserving input order.  A thin, pure convenience over
+ *  {@link check_graph_safety} for a property suite (`test reaches Done;` etc.).
+ *
+ *  @param graph      - The graph to verify over.
+ *  @param properties - The properties to discharge, in order.
+ *
+ *  @returns One {@link GraphSafetyResult} per input property, in the same order.
+ *
+ *  @example
+ *  ```typescript
+ *  check_all_graph_safety(traffic, [
+ *    { kind: 'reachability', label: 'go' },
+ *    { kind: 'invariant',    label: 'ok' }
+ *  ]);
+ *  // [ { holds: true,  witness: [...], property: {...} },
+ *  //   { holds: true,  property: {...} } ]
+ *  ```
+ */
+const check_all_graph_safety = (graph, properties) => properties.map(property => check_graph_safety(graph, property));
 export { 
 // predicate atoms / constructors
 in_state, in_any, is_terminal, is_final, is_error, tautology, contradiction, p_not, p_and, p_or, 
 // safety-property constructors
 always, never, reachable, unreachable, absence, existence, 
 // evaluation
-as_predicate, eval_predicate, reachable_predecessors, trace_to, resolve_starts, check_safety };
+as_predicate, eval_predicate, reachable_predecessors, trace_to, resolve_starts, check_safety, node_has_label, build_adjacency, bfs_find_path, check_graph_safety, check_all_graph_safety };

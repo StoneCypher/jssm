@@ -6,7 +6,10 @@ import {
   supported_codata_years,
   ascending_year_order,
   physical_constants_by_year,
-  latest_codata_year
+  latest_codata_year,
+  lookup_constant,
+  UnknownConstantError,
+  CONSTANTS_VERSION
 } from '../fsl_constants';
 
 import type {
@@ -24,7 +27,7 @@ import type {
 
 const expected_symbols: ReadonlyArray<PhysicalConstantSymbol> = [
   'c', 'G', 'h', 'hbar', 'e', 'k', 'NA', 'R',
-  'me', 'mp', 'mn', 'alpha', 'epsilon0', 'mu0', 'sigma', 'F'
+  'me', 'mp', 'mn', 'alpha', 'epsilon0', 'mu0', 'sigma', 'F', 'g_n'
 ];
 
 
@@ -97,8 +100,8 @@ describe('physical_constant_symbols', () => {
     expect([...got].sort()).toEqual([...expected_symbols].sort());
   });
 
-  test('returns 16 symbols for 2018', () => {
-    expect(physical_constant_symbols(2018).length).toBe(16);
+  test('returns 17 symbols for 2018', () => {
+    expect(physical_constant_symbols(2018).length).toBe(17);
   });
 
 });
@@ -228,6 +231,106 @@ describe('immutability', () => {
 
   test('a returned record is frozen', () => {
     expect(Object.isFrozen(physical_constant('c'))).toBe(true);
+  });
+
+});
+
+
+
+
+describe('PhysicalConstant name field', () => {
+
+  test.each([...expected_symbols])('"%s" has a non-empty name', (sym) => {
+    const k = physical_constant(sym);
+    expect(typeof k.name).toBe('string');
+    expect(k.name.length).toBeGreaterThan(0);
+  });
+
+  test('c is named the speed of light in vacuum', () => {
+    expect(physical_constant('c').name).toBe('speed of light in vacuum');
+  });
+
+});
+
+
+
+
+describe('g_n (standard acceleration of gravity)', () => {
+
+  test('is registered as a symbol', () => {
+    expect(physical_constant_symbols()).toContain('g_n');
+    expect(known_physical_constant('g_n')).toBe(true);
+  });
+
+  test('has the exact standard-gravity value and is exact', () => {
+    const g = physical_constant('g_n');
+    expect(g.value).toBe(9.80665);
+    expect(g.unit).toBe('m s^-2');
+    expect(g.uncertainty).toBe(0);
+    expect(g.name).toBe('standard acceleration of gravity');
+  });
+
+});
+
+
+
+
+describe('CONSTANTS_VERSION', () => {
+
+  test('is the labeled CODATA tag for the latest year', () => {
+    expect(CONSTANTS_VERSION).toBe('CODATA 2018');
+  });
+
+  test('embeds the latest CODATA year', () => {
+    expect(CONSTANTS_VERSION).toContain(String(latest_codata_year));
+  });
+
+});
+
+
+
+
+describe('lookup_constant', () => {
+
+  test('hit: returns the registered constant by symbol', () => {
+    const c = lookup_constant('c');
+    expect(c.value).toBe(299792458);
+    expect(c.name).toBe('speed of light in vacuum');
+    expect(c).toBe(physical_constants_by_year[latest_codata_year].c);
+  });
+
+  test('hit: resolves a measured constant too', () => {
+    expect(lookup_constant('G').uncertainty).toBeGreaterThan(0);
+  });
+
+  test('hit: agrees with physical_constant for every symbol', () => {
+    for (const sym of expected_symbols) {
+      expect(lookup_constant(sym)).toBe(physical_constant(sym));
+    }
+  });
+
+  test('miss: throws UnknownConstantError', () => {
+    expect(() => lookup_constant('does_not_exist')).toThrow(UnknownConstantError);
+  });
+
+  test('miss: message names the missing symbol', () => {
+    expect(() => lookup_constant('nope')).toThrow('unknown physical constant "nope"');
+  });
+
+  test('miss: carries the offending symbol field and name', () => {
+    try {
+      lookup_constant('zzz');
+      throw new Error('lookup_constant should have thrown');
+    } catch (e) {
+      expect(e instanceof UnknownConstantError).toBe(true);
+      expect((e as UnknownConstantError).symbol).toBe('zzz');
+      expect((e as UnknownConstantError).name).toBe('UnknownConstantError');
+    }
+  });
+
+  test('miss: inherited Object property names are not constants', () => {
+    expect(() => lookup_constant('toString')).toThrow(UnknownConstantError);
+    expect(() => lookup_constant('hasOwnProperty')).toThrow(UnknownConstantError);
   });
 
 });

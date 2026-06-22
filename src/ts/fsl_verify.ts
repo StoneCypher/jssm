@@ -695,6 +695,396 @@ const check_safety = <mDT>(
 
 
 
+// ===========================================================================
+//  Machine-decoupled verification graph (megaspec §17 — "states + props,
+//  what the checker sees").  An alternate input path: a plain, host-agnostic
+//  Kripke structure / labelled transition system that any Machine, System, or
+//  hand-written fixture can lower itself into, checked by pure functions with
+//  no reference to the live Machine class.  Parallel to, and independent of,
+//  the Machine-coupled check_safety above.
+// ===========================================================================
+
+
+
+/**
+ *  A single node in a {@link VerificationGraph}: an opaque identifier paired
+ *  with the set of **atomic propositions** (labels) that hold at it — the
+ *  per-state row of a Kripke structure.
+ *
+ *  Labels are the only thing the safety checker reads about a node; the
+ *  identifier is for building paths and counterexamples.  A label absent from
+ *  the set is **false** at that node (closed-world); there is no third value.
+ *
+ *  @example
+ *  ```typescript
+ *  const crashed: VerificationNode = { id: 'Crashed', labels: ['error', 'terminal'] };
+ *  const running: VerificationNode = { id: 'Running', labels: [] };
+ *  ```
+ */
+type VerificationNode = {
+  readonly id      : string;
+  readonly labels? : ReadonlyArray<string>;
+};
+
+
+
+/**
+ *  A directed edge in a {@link VerificationGraph}: a transition the machine may
+ *  take from `from` to `to`.  The checker treats edges as a plain reachability
+ *  relation — guards, events, weights and timing are abstracted away (the §3
+ *  over-approximation rule: if an edge might fire, assume it can).  The optional
+ *  `label` carries the triggering event name for human-readable
+ *  counterexamples, but does not affect the verdict.
+ *
+ *  @example
+ *  ```typescript
+ *  const e: VerificationEdge = { from: 'Green', to: 'Yellow', label: 'tick' };
+ *  ```
+ */
+type VerificationEdge = {
+  readonly from   : string;
+  readonly to     : string;
+  readonly label? : string;
+};
+
+
+
+/**
+ *  A self-contained, host-agnostic verification graph — the lowered form a
+ *  machine hands to the decoupled checker.  A finite Kripke structure: labelled
+ *  `nodes`, directed `edges`, and a non-empty set of `start_states`.
+ *
+ *  There is intentionally **no reference to the live {@link Machine} class**:
+ *  this is pure data, so the checker can be tested, serialized, and reused over
+ *  fixtures no runtime ever produced.
+ *
+ *  @example
+ *  ```typescript
+ *  const traffic: VerificationGraph = {
+ *    nodes: [
+ *      { id: 'Green',  labels: ['go']   },
+ *      { id: 'Yellow', labels: []       },
+ *      { id: 'Red',    labels: ['stop'] }
+ *    ],
+ *    edges: [
+ *      { from: 'Green',  to: 'Yellow' },
+ *      { from: 'Yellow', to: 'Red'    },
+ *      { from: 'Red',    to: 'Green'  }
+ *    ],
+ *    start_states: ['Green']
+ *  };
+ *  ```
+ */
+type VerificationGraph = {
+  readonly nodes        : ReadonlyArray<VerificationNode>;
+  readonly edges        : ReadonlyArray<VerificationEdge>;
+  readonly start_states : ReadonlyArray<StateName>;
+};
+
+
+
+/**
+ *  A safety property to discharge against a {@link VerificationGraph} — the two
+ *  §17 safety questions over the decoupled graph:
+ *
+ *  - `reachability` — "is a node carrying `label` reachable from a start state?"
+ *    (error-state reachability: `Crashed` *should not* be reachable, so expect
+ *    `holds: false`; or liveness-flavoured sanity: `Done` *is* reachable).
+ *  - `invariant` — "does `label` hold at *every* reachable node?" (the `always P`
+ *    fragment).  Violated exactly when a node *missing* `label` is reachable;
+ *    that node's path is the counterexample.
+ *
+ *  Distinct from the machine-coupled {@link SafetyProperty}: this form is a
+ *  flat label query over graph data, not a {@link StatePredicate} AST over a
+ *  live machine.  The optional `name` is echoed to the result for diagnostics.
+ *
+ *  @example
+ *  ```typescript
+ *  const no_crash:   GraphSafetyProperty = { kind: 'invariant',    label: 'safe' };
+ *  const reaches_ok: GraphSafetyProperty = { kind: 'reachability', label: 'done' };
+ *  ```
+ */
+type GraphSafetyProperty = {
+  readonly kind  : 'reachability' | 'invariant';
+  readonly label : string;
+  readonly name? : string;
+};
+
+
+
+/**
+ *  The verdict of checking a {@link GraphSafetyProperty} against a graph.
+ *
+ *  - `holds` — `true` when proved (reachability target reachable, or invariant
+ *    holds everywhere), `false` when refuted.
+ *  - `witness` — the justifying path: to the satisfying node for a *proved*
+ *    reachability, to the violating node for a *refuted* invariant (the
+ *    replayable counterexample tape §17 promises).  `undefined` for a *refuted*
+ *    reachability (nothing reachable to point at) and a *proved* invariant.
+ *  - `property` — the property checked, echoed back for diagnostics.
+ *
+ *  Distinct from the machine-coupled {@link SafetyResult}: the witness field is
+ *  named `witness` (not `trace`) and there is no `states_explored`.
+ *
+ *  @example
+ *  ```typescript
+ *  // proved reachability
+ *  ({ holds: true,  witness: ['Green', 'Yellow', 'Red'], property: { kind: 'reachability', label: 'stop' } });
+ *  // refuted invariant — counterexample path included
+ *  ({ holds: false, witness: ['Boot', 'Running', 'Crashed'], property: { kind: 'invariant', label: 'safe' } });
+ *  ```
+ */
+type GraphSafetyResult = {
+  readonly holds     : boolean;
+  readonly witness?  : ReadonlyArray<StateName>;
+  readonly property  : GraphSafetyProperty;
+};
+
+
+
+/**
+ *  Tests whether a node carries a given label.  A node with no `labels` array,
+ *  or one whose array omits `label`, does **not** carry it (closed-world).
+ *  Pure.
+ *
+ *  @param node  - The node whose labels are inspected.
+ *  @param label - The atomic proposition to look for.
+ *
+ *  @returns `true` when `node` carries `label`, otherwise `false`.
+ *
+ *  @example
+ *  ```typescript
+ *  node_has_label({ id: 'a', labels: ['x', 'y'] }, 'x');   // true
+ *  node_has_label({ id: 'a', labels: ['x', 'y'] }, 'z');   // false
+ *  node_has_label({ id: 'a' },                     'x');   // false
+ *  ```
+ */
+const node_has_label = (node: VerificationNode, label: string): boolean =>
+  Array.isArray(node.labels) && node.labels.indexOf(label) !== -1;
+
+
+
+/**
+ *  Build an adjacency map from a graph's edges: each node id mapped to the list
+ *  of ids directly reachable in one step.  Nodes appearing only as edge
+ *  sources, only as edge targets, or only in the node list are all represented,
+ *  so callers can index any declared id without an undefined hole.  Pure.
+ *
+ *  @param graph - The verification graph to index.
+ *
+ *  @returns A `Map` from node id to its array of one-step successor ids.
+ *
+ *  @example
+ *  ```typescript
+ *  build_adjacency({
+ *    nodes: [{ id: 'a' }, { id: 'b' }],
+ *    edges: [{ from: 'a', to: 'b' }],
+ *    start_states: ['a']
+ *  });
+ *  // Map { 'a' => ['b'], 'b' => [] }
+ *  ```
+ */
+const build_adjacency = (graph: VerificationGraph): Map<StateName, StateName[]> => {
+
+  const adjacency = new Map<StateName, StateName[]>();
+
+  // Returns the successor list for `id`, creating an empty one on first sight.
+  // Centralizing creation here guarantees every read is non-undefined, so no
+  // defensive (untestable) undefined branch is needed downstream.
+  const list_for = (id: StateName): StateName[] => {
+    const existing = adjacency.get(id);
+    if (existing !== undefined) { return existing; }
+    const fresh: StateName[] = [];
+    adjacency.set(id, fresh);
+    return fresh;
+  };
+
+  for (const node of graph.nodes) { list_for(node.id); }
+
+  for (const edge of graph.edges) {
+    list_for(edge.to);                 // ensure pure-sink targets appear as keys
+    list_for(edge.from).push(edge.to);
+  }
+
+  return adjacency;
+
+};
+
+
+
+/**
+ *  Search a graph for a node satisfying `predicate` reachable from any start
+ *  state, by breadth-first exploration, returning the **shortest** witness path
+ *  (start → … → satisfying node) — or `undefined` when no reachable node
+ *  satisfies it.
+ *
+ *  BFS yields the shortest counterexample, the most useful failing tape (§17).
+ *  Finite and terminating on any graph: each node is enqueued at most once.
+ *  Start states with no declared node still seed the frontier (the search stays
+ *  total over slightly-malformed fixtures rather than throwing).  Pure.
+ *
+ *  @param graph     - The verification graph to search.
+ *  @param predicate - Tested against the *node object* for each id reached; the
+ *                     id is paired with its declared node, or a bare `{ id }`
+ *                     stand-in when the id has no declared node.
+ *
+ *  @returns The shortest path to a satisfying node, or `undefined` if none.
+ *
+ *  @example
+ *  ```typescript
+ *  bfs_find_path(graph, node => node_has_label(node, 'error'));
+ *  // ['Green', 'Crashed']  — or undefined if no error node is reachable
+ *  ```
+ */
+const bfs_find_path = (
+  graph     : VerificationGraph,
+  predicate : (node: VerificationNode) => boolean
+): ReadonlyArray<StateName> | undefined => {
+
+  const adjacency  = build_adjacency(graph);
+  const node_by_id = new Map<StateName, VerificationNode>();
+
+  for (const node of graph.nodes) { node_by_id.set(node.id, node); }
+
+  const node_for = (id: StateName): VerificationNode =>
+    node_by_id.get(id) ?? { id };
+
+  const visited = new Set<StateName>();
+
+  // Each pending item carries the frontier node's id and the path that reached
+  // it, so the witness is reconstructed without ever indexing an array.
+  let frontier: { id: StateName; path: StateName[] }[] = [];
+
+  for (const start of graph.start_states) {
+    if (!visited.has(start)) {
+      visited.add(start);
+      frontier.push({ id: start, path: [start] });
+    }
+  }
+
+  while (frontier.length > 0) {
+
+    const next_frontier: { id: StateName; path: StateName[] }[] = [];
+
+    for (const item of frontier) {
+
+      if (predicate(node_for(item.id))) {
+        return item.path;
+      }
+
+      const successors = adjacency.get(item.id) ?? [];
+
+      for (const successor of successors) {
+        if (!visited.has(successor)) {
+          visited.add(successor);
+          next_frontier.push({ id: successor, path: [...item.path, successor] });
+        }
+      }
+
+    }
+
+    frontier = next_frontier;
+
+  }
+
+  return undefined;
+
+};
+
+
+
+/**
+ *  Discharge a single {@link GraphSafetyProperty} against a
+ *  {@link VerificationGraph}, returning a {@link GraphSafetyResult} that is
+ *  either a proof or a finite counterexample path — the decoupled-graph
+ *  counterpart of the machine-coupled {@link check_safety}:
+ *
+ *  - `reachability` — BFS for a node carrying `label`.  Found → `holds: true`
+ *    with the path as `witness`; not found → `holds: false`, no witness.
+ *  - `invariant` — holds iff `not P` is unreachable, so BFS for a node *missing*
+ *    `label`.  Found → `holds: false` with the counterexample path; none →
+ *    `holds: true`, no witness.
+ *
+ *  Pure: depends only on its arguments and returns a fresh result.
+ *
+ *  @param graph    - The lowered, host-agnostic graph to verify over.
+ *  @param property - The safety property to discharge.
+ *
+ *  @returns A {@link GraphSafetyResult} — proved (`holds: true`) or refuted
+ *  (`holds: false`, with a counterexample `witness` where one exists).
+ *
+ *  @throws {Error} If `property.kind` is not a recognized safety kind.
+ *
+ *  @see check_all_graph_safety
+ *
+ *  @example
+ *  ```typescript
+ *  // an invariant that holds (proved, no witness)
+ *  check_graph_safety(traffic, { kind: 'invariant', label: 'safe' });
+ *  // { holds: true, property: {...} }
+ *
+ *  // a reachability that fails (target unreachable)
+ *  check_graph_safety(traffic, { kind: 'reachability', label: 'crash' });
+ *  // { holds: false, property: {...} }
+ *
+ *  // an invariant that fails (counterexample path returned)
+ *  check_graph_safety(traffic, { kind: 'invariant', label: 'go' });
+ *  // { holds: false, witness: ['Green', 'Yellow'], property: {...} }
+ *  ```
+ */
+const check_graph_safety = (
+  graph    : VerificationGraph,
+  property : GraphSafetyProperty
+): GraphSafetyResult => {
+
+  if (property.kind === 'reachability') {
+    const witness = bfs_find_path(graph, node => node_has_label(node, property.label));
+    return (witness === undefined)
+      ? { holds: false, property }
+      : { holds: true, witness, property };
+  }
+
+  if (property.kind === 'invariant') {
+    const counterexample = bfs_find_path(graph, node => !node_has_label(node, property.label));
+    return (counterexample === undefined)
+      ? { holds: true, property }
+      : { holds: false, witness: counterexample, property };
+  }
+
+  throw new Error(`fsl_verify: unknown safety property kind "${(property as GraphSafetyProperty).kind}"`);
+
+};
+
+
+
+/**
+ *  Discharge a batch of {@link GraphSafetyProperty} values against one graph,
+ *  preserving input order.  A thin, pure convenience over
+ *  {@link check_graph_safety} for a property suite (`test reaches Done;` etc.).
+ *
+ *  @param graph      - The graph to verify over.
+ *  @param properties - The properties to discharge, in order.
+ *
+ *  @returns One {@link GraphSafetyResult} per input property, in the same order.
+ *
+ *  @example
+ *  ```typescript
+ *  check_all_graph_safety(traffic, [
+ *    { kind: 'reachability', label: 'go' },
+ *    { kind: 'invariant',    label: 'ok' }
+ *  ]);
+ *  // [ { holds: true,  witness: [...], property: {...} },
+ *  //   { holds: true,  property: {...} } ]
+ *  ```
+ */
+const check_all_graph_safety = (
+  graph      : VerificationGraph,
+  properties : ReadonlyArray<GraphSafetyProperty>
+): ReadonlyArray<GraphSafetyResult> =>
+  properties.map(property => check_graph_safety(graph, property));
+
+
+
 export {
 
   // types
@@ -731,6 +1121,18 @@ export {
   reachable_predecessors,
   trace_to,
   resolve_starts,
-  check_safety
+  check_safety,
+
+  // machine-decoupled verification graph
+  VerificationNode,
+  VerificationEdge,
+  VerificationGraph,
+  GraphSafetyProperty,
+  GraphSafetyResult,
+  node_has_label,
+  build_adjacency,
+  bfs_find_path,
+  check_graph_safety,
+  check_all_graph_safety
 
 };

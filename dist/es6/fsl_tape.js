@@ -51,6 +51,39 @@ const unlimited = Symbol('unlimited');
  */
 const DEFAULT_INPUT_HISTORY = 100000;
 /**
+ * The typed error raised by every {@link Tape}, {@link Channel}, and
+ * {@link TapeTransaction} guard in this module — an invalid capacity, an
+ * out-of-range {@link Tape.read}, an emit/receive against the wrong channel
+ * direction, or an operation on a settled transaction.
+ *
+ * Deliberately a plain `Error` subclass and **not** an `FslError`: that
+ * taxonomy's `kind` enumerates *runtime FSL-expression* faults (§11), whereas a
+ * tape misuse is a host-level API error.  Keeping it a bare `Error` also keeps
+ * this module host-agnostic and free of any `fsl_errors` coupling (§14).
+ *
+ * The constructor re-pins the prototype so `instanceof FslTapeError` stays true
+ * even when this file is down-levelled to an ES5/ES2015 target (where
+ * `extends Error` otherwise severs the chain).
+ *
+ * @example
+ *   try { new Tape<number>('input', 0); }
+ *   catch (e) { e instanceof FslTapeError; }   // true
+ *
+ * @see Tape
+ * @see Channel
+ * @see TapeTransaction
+ */
+class FslTapeError extends Error {
+    /**
+     * @param message - Human-readable description of the tape-model misuse.
+     */
+    constructor(message) {
+        super(message);
+        this.name = 'FslTapeError';
+        Object.setPrototypeOf(this, FslTapeError.prototype);
+    }
+}
+/**
  * The policy half of §14's retention rule, as a pure predicate: the `input`
  * tape is retained (the single source of truth), every other tape regenerates
  * by replay and so is *not* retained.
@@ -110,7 +143,7 @@ class Tape {
     constructor(kind, capacity = DEFAULT_INPUT_HISTORY) {
         if (capacity !== unlimited) {
             if (!Number.isInteger(capacity) || capacity <= 0) {
-                throw new RangeError(`Tape capacity must be a positive integer or \`unlimited\`, got ${String(capacity)}`);
+                throw new FslTapeError(`Tape capacity must be a positive integer or \`unlimited\`, got ${String(capacity)}`);
             }
         }
         this.kind = kind;
@@ -210,6 +243,28 @@ class Tape {
         return this.buffer[this.buffer.length - 1];
     }
     /**
+     * Read the live entry at a given retained position (0 = oldest still held),
+     * with its `seq` stamp.  Use {@link values}/{@link entries} for the whole
+     * tape; this is for bounds-checked indexed access into the live window.
+     *
+     * @param index - A retained position in `[0, length)`.
+     * @returns The {@link TapeEntry} at that position.
+     *
+     * @throws FslTapeError when `index` is not an integer in `[0, length)`
+     *         (negative, fractional, NaN, or at/beyond {@link length}).
+     *
+     * @example
+     *   const t = new Tape<string>('input', 10);
+     *   t.append('x');
+     *   t.read(0).value;   // 'x'
+     */
+    read(index) {
+        if (!Number.isInteger(index) || index < 0 || index >= this.buffer.length) {
+            throw new FslTapeError(`tape read index out of range; got ${String(index)}, length ${this.buffer.length}`);
+        }
+        return this.buffer[index];
+    }
+    /**
      * The total number of entries ever appended over this tape's lifetime,
      * including ones since evicted — equivalently, the `seq` the next append will
      * receive.  Distinct from {@link length}, which counts only live entries.
@@ -239,6 +294,21 @@ class Tape {
     clear() {
         this.buffer = [];
     }
+    /**
+     * Iterate the live values, oldest first, so a tape drops straight into
+     * `for…of` and spread positions without going through {@link values}.
+     *
+     * @example
+     *   const t = new Tape<number>('output', 10);
+     *   t.append(1);
+     *   t.append(2);
+     *   [...t];   // [1, 2]
+     */
+    *[Symbol.iterator]() {
+        for (const entry of this.buffer) {
+            yield entry.value;
+        }
+    }
 }
 /**
  * A named, typed I/O **channel** — one of the actor-model ports of §14 ("Named
@@ -266,9 +336,9 @@ class Channel {
      *                    (`emit` sink port).
      * @param capacity  - History bound for the backing tape; defaults to
      *                    {@link DEFAULT_INPUT_HISTORY}.  Passed straight through
-     *                    to {@link Tape}, so the same {@link RangeError} applies.
+     *                    to {@link Tape}, so the same {@link FslTapeError} applies.
      *
-     * @throws RangeError when `capacity` is an invalid {@link Tape} capacity.
+     * @throws FslTapeError when `capacity` is an invalid {@link Tape} capacity.
      */
     constructor(name, direction, capacity = DEFAULT_INPUT_HISTORY) {
         this.name = name;
@@ -292,6 +362,63 @@ class Channel {
      */
     is_output() {
         return this.direction === 'output';
+    }
+    /**
+     * Record an inbound value on an `input` channel — the reactive-trigger side
+     * of the transducer (§14).  Appending to the input tape *is* feeding the
+     * machine; there is no `consume` (input drives the machine, it is not pulled).
+     *
+     * @param value - The inbound value (event / token / sensor read).
+     * @returns The recorded {@link TapeEntry}.
+     *
+     * @throws FslTapeError when this is not an `input` channel.
+     *
+     * @example
+     *   const inp = new Channel<string>('events', 'input');
+     *   inp.receive('go');
+     *   inp.values();   // ['go']
+     */
+    receive(value) {
+        if (this.direction !== 'input') {
+            throw new FslTapeError(`cannot receive on non-input channel "${this.name}" (direction "${this.direction}")`);
+        }
+        return this.tape.append(value);
+    }
+    /**
+     * Record an emission *directly* on an `output` channel (`emit chan <- expr`,
+     * §14).  This writes the tape immediately; for emissions that must roll back
+     * with a faulted macrostep, stage them through {@link TapeTransaction.emit}
+     * instead — that path defers the write to commit.
+     *
+     * @param value - The value to emit.
+     * @returns The recorded {@link TapeEntry}.
+     *
+     * @throws FslTapeError when this is an `input` channel (you cannot emit onto
+     *         a reactive-trigger port).
+     *
+     * @example
+     *   const out = new Channel<string>('tokens', 'output');
+     *   out.emit('LPAREN');
+     *   out.values();   // ['LPAREN']
+     */
+    emit(value) {
+        if (this.direction === 'input') {
+            throw new FslTapeError(`cannot emit on input channel "${this.name}"`);
+        }
+        return this.tape.append(value);
+    }
+    /**
+     * The channel's live values, oldest first — a convenience over
+     * `channel.tape.values()`.
+     *
+     * @example
+     *   const out = new Channel<number>('o', 'output');
+     *   out.emit(1);
+     *   out.emit(2);
+     *   out.values();   // [1, 2]
+     */
+    values() {
+        return this.tape.values();
     }
 }
 /**
@@ -430,9 +557,9 @@ class EmitPipeline {
  *   tx2.rollback();
  *   out2.tape.values();       // []  — the emit was rolled back with the txn
  *
- * @throws Error from {@link emit} when the named channel is unknown, when the
- *         channel is an input channel, or when the transaction has settled.
- * @throws Error from {@link commit}/{@link rollback} when already settled.
+ * @throws FslTapeError from {@link emit} when the named channel is unknown, when
+ *         the channel is an input channel, or when the transaction has settled.
+ * @throws FslTapeError from {@link commit}/{@link rollback} when already settled.
  *
  * @see EmitPipeline
  * @see Channel
@@ -474,10 +601,10 @@ class TapeTransaction {
      * @param value   - The value to emit.
      * @returns This transaction, for chaining successive emits.
      *
-     * @throws Error when the transaction has already settled.
-     * @throws Error when no channel of that name is registered.
-     * @throws Error when the named channel is an `input` channel (you cannot emit
-     *         onto a reactive-trigger port).
+     * @throws FslTapeError when the transaction has already settled.
+     * @throws FslTapeError when no channel of that name is registered.
+     * @throws FslTapeError when the named channel is an `input` channel (you
+     *         cannot emit onto a reactive-trigger port).
      *
      * @example
      *   const out = new Channel<number>('o', 'output');
@@ -485,14 +612,14 @@ class TapeTransaction {
      */
     emit(channel, value) {
         if (this.settled_state) {
-            throw new Error(`Cannot emit on a settled transaction (channel "${channel}")`);
+            throw new FslTapeError(`Cannot emit on a settled transaction (channel "${channel}")`);
         }
         const target = this.channels.get(channel);
         if (target === undefined) {
-            throw new Error(`Cannot emit to unknown channel "${channel}"`);
+            throw new FslTapeError(`Cannot emit to unknown channel "${channel}"`);
         }
         if (target.is_input()) {
-            throw new Error(`Cannot emit to input channel "${channel}"`);
+            throw new FslTapeError(`Cannot emit to input channel "${channel}"`);
         }
         this.pipeline.stage(channel, value);
         return this;
@@ -502,48 +629,58 @@ class TapeTransaction {
      * in stage order, then settle.  After commit the emits are observable on the
      * channels and the transaction is inert.
      *
-     * @throws Error when the transaction has already settled.
+     * @returns The {@link TapeEntry} list produced, one per drained emit, in
+     *          commit (stage) order — empty when nothing was staged.
+     *
+     * @throws FslTapeError when the transaction has already settled.
      *
      * @example
      *   const out = new Channel<string>('log', 'output');
      *   const tx  = new TapeTransaction([out]);
      *   tx.emit('log', 'a');
      *   tx.emit('log', 'b');
-     *   tx.commit();
-     *   out.tape.values();   // ['a', 'b']  — in stage order
+     *   tx.commit().map(e => e.value);   // ['a', 'b']  — in stage order
+     *   out.tape.values();               // ['a', 'b']
      */
     commit() {
         if (this.settled_state) {
-            throw new Error('Cannot commit a settled transaction');
+            throw new FslTapeError('Cannot commit a settled transaction');
         }
+        const produced = [];
         this.pipeline.drain(emit => {
             // emit.channel was validated at stage time, so the lookup always hits.
             const target = this.channels.get(emit.channel);
-            target.tape.append(emit.value);
+            produced.push(target.tape.append(emit.value));
         });
         this.settled_state = true;
+        return produced;
     }
     /**
      * **Roll back** the macrostep (§11): discard every staged emit so no tape is
      * touched, then settle.  This is the atomic-undo of the in-flight emits — and
      * the whole of it; external hook effects are deliberately out of scope.
      *
-     * @throws Error when the transaction has already settled.
+     * @returns The number of staged emits discarded.
+     *
+     * @throws FslTapeError when the transaction has already settled.
      *
      * @example
      *   const out = new Channel<number>('o', 'output');
      *   const tx  = new TapeTransaction([out]);
      *   tx.emit('o', 1);
-     *   tx.rollback();
+     *   tx.emit('o', 2);
+     *   tx.rollback();       // 2  — two emits discarded
      *   out.tape.values();   // []
      *   tx.settled();        // true
      */
     rollback() {
         if (this.settled_state) {
-            throw new Error('Cannot roll back a settled transaction');
+            throw new FslTapeError('Cannot roll back a settled transaction');
         }
+        const discarded = this.pipeline.size;
         this.pipeline.discard();
         this.settled_state = true;
+        return discarded;
     }
 }
-export { unlimited, DEFAULT_INPUT_HISTORY, is_retained, Tape, Channel, EmitPipeline, TapeTransaction };
+export { unlimited, DEFAULT_INPUT_HISTORY, FslTapeError, is_retained, Tape, Channel, EmitPipeline, TapeTransaction };
