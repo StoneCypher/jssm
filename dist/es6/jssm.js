@@ -9,6 +9,43 @@ import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
 import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors, state_name_chars, state_name_first_chars, action_label_chars } = constants;
 const empty_string_set = new Set();
+// The spatial fields (besides `handler`, which every hook needs) that each
+// hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
+// to validate a HookDescription so a mis-shaped one is rejected rather than
+// silently registering a dead hook — e.g. an `exit` hook given `to` instead of
+// `from` would otherwise intern `undefined` and never fire (#734).  Typed as a
+// `Record` over the kind union so the table is exhaustive at compile time:
+// adding a hook kind without listing its fields is a build error.
+const hook_required_fields = {
+    'hook': ['from', 'to'],
+    'named': ['from', 'to', 'action'],
+    'global action': ['action'],
+    'any action': [],
+    'standard transition': [],
+    'main transition': [],
+    'forced transition': [],
+    'any transition': [],
+    'entry': ['to'],
+    'exit': ['from'],
+    'after': ['from'],
+    'post hook': ['from', 'to'],
+    'post named': ['from', 'to', 'action'],
+    'post global action': ['action'],
+    'post any action': [],
+    'post standard transition': [],
+    'post main transition': [],
+    'post forced transition': [],
+    'post any transition': [],
+    'post entry': ['to'],
+    'post exit': ['from'],
+    'pre everything': [],
+    'everything': [],
+    'pre post everything': [],
+    'post everything': [],
+};
+// The spatial fields a hook descriptor can carry, checked against the per-kind
+// requirements above.
+const hook_spatial_fields = ['from', 'to', 'action'];
 import { version, build_time } from './version.js'; // replaced from package.js in build
 import { JssmError } from './jssm_error.js';
 /*********
@@ -2270,7 +2307,44 @@ class Machine {
      *  calling this directly.
      *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
      */
+    /**
+     *  Validate a {@link HookDescription} before registration.  Every hook needs
+     *  a `handler` function, and each kind's identifying spatial fields
+     *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+     *  kind — present when required, absent otherwise.  This turns a mis-shaped
+     *  descriptor into a thrown error instead of a silently dead hook keyed on
+     *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+     *
+     *  @param HookDesc - The descriptor about to be registered.
+     *  @throws JssmError if the kind is unknown, the handler is not a function, a
+     *          required field is missing, or an inapplicable field is present.
+     *
+     *  @example
+     *    const m = sm`a -> b;`;
+     *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+     *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+     */
+    _validate_hook_description(HookDesc) {
+        const required = hook_required_fields[HookDesc.kind];
+        if (required === undefined) {
+            throw new JssmError(this, `unknown hook kind ${JSON.stringify(HookDesc.kind)}`);
+        }
+        if (typeof HookDesc.handler !== 'function') {
+            throw new JssmError(this, `${HookDesc.kind} hook requires a handler function`);
+        }
+        for (const field of hook_spatial_fields) {
+            const needed = required.includes(field);
+            const present = HookDesc[field] !== undefined;
+            if (needed && !present) {
+                throw new JssmError(this, `${HookDesc.kind} hook requires '${field}'`);
+            }
+            if (!needed && present) {
+                throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
+            }
+        }
+    }
     set_hook(HookDesc) {
+        this._validate_hook_description(HookDesc);
         switch (HookDesc.kind) {
             case 'hook': {
                 // Numeric pair key (#729).  intern() rather than id_of(): a hook may
@@ -2412,8 +2486,8 @@ class Machine {
                 this._post_everything_hook = HookDesc.handler;
                 this._has_post_hooks = true;
                 break;
-            default:
-                throw new JssmError(this, `Unknown hook type ${HookDesc.kind}, should be impossible`);
+            // No default: `_validate_hook_description` above rejects any unknown kind
+            // before we reach here, so the switch is exhaustive over the known kinds.
         }
         // The hooked-state styling layer (tier 2.5 of resolve_state_config) depends
         // on which states carry hooks, so registering a hook can change the composed

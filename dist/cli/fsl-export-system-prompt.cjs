@@ -108,7 +108,7 @@ function parseFslArgs(argv, spec) {
   return { positional, flags, helpText };
 }
 
-const getVersion = () => "5.144.7";
+const getVersion = () => "5.144.8";
 const SPEC = {
   flags: {
     help: { short: "h", boolean: true },
@@ -214,6 +214,6 @@ async function cli(argv) {
 async function main() {
   const argv = process.argv.slice(2);
   const code = await cli(argv);
-  process.exit(code);
+  process.exitCode = code;
 }
 void main();
