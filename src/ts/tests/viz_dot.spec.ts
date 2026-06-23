@@ -255,3 +255,24 @@ describe('parallel action edges render as separate labelled edges (#325, #531)',
   });
 
 });
+
+
+
+describe('state names containing double-quotes produce valid DOT (fsl#474)', () => {
+
+  // FSL `"say \"hi\""` parses to the state name  say "hi"  (literal quotes).
+  // The node label must escape them, or the DOT is unbalanced and crashes the
+  // graphviz/emscripten renderer.
+  test('embedded quotes in a state name are escaped in the node label', () => {
+    const dot = jv.fsl_to_dot(`start -> "say \\"hi\\"";`);
+    expect(dot).toContain('label="say \\"hi\\""');     // escaped form present
+    expect(dot).not.toContain('label="say "hi""');     // broken unbalanced form absent
+  });
+
+  test('a quote-free state name is unchanged', () => {
+    const dot = jv.fsl_to_dot(`a -> b;`);
+    expect(dot).toContain('label="a"');
+    expect(dot).toContain('label="b"');
+  });
+
+});
