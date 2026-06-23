@@ -496,3 +496,113 @@ describe('mixed-prefix companion discovery', () => {
   });
 
 });
+
+/**
+ * Helper: create a connected `<fsl-instance>` from an FSL string and return
+ * it.  Caller is responsible for `document.body.removeChild`.
+ */
+function mount_instance(fsl: string): FslInstance {
+  const el = document.createElement('fsl-instance') as FslInstance;
+  el.setAttribute('fsl', fsl);
+  document.body.appendChild(el);
+  return el;
+}
+
+describe('FslInstance DOM CustomEvent re-emission (mechanism 4, #639)', () => {
+
+  it('dispatches a composed, bubbling fsl-transition with from/to/action detail', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    const seen: CustomEvent[] = [];
+    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+
+    el.do('flip');
+    await el.updateComplete;
+
+    expect(seen).toHaveLength(1);
+    const e = seen[0]!;
+    expect(e.bubbles).toBe(true);
+    expect(e.composed).toBe(true);
+    expect(e.detail.from).toBe('Off');
+    expect(e.detail.to).toBe('On');
+    expect(e.detail.action).toBe('flip');
+
+    document.body.removeChild(el);
+  });
+
+  it('paints the new state to host attributes before the fsl-transition handler runs', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    let state_in_handler: string | null = null;
+    el.addEventListener('fsl-transition', () => {
+      state_in_handler = el.getAttribute('current-state');
+    });
+
+    el.do('flip');
+    await el.updateComplete;
+
+    // Ordering guarantee (#639): mechanism 1 reflection precedes mechanism 4 dispatch.
+    expect(state_in_handler).toBe('On');
+
+    document.body.removeChild(el);
+  });
+
+  it('also dispatches fsl-exit and fsl-entry on a transition', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    const names: string[] = [];
+    el.addEventListener('fsl-exit',  () => names.push('exit'));
+    el.addEventListener('fsl-entry', () => names.push('entry'));
+
+    el.do('flip');
+    await el.updateComplete;
+
+    expect(names).toContain('exit');
+    expect(names).toContain('entry');
+
+    document.body.removeChild(el);
+  });
+
+  it('re-emits even when the machine is driven directly via host.machine.action()', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    const seen: CustomEvent[] = [];
+    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+
+    el.machine.action('flip');   // bypasses host.do()
+    await el.updateComplete;
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0]!.detail.to).toBe('On');
+
+    document.body.removeChild(el);
+  });
+
+  it('stops dispatching after the host is disconnected', async () => {
+    const el = mount_instance("Off 'flip' -> On 'flip' -> Off;");
+    const seen: CustomEvent[] = [];
+    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+
+    document.body.removeChild(el);   // disconnectedCallback unsubscribes
+    el.machine.action('flip');       // machine still alive, WC detached
+    await Promise.resolve();
+
+    expect(seen).toHaveLength(0);
+  });
+
+});
+
+describe('FslInstance default-template slots (S2)', () => {
+
+  it('exposes a named slot for every sub-component panel', async () => {
+    const el = mount_instance('A -> B;');
+    await el.updateComplete;
+
+    const slot_names = Array.from(el.shadowRoot!.querySelectorAll('slot'))
+      .map(s => s.getAttribute('name'));
+
+    for (const name of ['history', 'data-inspector', 'hook-log',
+                        'effective-properties', 'simulation', 'export']) {
+      expect(slot_names).toContain(name);
+    }
+
+    document.body.removeChild(el);
+  });
+
+});

@@ -148,9 +148,13 @@ describe('dist/wc/instance.js — bundler-friendly build', () => {
 
   it('is reasonably small with jssm core externalized', () => {
     const built = readFileSync(dist_path, 'utf8');
-    // Same envelope as the viz bundler-friendly build: jssm core + lit
-    // externalized, only the component source remains inline.
-    expect(built.length).toBeLessThan(50_000);
+    // jssm core + lit are externalized (asserted above), so only the component
+    // source is inline. <fsl-instance> is the largest WC — FSL resolution, the
+    // four declarative-tag families, mechanism-4 DOM-event re-emission (#639),
+    // and the panel slots — so its ceiling is higher than viz's. The guard's
+    // real job is catching an accidental core-inline regression (which would be
+    // 150KB+), not policing incremental component growth.
+    expect(built.length).toBeLessThan(64_000);
   });
 
 });

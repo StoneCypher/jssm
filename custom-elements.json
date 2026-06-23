@@ -189,6 +189,92 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_effective_properties_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Read-only panel that displays the parent machine's **resolved FSL\nproperties** for the current state — the values produced by the full\noverride chain (machine `property … default …` → per-state\n`state X: { property … }`), as returned by `machine.props()`. Refreshes on\nevery transition, so consumers can watch a property's effective value change\nas the machine moves between states.\n\nBinds to the host via closest_wc (matching both `fsl-instance` and\nthe deprecated `jssm-instance`). Display-only; never drives the machine.\n\nv1 shows the FSL `property` bag (`machine.props()`). The render-time visual\nstyle resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline\nconcern and is not surfaced here.",
+          "name": "FslEffectiveProperties",
+          "cssProperties": [
+            {
+              "description": "Gap between rows.",
+              "name": "--fsl-effective-properties-gap",
+              "default": "0.25rem"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "JssmInstanceHost | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Parent host reference; cleared on disconnect."
+            },
+            {
+              "kind": "field",
+              "name": "_sub",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Unsubscribe callback from the host machine's `transition` subscription."
+            },
+            {
+              "kind": "field",
+              "name": "_entries",
+              "type": {
+                "text": "Array<[string, string]> | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Resolved property entries (`[name, stringified value]`) for the current\nstate, or `null` before the panel has bound to a host machine."
+            },
+            {
+              "kind": "method",
+              "name": "_refresh",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "host",
+                  "type": {
+                    "text": "JssmInstanceHost"
+                  },
+                  "description": "The bound parent host whose machine to snapshot."
+                }
+              ],
+              "description": "Read the resolved property bag (`machine.props()`) into reactive entries,\ntriggering a re-render."
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-effective-properties",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslEffectiveProperties",
+          "declaration": {
+            "name": "FslEffectiveProperties",
+            "module": "src/ts/wc/fsl_effective_properties_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/fsl_hook_wc.ts",
       "declarations": [
         {
@@ -437,6 +523,132 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_info_panel_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Read-only state-inspector web component for a parent `<fsl-instance>`.\n\nSlotted into the host's `info-panel` slot (or nested anywhere inside it), it\ndisplays the machine's current state, the most recent transition\n(`from → to via action`), the currently-legal exit actions, and the\nterminal / complete flags. Every field refreshes on each `transition`\nevent.\n\nDisplay-only: it never drives the machine. It binds by walking up to the\nhost via closest_wc (which matches both the canonical `fsl-instance`\nand the deprecated `jssm-instance` host tags), so it works under either.",
+          "name": "FslInfoPanel",
+          "cssProperties": [
+            {
+              "description": "Vertical gap between rows.",
+              "name": "--fsl-info-panel-gap",
+              "default": "0.25rem"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "JssmInstanceHost | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Parent host reference, set in `connectedCallback` when one is found.\nCleared on disconnect so a stale deferred subscription cannot fire."
+            },
+            {
+              "kind": "field",
+              "name": "_sub",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Unsubscribe callback from the host machine's `transition` subscription."
+            },
+            {
+              "kind": "field",
+              "name": "_current",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Current state name; `null` until the panel has bound to a host machine."
+            },
+            {
+              "kind": "field",
+              "name": "_actions",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''",
+              "description": "Space-separated legal exit actions for the current state."
+            },
+            {
+              "kind": "field",
+              "name": "_terminal",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the current state has no exits."
+            },
+            {
+              "kind": "field",
+              "name": "_complete",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the current state is a `complete` state."
+            },
+            {
+              "kind": "field",
+              "name": "_last",
+              "type": {
+                "text": "LastTransition | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Most recent transition, or `null` before the first one."
+            },
+            {
+              "kind": "method",
+              "name": "_refresh",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "host",
+                  "type": {
+                    "text": "JssmInstanceHost"
+                  },
+                  "description": "The bound parent host whose machine to snapshot."
+                }
+              ],
+              "description": "Read the current machine snapshot into the reactive fields, triggering a\nre-render. Called once on bind and again on every transition. The bound\nhost is passed in by the caller (which already holds a non-null reference),\nso no re-null-check is needed here."
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-info-panel",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslInfoPanel",
+          "declaration": {
+            "name": "FslInfoPanel",
+            "module": "src/ts/wc/fsl_info_panel_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/fsl_instance_wc.ts",
       "declarations": [
         {
@@ -564,7 +776,7 @@
               "name": "viz"
             },
             {
-              "description": "Editor surface slot.",
+              "description": "Editor surface slot (`<fsl-editor>`, #659).",
               "name": "editor"
             },
             {
@@ -572,12 +784,36 @@
               "name": "actions"
             },
             {
-              "description": "Slot for toolbar UI.",
+              "description": "Slot for toolbar UI (`<fsl-toolbar>`, #660).",
               "name": "toolbar"
             },
             {
-              "description": "Slot for an info / status panel.",
+              "description": "Slot for an info / status panel (`<fsl-info-panel>`, #661).",
               "name": "info-panel"
+            },
+            {
+              "description": "Slot for the visited-state timeline (`<fsl-history>`, #662).",
+              "name": "history"
+            },
+            {
+              "description": "Slot for the typed-data tree view (`<fsl-data-inspector>`, #663).",
+              "name": "data-inspector"
+            },
+            {
+              "description": "Slot for the hook-firing log (`<fsl-hook-log>`, #664).",
+              "name": "hook-log"
+            },
+            {
+              "description": "Slot for the resolved-properties panel (`<fsl-effective-properties>`, #665).",
+              "name": "effective-properties"
+            },
+            {
+              "description": "Slot for the random-walk simulation (`<fsl-simulation>`, #668).",
+              "name": "simulation"
+            },
+            {
+              "description": "Slot for the export menu (`<fsl-export>`, #667).",
+              "name": "export"
             },
             {
               "description": "Footer slot.",
@@ -625,6 +861,38 @@
               "privacy": "private",
               "default": "[]",
               "description": "Unsubscribe callbacks for every `machine.on(...)` / `machine.once(...)`\r\nsubscription installed from a `<jssm-on>` child during\r\n`connectedCallback`.  Walked in `disconnectedCallback`."
+            },
+            {
+              "kind": "field",
+              "name": "REEMITTED_EVENTS",
+              "type": {
+                "text": "readonly string[]"
+              },
+              "privacy": "private",
+              "static": true,
+              "readonly": true,
+              "default": "[ 'transition', 'entry', 'exit', 'terminal', 'complete', 'action', 'rejection', 'override', 'data-change', 'timeout', 'error', ]",
+              "description": "Library event names this WC re-emits as DOM `CustomEvent`s, fulfilling\r\nmechanism 4 of #639.  Each library `machine.on(name, ...)` is bridged to\r\na `fsl-<name>` DOM event (`composed`, `bubbling`) so slotted content and\r\noutside consumers can observe machine activity declaratively.\r\n\r\n`fsl-` is the canonical prefix (matching the canonical `<fsl-*>` tag\r\nnames); the older `jssm-*` event prose in #639 predates that naming flip.\r\nEvents are NOT double-emitted under both prefixes — a symmetric listener\r\nwould otherwise run twice per machine event."
+            },
+            {
+              "kind": "field",
+              "name": "_reemit_unsubscribes",
+              "type": {
+                "text": "Array<() => void>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Unsubscribe callbacks for the host-level mechanism-4 re-emission\r\nsubscriptions installed in _install_event_reemission.  Distinct\r\nfrom _on_unsubscribes (which belongs to `<jssm-on>` children)."
+            },
+            {
+              "kind": "field",
+              "name": "_pending_dom_events",
+              "type": {
+                "text": "Array<{ name: string; detail: unknown }>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Library events captured during the current transition, awaiting DOM\r\nre-dispatch once Lit commits the next render.  Dispatching here (rather\r\nthan synchronously from the machine subscription) guarantees the #639\r\nordering: mechanism 1/3 reflection and mechanism 2 slot re-pick are all\r\nin place before a mechanism-4 listener runs."
             },
             {
               "kind": "field",
@@ -747,6 +1015,28 @@
             },
             {
               "kind": "method",
+              "name": "_install_event_reemission",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Install the mechanism-4 (#639) re-emission subscriptions: one\r\n`machine.on(name, ...)` per entry in REEMITTED_EVENTS.  Each\r\ncaptured library event is queued and re-dispatched as a `fsl-<name>` DOM\r\nevent after the next render commit (see updated).\r\n\r\nSubscribing is also what *enables* the gated observation events: the\r\nlibrary suppresses `transition` / `entry` / `exit` / etc. while no\r\nlisteners exist (#670), so this host subscription is the bridge that\r\nturns them on.\r\n\r\nThe subscription handler paints state reflection eagerly so that a host\r\ndriven directly via `host.machine.action(...)` (bypassing do)\r\nstill updates its `current-state` attribute and `--current-state`\r\nproperty."
+            },
+            {
+              "kind": "method",
+              "name": "_flush_pending_dom_events",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Dispatch and clear the queue of pending DOM events.  The queue is\r\nsnapshotted and reset *before* dispatching so that a listener which\r\nre-enters the machine (e.g. calls `host.machine.action(...)`\r\nsynchronously) enqueues into a fresh batch handled by the next update\r\ncycle, rather than mutating the array mid-iteration.  This is the\r\ndocumented re-entrancy behavior: re-entrant transitions are deferred,\r\nnot dropped."
+            },
+            {
+              "kind": "method",
               "name": "_discover_jssm_actions",
               "privacy": "private",
               "return": {
@@ -785,6 +1075,13 @@
                 }
               },
               "description": "Reflect machine state onto host attributes and CSS custom properties.\r\nCalled after every transition and once during `connectedCallback`.\r\n\r\nMechanism 1 (#639): writes to host attributes.\r\nMechanism 3 (#639): writes to host inline-style custom properties."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent"
+              }
             }
           ],
           "attributes": [
@@ -1123,6 +1420,32 @@
             }
           ],
           "description": "Registers a canonical custom-element tag and its synonym tag.\r\n\r\n`customElements.define` requires a distinct constructor per tag name, so\r\ncallers pass the canonical class and a thin subclass for the synonym.\r\nThe function is idempotent: if either tag is already registered it skips\r\nthat `define` call rather than throwing."
+        },
+        {
+          "kind": "function",
+          "name": "define_canonical",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          },
+          "parameters": [
+            {
+              "name": "canonical_tag",
+              "type": {
+                "text": "string"
+              },
+              "description": "The `fsl-*` tag name (e.g. `\"fsl-info-panel\"`)."
+            },
+            {
+              "name": "CanonicalClass",
+              "type": {
+                "text": "CustomElementConstructor"
+              },
+              "description": "Constructor to register under `canonical_tag`."
+            }
+          ],
+          "description": "Registers a single canonical `fsl-*` custom-element tag, with no `jssm-*`\r\nsynonym.\r\n\r\nThis is the registration path for **new** web components.  The `jssm-*`\r\nprefix is a deprecated backward-compatibility alias retained only for the\r\ncomponents that shipped under that name (`<jssm-viz>`, `<jssm-instance>`,\r\n`<jssm-bind>`); new components are `fsl-*`-only for fsl.tools brand\r\nalignment, and the legacy synonyms are slated for removal in v6.  Use\r\ndefine_with_synonym only when maintaining one of those pre-existing\r\ndual-named components.\r\n\r\nIdempotent: skips the `define` call when the tag is already registered."
         }
       ],
       "exports": [
@@ -1163,6 +1486,22 @@
           "name": "synonym_tag",
           "declaration": {
             "name": "SynonymClass",
+            "module": "src/ts/wc/wc_tag_helpers.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "define_canonical",
+          "declaration": {
+            "name": "define_canonical",
+            "module": "src/ts/wc/wc_tag_helpers.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "canonical_tag",
+          "declaration": {
+            "name": "CanonicalClass",
             "module": "src/ts/wc/wc_tag_helpers.ts"
           }
         }
