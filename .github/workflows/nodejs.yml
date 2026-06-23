@@ -1,6 +1,22 @@
 name: Full publish pipeline
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    # Doc-only PRs that the build genuinely doesn't consume skip CI. NOT
+    # listed (intentionally): src/doc_md/** (typedoc/changelog inputs),
+    # CHANGELOG*.md, README.md, package.json, anything under src/ts/**.
+    paths-ignore:
+      - 'notes/**'
+      - 'CONTRIBUTING.md'
+      - 'CODE_OF_CONDUCT.md'
+      - 'LICENSE'
+
+# Cancel in-progress PR runs when new commits land on the same branch.
+# Main pushes are never cancelled — releases must run to completion.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
 
@@ -11,6 +27,7 @@ jobs:
     if: github.event_name == 'pull_request'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v5
@@ -31,6 +48,7 @@ jobs:
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4
@@ -51,6 +69,7 @@ jobs:
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v5
@@ -71,6 +90,7 @@ jobs:
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v5
@@ -91,6 +111,7 @@ jobs:
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v5
@@ -111,6 +132,7 @@ jobs:
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v5
@@ -151,6 +173,7 @@ jobs:
             os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
 
     steps:
     - uses: actions/checkout@v5
@@ -176,6 +199,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
     - uses: actions/checkout@v5
@@ -198,6 +222,7 @@ jobs:
     needs: [full-build]
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     permissions:
       contents: write   # to force-push the built site to the gh-pages branch
@@ -240,6 +265,7 @@ jobs:
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
     - uses: actions/checkout@v5
@@ -260,6 +286,7 @@ jobs:
     if: github.event_name == 'push'
 
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v5
@@ -285,6 +312,7 @@ jobs:
     needs: [build, full-build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
 
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     env:
       AWS_GRAVITON_OIDC_ROLE: ${{ secrets.AWS_GRAVITON_OIDC_ROLE }}
@@ -375,6 +403,7 @@ jobs:
     needs: [release]
 
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
     - uses: actions/checkout@v5
