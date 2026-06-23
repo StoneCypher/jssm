@@ -6866,3 +6866,16 @@ export {
 //  FslThemes
 
 };
+
+export {
+  fsl_fence_lang,
+  parse_fence_info
+} from './fsl_markdown_fence';
+
+export type {
+  FencePart,
+  FenceImageFormat,
+  FenceDimensionUnit,
+  FenceDimension,
+  FenceDescriptor
+} from './fsl_markdown_fence';

@@ -133,8 +133,10 @@ export function parse_fence_info(info: string): FenceDescriptor {
       continue;
     }
     if (arg.startsWith('width=') || arg.startsWith('height=')) {
-      const [key, raw] = arg.split('=', 2);
-      const dim = parse_dimension(raw ?? '');
+      const eq  = arg.indexOf('=');
+      const key = arg.slice(0, eq);
+      const raw = arg.slice(eq + 1);
+      const dim = parse_dimension(raw);
       if (dim === null)          { notes.push(`invalid ${key} value "${raw}" ignored`); }
       else if (key === 'width')  { width  = dim; }
       else                       { height = dim; }

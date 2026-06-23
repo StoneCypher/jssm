@@ -4,6 +4,8 @@ import {
   parse_fence_info
 } from '../fsl_markdown_fence';
 
+import * as jssm from '../jssm';
+
 describe('fsl_fence_lang/1', () => {
   it('recognizes fsl', () => expect(fsl_fence_lang('fsl image code')).toBe('fsl'));
   it('recognizes jssm', () => expect(fsl_fence_lang('jssm')).toBe('jssm'));
@@ -125,5 +127,20 @@ describe('parse_fence_info/1 — interactive + raster override', () => {
     const d = parse_fence_info('fsl actions');
     expect(d.format).toBe('svg');
     expect(d.notes.some(n => /forced.*svg|overridden to svg/i.test(n))).toBe(false);
+  });
+});
+
+describe('fence parser is exported from the jssm barrel', () => {
+  it('exposes parse_fence_info', () =>
+    expect(jssm.parse_fence_info('fsl').parts).toEqual(['image', 'code']));
+  it('exposes fsl_fence_lang', () =>
+    expect(jssm.fsl_fence_lang('jssm')).toBe('jssm'));
+  it('a full real-world string parses end to end', () => {
+    const d = jssm.parse_fence_info('fsl code image width=640 height=480 png');
+    expect(d.parts).toEqual(['code', 'image']);
+    expect(d.format).toBe('png');
+    expect(d.width).toEqual({ value: 640, unit: 'px' });
+    expect(d.height).toEqual({ value: 480, unit: 'px' });
+    expect(d.interactive).toBe(false);
   });
 });
