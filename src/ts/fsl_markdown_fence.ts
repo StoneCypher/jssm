@@ -67,6 +67,10 @@ function is_format(token: string): token is FenceImageFormat {
   return (FORMAT_TOKENS as ReadonlySet<string>).has(token);
 }
 
+/** Parts whose presence promotes the whole block to a live, interactive instance. */
+const INTERACTIVE_PARTS: ReadonlySet<FencePart> =
+  new Set<FencePart>(['editor', 'actions', 'toolbar', 'info-panel']);
+
 /**
  *  Parse a dimension value like `300`, `120px`, or `100%` into a
  *  {@link FenceDimension}.  A bare number is pixels.
@@ -147,13 +151,20 @@ export function parse_fence_info(info: string): FenceDescriptor {
 
   if (parts.length === 0) { parts.push('image', 'code'); }
 
+  const interactive = ide || parts.some(p => INTERACTIVE_PARTS.has(p));
+
+  if (interactive && format !== 'svg') {
+    notes.push(`raster format "${format}" overridden to svg for an interactive block`);
+    format = 'svg';
+  }
+
   return {
     parts,
     ide,
     format,
     width,
     height,
-    interactive : false,
+    interactive,
     notes
   };
 }

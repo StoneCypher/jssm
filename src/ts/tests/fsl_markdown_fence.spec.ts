@@ -105,3 +105,25 @@ describe('parse_fence_info/1 — ide macro', () => {
   it('non-ide blocks have ide=false', () =>
     expect(parse_fence_info('fsl image').ide).toBe(false));
 });
+
+describe('parse_fence_info/1 — interactive + raster override', () => {
+  it('static blocks are not interactive', () =>
+    expect(parse_fence_info('fsl image code').interactive).toBe(false));
+  it('actions makes it interactive', () =>
+    expect(parse_fence_info('fsl image actions').interactive).toBe(true));
+  it('ide is interactive', () =>
+    expect(parse_fence_info('fsl ide').interactive).toBe(true));
+  it('raster + interactive forces svg with a note', () => {
+    const d = parse_fence_info('fsl png actions');
+    expect(d.interactive).toBe(true);
+    expect(d.format).toBe('svg');
+    expect(d.notes.some(n => /svg/i.test(n) && /png/.test(n))).toBe(true);
+  });
+  it('raster without interactive keeps the raster format', () =>
+    expect(parse_fence_info('fsl png').format).toBe('png'));
+  it('svg + interactive needs no override note', () => {
+    const d = parse_fence_info('fsl actions');
+    expect(d.format).toBe('svg');
+    expect(d.notes.some(n => /forced.*svg|overridden to svg/i.test(n))).toBe(false);
+  });
+});
