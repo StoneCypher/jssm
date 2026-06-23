@@ -84,6 +84,10 @@ function parse_dimension(raw: string): FenceDimension | null {
   return { value: parseInt(m[1], 10), unit: m[2] === '%' ? 'percent' : 'px' };
 }
 
+/** The curated full layout the `ide` macro expands to, in render order. */
+const IDE_LAYOUT: readonly FencePart[] =
+  ['title', 'image', 'actions', 'info-panel', 'toolbar', 'editor', 'footer'];
+
 /**
  *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
  *  the (already-validated) language and is ignored; remaining tokens are
@@ -108,8 +112,10 @@ export function parse_fence_info(info: string): FenceDescriptor {
   let format_set = false;
   let width  : FenceDimension | null = null;
   let height : FenceDimension | null = null;
+  let ide    = false;
 
   for (const arg of args) {
+    if (arg === 'ide') { ide = true; continue; }
     if (is_part(arg)) {
       if (parts.includes(arg)) { notes.push(`duplicate token "${arg}" ignored`); }
       else                     { parts.push(arg); }
@@ -133,11 +139,17 @@ export function parse_fence_info(info: string): FenceDescriptor {
     notes.push(`unknown token "${arg}" ignored`);
   }
 
+  if (ide) {
+    if (parts.length > 0) { notes.push('ide overrides individual part tokens'); }
+    parts.length = 0;
+    parts.push(...IDE_LAYOUT);
+  }
+
   if (parts.length === 0) { parts.push('image', 'code'); }
 
   return {
     parts,
-    ide         : false,
+    ide,
     format,
     width,
     height,

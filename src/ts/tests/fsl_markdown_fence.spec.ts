@@ -88,3 +88,20 @@ describe('parse_fence_info/1 — dimensions', () => {
     expect(d.height).toBeNull();
   });
 });
+
+const IDE_PARTS = ['title','image','actions','info-panel','toolbar','editor','footer'];
+
+describe('parse_fence_info/1 — ide macro', () => {
+  it('ide expands to the canonical full part set', () => {
+    const d = parse_fence_info('fsl ide');
+    expect(d.ide).toBe(true);
+    expect(d.parts).toEqual(IDE_PARTS);
+  });
+  it('ide overrides à-la-carte parts with a note', () => {
+    const d = parse_fence_info('fsl image ide');
+    expect(d.parts).toEqual(IDE_PARTS);
+    expect(d.notes.some(n => /ide/i.test(n) && /overrid/i.test(n))).toBe(true);
+  });
+  it('non-ide blocks have ide=false', () =>
+    expect(parse_fence_info('fsl image').ide).toBe(false));
+});
