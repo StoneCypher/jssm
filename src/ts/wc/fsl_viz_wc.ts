@@ -5,11 +5,6 @@ import { fsl_to_svg_string, machine_to_svg_string } from '../jssm_viz.js';
 import type { Machine } from '../jssm.js';
 import { closest_wc } from './wc_tag_helpers.js';
 
-export interface HighlightOptions {
-  color?: string;
-  fadeOthers?: boolean;
-}
-
 /**
  * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
  * creating a hard import cycle from the viz module into the instance module.
@@ -94,19 +89,6 @@ export class FslViz extends LitElement {
     .container {
       width: 100%;
       height: 100%;
-    }
-    
-    .container svg g.node path,
-    .container svg g.node polygon,
-    .container svg g.node ellipse,
-    .container svg g.edge path,
-    .container svg g.edge polygon {
-      transition: fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease;
-    }
-    
-    .container svg g.node text,
-    .container svg g.edge text {
-      transition: fill 0.3s ease, opacity 0.3s ease;
     }
   `;
 
@@ -301,99 +283,6 @@ export class FslViz extends LitElement {
    */
   render(): TemplateResult {
     return html`<div class="container">${unsafeHTML(this._svg)}</div>`;
-  }
-
-  /**
-   * Clears any active programmatic highlights from the SVG, restoring nodes
-   * and edges to their default Graphviz styles.
-   */
-  public clearHighlights(): void {
-    if (!this.shadowRoot) return;
-    const container = this.shadowRoot.querySelector('.container');
-    if (!container) return;
-
-    // Remove inline styles that override the presentation attributes
-    const elements = container.querySelectorAll('.node, .edge, .node *, .edge *');
-    elements.forEach(el => {
-      (el as SVGElement).style.removeProperty('fill');
-      (el as SVGElement).style.removeProperty('stroke');
-      (el as SVGElement).style.removeProperty('opacity');
-    });
-  }
-
-  /**
-   * Programmatically highlights a specific execution trace (path) through the graph.
-   * 
-   * @param trace Array of state names representing the execution path (e.g. ['A', 'B', 'C'])
-   * @param options Styling options for the highlight
-   */
-  public highlightTrace(trace: string[], options: HighlightOptions = {}): void {
-    if (!this.shadowRoot) return;
-    const container = this.shadowRoot.querySelector('.container');
-    if (!container || trace.length === 0) return;
-
-    this.clearHighlights();
-
-    const color = options.color || '#b71c1c'; // Default to a distinct red
-    const fadeOthers = options.fadeOthers !== false; // Default to true
-
-    const targetNodes = new Set<string>();
-    const targetEdges = new Set<string>();
-
-    for (let i = 0; i < trace.length; i++) {
-      targetNodes.add(trace[i]);
-      if (i < trace.length - 1) {
-        targetEdges.add(`${trace[i]}->${trace[i+1]}`);
-      }
-    }
-
-    const allNodes = container.querySelectorAll('.node');
-    const allEdges = container.querySelectorAll('.edge');
-
-    const unescapeTitle = (title: string) => {
-      // Graphviz escapes '->' as '&#45;&gt;' or '-&gt;'
-      return title.replace(/&#45;/g, '-').replace(/&gt;/g, '>').replace(/"/g, '');
-    };
-
-    allNodes.forEach(node => {
-      const titleEl = node.querySelector('title');
-      const title = titleEl ? unescapeTitle(titleEl.textContent || '') : '';
-      
-      if (targetNodes.has(title)) {
-        // Highlight Node
-        node.querySelectorAll('polygon, ellipse, path').forEach(shape => {
-          (shape as SVGElement).style.stroke = color;
-          (shape as SVGElement).style.strokeWidth = '2px';
-        });
-        node.querySelectorAll('text').forEach(text => {
-          (text as SVGElement).style.fill = color;
-        });
-      } else if (fadeOthers) {
-        // Fade Node
-        (node as SVGElement).style.opacity = '0.2';
-      }
-    });
-
-    allEdges.forEach(edge => {
-      const titleEl = edge.querySelector('title');
-      const title = titleEl ? unescapeTitle(titleEl.textContent || '') : '';
-      
-      if (targetEdges.has(title)) {
-        // Highlight Edge
-        edge.querySelectorAll('path, polygon').forEach(shape => {
-          (shape as SVGElement).style.stroke = color;
-          if (shape.tagName.toLowerCase() === 'polygon') {
-            (shape as SVGElement).style.fill = color; // arrowheads
-          }
-        });
-        edge.querySelectorAll('text').forEach(text => {
-          (text as SVGElement).style.fill = color;
-        });
-      } else if (fadeOthers) {
-        // Fade Edge
-        (edge as SVGElement).style.opacity = '0.2';
-      }
-    });
   }
 
 }

@@ -52,14 +52,6 @@ export default [
     plugins: jsPlugins(),
   },
 
-  // fsl-pick binary
-  {
-    input: 'src/ts/cli/fsl-pick.ts',
-    output: { file: 'dist/cli/fsl-pick.cjs', format: 'cjs', banner: '#!/usr/bin/env node', sourcemap: false },
-    external,
-    plugins: jsPlugins(),
-  },
-
   // fsl-export-system-prompt binary
   {
     input: 'src/ts/cli/fsl-export-system-prompt.ts',
