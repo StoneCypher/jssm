@@ -953,7 +953,11 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
   }
 
   if (rule.key === 'machine_language') {
-    return { agg_as: 'machine_language', val: reduce_to_639(rule.value) };
+    // Accept BCP-47 language tags (e.g. `en-us`, `zh-Hant`) by reducing to the
+    // primary language subtag before the ISO 639-1 lookup, so a regional tag
+    // resolves to its base language (`en-us` -> `en`) instead of failing.
+    const primary_subtag = String(rule.value).split(/[-_]/)[0];
+    return { agg_as: 'machine_language', val: reduce_to_639(primary_subtag) };
   }
 
   // manually rehandled to make `undefined` as a property safe

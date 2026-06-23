@@ -163,6 +163,16 @@ describe('machine_language', () => {
     expect(((sm`machine_language: "አማርኛ"; a->b;`).machine_language() ))
       .toBe('am') );
 
+  // #1380: a BCP-47 language tag with a region subtag reduces to its primary
+  // language rather than failing, so `en-us` resolves like `en`.
+  test(`BCP-47 region tag reduces to its primary language`, () =>
+    expect(((sm`machine_language: "en-us"; a->b;`).machine_language() ))
+      .toBe('en') );
+
+  test(`BCP-47 region tag is case-insensitive`, () =>
+    expect(((sm`machine_language: "EN-US"; a->b;`).machine_language() ))
+      .toBe('en') );
+
   eachTest('atom correct case', 'English');
   eachTest('atom lowercase',    'english');
   eachTest('atom mixedcase',    'eNGliSH');
