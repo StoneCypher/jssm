@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.144.8",
+  "version": "5.146.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -66,6 +66,11 @@
       "import": "./dist/wc/instance.define.js",
       "default": "./dist/wc/instance.define.js"
     },
+    "./cm6": {
+      "types": "./dist/es6/cm6/fsl_language.d.ts",
+      "import": "./dist/cm6/fsl_language.js",
+      "default": "./dist/cm6/fsl_language.js"
+    },
     "./cdn/viz": "./dist/cdn/viz.js",
     "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
@@ -98,6 +103,8 @@
     "dist/wc/viz.define.js",
     "dist/wc/instance.js",
     "dist/wc/instance.define.js",
+    "dist/cm6/fsl_language.js",
+    "dist/es6/cm6/fsl_language.d.ts",
     "dist/cdn/viz.js",
     "dist/cdn/instance.js",
     "dist/cli/lib.cjs",
@@ -145,17 +152,18 @@
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
     "make_wc_instance_es6": "rollup -c rollup.config.wc.instance.es6.js",
     "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
+    "make_cm6": "rollup -c rollup.config.cm6.es6.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
     "prep": "npm run makever && npm run peg",
-    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
-    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli",
+    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_cm6 && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
+    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
-    "benny:scaling": "node ./src/buildjs/benchmark_scaling.cjs",
+    "benny:scaling": "node --expose-gc ./src/buildjs/benchmark_scaling.cjs",
     "benny:all": "npm run benny && npm run benny:scaling",
     "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
     "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
@@ -163,6 +171,8 @@
     "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run perf_chart && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
+    "hosted_test": "node src/buildjs/hosted_test.cjs",
+    "e2e": "node src/buildjs/hosted_test.cjs --serve-dir=src/ts/e2e/fixtures",
     "ci_build": "npm run vet && npm run test",
     "ci_test": "npm run vet && npm run make_ci && npm run vitest",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
@@ -225,8 +235,12 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/state": "^6.6.0",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@knodes/typedoc-plugin-pages": "^0.22.5",
+    "@lezer/highlight": "^1.2.3",
+    "@playwright/test": "^1.61.0",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-replace": "^6.0.1",
@@ -259,6 +273,7 @@
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-esbuild": "^6.2.1",
     "semver": "^7.5.4",
+    "servehere": "^1.10.1",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
     "tslib": "^2.8.1",
@@ -274,10 +289,22 @@
     "reduce-to-639-1": "^1.1.0"
   },
   "peerDependencies": {
-    "lit": ">=3"
+    "lit": ">=3",
+    "@codemirror/language": ">=6",
+    "@codemirror/state": ">=6",
+    "@lezer/highlight": ">=1"
   },
   "peerDependenciesMeta": {
     "lit": {
+      "optional": true
+    },
+    "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/state": {
+      "optional": true
+    },
+    "@lezer/highlight": {
       "optional": true
     }
   },

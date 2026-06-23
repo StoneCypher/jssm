@@ -18,7 +18,7 @@ describe('parseArgs — defaults and positional', () => {
 
   test('applies documented defaults', () => {
     const o = gp.parseArgs(['677']);
-    expect(o.instanceType).toBe('c7g.medium');
+    expect(o.instanceType).toBe('c8g.medium');
     expect(o.mode).toBe('normal');
     expect(o.region).toBe('us-east-1');
     expect(o.shutdownMinutes).toBe(90);   // raised from 30; see #725
@@ -61,8 +61,9 @@ describe('parseArgs — flags', () => {
     expect(() => gp.parseArgs(['677', '--mode', 'turbo'])).toThrow(/normal.*deep/);
   });
 
-  test('--instance-type overrides the default', () => {
-    expect(gp.parseArgs(['677', '--instance-type', 'c6g.medium']).instanceType).toBe('c6g.medium');
+  test('--instance-type accepts the sole allowlisted type and validates others out', () => {
+    expect(gp.parseArgs(['677', '--instance-type', 'c8g.medium']).instanceType).toBe('c8g.medium');
+    expect(() => gp.parseArgs(['677', '--instance-type', 'c7g.medium'])).toThrow(/not an accepted Graviton/);
   });
 
   test('--region, --subnet-id, --my-ip, --run-id thread through', () => {
@@ -112,6 +113,16 @@ describe('validateInstanceType — Graviton allowlist', () => {
   test('accepts every allowlisted type', () => {
     for (const t of gp.ALLOWED_INSTANCE_TYPES) {
       expect(gp.validateInstanceType(t)).toBe(t);
+    }
+  });
+
+  test('accepts c8g.medium (Graviton4 — the re-baseline backfill target)', () => {
+    expect(gp.validateInstanceType('c8g.medium')).toBe('c8g.medium');
+  });
+
+  test('rejects older Graviton .medium types now the allowlist is c8g-only', () => {
+    for (const t of ['c7g.medium', 'c6g.medium', 'm7g.medium', 'r7g.medium']) {
+      expect(() => gp.validateInstanceType(t)).toThrow(/not an accepted Graviton/);
     }
   });
 
@@ -275,6 +286,22 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     prNumber: 677
   };
 
+  test('the scaling benchmark exposes gc on the --harness-from direct-node path', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
+  });
+
+  test('the --harness-from overlay also checks out the memory module', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('benchmark_scaling_memory.cjs');
+  });
+
+  test('benny:scaling npm script exposes gc (covers the non-overlay run paths)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pkg = require('../../../package.json');
+    expect(pkg.scripts['benny:scaling']).toContain('--expose-gc');
+  });
+
   test('normal mode runs benny without BENNY_DEEP', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: false });
     expect(s).toContain('npm run benny:scaling');
@@ -336,13 +363,13 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs');
     expect(s).toContain('benchmark/fixtures');
     expect(s).toContain('npm install benny');
-    expect(s).toContain('node ./src/buildjs/benchmark_scaling.cjs');
+    expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
     expect(s).not.toContain('npm run benny:scaling');
   });
 
   test('--harness-from honors deep mode', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: true, harnessFrom: 'main' });
-    expect(s).toContain('BENNY_DEEP=1 node ./src/buildjs/benchmark_scaling.cjs');
+    expect(s).toContain('BENNY_DEEP=1 node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
   });
 
   test('runs the general (hook microbenchmark) suite as its own line', () => {

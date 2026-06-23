@@ -27,7 +27,7 @@
  *
  *  Flags (see {@link parseArgs} for the authoritative list and defaults):
  *
- *    --instance-type <type>   Graviton `.medium` type (default `c7g.medium`).
+ *    --instance-type <type>   Graviton `.medium` type (only `c8g.medium`, the default).
  *    --mode normal|deep       `deep` sets `BENNY_DEEP=1` on the remote run.
  *    --region <aws-region>    AWS region (default `us-east-1`).
  *    --subnet-id <id>         Subnet to launch in (auto-detected if omitted).
@@ -65,22 +65,21 @@ const cp   = require('child_process');
 // ---------------------------------------------------------------------------
 
 /**
- *  Graviton `.medium` instance types this runner accepts.  All are single-vCPU
- *  = one whole physical ARM core, non-burstable — the property that removes the
- *  laptop-contention variance.  Burstable `t*` types are deliberately excluded:
- *  CPU-credit throttling on a shared core reintroduces exactly the contamination
- *  the dedicated core is escaping.
+ *  The Graviton `.medium` instance type this runner accepts: `c8g.medium`
+ *  (Graviton4), single-vCPU = one whole physical ARM core, non-burstable — the
+ *  property that removes the laptop-contention variance.  The trail is being
+ *  re-baselined uniformly on this one type, so the allowlist is deliberately a
+ *  singleton; older Graviton2/3 `.medium` types and every burstable `t*` type
+ *  are rejected (CPU-credit throttling on a shared core would reintroduce
+ *  exactly the contamination the dedicated core exists to escape).
  */
 const ALLOWED_INSTANCE_TYPES = Object.freeze([
-  'c7g.medium',   // Graviton3 (recommended default)
-  'c6g.medium',   // Graviton2 (cheaper fallback)
-  'm7g.medium',   // Graviton3, more RAM
-  'r7g.medium'    // Graviton3, most RAM
+  'c8g.medium'    // Graviton4, single-vCPU — the sole supported runner target
 ]);
 
 /** Default flag values, single source of truth shared by parser and docs. */
 const DEFAULTS = Object.freeze({
-  instanceType    : 'c7g.medium',
+  instanceType    : 'c8g.medium',   // the sole allowlisted type (see ALLOWED_INSTANCE_TYPES)
   mode            : 'normal',
   region          : 'us-east-1',
   // Safety cap on wasted spend if a run hangs — NOT a target; the instance
@@ -238,13 +237,14 @@ function parseArgs(argv) {
  *  Validate an instance type against the Graviton `.medium` allowlist, rejecting
  *  burstable `t*` types with a pointed explanation.
  *
- *  @param instanceType e.g. `c7g.medium`.
+ *  @param instanceType e.g. `c8g.medium`.
  *  @returns The same string, unchanged, when valid (so it can be used inline).
  *  @throws Error naming the allowlist when the type is not an accepted Graviton
  *          `.medium`, with a distinct message for `t*` burstable types.
  *
- *  @example validateInstanceType('c7g.medium') // => 'c7g.medium'
+ *  @example validateInstanceType('c8g.medium') // => 'c8g.medium'
  *  @example validateInstanceType('t4g.medium') // throws (burstable rejected)
+ *  @example validateInstanceType('c7g.medium') // throws (no longer allowlisted)
  */
 function validateInstanceType(instanceType) {
   if (/^t\d/i.test(instanceType) || /^t[0-9]?g/i.test(instanceType)) {
@@ -538,9 +538,9 @@ function buildRemoteScript(params) {
     ? [
         `# 4. Overlay the current benchmark harnesses from "${harnessFrom}" and run them directly.`,
         `git fetch origin "${harnessFrom}"`,
-        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
+        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_memory.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
         'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
-        `${deep ? 'BENNY_DEEP=1 ' : ''}node ./src/buildjs/benchmark_scaling.cjs`,
+        `${deep ? 'BENNY_DEEP=1 ' : ''}node --expose-gc ./src/buildjs/benchmark_scaling.cjs`,
         '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
         'node ./src/buildjs/benchmark.cjs'
       ]
