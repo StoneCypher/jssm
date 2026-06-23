@@ -2,8 +2,8 @@
 
 /**
  *  Graviton perf-trend chart generator (#748).  Reads every measured run from
- *  the `perf_results` data branch (`c7g.medium/pr-N/scaling.json` and
- *  `c7g.medium/release-V/scaling.json`), and renders one log-scale SVG panel
+ *  the `perf_results` data branch (`c8g.medium/pr-N/scaling.json` and
+ *  `c8g.medium/release-V/scaling.json`), and renders one log-scale SVG panel
  *  per benchmarked operation — one line per machine shape, PRs ordered by
  *  number then releases by semver — plus a machine-readable data JSON.
  *
@@ -47,7 +47,7 @@ const path = require('path');
 
 /** Defaults shared by the CLI parser and the docs. */
 const DEFAULTS = Object.freeze({
-  instanceType : 'c7g.medium',
+  instanceType : 'c8g.medium',   // the re-baselined trail namespace (matches graviton_perf.cjs)
   issue        : 636,
   ghRepo       : 'StoneCypher/jssm',
   repoUrl      : 'https://github.com/StoneCypher/jssm.git',
@@ -211,35 +211,73 @@ function panel_svg(op, by_shape, keys, width, height) {
       if (p.ops > 0) { lo = Math.min(lo, p.ops); hi = Math.max(hi, p.ops); }
     }
   }
-  const ylo = Math.log10(lo), yhi = Math.log10(hi);
+  const ylo = 0;                               // anchor the axis at 10^0 (the zeroth order of ten)
+  const yhi = Math.floor(Math.log10(hi)) + 1;  // round the top up to the next order of ten above the max
   const y   = (ops) => m.t + ih - ((Math.log10(ops) - ylo) / Math.max(1e-9, yhi - ylo)) * ih;
 
   const els = [];
   els.push(`<rect width="${width}" height="${height}" fill="#ffffff"/>`);
   els.push(`<text x="${m.l}" y="20" font-size="15" font-weight="bold" fill="#333">${op} — ops/sec (log scale) by PR / release, ${DEFAULTS.instanceType}</text>`);
 
+  // Gridlines, painted strictly lightest → heaviest so a heavier line is never
+  // overpainted by a lighter one at a crossing (in SVG, paint order IS z-order):
+  //   #e8e8e8 light verticals < #d8d8d8 minor decades < #d0d0d0 heavy verticals < #b0b0b0 decade lines.
+  // The vertical guides sit behind the data so a point lines up with its source
+  // version/PR column; the every-fifth guide is a stronger column marker.
+
+  // pass 1 — light vertical guides (the four between every fifth): lightest, first
+  for (const [i, key] of keys.entries()) {
+    if (i % 5 !== 0) {
+      const vx = x(key).toFixed(1);
+      els.push(`<line x1="${vx}" y1="${m.t}" x2="${vx}" y2="${m.t + ih}" stroke="#e8e8e8"/>`);
+    }
+  }
+  // pass 2 — minor log gridlines at 2..9 × 10^d; the non-uniform spacing within
+  // each decade is the visual tell that the axis is logarithmic
+  for (let d = Math.floor(ylo); d <= Math.ceil(yhi); d++) {
+    for (let mul = 2; mul <= 9; mul++) {
+      const lv = Math.log10(mul * Math.pow(10, d));
+      if (lv >= ylo && lv <= yhi) {
+        const my = y(mul * Math.pow(10, d)).toFixed(1);
+        els.push(`<line x1="${m.l}" y1="${my}" x2="${m.l + iw}" y2="${my}" stroke="#d8d8d8"/>`);
+      }
+    }
+  }
+  // pass 3 — every-fifth vertical guide: heavier than the minor decades, on top
+  for (const [i, key] of keys.entries()) {
+    if (i % 5 === 0) {
+      const vx = x(key).toFixed(1);
+      els.push(`<line x1="${vx}" y1="${m.t}" x2="${vx}" y2="${m.t + ih}" stroke="#d0d0d0"/>`);
+    }
+  }
+  // pass 4 — decade gridlines + 1e<d> labels: the heaviest gridline, drawn last
+  // so the log-decade reference lines read cleanly through every crossing
   for (let d = Math.ceil(ylo); d <= Math.floor(yhi); d++) {
     const yy = y(Math.pow(10, d));
-    els.push(`<line x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" stroke="#eee"/>`);
+    els.push(`<line x1="${m.l}" y1="${yy}" x2="${m.l + iw}" y2="${yy}" stroke="#b0b0b0"/>`);
     els.push(`<text x="${m.l - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#888">1e${d}</text>`);
   }
 
-  // Very faint vertical guide behind every run, so a data point can be lined
-  // up with its source version/PR column at a glance.  Drawn before the data
-  // paths and markers so it stays behind them.
+  // x labels: every run (no skipping), tiny and steep, hard against the axis.
+  // Release labels are tinted by what changed vs the previous release — a major
+  // bump 30% darker, a patch-only bump 30% lighter (twice), a minor bump at the
+  // base tint; PR labels stay neutral.  prev_rel holds the last release seen so
+  // the comparison skips intervening PR columns.
+  let prev_rel = null;
   for (const key of keys) {
-    const vx = x(key).toFixed(1);
-    els.push(`<line x1="${vx}" y1="${m.t}" x2="${vx}" y2="${m.t + ih}" stroke="#f4f4f4"/>`);
-  }
-
-  for (const [i, key] of keys.entries()) {
-    if (i % 2 === 0 || keys.length < 14) {
-      const is_release = key.startsWith('v');
-      const xx         = x(key).toFixed(1);
-      const yy         = m.t + ih + 16;
-      els.push(is_release
-        ? `<text x="${xx}" y="${yy}" font-size="9" text-anchor="end" fill="#a40" transform="rotate(-35 ${xx} ${yy})">${key}</text>`
-        : `<text x="${xx}" y="${yy}" font-size="9" text-anchor="middle" fill="#888">${key}</text>`);
+    const xx = x(key).toFixed(1);
+    const yy = m.t + ih + 3.2;                            // gap cut ~80% (was +16)
+    if (key.startsWith('v')) {
+      const cur = key.slice(1).split('.').map(Number);
+      let fill = '#aa4400';                               // minor bump / first release = base
+      if (prev_rel) {
+        if (cur[0] !== prev_rel[0])      { fill = '#773000'; }   // major bump: 30% darker
+        else if (cur[1] === prev_rel[1]) { fill = '#d6a382'; }   // patch-only bump: 30% lighter, twice
+      }
+      prev_rel = cur;
+      els.push(`<text x="${xx}" y="${yy}" font-size="4" text-anchor="end" fill="${fill}" transform="rotate(-80 ${xx} ${yy})">${key}</text>`);
+    } else {
+      els.push(`<text x="${xx}" y="${yy}" font-size="4" text-anchor="end" fill="#888" transform="rotate(-80 ${xx} ${yy})">${key}</text>`);
     }
   }
 
@@ -263,40 +301,47 @@ function panel_svg(op, by_shape, keys, width, height) {
 }
 
 /**
- *  Render every operation panel stacked into one tall composite SVG with a
- *  title block — the `src/generated_docs/perf_chart.svg` artifact.
+ *  Render every operation panel laid out in a `cols`-wide grid (row-major,
+ *  left→right then top→bottom) with a title block — the
+ *  `src/generated_docs/perf_chart.svg` artifact.
  *
  *  @param runs Sorted runs.
- *  @param width Panel width in px.
+ *  @param panel_width Width of each operation panel in px.
  *  @param panel_height Height of each operation panel in px.
- *  @param panel_gap Vertical gap between stacked panels in px (~2em at the
- *                   16px root font), so the panels read as distinct charts.
+ *  @param panel_gap Vertical gap between panel rows in px (~2em at the 16px root
+ *                   font), so the rows read as distinct charts.
+ *  @param cols Number of panel columns (2 ⇒ a two-wide grid).
  *  @returns `{ svg, panels }` — the composite document and the individual
  *           panel SVGs keyed by operation (the comment flow embeds those).
  */
-function render_chart(runs, width = 960, panel_height = 372, panel_gap = 32) {
+function render_chart(runs, panel_width = 720, panel_height = 372, panel_gap = 32, cols = 2) {
   const series = pivot_series(runs);
   const keys   = runs.map(key_of);
 
   const panels = new Map();
   for (const op of OPERATIONS) {
-    if (series.has(op)) { panels.set(op, panel_svg(op, series.get(op), keys, width, panel_height)); }
+    if (series.has(op)) { panels.set(op, panel_svg(op, series.get(op), keys, panel_width, panel_height)); }
   }
 
+  const col_gap  = 40;                          // horizontal breathing room between columns
+  const rows     = Math.ceil(panels.size / cols);
   const header_h = 56;
-  const total_h  = header_h + panels.size * panel_height + Math.max(0, panels.size - 1) * panel_gap;
+  const width    = cols * panel_width + Math.max(0, cols - 1) * col_gap;
+  const total_h  = header_h + rows * panel_height + Math.max(0, rows - 1) * panel_gap;
   const parts    = [];
   parts.push(`<svg width="${width}" height="${total_h}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">`);
   parts.push(`<rect width="${width}" height="${total_h}" fill="#ffffff"/>`);
   parts.push(`<text x="16" y="24" font-size="17" font-weight="bold" fill="#1a1a1a">jssm performance trend — graviton runners (perf_results branch)</text>`);
   parts.push(`<text x="16" y="44" font-size="11" fill="#666">${summary_line(runs)} Source: ${DEFAULTS.ghRepo} branch perf_results, instance ${DEFAULTS.instanceType}. Data through ${data_stamp(runs)}.</text>`);
 
-  let oy = header_h;
+  // lay panels out in a cols-wide grid, row-major (left→right, top→bottom)
+  let i = 0;
   for (const svg of panels.values()) {
-    // re-host each standalone panel at its vertical offset, with panel_gap of
-    // breathing room between successive charts
-    parts.push(`<g transform="translate(0 ${oy})">${svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')}</g>`);
-    oy += panel_height + panel_gap;
+    const col = i % cols, row = Math.floor(i / cols);
+    const ox  = col * (panel_width + col_gap);
+    const oy  = header_h + row * (panel_height + panel_gap);
+    parts.push(`<g transform="translate(${ox} ${oy})">${svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')}</g>`);
+    i++;
   }
   parts.push('</svg>');
 
