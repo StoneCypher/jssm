@@ -1930,8 +1930,12 @@ class Machine<mDT> {
     return this._machine_definition;
   }
 
-  /** Get the machine's language (ISO 639-1).  Set via the FSL `machine_language` directive.
-   *  @returns The language code string.
+  /** Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
+   *  `machine_language` directive, which accepts a language name or code, or a
+   *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
+   *  values resolve to `undefined`.
+   *  @returns The ISO 639-1 language code (e.g. `'en'`), or `undefined` if the
+   *           supplied value did not resolve to a known language.
    */
   machine_language(): string {
     return this._machine_language;
