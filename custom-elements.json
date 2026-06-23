@@ -193,7 +193,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Read-only panel that displays the parent machine's **resolved FSL\nproperties** for the current state — the values produced by the full\noverride chain (machine `property … default …` → per-state\n`state X: { property … }`), as returned by `machine.props()`. Refreshes on\nevery transition, so consumers can watch a property's effective value change\nas the machine moves between states.\n\nBinds to the host via closest_wc (matching both `fsl-instance` and\nthe deprecated `jssm-instance`). Display-only; never drives the machine.\n\nv1 shows the FSL `property` bag (`machine.props()`). The render-time visual\nstyle resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline\nconcern and is not surfaced here.",
+          "description": "Read-only panel that displays the parent machine's **resolved FSL\r\nproperties** for the current state — the values produced by the full\r\noverride chain (machine `property … default …` → per-state\r\n`state X: { property … }`), as returned by `machine.props()`. Refreshes on\r\nevery transition, so consumers can watch a property's effective value change\r\nas the machine moves between states.\r\n\r\nBinds to the host via closest_wc (matching both `fsl-instance` and\r\nthe deprecated `jssm-instance`). Display-only; never drives the machine.\r\n\r\nv1 shows the FSL `property` bag (`machine.props()`). The render-time visual\r\nstyle resolution (shape/color used by `<fsl-viz>`) is a separate viz-pipeline\r\nconcern and is not surfaced here.",
           "name": "FslEffectiveProperties",
           "cssProperties": [
             {
@@ -231,7 +231,7 @@
               },
               "privacy": "private",
               "default": "null",
-              "description": "Resolved property entries (`[name, stringified value]`) for the current\nstate, or `null` before the panel has bound to a host machine."
+              "description": "Resolved property entries (`[name, stringified value]`) for the current\r\nstate, or `null` before the panel has bound to a host machine."
             },
             {
               "kind": "method",
@@ -251,7 +251,7 @@
                   "description": "The bound parent host whose machine to snapshot."
                 }
               ],
-              "description": "Read the resolved property bag (`machine.props()`) into reactive entries,\ntriggering a re-render."
+              "description": "Read the resolved property bag (`machine.props()`) into reactive entries,\r\ntriggering a re-render."
             }
           ],
           "superclass": {
@@ -527,7 +527,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Read-only state-inspector web component for a parent `<fsl-instance>`.\n\nSlotted into the host's `info-panel` slot (or nested anywhere inside it), it\ndisplays the machine's current state, the most recent transition\n(`from → to via action`), the currently-legal exit actions, and the\nterminal / complete flags. Every field refreshes on each `transition`\nevent.\n\nDisplay-only: it never drives the machine. It binds by walking up to the\nhost via closest_wc (which matches both the canonical `fsl-instance`\nand the deprecated `jssm-instance` host tags), so it works under either.",
+          "description": "Read-only state-inspector web component for a parent `<fsl-instance>`.\r\n\r\nSlotted into the host's `info-panel` slot (or nested anywhere inside it), it\r\ndisplays the machine's current state, the most recent transition\r\n(`from → to via action`), the currently-legal exit actions, and the\r\nterminal / complete flags. Every field refreshes on each `transition`\r\nevent.\r\n\r\nDisplay-only: it never drives the machine. It binds by walking up to the\r\nhost via closest_wc (which matches both the canonical `fsl-instance`\r\nand the deprecated `jssm-instance` host tags), so it works under either.",
           "name": "FslInfoPanel",
           "cssProperties": [
             {
@@ -545,7 +545,7 @@
               },
               "privacy": "private",
               "default": "null",
-              "description": "Parent host reference, set in `connectedCallback` when one is found.\nCleared on disconnect so a stale deferred subscription cannot fire."
+              "description": "Parent host reference, set in `connectedCallback` when one is found.\r\nCleared on disconnect so a stale deferred subscription cannot fire."
             },
             {
               "kind": "field",
@@ -625,7 +625,7 @@
                   "description": "The bound parent host whose machine to snapshot."
                 }
               ],
-              "description": "Read the current machine snapshot into the reactive fields, triggering a\nre-render. Called once on bind and again on every transition. The bound\nhost is passed in by the caller (which already holds a non-null reference),\nso no re-null-check is needed here."
+              "description": "Read the current machine snapshot into the reactive fields, triggering a\r\nre-render. Called once on bind and again on every transition. The bound\r\nhost is passed in by the caller (which already holds a non-null reference),\r\nso no re-null-check is needed here."
             }
           ],
           "superclass": {

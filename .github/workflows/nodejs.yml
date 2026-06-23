@@ -18,6 +18,14 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Browser provisioning is locked to the single `e2e` job below. The Chromium
+# download costs multiple minutes, so every other job inherits this skip flag
+# (defensive: the playwright packages currently ship no auto-download
+# postinstall, but a future version might) and stays browser-free. The `e2e`
+# job overrides this back to "0" — it is the one run that pays for a browser.
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
 jobs:
 
 
@@ -38,6 +46,48 @@ jobs:
     - name: npm install and ci_build (vet + test)
       run: |
         npm install && npm run ci_build
+      env:
+        CI: true
+
+
+
+  e2e:
+
+    # The ONE CI run that provisions a browser. It overrides the workflow-level
+    # skip flag back to "0" so `e2e:install` downloads Chromium (cached across
+    # runs), then runs the Playwright suite against a local servehere. Gated to
+    # pull requests: main is PR-only, so this validates every change pre-merge
+    # without re-paying the browser cost on the post-merge release pushes.
+    if: github.event_name == 'pull_request'
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    # Cache the browser between runs, keyed on the lockfile (which changes when
+    # the playwright version does). Cache hit → `playwright install` is a fast
+    # no-op; miss → it pays the one-time download once and stores it.
+    - name: Cache Playwright browsers
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          playwright-${{ runner.os }}-
+
+    - name: npm install and run the e2e suite (provisions Chromium on cache miss)
+      run: |
+        npm install && npm run e2e
       env:
         CI: true
 
