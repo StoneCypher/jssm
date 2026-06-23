@@ -880,30 +880,6 @@ Exp
 
 
 
-ValidationKey
-  = "whargarbl"
-  / "todo"
-
-ValidationItem
-  = validationkey:ValidationKey ":" value:Label ";" {
-      const node: any = { key: validationkey, value: value };
-      if (options.locations) { node.loc = location(); }
-      return node;
-    }
-
-ValidationItems
-  = ValidationItem+
-
-ConfigValidation
-  = WS? "validation" WS? ":" WS? "{" WS? validation_items:ValidationItems? WS? "};" WS? {
-      const node: any = { config_kind: "validation", config_items: validation_items || [] };
-      if (options.locations) { node.loc = location(); }
-      return node;
-    }
-
-
-
-
 
 GvizLayout
   = "dot"
@@ -978,41 +954,6 @@ ConfigAnyState
 
 
 
-ActionKey
-  = "whargarbl"
-  / "todo"
-
-ActionItem
-  = actionkey:ActionKey ":" value:Label ";" {
-      const node: any = { key: actionkey, value: value };
-      if (options.locations) { node.loc = location(); }
-      return node;
-    }
-
-ActionItems
-  = ActionItem+
-
-ConfigAction
-  = WS? "action" WS? ":" WS? "{" WS? action_items:ActionItems? WS? "};" WS? {
-      const node: any = { config_kind: "action", config_items: action_items || [] };
-      if (options.locations) { node.loc = location(); }
-      return node;
-    }
-
-
-
-
-
-TransitionKey
-  = "whargarbl"
-  / "todo"
-
-TransitionItem
-  = key:TransitionKey ":" value:Label ";" {
-      const node: any = { key, value };
-      if (options.locations) { node.loc = location(); }
-      return node;
-    }
 
 GraphDefaultEdgeColor "graph default edge color"
   = WS? "edge-color" WS? ":" WS?
@@ -1035,11 +976,10 @@ GraphDefaultEdgeColor "graph default edge color"
 // The shared style-items body for the `transition: {}` and `graph: {}`
 // default-config blocks.  It accepts the same per-state style items as a
 // `state: {}` block (so `color: red;` parses), plus the graph-default
-// edge-color line (`edge-color`/`edge_color`) and the legacy
-// whargarbl/todo TransitionItem stubs — all backward-compatible.
+// edge-color line (`edge-color`/`edge_color`).
 ConfigStyleItems
   = GraphDefaultEdgeColor
-  / items:(StateDeclarationItem / TransitionItem)+ { return items; }
+  / items:StateDeclarationItem+ { return items; }
 
 ConfigTransition
   = WS? "transition" WS? ":" WS? "{" WS? items:ConfigStyleItems? WS? "};" WS? {
@@ -1145,9 +1085,7 @@ Config "configuration"
   / ConfigFailedOutputs
   / ConfigTransition
   / ConfigGraph
-  / ConfigAction
   / ConfigAnyState
-  / ConfigValidation
   / ConfigGraphBgColor
   / ConfigAllowsOverride
   / ConfigAllowIslands
