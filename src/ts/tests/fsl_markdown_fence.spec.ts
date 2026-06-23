@@ -130,6 +130,27 @@ describe('parse_fence_info/1 — interactive + raster override', () => {
   });
 });
 
+describe('parse_fence_info/1 — dot part and option edge cases', () => {
+  it('dot is treated as a part, not an unknown token', () => {
+    const d = parse_fence_info('fsl dot');
+    expect(d.parts).toEqual(['dot']);
+    expect(d.notes.some(n => /unknown/i.test(n))).toBe(false);
+  });
+  it('bare dot does NOT imply image (dot is a code-view, not a format)', () => {
+    const d = parse_fence_info('fsl dot');
+    expect(d.parts).not.toContain('image');
+    expect(d.format).toBe('svg');
+  });
+  it('dot stacks after code in listed order', () => {
+    expect(parse_fence_info('fsl code dot').parts).toEqual(['code', 'dot']);
+  });
+  it('empty-value width= is invalid and noted, width stays null', () => {
+    const d = parse_fence_info('fsl image width=');
+    expect(d.width).toBeNull();
+    expect(d.notes.some(n => /invalid/i.test(n) && /width/.test(n))).toBe(true);
+  });
+});
+
 describe('fence parser is exported from the jssm barrel', () => {
   it('exposes parse_fence_info', () =>
     expect(jssm.parse_fence_info('fsl').parts).toEqual(['image', 'code']));
