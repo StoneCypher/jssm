@@ -649,7 +649,11 @@ function state_node_line<T>(u_jssm: jssm.Machine<T>, s: string, state_index: Map
   const style     = u_jssm.style_for(s);
   const fillcolor = style.backgroundColor || default_fillcolor_for(state_kinds.get(s) ?? 'base');
 
-  const label     = hide_state_labels ? '' : label_with_chips(u_jssm.display_text(s), chips);
+  // doublequote the display text so a state name containing literal `"`
+  // (e.g. `"Output \"foo\""`) produces valid DOT instead of an unbalanced
+  // `label="Output "foo""` that crashes the graphviz/emscripten renderer.
+  // chips are already escaped by label_with_chips.  StoneCypher/fsl#474
+  const label     = hide_state_labels ? '' : label_with_chips(doublequote(u_jssm.display_text(s)), chips);
 
   const features = [
     ['label',     label],
