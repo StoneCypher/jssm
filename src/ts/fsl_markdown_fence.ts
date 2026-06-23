@@ -50,3 +50,54 @@ export function fsl_fence_lang(info: string): 'fsl' | 'jssm' | null {
   if (first === 'jssm') { return 'jssm'; }
   return null;
 }
+
+const PART_TOKENS: ReadonlySet<FencePart> = new Set<FencePart>([
+  'image', 'code', 'dot', 'editor',
+  'actions', 'info-panel', 'toolbar', 'title', 'footer'
+]);
+
+function is_part(token: string): token is FencePart {
+  return (PART_TOKENS as ReadonlySet<string>).has(token);
+}
+
+/**
+ *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
+ *  the (already-validated) language and is ignored; remaining tokens are
+ *  classified as parts, image formats, the `ide` macro, or `width`/`height`
+ *  options.  Unrecognized or conflicting tokens are dropped and recorded in
+ *  `notes` rather than throwing, so a host can render forward-compatibly.
+ *
+ *  @param info The full fence info string, e.g. `'fsl image code width=300'`.
+ *  @returns The validated descriptor; `notes` lists anything ignored or overridden.
+ *
+ *  @example parse_fence_info('fsl').parts // => ['image', 'code']
+ *  @example parse_fence_info('fsl code image').parts // => ['code', 'image']
+ */
+export function parse_fence_info(info: string): FenceDescriptor {
+  const tokens = info.trim().split(/\s+/).filter(Boolean);
+  const args   = tokens.slice(1).map(t => t.toLowerCase());
+
+  const parts : FencePart[] = [];
+  const notes : string[]    = [];
+
+  for (const arg of args) {
+    if (is_part(arg)) {
+      if (parts.includes(arg)) { notes.push(`duplicate token "${arg}" ignored`); }
+      else                     { parts.push(arg); }
+      continue;
+    }
+    notes.push(`unknown token "${arg}" ignored`);
+  }
+
+  if (parts.length === 0) { parts.push('image', 'code'); }
+
+  return {
+    parts,
+    ide         : false,
+    format      : 'svg',
+    width       : null,
+    height      : null,
+    interactive : false,
+    notes
+  };
+}
