@@ -30,9 +30,46 @@ jobs:
 
 
 
-  pr-check:
+  # Escape hatch: detect a `#fullbuild` token in the head commit message so a
+  # contributor can force the full main-style matrix on a PR. Runs on push too
+  # (it reports fullbuild=false there) because the main jobs `needs:` it, and a
+  # skipped dependency would cascade-skip them.
+  detect-fullbuild:
 
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+
+    name: Detect #fullbuild opt-in
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    outputs:
+      fullbuild: ${{ steps.detect.outputs.fullbuild }}
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 1
+    - id: detect
+      shell: bash
+      run: |
+        MSG=$(git log -1 --pretty=%B)
+        if echo "$MSG" | grep -q '#fullbuild'; then
+          echo "fullbuild=true" >> $GITHUB_OUTPUT
+          echo "Detected #fullbuild — full matrix will run on this PR"
+        else
+          echo "fullbuild=false" >> $GITHUB_OUTPUT
+        fi
+
+
+
+  # PR check: one lean Ubuntu run — lite build (make_ci) + the full vitest
+  # suite (incl. the 100% spec gate). Cheaper than the old full `make`; the
+  # platform-invariant artifact work (docs/site/bundles/minify) is verified on
+  # merge by test-main-full. Skipped when #fullbuild opts into the full matrix.
+  test-pr:
+
+    needs: [detect-fullbuild]
+    if: github.event_name == 'pull_request' && needs.detect-fullbuild.outputs.fullbuild != 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -43,9 +80,9 @@ jobs:
       uses: actions/setup-node@v5
       with:
         node-version: 24.x
-    - name: npm install and ci_build (vet + test)
+    - name: npm install and ci_test (vet + make_ci + vitest)
       run: |
-        npm install && npm run ci_build
+        npm install && npm run ci_test
       env:
         CI: true
 
@@ -458,29 +495,26 @@ jobs:
 
 
 
-  build:
+  # Push to main (or #fullbuild PR): cross-platform verification with the lean
+  # ci_test (lite make_ci + vitest). Ubuntu carries the multi-Node engine
+  # coverage (incl. the 20.x floor) cheaply; macOS/Windows (far costlier
+  # runners) verify only current. Platform-invariant artifacts are produced
+  # once by test-main-full, so this skips them.
+  test-main-matrix:
 
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [detect-fullbuild]
+    if: github.event_name == 'push' || needs.detect-fullbuild.outputs.fullbuild == 'true'
 
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - node-version: 24.x   # fastest, so run first, to error fast
-            os: ubuntu-latest
-          - node-version: 24.x   # slowest, so run next. sort by slowest from here to get earliest end through parallelism
-            os: macos-latest
-          - node-version: 24.x   # finish check big-3 on latest current
-            os: windows-latest
-          - node-version: 23.x   # check newest non-lts too
-            os: ubuntu-latest
-          - node-version: 23.x   # check newest non-lts too
-            os: macos-latest
-          - node-version: 23.x   # check newest non-lts too
-            os: windows-latest
-          - node-version: 20.x   # vitest 4 / rolldown require Node ^20.19 || >=22.12 — that engine gap is why 21.x is absent
-            os: ubuntu-latest
-          - node-version: 22.x
-            os: ubuntu-latest
+          - { os: ubuntu-latest,  node-version: 24.x }   # current
+          - { os: ubuntu-latest,  node-version: 23.x }   # newest non-lts
+          - { os: ubuntu-latest,  node-version: 22.x }   # lts
+          - { os: ubuntu-latest,  node-version: 20.x }   # engine floor (vitest 4 / rolldown ^20.19)
+          - { os: macos-latest,   node-version: 24.x }
+          - { os: windows-latest, node-version: 24.x }
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -504,9 +538,14 @@ jobs:
 
 
 
-  full-build:
+  # Push to main (or #fullbuild PR): the canonical full build on Ubuntu —
+  # produces every artifact (bundles, docs, site, cookbook, changelog, cloc,
+  # readme) via the orchestrated `build` (release profile). The platform-
+  # invariant artifact producer; the matrix verifies the rest cross-platform.
+  test-main-full:
 
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [detect-fullbuild]
+    if: github.event_name == 'push' || needs.detect-fullbuild.outputs.fullbuild == 'true'
 
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -529,7 +568,7 @@ jobs:
 
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    needs: [full-build]
+    needs: [test-main-full]
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -619,7 +658,7 @@ jobs:
 
     if: (github.event_name == 'push') && (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
 
-    needs: [build, full-build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels, unicode-edge-labels, unicode-machine-properties, unicode-error-messages, unicode-group-names, unicode-state-decl-names, unicode-hooks, unicode-machine-metadata, unicode-state-properties, unicode-image-url, unicode-arrange, unicode-config-state-lists, unicode-config-state-blocks, unicode-viz-dot]
+    needs: [test-main-full, test-main-matrix, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels, unicode-edge-labels, unicode-machine-properties, unicode-error-messages, unicode-group-names, unicode-state-decl-names, unicode-hooks, unicode-machine-metadata, unicode-state-properties, unicode-image-url, unicode-arrange, unicode-config-state-lists, unicode-config-state-blocks, unicode-viz-dot]
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
