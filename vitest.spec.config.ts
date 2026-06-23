@@ -15,7 +15,9 @@ export default defineConfig({
     globals           : true,
     environment       : 'node',
     include           : ['**/*.spec.ts'],
-    exclude           : ['**/node_modules/**', '**/dist/**', '.claude/**', 'notes/**'],
+    // src/ts/e2e holds Playwright specs (@playwright/test, not vitest) driven by
+    // src/buildjs/hosted_test.cjs — never run them under vitest.
+    exclude           : ['**/node_modules/**', '**/dist/**', '.claude/**', 'notes/**', 'src/ts/e2e/**'],
 
     // The lone `viz_svg_element.spec.ts` uses `// @vitest-environment jsdom`
     // (added during the conversion).  No other per-file env overrides are
@@ -45,6 +47,7 @@ export default defineConfig({
         'node_modules/**',
         'src/ts/tests/**',
         'src/ts/wc/tests/**',
+        'src/ts/e2e/**',
         'src/ts/jssm_viz.ts',
         'src/ts/jssm_viz_colors.ts',
         'src/ts/fsl_parser.ts',

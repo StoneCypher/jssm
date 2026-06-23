@@ -65,3 +65,30 @@ export function define_with_synonym(canonical_tag, synonym_tag, CanonicalClass, 
     if (!customElements.get(synonym_tag))
         customElements.define(synonym_tag, SynonymClass);
 }
+/**
+ * Registers a single canonical `fsl-*` custom-element tag, with no `jssm-*`
+ * synonym.
+ *
+ * This is the registration path for **new** web components.  The `jssm-*`
+ * prefix is a deprecated backward-compatibility alias retained only for the
+ * components that shipped under that name (`<jssm-viz>`, `<jssm-instance>`,
+ * `<jssm-bind>`); new components are `fsl-*`-only for fsl.tools brand
+ * alignment, and the legacy synonyms are slated for removal in v6.  Use
+ * {@link define_with_synonym} only when maintaining one of those pre-existing
+ * dual-named components.
+ *
+ * Idempotent: skips the `define` call when the tag is already registered.
+ *
+ * @param canonical_tag - The `fsl-*` tag name (e.g. `"fsl-info-panel"`).
+ * @param CanonicalClass - Constructor to register under `canonical_tag`.
+ *
+ * @example
+ * class FslInfoPanel extends HTMLElement {}
+ * define_canonical('fsl-info-panel', FslInfoPanel);
+ *
+ * @see define_with_synonym
+ */
+export function define_canonical(canonical_tag, CanonicalClass) {
+    if (!customElements.get(canonical_tag))
+        customElements.define(canonical_tag, CanonicalClass);
+}
