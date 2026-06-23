@@ -15,12 +15,29 @@ shim (#685), and SSR (#686, which is gated by #684/#685).
 
 Target issues (all StoneCypher/jssm): **#639, #659, #660, #661, #662, #663, #664, #665, #667, #668.**
 
-## Naming convention (settled 2026-06-22)
+## Naming convention + synonym policy (settled 2026-06-22)
 
-Canonical tag is **`<fsl-*>`**; **`<jssm-*>` is the registered fallback synonym**. Enforced
-structurally by `define_with_synonym('fsl-x', 'jssm-x', FslX, JssmX)` in each `*.define.ts`
-(`src/ts/wc/wc_tag_helpers.ts`). The issue titles were retitled to `<fsl-*>` on 2026-06-22; the
-older `<jssm-*>` prose in #647/#648 predates the flip.
+Canonical tag is **`<fsl-*>`**. Driver: **fsl.tools brand alignment**. The four-part policy:
+
+1. **Keep** the existing `jssm-*` aliases — `<jssm-viz>`, `<jssm-instance>`, `<jssm-bind>` (and the
+   `Jssm*` class exports). `<jssm-viz>` in particular is shipped public API (its own package pre-5.105)
+   with real users; removing it now would be an undisciplined breaking change on a continuously-
+   releasing `main`.
+2. **Don't mint new ones.** Components introduced after the rename are **`fsl-*`-only**, registered via
+   `define_canonical('fsl-x', FslX)` (no synonym). `closest_wc` already matches both prefixes, so an
+   `fsl-*`-only panel still binds correctly inside a `<jssm-instance>` host — no mixed-prefix footgun.
+3. **Deprecate** the existing aliases — `@deprecated` JSDoc on the `Jssm*` thin subclasses + the
+   `jssm-*` `HTMLElementTagNameMap` entries, and a deprecation notice in `WebComponents.md`. (No runtime
+   `console.warn` for now — it would spam every existing `<jssm-viz>` page; available if a louder nudge
+   is wanted later.)
+4. **Remove in v6.** The actual `v6_breaking_changes.json` entry belongs on the **`v6` branch** (the
+   manifest does not exist on `main`); to be added there. Removal covers the `jssm-*` registered tags,
+   the `Jssm*` class exports, and the `jssm-` branch of `wc_suffix_matches` / `closest_wc` /
+   the instance's `:scope > jssm-*` discovery selectors.
+
+`define_with_synonym` is retained **only** for maintaining the three pre-existing dual-named
+components. Issue titles were retitled to `<fsl-*>` on 2026-06-22; the `<jssm-*>` prose in #647/#648
+predates the flip.
 
 ## Foundation (already shipped on `origin/main` — do not rebuild)
 

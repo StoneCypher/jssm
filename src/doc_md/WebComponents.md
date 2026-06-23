@@ -2,7 +2,7 @@
 
 `jssm` exposes web-component versions of its visualization layer for direct use in plain HTML or for wrapping by any framework. This page covers the first shipped widget, `<fsl-viz>`. Additional widgets (`<fsl-editor>`, `<fsl-playground>`) follow in later releases.
 
-> **Tag names:** `fsl-*` is the canonical spelling (e.g. `<fsl-viz>`, class `FslViz`). The `jssm-*` tags (`<jssm-viz>`, …) and `Jssm*` class names remain accepted aliases and will not be removed.
+> **Tag names:** `fsl-*` is the canonical spelling (e.g. `<fsl-viz>`, class `FslViz`). The `jssm-*` tags (`<jssm-viz>`, `<jssm-instance>`, `<jssm-bind>`) and `Jssm*` class names are **deprecated as of v5** — for fsl.tools brand alignment — and **slated for removal in v6**. They remain fully functional aliases until then; migrate to `fsl-*` when convenient. Components introduced after the rename (the `<fsl-instance>` panels, etc.) are **`fsl-*`-only** — no `jssm-*` alias is minted for them.
 
 ## Quick start — CDN
 
@@ -37,7 +37,7 @@ Then anywhere in your markup:
 <fsl-viz fsl="Off -> On -> Off;"></fsl-viz>
 ```
 
-The `<jssm-viz>` alias is also accepted and renders identically.
+The `<jssm-viz>` alias is also accepted and renders identically, but is deprecated (removed in v6).
 
 ## Class export — rename or subclass
 
@@ -55,7 +55,7 @@ customElements.define('my-fsl-viz', class extends FslViz {
 });
 ```
 
-The class export has no side effects — importing it does not register any tag. `JssmViz` is also exported as an alias for `FslViz`.
+The class export has no side effects — importing it does not register any tag. `JssmViz` is also exported as a deprecated alias for `FslViz` (removed in v6).
 
 ## Properties
 
