@@ -1,5 +1,9 @@
 import { LitElement, TemplateResult, PropertyValues } from 'lit';
 import type { Machine } from '../jssm.js';
+export interface HighlightOptions {
+    color?: string;
+    fadeOthers?: boolean;
+}
 /**
  * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
  * creating a hard import cycle from the viz module into the instance module.
@@ -137,6 +141,18 @@ export declare class FslViz extends LitElement {
      * @returns A Lit `TemplateResult` wrapping the SVG in a `.container` div.
      */
     render(): TemplateResult;
+    /**
+     * Clears any active programmatic highlights from the SVG, restoring nodes
+     * and edges to their default Graphviz styles.
+     */
+    clearHighlights(): void;
+    /**
+     * Programmatically highlights a specific execution trace (path) through the graph.
+     *
+     * @param trace Array of state names representing the execution path (e.g. ['A', 'B', 'C'])
+     * @param options Styling options for the highlight
+     */
+    highlightTrace(trace: string[], options?: HighlightOptions): void;
 }
 declare global {
     interface HTMLElementTagNameMap {

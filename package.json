@@ -11,6 +11,7 @@
     "fsl": "./dist/cli/fsl.cjs",
     "jssm": "./dist/cli/fsl.cjs",
     "fsl-render": "./dist/cli/fsl-render.cjs",
+    "fsl-pick": "./dist/cli/fsl-pick.cjs",
     "fsl-export-system-prompt": "./dist/cli/fsl-export-system-prompt.cjs"
   },
   "exports": {
@@ -159,6 +160,7 @@
     "benny:all": "npm run benny && npm run benny:scaling",
     "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
     "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
+    "init:oracle": "node scripts/download_oracle.cjs",
     "ci_profile": "node ./src/buildjs/ci_profile.cjs",
     "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run perf_chart && npm run docs && npm run cloc && npm run readme",
     "clean_bench": "npm run test && npm run benny",
@@ -270,6 +272,7 @@
     "xml2js": "^0.6.2"
   },
   "dependencies": {
+    "@xenova/transformers": "^2.17.2",
     "circular_buffer_js": "^1.10.0",
     "reduce-to-639-1": "^1.1.0"
   },
