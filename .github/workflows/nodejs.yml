@@ -198,6 +198,266 @@ jobs:
 
 
 
+  unicode-edge-labels:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over edge labels
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-edge-label
+
+
+
+  unicode-machine-properties:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over machine property names
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-machine-property
+
+
+
+  unicode-error-messages:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over error messages
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-error-message
+
+
+
+  unicode-group-names:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over group / named-list names
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-group-name
+
+
+
+  unicode-state-decl-names:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over state-declaration names
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-state-decl-name
+
+
+
+  unicode-hooks:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over hook subjects and actions
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-hook
+
+
+
+  unicode-machine-metadata:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over machine metadata fields
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-machine-metadata
+
+
+
+  unicode-state-properties:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over state properties
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-state-property
+
+
+
+  unicode-image-url:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over image and url style items
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-image-url
+
+
+
+  unicode-arrange:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over arrange declarations
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-arrange
+
+
+
+  unicode-config-state-lists:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over config state lists
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-config-state-list
+
+
+
+  unicode-config-state-blocks:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over config default-state blocks
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-config-state-block
+
+
+
+  unicode-viz-dot:
+
+    if: github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Use Node.js 24.x
+      uses: actions/setup-node@v5
+      with:
+        node-version: 24.x
+
+    - name: Check full unicode over viz / dot rendering
+      run: |
+        npm install && npm run prep && npm run vitest-unicode-viz-dot
+
+
+
   build:
 
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -359,7 +619,7 @@ jobs:
 
     if: (github.event_name == 'push') && (github.event.pusher.name == github.event.repository.owner.name) && (github.ref == 'refs/heads/main')
 
-    needs: [build, full-build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels]
+    needs: [build, full-build, verify-version-bump, unicode-strings, unicode-atoms, unicode-actions, unicode-atom-labels, unicode-string-labels, unicode-edge-labels, unicode-machine-properties, unicode-error-messages, unicode-group-names, unicode-state-decl-names, unicode-hooks, unicode-machine-metadata, unicode-state-properties, unicode-image-url, unicode-arrange, unicode-config-state-lists, unicode-config-state-blocks, unicode-viz-dot]
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
