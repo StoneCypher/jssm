@@ -39,3 +39,28 @@ describe('parse_fence_info/1 — parts and defaults', () => {
     expect(parse_fence_info('fsl bogus').parts).toEqual(['image', 'code']);
   });
 });
+
+describe('parse_fence_info/1 — formats', () => {
+  it('defaults to svg', () => expect(parse_fence_info('fsl image').format).toBe('svg'));
+  it('a bare format implies image at its position', () => {
+    const d = parse_fence_info('fsl png');
+    expect(d.parts).toEqual(['image']);
+    expect(d.format).toBe('png');
+  });
+  it('format after another part inserts image at the format position', () => {
+    const d = parse_fence_info('fsl code jpeg');
+    expect(d.parts).toEqual(['code', 'image']);
+    expect(d.format).toBe('jpeg');
+  });
+  it('does not duplicate image when image is explicit', () => {
+    const d = parse_fence_info('fsl image png');
+    expect(d.parts).toEqual(['image']);
+    expect(d.format).toBe('png');
+  });
+  it('two formats: last wins with a note', () => {
+    const d = parse_fence_info('fsl png jpeg');
+    expect(d.format).toBe('jpeg');
+    expect(d.notes.some(n => /override|overrid/i.test(n) && /png/.test(n))).toBe(true);
+  });
+  it('accepts gif as a format', () => expect(parse_fence_info('fsl gif').format).toBe('gif'));
+});

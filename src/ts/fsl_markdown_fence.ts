@@ -60,6 +60,13 @@ function is_part(token: string): token is FencePart {
   return (PART_TOKENS as ReadonlySet<string>).has(token);
 }
 
+const FORMAT_TOKENS: ReadonlySet<FenceImageFormat> =
+  new Set<FenceImageFormat>(['svg', 'png', 'jpeg', 'gif']);
+
+function is_format(token: string): token is FenceImageFormat {
+  return (FORMAT_TOKENS as ReadonlySet<string>).has(token);
+}
+
 /**
  *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
  *  the (already-validated) language and is ignored; remaining tokens are
@@ -80,10 +87,20 @@ export function parse_fence_info(info: string): FenceDescriptor {
   const parts : FencePart[] = [];
   const notes : string[]    = [];
 
+  let format     : FenceImageFormat = 'svg';
+  let format_set = false;
+
   for (const arg of args) {
     if (is_part(arg)) {
       if (parts.includes(arg)) { notes.push(`duplicate token "${arg}" ignored`); }
       else                     { parts.push(arg); }
+      continue;
+    }
+    if (is_format(arg)) {
+      if (format_set) { notes.push(`format "${format}" overridden by "${arg}"`); }
+      format     = arg;
+      format_set = true;
+      if (!parts.includes('image')) { parts.push('image'); }
       continue;
     }
     notes.push(`unknown token "${arg}" ignored`);
@@ -94,7 +111,7 @@ export function parse_fence_info(info: string): FenceDescriptor {
   return {
     parts,
     ide         : false,
-    format      : 'svg',
+    format,
     width       : null,
     height      : null,
     interactive : false,
