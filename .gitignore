@@ -84,3 +84,7 @@ benchmark/results/
 
 # downloaded local ONNX AI models (run `npm run init:oracle` to fetch)
 assets/models/
+# Playwright e2e output (regenerated each run)
+/test-results/
+/playwright-report/
+/.playwright-browsers/
