@@ -18,10 +18,10 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 5.145.2 at 6/22/2026, 8:17:04 PM
+* Generated for version 5.145.3 at 6/22/2026, 8:34:25 PM
 
 -->
-# jssm 5.145.2
+# jssm 5.145.3
 
 [**Try the live editor**](https://stonecypher.github.io/jssm-viz-demo/graph_explorer.html) ·
 [Documentation](https://stonecypher.github.io/jssm/docs/) ·
@@ -312,7 +312,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  7,389 tests at 100.0% line coverage
+  library.**  7,391 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -445,9 +445,9 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***7,389 tests***, run 82,431 times.
+***7,391 tests***, run 82,433 times.
 
-- 6,631 specs with 100.0% coverage
+- 6,633 specs with 100.0% coverage
 - 758 fuzz tests with 73.7% coverage
 - 6,962 TypeScript lines - 1.1 tests per line, 11.8 generated tests per line
 
