@@ -130,21 +130,41 @@ describe('render_chart', () => {
     }
   });
 
-  test('panels draw a faint per-run vertical guide behind the data', () => {
+  test('panels draw per-run vertical guides behind the data', () => {
     const { svg, panels } = mpc.render_chart(two_runs);
-    expect(svg).toContain('stroke="#f4f4f4"');
+    expect(svg).toContain('stroke="#e8e8e8"');      // the in-between (light) guides
     for (const p of panels.values()) {
-      expect(p).toContain('stroke="#f4f4f4"');
+      expect(p).toContain('stroke="#d0d0d0"');      // the every-fifth (stronger) guide
     }
   });
 
-  test('stacks panels with a vertical gap between charts', () => {
-    // three panels (construct/transition/action), header 56, default gap 32:
-    // 56 -> +372 +32 -> 460 -> +372 +32 -> 864
+  test('gridlines paint lightest before heaviest, so decade lines are never overpainted', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    for (const p of panels.values()) {
+      // light vertical guide (pass 1) must be emitted before the decade line (pass 4)
+      expect(p.indexOf('stroke="#e8e8e8"')).toBeLessThan(p.indexOf('stroke="#b0b0b0"'));
+    }
+  });
+
+  test('release x-labels are tinted by version-change kind', () => {
+    const rel = (release: string, ops: number) => run({
+      kind: 'release', pr: undefined, release, version: release, results:
+        [{ name: 'chain-200 transition()', ops }]
+    });
+    const runs = [ rel('5.143.0', 100), rel('5.143.1', 110), rel('5.144.0', 120) ].sort(mpc.compare_runs);
+    const { svg } = mpc.render_chart(runs);
+    expect(svg).toContain('>v5.143.1<');            // the label renders
+    expect(svg).toContain('fill="#d6a382"');        // 5.143.1: patch-only bump -> lighter (twice)
+    expect(svg).toContain('fill="#aa4400"');        // 5.144.0 (and first release): base tint
+  });
+
+  test('lays panels out in a two-wide grid, row-major', () => {
+    // three panels (construct/transition/action) at default 720 width, 32 row-gap,
+    // 40 col-gap: construct (0,0)->(0 56), transition (1,0)->(760 56), action (0,1)->(0 460)
     const { svg } = mpc.render_chart(two_runs);
     expect(svg).toContain('translate(0 56)');
+    expect(svg).toContain('translate(760 56)');
     expect(svg).toContain('translate(0 460)');
-    expect(svg).toContain('translate(0 864)');
   });
 
   test('panel_gap is configurable and widens the composite height', () => {
@@ -230,18 +250,18 @@ describe('collect_runs (seamed)', () => {
 
   test('parses pr and release paths, skips charts/ and strays, sorts', () => {
     const listing = [
-      'c7g.medium/pr-700/scaling.json',
-      'c7g.medium/pr-598/scaling.json',
-      'c7g.medium/release-5.143.4/scaling.json',
-      'c7g.medium/shootout/runid-1/scaling.json',  // not a trend point
+      'c8g.medium/pr-700/scaling.json',
+      'c8g.medium/pr-598/scaling.json',
+      'c8g.medium/release-5.143.4/scaling.json',
+      'c8g.medium/shootout/runid-1/scaling.json',  // not a trend point
       'charts/20260611-010203/construct.svg',      // own output, ignored
-      'c7g.medium/pr-598/meta.json'                // not a scaling file
+      'c8g.medium/pr-598/meta.json'                // not a scaling file
     ].join('\n');
 
     const canned: Record<string, string> = {
-      'FETCH_HEAD:c7g.medium/pr-700/scaling.json'           : '{"version":"5.143.2","date":"2026-06-11T00:00:00.000Z","results":[]}',
-      'FETCH_HEAD:c7g.medium/pr-598/scaling.json'           : '{"version":"5.128.0","date":"2026-06-01T00:00:00.000Z","results":[]}',
-      'FETCH_HEAD:c7g.medium/release-5.143.4/scaling.json'  : '{"version":"5.143.4","date":"2026-06-12T00:00:00.000Z","results":[]}'
+      'FETCH_HEAD:c8g.medium/pr-700/scaling.json'           : '{"version":"5.143.2","date":"2026-06-11T00:00:00.000Z","results":[]}',
+      'FETCH_HEAD:c8g.medium/pr-598/scaling.json'           : '{"version":"5.128.0","date":"2026-06-01T00:00:00.000Z","results":[]}',
+      'FETCH_HEAD:c8g.medium/release-5.143.4/scaling.json'  : '{"version":"5.143.4","date":"2026-06-12T00:00:00.000Z","results":[]}'
     };
 
     const fake_exec = {

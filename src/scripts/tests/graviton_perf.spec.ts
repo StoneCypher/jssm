@@ -18,7 +18,7 @@ describe('parseArgs — defaults and positional', () => {
 
   test('applies documented defaults', () => {
     const o = gp.parseArgs(['677']);
-    expect(o.instanceType).toBe('c7g.medium');
+    expect(o.instanceType).toBe('c8g.medium');
     expect(o.mode).toBe('normal');
     expect(o.region).toBe('us-east-1');
     expect(o.shutdownMinutes).toBe(90);   // raised from 30; see #725
@@ -61,8 +61,9 @@ describe('parseArgs — flags', () => {
     expect(() => gp.parseArgs(['677', '--mode', 'turbo'])).toThrow(/normal.*deep/);
   });
 
-  test('--instance-type overrides the default', () => {
-    expect(gp.parseArgs(['677', '--instance-type', 'c6g.medium']).instanceType).toBe('c6g.medium');
+  test('--instance-type accepts the sole allowlisted type and validates others out', () => {
+    expect(gp.parseArgs(['677', '--instance-type', 'c8g.medium']).instanceType).toBe('c8g.medium');
+    expect(() => gp.parseArgs(['677', '--instance-type', 'c7g.medium'])).toThrow(/not an accepted Graviton/);
   });
 
   test('--region, --subnet-id, --my-ip, --run-id thread through', () => {
@@ -112,6 +113,16 @@ describe('validateInstanceType — Graviton allowlist', () => {
   test('accepts every allowlisted type', () => {
     for (const t of gp.ALLOWED_INSTANCE_TYPES) {
       expect(gp.validateInstanceType(t)).toBe(t);
+    }
+  });
+
+  test('accepts c8g.medium (Graviton4 — the re-baseline backfill target)', () => {
+    expect(gp.validateInstanceType('c8g.medium')).toBe('c8g.medium');
+  });
+
+  test('rejects older Graviton .medium types now the allowlist is c8g-only', () => {
+    for (const t of ['c7g.medium', 'c6g.medium', 'm7g.medium', 'r7g.medium']) {
+      expect(() => gp.validateInstanceType(t)).toThrow(/not an accepted Graviton/);
     }
   });
 
