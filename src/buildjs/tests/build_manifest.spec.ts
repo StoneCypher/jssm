@@ -22,10 +22,26 @@ describe('neutralizeBuildTime', () => {
   });
 });
 
+describe('parseBuildTime', () => {
+  test('reads the epoch from TypeScript source with a type annotation', () => {
+    expect(bm.parseBuildTime('const build_time : number = 1782222479159;')).toBe('1782222479159');
+  });
+  test('reads the epoch from compiled JS without an annotation', () => {
+    expect(bm.parseBuildTime('const build_time = 42;')).toBe('42');
+  });
+  test('returns null when absent', () => {
+    expect(bm.parseBuildTime('no build time here')).toBe(null);
+  });
+});
+
 describe('stripDateLines', () => {
   test('drops ISO-date lines, keeps the rest', () => {
     const txt = 'keep me\n2026-06-23 generated\nalso keep';
     expect(bm.stripDateLines(txt)).toBe('keep me\nalso keep');
+  });
+  test('drops a locale "generated at" clock-time stamp', () => {
+    const txt = 'title\n* Generated for version 5.147.1 at 6/23/2026, 11:53:39 AM\nbody';
+    expect(bm.stripDateLines(txt)).toBe('title\nbody');
   });
 });
 

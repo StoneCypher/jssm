@@ -15,6 +15,18 @@
  * test that nothing but timing changed. `docs/` (typedoc) carries timestamped
  * footers throughout its HTML, so it is compared by file count, not content.
  *
+ * **Excluded entirely** — generated docs whose content varies independent of the
+ * build pipeline, so byte-parity is meaningless for them:
+ *   - `README.md` + `dist/deno/README.md`: `make_readme` bakes in
+ *     `new Date().toLocaleString()` AND the **stochastic** suite's coverage % —
+ *     stochastic tests hit random code paths, so the % varies run-to-run.
+ *   - `CHANGELOG.md` + `CHANGELOG.long.md`: `better_git_changelog` embeds the
+ *     **global git tag list** and merge/release counts, which change whenever
+ *     *any* release lands on the repo — external state, not this build.
+ * What remains is the deterministic, shipped surface: every `dist/**` bundle,
+ * the root `*.d.ts`/`*.d.cts`, and `custom-elements.json` — the artifacts the
+ * orchestrator must reproduce byte-for-byte.
+ *
  * @example
  *   // Capture a reference manifest (T0):
  *   node src/buildjs/build_manifest.cjs --out=reference.manifest.json
@@ -45,8 +57,31 @@ const ROOT_DECLS = [
 /** Other deterministic root artifacts. */
 const ROOT_OTHER = ['custom-elements.json'];
 
-/** Human-text artifacts whose generators may stamp a date; date lines stripped. */
-const TEXT_VOLATILE = ['CHANGELOG.md', 'CHANGELOG.long.md', 'README.md'];
+/**
+ * Artifacts excluded from parity — generated docs whose content varies
+ * independent of the build (README: wall-clock + stochastic coverage;
+ * CHANGELOG: global git tag list). Matched against the repo-relative path.
+ */
+const EXCLUDED = /(?:^|\/)README\.md$|^CHANGELOG(\.long)?\.md$/;
+
+/**
+ * Extract the `build_time` epoch digits from version source/compiled text.
+ *
+ * Handles both the TypeScript source form (`build_time : number = 1782…`) and
+ * the compiled form (`build_time = 1782…`) by skipping anything between
+ * `build_time` and the `=`.
+ *
+ * @param {string} text - contents of version.ts or version.js
+ * @returns {string|null} the epoch as a digit string, or null if absent
+ *
+ * @example
+ *   parseBuildTime('const build_time : number = 1782222479159;') // => '1782222479159'
+ *   parseBuildTime('const build_time = 42;')                      // => '42'
+ */
+function parseBuildTime(text) {
+  const m = text.match(/build_time[^=]*=\s*(\d+)/);
+  return m ? m[1] : null;
+}
 
 /**
  * Read the `build_time` epoch the current build baked into `version.ts`.
@@ -57,8 +92,7 @@ const TEXT_VOLATILE = ['CHANGELOG.md', 'CHANGELOG.long.md', 'README.md'];
 function readBuildTime(cwd) {
   const vp = join(cwd, 'src', 'ts', 'version.ts');
   if (!existsSync(vp)) return null;
-  const m = readFileSync(vp, 'utf8').match(/build_time\s*[:=]\s*(\d+)/);
-  return m ? m[1] : null;
+  return parseBuildTime(readFileSync(vp, 'utf8'));
 }
 
 /**
@@ -79,16 +113,21 @@ function neutralizeBuildTime(text, buildTime) {
 }
 
 /**
- * Drop ISO-date lines from human text (a generator's "generated on" stamp).
+ * Drop volatile timestamp lines from human text — a generator's "generated on"
+ * / "generated at" stamp. Strips both ISO dates (`2026-06-23`) and clock times
+ * (`11:53:39`, as in `make_readme`'s `new Date().toLocaleString()` stamp). Bundle
+ * artifacts encode time as a colon-free epoch, so the clock-time rule only ever
+ * matches such stamps and never hides a real artifact diff.
  *
  * @param {string} text - file content
- * @returns {string} content with date-bearing lines removed
+ * @returns {string} content with timestamp-bearing lines removed
  *
  * @example
- *   stripDateLines('a\n2026-06-23 x\nb') // => 'a\nb'
+ *   stripDateLines('a\n2026-06-23 x\nb')               // => 'a\nb'
+ *   stripDateLines('keep\nGenerated at 6/23/2026, 11:53:39 AM') // => 'keep'
  */
 function stripDateLines(text) {
-  return text.split('\n').filter(l => !/\d{4}-\d{2}-\d{2}/.test(l)).join('\n');
+  return text.split('\n').filter(l => !/\d{4}-\d{2}-\d{2}|\d{1,2}:\d{2}:\d{2}/.test(l)).join('\n');
 }
 
 /** sha256 hex of a buffer. */
@@ -136,10 +175,10 @@ function buildManifest(opts = {}) {
   };
 
   for (const f of walk(join(cwd, 'dist'))) {
+    if (EXCLUDED.test(rel(f))) continue;
     addFile(f, { text: /\.md$/.test(f) || /version\.js$/.test(f) });
   }
   for (const f of [...ROOT_DECLS, ...ROOT_OTHER]) addFile(join(cwd, f));
-  for (const f of TEXT_VOLATILE) addFile(join(cwd, f), { text: true });
 
   const docs = walk(join(cwd, 'docs')).map(rel).sort();
   return { artifacts, docs: { count: docs.length } };
@@ -174,6 +213,7 @@ module.exports = {
   diffManifests,
   neutralizeBuildTime,
   stripDateLines,
+  parseBuildTime,
   readBuildTime,
 };
 
