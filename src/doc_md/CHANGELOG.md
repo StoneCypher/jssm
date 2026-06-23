@@ -22,76 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 23, 2026 8:39:24 AM
-
-Commit [fd99ebc8cfd9e817c3ff4660976666289449fdfc](https://github.com/StoneCypher/jssm/commit/fd99ebc8cfd9e817c3ff4660976666289449fdfc)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * ci: on-demand e2e browser provisioning + single-job lockout (5.147.1)
-  * Browser installs are expensive — multiple minutes for contributors and on
-metered CI minutes. jssm needs Chromium only for the Playwright e2e tier,
-never for `npm install` (the playwright packages ship no auto-download
-postinstall) nor for end users (it is a devDependency). Make that explicit
-and cheap:
-  * - add src/buildjs/playwright_install.cjs: an on-demand, chromium-only
-  provisioner — time-boxed, retried, skip-aware
-  (PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD), --with-deps only on Linux, run under
-  NODE_OPTIONS=--use-system-ca, and invoked through playwright cli.js via
-  process.execPath (no npx, no shell, no DEP0190). Unit-tested: 18
-  dependency-injected cases, no network or real child processes.
-- wire e2e:install ahead of the e2e script so `npm run e2e` self-provisions;
-  no postinstall, so the build/test path stays browser-free.
-- nodejs.yml: lock browser provisioning to a single PR-gated `e2e` job
-  (browser cached by lockfile hash); set workflow-level
-  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 so every other job stays browser-free,
-  overridden to 0 in the one e2e job.
-  * Also carries the merged Phase-1 CI hygiene (job timeouts, PR concurrency
-cancellation, doc-only paths-ignore) rebased onto 5.147.0.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 23, 2026 8:39:24 AM
-
-Commit [ce33357412547846b704e71c8ed5e5b89e265e95](https://github.com/StoneCypher/jssm/commit/ce33357412547846b704e71c8ed5e5b89e265e95)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-ci: on-demand e2e browser provisioning + single-job lockout (5.147.1)
-  * Browser installs are expensive — multiple minutes for contributors and on
-metered CI minutes. jssm needs Chromium only for the Playwright e2e tier,
-never for `npm install` (the playwright packages ship no auto-download
-postinstall) nor for end users (it is a devDependency). Make that explicit
-and cheap:
-  * - add src/buildjs/playwright_install.cjs: an on-demand, chromium-only
-  provisioner — time-boxed, retried, skip-aware
-  (PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD), --with-deps only on Linux, run under
-  NODE_OPTIONS=--use-system-ca, and invoked through playwright cli.js via
-  process.execPath (no npx, no shell, no DEP0190). Unit-tested: 18
-  dependency-injected cases, no network or real child processes.
-- wire e2e:install ahead of the e2e script so `npm run e2e` self-provisions;
-  no postinstall, so the build/test path stays browser-free.
-- nodejs.yml: lock browser provisioning to a single PR-gated `e2e` job
-  (browser cached by lockfile hash); set workflow-level
-  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 so every other job stays browser-free,
-  overridden to 0 in the one e2e job.
-  * Also carries the merged Phase-1 CI hygiene (job timeouts, PR concurrency
-cancellation, doc-only paths-ignore) rebased onto 5.147.0.
-@
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 23, 2026 8:25:34 AM
 
 Commit [dbf679dc315b48aa5092a08dc73a303db415b1b8](https://github.com/StoneCypher/jssm/commit/dbf679dc315b48aa5092a08dc73a303db415b1b8)
@@ -280,3 +210,33 @@ Commit [b2b3b745d7f7648eec5e5922e028d3bc438beb86](https://github.com/StoneCypher
 Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
 
   * chart: graviton perf trend 20260623-105354
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:29:18 AM
+
+Commit [b2d20e8027b2485248fd6b033a158a32c66b611d](https://github.com/StoneCypher/jssm/commit/b2d20e8027b2485248fd6b033a158a32c66b611d)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:29:05 AM
+
+Commit [971b032b21e9b9579e3fd279175e22f107c42c28](https://github.com/StoneCypher/jssm/commit/971b032b21e9b9579e3fd279175e22f107c42c28)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 0ce6fbe409bf7670c2fc747cdf687b3df03440de
