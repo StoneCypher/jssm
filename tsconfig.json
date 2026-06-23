@@ -102,6 +102,7 @@
   },
   "include" : [
     "src/ts/*",
-    "src/ts/wc/*"
+    "src/ts/wc/*",
+    "src/ts/cm6/*"
   ]
 }
