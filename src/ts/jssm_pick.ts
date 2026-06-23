@@ -152,17 +152,53 @@ function is_differentiating_trace(mA: Machine<any>, mB: Machine<any>, trace: str
   return false;
 }
 
-// Stochastic Shrinking: Iteratively tries to remove actions from the trace while keeping it a valid differentiating trace.
-function reduce_trace(mA: Machine<any>, mB: Machine<any>, trace: string[]): string[] {
+// Stochastic Shrinking: Iteratively tries to remove actions (single or chunks) from the trace
+// while keeping it a valid differentiating trace. Falls back to a deterministic sweep at the end.
+function reduce_trace(mA: Machine<any>, mB: Machine<any>, trace: string[], max_failures = 100): string[] {
+  let currentTrace = [...trace];
+  let failures = 0;
+  
+  while (failures < max_failures && currentTrace.length > 1) {
+    const shrunk = [...currentTrace];
+    
+    // 50% chance to drop a single element, 50% chance to drop a random chunk
+    const dropChunk = Math.random() > 0.5 && currentTrace.length > 2;
+    
+    // We can never drop the final action (index: length - 1) as it's the divergence point
+    const maxIdx = currentTrace.length - 2; 
+    const i = Math.floor(Math.random() * (maxIdx + 1));
+    
+    if (dropChunk) {
+      // Pick a random length between 2 and the remaining elements before the end
+      const maxLen = currentTrace.length - 1 - i;
+      const len = Math.floor(Math.random() * (maxLen - 1)) + 2; 
+      shrunk.splice(i, len);
+    } else {
+      shrunk.splice(i, 1);
+    }
+    
+    if (is_differentiating_trace(mA, mB, shrunk)) {
+      currentTrace = shrunk;
+      failures = 0; // Reset failures on success
+    } else {
+      failures++;
+    }
+  }
+  
+  // Final deterministic left-to-right sweep to guarantee 1-minimality
+  return final_deterministic_sweep(mA, mB, currentTrace);
+}
+
+function final_deterministic_sweep(mA: Machine<any>, mB: Machine<any>, trace: string[]): string[] {
   let currentTrace = [...trace];
   let i = 0;
   
-  while (i < currentTrace.length - 1) { // We can't remove the final diverging action
+  while (i < currentTrace.length - 1) {
     const shrunk = [...currentTrace];
-    shrunk.splice(i, 1); // remove 1 step
+    shrunk.splice(i, 1);
     
     if (is_differentiating_trace(mA, mB, shrunk)) {
-      currentTrace = shrunk; // Keep the shorter trace, don't increment i (try index i again)
+      currentTrace = shrunk;
     } else {
       i++;
     }
