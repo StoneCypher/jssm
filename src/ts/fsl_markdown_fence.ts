@@ -68,6 +68,23 @@ function is_format(token: string): token is FenceImageFormat {
 }
 
 /**
+ *  Parse a dimension value like `300`, `120px`, or `100%` into a
+ *  {@link FenceDimension}.  A bare number is pixels.
+ *
+ *  @param raw The value portion of a `width=`/`height=` token.
+ *  @returns The parsed dimension, or `null` if malformed.
+ *
+ *  @example parse_dimension('300')  // => { value: 300, unit: 'px' }
+ *  @example parse_dimension('100%') // => { value: 100, unit: 'percent' }
+ *  @example parse_dimension('xyz')  // => null
+ */
+function parse_dimension(raw: string): FenceDimension | null {
+  const m = /^(\d+)(px|%)?$/.exec(raw);
+  if (!m) { return null; }
+  return { value: parseInt(m[1], 10), unit: m[2] === '%' ? 'percent' : 'px' };
+}
+
+/**
  *  Parse a fence info string into a {@link FenceDescriptor}.  The first token is
  *  the (already-validated) language and is ignored; remaining tokens are
  *  classified as parts, image formats, the `ide` macro, or `width`/`height`
@@ -89,6 +106,8 @@ export function parse_fence_info(info: string): FenceDescriptor {
 
   let format     : FenceImageFormat = 'svg';
   let format_set = false;
+  let width  : FenceDimension | null = null;
+  let height : FenceDimension | null = null;
 
   for (const arg of args) {
     if (is_part(arg)) {
@@ -103,6 +122,14 @@ export function parse_fence_info(info: string): FenceDescriptor {
       if (!parts.includes('image')) { parts.push('image'); }
       continue;
     }
+    if (arg.startsWith('width=') || arg.startsWith('height=')) {
+      const [key, raw] = arg.split('=', 2);
+      const dim = parse_dimension(raw ?? '');
+      if (dim === null)          { notes.push(`invalid ${key} value "${raw}" ignored`); }
+      else if (key === 'width')  { width  = dim; }
+      else                       { height = dim; }
+      continue;
+    }
     notes.push(`unknown token "${arg}" ignored`);
   }
 
@@ -112,8 +139,8 @@ export function parse_fence_info(info: string): FenceDescriptor {
     parts,
     ide         : false,
     format,
-    width       : null,
-    height      : null,
+    width,
+    height,
     interactive : false,
     notes
   };

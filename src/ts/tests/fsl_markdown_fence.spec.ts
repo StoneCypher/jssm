@@ -64,3 +64,27 @@ describe('parse_fence_info/1 — formats', () => {
   });
   it('accepts gif as a format', () => expect(parse_fence_info('fsl gif').format).toBe('gif'));
 });
+
+describe('parse_fence_info/1 — dimensions', () => {
+  it('bare number is px', () =>
+    expect(parse_fence_info('fsl image width=300').width).toEqual({ value: 300, unit: 'px' }));
+  it('explicit px', () =>
+    expect(parse_fence_info('fsl image height=120px').height).toEqual({ value: 120, unit: 'px' }));
+  it('percent', () =>
+    expect(parse_fence_info('fsl image width=100%').width).toEqual({ value: 100, unit: 'percent' }));
+  it('both dimensions independently', () => {
+    const d = parse_fence_info('fsl image width=300 height=200');
+    expect(d.width).toEqual({ value: 300, unit: 'px' });
+    expect(d.height).toEqual({ value: 200, unit: 'px' });
+  });
+  it('invalid dimension is ignored with a note', () => {
+    const d = parse_fence_info('fsl image width=banana');
+    expect(d.width).toBeNull();
+    expect(d.notes.some(n => /invalid/i.test(n) && /width/.test(n))).toBe(true);
+  });
+  it('unset dimensions are null', () => {
+    const d = parse_fence_info('fsl image');
+    expect(d.width).toBeNull();
+    expect(d.height).toBeNull();
+  });
+});
