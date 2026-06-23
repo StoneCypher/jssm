@@ -1,5 +1,5 @@
-import { svgTarget } from './svg';
-import { rasterize } from '../rasterize';
+import { svgTarget } from './svg.js';
+import { rasterize } from '../rasterize.js';
 
 /**
  * Render FSL source to PNG bytes.

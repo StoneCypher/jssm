@@ -1,17 +1,17 @@
 
-import { JssmError } from './jssm_error';
-import { parse }     from './fsl_parser';
+import { JssmError } from './jssm_error.js';
+import { parse }     from './fsl_parser.js';
 
 import {
   arrow_direction,
   arrow_left_kind,
   arrow_right_kind
-} from './jssm_arrow';
+} from './jssm_arrow.js';
 
 import {
   find_repeated,
   name_bind_prop_and_state
-} from './jssm_util';
+} from './jssm_util.js';
 
 import {
   JssmTransition,
@@ -38,7 +38,7 @@ import {
   FslSourceLocation,
   JssmAllowIslands,
   JssmDefaultSize
-} from './jssm_types';
+} from './jssm_types.js';
 
 import { reduce as reduce_to_639 } from 'reduce-to-639-1';
 
@@ -875,29 +875,25 @@ function compile_rule_transition_step<StateType, mDT>(
 
 ): Array<JssmTransition<StateType, mDT>> { // todo typescript describe the parser representation of a transition step extension
 
-  const edges: Array<JssmTransition<StateType, mDT>> = [];
-
   const uFrom : Array<StateType> = ( Array.isArray(from) ? from : [from] ),
         uTo   : Array<StateType> = ( Array.isArray(to)   ? to   : [to]   );
 
-  uFrom.map( (f: StateType) => {
-    uTo.map( (t: StateType) => {
+  for (const f of uFrom) {
+    for (const t of uTo) {
 
       const right: JssmTransition<StateType, mDT> = makeTransition(this_se, f, t, true);
-      if (right.kind !== 'none') { edges.push(right); }
+      if (right.kind !== 'none') { acc.push(right); }
 
       const left: JssmTransition<StateType, mDT> = makeTransition(this_se, t, f, false);
-      if (left.kind !== 'none') { edges.push(left); }
+      if (left.kind !== 'none') { acc.push(left); }
 
-    });
-  });
-
-  const new_acc: Array<JssmTransition<StateType, mDT>> = acc.concat(edges);
+    }
+  }
 
   if (next_se) {
-    return compile_rule_transition_step(new_acc, to, next_se.to, next_se, next_se.se);
+    return compile_rule_transition_step(acc, to, next_se.to, next_se, next_se.se);
   } else {
-    return new_acc;
+    return acc;
   }
 
 }

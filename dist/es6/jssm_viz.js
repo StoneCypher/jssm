@@ -1,8 +1,8 @@
-import * as jssm from './jssm';
-import { JssmError } from './jssm_error';
-import { default_viz_colors } from './jssm_viz_colors';
-import { version, build_time } from './version';
-import { membership_distance } from './jssm_compiler';
+import * as jssm from './jssm.js';
+import { JssmError } from './jssm_error.js';
+import { default_viz_colors } from './jssm_viz_colors.js';
+import { version, build_time } from './version.js';
+import { membership_distance } from './jssm_compiler.js';
 /**
  *  Cached resolved viz.js instance.  Populated on first call to
  *  {@link get_viz}; later calls reuse it directly.  Internal.
@@ -652,37 +652,55 @@ function colored_label(tr, which, color) {
 function states_to_edges_string(u_jssm, l_states, state_index, state_kinds) {
     const strike = new Set();
     const kind_of = (s) => { var _a; return (_a = state_kinds.get(s)) !== null && _a !== void 0 ? _a : 'base'; };
+    // Render one solo directed edge `s -> ex` for transition `tr`.
+    const solo_edge = (s, ex, tr) => {
+        const ex_kind = kind_of(ex);
+        const tailColor = text_color(ex_kind, '_solo');
+        const labelInline = colored_label(tr, 'taillabel', tailColor);
+        const label = transition_label(tr);
+        const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
+        const arrowHead = arrow_for(tr);
+        const edgeInline = `${maybeLabel}arrowhead=${arrowHead};color="${line_color(ex_kind, tr.kind, '_solo')}"`;
+        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
+    };
     return l_states.map((s) => u_jssm.list_exits(s).map((ex) => {
         if (strike.has(`${s}|${ex}`)) {
             return '';
         }
-        const edge_tr = u_jssm.lookup_transition_for(s, ex);
-        if (!edge_tr) {
+        const forward = u_jssm.edges_between(s, ex);
+        if (forward.length === 0) {
             return '';
         } // belt-and-suspenders; list_exits should always have a corresponding transition
-        const pair_tr = u_jssm.lookup_transition_for(ex, s);
-        const double = (pair_tr !== undefined) && (s !== ex);
-        const s_kind = kind_of(s);
-        const ex_kind = kind_of(ex);
-        // colored-HTML labels (per-direction, with text colors)
-        const headColor = text_color(s_kind, double ? '_1' : '_solo');
-        const tailColor = text_color(ex_kind, double ? '_2' : '_solo');
-        const labelInline = colored_label(double ? pair_tr : undefined, 'headlabel', headColor) +
-            colored_label(edge_tr, 'taillabel', tailColor);
-        // plain `headlabel="..."` / `taillabel="..."` fallback
-        const label = transition_label(edge_tr);
-        const rlabel = transition_label(pair_tr);
-        const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
-        const maybeRLabel = rlabel ? `headlabel="${doublequote(rlabel)}";` : '';
-        const arrowHead = arrow_for(edge_tr);
-        const arrowTail = arrow_for(pair_tr);
-        const edgeInline = double
-            ? `${maybeLabel}${maybeRLabel}arrowhead=${arrowHead};arrowtail=${arrowTail};dir=both;color="${line_color(ex_kind, edge_tr.kind, '_1')}:${line_color(s_kind, (pair_tr !== null && pair_tr !== void 0 ? pair_tr : { kind: 'legal' }).kind, '_2')}"`
-            : `${maybeLabel}arrowhead=${arrowHead};color="${line_color(ex_kind, edge_tr.kind, '_solo')}"`;
-        if (pair_tr) {
+        const reverse = (s !== ex) ? u_jssm.edges_between(ex, s) : [];
+        // Bidirectional merge stays the default for the common case: exactly one
+        // edge each way between two distinct states draws as a single `dir=both`
+        // edge with head/tail labels.  Parallel edges (#325) or self-loops fall
+        // through to one directed line per edge.
+        if (forward.length === 1 && reverse.length === 1) {
+            const edge_tr = forward[0];
+            const pair_tr = reverse[0];
+            const s_kind = kind_of(s);
+            const ex_kind = kind_of(ex);
+            // colored-HTML labels (per-direction, with text colors)
+            const headColor = text_color(s_kind, '_1');
+            const tailColor = text_color(ex_kind, '_2');
+            const labelInline = colored_label(pair_tr, 'headlabel', headColor) +
+                colored_label(edge_tr, 'taillabel', tailColor);
+            // plain `headlabel="..."` / `taillabel="..."` fallback
+            const label = transition_label(edge_tr);
+            const rlabel = transition_label(pair_tr);
+            const maybeLabel = label ? `taillabel="${doublequote(label)}";` : '';
+            const maybeRLabel = rlabel ? `headlabel="${doublequote(rlabel)}";` : '';
+            const arrowHead = arrow_for(edge_tr);
+            const arrowTail = arrow_for(pair_tr);
+            const edgeInline = `${maybeLabel}${maybeRLabel}arrowhead=${arrowHead};arrowtail=${arrowTail};dir=both;color="${line_color(ex_kind, edge_tr.kind, '_1')}:${line_color(s_kind, pair_tr.kind, '_2')}"`;
             strike.add(`${ex}|${s}`);
+            return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
         }
-        return `${node_of(s, state_index)}->${node_of(ex, state_index)} [${labelInline}${edgeInline}];`;
+        // one directed line per forward edge — parallel action edges (#325) and
+        // self-loops (#531) draw each transition separately.  The reverse edges,
+        // if any, render when the loop reaches the (ex, s) pair (not struck here).
+        return forward.map((tr) => solo_edge(s, ex, tr)).join(' ');
     }).join(' ')).join(' ');
 }
 /**

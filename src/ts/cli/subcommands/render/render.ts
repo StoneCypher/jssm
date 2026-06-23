@@ -1,10 +1,10 @@
-import type { RenderOptions, RenderResult } from '../../types';
-import { RenderError } from '../../types';
-import { svgTarget }  from './targets/svg';
-import { dotTarget }  from './targets/dot';
-import { htmlTarget } from './targets/html';
-import { pngTarget }  from './targets/png';
-import { jpegTarget } from './targets/jpeg';
+import type { RenderOptions, RenderResult } from '../../types.js';
+import { RenderError } from '../../types.js';
+import { svgTarget }  from './targets/svg.js';
+import { dotTarget }  from './targets/dot.js';
+import { htmlTarget } from './targets/html.js';
+import { pngTarget }  from './targets/png.js';
+import { jpegTarget } from './targets/jpeg.js';
 
 /**
  * Render a single FSL source string to the requested output format.

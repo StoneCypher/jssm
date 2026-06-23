@@ -799,6 +799,77 @@ declare type PostEverythingHook<mDT> = {
  */
 declare type HookDescription<mDT> = BasicHookDescription<mDT> | HookDescriptionWithAction<mDT> | GlobalActionHook<mDT> | AnyActionHook<mDT> | StandardTransitionHook<mDT> | MainTransitionHook<mDT> | ForcedTransitionHook<mDT> | AnyTransitionHook<mDT> | EntryHook<mDT> | ExitHook<mDT> | AfterHook<mDT> | PostBasicHookDescription<mDT> | PostHookDescriptionWithAction<mDT> | PostGlobalActionHook<mDT> | PostAnyActionHook<mDT> | PostStandardTransitionHook<mDT> | PostMainTransitionHook<mDT> | PostForcedTransitionHook<mDT> | PostAnyTransitionHook<mDT> | PostEntryHook<mDT> | PostExitHook<mDT> | PreEverythingHook<mDT> | EverythingHook<mDT> | PrePostEverythingHook<mDT> | PostEverythingHook<mDT>;
 /**
+ *  Whether an observational hook runs in the pre-transition phase (where it
+ *  may veto/mutate the transition) or the post-transition phase (a pure
+ *  observer that runs only after a successful transition commits).
+ */
+declare type HookPhase = 'pre' | 'post';
+/**
+ *  Normalized description of the target a registry entry is bound to.  Exactly
+ *  one scope variant applies; the present fields depend on the scope:
+ *
+ *  - `'edge'`   carries `from` + `to` (+ optional `action` for named hooks),
+ *  - `'state'`  carries `state`,
+ *  - `'action'` carries `action`,
+ *  - `'global'` carries no further keys (it matches everything),
+ *  - `'group'`  carries `group` (a named state group with a boundary hook).
+ */
+declare type HookTarget = {
+    scope: 'edge';
+    from: StateType$1;
+    to: StateType$1;
+    action?: string;
+} | {
+    scope: 'state';
+    state: StateType$1;
+} | {
+    scope: 'action';
+    action: string;
+} | {
+    scope: 'global';
+} | {
+    scope: 'group';
+    group: string;
+};
+/**
+ *  Kinds for FSL boundary hooks (`on enter/exit &group do 'X'` and the plain-
+ *  state analogue).  These fire post-commit when a transition crosses the
+ *  subject's boundary and are not part of {@link HookDescription} (that union
+ *  covers only the programmatically-registered observational hooks), so the
+ *  registry widens its `kind` field with them.
+ */
+declare type HookBoundaryKind = 'group enter' | 'group exit' | 'state enter' | 'state exit';
+/**
+ *  One row of the generated uniform observational-hook registry.  `kind` is
+ *  either an original {@link HookDescription} discriminator (e.g. `'entry'`,
+ *  `'post named'`) or a {@link HookBoundaryKind} for an FSL boundary hook,
+ *  `phase` is the {@link HookPhase} the hook runs in, and `target` is the
+ *  normalized {@link HookTarget} it is bound to.  The triple
+ *  `(kind, target, phase)` is the registry key the spec calls for.
+ */
+declare type HookRegistryEntry = {
+    kind: HookDescription<unknown>['kind'] | HookBoundaryKind;
+    phase: HookPhase;
+    target: HookTarget;
+};
+/**
+ *  Query for {@link Machine.has_hook} / {@link Machine.hooks_on}.  A bare
+ *  string is read as a state name; an `{ from, to, action? }` object is read
+ *  as an edge (optionally a named edge); an `{ action }` object is read as a
+ *  named action; a `{ group }` object is read as a named state group.  This
+ *  mirrors the spec's `hooks_on(state)` / `hooks_on(from→to)` /
+ *  `hooks_on(action)` / `hooks_on(&group)` set with one parameter shape.
+ */
+declare type HookQuery = StateType$1 | {
+    from: StateType$1;
+    to: StateType$1;
+    action?: string;
+} | {
+    action: string;
+} | {
+    group: string;
+};
+/**
  *  Richer hook return value used when a hook needs to do more than just
  *  accept or veto a transition.  `pass` is the required accept/veto flag
  *  (kept non-optional so that returning a stray object doesn't accidentally
@@ -1352,7 +1423,7 @@ declare const weighted_rand_select: Function;
  *  Returns, for a non-negative integer argument `n`, the series `[0 .. n]`.
  *
  *  ```typescript
- *  import { seq } from './jssm';
+ *  import { seq } from './jssm.js';
  *
  *  seq(5);  // [0, 1, 2, 3, 4]
  *  seq(0);  // []
@@ -1366,7 +1437,7 @@ declare function seq(n: number): number[];
  *  with deep equality; will fail for complex contents, as such.
  *
  *  ```typescript
- *  import { histograph } from './jssm';
+ *  import { histograph } from './jssm.js';
  *
  *  histograph( [0, 0, 1, 1, 2, 2, 1] );  // Map()
  *  ```
@@ -3082,6 +3153,24 @@ declare class Machine<mDT> {
      *  calling this directly.
      *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
      */
+    /**
+     *  Validate a {@link HookDescription} before registration.  Every hook needs
+     *  a `handler` function, and each kind's identifying spatial fields
+     *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+     *  kind — present when required, absent otherwise.  This turns a mis-shaped
+     *  descriptor into a thrown error instead of a silently dead hook keyed on
+     *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+     *
+     *  @param HookDesc - The descriptor about to be registered.
+     *  @throws JssmError if the kind is unknown, the handler is not a function, a
+     *          required field is missing, or an inapplicable field is present.
+     *
+     *  @example
+     *    const m = sm`a -> b;`;
+     *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+     *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+     */
+    _validate_hook_description(HookDesc: HookDescription<mDT>): void;
     set_hook(HookDesc: HookDescription<mDT>): void;
     /**
      *  Remove a previously-registered hook described by a
@@ -3738,6 +3827,158 @@ declare class Machine<mDT> {
      *
      */
     get active_state_style(): JssmStateConfig;
+    /********
+     *
+     *  Generate the uniform observational-hook registry — every currently
+     *  registered hook projected onto a normalized `(kind, target, phase)` row
+     *  (megaspec §12, → #1357).  The registry is *generated* on demand by
+     *  walking the concrete per-kind storage tables rather than maintained as a
+     *  second copy, so it can never drift from the tables {@link Machine.set_hook}
+     *  actually dispatches into.  It is the single source of truth behind the
+     *  introspection accessors ({@link Machine.has_hook}, {@link Machine.hooks_on})
+     *  and the `hooked_state` viz styling.
+     *
+     *  Targets are normalized: edge hooks become `{ scope: 'edge', from, to }`
+     *  (named hooks add `action`), entry/exit/after become `{ scope: 'state' }`,
+     *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
+     *  transition-class, and `everything` observers become `{ scope: 'global' }`.
+     *
+     *  ```typescript
+     *  const m = sm`a 'go' -> b;`;
+     *  m.hook_entry('b', () => true);
+     *  m.hook_registry();
+     *  // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
+     *  ```
+     *
+     *  @returns Every registered hook as a {@link HookRegistryEntry}, in a stable
+     *  table-walk order (pre-phase tables first, then post-phase).
+     *
+     */
+    hook_registry(): HookRegistryEntry[];
+    /********
+     *
+     *  Does a single registry entry reference the state `state`?  An entry
+     *  references a state when it is a `'state'`-scoped hook on that state, or an
+     *  `'edge'`-scoped hook whose `from` or `to` is that state.  `'action'`- and
+     *  `'global'`-scoped entries reference no particular state.  This is the
+     *  predicate behind both per-state introspection and the `hooked_state`
+     *  styling layer.
+     *
+     *  @param entry The registry entry to test.
+     *  @param state The state name to test membership of.
+     *  @returns `true` when the entry observes that state.
+     *
+     */
+    private static _entry_touches_state;
+    /********
+     *
+     *  Does a single registry entry match a `{ from, to, action? }` edge query?
+     *  Only `'edge'`-scoped entries can match.  When the query omits `action`
+     *  the entry's action (if any) is ignored; when the query supplies `action`
+     *  it must match exactly.
+     *
+     *  @param entry The registry entry to test.
+     *  @param from  The edge origin to match.
+     *  @param to    The edge destination to match.
+     *  @param action Optional named action to match exactly.
+     *  @returns `true` when the entry observes that edge.
+     *
+     */
+    private static _entry_matches_edge;
+    /********
+     *
+     *  Does a single registry entry match an action name?  Both `'action'`-scoped
+     *  hooks (global-action hooks) and named-edge hooks carrying that action
+     *  count as matches.
+     *
+     *  @param entry  The registry entry to test.
+     *  @param action The action name to match.
+     *  @returns `true` when the entry observes that action.
+     *
+     */
+    private static _entry_matches_action;
+    /********
+     *
+     *  Does a single registry entry match a named state group?  Only
+     *  `'group'`-scoped entries (FSL group-boundary hooks) match.  Group hooks
+     *  are matched by group name only — they deliberately do not propagate to
+     *  member states, so a member-state query never returns them.
+     *
+     *  @param entry The registry entry to test.
+     *  @param group The group name to match.
+     *  @returns `true` when the entry observes that group's boundary.
+     *
+     */
+    private static _entry_matches_group;
+    /********
+     *
+     *  Return every registry entry observing the given target (megaspec §12).
+     *  The `query` selects the target shape:
+     *
+     *  - a bare **state name** matches entry/exit/after hooks on that state, its
+     *    state-boundary hooks, and every edge hook touching it (`from` or `to`),
+     *  - a `{ from, to, action? }` **edge** matches edge hooks on that
+     *    transition (optionally narrowed to the named action),
+     *  - a `{ action }` **action** matches global-action and named-edge hooks
+     *    carrying that action,
+     *  - a `{ group }` **group** matches that group's boundary hooks (group hooks
+     *    are matched by name only and do not propagate to member states).
+     *
+     *  ```typescript
+     *  const m = sm`a 'go' -> b;`;
+     *  m.hook_entry('b', () => true);
+     *  m.hooks_on('b').length;             // 1
+     *  m.hooks_on({ from: 'a', to: 'b' }); // []  (no edge hook registered)
+     *  ```
+     *
+     *  @param query The {@link HookQuery} naming the target to inspect.
+     *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
+     *
+     */
+    hooks_on(query: HookQuery): HookRegistryEntry[];
+    /********
+     *
+     *  Is at least one observational hook bound to the given target (megaspec
+     *  §12)?  The `query` is read exactly as in {@link Machine.hooks_on}.  An
+     *  optional `phase` narrows the test to pre- or post-transition hooks only;
+     *  omitted, either phase satisfies it.
+     *
+     *  ```typescript
+     *  const m = sm`a -> b;`;
+     *  m.has_hook('b');                 // false
+     *  m.hook_entry('b', () => true);
+     *  m.has_hook('b');                 // true
+     *  m.has_hook('b', 'post');         // false  (the entry hook is pre-phase)
+     *  ```
+     *
+     *  @param query The {@link HookQuery} naming the target to inspect.
+     *  @param phase Optional {@link HookPhase} to restrict the test to.
+     *  @returns `true` when a matching hook exists.
+     *
+     */
+    has_hook(query: HookQuery, phase?: HookPhase): boolean;
+    /********
+     *
+     *  Does the given state carry any observational hook — i.e. should it receive
+     *  the `hooked_state` viz styling?  True when an entry/exit/after hook is
+     *  bound to the state, any edge hook touches it, or the state has its own
+     *  boundary hook.  Group-boundary hooks do *not* count here — they are
+     *  matched by group only and never propagate to member states.  Powers the
+     *  `hooked` styling layer in {@link Machine.resolve_state_config}; replaces
+     *  the long-stubbed `has_hooks` placeholder (megaspec §12).
+     *
+     *  ```typescript
+     *  const m = sm`a -> b;`;
+     *  m.state_has_hooks('a');          // false
+     *  m.hook_exit('a', () => true);
+     *  m.state_has_hooks('a');          // true
+     *  ```
+     *
+     *  @param state The state to test.
+     *  @returns `true` when the state is observed by at least one hook.
+     *
+     */
+    state_has_hooks(state: StateType): boolean;
     /********
      *
      *  Returns the list of resolved theme implementations for this machine, in

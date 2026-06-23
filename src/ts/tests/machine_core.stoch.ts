@@ -506,7 +506,9 @@ describe('compareVersions', () => {
           })();
 
           expect(Math.sign(jssm.compareVersions(v1, v2))).toBe(expected);
-          expect(Math.sign(jssm.compareVersions(v2, v1))).toBe(-expected);
+          // guard the equal case: -expected would be -0, and toBe uses Object.is,
+          // where Object.is(+0, -0) is false (compareVersions returns +0 for equal)
+          expect(Math.sign(jssm.compareVersions(v2, v1))).toBe(expected === 0 ? 0 : -expected);
 
         }
       ),

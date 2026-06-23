@@ -31,7 +31,15 @@ const DEFAULT_BASELINE = path.join(__dirname, '..', 'historic_benchmarks', 'benc
 
 // Tables are emitted in this order; operations absent from the current file
 // are skipped.
-const OPERATION_ORDER = ['transition()', 'edges_between()', 'has_state()', 'construct()'];
+const OPERATION_ORDER = [
+  'transition()',
+  'action()',
+  'edges_between()',
+  'has_state()',
+  'list_exit_actions()',
+  'probable_action_exits()',
+  'construct()'
+];
 
 /**
  *  Load one benchmark envelope from disk.

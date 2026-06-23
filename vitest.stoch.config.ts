@@ -14,7 +14,7 @@ export default defineConfig({
     globals           : true,
     environment       : 'node',
     include           : ['**/*.stoch.ts'],
-    exclude           : ['**/node_modules/**', '**/dist/**', '.claude/**'],
+    exclude           : ['**/node_modules/**', '**/dist/**', '.claude/**', 'notes/**'],
 
     setupFiles        : ['./vitest.setup.ts'],
 

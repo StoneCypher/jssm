@@ -1,9 +1,9 @@
-import { base_theme } from './themes/jssm_base_stylesheet';
-import { default_theme } from './themes/jssm_theme_default';
-import { modern_theme } from './themes/jssm_theme_modern';
-import { ocean_theme } from './themes/jssm_theme_ocean';
-import { plain_theme } from './themes/jssm_theme_plain';
-import { bold_theme } from './themes/jssm_theme_bold';
+import { base_theme } from './themes/jssm_base_stylesheet.js';
+import { default_theme } from './themes/jssm_theme_default.js';
+import { modern_theme } from './themes/jssm_theme_modern.js';
+import { ocean_theme } from './themes/jssm_theme_ocean.js';
+import { plain_theme } from './themes/jssm_theme_plain.js';
+import { bold_theme } from './themes/jssm_theme_bold.js';
 /*******
  *
  *  Registry mapping theme names to their stylesheet definitions.  Each entry

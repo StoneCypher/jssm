@@ -6,6 +6,7 @@
     { "name": "chain-10 transition()", "ops": 300 },
     { "name": "chain-50 transition()", "ops": 90 },
     { "name": "chain-99 transition()", "ops": 5 },
+    { "name": "chain-10 action()", "ops": 240 },
     { "name": "chain-10 edges_between()", "ops": 40 }
   ]
 }

@@ -1,6 +1,6 @@
-import * as jssm from './jssm';
-import { version, build_time } from './version';
-import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from './jssm_types';
+import * as jssm from './jssm.js';
+import { version, build_time } from './version.js';
+import type { JssmGroupMemberRef, JssmTransitionConfig, JssmGraphConfig } from './jssm_types.js';
 /**
  *  How {@link machine_to_dot} renders FSL state groups (`&group : [ … ];`).
  *

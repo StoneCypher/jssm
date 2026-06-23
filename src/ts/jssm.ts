@@ -29,21 +29,22 @@ import {
   JssmPropertyDefinition,
   FslDirection, FslDirections, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler,
+  HookPhase, HookTarget, HookRegistryEntry, HookQuery,
   JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
   JssmBaseTheme,
-  JssmGroupRegistry, JssmGroupHooks, JssmStateHooks,
+  JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmBoundaryHooks,
   JssmRng
 
-} from './jssm_types';
+} from './jssm_types.js';
 
 
 
 
 
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
 import { compile, make, makeTransition, wrap_parse,
-         transitive_members, membership_distance }            from './jssm_compiler';
-import { theme_mapping, base_theme }                          from './jssm_theme';
+         transitive_members, membership_distance }            from './jssm_compiler.js';
+import { theme_mapping, base_theme }                          from './jssm_theme.js';
 
 
 
@@ -58,25 +59,65 @@ import {
   name_bind_prop_and_state,
   gen_splitmix32,
   sleep
-} from './jssm_util';
+} from './jssm_util.js';
 
-import { Interner, pair_key } from './jssm_intern';
-
-
+import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
 
 
 
-import * as constants from './jssm_constants';
+
+
+import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
+const empty_string_set: ReadonlySet<string> = new Set<string>();
+
+// The spatial fields (besides `handler`, which every hook needs) that each
+// hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
+// to validate a HookDescription so a mis-shaped one is rejected rather than
+// silently registering a dead hook — e.g. an `exit` hook given `to` instead of
+// `from` would otherwise intern `undefined` and never fire (#734).  Typed as a
+// `Record` over the kind union so the table is exhaustive at compile time:
+// adding a hook kind without listing its fields is a build error.
+const hook_required_fields: Record<HookDescription<unknown>['kind'], ReadonlyArray<'from' | 'to' | 'action'>> = {
+  'hook'                     : ['from', 'to'],
+  'named'                    : ['from', 'to', 'action'],
+  'global action'            : ['action'],
+  'any action'               : [],
+  'standard transition'      : [],
+  'main transition'          : [],
+  'forced transition'        : [],
+  'any transition'           : [],
+  'entry'                    : ['to'],
+  'exit'                     : ['from'],
+  'after'                    : ['from'],
+  'post hook'                : ['from', 'to'],
+  'post named'               : ['from', 'to', 'action'],
+  'post global action'       : ['action'],
+  'post any action'          : [],
+  'post standard transition' : [],
+  'post main transition'     : [],
+  'post forced transition'   : [],
+  'post any transition'      : [],
+  'post entry'               : ['to'],
+  'post exit'                : ['from'],
+  'pre everything'           : [],
+  'everything'               : [],
+  'pre post everything'      : [],
+  'post everything'          : [],
+};
+
+// The spatial fields a hook descriptor can carry, checked against the per-kind
+// requirements above.
+const hook_spatial_fields = ['from', 'to', 'action'] as const;
 
 
 
 
 
-import { parse }               from './fsl_parser';
-import { version, build_time } from './version';    // replaced from package.js in build
-import { JssmError }           from './jssm_error';
+import { parse }               from './fsl_parser.js';
+import { version, build_time } from './version.js';    // replaced from package.js in build
+import { JssmError }           from './jssm_error.js';
 
 
 
@@ -918,11 +959,17 @@ class Machine<mDT> {
 
 
 
-    // O(1) duplicate-edge guard for the construction loop below: from -> Set<to>.
-    // Keyed by source state; mirrors each state's `to` array with constant-time
-    // membership so the dedup check is O(1) per edge rather than an O(out-degree)
-    // array scan (which made construction O(V*E) on dense graphs).  #673
-    const seen_edges: Map<StateType, Set<StateType>> = new Map();
+    // Duplicate-edge guard for the construction loop below, keyed
+    // from -> (to -> Set<slot>).  A "slot" distinguishes edges that share a
+    // (from, to) pair: an action's name for an actioned edge, or '' for the one
+    // permitted plain action-less edge.  Multiple edges between the same pair
+    // are allowed when they carry distinct actions (#325; the self-loop case is
+    // #531), since they dispatch unambiguously through `action(name)`.  A
+    // probability-bearing action-less edge is exempt from the guard entirely,
+    // so a weighted fan-out may name the same target more than once.  The
+    // nested Map+Set keeps the check O(1) per edge rather than an O(out-degree)
+    // scan (which made construction O(V*E) on dense graphs).  #673
+    const seen_edges: Map<StateType, Map<StateType, Set<string>>> = new Map();
 
     // walk the transitions.  single-lookup cursor fetches: each endpoint was
     // previously a get followed by a has on the same key (four hashes per
@@ -946,21 +993,35 @@ class Machine<mDT> {
         this._new_state(cursor_to);
       }
 
-      // guard against existing connections being re-added — O(1) via the
-      // from -> Set<to> index instead of an O(out-degree) `cursor_from.to`
-      // array scan.  Behaviour is identical: the same duplicate (from, to)
-      // pair throws the same JssmError.  #673
-      let seen_to: Set<StateType> | undefined = seen_edges.get(tr.from);
-      if (seen_to === undefined) {
-        seen_to = new Set();
-        seen_edges.set(tr.from, seen_to);
+      // record (from -> to) adjacency once per distinct target, even when
+      // several edges connect the pair, so the `to`/`from` arrays stay sets of
+      // state names.  #673
+      let to_slots: Map<StateType, Set<string>> | undefined = seen_edges.get(tr.from);
+      if (to_slots === undefined) {
+        to_slots = new Map();
+        seen_edges.set(tr.from, to_slots);
       }
-      if (seen_to.has(tr.to)) {
-        throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
-      } else {
-        seen_to.add(tr.to);
+      let slots: Set<string> | undefined = to_slots.get(tr.to);
+      if (slots === undefined) {
+        slots = new Set();
+        to_slots.set(tr.to, slots);
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
+      }
+
+      // duplicate-edge guard.  A probability-bearing action-less edge is exempt
+      // (a weighted fan-out may repeat a target); every other edge claims a slot
+      // — its action name, or '' for the one plain action-less edge — and a
+      // repeated slot throws.  Distinct actions between the same pair coexist
+      // (#325/#531).
+      const edge_exempt: boolean = (!tr.action) && (tr.probability !== undefined);
+      if (!edge_exempt) {
+        const slot: string = tr.action ? tr.action : '';
+        if (slots.has(slot)) {
+          throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`
+            + (tr.action ? ` on action ${JSON.stringify(tr.action)}` : ''));
+        }
+        slots.add(slot);
       }
 
       // add the edge; note its id
@@ -989,15 +1050,24 @@ class Machine<mDT> {
         this._edge_map.set(tr.from, from_mapping);
       }
 
-      //    const to_mapping = from_mapping.get(tr.to);
-      from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
+      // first-declared wins: when several edges share a (from, to) pair (parallel
+      // action edges, #325), lookup_transition_for resolves to the first one
+      // declared, so it agrees with edges_between(...)[0].
+      if (!from_mapping.has(tr.to)) {
+        from_mapping.set(tr.to, thisEdgeId);
+      }
 
       // numeric mirror of the (from, to) endpoint mapping.  intern() rather
       // than id_of(): idempotent, and returns number (not number|undefined)
       // since both endpoints were just created above if missing.
       const from_id = this._state_interner.intern(tr.from);
       const to_id   = this._state_interner.intern(tr.to);
-      this._edge_id_by_pair.set(pair_key(from_id, to_id), thisEdgeId);
+      // first-declared wins (see _edge_map above): the transition fast-path that
+      // reads this index resolves parallel (from, to) pairs to the first edge.
+      const pair = pair_key(from_id, to_id);
+      if (!this._edge_id_by_pair.has(pair)) {
+        this._edge_id_by_pair.set(pair, thisEdgeId);
+      }
       this._edge_to_ids[thisEdgeId] = to_id;
 
       // outbound adjacency: every edge originating at tr.from, regardless of action/target.
@@ -2657,10 +2727,10 @@ class Machine<mDT> {
       throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
     }
 
-    return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
-      .map((filtered: JssmTransition<StateType, mDT>): StateType => filtered.action);
+    // `_reverse_actions` is keyed by edge.from (see its population), so every
+    // action stored under whichState belongs to whichState by construction — no
+    // from-filter is needed, and the keys are exactly the exit actions.
+    return Array.from(ra_base.keys());
 
   }
 
@@ -2682,14 +2752,18 @@ class Machine<mDT> {
       throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
     }
 
-    return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
-      .map((filtered): any => ({
-        action: filtered.action,          // TODO FIXME no any
-        probability: filtered.probability
-      })
-      );
+    const exits: Array<any> = [];          // TODO FIXME no any
+
+    // `_reverse_actions` is keyed by edge.from, so every entry belongs to
+    // whichState by construction; no from-filter is needed.
+    ra_base.forEach((edgeId: number, action: StateType) => {
+      exits.push({
+        action,
+        probability: this._edges[edgeId].probability
+      });
+    });
+
+    return exits;
   }
 
 
@@ -3181,7 +3255,53 @@ class Machine<mDT> {
    *  calling this directly.
    *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
    */
+  /**
+   *  Validate a {@link HookDescription} before registration.  Every hook needs
+   *  a `handler` function, and each kind's identifying spatial fields
+   *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+   *  kind — present when required, absent otherwise.  This turns a mis-shaped
+   *  descriptor into a thrown error instead of a silently dead hook keyed on
+   *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+   *
+   *  @param HookDesc - The descriptor about to be registered.
+   *  @throws JssmError if the kind is unknown, the handler is not a function, a
+   *          required field is missing, or an inapplicable field is present.
+   *
+   *  @example
+   *    const m = sm`a -> b;`;
+   *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+   *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+   */
+  _validate_hook_description(HookDesc: HookDescription<mDT>): void {
+
+    const required: ReadonlyArray<'from' | 'to' | 'action'> | undefined =
+      hook_required_fields[HookDesc.kind];
+
+    if (required === undefined) {
+      throw new JssmError(this, `unknown hook kind ${JSON.stringify((HookDesc as { kind?: unknown }).kind)}`);
+    }
+
+    if (typeof HookDesc.handler !== 'function') {
+      throw new JssmError(this, `${HookDesc.kind} hook requires a handler function`);
+    }
+
+    for (const field of hook_spatial_fields) {
+      const needed  = required.includes(field);
+      const present = (HookDesc as Record<string, unknown>)[field] !== undefined;
+      if (needed && !present) {
+        throw new JssmError(this, `${HookDesc.kind} hook requires '${field}'`);
+      }
+      if (!needed && present) {
+        throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
+      }
+    }
+
+  }
+
+
   set_hook(HookDesc: HookDescription<mDT>) {
+
+    this._validate_hook_description(HookDesc);
 
     switch (HookDesc.kind) {
 
@@ -3357,11 +3477,17 @@ class Machine<mDT> {
         this._has_post_hooks       = true;
         break;
 
-
-      default:
-        throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+      // No default: `_validate_hook_description` above rejects any unknown kind
+      // before we reach here, so the switch is exhaustive over the known kinds.
 
     }
+
+    // The hooked-state styling layer (tier 2.5 of resolve_state_config) depends
+    // on which states carry hooks, so registering a hook can change the composed
+    // style of a state.  The static config cache assumes tiers 1–5 are fixed
+    // after construction; invalidate it so styling stays correct when a hook is
+    // added after a style has already been computed and memoized.
+    this._static_state_config_cache.clear();
 
     // fire the registration event for inspector tools (#638)
     this._fire('hook-registration', { description: HookDesc });
@@ -3532,6 +3658,9 @@ class Machine<mDT> {
     }
 
     if (removed) {
+      // See set_hook: the hooked-state styling layer depends on which states
+      // carry hooks, so removing one can change a state's composed style.
+      this._static_state_config_cache.clear();
       this._fire('hook-removal', { description: HookDesc });
     }
 
@@ -4196,8 +4325,8 @@ class Machine<mDT> {
       );
     }
 
-    const prev_groups: Set<string> = this._state_to_groups.get(prev_state) ?? new Set();
-    const next_groups: Set<string> = this._state_to_groups.get(next_state) ?? new Set();
+    const prev_groups: ReadonlySet<string> = this._state_to_groups.get(prev_state) ?? empty_string_set;
+    const next_groups: ReadonlySet<string> = this._state_to_groups.get(next_state) ?? empty_string_set;
 
     // The labels to dispatch, gathered before any firing so that re-entrant
     // transitions caused by an early action cannot perturb which boundaries the
@@ -5089,14 +5218,381 @@ class Machine<mDT> {
 
 
 
-  /*
+  /********
+   *
+   *  Generate the uniform observational-hook registry — every currently
+   *  registered hook projected onto a normalized `(kind, target, phase)` row
+   *  (megaspec §12, → #1357).  The registry is *generated* on demand by
+   *  walking the concrete per-kind storage tables rather than maintained as a
+   *  second copy, so it can never drift from the tables {@link Machine.set_hook}
+   *  actually dispatches into.  It is the single source of truth behind the
+   *  introspection accessors ({@link Machine.has_hook}, {@link Machine.hooks_on})
+   *  and the `hooked_state` viz styling.
+   *
+   *  Targets are normalized: edge hooks become `{ scope: 'edge', from, to }`
+   *  (named hooks add `action`), entry/exit/after become `{ scope: 'state' }`,
+   *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
+   *  transition-class, and `everything` observers become `{ scope: 'global' }`.
+   *
+   *  ```typescript
+   *  const m = sm`a 'go' -> b;`;
+   *  m.hook_entry('b', () => true);
+   *  m.hook_registry();
+   *  // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
+   *  ```
+   *
+   *  @returns Every registered hook as a {@link HookRegistryEntry}, in a stable
+   *  table-walk order (pre-phase tables first, then post-phase).
+   *
    */
 
-  // TODO COMEBACK IMPLEMENTME FIXME
+  hook_registry(): HookRegistryEntry[] {
 
-  // has_hooks(state: StateType): false {
-  //   return false;
-  // }
+    const entries: HookRegistryEntry[] = [];
+
+    // The hot-path hook tables are keyed by interned integer ids (states and
+    // actions) and, for edges, by `pair_key(from_id, to_id)`.  Decode each key
+    // back to its original name so the registry speaks states/actions, never
+    // ids.  The lone exception is `_after_hooks`, deliberately string-keyed.
+    const state_name  = (id: number): StateType => this._state_interner.name_of(id)  as StateType;
+    const action_name = (id: number): string    => this._action_interner.name_of(id) as string;
+
+    // edge tables: pair_key(from_id, to_id) -> handler
+    const push_edges = (
+      table : Map<number, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, pk) => {
+        const [fid, tid] = un_pair_key(pk);
+        entries.push({ kind, phase, target: { scope: 'edge', from: state_name(fid), to: state_name(tid) } });
+      });
+    };
+
+    // named-edge tables: pair_key(from_id, to_id) -> action_id -> handler
+    const push_named = (
+      table : Map<number, Map<number, HookHandler<mDT>>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((byAction, pk) => {
+        const [fid, tid] = un_pair_key(pk);
+        const from = state_name(fid), to = state_name(tid);
+        byAction.forEach((_handler, aid) => {
+          entries.push({ kind, phase, target: { scope: 'edge', from, to, action: action_name(aid) } });
+        });
+      });
+    };
+
+    // entry/exit tables: interned state_id -> handler
+    const push_states = (
+      table : Map<number, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, sid) => {
+        entries.push({ kind, phase, target: { scope: 'state', state: state_name(sid) } });
+      });
+    };
+
+    // the `after` table is the lone string-keyed exception: state name -> handler
+    const push_states_by_name = (
+      table : Map<string, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, state) => {
+        entries.push({ kind, phase, target: { scope: 'state', state: state as unknown as StateType } });
+      });
+    };
+
+    // global-action tables: interned action_id -> handler
+    const push_actions = (
+      table : Map<number, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, aid) => {
+        entries.push({ kind, phase, target: { scope: 'action', action: action_name(aid) } });
+      });
+    };
+
+    const push_global = (
+      handler : HookHandler<mDT> | EverythingHookHandler<mDT> | PostEverythingHookHandler<mDT> | undefined,
+      kind    : HookRegistryEntry['kind'],
+      phase   : HookPhase
+    ): void => {
+      if (handler !== undefined) {
+        entries.push({ kind, phase, target: { scope: 'global' } });
+      }
+    };
+
+    // FSL boundary hooks: subject name -> { onEnter?, onExit? }, fired post-
+    // commit.  Each present direction becomes its own row, all phase 'post'.
+    const push_boundary = (
+      table     : Map<string, JssmBoundaryHooks>,
+      enterKind : HookRegistryEntry['kind'],
+      exitKind  : HookRegistryEntry['kind'],
+      target_of : (subject: string) => HookTarget
+    ): void => {
+      table.forEach((bh, subject) => {
+        if (bh.onEnter !== undefined) { entries.push({ kind: enterKind, phase: 'post', target: target_of(subject) }); }
+        if (bh.onExit  !== undefined) { entries.push({ kind: exitKind,  phase: 'post', target: target_of(subject) }); }
+      });
+    };
+
+    // pre-phase, edge- and state-keyed tables
+    push_edges        (this._hooks,                'hook',          'pre');
+    push_named        (this._named_hooks,          'named',         'pre');
+    push_states       (this._entry_hooks,          'entry',         'pre');
+    push_states       (this._exit_hooks,           'exit',          'pre');
+    push_states_by_name(this._after_hooks,         'after',         'pre');
+    push_actions      (this._global_action_hooks,  'global action', 'pre');
+
+    // pre-phase, global singletons
+    push_global(this._any_action_hook,          'any action',          'pre');
+    push_global(this._standard_transition_hook, 'standard transition', 'pre');
+    push_global(this._main_transition_hook,     'main transition',     'pre');
+    push_global(this._forced_transition_hook,   'forced transition',   'pre');
+    push_global(this._any_transition_hook,      'any transition',      'pre');
+    push_global(this._pre_everything_hook,      'pre everything',      'pre');
+    push_global(this._everything_hook,          'everything',          'pre');
+
+    // post-phase, edge- and state-keyed tables
+    push_edges  (this._post_hooks,                'post hook',          'post');
+    push_named  (this._post_named_hooks,          'post named',         'post');
+    push_states (this._post_entry_hooks,          'post entry',         'post');
+    push_states (this._post_exit_hooks,           'post exit',          'post');
+    push_actions(this._post_global_action_hooks,  'post global action', 'post');
+
+    // post-phase, global singletons
+    push_global(this._post_any_action_hook,          'post any action',          'post');
+    push_global(this._post_standard_transition_hook, 'post standard transition', 'post');
+    push_global(this._post_main_transition_hook,     'post main transition',     'post');
+    push_global(this._post_forced_transition_hook,   'post forced transition',   'post');
+    push_global(this._post_any_transition_hook,      'post any transition',      'post');
+    push_global(this._pre_post_everything_hook,      'pre post everything',      'post');
+    push_global(this._post_everything_hook,          'post everything',          'post');
+
+    // FSL boundary hooks (post-commit): group and plain-state subjects
+    push_boundary(this._group_hooks, 'group enter', 'group exit', (group) => ({ scope: 'group', group }));
+    push_boundary(this._state_hooks, 'state enter', 'state exit', (state) => ({ scope: 'state', state: state as unknown as StateType }));
+
+    return entries;
+
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry reference the state `state`?  An entry
+   *  references a state when it is a `'state'`-scoped hook on that state, or an
+   *  `'edge'`-scoped hook whose `from` or `to` is that state.  `'action'`- and
+   *  `'global'`-scoped entries reference no particular state.  This is the
+   *  predicate behind both per-state introspection and the `hooked_state`
+   *  styling layer.
+   *
+   *  @param entry The registry entry to test.
+   *  @param state The state name to test membership of.
+   *  @returns `true` when the entry observes that state.
+   *
+   */
+
+  private static _entry_touches_state(entry: HookRegistryEntry, state: StateType): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'state') { return t.state === state; }
+    if (t.scope === 'edge')  { return t.from === state || t.to === state; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match a `{ from, to, action? }` edge query?
+   *  Only `'edge'`-scoped entries can match.  When the query omits `action`
+   *  the entry's action (if any) is ignored; when the query supplies `action`
+   *  it must match exactly.
+   *
+   *  @param entry The registry entry to test.
+   *  @param from  The edge origin to match.
+   *  @param to    The edge destination to match.
+   *  @param action Optional named action to match exactly.
+   *  @returns `true` when the entry observes that edge.
+   *
+   */
+
+  private static _entry_matches_edge(entry: HookRegistryEntry, from: StateType, to: StateType, action?: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope !== 'edge') {
+      return false;
+    }
+    if (t.from !== from || t.to !== to) {
+      return false;
+    }
+    if (action !== undefined) {
+      return t.action === action;
+    }
+    return true;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match an action name?  Both `'action'`-scoped
+   *  hooks (global-action hooks) and named-edge hooks carrying that action
+   *  count as matches.
+   *
+   *  @param entry  The registry entry to test.
+   *  @param action The action name to match.
+   *  @returns `true` when the entry observes that action.
+   *
+   */
+
+  private static _entry_matches_action(entry: HookRegistryEntry, action: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'action') { return t.action === action; }
+    if (t.scope === 'edge')   { return t.action === action; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match a named state group?  Only
+   *  `'group'`-scoped entries (FSL group-boundary hooks) match.  Group hooks
+   *  are matched by group name only — they deliberately do not propagate to
+   *  member states, so a member-state query never returns them.
+   *
+   *  @param entry The registry entry to test.
+   *  @param group The group name to match.
+   *  @returns `true` when the entry observes that group's boundary.
+   *
+   */
+
+  private static _entry_matches_group(entry: HookRegistryEntry, group: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'group') { return t.group === group; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Return every registry entry observing the given target (megaspec §12).
+   *  The `query` selects the target shape:
+   *
+   *  - a bare **state name** matches entry/exit/after hooks on that state, its
+   *    state-boundary hooks, and every edge hook touching it (`from` or `to`),
+   *  - a `{ from, to, action? }` **edge** matches edge hooks on that
+   *    transition (optionally narrowed to the named action),
+   *  - a `{ action }` **action** matches global-action and named-edge hooks
+   *    carrying that action,
+   *  - a `{ group }` **group** matches that group's boundary hooks (group hooks
+   *    are matched by name only and do not propagate to member states).
+   *
+   *  ```typescript
+   *  const m = sm`a 'go' -> b;`;
+   *  m.hook_entry('b', () => true);
+   *  m.hooks_on('b').length;             // 1
+   *  m.hooks_on({ from: 'a', to: 'b' }); // []  (no edge hook registered)
+   *  ```
+   *
+   *  @param query The {@link HookQuery} naming the target to inspect.
+   *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
+   *
+   */
+
+  hooks_on(query: HookQuery): HookRegistryEntry[] {
+
+    const registry = this.hook_registry();
+
+    if (typeof query === 'string') {
+      return registry.filter(e => Machine._entry_touches_state(e, query));
+    }
+
+    // An edge query is distinguished by carrying `from` (it may *also* carry
+    // `action`, which narrows the edge — so this must be tested before the
+    // action-only case, whose discriminator `action` an edge query can share).
+    if ('from' in query) {
+      return registry.filter(e => Machine._entry_matches_edge(e, query.from, query.to, query.action));
+    }
+
+    if ('group' in query) {
+      return registry.filter(e => Machine._entry_matches_group(e, query.group));
+    }
+
+    return registry.filter(e => Machine._entry_matches_action(e, query.action));
+
+  }
+
+
+
+  /********
+   *
+   *  Is at least one observational hook bound to the given target (megaspec
+   *  §12)?  The `query` is read exactly as in {@link Machine.hooks_on}.  An
+   *  optional `phase` narrows the test to pre- or post-transition hooks only;
+   *  omitted, either phase satisfies it.
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.has_hook('b');                 // false
+   *  m.hook_entry('b', () => true);
+   *  m.has_hook('b');                 // true
+   *  m.has_hook('b', 'post');         // false  (the entry hook is pre-phase)
+   *  ```
+   *
+   *  @param query The {@link HookQuery} naming the target to inspect.
+   *  @param phase Optional {@link HookPhase} to restrict the test to.
+   *  @returns `true` when a matching hook exists.
+   *
+   */
+
+  has_hook(query: HookQuery, phase?: HookPhase): boolean {
+    const matches = this.hooks_on(query);
+    if (phase === undefined) { return matches.length > 0; }
+    return matches.some(e => e.phase === phase);
+  }
+
+
+
+  /********
+   *
+   *  Does the given state carry any observational hook — i.e. should it receive
+   *  the `hooked_state` viz styling?  True when an entry/exit/after hook is
+   *  bound to the state, any edge hook touches it, or the state has its own
+   *  boundary hook.  Group-boundary hooks do *not* count here — they are
+   *  matched by group only and never propagate to member states.  Powers the
+   *  `hooked` styling layer in {@link Machine.resolve_state_config}; replaces
+   *  the long-stubbed `has_hooks` placeholder (megaspec §12).
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.state_has_hooks('a');          // false
+   *  m.hook_exit('a', () => true);
+   *  m.state_has_hooks('a');          // true
+   *  ```
+   *
+   *  @param state The state to test.
+   *  @returns `true` when the state is observed by at least one hook.
+   *
+   */
+
+  state_has_hooks(state: StateType): boolean {
+    // Boundary hooks are a separate mechanism that sets neither _has_hooks nor
+    // _has_post_hooks, so the fast-out must also consult the boundary tables —
+    // otherwise a state whose only hook is a boundary hook reports unhooked.
+    if (!this._has_hooks
+        && !this._has_post_hooks
+        && (this._state_hooks.size === 0)
+        && (this._group_hooks.size === 0)) { return false; }
+    return this.hook_registry().some(e => Machine._entry_touches_state(e, state));
+  }
 
 
 
@@ -5269,6 +5765,16 @@ class Machine<mDT> {
 
     // tier 2 — default_state_config (implicit root over all states)
     acc = merge_state_config(acc, this._state_style);
+
+    // tier 2.5 — hooked-state styling, applied when the state carries any
+    // observational or boundary hook.  Sits above the root default and below
+    // the per-kind/group/per-state tiers, preserving the historical layer
+    // order the pre-cascade `style_for` used.  See {@link state_has_hooks}.
+    if (this.state_has_hooks(state)) {
+      acc = merge_state_config(acc, base_theme.hooked);
+      themes.forEach(theme => { if (theme.hooked) { acc = merge_state_config(acc, theme.hooked); } });
+      acc = merge_state_config(acc, this._hooked_state_style);
+    }
 
     // tier 3 — static per-kind defaults, selected by structural kind
     if (this.state_is_terminal(state)) {

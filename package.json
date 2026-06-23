@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.143.35",
+  "version": "5.145.0",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -11,7 +11,8 @@
     "fsl": "./dist/cli/fsl.cjs",
     "jssm": "./dist/cli/fsl.cjs",
     "fsl-render": "./dist/cli/fsl-render.cjs",
-    "fsl-pick": "./dist/cli/fsl-pick.cjs"
+    "fsl-pick": "./dist/cli/fsl-pick.cjs",
+    "fsl-export-system-prompt": "./dist/cli/fsl-export-system-prompt.cjs"
   },
   "exports": {
     ".": {
@@ -286,5 +287,8 @@
   "optionalDependencies": {
     "@resvg/resvg-wasm": "^2.6.0",
     "@viz-js/viz": "^3.26.0"
+  },
+  "overrides": {
+    "js-yaml": "^4.2.0"
   }
 }
