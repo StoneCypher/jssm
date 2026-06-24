@@ -1,0 +1,50 @@
+{
+  "features": {},
+  "profiles": {
+    "release": { "features": {} },
+    "ci": { "features": {} },
+    "fast": {
+      "features": {
+        "eslint": false,
+        "audit": false,
+        "vitest": false,
+        "changelog": false,
+        "perf_chart": false,
+        "cloc": false,
+        "site": false,
+        "make_cookbook": false,
+        "site_fsl_tools": false,
+        "docs": false,
+        "readme": false
+      }
+    },
+    "ci-lite": {
+      "features": {
+        "eslint": false,
+        "audit": false,
+        "make_core": false,
+        "make_deno": false,
+        "make_viz": false,
+        "minify": false,
+        "min_iife": false,
+        "min_es6": false,
+        "min_cjs": false,
+        "min_deno": false,
+        "min_viz_iife": false,
+        "min_viz_es6": false,
+        "min_viz_cjs": false,
+        "min_cli": false,
+        "rm_nonmin": false,
+        "vitest": false,
+        "changelog": false,
+        "perf_chart": false,
+        "cloc": false,
+        "site": false,
+        "make_cookbook": false,
+        "site_fsl_tools": false,
+        "docs": false,
+        "readme": false
+      }
+    }
+  }
+}

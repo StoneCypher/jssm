@@ -22,115 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 23, 2026 1:43:36 PM
-
-Commit [0baaf01caa99a73c6be6bf43ec23510c0f3c1dec](https://github.com/StoneCypher/jssm/commit/0baaf01caa99a73c6be6bf43ec23510c0f3c1dec)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(fence): cover dot part contract + empty-value dimension (review fix)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 23, 2026 1:09:03 PM
-
-Commit [705771fb049ce0a473cd538671ee786578b5368e](https://github.com/StoneCypher/jssm/commit/705771fb049ce0a473cd538671ee786578b5368e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fence): export fence parser + types from the jssm barrel
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 23, 2026 1:03:42 PM
-
-Commit [785baf8ee241cc5e49050d3d6c2ed2f4a6f97ced](https://github.com/StoneCypher/jssm/commit/785baf8ee241cc5e49050d3d6c2ed2f4a6f97ced)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fence): derive interactive, force svg for interactive raster
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 23, 2026 1:03:04 PM
-
-Commit [842fa9afbb71cebb1d1aac630576705b8c47380b](https://github.com/StoneCypher/jssm/commit/842fa9afbb71cebb1d1aac630576705b8c47380b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * ci: profile-driven job restructure (Phase 4) (5.147.6)
-  * Reshapes nodejs.yml to the template's profile-driven jobs, leveraging the
-Phase-3 orchestrator. Release behavior is unchanged — only the build the
-jobs invoke, and the release job's needs: list.
-  * - detect-fullbuild: reads a #fullbuild token in the head commit to force the
-  full main matrix on a PR.
-- test-pr (was pr-check): one lean Ubuntu run of ci_test (vet + make_ci +
-  vitest) instead of ci_build (vet + full make + vitest) — cheaper, still runs
-  the 100% spec gate. Skipped when #fullbuild opts in.
-- test-main-matrix (was build): cross-platform ci_test; Ubuntu carries the
-  multi-Node engine coverage incl. the 20.x floor, macOS/Windows verify only
-  current. 8 cells -> 6.
-- test-main-full (was full-build): the canonical full `npm run build` on Ubuntu;
-  now also runs on a #fullbuild PR.
-- release.needs and deploy-docs.needs repointed to the renamed jobs. The 18
-  unicode jobs, e2e, benchmark, verify-version-bump, release (OIDC + Graviton),
-  and finish are unchanged.
-  * Net: a PR pays one lean job + e2e; push-to-main runs the full build + lean
-matrix + unicode + benchmark + release exactly as before. Phase 5 (Stryker /
-lint9 / attw) is separate. Full orchestrated build green.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 23, 2026 1:02:39 PM
-
-Commit [1eb0c9a5e6d4e4c4db81dbaacf5d557aa9b639b2](https://github.com/StoneCypher/jssm/commit/1eb0c9a5e6d4e4c4db81dbaacf5d557aa9b639b2)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fence): ide macro expands to canonical full layout
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 23, 2026 1:01:21 PM
-
-Commit [e5bdfb99c86b25badc329210c005fd6a5c56985d](https://github.com/StoneCypher/jssm/commit/e5bdfb99c86b25badc329210c005fd6a5c56985d)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fence): width/height dimension parsing (px and percent)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 23, 2026 12:59:33 PM
 
 Commit [8a2348bae4a884a923677686a181edb1682e4ce8](https://github.com/StoneCypher/jssm/commit/8a2348bae4a884a923677686a181edb1682e4ce8)
@@ -186,3 +77,120 @@ Merges [0f4f2458, ee758e07]
 
   * Merge pull request #809 from StoneCypher/build_26-06-23_build-orchestrator
   * build: config-driven parallel build orchestrator (Phase 3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:44:08 PM
+
+Commit [2e4a43a8b419867403772a95747e60ac552733b6](https://github.com/StoneCypher/jssm/commit/2e4a43a8b419867403772a95747e60ac552733b6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): FSL markdown fence parser implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:41:20 PM
+
+Commit [ee758e075f197eebbaf02d0d1b13ef1ce7794121](https://github.com/StoneCypher/jssm/commit/ee758e075f197eebbaf02d0d1b13ef1ce7794121)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: config-driven parallel build orchestrator (Phase 3) (5.147.5)
+  * Replaces the serial make/build npm-chains with a config-driven, staged,
+parallel orchestrator that produces byte-identical artifacts.
+  * - src/buildjs/build_config_features.cjs: jssm's build DAG as data (feature ->
+  npm script + parallel stage; mandatory/optional; requires-cascade).
+- src/buildjs/build_config.cjs: layered-config planner (build.config.json +
+  profiles + env/CLI overrides), hand-rolled validation (no zod dependency).
+- src/buildjs/run_build.cjs: runs stages serially, scripts within a stage
+  concurrently; first failure aborts.
+- build.config.json: fast/ci/ci-lite/release profiles. fast === today's make
+  set, ci-lite === make_ci (verified by set-comparison).
+- make -> run_build.cjs --profile=fast; build -> --profile=release. Every
+  leaf script stays callable.
+- src/buildjs/build_manifest.cjs: byte-equivalence gate (neutralizes the
+  inlined build_time epoch + date stamps; excludes README/CHANGELOG/docs as
+  non-deterministic generated docs).
+  * Validation: an orchestrated build's 110 deterministic artifacts (all bundles,
+.d.ts/.d.cts, custom-elements.json, version.js) are byte-identical to a serial
+build's. Running the gate also caught a real intermittent race (clean deleting
+generated docex while audit globbed src/**); the DAG now isolates every
+src-mutating stage from broad src readers. Full orchestrated build green
+against current main: vet, all bundles, vitest @ 100% spec coverage, site,
+docs, changelog, cloc, readme.
+  * Phase 4 (CI profile restructure) depends on this.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:36:33 PM
+
+Commit [122a922740064e9f5915c1652cce7e90d23420e4](https://github.com/StoneCypher/jssm/commit/122a922740064e9f5915c1652cce7e90d23420e4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [165d6dd4, 0f4f2458]
+
+  * Merge remote-tracking branch 'origin/main' into build_26-06-23_build-orchestrator
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:35:49 PM
+
+Commit [165d6dd4add1a3488abb186eb4ec24e4ab136911](https://github.com/StoneCypher/jssm/commit/165d6dd4add1a3488abb186eb4ec24e4ab136911)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: delegate make/build to the staged orchestrator
+  * make -> run_build.cjs --profile=fast (exactly today's make set); build -> --profile=release (the full chain). Every leaf script stays callable; make_ci/ci_test/test/prep unchanged. Orchestrated build proven to produce byte-identical deterministic artifacts (110/110) vs the serial chain via build_manifest.cjs.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:35:40 PM
+
+Commit [2396b2352cf0597be38b1e74f397e392e3bf1acc](https://github.com/StoneCypher/jssm/commit/2396b2352cf0597be38b1e74f397e392e3bf1acc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): FSL markdown fence convention + VS Code live-preview plugin design
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:35:37 PM
+
+Commit [017140d046c3bc428fe2e007807c1327e9afa34e](https://github.com/StoneCypher/jssm/commit/017140d046c3bc428fe2e007807c1327e9afa34e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: isolate src-mutating stages to fix a clean/audit race
+  * The byte-equivalence gate caught an intermittent ENOENT: clean (stage 0) deleted src/ts/tests/generated/*.docex.ts while audit globbed src/ts/** in the same stage. Rule: a script that broadly reads src/** (audit, cloc) must never share a stage with one that mutates src/** (clean, makever, peg, doctests, perf_chart). Reworked the DAG to give each src-mutating step an isolated stage (0-11); the 9-bundle parallel stage is preserved.

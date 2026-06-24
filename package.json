@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.148.0",
+  "version": "5.147.6",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -170,7 +170,7 @@
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
     "prep": "npm run makever && npm run peg",
-    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_cm6 && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
+    "make": "node src/buildjs/run_build.cjs --profile=fast",
     "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
@@ -181,7 +181,7 @@
     "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
     "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
     "ci_profile": "node ./src/buildjs/ci_profile.cjs",
-    "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run perf_chart && npm run docs && npm run cloc && npm run readme",
+    "build": "node src/buildjs/run_build.cjs --profile=release",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
     "hosted_test": "node src/buildjs/hosted_test.cjs",
@@ -197,6 +197,7 @@
     "min_viz_iife": "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.cjs && terser dist/jssm_viz.es5.iife.nonmin.cjs > dist/jssm_viz.iife.cjs",
     "min_viz_cjs": "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
     "min_viz_es6": "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
+    "rm_nonmin": "rm ./dist/es6/*.nonmin.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/ && cp -r src/demo docs/ && cp dist/jssm.es5.iife.js docs/demo",
     "make_cookbook": "node src/fsl.tools/site/scripts/build.cjs",
     "site_fsl_tools": "cd docs && mkdir fsl.tools && cd .. && cp -r src/fsl.tools/site/* docs/fsl.tools/ && rm -rf docs/fsl.tools/recipes docs/fsl.tools/scripts",
