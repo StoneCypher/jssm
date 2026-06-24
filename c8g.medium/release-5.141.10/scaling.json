@@ -1,0 +1,303 @@
+{
+  "name": "jssm scaling diagnostic suite",
+  "date": "2026-06-23T16:39:03.984Z",
+  "version": "5.141.10",
+  "results": [
+    {
+      "name": "chain-10 transition()",
+      "ops": 230263,
+      "margin": 0.06,
+      "percentSlower": 98.77
+    },
+    {
+      "name": "chain-50 transition()",
+      "ops": 223138,
+      "margin": 0.05,
+      "percentSlower": 98.81
+    },
+    {
+      "name": "chain-200 transition()",
+      "ops": 211878,
+      "margin": 0.65,
+      "percentSlower": 98.87
+    },
+    {
+      "name": "chain-1000 transition()",
+      "ops": 192162,
+      "margin": 0.06,
+      "percentSlower": 98.97
+    },
+    {
+      "name": "dense-10 transition()",
+      "ops": 206442,
+      "margin": 1.97,
+      "percentSlower": 98.9
+    },
+    {
+      "name": "dense-50 transition()",
+      "ops": 182946,
+      "margin": 0.52,
+      "percentSlower": 99.02
+    },
+    {
+      "name": "dense-200 transition()",
+      "ops": 157321,
+      "margin": 0.6,
+      "percentSlower": 99.16
+    },
+    {
+      "name": "hub-50 transition()",
+      "ops": 212136,
+      "margin": 2.01,
+      "percentSlower": 98.87
+    },
+    {
+      "name": "hub-200 transition()",
+      "ops": 181543,
+      "margin": 2.39,
+      "percentSlower": 99.03
+    },
+    {
+      "name": "hooked-200 transition()",
+      "ops": 62865,
+      "margin": 1.17,
+      "percentSlower": 99.66
+    },
+    {
+      "name": "messy-1000 transition()",
+      "ops": 214181,
+      "margin": 2.56,
+      "percentSlower": 98.86
+    },
+    {
+      "name": "messy-5000 transition()",
+      "ops": 225059,
+      "margin": 0.08,
+      "percentSlower": 98.8
+    },
+    {
+      "name": "chain-10 edges_between()",
+      "ops": 242251,
+      "margin": 2.73,
+      "percentSlower": 98.71
+    },
+    {
+      "name": "chain-50 edges_between()",
+      "ops": 231376,
+      "margin": 2.01,
+      "percentSlower": 98.76
+    },
+    {
+      "name": "chain-200 edges_between()",
+      "ops": 232938,
+      "margin": 2.4,
+      "percentSlower": 98.76
+    },
+    {
+      "name": "chain-1000 edges_between()",
+      "ops": 211839,
+      "margin": 0.15,
+      "percentSlower": 98.87
+    },
+    {
+      "name": "dense-10 edges_between()",
+      "ops": 107471,
+      "margin": 2.14,
+      "percentSlower": 99.43
+    },
+    {
+      "name": "dense-50 edges_between()",
+      "ops": 29564,
+      "margin": 1.66,
+      "percentSlower": 99.84
+    },
+    {
+      "name": "dense-200 edges_between()",
+      "ops": 8941,
+      "margin": 1.75,
+      "percentSlower": 99.95
+    },
+    {
+      "name": "hub-50 edges_between()",
+      "ops": 60176,
+      "margin": 2.37,
+      "percentSlower": 99.68
+    },
+    {
+      "name": "hub-200 edges_between()",
+      "ops": 22472,
+      "margin": 1.23,
+      "percentSlower": 99.88
+    },
+    {
+      "name": "hooked-200 edges_between()",
+      "ops": 22579,
+      "margin": 1.09,
+      "percentSlower": 99.88
+    },
+    {
+      "name": "messy-1000 edges_between()",
+      "ops": 206270,
+      "margin": 0.12,
+      "percentSlower": 98.9
+    },
+    {
+      "name": "messy-5000 edges_between()",
+      "ops": 212665,
+      "margin": 0.19,
+      "percentSlower": 98.86
+    },
+    {
+      "name": "chain-10 has_state()",
+      "ops": 18524665,
+      "margin": 1.02,
+      "percentSlower": 1.04
+    },
+    {
+      "name": "chain-50 has_state()",
+      "ops": 18459558,
+      "margin": 0.5,
+      "percentSlower": 1.38
+    },
+    {
+      "name": "chain-200 has_state()",
+      "ops": 18386448,
+      "margin": 0.71,
+      "percentSlower": 1.77
+    },
+    {
+      "name": "chain-1000 has_state()",
+      "ops": 18499519,
+      "margin": 0.42,
+      "percentSlower": 1.17
+    },
+    {
+      "name": "dense-10 has_state()",
+      "ops": 18197106,
+      "margin": 2.44,
+      "percentSlower": 2.79
+    },
+    {
+      "name": "dense-50 has_state()",
+      "ops": 18461365,
+      "margin": 0.64,
+      "percentSlower": 1.37
+    },
+    {
+      "name": "dense-200 has_state()",
+      "ops": 18421545,
+      "margin": 0.72,
+      "percentSlower": 1.59
+    },
+    {
+      "name": "hub-50 has_state()",
+      "ops": 18619302,
+      "margin": 0.64,
+      "percentSlower": 0.53
+    },
+    {
+      "name": "hub-200 has_state()",
+      "ops": 18589667,
+      "margin": 0.45,
+      "percentSlower": 0.69
+    },
+    {
+      "name": "hooked-200 has_state()",
+      "ops": 18505202,
+      "margin": 0.67,
+      "percentSlower": 1.14
+    },
+    {
+      "name": "messy-1000 has_state()",
+      "ops": 18718455,
+      "margin": 0.53,
+      "percentSlower": 0
+    },
+    {
+      "name": "messy-5000 has_state()",
+      "ops": 18714070,
+      "margin": 0.6,
+      "percentSlower": 0.02
+    },
+    {
+      "name": "chain-10 construct()",
+      "ops": 11431,
+      "margin": 11.38,
+      "percentSlower": 99.94
+    },
+    {
+      "name": "chain-50 construct()",
+      "ops": 3674,
+      "margin": 3.58,
+      "percentSlower": 99.98
+    },
+    {
+      "name": "chain-200 construct()",
+      "ops": 843,
+      "margin": 10.07,
+      "percentSlower": 100
+    },
+    {
+      "name": "chain-1000 construct()",
+      "ops": 158,
+      "margin": 9.23,
+      "percentSlower": 100
+    },
+    {
+      "name": "dense-10 construct()",
+      "ops": 2508,
+      "margin": 5.22,
+      "percentSlower": 99.99
+    },
+    {
+      "name": "dense-50 construct()",
+      "ops": 76,
+      "margin": 7.37,
+      "percentSlower": 100
+    },
+    {
+      "name": "dense-200 construct()",
+      "ops": 0,
+      "margin": 2.73,
+      "percentSlower": 100
+    },
+    {
+      "name": "hub-50 construct()",
+      "ops": 1586,
+      "margin": 10.31,
+      "percentSlower": 99.99
+    },
+    {
+      "name": "hub-200 construct()",
+      "ops": 437,
+      "margin": 7.02,
+      "percentSlower": 100
+    },
+    {
+      "name": "hooked-200 construct()",
+      "ops": 467,
+      "margin": 7.77,
+      "percentSlower": 100
+    },
+    {
+      "name": "messy-1000 construct()",
+      "ops": 52,
+      "margin": 6.31,
+      "percentSlower": 100
+    },
+    {
+      "name": "messy-5000 construct()",
+      "ops": 7,
+      "margin": 7.77,
+      "percentSlower": 100
+    }
+  ],
+  "fastest": {
+    "name": "messy-1000 has_state()",
+    "index": 34
+  },
+  "slowest": {
+    "name": "dense-200 construct()",
+    "index": 42
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "name": "General performance suite",
+  "date": "2026-06-23T16:01:53.976Z",
+  "version": "1.2.0",
+  "results": [
+    {
+      "name": "Blind cycle a traffic light 100 times by transition",
+      "ops": 67079.6,
+      "margin": 0.36,
+      "percentSlower": 0
+    },
+    {
+      "name": "Blind cycle a traffic light 100 times by action",
+      "ops": 48783.5,
+      "margin": 0.4,
+      "percentSlower": 27.28
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by transition",
+      "ops": 36065.3,
+      "margin": 0.19,
+      "percentSlower": 46.24
+    },
+    {
+      "name": "Blind cycle a named-hooked traffic light 100 times by transition",
+      "ops": 50574.5,
+      "margin": 0.33,
+      "percentSlower": 24.61
+    },
+    {
+      "name": "Blind cycle an any-transition traffic light 100 times by transition",
+      "ops": 37576.3,
+      "margin": 0.08,
+      "percentSlower": 43.98
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by transition",
+      "ops": 36604.9,
+      "margin": 0.86,
+      "percentSlower": 45.43
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by transition",
+      "ops": 37999.8,
+      "margin": 1.52,
+      "percentSlower": 43.35
+    },
+    {
+      "name": "Blind cycle a standard-transition hooked light by transition",
+      "ops": 24664,
+      "margin": 2.32,
+      "percentSlower": 63.23
+    },
+    {
+      "name": "Blind cycle a main-transition hooked light by transition",
+      "ops": 26556.6,
+      "margin": 1.66,
+      "percentSlower": 60.41
+    },
+    {
+      "name": "Blind cycle a force-transition hooked light by transition",
+      "ops": 62796.2,
+      "margin": 1.69,
+      "percentSlower": 6.39
+    },
+    {
+      "name": "Blind cycle a traffic light 100 times by action",
+      "ops": 48842.9,
+      "margin": 1.61,
+      "percentSlower": 27.19
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by action",
+      "ops": 21910.2,
+      "margin": 4.26,
+      "percentSlower": 67.34
+    },
+    {
+      "name": "Blind cycle a named-hooked traffic light 100 times by action",
+      "ops": 22059,
+      "margin": 1.31,
+      "percentSlower": 67.12
+    },
+    {
+      "name": "Blind cycle an any-action traffic light 100 times by action",
+      "ops": 26240.2,
+      "margin": 1.51,
+      "percentSlower": 60.88
+    },
+    {
+      "name": "Blind cycle a global-action traffic light 100 times by action",
+      "ops": 27118.5,
+      "margin": 1.54,
+      "percentSlower": 59.57
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by action",
+      "ops": 22821.4,
+      "margin": 1.76,
+      "percentSlower": 65.98
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by action",
+      "ops": 22820.9,
+      "margin": 1.86,
+      "percentSlower": 65.98
+    },
+    {
+      "name": "Blind cycle a standard transition tl 100 times by action",
+      "ops": 62596.1,
+      "margin": 1.76,
+      "percentSlower": 6.68
+    },
+    {
+      "name": "Blind cycle a main transition tl 100 times by action",
+      "ops": 62525.1,
+      "margin": 1.29,
+      "percentSlower": 6.79
+    },
+    {
+      "name": "Blind cycle a forced transition tl 100 times by action",
+      "ops": 62291.8,
+      "margin": 1.96,
+      "percentSlower": 7.14
+    },
+    {
+      "name": "Kitchen Sink 100 times",
+      "ops": 35604.4,
+      "margin": 2.13,
+      "percentSlower": 46.92
+    },
+    {
+      "name": "Compile `a -> b;` using sm",
+      "ops": 38733.2,
+      "margin": 13.18,
+      "percentSlower": 42.26
+    },
+    {
+      "name": "Compile `a -> b;` using .from",
+      "ops": 43160.5,
+      "margin": 5.89,
+      "percentSlower": 35.66
+    }
+  ],
+  "fastest": {
+    "name": "Blind cycle a traffic light 100 times by transition",
+    "index": 0
+  },
+  "slowest": {
+    "name": "Blind cycle a basic-hooked traffic light 100 times by action",
+    "index": 11
+  }
+}

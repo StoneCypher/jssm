@@ -1,0 +1,153 @@
+{
+  "name": "General performance suite",
+  "date": "2026-06-23T17:21:46.251Z",
+  "version": "1.2.0",
+  "results": [
+    {
+      "name": "Blind cycle a traffic light 100 times by transition",
+      "ops": 79980,
+      "margin": 0.33,
+      "percentSlower": 52.42
+    },
+    {
+      "name": "Blind cycle a traffic light 100 times by action",
+      "ops": 91009,
+      "margin": 0.42,
+      "percentSlower": 45.86
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by transition",
+      "ops": 40291,
+      "margin": 1.89,
+      "percentSlower": 76.03
+    },
+    {
+      "name": "Blind cycle a named-hooked traffic light 100 times by transition",
+      "ops": 57332,
+      "margin": 0.43,
+      "percentSlower": 65.89
+    },
+    {
+      "name": "Blind cycle an any-transition traffic light 100 times by transition",
+      "ops": 42144,
+      "margin": 0.78,
+      "percentSlower": 74.93
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by transition",
+      "ops": 42902,
+      "margin": 1.08,
+      "percentSlower": 74.48
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by transition",
+      "ops": 42580,
+      "margin": 1.44,
+      "percentSlower": 74.67
+    },
+    {
+      "name": "Blind cycle a standard-transition hooked light by transition",
+      "ops": 27975,
+      "margin": 2.14,
+      "percentSlower": 83.36
+    },
+    {
+      "name": "Blind cycle a main-transition hooked light by transition",
+      "ops": 29758,
+      "margin": 1.59,
+      "percentSlower": 82.3
+    },
+    {
+      "name": "Blind cycle a force-transition hooked light by transition",
+      "ops": 76977,
+      "margin": 1.95,
+      "percentSlower": 54.21
+    },
+    {
+      "name": "Blind cycle a traffic light 100 times by action",
+      "ops": 90385,
+      "margin": 1.45,
+      "percentSlower": 46.23
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by action",
+      "ops": 33843,
+      "margin": 2.02,
+      "percentSlower": 79.87
+    },
+    {
+      "name": "Blind cycle a named-hooked traffic light 100 times by action",
+      "ops": 32763,
+      "margin": 1.68,
+      "percentSlower": 80.51
+    },
+    {
+      "name": "Blind cycle an any-action traffic light 100 times by action",
+      "ops": 41787,
+      "margin": 1.94,
+      "percentSlower": 75.14
+    },
+    {
+      "name": "Blind cycle a global-action traffic light 100 times by action",
+      "ops": 42177,
+      "margin": 2.61,
+      "percentSlower": 74.91
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by action",
+      "ops": 35712,
+      "margin": 1.67,
+      "percentSlower": 78.75
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by action",
+      "ops": 35988,
+      "margin": 1.8,
+      "percentSlower": 78.59
+    },
+    {
+      "name": "Blind cycle a standard transition tl 100 times by action",
+      "ops": 168093,
+      "margin": 1.98,
+      "percentSlower": 0
+    },
+    {
+      "name": "Blind cycle a main transition tl 100 times by action",
+      "ops": 165885,
+      "margin": 3.52,
+      "percentSlower": 1.31
+    },
+    {
+      "name": "Blind cycle a forced transition tl 100 times by action",
+      "ops": 167705,
+      "margin": 2.19,
+      "percentSlower": 0.23
+    },
+    {
+      "name": "Kitchen Sink 100 times",
+      "ops": 47390,
+      "margin": 1.83,
+      "percentSlower": 71.81
+    },
+    {
+      "name": "Compile `a -> b;` using sm",
+      "ops": 43113,
+      "margin": 8.54,
+      "percentSlower": 74.35
+    },
+    {
+      "name": "Compile `a -> b;` using .from",
+      "ops": 48146,
+      "margin": 3.63,
+      "percentSlower": 71.36
+    }
+  ],
+  "fastest": {
+    "name": "Blind cycle a standard transition tl 100 times by action",
+    "index": 17
+  },
+  "slowest": {
+    "name": "Blind cycle a standard-transition hooked light by transition",
+    "index": 7
+  }
+}
