@@ -180,5 +180,6 @@ Components keep their **shadow DOM** (it isolates CodeMirror's heavy injected st
   - **History scrubber** — a draggable run timeline; the flowchart + editor state-follow track the cursor.
   - **Eased zoom / pan** on the flowchart — **turn-offable** (a toggle, the way rulers / snap are in paint programs); fit-to-view, zoom-to-selection.
   - **Detachable / picture-in-picture viewer** — pop the flowchart into a floating window / new tab.
+  - **Command palette** — Sublime-style (`Ctrl-Shift-P`), prefix model: `>` commands, `@` go-to-state, `:` go-to-line, plain = goto-anything (states / actions). A thin static core (layout / view / theme / export / snippets) wrapped around a **dynamic body** fed by the machine's states + legal actions + the codegen matrix (#1383). **v6 expands this substantially** — prover / verification commands (check property, find counterexample, replay trace, registry search by formal property) want a palette, not menus. Optional in a bare embed.
 - **Dropped:** first-clean-compile flourish; frosted / glass chrome.
-- **Pending user evaluation (after explanation):** command palette; live semantic edit-diff.
+- **Pending user evaluation:** live semantic edit-diff.
