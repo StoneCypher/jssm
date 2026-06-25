@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lt;fsl-editor&gt; — showcase</title>
+<style>
+  :root {
+    --ink:#0e1116; --ink-2:#161a22; --line:#2a2f3a; --text:#c9d1d9; --text-dim:#7d8694;
+    --accent:#5b9dff; --signal:#ffb020; --graph-bg:#dddddd;
+    --mono: ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,monospace;
+    --sans: system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; }
+  body {
+    background: radial-gradient(120% 80% at 50% -10%, #1a2030 0%, var(--ink) 60%) fixed;
+    color:var(--text); font-family:var(--sans);
+    display:flex; flex-direction:column; min-height:100%;
+  }
+  header.page { display:flex; align-items:baseline; gap:.9rem; padding:1.2rem 1.4rem .3rem; }
+  .brand { font-family:var(--mono); font-weight:700; font-size:1.12rem; letter-spacing:-.02em; color:#fff; }
+  .brand .lt { color:var(--text-dim); } .brand .tag { color:var(--accent); }
+  .tagline { color:var(--text-dim); font-size:.88rem; } .tagline b { color:var(--signal); font-weight:600; }
+
+  .toolbar {
+    display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;
+    margin:.5rem 1.4rem 0; padding:.45rem .55rem;
+    border:1px solid #000; background:linear-gradient(#1c2230,#161a22);
+  }
+  .label { color:var(--text-dim); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; padding:0 .15rem; }
+  .btn-row { display:inline-flex; }
+  .btn-row .btn { margin-left:-1px; } .btn-row .btn:first-child { margin-left:0; }
+  .btn {
+    appearance:none; cursor:pointer; min-width:2.1rem; height:1.95rem; padding:0 .55rem;
+    border:1px solid #000; background:#232a38; color:var(--text);
+    font:600 .8rem/1 var(--sans); display:inline-flex; align-items:center; justify-content:center; gap:.3rem;
+  }
+  .btn:hover { background:#2b3344; }
+  .btn[aria-pressed="true"] { background:var(--accent); color:#06101f; box-shadow:0 1px 2px #0008 inset; }
+  .toolbar .spacer { flex:1; }
+
+  main { flex:1; display:flex; padding:.7rem 1.4rem 1.2rem; min-height:0; gap:0; }
+  .device { flex:1; display:flex; min-height:0; border:1px solid #000; background:var(--ink-2); position:relative; overflow:hidden; }
+  .split { flex:1; display:flex; min-width:0; min-height:0; }
+  .split.stacked { flex-direction:column; }
+
+  .pane { display:flex; min-width:0; min-height:0; overflow:hidden; }
+  #graph-pane { flex:0 0 50%; background:var(--graph-bg); align-items:center; justify-content:center; padding:2em; }
+  #graph-pane fsl-viz { max-width:100%; max-height:100%; display:flex; align-items:center; justify-content:center; }
+  #graph-pane svg { max-width:100%; max-height:100%; height:auto; width:auto; }
+  #editor-pane { flex:1 1 50%; min-width:0; }
+  #editor-pane fsl-editor {
+    flex:1; width:100%; height:100%;
+    --fsl-color-accent:var(--accent); --fsl-radius:0px;
+  }
+
+  /* Splitter */
+  .splitter { flex:0 0 7px; cursor:col-resize; background:#000; position:relative; }
+  .split.stacked .splitter { cursor:row-resize; }
+  .splitter::after { content:""; position:absolute; inset:0; margin:auto; width:2px; height:26px; background:#3a4150; border-radius:2px; }
+  .split.stacked .splitter::after { width:26px; height:2px; }
+
+  /* Help panel — eases in from the right as a third pane. */
+  .help {
+    flex:0 0 0; min-width:0; overflow:hidden; border-left:1px solid #000;
+    background:#11151c; transition:flex-basis .28s ease;
+  }
+  .help.open { flex-basis:300px; }
+  .help-inner { width:300px; padding:1rem 1.1rem; font-size:.86rem; line-height:1.5; color:var(--text); }
+  .help-inner h2 { margin:.2rem 0 .6rem; font-size:.95rem; color:#fff; }
+  .help-inner h3 { margin:1rem 0 .3rem; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); }
+  .help-inner code { font-family:var(--mono); font-size:.82em; background:#232a38; padding:.05rem .3rem; border-radius:3px; }
+  .help-inner ul { margin:.3rem 0; padding-left:1.1rem; } .help-inner li { margin:.25rem 0; color:var(--text-dim); }
+  .help-inner li b { color:var(--text); font-weight:600; }
+
+  footer.hint { padding:.5rem 1.4rem 1rem; color:var(--text-dim); font-size:.82rem; }
+  footer.hint kbd { font-family:var(--mono); font-size:.76rem; background:#232a38; border:1px solid #000; border-radius:3px; padding:.05rem .35rem; color:var(--text); }
+  .err-dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:#3fb950; margin-right:.3rem; vertical-align:middle; transition:background .15s; }
+  .err-dot.bad { background:#f85149; }
+</style>
+</head>
+<body>
+  <header class="page">
+    <span class="brand"><span class="lt">&lt;</span>fsl<span class="lt">-</span><span class="tag">editor</span><span class="lt">&gt;</span></span>
+    <span class="tagline">write a state machine &mdash; watch it <b>light up</b></span>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="controls">
+    <span class="label">view</span>
+    <div class="btn-row">
+      <button class="btn" id="theme-light" aria-pressed="true">☀ Light</button>
+      <button class="btn" id="theme-dark"  aria-pressed="false">☾ Dark</button>
+    </div>
+    <span class="label">layout</span>
+    <div class="btn-row">
+      <button class="btn" id="lay-side"  aria-pressed="true">▥ Side</button>
+      <button class="btn" id="lay-stack" aria-pressed="false">▤ Stack</button>
+    </div>
+    <span class="spacer"></span>
+    <span class="label">features</span>
+    <div class="btn-row">
+      <button class="btn" id="t-lint"       aria-pressed="true">Lint</button>
+      <button class="btn" id="t-overlay"    aria-pressed="true">Chips</button>
+      <button class="btn" id="t-completion" aria-pressed="true">Complete</button>
+    </div>
+    <button class="btn" id="help-btn" aria-pressed="false" style="margin-left:.5rem">? Help</button>
+  </div>
+
+  <main>
+    <div class="device">
+      <div class="split" id="split">
+        <div class="pane" id="graph-pane"><fsl-viz id="viz"></fsl-viz></div>
+        <div class="splitter" id="splitter"></div>
+        <div class="pane" id="editor-pane"><fsl-editor id="ed" theme="light"></fsl-editor></div>
+      </div>
+      <aside class="help" id="help">
+        <div class="help-inner">
+          <h2>What you're looking at</h2>
+          The real <code>&lt;fsl-editor&gt;</code> web component (left of the divider is the live
+          <code>&lt;fsl-viz&gt;</code> renderer). Edit the FSL and the graph follows.
+          <h3>Try this</h3>
+          <ul>
+            <li><b>Completions</b> — <kbd>Ctrl</kbd>+<kbd>Space</kbd> after a <code>shape:</code> or <code>color:</code></li>
+            <li><b>Color chips</b> — change <code>crimson</code> to <code>teal</code> and watch the graph + chip follow</li>
+            <li><b>Lint</b> — break a line (e.g. delete a <code>;</code>) and watch the underline</li>
+            <li><b>Theme</b> — toggle ☾ Dark; the editor re-themes live</li>
+            <li><b>Toggles</b> — turn Chips / Lint / Complete off and on</li>
+          </ul>
+          <h3>Drag the divider</h3>
+          <ul><li>Resize the panes; <b>double-click</b> the divider to reset to 50/50.</li></ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="hint">
+    <span class="err-dot" id="dot"></span><span id="status">ready</span> &nbsp;·&nbsp;
+    drag the divider · <kbd>Ctrl</kbd>+<kbd>Space</kbd> completes · edit a color to move its chip
+  </footer>
+
+  <script type="module">
+    import './fsl-editor.bundle.js';
+
+    const SAMPLE = [
+      'machine_name: "Traffic Light";',
+      '',
+      "Off 'power' -> Red;",
+      "Red 'go' -> Green 'caution' -> Yellow 'stop' -> Red;",
+      "Green 'fault' -> Off;",
+      '',
+      'state Off:    { color: dimgray; shape: doublecircle; };',
+      'state Red:    { color: crimson; shape: circle; };',
+      'state Green:  { color: green; };',
+      'state Yellow: { color: gold; };',
+    ].join('\n');
+
+    const ed  = document.getElementById('ed');
+    const viz = document.getElementById('viz');
+    const dot = document.getElementById('dot');
+    const status = document.getElementById('status');
+    ed.fsl = SAMPLE;
+    viz.fsl = SAMPLE;
+
+    // Live graph: debounce so mid-keystroke invalid FSL doesn't thrash.
+    let t;
+    ed.addEventListener('change', e => {
+      clearTimeout(t);
+      t = setTimeout(() => { viz.fsl = e.detail.fsl; }, 250);
+    });
+    viz.addEventListener('viz-error', () => { dot.classList.add('bad'); status.textContent = 'parse error'; });
+    // fsl-viz renders async; clear the error flag once it produces output again.
+    new MutationObserver(() => {
+      if (viz.shadowRoot && viz.shadowRoot.querySelector('svg')) { dot.classList.remove('bad'); status.textContent = 'ready'; }
+    }).observe(viz, { attributes:true, attributeFilter:['fsl'] });
+
+    // Theme radio pair (drives the component + its --fsl-* token defaults).
+    const light = document.getElementById('theme-light'), dark = document.getElementById('theme-dark');
+    const setTheme = t => { ed.theme = t; light.setAttribute('aria-pressed', t==='light'); dark.setAttribute('aria-pressed', t==='dark'); };
+    light.onclick = () => setTheme('light'); dark.onclick = () => setTheme('dark');
+
+    // Layout radio pair.
+    const split = document.getElementById('split');
+    const laySide = document.getElementById('lay-side'), layStack = document.getElementById('lay-stack');
+    const setLayout = stacked => { split.classList.toggle('stacked', stacked); layStack.setAttribute('aria-pressed', stacked); laySide.setAttribute('aria-pressed', !stacked); };
+    laySide.onclick = () => setLayout(false); layStack.onclick = () => setLayout(true);
+
+    // Feature toggles → component attributes.
+    for (const [id, prop] of [['t-lint','noLint'],['t-overlay','noOverlay'],['t-completion','noCompletion']]) {
+      const b = document.getElementById(id);
+      b.onclick = () => { const on = b.getAttribute('aria-pressed')==='true'; b.setAttribute('aria-pressed', !on); ed[prop] = on; };
+    }
+
+    // Help panel (eased).
+    const help = document.getElementById('help'), helpBtn = document.getElementById('help-btn');
+    helpBtn.onclick = () => { const open = help.classList.toggle('open'); helpBtn.setAttribute('aria-pressed', open); };
+
+    // Draggable splitter.
+    const splitter = document.getElementById('splitter'), graph = document.getElementById('graph-pane');
+    let dragging = false;
+    splitter.addEventListener('pointerdown', e => { dragging = true; splitter.setPointerCapture(e.pointerId); });
+    splitter.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const r = split.getBoundingClientRect();
+      const pct = split.classList.contains('stacked')
+        ? (e.clientY - r.top) / r.height * 100
+        : (e.clientX - r.left) / r.width * 100;
+      graph.style.flexBasis = Math.min(85, Math.max(15, pct)) + '%';
+    });
+    splitter.addEventListener('pointerup', () => { dragging = false; });
+    splitter.addEventListener('dblclick', () => { graph.style.flexBasis = '50%'; });
+  </script>
+</body>
+</html>
