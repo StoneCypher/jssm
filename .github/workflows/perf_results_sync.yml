@@ -59,7 +59,11 @@ jobs:
 
       - name: Sync new results down from the bucket
         if: env.AWS_GRAVITON_OIDC_ROLE != ''
-        run: aws s3 sync "s3://${PERF_RESULTS_BUCKET}" . --exclude ".git/*" --exclude "charts/*"
+        # _failures/* holds loud markers a detached run drops when it produced no
+        # scaling.json (graviton_perf.cjs); they stay queryable in the bucket for
+        # diagnosis but must NOT land on the branch — a marker under a release dir
+        # would read as "already measured" and block a real re-run.
+        run: aws s3 sync "s3://${PERF_RESULTS_BUCKET}" . --exclude ".git/*" --exclude "charts/*" --exclude "_failures/*"
 
       - name: Commit and push anything new
         if: env.AWS_GRAVITON_OIDC_ROLE != ''
