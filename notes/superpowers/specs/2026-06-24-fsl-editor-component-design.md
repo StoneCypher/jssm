@@ -157,3 +157,11 @@ Components keep their **shadow DOM** (it isolates CodeMirror's heavy injected st
 **Chrome / motion:**
 - **Widget toggle button-range** — a range of Win32-style square toggle buttons in the toolbar (`fsl-toolbar`, #660), each showing/hiding a panel (viz, docs, info-panel, problems, …), à la an activity bar.
 - **Panel ease-in/out** — animate panels (docs/help, side panels) open/closed with eased motion. For docked flex panes this is a transition on the flex-basis (0 ↔ size); respect `prefers-reduced-motion`.
+
+### Decisions & additions (2026-06-24 review)
+
+- **Approved:** arrow *coloring* (family tints — normal/main/forced; **no** glyph substitution); state-kind badges (**red** = stop / end / terminal, **green** = start); unreachable-state dimming **+ a grammar-checker squiggle** on unreachable states / dead transitions; editor ↔ graph hover-link extended to **transitions/edges** (not just states).
+- **Arrow glyph display** (render ASCII arrows as Unicode/Nerd-Font glyphs, view-only, opt-in) split out as **`StoneCypher/fsl#1382`** — needs onboarding a Nerd Font; distinct from arrow coloring.
+- **Group rails — deprioritized:** group members aren't necessarily contiguous in source, so a single gutter rail fragments. Revisit only as a subtler per-member margin tick if wanted.
+- **Live state-follow — clarified:** highlight the *current* state's declaration line in whichever editor shows the FSL (web `fsl-editor`, or a VS Code line decoration), advancing as the machine steps. Only active in `fsl-instance` (live) mode.
+- **More ideas:** action-usage stable coloring (same action → same color everywhere); nondeterminism / duplicate-edge conflict flags; selection-scoped focus sub-graph (dim all but the selection's neighborhood in the graph); hover → node style preview (swatch + shape chip); codelens-style per-state affordances (out/in counts, jump/filter).
