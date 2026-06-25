@@ -216,6 +216,14 @@ git commit -m "feat(wc): CodeMirror adapters over the FSL language service"
 
 - [ ] **Steps:** `define_canonical('fsl-editor', FslEditor)`; add `./wc/editor` + `./wc/editor/define` exports and `@codemirror/{view,commands,autocomplete,lint}` to `peerDependencies` + `peerDependenciesMeta` (optional); add the rollup config + `make_wc_editor_*` scripts mirroring viz. Test asserts `customElements.get('fsl-editor')` after importing the define module (jsdom). Full `vitest-spec` gate at the end. Commit.
 
+## Execution Status (2026-06-25)
+
+- ✅ **Task 1** CM adapters — gated 100% (`917783fb`)
+- ✅ **Task 2** editor themes — gated 100% (`94b8463c`)
+- ✅ **Task 3** `FslEditor` standalone — gated 100% (`40c99dff`)
+- ⏸️ **Task 4** dual-mode binding — **deferred to `StoneCypher/fsl#1387`**: it needs `fsl-instance` to rebuild its machine on live `fsl` change (a behavioral change to a shipped component, non-obvious state/subscription semantics). The editor's `change` event + echo-guarded two-way binding already exist, so the editor side is ready when the host gains live-rebuild.
+- 🟡 **Task 5** registration ✅ done (`53b775f0`). **Remaining:** distribution bundling — rollup CDN/es6 configs, `package.json` `exports`/`files`, `custom-elements.json` entry, README, `bundle_shape` assertions. Heavy (the CDN bundle inlines CodeMirror) and needs a full `npm run build`; tracked as the follow-on packaging step.
+
 ## Self-Review
 
 - **Spec coverage:** Realizes §6 (component API, internals, dual-mode) and §7 (packaging). Adapters (Task 1) consume Foundation A; theme (Task 2) consumes Foundation B's tokens.
