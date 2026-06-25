@@ -110,7 +110,26 @@ Components keep their **shadow DOM** (it isolates CodeMirror's heavy injected st
 
 ## 10. Roadmap (out of scope here)
 
-- **Deferred widgets**, each its own spec → plan → build: `fsl-toolbar`, `fsl-footer`, `fsl-history`, `fsl-data-inspector`, `fsl-hook-log`, `fsl-export`, `fsl-simulation`. All consume the service layer (where relevant) and the appearance contract; all white-label via tokens/parts/brand slots.
+**Deferred widgets**, each its own spec → plan → build. All consume the service layer (where relevant) and the appearance contract; all white-label via tokens/`::part`/brand slots. Grouped by capability:
+
+- **Interaction (input side — the rest of the suite is read-only):**
+  - **`fsl-actions`** (new) — renders clickable buttons for the *current legal actions* (auto-enabled/disabled on transition, calling `instance.do(action)`), plus a step / reset / auto-advance transport. The missing companion to the `actions` slot, and the only widget that *drives* the machine — treat as near-foundational. Clearest gap.
+- **Diagnostics:**
+  - **`fsl-problems`** (new) — full list of parse/compile diagnostics, click-to-jump into the editor. Shares the service layer's `fslDiagnostics` with `fsl-footer` (same data at two altitudes: footer = compact status, problems = expanded list); design them together.
+- **Structural overview:**
+  - **`fsl-transitions`** / **`fsl-states`** (new) — scannable, navigable tables of all transitions (from · action · to) and all states (with kinds). Complements the visual graph and the *current*-state `fsl-info-panel`.
+- **Authoring chrome:** `fsl-toolbar` (#660); **`fsl-footer`** (new — line/col, parse status, machine state).
+- **Runtime views (exist or planned):** `fsl-info-panel` ✓, `fsl-effective-properties` ✓, `fsl-history` (#662), `fsl-data-inspector` (#663), `fsl-hook-log` (#664).
+- **Output / sharing:** `fsl-export` (#667); **`fsl-output`** (new — view the generated DOT / compiled config / codegen: "what this compiles to").
+- **Simulation:** `fsl-simulation` (#668).
+- **Visual styling (source-editing — a big lift):**
+  - **`fsl-style-inspector`** (new) — a per-state style panel in the spirit of a browser inspector's CSS pane or a Delphi properties grid: select a state, see/edit its style attributes (`color`, `background-color`, `text-color`, `border-color`, `shape`, `corners`, `line-style`, `label`, `image`, `url`, state `property`s). Two tiers:
+    - **(a) live preview** — tweak and re-render without touching source (override the render, like an inspector's live edits). Lighter.
+    - **(b) source-editing** — writes the change back into the `state X : { … }` declaration (creating one if absent). **Big lift:** requires an FSL *source-transformation* capability (located-AST → surgical edit/insert → format-preserving reprint), which is a separate, harder service than the read-only service layer.
+- **Aids (candidates):** **`fsl-legend`** (new — explains the graph's colors/shapes/state-kinds); **`fsl-help`** (new — the docs panel prototyped in the sketch).
+
+**Other deferred work:**
+- **FSL source-transformation service** (new foundation, deferred) — a codemod-style capability (located AST → surgical edit → format-preserving reprint) that *any* source-editing widget needs: `fsl-style-inspector` tier (b), an "apply this fix" action on `fsl-problems`, future refactors. Distinct from and harder than the read-only service layer; deferred until the first source-editing widget is built.
 - **LSP server** — a thin wrapper over the service layer, added when editors beyond web + VS Code are wanted. Never on the widget's critical path.
 - **VS Code extension** — a separate consumer of the service layer via Monaco/native provider APIs (separate repo/effort).
 
