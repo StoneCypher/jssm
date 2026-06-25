@@ -2,14 +2,20 @@
  * Editor-agnostic FSL diagnostics: parse then compile, reporting problems as
  * neutral {@link Diagnostic}s. Adapters map these to CodeMirror lint diagnostics,
  * VS Code markers, or LSP `Diagnostic`s.
+ *
+ * Parse errors (peg.js) carry `.location`; compile errors carry
+ * `.source_location` *when they reference a parsed node* — but machine-level
+ * compile errors (e.g. an empty machine, an unknown machine rule) have none, so
+ * the location is treated as optional and falls back to the whole document.
  */
 
 import { wrap_parse, compile } from '../jssm_compiler.js';
 import type { Diagnostic, Range } from './types.js';
 
-/** Build a clamped range from a parser/compiler location, or the whole doc. */
-function range_from(loc: { start: { offset: number }; end: { offset: number } } | undefined,
-                    text: string): Range {
+interface Located { start: { offset: number }; end: { offset: number }; }
+
+/** A clamped range from a parser/compiler location, or the whole document. */
+function range_from(loc: Located | undefined, text: string): Range {
   if (!loc) { return { from: 0, to: Math.max(text.length, 1) }; }
   const from = loc.start.offset;
   return { from, to: Math.max(loc.end.offset, from + 1) };
@@ -28,14 +34,14 @@ export function fslDiagnostics(text: string): Diagnostic[] {
   try {
     tree = wrap_parse(text, { locations: true });
   } catch (err) {
-    const e = err as { location?: { start: { offset: number }; end: { offset: number } }; message?: string };
-    return [{ range: range_from(e.location, text), severity: 'error', message: e.message ?? String(err) }];
+    const e = err as { location?: Located; message: string };
+    return [{ range: range_from(e.location, text), severity: 'error', message: e.message }];
   }
   try {
-    compile(tree);
+    compile(tree as Parameters<typeof compile>[0]);
   } catch (err) {
-    const e = err as { source_location?: { start: { offset: number }; end: { offset: number } }; message?: string };
-    return [{ range: range_from(e.source_location, text), severity: 'error', message: e.message ?? String(err) }];
+    const e = err as { source_location?: Located; message: string };
+    return [{ range: range_from(e.source_location, text), severity: 'error', message: e.message }];
   }
   return [];
 }

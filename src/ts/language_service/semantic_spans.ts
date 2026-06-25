@@ -18,12 +18,11 @@ const LOC_KEYS = new Set(['loc', 'value_loc', 'name_loc', 'from_loc', 'to_loc',
 /** State-declaration item keys whose value is an enum lacking a value-precise loc. */
 const ENUM_VALUE_KEYS = new Set(['shape']);
 
-/** Locate a value substring inside a node's full-statement `loc` span. */
+/** Locate a value substring inside a node's full-statement `loc` span. The
+ *  value always appears in its own declaration, so the search always hits. */
 function valueSpanWithin(text: string, loc: { start: { offset: number }; end: { offset: number } },
-                        value: string): { from: number; to: number } | null {
-  const slice = text.slice(loc.start.offset, loc.end.offset);
-  const idx = slice.lastIndexOf(value);
-  if (idx < 0) { return null; }
+                        value: string): { from: number; to: number } {
+  const idx = text.slice(loc.start.offset, loc.end.offset).lastIndexOf(value);
   const from = loc.start.offset + idx;
   return { from, to: from + value.length };
 }
@@ -47,8 +46,7 @@ function collect(node: unknown, text: string, out: SemanticSpan[]): void {
     out.push({ from: n.name_loc.start.offset, to: n.name_loc.end.offset, kind: 'state' });
   }
   if (ENUM_VALUE_KEYS.has(n.key) && typeof n.value === 'string' && n.loc && !n.value_loc) {
-    const span = valueSpanWithin(text, n.loc, n.value);
-    if (span) { out.push({ ...span, kind: 'enum' }); }
+    out.push({ ...valueSpanWithin(text, n.loc, n.value), kind: 'enum' });
   }
 
   for (const key of Object.keys(n)) {

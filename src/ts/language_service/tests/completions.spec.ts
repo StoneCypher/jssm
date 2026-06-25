@@ -40,4 +40,8 @@ describe('fslCompletions', () => {
     const doc = 'machine_name: ';
     expect(fslCompletions(doc, doc.length)).toEqual([]);
   });
+
+  it('returns nothing in a non-completable position (mid-transition)', () => {
+    expect(fslCompletions('a -> b', 6)).toEqual([]);
+  });
 });

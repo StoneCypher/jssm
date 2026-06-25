@@ -72,6 +72,9 @@ const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
 const empty_string_set: ReadonlySet<string> = new Set<string>();
 
+// Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
+export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
+
 // The spatial fields (besides `handler`, which every hook needs) that each
 // hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
 // to validate a HookDescription so a mis-shaped one is rejected rather than
