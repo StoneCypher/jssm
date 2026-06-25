@@ -9,9 +9,13 @@ import { fsl } from '../cm6/fsl_language.js';
 import { fslLintExtension, fslCompletionExtension, fslOverlayExtension } from './editor/cm_adapters.js';
 import { lightEditorTheme, darkEditorTheme } from './editor/cm_theme.js';
 import { fslTokens } from './fsl_tokens.js';
+import { closest_wc } from './wc_tag_helpers.js';
 
 /** Shape of the `change` `CustomEvent.detail`: the editor's current FSL text. */
 export interface FslEditorChangeDetail { fsl: string; }
+
+/** Minimal shape of a parent `<fsl-instance>` host the editor drives in dual mode. */
+interface FslEditorHost extends HTMLElement { fsl: string; }
 
 /**
  * `<fsl-editor>` — a CodeMirror-based FSL editor web component.
@@ -69,12 +73,29 @@ export class FslEditor extends LitElement {
   private readonly _readonlyC   = new Compartment();
   /** True while a programmatic doc write is in flight, to suppress the echo. */
   private _applyingProp = false;
+  /** Write-back listener for a bound parent host, or null when standalone. */
+  private _onChange: ((e: Event) => void) | null = null;
 
   /** The theme bundle for the current `theme` value. */
   private _themeExt() { return this.theme === 'dark' ? darkEditorTheme : lightEditorTheme; }
 
   /** The underlying CodeMirror view, or null before first render / after disconnect. */
   get view(): EditorView | null { return this._view; }
+
+  /**
+   * Dual-mode: when nested inside a `<fsl-instance>`, seed the editor from the
+   * host's FSL and write edits back to it (the host rebuilds its machine — see
+   * #1387). Standalone (no host ancestor) leaves the editor self-contained.
+   */
+  connectedCallback(): void {
+    super.connectedCallback();
+    const host = closest_wc(this, 'instance') as FslEditorHost | null;
+    if (!host) { return; }
+    if (host.fsl) { this.fsl = host.fsl; }
+    const handler = (e: Event): void => { host.fsl = (e as CustomEvent<FslEditorChangeDetail>).detail.fsl; };
+    this._onChange = handler;
+    this.addEventListener('change', handler);
+  }
 
   /**
    * Mount the CodeMirror view once the shadow DOM exists. Each toggleable
@@ -137,6 +158,7 @@ export class FslEditor extends LitElement {
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    if (this._onChange) { this.removeEventListener('change', this._onChange); this._onChange = null; }
     if (this._view) { this._view.destroy(); this._view = null; }
   }
 

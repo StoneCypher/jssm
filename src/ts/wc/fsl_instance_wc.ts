@@ -655,6 +655,57 @@ export class FslInstance extends LitElement {
    *
    * @param changed - Lit's changed-property map (forwarded to super).
    */
+  /**
+   * Lit lifecycle. After the initial connect, a change to the `fsl` property
+   * (e.g. written back by a bound `<fsl-editor>`, #1387) rebuilds the machine.
+   * The first update is skipped via `hasUpdated` — `connectedCallback` already
+   * built the initial machine.
+   */
+  protected willUpdate(changed: PropertyValues): void {
+    if (this.hasUpdated && changed.has('fsl')) {
+      this._rebuild_machine();
+    }
+  }
+
+  /**
+   * Rebuild the owned machine from the current `fsl` property and re-install
+   * every machine-scoped subscription against the new machine (#1387).
+   *
+   * Semantics:
+   *   - **Keep-last-good:** if the new FSL is empty or fails to parse/compile,
+   *     the current machine is left untouched (a bound editor's lint surfaces
+   *     the error); we never blank or throw on mid-edit invalid source.
+   *   - **Reset-to-start:** a successful rebuild is a fresh machine at its
+   *     start state — the structure changed, so preserving position is unsafe.
+   *   - **Re-subscribe:** mechanism-4 re-emission, `<fsl-hook>`, `<fsl-on>`,
+   *     and `<fsl-bind>` projections are torn down from the old machine and
+   *     re-installed on the new one. DOM action listeners (`<fsl-action>`)
+   *     persist untouched — they read `this.machine` live.
+   */
+  private _rebuild_machine(): void {
+    if (typeof this.fsl !== 'string' || this.fsl.trim().length === 0) {
+      return;
+    }
+    let next: Machine<unknown>;
+    try {
+      next = sm`${this.fsl}` as Machine<unknown>;
+    } catch {
+      return;   // keep-last-good
+    }
+
+    // Tear down the OLD machine's subscriptions (shared with disconnect).
+    this._unbind_machine_subscriptions();
+
+    // Swap to the new machine and re-bind everything machine-scoped.
+    this._machine = next;
+    this._paint_state_reflection();
+    this._install_event_reemission();
+    this._install_declarative_hooks();
+    this._install_jssm_on_children();
+    this._unsubs.push(...install_bindings(this, next));
+    this.requestUpdate();
+  }
+
   updated(changed: PropertyValues): void {
     super.updated(changed);
     this._flush_pending_dom_events();
@@ -685,21 +736,19 @@ export class FslInstance extends LitElement {
   }
 
   /**
-   * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
-   * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
-   * mechanism-4 re-emission subscriptions, and DOM listeners from
-   * `<jssm-action>` / `data-jssm-action`.
+   * Release every machine-scoped subscription installed against the current
+   * machine: #639 mechanism-4 re-emission, #641 `<fsl-hook>` registrations,
+   * #643 `<fsl-on>` subscriptions, and #645 `<fsl-bind>` projections. Shared by
+   * {@link disconnectedCallback} (full teardown) and the live-rebuild path
+   * ({@link _rebuild_machine}, #1387), which re-installs against the new machine.
+   * DOM action listeners (`<fsl-action>`) are NOT touched here — they read
+   * `this.machine` live and survive a rebuild.
    */
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-
-    // #639 mechanism 4: release host-level re-emission subscriptions and drop
-    // any events that were queued but not yet flushed.
+  private _unbind_machine_subscriptions(): void {
     for (const off of this._reemit_unsubscribes) { off(); }
     this._reemit_unsubscribes = [];
     this._pending_dom_events = [];
 
-    // #641: remove installed hooks.
     if (this._machine !== undefined) {
       const machine = this._machine;
       for (const desc of this._installed_hooks) {
@@ -708,15 +757,27 @@ export class FslInstance extends LitElement {
     }
     this._installed_hooks = [];
 
-    // #643: release every subscription installed from a <jssm-on> child.
     for (const off of this._on_unsubscribes) {
       try { off(); } catch { /* swallow — cleanup must not throw past us */ }
     }
     this._on_unsubscribes = [];
 
-    // #645: tear down every live binding.
     for (const off of this._unsubs) { off(); }
     this._unsubs = [];
+  }
+
+  /**
+   * Lifecycle hook.  Cleans up everything the WC installed at connect: hook
+   * registrations from `<jssm-hook>`, event subscriptions from `<jssm-on>`,
+   * mechanism-4 re-emission subscriptions, and DOM listeners from
+   * `<jssm-action>` / `data-jssm-action`.
+   */
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+
+    // Release every machine-scoped subscription (#639 re-emission, #641 hooks,
+    // #643 <fsl-on>, #645 <fsl-bind>). Shared with the live-rebuild path (#1387).
+    this._unbind_machine_subscriptions();
 
     // #640: remove DOM listeners installed via <jssm-action> / data-jssm-action.
     for (const entry of this._action_listeners) {
