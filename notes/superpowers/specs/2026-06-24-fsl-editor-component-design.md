@@ -141,3 +141,19 @@ Components keep their **shadow DOM** (it isolates CodeMirror's heavy injected st
 4. Verify/realize the `fsl-instance` rebuild-on-`fsl`-change dependency.
 5. Demo refactor to use `<fsl-editor>`.
 6. Build wiring, exports, tests, DocBlocks, README.
+
+## 12. UX / interaction ideas (captured during build — for the appearance/chrome/decoration plans)
+
+**Parser-driven inline decorations** (same pattern as the color chips — parse → neutral spans → decorations; most are cheap and editor-agnostic via `fslSemanticSpans` extensions):
+- **Arrow-kind styling** — render/color the three arrow families distinctly (`->` normal, `=>` main, `~>` forced) so transition semantics are visible inline. FSL-unique; lexer-cheap.
+- **State-kind badges** — small inline pills marking start / end / terminal states (from the compile pass).
+- **Group rails** — colored left-margin brackets spanning the lines of states in a named group (`&Active : [...]`), visualizing group structure.
+- **Unreachable-state dimming** — static reachability from start; fade states you can't reach, flag dead transitions. Useful + novel.
+- **Bidirectional editor ↔ graph hover-link** — hover a state name → its `fsl-viz` node pulses, and vice-versa (linked views; needs editor+viz coordination).
+- **Live current-state follow** — in `fsl-instance` mode, the active state's declaration line highlights as the machine steps.
+- **Probability / `after` glyphs** — `25%` → a tiny inline bar; `after 30 minutes` → a clock glyph.
+- **Color chip → picker** — click a color chip to open an inline color picker (ties to `fsl-style-inspector`; source-editing tier).
+
+**Chrome / motion:**
+- **Widget toggle button-range** — a range of Win32-style square toggle buttons in the toolbar (`fsl-toolbar`, #660), each showing/hiding a panel (viz, docs, info-panel, problems, …), à la an activity bar.
+- **Panel ease-in/out** — animate panels (docs/help, side panels) open/closed with eased motion. For docked flex panes this is a transition on the flex-basis (0 ↔ size); respect `prefers-reduced-motion`.
