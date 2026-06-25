@@ -115,6 +115,14 @@ export class FslViz extends LitElement {
   private _parent_sub: (() => void) | null = null;
 
   /**
+   * Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the
+   * viz to the host's new machine after a live rebuild, #1387). Captures the
+   * exact host the listener was attached to, so teardown is correct even if
+   * `_parent_host` was cleared or replaced. Null when standalone / before binding.
+   */
+  private _host_unbind: (() => void) | null = null;
+
+  /**
    * Lit lifecycle hook. Triggers an async SVG render whenever `fsl` or
    * `engine` change — but only in standalone mode.  In nested mode the
    * `fsl` attribute is ignored; renders are driven by the parent machine's
@@ -173,10 +181,9 @@ export class FslViz extends LitElement {
       // it — disconnection between the deferred resolution and now is
       // legal and should not error.
       if (this._parent_host !== host) { return; }
+      let sub: () => void;
       try {
-        this._parent_sub = host.machine.on('transition', () => {
-          this._rerenderFromHostMachine();
-        });
+        sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
       } catch (e: unknown) {
         // The parent existed but its machine wasn't ready / threw.  Emit
         // a viz-error so the consumer learns about it instead of silently
@@ -188,6 +195,19 @@ export class FslViz extends LitElement {
         }));
         return;
       }
+      this._parent_sub = sub;
+
+      // Re-subscribe + re-render when the host swaps its machine (#1387 live
+      // rebuild): the old subscription is on a dead machine object.
+      const on_rebuild = (): void => {
+        sub();
+        sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
+        this._parent_sub = sub;
+        this._rerenderFromHostMachine();
+      };
+      host.addEventListener('fsl-machine-rebuilt', on_rebuild);
+      this._host_unbind = (): void => { host.removeEventListener('fsl-machine-rebuilt', on_rebuild); };
+
       this._rerenderFromHostMachine();
     });
   }
@@ -203,6 +223,10 @@ export class FslViz extends LitElement {
     if (this._parent_sub !== null) {
       this._parent_sub();
       this._parent_sub = null;
+    }
+    if (this._host_unbind !== null) {
+      this._host_unbind();
+      this._host_unbind = null;
     }
     this._parent_host = null;
   }

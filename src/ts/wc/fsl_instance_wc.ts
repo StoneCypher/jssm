@@ -782,6 +782,10 @@ export class FslInstance extends LitElement {
     this._install_jssm_on_children();
     this._unsubs.push(...install_bindings(this, next));
     this.requestUpdate();
+
+    // Notify bound children (e.g. <fsl-viz>) that the machine object was
+    // replaced, so they can re-subscribe and re-render against the new one.
+    this.dispatchEvent(new CustomEvent('fsl-machine-rebuilt', { bubbles: true, composed: true }));
   }
 
   updated(changed: PropertyValues): void {

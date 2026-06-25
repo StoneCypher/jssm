@@ -62,4 +62,15 @@ describe('fsl-instance live rebuild (#1387)', () => {
     el.remove();
   });
 
+  it('dispatches fsl-machine-rebuilt on a successful rebuild', async () => {
+    const el = mount("A 'go' -> B;");
+    await el.updateComplete;
+    let rebuilt = false;
+    el.addEventListener('fsl-machine-rebuilt', () => { rebuilt = true; });
+    el.fsl = 'X -> Y;';
+    await el.updateComplete;
+    expect(rebuilt).toBe(true);
+    el.remove();
+  });
+
 });
