@@ -60,7 +60,10 @@ export function fslCompletionExtension(): Extension { return autocompletion({ ov
 export function buildFslDecorations(text: string): DecorationSet {
   const decos = fslSemanticSpans(text)
     .sort((a, b) => a.from - b.from)
-    .map(s => Decoration.mark({ class: `fsl-${s.kind}`, attributes: s.value ? { title: s.value } : {} }).range(s.from, s.to));
+    .map(s => Decoration.mark({
+      class: `fsl-${s.kind}`,
+      attributes: s.value ? { title: s.value, style: `--fsl-chip:${s.value}` } : {},
+    }).range(s.from, s.to));
   return Decoration.set(decos, true);
 }
 
