@@ -298,6 +298,26 @@ export function resolve_fsl_source(host: HTMLElement, fsl_attr: string): JssmIns
 
 }
 
+/** Valid `layout` values for {@link FslInstance}: stacked (default), or a split. */
+export type FslLayout = '' | 'split' | 'split-stack';
+
+/**
+ * Clamp a gutter-drag coordinate to a split ratio (percent of the first pane).
+ * Pure so it's testable without a laid-out DOM: returns a neutral `50` when the
+ * container has no measured size (e.g. jsdom, where `getBoundingClientRect`
+ * yields zeros), and otherwise clamps to `[15, 85]` so neither pane collapses.
+ *
+ * @example
+ *   split_ratio(30, 0, 100);   // => 30
+ *   split_ratio(5,  0, 100);   // => 15  (clamped low)
+ *   split_ratio(0,  0, 0);     // => 50  (no layout)
+ */
+export function split_ratio(coord: number, start: number, size: number): number {
+  if (size <= 0) { return 50; }
+  const pct = ((coord - start) / size) * 100;
+  return Math.min(85, Math.max(15, pct));
+}
+
 /**
  * Web component that owns a single `Machine<unknown>` constructed from an
  * FSL source supplied via one of three mutually exclusive channels:
@@ -344,6 +364,20 @@ export class FslInstance extends LitElement {
       opacity: 0.6;
       font-style: italic;
     }
+
+    /* layout="split" / "split-stack": viz | editor with a draggable gutter. */
+    .container.is-split { display: flex; flex-direction: column; }
+    .workbench { display: flex; flex: 1 1 auto; min-height: 0; }
+    .workbench.col { flex-direction: column; }
+    .workbench .pane { display: flex; min-width: 0; min-height: 0; overflow: hidden; }
+    .workbench .pane ::slotted(*) { flex: 1; min-width: 0; min-height: 0; }
+    .workbench .viz { flex: 0 0 var(--fsl-split, 50%); }
+    .workbench .editor { flex: 1 1 0; }
+    .gutter {
+      flex: 0 0 6px; align-self: stretch; cursor: col-resize;
+      background: rgba(0, 0, 0, 0.18); touch-action: none;
+    }
+    .workbench.col .gutter { cursor: row-resize; }
   `;
 
   /**
@@ -352,6 +386,17 @@ export class FslInstance extends LitElement {
    * `<script type="text/fsl">` (or non-empty text content) is an error.
    */
   fsl = '';
+
+  /**
+   * Panel arrangement. `''` (default) renders the stacked sections; `'split'`
+   * lays the viz and editor panes side-by-side with a draggable gutter;
+   * `'split-stack'` stacks those two panes vertically with a horizontal gutter.
+   * The remaining panels (toolbar, info-panel, …) render below the split.
+   */
+  layout: FslLayout = '';
+
+  /** Split ratio (percent of the first pane), updated by the gutter drag. */
+  private _split = 50;
 
   /**
    * The underlying machine instance, constructed at `connectedCallback`.
@@ -455,7 +500,8 @@ export class FslInstance extends LitElement {
    * dynamically declared attributes.
    */
   static properties = {
-    fsl : { type: String, reflect: false },
+    fsl    : { type: String, reflect: false },
+    layout : { type: String, reflect: true },
   };
 
   /**
@@ -482,6 +528,38 @@ export class FslInstance extends LitElement {
   state(): string {
     return String(this.machine.state());
   }
+
+  /**
+   * Gutter pointer-down: begin a drag. Move/up are attached to the document so
+   * the drag survives the pointer leaving the thin gutter (no pointer-capture,
+   * which keeps the handlers testable in jsdom).
+   */
+  private _onGutterDown = (e: PointerEvent): void => {
+    e.preventDefault();
+    document.addEventListener('pointermove', this._onGutterMove);
+    document.addEventListener('pointerup', this._onGutterUp);
+  };
+
+  /** Document pointer-move during a drag: recompute the split ratio. */
+  private _onGutterMove = (e: PointerEvent): void => {
+    const rect = (this.renderRoot.querySelector('.workbench') as HTMLElement).getBoundingClientRect();
+    this._split = this.layout === 'split-stack'
+      ? split_ratio(e.clientY, rect.top, rect.height)
+      : split_ratio(e.clientX, rect.left, rect.width);
+    this.requestUpdate();
+  };
+
+  /** Document pointer-up: end the drag and detach the document listeners. */
+  private _onGutterUp = (): void => {
+    document.removeEventListener('pointermove', this._onGutterMove);
+    document.removeEventListener('pointerup', this._onGutterUp);
+  };
+
+  /** Gutter double-click: reset the split to 50/50. */
+  private _onGutterReset = (): void => {
+    this._split = 50;
+    this.requestUpdate();
+  };
 
   /**
    * Lifecycle hook.  Resolves the FSL source, constructs the machine,
@@ -784,6 +862,9 @@ export class FslInstance extends LitElement {
       entry.target.removeEventListener(entry.event, entry.handler);
     }
     this._action_listeners = [];
+
+    // Detach any in-flight gutter-drag document listeners.
+    this._onGutterUp();
   }
 
   /**
@@ -916,51 +997,58 @@ export class FslInstance extends LitElement {
       ? 'state-unknown'
       : `state-${String(this._machine.state())}`;
 
+    const header = html`
+      <header>
+        <slot name="title"><span class="placeholder">fsl-instance</span></slot>
+      </header>`;
+    const viz    = html`<slot name="viz"><span class="placeholder">no viz configured</span></slot>`;
+    const editor = html`<slot name="editor"></slot>`;
+
+    if (this.layout === 'split' || this.layout === 'split-stack') {
+      return html`
+        <div class="container is-split">
+          ${header}
+          <div class="workbench ${this.layout === 'split-stack' ? 'col' : ''}"
+               style="--fsl-split:${this._split}%">
+            <section class="pane viz">${viz}</section>
+            <div class="gutter"
+                 @pointerdown=${this._onGutterDown}
+                 @dblclick=${this._onGutterReset}></div>
+            <section class="pane editor">${editor}</section>
+          </div>
+          ${this._renderAuxPanels()}
+          <section class="state-section"><slot name=${state_slot_name}></slot></section>
+          <footer><slot name="footer"></slot></footer>
+        </div>
+      `;
+    }
+
     return html`
       <div class="container">
-        <header>
-          <slot name="title"><span class="placeholder">fsl-instance</span></slot>
-        </header>
-        <section class="viz">
-          <slot name="viz"><span class="placeholder">no viz configured</span></slot>
-        </section>
-        <section class="editor">
-          <slot name="editor"></slot>
-        </section>
-        <section class="toolbar">
-          <slot name="toolbar"></slot>
-        </section>
-        <section class="actions">
-          <slot name="actions"></slot>
-        </section>
-        <section class="info-panel">
-          <slot name="info-panel"></slot>
-        </section>
-        <section class="history">
-          <slot name="history"></slot>
-        </section>
-        <section class="data-inspector">
-          <slot name="data-inspector"></slot>
-        </section>
-        <section class="hook-log">
-          <slot name="hook-log"></slot>
-        </section>
-        <section class="effective-properties">
-          <slot name="effective-properties"></slot>
-        </section>
-        <section class="simulation">
-          <slot name="simulation"></slot>
-        </section>
-        <section class="export">
-          <slot name="export"></slot>
-        </section>
-        <section class="state-section">
-          <slot name=${state_slot_name}></slot>
-        </section>
-        <footer>
-          <slot name="footer"></slot>
-        </footer>
+        ${header}
+        <section class="viz">${viz}</section>
+        <section class="editor">${editor}</section>
+        ${this._renderAuxPanels()}
+        <section class="state-section"><slot name=${state_slot_name}></slot></section>
+        <footer><slot name="footer"></slot></footer>
       </div>
+    `;
+  }
+
+  /** The middle panels (toolbar … export), shared by both layouts. The
+   *  state-section + footer stay in {@link render} so the dynamic state-slot
+   *  name binds at the top level. */
+  private _renderAuxPanels(): TemplateResult {
+    return html`
+      <section class="toolbar"><slot name="toolbar"></slot></section>
+      <section class="actions"><slot name="actions"></slot></section>
+      <section class="info-panel"><slot name="info-panel"></slot></section>
+      <section class="history"><slot name="history"></slot></section>
+      <section class="data-inspector"><slot name="data-inspector"></slot></section>
+      <section class="hook-log"><slot name="hook-log"></slot></section>
+      <section class="effective-properties"><slot name="effective-properties"></slot></section>
+      <section class="simulation"><slot name="simulation"></slot></section>
+      <section class="export"><slot name="export"></slot></section>
     `;
   }
 
