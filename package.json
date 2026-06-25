@@ -250,8 +250,12 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.10.4",
     "@codemirror/language": "^6.12.3",
+    "@codemirror/lint": "^6.9.7",
     "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.43.2",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@knodes/typedoc-plugin-pages": "^0.22.5",
     "@lezer/highlight": "^1.2.3",
@@ -304,10 +308,10 @@
     "reduce-to-639-1": "^1.1.0"
   },
   "peerDependencies": {
-    "lit": ">=3",
     "@codemirror/language": ">=6",
     "@codemirror/state": ">=6",
-    "@lezer/highlight": ">=1"
+    "@lezer/highlight": ">=1",
+    "lit": ">=3"
   },
   "peerDependenciesMeta": {
     "lit": {
