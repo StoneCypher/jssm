@@ -172,3 +172,13 @@ Components keep their **shadow DOM** (it isolates CodeMirror's heavy injected st
   - **Compiled** — a pulldown of six derived views: **SVG** (rendered markup) · **DOT** (graphviz source) · **Analysis** (human-readable structural digest — counts, determinism, terminal/complete, reachability summary) · **JSON tree** (the raw compiled machine config) · **AST parse** (the located parse tree) · **Statistics** (results of randomness / search / reachability runs). *(Naming to confirm: "Analysis" = a derived readable summary, distinct from "JSON tree" = raw config and "Statistics" = dynamic run results.)*
 
   Orthogonal to arrangement (the View menu): same control in split / stacked / single / tabbed (tabbed keeps `[Code | Viewer]` tabs; the Viewer tab carries the pill). **Shape vocabulary:** rounded connected segmented-pill = mutually-exclusive single-select (radio); the toolbar's square flat separable buttons = independent toggles. The graphviz engine selector + copy/download ride as small contextual corner affordances (copy only on source representations).
+
+### UI fanciness triage (2026-06-24)
+
+- **Adopt:**
+  - **Step animation = eased fade in / fade out** of the entered + left state highlights and the relevant edge(s) on each transition (live mode). No breathing / pulsing.
+  - **History scrubber** — a draggable run timeline; the flowchart + editor state-follow track the cursor.
+  - **Eased zoom / pan** on the flowchart — **turn-offable** (a toggle, the way rulers / snap are in paint programs); fit-to-view, zoom-to-selection.
+  - **Detachable / picture-in-picture viewer** — pop the flowchart into a floating window / new tab.
+- **Dropped:** first-clean-compile flourish; frosted / glass chrome.
+- **Pending user evaluation (after explanation):** command palette; live semantic edit-diff.
