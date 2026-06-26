@@ -38,22 +38,23 @@
   .btn[aria-pressed="true"] { background:var(--accent); color:#06101f; box-shadow:0 1px 2px #0008 inset; }
   .toolbar .spacer { flex:1; }
 
-  main { flex:1; display:flex; padding:.7rem 1.4rem 1.2rem; min-height:0; position:relative; }
-  .device { flex:1; display:flex; min-height:0; border:1px solid #000; background:var(--ink-2); position:relative; overflow:hidden; }
+  main { flex:1; display:flex; padding:.7rem 1.4rem 1.2rem; min-height:0; }
+  .device { flex:1; display:flex; min-height:0; border:1px solid #000; background:var(--ink-2); overflow:hidden; }
 
-  /* The real host fills the device; it owns the split + gutter internally. */
+  /* The real host fills the device and owns the split + gutter internally. */
   fsl-instance { flex:1; min-width:0; min-height:0; display:block; }
-  /* Slotted panels (light DOM) — styleable from here. */
-  fsl-viz { display:block; background:var(--graph-bg); overflow:auto; padding:1em; }
+  /* Slotted panels (light DOM) — styleable from here. fsl-viz centers/fits its
+     graph internally now, so the pane just supplies the backdrop + padding. */
+  fsl-viz { display:block; background:var(--graph-bg); padding:2em; }
   fsl-editor { display:block; min-height:0; --fsl-color-accent:var(--accent); --fsl-radius:0px; }
 
-  /* Help: slide-in overlay over the device. */
+  /* Help — eases in from the right as a real third pane (pushes the host). */
   .help {
-    position:absolute; top:0; right:0; bottom:0; width:0; overflow:hidden;
-    background:#11151c; border-left:1px solid #000; transition:width .28s ease; z-index:5;
+    flex:0 0 0; min-width:0; overflow:hidden; border-left:1px solid #000;
+    background:#11151c; transition:flex-basis .28s ease;
   }
-  .help.open { width:300px; }
-  .help-inner { width:300px; padding:1rem 1.1rem; font-size:.86rem; line-height:1.5; }
+  .help.open { flex-basis:300px; }
+  .help-inner { width:300px; padding:1rem 1.1rem; font-size:.86rem; line-height:1.5; color:var(--text); }
   .help-inner h2 { margin:.2rem 0 .6rem; font-size:.95rem; color:#fff; }
   .help-inner h3 { margin:1rem 0 .3rem; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); }
   .help-inner code { font-family:var(--mono); font-size:.82em; background:#232a38; padding:.05rem .3rem; border-radius:3px; }
@@ -62,12 +63,14 @@
 
   footer.hint { padding:.5rem 1.4rem 1rem; color:var(--text-dim); font-size:.82rem; }
   footer.hint kbd { font-family:var(--mono); font-size:.76rem; background:#232a38; border:1px solid #000; border-radius:3px; padding:.05rem .35rem; color:var(--text); }
+  .err-dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:#3fb950; margin-right:.35rem; vertical-align:middle; transition:background .15s; }
+  .err-dot.bad { background:#f85149; }
 </style>
 </head>
 <body>
   <header class="page">
     <span class="brand"><span class="lt">&lt;</span>fsl<span class="lt">-</span><span class="tag">editor</span><span class="lt">&gt;</span></span>
-    <span class="tagline">composed from real fsl widgets &mdash; edit, and the machine <b>rebuilds</b></span>
+    <span class="tagline">write a state machine &mdash; watch it <b>light up</b></span>
   </header>
 
   <div class="toolbar" role="toolbar" aria-label="controls">
@@ -93,33 +96,36 @@
 
   <main>
     <div class="device" id="device">
-      <!-- fsl-instance host is built in JS so its fsl is set before connect -->
+      <!-- <fsl-instance> host is prepended here in JS (its fsl is set before connect) -->
       <aside class="help" id="help">
         <div class="help-inner">
-          <h2>Real fsl widgets</h2>
-          This is <code>&lt;fsl-instance&gt;</code> hosting <code>&lt;fsl-viz&gt;</code> and
+          <h2>What you're looking at</h2>
+          A real <code>&lt;fsl-instance&gt;</code> hosting <code>&lt;fsl-viz&gt;</code> and
           <code>&lt;fsl-editor&gt;</code> in its slots. The instance owns the split layout and the
-          draggable gutter; editing writes back to the host, which <b>rebuilds its machine</b> and
-          the viz re-renders. No glue code.
+          draggable gutter; editing writes back to it, the machine <b>rebuilds</b>, and the graph
+          follows. No glue code.
           <h3>Try this</h3>
           <ul>
-            <li><b>Completions</b> — <kbd>Ctrl</kbd>+<kbd>Space</kbd> after <code>shape:</code></li>
-            <li><b>Chips</b> — change <code>crimson</code> to <code>teal</code></li>
-            <li><b>Lint</b> — delete a <code>;</code> to see the underline</li>
-            <li><b>Gutter</b> — drag the divider; the instance handles it</li>
-            <li><b>Layout</b> — ▤ Stack flips the instance to a vertical split</li>
+            <li><b>Completions</b> — <kbd>Ctrl</kbd>+<kbd>Space</kbd> after a <code>shape:</code> or <code>color:</code></li>
+            <li><b>Color chips</b> — change <code>crimson</code> to <code>teal</code> and watch the graph + chip follow</li>
+            <li><b>Lint</b> — break a line (e.g. delete a <code>;</code>) and watch the underline + status</li>
+            <li><b>Theme</b> — toggle ☾ Dark; the editor re-themes live</li>
+            <li><b>Toggles</b> — turn Chips / Lint / Complete off and on</li>
           </ul>
+          <h3>Drag the gutter</h3>
+          <ul><li>Resize the panes; <b>double-click</b> the gutter to reset to 50/50. ▤ Stack flips to a vertical split.</li></ul>
         </div>
       </aside>
     </div>
   </main>
 
   <footer class="hint">
-    <span id="status">ready</span> &nbsp;·&nbsp; drag the gutter · <kbd>Ctrl</kbd>+<kbd>Space</kbd> completes · edit a color to move its chip and the graph
+    <span class="err-dot" id="dot"></span><span id="status">ready</span> &nbsp;·&nbsp;
+    drag the gutter · <kbd>Ctrl</kbd>+<kbd>Space</kbd> completes · edit a color to move its chip and the graph
   </footer>
 
   <script type="module">
-    import './fsl-editor.bundle.js';
+    import { fslDiagnostics } from './fsl-editor.bundle.js';   // also registers the components
 
     const SAMPLE = [
       'machine_name: "Traffic Light";',
@@ -144,6 +150,22 @@
     host.append(title, viz, ed);
     document.getElementById('device').prepend(host);
 
+    // Status line: the host keeps the last good machine, so the editor text is
+    // the source of truth for validity. Green/ready when it parses, red otherwise.
+    const dot = document.getElementById('dot'), status = document.getElementById('status');
+    function refreshStatus(fsl) {
+      const errs = fslDiagnostics(fsl);
+      if (errs.length) {
+        dot.classList.add('bad');
+        status.textContent = 'parse error: ' + errs[0].message.replace(/\s+/g, ' ').slice(0, 48);
+      } else {
+        dot.classList.remove('bad');
+        status.textContent = 'ready · state: ' + (host.getAttribute('current-state') || '—');
+      }
+    }
+    ed.addEventListener('change', e => refreshStatus(e.detail.fsl));
+    setTimeout(() => refreshStatus(host.fsl), 250);
+
     // Theme radio pair → the editor's CM theme.
     const light = document.getElementById('theme-light'), dark = document.getElementById('theme-dark');
     const setTheme = t => { ed.theme = t; light.setAttribute('aria-pressed', t==='light'); dark.setAttribute('aria-pressed', t==='dark'); };
@@ -160,14 +182,9 @@
       b.onclick = () => { const on = b.getAttribute('aria-pressed')==='true'; b.setAttribute('aria-pressed', !on); ed[prop] = on; };
     }
 
-    // Help overlay (eased).
+    // Help: eased third pane.
     const help = document.getElementById('help'), helpBtn = document.getElementById('help-btn');
     helpBtn.onclick = () => { const open = help.classList.toggle('open'); helpBtn.setAttribute('aria-pressed', open); };
-
-    // Status: watch the host's reflected current-state attribute.
-    const status = document.getElementById('status');
-    new MutationObserver(() => { status.textContent = 'state: ' + (host.getAttribute('current-state') || '—'); })
-      .observe(host, { attributes:true, attributeFilter:['current-state'] });
   </script>
 </body>
 </html>
