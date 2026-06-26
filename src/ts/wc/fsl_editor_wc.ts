@@ -1,7 +1,8 @@
 import { LitElement, html, css, type PropertyValues, type TemplateResult } from 'lit';
 import { property } from 'lit/decorators.js';
-import { EditorView, keymap } from '@codemirror/view';
+import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from '@codemirror/view';
 import { EditorState, Compartment } from '@codemirror/state';
+import { bracketMatching, indentOnInput } from '@codemirror/language';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { completionKeymap } from '@codemirror/autocomplete';
 import { lintKeymap } from '@codemirror/lint';
@@ -108,6 +109,13 @@ export class FslEditor extends LitElement {
       state: EditorState.create({
         doc: this.fsl,
         extensions: [
+          lineNumbers(),
+          highlightActiveLineGutter(),
+          highlightActiveLine(),
+          drawSelection(),
+          indentOnInput(),
+          bracketMatching(),
+          EditorState.allowMultipleSelections.of(true),
           fsl(),
           history(),
           keymap.of([ ...defaultKeymap, ...historyKeymap, ...completionKeymap, ...lintKeymap ]),
