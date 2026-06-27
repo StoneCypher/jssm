@@ -1823,7 +1823,8 @@ class Machine<mDT> {
    *
    *  @returns The canonical config string.
    *  @example
-   *    sm`a -> b;`.canonical(); // '{"data":...,"state":"a","v":1}'
+   *    import { sm } from 'jssm';
+   *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
    */
   canonical(): string {
     return canonical_config(this._state, this._data);
