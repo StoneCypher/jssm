@@ -35,7 +35,11 @@
     --fsl-font:var(--sans); --fsl-font-mono:var(--mono);
   }
   fsl-viz { display:block; background:var(--graph-bg); padding:2em; }
+  /* The editor opts out of the suite's pinned dark palette so its own light/dark
+     theme actually flips the chrome (the toolbar drives fsl-editor[theme]). */
   fsl-editor { display:block; min-height:0; --fsl-radius:0px; }
+  fsl-editor:not([theme="dark"]) { --fsl-color-surface:#ffffff; --fsl-color-text:#1e1e22; --fsl-color-border:#e5e7eb; --fsl-color-muted:#9aa0a6; }
+  fsl-editor[theme="dark"]       { --fsl-color-surface:#0d1117; --fsl-color-text:#c9d1d9; --fsl-color-border:#2a2f3a; --fsl-color-muted:#7d8694; }
 
   /* A plain Docs button living in the toolbar's trailing slot. */
   .tb-help {

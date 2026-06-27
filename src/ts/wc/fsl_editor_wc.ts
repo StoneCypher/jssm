@@ -43,8 +43,13 @@ export class FslEditor extends LitElement {
       margin-right: 0.28em; vertical-align: middle; border-radius: 2px;
       border: 1px solid var(--_fsl-border); background: var(--fsl-chip, transparent);
     }
-    .fsl-enum  { font-style: italic; }
-    .fsl-state { text-underline-offset: 2px; }
+    /* State names (transition endpoints + declaration subjects) and shape/enum
+       values, marked from the parsed AST. Token-overridable, theme-aware so the
+       marks stay legible on both the light and dark editor chrome. */
+    .fsl-state { color: var(--fsl-color-state, #5b3da8); font-weight: 600; }
+    .fsl-enum  { color: var(--fsl-color-enum,  #b8860b); font-style: italic; }
+    :host([theme="dark"]) .fsl-state { color: var(--fsl-color-state, #c792ea); }
+    :host([theme="dark"]) .fsl-enum  { color: var(--fsl-color-enum,  #e0a96d); }
     ${fslTokens}
   `;
 
