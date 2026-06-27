@@ -38,6 +38,24 @@
   .btn[aria-pressed="true"] { background:var(--accent); color:#06101f; box-shadow:0 1px 2px #0008 inset; }
   .toolbar .spacer { flex:1; }
 
+  /* View dropdown */
+  .view { position:relative; display:inline-flex; }
+  .menu {
+    position:absolute; top:calc(100% + 4px); left:0; z-index:20; min-width:210px;
+    background:#1b212c; border:1px solid #000; border-radius:6px; padding:5px;
+    box-shadow:0 10px 30px #000a;
+  }
+  .menu[hidden] { display:none; }
+  .menu .mi {
+    display:flex; align-items:center; width:100%; box-sizing:border-box;
+    background:none; border:0; border-radius:4px; padding:6px 9px; gap:8px;
+    color:var(--text); cursor:pointer; text-align:left; font:inherit; font-size:.82rem;
+  }
+  .menu .mi:hover { background:#2b3344; }
+  .menu .mi[aria-checked="true"] { font-weight:700; }
+  .menu .mi[aria-checked="true"]::after { content:"✓"; margin-left:auto; color:var(--accent); }
+  .menu hr { border:0; border-top:1px solid #2a2f3a; margin:5px 4px; }
+
   main { flex:1; display:flex; padding:.7rem 1.4rem 1.2rem; min-height:0; }
   .device { flex:1; display:flex; min-height:0; border:1px solid #000; background:var(--ink-2); overflow:hidden; }
 
@@ -79,10 +97,21 @@
       <button class="btn" id="theme-light" aria-pressed="true">☀ Light</button>
       <button class="btn" id="theme-dark"  aria-pressed="false">☾ Dark</button>
     </div>
-    <span class="label">layout</span>
-    <div class="btn-row">
-      <button class="btn" id="lay-side"  aria-pressed="true">▥ Side</button>
-      <button class="btn" id="lay-stack" aria-pressed="false">▤ Stack</button>
+    <span class="label">view</span>
+    <div class="view">
+      <button class="btn" id="view-btn" aria-haspopup="true" aria-expanded="false">▥ View ▾</button>
+      <div class="menu" id="view-menu" role="menu" hidden>
+        <button class="mi" role="menuitemradio" data-layout="auto">Auto · by aspect ratio</button>
+        <hr>
+        <button class="mi" role="menuitemradio" data-layout="lr">Side by side · editor left</button>
+        <button class="mi" role="menuitemradio" data-layout="rl">Side by side · editor right</button>
+        <button class="mi" role="menuitemradio" data-layout="tb">Top &amp; bottom · editor top</button>
+        <button class="mi" role="menuitemradio" data-layout="bt">Top &amp; bottom · editor bottom</button>
+        <hr>
+        <button class="mi" role="menuitemradio" data-layout="editor">Just editor</button>
+        <button class="mi" role="menuitemradio" data-layout="viewer">Just viewer</button>
+        <button class="mi" role="menuitemradio" data-layout="tabs">Tabbed</button>
+      </div>
     </div>
     <span class="spacer"></span>
     <span class="label">features</span>
@@ -171,10 +200,23 @@
     const setTheme = t => { ed.theme = t; light.setAttribute('aria-pressed', t==='light'); dark.setAttribute('aria-pressed', t==='dark'); };
     light.onclick = () => setTheme('light'); dark.onclick = () => setTheme('dark');
 
-    // Layout radio pair → the host's arrangement attribute.
-    const laySide = document.getElementById('lay-side'), layStack = document.getElementById('lay-stack');
-    const setLayout = stacked => { host.setAttribute('layout', stacked ? 'bt' : 'rl'); layStack.setAttribute('aria-pressed', stacked); laySide.setAttribute('aria-pressed', !stacked); };
-    laySide.onclick = () => setLayout(false); layStack.onclick = () => setLayout(true);
+    // View dropdown → the host's layout attribute (the full 7-mode set).
+    const viewBtn = document.getElementById('view-btn'), viewMenu = document.getElementById('view-menu');
+    const menuItems = [...viewMenu.querySelectorAll('.mi')];
+    const closeMenu = () => { viewMenu.hidden = true; viewBtn.setAttribute('aria-expanded', 'false'); };
+    viewBtn.onclick = e => {
+      e.stopPropagation();
+      const open = viewMenu.hidden;
+      viewMenu.hidden = !open;
+      viewBtn.setAttribute('aria-expanded', String(open));
+    };
+    document.addEventListener('click', closeMenu);
+    function setLayout(modeName) {
+      host.setAttribute('layout', modeName);
+      for (const mi of menuItems) { mi.setAttribute('aria-checked', String(mi.dataset.layout === modeName)); }
+    }
+    for (const mi of menuItems) { mi.onclick = () => { setLayout(mi.dataset.layout); closeMenu(); }; }
+    setLayout('rl');   // matches the host's initial layout
 
     // Feature toggles → the editor's attributes.
     for (const [id, prop] of [['t-lint','noLint'],['t-overlay','noOverlay'],['t-completion','noCompletion']]) {
