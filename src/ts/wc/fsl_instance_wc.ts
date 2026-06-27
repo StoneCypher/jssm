@@ -1,5 +1,5 @@
 import { LitElement, html, css, TemplateResult, type PropertyValues } from 'lit';
-import { Machine, sm } from '../jssm.js';
+import { Machine, sm, from as jssm_from } from '../jssm.js';
 import { install_bindings, type FslBindUnsub } from './fsl_bind_wc.js';
 import {
   FslHookRegistry,
@@ -471,6 +471,14 @@ export class FslInstance extends LitElement {
    */
   theme: 'light' | 'dark' = 'light';
 
+  /**
+   * Initial extended-state data seeded into the machine at build time. When set
+   * (to anything other than `undefined`), the machine is built via `from(fsl,
+   * { data })` so `<fsl-data-inspector>` has something to show before any
+   * transition; the default keeps the lighter `sm`-tag build path.
+   */
+  data: unknown = undefined;
+
   /** Split ratio (percent of the first pane), updated by the gutter drag. */
   private _split = 50;
   /** Which pane the tabbed layout shows. */
@@ -587,6 +595,7 @@ export class FslInstance extends LitElement {
     fsl    : { type: String, reflect: false },
     layout : { type: String, reflect: true },
     theme  : { type: String, reflect: true },
+    data   : { type: Object, reflect: false },
   };
 
   /**
@@ -742,7 +751,7 @@ export class FslInstance extends LitElement {
     // Step 2: construct the machine.
     // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
     const fsl_source = resolved.fsl as string;
-    this._machine = sm`${fsl_source}` as Machine<unknown>;
+    this._machine = this._build_machine(fsl_source);
 
     // Step 3: paint initial host attributes + CSS custom properties.
     this._paint_state_reflection();
@@ -918,13 +927,25 @@ export class FslInstance extends LitElement {
    *     re-installed on the new one. DOM action listeners (`<fsl-action>`)
    *     persist untouched — they read `this.machine` live.
    */
+  /**
+   * Build a machine from FSL source, seeding {@link data} when it is set.
+   *
+   * @param fsl_source - The FSL string to compile.
+   * @returns The compiled machine.
+   */
+  private _build_machine(fsl_source: string): Machine<unknown> {
+    return (this.data === undefined
+      ? sm`${fsl_source}`
+      : jssm_from(fsl_source, { data: this.data })) as Machine<unknown>;
+  }
+
   private _rebuild_machine(): void {
     if (typeof this.fsl !== 'string' || this.fsl.trim().length === 0) {
       return;
     }
     let next: Machine<unknown>;
     try {
-      next = sm`${this.fsl}` as Machine<unknown>;
+      next = this._build_machine(this.fsl);
     } catch {
       return;   // keep-last-good
     }

@@ -473,6 +473,19 @@ describe('FslInstance shadow DOM', () => {
     document.body.removeChild(el);
   });
 
+  it('seeds the machine with initial data when the data property is set', async () => {
+    const seed = { count: 7, items: [{ sku: 'A1', qty: 2 }] };
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.data = seed;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.machine.data()).toEqual(seed);
+
+    document.body.removeChild(el);
+  });
+
   it('updates the state-specific slot name after a transition', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");

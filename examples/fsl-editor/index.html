@@ -103,6 +103,16 @@
     host.setAttribute('layout', 'rl');    // viz left, editor right
     host.setAttribute('theme', 'dark');   // start dark; the toolbar toggles the whole suite
     host.fsl = SAMPLE;
+    // medium-complex extended-state data so the data panel has something to show
+    host.data = {
+      session:  { id: 'a3f9c1', user: 'ada', roles: ['editor', 'admin'] },
+      counters: { steps: 0, faults: 0 },
+      cart: [
+        { sku: 'FSL-001', name: 'State',      qty: 2, price: 12.5 },
+        { sku: 'FSL-002', name: 'Transition', qty: 1, price: 8.0 },
+      ],
+      flags: { dirty: false, synced: true },
+    };
 
     const title   = make('span', 'title');               // empty → suppresses the placeholder
     const toolbar = make('fsl-toolbar', 'toolbar');

@@ -26,7 +26,10 @@ export class FslHookLog extends LitElement {
     :host { display: block; }
     .log {
       padding: 0.4rem 0.6rem; font: 0.78rem var(--_fsl-font-mono);
-      color: var(--_fsl-text); background: var(--_fsl-surface); overflow: auto;
+      color: var(--_fsl-text); background: var(--_fsl-surface);
+      /* Bounded + scrollable so the running log stays a self-contained panel
+         instead of growing without limit and crowding sibling panels out. */
+      max-height: var(--fsl-hook-log-max-height, 12em); overflow-y: auto;
     }
     .entry { padding: 0.05rem 0; color: var(--_fsl-text); }
     .entry::before { content: "▸ "; color: var(--_fsl-accent); }
