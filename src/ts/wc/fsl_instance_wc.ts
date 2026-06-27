@@ -298,8 +298,29 @@ export function resolve_fsl_source(host: HTMLElement, fsl_attr: string): JssmIns
 
 }
 
-/** Valid `layout` values for {@link FslInstance}: stacked (default), or a split. */
-export type FslLayout = '' | 'split' | 'split-stack';
+/**
+ * Valid `layout` values for {@link FslInstance}:
+ * `''` stacked (default) · `'lr'`/`'rl'` side-by-side (editor left / right) ·
+ * `'tb'`/`'bt'` stacked panes (editor top / bottom) · `'editor'`/`'viewer'`
+ * single pane · `'tabs'` one pane at a time · `'auto'` by viewport aspect.
+ */
+export type FslLayout = '' | 'lr' | 'rl' | 'tb' | 'bt' | 'editor' | 'viewer' | 'tabs' | 'auto';
+
+/** Which pane the tabbed layout currently shows. */
+export type FslTab = 'viz' | 'editor';
+
+/**
+ * Resolve `layout="auto"` to a concrete split direction from the viewport
+ * shape: side-by-side (`'lr'`) when at least as wide as tall, else stacked
+ * (`'tb'`). Pure, so it's testable without a laid-out DOM.
+ *
+ * @example
+ *   auto_mode(1200, 800);   // => 'lr'
+ *   auto_mode(600, 900);    // => 'tb'
+ */
+export function auto_mode(width: number, height: number): 'lr' | 'tb' {
+  return width >= height ? 'lr' : 'tb';
+}
 
 /**
  * Clamp a gutter-drag coordinate to a split ratio (percent of the first pane).
@@ -365,19 +386,48 @@ export class FslInstance extends LitElement {
       font-style: italic;
     }
 
-    /* layout="split" / "split-stack": viz | editor with a draggable gutter. */
+    /* layout modes: lr/rl (row) · tb/bt (column) · editor/viewer (single) · tabs. */
     .container.is-split { display: flex; flex-direction: column; }
     .workbench { display: flex; flex: 1 1 auto; min-height: 0; }
-    .workbench.col { flex-direction: column; }
+    .workbench[data-mode="tb"], .workbench[data-mode="bt"], .workbench[data-mode="tabs"] { flex-direction: column; }
     .workbench .pane { display: flex; min-width: 0; min-height: 0; overflow: hidden; }
     .workbench .pane ::slotted(*) { flex: 1; min-width: 0; min-height: 0; }
-    .workbench .viz { flex: 0 0 var(--fsl-split, 50%); }
-    .workbench .editor { flex: 1 1 0; }
+
+    /* pane order (which pane comes first along the main axis) */
+    .workbench[data-mode="lr"] .editor { order: 0; } .workbench[data-mode="lr"] .gutter { order: 1; } .workbench[data-mode="lr"] .viz { order: 2; }
+    .workbench[data-mode="rl"] .viz { order: 0; } .workbench[data-mode="rl"] .gutter { order: 1; } .workbench[data-mode="rl"] .editor { order: 2; }
+    .workbench[data-mode="tb"] .editor { order: 0; } .workbench[data-mode="tb"] .gutter { order: 1; } .workbench[data-mode="tb"] .viz { order: 2; }
+    .workbench[data-mode="bt"] .viz { order: 0; } .workbench[data-mode="bt"] .gutter { order: 1; } .workbench[data-mode="bt"] .editor { order: 2; }
+
+    /* the first pane carries the split ratio; the other fills */
+    .workbench[data-mode="lr"] .editor, .workbench[data-mode="tb"] .editor,
+    .workbench[data-mode="rl"] .viz,    .workbench[data-mode="bt"] .viz    { flex: 0 0 var(--fsl-split, 50%); }
+    .workbench[data-mode="lr"] .viz,    .workbench[data-mode="tb"] .viz,
+    .workbench[data-mode="rl"] .editor, .workbench[data-mode="bt"] .editor { flex: 1 1 0; }
+
+    /* gutter */
     .gutter {
       flex: 0 0 6px; align-self: stretch; cursor: col-resize;
       background: rgba(0, 0, 0, 0.18); touch-action: none;
     }
-    .workbench.col .gutter { cursor: row-resize; }
+    .workbench[data-mode="tb"] .gutter, .workbench[data-mode="bt"] .gutter { cursor: row-resize; }
+
+    /* single-pane modes hide the gutter and the other pane */
+    .workbench[data-mode="editor"] .gutter, .workbench[data-mode="editor"] .viz { display: none; }
+    .workbench[data-mode="viewer"] .gutter, .workbench[data-mode="viewer"] .editor { display: none; }
+    .workbench[data-mode="editor"] .editor, .workbench[data-mode="viewer"] .viz { flex: 1 1 0; }
+
+    /* tabbed: a tab strip + one pane at a time */
+    .workbench[data-mode="tabs"] .gutter { display: none; }
+    .workbench[data-mode="tabs"] .pane { flex: 1 1 0; }
+    .workbench[data-mode="tabs"] .pane[hidden] { display: none; }
+    .tabbar { display: flex; gap: 3px; padding: 5px 6px 0; flex: 0 0 auto; border-bottom: 1px solid rgba(127,127,127,0.25); }
+    .tabbar button {
+      font: inherit; font-size: 12px; padding: 5px 14px; cursor: pointer; color: inherit;
+      background: rgba(127,127,127,0.12); border: 1px solid rgba(127,127,127,0.25);
+      border-bottom: none; border-radius: 6px 6px 0 0;
+    }
+    .tabbar button[aria-selected="true"] { background: var(--_fsl-surface, #fff); font-weight: 600; }
   `;
 
   /**
@@ -388,15 +438,23 @@ export class FslInstance extends LitElement {
   fsl = '';
 
   /**
-   * Panel arrangement. `''` (default) renders the stacked sections; `'split'`
-   * lays the viz and editor panes side-by-side with a draggable gutter;
-   * `'split-stack'` stacks those two panes vertically with a horizontal gutter.
-   * The remaining panels (toolbar, info-panel, …) render below the split.
+   * Panel arrangement of the viz + editor panes (see {@link FslLayout}). `''`
+   * (default) renders the stacked sections; `'lr'`/`'rl'` lay them side-by-side
+   * with a draggable vertical gutter (editor left / right); `'tb'`/`'bt'` stack
+   * them with a horizontal gutter; `'editor'`/`'viewer'` show a single pane;
+   * `'tabs'` shows one pane at a time behind a tab strip; `'auto'` follows the
+   * viewport aspect. Other panels (toolbar, info-panel, …) render below.
    */
   layout: FslLayout = '';
 
   /** Split ratio (percent of the first pane), updated by the gutter drag. */
   private _split = 50;
+  /** Which pane the tabbed layout shows. */
+  private _tab: FslTab = 'viz';
+  /** Concrete direction that `layout="auto"` currently resolves to. */
+  private _autoMode: 'lr' | 'tb' = 'lr';
+  /** Window-resize listener installed while `layout="auto"`, or null. */
+  private _autoListener: (() => void) | null = null;
 
   /**
    * The underlying machine instance, constructed at `connectedCallback`.
@@ -543,11 +601,52 @@ export class FslInstance extends LitElement {
   /** Document pointer-move during a drag: recompute the split ratio. */
   private _onGutterMove = (e: PointerEvent): void => {
     const rect = (this.renderRoot.querySelector('.workbench') as HTMLElement).getBoundingClientRect();
-    this._split = this.layout === 'split-stack'
+    const mode = this._effectiveMode();
+    this._split = (mode === 'tb' || mode === 'bt')
       ? split_ratio(e.clientY, rect.top, rect.height)
       : split_ratio(e.clientX, rect.left, rect.width);
     this.requestUpdate();
   };
+
+  /** Resolve the active layout to a concrete mode (`'auto'` → a direction). */
+  private _effectiveMode(): FslLayout {
+    return this.layout === 'auto' ? this._autoMode : this.layout;
+  }
+
+  /** Tab strip for the `tabs` layout. */
+  private _renderTabbar(): TemplateResult {
+    return html`
+      <div class="tabbar" role="tablist" aria-label="Pane">
+        <button type="button" role="tab" aria-selected=${this._tab === 'viz'}    @click=${() => this._setTab('viz')}>Graph</button>
+        <button type="button" role="tab" aria-selected=${this._tab === 'editor'} @click=${() => this._setTab('editor')}>Code</button>
+      </div>`;
+  }
+
+  /** Switch the visible pane in the `tabs` layout. */
+  private _setTab(tab: FslTab): void {
+    this._tab = tab;
+    this.requestUpdate();
+  }
+
+  /**
+   * Install or remove the window-resize listener that resolves `layout="auto"`
+   * to a concrete direction. Called from {@link updated}; uses the viewport
+   * aspect so it needs no layout measurement (works in jsdom).
+   */
+  private _syncAutoListener(): void {
+    if (this.layout === 'auto' && this._autoListener === null) {
+      const recompute = (): void => {
+        const next = auto_mode(window.innerWidth, window.innerHeight);
+        if (next !== this._autoMode) { this._autoMode = next; this.requestUpdate(); }
+      };
+      this._autoListener = recompute;
+      window.addEventListener('resize', recompute);
+      recompute();
+    } else if (this.layout !== 'auto' && this._autoListener !== null) {
+      window.removeEventListener('resize', this._autoListener);
+      this._autoListener = null;
+    }
+  }
 
   /** Document pointer-up: end the drag and detach the document listeners. */
   private _onGutterUp = (): void => {
@@ -791,6 +890,7 @@ export class FslInstance extends LitElement {
   updated(changed: PropertyValues): void {
     super.updated(changed);
     this._flush_pending_dom_events();
+    this._syncAutoListener();
   }
 
   /**
@@ -869,6 +969,10 @@ export class FslInstance extends LitElement {
 
     // Detach any in-flight gutter-drag document listeners.
     this._onGutterUp();
+    if (this._autoListener !== null) {
+      window.removeEventListener('resize', this._autoListener);
+      this._autoListener = null;
+    }
   }
 
   /**
@@ -1008,17 +1112,18 @@ export class FslInstance extends LitElement {
     const viz    = html`<slot name="viz"><span class="placeholder">no viz configured</span></slot>`;
     const editor = html`<slot name="editor"></slot>`;
 
-    if (this.layout === 'split' || this.layout === 'split-stack') {
+    if (this.layout !== '') {
+      const mode = this._effectiveMode();
       return html`
         <div class="container is-split">
           ${header}
-          <div class="workbench ${this.layout === 'split-stack' ? 'col' : ''}"
-               style="--fsl-split:${this._split}%">
-            <section class="pane viz">${viz}</section>
+          <div class="workbench" data-mode=${mode} style="--fsl-split:${this._split}%">
+            ${mode === 'tabs' ? this._renderTabbar() : ''}
+            <section class="pane viz" ?hidden=${mode === 'tabs' && this._tab !== 'viz'}>${viz}</section>
             <div class="gutter"
                  @pointerdown=${this._onGutterDown}
                  @dblclick=${this._onGutterReset}></div>
-            <section class="pane editor">${editor}</section>
+            <section class="pane editor" ?hidden=${mode === 'tabs' && this._tab !== 'editor'}>${editor}</section>
           </div>
           ${this._renderAuxPanels()}
           <section class="state-section"><slot name=${state_slot_name}></slot></section>

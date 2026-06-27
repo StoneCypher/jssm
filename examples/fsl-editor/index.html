@@ -142,7 +142,7 @@
 
     // Build the host with its fsl set BEFORE connect, then slot the panels.
     const host = document.createElement('fsl-instance');
-    host.setAttribute('layout', 'split');
+    host.setAttribute('layout', 'rl');   // viz left, editor right
     host.fsl = SAMPLE;
     const title = document.createElement('span'); title.setAttribute('slot', 'title'); // suppress placeholder
     const viz = document.createElement('fsl-viz'); viz.setAttribute('slot', 'viz');
@@ -173,7 +173,7 @@
 
     // Layout radio pair → the host's arrangement attribute.
     const laySide = document.getElementById('lay-side'), layStack = document.getElementById('lay-stack');
-    const setLayout = stacked => { host.setAttribute('layout', stacked ? 'split-stack' : 'split'); layStack.setAttribute('aria-pressed', stacked); laySide.setAttribute('aria-pressed', !stacked); };
+    const setLayout = stacked => { host.setAttribute('layout', stacked ? 'bt' : 'rl'); layStack.setAttribute('aria-pressed', stacked); laySide.setAttribute('aria-pressed', !stacked); };
     laySide.onclick = () => setLayout(false); layStack.onclick = () => setLayout(true);
 
     // Feature toggles → the editor's attributes.
