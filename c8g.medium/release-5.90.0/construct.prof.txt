@@ -1,0 +1,113 @@
+Statistical profiling result from isolate-0xffff9f5d0000-27205-v8.log, (37 ticks, 0 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+     11   29.7%          /usr/bin/node
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+
+ [C++]:
+   ticks  total  nonlib   name
+     19   51.4%   73.1%  fputc
+      4   10.8%   15.4%  __GI___libc_write
+      1    2.7%    3.8%  syscall
+      1    2.7%    3.8%  __GI___memset_generic
+      1    2.7%    3.8%  _IO_file_xsputn@@GLIBC_2.17
+
+ [Summary]:
+   ticks  total  nonlib   name
+      0    0.0%    0.0%  JavaScript
+     26   70.3%  100.0%  C++
+      0    0.0%    0.0%  GC
+     11   29.7%          Shared libraries
+
+ [C++ entry points]:
+   ticks    cpp   total   name
+     16   80.0%   43.2%  fputc
+      2   10.0%    5.4%  __GI___libc_write
+      1    5.0%    2.7%  syscall
+      1    5.0%    2.7%  _IO_file_xsputn@@GLIBC_2.17
+
+ [Bottom up (heavy) profile]:
+  Note: percentage shows a share of a particular caller in the total
+  amount of its parent calls.
+  Callers occupying less than 1.0% are not shown.
+
+   ticks parent  name
+     19   51.4%  fputc
+      7   36.8%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      7  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      2   28.6%        JS: ~<anonymous> node:net:1:1
+      2  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      2  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   14.3%        JS: ~refresh node:internal/util/colors:26:10
+      1  100.0%          JS: ~<anonymous> node:internal/util/colors:1:1
+      1  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1   14.3%        JS: ~<anonymous> node:stream:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   14.3%        JS: ~<anonymous> node:internal/streams/readable:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   14.3%        JS: ~<anonymous> node:internal/streams/duplex:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   14.3%        JS: ~<anonymous> node:internal/streams/compose:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      5   26.3%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      2   10.5%    /usr/bin/node
+      2  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    5.3%    JS: ~Duplex node:internal/streams/duplex:64:16
+      1  100.0%      JS: ~Socket node:net:365:16
+      1  100.0%        JS: ~refresh node:internal/util/colors:26:10
+      1  100.0%          JS: ~<anonymous> node:internal/util/colors:1:1
+      1  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1    5.3%    JS: ~<anonymous> node:internal/streams/readable:1:1
+      1  100.0%      JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%        JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1  100.0%          JS: ~<anonymous> node:internal/streams/duplex:1:1
+      1  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+
+     11   29.7%  /usr/bin/node
+      3   27.3%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      2   18.2%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      2  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      2  100.0%        JS: ~refresh node:internal/util/colors:26:10
+      2  100.0%          JS: ~<anonymous> node:internal/util/colors:1:1
+      2  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1    9.1%    JS: ~<anonymous> node:stream:1:1
+      1  100.0%      JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%        JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1  100.0%          JS: ~<anonymous> node:net:1:1
+      1  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1    9.1%    JS: ~<anonymous> node:internal/abort_controller:1:1
+      1  100.0%      JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%        JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1  100.0%          JS: ~<anonymous> node:internal/streams/operators:1:1
+      1  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+
+      4   10.8%  __GI___libc_write
+      2   50.0%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      2  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   50.0%        JS: ~<anonymous> node:internal/streams/pipeline:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   50.0%        JS: ~<anonymous> node:internal/streams/duplex:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+
+      1    2.7%  syscall
+      1  100.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      1    2.7%  __GI___memset_generic
+
+      1    2.7%  _IO_file_xsputn@@GLIBC_2.17
+      1  100.0%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1  100.0%        JS: ~<anonymous> node:internal/streams/duplex:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+
