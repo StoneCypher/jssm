@@ -71,17 +71,25 @@ describe('<fsl-toolbar>', () => {
     expect(q(toolbar, '.menu')).toBeNull();
 
     const got: Array<{ format: string; content: string }> = [];
-    toolbar.addEventListener('fsl-export', e => got.push((e as CustomEvent).detail));
-    for (const label of ['Graphviz DOT', 'JSON (serialized)', 'FSL source']) {
+    // dot/json/fsl resolve synchronously; SVG is async (graphviz), so wait for all four.
+    const allExported = new Promise<void>(res => {
+      toolbar.addEventListener('fsl-export', e => {
+        got.push((e as CustomEvent).detail);
+        if (got.length === 4) { res(); }
+      });
+    });
+    for (const label of ['Graphviz DOT', 'JSON (serialized)', 'FSL source', 'SVG']) {
       byLabel(toolbar, 'Export').click();
       await toolbar.updateComplete;
       byText(toolbar, '.menu button', label).click();
       await toolbar.updateComplete;
     }
-    expect(got.map(g => g.format)).toEqual(['dot', 'json', 'fsl']);
+    await allExported;
+    expect(got.map(g => g.format)).toEqual(['dot', 'json', 'fsl', 'svg']);
     expect(got[0].content).toContain('digraph');
     expect(got[1].content).toContain('jssm_version');
     expect(got[2].content).toContain("A 'go' -> B");
+    expect(got[3].content).toContain('<svg');
     host.remove();
   });
 

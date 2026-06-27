@@ -2,7 +2,7 @@ import { LitElement, html, css, type TemplateResult } from 'lit';
 import { state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
-import { machine_to_dot } from '../jssm_viz.js';
+import { machine_to_dot, machine_to_svg_string } from '../jssm_viz.js';
 import type { FslLayout } from './fsl_instance_wc.js';
 import type { Machine } from '../jssm.js';
 
@@ -22,11 +22,15 @@ interface HostTarget extends HTMLElement {
 /** Which dropdown menu is open (at most one). */
 type OpenMenu = '' | 'layout' | 'export';
 
+/** A format the Export pulldown can produce. */
+type ExportFormat = 'dot' | 'json' | 'fsl' | 'svg';
+
 /** Export formats offered by the Export pulldown. */
-const EXPORT_FORMATS = [
-  { value: 'dot' as const,  label: 'Graphviz DOT' },
-  { value: 'json' as const, label: 'JSON (serialized)' },
-  { value: 'fsl' as const,  label: 'FSL source' },
+const EXPORT_FORMATS: ReadonlyArray<{ value: ExportFormat; label: string }> = [
+  { value: 'dot',  label: 'Graphviz DOT' },
+  { value: 'json', label: 'JSON (serialized)' },
+  { value: 'fsl',  label: 'FSL source' },
+  { value: 'svg',  label: 'SVG' },
 ];
 
 /* Panel icons — Solar (CC BY 4.0) bold-duotone. Layout icons — hand-drawn
@@ -161,7 +165,7 @@ export class FslToolbar extends LitElement {
   }
 
   /** Emit `fsl-export` with the chosen format's content, generated from the host. */
-  private _export(format: 'dot' | 'json' | 'fsl'): void {
+  private async _export(format: ExportFormat): Promise<void> {
     const host = this._host;
     this._openMenu = '';
     if (host === null) { return; }
@@ -170,6 +174,8 @@ export class FslToolbar extends LitElement {
       content = machine_to_dot(host.machine);
     } else if (format === 'json') {
       content = JSON.stringify(host.machine.serialize(), null, 2);
+    } else if (format === 'svg') {
+      content = await machine_to_svg_string(host.machine);
     } else {
       content = host.fsl;
     }
