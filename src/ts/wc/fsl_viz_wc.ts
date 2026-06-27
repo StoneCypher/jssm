@@ -94,8 +94,11 @@ export class FslViz extends LitElement {
       justify-content: center;
     }
     .container svg {
-      max-width: 100%;
-      max-height: 100%;
+      /* Zoom the graph to fill the container (aspect maintained via the SVG's
+         own preserveAspectRatio), leaving 5% padding on the constraining axis —
+         the 90% box centered in the flex container yields the 5% inset. */
+      width: 90%;
+      height: 90%;
     }
   `;
 
