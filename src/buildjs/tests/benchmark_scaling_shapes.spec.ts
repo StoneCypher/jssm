@@ -32,4 +32,10 @@ describe('FSL shape generators — topology', () => {
     expect(lines).toContain('s0 -> s2;');
   });
 
+  test('generators emit bare FSL with no allows_override config (parses on pre-5.86 engines)', () => {
+    expect(shapes.buildChainFSL(4)).not.toContain('allows_override');
+    expect(shapes.buildDenseFSL(4)).not.toContain('allows_override');
+    expect(shapes.buildHubFSL(4)).not.toContain('allows_override');
+  });
+
 });

@@ -19,7 +19,7 @@
  *  @example buildChainFSL(3).split('\n').includes('s2 -> s0;') // => true
  */
 function buildChainFSL(n) {
-  const lines = ['allows_override: true;'];
+  const lines = [];
   for (let i = 0; i < n - 1; ++i) lines.push(`s${i} -> s${i + 1};`);
   lines.push(`s${n - 1} -> s0;`);
   return lines.join('\n');
@@ -35,7 +35,7 @@ function buildChainFSL(n) {
  *  @example buildDenseFSL(3).includes('s0 -> s0;') // => false
  */
 function buildDenseFSL(n) {
-  const lines = ['allows_override: true;'];
+  const lines = [];
   for (let i = 0; i < n; ++i) {
     for (let j = 0; j < n; ++j) {
       if (i !== j) lines.push(`s${i} -> s${j};`);
@@ -54,7 +54,7 @@ function buildDenseFSL(n) {
  *  @example buildHubFSL(3).split('\n').includes('s0 -> s2;') // => true
  */
 function buildHubFSL(n) {
-  const lines = ['allows_override: true;'];
+  const lines = [];
   for (let i = 1; i < n; ++i) {
     lines.push(`s${i} -> s0;`);
     lines.push(`s0 -> s${i};`);

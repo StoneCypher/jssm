@@ -336,7 +336,9 @@ function buildShapeByName(name) {
 // via the graviton runner's `--harness-from` overlay — degrades to a partial suite
 // instead of crashing on a method it doesn't have yet. With a current build every
 // flag is true and the suite includes every planned column.
-const probe = sm(['allows_override: true;\ns0 -> s1;']);
+// Bare FSL only (no allows_override config) so the probe itself parses on pre-5.86
+// engines — otherwise the very degradation framework it drives would crash here.
+const probe = sm(['s0 -> s1;']);
 const HAS   = {
   set_hook               : typeof probe.set_hook               === 'function',
   list_exits             : typeof probe.list_exits             === 'function',
