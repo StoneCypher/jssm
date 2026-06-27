@@ -37,4 +37,26 @@ describe('parse_tape / serialize_tape', () => {
     try { parse_tape(txt); expect.unreachable(); }
     catch (e) { expect((e as ReplayError).kind).toBe('unknown_op'); expect((e as ReplayError).step).toBe(0); }
   });
+
+  it('rejects a header line that is not valid JSON', () => {
+    try { parse_tape('not json at all'); expect.unreachable(); }
+    catch (e) { expect((e as ReplayError).kind).toBe('malformed_tape'); }
+  });
+
+  it('rejects a header missing fsl_tape/machine', () => {
+    try { parse_tape('{"fsl_tape":1}'); expect.unreachable(); }
+    catch (e) { expect((e as ReplayError).kind).toBe('malformed_tape'); }
+  });
+
+  it('rejects a stimulus line that is not valid JSON', () => {
+    const txt = '{"fsl_tape":1,"machine":{}}\nnot-json';
+    try { parse_tape(txt); expect.unreachable(); }
+    catch (e) { expect((e as ReplayError).kind).toBe('malformed_tape'); expect((e as ReplayError).step).toBe(0); }
+  });
+
+  it('rejects an action stimulus with no name', () => {
+    const txt = '{"fsl_tape":1,"machine":{}}\n{"op":"action"}';
+    try { parse_tape(txt); expect.unreachable(); }
+    catch (e) { expect((e as ReplayError).kind).toBe('malformed_tape'); }
+  });
 });

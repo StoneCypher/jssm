@@ -19,6 +19,10 @@ describe('canonicalize (RFC 8785)', () => {
     expect(canonicalize({ a: 1, b: undefined, c: 3 })).toBe('{"a":1,"c":3}');
   });
 
+  it('serializes undefined array elements as null (RFC 8785)', () => {
+    expect(canonicalize([1, undefined, 3])).toBe('[1,null,3]');
+  });
+
   it('canonical_config tags a version and carries state+data', () => {
     const s = canonical_config('Locked', { n: 1 });
     expect(s).toBe(`{"data":{"n":1},"state":"Locked","v":${CANONICAL_FORMAT_VERSION}}`);

@@ -42,4 +42,17 @@ describe('replay', () => {
     try { replay(SRC, tape('{"op":"timer"}')); expect.unreachable(); }
     catch (e) { expect((e as ReplayError).kind).toBe('no_pending_timer'); }
   });
+
+  it('drives a transition op', () => {
+    const r = replay(SRC, tape('{"op":"transition","name":"Unlocked"}'));
+    expect(r.steps[0].op).toBe('transition');
+    expect(r.steps[0].accepted).toBe(true);
+    expect(r.final_state).toBe('Unlocked');
+  });
+
+  it('fires a pending after-timeout on a timer stimulus', () => {
+    const r = replay('a after 100 -> b;', tape('{"op":"timer"}'));
+    expect(r.steps[0]).toEqual({ index: 0, op: 'timer', accepted: true });
+    expect(r.final_state).toBe('b');
+  });
 });

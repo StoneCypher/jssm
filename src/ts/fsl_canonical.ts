@@ -8,13 +8,6 @@
 
 const CANONICAL_FORMAT_VERSION = 1;
 
-// Code-unit comparator. Plain `<`/`>` on JS strings already compares by UTF-16
-// code unit (NOT locale) — that is exactly RFC 8785's rule. localeCompare/Intl
-// are deliberately avoided so output never depends on the host locale.
-function code_unit_less(a: string, b: string): number {
-  return a < b ? -1 : a > b ? 1 : 0;
-}
-
 /**
  * Serialize `value` to RFC 8785 canonical JSON.
  *
@@ -33,7 +26,10 @@ function canonicalize(value: unknown): string {
     return '[' + value.map(v => canonicalize(v === undefined ? null : v)).join(',') + ']';
   }
   const obj  = value as Record<string, unknown>;
-  const keys = Object.keys(obj).filter(k => obj[k] !== undefined).sort(code_unit_less);
+  // Default Array.prototype.sort() orders by UTF-16 code unit per the ECMAScript
+  // spec — locale-independent and exactly RFC 8785's rule. localeCompare/Intl are
+  // deliberately NOT used, so the output never depends on the host locale.
+  const keys = Object.keys(obj).filter(k => obj[k] !== undefined).sort();
   return '{' + keys.map(k => JSON.stringify(k) + ':' + canonicalize(obj[k])).join(',') + '}';
 }
 

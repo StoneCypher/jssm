@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import { parseFslArgs }   from '../../cli-utils';
 import { parse_tape, ReplayError } from '../../../fsl_stimulus_tape';
+import type { ReplayErrorKind }    from '../../../fsl_stimulus_tape';
 import { runReplay }      from './run';
 
 const SPEC = {
@@ -13,10 +14,17 @@ const SPEC = {
   usage: 'fsl-run [options] [<doc.fsl>] <tape.jsonl>',
 };
 
-const EXIT: Record<string, number> = {
+const EXIT: Record<ReplayErrorKind, number> = {
   parse_error: 3, malformed_tape: 4, unsupported_format_version: 5,
   unknown_op: 4, source_hash_mismatch: 6, no_pending_timer: 7,
 };
+
+// Map a thrown error to an exit code. A ReplayError maps by its kind; anything
+// else (e.g. an FSL parse failure thrown by the compiler) falls back to 2.
+function exit_for(e: unknown): number {
+  const kind = (e as ReplayError).kind;
+  return kind in EXIT ? EXIT[kind] : 2;
+}
 
 /**
  * `fsl run` entry point. `fsl run <doc> <tape>`, or `fsl run <tape>` when the
@@ -48,7 +56,7 @@ export async function cli(argv: string[]): Promise<number> {
   catch (e) {
     const re = e as ReplayError;
     process.stderr.write(`fsl-run: ${re.message}\n`);
-    return EXIT[re.kind] ?? 2;
+    return exit_for(e);
   }
 
   let source: string | undefined = tape.header.machine.source;
@@ -63,7 +71,7 @@ export async function cli(argv: string[]): Promise<number> {
   catch (e) {
     const re = e as ReplayError;
     process.stderr.write(`fsl-run: ${re.message}\n`);
-    return EXIT[re.kind] ?? 2;
+    return exit_for(e);
   }
 
   const out = async (s: string): Promise<void> => {
