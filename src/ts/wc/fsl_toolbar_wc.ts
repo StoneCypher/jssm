@@ -111,6 +111,10 @@ export class FslToolbar extends LitElement {
     }
     .tb:hover { background: color-mix(in srgb, var(--_fsl-text) 8%, var(--_fsl-surface)); }
     .tb[aria-pressed="true"], .tb[aria-expanded="true"] {
+      /* lift the active button above its -1px-overlapped neighbours so its full
+         accent border paints on top (its right edge isn't covered by the next,
+         unpressed, button's left border). */
+      position: relative; z-index: 1;
       background: color-mix(in srgb, var(--_fsl-accent) 20%, var(--_fsl-surface));
       color: var(--_fsl-text);   /* keep the symbol readable; the tint + border mark "selected" */
       border-color: color-mix(in srgb, var(--_fsl-accent) 55%, var(--_fsl-border));
