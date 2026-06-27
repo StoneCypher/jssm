@@ -78,6 +78,14 @@
   .help-inner code { font-family:var(--mono); font-size:.82em; background:#232a38; padding:.05rem .3rem; border-radius:3px; }
   .help-inner ul { margin:.3rem 0; padding-left:1.1rem; } .help-inner li { margin:.25rem 0; color:var(--text-dim); }
   .help-inner li b { color:var(--text); font-weight:600; }
+  .help-inner details { border-top:1px solid #2a2f3a; }
+  .help-inner details:first-of-type { border-top:0; }
+  .help-inner summary { cursor:pointer; padding:.55rem 0; font-weight:600; font-size:.84rem; list-style:none; display:flex; align-items:center; gap:.5rem; color:var(--text); }
+  .help-inner summary::-webkit-details-marker { display:none; }
+  .help-inner summary::before { content:"▸"; color:var(--accent); transition:transform .15s; }
+  @media (prefers-reduced-motion: reduce) { .help-inner summary::before { transition:none; } }
+  .help-inner details[open] summary::before { transform:rotate(90deg); }
+  .help-inner .doc { padding:0 0 .6rem .9rem; }
 
   footer.hint { padding:.5rem 1.4rem 1rem; color:var(--text-dim); font-size:.82rem; }
   footer.hint kbd { font-family:var(--mono); font-size:.76rem; background:#232a38; border:1px solid #000; border-radius:3px; padding:.05rem .35rem; color:var(--text); }
@@ -128,21 +136,27 @@
       <!-- <fsl-instance> host is prepended here in JS (its fsl is set before connect) -->
       <aside class="help" id="help">
         <div class="help-inner">
-          <h2>What you're looking at</h2>
-          A real <code>&lt;fsl-instance&gt;</code> hosting <code>&lt;fsl-viz&gt;</code> and
-          <code>&lt;fsl-editor&gt;</code> in its slots. The instance owns the split layout and the
-          draggable gutter; editing writes back to it, the machine <b>rebuilds</b>, and the graph
-          follows. No glue code.
-          <h3>Try this</h3>
-          <ul>
-            <li><b>Completions</b> — <kbd>Ctrl</kbd>+<kbd>Space</kbd> after a <code>shape:</code> or <code>color:</code></li>
-            <li><b>Color chips</b> — change <code>crimson</code> to <code>teal</code> and watch the graph + chip follow</li>
-            <li><b>Lint</b> — break a line (e.g. delete a <code>;</code>) and watch the underline + status</li>
-            <li><b>Theme</b> — toggle ☾ Dark; the editor re-themes live</li>
-            <li><b>Toggles</b> — turn Chips / Lint / Complete off and on</li>
-          </ul>
-          <h3>Drag the gutter</h3>
-          <ul><li>Resize the panes; <b>double-click</b> the gutter to reset to 50/50. ▤ Stack flips to a vertical split.</li></ul>
+          <h2>Documentation</h2>
+          <details open>
+            <summary>The composition</summary>
+            <div class="doc">A real <code>&lt;fsl-instance&gt;</code> hosting <code>&lt;fsl-viz&gt;</code> and <code>&lt;fsl-editor&gt;</code> in its slots. The instance owns the layout and gutter; editing writes back, the machine <b>rebuilds</b>, and the graph follows. No glue code.</div>
+          </details>
+          <details>
+            <summary>Editing &amp; autocomplete</summary>
+            <div class="doc"><kbd>Ctrl</kbd>+<kbd>Space</kbd> after a <code>:</code> for context completions — keys at the start of a line, values (shapes, colours with swatches) after a key.</div>
+          </details>
+          <details>
+            <summary>Layouts</summary>
+            <div class="doc">The <b>View</b> menu chooses how the panes sit: side by side or stacked (editor on either side), a single pane, tabbed, or <b>Auto</b> by window shape. Drag the gutter to resize; double-click to reset.</div>
+          </details>
+          <details>
+            <summary>Highlighting</summary>
+            <div class="doc">Beyond syntax colours, the editor reads the parsed machine: <b>colour values</b> get a swatch chip, <b>state names</b> are tinted, and <b>shape / enum values</b> are marked.</div>
+          </details>
+          <details>
+            <summary>Theme</summary>
+            <div class="doc">The ☀ / ☾ buttons switch light / dark; the editor re-themes live via the <code>--fsl-*</code> tokens.</div>
+          </details>
         </div>
       </aside>
     </div>
@@ -157,16 +171,29 @@
     import { fslDiagnostics } from './fsl-editor.bundle.js';   // also registers the components
 
     const SAMPLE = [
-      'machine_name: "Traffic Light";',
+      'machine_name    : "Traffic Light";',
+      'machine_version : 1.0.0;',
+      'machine_license : MIT;',
       '',
-      "Off 'power' -> Red;",
-      "Red 'go' -> Green 'caution' -> Yellow 'stop' -> Red;",
-      "Green 'fault' -> Off;",
+      'graph_layout    : dot;',
+      'flow            : down;',
       '',
-      'state Off:    { color: dimgray; shape: doublecircle; };',
-      'state Red:    { color: crimson; shape: circle; };',
-      'state Green:  { color: green; };',
-      'state Yellow: { color: gold; };',
+      "Off 'Enable' -> Red;",
+      "Red 'Next' => Green 'Next' => Yellow 'Next' => Red;",
+      '[Red Yellow Green] ~> Off;',
+      '',
+      '// visual styling',
+      'arrange [Green Yellow];',
+      '',
+      'state        : { corners: rounded; };',
+      'state Red    : { background-color: pink; };',
+      'state Yellow : { background-color: lightyellow; };',
+      'state Green  : { background-color: lightgreen; };',
+      'state Off : {',
+      '  background-color : steelblue;',
+      '  text-color       : white;',
+      '  corners          : regular;',
+      '};',
     ].join('\n');
 
     // Build the host with its fsl set BEFORE connect, then slot the panels.
