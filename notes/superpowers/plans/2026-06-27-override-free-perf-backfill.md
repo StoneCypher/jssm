@@ -126,6 +126,8 @@
 
 ### Task 6: Multi-era bundle-name normalization in graviton_perf.cjs
 
+> **✅ DONE — commit `cb1836be`.** The 5.50 mappings already existed; the only gap was the 5.11 nonmin fallback (5.11 ships no `.cjs.nonmin.js`, so `dist/jssm.es5.nonmin.cjs` now falls back to the unmin `.cjs.js`, guarded + ordered after the 5.50 mapping). `buildRemoteScript` needs no change (it uses the hard committed-dist guard, not normalization). 120/120 graviton specs.
+
 **Files:**
 - Modify: `src/scripts/graviton_perf.cjs` — `buildDetachedUserData` (and `buildRemoteScript` if it has the same block) normalization: map historical es5-cjs bundle names to `dist/jssm.es5.cjs` and `dist/jssm.es5.nonmin.cjs`. Cover: 5.11 (`jssm.es5.cjs.js` + `jssm.es5.cjs.min.js`), 5.50 (`jssm.es5.cjs.js` + `jssm.es5.cjs.nonmin.js`), 5.98+ (already correct).
 - Test: `src/scripts/tests/graviton_perf.spec.ts`
