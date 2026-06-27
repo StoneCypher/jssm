@@ -134,34 +134,10 @@ function writeMarkdownPivot() {
 
 // ----------------------------------------------------------------------------
 // Shape factories (structured topologies — deterministic from N)
+// FSL generators live in ./benchmark_scaling_shapes.cjs so they stay unit-testable.
 // ----------------------------------------------------------------------------
 
-function buildChainFSL(n) {
-  const lines = ['allows_override: true;'];
-  for (let i = 0; i < n - 1; ++i) lines.push(`s${i} -> s${i + 1};`);
-  lines.push(`s${n - 1} -> s0;`);
-  return lines.join('\n');
-}
-
-function buildDenseFSL(n) {
-  const lines = ['allows_override: true;'];
-  for (let i = 0; i < n; ++i) {
-    for (let j = 0; j < n; ++j) {
-      if (i !== j) lines.push(`s${i} -> s${j};`);
-    }
-  }
-  return lines.join('\n');
-}
-
-function buildHubFSL(n) {
-  // s0 is the hub; every other state has edges to and from s0.
-  const lines = ['allows_override: true;'];
-  for (let i = 1; i < n; ++i) {
-    lines.push(`s${i} -> s0;`);
-    lines.push(`s0 -> s${i};`);
-  }
-  return lines.join('\n');
-}
+const { buildChainFSL, buildDenseFSL, buildHubFSL } = require('./benchmark_scaling_shapes.cjs');
 
 function installHubHooks(machine, n) {
   // One per-edge hook for every edge in the hub topology.
