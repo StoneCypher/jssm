@@ -382,10 +382,14 @@ export class FslInstance extends LitElement {
          --fsl-color-* (set on the host from the outer document) overrides these. */
       --fsl-color-surface: #ffffff; --fsl-color-text: #222222; --fsl-color-accent: #5b9dff;
       --fsl-color-border: #e5e5e5;  --fsl-color-muted: #9aa0a6;
+      --fsl-color-json-key: #5b3da8; --fsl-color-json-string: #2e7d32;
+      --fsl-color-json-number: #b8860b; --fsl-color-json-atom: #c2185b;
     }
     :host([theme="dark"]) {
       --fsl-color-surface: #1e1e22; --fsl-color-text: #d6d6d6; --fsl-color-accent: #82aaff;
       --fsl-color-border: #2a2a2e;  --fsl-color-muted: #5a5f66;
+      --fsl-color-json-key: #82aaff; --fsl-color-json-string: #c3e88d;
+      --fsl-color-json-number: #f78c6c; --fsl-color-json-atom: #c792ea;
     }
     .container {
       width: 100%;
