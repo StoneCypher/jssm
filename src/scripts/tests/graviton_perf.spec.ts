@@ -291,9 +291,15 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
   });
 
-  test('the --harness-from overlay also checks out the memory module', () => {
+  test('the --harness-from overlay checks out the WHOLE src/buildjs tree, not a stale hand-list', () => {
+    // benchmark_scaling.cjs requires ~8 sibling modules; a hand-maintained file
+    // list silently goes stale when a new one is added (e.g. benchmark_gc.cjs),
+    // breaking old-release runs with MODULE_NOT_FOUND. Overlay the directory so
+    // every current harness module is always present.
     const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
-    expect(s).toContain('benchmark_scaling_memory.cjs');
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
+    // and NOT the old narrow per-file list
+    expect(s).not.toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_memory.cjs');
   });
 
   test('benny:scaling npm script exposes gc (covers the non-overlay run paths)', () => {
@@ -360,8 +366,7 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
   test('--harness-from overlays today\'s harness and runs it directly', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
     expect(s).toContain('git fetch origin "main"');
-    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs');
-    expect(s).toContain('benchmark/fixtures');
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
     expect(s).toContain('npm install benny');
     expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
     expect(s).not.toContain('npm run benny:scaling');
@@ -705,12 +710,22 @@ describe('buildDetachedUserData — self-contained release run', () => {
   test('--harness-from overlays today\'s harness from the ref and runs it directly', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
     expect(s).toContain('git fetch origin "main"');
-    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs');
-    expect(s).toContain('benchmark/fixtures');
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
     expect(s).toContain('npm install benny');
     expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
     // old releases lack the npm scripts, so the overlay must NOT call them
     expect(s).not.toContain('npm run benny:scaling');
+  });
+
+  test('--harness-from overlay (backfill) checks out the WHOLE src/buildjs tree so no harness module is missing', () => {
+    // Regression for the stale-list bug: the harness gained benchmark_gc.cjs,
+    // benchmark_load.cjs, benchmark_timing.cjs, benchmark_scaling_latency.cjs,
+    // benchmark_scaling_exponents.cjs, benchmark_bundle_size.cjs after the old
+    // per-file list was written; a release predating them died on require() with
+    // MODULE_NOT_FOUND before any benchmark ran. The directory overlay fixes it.
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
+    expect(s).not.toContain('src/buildjs/benchmark_scaling_memory.cjs src/buildjs/benchmark_scaling_plan.cjs');
   });
 
   test('--harness-from still does NOT rebuild (benchmarks the shipped committed dist, #725)', () => {

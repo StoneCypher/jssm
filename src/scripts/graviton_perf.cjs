@@ -538,7 +538,13 @@ function buildRemoteScript(params) {
     ? [
         `# 4. Overlay the current benchmark harnesses from "${harnessFrom}" and run them directly.`,
         `git fetch origin "${harnessFrom}"`,
-        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_memory.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
+        // Overlay the WHOLE src/buildjs tree, not a hand-listed subset: today's
+        // benchmark_scaling.cjs requires ~8 sibling modules (plan, memory, exponents,
+        // bundle_size, latency, gc, timing, load) and a per-file list silently goes
+        // stale as new ones are added — a release predating one dies on require() with
+        // MODULE_NOT_FOUND before any benchmark runs. The directory overlay is
+        // future-proof: whatever the current harness needs comes with it.
+        'git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures',
         'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
         `${deep ? 'BENNY_DEEP=1 ' : ''}node --expose-gc ./src/buildjs/benchmark_scaling.cjs`,
         '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
@@ -684,7 +690,13 @@ function buildDetachedUserData(params) {
         `#    npm script and the current metric set can still be measured.`,
         'npm install --no-audit --no-fund',
         `git fetch origin "${harnessFrom}"`,
-        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_memory.cjs src/buildjs/benchmark_scaling_plan.cjs src/buildjs/benchmark.cjs benchmark/fixtures',
+        // Overlay the WHOLE src/buildjs tree, not a hand-listed subset: today's
+        // benchmark_scaling.cjs requires ~8 sibling modules (plan, memory, exponents,
+        // bundle_size, latency, gc, timing, load) and a per-file list silently goes
+        // stale as new ones are added — a release predating one dies on require() with
+        // MODULE_NOT_FOUND before any benchmark runs. The directory overlay is
+        // future-proof: whatever the current harness needs comes with it.
+        'git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures',
         'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
         '# 3b. Normalize the es5 cjs bundle name: releases before ~5.98 shipped it as',
         "#     jssm.es5.cjs.js / jssm.es5.cjs.nonmin.js, but today's harness requires",
