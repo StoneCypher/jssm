@@ -66,6 +66,22 @@
       "import": "./dist/wc/instance.define.js",
       "default": "./dist/wc/instance.define.js"
     },
+    "./wc/editor": {
+      "import": "./dist/wc/editor.js",
+      "default": "./dist/wc/editor.js"
+    },
+    "./wc/editor/define": {
+      "import": "./dist/wc/editor.define.js",
+      "default": "./dist/wc/editor.define.js"
+    },
+    "./wc/widgets": {
+      "import": "./dist/wc/widgets.js",
+      "default": "./dist/wc/widgets.js"
+    },
+    "./wc/widgets/define": {
+      "import": "./dist/wc/widgets.define.js",
+      "default": "./dist/wc/widgets.define.js"
+    },
     "./cm6": {
       "types": "./dist/es6/cm6/fsl_language.d.ts",
       "import": "./dist/cm6/fsl_language.js",
@@ -103,6 +119,10 @@
     "dist/wc/viz.define.js",
     "dist/wc/instance.js",
     "dist/wc/instance.define.js",
+    "dist/wc/editor.js",
+    "dist/wc/editor.define.js",
+    "dist/wc/widgets.js",
+    "dist/wc/widgets.define.js",
     "dist/cm6/fsl_language.js",
     "dist/es6/cm6/fsl_language.d.ts",
     "dist/cdn/viz.js",
@@ -165,13 +185,15 @@
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
     "make_wc_instance_es6": "rollup -c rollup.config.wc.instance.es6.js",
     "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
+    "make_wc_editor_es6": "rollup -c rollup.config.wc.editor.es6.js",
+    "make_wc_widgets_es6": "rollup -c rollup.config.wc.widgets.es6.js",
     "make_cm6": "rollup -c rollup.config.cm6.es6.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
     "prep": "npm run makever && npm run peg",
     "make": "node src/buildjs/run_build.cjs --profile=fast",
-    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
+    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_wc_editor_es6 && npm run make_wc_widgets_es6 && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
