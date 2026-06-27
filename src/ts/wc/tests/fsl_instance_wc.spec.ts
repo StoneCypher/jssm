@@ -427,6 +427,20 @@ describe('FslInstance shadow DOM', () => {
     document.body.removeChild(el);
   });
 
+  it('reflects the theme property so its built-in palette can drive the suite', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "Off 'flip' -> On;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.theme).toBe('light');                  // default
+    el.theme = 'dark';
+    await (el as any).updateComplete;
+    expect(el.getAttribute('theme')).toBe('dark');   // reflected to the attribute
+
+    document.body.removeChild(el);
+  });
+
   it('updates the state-specific slot name after a transition', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");

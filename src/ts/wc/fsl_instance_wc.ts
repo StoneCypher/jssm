@@ -376,6 +376,16 @@ export class FslInstance extends LitElement {
   static styles = css`
     :host {
       display: block;
+      /* Built-in palette. These public --fsl-color-* tokens cascade to every
+         slotted widget (each derives its internal --_fsl-* from them), so one
+         theme attribute on the host themes the whole suite. A consumer's own
+         --fsl-color-* (set on the host from the outer document) overrides these. */
+      --fsl-color-surface: #ffffff; --fsl-color-text: #222222; --fsl-color-accent: #5b9dff;
+      --fsl-color-border: #e5e5e5;  --fsl-color-muted: #9aa0a6;
+    }
+    :host([theme="dark"]) {
+      --fsl-color-surface: #1e1e22; --fsl-color-text: #d6d6d6; --fsl-color-accent: #82aaff;
+      --fsl-color-border: #2a2a2e;  --fsl-color-muted: #5a5f66;
     }
     .container {
       width: 100%;
@@ -446,6 +456,14 @@ export class FslInstance extends LitElement {
    * viewport aspect. Other panels (toolbar, info-panel, …) render below.
    */
   layout: FslLayout = '';
+
+  /**
+   * Suite color theme, reflected to the `theme` attribute. Drives the built-in
+   * `--fsl-color-*` palette, which cascades to every slotted widget — so one
+   * value themes the whole suite. `<fsl-toolbar>` sets this from its theme
+   * buttons.
+   */
+  theme: 'light' | 'dark' = 'light';
 
   /** Split ratio (percent of the first pane), updated by the gutter drag. */
   private _split = 50;
@@ -560,6 +578,7 @@ export class FslInstance extends LitElement {
   static properties = {
     fsl    : { type: String, reflect: false },
     layout : { type: String, reflect: true },
+    theme  : { type: String, reflect: true },
   };
 
   /**
