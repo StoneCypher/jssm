@@ -83,3 +83,21 @@ describe('closedWalk — legal, closed laps (no override reset needed)', () => {
   });
 
 });
+
+describe('perTransition — per-transition throughput normalization', () => {
+
+  test('multiplies iterations/sec by the lap step count (transitions/sec)', () => {
+    // A shape doing 10 laps/sec where each lap is 200 transitions runs 2000 transitions/sec.
+    expect(shapes.perTransition(10, 200)).toBe(2000);
+  });
+
+  test('a single-transition lap is the identity (stepCount 1)', () => {
+    expect(shapes.perTransition(1234.5, 1)).toBe(1234.5);
+  });
+
+  test('matches the closedWalk stepCount it normalizes against', () => {
+    const walk = shapes.closedWalk('chain', 200, 100);   // stepCount 200
+    expect(shapes.perTransition(3, walk.stepCount)).toBe(600);
+  });
+
+});

@@ -84,6 +84,29 @@ describe('collectMemory', () => {
     expect(allocs.get('chain-3 transition()')).toBeCloseTo(0.6, 5);   // 60 / 100
   });
 
+  test('divides each batch by its own opCount when a batch is a [name, fn, opCount] triple', () => {
+    // A closed-walk transition batch runs stepCount ops (e.g. 200 for chain-200), not K.
+    // Dividing by K=100 would report double the true bytes/op, so collectMemory must honor
+    // the per-batch opCount carried in the triple.
+    const shape     = { name: 'chain-200', machine: { list_edges: () => [] } };
+    const rebuild   = () => ({});
+    const opBatches = () => [['chain-200 transition()', () => {}, 200]];
+    // footprint(base, after) then alloc(base, after): 60 bytes across the 200-op batch
+    const seam = { gc: () => {}, heapUsed: mkHeap([0, 0, 0, 60]) };
+
+    const { allocs } = mem.collectMemory([shape], 100, rebuild, opBatches, seam);
+
+    expect(allocs.get('chain-200 transition()')).toBeCloseTo(0.3, 5);   // 60 / 200, NOT 60 / 100
+  });
+
+  test('still divides a [name, fn] pair batch by the fallback K (back-compat)', () => {
+    const shape     = { name: 'chain-3', machine: { list_edges: () => [] } };
+    const opBatches = () => [['chain-3 has_state()', () => {}]];   // pair, no opCount
+    const seam      = { gc: () => {}, heapUsed: mkHeap([0, 0, 0, 50]) };
+    const { allocs } = mem.collectMemory([shape], 100, () => ({}), opBatches, seam);
+    expect(allocs.get('chain-3 has_state()')).toBeCloseTo(0.5, 5);   // 50 / 100 (fallback K)
+  });
+
   test('skips shapes when gc is unavailable', () => {
     const shape = { name: 'chain-3', machine: { list_edges: () => [] } };
     const seam = { gc: null, heapUsed: () => 0 };

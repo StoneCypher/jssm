@@ -104,9 +104,29 @@ function closedWalk(kind, n, minSteps) {
   return { targets, stepCount: targets.length };
 }
 
+/**
+ *  Normalize a benny iterations/sec figure to per-transition throughput.  Each
+ *  closed-walk lap performs `stepCount` transitions, so the benchmark measures
+ *  laps/sec; multiplying by `stepCount` yields transitions/sec, which keeps shapes
+ *  with different lap lengths (a `chain-200` lap is 200 steps, a `hub-50` lap 98)
+ *  directly comparable.  This is the metric that replaces the old per-100-op batch
+ *  rate once `override()` is gone.
+ *
+ *  @param opsPerSec Benny's reported iterations (laps) per second.
+ *  @param stepCount Transitions performed per lap (the closed walk's length).
+ *  @returns Transitions per second.
+ *
+ *  @example perTransition(10, 200) // => 2000
+ *  @example perTransition(1234.5, 1) // => 1234.5 (single-step lap is the identity)
+ */
+function perTransition(opsPerSec, stepCount) {
+  return opsPerSec * stepCount;
+}
+
 module.exports = {
   buildChainFSL,
   buildDenseFSL,
   buildHubFSL,
-  closedWalk
+  closedWalk,
+  perTransition
 };

@@ -82,6 +82,37 @@ function augmentDeepJson(summary) {
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
 }
 
+/**
+ *  Normalize the mutating-op rows (`transition()`, `action()`) to per-transition
+ *  throughput.  Those cases run a closed walk of `stepCount` ops per benny
+ *  iteration, so benny measures laps/sec; multiplying `ops` by `stepCount` (and
+ *  dividing any deep-mode `msPerOp` by it) converts to transitions/sec, keeping
+ *  shapes with different lap lengths comparable.  Read-only ops do a fixed `K`
+ *  calls per iteration and are left untouched.  Runs before the exponent/memory
+ *  passes so every downstream consumer reads the normalized `ops`.
+ *
+ *  @returns void; rewrites `benchmark/results/scaling.json` in place.
+ */
+function normalizePass() {
+  const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
+  const data     = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+
+  const stepByName = new Map();
+  for (const shape of shapes) {
+    if (shape.transitionWalk) { stepByName.set(`${shape.name} transition()`, shape.transitionWalk.stepCount); }
+    if (shape.actionWalk)     { stepByName.set(`${shape.name} action()`,     shape.actionWalk.stepCount); }
+  }
+
+  for (const r of data.results) {
+    const steps = stepByName.get(r.name);
+    if (steps) {
+      r.ops = perTransition(r.ops, steps);
+      if (typeof r.msPerOp === 'number') { r.msPerOp = r.msPerOp / steps; }
+    }
+  }
+  fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+}
+
 function writeMarkdownPivot() {
   const jsonPath = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.json');
   const mdPath   = path.join(__dirname, '..', '..', 'benchmark', 'results', 'scaling.md');
@@ -137,7 +168,7 @@ function writeMarkdownPivot() {
 // FSL generators live in ./benchmark_scaling_shapes.cjs so they stay unit-testable.
 // ----------------------------------------------------------------------------
 
-const { buildChainFSL, buildDenseFSL, buildHubFSL } = require('./benchmark_scaling_shapes.cjs');
+const { buildChainFSL, buildDenseFSL, buildHubFSL, closedWalk, perTransition } = require('./benchmark_scaling_shapes.cjs');
 
 function installHubHooks(machine, n) {
   // One per-edge hook for every edge in the hub topology.
@@ -224,7 +255,7 @@ function buildShapeChain(n) {
     const j = (i + 1) % n;
     edgePairs.push([`s${i}`, `s${j}`]);
   }
-  return attachActionSupport({ name: `chain-${n}`, machine, transitionSeq: seq, edgePairs });
+  return attachActionSupport({ name: `chain-${n}`, machine, transitionSeq: seq, edgePairs, transitionWalk: closedWalk('chain', n, K) });
 }
 
 function buildShapeDense(n) {
@@ -242,7 +273,7 @@ function buildShapeDense(n) {
     const j = (i + 1) % n;
     edgePairs.push([`s${i}`, `s${j}`]);
   }
-  return attachActionSupport({ name: `dense-${n}`, machine, transitionSeq: seq, edgePairs });
+  return attachActionSupport({ name: `dense-${n}`, machine, transitionSeq: seq, edgePairs, transitionWalk: closedWalk('dense', n, K) });
 }
 
 function buildHubTraversal(n) {
@@ -275,13 +306,13 @@ function buildHubEdgePairs(n) {
 
 function buildShapeHub(n) {
   const machine = sm([buildHubFSL(n)]);
-  return attachActionSupport({ name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) });
+  return attachActionSupport({ name: `hub-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n), transitionWalk: closedWalk('hub', n, K) });
 }
 
 function buildShapeHookedHub(n) {
   const machine = buildHookedHub(n);
   return attachActionSupport(
-    { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n) },
+    { name: `hooked-${n}`, machine, transitionSeq: buildHubTraversal(n), edgePairs: buildHubEdgePairs(n), transitionWalk: closedWalk('hub', n, K) },
     (actionMachine) => installHubHooks(actionMachine, n)
   );
 }
@@ -356,14 +387,15 @@ const shapes = plan.plannedShapeNames(HAS).map(buildShapeByName);
 // ----------------------------------------------------------------------------
 
 function transitionCase(shape) {
+  // Drive the shape's closed walk: a whole number of laps that returns to the start
+  // state, so continuous replay across benny iterations stays legal with no
+  // override() reset. Shapes with no closed transition walk (e.g. a messy fixture
+  // whose s0 has no cycle) carry no transitionWalk and are skipped here.
+  const w = shape.transitionWalk;
+  if (!w) { return null; }
   const name = `${shape.name} transition()`;
   return b.add(name, () => {
-    // Reset to s0 each iteration so the precomputed transitionSeq stays valid across
-    // shapes whose cycle length doesn't divide K (chain-200, hub-N, messy-N, ...).
-    // The override adds ~1% to per-iteration time for mutation-style cases; it
-    // is omitted for read-only cases that don't mutate state.
-    shape.machine.override('s0');
-    for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+    for (let k = 0; k < w.stepCount; ++k) shape.machine.transition(w.targets[k]);
   }, bennyOpts(name));
 }
 
@@ -467,10 +499,14 @@ function memoryPass() {
   const rebuild   = (name) => sm([sourceForShape(name)]);
   const opBatches = (shape) => {
     const out = [];
-    out.push([`${shape.name} transition()`, () => {
-      shape.machine.override('s0');
-      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
-    }]);
+    if (shape.transitionWalk) {
+      const w = shape.transitionWalk;
+      // Full closed walk (returns to s0) so the next batch starts legal, override-free;
+      // divides by its own stepCount, not K, since the lap length varies by shape.
+      out.push([`${shape.name} transition()`, () => {
+        for (let k = 0; k < w.stepCount; ++k) shape.machine.transition(w.targets[k]);
+      }, w.stepCount]);
+    }
     if (HAS.edges_between) {
       out.push([`${shape.name} edges_between()`, () => {
         for (let k = 0; k < K; ++k) { const [f, t] = shape.edgePairs[k]; shape.machine.edges_between(f, t); }
@@ -572,11 +608,15 @@ function warmupPass() {
   const byName   = new Map(data.results.map((r) => [r.name, r]));
   const ns       = () => Number(process.hrtime.bigint());
   for (const shape of shapes) {
+    const walk = shape.transitionWalk;
+    if (!walk) { continue; }   // no closed transition walk -> no warmup row (matches transitionCase)
     const batches = [];
     for (let i = 0; i < 6; ++i) {
-      shape.machine.override('s0');
+      // Full closed walk per batch returns to s0, so the next batch starts legal with no
+      // override() reset. coldMs/warmMs are per-walk diagnostics; warmupRatio is
+      // batch-size-independent (cold ÷ warm).
       const t = ns();
-      for (let k = 0; k < K; ++k) shape.machine.transition(shape.transitionSeq[k]);
+      for (let k = 0; k < walk.stepCount; ++k) shape.machine.transition(walk.targets[k]);
       batches.push((ns() - t) / 1e6);
     }
     const w   = timing.summarizeWarmup(batches);
@@ -618,6 +658,7 @@ b.suite(
       // Deep mode: inject the additive msPerOp/samples fields into the saved
       // JSON before the markdown writer reads it, so the ms/op column appears.
       if (DEEP) { augmentDeepJson(summary); }
+      normalizePass();   // per-transition normalization before exponents/memory read ops
       memoryPass();
       exponentsPass();
       bundlesPass();
