@@ -74,36 +74,48 @@
 
 ### Task 4: Override-free `transition` case + per-transition normalization
 
+> **Refinement (2026-06-27, during execution):** the original plan's line refs were stale and it under-counted the `override('s0')` sites. The live file has **six** override sites, not two: `attachActionSupport` (integrity, T5), `buildShapeMessy` (T5), `transitionCase` (T4), `actionCase` (T5), **`memoryPass`** (T4 — transition batch, plus T5 action batch), and **`warmupPass`** (T4 — 6 cold/warm batches). T5's `grep -c override → 0` gate covers all six, so the transition-side trio (`transitionCase`, `memoryPass` transition batch, `warmupPass`) all move here in T4.
+>
+> **Uniform-closure rule.** Every transition replay runs the **full** closed walk (`stepCount` steps), never a `K`-truncated prefix, because the only guarantee a closed walk gives is *return-to-start after a whole walk*. Partial replays would strand `shape.machine` off `s0` and the next replay site (benny's next iteration, then `memoryPass`, then `warmupPass` — they share the persistent `shape.machine`) would hit an illegal transition. So `shape.machine` lands back on `s0` after every batch, override-free.
+>
+> **Memory divisor consequence.** `collectMemory` divides alloc by a single `K` (`benchmark_scaling_memory.cjs:183`). A `stepCount`-length transition batch (e.g. `chain-200` → 200) would then report half the true bytes/op. Fix: `opBatches` yields `[name, fn, opCount]` triples and `collectMemory` divides each batch by its own `opCount` (default `K` when absent, preserving the read-only batches). This is a small, in-scope memory-module change.
+>
+> **Read-only ops stay per-100.** `has_state`, `edges_between`, `list_exit_actions`, `probable_action_exits` never read or mutate machine state across the batch (their args are explicit), so they keep the fixed `K=100` precomputed arrays (`transitionSeq`, `edgePairs`, `actionStates`) and need **no** closed walk and **no** normalization. Only `transition()` and `action()` rows are normalized.
+
 **Files:**
-- Modify: `src/buildjs/benchmark_scaling.cjs` — `buildShapeChain/Dense/Hub` use `closedWalk`; `transitionCase` drops `override('s0')` and loops `for (k<stepCount) transition(targets[k])`; record `stepCount` on the shape; the results post-processing (`:76–101`) multiplies ops by `stepCount` (or divides msPerOp) to report **per-transition** throughput.
-- Test: `src/buildjs/tests/benchmark_scaling_shapes.spec.ts` (normalization math as a pure helper `perTransition(opsPerSec, stepCount)`)
+- Modify: `src/buildjs/benchmark_scaling.cjs` — `buildShapeChain/Dense/Hub` attach `transitionWalk = closedWalk(kind, n, K)` to the shape; `transitionCase` drops `override('s0')` and loops `for (k<stepCount) transition(transitionWalk.targets[k])`; `memoryPass` transition batch and `warmupPass` likewise run the full closed walk (no override) and report their `opCount`; a new `normalizePass` (run first in the `setImmediate` chain, before `exponentsPass`) multiplies `ops` by `stepCount` and divides `msPerOp` by `stepCount` for `transition()` rows (and `action()` rows in T5), using a `name → stepCount` map built from the shapes.
+- Modify: `src/buildjs/benchmark_scaling_memory.cjs` — `opBatches` triples `[name, fn, opCount]`; `collectMemory` divides each batch alloc by its own `opCount` (fallback `K`).
+- Test: `src/buildjs/tests/benchmark_scaling_shapes.spec.ts` (pure `perTransition(opsPerSec, stepCount)`); `src/buildjs/tests/benchmark_scaling_memory.spec.ts` (per-batch divisor).
 
 **Interfaces:**
 - Consumes: `closedWalk`.
-- Produces: `perTransition(opsPerSec, stepCount)` = `opsPerSec * stepCount`; exported and unit-tested.
+- Produces: `perTransition(opsPerSec, stepCount)` = `opsPerSec * stepCount`; exported and unit-tested. `collectMemory` honors per-batch `opCount`.
 
-- [ ] Step 1: Failing test for `perTransition(10, 200) === 2000`.
+- [ ] Step 1: Failing test for `perTransition(10, 200) === 2000`; failing memory test that a 200-op batch divides by 200 (not `K`).
 - [ ] Step 2: Run; FAIL.
-- [ ] Step 3: Implement `perTransition`; wire `transitionCase` to closed walks (no override) and apply normalization in the results shaping.
-- [ ] Step 4: Run spec; pass. Then smoke-run `node src/buildjs/benchmark_scaling.cjs` against the current dist and confirm it completes and writes `scaling.json` with `transition` rows.
+- [ ] Step 3: Implement `perTransition`; attach `transitionWalk`; rewire `transitionCase` + `memoryPass` transition batch + `warmupPass` to full closed walks (no override); add `normalizePass`; make `collectMemory` per-batch.
+- [ ] Step 4: Run spec; pass. Then smoke-run `node src/buildjs/benchmark_scaling.cjs` against the current dist; confirm it completes, writes `scaling.json` with `transition` rows, and `grep -c "override" benchmark_scaling.cjs` shows only the remaining action/messy sites (T5 drives it to 0).
 - [ ] Step 5: Commit.
 
 ---
 
 ### Task 5: Override-free action machine + `action` case
 
+> **Refinement (2026-06-27).** `attachActionSupport:178` still builds its labeled action FSL with a leading `allows_override: true;` line, and `loadMessyFixture:293` still prepends one — both must go (the spec's "drop `allows_override` everywhere"). `closedActionWalk` is implemented **pure** in the shapes module by mapping the closed *transition* walk's `(prev → target)` edges to their action labels (same topology ⇒ same closure), so it needs no live machine — it takes the transition walk, the start state, and a `labelsByPair` map. The edge-labeling logic is extracted from `attachActionSupport` into a reusable `labelActionEdges(machine)` → `{ fsl, labelsByPair }` so both the harness and the test build labels the same way. The action machine and its `actionWalk` end on `s0`, so `actionCase` and `memoryPass`'s action batch replay it override-free (full walk, normalized by `stepCount`). `messy` only needs a closed walk for its **mutating** `transition()` case; if BFS finds no `s0→…→s0` cycle within a bound, set `transitionWalk = null` and skip messy's `transition()`/memory/warmup transition batch (its read-only ops still run).
+
 **Files:**
-- Modify: `src/buildjs/benchmark_scaling.cjs` — `attachActionSupport` integrity check (`:225–231`) validates via a closed action walk instead of `override('s0')`; `actionCase` drops override and loops the closed action sequence; `buildShapeMessy` (`:341`) drops its trailing `override('s0')` and uses a closed sub-walk (walk legal exits from `s0` until first return to `s0`; if none within a bound, the shape stays feature-gated out).
+- Modify: `src/buildjs/benchmark_scaling.cjs` — drop `allows_override` from `attachActionSupport`'s action FSL (`:178`) and `loadMessyFixture` (`:293`); `attachActionSupport` builds labels via `labelActionEdges`, validates integrity via a closed action walk (no `override`), and stores `actionWalk`; `actionCase` + `memoryPass` action batch loop the full closed action walk (no override, normalized); `buildShapeMessy` drops its trailing `override('s0')` and uses a BFS closed sub-walk (or `transitionWalk = null` + feature-gate the transition case).
+- Modify: `src/buildjs/benchmark_scaling_shapes.cjs` — add `labelActionEdges(machine)` and pure `closedActionWalk(transitionWalk, startState, labelsByPair)` → `{ labels, stepCount }`.
 - Test: `src/buildjs/tests/benchmark_scaling_shapes.spec.ts`
 
 **Interfaces:**
-- Consumes: `closedWalk`.
-- Produces: `closedActionWalk(machine, n)` → `{ labels, states, stepCount }` forming a closed legal action sequence.
+- Consumes: `closedWalk`, `labelActionEdges`.
+- Produces: `closedActionWalk(transitionWalk, startState, labelsByPair)` → `{ labels, stepCount }` forming a closed legal action sequence.
 
-- [ ] Step 1: Failing test — build an action machine (bare labeled FSL), drive `closedActionWalk`'s labels with `action()`, assert each returns `true` and the machine returns to start.
+- [ ] Step 1: Failing test — build a base machine + its labeled action machine via `labelActionEdges` (bare FSL), build `closedActionWalk` from `closedWalk` + the label map, drive `action()` over its labels, assert each returns `true` and the action machine returns to start.
 - [ ] Step 2: Run; FAIL.
-- [ ] Step 3: Implement; rewire `attachActionSupport` + `actionCase` + messy.
-- [ ] Step 4: Run spec; pass. Smoke-run the full harness; confirm `action`, `list_exit_actions`, `probable_action_exits` rows present and no `override` token remains in the file (`grep -c override src/buildjs/benchmark_scaling.cjs` → 0).
+- [ ] Step 3: Implement `labelActionEdges` + `closedActionWalk`; rewire `attachActionSupport` + `actionCase` + `memoryPass` action batch + messy; extend `normalizePass` to `action()` rows.
+- [ ] Step 4: Run spec; pass. Smoke-run the full harness; confirm `action`, `list_exit_actions`, `probable_action_exits` rows present and no `override` token remains (`grep -c override src/buildjs/benchmark_scaling.cjs` → 0).
 - [ ] Step 5: Commit.
 
 ---
