@@ -1111,12 +1111,14 @@ export class FslInstance extends LitElement {
       </header>`;
     const viz    = html`<slot name="viz"><span class="placeholder">no viz configured</span></slot>`;
     const editor = html`<slot name="editor"></slot>`;
+    const toolbar = html`<section class="toolbar"><slot name="toolbar"></slot></section>`;
 
     if (this.layout !== '') {
       const mode = this._effectiveMode();
       return html`
         <div class="container is-split">
           ${header}
+          ${toolbar}
           <div class="workbench" data-mode=${mode} style="--fsl-split:${this._split}%">
             ${mode === 'tabs' ? this._renderTabbar() : ''}
             <section class="pane viz" ?hidden=${mode === 'tabs' && this._tab !== 'viz'}>${viz}</section>
@@ -1135,6 +1137,7 @@ export class FslInstance extends LitElement {
     return html`
       <div class="container">
         ${header}
+        ${toolbar}
         <section class="viz">${viz}</section>
         <section class="editor">${editor}</section>
         ${this._renderAuxPanels()}
@@ -1144,12 +1147,12 @@ export class FslInstance extends LitElement {
     `;
   }
 
-  /** The middle panels (toolbar … export), shared by both layouts. The
+  /** The middle panels (actions … export), shared by both layouts. The
+   *  toolbar slot is rendered at the top of {@link render} instead. The
    *  state-section + footer stay in {@link render} so the dynamic state-slot
    *  name binds at the top level. */
   private _renderAuxPanels(): TemplateResult {
     return html`
-      <section class="toolbar"><slot name="toolbar"></slot></section>
       <section class="actions"><slot name="actions"></slot></section>
       <section class="info-panel"><slot name="info-panel"></slot></section>
       <section class="history"><slot name="history"></slot></section>

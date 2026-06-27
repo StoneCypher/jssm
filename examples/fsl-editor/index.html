@@ -22,75 +22,56 @@
   .brand .lt { color:var(--text-dim); } .brand .tag { color:var(--accent); }
   .tagline { color:var(--text-dim); font-size:.88rem; } .tagline b { color:var(--signal); font-weight:600; }
 
-  .toolbar {
-    display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;
-    margin:.5rem 1.4rem 0; padding:.45rem .55rem;
-    border:1px solid #000; background:linear-gradient(#1c2230,#161a22);
-  }
-  .label { color:var(--text-dim); font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; padding:0 .15rem; }
-  .btn-row { display:inline-flex; } .btn-row .btn { margin-left:-1px; } .btn-row .btn:first-child { margin-left:0; }
-  .btn {
-    appearance:none; cursor:pointer; min-width:2.1rem; height:1.95rem; padding:0 .55rem;
-    border:1px solid #000; background:#232a38; color:var(--text);
-    font:600 .8rem/1 var(--sans); display:inline-flex; align-items:center; justify-content:center; gap:.3rem;
-  }
-  .btn:hover { background:#2b3344; }
-  .btn[aria-pressed="true"] { background:var(--accent); color:#06101f; box-shadow:0 1px 2px #0008 inset; }
-  .toolbar .spacer { flex:1; }
-
-  /* View dropdown */
-  .view { position:relative; display:inline-flex; }
-  .menu {
-    position:absolute; top:calc(100% + 4px); left:0; z-index:20; min-width:210px;
-    background:#1b212c; border:1px solid #000; border-radius:6px; padding:5px;
-    box-shadow:0 10px 30px #000a;
-  }
-  .menu[hidden] { display:none; }
-  .menu .mi {
-    display:flex; align-items:center; width:100%; box-sizing:border-box;
-    background:none; border:0; border-radius:4px; padding:6px 9px; gap:8px;
-    color:var(--text); cursor:pointer; text-align:left; font:inherit; font-size:.82rem;
-  }
-  .menu .mi:hover { background:#2b3344; }
-  .menu .mi[aria-checked="true"] { font-weight:700; }
-  .menu .mi[aria-checked="true"]::after { content:"✓"; margin-left:auto; color:var(--accent); }
-  .menu hr { border:0; border-top:1px solid #2a2f3a; margin:5px 4px; }
-
   main { flex:1; display:flex; padding:.7rem 1.4rem 1.2rem; min-height:0; }
   .device { flex:1; display:flex; min-height:0; border:1px solid #000; background:var(--ink-2); overflow:hidden; }
 
-  /* The real host fills the device and owns the split + gutter internally. */
-  fsl-instance { flex:1; min-width:0; min-height:0; display:block; }
-  /* Slotted panels (light DOM) — styleable from here. fsl-viz centers/fits its
-     graph internally now, so the pane just supplies the backdrop + padding. */
-  fsl-viz { display:block; background:var(--graph-bg); padding:2em; }
-  fsl-editor { display:block; min-height:0; --fsl-color-accent:var(--accent); --fsl-radius:0px; }
-
-  /* Help — eases in from the right as a real third pane (pushes the host). */
-  .help {
-    flex:0 0 0; min-width:0; overflow:hidden; border-left:1px solid #000;
-    background:#11151c; transition:flex-basis .28s ease;
+  /* The real host fills the device and owns the layout internally. We feed the
+     whole suite the dark token palette; CSS custom properties cross shadow
+     boundaries, so every nested fsl-* widget re-themes from these five vars. */
+  fsl-instance {
+    flex:1; min-width:0; min-height:0; display:block;
+    --fsl-color-surface:#161a22; --fsl-color-text:#c9d1d9; --fsl-color-accent:var(--accent);
+    --fsl-color-border:var(--line); --fsl-color-muted:var(--text-dim);
+    --fsl-font:var(--sans); --fsl-font-mono:var(--mono);
   }
-  .help.open { flex-basis:300px; }
-  .help-inner { width:300px; padding:1rem 1.1rem; font-size:.86rem; line-height:1.5; color:var(--text); }
-  .help-inner h2 { margin:.2rem 0 .6rem; font-size:.95rem; color:#fff; }
-  .help-inner h3 { margin:1rem 0 .3rem; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); }
-  .help-inner code { font-family:var(--mono); font-size:.82em; background:#232a38; padding:.05rem .3rem; border-radius:3px; }
-  .help-inner ul { margin:.3rem 0; padding-left:1.1rem; } .help-inner li { margin:.25rem 0; color:var(--text-dim); }
-  .help-inner li b { color:var(--text); font-weight:600; }
-  .help-inner details { border-top:1px solid #2a2f3a; }
-  .help-inner details:first-of-type { border-top:0; }
-  .help-inner summary { cursor:pointer; padding:.55rem 0; font-weight:600; font-size:.84rem; list-style:none; display:flex; align-items:center; gap:.5rem; color:var(--text); }
-  .help-inner summary::-webkit-details-marker { display:none; }
-  .help-inner summary::before { content:"▸"; color:var(--accent); transition:transform .15s; }
-  @media (prefers-reduced-motion: reduce) { .help-inner summary::before { transition:none; } }
-  .help-inner details[open] summary::before { transform:rotate(90deg); }
-  .help-inner .doc { padding:0 0 .6rem .9rem; }
+  fsl-viz { display:block; background:var(--graph-bg); padding:2em; }
+  fsl-editor { display:block; min-height:0; --fsl-radius:0px; }
+
+  /* A plain Docs button living in the toolbar's trailing slot. */
+  .tb-help {
+    height:1.9rem; padding:0 .7rem; cursor:pointer; border-radius:4px;
+    border:1px solid var(--line); background:#232a38; color:var(--text); font:600 .8rem var(--sans);
+  }
+  .tb-help:hover { background:#2b3344; }
+
+  /* <fsl-help> drawer — eases in from the right as a third pane. */
+  fsl-help {
+    flex:0 0 0; min-width:0; overflow:hidden; transition:flex-basis .28s ease;
+    --fsl-color-surface:#11151c; --fsl-color-text:var(--text); --fsl-color-accent:var(--accent);
+    --fsl-color-border:var(--line); --fsl-color-muted:var(--text-dim); --fsl-font:var(--sans);
+  }
+  fsl-help[open] { flex-basis:330px; }
+  @media (prefers-reduced-motion: reduce) { fsl-help { transition:none; } }
+  /* Docs sections slotted into the drawer body (light DOM — styleable here). */
+  fsl-help details { border-top:1px solid var(--line); }
+  fsl-help details:first-of-type { border-top:0; }
+  fsl-help summary { cursor:pointer; padding:.55rem 0; font-weight:600; font-size:.84rem; list-style:none; display:flex; align-items:center; gap:.5rem; color:var(--text); }
+  fsl-help summary::-webkit-details-marker { display:none; }
+  fsl-help summary::before { content:"▸"; color:var(--accent); transition:transform .15s; }
+  @media (prefers-reduced-motion: reduce) { fsl-help summary::before { transition:none; } }
+  fsl-help details[open] summary::before { transform:rotate(90deg); }
+  fsl-help .doc { padding:0 0 .6rem .9rem; color:var(--text-dim); font-size:.86rem; line-height:1.5; }
+  fsl-help code { font-family:var(--mono); font-size:.82em; background:#232a38; padding:.05rem .3rem; border-radius:3px; }
+  fsl-help kbd { font-family:var(--mono); font-size:.76rem; background:#232a38; border:1px solid #000; border-radius:3px; padding:.05rem .35rem; color:var(--text); }
+
+  /* Parse-status pill slotted into the footer. */
+  .status { display:inline-flex; align-items:center; gap:.35rem; }
+  .err-dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:#3fb950; transition:background .15s; }
+  .err-dot.bad { background:#f85149; }
 
   footer.hint { padding:.5rem 1.4rem 1rem; color:var(--text-dim); font-size:.82rem; }
   footer.hint kbd { font-family:var(--mono); font-size:.76rem; background:#232a38; border:1px solid #000; border-radius:3px; padding:.05rem .35rem; color:var(--text); }
-  .err-dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:#3fb950; margin-right:.35rem; vertical-align:middle; transition:background .15s; }
-  .err-dot.bad { background:#f85149; }
+  footer.hint code { font-family:var(--mono); font-size:.82em; background:#232a38; padding:.05rem .3rem; border-radius:3px; color:var(--text); }
 </style>
 </head>
 <body>
@@ -99,76 +80,20 @@
     <span class="tagline">write a state machine &mdash; watch it <b>light up</b></span>
   </header>
 
-  <div class="toolbar" role="toolbar" aria-label="controls">
-    <span class="label">theme</span>
-    <div class="btn-row">
-      <button class="btn" id="theme-light" aria-pressed="true">☀ Light</button>
-      <button class="btn" id="theme-dark"  aria-pressed="false">☾ Dark</button>
-    </div>
-    <span class="label">view</span>
-    <div class="view">
-      <button class="btn" id="view-btn" aria-haspopup="true" aria-expanded="false">▥ View ▾</button>
-      <div class="menu" id="view-menu" role="menu" hidden>
-        <button class="mi" role="menuitemradio" data-layout="auto">Auto · by aspect ratio</button>
-        <hr>
-        <button class="mi" role="menuitemradio" data-layout="lr">Side by side · editor left</button>
-        <button class="mi" role="menuitemradio" data-layout="rl">Side by side · editor right</button>
-        <button class="mi" role="menuitemradio" data-layout="tb">Top &amp; bottom · editor top</button>
-        <button class="mi" role="menuitemradio" data-layout="bt">Top &amp; bottom · editor bottom</button>
-        <hr>
-        <button class="mi" role="menuitemradio" data-layout="editor">Just editor</button>
-        <button class="mi" role="menuitemradio" data-layout="viewer">Just viewer</button>
-        <button class="mi" role="menuitemradio" data-layout="tabs">Tabbed</button>
-      </div>
-    </div>
-    <span class="spacer"></span>
-    <span class="label">features</span>
-    <div class="btn-row">
-      <button class="btn" id="t-lint"       aria-pressed="true">Lint</button>
-      <button class="btn" id="t-overlay"    aria-pressed="true">Chips</button>
-      <button class="btn" id="t-completion" aria-pressed="true">Complete</button>
-    </div>
-    <button class="btn" id="help-btn" aria-pressed="false" style="margin-left:.5rem">? Help</button>
-  </div>
-
   <main>
     <div class="device" id="device">
-      <!-- <fsl-instance> host is prepended here in JS (its fsl is set before connect) -->
-      <aside class="help" id="help">
-        <div class="help-inner">
-          <h2>Documentation</h2>
-          <details open>
-            <summary>The composition</summary>
-            <div class="doc">A real <code>&lt;fsl-instance&gt;</code> hosting <code>&lt;fsl-viz&gt;</code> and <code>&lt;fsl-editor&gt;</code> in its slots. The instance owns the layout and gutter; editing writes back, the machine <b>rebuilds</b>, and the graph follows. No glue code.</div>
-          </details>
-          <details>
-            <summary>Editing &amp; autocomplete</summary>
-            <div class="doc"><kbd>Ctrl</kbd>+<kbd>Space</kbd> after a <code>:</code> for context completions — keys at the start of a line, values (shapes, colours with swatches) after a key.</div>
-          </details>
-          <details>
-            <summary>Layouts</summary>
-            <div class="doc">The <b>View</b> menu chooses how the panes sit: side by side or stacked (editor on either side), a single pane, tabbed, or <b>Auto</b> by window shape. Drag the gutter to resize; double-click to reset.</div>
-          </details>
-          <details>
-            <summary>Highlighting</summary>
-            <div class="doc">Beyond syntax colours, the editor reads the parsed machine: <b>colour values</b> get a swatch chip, <b>state names</b> are tinted, and <b>shape / enum values</b> are marked.</div>
-          </details>
-          <details>
-            <summary>Theme</summary>
-            <div class="doc">The ☀ / ☾ buttons switch light / dark; the editor re-themes live via the <code>--fsl-*</code> tokens.</div>
-          </details>
-        </div>
-      </aside>
+      <!-- the <fsl-instance> host, its whole widget suite, and an <fsl-help>
+           drawer are built in JS so the host fsl is set before it connects -->
     </div>
   </main>
 
   <footer class="hint">
-    <span class="err-dot" id="dot"></span><span id="status">ready</span> &nbsp;·&nbsp;
-    drag the gutter · <kbd>Ctrl</kbd>+<kbd>Space</kbd> completes · edit a color to move its chip and the graph
+    every control here is a real <code>&lt;fsl-*&gt;</code> widget &nbsp;·&nbsp;
+    drag the gutter · <kbd>Ctrl</kbd>+<kbd>Space</kbd> completes · <b>Play</b> to walk the machine
   </footer>
 
   <script type="module">
-    import { fslDiagnostics } from './fsl-editor.bundle.js';   // also registers the components
+    import { fslDiagnostics } from './fsl-editor.bundle.js';   // registers the whole suite
 
     const SAMPLE = [
       'machine_name    : "Traffic Light";',
@@ -196,64 +121,91 @@
       '};',
     ].join('\n');
 
-    // Build the host with its fsl set BEFORE connect, then slot the panels.
-    const host = document.createElement('fsl-instance');
+    const make = (tag, slot) => {
+      const el = document.createElement(tag);
+      if (slot) { el.setAttribute('slot', slot); }
+      return el;
+    };
+
+    // Build the host with its fsl set BEFORE connect, then slot the whole suite.
+    const host = make('fsl-instance');
     host.setAttribute('layout', 'rl');   // viz left, editor right
     host.fsl = SAMPLE;
-    const title = document.createElement('span'); title.setAttribute('slot', 'title'); // suppress placeholder
-    const viz = document.createElement('fsl-viz'); viz.setAttribute('slot', 'viz');
-    const ed  = document.createElement('fsl-editor'); ed.setAttribute('slot', 'editor'); ed.id = 'ed';
-    host.append(title, viz, ed);
+
+    const title   = make('span', 'title');               // empty → suppresses the placeholder
+    const toolbar = make('fsl-toolbar', 'toolbar');
+    const helpBtn = document.createElement('button');
+    helpBtn.className = 'tb-help'; helpBtn.textContent = '? Docs';
+    toolbar.append(helpBtn);                              // the toolbar's trailing slot
+
+    const viz   = make('fsl-viz', 'viz');
+    const ed    = make('fsl-editor', 'editor'); ed.id = 'ed';
+    const sim   = make('fsl-simulation', 'simulation');
+    const hist  = make('fsl-history', 'history');
+    const data  = make('fsl-data-inspector', 'data-inspector');
+    const hooks = make('fsl-hook-log', 'hook-log');
+    const exp   = make('fsl-export', 'export');
+
+    const footer = make('fsl-footer', 'footer');
+    const statusEl = document.createElement('span');
+    statusEl.className = 'status';
+    statusEl.innerHTML = '<span class="err-dot" id="dot"></span><span id="status">ready</span>';
+    footer.append(statusEl);                             // the footer's trailing slot
+
+    host.append(title, toolbar, viz, ed, sim, hist, data, hooks, exp, footer);
     document.getElementById('device').prepend(host);
 
-    // Status line: the host keeps the last good machine, so the editor text is
-    // the source of truth for validity. Green/ready when it parses, red otherwise.
+    // A real <fsl-help> drawer; the toolbar's Docs button toggles it.
+    const help = make('fsl-help');
+    help.innerHTML = `
+      <details open>
+        <summary>The composition</summary>
+        <div class="doc">Everything on screen is a real fsl-* widget slotted into one
+          <code>&lt;fsl-instance&gt;</code>: toolbar, viz, editor, history, data, hook-log,
+          simulation, export, footer. The instance owns layout + state; editing rebuilds
+          the machine and every panel follows. No glue code.</div>
+      </details>
+      <details>
+        <summary>Toolbar &amp; layout</summary>
+        <div class="doc">The <b>theme</b>, <b>View</b> (8 layouts), and <b>feature</b> toggles
+          are the <code>&lt;fsl-toolbar&gt;</code> driving the editor + host. Drag the gutter to
+          resize; double-click to reset.</div>
+      </details>
+      <details>
+        <summary>Editing &amp; autocomplete</summary>
+        <div class="doc"><kbd>Ctrl</kbd>+<kbd>Space</kbd> after a <code>:</code> for context
+          completions. Colour values get a swatch chip; state names and enums are marked.</div>
+      </details>
+      <details>
+        <summary>Run it</summary>
+        <div class="doc"><b>Play</b> on <code>&lt;fsl-simulation&gt;</code> random-walks the machine;
+          <code>&lt;fsl-history&gt;</code> traces the path, <code>&lt;fsl-hook-log&gt;</code> logs every
+          event, and <code>&lt;fsl-footer&gt;</code> shows live state. <b>Export</b> copies DOT / JSON / FSL.</div>
+      </details>`;
+    document.getElementById('device').append(help);
+    helpBtn.onclick = () => { help.open = !help.open; };
+
+    // Status pill: the editor text is the source of truth for validity.
     const dot = document.getElementById('dot'), status = document.getElementById('status');
     function refreshStatus(fsl) {
       const errs = fslDiagnostics(fsl);
       if (errs.length) {
         dot.classList.add('bad');
-        status.textContent = 'parse error: ' + errs[0].message.replace(/\s+/g, ' ').slice(0, 48);
+        status.textContent = 'parse error';
       } else {
         dot.classList.remove('bad');
-        status.textContent = 'ready · state: ' + (host.getAttribute('current-state') || '—');
+        status.textContent = 'valid';
       }
     }
     ed.addEventListener('change', e => refreshStatus(e.detail.fsl));
     setTimeout(() => refreshStatus(host.fsl), 250);
 
-    // Theme radio pair → the editor's CM theme.
-    const light = document.getElementById('theme-light'), dark = document.getElementById('theme-dark');
-    const setTheme = t => { ed.theme = t; light.setAttribute('aria-pressed', t==='light'); dark.setAttribute('aria-pressed', t==='dark'); };
-    light.onclick = () => setTheme('light'); dark.onclick = () => setTheme('dark');
-
-    // View dropdown → the host's layout attribute (the full 7-mode set).
-    const viewBtn = document.getElementById('view-btn'), viewMenu = document.getElementById('view-menu');
-    const menuItems = [...viewMenu.querySelectorAll('.mi')];
-    const closeMenu = () => { viewMenu.hidden = true; viewBtn.setAttribute('aria-expanded', 'false'); };
-    viewBtn.onclick = e => {
-      e.stopPropagation();
-      const open = viewMenu.hidden;
-      viewMenu.hidden = !open;
-      viewBtn.setAttribute('aria-expanded', String(open));
-    };
-    document.addEventListener('click', closeMenu);
-    function setLayout(modeName) {
-      host.setAttribute('layout', modeName);
-      for (const mi of menuItems) { mi.setAttribute('aria-checked', String(mi.dataset.layout === modeName)); }
-    }
-    for (const mi of menuItems) { mi.onclick = () => { setLayout(mi.dataset.layout); closeMenu(); }; }
-    setLayout('rl');   // matches the host's initial layout
-
-    // Feature toggles → the editor's attributes.
-    for (const [id, prop] of [['t-lint','noLint'],['t-overlay','noOverlay'],['t-completion','noCompletion']]) {
-      const b = document.getElementById(id);
-      b.onclick = () => { const on = b.getAttribute('aria-pressed')==='true'; b.setAttribute('aria-pressed', !on); ed[prop] = on; };
-    }
-
-    // Help: eased third pane.
-    const help = document.getElementById('help'), helpBtn = document.getElementById('help-btn');
-    helpBtn.onclick = () => { const open = help.classList.toggle('open'); helpBtn.setAttribute('aria-pressed', open); };
+    // Export → clipboard, with a quick status flash.
+    host.addEventListener('fsl-export', e => {
+      const { format, content } = e.detail;
+      if (navigator.clipboard) { navigator.clipboard.writeText(content); }
+      status.textContent = `copied ${format.toUpperCase()} · ${content.length} chars`;
+    });
   </script>
 </body>
 </html>
