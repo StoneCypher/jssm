@@ -42,6 +42,7 @@ import {
 
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, makeTransition, wrap_parse }          from './jssm_compiler';
+import { canonical_config }                                    from './fsl_canonical';
 import { theme_mapping, base_theme }                          from './jssm_theme';
 
 
@@ -622,7 +623,7 @@ class Machine<mDT> {
 
   }: JssmGenericConfig<StateType, mDT>) {
 
-    this._time_source                   = () => new Date().getTime();
+    this._time_source                   = time_source ?? (() => new Date().getTime());
 
     this._create_started                = this._time_source();
 
@@ -1805,7 +1806,7 @@ class Machine<mDT> {
       jssm_version     : version,
       history          : this._history.toArray(),
       history_capacity : this._history.capacity,
-      timestamp        : new Date().getTime(),
+      timestamp        : this._time_source(),
 
     };
 
@@ -1813,6 +1814,20 @@ class Machine<mDT> {
 
 
 
+
+
+  /**
+   *  The RFC 8785 canonical-config identity of the current configuration
+   *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+   *  hashing.  Excludes envelope fields (timestamp/comment/history).
+   *
+   *  @returns The canonical config string.
+   *  @example
+   *    sm`a -> b;`.canonical(); // '{"data":...,"state":"a","v":1}'
+   */
+  canonical(): string {
+    return canonical_config(this._state, this._data);
+  }
 
 
   /** Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
