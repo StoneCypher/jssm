@@ -25,6 +25,14 @@
   fsl-viz { display:block; background:var(--graph-bg); }
   fsl-editor { display:block; min-height:0; --fsl-radius:0px; }
 
+  /* Actions dock contents: a column of buttons that drive the machine. */
+  .actions-panel { display:flex; flex-direction:column; gap:.5rem; padding:.7rem; }
+  .actions-panel button {
+    padding:.5rem .7rem; cursor:pointer; border-radius:4px;
+    border:1px solid var(--line); background:#232a38; color:var(--text); font:600 .8rem var(--sans);
+  }
+  .actions-panel button:hover { background:#2b3344; }
+
   /* A plain Docs button living in the toolbar's trailing slot. */
   .tb-help {
     height:1.9rem; padding:0 .7rem; cursor:pointer; border-radius:4px;
@@ -127,13 +135,23 @@
     const data  = make('fsl-data-inspector', 'data-inspector');
     const hooks = make('fsl-hook-log', 'hook-log');
 
+    // The actions dock: plain buttons that drive the machine via host.do(). The
+    // host re-emits the transition, so every panel follows.
+    const actions = make('div', 'actions');
+    actions.className = 'actions-panel';
+    actions.innerHTML = '<button data-act="Enable">Enable</button><button data-act="Next">Next</button>';
+    actions.addEventListener('click', e => {
+      const act = e.target instanceof HTMLElement ? e.target.dataset.act : undefined;
+      if (act) { try { host.do(act); } catch (_) { /* illegal from the current state */ } }
+    });
+
     const footer = make('fsl-footer', 'footer');
     const statusEl = document.createElement('span');
     statusEl.className = 'status';
     statusEl.innerHTML = '<span class="err-dot" id="dot"></span><span id="status">ready</span>';
     footer.append(statusEl);                             // the footer's trailing slot
 
-    host.append(title, toolbar, viz, ed, sim, hist, data, hooks, footer);
+    host.append(title, toolbar, actions, viz, ed, sim, hist, data, hooks, footer);
     document.getElementById('device').prepend(host);
 
     // A real <fsl-help> drawer; the toolbar's Docs button toggles it.

@@ -155,6 +155,18 @@ describe('resolve_fsl_source', () => {
     expect(r.error).toMatch(/use exactly one source/);
   });
 
+  it('ignores slotted content (elements with a slot attribute) as a text source', () => {
+    const host = document.createElement('div');
+    // UI projected into named slots (e.g. an actions panel) is not FSL source.
+    const panel = document.createElement('div');
+    panel.setAttribute('slot', 'actions');
+    panel.innerHTML = '<button>Enable</button><button>Next</button>';
+    host.appendChild(panel);
+    const r = resolve_fsl_source(host, 'Off -> On;');   // only the fsl attribute counts
+    expect(r.fsl).toBe('Off -> On;');
+    expect(r.provided_count).toBe(1);
+  });
+
   it('errors when all three channels are provided', () => {
     const host = document.createElement('div');
     const script = document.createElement('script');
@@ -469,6 +481,17 @@ describe('FslInstance shadow DOM', () => {
     el.setPanelHidden('editor', false);
     await (el as any).updateComplete;
     expect(el.shadowRoot!.querySelector('.workbench')!.classList.contains('hide-viz')).toBe(false);
+
+    // actions + data-inspector are easing side docks in split layouts: lifted out
+    // of the stacked aux, and the toggle flips an 'open' class (not display:none).
+    expect(el.shadowRoot!.querySelector('section.data-inspector')).toBeNull();
+    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(true);
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
+    el.togglePanel('data-inspector');
+    el.togglePanel('actions');
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(false);
+    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(false);
 
     document.body.removeChild(el);
   });
