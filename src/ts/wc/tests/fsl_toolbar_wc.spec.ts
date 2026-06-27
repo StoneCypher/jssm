@@ -13,54 +13,53 @@ beforeAll(() => {
 function q(el: FslToolbar, sel: string): HTMLElement {
   return el.shadowRoot!.querySelector(sel) as HTMLElement;
 }
-/** Feature buttons are icon-only — select them by aria-label. */
 function byLabel(el: FslToolbar, label: string): HTMLButtonElement {
   return el.shadowRoot!.querySelector(`[aria-label="${label}"]`) as HTMLButtonElement;
 }
-/** Menu items still carry text. */
 function byText(el: FslToolbar, sel: string, text: string): HTMLElement {
   return [...el.shadowRoot!.querySelectorAll(sel)].find(b => b.textContent!.includes(text)) as HTMLElement;
 }
 
 describe('<fsl-toolbar>', () => {
 
-  it('themes the whole host + the editor, toggles features, drives the host layout', async () => {
+  it('themes the suite, toggles the present panels, and drives the layout', async () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "A 'go' -> B;");
+    host.setAttribute('layout', 'rl');
     const editor = document.createElement('fsl-editor') as FslEditor;
     editor.setAttribute('slot', 'editor');
+    const vizStub = document.createElement('div'); vizStub.setAttribute('slot', 'viz');
+    const histStub = document.createElement('div'); histStub.setAttribute('slot', 'history');
     const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
     toolbar.setAttribute('slot', 'toolbar');
-    host.append(editor, toolbar);
+    host.append(vizStub, editor, histStub, toolbar);
     document.body.appendChild(host);
     await host.updateComplete;
     await toolbar.updateComplete;
 
-    // theme → the host (whole suite) AND the editor (CM highlight)
-    q(toolbar, '[title="Dark"]').click();
+    // theme → host (whole suite) + editor (CM highlight)
+    byLabel(toolbar, 'Dark theme').click();
     await toolbar.updateComplete;
     expect(host.theme).toBe('dark');
     expect(editor.theme).toBe('dark');
-    expect(q(toolbar, '[title="Dark"]').getAttribute('aria-pressed')).toBe('true');
 
-    // feature toggle → editor.noLint flips true (icon button shows un-pressed)
-    expect(byLabel(toolbar, 'Lint').getAttribute('aria-pressed')).toBe('true');   // on by default
-    byLabel(toolbar, 'Lint').click();
+    // one panel toggle per present panel (viz=Renderer, editor=Code, history=History)
+    expect(byLabel(toolbar, 'Renderer')).not.toBeNull();
+    expect(byLabel(toolbar, 'History')).not.toBeNull();
+    expect(byLabel(toolbar, 'Export')).toBeNull();              // not present → no toggle
+    expect(byLabel(toolbar, 'Code').getAttribute('aria-pressed')).toBe('true');   // visible
+    byLabel(toolbar, 'Code').click();                          // hide the editor pane
     await toolbar.updateComplete;
-    expect(editor.noLint).toBe(true);
-    expect(byLabel(toolbar, 'Lint').getAttribute('aria-pressed')).toBe('false');
+    expect(host.isPanelHidden('editor')).toBe(true);
+    expect(byLabel(toolbar, 'Code').getAttribute('aria-pressed')).toBe('false');
 
-    // exercise the remaining control arrows (Light theme, Autocomplete feature)
-    q(toolbar, '[title="Light"]').click();
+    // light theme (covers the light arrow + host theme back)
+    byLabel(toolbar, 'Light theme').click();
     await toolbar.updateComplete;
     expect(host.theme).toBe('light');
-    expect(editor.theme).toBe('light');
-    byLabel(toolbar, 'Autocomplete').click();
-    await toolbar.updateComplete;
-    expect(editor.noCompletion).toBe(true);
 
-    // View menu → host.layout, and the menu closes
-    q(toolbar, '[aria-haspopup="true"]').click();
+    // View menu (icon button) → host.layout, menu closes
+    byLabel(toolbar, 'Layout').click();
     await toolbar.updateComplete;
     expect(q(toolbar, '.menu')).not.toBeNull();
     byText(toolbar, '.menu button', 'Tabbed').click();
@@ -69,28 +68,27 @@ describe('<fsl-toolbar>', () => {
     expect(q(toolbar, '.menu')).toBeNull();
 
     // re-open: the active layout is checked
-    q(toolbar, '[aria-haspopup="true"]').click();
+    byLabel(toolbar, 'Layout').click();
     await toolbar.updateComplete;
     expect(byText(toolbar, '.menu button', 'Tabbed').getAttribute('aria-checked')).toBe('true');
     host.remove();
   });
 
-  it('renders inert controls when standalone (no host / editor)', async () => {
+  it('shows only theme + an inert View button when standalone (no host)', async () => {
     const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
     document.body.appendChild(toolbar);
     await toolbar.updateComplete;
 
-    expect(q(toolbar, '[title="Light"]').getAttribute('aria-pressed')).toBe('true');         // default theme
-    expect(byLabel(toolbar, 'Color chips').getAttribute('aria-pressed')).toBe('true');       // editor-absent → on
+    expect(byLabel(toolbar, 'Light theme').getAttribute('aria-pressed')).toBe('true');   // default theme
+    expect(byLabel(toolbar, 'Code')).toBeNull();                                          // no host → no panels
 
-    // every control click is a no-op (must not throw)
-    q(toolbar, '[title="Dark"]').click();
-    byLabel(toolbar, 'Color chips').click();
-    q(toolbar, '[aria-haspopup="true"]').click();
+    // theme + layout clicks are no-ops (must not throw)
+    byLabel(toolbar, 'Dark theme').click();
+    byLabel(toolbar, 'Layout').click();
     await toolbar.updateComplete;
     byText(toolbar, '.menu button', 'Just editor').click();   // _setLayout with no host
     await toolbar.updateComplete;
-    expect(q(toolbar, '.menu')).toBeNull();   // closed after select
+    expect(q(toolbar, '.menu')).toBeNull();
     toolbar.remove();
   });
 

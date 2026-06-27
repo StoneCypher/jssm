@@ -427,6 +427,12 @@ export class FslInstance extends LitElement {
     .workbench[data-mode="viewer"] .gutter, .workbench[data-mode="viewer"] .editor { display: none; }
     .workbench[data-mode="editor"] .editor, .workbench[data-mode="viewer"] .viz { flex: 1 1 0; }
 
+    /* panel-hidden workbench panes (driven by <fsl-toolbar> toggles): drop the
+       hidden pane + the gutter and let the surviving pane fill. */
+    .workbench.hide-viz .viz, .workbench.hide-viz .gutter,
+    .workbench.hide-editor .editor, .workbench.hide-editor .gutter { display: none; }
+    .workbench.hide-viz .editor, .workbench.hide-editor .viz { flex: 1 1 0; }
+
     /* tabbed: a tab strip + one pane at a time */
     .workbench[data-mode="tabs"] .gutter { display: none; }
     .workbench[data-mode="tabs"] .pane { flex: 1 1 0; }
@@ -473,6 +479,8 @@ export class FslInstance extends LitElement {
   private _autoMode: 'lr' | 'tb' = 'lr';
   /** Window-resize listener installed while `layout="auto"`, or null. */
   private _autoListener: (() => void) | null = null;
+  /** Slot names of panels currently hidden (driven by `<fsl-toolbar>`). */
+  private _hiddenPanels = new Set<string>();
 
   /**
    * The underlying machine instance, constructed at `connectedCallback`.
@@ -645,6 +653,38 @@ export class FslInstance extends LitElement {
   private _setTab(tab: FslTab): void {
     this._tab = tab;
     this.requestUpdate();
+  }
+
+  /**
+   * Whether the panel slotted under `slot` is currently hidden.
+   *
+   * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+   * @returns `true` when the panel is hidden.
+   */
+  isPanelHidden(slot: string): boolean {
+    return this._hiddenPanels.has(slot);
+  }
+
+  /**
+   * Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`
+   * collapses that workbench pane (the other fills); hiding an aux panel
+   * removes its section. `<fsl-toolbar>` drives this from its panel toggles.
+   *
+   * @param slot   - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+   * @param hidden - `true` to hide, `false` to show.
+   */
+  setPanelHidden(slot: string, hidden: boolean): void {
+    if (hidden) { this._hiddenPanels.add(slot); } else { this._hiddenPanels.delete(slot); }
+    this.requestUpdate();
+  }
+
+  /**
+   * Toggle the visibility of the panel slotted under `slot`.
+   *
+   * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+   */
+  togglePanel(slot: string): void {
+    this.setPanelHidden(slot, !this._hiddenPanels.has(slot));
   }
 
   /**
@@ -1138,7 +1178,8 @@ export class FslInstance extends LitElement {
         <div class="container is-split">
           ${header}
           ${toolbar}
-          <div class="workbench" data-mode=${mode} style="--fsl-split:${this._split}%">
+          <div class="workbench${this._hiddenPanels.has('viz') ? ' hide-viz' : ''}${this._hiddenPanels.has('editor') ? ' hide-editor' : ''}"
+               data-mode=${mode} style="--fsl-split:${this._split}%">
             ${mode === 'tabs' ? this._renderTabbar() : ''}
             <section class="pane viz" ?hidden=${mode === 'tabs' && this._tab !== 'viz'}>${viz}</section>
             <div class="gutter"
@@ -1157,8 +1198,8 @@ export class FslInstance extends LitElement {
       <div class="container">
         ${header}
         ${toolbar}
-        <section class="viz">${viz}</section>
-        <section class="editor">${editor}</section>
+        <section class="viz" ?hidden=${this._hiddenPanels.has('viz')}>${viz}</section>
+        <section class="editor" ?hidden=${this._hiddenPanels.has('editor')}>${editor}</section>
         ${this._renderAuxPanels()}
         <section class="state-section"><slot name=${state_slot_name}></slot></section>
         <footer><slot name="footer"></slot></footer>
@@ -1171,15 +1212,16 @@ export class FslInstance extends LitElement {
    *  state-section + footer stay in {@link render} so the dynamic state-slot
    *  name binds at the top level. */
   private _renderAuxPanels(): TemplateResult {
+    const h = (slot: string): boolean => this._hiddenPanels.has(slot);
     return html`
-      <section class="actions"><slot name="actions"></slot></section>
-      <section class="info-panel"><slot name="info-panel"></slot></section>
-      <section class="history"><slot name="history"></slot></section>
-      <section class="data-inspector"><slot name="data-inspector"></slot></section>
-      <section class="hook-log"><slot name="hook-log"></slot></section>
-      <section class="effective-properties"><slot name="effective-properties"></slot></section>
-      <section class="simulation"><slot name="simulation"></slot></section>
-      <section class="export"><slot name="export"></slot></section>
+      <section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>
+      <section class="info-panel" ?hidden=${h('info-panel')}><slot name="info-panel"></slot></section>
+      <section class="history" ?hidden=${h('history')}><slot name="history"></slot></section>
+      <section class="data-inspector" ?hidden=${h('data-inspector')}><slot name="data-inspector"></slot></section>
+      <section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>
+      <section class="effective-properties" ?hidden=${h('effective-properties')}><slot name="effective-properties"></slot></section>
+      <section class="simulation" ?hidden=${h('simulation')}><slot name="simulation"></slot></section>
+      <section class="export" ?hidden=${h('export')}><slot name="export"></slot></section>
     `;
   }
 

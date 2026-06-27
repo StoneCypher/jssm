@@ -13,17 +13,10 @@
   }
   * { box-sizing:border-box; }
   html,body { height:100%; margin:0; }
-  body {
-    background: radial-gradient(120% 80% at 50% -10%, #1a2030 0%, var(--ink) 60%) fixed;
-    color:var(--text); font-family:var(--sans); display:flex; flex-direction:column; min-height:100%;
-  }
-  header.page { display:flex; align-items:baseline; gap:.9rem; padding:1.2rem 1.4rem .3rem; }
-  .brand { font-family:var(--mono); font-weight:700; font-size:1.12rem; letter-spacing:-.02em; color:#fff; }
-  .brand .lt { color:var(--text-dim); } .brand .tag { color:var(--accent); }
-  .tagline { color:var(--text-dim); font-size:.88rem; } .tagline b { color:var(--signal); font-weight:600; }
-
-  main { flex:1; display:flex; padding:.7rem 1.4rem 1.2rem; min-height:0; }
-  .device { flex:1; display:flex; min-height:0; border:1px solid #000; background:var(--ink-2); overflow:hidden; }
+  body { font-family:var(--sans); overflow:hidden; }
+  /* The demo IS the widget: the device fills the window edge-to-edge with no
+     chrome around it, so what you see is exactly the <fsl-instance>. */
+  .device { display:flex; height:100vh; overflow:hidden; }
 
   /* The host owns the layout AND the theme: its built-in --fsl-color-* palette,
      flipped by the theme attribute the toolbar sets, cascades to every nested
@@ -62,29 +55,13 @@
   .status { display:inline-flex; align-items:center; gap:.35rem; }
   .err-dot { display:inline-block; width:.6em; height:.6em; border-radius:50%; background:#3fb950; transition:background .15s; }
   .err-dot.bad { background:#f85149; }
-
-  footer.hint { padding:.5rem 1.4rem 1rem; color:var(--text-dim); font-size:.82rem; }
-  footer.hint kbd { font-family:var(--mono); font-size:.76rem; background:#232a38; border:1px solid #000; border-radius:3px; padding:.05rem .35rem; color:var(--text); }
-  footer.hint code { font-family:var(--mono); font-size:.82em; background:#232a38; padding:.05rem .3rem; border-radius:3px; color:var(--text); }
 </style>
 </head>
 <body>
-  <header class="page">
-    <span class="brand"><span class="lt">&lt;</span>fsl<span class="lt">-</span><span class="tag">editor</span><span class="lt">&gt;</span></span>
-    <span class="tagline">write a state machine &mdash; watch it <b>light up</b></span>
-  </header>
-
-  <main>
-    <div class="device" id="device">
-      <!-- the <fsl-instance> host, its whole widget suite, and an <fsl-help>
-           drawer are built in JS so the host fsl is set before it connects -->
-    </div>
-  </main>
-
-  <footer class="hint">
-    every control here is a real <code>&lt;fsl-*&gt;</code> widget &nbsp;·&nbsp;
-    drag the gutter · <kbd>Ctrl</kbd>+<kbd>Space</kbd> completes · <b>Play</b> to walk the machine
-  </footer>
+  <div class="device" id="device">
+    <!-- the <fsl-instance> host, its whole widget suite, and an <fsl-help>
+         drawer are built in JS so the host fsl is set before it connects -->
+  </div>
 
   <script type="module">
     import { fslDiagnostics } from './fsl-editor.bundle.js';   // registers the whole suite

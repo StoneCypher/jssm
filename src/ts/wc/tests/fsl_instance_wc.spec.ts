@@ -441,6 +441,38 @@ describe('FslInstance shadow DOM', () => {
     document.body.removeChild(el);
   });
 
+  it('shows and hides panels via togglePanel / setPanelHidden', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    el.setAttribute('layout', 'rl');
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    // aux panel section → hidden attribute
+    expect(el.isPanelHidden('history')).toBe(false);
+    el.togglePanel('history');
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(true);
+    expect(el.shadowRoot!.querySelector('section.history')!.hasAttribute('hidden')).toBe(true);
+    el.togglePanel('history');                        // back on
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);
+
+    // workbench panes → hide-viz / hide-editor classes
+    el.setPanelHidden('viz', true);
+    el.setPanelHidden('editor', true);
+    await (el as any).updateComplete;
+    const wb = el.shadowRoot!.querySelector('.workbench')!;
+    expect(wb.classList.contains('hide-viz')).toBe(true);
+    expect(wb.classList.contains('hide-editor')).toBe(true);
+    el.setPanelHidden('viz', false);
+    el.setPanelHidden('editor', false);
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.workbench')!.classList.contains('hide-viz')).toBe(false);
+
+    document.body.removeChild(el);
+  });
+
   it('updates the state-specific slot name after a transition', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
