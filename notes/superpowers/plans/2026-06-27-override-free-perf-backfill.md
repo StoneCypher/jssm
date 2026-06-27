@@ -74,6 +74,8 @@
 
 ### Task 4: Override-free `transition` case + per-transition normalization
 
+> **✅ DONE — commit `ef1cd8b1`.** 32/32 unit specs; smoke run normalized all transition rows (chain-10/200/1000 now comparable at 5–8M transitions/sec); full `vitest-spec` 6773 pass / 100% cov over `src/ts/**`.
+
 > **Refinement (2026-06-27, during execution):** the original plan's line refs were stale and it under-counted the `override('s0')` sites. The live file has **six** override sites, not two: `attachActionSupport` (integrity, T5), `buildShapeMessy` (T5), `transitionCase` (T4), `actionCase` (T5), **`memoryPass`** (T4 — transition batch, plus T5 action batch), and **`warmupPass`** (T4 — 6 cold/warm batches). T5's `grep -c override → 0` gate covers all six, so the transition-side trio (`transitionCase`, `memoryPass` transition batch, `warmupPass`) all move here in T4.
 >
 > **Uniform-closure rule.** Every transition replay runs the **full** closed walk (`stepCount` steps), never a `K`-truncated prefix, because the only guarantee a closed walk gives is *return-to-start after a whole walk*. Partial replays would strand `shape.machine` off `s0` and the next replay site (benny's next iteration, then `memoryPass`, then `warmupPass` — they share the persistent `shape.machine`) would hit an illegal transition. So `shape.machine` lands back on `s0` after every batch, override-free.
@@ -100,6 +102,8 @@
 ---
 
 ### Task 5: Override-free action machine + `action` case
+
+> **✅ DONE — commit `0cfefb27`.** `grep -c '.override(' benchmark_scaling.cjs` = 0; no `allows_override` emitted. Smoke run: 10 normalized `action()` rows + 2 restored `messy-*` `transition()` rows (closedSubWalk found s0 cycles). `labelActionEdges` / `closedActionWalk` / `closedSubWalk` are pure + unit-tested in the shapes module.
 
 > **Refinement (2026-06-27).** `attachActionSupport:178` still builds its labeled action FSL with a leading `allows_override: true;` line, and `loadMessyFixture:293` still prepends one — both must go (the spec's "drop `allows_override` everywhere"). `closedActionWalk` is implemented **pure** in the shapes module by mapping the closed *transition* walk's `(prev → target)` edges to their action labels (same topology ⇒ same closure), so it needs no live machine — it takes the transition walk, the start state, and a `labelsByPair` map. The edge-labeling logic is extracted from `attachActionSupport` into a reusable `labelActionEdges(machine)` → `{ fsl, labelsByPair }` so both the harness and the test build labels the same way. The action machine and its `actionWalk` end on `s0`, so `actionCase` and `memoryPass`'s action batch replay it override-free (full walk, normalized by `stepCount`). `messy` only needs a closed walk for its **mutating** `transition()` case; if BFS finds no `s0→…→s0` cycle within a bound, set `transitionWalk = null` and skip messy's `transition()`/memory/warmup transition batch (its read-only ops still run).
 
