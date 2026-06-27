@@ -168,7 +168,11 @@ function writeMarkdownPivot() {
 // FSL generators live in ./benchmark_scaling_shapes.cjs so they stay unit-testable.
 // ----------------------------------------------------------------------------
 
-const { buildChainFSL, buildDenseFSL, buildHubFSL, closedWalk, perTransition } = require('./benchmark_scaling_shapes.cjs');
+const {
+  buildChainFSL, buildDenseFSL, buildHubFSL,
+  closedWalk, closedSubWalk, perTransition,
+  edgePairKey, labelActionEdges, closedActionWalk,
+} = require('./benchmark_scaling_shapes.cjs');
 
 function installHubHooks(machine, n) {
   // One per-edge hook for every edge in the hub topology.
@@ -192,52 +196,38 @@ function buildHookedHub(n) {
 
 const K = 100;   // per-call work, matches existing benny convention
 
-function edgePairKey(from, to) {
-  return `${from}\u0000${to}`;
-}
-
-function arrowForEdge(edge) {
-  if (edge.forced_only || edge.kind === 'forced') { return '~>'; }
-  if (edge.main_path   || edge.kind === 'main')   { return '=>'; }
-  return '->';
-}
-
 function attachActionSupport(shape, decorateActionMachine) {
   if (typeof shape.machine.list_edges !== 'function') { return shape; }
 
-  const labelsByPair = new Map();
-  const lines        = ['allows_override: true;'];
-  let actionId       = 0;
+  // Bare labeled action FSL (no allows_override config) so it parses on pre-5.86 engines.
+  const { fsl, labelsByPair } = labelActionEdges(shape.machine);
 
-  for (const edge of shape.machine.list_edges()) {
-    const label = `act_${actionId++}`;
-    labelsByPair.set(edgePairKey(edge.from, edge.to), label);
-    lines.push(`${edge.from} '${label}' ${arrowForEdge(edge)} ${edge.to};`);
-  }
-
-  const actionSeq    = [];
+  // actionStates: K source states for the read-only list_exit_actions /
+  // probable_action_exits probes (their state arg is explicit, so no walk needed).
   const actionStates = [];
   for (const [from, to] of shape.edgePairs) {
-    const label = labelsByPair.get(edgePairKey(from, to));
-    if (label === undefined) { return shape; }
-    actionSeq.push(label);
+    if (!labelsByPair.has(edgePairKey(from, to))) { return shape; }   // unlabelable edge -> no action support
     actionStates.push(from);
   }
 
-  const actionMachine = sm([lines.join('\n')]);
+  const actionMachine = sm([fsl]);
   if (decorateActionMachine) { decorateActionMachine(actionMachine); }
 
-  // Instrument integrity: every action benchmark must measure successful
-  // dispatch, not the cheap rejected-action path.
-  actionMachine.override('s0');
-  for (let k = 0; k < K; ++k) {
-    if (actionMachine.action(actionSeq[k]) !== true) {
+  // Closed action walk: the transition walk's edges mapped to their action labels.
+  // Same topology, so replay is legal and returns the action machine to its start
+  // state — no override() reset. attachActionSupport only runs for structured shapes,
+  // which always carry a transitionWalk.
+  const actionWalk = closedActionWalk(shape.transitionWalk, actionMachine.state(), labelsByPair);
+
+  // Instrument integrity: every action benchmark must measure successful dispatch,
+  // not the cheap rejected-action path. The closed walk leaves the machine on start.
+  for (let k = 0; k < actionWalk.stepCount; ++k) {
+    if (actionMachine.action(actionWalk.labels[k]) !== true) {
       throw new Error(`instrument bug: ${shape.name} action() failed at step ${k}`);
     }
   }
-  actionMachine.override('s0');
 
-  return { ...shape, actionMachine, actionSeq, actionStates };
+  return { ...shape, actionMachine, actionWalk, actionStates };
 }
 
 function buildShapeChain(n) {
@@ -319,9 +309,9 @@ function buildShapeHookedHub(n) {
 
 function loadMessyFixture(n) {
   const file = path.join(__dirname, '..', '..', 'benchmark', 'fixtures', `messy-${n}.fsl`);
-  // Prepend allows_override:true so the per-iteration reset works, matching the structured
-  // shapes. The fixture files themselves are frozen and don't carry this directive.
-  return 'allows_override: true;\n' + fs.readFileSync(file, 'utf8');
+  // Bare fixture FSL (no allows_override config) so it parses on pre-5.86 engines; the
+  // messy transition case uses a closed sub-walk (below) instead of an override() reset.
+  return fs.readFileSync(file, 'utf8');
 }
 
 function buildShapeMessy(n) {
@@ -345,8 +335,11 @@ function buildShapeMessy(n) {
     edgePairs.push([cur, next]);
     cur = next;
   }
-  machine.override('s0');
-  return { name: `messy-${n}`, machine, transitionSeq: seq, edgePairs };
+  // Closed sub-walk for the mutating transition() case: a BFS cycle s0 -> ... -> s0, so
+  // replay needs no override() reset. null when s0 has no cycle -> transition() is feature-
+  // gated out for this fixture (its read-only has_state / edges_between probes still run).
+  const transitionWalk = closedSubWalk(machine, 's0', K);
+  return { name: `messy-${n}`, machine, transitionSeq: seq, edgePairs, transitionWalk };
 }
 
 /**
@@ -401,10 +394,12 @@ function transitionCase(shape) {
 
 function actionCase(shape) {
   if (!shape.actionMachine) { return null; }
+  // Closed action walk returns the machine to its start each iteration, so replay stays
+  // legal with no override() reset. Normalized to per-action throughput in normalizePass.
+  const w = shape.actionWalk;
   const name = `${shape.name} action()`;
   return b.add(name, () => {
-    shape.actionMachine.override('s0');
-    for (let k = 0; k < K; ++k) shape.actionMachine.action(shape.actionSeq[k]);
+    for (let k = 0; k < w.stepCount; ++k) shape.actionMachine.action(w.labels[k]);
   }, bennyOpts(name));
 }
 
@@ -518,10 +513,12 @@ function memoryPass() {
       }]);
     }
     if (shape.actionMachine && HAS.action) {
+      const w = shape.actionWalk;
+      // Full closed action walk (returns to start), override-free; divides by its own
+      // stepCount, not K, matching the action() benchmark case.
       out.push([`${shape.name} action()`, () => {
-        shape.actionMachine.override('s0');
-        for (let k = 0; k < K; ++k) shape.actionMachine.action(shape.actionSeq[k]);
-      }]);
+        for (let k = 0; k < w.stepCount; ++k) shape.actionMachine.action(w.labels[k]);
+      }, w.stepCount]);
     }
     if (shape.actionMachine && HAS.list_exit_actions) {
       out.push([`${shape.name} list_exit_actions()`, () => {

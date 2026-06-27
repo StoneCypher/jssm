@@ -84,6 +84,74 @@ describe('closedWalk — legal, closed laps (no override reset needed)', () => {
 
 });
 
+describe('labelActionEdges — bare labeled action FSL', () => {
+
+  test('labels every edge and emits no allows_override config', () => {
+    const base = sm([shapes.buildChainFSL(3)]);
+    const { fsl, labelsByPair } = shapes.labelActionEdges(base);
+    expect(fsl).not.toContain('allows_override');
+    expect(fsl).toContain("'act_0'");                 // first edge labeled
+    expect(labelsByPair.size).toBe(3);                // chain-3 has 3 edges
+  });
+
+  test('the labeled FSL builds an action machine that dispatches its labels', () => {
+    const base = sm([shapes.buildChainFSL(3)]);
+    const { fsl, labelsByPair } = shapes.labelActionEdges(base);
+    const am  = sm([fsl]);
+    const lbl = labelsByPair.get(shapes.edgePairKey('s0', 's1'));
+    expect(am.action(lbl)).toBe(true);                // s0 -> s1 action fires from the start state
+  });
+
+});
+
+describe('closedActionWalk — closed legal action sequence (no override)', () => {
+
+  for (const [kind, n, fslOf] of [
+    ['chain', 10, (k: number) => shapes.buildChainFSL(k)],
+    ['dense', 10, (k: number) => shapes.buildDenseFSL(k)],
+    ['hub',   20, (k: number) => shapes.buildHubFSL(k)],
+  ] as Array<[string, number, (k: number) => string]>) {
+    test(`${kind}-${n}: every action fires and the action machine returns to start`, () => {
+      const base = sm([fslOf(n)]);
+      const { fsl, labelsByPair } = shapes.labelActionEdges(base);
+      const am   = sm([fsl]);
+      const start = am.state();
+      const walk  = shapes.closedWalk(kind, n, 100);
+      const aw    = shapes.closedActionWalk(walk, start, labelsByPair);
+
+      expect(aw.stepCount).toBe(walk.stepCount);
+      for (let k = 0; k < aw.labels.length; ++k) {
+        expect(am.action(aw.labels[k])).toBe(true);
+      }
+      expect(am.state()).toBe(start);                 // closed: back where it began
+    });
+  }
+
+});
+
+describe('closedSubWalk — irregular (messy) closed sub-walk via BFS', () => {
+
+  const CYCLIC = ['s0 -> s1;', 's1 -> s2;', 's2 -> s0;', 's2 -> s3;'].join('\n');
+
+  test('finds a shortest cycle through s0 and repeats it to >= minSteps', () => {
+    // s0 -> s1 -> s2 -> s0 is a 3-edge cycle; s2 -> s3 is a dead-end spur.
+    const m = sm([CYCLIC]);
+    const w = shapes.closedSubWalk(m, 's0', 10);
+    expect(w).not.toBeNull();
+    expect(w.stepCount).toBeGreaterThanOrEqual(10);
+    // drive it: every step legal, ends back at s0
+    const m2 = sm([CYCLIC]);
+    for (const tgt of w.targets) { expect(m2.transition(tgt)).toBe(true); }
+    expect(m2.state()).toBe('s0');
+  });
+
+  test('returns null when s0 has no path back to itself (acyclic)', () => {
+    const m = sm([['s0 -> s1;', 's1 -> s2;'].join('\n')]);   // DAG, no return to s0
+    expect(shapes.closedSubWalk(m, 's0', 10)).toBeNull();
+  });
+
+});
+
 describe('perTransition — per-transition throughput normalization', () => {
 
   test('multiplies iterations/sec by the lap step count (transitions/sec)', () => {
