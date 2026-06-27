@@ -126,7 +126,6 @@
     const hist  = make('fsl-history', 'history');
     const data  = make('fsl-data-inspector', 'data-inspector');
     const hooks = make('fsl-hook-log', 'hook-log');
-    const exp   = make('fsl-export', 'export');
 
     const footer = make('fsl-footer', 'footer');
     const statusEl = document.createElement('span');
@@ -134,7 +133,7 @@
     statusEl.innerHTML = '<span class="err-dot" id="dot"></span><span id="status">ready</span>';
     footer.append(statusEl);                             // the footer's trailing slot
 
-    host.append(title, toolbar, viz, ed, sim, hist, data, hooks, exp, footer);
+    host.append(title, toolbar, viz, ed, sim, hist, data, hooks, footer);
     document.getElementById('device').prepend(host);
 
     // A real <fsl-help> drawer; the toolbar's Docs button toggles it.

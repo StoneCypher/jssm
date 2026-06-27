@@ -2,18 +2,32 @@ import { LitElement, html, css, type TemplateResult } from 'lit';
 import { state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { machine_to_dot } from '../jssm_viz.js';
 import type { FslLayout } from './fsl_instance_wc.js';
+import type { Machine } from '../jssm.js';
 
 /** Editor surface the toolbar themes (the host owns the rest). */
 interface EditorTarget extends HTMLElement { theme: 'light' | 'dark'; }
 
-/** Host whose theme, layout, and panel visibility the toolbar drives. */
+/** Host whose theme, layout, panel visibility, and export source the toolbar drives. */
 interface HostTarget extends HTMLElement {
   layout: FslLayout;
   theme: 'light' | 'dark';
+  fsl: string;
+  machine: Machine<unknown>;
   isPanelHidden(slot: string): boolean;
   togglePanel(slot: string): void;
 }
+
+/** Which dropdown menu is open (at most one). */
+type OpenMenu = '' | 'layout' | 'export';
+
+/** Export formats offered by the Export pulldown. */
+const EXPORT_FORMATS = [
+  { value: 'dot' as const,  label: 'Graphviz DOT' },
+  { value: 'json' as const, label: 'JSON (serialized)' },
+  { value: 'fsl' as const,  label: 'FSL source' },
+];
 
 /* Panel icons — Solar (CC BY 4.0) bold-duotone. Layout icons — hand-drawn
    duotone split-rects. All use currentColor (+ baked opacity on the secondary
@@ -49,7 +63,6 @@ const PANELS: ReadonlyArray<PanelDef> = [
   { slot: 'info-panel',           label: 'Info',       icon: ICON_INFO },
   { slot: 'effective-properties', label: 'Properties', icon: ICON_PROPS },
   { slot: 'simulation',           label: 'Simulation', icon: ICON_SIM },
-  { slot: 'export',               label: 'Export',     icon: ICON_EXPORT },
 ];
 
 /** Layout menu entries (icon + label), in the sketch's order. */
@@ -122,7 +135,7 @@ export class FslToolbar extends LitElement {
     ${fslTokens}
   `;
 
-  @state() private _menuOpen = false;
+  @state() private _openMenu: OpenMenu = '';
   private _host: HostTarget | null = null;
   private _editor: EditorTarget | null = null;
   /** Panels actually present in the host — one toggle each. */
@@ -144,10 +157,26 @@ export class FslToolbar extends LitElement {
 
   private _setLayout(layout: FslLayout): void {
     if (this._host !== null) { this._host.layout = layout; }
-    this._menuOpen = false;
+    this._openMenu = '';
   }
 
-  private _toggleMenu(): void { this._menuOpen = !this._menuOpen; }
+  /** Emit `fsl-export` with the chosen format's content, generated from the host. */
+  private _export(format: 'dot' | 'json' | 'fsl'): void {
+    const host = this._host;
+    this._openMenu = '';
+    if (host === null) { return; }
+    let content: string;
+    if (format === 'dot') {
+      content = machine_to_dot(host.machine);
+    } else if (format === 'json') {
+      content = JSON.stringify(host.machine.serialize(), null, 2);
+    } else {
+      content = host.fsl;
+    }
+    this.dispatchEvent(new CustomEvent('fsl-export', { detail: { format, content }, bubbles: true, composed: true }));
+  }
+
+  private _toggleMenu(which: OpenMenu): void { this._openMenu = this._openMenu === which ? '' : which; }
 
   render(): TemplateResult {
     const host   = this._host;
@@ -170,11 +199,19 @@ export class FslToolbar extends LitElement {
             : ''}
         </div>
         <div class="grp">
-          <button class="tb layout" aria-haspopup="true" aria-expanded=${this._menuOpen} aria-label="Layout" title="Layout" @click=${this._toggleMenu}>${layoutIcon}<span class="caret">▾</span></button>
-          ${this._menuOpen ? html`
+          <button class="tb layout" aria-haspopup="true" aria-expanded=${this._openMenu === 'layout'} aria-label="Layout" title="Layout" @click=${() => this._toggleMenu('layout')}>${layoutIcon}<span class="caret">▾</span></button>
+          ${this._openMenu === 'layout' ? html`
             <div class="menu" role="menu">
               ${LAYOUTS.map(o => html`
                 <button role="menuitemradio" aria-checked=${layout === o.value} @click=${() => this._setLayout(o.value)}>${o.icon}${o.label}</button>`)}
+            </div>` : ''}
+        </div>
+        <div class="grp">
+          <button class="tb icon" aria-haspopup="true" aria-expanded=${this._openMenu === 'export'} aria-label="Export" title="Export" @click=${() => this._toggleMenu('export')}>${ICON_EXPORT}</button>
+          ${this._openMenu === 'export' ? html`
+            <div class="menu" role="menu">
+              ${EXPORT_FORMATS.map(f => html`
+                <button role="menuitem" @click=${() => this._export(f.value)}>${f.label}</button>`)}
             </div>` : ''}
         </div>
         <slot></slot>
