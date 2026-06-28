@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Design — language surface specced; surfaces 2–7 deferred pending [jssm#822](https://github.com/StoneCypher/jssm/issues/822) |
+| **Status** | Design + implementation — all 7 surfaces partitioned & check-verified (254 units / 52 features); surfaces 2–7 v5-provisional pending [jssm#822](https://github.com/StoneCypher/jssm/issues/822) |
 | **Branch** | `docs_26-06-27_help-sidebar-grammar-ref` |
 | **Date** | 2026-06-27 |
 | **Related** | `notes/fsl-grammar-reference.md`; #817 / #818 (proof corpus + grammar pinning); #650 (FSL spec extraction); `v6_breaking_changes.json` |
@@ -58,12 +58,12 @@ Mere repackaging of another surface's contract → **delivery channel**, out of 
 | # | Surface | Ground truth (extractor source) | Class |
 |---|---|---|---|
 | 1 | **FSL language** | `src/ts/fsl_parser.peg` | first-class (specced below) |
-| 2 | Core API | `.d.ts` / TypeDoc over the 7 `docs`-script entry points | first-class (deferred) |
-| 3 | Visualization API (`./viz`) | `jssm_viz.ts` | first-class or area (deferred) |
-| 4 | CLI (`fsl`/`jssm`/`fsl-render`/`fsl-export-system-prompt`) | `src/ts/cli` dispatcher + subcommands | first-class (deferred) |
-| 5 | Web components (`fsl-*` panel suite) | `custom-elements.json` (CEM manifest) | first-class (deferred) |
-| 6 | Editor / CodeMirror-6 package (`./cm6`) | `cm6/fsl_language.ts` exports + language config | first-class (deferred) |
-| 7 | FSL-for-LLMs system prompt | `fsl-export-system-prompt` output artifact | first-class (deferred) |
+| 2 | Core API | `.d.ts` / TypeDoc over the 7 `docs`-script entry points | first-class (built, v5-provisional) |
+| 3 | Visualization API (`./viz`) | `jssm_viz.ts` | first-class or area (built, v5-provisional) |
+| 4 | CLI (`fsl`/`jssm`/`fsl-render`/`fsl-export-system-prompt`) | `src/ts/cli` dispatcher + subcommands | first-class (built, v5-provisional) |
+| 5 | Web components (`fsl-*` panel suite) | `custom-elements.json` (CEM manifest) | first-class (built, v5-provisional) |
+| 6 | Editor / CodeMirror-6 package (`./cm6`) | `cm6/fsl_language.ts` exports + language config | first-class (built, v5-provisional) |
+| 7 | FSL-for-LLMs system prompt | `fsl-export-system-prompt` output artifact | first-class (built, v5-provisional) |
 
 **Areas** (tagged, not separately partition-checked): render output formats
 (dot/svg/png/jpeg/html), hooks contract, serialization/AST/machine-JSON (note `ajv` is a
@@ -72,11 +72,12 @@ dep — there may be a JSON schema to extract), theming, events.
 **Delivery channels** (out of scope): CDN bundles, Deno build, es5/es6/iife variants,
 minified outputs.
 
-> Surfaces 2–7 extractors are intentionally **not** specced here. #822 must re-enumerate
-> the surface list against v6 milestone scope first (the expression language extends #1's
-> grammar; run/verify verbs add API+CLI surface; `fsl-*` canonicalization removes the
-> deprecated `jssm-*` synonyms from #5; the LLM prompt #7 is being rewritten). Designing
-> their extractors now would bake in a v5-pinned inventory that is about to move.
+> Surfaces 2–7 are now **built and partition-verified** (v5-provisional, see §10). #822 still
+> governs their v6 re-enumeration: the expression language extends #1's grammar; run/verify
+> verbs add API+CLI surface; `fsl-*` canonicalization is *already reflected* — the deprecated
+> `jssm-*` synonyms are absent from the CEM ground truth, so they never enter the WC partition;
+> the LLM prompt #7 is being rewritten. Treat the surface 2–7 partitions as provisional until
+> #822 reconfirms them against the v6 milestone.
 
 ## 4. Manifest schema
 
@@ -253,13 +254,39 @@ Remainder splits cleanly:
   completeness machine-checked). Seeded by the census extractor, then tiers assigned by hand.
 - **Page content tree** — deferred to the editor-packaging decision (currently `sketch/cm6-editor`).
 
-## 9. Deferred / open
+## 10. Implementation status (built 2026-06-27)
 
-- Surfaces 2–7 extractors — blocked on #822 (v6 surface re-enumeration).
-- API exact symbol count — needs the built `.d.ts`/TypeDoc JSON (barrel re-exports defeat a
-  source-only census; the prototype found ~33 documented members on `jssm.ts`, 46 `@example`
-  blocks across 18 non-test files).
-- Promote the census extractors from `build/` throwaways to the real partition-check tooling
-  (likely `src/scripts/`), wired into the build as a gate.
-- The two §7.3 curation calls.
+Tooling under `src/scripts/teaching_surface/`:
+
+- `extract_grammar_surface.cjs` — language ground truth (PEG rules + terminals).
+- `extract_surfaces.cjs` — per-surface universe extractors for api / viz / editor (TS exports),
+  webcomponent (CEM tag names), cli (bins + subcommands + render targets + dispatcher flags),
+  llm-prompt (exported system-prompt headings).
+- `check_partition.cjs` — check #1 across every surface.
+
+Manifest `src/data/teaching-surface.json`, partition **OK across all surfaces**:
+
+| surface | units | features |
+|---|---|---|
+| language | 167 | 28 |
+| api | 36 | 6 |
+| viz | 14 | 5 |
+| editor | 9 | 3 |
+| webcomponent | 5 | 4 |
+| cli | 17 | 4 |
+| llm-prompt | 6 | 2 |
+| **total** | **254** | **52** |
+
+WC finding: the deprecated `jssm-*` synonyms are absent from `custom-elements.json` (runtime-aliased
+only), so the CEM ground truth itself confirms they are not first-class — they never enter the partition.
+
+## 9. Open / next
+
+- **Checks #2–#4** need the help-page tree to exist (front-matter is the coverage source); page-tree
+  location is the open editor-packaging decision (§8).
+- **API granularity** — the `api` universe is jssm.ts's exported *symbols*; the `Machine` class is one
+  unit. Enumerating its methods is a deeper sub-surface (`area`) to add later.
+- **Build wiring** — add `npm run check:teaching-surface` and fold check #1 into the `run_build`
+  gate so an unclassified new rule/export/tag fails CI.
+- **Provisional surfaces** — re-confirm surfaces 2–7 against #822 (v6).
 ```
