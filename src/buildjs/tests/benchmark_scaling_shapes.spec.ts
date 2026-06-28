@@ -1,9 +1,11 @@
 import { createRequire } from 'node:module';
+// Import sm from the TS source (vitest-resolved), NOT the built dist/jssm.es5.cjs bundle —
+// the trimmed `ci_test` matrix build doesn't produce that bundle, so requiring it there
+// fails with MODULE_NOT_FOUND. This matches how the canonical src/ts specs import sm.
+import { sm } from '../../ts/jssm';
 
 const require = createRequire(import.meta.url);
 const shapes = require('../benchmark_scaling_shapes.cjs');
-const jssm = require('../../../dist/jssm.es5.cjs');
-const sm = jssm.sm;
 
 // Drive a real machine through a closed walk: every step must be a legal transition
 // from the current state, and the walk must end where it began — so the harness can
