@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sm } from '../jssm.js';
+import { sm, STOCHASTIC_DEFAULT_RUNS } from '../jssm.js';
 
 describe('stochastic_runs generator', () => {
 
@@ -86,6 +86,30 @@ describe('stochastic_summary', () => {
     m.stochastic_summary({ runs: 10, max_steps: 5, seed: 12345 });
     expect(m.rng_seed).toBe(seed_before);
     expect(m.state()).toBe(state_before);
+  });
+
+});
+
+describe('stochastic_summary option defaults', () => {
+
+  it('uses editor_config().stochastic_run_count when runs is omitted (and default max_steps)', () => {
+    const m = sm`editor: { stochastic_run_count: 3; }; a 'go' -> b;`;
+    const s = m.stochastic_summary({ seed: 1 });
+    expect(s.runs).toBe(3);
+  });
+
+  it('falls back to STOCHASTIC_DEFAULT_RUNS when nothing is declared', () => {
+    const m = sm`a 'go' -> b;`;
+    const s = m.stochastic_summary({ seed: 1 });
+    expect(s.runs).toBe(STOCHASTIC_DEFAULT_RUNS);
+  });
+
+  it('runs without an explicit seed (time-based)', () => {
+    const m = sm`a 'go' -> b;`;
+    const s = m.stochastic_summary({ runs: 5 });
+    expect(s.runs).toBe(5);
+    const total = [...s.state_visit_fraction.values()].reduce((x, y) => x + y, 0);
+    expect(total).toBeCloseTo(1, 10);
   });
 
 });
