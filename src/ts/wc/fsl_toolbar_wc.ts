@@ -56,9 +56,13 @@ const ICON_M_VIEWER = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="tru
 const ICON_TABS     = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="1.5" fill="currentColor" opacity=".4"/><rect x="3" y="4" width="8" height="3.6" rx="1" fill="currentColor"/></svg>`;
 const ICON_AUTO     = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor" opacity=".4"/><path d="M5 19L19 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>`;
 
+/* Solar bolt-bold-duotone — the actions panel. */
+const ICON_ACTIONS  = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M8.732 5.771L5.67 9.914c-1.285 1.739-1.928 2.608-1.574 3.291l.018.034c.375.673 1.485.673 3.704.673c1.233 0 1.85 0 2.236.363l.02.02l3.872-4.57l-.02-.02c-.379-.371-.379-.963-.379-2.148v-.31c0-3.285 0-4.927-.923-5.21s-1.913 1.056-3.892 3.734" clip-rule="evenodd"/><path fill="currentColor" d="M10.453 16.443v.31c0 3.284 0 4.927.923 5.21s1.913-1.056 3.893-3.734l3.062-4.143c1.284-1.739 1.927-2.608 1.573-3.291l-.018-.034c-.375-.673-1.485-.673-3.704-.673c-1.233 0-1.85 0-2.236-.363l-3.872 4.57c.379.371.379.963.379 2.148" opacity=".5"/></svg>`;
+
 /** Panel slot → label + icon. The toolbar shows a toggle for each panel present. */
 interface PanelDef { slot: string; label: string; icon: TemplateResult; }
 const PANELS: ReadonlyArray<PanelDef> = [
+  { slot: 'actions',              label: 'Actions',    icon: ICON_ACTIONS },
   { slot: 'viz',                  label: 'Renderer',   icon: ICON_VIZ },
   { slot: 'editor',               label: 'Code',       icon: ICON_CODE },
   { slot: 'history',              label: 'History',    icon: ICON_HISTORY },

@@ -343,6 +343,27 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     document.body.removeChild(el);
   });
 
+  it('moves via host.transition() (legal) and host.force_transition() (forced)', () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B; A ~> C;");
+    document.body.appendChild(el);
+
+    expect(el.transition('B')).toBe(true);   // legal edge A -> B
+    expect(el.state()).toBe('B');
+
+    const el2 = document.createElement('fsl-instance') as FslInstance;
+    el2.setAttribute('fsl', "A 'go' -> B; A ~> C;");
+    document.body.appendChild(el2);
+
+    expect(el2.transition('C')).toBe(false);        // A ~> C is forced-only
+    expect(el2.state()).toBe('A');
+    expect(el2.force_transition('C')).toBe(true);   // force succeeds
+    expect(el2.state()).toBe('C');
+
+    document.body.removeChild(el);
+    document.body.removeChild(el2);
+  });
+
   it('reflects legal-actions, terminal, and complete host attributes', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");

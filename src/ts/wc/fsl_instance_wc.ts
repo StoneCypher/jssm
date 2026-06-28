@@ -641,6 +641,38 @@ export class FslInstance extends LitElement {
   }
 
   /**
+   * Convenience wrapper for `machine.transition(state, data)` — moves directly
+   * to a state along a legal (non-forced) edge. Reflects the new state and
+   * requests an update, exactly as {@link FslInstance.do} does for actions.
+   *
+   * @param state - The destination state.
+   * @param data - Optional data payload.
+   * @returns `true` if the transition succeeded (a legal edge existed).
+   */
+  transition(state: string, data?: unknown): boolean {
+    const result = this.machine.transition(state, data);
+    this._paint_state_reflection();
+    this.requestUpdate();
+    return result;
+  }
+
+  /**
+   * Convenience wrapper for `machine.force_transition(state, data)` — moves to a
+   * state along any edge, including forced-only ones. Reflects the new state and
+   * requests an update.
+   *
+   * @param state - The destination state.
+   * @param data - Optional data payload.
+   * @returns `true` if the forced transition succeeded (any edge existed).
+   */
+  force_transition(state: string, data?: unknown): boolean {
+    const result = this.machine.force_transition(state, data);
+    this._paint_state_reflection();
+    this.requestUpdate();
+    return result;
+  }
+
+  /**
    * Convenience wrapper for `machine.state()`.  Returns the current
    * state's name.
    */

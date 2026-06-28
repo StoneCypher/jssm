@@ -7,6 +7,7 @@
  * @see FslToolbar
  */
 export { FslToolbar }       from './fsl_toolbar_wc.js';
+export { FslActions }       from './fsl_actions_wc.js';
 export { FslFooter }        from './fsl_footer_wc.js';
 export { FslHelp }          from './fsl_help_wc.js';
 export { FslHistory }       from './fsl_history_wc.js';
