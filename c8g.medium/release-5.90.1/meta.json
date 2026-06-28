@@ -1,0 +1,10 @@
+{
+  "release": "5.90.1",
+  "instanceType": "c8g.medium",
+  "arch": "arm64",
+  "mode": "normal",
+  "commitSha": "7de448cb8c28aea5001342fc10eae4e88636ecc5",
+  "region": "us-east-1",
+  "timestamp": "2026-06-28T06:09:47Z",
+  "runner": "graviton_perf.cjs --detached"
+}

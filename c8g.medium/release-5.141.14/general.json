@@ -1,153 +1,153 @@
 {
   "name": "General performance suite",
-  "date": "2026-06-23T16:41:35.334Z",
+  "date": "2022-07-29T06:20:38.893Z",
   "version": "1.2.0",
   "results": [
     {
       "name": "Blind cycle a traffic light 100 times by transition",
-      "ops": 70905,
-      "margin": 0.12,
-      "percentSlower": 58.34
+      "ops": 29875,
+      "margin": 1.79,
+      "percentSlower": 82.91
     },
     {
       "name": "Blind cycle a traffic light 100 times by action",
-      "ops": 64165,
-      "margin": 0.1,
-      "percentSlower": 62.3
+      "ops": 60716,
+      "margin": 4.65,
+      "percentSlower": 65.26
     },
     {
       "name": "Blind cycle a basic-hooked traffic light 100 times by transition",
-      "ops": 40213,
-      "margin": 0.18,
-      "percentSlower": 76.37
+      "ops": 6043,
+      "margin": 2.06,
+      "percentSlower": 96.54
     },
     {
       "name": "Blind cycle a named-hooked traffic light 100 times by transition",
-      "ops": 56212,
-      "margin": 0.08,
-      "percentSlower": 66.97
+      "ops": 23192,
+      "margin": 1.84,
+      "percentSlower": 86.73
     },
     {
       "name": "Blind cycle an any-transition traffic light 100 times by transition",
-      "ops": 41731,
-      "margin": 0.09,
-      "percentSlower": 75.48
+      "ops": 18911,
+      "margin": 2.26,
+      "percentSlower": 89.18
     },
     {
       "name": "Blind cycle an exit hooked traffic light 100 times by transition",
-      "ops": 41562,
-      "margin": 1.06,
-      "percentSlower": 75.58
+      "ops": 18763,
+      "margin": 2.06,
+      "percentSlower": 89.26
     },
     {
       "name": "Blind cycle an enter hooked traffic light 100 times by transition",
-      "ops": 41488,
-      "margin": 1.28,
-      "percentSlower": 75.62
+      "ops": 18902,
+      "margin": 1.83,
+      "percentSlower": 89.18
     },
     {
       "name": "Blind cycle a standard-transition hooked light by transition",
-      "ops": 26613,
-      "margin": 1.55,
-      "percentSlower": 84.36
+      "ops": 19969,
+      "margin": 3.19,
+      "percentSlower": 88.57
     },
     {
       "name": "Blind cycle a main-transition hooked light by transition",
-      "ops": 28972,
-      "margin": 1.57,
-      "percentSlower": 82.98
+      "ops": 22677,
+      "margin": 1.89,
+      "percentSlower": 87.02
     },
     {
       "name": "Blind cycle a force-transition hooked light by transition",
-      "ops": 80531,
-      "margin": 1.46,
-      "percentSlower": 52.68
+      "ops": 110465,
+      "margin": 1.98,
+      "percentSlower": 36.79
     },
     {
       "name": "Blind cycle a traffic light 100 times by action",
-      "ops": 62698,
-      "margin": 2.19,
-      "percentSlower": 63.16
+      "ops": 63856,
+      "margin": 1.8,
+      "percentSlower": 63.46
     },
     {
       "name": "Blind cycle a basic-hooked traffic light 100 times by action",
-      "ops": 27266,
-      "margin": 1.88,
-      "percentSlower": 83.98
+      "ops": 6748,
+      "margin": 1.73,
+      "percentSlower": 96.14
     },
     {
       "name": "Blind cycle a named-hooked traffic light 100 times by action",
-      "ops": 27741,
-      "margin": 0.06,
-      "percentSlower": 83.7
+      "ops": 5812,
+      "margin": 5.67,
+      "percentSlower": 96.67
     },
     {
       "name": "Blind cycle an any-action traffic light 100 times by action",
-      "ops": 33199,
-      "margin": 1.91,
-      "percentSlower": 80.49
+      "ops": 31827,
+      "margin": 2.58,
+      "percentSlower": 81.79
     },
     {
       "name": "Blind cycle a global-action traffic light 100 times by action",
-      "ops": 35095,
-      "margin": 1.69,
-      "percentSlower": 79.38
+      "ops": 33199,
+      "margin": 2.39,
+      "percentSlower": 81
     },
     {
       "name": "Blind cycle an exit hooked traffic light 100 times by action",
-      "ops": 28658,
-      "margin": 1.62,
-      "percentSlower": 83.16
+      "ops": 24886,
+      "margin": 2.08,
+      "percentSlower": 85.76
     },
     {
       "name": "Blind cycle an enter hooked traffic light 100 times by action",
-      "ops": 28516,
-      "margin": 1.65,
-      "percentSlower": 83.24
+      "ops": 24602,
+      "margin": 2.23,
+      "percentSlower": 85.92
     },
     {
       "name": "Blind cycle a standard transition tl 100 times by action",
-      "ops": 169871,
-      "margin": 2.61,
-      "percentSlower": 0.18
-    },
-    {
-      "name": "Blind cycle a main transition tl 100 times by action",
-      "ops": 169470,
-      "margin": 2.65,
-      "percentSlower": 0.42
-    },
-    {
-      "name": "Blind cycle a forced transition tl 100 times by action",
-      "ops": 170185,
-      "margin": 2.23,
+      "ops": 174767,
+      "margin": 1.32,
       "percentSlower": 0
     },
     {
+      "name": "Blind cycle a main transition tl 100 times by action",
+      "ops": 172050,
+      "margin": 1.6,
+      "percentSlower": 1.55
+    },
+    {
+      "name": "Blind cycle a forced transition tl 100 times by action",
+      "ops": 171854,
+      "margin": 1.91,
+      "percentSlower": 1.67
+    },
+    {
       "name": "Kitchen Sink 100 times",
-      "ops": 41617,
-      "margin": 2.13,
-      "percentSlower": 75.55
+      "ops": 27929,
+      "margin": 1.97,
+      "percentSlower": 84.02
     },
     {
       "name": "Compile `a -> b;` using sm",
-      "ops": 32886,
-      "margin": 19.37,
-      "percentSlower": 80.68
+      "ops": 40663,
+      "margin": 5.89,
+      "percentSlower": 76.73
     },
     {
       "name": "Compile `a -> b;` using .from",
-      "ops": 44963,
-      "margin": 3.56,
-      "percentSlower": 73.58
+      "ops": 38613,
+      "margin": 2.39,
+      "percentSlower": 77.91
     }
   ],
   "fastest": {
-    "name": "Blind cycle a forced transition tl 100 times by action",
-    "index": 19
+    "name": "Blind cycle a standard transition tl 100 times by action",
+    "index": 17
   },
   "slowest": {
-    "name": "Blind cycle a standard-transition hooked light by transition",
-    "index": 7
+    "name": "Blind cycle a named-hooked traffic light 100 times by action",
+    "index": 12
   }
 }

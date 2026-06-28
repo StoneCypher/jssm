@@ -1,0 +1,153 @@
+{
+  "name": "General performance suite",
+  "date": "2026-06-28T06:00:57.742Z",
+  "version": "5.70.13",
+  "results": [
+    {
+      "name": "Blind cycle a traffic light 100 times by transition",
+      "ops": 40418,
+      "margin": 0.12,
+      "percentSlower": 93.98
+    },
+    {
+      "name": "Blind cycle a traffic light 100 times by action",
+      "ops": 72877,
+      "margin": 0.35,
+      "percentSlower": 89.14
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by transition",
+      "ops": 14725,
+      "margin": 0.19,
+      "percentSlower": 97.81
+    },
+    {
+      "name": "Carry a named hook that cannot fire, 100 cycles by transition v2",
+      "ops": 38586,
+      "margin": 0.35,
+      "percentSlower": 94.25
+    },
+    {
+      "name": "Blind cycle an any-transition traffic light 100 times by transition",
+      "ops": 36926,
+      "margin": 0.71,
+      "percentSlower": 94.5
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by transition",
+      "ops": 35940,
+      "margin": 0.91,
+      "percentSlower": 94.64
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by transition",
+      "ops": 35826,
+      "margin": 0.96,
+      "percentSlower": 94.66
+    },
+    {
+      "name": "Blind cycle a standard-transition hooked light by transition",
+      "ops": 35701,
+      "margin": 0.85,
+      "percentSlower": 94.68
+    },
+    {
+      "name": "Blind cycle a main-transition hooked light by transition",
+      "ops": 35084,
+      "margin": 2.87,
+      "percentSlower": 94.77
+    },
+    {
+      "name": "Cycle a force-transition hooked light 100 times by force_transition v2",
+      "ops": 64842,
+      "margin": 3.54,
+      "percentSlower": 90.34
+    },
+    {
+      "name": "Blind cycle a basic-hooked traffic light 100 times by action",
+      "ops": 17361,
+      "margin": 2.15,
+      "percentSlower": 97.41
+    },
+    {
+      "name": "Blind cycle a named-hooked traffic light 100 times by action v2",
+      "ops": 15593,
+      "margin": 1.12,
+      "percentSlower": 97.68
+    },
+    {
+      "name": "Blind cycle an any-action traffic light 100 times by action",
+      "ops": 56719,
+      "margin": 1.4,
+      "percentSlower": 91.55
+    },
+    {
+      "name": "Blind cycle a global-action traffic light 100 times by action v2",
+      "ops": 53444,
+      "margin": 1.46,
+      "percentSlower": 92.03
+    },
+    {
+      "name": "Blind cycle an exit hooked traffic light 100 times by action",
+      "ops": 54758,
+      "margin": 1.02,
+      "percentSlower": 91.84
+    },
+    {
+      "name": "Blind cycle an enter hooked traffic light 100 times by action",
+      "ops": 54461,
+      "margin": 1.21,
+      "percentSlower": 91.88
+    },
+    {
+      "name": "Cycle a standard transition tl 100 times by action v2",
+      "ops": 54914,
+      "margin": 1.33,
+      "percentSlower": 91.82
+    },
+    {
+      "name": "Cycle a main transition tl 100 times by action v2",
+      "ops": 55186,
+      "margin": 1.52,
+      "percentSlower": 91.77
+    },
+    {
+      "name": "Cycle a forced transition tl 100 times by action v2",
+      "ops": 53508,
+      "margin": 1.05,
+      "percentSlower": 92.02
+    },
+    {
+      "name": "Data-carrying basic hook, 100 cycles by transition",
+      "ops": 14877,
+      "margin": 1.22,
+      "percentSlower": 97.78
+    },
+    {
+      "name": "Rejected action, 100 calls by action",
+      "ops": 670917,
+      "margin": 0.88,
+      "percentSlower": 0
+    },
+    {
+      "name": "Compile `a -> b;` using sm",
+      "ops": 54743,
+      "margin": 17.15,
+      "percentSlower": 91.84
+    },
+    {
+      "name": "Compile `a -> b;` using .from",
+      "ops": 62763,
+      "margin": 2.2,
+      "percentSlower": 90.65
+    }
+  ],
+  "fastest": {
+    "name": "Rejected action, 100 calls by action",
+    "index": 20
+  },
+  "slowest": {
+    "name": "Blind cycle a basic-hooked traffic light 100 times by transition",
+    "index": 2
+  }
+}

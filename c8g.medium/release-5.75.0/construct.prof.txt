@@ -1,0 +1,172 @@
+Statistical profiling result from isolate-0xffff94470000-27199-v8.log, (183 ticks, 0 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+     67   36.6%          /usr/bin/node
+      1    0.5%          /usr/lib64/libstdc++.so.6.0.33
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+      1    0.5%    0.9%  JS: *denseFSL /root/jssm/perf_probe.cjs:3:18
+
+ [C++]:
+   ticks  total  nonlib   name
+     71   38.8%   61.7%  fputc
+     18    9.8%   15.7%  __GI___libc_read
+      7    3.8%    6.1%  std::ostream::put(char)@@GLIBCXX_3.4
+      5    2.7%    4.3%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      5    2.7%    4.3%  __GI___lll_lock_wake
+      4    2.2%    3.5%  __GI___libc_write
+      2    1.1%    1.7%  _init
+      1    0.5%    0.9%  syscall
+      1    0.5%    0.9%  __GI___munmap
+
+ [Summary]:
+   ticks  total  nonlib   name
+      1    0.5%    0.9%  JavaScript
+    114   62.3%   99.1%  C++
+      2    1.1%    1.7%  GC
+     68   37.2%          Shared libraries
+
+ [C++ entry points]:
+   ticks    cpp   total   name
+     70   65.4%   38.3%  fputc
+     18   16.8%    9.8%  __GI___libc_read
+      6    5.6%    3.3%  std::ostream::put(char)@@GLIBCXX_3.4
+      5    4.7%    2.7%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      3    2.8%    1.6%  __GI___lll_lock_wake
+      2    1.9%    1.1%  _init
+      1    0.9%    0.5%  syscall
+      1    0.9%    0.5%  __GI___munmap
+      1    0.9%    0.5%  __GI___libc_write
+
+ [Bottom up (heavy) profile]:
+  Note: percentage shows a share of a particular caller in the total
+  amount of its parent calls.
+  Callers occupying less than 1.0% are not shown.
+
+   ticks parent  name
+     71   38.8%  fputc
+     58   81.7%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+     58  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      4    5.6%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      4    5.6%    /usr/bin/node
+      2   50.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      2  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      3    4.2%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      3  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   33.3%        JS: ~<anonymous> node:stream:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   33.3%        JS: ~<anonymous> node:internal/streams/duplex:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   33.3%        JS: ~<anonymous> node:internal/streams/compose:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1    1.4%    JS: ~peg$parseArrangeDeclaration /root/jssm/dist/jssm.es5.nonmin.cjs:16723:41
+      1  100.0%      JS: ~peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:16741:27
+      1  100.0%        JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:16764:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:1307:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:1158:19
+
+     67   36.6%  /usr/bin/node
+     40   59.7%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+     40  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      8   11.9%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      8  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      3   37.5%        JS: ~<anonymous> node:internal/streams/duplex:1:1
+      3  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      3  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      2   25.0%        JS: ~refresh node:internal/util/colors:26:10
+      2  100.0%          JS: ~<anonymous> node:internal/util/colors:1:1
+      2  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1   12.5%        JS: ~<anonymous> node:stream:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   12.5%        JS: ~<anonymous> node:net:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   12.5%        JS: ~<anonymous> node:internal/streams/operators:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      4    6.0%    /usr/bin/node
+      1   25.0%      JS: ~undestroy node:internal/streams/destroy:173:19
+      1  100.0%        JS: ~initSocketHandle node:net:323:26
+      1  100.0%          JS: ~Socket node:net:365:16
+      1  100.0%            JS: ~refresh node:internal/util/colors:26:10
+      1   25.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   25.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    1.5%    JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:17101:20
+      1  100.0%      JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:17303:14
+      1  100.0%        JS: ~sm /root/jssm/dist/jssm.es5.nonmin.cjs:18669:12
+      1  100.0%          JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%            JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    1.5%    JS: ~peg$parseMachineAttribute /root/jssm/dist/jssm.es5.nonmin.cjs:14499:39
+      1  100.0%      JS: ~peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:16741:27
+      1  100.0%        JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:16764:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:1307:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:1158:19
+      1    1.5%    JS: ~peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:10807:26
+      1  100.0%      JS: ~peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:16741:27
+      1  100.0%        JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:16764:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:1307:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:1158:19
+      1    1.5%    JS: ~peg$computePosDetails /root/jssm/dist/jssm.es5.nonmin.cjs:1250:35
+      1  100.0%      JS: ~peg$computeLocation /root/jssm/dist/jssm.es5.nonmin.cjs:1279:33
+      1  100.0%        JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:1158:19
+      1  100.0%          JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:17101:20
+      1  100.0%            JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:17303:14
+      1    1.5%    JS: ~denseFSL /root/jssm/perf_probe.cjs:3:18
+      1  100.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    1.5%    JS: ~<anonymous> node:internal/perf/performance_entry:1:1
+      1  100.0%      JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%        JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1  100.0%          JS: ~<anonymous> node:internal/perf/observe:1:1
+      1  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1    1.5%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    1.5%    JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1  100.0%      JS: ~<anonymous> node:internal/streams/duplex:1:1
+      1  100.0%        JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%          JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1  100.0%            JS: ~<anonymous> node:internal/streams/pipeline:1:1
+
+     18    9.8%  __GI___libc_read
+     18  100.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+     18  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      7    3.8%  std::ostream::put(char)@@GLIBCXX_3.4
+      5   71.4%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      5  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   14.3%    JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:17101:20
+      1  100.0%      JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:17303:14
+      1  100.0%        JS: ~sm /root/jssm/dist/jssm.es5.nonmin.cjs:18669:12
+      1  100.0%          JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%            JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      5    2.7%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      3   60.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      3  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   20.0%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   20.0%    /usr/bin/node
+      1  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      5    2.7%  __GI___lll_lock_wake
+      1   20.0%    JS: ~denseFSL /root/jssm/perf_probe.cjs:3:18
+      1  100.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   20.0%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   20.0%    JS: +denseFSL /root/jssm/perf_probe.cjs:3:18
+      1  100.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      4    2.2%  __GI___libc_write
+      1   25.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      2    1.1%  _init
+      2  100.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      2  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
