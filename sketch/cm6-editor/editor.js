@@ -19,6 +19,7 @@ import { fslCompletions }         from "./completion.mjs";
 import { lightEditorTheme, darkEditorTheme } from "./editor_theme.mjs";
 import { setupLayoutControl }     from "./layout.mjs";
 import { makeSplitter }           from "./splitter.mjs";
+import { mountDocsPanel }         from "./docs_panel.mjs";
 import { fsl }                    from "../cm6-lang-fsl/index.js";
 import "../../dist/cdn/viz.js";   // side-effect: registers <fsl-viz>, renders via @viz-js/viz (WASM)
 
@@ -235,6 +236,17 @@ setDocsOpen(savedDocs.open === true);   // restore last open/closed state
 
 btnHelp.addEventListener("click", () => setDocsOpen(shell.dataset.docs !== "open"));
 docsClose.addEventListener("click", () => setDocsOpen(false));
+
+// Mount the manifest-driven docs browser into the panel body.
+mountDocsPanel({
+  bodyEl: document.getElementById("docs-body"),
+  manifestUrl: "../../src/data/teaching-surface.json",
+  pagesUrl: "../../src/help/pages.json",
+  helpBase: "../../src/help",
+  onLoadExample: (fsl) => {
+    window.view.dispatch({ changes: { from: 0, to: window.view.state.doc.length, insert: fsl } });
+  },
+});
 
 // ---- View layout (pulldown: 7 modes) ---------------------------------------
 // Re-measure the editor after each change so CodeMirror re-lays-out once its

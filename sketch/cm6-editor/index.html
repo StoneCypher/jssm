@@ -218,6 +218,21 @@
       background: var(--kbd-bg); border-radius: 3px; padding: 0 4px;
       font-family: ui-monospace, Consolas, monospace; font-size: 11.5px;
     }
+
+    /* ---- docs browser (drill-in nav + page) ----------------------------- */
+    .docs-nav { list-style: none; margin: 6px 0; padding: 0; }
+    .docs-nav li { margin: 2px 0; }
+    .docs-nav a { color: var(--help-accent); text-decoration: none; display: block; padding: 6px 4px; border-radius: 5px; }
+    .docs-nav a:hover { background: rgba(127,127,127,0.14); }
+    .docs-crumb { font-size: 11px; color: var(--header-sub); margin: 6px 0 8px; }
+    .docs-crumb a { color: var(--help-accent); text-decoration: none; }
+    .docs-page { font-size: 12.5px; line-height: 1.55; }
+    .docs-page pre { background: var(--kbd-bg); padding: 8px 10px; border-radius: 6px; overflow-x: auto; }
+    .docs-load-example { display: block; margin-top: 6px; font: inherit; font-size: 11px; cursor: pointer; }
+    .docs-empty { color: var(--header-sub); }
+    #docs-search-input { width: 100%; box-sizing: border-box; padding: 6px 8px; margin: 4px 0 8px;
+      background: var(--app-bg); color: var(--app-fg); border: 1px solid var(--help-border); border-radius: 5px; }
+    .docs-ref { font-size: 10px; opacity: 0.7; }
   </style>
 </head>
 <body>
@@ -266,59 +281,7 @@
       <h2>Documentation</h2>
       <button id="docs-close" type="button" aria-label="Close documentation" title="Close">&times;</button>
     </div>
-    <div class="drawer-body">
-      <details open>
-        <summary>Editing &amp; autocomplete</summary>
-        <div class="doc">
-          <p>Write FSL in the code pane. Suggestions appear as you type after a <code>:</code>, or on <kbd>Ctrl</kbd>+<kbd>Space</kbd>.</p>
-          <ul>
-            <li>At the start of a line you get <b>keys</b> — machine attributes, config, and (inside a <code>{ }</code> block) per-state style keys.</li>
-            <li>After a key's <code>:</code> you get its <b>values</b> — shapes, layouts, directions, and the full SVG color list with a swatch preview.</li>
-          </ul>
-        </div>
-      </details>
-      <details>
-        <summary>The live diagram</summary>
-        <div class="doc">
-          <p>The graph re-renders whenever the machine parses and compiles cleanly. While an edit is invalid, the last good diagram stays and the status bar shows the parser error.</p>
-        </div>
-      </details>
-      <details>
-        <summary>Layouts</summary>
-        <div class="doc">
-          <p>The <b>View</b> button chooses how the panes sit:</p>
-          <ul>
-            <li>Side by side or stacked, with the editor on either side.</li>
-            <li><b>Just editor</b> or <b>just viewer</b> for a single pane.</li>
-            <li><b>Tabbed</b> — one pane at a time, switched from the tab strip.</li>
-            <li><b>Auto</b> — follows the window shape: side by side when wide, stacked when tall.</li>
-          </ul>
-        </div>
-      </details>
-      <details>
-        <summary>Resizing panes</summary>
-        <div class="doc">
-          <p>Drag any divider to resize — between the graph and code, or this docs panel and the rest. Double-click a divider to reset it.</p>
-        </div>
-      </details>
-      <details>
-        <summary>Highlighting</summary>
-        <div class="doc">
-          <p>Beyond the base syntax colors, the editor reads the parsed machine to mark what the tokenizer can't:</p>
-          <ul>
-            <li><b>Color values</b> get a swatch chip in their own color.</li>
-            <li><b>State names</b> are tinted apart from other identifiers.</li>
-            <li><b>Shape values</b> are marked as enums.</li>
-          </ul>
-        </div>
-      </details>
-      <details>
-        <summary>Theme</summary>
-        <div class="doc">
-          <p>The sun / moon button switches between light and dark, and your choice is remembered.</p>
-        </div>
-      </details>
-    </div>
+    <div class="drawer-body" id="docs-body"><!-- populated by docs_panel.mjs --></div>
   </aside>
   </div>
   <footer>parser status: <span id="status">(initializing)</span></footer>
