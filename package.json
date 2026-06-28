@@ -10,7 +10,8 @@
   "bin": {
     "fsl": "./dist/cli/fsl.cjs",
     "jssm": "./dist/cli/fsl.cjs",
-    "fsl-render": "./dist/cli/fsl-render.cjs"
+    "fsl-render": "./dist/cli/fsl-render.cjs",
+    "fsl-export-system-prompt": "./dist/cli/fsl-export-system-prompt.cjs"
   },
   "exports": {
     ".": {
@@ -65,6 +66,27 @@
       "import": "./dist/wc/instance.define.js",
       "default": "./dist/wc/instance.define.js"
     },
+    "./wc/editor": {
+      "import": "./dist/wc/editor.js",
+      "default": "./dist/wc/editor.js"
+    },
+    "./wc/editor/define": {
+      "import": "./dist/wc/editor.define.js",
+      "default": "./dist/wc/editor.define.js"
+    },
+    "./wc/widgets": {
+      "import": "./dist/wc/widgets.js",
+      "default": "./dist/wc/widgets.js"
+    },
+    "./wc/widgets/define": {
+      "import": "./dist/wc/widgets.define.js",
+      "default": "./dist/wc/widgets.define.js"
+    },
+    "./cm6": {
+      "types": "./dist/es6/cm6/fsl_language.d.ts",
+      "import": "./dist/cm6/fsl_language.js",
+      "default": "./dist/cm6/fsl_language.js"
+    },
     "./cdn/viz": "./dist/cdn/viz.js",
     "./cdn/instance": "./dist/cdn/instance.js",
     "./custom-elements.json": "./custom-elements.json"
@@ -97,6 +119,12 @@
     "dist/wc/viz.define.js",
     "dist/wc/instance.js",
     "dist/wc/instance.define.js",
+    "dist/wc/editor.js",
+    "dist/wc/editor.define.js",
+    "dist/wc/widgets.js",
+    "dist/wc/widgets.define.js",
+    "dist/cm6/fsl_language.js",
+    "dist/es6/cm6/fsl_language.d.ts",
     "dist/cdn/viz.js",
     "dist/cdn/instance.js",
     "dist/cli/lib.cjs",
@@ -124,7 +152,20 @@
     "vitest-unicode-atom": "vitest run --config vitest.unicode.config.ts unicode-atoms.uspec.ts",
     "vitest-unicode-string-label": "vitest run --config vitest.unicode.config.ts unicode-string-labels.uspec.ts",
     "vitest-unicode-atom-label": "vitest run --config vitest.unicode.config.ts unicode-atom-labels.uspec.ts",
-    "vitest-unicode-full-slow": "npm run vitest-unicode-atom && npm run vitest-unicode-string && npm run vitest-unicode-atom-label && npm run vitest-unicode-string-label && npm run vitest-unicode-action",
+    "vitest-unicode-edge-label": "vitest run --config vitest.unicode.config.ts unicode-edge-labels.uspec.ts",
+    "vitest-unicode-machine-property": "vitest run --config vitest.unicode.config.ts unicode-machine-properties.uspec.ts",
+    "vitest-unicode-error-message": "vitest run --config vitest.unicode.config.ts unicode-error-messages.uspec.ts",
+    "vitest-unicode-group-name": "vitest run --config vitest.unicode.config.ts unicode-group-names.uspec.ts",
+    "vitest-unicode-state-decl-name": "vitest run --config vitest.unicode.config.ts unicode-state-decl-names.uspec.ts",
+    "vitest-unicode-hook": "vitest run --config vitest.unicode.config.ts unicode-hooks.uspec.ts",
+    "vitest-unicode-machine-metadata": "vitest run --config vitest.unicode.config.ts unicode-machine-metadata.uspec.ts",
+    "vitest-unicode-state-property": "vitest run --config vitest.unicode.config.ts unicode-state-properties.uspec.ts",
+    "vitest-unicode-image-url": "vitest run --config vitest.unicode.config.ts unicode-state-image-url.uspec.ts",
+    "vitest-unicode-arrange": "vitest run --config vitest.unicode.config.ts unicode-arrange.uspec.ts",
+    "vitest-unicode-config-state-list": "vitest run --config vitest.unicode.config.ts unicode-config-state-lists.uspec.ts",
+    "vitest-unicode-config-state-block": "vitest run --config vitest.unicode.config.ts unicode-config-state-blocks.uspec.ts",
+    "vitest-unicode-viz-dot": "vitest run --config vitest.unicode.config.ts unicode-viz-dot.uspec.ts",
+    "vitest-unicode-full-slow": "npm run vitest-unicode-atom && npm run vitest-unicode-string && npm run vitest-unicode-atom-label && npm run vitest-unicode-string-label && npm run vitest-unicode-action && npm run vitest-unicode-edge-label && npm run vitest-unicode-machine-property && npm run vitest-unicode-error-message && npm run vitest-unicode-group-name && npm run vitest-unicode-state-decl-name && npm run vitest-unicode-hook && npm run vitest-unicode-machine-metadata && npm run vitest-unicode-state-property && npm run vitest-unicode-image-url && npm run vitest-unicode-arrange && npm run vitest-unicode-config-state-list && npm run vitest-unicode-config-state-block && npm run vitest-unicode-viz-dot",
     "vitest-stoch": "vitest run --config vitest.stoch.config.ts",
     "vitest-dragon": "vitest run --config vitest.dragon.config.ts",
     "vitest-spec": "vitest run --config vitest.spec.config.ts",
@@ -144,23 +185,30 @@
     "make_wc_viz_cdn": "rollup -c rollup.config.wc.viz.cdn.js",
     "make_wc_instance_es6": "rollup -c rollup.config.wc.instance.es6.js",
     "make_wc_instance_cdn": "rollup -c rollup.config.wc.instance.cdn.js",
+    "make_wc_editor_es6": "rollup -c rollup.config.wc.editor.es6.js",
+    "make_wc_widgets_es6": "rollup -c rollup.config.wc.widgets.es6.js",
+    "make_cm6": "rollup -c rollup.config.cm6.es6.js",
     "typescript": "tsc --build tsconfig.json",
     "makever": "node src/buildjs/makever.cjs",
     "make_doctests": "node src/buildjs/extract_examples.cjs",
     "prep": "npm run makever && npm run peg",
-    "make": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_core && npm run make_deno && npm run make_viz && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli && npm run minify && npm run min_iife && npm run min_es6 && npm run min_cjs && npm run min_deno && npm run min_viz_iife && npm run min_viz_es6 && npm run min_viz_cjs && npm run min_cli && rm ./dist/es6/*.nonmin.js",
-    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run typecheck_cli && npm run make_cli",
+    "make": "node src/buildjs/run_build.cjs --profile=fast",
+    "make_ci": "npm run clean && npm run makever && npm run peg && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_wc_editor_es6 && npm run make_wc_widgets_es6 && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
-    "benny:scaling": "node ./src/buildjs/benchmark_scaling.cjs",
+    "benny:scaling": "node --expose-gc ./src/buildjs/benchmark_scaling.cjs",
     "benny:all": "npm run benny && npm run benny:scaling",
     "graviton_perf": "node ./src/scripts/graviton_perf_launch.cjs",
+    "perf_chart": "node ./src/scripts/make_perf_chart.cjs",
     "ci_profile": "node ./src/buildjs/ci_profile.cjs",
-    "build": "npm run vet && npm run test && npm run site && npm run make_cookbook && npm run site_fsl_tools && npm run changelog && npm run docs && npm run cloc && npm run readme",
+    "build": "node src/buildjs/run_build.cjs --profile=release",
     "clean_bench": "npm run test && npm run benny",
     "qbuild": "npm run test",
+    "hosted_test": "node src/buildjs/hosted_test.cjs",
+    "e2e:install": "node src/buildjs/playwright_install.cjs",
+    "e2e": "npm run e2e:install && node src/buildjs/hosted_test.cjs --serve-dir=src/ts/e2e/fixtures",
     "ci_build": "npm run vet && npm run test",
     "ci_test": "npm run vet && npm run make_ci && npm run vitest",
     "minify": "mv dist/es6/fsl_parser.js dist/es6/fsl_parser.nonmin.js && terser dist/es6/fsl_parser.nonmin.js > dist/es6/fsl_parser.js",
@@ -171,6 +219,7 @@
     "min_viz_iife": "mv dist/jssm_viz.es5.iife.js dist/jssm_viz.es5.iife.nonmin.cjs && terser dist/jssm_viz.es5.iife.nonmin.cjs > dist/jssm_viz.iife.cjs",
     "min_viz_cjs": "mv dist/jssm_viz.es5.cjs.js dist/jssm_viz.es5.nonmin.cjs && terser dist/jssm_viz.es5.nonmin.cjs > dist/jssm_viz.cjs",
     "min_viz_es6": "mv dist/jssm_viz.es6.js dist/jssm_viz.es6.nonmin.cjs && terser dist/jssm_viz.es6.nonmin.cjs > dist/jssm_viz.mjs",
+    "rm_nonmin": "rm ./dist/es6/*.nonmin.js",
     "site": "cp src/site/* docs/ && cp -r src/assets docs/assets/ && cp -r src/demo docs/ && cp dist/jssm.es5.iife.js docs/demo",
     "make_cookbook": "node src/fsl.tools/site/scripts/build.cjs",
     "site_fsl_tools": "cd docs && mkdir fsl.tools && cd .. && cp -r src/fsl.tools/site/* docs/fsl.tools/ && rm -rf docs/fsl.tools/recipes docs/fsl.tools/scripts",
@@ -223,8 +272,16 @@
   },
   "homepage": "https://stonecypher.github.io/jssm/",
   "devDependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/commands": "^6.10.4",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.43.2",
     "@custom-elements-manifest/analyzer": "^0.10.4",
     "@knodes/typedoc-plugin-pages": "^0.22.5",
+    "@lezer/highlight": "^1.2.3",
+    "@playwright/test": "^1.61.0",
     "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-replace": "^6.0.1",
@@ -257,6 +314,7 @@
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-esbuild": "^6.2.1",
     "semver": "^7.5.4",
+    "servehere": "^1.10.1",
     "terser": "^5.14.2",
     "text_audit": "^0.9.3",
     "tslib": "^2.8.1",
@@ -272,15 +330,30 @@
     "reduce-to-639-1": "^1.1.0"
   },
   "peerDependencies": {
+    "@codemirror/language": ">=6",
+    "@codemirror/state": ">=6",
+    "@lezer/highlight": ">=1",
     "lit": ">=3"
   },
   "peerDependenciesMeta": {
     "lit": {
+      "optional": true
+    },
+    "@codemirror/language": {
+      "optional": true
+    },
+    "@codemirror/state": {
+      "optional": true
+    },
+    "@lezer/highlight": {
       "optional": true
     }
   },
   "optionalDependencies": {
     "@resvg/resvg-wasm": "^2.6.0",
     "@viz-js/viz": "^3.26.0"
+  },
+  "overrides": {
+    "js-yaml": "^4.2.0"
   }
 }

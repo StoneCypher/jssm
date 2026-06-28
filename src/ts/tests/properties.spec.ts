@@ -541,7 +541,6 @@ test('Indiana General Assembly of 1897 Bill 246', () => {
 
 
 
-
 describe('state_property provenance (#734)', () => {
 
   // The compiler writes the unserialized (property, state) pair alongside the

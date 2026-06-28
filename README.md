@@ -18,7 +18,7 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 6.0.0-alpha.11 at 6/27/2026, 9:37:06 PM
+* Generated for version 6.0.0-alpha.11 at 6/27/2026, 11:54:48 PM
 
 -->
 # jssm 6.0.0-alpha.11
@@ -268,6 +268,37 @@ observation point.
 returns `false`.  An unknown state throws.  Branching code can rely on the
 distinction.
 
+**Overlapping state groups** let a state belong to several groups at once -
+something a strict hierarchy can't express.  A group is declared with `&`,
+and the same `&name` then drives transitions, shared metadata, boundary
+hooks, and runtime queries:
+
+```javascript
+const req = sm`
+  &InProgress : [connecting sending receiving];
+  &Receiving  : [receiving draining];
+
+  idle 'send'    -> connecting 'open' -> sending 'reply' -> receiving;
+  receiving 'eof' -> draining 'done'  -> idle;
+
+  &InProgress 'abort' -> idle;        // a transition from every group member
+  on enter &Receiving do 'log_rx';    // boundary hook fires crossing in
+`;
+
+req.action('send');
+req.isIn('InProgress');     // true  - connecting is in &InProgress
+req.groupsOf('receiving');  // Set { 'InProgress', 'Receiving' }  - overlap
+```
+
+`receiving` is in **both** groups simultaneously - it is in-progress *and*
+receiving.  When two groups disagree about the same action, a CSS-like
+cascade decides: state-specific edges win, then the innermost (nearest)
+group, then the later-declared one.  Groups render as nested Graphviz
+clusters, or as bracketed chips on the node label where memberships
+genuinely overlap.
+
+See the cookbook's overlapping-groups recipes for fuller worked examples.
+
 
 
 <br/>
@@ -299,7 +330,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  8,212 tests at 100.0% line coverage
+  library.**  9,153 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -432,11 +463,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***8,212 tests***, run 72,463 times.
+***9,153 tests***, run 95,976 times.
 
-- 7,563 specs with 100.0% coverage
-- 649 fuzz tests with 22.8% coverage
-- 10,647 TypeScript lines - 0.8 tests per line, 6.8 generated tests per line
+- 8,276 specs with 100.0% coverage
+- 877 fuzz tests with 50.6% coverage
+- 13,624 TypeScript lines - 0.7 tests per line, 7.0 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

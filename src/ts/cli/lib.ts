@@ -11,33 +11,33 @@
  * from this file, (3) ship its binary as `fsl-<name>.ts`.
  */
 
-export { render }    from './subcommands/render/render';
-export { renderSet } from './subcommands/render/renderSet';
-export type { RenderSetItem, RenderSetItemOk, RenderSetItemErr } from './subcommands/render/renderSet';
+export { render }    from './subcommands/render/render.js';
+export { renderSet } from './subcommands/render/renderSet.js';
+export type { RenderSetItem, RenderSetItemOk, RenderSetItemErr } from './subcommands/render/renderSet.js';
 
 // ─── Codegen verb (megaspec §25) ─────────────────────────────────────────
 
-export { codegen }    from './subcommands/codegen/codegen';
-export { codegenSet } from './subcommands/codegen/codegenSet';
-export type { CodegenSetItem, CodegenSetItemOk, CodegenSetItemErr } from './subcommands/codegen/codegenSet';
-export { extractSurface } from './subcommands/codegen/surface';
-export type { MachineSurface, SurfaceTransition } from './subcommands/codegen/surface';
+export { codegen }    from './subcommands/codegen/codegen.js';
+export { codegenSet } from './subcommands/codegen/codegenSet.js';
+export type { CodegenSetItem, CodegenSetItemOk, CodegenSetItemErr } from './subcommands/codegen/codegenSet.js';
+export { extractSurface } from './subcommands/codegen/surface.js';
+export type { MachineSurface, SurfaceTransition } from './subcommands/codegen/surface.js';
 
 export type {
   CodegenTarget,
   CodegenOptions,
   CodegenArtifact,
-} from './codegen-types';
+} from './codegen-types.js';
 
-export { CodegenError, CodegenUndecidedError } from './codegen-types';
+export { CodegenError, CodegenUndecidedError } from './codegen-types.js';
 
 // ─── Interchange (megaspec §25 import / export) ───────────────────────────
 
-export { exportMachine } from './subcommands/export/export';
-export type { ExportOptions } from './subcommands/export/export';
+export { exportMachine } from './subcommands/export/export.js';
+export type { ExportOptions } from './subcommands/export/export.js';
 
-export { importMachine } from './subcommands/import/import';
-export type { ImportOptions } from './subcommands/import/import';
+export { importMachine } from './subcommands/import/import.js';
+export type { ImportOptions } from './subcommands/import/import.js';
 
 export type {
   ExportFormat,
@@ -45,12 +45,12 @@ export type {
   InterchangeModel,
   InterchangeEdge,
   ConversionResult,
-} from './subcommands/interchange/types';
+} from './subcommands/interchange/types.js';
 
-export { InterchangeError } from './subcommands/interchange/types';
+export { InterchangeError } from './subcommands/interchange/types.js';
 
-export { parseFslArgs } from './cli-utils';
-export type { ParseSpec, ParseResult, FlagSpec, FlagType } from './cli-utils';
+export { parseFslArgs } from './cli-utils.js';
+export type { ParseSpec, ParseResult, FlagSpec, FlagType } from './cli-utils.js';
 
 export type {
   RenderTarget,
@@ -58,25 +58,25 @@ export type {
   RenderResult,
   TextResult,
   RasterResult,
-} from './types';
+} from './types.js';
 
-export { RenderError, RasterizationUnsupportedError } from './types';
+export { RenderError, RasterizationUnsupportedError } from './types.js';
 
 // ─── Config loader (issue #631) ──────────────────────────────────────────
 
-export { loadConfig } from './config/loader';
-export type { LoadConfigOptions } from './config/loader';
+export { loadConfig } from './config/loader.js';
+export type { LoadConfigOptions } from './config/loader.js';
 
-export { mergeConfigs } from './config/merge';
-export { resolveExtends } from './config/extends';
-export { defaults } from './config/defaults';
-export { validateConfig, CONFIG_SCHEMA } from './config/schema';
+export { mergeConfigs } from './config/merge.js';
+export { resolveExtends } from './config/extends.js';
+export { defaults } from './config/defaults.js';
+export { validateConfig, CONFIG_SCHEMA } from './config/schema.js';
 
-export { loadConfigFile } from './config/sources/from-file';
-export { discoverUserGlobalConfig, discoverProjectConfig } from './config/sources/from-discovery';
-export { extractMachineAttributes } from './config/sources/from-machine';
-export { flagsToConfig } from './config/sources/from-flags';
-export type { FlagMapping } from './config/sources/from-flags';
+export { loadConfigFile } from './config/sources/from-file.js';
+export { discoverUserGlobalConfig, discoverProjectConfig } from './config/sources/from-discovery.js';
+export { extractMachineAttributes } from './config/sources/from-machine.js';
+export { flagsToConfig } from './config/sources/from-flags.js';
+export type { FlagMapping } from './config/sources/from-flags.js';
 
 export {
   ConfigError,
@@ -84,7 +84,7 @@ export {
   ConfigSchemaError,
   ConfigExtendsError,
   ConfigIOError,
-} from './config/types';
+} from './config/types.js';
 
 export type {
   PartialConfig,
@@ -104,4 +104,4 @@ export type {
   ReplConfig,
   RegistryConfig,
   Reader,
-} from './config/types';
+} from './config/types.js';

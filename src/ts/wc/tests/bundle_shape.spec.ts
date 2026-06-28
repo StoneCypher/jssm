@@ -148,9 +148,14 @@ describe('dist/wc/instance.js — bundler-friendly build', () => {
 
   it('is reasonably small with jssm core externalized', () => {
     const built = readFileSync(dist_path, 'utf8');
-    // Same envelope as the viz bundler-friendly build: jssm core + lit
-    // externalized, only the component source remains inline.
-    expect(built.length).toBeLessThan(50_000);
+    // jssm core + lit are externalized (asserted above), so only the component
+    // source is inline. <fsl-instance> is the largest WC — FSL resolution, the
+    // four declarative-tag families, mechanism-4 DOM-event re-emission (#639),
+    // and the panel slots — so its ceiling is higher than viz's. The guard's
+    // real job is catching an accidental core-inline regression (which would be
+    // 150KB+), not policing incremental component growth (now ~82KB after the
+    // theme registry, side-docks, fsl-actions, and the export/theme menus).
+    expect(built.length).toBeLessThan(100_000);
   });
 
 });
@@ -191,6 +196,107 @@ describe('dist/cdn/instance.js — CDN-friendly build', () => {
 
 });
 
+describe('dist/wc/editor.js — bundler-friendly build', () => {
+
+  const dist_path = resolve(__dirname, '../../../../dist/wc/editor.js');
+
+  it('exists after running make_wc_editor_es6', () => {
+    expect(existsSync(dist_path)).toBe(true);
+  });
+
+  it('exports the FslEditor class identifier', () => {
+    expect(readFileSync(dist_path, 'utf8')).toContain('FslEditor');
+  });
+
+  it('keeps CodeMirror external (imports @codemirror, never inlines it)', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toMatch(/from\s*['"]@codemirror\/view['"]/);
+    // A bundled-in CodeMirror copy would be hundreds of KB; externalized as a
+    // peer keeps the editor bundle tiny. Guards against accidental inlining.
+    expect(built.length).toBeLessThan(80_000);
+  });
+
+  it('keeps jssm core + the cm6 grammar external via the jssm / jssm/cm6 subpaths', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toMatch(/from\s*['"]jssm['"]/);
+    expect(built).toMatch(/from\s*['"]jssm\/cm6['"]/);
+  });
+
+});
+
+describe('dist/wc/editor.define.js — registration entry point', () => {
+
+  const define_path = resolve(__dirname, '../../../../dist/wc/editor.define.js');
+
+  it('exists after running make_wc_editor_es6', () => {
+    expect(existsSync(define_path)).toBe(true);
+  });
+
+  it('registers the fsl-editor tag', () => {
+    expect(readFileSync(define_path, 'utf8')).toContain('fsl-editor');
+  });
+
+  it('imports the class build rather than re-inlining it', () => {
+    expect(readFileSync(define_path, 'utf8')).toMatch(/from\s*['"]\.\/editor\.js['"]/);
+  });
+
+});
+
+describe('dist/wc/widgets.js — bundler-friendly build', () => {
+
+  const dist_path = resolve(__dirname, '../../../../dist/wc/widgets.js');
+
+  it('exists after running make_wc_widgets_es6', () => {
+    expect(existsSync(dist_path)).toBe(true);
+  });
+
+  it('exports the widget class identifiers', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    expect(built).toContain('FslToolbar');
+    expect(built).toContain('FslExport');
+  });
+
+  it('does NOT inline Lit internals (lit is external for bundlers)', () => {
+    const built = readFileSync(dist_path, 'utf8');
+    const lit_element_hits = (built.match(/LitElement/g) || []).length;
+    expect(lit_element_hits).toBeGreaterThan(0);
+    expect(lit_element_hits).toBeLessThan(20);
+  });
+
+  it('keeps jssm/viz external (fsl-export uses machine_to_dot)', () => {
+    expect(readFileSync(dist_path, 'utf8')).toMatch(/from\s*['"]jssm\/viz['"]/);
+  });
+
+  it('is reasonably small with jssm core + lit externalized', () => {
+    // Eight small widgets, no inlined core/lit. Comfortably under 60 KB; the
+    // guard catches an accidental core-or-lit inline (which would be 150KB+).
+    expect(readFileSync(dist_path, 'utf8').length).toBeLessThan(60_000);
+  });
+
+});
+
+describe('dist/wc/widgets.define.js — registration entry point', () => {
+
+  const define_path = resolve(__dirname, '../../../../dist/wc/widgets.define.js');
+
+  it('exists after running make_wc_widgets_es6', () => {
+    expect(existsSync(define_path)).toBe(true);
+  });
+
+  it('registers all eight new canonical tags', () => {
+    const built = readFileSync(define_path, 'utf8');
+    for (const tag of ['fsl-toolbar', 'fsl-footer', 'fsl-help', 'fsl-history',
+      'fsl-data-inspector', 'fsl-hook-log', 'fsl-simulation', 'fsl-export']) {
+      expect(built, tag).toContain(tag);
+    }
+  });
+
+  it('imports the class build rather than re-inlining the eight widgets', () => {
+    expect(readFileSync(define_path, 'utf8')).toMatch(/from\s*['"]\.\/widgets\.js['"]/);
+  });
+
+});
+
 describe('package.json exposure', () => {
 
   const pkg = JSON.parse(readFileSync(resolve(__dirname, '../../../../package.json'), 'utf8'));
@@ -211,6 +317,22 @@ describe('package.json exposure', () => {
     const json = JSON.stringify(pkg.exports);
     expect(json).toContain('./wc/instance/define');
     expect(json).toContain('./dist/wc/instance.define.js');
+  });
+
+  it('exposes the wc/editor + wc/editor/define subpaths', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/editor');
+    expect(json).toContain('./dist/wc/editor.js');
+    expect(json).toContain('./wc/editor/define');
+    expect(json).toContain('./dist/wc/editor.define.js');
+  });
+
+  it('exposes the wc/widgets + wc/widgets/define subpaths', () => {
+    const json = JSON.stringify(pkg.exports);
+    expect(json).toContain('./wc/widgets');
+    expect(json).toContain('./dist/wc/widgets.js');
+    expect(json).toContain('./wc/widgets/define');
+    expect(json).toContain('./dist/wc/widgets.define.js');
   });
 
   it('exposes the cdn/instance subpath', () => {
@@ -250,6 +372,10 @@ describe('package.json exposure', () => {
     expect(json).toContain('dist/cdn/viz.js');
     expect(json).toContain('dist/wc/instance.js');
     expect(json).toContain('dist/wc/instance.define.js');
+    expect(json).toContain('dist/wc/editor.js');
+    expect(json).toContain('dist/wc/editor.define.js');
+    expect(json).toContain('dist/wc/widgets.js');
+    expect(json).toContain('dist/wc/widgets.define.js');
     expect(json).toContain('dist/cdn/instance.js');
     expect(json).toContain('custom-elements.json');
   });

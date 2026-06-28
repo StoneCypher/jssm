@@ -40,6 +40,57 @@ function closest_wc(el, suffix) {
     return el.closest(`fsl-${suffix}, jssm-${suffix}`);
 }
 
+/**
+ * Reorder a graphviz-rendered SVG's paint stack so action labels can't be
+ * painted over by edges. Graphviz interleaves nodes and edges and keeps each
+ * edge's label `<text>` inside the edge group, so a later edge can draw over an
+ * earlier edge's label. This lifts the layers into a clean back-to-front order:
+ *
+ *   background → edges → nodes → action (edge) labels
+ *
+ * Each edge's label text is hoisted out of its edge group to the very top.
+ * Markup that isn't graphviz output (no `g.graph`) is returned untouched.
+ *
+ * @param svg - SVG markup from the viz pipeline (`machine_to_svg_string`, etc.).
+ * @returns The reordered SVG markup; identical input for non-graphviz SVG.
+ *
+ * @example
+ * // <g class="graph"><polygon/>…<g class="node"/><g class="edge"><path/><text/></g></g>
+ * // becomes: <g class="graph"><polygon/><g class="edge"><path/></g><g class="node"/><text/></g>
+ */
+function reorder_svg_layers(svg) {
+    const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+    const graph = doc.querySelector('g.graph');
+    if (graph === null) {
+        return svg;
+    }
+    const background = graph.querySelector(':scope > polygon');
+    const edges = [...graph.querySelectorAll(':scope > g.edge')];
+    const nodes = [...graph.querySelectorAll(':scope > g.node')];
+    // Hoist every edge's label out of its group so it lands on the top layer.
+    const labels = [];
+    for (const edge of edges) {
+        for (const text of [...edge.querySelectorAll(':scope > text')]) {
+            labels.push(text);
+        }
+    }
+    // appendChild moves a node to the end (top of the stack), so appending in
+    // back-to-front order yields: background, edges, nodes, labels.
+    if (background !== null) {
+        graph.appendChild(background);
+    }
+    for (const edge of edges) {
+        graph.appendChild(edge);
+    }
+    for (const node of nodes) {
+        graph.appendChild(node);
+    }
+    for (const label of labels) {
+        graph.appendChild(label);
+    }
+    return new XMLSerializer().serializeToString(doc);
+}
+
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -115,6 +166,13 @@ class FslViz extends LitElement {
          * Held so `disconnectedCallback` can release the subscription.
          */
         this._parent_sub = null;
+        /**
+         * Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the
+         * viz to the host's new machine after a live rebuild, #1387). Captures the
+         * exact host the listener was attached to, so teardown is correct even if
+         * `_parent_host` was cleared or replaced. Null when standalone / before binding.
+         */
+        this._host_unbind = null;
     }
     /**
      * Lit lifecycle hook. Triggers an async SVG render whenever `fsl` or
@@ -172,10 +230,9 @@ class FslViz extends LitElement {
             if (this._parent_host !== host) {
                 return;
             }
+            let sub;
             try {
-                this._parent_sub = host.machine.on('transition', () => {
-                    this._rerenderFromHostMachine();
-                });
+                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
             }
             catch (e) {
                 // The parent existed but its machine wasn't ready / threw.  Emit
@@ -188,6 +245,17 @@ class FslViz extends LitElement {
                 }));
                 return;
             }
+            this._parent_sub = sub;
+            // Re-subscribe + re-render when the host swaps its machine (#1387 live
+            // rebuild): the old subscription is on a dead machine object.
+            const on_rebuild = () => {
+                sub();
+                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
+                this._parent_sub = sub;
+                this._rerenderFromHostMachine();
+            };
+            host.addEventListener('fsl-machine-rebuilt', on_rebuild);
+            this._host_unbind = () => { host.removeEventListener('fsl-machine-rebuilt', on_rebuild); };
             this._rerenderFromHostMachine();
         });
     }
@@ -202,6 +270,10 @@ class FslViz extends LitElement {
         if (this._parent_sub !== null) {
             this._parent_sub();
             this._parent_sub = null;
+        }
+        if (this._host_unbind !== null) {
+            this._host_unbind();
+            this._host_unbind = null;
         }
         this._parent_host = null;
     }
@@ -223,7 +295,7 @@ class FslViz extends LitElement {
             const result = await machine_to_svg_string(m, this.engine ? { engine: this.engine } : undefined);
             // Guard against the parent disappearing mid-render.
             if (this._parent_host === host) {
-                this._svg = result;
+                this._svg = reorder_svg_layers(result);
             }
         }
         catch (e) {
@@ -253,7 +325,7 @@ class FslViz extends LitElement {
             const result = await fsl_to_svg_string(source, this.engine ? { engine: this.engine } : undefined);
             // Guard against stale results: only commit if fsl has not changed since this render started.
             if (this.fsl === source) {
-                this._svg = result;
+                this._svg = reorder_svg_layers(result);
             }
         }
         catch (e) {
@@ -288,6 +360,16 @@ FslViz.styles = css `
     .container {
       width: 100%;
       height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container svg {
+      /* Zoom the graph to fill the container (aspect maintained via the SVG's
+         own preserveAspectRatio), leaving 5% padding on the constraining axis —
+         the 90% box centered in the flex container yields the 5% inset. */
+      width: 90%;
+      height: 90%;
     }
   `;
 __decorate([

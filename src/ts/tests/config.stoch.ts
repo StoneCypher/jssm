@@ -18,11 +18,14 @@ import * as jssm from '../jssm';
 //     active_state, terminal_state, hooked_state) — each accepts
 //     the same StateDeclarationItem set as §7 and emits a node
 //     whose `key` is `default_<keyword>_config`
-//   - 3 placeholder blocks (transition, action, validation) — each
-//     emits a node with `config_kind` (NOT `key`) and `config_items`
-//     fields.  `transition:` is special: it accepts either a
-//     GraphDefaultEdgeColor or a list of `TransitionItem+` whose
-//     only legal keys are `whargarbl`/`todo` stubs.
+//   - 2 placeholder blocks (action, validation) — each emits a node
+//     with `config_kind` (NOT `key`) and `config_items` fields.
+//   - the `transition:` block is now normalized to the standard
+//     dispatch shape `{ key:'default_transition_config', value }`
+//     (the overlapping-state-groups feature wired it through).  Its
+//     body reuses the shared style-items rule, so it accepts the
+//     `state: {}` style items (e.g. `color: red;`), the graph-default
+//     edge-color line, and the legacy `whargarbl`/`todo` stubs.
 //
 // Single-value has five forms:
 //   - graph_layout : GvizLayout (`dot`/`circo`/`fdp`/`neato`/`twopi`)
@@ -50,6 +53,7 @@ const RUNS = 100;
  *  Two AST shapes appear here:
  *
  *    - Block-style state configs:   `{ key: 'default_<x>_config',  value: [...] }`
+ *    - Normalized transition block: `{ key: 'default_transition_config', value: ... }`
  *    - Placeholder block configs:   `{ config_kind: '<x>', config_items: [...] }`
  *    - Single-value configs:        `{ key: '<keyword>',           value: ... }`
  *
@@ -147,61 +151,27 @@ describe('§8 Config — state-defaults block bodies reuse §7 item set', () => 
 
 
 
-describe('§8 Config — placeholder blocks (transition / action / validation)', () => {
+describe('§8 Config — normalized transition block accepts an edge_color branch', () => {
 
-  // The placeholder blocks emit a different shape: `config_kind` and
-  // `config_items` instead of `key` and `value`.  Their `items`
-  // surfaces only accept `whargarbl`/`todo` keys today — explicit
-  // grammar stubs for future schemas.  Note: the items use the
-  // *no-WS-between-colon-and-value* form (e.g. `todo:x;`, NOT
-  // `todo: x;`).
-
-  test('`validation: { todo:x; };` yields config_kind=validation, config_items=[...]', () => {
-    const node = parse_config('validation: { todo:x; };');
-    expect(node.config_kind).toBe('validation');
-    expect(node.config_items).toEqual([{ key: 'todo', value: 'x' }]);
-  });
-
-  test('`validation: { whargarbl:y; };` (the other placeholder key) parses', () => {
-    const node = parse_config('validation: { whargarbl:y; };');
-    expect(node.config_items).toEqual([{ key: 'whargarbl', value: 'y' }]);
-  });
-
-  test('`action: { todo:z; };` yields config_kind=action', () => {
-    const node = parse_config('action: { todo:z; };');
-    expect(node.config_kind).toBe('action');
-    expect(node.config_items).toEqual([{ key: 'todo', value: 'z' }]);
-  });
-
-  test('`action: { whargarbl:w; };` parses', () => {
-    const node = parse_config('action: { whargarbl:w; };');
-    expect(node.config_items).toEqual([{ key: 'whargarbl', value: 'w' }]);
-  });
-
-});
-
-
-
-describe('§8 Config — transition block has a special edge_color branch', () => {
-
-  // `transition:` is documented as accepting either a
+  // The `transition:` block is now normalized to the standard
+  // `{ key:'default_transition_config', value }` dispatch shape.  Its
+  // body (the shared style-items rule) accepts either a single
   // `GraphDefaultEdgeColor` (`edge_color : <Color>;`) OR a list of
-  // placeholder TransitionItems.  The `edge_color` branch returns
-  // a single-object `config_items` (not an array) — pinning here
-  // because that's an asymmetry future code might assume away.
+  // style items.  The `edge_color` branch returns a single object as
+  // `value` (not an array) — pinning here because that's an asymmetry
+  // future code might assume away.
 
-  test('`transition: { edge_color: blue; };` returns a single config_items object', () => {
+  test('`transition: { edge_color: blue; };` returns a single-object value', () => {
     const node = parse_config('transition: { edge_color: blue; };');
-    expect(node.config_kind).toBe('transition');
-    expect(node.config_items).toEqual({ key: 'graph_default_edge_color', value: '#0000ffff' });
-    expect(Array.isArray(node.config_items)).toBe(false);
+    expect(node.key).toBe('default_transition_config');
+    expect(node.value).toEqual({ key: 'graph_default_edge_color', value: '#0000ffff' });
+    expect(Array.isArray(node.value)).toBe(false);
   });
 
-  test('`transition: { whargarbl:x; };` placeholder branch returns an array', () => {
-    const node = parse_config('transition: { whargarbl:x; };');
-    expect(node.config_kind).toBe('transition');
-    expect(Array.isArray(node.config_items)).toBe(true);
-    expect(node.config_items).toEqual([{ key: 'whargarbl', value: 'x' }]);
+  test('`transition: { color: red; };` accepts shared style items as a value array', () => {
+    const node = parse_config('transition: { color: red; };');
+    expect(node.key).toBe('default_transition_config');
+    expect(node.value).toEqual([{ key: 'color', value: '#ff0000ff' }]);
   });
 
   test('Random colour name in edge_color round-trips into a hex value', () => {
@@ -211,8 +181,8 @@ describe('§8 Config — transition block has a special edge_color branch', () =
         fc.constantFrom('red', 'blue', 'green', 'white', 'black', 'orange', 'purple'),
         (color_name) => {
           const node = parse_config(`transition: { edge_color: ${color_name}; };`);
-          expect((node.config_items as { key: string }).key).toBe('graph_default_edge_color');
-          expect((node.config_items as { value: string }).value).toMatch(/^#[0-9a-f]{8}$/i);
+          expect((node.value as { key: string }).key).toBe('graph_default_edge_color');
+          expect((node.value as { value: string }).value).toMatch(/^#[0-9a-f]{8}$/i);
         }
       ),
       { numRuns: RUNS }

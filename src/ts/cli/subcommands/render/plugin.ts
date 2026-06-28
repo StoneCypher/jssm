@@ -1,10 +1,10 @@
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
-import { parseFslArgs } from '../../cli-utils';
-import { loadConfig } from '../../config/loader';
-import { render } from './render';
-import type { RenderTarget, RenderOptions } from '../../types';
-import { RenderError } from '../../types';
+import { parseFslArgs } from '../../cli-utils.js';
+import { loadConfig } from '../../config/loader.js';
+import { render } from './render.js';
+import type { RenderTarget, RenderOptions } from '../../types.js';
+import { RenderError } from '../../types.js';
 
 const getVersion = (): string => '__JSSM_VERSION__';
 

@@ -18,10 +18,10 @@ describe('parseArgs — defaults and positional', () => {
 
   test('applies documented defaults', () => {
     const o = gp.parseArgs(['677']);
-    expect(o.instanceType).toBe('c7g.medium');
+    expect(o.instanceType).toBe('c8g.medium');
     expect(o.mode).toBe('normal');
     expect(o.region).toBe('us-east-1');
-    expect(o.shutdownMinutes).toBe(30);
+    expect(o.shutdownMinutes).toBe(90);   // raised from 30; see #725
     expect(o.deep).toBe(false);
     expect(o.spot).toBe(false);
     expect(o.force).toBe(false);
@@ -61,8 +61,9 @@ describe('parseArgs — flags', () => {
     expect(() => gp.parseArgs(['677', '--mode', 'turbo'])).toThrow(/normal.*deep/);
   });
 
-  test('--instance-type overrides the default', () => {
-    expect(gp.parseArgs(['677', '--instance-type', 'c6g.medium']).instanceType).toBe('c6g.medium');
+  test('--instance-type accepts the sole allowlisted type and validates others out', () => {
+    expect(gp.parseArgs(['677', '--instance-type', 'c8g.medium']).instanceType).toBe('c8g.medium');
+    expect(() => gp.parseArgs(['677', '--instance-type', 'c7g.medium'])).toThrow(/not an accepted Graviton/);
   });
 
   test('--region, --subnet-id, --my-ip, --run-id thread through', () => {
@@ -112,6 +113,16 @@ describe('validateInstanceType — Graviton allowlist', () => {
   test('accepts every allowlisted type', () => {
     for (const t of gp.ALLOWED_INSTANCE_TYPES) {
       expect(gp.validateInstanceType(t)).toBe(t);
+    }
+  });
+
+  test('accepts c8g.medium (Graviton4 — the re-baseline backfill target)', () => {
+    expect(gp.validateInstanceType('c8g.medium')).toBe('c8g.medium');
+  });
+
+  test('rejects older Graviton .medium types now the allowlist is c8g-only', () => {
+    for (const t of ['c7g.medium', 'c6g.medium', 'm7g.medium', 'r7g.medium']) {
+      expect(() => gp.validateInstanceType(t)).toThrow(/not an accepted Graviton/);
     }
   });
 
@@ -275,6 +286,28 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
     prNumber: 677
   };
 
+  test('the scaling benchmark exposes gc on the --harness-from direct-node path', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
+  });
+
+  test('the --harness-from overlay checks out the WHOLE src/buildjs tree, not a stale hand-list', () => {
+    // benchmark_scaling.cjs requires ~8 sibling modules; a hand-maintained file
+    // list silently goes stale when a new one is added (e.g. benchmark_gc.cjs),
+    // breaking old-release runs with MODULE_NOT_FOUND. Overlay the directory so
+    // every current harness module is always present.
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
+    // and NOT the old narrow per-file list
+    expect(s).not.toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_memory.cjs');
+  });
+
+  test('benny:scaling npm script exposes gc (covers the non-overlay run paths)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const pkg = require('../../../package.json');
+    expect(pkg.scripts['benny:scaling']).toContain('--expose-gc');
+  });
+
   test('normal mode runs benny without BENNY_DEEP', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: false });
     expect(s).toContain('npm run benny:scaling');
@@ -333,16 +366,33 @@ describe('buildRemoteScript — normal vs deep and ref safety', () => {
   test('--harness-from overlays today\'s harness and runs it directly', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
     expect(s).toContain('git fetch origin "main"');
-    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs');
-    expect(s).toContain('benchmark/fixtures');
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
     expect(s).toContain('npm install benny');
-    expect(s).toContain('node ./src/buildjs/benchmark_scaling.cjs');
+    expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
     expect(s).not.toContain('npm run benny:scaling');
   });
 
   test('--harness-from honors deep mode', () => {
     const s = gp.buildRemoteScript({ ...ok, deep: true, harnessFrom: 'main' });
-    expect(s).toContain('BENNY_DEEP=1 node ./src/buildjs/benchmark_scaling.cjs');
+    expect(s).toContain('BENNY_DEEP=1 node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
+  });
+
+  test('runs the general (hook microbenchmark) suite as its own line', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false });
+    // line-exact: 'npm run benny:scaling' contains 'npm run benny' as a substring
+    expect(s.split('\n')).toContain('npm run benny');
+  });
+
+  test('general suite is not deepened', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: true });
+    expect(s.split('\n')).toContain('npm run benny');
+    expect(s.split('\n')).not.toContain('BENNY_DEEP=1 npm run benny');
+  });
+
+  test('--harness-from overlays and runs the general suite too', () => {
+    const s = gp.buildRemoteScript({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('src/buildjs/benchmark.cjs');
+    expect(s.split('\n')).toContain('node ./src/buildjs/benchmark.cjs');
   });
 
   test('rejects a non-numeric PR number (injection guard)', () => {
@@ -494,6 +544,19 @@ describe('provisionDetached / runDetached — fire and walk away', () => {
     expect(h.calls.some((c) => c.includes('wait instance-terminated'))).toBe(false);
   });
 
+  test('provisionDetached threads --harness-from into the written user-data (the backfill wiring)', () => {
+    const fs2  = require('fs');
+    const os2  = require('os');
+    const path2 = require('path');
+    const tmpDir = fs2.mkdtempSync(path2.join(os2.tmpdir(), 'jssm-perf-wiring-'));
+    const h = fakeExec();
+    const state = { runId: 'jssm-perf-x', region: 'us-east-1', instanceType: 'c7g.medium', tmpDir };
+    gp.provisionDetached(h.exec, { ...opts, harnessFrom: 'main' }, state);
+    const ud = fs2.readFileSync(path2.join(tmpDir, 'userdata-detached.sh'), 'utf8');
+    expect(ud).toContain('git fetch origin "main"');
+    expect(ud).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
+  });
+
 });
 
 describe('buildDetachedRunInstancesArgs — no key, no SG ingress, instance profile', () => {
@@ -542,7 +605,7 @@ describe('buildDetachedUserData — self-contained release run', () => {
     instanceType: 'c7g.medium',
     region: 'us-east-1',
     shutdownMinutes: 30,
-    ssmParam: '/jssm/perf-push-pat'
+    bucket: 'jssm-perf-results-test'
   };
 
   test('arms the dead-man\'s-switch and ends by self-terminating', () => {
@@ -552,10 +615,15 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('shutdown -h now');    // explicit self-terminate at the end
   });
 
-  test('checks out the exact commit and builds dist via make', () => {
+  test('checks out the exact commit and benchmarks the committed dist (no rebuild)', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
     expect(s).toContain(`git checkout ${'a'.repeat(40)}`);
-    expect(s).toContain('npm run make');
+    // The release path benchmarks the SHIPPED artifact, not a rebuild (#725):
+    // installs harness deps but does NOT run make, and guards on committed dist.
+    expect(s).toContain('npm install');
+    expect(s).not.toContain('npm run make');
+    expect(s).toContain('dist/jssm.es5.cjs');
+    expect(s).toContain('dist/jssm.es5.nonmin.cjs');
   });
 
   test('normal vs deep benny gate', () => {
@@ -571,12 +639,22 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('jssm.es5.nonmin.cjs');
   });
 
-  test('fetches the PAT from SSM and pushes with the token, to the release dir', () => {
+  test('runs the general suite and uploads general.json best-effort', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
-    expect(s).toContain('aws ssm get-parameter');
-    expect(s).toContain('/jssm/perf-push-pat');
-    expect(s).toContain('x-access-token:${TOKEN}@github.com/StoneCypher/jssm.git');
-    expect(s).toContain('c7g.medium/release-5.141.5');
+    // line-exact: 'npm run benny:scaling' contains 'npm run benny' as a substring
+    expect(s.split('\n')).toContain('npm run benny');
+    expect(s).toContain('benchmark/results/general.json');
+    expect(s).toContain('JSSM_PERF: general.json upload failed; continuing');
+  });
+
+  test('uploads to the S3 bucket under the release dir, with no GitHub credential anywhere', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('aws s3 cp');
+    expect(s).toContain('s3://jssm-perf-results-test/c7g.medium/release-5.141.5');
+    // the whole point of the S3 design: no token machinery on the instance
+    expect(s).not.toContain('x-access-token');
+    expect(s).not.toContain('ssm get-parameter --region us-east-1 --name "/jssm/perf-push-pat"');
+    expect(s).not.toContain('git push');
   });
 
   test('writes a meta.json stamped arm64 + release', () => {
@@ -585,15 +663,24 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('"release": "5.141.5"');
   });
 
-  test('retries the perf_results push on non-fast-forward', () => {
+  test('reports upload success and failure explicitly, naming the likely fix on failure', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
-    expect(s).toContain('git rebase origin/perf_results');
+    expect(s).toContain('JSSM_PERF: uploaded to $DEST');
+    expect(s).toContain('JSSM_PERF: upload FAILED; results were not published');
+    expect(s).toContain('s3:PutObject');
+    // the misleading failure label from the git-publish era must never return
+    expect(s).not.toContain('rebase conflict');
   });
 
-  test('guards the publish on a produced scaling.json (no dedup poisoning on a failed build)', () => {
+  test('a failed profile upload continues rather than failing the publish', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('JSSM_PERF: prof upload failed; continuing');
+  });
+
+  test('guards the upload on a produced scaling.json (no dedup poisoning on a failed build)', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false });
     expect(s).toContain('if [ -s benchmark/results/scaling.json ]; then');
-    expect(s).toContain('skipping perf_results publish');
+    expect(s).toContain('skipping upload');
   });
 
   test('rejects an unsafe commit SHA', () => {
@@ -611,9 +698,89 @@ describe('buildDetachedUserData — self-contained release run', () => {
       .toThrow(/unsafe region/);
   });
 
-  test('rejects an unsafe ssm param name', () => {
-    expect(() => gp.buildDetachedUserData({ ...ok, ssmParam: 'a;b', deep: false }))
-      .toThrow(/unsafe ssm/);
+  test('rejects an unsafe bucket name', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, bucket: 'a;b', deep: false }))
+      .toThrow(/unsafe bucket/);
+    expect(() => gp.buildDetachedUserData({ ...ok, bucket: 'Has_Uppercase', deep: false }))
+      .toThrow(/unsafe bucket/);
+  });
+
+  // --- backfill path: --harness-from overlay for releases predating the suite ---
+
+  test('--harness-from overlays today\'s harness from the ref and runs it directly', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('git fetch origin "main"');
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
+    expect(s).toContain('npm install benny');
+    expect(s).toContain('node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
+    // old releases lack the npm scripts, so the overlay must NOT call them
+    expect(s).not.toContain('npm run benny:scaling');
+  });
+
+  test('--harness-from overlay (backfill) checks out the WHOLE src/buildjs tree so no harness module is missing', () => {
+    // Regression for the stale-list bug: the harness gained benchmark_gc.cjs,
+    // benchmark_load.cjs, benchmark_timing.cjs, benchmark_scaling_latency.cjs,
+    // benchmark_scaling_exponents.cjs, benchmark_bundle_size.cjs after the old
+    // per-file list was written; a release predating them died on require() with
+    // MODULE_NOT_FOUND before any benchmark ran. The directory overlay fixes it.
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).toContain('git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures');
+    expect(s).not.toContain('src/buildjs/benchmark_scaling_memory.cjs src/buildjs/benchmark_scaling_plan.cjs');
+  });
+
+  test('--harness-from still does NOT rebuild (benchmarks the shipped committed dist, #725)', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).not.toContain('npm run make');
+  });
+
+  test('--harness-from normalizes the pre-5.98 es5 cjs bundle name to what today\'s harness requires', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    // releases before ~5.98 shipped the bundle as jssm.es5.cjs.js / jssm.es5.cjs.nonmin.js;
+    // the current harness requires dist/jssm.es5.cjs and dist/jssm.es5.nonmin.cjs
+    expect(s).toContain('cp dist/jssm.es5.cjs.js dist/jssm.es5.cjs');
+    expect(s).toContain('cp dist/jssm.es5.cjs.nonmin.js dist/jssm.es5.nonmin.cjs');
+  });
+
+  test('--harness-from also covers the 5.11 era: nonmin falls back to the unmin .cjs.js bundle', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    // 5.11 shipped jssm.es5.cjs.js (unmin) + jssm.es5.cjs.min.js (min) and no .cjs.nonmin.js,
+    // so dist/jssm.es5.nonmin.cjs must fall back to the unmin .cjs.js bundle...
+    expect(s).toContain('cp dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs');
+    // ...guarded so it never clobbers an existing nonmin bundle (modern or 5.50 era).
+    expect(s).toContain('[ ! -s dist/jssm.es5.nonmin.cjs ] && [ -s dist/jssm.es5.cjs.js ]');
+  });
+
+  test('--harness-from does NOT hard-abort on a missing modern committed dist (that guard is the backfill bug)', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    expect(s).not.toContain('committed dist/ missing at this commit');
+  });
+
+  test('--harness-from honors deep mode on the direct-node scaling run', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: true, harnessFrom: 'main' });
+    expect(s).toContain('BENNY_DEEP=1 node --expose-gc ./src/buildjs/benchmark_scaling.cjs');
+  });
+
+  test('without --harness-from, the release-time path keeps its committed-dist guard (unchanged)', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false });
+    expect(s).toContain('committed dist/ missing at this commit');
+    expect(s).toContain('npm run benny:scaling');
+    expect(s).not.toContain('git fetch origin "main"');
+  });
+
+  test('rejects an unsafe harness ref (injection guard)', () => {
+    expect(() => gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main; curl evil' }))
+      .toThrow(/unsafe harness ref/);
+  });
+
+  // --- silent-failure visibility: a run that produces no scaling.json must leave a loud marker ---
+
+  test('on a failed benchmark, uploads a FAILED marker to a dedup-safe _failures prefix', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    // marker lives under _failures/ so the nightly sync's dedup never reads it as
+    // "already measured" (which would block a real re-run of this release)
+    expect(s).toContain('s3://jssm-perf-results-test/_failures/c7g.medium/release-5.141.5');
+    // and it must NOT be written into the release dir that the dedup keys on
+    expect(s).not.toContain('s3://jssm-perf-results-test/c7g.medium/release-5.141.5/FAILED');
   });
 
 });
@@ -687,6 +854,12 @@ describe('parseArgs — detached release mode', () => {
 
   test('--release/--commit are rejected without --detached', () => {
     expect(() => gp.parseArgs(['677', '--release', '5.1.0'])).toThrow(/only valid with --detached/);
+  });
+
+  test('--detached accepts --harness-from for backfilling releases predating the suite', () => {
+    const o = gp.parseArgs(['--detached', '--release', '5.50.0', '--commit', sha, '--harness-from', 'main']);
+    expect(o.detached).toBe(true);
+    expect(o.harnessFrom).toBe('main');
   });
 
 });

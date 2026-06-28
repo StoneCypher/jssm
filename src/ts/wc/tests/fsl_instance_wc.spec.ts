@@ -155,6 +155,18 @@ describe('resolve_fsl_source', () => {
     expect(r.error).toMatch(/use exactly one source/);
   });
 
+  it('ignores slotted content (elements with a slot attribute) as a text source', () => {
+    const host = document.createElement('div');
+    // UI projected into named slots (e.g. an actions panel) is not FSL source.
+    const panel = document.createElement('div');
+    panel.setAttribute('slot', 'actions');
+    panel.innerHTML = '<button>Enable</button><button>Next</button>';
+    host.appendChild(panel);
+    const r = resolve_fsl_source(host, 'Off -> On;');   // only the fsl attribute counts
+    expect(r.fsl).toBe('Off -> On;');
+    expect(r.provided_count).toBe(1);
+  });
+
   it('errors when all three channels are provided', () => {
     const host = document.createElement('div');
     const script = document.createElement('script');
@@ -331,6 +343,27 @@ describe('FslInstance lifecycle (via fsl-instance tag)', () => {
     document.body.removeChild(el);
   });
 
+  it('moves via host.transition() (legal) and host.force_transition() (forced)', () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B; A ~> C;");
+    document.body.appendChild(el);
+
+    expect(el.transition('B')).toBe(true);   // legal edge A -> B
+    expect(el.state()).toBe('B');
+
+    const el2 = document.createElement('fsl-instance') as FslInstance;
+    el2.setAttribute('fsl', "A 'go' -> B; A ~> C;");
+    document.body.appendChild(el2);
+
+    expect(el2.transition('C')).toBe(false);        // A ~> C is forced-only
+    expect(el2.state()).toBe('A');
+    expect(el2.force_transition('C')).toBe(true);   // force succeeds
+    expect(el2.state()).toBe('C');
+
+    document.body.removeChild(el);
+    document.body.removeChild(el2);
+  });
+
   it('reflects legal-actions, terminal, and complete host attributes', () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
@@ -427,6 +460,76 @@ describe('FslInstance shadow DOM', () => {
     document.body.removeChild(el);
   });
 
+  it('reflects the theme property so its built-in palette can drive the suite', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "Off 'flip' -> On;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.theme).toBe('light');                  // default
+    el.theme = 'dark';
+    await (el as any).updateComplete;
+    expect(el.getAttribute('theme')).toBe('dark');   // reflected to the attribute
+
+    document.body.removeChild(el);
+  });
+
+  it('shows and hides panels via togglePanel / setPanelHidden', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    el.setAttribute('layout', 'rl');
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    // aux panel section → hidden attribute
+    expect(el.isPanelHidden('history')).toBe(false);
+    el.togglePanel('history');
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(true);
+    expect(el.shadowRoot!.querySelector('section.history')!.hasAttribute('hidden')).toBe(true);
+    el.togglePanel('history');                        // back on
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);
+
+    // workbench panes → hide-viz / hide-editor classes
+    el.setPanelHidden('viz', true);
+    el.setPanelHidden('editor', true);
+    await (el as any).updateComplete;
+    const wb = el.shadowRoot!.querySelector('.workbench')!;
+    expect(wb.classList.contains('hide-viz')).toBe(true);
+    expect(wb.classList.contains('hide-editor')).toBe(true);
+    el.setPanelHidden('viz', false);
+    el.setPanelHidden('editor', false);
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.workbench')!.classList.contains('hide-viz')).toBe(false);
+
+    // actions + data-inspector are easing side docks in split layouts: lifted out
+    // of the stacked aux, and the toggle flips an 'open' class (not display:none).
+    expect(el.shadowRoot!.querySelector('section.data-inspector')).toBeNull();
+    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(true);
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
+    el.togglePanel('data-inspector');
+    el.togglePanel('actions');
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(false);
+    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(false);
+
+    document.body.removeChild(el);
+  });
+
+  it('seeds the machine with initial data when the data property is set', async () => {
+    const seed = { count: 7, items: [{ sku: 'A1', qty: 2 }] };
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.data = seed;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.machine.data()).toEqual(seed);
+
+    document.body.removeChild(el);
+  });
+
   it('updates the state-specific slot name after a transition', async () => {
     const el = document.createElement('fsl-instance') as FslInstance;
     el.setAttribute('fsl', "Off 'flip' -> On;");
@@ -493,6 +596,200 @@ describe('mixed-prefix companion discovery', () => {
 
     document.body.removeChild(el);
     delete (globalThis as any)['_test_mixed_prefix_handler'];
+  });
+
+});
+
+/**
+ * Helper: create a connected `<fsl-instance>` from an FSL string and return
+ * it.  Caller is responsible for `document.body.removeChild`.
+ */
+function mount_instance(fsl: string): FslInstance {
+  const el = document.createElement('fsl-instance') as FslInstance;
+  el.setAttribute('fsl', fsl);
+  document.body.appendChild(el);
+  return el;
+}
+
+describe('FslInstance DOM CustomEvent re-emission (mechanism 4, #639)', () => {
+
+  it('dispatches a composed, bubbling fsl-transition with from/to/action detail', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    const seen: CustomEvent[] = [];
+    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+
+    el.do('flip');
+    await el.updateComplete;
+
+    expect(seen).toHaveLength(1);
+    const e = seen[0]!;
+    expect(e.bubbles).toBe(true);
+    expect(e.composed).toBe(true);
+    expect(e.detail.from).toBe('Off');
+    expect(e.detail.to).toBe('On');
+    expect(e.detail.action).toBe('flip');
+
+    document.body.removeChild(el);
+  });
+
+  it('paints the new state to host attributes before the fsl-transition handler runs', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    let state_in_handler: string | null = null;
+    el.addEventListener('fsl-transition', () => {
+      state_in_handler = el.getAttribute('current-state');
+    });
+
+    el.do('flip');
+    await el.updateComplete;
+
+    // Ordering guarantee (#639): mechanism 1 reflection precedes mechanism 4 dispatch.
+    expect(state_in_handler).toBe('On');
+
+    document.body.removeChild(el);
+  });
+
+  it('also dispatches fsl-exit and fsl-entry on a transition', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    const names: string[] = [];
+    el.addEventListener('fsl-exit',  () => names.push('exit'));
+    el.addEventListener('fsl-entry', () => names.push('entry'));
+
+    el.do('flip');
+    await el.updateComplete;
+
+    expect(names).toContain('exit');
+    expect(names).toContain('entry');
+
+    document.body.removeChild(el);
+  });
+
+  it('re-emits even when the machine is driven directly via host.machine.action()', async () => {
+    const el = mount_instance("Off 'flip' -> On;");
+    const seen: CustomEvent[] = [];
+    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+
+    el.machine.action('flip');   // bypasses host.do()
+    await el.updateComplete;
+
+    expect(seen).toHaveLength(1);
+    expect(seen[0]!.detail.to).toBe('On');
+
+    document.body.removeChild(el);
+  });
+
+  it('stops dispatching after the host is disconnected', async () => {
+    const el = mount_instance("Off 'flip' -> On 'flip' -> Off;");
+    const seen: CustomEvent[] = [];
+    el.addEventListener('fsl-transition', e => seen.push(e as CustomEvent));
+
+    document.body.removeChild(el);   // disconnectedCallback unsubscribes
+    el.machine.action('flip');       // machine still alive, WC detached
+    await Promise.resolve();
+
+    expect(seen).toHaveLength(0);
+  });
+
+});
+
+describe('FslInstance default-template slots (S2)', () => {
+
+  it('exposes a named slot for every sub-component panel', async () => {
+    const el = mount_instance('A -> B;');
+    await el.updateComplete;
+
+    const slot_names = Array.from(el.shadowRoot!.querySelectorAll('slot'))
+      .map(s => s.getAttribute('name'));
+
+    for (const name of ['history', 'data-inspector', 'hook-log',
+                        'effective-properties', 'simulation', 'export']) {
+      expect(slot_names).toContain(name);
+    }
+
+    document.body.removeChild(el);
+  });
+
+});
+
+describe('FslInstance theming', () => {
+
+  const mount_theme = (attrs: Record<string, string> = {}): FslInstance => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', 'a -> b;');
+    for (const [k, v] of Object.entries(attrs)) { el.setAttribute(k, v); }
+    document.body.appendChild(el);
+    return el;
+  };
+  const surface = (el: FslInstance): string => el.style.getPropertyValue('--fsl-color-surface').trim();
+
+  it('applies the Default light palette inline and reflects resolved-theme', async () => {
+    const el = mount_theme();
+    await el.updateComplete;
+    expect(surface(el)).toBe('#ffffff');
+    expect(el.getAttribute('resolved-theme')).toBe('light');
+    document.body.removeChild(el);
+  });
+
+  it('applies the dark variant when theme=dark', async () => {
+    const el = mount_theme({ theme: 'dark' });
+    await el.updateComplete;
+    expect(surface(el)).toBe('#1e1e22');
+    expect(el.getAttribute('resolved-theme')).toBe('dark');
+    document.body.removeChild(el);
+  });
+
+  it('applies a named theme and falls back to Default for an unknown name', async () => {
+    const el = mount_theme({ 'theme-name': 'Solarized' });
+    await el.updateComplete;
+    expect(surface(el)).toBe('#fdf6e3');               // Solarized light
+    el.themeName = 'Nonexistent';
+    await el.updateComplete;
+    expect(surface(el)).toBe('#ffffff');               // unknown name → Default light
+    document.body.removeChild(el);
+  });
+
+  it("drives a slotted editor's theme to the resolved variant", async () => {
+    const el = mount_theme();
+    await el.updateComplete;
+    const ed = document.createElement('div');
+    ed.setAttribute('slot', 'editor');
+    (ed as unknown as { theme: string }).theme = 'unset';
+    el.appendChild(ed);
+    el.theme = 'dark';                                 // updated → _applyTheme drives the editor
+    await el.updateComplete;
+    expect((ed as unknown as { theme: string }).theme).toBe('dark');
+    document.body.removeChild(el);
+  });
+
+  it('resolves system mode from the OS and re-applies on OS change (mocked matchMedia)', async () => {
+    let prefersDark = true;
+    let osHandler: (() => void) | undefined;
+    const original = window.matchMedia;
+    window.matchMedia = ((q: string) => ({
+      get matches() { return prefersDark; },
+      media: q,
+      addEventListener: (_e: string, h: () => void) => { osHandler = h; },
+      removeEventListener: (): void => { osHandler = undefined; },
+    })) as unknown as typeof window.matchMedia;
+
+    const el = mount_theme({ theme: 'system' });
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('dark');     // OS prefers dark
+    expect(surface(el)).toBe('#1e1e22');
+
+    prefersDark = false;
+    osHandler!();                                                // OS switches to light
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('light');
+
+    el.theme = 'dark';                                           // a fixed mode ignores OS changes
+    await el.updateComplete;
+    prefersDark = true;
+    osHandler!();
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('dark');
+
+    document.body.removeChild(el);
+    window.matchMedia = original;
   });
 
 });

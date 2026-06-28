@@ -110,6 +110,11 @@ describe('machine_to_dot output structure', () => {
     expect(dot).toMatch(/\}\s*$/);
   });
 
+  test('action labels default to #0066bb (#06b) via the edge preamble', () => {
+    const dot = jv.machine_to_dot(sm`a 'go' -> b;`);
+    expect(dot).toContain('fontcolor="#0066bb"');
+  });
+
   test('contains node identifiers for all states', () => {
     const dot = jv.machine_to_dot(sm`alpha -> beta;`);
     expect(dot).toMatch(/"alpha"/);
@@ -224,6 +229,55 @@ describe('configure() input validation', () => {
   test('no-op for empty options object', () => {
     expect(() => jv.configure({}))
       .not.toThrow();
+  });
+
+});
+
+
+
+describe('parallel action edges render as separate labelled edges (#325, #531)', () => {
+
+  test('two actions to the same target emit two labelled edges', () => {
+    const dot = jv.fsl_to_dot(`a 'f' -> c; a 'g' -> c;`);
+    expect(dot).toContain('taillabel="f"');
+    expect(dot).toContain('taillabel="g"');
+  });
+
+  test('a self-loop with two actions emits both labels (#531)', () => {
+    const dot = jv.fsl_to_dot(`A 'blah' -> A; A 'foo' -> A;`);
+    expect(dot).toContain('taillabel="blah"');
+    expect(dot).toContain('taillabel="foo"');
+  });
+
+  test('an ordinary single edge is unchanged (one taillabel)', () => {
+    const dot = jv.fsl_to_dot(`a 'go' -> b;`);
+    expect(dot).toContain('taillabel="go"');
+  });
+
+  test('a bidirectional pair still merges into one dir=both edge', () => {
+    const dot = jv.fsl_to_dot(`a -> b; b -> a;`);
+    expect(dot).toContain('dir=both');
+  });
+
+});
+
+
+
+describe('state names containing double-quotes produce valid DOT (fsl#474)', () => {
+
+  // FSL `"say \"hi\""` parses to the state name  say "hi"  (literal quotes).
+  // The node label must escape them, or the DOT is unbalanced and crashes the
+  // graphviz/emscripten renderer.
+  test('embedded quotes in a state name are escaped in the node label', () => {
+    const dot = jv.fsl_to_dot(`start -> "say \\"hi\\"";`);
+    expect(dot).toContain('label="say \\"hi\\""');     // escaped form present
+    expect(dot).not.toContain('label="say "hi""');     // broken unbalanced form absent
+  });
+
+  test('a quote-free state name is unchanged', () => {
+    const dot = jv.fsl_to_dot(`a -> b;`);
+    expect(dot).toContain('label="a"');
+    expect(dot).toContain('label="b"');
   });
 
 });

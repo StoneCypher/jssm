@@ -1,5 +1,5 @@
-import { fsl_to_dot } from '../../../../jssm_viz';
-import { RenderError } from '../../../types';
+import { fsl_to_dot } from '../../../../jssm_viz.js';
+import { RenderError } from '../../../types.js';
 
 /**
  * Render FSL source to a Graphviz DOT string.

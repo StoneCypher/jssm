@@ -21,6 +21,7 @@ import {
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
   JssmStateStyleKey, JssmStateStyleKeyList,
+  JssmTransitionConfig, JssmGraphConfig,
   JssmCompileSe, JssmCompileSeStart, JssmCompileRule,
   JssmLayout, JssmHistory,
   JssmArrowKind,
@@ -30,20 +31,23 @@ import {
   JssmValDefinition,
   FslDirection, FslDirections, FslTheme,
   HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler,
+  HookPhase, HookTarget, HookRegistryEntry, HookQuery,
   JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe,
   JssmBaseTheme,
+  JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmBoundaryHooks,
   JssmRng
 
-} from './jssm_types';
+} from './jssm_types.js';
 
 
 
 
 
-import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
-import { compile, make, makeTransition, wrap_parse }          from './jssm_compiler';
-import { canonical_config }                                    from './fsl_canonical';
-import { theme_mapping, base_theme }                          from './jssm_theme';
+import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
+import { compile, make, makeTransition, wrap_parse,
+         transitive_members, membership_distance }            from './jssm_compiler.js';
+import { canonical_config }                                    from './fsl_canonical.js';
+import { theme_mapping, base_theme }                          from './jssm_theme.js';
 
 
 
@@ -58,23 +62,68 @@ import {
   name_bind_prop_and_state,
   gen_splitmix32,
   sleep
-} from './jssm_util';
+} from './jssm_util.js';
+
+import { Interner, pair_key, un_pair_key } from './jssm_intern.js';
 
 
 
 
 
-import * as constants from './jssm_constants';
+import * as constants from './jssm_constants.js';
 const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
+const empty_string_set: ReadonlySet<string> = new Set<string>();
+
+// Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
+export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
+
+// The spatial fields (besides `handler`, which every hook needs) that each
+// hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
+// to validate a HookDescription so a mis-shaped one is rejected rather than
+// silently registering a dead hook — e.g. an `exit` hook given `to` instead of
+// `from` would otherwise intern `undefined` and never fire (#734).  Typed as a
+// `Record` over the kind union so the table is exhaustive at compile time:
+// adding a hook kind without listing its fields is a build error.
+const hook_required_fields: Record<HookDescription<unknown>['kind'], ReadonlyArray<'from' | 'to' | 'action'>> = {
+  'hook'                     : ['from', 'to'],
+  'named'                    : ['from', 'to', 'action'],
+  'global action'            : ['action'],
+  'any action'               : [],
+  'standard transition'      : [],
+  'main transition'          : [],
+  'forced transition'        : [],
+  'any transition'           : [],
+  'entry'                    : ['to'],
+  'exit'                     : ['from'],
+  'after'                    : ['from'],
+  'post hook'                : ['from', 'to'],
+  'post named'               : ['from', 'to', 'action'],
+  'post global action'       : ['action'],
+  'post any action'          : [],
+  'post standard transition' : [],
+  'post main transition'     : [],
+  'post forced transition'   : [],
+  'post any transition'      : [],
+  'post entry'               : ['to'],
+  'post exit'                : ['from'],
+  'pre everything'           : [],
+  'everything'               : [],
+  'pre post everything'      : [],
+  'post everything'          : [],
+};
+
+// The spatial fields a hook descriptor can carry, checked against the per-kind
+// requirements above.
+const hook_spatial_fields = ['from', 'to', 'action'] as const;
 
 
 
 
 
-import { parse }               from './fsl_parser';
-import { version, build_time } from './version';    // replaced from package.js in build
-import { JssmError }           from './jssm_error';
+import { parse }               from './fsl_parser.js';
+import { version, build_time } from './version.js';    // replaced from package.js in build
+import { JssmError }           from './jssm_error.js';
 
 
 
@@ -331,6 +380,56 @@ function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmS
 
 
 
+/*********
+ *
+ *  Shallow-merges one {@link JssmStateConfig} style tier over another, with
+ *  later-wins, undefined-skipping semantics — the across-tier folding primitive
+ *  for the unified config cascade in {@link Machine.resolve_state_config}.
+ *
+ *  Every defined key in `over` replaces the corresponding key in the result;
+ *  keys whose `over` value is `undefined` leave the `base` value untouched.
+ *  Unlike {@link state_style_condense} — which throws when a key is redefined
+ *  *within a single declaration block* — this NEVER throws on a key collision,
+ *  because the cascade deliberately layers more-specific tiers (group, per-state,
+ *  active) over less-specific ones (theme, kind defaults) and the later tier is
+ *  meant to win.  Neither input is mutated; a fresh object is returned.
+ *
+ *  ```typescript
+ *  merge_state_config({ color: 'red', shape: 'box' }, { color: 'blue' });
+ *  // => { color: 'blue', shape: 'box' }
+ *
+ *  merge_state_config({ color: 'red' }, { color: undefined, shape: 'oval' });
+ *  // => { color: 'red', shape: 'oval' }  (undefined `over` keys are ignored)
+ *  ```
+ *
+ *  @param base The lower-precedence style tier (the accumulator so far).
+ *  @param over The higher-precedence style tier; its defined keys win.
+ *
+ *  @returns A new {@link JssmStateConfig} with `over`'s defined keys layered
+ *  over `base`.
+ *
+ *  @internal
+ *
+ */
+
+function merge_state_config(base: JssmStateConfig, over: JssmStateConfig): JssmStateConfig {
+
+  const merged: JssmStateConfig = { ...base };
+
+  Object.keys(over).forEach(key => {
+    if (over[key] !== undefined) {
+      merged[key] = over[key];
+    }
+  });
+
+  return merged;
+
+}
+
+
+
+
+
 /*******
  *
  *  Core finite state machine class.  Holds the full graph of states and
@@ -427,6 +526,21 @@ class Machine<mDT> {
   _reverse_actions        : Map<StateType, Map<StateType, number>>;
   _reverse_action_targets : Map<StateType, Map<StateType, number>>;
 
+  // Interned-id machinery (lever 1 of the interning perf trail).  Additive
+  // numeric mirrors of the hot-path string maps; every string map above stays
+  // authoritative for its other readers.  See
+  // notes/superpowers/plans/2026-06-12-integer-state-interning.md
+  _state_interner         : Interner;
+  _action_interner        : Interner;
+  // The interned id of the current state.  NaN — never undefined — when the
+  // current state is unknown to the interner (only reachable by deserializing
+  // a foreign state name); NaN pair_keys can never match a stored key, so
+  // every dispatch lookup misses, which is exactly the string-map behavior.
+  _state_id               : number;
+  _edge_id_by_pair        : Map<number, number>;  // pair_key(from_id, to_id)     -> edge id
+  _edge_id_by_action_pair : Map<number, number>;  // pair_key(action_id, from_id) -> edge id
+  _edge_to_ids            : Array<number>;        // edge id -> interned id of edge.to
+
   _start_states           : Set<StateType>;
   _end_states             : Set<StateType>;
   _failed_outputs         : Set<StateType>;
@@ -454,6 +568,8 @@ class Machine<mDT> {
 
   _graph_layout              : JssmLayout;
   _dot_preamble              : string;
+  _default_transition_config : JssmTransitionConfig | undefined;
+  _default_graph_config      : JssmGraphConfig      | undefined;
   _arrange_declaration       : Array<Array<StateType>>;
   _arrange_start_declaration : Array<Array<StateType>>;
   _arrange_end_declaration   : Array<Array<StateType>>;
@@ -473,16 +589,19 @@ class Machine<mDT> {
 
   _has_forced_transitions   : boolean;
 
-  // Per-edge hook tables are nested by `from` then `to` (and then `action` for
-  // named hooks).  Nesting avoids a `JSON.stringify` string-key allocation on
-  // every transition and gives V8 small per-state maps to hash, which is
-  // materially cheaper than hashing a stringified array.  See #642.
-  _hooks                    : Map<string, Map<string, HookHandler<mDT>>>;
-  _named_hooks              : Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-  _entry_hooks              : Map<string, HookHandler<mDT>>;
-  _exit_hooks               : Map<string, HookHandler<mDT>>;
+  // Numeric interned hook stores (interning lever 2, #729; supersedes the
+  // #642 nested-string-map strategy).  Keys are pair_key(from_id, to_id) for
+  // the pair maps, an interned action id for the global-action map, and a
+  // state id for entry/exit.  _after_hooks stays string-keyed on purpose: it
+  // is probed only from the cold state-timeout path (after-hooks are the
+  // `after`-timer's companion and never fire on dispatch; fsl#1327), keyed by
+  // the timed state's name, so there is no benchmark pressure to intern it.
+  _hooks                    : Map<number, HookHandler<mDT>>;
+  _named_hooks              : Map<number, Map<number, HookHandler<mDT>>>;
+  _entry_hooks              : Map<number, HookHandler<mDT>>;
+  _exit_hooks               : Map<number, HookHandler<mDT>>;
   _after_hooks              : Map<string, HookHandler<mDT>>;
-  _global_action_hooks      : Map<string, HookHandler<mDT>>;
+  _global_action_hooks      : Map<number, HookHandler<mDT>>;
   _any_action_hook          : HookHandler<mDT> | undefined;
   _standard_transition_hook : HookHandler<mDT> | undefined;
   _main_transition_hook     : HookHandler<mDT> | undefined;
@@ -503,12 +622,12 @@ class Machine<mDT> {
   _config_allows_override : JssmAllowsOverride;
   _allow_islands          : JssmAllowIslands;
 
-  // Same nesting strategy as `_hooks` / `_named_hooks`; see comment above.  #642
-  _post_hooks                    : Map<string, Map<string, HookHandler<mDT>>>;
-  _post_named_hooks              : Map<string, Map<string, Map<string, HookHandler<mDT>>>>;
-  _post_entry_hooks              : Map<string, HookHandler<mDT>>;
-  _post_exit_hooks               : Map<string, HookHandler<mDT>>;
-  _post_global_action_hooks      : Map<string, HookHandler<mDT>>;
+  // Same numeric keying as `_hooks` / `_named_hooks`; see comment above.  #729
+  _post_hooks                    : Map<number, HookHandler<mDT>>;
+  _post_named_hooks              : Map<number, Map<number, HookHandler<mDT>>>;
+  _post_entry_hooks              : Map<number, HookHandler<mDT>>;
+  _post_exit_hooks               : Map<number, HookHandler<mDT>>;
+  _post_global_action_hooks      : Map<number, HookHandler<mDT>>;
   _post_any_action_hook          : HookHandler<mDT> | undefined;
   _post_standard_transition_hook : HookHandler<mDT> | undefined;
   _post_main_transition_hook     : HookHandler<mDT> | undefined;
@@ -545,6 +664,30 @@ class Machine<mDT> {
   _start_state_style    : JssmStateConfig;
   _end_state_style      : JssmStateConfig;
 
+  // Overlapping-state-group runtime tables, carried from the compile pass.
+  // `_group_registry` is the ordered direct-membership table (states + nested/
+  // spread sub-group refs); `_group_metadata` holds each group's RAW style
+  // `{ declarations }` block, condensed lazily in the config cascade;
+  // `_group_hooks`/`_state_hooks` store boundary-hook payloads for the parked
+  // hook-firing task (3b) — stored here, never fired in this tier.
+  _group_registry  : JssmGroupRegistry;
+  _group_metadata  : Map<string, JssmStateConfig>;
+  _group_hooks     : JssmGroupHooks;
+  _state_hooks     : JssmStateHooks;
+
+  // Deep/transitive inverse membership index: each state maps to every group
+  // that transitively contains it (direct, nested, or spread).  Built once at
+  // construction so `groupsOf`/`isIn` are O(1)-ish lookups.
+  _state_to_groups : Map<StateType, Set<string>>;
+
+  // Declared group names in declaration order (the registry's key order).
+  _group_order     : string[];
+
+  // Memoized tiers 1–5 (static) of the config cascade, keyed by state.  The
+  // dynamic `active_state` overlay (tier 6) is recomputed per call against the
+  // current state, so this stays valid as the machine transitions.
+  _static_state_config_cache : Map<StateType, JssmStateConfig>;
+
   _state_labels : Map<string, string>;
 
   _time_source    : () => number;
@@ -569,6 +712,21 @@ class Machine<mDT> {
   // event detail objects when nothing is listening.  See #670.
   _event_listener_count : number;
   _firing_error   : boolean;  // re-entry guard for the `error` event
+
+  // Re-entrancy depth of FSL boundary-hook action firing.  A boundary action
+  // (`on enter &g do 'X'`) can drive a further transition, which crosses more
+  // boundaries, which fires more actions — an unbounded run-to-completion
+  // cascade.  `_boundary_depth` counts how many boundary-firing frames are on
+  // the stack; `_fire_boundary_actions` throws a JssmError once it exceeds
+  // `_boundary_depth_limit` rather than recursing into a stack overflow.  See
+  // the overlapping-state-group feature (boundary-hook firing).
+  //
+  // `_boundary_depth_limit` is configurable via the `boundary_depth_limit`
+  // constructor option (default 100) so that legitimate deep pipelines can
+  // raise the cap without touching the source, and tests can lower it to
+  // make runaway-detection tests cheap.
+  _boundary_depth       : number;
+  _boundary_depth_limit : number;
 
 
   // whargarbl this badly needs to be broken up, monolith master
@@ -606,6 +764,7 @@ class Machine<mDT> {
     graph_layout              = 'dot',
     instance_name,
     history,
+    boundary_depth_limit,
     data,
     default_state_config,
     default_active_state_config,
@@ -613,6 +772,12 @@ class Machine<mDT> {
     default_terminal_state_config,
     default_start_state_config,
     default_end_state_config,
+    default_transition_config,
+    default_graph_config,
+    group_registry,
+    group_metadata,
+    group_hooks,
+    state_hooks,
     allows_override,
     config_allows_override,
     allow_islands,
@@ -638,6 +803,13 @@ class Machine<mDT> {
     this._actions                = new Map();
     this._reverse_actions        = new Map();
     this._reverse_action_targets = new Map();   // todo
+
+    this._state_interner         = new Interner();
+    this._action_interner        = new Interner();
+    this._state_id               = NaN;
+    this._edge_id_by_pair        = new Map();
+    this._edge_id_by_action_pair = new Map();
+    this._edge_to_ids            = [];
 
     this._start_states   = new Set(start_states);
     this._end_states     = new Set(end_states);   // todo consider what to do about incorporating complete too
@@ -742,6 +914,59 @@ class Machine<mDT> {
     this._start_state_style             = state_style_condense(default_start_state_config, this);
     this._end_state_style               = state_style_condense(default_end_state_config, this);
 
+    // Consolidated `transition: {}` and `graph: {}` default-config blocks,
+    // stored verbatim so the viz layer can project them onto Graphviz `edge [ … ]`
+    // defaults and graph-scope attributes respectively.  Both are kept as the
+    // compiler's de-duplicated `{ key, value }[]` lists (last-wins already
+    // applied, so iterating in order yields the winning value per key).
+    this._default_transition_config     = default_transition_config;
+    this._default_graph_config          = default_graph_config;
+
+    // Overlapping-state-group tables.  The registry/hooks are stored as-is; the
+    // raw per-group `{ declarations }` blocks are condensed once into style
+    // configs here (a single declaration block, so the intra-block redefine
+    // guard in `state_style_condense` still applies), while depth-ordered
+    // merging across groups happens later in `resolve_state_config`.
+    this._group_registry = group_registry ?? new Map();
+    this._group_hooks    = group_hooks    ?? new Map();
+    this._state_hooks    = state_hooks    ?? new Map();
+
+    this._group_metadata = new Map();
+    (group_metadata ?? new Map()).forEach(
+      (raw: JssmStateConfig, group_name: string) =>
+        // `raw.declarations` is the parser's raw style-item list — structurally
+        // a JssmStateStyleKeyList, but typed as JssmStateDeclarationRule[] on
+        // JssmStateConfig — so it condenses through the same path as the
+        // `default_*_state_config` blocks (intra-block redefine still throws).
+        this._group_metadata.set(
+          group_name,
+          state_style_condense(raw.declarations as unknown as JssmStateStyleKeyList, this)
+        )
+    );
+
+    this._group_order = [ ...this._group_registry.keys() ];
+
+    // Deep/transitive inverse index: for each declared group, flatten its
+    // transitive member states (reusing the compiler's `transitive_members`)
+    // and record that group against every one of them.  A `memo` shared across
+    // groups memoizes overlapping sub-group resolution.
+    this._state_to_groups = new Map();
+    {
+      const memo: Map<string, string[]> = new Map();
+      this._group_order.forEach((group_name: string) => {
+        transitive_members(this._group_registry, group_name, memo).forEach((member: string) => {
+          let bucket: Set<string> | undefined = this._state_to_groups.get(member);
+          if (bucket === undefined) {
+            bucket = new Set();
+            this._state_to_groups.set(member, bucket);
+          }
+          bucket.add(group_name);
+        });
+      });
+    }
+
+    this._static_state_config_cache = new Map();
+
     this._history_length                = history || 0;
     this._history                       = new circular_buffer(this._history_length);
 
@@ -761,6 +986,12 @@ class Machine<mDT> {
     this._event_handlers                = new Map();
     this._event_listener_count          = 0;
     this._firing_error                  = false;
+
+    // Boundary-hook action cascade guard.  Limit defaults to 100 but is
+    // configurable via the `boundary_depth_limit` constructor option so tests
+    // can tighten the cap and deep pipelines can raise it.
+    this._boundary_depth                = 0;
+    this._boundary_depth_limit          = boundary_depth_limit ?? 100;
 
 
     // consolidate the state declarations
@@ -795,11 +1026,17 @@ class Machine<mDT> {
 
 
 
-    // O(1) duplicate-edge guard for the construction loop below: from -> Set<to>.
-    // Keyed by source state; mirrors each state's `to` array with constant-time
-    // membership so the dedup check is O(1) per edge rather than an O(out-degree)
-    // array scan (which made construction O(V*E) on dense graphs).  #673
-    const seen_edges: Map<StateType, Set<StateType>> = new Map();
+    // Duplicate-edge guard for the construction loop below, keyed
+    // from -> (to -> Set<slot>).  A "slot" distinguishes edges that share a
+    // (from, to) pair: an action's name for an actioned edge, or '' for the one
+    // permitted plain action-less edge.  Multiple edges between the same pair
+    // are allowed when they carry distinct actions (#325; the self-loop case is
+    // #531), since they dispatch unambiguously through `action(name)`.  A
+    // probability-bearing action-less edge is exempt from the guard entirely,
+    // so a weighted fan-out may name the same target more than once.  The
+    // nested Map+Set keeps the check O(1) per edge rather than an O(out-degree)
+    // scan (which made construction O(V*E) on dense graphs).  #673
+    const seen_edges: Map<StateType, Map<StateType, Set<string>>> = new Map();
 
     // walk the transitions.  single-lookup cursor fetches: each endpoint was
     // previously a get followed by a has on the same key (four hashes per
@@ -823,21 +1060,35 @@ class Machine<mDT> {
         this._new_state(cursor_to);
       }
 
-      // guard against existing connections being re-added — O(1) via the
-      // from -> Set<to> index instead of an O(out-degree) `cursor_from.to`
-      // array scan.  Behaviour is identical: the same duplicate (from, to)
-      // pair throws the same JssmError.  #673
-      let seen_to: Set<StateType> | undefined = seen_edges.get(tr.from);
-      if (seen_to === undefined) {
-        seen_to = new Set();
-        seen_edges.set(tr.from, seen_to);
+      // record (from -> to) adjacency once per distinct target, even when
+      // several edges connect the pair, so the `to`/`from` arrays stay sets of
+      // state names.  #673
+      let to_slots: Map<StateType, Set<string>> | undefined = seen_edges.get(tr.from);
+      if (to_slots === undefined) {
+        to_slots = new Map();
+        seen_edges.set(tr.from, to_slots);
       }
-      if (seen_to.has(tr.to)) {
-        throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`);
-      } else {
-        seen_to.add(tr.to);
+      let slots: Set<string> | undefined = to_slots.get(tr.to);
+      if (slots === undefined) {
+        slots = new Set();
+        to_slots.set(tr.to, slots);
         cursor_from.to.push(tr.to);
         cursor_to.from.push(tr.from);
+      }
+
+      // duplicate-edge guard.  A probability-bearing action-less edge is exempt
+      // (a weighted fan-out may repeat a target); every other edge claims a slot
+      // — its action name, or '' for the one plain action-less edge — and a
+      // repeated slot throws.  Distinct actions between the same pair coexist
+      // (#325/#531).
+      const edge_exempt: boolean = (!tr.action) && (tr.probability !== undefined);
+      if (!edge_exempt) {
+        const slot: string = tr.action ? tr.action : '';
+        if (slots.has(slot)) {
+          throw new JssmError(this, `already has ${JSON.stringify(tr.from)} to ${JSON.stringify(tr.to)}`
+            + (tr.action ? ` on action ${JSON.stringify(tr.action)}` : ''));
+        }
+        slots.add(slot);
       }
 
       // add the edge; note its id
@@ -866,8 +1117,25 @@ class Machine<mDT> {
         this._edge_map.set(tr.from, from_mapping);
       }
 
-      //    const to_mapping = from_mapping.get(tr.to);
-      from_mapping.set(tr.to, thisEdgeId); // already checked that this mapping doesn't exist, above
+      // first-declared wins: when several edges share a (from, to) pair (parallel
+      // action edges, #325), lookup_transition_for resolves to the first one
+      // declared, so it agrees with edges_between(...)[0].
+      if (!from_mapping.has(tr.to)) {
+        from_mapping.set(tr.to, thisEdgeId);
+      }
+
+      // numeric mirror of the (from, to) endpoint mapping.  intern() rather
+      // than id_of(): idempotent, and returns number (not number|undefined)
+      // since both endpoints were just created above if missing.
+      const from_id = this._state_interner.intern(tr.from);
+      const to_id   = this._state_interner.intern(tr.to);
+      // first-declared wins (see _edge_map above): the transition fast-path that
+      // reads this index resolves parallel (from, to) pairs to the first edge.
+      const pair = pair_key(from_id, to_id);
+      if (!this._edge_id_by_pair.has(pair)) {
+        this._edge_id_by_pair.set(pair, thisEdgeId);
+      }
+      this._edge_to_ids[thisEdgeId] = to_id;
 
       // outbound adjacency: every edge originating at tr.from, regardless of action/target.
       // _edge_map above keys a single edge per (from, to) and overwrites on collision, which
@@ -909,6 +1177,10 @@ class Machine<mDT> {
         // no need to test for reverse mapping pre-presence;
         // forward mapping already covers collisions
         rActionMap.set(tr.action, thisEdgeId);
+
+        // numeric mirror of the (action, from) dispatch mapping
+        const action_id = this._action_interner.intern(tr.action);
+        this._edge_id_by_action_pair.set(pair_key(action_id, from_id), thisEdgeId);
 
 
         // reverse mapping first by state target name
@@ -1038,10 +1310,12 @@ class Machine<mDT> {
         throw new JssmError(this, `requested start state ${initial_state} is not in start state list; add {start_states_no_enforce:true} to constructor options if desired`);
       }
 
-      this._state = initial_state;
+      this._state    = initial_state;
+      this._state_id = this._state_interner.intern(this._state);
 
     } else {
-      this._state = start_states[0];
+      this._state    = start_states[0];
+      this._state_id = this._state_interner.intern(this._state);
     }
 
 
@@ -1143,6 +1417,7 @@ class Machine<mDT> {
     }
 
     this._states.set(state_config.name, state_config);
+    this._state_interner.intern(state_config.name);
     return state_config.name;
 
   }
@@ -1847,6 +2122,49 @@ class Machine<mDT> {
     return this._dot_preamble;
   }
 
+  /** Get the consolidated `transition: {}` default-config block: the ordered,
+   *  de-duplicated `{ key, value }[]` list of edge-default style items compiled
+   *  from a `transition: {}` block (e.g. `transition: { color: blue; }`).  The
+   *  viz layer projects this onto a Graphviz `edge [ … ]` default statement so
+   *  every edge inherits it.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *  sm`a -> b; transition: { color: blue; };`.default_transition_config();
+   *  // [ { key: 'color', value: '#0000ffff' } ]
+   *  ```
+   *
+   *  @returns The transition-config item list, or `undefined` if the machine
+   *  declared no `transition: {}` block.
+   *  @see default_graph_config
+   */
+  default_transition_config(): JssmTransitionConfig | undefined {
+    return this._default_transition_config;
+  }
+
+  /** Get the consolidated `graph: {}` default-config block: the ordered,
+   *  de-duplicated `{ key, value }[]` list of graph-scope style items.  The
+   *  compiler folds the deprecated top-level graph keywords
+   *  (`graph_bg_color` → `background-color`, plus `graph_layout`, `theme`,
+   *  `flow`, `dot_preamble`) into this list first, then lets an explicit
+   *  `graph: {}` block win on key conflict.  The viz layer projects the
+   *  graph-meaningful keys onto graph-scope Graphviz attributes (e.g.
+   *  `background-color` → `bgcolor`).
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *  sm`a -> b; graph: { background-color: #ffffff; };`.default_graph_config();
+   *  // [ { key: 'background-color', value: '#ffffffff' } ]
+   *  ```
+   *
+   *  @returns The graph-config item list, or `undefined` if the machine has no
+   *  graph config (no `graph: {}` block and no deprecated graph keyword).
+   *  @see default_transition_config
+   */
+  default_graph_config(): JssmGraphConfig | undefined {
+    return this._default_graph_config;
+  }
+
 
 
   /** Get the machine's author list.  Set via the FSL `machine_author` directive.
@@ -1877,8 +2195,12 @@ class Machine<mDT> {
     return this._machine_definition;
   }
 
-  /** Get the machine's language (ISO 639-1).  Set via the FSL `machine_language` directive.
-   *  @returns The language code string.
+  /** Get the machine's natural language as an ISO 639-1 code.  Set via the FSL
+   *  `machine_language` directive, which accepts a language name or code, or a
+   *  BCP-47 tag whose region subtag is dropped (`en-us` -> `en`).  Unrecognized
+   *  values resolve to `undefined`.
+   *  @returns The ISO 639-1 language code (e.g. `'en'`), or `undefined` if the
+   *           supplied value did not resolve to a known language.
    */
   machine_language(): string {
     return this._machine_language;
@@ -2674,10 +2996,10 @@ class Machine<mDT> {
       throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
     }
 
-    return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
-      .map((filtered: JssmTransition<StateType, mDT>): StateType => filtered.action);
+    // `_reverse_actions` is keyed by edge.from (see its population), so every
+    // action stored under whichState belongs to whichState by construction — no
+    // from-filter is needed, and the keys are exactly the exit actions.
+    return Array.from(ra_base.keys());
 
   }
 
@@ -2699,14 +3021,18 @@ class Machine<mDT> {
       throw new JssmError(this, `No such state ${JSON.stringify(whichState)}`);
     }
 
-    return Array.from(ra_base.values())
-      .map((edgeId: number): JssmTransition<StateType, mDT> => this._edges[edgeId])
-      .filter((o: JssmTransition<StateType, mDT>): boolean => o.from === whichState)
-      .map((filtered): any => ({
-        action: filtered.action,          // TODO FIXME no any
-        probability: filtered.probability
-      })
-      );
+    const exits: Array<any> = [];          // TODO FIXME no any
+
+    // `_reverse_actions` is keyed by edge.from, so every entry belongs to
+    // whichState by construction; no from-filter is needed.
+    ra_base.forEach((edgeId: number, action: StateType) => {
+      exits.push({
+        action,
+        probability: this._edges[edgeId].probability
+      });
+    });
+
+    return exits;
   }
 
 
@@ -2752,6 +3078,149 @@ class Machine<mDT> {
    */
   has_terminals(): boolean {
     return this.states().some((x): boolean => this.state_is_terminal(x));
+  }
+
+
+
+
+
+  /********
+   *
+   *  Reports whether the machine's CURRENT state is a transitive member of a
+   *  named group.  Membership is deep: a state counts as in `groupName` if it
+   *  belongs to that group directly, or via any nested (`&child`) or spread
+   *  (`...&child`) sub-group, at any depth.  An undeclared group simply has no
+   *  members, so this returns `false` rather than throwing.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&busy : [working]; idle 'go' -> working;`;
+   *  m.isIn('busy');     // false — current state is 'idle'
+   *  m.action('go');
+   *  m.isIn('busy');     // true  — current state is now 'working'
+   *  m.isIn('nonesuch'); // false — undeclared group has no members
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param groupName The group to test the current state against.
+   *
+   *  @returns `true` if the current state is a transitive member of `groupName`.
+   *
+   *  @see groupsOf
+   *  @see statesIn
+   *
+   */
+
+  isIn(groupName: string): boolean {
+    return this.groupsOf(this.state()).has(groupName);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Lists every group that transitively contains a given state.  Membership is
+   *  deep — direct, nested, and spread sub-group containment all count — and the
+   *  result is the precomputed inverse-index entry for the state, so the lookup
+   *  is constant-time.  A state that belongs to no group (or a state name that
+   *  appears in no group) yields an empty `Set`.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&inner : [a]; &outer : [&inner b]; a -> b;`;
+   *  m.groupsOf('a');     // Set { 'inner', 'outer' }  — deep through &inner
+   *  m.groupsOf('b');     // Set { 'outer' }
+   *  m.groupsOf('z');     // Set {}                    — not in any group
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param state The state whose containing groups are wanted.
+   *
+   *  @returns A `Set` of every group name transitively containing `state`;
+   *  empty when `state` belongs to no group.
+   *
+   *  @see isIn
+   *  @see groups
+   *
+   */
+
+  groupsOf(state: StateType): Set<string> {
+    return new Set(this._state_to_groups.get(state) ?? []);
+  }
+
+
+
+
+
+  /********
+   *
+   *  Lists all declared group names, in source declaration order.  The order
+   *  matches the order the `&group : [ … ];` declarations appear in the FSL, and
+   *  is the same order used to break depth-specificity ties in the config
+   *  cascade.  Machines that declare no groups return an empty array.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&first : [a]; &second : [b]; a -> b;`;
+   *  m.groups();  // [ 'first', 'second' ]
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @returns The declared group names, in declaration order.
+   *
+   *  @see groupsOf
+   *  @see statesIn
+   *
+   */
+
+  groups(): string[] {
+    return [ ...this._group_order ];
+  }
+
+
+
+
+
+  /********
+   *
+   *  Lists every state that is a transitive member of a named group — the
+   *  flattened membership of the group, descending through nested and spread
+   *  sub-groups, in member-declaration order.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&inner : [a b]; &outer : [&inner c]; a -> b -> c;`;
+   *  m.statesIn('outer');  // [ 'a', 'b', 'c' ]
+   *  m.statesIn('inner');  // [ 'a', 'b' ]
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param groupName The group whose transitive member states are wanted.
+   *
+   *  @returns The transitive member states of `groupName`, in declaration order.
+   *
+   *  @throws {JssmError} If `groupName` is not a declared group.
+   *
+   *  @see groups
+   *  @see groupsOf
+   *
+   */
+
+  statesIn(groupName: string): Array<StateType> {
+    if (!(this._group_registry.has(groupName))) {
+      throw new JssmError(this, `No such group ${JSON.stringify(groupName)}`);
+    }
+    return transitive_members(this._group_registry, groupName, new Map());
   }
 
 
@@ -3055,43 +3524,86 @@ class Machine<mDT> {
    *  calling this directly.
    *  @param HookDesc - A hook descriptor specifying kind, states, and handler.
    */
+  /**
+   *  Validate a {@link HookDescription} before registration.  Every hook needs
+   *  a `handler` function, and each kind's identifying spatial fields
+   *  (`from`/`to`/`action`) must be exactly those `set_hook` reads for that
+   *  kind — present when required, absent otherwise.  This turns a mis-shaped
+   *  descriptor into a thrown error instead of a silently dead hook keyed on
+   *  `undefined` (e.g. an `exit` hook handed `to` instead of `from`, #734).
+   *
+   *  @param HookDesc - The descriptor about to be registered.
+   *  @throws JssmError if the kind is unknown, the handler is not a function, a
+   *          required field is missing, or an inapplicable field is present.
+   *
+   *  @example
+   *    const m = sm`a -> b;`;
+   *    // an exit hook is keyed by `from`, so supplying `to` is rejected:
+   *    expect(() => m.set_hook({ kind: 'exit', to: 'a', handler: () => true })).toThrow();
+   */
+  _validate_hook_description(HookDesc: HookDescription<mDT>): void {
+
+    const required: ReadonlyArray<'from' | 'to' | 'action'> | undefined =
+      hook_required_fields[HookDesc.kind];
+
+    if (required === undefined) {
+      throw new JssmError(this, `unknown hook kind ${JSON.stringify((HookDesc as { kind?: unknown }).kind)}`);
+    }
+
+    if (typeof HookDesc.handler !== 'function') {
+      throw new JssmError(this, `${HookDesc.kind} hook requires a handler function`);
+    }
+
+    for (const field of hook_spatial_fields) {
+      const needed  = required.includes(field);
+      const present = (HookDesc as Record<string, unknown>)[field] !== undefined;
+      if (needed && !present) {
+        throw new JssmError(this, `${HookDesc.kind} hook requires '${field}'`);
+      }
+      if (!needed && present) {
+        throw new JssmError(this, `${HookDesc.kind} hook does not take '${field}'`);
+      }
+    }
+
+  }
+
+
   set_hook(HookDesc: HookDescription<mDT>) {
+
+    this._validate_hook_description(HookDesc);
 
     switch (HookDesc.kind) {
 
       case 'hook': {
-        // Nested by `from` then `to`; avoids JSON.stringify on every transition (#642).
-        let inner = this._hooks.get(HookDesc.from);
-        if (inner === undefined) {
-          inner = new Map();
-          this._hooks.set(HookDesc.from, inner);
-        }
-        inner.set(HookDesc.to, HookDesc.handler);
+        // Numeric pair key (#729).  intern() rather than id_of(): a hook may
+        // name a state the machine doesn't have — it gets an id no live state
+        // can match, so it registers silently and never fires, as before.
+        this._hooks.set(
+          pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to)),
+          HookDesc.handler,
+        );
         this._has_hooks       = true;
         this._has_basic_hooks = true;
         break;
       }
 
       case 'named': {
-        // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
-        let inner = this._named_hooks.get(HookDesc.from);
+        // Numeric pair key, then action id; the per-pair action map stays a
+        // map because the action interner may keep growing (#729).
+        const pk = pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to));
+        let inner = this._named_hooks.get(pk);
         if (inner === undefined) {
           inner = new Map();
-          this._named_hooks.set(HookDesc.from, inner);
+          this._named_hooks.set(pk, inner);
         }
-        let inner2 = inner.get(HookDesc.to);
-        if (inner2 === undefined) {
-          inner2 = new Map();
-          inner.set(HookDesc.to, inner2);
-        }
-        inner2.set(HookDesc.action, HookDesc.handler);
+        inner.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
         this._has_hooks       = true;
         this._has_named_hooks = true;
         break;
       }
 
       case 'global action':
-        this._global_action_hooks.set( HookDesc.action, HookDesc.handler );
+        this._global_action_hooks.set( this._action_interner.intern(HookDesc.action), HookDesc.handler );
         this._has_hooks               = true;
         this._has_global_action_hooks = true;
         break;
@@ -3125,13 +3637,13 @@ class Machine<mDT> {
         break;
 
       case 'entry':
-        this._entry_hooks.set( HookDesc.to, HookDesc.handler );
+        this._entry_hooks.set( this._state_interner.intern(HookDesc.to), HookDesc.handler );
         this._has_hooks       = true;
         this._has_entry_hooks = true;
         break;
 
       case 'exit':
-        this._exit_hooks.set( HookDesc.from, HookDesc.handler );
+        this._exit_hooks.set( this._state_interner.intern(HookDesc.from), HookDesc.handler );
         this._has_hooks      = true;
         this._has_exit_hooks = true;
         break;
@@ -3144,38 +3656,32 @@ class Machine<mDT> {
 
 
       case 'post hook': {
-        // Nested by `from` then `to`; same rationale as 'hook' (#642).
-        let inner = this._post_hooks.get(HookDesc.from);
-        if (inner === undefined) {
-          inner = new Map();
-          this._post_hooks.set(HookDesc.from, inner);
-        }
-        inner.set(HookDesc.to, HookDesc.handler);
+        // Numeric pair key; same rationale as 'hook' (#729).
+        this._post_hooks.set(
+          pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to)),
+          HookDesc.handler,
+        );
         this._has_post_hooks       = true;
         this._has_post_basic_hooks = true;
         break;
       }
 
       case 'post named': {
-        // Nested by `from` then `to` then `action`; same rationale as 'hook' (#642).
-        let inner = this._post_named_hooks.get(HookDesc.from);
+        // Numeric pair key, then action id; same rationale as 'named' (#729).
+        const pk = pair_key(this._state_interner.intern(HookDesc.from), this._state_interner.intern(HookDesc.to));
+        let inner = this._post_named_hooks.get(pk);
         if (inner === undefined) {
           inner = new Map();
-          this._post_named_hooks.set(HookDesc.from, inner);
+          this._post_named_hooks.set(pk, inner);
         }
-        let inner2 = inner.get(HookDesc.to);
-        if (inner2 === undefined) {
-          inner2 = new Map();
-          inner.set(HookDesc.to, inner2);
-        }
-        inner2.set(HookDesc.action, HookDesc.handler);
+        inner.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
         this._has_post_hooks       = true;
         this._has_post_named_hooks = true;
         break;
       }
 
       case 'post global action':
-        this._post_global_action_hooks.set(HookDesc.action, HookDesc.handler);
+        this._post_global_action_hooks.set(this._action_interner.intern(HookDesc.action), HookDesc.handler);
         this._has_post_hooks               = true;
         this._has_post_global_action_hooks = true;
         break;
@@ -3209,13 +3715,13 @@ class Machine<mDT> {
         break;
 
       case 'post entry':
-        this._post_entry_hooks.set(HookDesc.to, HookDesc.handler);
+        this._post_entry_hooks.set(this._state_interner.intern(HookDesc.to), HookDesc.handler);
         this._has_post_entry_hooks = true;
         this._has_post_hooks       = true;
         break;
 
       case 'post exit':
-        this._post_exit_hooks.set(HookDesc.from, HookDesc.handler);
+        this._post_exit_hooks.set(this._state_interner.intern(HookDesc.from), HookDesc.handler);
         this._has_post_exit_hooks = true;
         this._has_post_hooks      = true;
         break;
@@ -3240,11 +3746,17 @@ class Machine<mDT> {
         this._has_post_hooks       = true;
         break;
 
-
-      default:
-        throw new JssmError(this, `Unknown hook type ${(HookDesc as any).kind}, should be impossible`);
+      // No default: `_validate_hook_description` above rejects any unknown kind
+      // before we reach here, so the switch is exhaustive over the known kinds.
 
     }
+
+    // The hooked-state styling layer (tier 2.5 of resolve_state_config) depends
+    // on which states carry hooks, so registering a hook can change the composed
+    // style of a state.  The static config cache assumes tiers 1–5 are fixed
+    // after construction; invalidate it so styling stays correct when a hook is
+    // added after a style has already been computed and memoized.
+    this._static_state_config_cache.clear();
 
     // fire the registration event for inspector tools (#638)
     this._fire('hook-registration', { description: HookDesc });
@@ -3280,27 +3792,28 @@ class Machine<mDT> {
     switch (HookDesc.kind) {
 
       case 'hook': {
-        const inner = this._hooks.get(HookDesc.from);
-        if (inner !== undefined && inner.has(HookDesc.to)) {
-          inner.delete(HookDesc.to);
-          removed = true;
-        }
+        // id_of, not intern: removal of an unknown name reports false and
+        // must not grow the interner tables (#729).
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to);
+        removed = (fid !== undefined) && (tid !== undefined) && this._hooks.delete(pair_key(fid, tid));
         break;
       }
 
       case 'named': {
-        const inner = this._named_hooks.get(HookDesc.from);
-        const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
-        if (inner2 !== undefined && inner2.has(HookDesc.action)) {
-          inner2.delete(HookDesc.action);
-          removed = true;
-        }
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to),
+              aid = this._action_interner.id_of(HookDesc.action);
+        const inner = ((fid === undefined) || (tid === undefined)) ? undefined : this._named_hooks.get(pair_key(fid, tid));
+        removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
         break;
       }
 
-      case 'global action':
-        removed = this._global_action_hooks.delete(HookDesc.action);
+      case 'global action': {
+        const aid = this._action_interner.id_of(HookDesc.action);
+        removed = (aid !== undefined) && this._global_action_hooks.delete(aid);
         break;
+      }
 
       case 'any action':
         if (this._any_action_hook !== undefined) { this._any_action_hook = undefined; removed = true; }
@@ -3322,40 +3835,43 @@ class Machine<mDT> {
         if (this._any_transition_hook !== undefined) { this._any_transition_hook = undefined; removed = true; }
         break;
 
-      case 'entry':
-        removed = this._entry_hooks.delete(HookDesc.to);
+      case 'entry': {
+        const tid = this._state_interner.id_of(HookDesc.to);
+        removed = (tid !== undefined) && this._entry_hooks.delete(tid);
         break;
+      }
 
-      case 'exit':
-        removed = this._exit_hooks.delete(HookDesc.from);
+      case 'exit': {
+        const fid = this._state_interner.id_of(HookDesc.from);
+        removed = (fid !== undefined) && this._exit_hooks.delete(fid);
         break;
+      }
 
       case 'after':
         removed = this._after_hooks.delete(HookDesc.from);
         break;
 
       case 'post hook': {
-        const inner = this._post_hooks.get(HookDesc.from);
-        if (inner !== undefined && inner.has(HookDesc.to)) {
-          inner.delete(HookDesc.to);
-          removed = true;
-        }
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to);
+        removed = (fid !== undefined) && (tid !== undefined) && this._post_hooks.delete(pair_key(fid, tid));
         break;
       }
 
       case 'post named': {
-        const inner = this._post_named_hooks.get(HookDesc.from);
-        const inner2 = inner === undefined ? undefined : inner.get(HookDesc.to);
-        if (inner2 !== undefined && inner2.has(HookDesc.action)) {
-          inner2.delete(HookDesc.action);
-          removed = true;
-        }
+        const fid = this._state_interner.id_of(HookDesc.from),
+              tid = this._state_interner.id_of(HookDesc.to),
+              aid = this._action_interner.id_of(HookDesc.action);
+        const inner = ((fid === undefined) || (tid === undefined)) ? undefined : this._post_named_hooks.get(pair_key(fid, tid));
+        removed = (inner !== undefined) && (aid !== undefined) && inner.delete(aid);
         break;
       }
 
-      case 'post global action':
-        removed = this._post_global_action_hooks.delete(HookDesc.action);
+      case 'post global action': {
+        const aid = this._action_interner.id_of(HookDesc.action);
+        removed = (aid !== undefined) && this._post_global_action_hooks.delete(aid);
         break;
+      }
 
       case 'post any action':
         if (this._post_any_action_hook !== undefined) { this._post_any_action_hook = undefined; removed = true; }
@@ -3377,13 +3893,17 @@ class Machine<mDT> {
         if (this._post_any_transition_hook !== undefined) { this._post_any_transition_hook = undefined; removed = true; }
         break;
 
-      case 'post entry':
-        removed = this._post_entry_hooks.delete(HookDesc.to);
+      case 'post entry': {
+        const tid = this._state_interner.id_of(HookDesc.to);
+        removed = (tid !== undefined) && this._post_entry_hooks.delete(tid);
         break;
+      }
 
-      case 'post exit':
-        removed = this._post_exit_hooks.delete(HookDesc.from);
+      case 'post exit': {
+        const fid = this._state_interner.id_of(HookDesc.from);
+        removed = (fid !== undefined) && this._post_exit_hooks.delete(fid);
         break;
+      }
 
       case 'pre everything':
         if (this._pre_everything_hook !== undefined) { this._pre_everything_hook = undefined; removed = true; }
@@ -3407,6 +3927,9 @@ class Machine<mDT> {
     }
 
     if (removed) {
+      // See set_hook: the hooked-state styling layer depends on which states
+      // carry hooks, so removing one can change a state's composed style.
+      this._static_state_config_cache.clear();
       this._fire('hook-removal', { description: HookDesc });
     }
 
@@ -3572,6 +4095,16 @@ class Machine<mDT> {
    *                   timed transition is taken; informational — its outcome
    *                   cannot reject the transition.
    *  @returns `this` for chaining.
+   *
+   *  @example
+   *    const m = sm`a after 1000 -> b; a -> c; c -> a;`;
+   *    let calls = 0;
+   *    m.hook_after('a', () => { calls += 1; });
+   *    m.go('c');
+   *    m.go('a');
+   *    // ordinary dispatch never fires it; only the timer elapsing does:
+   *    calls;  // => 0
+   *    m.clear_state_timeout();
    *
    *  @see hook_entry
    *  @see hook_exit
@@ -3911,7 +4444,8 @@ class Machine<mDT> {
       if (this._states.has(newState)) {
         const fromState = this._state;
         const oldData   = this._data;
-        this._state = newState;
+        this._state    = newState;
+        this._state_id = this._state_interner.intern(newState);
         this._data  = newData;
         this._fire('override', {
           from     : fromState,
@@ -3928,6 +4462,9 @@ class Machine<mDT> {
             cause    : 'override'
           });
         }
+        // An override is still a real state change that may cross group/state
+        // boundaries, so its boundary-hook actions fire too (depth-bounded).
+        this._fire_boundary_actions(fromState, newState);
       } else {
         throw new JssmError(this, `Cannot override state to "${newState}", a state that does not exist`);
       }
@@ -3992,6 +4529,119 @@ class Machine<mDT> {
 
   /*********
    *
+   *  Fire the FSL boundary-hook actions for a single, already-committed state
+   *  change.  In FSL, `do` is a synonym for `action`, so `on enter &g do 'X';`
+   *  means "when the machine crosses INTO group `g`, dispatch machine action
+   *  `X`" — and likewise `on exit` / plain-state subjects.  This is the runtime
+   *  that fires those parked hooks.
+   *
+   *  Crossing semantics (statechart convention — exits before enters):
+   *
+   *  1. `prev_groups` / `next_groups` are the deep (transitive) group sets of
+   *     the old and new states, from `_state_to_groups`.
+   *  2. **Exits** fire first: every group in `prev_groups \ next_groups` with an
+   *     `onExit`, plus the plain `prev_state`'s `onExit` (when the state name
+   *     actually changed).
+   *  3. **Enters** fire next: every group in `next_groups \ prev_groups` with an
+   *     `onEnter`, plus the plain `next_state`'s `onEnter` (when the state name
+   *     changed).
+   *  4. A group present in BOTH sets is a transition *within* that group and
+   *     fires neither of its boundary hooks.  `prev_state === next_state` fires
+   *     nothing at all.
+   *  5. "Fire its action" is `this.action(label)`.  If that action is not valid
+   *     from the current state, `action` is a safe no-op (returns `false`) — an
+   *     inapplicable boundary action never throws.
+   *  6. Multi-membership and nesting both fan out naturally: a state in groups
+   *     A and B fires both; crossing an inner and an outer boundary fires both
+   *     levels.
+   *
+   *  Because firing an action can drive a further transition (which crosses
+   *  more boundaries, which fires more actions), this is a bounded
+   *  run-to-completion: `_boundary_depth` tracks the live cascade depth and a
+   *  cascade deeper than `_boundary_depth_limit` throws a {@link JssmError}
+   *  rather than overflowing the stack or hanging.  The limit defaults to 100
+   *  and is configurable via the `boundary_depth_limit` constructor option.
+   *
+   *  @param prev_state The state the machine was in before this commit.
+   *  @param next_state The state the machine is in now (already committed).
+   *
+   *  @throws {JssmError} If cascaded boundary firing exceeds `_boundary_depth_limit`
+   *    (a probable infinite loop).
+   *
+   *  @see action
+   *  @see transition_impl
+   *
+   *  @internal
+   *
+   */
+
+  _fire_boundary_actions(prev_state: StateType, next_state: StateType): void {
+
+    // Nothing crosses a boundary when the state name is unchanged.
+    if (prev_state === next_state) { return; }
+
+    // Skip entirely for machines that declared no boundary hooks at all — the
+    // overwhelming common case, and it keeps the hot transition path free of
+    // set arithmetic.
+    if (this._group_hooks.size === 0 && this._state_hooks.size === 0) { return; }
+
+    if (this._boundary_depth >= this._boundary_depth_limit) {
+      throw new JssmError(
+        this,
+        `boundary-hook action cascade exceeded depth limit (${this._boundary_depth_limit}) `
+          + `crossing from ${JSON.stringify(prev_state)} to ${JSON.stringify(next_state)} `
+          + `(possible infinite loop)`
+      );
+    }
+
+    const prev_groups: ReadonlySet<string> = this._state_to_groups.get(prev_state) ?? empty_string_set;
+    const next_groups: ReadonlySet<string> = this._state_to_groups.get(next_state) ?? empty_string_set;
+
+    // The labels to dispatch, gathered before any firing so that re-entrant
+    // transitions caused by an early action cannot perturb which boundaries the
+    // *current* crossing fires.  Exits precede enters (statechart convention).
+    const labels: string[] = [];
+
+    // Exits: groups left (in prev but not next), then the plain prev state.
+    for (const group of prev_groups) {
+      if (!next_groups.has(group)) {
+        const label: string | undefined = this._group_hooks.get(group)?.onExit;
+        if (label !== undefined) { labels.push(label); }
+      }
+    }
+    const prev_state_exit: string | undefined = this._state_hooks.get(prev_state)?.onExit;
+    if (prev_state_exit !== undefined) { labels.push(prev_state_exit); }
+
+    // Enters: groups entered (in next but not prev), then the plain next state.
+    for (const group of next_groups) {
+      if (!prev_groups.has(group)) {
+        const label: string | undefined = this._group_hooks.get(group)?.onEnter;
+        if (label !== undefined) { labels.push(label); }
+      }
+    }
+    const next_state_enter: string | undefined = this._state_hooks.get(next_state)?.onEnter;
+    if (next_state_enter !== undefined) { labels.push(next_state_enter); }
+
+    if (labels.length === 0) { return; }
+
+    // Each dispatched action re-enters transition_impl, which (on success) calls
+    // back here for the boundary it just crossed.  The depth counter brackets
+    // the whole fan-out so a self-perpetuating cascade is bounded, not infinite.
+    this._boundary_depth += 1;
+    try {
+      for (const label of labels) {
+        this.action(label);   // safe no-op (returns false) if inapplicable here
+      }
+    } finally {
+      this._boundary_depth -= 1;
+    }
+
+  }
+
+
+
+  /*********
+   *
    *  Shared transition core used by {@link transition}, {@link force_transition},
    *  and {@link action}.  Runs validation, fires the full hook pipeline (pre-
    *  everything, any-action, after, any-transition, exit, named, basic,
@@ -4040,26 +4690,45 @@ class Machine<mDT> {
     let valid      : boolean               = false,
         trans_type : string,
         newState   : StateType,
+        newStateId : number                = NaN,
+        actionId   : number                = NaN,
         fromAction : StateType | undefined = undefined;
 
     if (wasForced) {
-      if (this.valid_force_transition(newStateOrAction, newData)) {
+      // numeric inline of valid_force_transition: any existing edge
+      // qualifies, forced or not.  one string probe (the user's target name)
+      // plus one numeric probe, replacing two string probes.
+      const to_id  = this._state_interner.id_of(newStateOrAction);
+      const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+      if (edgeId !== undefined) {
         valid      = true;
         trans_type = 'forced';
         newState   = newStateOrAction;
+        newStateId = to_id;
       }
 
     } else if (wasAction) {
-      if (this.valid_action(newStateOrAction, newData)) {
-        const edge: JssmTransition<StateType, mDT> = this.current_action_edge_for(newStateOrAction);
-        valid                                      = true;
-        trans_type                                 = edge.kind;
-        newState                                   = edge.to;
-        fromAction                                 = newStateOrAction;
+      // single numeric resolution: the old path looked the action up twice,
+      // once inside valid_action and again inside current_action_edge_for.
+      // aid is captured for the numeric hook probes below (#729).
+      const aid    = this._action_interner.id_of(newStateOrAction);
+      const edgeId = (aid === undefined) ? undefined : this._edge_id_by_action_pair.get(pair_key(aid, this._state_id));
+      if (edgeId !== undefined) {
+        const edge: JssmTransition<StateType, mDT> = this._edges[edgeId];
+        valid      = true;
+        trans_type = edge.kind;
+        newState   = edge.to;
+        newStateId = this._edge_to_ids[edgeId];
+        fromAction = newStateOrAction;
+        actionId   = aid;
       }
 
     } else {
-      if (this.valid_transition(newStateOrAction, newData)) {
+      // numeric inline of valid_transition: the edge must exist and must not
+      // be forced_only (truthiness, matching the old refusal exactly)
+      const to_id  = this._state_interner.id_of(newStateOrAction);
+      const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
+      if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
           // first matching outbound edge's kind, without building the result
           // array edges_between allocated here on every hooked transition.
@@ -4072,8 +4741,9 @@ class Machine<mDT> {
             if (ob_edge.to === newStateOrAction) { trans_type = ob_edge.kind; break; }
           }
         }
-        valid    = true;
-        newState = newStateOrAction;
+        valid      = true;
+        newState   = newStateOrAction;
+        newStateId = to_id;
       }
     }
 
@@ -4121,9 +4791,12 @@ class Machine<mDT> {
     }
 
     // Captured pre-transition source state so 'data-change' detail and similar
-    // events can name where we came from.
-    const fromState: StateType = this._state;
-    const oldData: mDT         = this._data;
+    // events can name where we came from.  fromStateId mirrors it for the
+    // numeric post-hook probes: by the time they run, _state_id is already
+    // the destination (#729).
+    const fromState: StateType   = this._state;
+    const fromStateId: number    = this._state_id;
+    const oldData: mDT           = this._data;
 
 
     if (valid) {
@@ -4153,7 +4826,7 @@ class Machine<mDT> {
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
 
           // 1b. global specific action hook
-          const outcome2 = abstract_hook_step(this._global_action_hooks.get(newStateOrAction), hook_args);
+          const outcome2 = abstract_hook_step(this._global_action_hooks.get(actionId), hook_args);
           if (outcome2.pass === false) { this._fire_hook_rejection('global action', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome2)) { data_changed = true; }
         }
@@ -4174,7 +4847,7 @@ class Machine<mDT> {
 
         // 4. exit hook
         if (this._has_exit_hooks) {
-          const outcome = abstract_hook_step(this._exit_hooks.get(this._state), hook_args);
+          const outcome = abstract_hook_step(this._exit_hooks.get(this._state_id), hook_args);
           if (outcome.pass === false) { this._fire_hook_rejection('exit', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
@@ -4183,11 +4856,9 @@ class Machine<mDT> {
         if (this._has_named_hooks) {
           if (wasAction) {
 
-            // Nested lookup: from -> to -> action.  Each step is a small Map keyed by
-            // an already-interned state/action name; no per-call string allocation.
-            const byTo  = this._named_hooks.get(this._state);
-            const byAct = byTo === undefined ? undefined : byTo.get(newState);
-            const nh    = byAct === undefined ? undefined : byAct.get(newStateOrAction);
+            // Numeric pair probe, then the action id captured at dispatch (#729).
+            const byPair = this._named_hooks.get(pair_key(this._state_id, newStateId));
+            const nh     = byPair === undefined ? undefined : byPair.get(actionId);
             const outcome = abstract_hook_step(nh, hook_args);
 
             if (outcome.pass === false) { this._fire_hook_rejection('named', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
@@ -4199,9 +4870,8 @@ class Machine<mDT> {
         // 6. regular hook
         if (this._has_basic_hooks) {
 
-          // Nested lookup: from -> to.  See note on _hooks declaration (#642).
-          const byTo = this._hooks.get(this._state);
-          const h    = byTo === undefined ? undefined : byTo.get(newState);
+          // Numeric pair probe (#729); one integer hash replaces two string maps.
+          const h = this._hooks.get(pair_key(this._state_id, newStateId));
           const outcome = abstract_hook_step(h, hook_args);
 
           if (outcome.pass === false) { this._fire_hook_rejection('hook', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
@@ -4234,7 +4904,7 @@ class Machine<mDT> {
 
         // 8. entry hook
         if (this._has_entry_hooks) {
-          const outcome = abstract_hook_step(this._entry_hooks.get(newState), hook_args);
+          const outcome = abstract_hook_step(this._entry_hooks.get(newStateId), hook_args);
           if (outcome.pass === false) { this._fire_hook_rejection('entry', fromState, newState, fromAction, oldData, newData, wasForced); return false; }
           if (_update_hook_fields(hook_args, outcome)) { data_changed = true; }
         }
@@ -4252,7 +4922,8 @@ class Machine<mDT> {
           this._history.shove([ this._state, this._data ]);
         }
 
-        this._state = newState;
+        this._state    = newState;
+        this._state_id = newStateId;
 
         if (data_changed) {
           this._data = hook_args.data;
@@ -4271,7 +4942,8 @@ class Machine<mDT> {
           this._history.shove([ this._state, this._data ]);
         }
 
-        this._state = newState;
+        this._state    = newState;
+        this._state_id = newStateId;
 
         // TODO known bug: this gives no way to set data to undefined
         //   see https://github.com/StoneCypher/fsl/issues/1264
@@ -4317,7 +4989,7 @@ class Machine<mDT> {
         if (this._post_any_action_hook !== undefined) { this._post_any_action_hook(hook_args); }
 
         // 2. global specific action hook
-        const pgah = this._post_global_action_hooks.get(hook_args.action)
+        const pgah = this._post_global_action_hooks.get(actionId)
         if (pgah !== undefined) { pgah(hook_args); }
       }
 
@@ -4328,17 +5000,16 @@ class Machine<mDT> {
 
       // 4. exit hook
       if (this._has_post_exit_hooks) {
-        const peh = this._post_exit_hooks.get(hook_args.from);  // todo this is probably from instead
+        const peh = this._post_exit_hooks.get(fromStateId);
         if (peh !== undefined) { peh(hook_args); }
       }
 
       // 5. named transition / action hook
       if (this._has_post_named_hooks) {
         if (wasAction) {
-          // Nested lookup: from -> to -> action.  See note on _post_named_hooks (#642).
-          const byTo  = this._post_named_hooks.get(hook_args.from);
-          const byAct = byTo === undefined ? undefined : byTo.get(hook_args.to);
-          const pnh   = byAct === undefined ? undefined : byAct.get(hook_args.action);
+          // Numeric pair probe, then the action id captured at dispatch (#729).
+          const byPair = this._post_named_hooks.get(pair_key(fromStateId, newStateId));
+          const pnh    = byPair === undefined ? undefined : byPair.get(actionId);
 
           if (pnh !== undefined) { pnh(hook_args); }
         }
@@ -4346,9 +5017,8 @@ class Machine<mDT> {
 
       // 6. regular hook
       if (this._has_post_basic_hooks) {
-        // Nested lookup: from -> to.  See note on _post_hooks (#642).
-        const byTo = this._post_hooks.get(hook_args.from);
-        const hook = byTo === undefined ? undefined : byTo.get(hook_args.to);
+        // Numeric pair probe (#729).
+        const hook = this._post_hooks.get(pair_key(fromStateId, newStateId));
         if (hook !== undefined) { hook(hook_args); }
       }
 
@@ -4377,7 +5047,7 @@ class Machine<mDT> {
 
       // 8. entry hook
       if (this._has_post_entry_hooks) {
-        const hook = this._post_entry_hooks.get(hook_args.to);
+        const hook = this._post_entry_hooks.get(newStateId);
         if (hook !== undefined) { hook(hook_args); }
       }
 
@@ -4441,6 +5111,12 @@ class Machine<mDT> {
         this._fire('complete', { state: newState, data: newData_after });
       }
     }
+
+    // FSL boundary-hook actions (`on enter/exit &g do 'X'`) fire after the
+    // state is committed and after the observation events, matching the
+    // statechart "exits before enters" convention.  Cascades are depth-bounded
+    // inside the helper.
+    this._fire_boundary_actions(fromState, newState);
 
     // possibly re-establish new 'after' clause
     this.auto_set_state_timeout();
@@ -4811,14 +5487,381 @@ class Machine<mDT> {
 
 
 
-  /*
+  /********
+   *
+   *  Generate the uniform observational-hook registry — every currently
+   *  registered hook projected onto a normalized `(kind, target, phase)` row
+   *  (megaspec §12, → #1357).  The registry is *generated* on demand by
+   *  walking the concrete per-kind storage tables rather than maintained as a
+   *  second copy, so it can never drift from the tables {@link Machine.set_hook}
+   *  actually dispatches into.  It is the single source of truth behind the
+   *  introspection accessors ({@link Machine.has_hook}, {@link Machine.hooks_on})
+   *  and the `hooked_state` viz styling.
+   *
+   *  Targets are normalized: edge hooks become `{ scope: 'edge', from, to }`
+   *  (named hooks add `action`), entry/exit/after become `{ scope: 'state' }`,
+   *  global-action hooks become `{ scope: 'action' }`, and the `any-*`,
+   *  transition-class, and `everything` observers become `{ scope: 'global' }`.
+   *
+   *  ```typescript
+   *  const m = sm`a 'go' -> b;`;
+   *  m.hook_entry('b', () => true);
+   *  m.hook_registry();
+   *  // => [ { kind: 'entry', phase: 'pre', target: { scope: 'state', state: 'b' } } ]
+   *  ```
+   *
+   *  @returns Every registered hook as a {@link HookRegistryEntry}, in a stable
+   *  table-walk order (pre-phase tables first, then post-phase).
+   *
    */
 
-  // TODO COMEBACK IMPLEMENTME FIXME
+  hook_registry(): HookRegistryEntry[] {
 
-  // has_hooks(state: StateType): false {
-  //   return false;
-  // }
+    const entries: HookRegistryEntry[] = [];
+
+    // The hot-path hook tables are keyed by interned integer ids (states and
+    // actions) and, for edges, by `pair_key(from_id, to_id)`.  Decode each key
+    // back to its original name so the registry speaks states/actions, never
+    // ids.  The lone exception is `_after_hooks`, deliberately string-keyed.
+    const state_name  = (id: number): StateType => this._state_interner.name_of(id)  as StateType;
+    const action_name = (id: number): string    => this._action_interner.name_of(id) as string;
+
+    // edge tables: pair_key(from_id, to_id) -> handler
+    const push_edges = (
+      table : Map<number, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, pk) => {
+        const [fid, tid] = un_pair_key(pk);
+        entries.push({ kind, phase, target: { scope: 'edge', from: state_name(fid), to: state_name(tid) } });
+      });
+    };
+
+    // named-edge tables: pair_key(from_id, to_id) -> action_id -> handler
+    const push_named = (
+      table : Map<number, Map<number, HookHandler<mDT>>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((byAction, pk) => {
+        const [fid, tid] = un_pair_key(pk);
+        const from = state_name(fid), to = state_name(tid);
+        byAction.forEach((_handler, aid) => {
+          entries.push({ kind, phase, target: { scope: 'edge', from, to, action: action_name(aid) } });
+        });
+      });
+    };
+
+    // entry/exit tables: interned state_id -> handler
+    const push_states = (
+      table : Map<number, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, sid) => {
+        entries.push({ kind, phase, target: { scope: 'state', state: state_name(sid) } });
+      });
+    };
+
+    // the `after` table is the lone string-keyed exception: state name -> handler
+    const push_states_by_name = (
+      table : Map<string, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, state) => {
+        entries.push({ kind, phase, target: { scope: 'state', state: state as unknown as StateType } });
+      });
+    };
+
+    // global-action tables: interned action_id -> handler
+    const push_actions = (
+      table : Map<number, HookHandler<mDT>>,
+      kind  : HookRegistryEntry['kind'],
+      phase : HookPhase
+    ): void => {
+      table.forEach((_handler, aid) => {
+        entries.push({ kind, phase, target: { scope: 'action', action: action_name(aid) } });
+      });
+    };
+
+    const push_global = (
+      handler : HookHandler<mDT> | EverythingHookHandler<mDT> | PostEverythingHookHandler<mDT> | undefined,
+      kind    : HookRegistryEntry['kind'],
+      phase   : HookPhase
+    ): void => {
+      if (handler !== undefined) {
+        entries.push({ kind, phase, target: { scope: 'global' } });
+      }
+    };
+
+    // FSL boundary hooks: subject name -> { onEnter?, onExit? }, fired post-
+    // commit.  Each present direction becomes its own row, all phase 'post'.
+    const push_boundary = (
+      table     : Map<string, JssmBoundaryHooks>,
+      enterKind : HookRegistryEntry['kind'],
+      exitKind  : HookRegistryEntry['kind'],
+      target_of : (subject: string) => HookTarget
+    ): void => {
+      table.forEach((bh, subject) => {
+        if (bh.onEnter !== undefined) { entries.push({ kind: enterKind, phase: 'post', target: target_of(subject) }); }
+        if (bh.onExit  !== undefined) { entries.push({ kind: exitKind,  phase: 'post', target: target_of(subject) }); }
+      });
+    };
+
+    // pre-phase, edge- and state-keyed tables
+    push_edges        (this._hooks,                'hook',          'pre');
+    push_named        (this._named_hooks,          'named',         'pre');
+    push_states       (this._entry_hooks,          'entry',         'pre');
+    push_states       (this._exit_hooks,           'exit',          'pre');
+    push_states_by_name(this._after_hooks,         'after',         'pre');
+    push_actions      (this._global_action_hooks,  'global action', 'pre');
+
+    // pre-phase, global singletons
+    push_global(this._any_action_hook,          'any action',          'pre');
+    push_global(this._standard_transition_hook, 'standard transition', 'pre');
+    push_global(this._main_transition_hook,     'main transition',     'pre');
+    push_global(this._forced_transition_hook,   'forced transition',   'pre');
+    push_global(this._any_transition_hook,      'any transition',      'pre');
+    push_global(this._pre_everything_hook,      'pre everything',      'pre');
+    push_global(this._everything_hook,          'everything',          'pre');
+
+    // post-phase, edge- and state-keyed tables
+    push_edges  (this._post_hooks,                'post hook',          'post');
+    push_named  (this._post_named_hooks,          'post named',         'post');
+    push_states (this._post_entry_hooks,          'post entry',         'post');
+    push_states (this._post_exit_hooks,           'post exit',          'post');
+    push_actions(this._post_global_action_hooks,  'post global action', 'post');
+
+    // post-phase, global singletons
+    push_global(this._post_any_action_hook,          'post any action',          'post');
+    push_global(this._post_standard_transition_hook, 'post standard transition', 'post');
+    push_global(this._post_main_transition_hook,     'post main transition',     'post');
+    push_global(this._post_forced_transition_hook,   'post forced transition',   'post');
+    push_global(this._post_any_transition_hook,      'post any transition',      'post');
+    push_global(this._pre_post_everything_hook,      'pre post everything',      'post');
+    push_global(this._post_everything_hook,          'post everything',          'post');
+
+    // FSL boundary hooks (post-commit): group and plain-state subjects
+    push_boundary(this._group_hooks, 'group enter', 'group exit', (group) => ({ scope: 'group', group }));
+    push_boundary(this._state_hooks, 'state enter', 'state exit', (state) => ({ scope: 'state', state: state as unknown as StateType }));
+
+    return entries;
+
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry reference the state `state`?  An entry
+   *  references a state when it is a `'state'`-scoped hook on that state, or an
+   *  `'edge'`-scoped hook whose `from` or `to` is that state.  `'action'`- and
+   *  `'global'`-scoped entries reference no particular state.  This is the
+   *  predicate behind both per-state introspection and the `hooked_state`
+   *  styling layer.
+   *
+   *  @param entry The registry entry to test.
+   *  @param state The state name to test membership of.
+   *  @returns `true` when the entry observes that state.
+   *
+   */
+
+  private static _entry_touches_state(entry: HookRegistryEntry, state: StateType): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'state') { return t.state === state; }
+    if (t.scope === 'edge')  { return t.from === state || t.to === state; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match a `{ from, to, action? }` edge query?
+   *  Only `'edge'`-scoped entries can match.  When the query omits `action`
+   *  the entry's action (if any) is ignored; when the query supplies `action`
+   *  it must match exactly.
+   *
+   *  @param entry The registry entry to test.
+   *  @param from  The edge origin to match.
+   *  @param to    The edge destination to match.
+   *  @param action Optional named action to match exactly.
+   *  @returns `true` when the entry observes that edge.
+   *
+   */
+
+  private static _entry_matches_edge(entry: HookRegistryEntry, from: StateType, to: StateType, action?: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope !== 'edge') {
+      return false;
+    }
+    if (t.from !== from || t.to !== to) {
+      return false;
+    }
+    if (action !== undefined) {
+      return t.action === action;
+    }
+    return true;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match an action name?  Both `'action'`-scoped
+   *  hooks (global-action hooks) and named-edge hooks carrying that action
+   *  count as matches.
+   *
+   *  @param entry  The registry entry to test.
+   *  @param action The action name to match.
+   *  @returns `true` when the entry observes that action.
+   *
+   */
+
+  private static _entry_matches_action(entry: HookRegistryEntry, action: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'action') { return t.action === action; }
+    if (t.scope === 'edge')   { return t.action === action; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Does a single registry entry match a named state group?  Only
+   *  `'group'`-scoped entries (FSL group-boundary hooks) match.  Group hooks
+   *  are matched by group name only — they deliberately do not propagate to
+   *  member states, so a member-state query never returns them.
+   *
+   *  @param entry The registry entry to test.
+   *  @param group The group name to match.
+   *  @returns `true` when the entry observes that group's boundary.
+   *
+   */
+
+  private static _entry_matches_group(entry: HookRegistryEntry, group: string): boolean {
+    const t: HookTarget = entry.target;
+    if (t.scope === 'group') { return t.group === group; }
+    return false;
+  }
+
+
+
+  /********
+   *
+   *  Return every registry entry observing the given target (megaspec §12).
+   *  The `query` selects the target shape:
+   *
+   *  - a bare **state name** matches entry/exit/after hooks on that state, its
+   *    state-boundary hooks, and every edge hook touching it (`from` or `to`),
+   *  - a `{ from, to, action? }` **edge** matches edge hooks on that
+   *    transition (optionally narrowed to the named action),
+   *  - a `{ action }` **action** matches global-action and named-edge hooks
+   *    carrying that action,
+   *  - a `{ group }` **group** matches that group's boundary hooks (group hooks
+   *    are matched by name only and do not propagate to member states).
+   *
+   *  ```typescript
+   *  const m = sm`a 'go' -> b;`;
+   *  m.hook_entry('b', () => true);
+   *  m.hooks_on('b').length;             // 1
+   *  m.hooks_on({ from: 'a', to: 'b' }); // []  (no edge hook registered)
+   *  ```
+   *
+   *  @param query The {@link HookQuery} naming the target to inspect.
+   *  @returns The matching {@link HookRegistryEntry} rows (possibly empty).
+   *
+   */
+
+  hooks_on(query: HookQuery): HookRegistryEntry[] {
+
+    const registry = this.hook_registry();
+
+    if (typeof query === 'string') {
+      return registry.filter(e => Machine._entry_touches_state(e, query));
+    }
+
+    // An edge query is distinguished by carrying `from` (it may *also* carry
+    // `action`, which narrows the edge — so this must be tested before the
+    // action-only case, whose discriminator `action` an edge query can share).
+    if ('from' in query) {
+      return registry.filter(e => Machine._entry_matches_edge(e, query.from, query.to, query.action));
+    }
+
+    if ('group' in query) {
+      return registry.filter(e => Machine._entry_matches_group(e, query.group));
+    }
+
+    return registry.filter(e => Machine._entry_matches_action(e, query.action));
+
+  }
+
+
+
+  /********
+   *
+   *  Is at least one observational hook bound to the given target (megaspec
+   *  §12)?  The `query` is read exactly as in {@link Machine.hooks_on}.  An
+   *  optional `phase` narrows the test to pre- or post-transition hooks only;
+   *  omitted, either phase satisfies it.
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.has_hook('b');                 // false
+   *  m.hook_entry('b', () => true);
+   *  m.has_hook('b');                 // true
+   *  m.has_hook('b', 'post');         // false  (the entry hook is pre-phase)
+   *  ```
+   *
+   *  @param query The {@link HookQuery} naming the target to inspect.
+   *  @param phase Optional {@link HookPhase} to restrict the test to.
+   *  @returns `true` when a matching hook exists.
+   *
+   */
+
+  has_hook(query: HookQuery, phase?: HookPhase): boolean {
+    const matches = this.hooks_on(query);
+    if (phase === undefined) { return matches.length > 0; }
+    return matches.some(e => e.phase === phase);
+  }
+
+
+
+  /********
+   *
+   *  Does the given state carry any observational hook — i.e. should it receive
+   *  the `hooked_state` viz styling?  True when an entry/exit/after hook is
+   *  bound to the state, any edge hook touches it, or the state has its own
+   *  boundary hook.  Group-boundary hooks do *not* count here — they are
+   *  matched by group only and never propagate to member states.  Powers the
+   *  `hooked` styling layer in {@link Machine.resolve_state_config}; replaces
+   *  the long-stubbed `has_hooks` placeholder (megaspec §12).
+   *
+   *  ```typescript
+   *  const m = sm`a -> b;`;
+   *  m.state_has_hooks('a');          // false
+   *  m.hook_exit('a', () => true);
+   *  m.state_has_hooks('a');          // true
+   *  ```
+   *
+   *  @param state The state to test.
+   *  @returns `true` when the state is observed by at least one hook.
+   *
+   */
+
+  state_has_hooks(state: StateType): boolean {
+    // Boundary hooks are a separate mechanism that sets neither _has_hooks nor
+    // _has_post_hooks, so the fast-out must also consult the boundary tables —
+    // otherwise a state whose only hook is a boundary hook reports unhooked.
+    if (!this._has_hooks
+        && !this._has_post_hooks
+        && (this._state_hooks.size === 0)
+        && (this._group_hooks.size === 0)) { return false; }
+    return this.hook_registry().some(e => Machine._entry_touches_state(e, state));
+  }
 
 
 
@@ -4826,19 +5869,295 @@ class Machine<mDT> {
 
   /********
    *
-   *  Gets the composite style for a specific node by individually imposing the
-   *  style layers on a given object, after determining which layers are
-   *  appropriate.
+   *  Returns the list of resolved theme implementations for this machine, in
+   *  the order they should layer (outer/base-most first).  Each declared theme
+   *  name is mapped through {@link theme_mapping}; unknown names are skipped.
    *
-   *  The order of composition is base, then theme, then user content.  Each
-   *  item in the stack will be composited independently.  First, the base state
-   *  style, then the theme state style, then the user state style.
+   *  The list is reversed relative to declaration order to match the historical
+   *  layering of {@link style_for}: a later-declared theme layers under an
+   *  earlier-declared one.
    *
-   *  After the three state styles, we'll composite the hooked styles; then the
-   *  terminal styles; then the start styles; then the end styles; finally, the
-   *  active styles.  Remember, last wins.
+   *  @returns The resolved {@link JssmBaseTheme} stack, base-most first.
    *
-   *  The base state style must exist.  All other styles are optional.
+   *  @internal
+   *
+   */
+
+  _resolved_themes(): JssmBaseTheme[] {
+
+    const themes: JssmBaseTheme[] = [];
+
+    this._themes.forEach(th => {
+      const theme_impl = theme_mapping.get(th);
+      if (theme_impl !== undefined) {
+        themes.push(theme_impl);
+      }
+    });
+
+    return themes.reverse();
+
+  }
+
+
+
+
+  /********
+   *
+   *  Reads the condensed per-state style fields (`color`, `shape`, …) out of a
+   *  state's declaration into a fresh {@link JssmStateConfig} — the tier-5
+   *  "`state foo : { … }`" contribution of the config cascade.  A state with no
+   *  declaration yields an all-`undefined` config (which contributes nothing
+   *  once folded with {@link merge_state_config}).
+   *
+   *  @param state The state whose per-state declared style is wanted.
+   *
+   *  @returns The per-state style config (fields may be `undefined`).
+   *
+   *  @internal
+   *
+   */
+
+  _individual_state_config(state: StateType): JssmStateConfig {
+
+    const decl: JssmStateDeclaration = this._state_declarations.get(state);
+
+    return {
+      color           : decl?.color,
+      textColor       : decl?.textColor,
+      borderColor     : decl?.borderColor,
+      backgroundColor : decl?.backgroundColor,
+      lineStyle       : decl?.lineStyle,
+      corners         : decl?.corners,
+      shape           : decl?.shape,
+      image           : decl?.image,
+      url             : decl?.url
+    };
+
+  }
+
+
+
+
+  /********
+   *
+   *  Orders the groups a state belongs to by nesting depth for the config
+   *  cascade — outermost first, innermost last — so that, folded in order,
+   *  the innermost (nearest / smallest {@link membership_distance}) group's
+   *  metadata wins.  Equal-distance groups are ordered by group declaration
+   *  order, so a later-declared group of the same depth wins the tie.
+   *
+   *  Concretely: groups are sorted by descending membership distance (largest
+   *  distance applied first / wins least), and for equal distances by
+   *  ascending declaration index (later index applied last / wins most).
+   *
+   *  @param state The state whose containing groups are being ordered.
+   *
+   *  @returns The containing group names, ordered for outer→inner folding
+   *  (the last entry wins).
+   *
+   *  @internal
+   *
+   */
+
+  _groups_by_depth(state: StateType): string[] {
+
+    const containing: string[] = [ ...this.groupsOf(state) ];
+
+    if (containing.length < 2) { return containing; }
+
+    return containing.sort((ga: string, gb: string): number => {
+
+      const da: number = membership_distance(this._group_registry, state, ga),
+            db: number = membership_distance(this._group_registry, state, gb);
+
+      // Larger distance (more "outer") sorts earlier so it is applied first and
+      // overridden by nearer groups.
+      if (da !== db) { return db - da; }
+
+      // Equal depth: earlier-declared group sorts earlier (applied first), so
+      // the later-declared group of the same depth wins the tie.
+      return this._group_order.indexOf(ga) - this._group_order.indexOf(gb);
+
+    });
+
+  }
+
+
+
+
+  /********
+   *
+   *  Folds the static tiers 1–5 of the unified config cascade for a state, plus
+   *  — when `active` is set — the active-state THEME layers, which historically
+   *  sit just below the per-state config so that a `state foo : { … }` block
+   *  still overrides a theme's `active` styling.  The user `active_state : { … }`
+   *  overlay (tier 6) is NOT applied here; it is layered on top by
+   *  {@link resolve_state_config} so it wins over per-state config.
+   *
+   *  Tiers, folded least-specific → most-specific with {@link merge_state_config}
+   *  (later wins, never throwing on a cross-tier key collision):
+   *
+   *    1. theme defaults — `base_theme.state`, then each selected theme's
+   *       `.state` block.
+   *    2. `default_state_config` (the implicit `state : { … }` root over every
+   *       state).
+   *    3. static per-kind defaults selected by structural kind — terminal,
+   *       then start, then end — each contributing its `base_theme.<kind>`,
+   *       selected themes' `.<kind>`, and the machine's `default_<kind>_state_config`.
+   *       When `active`, the active-state theme layers (`base_theme.active` and
+   *       each selected theme's `.active`) are folded here too.
+   *    4. group metadata, depth-ordered outer→inner (see {@link _groups_by_depth}),
+   *       each group's RAW `{ declarations }` already condensed at construction.
+   *    5. the per-state `state foo : { … }` config.
+   *
+   *  @param state  The state to resolve config for.
+   *  @param active Whether to include the active-state theme layers (true only
+   *                for the machine's currently-occupied state).
+   *
+   *  @returns The composited tiers-1–5 {@link JssmStateConfig} for the state.
+   *
+   *  @internal
+   *
+   */
+
+  _compose_state_config(state: StateType, active: boolean): JssmStateConfig {
+
+    const themes: JssmBaseTheme[] = this._resolved_themes();
+
+    let acc: JssmStateConfig = {};
+
+    // tier 1 — theme defaults (base, then selected themes)
+    acc = merge_state_config(acc, base_theme.state);
+    themes.forEach(theme => {
+      if (theme.state) { acc = merge_state_config(acc, theme.state); }
+    });
+
+    // tier 2 — default_state_config (implicit root over all states)
+    acc = merge_state_config(acc, this._state_style);
+
+    // tier 2.5 — hooked-state styling, applied when the state carries any
+    // observational or boundary hook.  Sits above the root default and below
+    // the per-kind/group/per-state tiers, preserving the historical layer
+    // order the pre-cascade `style_for` used.  See {@link state_has_hooks}.
+    if (this.state_has_hooks(state)) {
+      acc = merge_state_config(acc, base_theme.hooked);
+      themes.forEach(theme => { if (theme.hooked) { acc = merge_state_config(acc, theme.hooked); } });
+      acc = merge_state_config(acc, this._hooked_state_style);
+    }
+
+    // tier 3 — static per-kind defaults, selected by structural kind
+    if (this.state_is_terminal(state)) {
+      acc = merge_state_config(acc, base_theme.terminal);
+      themes.forEach(theme => { if (theme.terminal) { acc = merge_state_config(acc, theme.terminal); } });
+      acc = merge_state_config(acc, this._terminal_state_style);
+    }
+
+    if (this.is_start_state(state)) {
+      acc = merge_state_config(acc, base_theme.start);
+      themes.forEach(theme => { if (theme.start) { acc = merge_state_config(acc, theme.start); } });
+      acc = merge_state_config(acc, this._start_state_style);
+    }
+
+    if (this.is_end_state(state)) {
+      acc = merge_state_config(acc, base_theme.end);
+      themes.forEach(theme => { if (theme.end) { acc = merge_state_config(acc, theme.end); } });
+      acc = merge_state_config(acc, this._end_state_style);
+    }
+
+    // tier 3 (active kind) — active-state THEME layers, below per-state so a
+    // per-state block still wins (preserving the historical layer order).
+    if (active) {
+      acc = merge_state_config(acc, base_theme.active);
+      themes.forEach(theme => { if (theme.active) { acc = merge_state_config(acc, theme.active); } });
+    }
+
+    // tier 4 — group metadata, outer→inner (inner / nearest group wins)
+    this._groups_by_depth(state).forEach((group_name: string) => {
+      const group_cfg: JssmStateConfig | undefined = this._group_metadata.get(group_name);
+      if (group_cfg !== undefined) { acc = merge_state_config(acc, group_cfg); }
+    });
+
+    // tier 5 — per-state `state foo : { … }`
+    acc = merge_state_config(acc, this._individual_state_config(state));
+
+    return acc;
+
+  }
+
+
+
+
+  /********
+   *
+   *  Resolves the full unified style/config cascade for a state — the runtime
+   *  successor to the ad-hoc layer merge {@link style_for} used to perform.
+   *
+   *  For any state OTHER than the current one, this returns the memoized static
+   *  resolution (tiers 1–5; see {@link _compose_state_config}) — theme →
+   *  `default_state_config` → per-kind defaults → depth-ordered group metadata →
+   *  per-state config.  The cache is keyed by state and never invalidated, since
+   *  those tiers do not depend on which state is current.
+   *
+   *  For the machine's CURRENTLY-occupied state the result is recomputed each
+   *  call (never cached) and additionally carries the dynamic `active_state`
+   *  layers: the active-state THEME layers fold in just below the per-state
+   *  config (tier 3-active), and the user `active_state : { … }` overlay folds
+   *  in LAST (tier 6), on top of everything, so it wins over per-state config.
+   *  Every fold uses {@link merge_state_config}, so a key set at a lower tier is
+   *  overridden — never rejected — by a higher one.
+   *
+   *  ```typescript
+   *  import { sm } from 'jssm';
+   *
+   *  const m = sm`&busy : [working]; idle 'go' -> working; state &busy : { color: orange; };`;
+   *  m.resolve_state_config('working').color;  // '#ffa500ff' — from group &busy
+   *  ```
+   *
+   *  @typeparam mDT The type of the machine data member; usually omitted
+   *
+   *  @param state The state to compute the composite config for.
+   *
+   *  @returns The fully composited {@link JssmStateConfig} for the state,
+   *  including the active overlay when the state is current.
+   *
+   *  @see style_for
+   *
+   */
+
+  resolve_state_config(state: StateType): JssmStateConfig {
+
+    // The current state carries the dynamic active layers and is recomputed
+    // each call so the overlay tracks transitions; it is never memoized.
+    if (this.state() === state) {
+      const acc: JssmStateConfig = this._compose_state_config(state, true);
+      // tier 6 — user active_state overlay, on top of per-state config.
+      return merge_state_config(acc, this._active_state_style);
+    }
+
+    // Non-current states: tiers 1–5 only, memoized.
+    const cached: JssmStateConfig | undefined = this._static_state_config_cache.get(state);
+    if (cached !== undefined) { return cached; }
+
+    const resolved: JssmStateConfig = this._compose_state_config(state, false);
+    this._static_state_config_cache.set(state, resolved);
+    return resolved;
+
+  }
+
+
+
+
+  /********
+   *
+   *  Gets the composite style for a specific node — the public viz entry point,
+   *  now a thin wrapper over the unified config cascade in
+   *  {@link resolve_state_config}.
+   *
+   *  The order of composition runs least-specific to most-specific: theme
+   *  defaults, then the `default_state_config` root, then per-kind defaults
+   *  (terminal, start, end), then depth-ordered group metadata (inner groups
+   *  winning over outer), then the per-state config, and finally — for the
+   *  current state only — the active overlay.  Last wins at every tier.
    *
    *  @typeparam mDT The type of the machine data member; usually omitted
    *
@@ -4846,110 +6165,12 @@ class Machine<mDT> {
    *
    *  @returns The fully composited {@link JssmStateConfig} for the given state.
    *
+   *  @see resolve_state_config
+   *
    */
 
   style_for(state: StateType): JssmStateConfig {
-
-
-    // first look up the themes
-    const themes: JssmBaseTheme[] = [];
-
-    this._themes.forEach(th => {
-
-      const theme_impl = theme_mapping.get(th);
-
-      if (theme_impl !== undefined) {
-        themes.push(theme_impl);
-      }
-
-    });
-
-    // basic state style
-    const layers = [ base_theme.state ];
-
-
-    themes.reverse().map(theme => {
-      if (theme.state) { layers.push(theme.state); }
-    });
-
-    layers.push(this._state_style);
-
-
-    // hooked state style
-    // if (this.has_hooks(state)) {
-    //   layers.push(base_theme.hooked);
-    //   themes.map(theme => {
-    //     if (theme.hooked) { layers.push(theme.hooked); }
-    //   });
-    //   if (this._hooked_state_style) { layers.push(this._hooked_state_style); }
-    // }
-
-
-    // terminal state style
-    if (this.state_is_terminal(state)) {
-      layers.push(base_theme.terminal);
-      themes.map(theme => {
-        if (theme.terminal) { layers.push(theme.terminal); }
-      });
-      layers.push(this._terminal_state_style);
-    }
-
-
-    // start state style
-    if (this.is_start_state(state)) {
-      layers.push(base_theme.start);
-      themes.map(theme => {
-        if (theme.start) { layers.push(theme.start); }
-      });
-      layers.push(this._start_state_style);
-    }
-
-
-    // end state style
-    if (this.is_end_state(state)) {
-      layers.push(base_theme.end);
-      themes.map(theme => {
-        if (theme.end) { layers.push(theme.end); }
-      });
-      layers.push(this._end_state_style);
-    }
-
-
-    // active state style
-    if (this.state() === state) {
-      layers.push(base_theme.active);
-      themes.map(theme => {
-        if (theme.active) { layers.push(theme.active); }
-      });
-      layers.push(this._active_state_style);
-    }
-
-
-    const individual_style : JssmStateConfig      = {},
-          decl             : JssmStateDeclaration = this._state_declarations.get(state);
-
-    individual_style.color           = decl?.color;
-    individual_style.textColor       = decl?.textColor;
-    individual_style.borderColor     = decl?.borderColor;
-    individual_style.backgroundColor = decl?.backgroundColor;
-    individual_style.lineStyle       = decl?.lineStyle;
-    individual_style.corners         = decl?.corners;
-    individual_style.shape           = decl?.shape;
-    individual_style.image           = decl?.image;
-    individual_style.url             = decl?.url;
-
-    layers.push(individual_style);
-
-
-    return layers.reduce((acc: JssmStateConfig, cur: JssmStateConfig) => {
-
-      const composite_state: JssmStateConfig = acc;
-      Object.keys(cur).forEach(key => composite_state[key] = cur[key] ?? composite_state[key]);
-
-      return composite_state;
-
-    }, {} as JssmStateConfig);
-
+    return this.resolve_state_config(state);
   }
 
 
@@ -5104,14 +6325,16 @@ class Machine<mDT> {
 
 
   /** Get the edge index for an action from the current state.
+   *  Interned dispatch: resolves via the numeric (action, from) index —
+   *  unknown action names miss without throwing.
    *  @param action - The action name.
    *  @returns The edge index, or `undefined` if the action is not available.
    */
   current_action_for(action: StateType): number {
-    const action_base: Map<StateType, number> = this._actions.get(action);
-    return action_base
-      ? action_base.get(this.state())
-      : undefined;
+    const action_id = this._action_interner.id_of(action);
+    return (action_id === undefined)
+      ? undefined
+      : this._edge_id_by_action_pair.get(pair_key(action_id, this._state_id));
   }
 
   /** Get the full transition object for an action from the current state.
@@ -5536,6 +6759,32 @@ function is_hook_rejection<mDT>(hr: HookResult<mDT>): boolean {
 
 /**
  *
+ *  Shared, frozen outcomes for the simple hook results.  The transition
+ *  cascade runs up to ~10 hook steps per transition, and the overwhelmingly
+ *  common results — no hook installed, or a hook returning `undefined` /
+ *  `true` / `false` — previously allocated a fresh one-field object each
+ *  time, just to have `.pass` read once and be discarded.  Callers only read
+ *  `pass` and probe for an own `data` property ({@link _update_hook_fields}),
+ *  so a shared instance is observationally identical; freezing turns that
+ *  read-only contract from incidental into enforced.  Complex results (hooks
+ *  returning `{ pass, data, ... }`) still pass through untouched.  #705
+ *
+ *  @see abstract_hook_step
+ *  @see abstract_everything_hook_step
+ *
+ *  @internal
+ *
+ */
+
+const HOOK_PASSED   : HookComplexResult<any> = Object.freeze({ pass: true  });   // eslint-disable-line @typescript-eslint/no-explicit-any
+const HOOK_REJECTED : HookComplexResult<any> = Object.freeze({ pass: false });   // eslint-disable-line @typescript-eslint/no-explicit-any
+
+
+
+
+
+/**
+ *
  *  Invoke an optional transition/action hook and normalize its return value
  *  into a {@link HookComplexResult}.
  *
@@ -5579,19 +6828,19 @@ function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_
     const result = maybe_hook(hook_args);
 
     if (result === undefined) {
-      return { pass: true };
+      return HOOK_PASSED;
     }
 
     if (result === true) {
-      return { pass: true };
+      return HOOK_PASSED;
     }
 
     if (result === false) {
-      return { pass: false };
+      return HOOK_REJECTED;
     }
 
     if (result === null) {
-      return { pass: false };
+      return HOOK_REJECTED;
     }
 
     if (is_hook_complex_result<mDT>(result)) {
@@ -5601,7 +6850,7 @@ function abstract_hook_step<mDT>(maybe_hook: HookHandler<mDT> | undefined, hook_
     throw new TypeError(`Unknown hook result type ${result}`);
 
   } else {
-    return { pass: true };
+    return HOOK_PASSED;
   }
 
 }
@@ -5650,19 +6899,19 @@ function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mD
     const result = maybe_hook(hook_args);
 
     if (result === undefined) {
-      return { pass: true };
+      return HOOK_PASSED;
     }
 
     if (result === true) {
-      return { pass: true };
+      return HOOK_PASSED;
     }
 
     if (result === false) {
-      return { pass: false };
+      return HOOK_REJECTED;
     }
 
     if (result === null) {
-      return { pass: false };
+      return HOOK_REJECTED;
     }
 
     if (is_hook_complex_result<mDT>(result)) {
@@ -5672,7 +6921,7 @@ function abstract_everything_hook_step<mDT>(maybe_hook: EverythingHookHandler<mD
     throw new TypeError(`Unknown hook result type ${result}`);
 
   } else {
-    return { pass: true };
+    return HOOK_PASSED;
   }
 
 }
@@ -5813,7 +7062,8 @@ function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): 
   }
 
   const machine  = from(machine_string, { data: ser.data, history: ser.history_capacity });
-  machine._state = ser.state;
+  machine._state    = ser.state;
+  machine._state_id = machine._state_interner.id_of(ser.state) ?? NaN;
 
   ser.history.forEach( history_item =>
     machine._history.push(history_item)

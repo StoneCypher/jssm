@@ -13,18 +13,21 @@
  *      node src/scripts/graviton_perf.cjs --detached --release <v> --commit <sha>  # fire-and-forget release run (CI)
  *
  *  The PR form drives the run from this machine over SSH. The `--detached` form
- *  launches one instance that runs the whole job itself (build, benchmark, push to
- *  perf_results under `<type>/release-<v>/`, self-terminate) and returns at once —
- *  used by the release workflow after npm publish. It needs an AWS instance profile
- *  ({@link PERF_INSTANCE_PROFILE}) and an SSM PAT ({@link PERF_PUSH_PAT_SSM_PARAM});
- *  see notes/superpowers/graviton-ci-aws-setup.md.
+ *  launches one instance that runs the whole job itself (build, benchmark, upload
+ *  to S3 under `<type>/release-<v>/`, self-terminate) and returns at once — used
+ *  by the release workflow after npm publish. The instance writes results to
+ *  {@link PERF_RESULTS_BUCKET} via its instance profile
+ *  ({@link PERF_INSTANCE_PROFILE}); the nightly `perf_results_sync` workflow then
+ *  lands them on the `perf_results` branch with the workflow's own ephemeral
+ *  token, so no GitHub credential ever exists outside Actions.  See
+ *  notes/superpowers/graviton-ci-aws-setup.md.
  *
  *  Primary argument is a GitHub PR number; the runner resolves its head branch
  *  via `gh pr view <num>` and benchmarks *that PR's* commit (not main).
  *
  *  Flags (see {@link parseArgs} for the authoritative list and defaults):
  *
- *    --instance-type <type>   Graviton `.medium` type (default `c7g.medium`).
+ *    --instance-type <type>   Graviton `.medium` type (only `c8g.medium`, the default).
  *    --mode normal|deep       `deep` sets `BENNY_DEEP=1` on the remote run.
  *    --region <aws-region>    AWS region (default `us-east-1`).
  *    --subnet-id <id>         Subnet to launch in (auto-detected if omitted).
@@ -62,25 +65,28 @@ const cp   = require('child_process');
 // ---------------------------------------------------------------------------
 
 /**
- *  Graviton `.medium` instance types this runner accepts.  All are single-vCPU
- *  = one whole physical ARM core, non-burstable — the property that removes the
- *  laptop-contention variance.  Burstable `t*` types are deliberately excluded:
- *  CPU-credit throttling on a shared core reintroduces exactly the contamination
- *  the dedicated core is escaping.
+ *  The Graviton `.medium` instance type this runner accepts: `c8g.medium`
+ *  (Graviton4), single-vCPU = one whole physical ARM core, non-burstable — the
+ *  property that removes the laptop-contention variance.  The trail is being
+ *  re-baselined uniformly on this one type, so the allowlist is deliberately a
+ *  singleton; older Graviton2/3 `.medium` types and every burstable `t*` type
+ *  are rejected (CPU-credit throttling on a shared core would reintroduce
+ *  exactly the contamination the dedicated core exists to escape).
  */
 const ALLOWED_INSTANCE_TYPES = Object.freeze([
-  'c7g.medium',   // Graviton3 (recommended default)
-  'c6g.medium',   // Graviton2 (cheaper fallback)
-  'm7g.medium',   // Graviton3, more RAM
-  'r7g.medium'    // Graviton3, most RAM
+  'c8g.medium'    // Graviton4, single-vCPU — the sole supported runner target
 ]);
 
 /** Default flag values, single source of truth shared by parser and docs. */
 const DEFAULTS = Object.freeze({
-  instanceType    : 'c7g.medium',
+  instanceType    : 'c8g.medium',   // the sole allowlisted type (see ALLOWED_INSTANCE_TYPES)
   mode            : 'normal',
   region          : 'us-east-1',
-  shutdownMinutes : 30,
+  // Safety cap on wasted spend if a run hangs — NOT a target; the instance
+  // self-terminates the moment it finishes. Raised from 30 (which guillotined
+  // every release run mid-build, back when the detached path still ran
+  // `npm run make`; see #725) to 90 for margin. Worst case ~$0.05.
+  shutdownMinutes : 90,
   repoUrl         : 'https://github.com/StoneCypher/jssm.git',
   ghRepo          : 'StoneCypher/jssm'
 });
@@ -96,10 +102,17 @@ const AL2023_ARM64_SSM_PARAM =
 /** Tag every created resource so a partial-failure stray is always reapable. */
 const BENCH_TAG_KEY = 'jssm-perf';
 
-/** SSM SecureString holding the contents:write PAT the instance uses to push perf_results. */
-const PERF_PUSH_PAT_SSM_PARAM = '/jssm/perf-push-pat';
+/**
+ *  S3 bucket the detached runner uploads result artifacts to, keyed exactly
+ *  like the `perf_results` branch (`<instance-type>/release-<v>/<file>`).  The
+ *  nightly `perf_results_sync` workflow drains it onto the branch.  Chosen over
+ *  a direct git push so the instance needs no GitHub credential at all — the
+ *  predecessor design's stored PAT was exactly the thing that went stale,
+ *  leaked, and failed silently (2026-06-12).
+ */
+const PERF_RESULTS_BUCKET = 'jssm-perf-results-032239181269';
 
-/** IAM instance profile attached to the detached instance so it can read PERF_PUSH_PAT_SSM_PARAM. */
+/** IAM instance profile attached to the detached instance so it can write PERF_RESULTS_BUCKET. */
 const PERF_INSTANCE_PROFILE = 'jssm-graviton-perf';
 
 // ---------------------------------------------------------------------------
@@ -224,13 +237,14 @@ function parseArgs(argv) {
  *  Validate an instance type against the Graviton `.medium` allowlist, rejecting
  *  burstable `t*` types with a pointed explanation.
  *
- *  @param instanceType e.g. `c7g.medium`.
+ *  @param instanceType e.g. `c8g.medium`.
  *  @returns The same string, unchanged, when valid (so it can be used inline).
  *  @throws Error naming the allowlist when the type is not an accepted Graviton
  *          `.medium`, with a distinct message for `t*` burstable types.
  *
- *  @example validateInstanceType('c7g.medium') // => 'c7g.medium'
+ *  @example validateInstanceType('c8g.medium') // => 'c8g.medium'
  *  @example validateInstanceType('t4g.medium') // throws (burstable rejected)
+ *  @example validateInstanceType('c7g.medium') // throws (no longer allowlisted)
  */
 function validateInstanceType(instanceType) {
   if (/^t\d/i.test(instanceType) || /^t[0-9]?g/i.test(instanceType)) {
@@ -324,6 +338,11 @@ function perfResultDir(instanceType, prNumber) {
  *  Decide whether to measure a (instanceType, slug) target or skip it as already
  *  measured: if any path under `<instanceType>/<slug>/` exists on perf_results,
  *  skip unless `force`. The slug is `pr-<n>` or `release-<v>`.
+ *
+ *  Window caveat: detached release results travel via S3 and land on the
+ *  branch at the nightly sync, so a release measured within the last day may
+ *  not be visible here yet.  A duplicate fire in that window re-measures
+ *  harmlessly (the S3 upload simply overwrites the same keys).
  *
  *  @param existingPaths The flat list of paths present on `perf_results` (e.g.
  *         from `git ls-tree -r origin/perf_results --name-only`).  An empty list
@@ -465,7 +484,8 @@ function buildUserData(shutdownMinutes) {
 
 /**
  *  Build the remote provisioning script that installs Node, clones the PR's
- *  commit, builds `dist/`, runs the benchmark, and captures a bounded profiled
+ *  commit, builds `dist/`, runs both benchmark suites (scaling, then the
+ *  general hook microbenchmark suite), and captures a bounded profiled
  *  construct pass.  Chains freely because it runs in the *instance's* shell, not
  *  the local dev shell.
  *
@@ -473,9 +493,12 @@ function buildUserData(shutdownMinutes) {
  *         prNumber, harnessFrom }`.  `commitSha` pins the exact PR commit;
  *         `refs/pull/<prNumber>/head` is fetched (with `headRefName` as fallback) so
  *         the SHA is reachable even for a deleted-branch PR.  `deep` toggles
- *         `BENNY_DEEP=1`.  `harnessFrom`, when set, overlays that ref's scaling
- *         harness onto the checkout and runs it directly instead of the PR's own
- *         `benny:scaling`, so a PR predating the suite can still be measured.
+ *         `BENNY_DEEP=1` (scaling suite only; the general suite never deepens).
+ *         `harnessFrom`, when set, overlays that ref's scaling AND general
+ *         harnesses onto the checkout and runs them directly instead of the
+ *         PR's own npm scripts, so a PR predating either suite can still be
+ *         measured — the general suite feature-probes hook kinds and degrades
+ *         to a partial suite on an older library.
  *  @returns A `#!/bin/bash -e` script string with a `JSSM_PERF_DONE` sentinel on
  *           success.
  *  @throws Error if `commitSha` is not a 40/64-char hex SHA, `headRefName` or
@@ -513,15 +536,25 @@ function buildRemoteScript(params) {
   // library may lack.
   const benchSteps = harnessFrom
     ? [
-        `# 4. Overlay the current scaling harness from "${harnessFrom}" and run it directly.`,
+        `# 4. Overlay the current benchmark harnesses from "${harnessFrom}" and run them directly.`,
         `git fetch origin "${harnessFrom}"`,
-        'git checkout FETCH_HEAD -- src/buildjs/benchmark_scaling.cjs src/buildjs/benchmark_scaling_plan.cjs benchmark/fixtures',
+        // Overlay the WHOLE src/buildjs tree, not a hand-listed subset: today's
+        // benchmark_scaling.cjs requires ~8 sibling modules (plan, memory, exponents,
+        // bundle_size, latency, gc, timing, load) and a per-file list silently goes
+        // stale as new ones are added — a release predating one dies on require() with
+        // MODULE_NOT_FOUND before any benchmark runs. The directory overlay is
+        // future-proof: whatever the current harness needs comes with it.
+        'git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures',
         'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
-        `${deep ? 'BENNY_DEEP=1 ' : ''}node ./src/buildjs/benchmark_scaling.cjs`
+        `${deep ? 'BENNY_DEEP=1 ' : ''}node --expose-gc ./src/buildjs/benchmark_scaling.cjs`,
+        '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
+        'node ./src/buildjs/benchmark.cjs'
       ]
     : [
         '# 4. Benchmark (mode-dependent).',
-        deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling'
+        deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling',
+        '# 4b. General (hook microbenchmark) suite — BENNY_DEEP does not apply to it.',
+        'npm run benny'
       ];
 
   return [
@@ -572,28 +605,54 @@ function buildRemoteScript(params) {
  *  Unlike {@link buildRemoteScript} (which the client uploads + drives over SSH),
  *  this script runs at instance boot via cloud-init and does the ENTIRE job with
  *  no client involvement: arm the dead-man's-switch, install Node+git, clone and
- *  check out the released commit, build `dist/`, run benny, capture a bounded
- *  profiled construct pass, fetch a push PAT from SSM (via the instance profile),
- *  publish artifacts to `perf_results` under `<instance-type>/release-<version>/`
- *  (orphan-creating + non-fast-forward-retrying, like {@link publishPerfResults} /
- *  {@link pushPerfResults}), and finally self-terminate.
+ *  check out the released commit, benchmark the SHIPPED committed `dist/` (no
+ *  rebuild, #725), run both benny suites (scaling, then the general hook
+ *  microbenchmark suite — together a few minutes, well inside the dead-man
+ *  budget), capture a bounded profiled construct pass, and upload artifacts
+ *  (including `general.json`, best-effort) to {@link PERF_RESULTS_BUCKET} under
+ *  `<instance-type>/release-<version>/` via the instance profile (no GitHub
+ *  credential on the box; the nightly `perf_results_sync` workflow lands the
+ *  bucket's contents on the branch), finally self-terminating.
+ *
+ *  With `harnessFrom` set (the backfill path), the script instead overlays the
+ *  current benchmark harnesses from that ref onto the (possibly pre-suite)
+ *  checkout and runs them DIRECTLY against the shipped dist — so a release
+ *  predating the `benny:scaling` npm script and the current metric set can still
+ *  be measured. It also normalizes the es5 cjs bundle name (releases before
+ *  ~5.98 shipped it as `jssm.es5.cjs.js`, which today's harness can't `require`)
+ *  and skips the hard committed-dist guard (the normalization + the
+ *  scaling.json upload gate cover it; a genuine failure leaves a marker — see
+ *  below — rather than `shutdown`ing silently).
+ *
+ *  A run that produces no `scaling.json` uploads a loud failure marker to a
+ *  SEPARATE `_failures/<instance-type>/release-<version>/` prefix that the
+ *  nightly sync deliberately does NOT land on the branch — so a silent failure
+ *  becomes visible in the bucket without poisoning the release-dir dedup (which
+ *  would otherwise read the run as "already measured" and block a real re-run).
  *
  *  @param params `{ repoUrl, commitSha, release, instanceType, region, deep,
- *         shutdownMinutes, ssmParam }`. `commitSha` pins the exact released commit;
- *         `release` is the version label used only for keying; `ssmParam` is the
- *         SecureString name holding the contents:write PAT.
+ *         shutdownMinutes, bucket, harnessFrom }`. `commitSha` pins the exact
+ *         released commit; `release` is the version label used only for keying;
+ *         `bucket` is the S3 bucket name the artifacts are uploaded to;
+ *         `harnessFrom`, when set, is the ref whose harnesses are overlaid
+ *         (the backfill path for releases predating the suite).
  *  @returns A `#!/bin/bash` script string.
- *  @throws Error on an unsafe `commitSha`, `release`, `region`, `ssmParam`, or
- *          `repoUrl` (defense against command injection into the boot script).
+ *  @throws Error on an unsafe `commitSha`, `release`, `region`, `bucket`,
+ *          `repoUrl`, or `harnessFrom` (defense against command injection into
+ *          the boot script).
  *
  *  @example
  *  buildDetachedUserData({ repoUrl: 'https://github.com/StoneCypher/jssm.git',
  *    commitSha: 'a'.repeat(40), release: '5.1.0', instanceType: 'c7g.medium',
  *    region: 'us-east-1', deep: false, shutdownMinutes: 30,
- *    ssmParam: '/jssm/perf-push-pat' }).includes('shutdown -h now') // => true
+ *    bucket: 'jssm-perf-results-x' }).includes('shutdown -h now') // => true
+ *  @example
+ *  // backfill a pre-suite release with today's harness overlaid:
+ *  buildDetachedUserData({ ...base, harnessFrom: 'main' })
+ *    .includes('node --expose-gc ./src/buildjs/benchmark_scaling.cjs') // => true
  */
 function buildDetachedUserData(params) {
-  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, ssmParam } = params;
+  const { repoUrl, commitSha, release, instanceType, region, deep, shutdownMinutes, bucket, harnessFrom } = params;
 
   if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/i.test(commitSha)) {
     throw new Error(`refusing to build user-data: unsafe commit SHA "${commitSha}"`);
@@ -604,16 +663,74 @@ function buildDetachedUserData(params) {
   if (!/^[\w-]+$/.test(String(region))) {
     throw new Error(`refusing to build user-data: unsafe region "${region}"`);
   }
-  if (!/^[\w./-]+$/.test(String(ssmParam))) {
-    throw new Error(`refusing to build user-data: unsafe ssm param "${ssmParam}"`);
+  // S3 bucket-name charset: lowercase alphanumerics, dots, hyphens.
+  if (!/^[a-z0-9.-]{3,63}$/.test(String(bucket))) {
+    throw new Error(`refusing to build user-data: unsafe bucket "${bucket}"`);
   }
   if (!/^https?:\/\/[\w./:@-]+$/.test(repoUrl)) {
     throw new Error(`refusing to build user-data: unsafe repo url "${repoUrl}"`);
   }
+  if (harnessFrom !== undefined && !/^[\w./-]+$/.test(harnessFrom)) {
+    throw new Error(`refusing to build user-data: unsafe harness ref "${harnessFrom}"`);
+  }
 
-  const destDir   = perfResultDirForSlug(instanceType, releaseSlug(release)); // c7g.medium/release-5.1.0
-  const authUrl   = repoUrl.replace('https://', 'https://x-access-token:${TOKEN}@');
-  const benchLine = deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling';
+  const destDir = perfResultDirForSlug(instanceType, releaseSlug(release)); // c7g.medium/release-5.1.0
+
+  // Prepare + benchmark. Two shapes:
+  //   • release-time (no harnessFrom): benchmark the shipped committed dist via the
+  //     release's own npm scripts, guarding that the modern dist bundles exist.
+  //   • backfill (harnessFrom): overlay today's harnesses and run them directly, so a
+  //     release predating the benny:scaling script / current metrics still measures;
+  //     normalize the pre-~5.98 bundle name and skip the hard guard (a real failure is
+  //     surfaced by the scaling.json gate + the _failures marker, not a silent shutdown).
+  const prepareAndBench = harnessFrom
+    ? [
+        `# 3. Backfill: benchmark the SHIPPED committed dist (no rebuild, #725) but overlay`,
+        `#    today's harnesses from "${harnessFrom}" so a release predating the benny:scaling`,
+        `#    npm script and the current metric set can still be measured.`,
+        'npm install --no-audit --no-fund',
+        `git fetch origin "${harnessFrom}"`,
+        // Overlay the WHOLE src/buildjs tree, not a hand-listed subset: today's
+        // benchmark_scaling.cjs requires ~8 sibling modules (plan, memory, exponents,
+        // bundle_size, latency, gc, timing, load) and a per-file list silently goes
+        // stale as new ones are added — a release predating one dies on require() with
+        // MODULE_NOT_FOUND before any benchmark runs. The directory overlay is
+        // future-proof: whatever the current harness needs comes with it.
+        'git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures',
+        'npm install benny@^3.7.1 --no-save --no-audit --no-fund',
+        '# 3b. Normalize the es5 cjs bundle name across eras. Today\'s harness requires',
+        '#     dist/jssm.es5.cjs and dist/jssm.es5.nonmin.cjs, but the bundle was named',
+        '#     differently before ~5.98: 5.50-era shipped jssm.es5.cjs.js +',
+        '#     jssm.es5.cjs.nonmin.js; 5.11-era shipped jssm.es5.cjs.js +',
+        '#     jssm.es5.cjs.min.js with NO separate nonmin (the unmin bundle is .cjs.js).',
+        '#     Each cp is guarded so it never clobbers an existing (modern) bundle, and the',
+        '#     nonmin fallbacks are ordered so the 5.50 .nonmin.js wins over the 5.11 .cjs.js.',
+        'if [ ! -s dist/jssm.es5.cjs ] && [ -s dist/jssm.es5.cjs.js ]; then cp dist/jssm.es5.cjs.js dist/jssm.es5.cjs; fi',
+        'if [ ! -s dist/jssm.es5.nonmin.cjs ] && [ -s dist/jssm.es5.cjs.nonmin.js ]; then cp dist/jssm.es5.cjs.nonmin.js dist/jssm.es5.nonmin.cjs; fi',
+        'if [ ! -s dist/jssm.es5.nonmin.cjs ] && [ -s dist/jssm.es5.cjs.js ]; then cp dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs; fi',
+        '# 4. Benchmark with the overlaid harness, run directly (old releases lack the npm scripts).',
+        `${deep ? 'BENNY_DEEP=1 ' : ''}node --expose-gc ./src/buildjs/benchmark_scaling.cjs`,
+        '# 4b. General (hook microbenchmark) suite — feature-probes degrade it on old libraries.',
+        'node ./src/buildjs/benchmark.cjs'
+      ]
+    : [
+        '# 3. Install the harness deps (benny is a devDependency) — but do NOT',
+        "#    rebuild. dist/ is committed and, at a release tag, is release-state by",
+        "#    the /sc-commit + verify-version-bump policy, so we benchmark the SHIPPED",
+        '#    artifact (literally the bytes npm publishes) rather than a fresh rebuild',
+        '#    that could differ. This also drops the ~30-45 min full rebuild that was',
+        "#    overrunning the dead-man's-switch and silently killing every run. #725",
+        'npm install --no-audit --no-fund',
+        'if [ ! -s dist/jssm.es5.cjs ] || [ ! -s dist/jssm.es5.nonmin.cjs ]; then',
+        '  echo "JSSM_PERF: committed dist/ missing at this commit; refusing to rebuild-and-benchmark a different artifact"',
+        '  shutdown -h now',
+        'fi',
+        '',
+        '# 4. Benchmark (mode-dependent).',
+        deep ? 'BENNY_DEEP=1 npm run benny:scaling' : 'npm run benny:scaling',
+        '# 4b. General (hook microbenchmark) suite.',
+        'npm run benny'
+      ];
 
   return [
     '#!/bin/bash',
@@ -635,12 +752,7 @@ function buildDetachedUserData(params) {
     'cd jssm',
     `git checkout ${commitSha}`,
     '',
-    '# 3. Build dist/ (make, not build).',
-    'npm install --no-audit --no-fund',
-    'npm run make',
-    '',
-    '# 4. Benchmark (mode-dependent).',
-    benchLine,
+    ...prepareAndBench,
     '',
     '# 5. Bounded profiled construct pass (non-min bundle for readable frames).',
     'cat > perf_probe.cjs <<\'PROBE\'',
@@ -667,42 +779,34 @@ function buildDetachedUserData(params) {
     '}',
     'META',
     '',
-    '# 7. Publish to perf_results — ONLY if the benchmark actually produced',
-    '#    scaling.json. A failed build/benchmark must not push a meta-only dir,',
-    '#    which would poison the release-<version>/ dedup (it would read as',
-    '#    "already measured" and block a real re-run). Mirrors the SSH path, which',
-    '#    refuses to publish without a non-empty scaling.json.',
+    '# 7. Upload to S3 — ONLY if the benchmark actually produced scaling.json.',
+    '#    A failed build/benchmark must not upload a meta-only dir, which would',
+    '#    poison the release-<version>/ dedup once synced (it would read as',
+    '#    "already measured" and block a real re-run).  The instance profile is',
+    '#    the only credential involved — there is deliberately no GitHub token',
+    '#    on this box; the nightly perf_results_sync workflow lands the bucket',
+    '#    contents on the perf_results branch.',
     'if [ -s benchmark/results/scaling.json ]; then',
-    `  TOKEN=$(aws ssm get-parameter --region ${region} --name "${ssmParam}" --with-decryption --query Parameter.Value --output text)`,
-    '  if [ -z "$TOKEN" ] || [ "$TOKEN" = "None" ]; then',
-    '    echo "JSSM_PERF: no PAT from SSM; cannot publish"',
+    `  DEST="s3://${bucket}/${destDir}"`,
+    '  UPLOADED=yes',
+    `  aws s3 cp benchmark/results/scaling.json "$DEST/scaling.json" --region ${region} || UPLOADED=no`,
+    `  aws s3 cp meta.json                      "$DEST/meta.json"    --region ${region} || UPLOADED=no`,
+    '  # the profile and the general suite are best-effort; their absence must not fail the publish',
+    `  aws s3 cp construct.prof.txt "$DEST/construct.prof.txt" --region ${region} || echo "JSSM_PERF: prof upload failed; continuing"`,
+    `  aws s3 cp benchmark/results/general.json "$DEST/general.json" --region ${region} || echo "JSSM_PERF: general.json upload failed; continuing"`,
+    '  if [ "$UPLOADED" = "yes" ]; then',
+    '    echo "JSSM_PERF: uploaded to $DEST (lands on perf_results at the nightly sync)"',
     '  else',
-    `    AUTH_URL="${authUrl}"`,
-    '    RESULTS=$(mktemp -d)',
-    '    if ! git clone --depth 1 --branch perf_results "$AUTH_URL" "$RESULTS"; then',
-    '      git clone --depth 1 "$AUTH_URL" "$RESULTS"',
-    '      git -C "$RESULTS" checkout --orphan perf_results',
-    '      git -C "$RESULTS" rm -rf --ignore-unmatch . || true',
-    '    fi',
-    `    mkdir -p "$RESULTS/${destDir}"`,
-    `    cp benchmark/results/scaling.json "$RESULTS/${destDir}/scaling.json"`,
-    `    cp construct.prof.txt           "$RESULTS/${destDir}/construct.prof.txt" || true`,
-    `    cp meta.json                    "$RESULTS/${destDir}/meta.json"`,
-    '    git -C "$RESULTS" config user.email "stonecypher@users.noreply.github.com"',
-    '    git -C "$RESULTS" config user.name  "jssm graviton perf bot"',
-    '    git -C "$RESULTS" add -A',
-    `    git -C "$RESULTS" commit -m "perf: ${instanceType} results for release ${release}"`,
-    '    # Push with non-fast-forward retry (a concurrent run may have advanced the branch).',
-    '    cd "$RESULTS"',
-    '    for i in 1 2 3 4 5 6; do',
-    '      if git push origin perf_results; then break; fi',
-    '      git fetch origin perf_results || true',
-    '      git rebase origin/perf_results || { git rebase --abort; echo "JSSM_PERF: rebase conflict"; break; }',
-    '    done',
-    '    cd -',
+    '    echo "JSSM_PERF: upload FAILED; results were not published (check the instance profile s3:PutObject grant)"',
     '  fi',
     'else',
-    '  echo "JSSM_PERF: no scaling.json (build/benchmark failed); skipping perf_results publish"',
+    '  echo "JSSM_PERF: no scaling.json (build/benchmark failed); skipping upload"',
+    '  # Leave a loud, dedup-SAFE failure marker. It goes to a SEPARATE _failures/',
+    '  # prefix (NOT the release dir) so the nightly sync, which excludes _failures/*,',
+    '  # never lands it on the branch — a marker in the release dir would read as',
+    '  # "already measured" and block a real re-run of this release.',
+    '  echo "scaling.json was never produced for ' + release + ' on ' + instanceType + '; see the instance console for the failing step" > FAILED.txt',
+    `  aws s3 cp FAILED.txt "s3://${bucket}/_failures/${destDir}/FAILED.txt" --region ${region} || echo "JSSM_PERF: FAILED marker upload also failed"`,
     'fi',
     '',
     'echo JSSM_PERF_DONE',
@@ -1096,13 +1200,15 @@ function provision(exec, opts, state) {
  *  Configure + run the benchmark on the instance over SSH, then retrieve the
  *  artifacts.  Waits for the instance to pass status checks, polls SSH, uploads
  *  and runs the remote script ({@link buildRemoteScript}), and `scp`s back
- *  `scaling.json`, `scaling.md`, and `construct.prof.txt`.
+ *  `scaling.json`, `scaling.md`, `general.json` (best-effort), and
+ *  `construct.prof.txt`.
  *
  *  @param exec An executor from {@link makeExecutor}.
  *  @param opts Parsed options.
  *  @param state Run-state with `instanceId`, `keyPath`, etc.
  *  @param refInfo `{ headRefName, headRefOid }` for the remote checkout.
- *  @returns `{ scalingJson, scalingMd, profTxt }` absolute local paths.
+ *  @returns `{ scalingJson, scalingMd, profTxt, generalJson }` absolute local
+ *           paths; `generalJson` may not exist on disk for old commits.
  *  @throws Error if the remote build/benchmark exits non-zero (surfaced eagerly,
  *          so a failed build can't masquerade as the repo's committed stale
  *          `scaling.json`), or if no non-empty `scaling.json` came back.
@@ -1152,13 +1258,16 @@ function configureAndRun(exec, opts, state, refInfo) {
     );
   }
 
-  // Retrieve artifacts.
+  // Retrieve artifacts.  general.json is best-effort: a sufficiently old
+  // commit measured without --harness-from may predate the general save name.
   const outDir = state.tmpDir;
   const scalingJson = path.join(outDir, 'scaling.json');
   const scalingMd   = path.join(outDir, 'scaling.md');
   const profTxt     = path.join(outDir, 'construct.prof.txt');
+  const generalJson = path.join(outDir, 'general.json');
   exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/benchmark/results/scaling.json`, scalingJson]);
   exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/benchmark/results/scaling.md`,   scalingMd]);
+  exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/benchmark/results/general.json`, generalJson]);
   exec.run('scp', [...sshBase, `ec2-user@${dns}:jssm/construct.prof.txt`,              profTxt]);
 
   if (!exec.dryRun) {
@@ -1166,7 +1275,7 @@ function configureAndRun(exec, opts, state, refInfo) {
       throw new Error('remote run produced no scaling.json (benchmark failed)');
     }
   }
-  return { scalingJson, scalingMd, profTxt };
+  return { scalingJson, scalingMd, profTxt, generalJson };
 }
 
 /**
@@ -1324,7 +1433,11 @@ function runMeasurement(exec, opts, ctx) {
       files         : {
         [perfResultPath(opts.instanceType, opts.prNumber, 'scaling.json')]      : artifacts.scalingJson,
         [perfResultPath(opts.instanceType, opts.prNumber, 'construct.prof.txt')]: artifacts.profTxt,
-        [perfResultPath(opts.instanceType, opts.prNumber, 'meta.json')]         : metaPath
+        [perfResultPath(opts.instanceType, opts.prNumber, 'meta.json')]         : metaPath,
+        // general.json is best-effort: an old commit's run may not produce it.
+        ...((exec.dryRun || fs.existsSync(artifacts.generalJson))
+          ? { [perfResultPath(opts.instanceType, opts.prNumber, 'general.json')]: artifacts.generalJson }
+          : {})
       },
       commitMessage : `perf: ${opts.instanceType} results for PR #${opts.prNumber} (${opts.mode})`
     });
@@ -1375,7 +1488,8 @@ function provisionDetached(exec, opts, state) {
       region          : region,
       deep            : opts.deep,
       shutdownMinutes : opts.shutdownMinutes,
-      ssmParam        : PERF_PUSH_PAT_SSM_PARAM
+      bucket          : PERF_RESULTS_BUCKET,
+      harnessFrom     : opts.harnessFrom
     }));
   }
 
@@ -1412,8 +1526,9 @@ function runDetached(exec, opts) {
   try {
     provisionDetached(exec, opts, state);
     process.stdout.write(
-      `not waiting on the runner; the instance publishes results to perf_results at ` +
-      `${perfResultDirForSlug(opts.instanceType, releaseSlug(opts.release))}/ and self-terminates.\n` +
+      `not waiting on the runner; the instance uploads results to s3://${PERF_RESULTS_BUCKET}/` +
+      `${perfResultDirForSlug(opts.instanceType, releaseSlug(opts.release))}/ and self-terminates ` +
+      `(the nightly perf_results_sync workflow lands them on the branch).\n` +
       `(reclaim a stuck run with: node src/scripts/graviton_perf.cjs --cleanup-only --run-id ${runId} --region ${opts.region})\n`
     );
     return 0;
@@ -1491,8 +1606,10 @@ function printUsage() {
     `  --region <region>        AWS region (default ${DEFAULTS.region})`,
     '  --subnet-id <id>         subnet to launch in (auto-detected if omitted)',
     '  --my-ip <cidr>           SSH-ingress CIDR (default: resolved /32)',
-    '  --harness-from <ref>     overlay the current scaling harness from <ref> (e.g. main)',
-    '                           onto the PR checkout (bench PRs predating the suite)',
+    '  --harness-from <ref>     overlay the current harness from <ref> (e.g. main) onto the',
+    '                           checkout — bench PRs/releases predating the suite; in',
+    '                           --detached (backfill) it also runs the overlaid harness',
+    '                           directly and normalizes the pre-5.98 dist bundle name',
     `  --shutdown-minutes <n>   dead-man's-switch timer (default ${DEFAULTS.shutdownMinutes})`,
     '  --spot                   launch as a Spot instance (default on-demand)',
     '  --force                  re-measure even if perf_results already has this (type, PR)',
@@ -1613,7 +1730,7 @@ module.exports = {
   DEFAULTS,
   AL2023_ARM64_SSM_PARAM,
   BENCH_TAG_KEY,
-  PERF_PUSH_PAT_SSM_PARAM,
+  PERF_RESULTS_BUCKET,
   PERF_INSTANCE_PROFILE
 };
 

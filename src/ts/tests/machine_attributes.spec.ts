@@ -137,8 +137,11 @@ describe('machine_language', () => {
 
     test.todo('machine_attributes spec more available');
 
-    // test(`${name} machine_language with transclusion is correct for sm\`machine_language: "${lang}"; a->b;\``, () =>
-    //    t.is(r639(lang), ((sm`machine_language: "${lang}"; a->b;`).machine_language()) ) );
+    // #184: the quoted form must parse identically to the bare form, including
+    // for non-Latin scripts like Amharic (Ethiopic).
+    test(`${name} machine_language with transclusion is correct for sm\`machine_language: "${lang}"; a->b;\``, () =>
+      expect( ((sm`machine_language: "${lang}"; a->b;`).machine_language()) )
+        .toBe( r639(lang) ) );
 
   };
 
@@ -156,8 +159,19 @@ describe('machine_language', () => {
 
   test.todo('machine_attributes spec more available 2');
 
-  // test(`Amharic hand-written is correct with quotes`, () =>
-  //   t.is('am', ((sm`machine_language: "አማርኛ"; a->b;`).machine_language()) ) );
+  test(`Amharic hand-written is correct with quotes (#184)`, () =>
+    expect(((sm`machine_language: "አማርኛ"; a->b;`).machine_language() ))
+      .toBe('am') );
+
+  // #1380: a BCP-47 language tag with a region subtag reduces to its primary
+  // language rather than failing, so `en-us` resolves like `en`.
+  test(`BCP-47 region tag reduces to its primary language`, () =>
+    expect(((sm`machine_language: "en-us"; a->b;`).machine_language() ))
+      .toBe('en') );
+
+  test(`BCP-47 region tag is case-insensitive`, () =>
+    expect(((sm`machine_language: "EN-US"; a->b;`).machine_language() ))
+      .toBe('en') );
 
   eachTest('atom correct case', 'English');
   eachTest('atom lowercase',    'english');
