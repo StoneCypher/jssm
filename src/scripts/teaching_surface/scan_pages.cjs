@@ -9,6 +9,7 @@ const path = require('node:path');
 
 /** Parse the leading `---`-delimited front-matter into a flat object. */
 function parseFrontMatter(text) {
+  text = text.replace(/\r\n/g, '\n');   // normalize CRLF (Windows git autocrlf) before LF-based parsing
   const m = /^---\n([\s\S]*?)\n---\n?/.exec(text);
   const front = {};
   if (!m) return { front, body: text };

@@ -1,6 +1,15 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { scanPages } = require('../scan_pages.cjs');
+const { scanPages, parseFrontMatter } = require('../scan_pages.cjs');
+
+// CRLF front-matter (Windows git autocrlf) must parse the same as LF — else the
+// generated content module loses id/section/title on Windows CI (see jssm 5.149.0).
+const crlf = parseFrontMatter('---\r\nid: x\r\nsection: s\r\ntitle: "T"\r\norder: 3\r\n---\r\nbody\r\n');
+assert.equal(crlf.front.id, 'x');
+assert.equal(crlf.front.section, 's');
+assert.equal(crlf.front.title, 'T');
+assert.equal(crlf.front.order, 3);
+assert.equal(crlf.body, 'body\n');
 
 const helpDir = path.join(__dirname, '..', '..', '..', 'help');
 const { pages, coverage } = scanPages(helpDir);
