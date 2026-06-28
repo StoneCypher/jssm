@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeAll } from 'vitest';
 import '../fsl_instance_wc.define.js';
-import { FslToolbar, permalink_for, embed_snippet_for } from '../fsl_toolbar_wc.js';
+import { FslToolbar, permalink_for, fsl_from_permalink, embed_snippet_for } from '../fsl_toolbar_wc.js';
 import { FslEditor } from '../fsl_editor_wc.js';
 import { FslInstance } from '../fsl_instance_wc.js';
 
@@ -132,10 +132,31 @@ describe('<fsl-toolbar>', () => {
     host.remove();
   });
 
-  it('builds a permalink and an embed snippet from FSL', () => {
-    const link = permalink_for('a -> b;');
-    expect(link).toContain('#fsl=');
-    expect(decodeURIComponent(link.split('#fsl=')[1])).toBe('a -> b;');
+  it('builds a compressed, URL-safe permalink that round-trips', async () => {
+    // Exact round-trip across short, quoted, Unicode, and long compressible FSL.
+    for (const fsl of [
+      'a -> b;',
+      "A 'go' -> B; B 'back' -> A;",
+      'café ☕ → ★;',
+      "Green 'next' -> Yellow 'next' -> Red 'next' -> Green;\nRed ~> Off; Yellow ~> Off; Green ~> Off;".repeat(4),
+    ]) {
+      const link = await permalink_for(fsl);
+      expect(link).toContain('#m=');
+      // The fragment is a one-digit scheme tag followed by the URL-safe base64
+      // alphabet only — nothing that would need percent-escaping.
+      expect(link.split('#m=')[1]).toMatch(/^[01][A-Za-z0-9_-]*$/);
+      expect(await fsl_from_permalink(link)).toBe(fsl);
+    }
+
+    // A long machine actually compresses (scheme '1') and beats the old
+    // percent-encoded `#fsl=` form on length.
+    const big  = "Green 'next' -> Yellow 'next' -> Red 'next' -> Green;\nRed ~> Off; Yellow ~> Off; Green ~> Off;".repeat(4);
+    const link = await permalink_for(big);
+    expect(link.split('#m=')[1][0]).toBe('1');
+    expect(link.length).toBeLessThan(`#fsl=${encodeURIComponent(big)}`.length);
+
+    // A URL with no permalink fragment decodes to null.
+    expect(await fsl_from_permalink('https://host/path')).toBeNull();
 
     const embed = embed_snippet_for('a -> b;');
     expect(embed).toContain('<fsl-instance>');
@@ -156,7 +177,7 @@ describe('<fsl-toolbar>', () => {
     await toolbar.updateComplete;
 
     for (const [label, fmt, needle] of [
-      ['Permalink (URL)', 'permalink', '#fsl='],
+      ['Permalink (URL)', 'permalink', '#m='],
       ['Embed snippet',   'embed',     '<fsl-instance>'],
     ] as const) {
       const detail = new Promise<{ format: string; content: string }>(res =>

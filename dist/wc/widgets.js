@@ -98,17 +98,54 @@ const EXPORT_FORMATS = [
     { value: 'permalink', label: 'Permalink (URL)' },
     { value: 'embed', label: 'Embed snippet' },
 ];
+/** Hash parameter that carries a permalink's encoded machine: `#m=<scheme><payload>`. */
+const PERMALINK_HASH_KEY = 'm';
 /**
- * A shareable URL for the given FSL: the current page URL with the source
- * encoded in the hash (`#fsl=...`). A page that reads the hash on load can
- * restore the machine. Browser-only (uses `location`), like the rest of the
- * toolbar.
+ * URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,
+ * `/`→`_`, and trailing `=` padding stripped, so the result rides in a URL
+ * fragment with no further percent-encoding.
  *
  * @example
- * permalink_for("a -> b;"); // "https://host/path#fsl=a%20-%3E%20b%3B"
+ * bytes_to_base64url(new TextEncoder().encode("a")); // "YQ"
  */
-function permalink_for(fsl) {
-    return `${location.href.split('#')[0]}#fsl=${encodeURIComponent(fsl)}`;
+function bytes_to_base64url(bytes) {
+    let binary = '';
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+/** DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`. */
+async function deflate_raw(bytes) {
+    const stream = new CompressionStream('deflate-raw');
+    const writer = stream.writable.getWriter();
+    void writer.write(bytes);
+    void writer.close();
+    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+}
+/**
+ * A shareable URL for the given FSL: the current page URL with the source
+ * compressed into the hash as `#m=<scheme><payload>`. The payload is URL-safe
+ * base64, so no characters need percent-escaping; `<scheme>` is a single digit
+ * — `1` when DEFLATE made the source smaller, `0` for the raw bytes when it did
+ * not — so a short machine's link is never longer than its uncompressed form.
+ * Decode with {@link fsl_from_permalink}. Browser-only (uses `location` and the
+ * platform compression streams), like the rest of the toolbar.
+ *
+ * @returns The absolute page URL carrying the encoded machine in its fragment.
+ *
+ * @example
+ * await permalink_for("a -> b;");                            // "https://host/path#m=0YSAtPiBiOw"  (too short to gain from DEFLATE)
+ * await permalink_for("Off -> On -> Off; On -> Idle -> Off;"); // "https://host/path#m=1809LU9C1U_DPA5NpadZQpmdKTipMCAA"
+ *
+ * @see fsl_from_permalink
+ */
+async function permalink_for(fsl) {
+    const utf8 = new TextEncoder().encode(fsl);
+    const raw = bytes_to_base64url(utf8);
+    const deflated = bytes_to_base64url(await deflate_raw(utf8));
+    const [scheme, payload] = deflated.length < raw.length ? ['1', deflated] : ['0', raw];
+    return `${location.href.split('#')[0]}#${PERMALINK_HASH_KEY}=${scheme}${payload}`;
 }
 /**
  * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
@@ -263,7 +300,7 @@ class FslToolbar extends LitElement {
             content = await machine_to_svg_string(host.machine);
         }
         else if (format === 'permalink') {
-            content = permalink_for(host.fsl);
+            content = await permalink_for(host.fsl);
         }
         else if (format === 'embed') {
             content = embed_snippet_for(host.fsl);
