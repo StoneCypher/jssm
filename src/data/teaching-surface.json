@@ -534,6 +534,27 @@
       "tier": "advanced",
       "dependsOn": ["prompt-overview"],
       "indexTerms": ["example", "basic machine", "actions"]
+    },
+
+    {
+      "id": "api-language-service",
+      "surface": "api",
+      "title": "Language service helpers",
+      "units": ["fslCompletions", "fslDiagnostics", "fslSemanticSpans"],
+      "tier": "advanced",
+      "dependsOn": ["api-machine"],
+      "indexTerms": ["language service", "completions", "diagnostics", "semantic spans"],
+      "teachingNote": "Added on main by the parallel fsl-editor effort; provisional classification (revisit in a teaching-surface refresh)."
+    },
+    {
+      "id": "wc-editor-suite",
+      "surface": "webcomponent",
+      "title": "FSL editor web-component suite",
+      "units": ["fsl-editor", "fsl-help", "fsl-toolbar", "fsl-footer", "fsl-actions", "fsl-data-inspector", "fsl-export", "fsl-history", "fsl-hook-log", "fsl-simulation"],
+      "tier": "advanced",
+      "dependsOn": ["wc-viz"],
+      "indexTerms": ["editor", "help panel", "toolbar", "footer", "inspector", "web component suite"],
+      "teachingNote": "Parallel production fsl-editor suite added on main; provisional classification (revisit in a teaching-surface refresh, and reconcile with this sketch's docs panel)."
     }
   ]
 }
