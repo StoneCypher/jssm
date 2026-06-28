@@ -3325,7 +3325,7 @@
           "name": "permalink_for",
           "return": {
             "type": {
-              "text": "string"
+              "text": ""
             }
           },
           "parameters": [
@@ -3336,7 +3336,25 @@
               }
             }
           ],
-          "description": "A shareable URL for the given FSL: the current page URL with the source\r\nencoded in the hash (`#fsl=...`). A page that reads the hash on load can\r\nrestore the machine. Browser-only (uses `location`), like the rest of the\r\ntoolbar."
+          "description": "A shareable URL for the given FSL: the current page URL with the source\r\ncompressed into the hash as `#m=<scheme><payload>`. The payload is URL-safe\r\nbase64, so no characters need percent-escaping; `<scheme>` is a single digit\r\n— `1` when DEFLATE made the source smaller, `0` for the raw bytes when it did\r\nnot — so a short machine's link is never longer than its uncompressed form.\r\nDecode with fsl_from_permalink. Browser-only (uses `location` and the\r\nplatform compression streams), like the rest of the toolbar."
+        },
+        {
+          "kind": "function",
+          "name": "fsl_from_permalink",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "url",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Recover the FSL source from a permalink produced by permalink_for:\r\nread the `#m=<scheme><payload>` fragment, decode the URL-safe base64, and\r\ninflate when `<scheme>` is `1`. Accepts a full URL or a bare fragment, with\r\nor without the leading `#`."
         },
         {
           "kind": "function",
@@ -3620,6 +3638,14 @@
           "name": "permalink_for",
           "declaration": {
             "name": "permalink_for",
+            "module": "src/ts/wc/fsl_toolbar_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "fsl_from_permalink",
+          "declaration": {
+            "name": "fsl_from_permalink",
             "module": "src/ts/wc/fsl_toolbar_wc.ts"
           }
         },
