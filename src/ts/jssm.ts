@@ -18,6 +18,7 @@ import {
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmEditorConfig,
+  JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary,
   JssmDefaultSize,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
