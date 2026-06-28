@@ -298,6 +298,238 @@
       ]
     },
     {
+      "id": "tut-colors",
+      "section": "tutorials",
+      "title": "Colors",
+      "order": 40,
+      "source": "src/help/tutorials/colors.md",
+      "teaches": [
+        "colors"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "color",
+        "svg color",
+        "hex",
+        "background-color"
+      ],
+      "fences": [
+        {
+          "teaches": "colors",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-state-styling",
+      "section": "tutorials",
+      "title": "State styling",
+      "order": 42,
+      "source": "src/help/tutorials/state-styling.md",
+      "teaches": [
+        "state-styling"
+      ],
+      "mentions": [
+        "colors",
+        "shapes"
+      ],
+      "indexTerms": [
+        "style",
+        "background-color",
+        "border-color",
+        "shape",
+        "state"
+      ],
+      "fences": [
+        {
+          "teaches": "state-styling",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-groups",
+      "section": "tutorials",
+      "title": "Groups and named lists",
+      "order": 44,
+      "source": "src/help/tutorials/groups.md",
+      "teaches": [
+        "groups"
+      ],
+      "mentions": [
+        "states"
+      ],
+      "indexTerms": [
+        "group",
+        "named list",
+        "&",
+        "set",
+        "reusable"
+      ],
+      "fences": [
+        {
+          "teaches": "groups",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-hooks",
+      "section": "tutorials",
+      "title": "Boundary hooks",
+      "order": 46,
+      "source": "src/help/tutorials/hooks.md",
+      "teaches": [
+        "hooks"
+      ],
+      "mentions": [
+        "states",
+        "groups"
+      ],
+      "indexTerms": [
+        "hook",
+        "on enter",
+        "on exit",
+        "boundary",
+        "callback"
+      ],
+      "fences": [
+        {
+          "teaches": "hooks",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-literal-values",
+      "section": "tutorials",
+      "title": "Literal values",
+      "order": 48,
+      "source": "src/help/tutorials/literal-values.md",
+      "teaches": [
+        "literal-values"
+      ],
+      "mentions": [
+        "single-value-configs"
+      ],
+      "indexTerms": [
+        "true",
+        "false",
+        "null",
+        "undefined",
+        "boolean"
+      ],
+      "fences": [
+        {
+          "teaches": "literal-values",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-config-blocks",
+      "section": "tutorials",
+      "title": "Configuration blocks",
+      "order": 50,
+      "source": "src/help/tutorials/config-blocks.md",
+      "teaches": [
+        "config-blocks"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "config",
+        "state defaults",
+        "transition defaults",
+        "graph"
+      ],
+      "fences": [
+        {
+          "teaches": "config-blocks",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-single-value-configs",
+      "section": "tutorials",
+      "title": "Single-value configuration",
+      "order": 52,
+      "source": "src/help/tutorials/single-value-configs.md",
+      "teaches": [
+        "single-value-configs"
+      ],
+      "mentions": [
+        "config-blocks"
+      ],
+      "indexTerms": [
+        "graph_layout",
+        "allow_islands",
+        "allows_override",
+        "failed_outputs"
+      ],
+      "fences": [
+        {
+          "teaches": "single-value-configs",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-semver",
+      "section": "tutorials",
+      "title": "Version ranges (SemVer)",
+      "order": 54,
+      "source": "src/help/tutorials/version-ranges.md",
+      "teaches": [
+        "semver"
+      ],
+      "mentions": [
+        "machine-attributes"
+      ],
+      "indexTerms": [
+        "semver",
+        "version",
+        "fsl_version",
+        "range"
+      ],
+      "fences": [
+        {
+          "teaches": "semver",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-line-styles",
+      "section": "tutorials",
+      "title": "Line styles",
+      "order": 56,
+      "source": "src/help/tutorials/line-styles.md",
+      "teaches": [
+        "line-styles"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "line-style",
+        "dashed",
+        "dotted",
+        "solid",
+        "bold"
+      ],
+      "fences": [
+        {
+          "teaches": "line-styles",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-labels-quoting",
       "section": "tutorials",
       "title": "Labels and quoting",
