@@ -9,7 +9,12 @@
  * share one URL.
  */
 
-/** Default fragment key for the single-machine case (back-compat with 5.150). */
+/**
+ * Default fragment key for the single-machine case (back-compat with 5.150).
+ *
+ * @example
+ * DEFAULT_PERMALINK_KEY; // 'm'
+ */
 export const DEFAULT_PERMALINK_KEY = 'm';
 
 /**
@@ -32,13 +37,20 @@ export function bytes_to_base64url(bytes: Uint8Array): string {
  * new TextDecoder().decode(base64url_to_bytes("YQ")); // "a"
  */
 export function base64url_to_bytes(text: string): Uint8Array {
-  const binary = atob(text.replace(/-/g, '+').replace(/_/g, '/'));
-  const bytes  = new Uint8Array(binary.length);
+  const standard = text.replace(/-/g, '+').replace(/_/g, '/');
+  const padded   = standard + '='.repeat((4 - (standard.length % 4)) % 4);   // atob wants 4-aligned input
+  const binary   = atob(padded);
+  const bytes    = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
   return bytes;
 }
 
-/** DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`. */
+/**
+ * DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`.
+ *
+ * @example
+ * await deflate_raw(new TextEncoder().encode("aaaaaaaa")); // shorter Uint8Array of raw DEFLATE bytes
+ */
 export async function deflate_raw(bytes: Uint8Array): Promise<Uint8Array> {
   const stream = new CompressionStream('deflate-raw');
   const writer = stream.writable.getWriter();
@@ -47,7 +59,12 @@ export async function deflate_raw(bytes: Uint8Array): Promise<Uint8Array> {
   return new Uint8Array(await new Response(stream.readable).arrayBuffer());
 }
 
-/** Inverse of {@link deflate_raw}. */
+/**
+ * Inverse of {@link deflate_raw}.
+ *
+ * @example
+ * new TextDecoder().decode(await inflate_raw(await deflate_raw(new TextEncoder().encode("hi")))); // "hi"
+ */
 export async function inflate_raw(bytes: Uint8Array): Promise<Uint8Array> {
   const stream = new DecompressionStream('deflate-raw');
   const writer = stream.writable.getWriter();
