@@ -20,70 +20,74 @@ async function withHost(fsl: string): Promise<{ host: FslInstance; el: FslAction
   return { host, el };
 }
 
-const labels = (el: FslActions, sel: string): string[] =>
+const texts = (el: FslActions, sel: string): string[] =>
   [...el.shadowRoot!.querySelectorAll(sel)].map(b => b.textContent!.trim());
+
+// `A 'x' -> B` (plain), `A 'y' => C` (main), `A ~> D` (forced); `B 'z' -> A` adds
+// an edge that does NOT leave A, exercising the from-filter.
+const ALL_KINDS = "A 'x' -> B; A 'y' => C; A ~> D; B 'z' -> A;";
 
 describe('<fsl-actions>', () => {
 
-  it('derives the legal actions + transitions and re-derives as the machine moves', async () => {
-    // In Off: the named action `Enable` and the transition target `Red` (same edge, both groups).
-    const { host, el } = await withHost("Off 'Enable' -> Red; Red 'Next' -> Green;");
-    expect(labels(el, 'button.act')).toEqual(['Enable']);
-    expect(labels(el, 'button.trn')).toEqual(['→ Red']);
-
-    el.shadowRoot!.querySelector<HTMLButtonElement>('button.act')!.click();   // fire Enable
-    await host.updateComplete;
-    await el.updateComplete;
-    expect(host.state()).toBe('Red');
-    expect(labels(el, 'button.act')).toEqual(['Next']);
-    expect(labels(el, 'button.trn')).toEqual(['→ Green']);
+  it('splits transitions into main / plain / forced groups (main first, forced last)', async () => {
+    const { host, el } = await withHost(ALL_KINDS);
+    expect(texts(el, 'button.act')).toEqual(['x', 'y']);
+    // groups appear in order, each labelled; only non-empty ones render
+    expect(texts(el, '.label')).toEqual(['Actions', 'Main', 'Transitions', 'Forced']);
+    expect(texts(el, 'button.trn')).toEqual(['→ C', '→ B', '→ D']);   // main, plain, forced
     host.remove();
   });
 
-  it('marks forced-only transitions and fires them with force_transition', async () => {
-    const { host, el } = await withHost("A 'go' -> B; A ~> C;");
-    expect(labels(el, 'button.act')).toEqual(['go']);
-    expect(labels(el, 'button.trn')).toEqual(['→ B', '→ C']);   // B legal, C forced
-    const forced = el.shadowRoot!.querySelector<HTMLButtonElement>('button.trn.forced')!;
-    expect(forced.textContent!.trim()).toBe('→ C');
-
-    forced.click();                                              // transition() would fail; force works
-    await host.updateComplete;
-    await el.updateComplete;
-    expect(host.state()).toBe('C');
-    host.remove();
-  });
-
-  it('fires a legal transition with transition()', async () => {
-    const { host, el } = await withHost("A 'go' -> B; A ~> C;");
-    const legal = [...el.shadowRoot!.querySelectorAll<HTMLButtonElement>('button.trn')]
-      .find(b => b.textContent!.includes('→ B'))!;
-    legal.click();
+  it('fires a plain/main transition with transition()', async () => {
+    const { host, el } = await withHost(ALL_KINDS);
+    [...el.shadowRoot!.querySelectorAll<HTMLButtonElement>('button.trn')]
+      .find(b => b.textContent!.includes('→ B'))!.click();
     await host.updateComplete;
     await el.updateComplete;
     expect(host.state()).toBe('B');
     host.remove();
   });
 
-  it('omits the Transitions group when every exit is a self-loop (no target ≠ current)', async () => {
+  it('fires a forced transition with force_transition()', async () => {
+    const { host, el } = await withHost(ALL_KINDS);
+    [...el.shadowRoot!.querySelectorAll<HTMLButtonElement>('button.trn')]
+      .find(b => b.textContent!.includes('→ D'))!.click();   // transition() would fail; force works
+    await host.updateComplete;
+    await el.updateComplete;
+    expect(host.state()).toBe('D');
+    host.remove();
+  });
+
+  it('re-derives as the machine moves and drives named actions', async () => {
+    const { host, el } = await withHost("Off 'Enable' => Red; Red 'Next' => Green;");
+    expect(texts(el, 'button.act')).toEqual(['Enable']);
+    el.shadowRoot!.querySelector<HTMLButtonElement>('button.act')!.click();   // fire Enable
+    await host.updateComplete;
+    await el.updateComplete;
+    expect(host.state()).toBe('Red');
+    expect(texts(el, 'button.act')).toEqual(['Next']);
+    host.remove();
+  });
+
+  it('omits all transition groups when every exit is a self-loop', async () => {
     const { host, el } = await withHost("A 'go' -> A;");
-    expect(labels(el, 'button.act')).toEqual(['go']);
+    expect(texts(el, 'button.act')).toEqual(['go']);
     expect(el.shadowRoot!.querySelectorAll('button.trn')).toHaveLength(0);
-    expect([...el.shadowRoot!.querySelectorAll('.label')].map(l => l.textContent)).toEqual(['Actions']);
+    expect(texts(el, '.label')).toEqual(['Actions']);
     host.remove();
   });
 
   it('omits the Actions group when only forced / unnamed exits exist', async () => {
     const { host, el } = await withHost("A ~> B;");
     expect(el.shadowRoot!.querySelectorAll('button.act')).toHaveLength(0);
-    expect(labels(el, 'button.trn')).toEqual(['→ B']);
-    expect([...el.shadowRoot!.querySelectorAll('.label')].map(l => l.textContent)).toEqual(['Transitions']);
+    expect(texts(el, '.label')).toEqual(['Forced']);
+    expect(texts(el, 'button.trn')).toEqual(['→ B']);
     host.remove();
   });
 
   it('shows "no actions available" at a terminal state', async () => {
-    const { host, el } = await withHost("A 'go' -> B;");
-    host.do('go');                                              // → B (terminal: no exits)
+    const { host, el } = await withHost("A 'go' => B;");
+    host.do('go');                                            // → B (terminal)
     await host.updateComplete;
     await el.updateComplete;
     expect(el.shadowRoot!.querySelector('.empty')!.textContent).toContain('no actions');
