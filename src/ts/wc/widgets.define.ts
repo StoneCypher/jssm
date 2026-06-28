@@ -7,7 +7,7 @@
 import { define_canonical } from './wc_tag_helpers.js';
 import {
   FslToolbar, FslActions, FslFooter, FslHelp, FslHistory,
-  FslDataInspector, FslHookLog, FslSimulation, FslExport,
+  FslDataInspector, FslHookLog, FslSimulation, FslExport, FslStochastic,
 } from './widgets.js';
 
 define_canonical('fsl-toolbar',        FslToolbar);
@@ -19,5 +19,6 @@ define_canonical('fsl-data-inspector', FslDataInspector);
 define_canonical('fsl-hook-log',       FslHookLog);
 define_canonical('fsl-simulation',     FslSimulation);
 define_canonical('fsl-export',         FslExport);
+define_canonical('fsl-stochastic',     FslStochastic);
 
 export * from './widgets.js';
