@@ -7,8 +7,17 @@
  * `.source_location` *when they reference a parsed node* — but machine-level
  * compile errors (e.g. an empty machine, an unknown machine rule) have none, so
  * the location is treated as optional and falls back to the whole document.
+ *
+ * Some validity checks (e.g. a `required` property that no state defines) live
+ * in the {@link Machine} constructor, a stage past `compile`. We therefore also
+ * construct the machine so the editor surfaces those construction-time errors
+ * instead of calling such a machine valid. The `Machine` import closes a cycle
+ * (`jssm` re-exports this module), but it is only referenced at call time inside
+ * {@link fslDiagnostics}, never during module initialization, so the cycle is
+ * benign.
  */
 import { wrap_parse, compile } from '../jssm_compiler.js';
+import { Machine } from '../jssm.js';
 /** A clamped range from a parser/compiler location, or the whole document. */
 function range_from(loc, text) {
     if (!loc) {
@@ -24,6 +33,8 @@ function range_from(loc, text) {
  * @example
  *   fslDiagnostics('a -> b;');            // => []
  *   fslDiagnostics('a -> ;')[0].severity; // => 'error'
+ *   // a `required` property no state defines is a construction-time error:
+ *   fslDiagnostics('property p required; a -> b;')[0].severity; // => 'error'
  */
 export function fslDiagnostics(text) {
     let tree;
@@ -35,7 +46,11 @@ export function fslDiagnostics(text) {
         return [{ range: range_from(e.location, text), severity: 'error', message: e.message }];
     }
     try {
-        compile(tree);
+        const config = compile(tree);
+        // Construct the machine so constructor-stage validity checks (e.g. a
+        // `required` property missing on some state) are reported, not silently
+        // accepted as valid.
+        new Machine(config);
     }
     catch (err) {
         const e = err;
