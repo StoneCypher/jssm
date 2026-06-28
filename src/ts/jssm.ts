@@ -461,6 +461,11 @@ function find_connected_components<mDT>(
 
 }
 
+/** Default number of independent Monte-Carlo runs when none is declared. */
+export const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
+
 
 
 class Machine<mDT> {
@@ -2612,6 +2617,73 @@ class Machine<mDT> {
    */
   probabilistic_histo_walk(n: number): Map<StateType, number> {
     return histograph(this.probabilistic_walk(n));
+  }
+
+  /** One non-destructive weighted-random walk over the graph from `start`.
+   *
+   *  Reads the graph and advances the PRNG only — it never calls
+   *  {@link Machine.transition}, so it fires no hooks, mutates no machine
+   *  state, and touches no `data`.  A state with no probabilistic exits
+   *  (a terminal, or a forced-only `~>` state) ends the walk.
+   *
+   *  @param start - State to begin the walk from.
+   *  @param max_steps - Maximum transitions before the walk is step-capped.
+   *  @returns The {@link JssmStochasticRun} for this walk.
+   */
+  private _stochastic_one_walk(start: StateType, max_steps: number): JssmStochasticRun {
+
+    const states : Array<string> = [start];
+    const edges  : Array<string> = [];
+
+    let cur        : StateType = start;
+    let terminated : boolean   = false;
+
+    for (let step = 0; step < max_steps; step++) {
+      const exits = this.probable_exits_for(cur);
+      if (exits.length === 0) { terminated = true; break; }
+      const selected = weighted_rand_select(exits, undefined, this._rng);
+      edges.push(`${cur}→${selected.to}`);
+      cur = selected.to;
+      states.push(cur);
+    }
+
+    return { states, edges, length: states.length - 1, terminated };
+
+  }
+
+  /** Lazily yield one {@link JssmStochasticRun} at a time.
+   *
+   *  In `montecarlo` mode (default) yields `runs` independent walks from the
+   *  current state, each ending at a terminal or after `max_steps`.  In
+   *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+   *  is the lazy engine behind {@link Machine.stochastic_summary}; the
+   *  fsl-stochastic panel drives it across animation frames.
+   *
+   *  This does not snapshot the PRNG — pass `seed` to
+   *  {@link Machine.stochastic_summary}, or set {@link Machine.rng_seed}
+   *  before iterating, for reproducibility.
+   *
+   *  @param opts - {@link JssmStochasticOptions}.
+   *  @returns A generator of per-run results.
+   *
+   *  @example
+   *  const m = sm`a 'go' -> b 'go' -> c;`;
+   *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+   */
+  *stochastic_runs(opts: JssmStochasticOptions = {}): Generator<JssmStochasticRun> {
+
+    const mode      : JssmStochasticMode = opts.mode ?? 'montecarlo';
+    const max_steps : number             = opts.max_steps ?? STOCHASTIC_DEFAULT_MAX_STEPS;
+    const runs      : number             = (mode === 'steady_state')
+      ? 1
+      : (opts.runs ?? this.editor_config()?.stochastic_run_count ?? STOCHASTIC_DEFAULT_RUNS);
+
+    const start: StateType = this.state();
+
+    for (let i = 0; i < runs; i++) {
+      yield this._stochastic_one_walk(start, max_steps);
+    }
+
   }
 
 
