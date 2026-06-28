@@ -171,6 +171,31 @@
       ]
     },
     {
+      "id": "tut-document-structure",
+      "section": "tutorials",
+      "title": "Document structure",
+      "order": 2,
+      "source": "src/help/tutorials/document-structure.md",
+      "teaches": [
+        "doc-structure"
+      ],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "document",
+        "statement",
+        "term",
+        "semicolon"
+      ],
+      "fences": [
+        {
+          "teaches": "doc-structure",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-states-and-styling",
       "section": "tutorials",
       "title": "States and styling",
@@ -198,6 +223,33 @@
       ]
     },
     {
+      "id": "tut-machine-attributes",
+      "section": "tutorials",
+      "title": "Machine attributes",
+      "order": 25,
+      "source": "src/help/tutorials/machine-attributes.md",
+      "teaches": [
+        "machine-attributes"
+      ],
+      "mentions": [
+        "semver",
+        "labels-quoting"
+      ],
+      "indexTerms": [
+        "machine_name",
+        "machine_author",
+        "fsl_version",
+        "theme",
+        "metadata"
+      ],
+      "fences": [
+        {
+          "teaches": "machine-attributes",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-timed-transitions",
       "section": "tutorials",
       "title": "Timed transitions",
@@ -219,6 +271,55 @@
       "fences": [
         {
           "teaches": "timed-transitions",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-comments",
+      "section": "tutorials",
+      "title": "Comments",
+      "order": 4,
+      "source": "src/help/tutorials/comments.md",
+      "teaches": [
+        "comments"
+      ],
+      "mentions": [],
+      "indexTerms": [
+        "comment",
+        "line comment",
+        "block comment"
+      ],
+      "fences": [
+        {
+          "teaches": "comments",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-labels-quoting",
+      "section": "tutorials",
+      "title": "Labels and quoting",
+      "order": 8,
+      "source": "src/help/tutorials/labels-and-quoting.md",
+      "teaches": [
+        "labels-quoting"
+      ],
+      "mentions": [
+        "states",
+        "transitions"
+      ],
+      "indexTerms": [
+        "label",
+        "string",
+        "atom",
+        "quote",
+        "action"
+      ],
+      "fences": [
+        {
+          "teaches": "labels-quoting",
           "run": true
         }
       ]
