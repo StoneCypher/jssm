@@ -10,7 +10,7 @@ runtime does with it.  A few productions are accepted by the parser and
 either ignored or only partially honoured downstream; those are flagged
 inline.
 
-*Last verified against `src/ts/fsl_parser.peg` on 2026-06-16* (the
+*Last verified against `src/ts/fsl_parser.peg` on 2026-06-27* (the
 overlapping-state-groups section additionally tracks compile/runtime
 behaviour, verified against the `*_overlapping_groups.spec.ts` and
 `transition_graph_config.spec.ts` suites).  When re-syncing, `git log
@@ -53,7 +53,7 @@ A term is exactly one of:
 4. **`NamedList`** — `&name : [a b c];`
 5. **`MachineAttribute`** — metadata like `machine_name`, `fsl_version`, `theme`, `flow`
 6. **`MachineProperty`** — typed property declaration with optional default and `required`
-7. **`Config`** — block configuration (`graph_layout`, `start_states`, `transition`, `state`, `validation`, …)
+7. **`Config`** — block configuration (`graph_layout`, `start_states`, `transition`, `state`, `graph`, …)
 8. **`HookDeclaration`** — boundary-hook statement (`on enter|exit <state|&group> do '<action>';`) (see section 12)
 
 The numbering above is *categorical*, not grammar order.  In the PEG
@@ -508,7 +508,7 @@ the bio/circuit set (`promoter`, `cds`, `terminator`, `utr`,
 
 ## 8. Configuration blocks — `Config`
 
-A `Config` is one of ten block forms, all of shape
+A `Config` is one of eight block forms, all of shape
 
 ```
 <keyword> : { <items>? };
@@ -530,8 +530,7 @@ plus seven that take a single value plus `;`.
   alias — see StoneCypher/fsl#358) *or* a run of style items drawn from
   the **same vocabulary as a `state: {}` block** (`StateDeclarationItem`
   — `color`, `text-color`, `background-color`, `border-color`, `shape`,
-  `corners`, `line-style`, `image`, `url`, `property`) freely
-  intermixed with the `whargarbl`/`todo` `TransitionItem` placeholders.
+  `corners`, `line-style`, `image`, `url`, `property`).
   (The node-styling items *parse* but are mostly edge-meaningless;
   `color` and `line-style` are the practically useful ones.)
   Normalizes to `{ key: 'default_transition_config', value: […] }`.
@@ -544,15 +543,12 @@ plus seven that take a single value plus `;`.
   legacy scattered top-level graph keys (`graph_layout`,
   `graph_bg_color`, `dot_preamble`, `theme`, `flow`) — see §12 for the
   folding rules and the `graph_bg_color` deprecation warning.
-- **`action`**         — placeholder shape; only `whargarbl`/`todo`
-  accepted
-- **`validation`**     — placeholder shape; only `whargarbl`/`todo`
-  accepted
 
-The `whargarbl`/`todo` placeholders are explicit grammar stubs, not
-real keys — they are scaffolding for future config schemas.  Only
-`action` and `validation` are *limited* to them now; `transition` and
-`graph` accept the real style vocabulary above.
+The former `action: {}` and `validation: {}` blocks — along with the
+`whargarbl`/`todo` `TransitionItem` placeholder keys inside
+`transition: {}` — were dead grammar stubs from 2017 (no valid program
+could use them; their only accepted keys were the private debt-markers
+themselves) and were removed in StoneCypher/fsl#1366.
 
 ### Single-value configs
 
@@ -932,10 +928,6 @@ hyphenated forms aren't shadowed.
 
 - **Missing `-0` cycle.** `Cycle` accepts `+0` but not `-0` or bare
   `0`.  Probably intentional (zero is unsigned), but worth noting.
-
-- **`whargarbl` / `todo` keys.** `ConfigTransition`, `ConfigAction`,
-  and `ConfigValidation` only accept these placeholder keys.  Any
-  real schema work for these blocks is still pending in the grammar.
 
 - **Bare `after` numbers default to seconds.** `after 5 -> foo`
   means *five seconds*, not five milliseconds.  The implicit unit
