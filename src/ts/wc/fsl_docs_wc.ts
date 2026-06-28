@@ -15,7 +15,6 @@ const SECTIONS: ReadonlyArray<readonly [string, string]> = [
   ['tutorials', 'Tutorials'], ['example-machines', 'Example Machines'],
   ['index', 'Index'], ['search', 'Search'],
 ];
-const TIER_RANK: Record<string, number> = { core: 0, intermediate: 1, advanced: 2 };
 
 /**
  * `<fsl-docs>` — the language-docs content engine: drill-in nav over the bundled
@@ -54,15 +53,14 @@ export class FslDocs extends LitElement {
   @state() private _query = '';
 
   private _pagesIn(section: string): DocsPage[] {
-    const list = DOCS_PAGES.filter(p => p.section === section);
-    if (section === 'tutorials') {
-      const rank = (p: DocsPage): number => {
-        const f = DOCS_FEATURES.find(x => p.teaches.includes(x.id));
-        return (f ? (TIER_RANK[f.tier] ?? 3) : 3) * 1000 + p.order;
-      };
-      return [...list].sort((a, b) => rank(a) - rank(b));
-    }
-    return [...list].sort((a, b) => a.order - b.order);
+    // Page `order` already encodes the intended tier/dependency ordering (the
+    // teaching-surface dependency-order check enforces it), so a plain sort suffices.
+    return DOCS_PAGES.filter(p => p.section === section).sort((a, b) => a.order - b.order);
+  }
+
+  /** Display label for a section id (falls back to the id for unknown sections). */
+  private _sectionLabel(id: string): string {
+    return SECTIONS.find(s => s[0] === id)?.[1] ?? id;
   }
 
   private _go = (view: DocsView, section = '', pageId = ''): void => {
@@ -87,7 +85,7 @@ export class FslDocs extends LitElement {
   }
 
   private _renderPages(): TemplateResult {
-    const label = SECTIONS.find(s => s[0] === this._section)?.[1] ?? this._section;
+    const label = this._sectionLabel(this._section);
     const list = this._pagesIn(this._section);
     return html`
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>${label}</span></nav>
@@ -99,7 +97,7 @@ export class FslDocs extends LitElement {
   private _renderPage(): TemplateResult {
     const p = DOCS_PAGES.find(x => x.id === this._pageId);
     if (!p) { return html`<p class="empty">Not found.</p>`; }
-    const label = SECTIONS.find(s => s[0] === p.section)?.[1] ?? p.section;
+    const label = this._sectionLabel(p.section);
     return html`
       <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> /
         <a @click=${() => this._go('pages', p.section)}>${label}</a> / <span>${p.title}</span></nav>

@@ -20,4 +20,31 @@ describe('fsl_docs_markdown', () => {
     expect(f).toMatch(/data-fsl-example/);
     expect(f).toMatch(/data-run="true"/);
   });
+
+  it('renders a non-fsl fence as a plain code block', () => {
+    const f = renderMarkdown('```js\nconst x = 1;\n```\n');
+    expect(f).toMatch(/<pre><code>const x = 1;<\/code><\/pre>/);
+    expect(f).not.toMatch(/data-fsl-example/);
+  });
+
+  it('renders an untagged fsl fence without run/teaches attributes', () => {
+    const f = renderMarkdown('```fsl\na -> b;\n```\n');
+    expect(f).toMatch(/<pre data-fsl-example>/);
+    expect(f).not.toMatch(/data-run/);
+    expect(f).not.toMatch(/data-teaches/);
+  });
+
+  it('renders ordered lists, horizontal rules, and italics', () => {
+    expect(renderMarkdown('1. a\n2. b\n')).toMatch(/<ol>\s*<li>a<\/li>\s*<li>b<\/li>\s*<\/ol>/);
+    expect(renderMarkdown('text\n\n---\n\nmore\n')).toMatch(/<hr>/);
+    expect(renderMarkdown('an *emphatic* word')).toMatch(/<em>emphatic<\/em>/);
+  });
+
+  it('escapes html and tolerates malformed fence info', () => {
+    expect(renderMarkdown('a < b & c > d')).toMatch(/a &lt; b &amp; c &gt; d/);
+    expect(parseFenceInfo('fsl {bare}')).toEqual({ lang: 'fsl', attrs: {} });
+    expect(parseFenceInfo('fsl {run: false}')).toEqual({ lang: 'fsl', attrs: { run: false } });
+    expect(parseFenceInfo('fsl {: x}')).toEqual({ lang: 'fsl', attrs: {} });   // empty key
+    expect(parseFenceInfo('')).toEqual({ lang: '', attrs: {} });
+  });
 });
