@@ -1109,7 +1109,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-footer>` — a status bar for a parent `<fsl-instance>`.\n\nShows the current state with both **local** counts (actions firable from\nhere + transitions out of here) and **global** machine counts: distinct\naction *names*, **action-starts** (action-bearing edges — each place an\naction fires from), and total transitions. Plus terminal/complete badges.\n\nLocal counts track transitions by observing the host's reflected\n`current-state` / `legal-actions` attributes; the global counts refresh on\n`fsl-machine-rebuilt`, so the footer survives a live rebuild (#1387). A\ndefault slot carries embedder status. Standalone (no `<fsl-instance>`\nancestor) it renders just the slot.",
+          "description": "`<fsl-footer>` — a status bar for a parent `<fsl-instance>`.\r\n\r\nShows the current state with both **local** counts (actions firable from\r\nhere + transitions out of here) and **global** machine counts: distinct\r\naction *names*, **action-starts** (action-bearing edges — each place an\r\naction fires from), and total transitions. Plus terminal/complete badges.\r\n\r\nLocal counts track transitions by observing the host's reflected\r\n`current-state` / `legal-actions` attributes; the global counts refresh on\r\n`fsl-machine-rebuilt`, so the footer survives a live rebuild (#1387). A\r\ndefault slot carries embedder status. Standalone (no `<fsl-instance>`\r\nancestor) it renders just the slot.",
           "name": "FslFooter",
           "cssParts": [
             {
@@ -1229,7 +1229,7 @@
                   "text": "void"
                 }
               },
-              "description": "Recompute the machine-derived counts: local transitions out of the current\nstate, and the global action / action-start / transition totals. Only\ncalled while a host is attached, so `_host` is non-null here."
+              "description": "Recompute the machine-derived counts: local transitions out of the current\r\nstate, and the global action / action-start / transition totals. Only\r\ncalled while a host is attached, so `_host` is non-null here."
             }
           ],
           "superclass": {
