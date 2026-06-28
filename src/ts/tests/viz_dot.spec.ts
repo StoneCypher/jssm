@@ -110,6 +110,11 @@ describe('machine_to_dot output structure', () => {
     expect(dot).toMatch(/\}\s*$/);
   });
 
+  test('action labels default to #004488 (#048) via the edge preamble', () => {
+    const dot = jv.machine_to_dot(sm`a 'go' -> b;`);
+    expect(dot).toContain('fontcolor="#004488"');
+  });
+
   test('contains node identifiers for all states', () => {
     const dot = jv.machine_to_dot(sm`alpha -> beta;`);
     expect(dot).toMatch(/"alpha"/);
