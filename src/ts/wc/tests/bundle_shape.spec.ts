@@ -268,9 +268,9 @@ describe('dist/wc/widgets.js — bundler-friendly build', () => {
   });
 
   it('is reasonably small with jssm core + lit externalized', () => {
-    // Eight small widgets, no inlined core/lit. Comfortably under 60 KB; the
-    // guard catches an accidental core-or-lit inline (which would be 150KB+).
-    expect(readFileSync(dist_path, 'utf8').length).toBeLessThan(60_000);
+    // The widget suite, no inlined core/lit. Under 80 KB; the guard exists to
+    // catch an accidental core-or-lit inline (which would balloon past 150KB+).
+    expect(readFileSync(dist_path, 'utf8').length).toBeLessThan(80_000);
   });
 
 });

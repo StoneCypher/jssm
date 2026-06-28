@@ -130,18 +130,21 @@ export class FslActions extends LitElement {
 }
 FslActions.styles = css `
     :host { display: block; }
+    /* Horizontal bar: groups flow left-to-right and wrap; within a group the
+       label sits inline before its buttons. Suits the panel's home below the
+       workbench rather than a tall side dock. */
     .actions {
-      display: flex; flex-direction: column; gap: 0.7rem;
+      display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.1rem;
       padding: 0.55rem 0.65rem; background: var(--_fsl-surface);
       color: var(--_fsl-text); font: 0.8rem var(--_fsl-font);
     }
-    .group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .group { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
     .label {
       font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--_fsl-muted);
+      color: var(--_fsl-muted); white-space: nowrap;
     }
     button {
-      text-align: left; padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 4px;
+      text-align: center; padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 4px;
       border: 1px solid var(--_fsl-border); background: var(--_fsl-surface);
       color: var(--_fsl-text); font: 600 0.8rem var(--_fsl-font);
     }

@@ -142,6 +142,16 @@ export declare type FslLayout = '' | 'lr' | 'rl' | 'tb' | 'bt' | 'editor' | 'vie
 /** Which pane the tabbed layout currently shows. */
 export declare type FslTab = 'viz' | 'editor';
 /**
+ * How a panel's visibility is governed, per-panel or as the control-level
+ * default: `hide` (never shown, locked), `show` (always shown, locked),
+ * `default` (the built-in default — only the editor + renderer show), or
+ * `request` (like `default`, but panels the FSL requests are shown). The
+ * requested-panels source is the editor-defaults-in-FSL mechanism (fsl#1334);
+ * until that lands, {@link FslInstance.requestedPanels} is the embedder-set
+ * stand-in it reads.
+ */
+export declare type PanelMode = 'hide' | 'show' | 'default' | 'request';
+/**
  * Resolve `layout="auto"` to a concrete split direction from the viewport
  * shape: side-by-side (`'lr'`) when at least as wide as tall, else stacked
  * (`'tb'`). Pure, so it's testable without a laid-out DOM.
@@ -245,8 +255,20 @@ export declare class FslInstance extends LitElement {
     private _autoMode;
     /** Window-resize listener installed while `layout="auto"`, or null. */
     private _autoListener;
-    /** Slot names of panels currently hidden (driven by `<fsl-toolbar>`). */
-    private _hiddenPanels;
+    /** Per-panel runtime visibility overrides set by the user via the toolbar
+     *  toggles; a slot absent here falls back to its mode-resolved base. */
+    private _overrides;
+    /** Control-level default {@link PanelMode}; {@link panelModes} overrides it
+     *  per panel. `default` shows only the editor + renderer; every other panel
+     *  starts hidden and is opt-in. */
+    panelMode: PanelMode;
+    /** Per-panel {@link PanelMode} overrides (slot → mode), each overriding the
+     *  control-level {@link panelMode}. */
+    panelModes: Record<string, PanelMode>;
+    /** Panels the FSL "requests" — the embedder-set stand-in for the
+     *  editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed
+     *  here are shown; others fall back to the default. */
+    requestedPanels: string[];
     /**
      * The underlying machine instance, constructed at `connectedCallback`.
      * Exposed raw (not proxied) per the #639/#648 design decision so that
@@ -351,6 +373,19 @@ export declare class FslInstance extends LitElement {
             type: ObjectConstructor;
             reflect: boolean;
         };
+        panelMode: {
+            type: StringConstructor;
+            attribute: string;
+            reflect: boolean;
+        };
+        panelModes: {
+            type: ObjectConstructor;
+            attribute: boolean;
+        };
+        requestedPanels: {
+            type: ArrayConstructor;
+            attribute: boolean;
+        };
     };
     /**
      * Convenience wrapper for `machine.action(action, data)`.
@@ -415,24 +450,35 @@ export declare class FslInstance extends LitElement {
     private _renderTabbar;
     /** Switch the visible pane in the `tabs` layout. */
     private _setTab;
+    /** The built-in default hidden state: only the editor + renderer (viz) show. */
+    private _defaultHidden;
     /**
-     * Whether the panel slotted under `slot` is currently hidden.
+     * Whether the panel slotted under `slot` is currently hidden, resolving its
+     * {@link PanelMode} ({@link panelModes} for the slot, else {@link panelMode}):
+     * `hide`/`show` force the state; otherwise a user toggle wins, then a
+     * `request`ed panel shows, then the built-in default.
      *
      * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      * @returns `true` when the panel is hidden.
+     *
+     * @example
+     * el.panelModes = { history: 'show' };
+     * el.isPanelHidden('history'); // false
      */
     isPanelHidden(slot: string): boolean;
     /**
-     * Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`
-     * collapses that workbench pane (the other fills); hiding an aux panel
-     * removes its section. `<fsl-toolbar>` drives this from its panel toggles.
+     * Show or hide the panel slotted under `slot` (a runtime override). Hiding
+     * `viz` or `editor` collapses that workbench pane (the other fills); hiding
+     * an aux panel removes its section. `<fsl-toolbar>` drives this from its
+     * panel toggles.
      *
      * @param slot   - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      * @param hidden - `true` to hide, `false` to show.
      */
     setPanelHidden(slot: string, hidden: boolean): void;
     /**
-     * Toggle the visibility of the panel slotted under `slot`.
+     * Toggle the visibility of the panel slotted under `slot`. A no-op when the
+     * panel's mode is `hide` or `show` — those lock the visibility.
      *
      * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      */
@@ -549,6 +595,11 @@ export declare class FslInstance extends LitElement {
      * @returns The compiled machine.
      */
     private _build_machine;
+    /** Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine
+     *  declares `panels`, drive {@link requestedPanels} from it so `request` panel
+     *  mode honors the source. The embedder's value persists when the FSL is
+     *  silent. Called after each (re)build, with `_machine` freshly assigned. */
+    private _applyEditorConfig;
     private _rebuild_machine;
     updated(changed: PropertyValues): void;
     /**
@@ -608,13 +659,14 @@ export declare class FslInstance extends LitElement {
      */
     render(): TemplateResult;
     /** The stacked middle panels, shared by both layouts. The toolbar slot is
-     *  rendered at the top of {@link render}. In split mode the `actions` and
-     *  `data-inspector` panels are lifted out into easing side docks, so
+     *  rendered at the top of {@link render}. In split mode the `hook-log` (events)
+     *  and `data-inspector` panels are lifted out into easing side docks, so
      *  `docked` is true there and they are skipped here to avoid duplicating
-     *  their slots. The state-section + footer stay in {@link render} so the
-     *  dynamic state-slot name binds at the top level.
+     *  their slots; `actions` instead lives here as a horizontal bar. The
+     *  state-section + footer stay in {@link render} so the dynamic state-slot
+     *  name binds at the top level.
      *
-     *  @param docked - True when actions + data-inspector are rendered as side
+     *  @param docked - True when hook-log + data-inspector are rendered as side
      *  docks (split layouts); they are then omitted from this stack. */
     private _renderAuxPanels;
 }

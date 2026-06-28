@@ -95,7 +95,42 @@ const EXPORT_FORMATS = [
     { value: 'json', label: 'JSON (serialized)' },
     { value: 'fsl', label: 'FSL source' },
     { value: 'svg', label: 'SVG' },
+    { value: 'permalink', label: 'Permalink (URL)' },
+    { value: 'embed', label: 'Embed snippet' },
 ];
+/**
+ * A shareable URL for the given FSL: the current page URL with the source
+ * encoded in the hash (`#fsl=...`). A page that reads the hash on load can
+ * restore the machine. Browser-only (uses `location`), like the rest of the
+ * toolbar.
+ *
+ * @example
+ * permalink_for("a -> b;"); // "https://host/path#fsl=a%20-%3E%20b%3B"
+ */
+function permalink_for(fsl) {
+    return `${location.href.split('#')[0]}#fsl=${encodeURIComponent(fsl)}`;
+}
+/**
+ * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
+ * `<fsl-instance>` reading its source from a `<script type="text/fsl">` child,
+ * with a slotted `<fsl-viz>` for the graph.
+ *
+ * @example
+ * embed_snippet_for("a -> b;"); // "<script …instance.js …><fsl-instance>…</fsl-instance>"
+ */
+function embed_snippet_for(fsl) {
+    const CDN = 'https://cdn.jsdelivr.net/npm/jssm/dist/cdn';
+    return [
+        `<script type="module" src="${CDN}/instance.js"></script>`,
+        `<script type="module" src="${CDN}/viz.js"></script>`,
+        '<fsl-instance>',
+        '  <fsl-viz slot="viz"></fsl-viz>',
+        '  <script type="text/fsl">',
+        fsl,
+        '  </script>',
+        '</fsl-instance>',
+    ].join('\n');
+}
 /* Panel icons — Solar (CC BY 4.0) bold-duotone. Layout icons — hand-drawn
    duotone split-rects. All use currentColor (+ baked opacity on the secondary
    tone), so they theme with the button's text color and pressed state. Each is
@@ -121,6 +156,9 @@ const ICON_AUTO = html `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
 const ICON_ACTIONS = html `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M8.732 5.771L5.67 9.914c-1.285 1.739-1.928 2.608-1.574 3.291l.018.034c.375.673 1.485.673 3.704.673c1.233 0 1.85 0 2.236.363l.02.02l3.872-4.57l-.02-.02c-.379-.371-.379-.963-.379-2.148v-.31c0-3.285 0-4.927-.923-5.21s-1.913 1.056-3.892 3.734" clip-rule="evenodd"/><path fill="currentColor" d="M10.453 16.443v.31c0 3.284 0 4.927.923 5.21s1.913-1.056 3.893-3.734l3.062-4.143c1.284-1.739 1.927-2.608 1.573-3.291l-.018-.034c-.375-.673-1.485-.673-3.704-.673c-1.233 0-1.85 0-2.236-.363l-3.872 4.57c.379.371.379.963.379 2.148" opacity=".5"/></svg>`;
 /* Solar palette-round-bold-duotone — the theme pulldown. */
 const ICON_THEME = html `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 18a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/><path fill="currentColor" d="M10 6v12a4 4 0 0 1-8 0V6a4 4 0 1 1 8 0" opacity=".4"/><path fill="currentColor" d="m9.248 20.336l3.974-3.975l5.838-6.09a4.042 4.042 0 0 0-5.776-5.655L10 7.9V18c0 .872-.279 1.679-.752 2.336" opacity=".7"/><path fill="currentColor" d="m13.222 16.362l-3.974 3.974A4 4 0 0 1 6 22h11.9a4 4 0 1 0 0-8h-2.414z"/></svg>`;
+/* Validate — a duotone check-circle. Lint — a duotone document with rule lines. */
+const ICON_VALIDATE = html `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".4"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2.5 2.5l4.5-5.5"/></svg>`;
+const ICON_LINT = html `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 10c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h2c3.771 0 5.657 0 6.828 1.172S21 6.229 21 10v4c0 3.771 0 5.657-1.172 6.828S16.771 22 13 22h-2c-3.771 0-5.657 0-6.828-1.172S3 17.771 3 14z" opacity=".4"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M7.5 8.5h9M7.5 12h6M7.5 15.5h3"/></svg>`;
 const PANELS = [
     { slot: 'actions', label: 'Actions', icon: ICON_ACTIONS },
     { slot: 'viz', label: 'Renderer', icon: ICON_VIZ },
@@ -144,11 +182,13 @@ const LAYOUTS = [
     { value: 'tabs', label: 'Tabbed', icon: ICON_TABS },
 ];
 /**
- * `<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. A light/dark
- * theme toggle on the left; on the right, an icon toggle to show/hide each
- * panel present in the host (renderer, code, history, …) plus a View menu of
- * the layout set (its button shows the current layout's icon). Standalone (no
- * host) the panel toggles disappear. A trailing slot carries extra buttons.
+ * `<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. Validate + Lint
+ * action buttons (fired as `fsl-validate` / `fsl-lint` events for the embedder
+ * to fulfill, each suppressible via `no-validate` / `no-lint`); an icon toggle
+ * to show/hide each panel present in the host (renderer, code, history, …); and
+ * Layout / Export / Theme pulldowns (the Layout button shows the current
+ * layout's icon). Standalone (no host) the host-dependent controls disappear.
+ * A trailing slot carries extra buttons.
  *
  * @element fsl-toolbar
  * @csspart toolbar - The bar container.
@@ -166,6 +206,10 @@ class FslToolbar extends LitElement {
          * The embedder sets this after fulfilling a `pick` export.
          */
         this.lastDirectory = '';
+        /** Hide the Validate button (e.g. when the consumer validates inline). */
+        this.noValidate = false;
+        /** Hide the Lint button. */
+        this.noLint = false;
         this._host = null;
         /** Panels actually present in the host — one toggle each. */
         this._present = [];
@@ -218,10 +262,23 @@ class FslToolbar extends LitElement {
         else if (format === 'svg') {
             content = await machine_to_svg_string(host.machine);
         }
+        else if (format === 'permalink') {
+            content = permalink_for(host.fsl);
+        }
+        else if (format === 'embed') {
+            content = embed_snippet_for(host.fsl);
+        }
         else {
             content = host.fsl;
         }
         this.dispatchEvent(new CustomEvent('fsl-export', { detail: { format, content, destination }, bubbles: true, composed: true }));
+    }
+    /** Fire a workspace-action intent (validate / lint) for the consumer to
+     *  fulfill — the toolbar presents the action; the embedder runs it. The
+     *  current machine source rides along in the detail as a convenience. The
+     *  buttons only render with a host, so `_host` is non-null here. */
+    _fireAction(type) {
+        this.dispatchEvent(new CustomEvent(type, { detail: { fsl: this._host.fsl }, bubbles: true, composed: true }));
     }
     _toggleMenu(which) { this._openMenu = this._openMenu === which ? '' : which; }
     render() {
@@ -235,6 +292,13 @@ class FslToolbar extends LitElement {
         return html `
       <div class="toolbar" part="toolbar" role="toolbar" aria-label="Workbench controls">
         <span class="spacer"></span>
+        ${host ? html `
+          <div class="grp">
+            ${this.noValidate ? '' : html `
+              <button class="tb icon" aria-label="Validate" title="Validate" @click=${() => this._fireAction('fsl-validate')}>${ICON_VALIDATE}</button>`}
+            ${this.noLint ? '' : html `
+              <button class="tb icon" aria-label="Lint" title="Lint" @click=${() => this._fireAction('fsl-lint')}>${ICON_LINT}</button>`}
+          </div>` : ''}
         <div class="grp">
           ${host
             ? this._present.map(p => html `
@@ -336,6 +400,12 @@ __decorate$7([
 __decorate$7([
     property({ attribute: false })
 ], FslToolbar.prototype, "lastDirectory", void 0);
+__decorate$7([
+    property({ type: Boolean, attribute: 'no-validate' })
+], FslToolbar.prototype, "noValidate", void 0);
+__decorate$7([
+    property({ type: Boolean, attribute: 'no-lint' })
+], FslToolbar.prototype, "noLint", void 0);
 
 var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -465,18 +535,21 @@ class FslActions extends LitElement {
 }
 FslActions.styles = css `
     :host { display: block; }
+    /* Horizontal bar: groups flow left-to-right and wrap; within a group the
+       label sits inline before its buttons. Suits the panel's home below the
+       workbench rather than a tall side dock. */
     .actions {
-      display: flex; flex-direction: column; gap: 0.7rem;
+      display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.4rem 1.1rem;
       padding: 0.55rem 0.65rem; background: var(--_fsl-surface);
       color: var(--_fsl-text); font: 0.8rem var(--_fsl-font);
     }
-    .group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .group { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
     .label {
       font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--_fsl-muted);
+      color: var(--_fsl-muted); white-space: nowrap;
     }
     button {
-      text-align: left; padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 4px;
+      text-align: center; padding: 0.4rem 0.6rem; cursor: pointer; border-radius: 4px;
       border: 1px solid var(--_fsl-border); background: var(--_fsl-surface);
       color: var(--_fsl-text); font: 600 0.8rem var(--_fsl-font);
     }
@@ -503,15 +576,23 @@ var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, 
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+/** `<n> word`, with a regular plural `s` unless `n === 1`. */
+function plural(n, word) {
+    return `${n} ${word}${n === 1 ? '' : 's'}`;
+}
 /**
  * `<fsl-footer>` — a status bar for a parent `<fsl-instance>`.
  *
- * Reflects the host's current state, legal-action count, and
- * terminal/complete status by observing the host's reflected attributes
- * (`current-state`, `legal-actions`, `terminal`, `complete`) — so it tracks
- * transitions *and* survives a live machine rebuild (#1387) without a machine
- * subscription. A default slot carries embedder status (line/column, parse
- * state, …). Standalone (no `<fsl-instance>` ancestor) it renders just the slot.
+ * Shows the current state with both **local** counts (actions firable from
+ * here + transitions out of here) and **global** machine counts: distinct
+ * action *names*, **action-starts** (action-bearing edges — each place an
+ * action fires from), and total transitions. Plus terminal/complete badges.
+ *
+ * Local counts track transitions by observing the host's reflected
+ * `current-state` / `legal-actions` attributes; the global counts refresh on
+ * `fsl-machine-rebuilt`, so the footer survives a live rebuild (#1387). A
+ * default slot carries embedder status. Standalone (no `<fsl-instance>`
+ * ancestor) it renders just the slot.
  *
  * @element fsl-footer
  * @csspart bar - The footer bar container.
@@ -521,14 +602,21 @@ class FslFooter extends LitElement {
     constructor() {
         super(...arguments);
         this._state = '';
-        this._actions = 0;
+        this._actions = 0; // local: actions firable from the current state
+        this._transitions = 0; // local: transitions out of the current state
         this._terminal = false;
         this._complete = false;
+        this._gActions = 0; // global: distinct action names
+        this._gStarts = 0; // global: action-starts (action-bearing edges)
+        this._gTransitions = 0; // global: total transitions (all edges)
         this._observer = null;
+        this._host = null;
+        this._onRebuilt = () => { this._syncMachine(); };
     }
     connectedCallback() {
         super.connectedCallback();
         const host = closest_wc(this, 'instance');
+        this._host = host;
         if (host === null) {
             return;
         }
@@ -539,12 +627,14 @@ class FslFooter extends LitElement {
             this._actions = la === '' ? 0 : la.split(/\s+/).length;
             this._terminal = host.hasAttribute('terminal');
             this._complete = host.hasAttribute('complete');
+            this._syncMachine();
         };
         this._observer = new MutationObserver(sync);
         this._observer.observe(host, {
             attributes: true,
             attributeFilter: ['current-state', 'legal-actions', 'terminal', 'complete'],
         });
+        host.addEventListener('fsl-machine-rebuilt', this._onRebuilt);
         sync();
     }
     disconnectedCallback() {
@@ -553,12 +643,29 @@ class FslFooter extends LitElement {
             this._observer.disconnect();
             this._observer = null;
         }
+        if (this._host !== null) {
+            this._host.removeEventListener('fsl-machine-rebuilt', this._onRebuilt);
+            this._host = null;
+        }
+    }
+    /** Recompute the machine-derived counts: local transitions out of the current
+     *  state, and the global action / action-start / transition totals. Only
+     *  called while a host is attached, so `_host` is non-null here. */
+    _syncMachine() {
+        var _a;
+        const host = this._host;
+        const current = (_a = host.getAttribute('current-state')) !== null && _a !== void 0 ? _a : '';
+        const edges = host.machine.list_edges();
+        this._transitions = edges.filter(e => String(e.from) === current).length;
+        const actionEdges = edges.filter(e => typeof e.action === 'string');
+        this._gStarts = actionEdges.length;
+        this._gActions = new Set(actionEdges.map(e => e.action)).size;
+        this._gTransitions = edges.length;
     }
     render() {
         return html `
       <div class="bar" part="bar">
-        ${this._state ? html `<span class="state">${this._state}</span>` : ''}
-        <span>${this._actions} action${this._actions === 1 ? '' : 's'}</span>
+        <span>${this._state ? html `<span class="state">${this._state}</span>, ` : ''}${plural(this._actions, 'action')}, ${plural(this._transitions, 'transition')}; globally ${plural(this._gActions, 'action')}, ${plural(this._gStarts, 'start')}, ${plural(this._gTransitions, 'transition')}</span>
         ${this._terminal ? html `<span class="badge">terminal</span>` : ''}
         ${this._complete ? html `<span class="badge">complete</span>` : ''}
         <span class="spacer"></span>
@@ -587,10 +694,22 @@ __decorate$5([
 ], FslFooter.prototype, "_actions", void 0);
 __decorate$5([
     state()
+], FslFooter.prototype, "_transitions", void 0);
+__decorate$5([
+    state()
 ], FslFooter.prototype, "_terminal", void 0);
 __decorate$5([
     state()
 ], FslFooter.prototype, "_complete", void 0);
+__decorate$5([
+    state()
+], FslFooter.prototype, "_gActions", void 0);
+__decorate$5([
+    state()
+], FslFooter.prototype, "_gStarts", void 0);
+__decorate$5([
+    state()
+], FslFooter.prototype, "_gTransitions", void 0);
 
 var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;

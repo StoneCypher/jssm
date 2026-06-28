@@ -510,6 +510,15 @@ declare type JssmBaseTheme = {
  *  @typeParam StateType - The state-name type (usually `string`).
  *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
  */
+/**
+ *  Editor/panel defaults an FSL machine declares in an `editor: {}` block
+ *  (fsl#1334), read by the all-widgets web control: a stochastic run-count
+ *  and the panels the machine requests under `request` panel mode.
+ */
+declare type JssmEditorConfig = {
+    stochastic_run_count?: number;
+    panels?: Array<string>;
+};
 declare type JssmGenericConfig<StateType, DataType> = {
     graph_layout?: JssmLayout;
     complete?: Array<StateType>;
@@ -539,6 +548,7 @@ declare type JssmGenericConfig<StateType, DataType> = {
     min_exits?: number;
     max_exits?: number;
     allow_islands?: JssmAllowIslands;
+    editor_config?: JssmEditorConfig;
     allow_force?: false;
     actions?: JssmPermittedOpt;
     simplify_bidi?: boolean;
@@ -1291,6 +1301,7 @@ declare class Machine<mDT> {
     _code_allows_override: JssmAllowsOverride;
     _config_allows_override: JssmAllowsOverride;
     _allow_islands: JssmAllowIslands;
+    _editor_config?: JssmEditorConfig;
     _post_hooks: Map<number, HookHandler<mDT>>;
     _post_named_hooks: Map<number, Map<number, HookHandler<mDT>>>;
     _post_entry_hooks: Map<number, HookHandler<mDT>>;
@@ -1340,7 +1351,7 @@ declare class Machine<mDT> {
     _firing_error: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -1768,6 +1779,17 @@ declare class Machine<mDT> {
      *  @returns The machine name string.
      */
     machine_name(): string;
+    /** The editor/panel defaults declared in the FSL `editor: {}` block, or
+     *  `undefined` when none was given.  Read by the all-widgets web control
+     *  (fsl#1334) — `panels` drives `request` panel mode.
+     *
+     *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
+     *
+     *  @example
+     *    const m = sm`editor: { panels: [history]; }; a -> b;`;
+     *    m.editor_config();  // => { panels: ['history'] }
+     */
+    editor_config(): JssmEditorConfig | undefined;
     /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.
      *  Returns `undefined` when not present.
      *  @returns The npm package name string, or `undefined`.

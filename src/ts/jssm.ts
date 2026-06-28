@@ -1969,7 +1969,8 @@ class Machine<mDT> {
    *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
    *
    *  @example
-   *  sm`editor: { panels: [history]; }; a -> b;`.editor_config(); // { panels: ['history'] }
+   *    const m = sm`editor: { panels: [history]; }; a -> b;`;
+   *    m.editor_config();  // => { panels: ['history'] }
    */
   editor_config(): JssmEditorConfig | undefined {
     return this._editor_config;

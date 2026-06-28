@@ -363,8 +363,20 @@ export class FslInstance extends LitElement {
         this._autoMode = 'lr';
         /** Window-resize listener installed while `layout="auto"`, or null. */
         this._autoListener = null;
-        /** Slot names of panels currently hidden (driven by `<fsl-toolbar>`). */
-        this._hiddenPanels = new Set();
+        /** Per-panel runtime visibility overrides set by the user via the toolbar
+         *  toggles; a slot absent here falls back to its mode-resolved base. */
+        this._overrides = new Map();
+        /** Control-level default {@link PanelMode}; {@link panelModes} overrides it
+         *  per panel. `default` shows only the editor + renderer; every other panel
+         *  starts hidden and is opt-in. */
+        this.panelMode = 'default';
+        /** Per-panel {@link PanelMode} overrides (slot → mode), each overriding the
+         *  control-level {@link panelMode}. */
+        this.panelModes = {};
+        /** Panels the FSL "requests" — the embedder-set stand-in for the
+         *  editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed
+         *  here are shown; others fall back to the default. */
+        this.requestedPanels = [];
         /**
          * The underlying machine instance, constructed at `connectedCallback`.
          * Exposed raw (not proxied) per the #639/#648 design decision so that
@@ -557,39 +569,67 @@ export class FslInstance extends LitElement {
         this._tab = tab;
         this.requestUpdate();
     }
+    /** The built-in default hidden state: only the editor + renderer (viz) show. */
+    _defaultHidden(slot) {
+        return slot !== 'viz' && slot !== 'editor';
+    }
     /**
-     * Whether the panel slotted under `slot` is currently hidden.
+     * Whether the panel slotted under `slot` is currently hidden, resolving its
+     * {@link PanelMode} ({@link panelModes} for the slot, else {@link panelMode}):
+     * `hide`/`show` force the state; otherwise a user toggle wins, then a
+     * `request`ed panel shows, then the built-in default.
      *
      * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      * @returns `true` when the panel is hidden.
+     *
+     * @example
+     * el.panelModes = { history: 'show' };
+     * el.isPanelHidden('history'); // false
      */
     isPanelHidden(slot) {
-        return this._hiddenPanels.has(slot);
+        var _a;
+        const mode = (_a = this.panelModes[slot]) !== null && _a !== void 0 ? _a : this.panelMode;
+        if (mode === 'hide') {
+            return true;
+        }
+        if (mode === 'show') {
+            return false;
+        }
+        const override = this._overrides.get(slot);
+        if (override !== undefined) {
+            return override;
+        }
+        if (mode === 'request' && this.requestedPanels.includes(slot)) {
+            return false;
+        }
+        return this._defaultHidden(slot);
     }
     /**
-     * Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`
-     * collapses that workbench pane (the other fills); hiding an aux panel
-     * removes its section. `<fsl-toolbar>` drives this from its panel toggles.
+     * Show or hide the panel slotted under `slot` (a runtime override). Hiding
+     * `viz` or `editor` collapses that workbench pane (the other fills); hiding
+     * an aux panel removes its section. `<fsl-toolbar>` drives this from its
+     * panel toggles.
      *
      * @param slot   - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      * @param hidden - `true` to hide, `false` to show.
      */
     setPanelHidden(slot, hidden) {
-        if (hidden) {
-            this._hiddenPanels.add(slot);
-        }
-        else {
-            this._hiddenPanels.delete(slot);
-        }
+        this._overrides.set(slot, hidden);
         this.requestUpdate();
     }
     /**
-     * Toggle the visibility of the panel slotted under `slot`.
+     * Toggle the visibility of the panel slotted under `slot`. A no-op when the
+     * panel's mode is `hide` or `show` — those lock the visibility.
      *
      * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
      */
     togglePanel(slot) {
-        this.setPanelHidden(slot, !this._hiddenPanels.has(slot));
+        var _a;
+        const mode = (_a = this.panelModes[slot]) !== null && _a !== void 0 ? _a : this.panelMode;
+        if (mode === 'hide' || mode === 'show') {
+            return;
+        }
+        this.setPanelHidden(slot, !this.isPanelHidden(slot));
     }
     /**
      * Install or remove the window-resize listener that resolves `layout="auto"`
@@ -636,6 +676,7 @@ export class FslInstance extends LitElement {
         // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
         const fsl_source = resolved.fsl;
         this._machine = this._build_machine(fsl_source);
+        this._applyEditorConfig();
         // Step 3: paint initial host attributes + CSS custom properties.
         this._paint_state_reflection();
         // Step 4: shadow DOM render is automatic via Lit; requesting an update
@@ -807,6 +848,17 @@ export class FslInstance extends LitElement {
             ? sm `${fsl_source}`
             : jssm_from(fsl_source, { data: this.data }));
     }
+    /** Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine
+     *  declares `panels`, drive {@link requestedPanels} from it so `request` panel
+     *  mode honors the source. The embedder's value persists when the FSL is
+     *  silent. Called after each (re)build, with `_machine` freshly assigned. */
+    _applyEditorConfig() {
+        var _a;
+        const panels = (_a = this._machine.editor_config()) === null || _a === void 0 ? void 0 : _a.panels;
+        if (panels !== undefined) {
+            this.requestedPanels = panels;
+        }
+    }
     _rebuild_machine() {
         if (typeof this.fsl !== 'string' || this.fsl.trim().length === 0) {
             return;
@@ -822,6 +874,7 @@ export class FslInstance extends LitElement {
         this._unbind_machine_subscriptions();
         // Swap to the new machine and re-bind everything machine-scoped.
         this._machine = next;
+        this._applyEditorConfig();
         this._paint_state_reflection();
         this._install_event_reemission();
         this._install_declarative_hooks();
@@ -1047,10 +1100,10 @@ export class FslInstance extends LitElement {
           ${header}
           ${toolbar}
           <div class="middle">
-            <section class="dock actions-dock${this._hiddenPanels.has('actions') ? '' : ' open'}" part="actions-dock">
-              <slot name="actions"></slot>
+            <section class="dock events-dock${this.isPanelHidden('hook-log') ? '' : ' open'}" part="events-dock">
+              <slot name="hook-log"></slot>
             </section>
-            <div class="workbench${this._hiddenPanels.has('viz') ? ' hide-viz' : ''}${this._hiddenPanels.has('editor') ? ' hide-editor' : ''}"
+            <div class="workbench${this.isPanelHidden('viz') ? ' hide-viz' : ''}${this.isPanelHidden('editor') ? ' hide-editor' : ''}"
                  data-mode=${mode} style="--fsl-split:${this._split}%">
               ${mode === 'tabs' ? this._renderTabbar() : ''}
               <section class="pane viz" ?hidden=${mode === 'tabs' && this._tab !== 'viz'}>${viz}</section>
@@ -1059,7 +1112,7 @@ export class FslInstance extends LitElement {
                    @dblclick=${this._onGutterReset}></div>
               <section class="pane editor" ?hidden=${mode === 'tabs' && this._tab !== 'editor'}>${editor}</section>
             </div>
-            <section class="dock data-dock${this._hiddenPanels.has('data-inspector') ? '' : ' open'}" part="data-dock">
+            <section class="dock data-dock${this.isPanelHidden('data-inspector') ? '' : ' open'}" part="data-dock">
               <slot name="data-inspector"></slot>
             </section>
           </div>
@@ -1073,8 +1126,8 @@ export class FslInstance extends LitElement {
       <div class="container">
         ${header}
         ${toolbar}
-        <section class="viz" ?hidden=${this._hiddenPanels.has('viz')}>${viz}</section>
-        <section class="editor" ?hidden=${this._hiddenPanels.has('editor')}>${editor}</section>
+        <section class="viz" ?hidden=${this.isPanelHidden('viz')}>${viz}</section>
+        <section class="editor" ?hidden=${this.isPanelHidden('editor')}>${editor}</section>
         ${this._renderAuxPanels(false)}
         <section class="state-section"><slot name=${state_slot_name}></slot></section>
         <footer><slot name="footer"></slot></footer>
@@ -1082,22 +1135,23 @@ export class FslInstance extends LitElement {
     `;
     }
     /** The stacked middle panels, shared by both layouts. The toolbar slot is
-     *  rendered at the top of {@link render}. In split mode the `actions` and
-     *  `data-inspector` panels are lifted out into easing side docks, so
+     *  rendered at the top of {@link render}. In split mode the `hook-log` (events)
+     *  and `data-inspector` panels are lifted out into easing side docks, so
      *  `docked` is true there and they are skipped here to avoid duplicating
-     *  their slots. The state-section + footer stay in {@link render} so the
-     *  dynamic state-slot name binds at the top level.
+     *  their slots; `actions` instead lives here as a horizontal bar. The
+     *  state-section + footer stay in {@link render} so the dynamic state-slot
+     *  name binds at the top level.
      *
-     *  @param docked - True when actions + data-inspector are rendered as side
+     *  @param docked - True when hook-log + data-inspector are rendered as side
      *  docks (split layouts); they are then omitted from this stack. */
     _renderAuxPanels(docked) {
-        const h = (slot) => this._hiddenPanels.has(slot);
+        const h = (slot) => this.isPanelHidden(slot);
         return html `
-      ${docked ? '' : html `<section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>`}
+      <section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>
       <section class="info-panel" ?hidden=${h('info-panel')}><slot name="info-panel"></slot></section>
       <section class="history" ?hidden=${h('history')}><slot name="history"></slot></section>
       ${docked ? '' : html `<section class="data-inspector" ?hidden=${h('data-inspector')}><slot name="data-inspector"></slot></section>`}
-      <section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>
+      ${docked ? '' : html `<section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>`}
       <section class="effective-properties" ?hidden=${h('effective-properties')}><slot name="effective-properties"></slot></section>
       <section class="simulation" ?hidden=${h('simulation')}><slot name="simulation"></slot></section>
       <section class="export" ?hidden=${h('export')}><slot name="export"></slot></section>
@@ -1137,7 +1191,7 @@ FslInstance.styles = css `
 
     /* layout modes: lr/rl (row) · tb/bt (column) · editor/viewer (single) · tabs. */
     .container.is-split { display: flex; flex-direction: column; }
-    /* the middle band: actions dock | workbench | data dock */
+    /* the middle band: events dock | workbench | data dock */
     .middle { display: flex; flex: 1 1 auto; min-height: 0; }
     .workbench { display: flex; flex: 1 1 auto; min-height: 0; min-width: 0; }
     /* side docks ease their width like the help drawer; closed = 0, open = a
@@ -1148,7 +1202,7 @@ FslInstance.styles = css `
       transition: flex-basis 0.28s ease;
     }
     .dock.open { flex-basis: var(--fsl-dock-width, 17em); }
-    .actions-dock.open { border-right: 1px solid var(--fsl-color-border, #e5e5e5); }
+    .events-dock.open { border-right: 1px solid var(--fsl-color-border, #e5e5e5); }
     .data-dock.open    { border-left: 1px solid var(--fsl-color-border, #e5e5e5); }
     /* a docked panel fills the band's height; the data inspector then scrolls
        to the dock instead of its own 16em cap. */
@@ -1229,4 +1283,7 @@ FslInstance.properties = {
     themeName: { type: String, attribute: 'theme-name', reflect: true },
     themes: { type: Object, reflect: false },
     data: { type: Object, reflect: false },
+    panelMode: { type: String, attribute: 'panel-mode', reflect: true },
+    panelModes: { type: Object, attribute: false },
+    requestedPanels: { type: Array, attribute: false },
 };
