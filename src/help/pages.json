@@ -1,0 +1,227 @@
+{
+  "generated": true,
+  "pages": [
+    {
+      "id": "what-is-an-fsm",
+      "section": "about-state-machines",
+      "title": "What is a state machine?",
+      "order": 10,
+      "source": "src/help/about-state-machines/what-is-an-fsm.md",
+      "teaches": [],
+      "mentions": [],
+      "indexTerms": [
+        "fsm",
+        "finite",
+        "state",
+        "transition",
+        "theory",
+        "automaton"
+      ],
+      "fences": []
+    },
+    {
+      "id": "mealy-vs-moore",
+      "section": "about-state-machines",
+      "title": "Mealy vs Moore",
+      "order": 20,
+      "source": "src/help/about-state-machines/mealy-vs-moore.md",
+      "teaches": [],
+      "mentions": [],
+      "indexTerms": [
+        "mealy",
+        "moore",
+        "output",
+        "action",
+        "theory"
+      ],
+      "fences": []
+    },
+    {
+      "id": "ex-traffic-light",
+      "section": "example-machines",
+      "title": "Traffic light",
+      "order": 10,
+      "source": "src/help/example-machines/traffic-light.md",
+      "teaches": [],
+      "mentions": [
+        "transitions",
+        "timed-transitions"
+      ],
+      "indexTerms": [
+        "traffic",
+        "light",
+        "example",
+        "cycle"
+      ],
+      "fences": [
+        {
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "ex-toggle",
+      "section": "example-machines",
+      "title": "Toggle",
+      "order": 20,
+      "source": "src/help/example-machines/toggle.md",
+      "teaches": [],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "toggle",
+        "switch",
+        "on",
+        "off",
+        "example"
+      ],
+      "fences": [
+        {
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "welcome",
+      "section": "getting-started",
+      "title": "Welcome to FSL",
+      "order": 10,
+      "source": "src/help/getting-started/welcome.md",
+      "teaches": [],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "intro",
+        "start",
+        "hello"
+      ],
+      "fences": [
+        {
+          "teaches": "transitions",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "using-the-editor",
+      "section": "getting-started",
+      "title": "Using the editor",
+      "order": 20,
+      "source": "src/help/getting-started/using-the-editor.md",
+      "teaches": [],
+      "mentions": [],
+      "indexTerms": [
+        "autocomplete",
+        "layout",
+        "theme",
+        "diagram",
+        "resize",
+        "highlight"
+      ],
+      "fences": []
+    },
+    {
+      "id": "first-machine",
+      "section": "getting-started",
+      "title": "Your first machine",
+      "order": 30,
+      "source": "src/help/getting-started/first-machine.md",
+      "teaches": [],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "first",
+        "example",
+        "quickstart",
+        "machine"
+      ],
+      "fences": [
+        {
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-transitions",
+      "section": "tutorials",
+      "title": "Transitions",
+      "order": 10,
+      "source": "src/help/tutorials/transitions.md",
+      "teaches": [
+        "transitions"
+      ],
+      "mentions": [
+        "states",
+        "labels-quoting"
+      ],
+      "indexTerms": [
+        "arrow",
+        "edge",
+        "transition",
+        "action"
+      ],
+      "fences": [
+        {
+          "teaches": "transitions",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-states-and-styling",
+      "section": "tutorials",
+      "title": "States and styling",
+      "order": 20,
+      "source": "src/help/tutorials/states-and-styling.md",
+      "teaches": [
+        "states"
+      ],
+      "mentions": [
+        "state-styling",
+        "colors"
+      ],
+      "indexTerms": [
+        "state",
+        "declaration",
+        "style",
+        "color",
+        "shape"
+      ],
+      "fences": [
+        {
+          "teaches": "states",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-timed-transitions",
+      "section": "tutorials",
+      "title": "Timed transitions",
+      "order": 30,
+      "source": "src/help/tutorials/timed-transitions.md",
+      "teaches": [
+        "timed-transitions"
+      ],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "after",
+        "timeout",
+        "delay",
+        "timer",
+        "seconds"
+      ],
+      "fences": [
+        {
+          "teaches": "timed-transitions",
+          "run": true
+        }
+      ]
+    }
+  ]
+}
