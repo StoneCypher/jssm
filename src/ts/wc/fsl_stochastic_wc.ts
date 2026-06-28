@@ -60,6 +60,7 @@ export class FslStochastic extends LitElement {
   @state() private _summary: JssmStochasticSummary | null = null;
   @state() private _error: string | null = null;
   @state() private _host: StochHost | null = null;
+  @state() private _playing = false;
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -100,6 +101,100 @@ export class FslStochastic extends LitElement {
       detail: this._summary, bubbles: true, composed: true,
     }));
   };
+
+  /**
+   * Animate the batch: accumulate runs incrementally via `requestAnimationFrame`,
+   * redrawing as they land. Resolves when the batch completes or is paused-to-stop.
+   *
+   * Falls back to immediate (synchronous chunk) scheduling under jsdom where
+   * `requestAnimationFrame` is undefined.
+   *
+   * @example
+   * panel.runs = 100;
+   * await panel.play(); // resolves when all 100 runs are done
+   */
+  play = (): Promise<void> => new Promise((resolve) => {
+    if (this._host === null) { resolve(); return; }
+    let machine: ReturnType<typeof sm>;
+    try { machine = sm`${this._host.fsl}`; }
+    catch { this._error = 'Cannot run on invalid FSL source.'; this._summary = null; resolve(); return; }
+    this._error = null;
+    if (this.seed.trim() !== '') { machine.rng_seed = Number(this.seed); }
+
+    const state_visits  = new Map<string, number>();
+    const edges         = new Map<string, number>();
+    const path_lengths: number[] = [];
+    let reached = 0;
+    let capped  = 0;
+    let runs    = 0;
+    const iter = machine.stochastic_runs({ mode: this.mode, runs: this.runs, max_steps: this.maxSteps });
+
+    this._playing = true;
+    const CHUNK = 50;
+    const schedule = (fn: () => void): void => {
+      if (typeof requestAnimationFrame === 'function') { requestAnimationFrame(fn); } else { fn(); }
+    };
+
+    const tick = (): void => {
+      if (!this._playing) { resolve(); return; }
+      for (let i = 0; i < CHUNK; i++) {
+        const next = iter.next();
+        if (next.done) {
+          this._commit(state_visits, edges, path_lengths, reached, capped, runs);
+          this._playing = false;
+          resolve();
+          return;
+        }
+        const r = next.value;
+        runs += 1;
+        for (const s of r.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
+        for (const e of r.edges)  { edges.set(e, (edges.get(e) ?? 0) + 1); }
+        if (this.mode === 'montecarlo') {
+          if (r.terminated) { reached += 1; path_lengths.push(r.length); } else { capped += 1; }
+        }
+      }
+      this._commit(state_visits, edges, path_lengths, reached, capped, runs);
+      schedule(tick);
+    };
+    schedule(tick);
+  });
+
+  /**
+   * Fold accumulated counters into a rendered summary. Shared by {@link play}
+   * for incremental rendering during animation.
+   *
+   * @param state_visits     - Accumulated visit counts per state name.
+   * @param edge_traversals  - Accumulated traversal counts per edge key.
+   * @param path_lengths     - Lengths of completed (terminated) paths.
+   * @param terminal_reached - Count of runs that reached a terminal state.
+   * @param capped           - Count of runs that hit the step cap.
+   * @param runs             - Total runs processed so far.
+   */
+  private _commit(
+    state_visits: Map<string, number>,
+    edge_traversals: Map<string, number>,
+    path_lengths: number[],
+    terminal_reached: number,
+    capped: number,
+    runs: number,
+  ): void {
+    const total = [...state_visits.values()].reduce((a, b) => a + b, 0);
+    const frac = new Map<string, number>();
+    for (const [s, c] of state_visits) { frac.set(s, total === 0 ? 0 : c / total); }
+    const summary: JssmStochasticSummary = {
+      mode: this.mode, runs, seed: 0,
+      state_visits, state_visit_fraction: frac, edge_traversals,
+    };
+    if (this.mode === 'montecarlo') {
+      summary.path_lengths = path_lengths;
+      summary.terminal_reached = terminal_reached;
+      summary.capped = capped;
+    }
+    this._summary = summary;
+  }
+
+  /** Toggle between playing and paused. Starts a new {@link play} batch when idle. */
+  private _togglePlay = (): void => { if (this._playing) { this._playing = false; } else { void this.play(); } };
 
   private _onMode = (e: Event): void => { this.mode = (e.target as HTMLInputElement).value as JssmStochasticMode; };
   private _onRuns = (e: Event): void => { this.runs = Number((e.target as HTMLInputElement).value); };
@@ -144,6 +239,7 @@ export class FslStochastic extends LitElement {
         <label>max steps <input type="number" .value=${String(this.maxSteps)} @change=${this._onMax}></label>
         <label>seed <input type="text" .value=${this.seed} @change=${this._onSeed}></label>
         <button class="run" ?disabled=${disabled} @click=${this.run}>Run</button>
+        <button class="btn" ?disabled=${disabled} @click=${this._togglePlay}>${this._playing ? 'Pause' : 'Play'}</button>
       </div>
       ${this._error ? html`<div class="error">${this._error}</div>` : ''}
       ${this._summary && !this._error ? this._panes() : html`<div class="panes muted">No run yet.</div>`}`;

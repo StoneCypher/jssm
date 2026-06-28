@@ -64,4 +64,26 @@ describe('<fsl-stochastic>', () => {
     expect(panel.runs).toBe(42);
   });
 
+  it('animated play accumulates runs then completes', async () => {
+    const { panel } = await withHost(`a 'go' -> b 'go' -> c;`);
+    panel.seed = '1';
+    panel.runs = 5;
+    await panel.play();           // resolves when the animated batch finishes
+    await panel.updateComplete;
+    const bars = panel.shadowRoot!.querySelectorAll('.bar');
+    expect(bars.length).toBe(3);
+    expect(panel.shadowRoot!.textContent).toContain('Reached terminal');
+  });
+
+  it('host exposes a hidden-by-default stochastic slot, shown when requested', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', `editor: { panels: [stochastic]; }; a 'go' -> b;`);
+    host.setAttribute('panel-mode', 'request');
+    document.body.appendChild(host);
+    await host.updateComplete;
+    const section = host.shadowRoot!.querySelector('.stochastic') as HTMLElement;
+    expect(section).not.toBeNull();
+    expect(section.hidden).toBe(false);
+  });
+
 });
