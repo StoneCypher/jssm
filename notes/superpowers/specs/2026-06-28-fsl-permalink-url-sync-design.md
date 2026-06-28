@@ -31,6 +31,12 @@ per-instance URL binding**, so that:
 4. **Restore overrides the declared source.** When a segment is present for an instance's key,
    its decoded FSL replaces whatever the markup declared (`fsl=` attr / `<script>` / text). A
    permalink is the edited/shared machine; it wins over the page's default.
+5. **Source-less instances are supported** (decided post-review). An `<fsl-instance id="m">` with
+   *no* declared source and a matching `#m=…` segment must not throw at connect: `connectedCallback`
+   detects this (`provided_count === 0` and a permalink segment present for the key) and **defers**
+   the machine build. `render()` shows the placeholder until the async restore sets `fsl`, which
+   rebuilds the machine via `willUpdate → _rebuild_machine`. A keyed instance with neither a
+   declared source nor a segment still throws `no FSL source`.
 
 ## Architecture
 
