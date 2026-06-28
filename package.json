@@ -1,6 +1,6 @@
 {
   "name": "jssm",
-  "version": "5.149.1",
+  "version": "5.149.2",
   "engines": {
     "node": ">=10.0.0"
   },
@@ -208,6 +208,7 @@
     "make_ci": "npm run clean && npm run makever && npm run peg && npm run make_help_content && npm run build:cem && npm run typescript && npm run make_doctests && npm run make_wc_viz_es6 && npm run make_wc_viz_cdn && npm run make_wc_instance_es6 && npm run make_wc_instance_cdn && npm run make_wc_editor_es6 && npm run make_wc_widgets_es6 && npm run make_wc_docs_es6 && npm run make_cm6 && npm run typecheck_cli && npm run make_cli",
     "eslint": "eslint --color src/ts/jssm.ts src/ts/jssm_types.ts src/ts/tests/*.ts",
     "audit": "text_audit -r -t major MAJOR wasteful WASTEFUL any mixed fixme FIXME checkme CHECKME testme TESTME stochable STOCHABLE todo TODO comeback COMEBACK whargarbl WHARGARBL -g ./src/ts/**/*.{js,ts}",
+    "check_teaching_surface": "node src/scripts/teaching_surface/check_teaching_surface.cjs --report",
     "vet": "npm run eslint && npm run audit",
     "benny": "node ./src/buildjs/benchmark.cjs",
     "benny:scaling": "node --expose-gc ./src/buildjs/benchmark_scaling.cjs",

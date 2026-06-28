@@ -103,6 +103,8 @@ const FEATURES = {
   cloc: { script: 'cloc', stages: [9], optional: true, defaultEnabled: true },
   docs: { script: 'docs', stages: [9], optional: true, defaultEnabled: true },
   site: { script: 'site', stages: [9], optional: true, defaultEnabled: true, requires: ['min_iife'] },
+  // report-only: prints teaching-surface coverage drift; never fails the build (reads cem + the es6 bundle for fences)
+  check_teaching_surface: { script: 'check_teaching_surface', stages: [9], optional: true, defaultEnabled: true, requires: ['cem', 'min_es6'] },
 
   // --- Stage 10: doc generators that write under docs/ after site ---
   make_cookbook:  { script: 'make_cookbook',  stages: [10], optional: true, defaultEnabled: true, requires: ['site'] },
