@@ -478,7 +478,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-docs>` — the language-docs content engine: drill-in nav over the bundled\ncurriculum (Getting Started / About State Machines / Tutorials / Example\nMachines / Index / Search), a markdown page renderer, and \"load into editor\"\nfor tagged FSL examples. Content-only; slot it into `<fsl-help>`.",
+          "description": "`<fsl-docs>` — the language-docs content engine: drill-in nav over the bundled\r\ncurriculum (Getting Started / About State Machines / Tutorials / Example\r\nMachines / Index / Search), a markdown page renderer, and \"load into editor\"\r\nfor tagged FSL examples. Content-only; slot it into `<fsl-help>`.",
           "name": "FslDocs",
           "members": [
             {
@@ -1109,7 +1109,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-footer>` — a status bar for a parent `<fsl-instance>`.\r\n\r\nReflects the host's current state, legal-action count, and\r\nterminal/complete status by observing the host's reflected attributes\r\n(`current-state`, `legal-actions`, `terminal`, `complete`) — so it tracks\r\ntransitions *and* survives a live machine rebuild (#1387) without a machine\r\nsubscription. A default slot carries embedder status (line/column, parse\r\nstate, …). Standalone (no `<fsl-instance>` ancestor) it renders just the slot.",
+          "description": "`<fsl-footer>` — a status bar for a parent `<fsl-instance>`.\n\nShows the current state with both **local** counts (actions firable from\nhere + transitions out of here) and **global** machine counts: distinct\naction *names*, **action-starts** (action-bearing edges — each place an\naction fires from), and total transitions. Plus terminal/complete badges.\n\nLocal counts track transitions by observing the host's reflected\n`current-state` / `legal-actions` attributes; the global counts refresh on\n`fsl-machine-rebuilt`, so the footer survives a live rebuild (#1387). A\ndefault slot carries embedder status. Standalone (no `<fsl-instance>`\nancestor) it renders just the slot.",
           "name": "FslFooter",
           "cssParts": [
             {
@@ -1144,6 +1144,15 @@
             },
             {
               "kind": "field",
+              "name": "_transitions",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
               "name": "_terminal",
               "type": {
                 "text": "boolean"
@@ -1162,12 +1171,65 @@
             },
             {
               "kind": "field",
+              "name": "_gActions",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "_gStarts",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "_gTransitions",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
               "name": "_observer",
               "type": {
                 "text": "MutationObserver | null"
               },
               "privacy": "private",
               "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "FooterHost | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_onRebuilt",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "_syncMachine",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Recompute the machine-derived counts: local transitions out of the current\nstate, and the global action / action-start / transition totals. Only\ncalled while a host is attached, so `_host` is non-null here."
             }
           ],
           "superclass": {
@@ -2117,10 +2179,42 @@
             },
             {
               "kind": "field",
-              "name": "_hiddenPanels",
+              "name": "_overrides",
               "privacy": "private",
-              "default": "new Set<string>()",
-              "description": "Slot names of panels currently hidden (driven by `<fsl-toolbar>`)."
+              "default": "new Map<string, boolean>()",
+              "description": "Per-panel runtime visibility overrides set by the user via the toolbar\r\ntoggles; a slot absent here falls back to its mode-resolved base."
+            },
+            {
+              "kind": "field",
+              "name": "panelMode",
+              "privacy": "public",
+              "type": {
+                "text": "PanelMode"
+              },
+              "default": "'default'",
+              "description": "Control-level default PanelMode; panelModes overrides it\r\nper panel. `default` shows only the editor + renderer; every other panel\r\nstarts hidden and is opt-in.",
+              "attribute": "panel-mode",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "panelModes",
+              "privacy": "public",
+              "type": {
+                "text": "Record<string, PanelMode>"
+              },
+              "default": "{}",
+              "description": "Per-panel PanelMode overrides (slot → mode), each overriding the\r\ncontrol-level panelMode."
+            },
+            {
+              "kind": "field",
+              "name": "requestedPanels",
+              "privacy": "public",
+              "type": {
+                "text": "string[]"
+              },
+              "default": "[]",
+              "description": "Panels the FSL \"requests\" — the embedder-set stand-in for the\r\neditor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed\r\nhere are shown; others fall back to the default."
             },
             {
               "kind": "field",
@@ -2417,6 +2511,25 @@
             },
             {
               "kind": "method",
+              "name": "_defaultHidden",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "The built-in default hidden state: only the editor + renderer (viz) show."
+            },
+            {
+              "kind": "method",
               "name": "isPanelHidden",
               "return": {
                 "type": {
@@ -2432,7 +2545,7 @@
                   "description": "A panel slot name (e.g. `\"viz\"`, `\"editor\"`, `\"history\"`)."
                 }
               ],
-              "description": "Whether the panel slotted under `slot` is currently hidden."
+              "description": "Whether the panel slotted under `slot` is currently hidden, resolving its\r\nPanelMode (panelModes for the slot, else panelMode):\r\n`hide`/`show` force the state; otherwise a user toggle wins, then a\r\n`request`ed panel shows, then the built-in default."
             },
             {
               "kind": "method",
@@ -2458,7 +2571,7 @@
                   "description": "`true` to hide, `false` to show."
                 }
               ],
-              "description": "Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`\r\ncollapses that workbench pane (the other fills); hiding an aux panel\r\nremoves its section. `<fsl-toolbar>` drives this from its panel toggles."
+              "description": "Show or hide the panel slotted under `slot` (a runtime override). Hiding\r\n`viz` or `editor` collapses that workbench pane (the other fills); hiding\r\nan aux panel removes its section. `<fsl-toolbar>` drives this from its\r\npanel toggles."
             },
             {
               "kind": "method",
@@ -2477,7 +2590,7 @@
                   "description": "A panel slot name (e.g. `\"viz\"`, `\"editor\"`, `\"history\"`)."
                 }
               ],
-              "description": "Toggle the visibility of the panel slotted under `slot`."
+              "description": "Toggle the visibility of the panel slotted under `slot`. A no-op when the\r\npanel's mode is `hide` or `show` — those lock the visibility."
             },
             {
               "kind": "method",
@@ -2568,6 +2681,17 @@
             },
             {
               "kind": "method",
+              "name": "_applyEditorConfig",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine\r\ndeclares `panels`, drive requestedPanels from it so `request` panel\r\nmode honors the source. The embedder's value persists when the FSL is\r\nsilent. Called after each (re)build, with `_machine` freshly assigned."
+            },
+            {
+              "kind": "method",
               "name": "_rebuild_machine",
               "privacy": "private",
               "return": {
@@ -2654,10 +2778,10 @@
                   "type": {
                     "text": "boolean"
                   },
-                  "description": "True when actions + data-inspector are rendered as side\r\ndocks (split layouts); they are then omitted from this stack."
+                  "description": "True when hook-log + data-inspector are rendered as side\r\ndocks (split layouts); they are then omitted from this stack."
                 }
               ],
-              "description": "The stacked middle panels, shared by both layouts. The toolbar slot is\r\nrendered at the top of render. In split mode the `actions` and\r\n`data-inspector` panels are lifted out into easing side docks, so\r\n`docked` is true there and they are skipped here to avoid duplicating\r\ntheir slots. The state-section + footer stay in render so the\r\ndynamic state-slot name binds at the top level."
+              "description": "The stacked middle panels, shared by both layouts. The toolbar slot is\r\nrendered at the top of render. In split mode the `hook-log` (events)\r\nand `data-inspector` panels are lifted out into easing side docks, so\r\n`docked` is true there and they are skipped here to avoid duplicating\r\ntheir slots; `actions` instead lives here as a horizontal bar. The\r\nstate-section + footer stay in render so the dynamic state-slot\r\nname binds at the top level."
             }
           ],
           "events": [
@@ -2727,6 +2851,15 @@
               "default": "undefined",
               "description": "Initial extended-state data seeded into the machine at build time. When set\r\n(to anything other than `undefined`), the machine is built via `from(fsl,\r\n{ data })` so `<fsl-data-inspector>` has something to show before any\r\ntransition; the default keeps the lighter `sm`-tag build path.",
               "fieldName": "data"
+            },
+            {
+              "name": "panel-mode",
+              "type": {
+                "text": "PanelMode"
+              },
+              "default": "'default'",
+              "description": "Control-level default PanelMode; panelModes overrides it\r\nper panel. `default` shows only the editor + renderer; every other panel\r\nstarts hidden and is opt-in.",
+              "fieldName": "panelMode"
             }
           ],
           "superclass": {
@@ -3108,8 +3241,44 @@
       "path": "src/ts/wc/fsl_toolbar_wc.ts",
       "declarations": [
         {
+          "kind": "function",
+          "name": "permalink_for",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "A shareable URL for the given FSL: the current page URL with the source\r\nencoded in the hash (`#fsl=...`). A page that reads the hash on load can\r\nrestore the machine. Browser-only (uses `location`), like the rest of the\r\ntoolbar."
+        },
+        {
+          "kind": "function",
+          "name": "embed_snippet_for",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "A paste-able HTML snippet that renders the given FSL from the CDN builds: an\r\n`<fsl-instance>` reading its source from a `<script type=\"text/fsl\">` child,\r\nwith a slotted `<fsl-viz>` for the graph."
+        },
+        {
           "kind": "class",
-          "description": "`<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. A light/dark\r\ntheme toggle on the left; on the right, an icon toggle to show/hide each\r\npanel present in the host (renderer, code, history, …) plus a View menu of\r\nthe layout set (its button shows the current layout's icon). Standalone (no\r\nhost) the panel toggles disappear. A trailing slot carries extra buttons.",
+          "description": "`<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. Validate + Lint\r\naction buttons (fired as `fsl-validate` / `fsl-lint` events for the embedder\r\nto fulfill, each suppressible via `no-validate` / `no-lint`); an icon toggle\r\nto show/hide each panel present in the host (renderer, code, history, …); and\r\nLayout / Export / Theme pulldowns (the Layout button shows the current\r\nlayout's icon). Standalone (no host) the host-dependent controls disappear.\r\nA trailing slot carries extra buttons.",
           "name": "FslToolbar",
           "cssParts": [
             {
@@ -3151,6 +3320,26 @@
               },
               "default": "''",
               "description": "The last directory an export was saved to this session (its final path\r\nsegment). When non-empty, the Export menu offers a `to <name>` destination.\r\nThe embedder sets this after fulfilling a `pick` export."
+            },
+            {
+              "kind": "field",
+              "name": "noValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Validate button (e.g. when the consumer validates inline).",
+              "attribute": "no-validate"
+            },
+            {
+              "kind": "field",
+              "name": "noLint",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Lint button.",
+              "attribute": "no-lint"
             },
             {
               "kind": "field",
@@ -3267,6 +3456,25 @@
             },
             {
               "kind": "method",
+              "name": "_fireAction",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "type",
+                  "type": {
+                    "text": "'fsl-validate' | 'fsl-lint'"
+                  }
+                }
+              ],
+              "description": "Fire a workspace-action intent (validate / lint) for the consumer to\r\nfulfill — the toolbar presents the action; the embedder runs it. The\r\ncurrent machine source rides along in the detail as a convenience. The\r\nbuttons only render with a host, so `_host` is non-null here."
+            },
+            {
+              "kind": "method",
               "name": "_toggleMenu",
               "privacy": "private",
               "return": {
@@ -3290,6 +3498,32 @@
               "type": {
                 "text": "CustomEvent"
               }
+            },
+            {
+              "name": "type",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "no-validate",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Validate button (e.g. when the consumer validates inline).",
+              "fieldName": "noValidate"
+            },
+            {
+              "name": "no-lint",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hide the Lint button.",
+              "fieldName": "noLint"
             }
           ],
           "superclass": {
@@ -3301,6 +3535,22 @@
         }
       ],
       "exports": [
+        {
+          "kind": "js",
+          "name": "permalink_for",
+          "declaration": {
+            "name": "permalink_for",
+            "module": "src/ts/wc/fsl_toolbar_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "embed_snippet_for",
+          "declaration": {
+            "name": "embed_snippet_for",
+            "module": "src/ts/wc/fsl_toolbar_wc.ts"
+          }
+        },
         {
           "kind": "js",
           "name": "FslToolbar",

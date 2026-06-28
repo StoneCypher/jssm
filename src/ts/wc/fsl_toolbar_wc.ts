@@ -30,7 +30,7 @@ const THEME_MODES: ReadonlyArray<{ value: ThemeMode; label: string }> = [
 type OpenMenu = '' | 'layout' | 'export' | 'theme';
 
 /** A format the Export pulldown can produce. */
-type ExportFormat = 'dot' | 'json' | 'fsl' | 'svg';
+type ExportFormat = 'dot' | 'json' | 'fsl' | 'svg' | 'permalink' | 'embed';
 
 /** Where an export goes. `lastdir` reuses the last chosen directory; `pick`
  *  prompts for a new one. The embedder performs the actual clipboard / file save. */
@@ -38,11 +38,48 @@ type ExportDest = 'clipboard' | 'lastdir' | 'pick';
 
 /** Export formats offered by the Export pulldown. */
 const EXPORT_FORMATS: ReadonlyArray<{ value: ExportFormat; label: string }> = [
-  { value: 'dot',  label: 'Graphviz DOT' },
-  { value: 'json', label: 'JSON (serialized)' },
-  { value: 'fsl',  label: 'FSL source' },
-  { value: 'svg',  label: 'SVG' },
+  { value: 'dot',       label: 'Graphviz DOT' },
+  { value: 'json',      label: 'JSON (serialized)' },
+  { value: 'fsl',       label: 'FSL source' },
+  { value: 'svg',       label: 'SVG' },
+  { value: 'permalink', label: 'Permalink (URL)' },
+  { value: 'embed',     label: 'Embed snippet' },
 ];
+
+/**
+ * A shareable URL for the given FSL: the current page URL with the source
+ * encoded in the hash (`#fsl=...`). A page that reads the hash on load can
+ * restore the machine. Browser-only (uses `location`), like the rest of the
+ * toolbar.
+ *
+ * @example
+ * permalink_for("a -> b;"); // "https://host/path#fsl=a%20-%3E%20b%3B"
+ */
+export function permalink_for(fsl: string): string {
+  return `${location.href.split('#')[0]}#fsl=${encodeURIComponent(fsl)}`;
+}
+
+/**
+ * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
+ * `<fsl-instance>` reading its source from a `<script type="text/fsl">` child,
+ * with a slotted `<fsl-viz>` for the graph.
+ *
+ * @example
+ * embed_snippet_for("a -> b;"); // "<script …instance.js …><fsl-instance>…</fsl-instance>"
+ */
+export function embed_snippet_for(fsl: string): string {
+  const CDN = 'https://cdn.jsdelivr.net/npm/jssm/dist/cdn';
+  return [
+    `<script type="module" src="${CDN}/instance.js"></script>`,
+    `<script type="module" src="${CDN}/viz.js"></script>`,
+    '<fsl-instance>',
+    '  <fsl-viz slot="viz"></fsl-viz>',
+    '  <script type="text/fsl">',
+    fsl,
+    '  </script>',
+    '</fsl-instance>',
+  ].join('\n');
+}
 
 /* Panel icons — Solar (CC BY 4.0) bold-duotone. Layout icons — hand-drawn
    duotone split-rects. All use currentColor (+ baked opacity on the secondary
@@ -73,6 +110,10 @@ const ICON_ACTIONS  = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="tru
 /* Solar palette-round-bold-duotone — the theme pulldown. */
 const ICON_THEME    = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 18a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/><path fill="currentColor" d="M10 6v12a4 4 0 0 1-8 0V6a4 4 0 1 1 8 0" opacity=".4"/><path fill="currentColor" d="m9.248 20.336l3.974-3.975l5.838-6.09a4.042 4.042 0 0 0-5.776-5.655L10 7.9V18c0 .872-.279 1.679-.752 2.336" opacity=".7"/><path fill="currentColor" d="m13.222 16.362l-3.974 3.974A4 4 0 0 1 6 22h11.9a4 4 0 1 0 0-8h-2.414z"/></svg>`;
 
+/* Validate — a duotone check-circle. Lint — a duotone document with rule lines. */
+const ICON_VALIDATE = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" opacity=".4"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5l2.5 2.5l4.5-5.5"/></svg>`;
+const ICON_LINT     = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 10c0-3.771 0-5.657 1.172-6.828S7.229 2 11 2h2c3.771 0 5.657 0 6.828 1.172S21 6.229 21 10v4c0 3.771 0 5.657-1.172 6.828S16.771 22 13 22h-2c-3.771 0-5.657 0-6.828-1.172S3 17.771 3 14z" opacity=".4"/><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M7.5 8.5h9M7.5 12h6M7.5 15.5h3"/></svg>`;
+
 /** Panel slot → label + icon. The toolbar shows a toggle for each panel present. */
 interface PanelDef { slot: string; label: string; icon: TemplateResult; }
 const PANELS: ReadonlyArray<PanelDef> = [
@@ -100,11 +141,13 @@ const LAYOUTS: ReadonlyArray<{ value: FslLayout; label: string; icon: TemplateRe
 ];
 
 /**
- * `<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. A light/dark
- * theme toggle on the left; on the right, an icon toggle to show/hide each
- * panel present in the host (renderer, code, history, …) plus a View menu of
- * the layout set (its button shows the current layout's icon). Standalone (no
- * host) the panel toggles disappear. A trailing slot carries extra buttons.
+ * `<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. Validate + Lint
+ * action buttons (fired as `fsl-validate` / `fsl-lint` events for the embedder
+ * to fulfill, each suppressible via `no-validate` / `no-lint`); an icon toggle
+ * to show/hide each panel present in the host (renderer, code, history, …); and
+ * Layout / Export / Theme pulldowns (the Layout button shows the current
+ * layout's icon). Standalone (no host) the host-dependent controls disappear.
+ * A trailing slot carries extra buttons.
  *
  * @element fsl-toolbar
  * @csspart toolbar - The bar container.
@@ -171,6 +214,10 @@ export class FslToolbar extends LitElement {
    * The embedder sets this after fulfilling a `pick` export.
    */
   @property({ attribute: false }) lastDirectory = '';
+  /** Hide the Validate button (e.g. when the consumer validates inline). */
+  @property({ type: Boolean, attribute: 'no-validate' }) noValidate = false;
+  /** Hide the Lint button. */
+  @property({ type: Boolean, attribute: 'no-lint' }) noLint = false;
   private _host: HostTarget | null = null;
   /** Panels actually present in the host — one toggle each. */
   private _present: ReadonlyArray<PanelDef> = [];
@@ -219,10 +266,22 @@ export class FslToolbar extends LitElement {
       content = JSON.stringify(host.machine.serialize(), null, 2);
     } else if (format === 'svg') {
       content = await machine_to_svg_string(host.machine);
+    } else if (format === 'permalink') {
+      content = permalink_for(host.fsl);
+    } else if (format === 'embed') {
+      content = embed_snippet_for(host.fsl);
     } else {
       content = host.fsl;
     }
     this.dispatchEvent(new CustomEvent('fsl-export', { detail: { format, content, destination }, bubbles: true, composed: true }));
+  }
+
+  /** Fire a workspace-action intent (validate / lint) for the consumer to
+   *  fulfill — the toolbar presents the action; the embedder runs it. The
+   *  current machine source rides along in the detail as a convenience. The
+   *  buttons only render with a host, so `_host` is non-null here. */
+  private _fireAction(type: 'fsl-validate' | 'fsl-lint'): void {
+    this.dispatchEvent(new CustomEvent(type, { detail: { fsl: this._host!.fsl }, bubbles: true, composed: true }));
   }
 
   private _toggleMenu(which: OpenMenu): void { this._openMenu = this._openMenu === which ? '' : which; }
@@ -238,6 +297,13 @@ export class FslToolbar extends LitElement {
     return html`
       <div class="toolbar" part="toolbar" role="toolbar" aria-label="Workbench controls">
         <span class="spacer"></span>
+        ${host ? html`
+          <div class="grp">
+            ${this.noValidate ? '' : html`
+              <button class="tb icon" aria-label="Validate" title="Validate" @click=${() => this._fireAction('fsl-validate')}>${ICON_VALIDATE}</button>`}
+            ${this.noLint ? '' : html`
+              <button class="tb icon" aria-label="Lint" title="Lint" @click=${() => this._fireAction('fsl-lint')}>${ICON_LINT}</button>`}
+          </div>` : ''}
         <div class="grp">
           ${host
             ? this._present.map(p => html`

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeAll } from 'vitest';
 import '../fsl_instance_wc.define.js';
-import { FslToolbar } from '../fsl_toolbar_wc.js';
+import { FslToolbar, permalink_for, embed_snippet_for } from '../fsl_toolbar_wc.js';
 import { FslEditor } from '../fsl_editor_wc.js';
 import { FslInstance } from '../fsl_instance_wc.js';
 
@@ -132,12 +132,86 @@ describe('<fsl-toolbar>', () => {
     host.remove();
   });
 
+  it('builds a permalink and an embed snippet from FSL', () => {
+    const link = permalink_for('a -> b;');
+    expect(link).toContain('#fsl=');
+    expect(decodeURIComponent(link.split('#fsl=')[1])).toBe('a -> b;');
+
+    const embed = embed_snippet_for('a -> b;');
+    expect(embed).toContain('<fsl-instance>');
+    expect(embed).toContain('cdn.jsdelivr.net/npm/jssm/dist/cdn/instance.js');
+    expect(embed).toContain('<fsl-viz slot="viz">');
+    expect(embed).toContain('a -> b;');
+  });
+
+  it('exports a permalink and an embed snippet via the menu', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "A 'go' -> B;");
+    const vizStub = document.createElement('div'); vizStub.setAttribute('slot', 'viz');
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    toolbar.setAttribute('slot', 'toolbar');
+    host.append(vizStub, toolbar);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    await toolbar.updateComplete;
+
+    for (const [label, fmt, needle] of [
+      ['Permalink (URL)', 'permalink', '#fsl='],
+      ['Embed snippet',   'embed',     '<fsl-instance>'],
+    ] as const) {
+      const detail = new Promise<{ format: string; content: string }>(res =>
+        toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
+      byLabel(toolbar, 'Export').click();
+      await toolbar.updateComplete;
+      byText(toolbar, '.menu button', label).click();
+      const d = await detail;
+      expect(d.format).toBe(fmt);
+      expect(d.content).toContain(needle);
+    }
+    host.remove();
+  });
+
+  it('fires fsl-validate / fsl-lint, suppressible via no-validate / no-lint', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "A 'go' -> B;");
+    const vizStub = document.createElement('div'); vizStub.setAttribute('slot', 'viz');
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    toolbar.setAttribute('slot', 'toolbar');
+    host.append(vizStub, toolbar);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    await toolbar.updateComplete;
+
+    expect(byLabel(toolbar, 'Validate')).not.toBeNull();
+    expect(byLabel(toolbar, 'Lint')).not.toBeNull();
+
+    // each button fires its intent with the current machine source in the detail
+    const vDetail = new Promise<{ fsl: string }>(res =>
+      toolbar.addEventListener('fsl-validate', e => res((e as CustomEvent).detail), { once: true }));
+    byLabel(toolbar, 'Validate').click();
+    expect((await vDetail).fsl).toContain("A 'go' -> B");
+
+    const lDetail = new Promise<{ fsl: string }>(res =>
+      toolbar.addEventListener('fsl-lint', e => res((e as CustomEvent).detail), { once: true }));
+    byLabel(toolbar, 'Lint').click();
+    expect((await lDetail).fsl).toContain("A 'go' -> B");
+
+    // no-validate / no-lint hide the respective buttons
+    toolbar.noValidate = true;
+    toolbar.noLint = true;
+    await toolbar.updateComplete;
+    expect(byLabel(toolbar, 'Validate')).toBeNull();
+    expect(byLabel(toolbar, 'Lint')).toBeNull();
+    host.remove();
+  });
+
   it('renders inert controls when standalone (no host)', async () => {
     const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
     document.body.appendChild(toolbar);
     await toolbar.updateComplete;
 
     expect(byLabel(toolbar, 'Code')).toBeNull();                                          // no host → no panels
+    expect(byLabel(toolbar, 'Validate')).toBeNull();                                      // validate/lint are host-gated too
 
     let fired = false;
     toolbar.addEventListener('fsl-export', () => { fired = true; });

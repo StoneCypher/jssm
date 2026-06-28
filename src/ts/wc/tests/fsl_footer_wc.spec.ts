@@ -31,6 +31,17 @@ describe('<fsl-footer>', () => {
     host.remove();
   });
 
+  it('summarizes local + global counts, separating action names from action-starts', async () => {
+    // two action edges share the name 'go'; one plain edge has no action at all.
+    const { host, footer } = await withHost("A 'go' -> B; B 'go' -> A; A -> C;");
+    const txt = footer.shadowRoot!.textContent!;
+    // local (state A): 1 action firable ('go'), 2 transitions out (to B and C)
+    expect(txt).toContain('1 action, 2 transitions');
+    // global: 1 distinct action NAME, but 2 action-starts (two 'go' edges), 3 transitions total
+    expect(txt).toContain('globally 1 action, 2 starts, 3 transitions');
+    host.remove();
+  });
+
   it('reflects a terminal state with a badge and a zero/plural action count', async () => {
     const { host, footer } = await withHost("A 'go' -> B;");
     host.do('go');
@@ -58,6 +69,17 @@ describe('<fsl-footer>', () => {
     await footer.updateComplete;
     expect(footer.shadowRoot!.querySelector('.state')).toBeNull();
     expect(footer.shadowRoot!.textContent).toContain('0 actions');
+    host.remove();
+  });
+
+  it('refreshes the global counts on a live machine rebuild (#1387)', async () => {
+    const { host, footer } = await withHost("A 'go' -> B;");
+    expect(footer.shadowRoot!.textContent).toContain('globally 1 action, 1 start, 1 transition');
+
+    host.fsl = "X 'a' -> Y; Y 'b' -> Z; X ~> Z;";   // rebuild → fsl-machine-rebuilt
+    await host.updateComplete;
+    await footer.updateComplete;
+    expect(footer.shadowRoot!.textContent).toContain('globally 2 actions, 2 starts, 3 transitions');
     host.remove();
   });
 

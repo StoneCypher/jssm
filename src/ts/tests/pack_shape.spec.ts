@@ -36,6 +36,8 @@ describe('package tarball shape', () => {
     const missing = [...refs].filter((r) => !packed.has(r));
     expect(missing, `exports/bin targets missing from the package tarball: ${missing.join(', ')}`).toEqual([]);
 
-  });
+  // `npm pack --dry-run` packs 110+ artifacts and AV-scans each; on Windows under
+  // the full build's parallel test load that exceeds the default 30s, so give it room.
+  }, 120_000);
 
 });

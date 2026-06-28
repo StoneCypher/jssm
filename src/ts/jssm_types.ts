@@ -729,6 +729,16 @@ type JssmTheme = Partial<JssmBaseTheme>;
  *  @typeParam StateType - The state-name type (usually `string`).
  *  @typeParam DataType  - The user-supplied data payload type (`mDT`).
  */
+/**
+ *  Editor/panel defaults an FSL machine declares in an `editor: {}` block
+ *  (fsl#1334), read by the all-widgets web control: a stochastic run-count
+ *  and the panels the machine requests under `request` panel mode.
+ */
+type JssmEditorConfig = {
+  stochastic_run_count? : number,
+  panels?               : Array<string>,
+};
+
 type JssmGenericConfig<StateType, DataType> = {
 
   graph_layout?                  : JssmLayout,
@@ -765,6 +775,7 @@ type JssmGenericConfig<StateType, DataType> = {
   min_exits?                     : number,
   max_exits?                     : number,
   allow_islands?                 : JssmAllowIslands,
+  editor_config?                 : JssmEditorConfig,
   allow_force?                   : false,
   actions?                       : JssmPermittedOpt,
 
@@ -1619,6 +1630,7 @@ export {
     JssmArrowDirection,
 
   JssmGenericConfig,
+  JssmEditorConfig,
     JssmGenericState,
     JssmGenericMachine,
 

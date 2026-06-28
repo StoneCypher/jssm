@@ -31,7 +31,7 @@ export const fslDeprecated = Tag.defineModifier('fslDeprecated');
  */
 export const STRUCTURAL_KEYWORDS = new Set([
     'state', 'start_state', 'end_state', 'active_state', 'terminal_state', 'hooked_state',
-    'action', 'transition', 'validation', 'configuration', 'graph', 'hooks',
+    'action', 'transition', 'validation', 'configuration', 'graph', 'editor', 'hooks',
     'property', 'required', 'default',
 ]);
 /**
@@ -52,6 +52,8 @@ export const PROPERTY_KEYWORDS = new Set([
     'label', 'color', 'shape', 'corners', 'linestyle', 'image', 'url',
     // hyphenated style keys (read as a single compound token by the tokenizer)
     'background-color', 'text-color', 'border-color', 'edge-color', 'line-style',
+    // editor: {} block keys (fsl#1334)
+    'stochastic_run_count', 'panels',
 ]);
 /**
  * Keys that still parse but are deprecated. Highlighted with the

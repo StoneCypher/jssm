@@ -17,6 +17,7 @@ import {
   JssmMachineInternalState,
   JssmAllowsOverride,
   JssmAllowIslands,
+  JssmEditorConfig,
   JssmDefaultSize,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
@@ -569,6 +570,7 @@ class Machine<mDT> {
   _code_allows_override   : JssmAllowsOverride;
   _config_allows_override : JssmAllowsOverride;
   _allow_islands          : JssmAllowIslands;
+  _editor_config?         : JssmEditorConfig;
 
   // Same numeric keying as `_hooks` / `_named_hooks`; see comment above.  #729
   _post_hooks                    : Map<number, HookHandler<mDT>>;
@@ -722,6 +724,7 @@ class Machine<mDT> {
     allows_override,
     config_allows_override,
     allow_islands,
+    editor_config,
     rng_seed,
     time_source,
     timeout_source,
@@ -814,6 +817,7 @@ class Machine<mDT> {
     this._code_allows_override   = allows_override;
     this._config_allows_override = config_allows_override;
     this._allow_islands          = allow_islands ?? true;
+    this._editor_config          = editor_config;
 
     if ( (allows_override === false) && (config_allows_override === true) ) {
       throw new JssmError(undefined, "Code specifies no override, but config tries to permit; config may not be less strict than code");
@@ -1956,6 +1960,20 @@ class Machine<mDT> {
    */
   machine_name(): string {
     return this._machine_name;
+  }
+
+  /** The editor/panel defaults declared in the FSL `editor: {}` block, or
+   *  `undefined` when none was given.  Read by the all-widgets web control
+   *  (fsl#1334) — `panels` drives `request` panel mode.
+   *
+   *  @returns `{ stochastic_run_count?, panels? }`, or `undefined`.
+   *
+   *  @example
+   *    const m = sm`editor: { panels: [history]; }; a -> b;`;
+   *    m.editor_config();  // => { panels: ['history'] }
+   */
+  editor_config(): JssmEditorConfig | undefined {
+    return this._editor_config;
   }
 
   /** Get the npm package name associated with the machine.  Set via the FSL `npm_name` directive.

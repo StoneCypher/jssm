@@ -481,15 +481,16 @@ describe('FslInstance shadow DOM', () => {
     document.body.appendChild(el);
     await (el as any).updateComplete;
 
-    // aux panel section → hidden attribute
-    expect(el.isPanelHidden('history')).toBe(false);
+    // aux panels (everything but viz/editor) start hidden by default; toggling
+    // shows the panel, toggling again re-hides it.
+    expect(el.isPanelHidden('history')).toBe(true);
     el.togglePanel('history');
     await (el as any).updateComplete;
-    expect(el.isPanelHidden('history')).toBe(true);
-    expect(el.shadowRoot!.querySelector('section.history')!.hasAttribute('hidden')).toBe(true);
-    el.togglePanel('history');                        // back on
-    await (el as any).updateComplete;
     expect(el.isPanelHidden('history')).toBe(false);
+    expect(el.shadowRoot!.querySelector('section.history')!.hasAttribute('hidden')).toBe(false);
+    el.togglePanel('history');                        // back to hidden
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(true);
 
     // workbench panes → hide-viz / hide-editor classes
     el.setPanelHidden('viz', true);
@@ -503,18 +504,73 @@ describe('FslInstance shadow DOM', () => {
     await (el as any).updateComplete;
     expect(el.shadowRoot!.querySelector('.workbench')!.classList.contains('hide-viz')).toBe(false);
 
-    // actions + data-inspector are easing side docks in split layouts: lifted out
-    // of the stacked aux, and the toggle flips an 'open' class (not display:none).
-    expect(el.shadowRoot!.querySelector('section.data-inspector')).toBeNull();
-    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(true);
-    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
-    el.togglePanel('data-inspector');
-    el.togglePanel('actions');
-    await (el as any).updateComplete;
+    // In split layouts the events (hook-log) + data-inspector panels are easing
+    // side docks, lifted out of the stacked aux; actions instead lives in the
+    // stack as a horizontal bar. Docked panels start hidden, so both docks start
+    // closed; toggling one on flips its 'open' class (not display:none).
+    expect(el.shadowRoot!.querySelector('section.hook-log')).toBeNull();        // docked, not stacked
+    expect(el.shadowRoot!.querySelector('section.data-inspector')).toBeNull();  // docked, not stacked
+    expect(el.shadowRoot!.querySelector('section.actions')).not.toBeNull();     // now in the stack
+    expect(el.shadowRoot!.querySelector('.events-dock')!.classList.contains('open')).toBe(false);
     expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(false);
-    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(false);
+    el.togglePanel('hook-log');
+    el.togglePanel('data-inspector');
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.events-dock')!.classList.contains('open')).toBe(true);
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
 
     document.body.removeChild(el);
+  });
+
+  it('resolves panel visibility by mode: hide / show / default / request', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    // default control mode: only viz + editor show
+    expect(el.isPanelHidden('viz')).toBe(false);
+    expect(el.isPanelHidden('editor')).toBe(false);
+    expect(el.isPanelHidden('history')).toBe(true);
+
+    // per-panel hide / show lock the state — togglePanel is a no-op for them
+    el.panelModes = { history: 'show', viz: 'hide' };
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);   // show
+    expect(el.isPanelHidden('viz')).toBe(true);        // hide
+    el.togglePanel('history');
+    el.togglePanel('viz');
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);   // still locked
+    expect(el.isPanelHidden('viz')).toBe(true);
+
+    // request mode: requested panels show, others fall back to default
+    el.panelModes = { history: 'request', 'data-inspector': 'request' };
+    el.requestedPanels = ['history'];
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);          // requested → shown
+    expect(el.isPanelHidden('data-inspector')).toBe(true);    // not requested → default
+
+    // control-level mode applies when there is no per-panel override
+    el.panelModes = {};
+    el.panelMode = 'show';
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);
+    expect(el.isPanelHidden('data-inspector')).toBe(false);
+    el.remove();
+  });
+
+  it('drives requestedPanels from the FSL editor:{} block, feeding request mode (fsl#1334)', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "editor: { panels: [history]; }; A 'go' -> B;");
+    el.panelMode = 'request';
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.requestedPanels).toEqual(['history']);
+    expect(el.isPanelHidden('history')).toBe(false);          // FSL-requested → shown under request mode
+    expect(el.isPanelHidden('data-inspector')).toBe(true);    // not requested → default-hidden
+    el.remove();
   });
 
   it('seeds the machine with initial data when the data property is set', async () => {
