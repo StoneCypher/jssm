@@ -79,7 +79,7 @@ describe('<fsl-toolbar>', () => {
     await toolbar.updateComplete;
     expect(q(toolbar, '.menu')).toBeNull();
 
-    const got: Array<{ format: string; content: string }> = [];
+    const got: Array<{ format: string; content: string; destination: string }> = [];
     // dot/json/fsl resolve synchronously; SVG is async (graphviz), so wait for all four.
     const allExported = new Promise<void>(res => {
       toolbar.addEventListener('fsl-export', e => {
@@ -99,6 +99,36 @@ describe('<fsl-toolbar>', () => {
     expect(got[1].content).toContain('jssm_version');
     expect(got[2].content).toContain("A 'go' -> B");
     expect(got[3].content).toContain('<svg');
+    expect(got.every(g => g.destination === 'clipboard')).toBe(true);   // default destination
+
+    // Destination radios: only clipboard + "choose directory" until a saved
+    // directory name is reported by the embedder.
+    const destCount = (): number => toolbar.shadowRoot!.querySelectorAll('[role="menuitemradio"]').length;
+    byLabel(toolbar, 'Export').click();
+    await toolbar.updateComplete;
+    expect(destCount()).toBe(2);
+    byText(toolbar, '.menu button', 'to clipboard').click();   // select the default destination
+
+    // "choose directory" tags the next export `pick`.
+    byText(toolbar, '.menu button', 'choose directory').click();
+    await toolbar.updateComplete;
+    const pickDetail = new Promise<{ destination: string }>(res =>
+      toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
+    byText(toolbar, '.menu button', 'FSL source').click();
+    expect((await pickDetail).destination).toBe('pick');
+
+    // Once a directory name is set, a "to <name>" destination appears + targets `lastdir`.
+    toolbar.lastDirectory = 'exports';
+    await toolbar.updateComplete;
+    byLabel(toolbar, 'Export').click();
+    await toolbar.updateComplete;
+    expect(destCount()).toBe(3);
+    byText(toolbar, '.menu button', 'to exports').click();
+    await toolbar.updateComplete;
+    const lastDetail = new Promise<{ destination: string }>(res =>
+      toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
+    byText(toolbar, '.menu button', 'Graphviz DOT').click();
+    expect((await lastDetail).destination).toBe('lastdir');
     host.remove();
   });
 

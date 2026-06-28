@@ -1,5 +1,5 @@
 import { LitElement, html, css, type TemplateResult } from 'lit';
-import { state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
 import { machine_to_dot, machine_to_svg_string } from '../jssm_viz.js';
@@ -31,6 +31,10 @@ type OpenMenu = '' | 'layout' | 'export' | 'theme';
 
 /** A format the Export pulldown can produce. */
 type ExportFormat = 'dot' | 'json' | 'fsl' | 'svg';
+
+/** Where an export goes. `lastdir` reuses the last chosen directory; `pick`
+ *  prompts for a new one. The embedder performs the actual clipboard / file save. */
+type ExportDest = 'clipboard' | 'lastdir' | 'pick';
 
 /** Export formats offered by the Export pulldown. */
 const EXPORT_FORMATS: ReadonlyArray<{ value: ExportFormat; label: string }> = [
@@ -159,6 +163,14 @@ export class FslToolbar extends LitElement {
   `;
 
   @state() private _openMenu: OpenMenu = '';
+  /** Active export destination; the next format click targets it. */
+  @state() private _dest: ExportDest = 'clipboard';
+  /**
+   * The last directory an export was saved to this session (its final path
+   * segment). When non-empty, the Export menu offers a `to <name>` destination.
+   * The embedder sets this after fulfilling a `pick` export.
+   */
+  @property({ attribute: false }) lastDirectory = '';
   private _host: HostTarget | null = null;
   /** Panels actually present in the host — one toggle each. */
   private _present: ReadonlyArray<PanelDef> = [];
@@ -189,9 +201,15 @@ export class FslToolbar extends LitElement {
     this._openMenu = '';
   }
 
-  /** Emit `fsl-export` with the chosen format's content, generated from the host. */
+  /** Set the active export destination; the menu stays open so a format can be
+   *  chosen next. */
+  private _setDest(dest: ExportDest): void { this._dest = dest; }
+
+  /** Emit `fsl-export` with the chosen format's content + the active destination.
+   *  The embedder performs the actual clipboard / file save. */
   private async _export(format: ExportFormat): Promise<void> {
     const host = this._host;
+    const destination = this._dest;
     this._openMenu = '';
     if (host === null) { return; }
     let content: string;
@@ -204,7 +222,7 @@ export class FslToolbar extends LitElement {
     } else {
       content = host.fsl;
     }
-    this.dispatchEvent(new CustomEvent('fsl-export', { detail: { format, content }, bubbles: true, composed: true }));
+    this.dispatchEvent(new CustomEvent('fsl-export', { detail: { format, content, destination }, bubbles: true, composed: true }));
   }
 
   private _toggleMenu(which: OpenMenu): void { this._openMenu = this._openMenu === which ? '' : which; }
@@ -239,6 +257,11 @@ export class FslToolbar extends LitElement {
           <button class="tb icon" aria-haspopup="true" aria-expanded=${this._openMenu === 'export'} aria-label="Export" title="Export" @click=${() => this._toggleMenu('export')}>${ICON_EXPORT}</button>
           ${this._openMenu === 'export' ? html`
             <div class="menu" role="menu">
+              <button role="menuitemradio" aria-checked=${this._dest === 'clipboard'} @click=${() => this._setDest('clipboard')}>to clipboard</button>
+              ${this.lastDirectory ? html`
+                <button role="menuitemradio" aria-checked=${this._dest === 'lastdir'} @click=${() => this._setDest('lastdir')}>to ${this.lastDirectory}</button>` : ''}
+              <button role="menuitemradio" aria-checked=${this._dest === 'pick'} @click=${() => this._setDest('pick')}>choose directory…</button>
+              <div class="divider" role="separator"></div>
               ${EXPORT_FORMATS.map(f => html`
                 <button role="menuitem" @click=${() => this._export(f.value)}>${f.label}</button>`)}
             </div>` : ''}

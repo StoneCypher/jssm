@@ -191,9 +191,29 @@
     ed.addEventListener('change', e => refreshStatus(e.detail.fsl));
     setTimeout(() => refreshStatus(host.fsl), 250);
 
-    // Export → clipboard, with a quick status flash.
-    host.addEventListener('fsl-export', e => {
-      const { format, content } = e.detail;
+    // Export: the toolbar fires intent (format + content + destination); the demo
+    // fulfills it. Clipboard for 'clipboard'; the File System Access API for the
+    // directory destinations, reporting the chosen dir back so the toolbar can
+    // offer "to <name>".
+    let lastDirHandle = null;
+    host.addEventListener('fsl-export', async e => {
+      const { format, content, destination } = e.detail;
+      if (destination === 'lastdir' || destination === 'pick') {
+        try {
+          if (destination === 'pick' || !lastDirHandle) {
+            lastDirHandle = await window.showDirectoryPicker();
+            toolbar.lastDirectory = lastDirHandle.name;
+          }
+          const file = await lastDirHandle.getFileHandle(`machine.${format}`, { create: true });
+          const writable = await file.createWritable();
+          await writable.write(content);
+          await writable.close();
+          status.textContent = `saved machine.${format} → ${lastDirHandle.name}`;
+        } catch (_) {
+          status.textContent = 'save canceled';
+        }
+        return;
+      }
       if (navigator.clipboard) { navigator.clipboard.writeText(content); }
       status.textContent = `copied ${format.toUpperCase()} · ${content.length} chars`;
     });
