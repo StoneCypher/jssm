@@ -14,7 +14,8 @@
 
 /**
  *  The shapes every build supports: pure chain/dense/hub topologies need only
- *  `sm()`, `override()`, and `transition()`, which are foundational.
+ *  `sm()` and `transition()`, which are foundational (the harness drives them with
+ *  closed-walk laps, so no `override()` reset is required).
  */
 const BASE_SHAPES = Object.freeze([
   'chain-10', 'chain-50', 'chain-200', 'chain-1000',

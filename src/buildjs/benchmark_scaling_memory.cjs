@@ -153,9 +153,13 @@ function statesFromName(name) {
  *  gc yields empty maps (graceful).
  *
  *  @param shapes The shape registry (each `{ name, machine, ... }`).
- *  @param K Ops per batch (to divide alloc bytes into bytes/op).
+ *  @param K Fallback ops-per-batch divisor, used for any batch that does not carry
+ *         its own `opCount` (the uniform read-only batches).
  *  @param rebuild `(name) => machine` — constructs a fresh machine for a shape.
- *  @param opBatches `(shape) => Array<[resultName, ()=>void]>` — batch thunks to alloc-measure.
+ *  @param opBatches `(shape) => Array<[resultName, ()=>void]> | Array<[resultName, ()=>void, opCount]>`
+ *         — batch thunks to alloc-measure.  A third element overrides `K` for that
+ *         batch, so a closed-walk transition/action batch that runs `stepCount` ops
+ *         (not `K`) divides by its real op count instead of reporting double.
  *  @param seam Injectable `{ gc, heapUsed }`; defaults to {@link defaultSeam}.
  *  @returns `{ footprints, allocs }` ready for {@link injectMemoryFields}.
  *
@@ -178,9 +182,10 @@ function collectMemory(shapes, K, rebuild, opBatches, seam = defaultSeam()) {
         ...countStructures(shape.machine),
       });
     }
-    for (const [resultName, batch] of opBatches(shape)) {
-      const a = measureAllocBytes(batch, seam);
-      if (a !== null) { allocs.set(resultName, a / K); }
+    for (const [resultName, batch, opCount] of opBatches(shape)) {
+      const a       = measureAllocBytes(batch, seam);
+      const divisor = (typeof opCount === 'number' && opCount > 0) ? opCount : K;
+      if (a !== null) { allocs.set(resultName, a / divisor); }
     }
   }
   return { footprints, allocs };

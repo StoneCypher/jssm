@@ -741,6 +741,15 @@ describe('buildDetachedUserData — self-contained release run', () => {
     expect(s).toContain('cp dist/jssm.es5.cjs.nonmin.js dist/jssm.es5.nonmin.cjs');
   });
 
+  test('--harness-from also covers the 5.11 era: nonmin falls back to the unmin .cjs.js bundle', () => {
+    const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
+    // 5.11 shipped jssm.es5.cjs.js (unmin) + jssm.es5.cjs.min.js (min) and no .cjs.nonmin.js,
+    // so dist/jssm.es5.nonmin.cjs must fall back to the unmin .cjs.js bundle...
+    expect(s).toContain('cp dist/jssm.es5.cjs.js dist/jssm.es5.nonmin.cjs');
+    // ...guarded so it never clobbers an existing nonmin bundle (modern or 5.50 era).
+    expect(s).toContain('[ ! -s dist/jssm.es5.nonmin.cjs ] && [ -s dist/jssm.es5.cjs.js ]');
+  });
+
   test('--harness-from does NOT hard-abort on a missing modern committed dist (that guard is the backfill bug)', () => {
     const s = gp.buildDetachedUserData({ ...ok, deep: false, harnessFrom: 'main' });
     expect(s).not.toContain('committed dist/ missing at this commit');

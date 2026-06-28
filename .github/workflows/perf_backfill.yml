@@ -30,6 +30,10 @@ on:
         description: Use spot instances (~70% cheaper)
         required: false
         default: 'true'
+      force:
+        description: Re-measure releases that already have a result (passes --force; needed to re-baseline 5.130–5.143 under the override-free methodology)
+        required: false
+        default: 'false'
 
 permissions:
   id-token: write   # OIDC token for aws-actions/configure-aws-credentials
@@ -78,6 +82,7 @@ jobs:
           if [ -z "$sha" ]; then echo "::error::tag $tag does not resolve to a commit"; exit 1; fi
           ARGS=(--detached --release "$tag" --commit "$sha" --harness-from main --instance-type "${{ inputs.instance_type }}")
           if [ "${{ inputs.spot }}" = "true" ]; then ARGS+=(--spot); fi
+          if [ "${{ inputs.force }}" = "true" ]; then ARGS+=(--force); fi
           echo "firing backfill: $tag @ $sha  (${{ inputs.instance_type }})"
           node src/scripts/graviton_perf.cjs "${ARGS[@]}"
         done
