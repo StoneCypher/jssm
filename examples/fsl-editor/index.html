@@ -184,7 +184,9 @@
 
     // Status pill: the editor text is the source of truth for validity.
     const dot = document.getElementById('dot'), status = document.getElementById('status');
+    let liveFsl = host.fsl;
     function refreshStatus(fsl) {
+      liveFsl = fsl;
       const errs = fslDiagnostics(fsl);
       if (errs.length) {
         dot.classList.add('bad');
@@ -196,6 +198,18 @@
     }
     ed.addEventListener('change', e => refreshStatus(e.detail.fsl));
     setTimeout(() => refreshStatus(host.fsl), 250);
+
+    // The toolbar's Validate / Lint buttons fire intent; the demo fulfills them
+    // against the live editor text (the source of truth for validity).
+    host.addEventListener('fsl-validate', () => {
+      const errs = fslDiagnostics(liveFsl);
+      dot.classList.toggle('bad', errs.length > 0);
+      status.textContent = errs.length ? `invalid — ${errs.length} issue${errs.length > 1 ? 's' : ''}` : 'valid ✓';
+    });
+    host.addEventListener('fsl-lint', () => {
+      const errs = fslDiagnostics(liveFsl);
+      status.textContent = errs.length ? `lint: ${errs.length} issue${errs.length > 1 ? 's' : ''}` : 'lint: clean';
+    });
 
     // Export: the toolbar fires intent (format + content + destination); the demo
     // fulfills it. Clipboard for 'clipboard'; the File System Access API for the

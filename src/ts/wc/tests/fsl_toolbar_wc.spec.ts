@@ -171,12 +171,47 @@ describe('<fsl-toolbar>', () => {
     host.remove();
   });
 
+  it('fires fsl-validate / fsl-lint, suppressible via no-validate / no-lint', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "A 'go' -> B;");
+    const vizStub = document.createElement('div'); vizStub.setAttribute('slot', 'viz');
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    toolbar.setAttribute('slot', 'toolbar');
+    host.append(vizStub, toolbar);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    await toolbar.updateComplete;
+
+    expect(byLabel(toolbar, 'Validate')).not.toBeNull();
+    expect(byLabel(toolbar, 'Lint')).not.toBeNull();
+
+    // each button fires its intent with the current machine source in the detail
+    const vDetail = new Promise<{ fsl: string }>(res =>
+      toolbar.addEventListener('fsl-validate', e => res((e as CustomEvent).detail), { once: true }));
+    byLabel(toolbar, 'Validate').click();
+    expect((await vDetail).fsl).toContain("A 'go' -> B");
+
+    const lDetail = new Promise<{ fsl: string }>(res =>
+      toolbar.addEventListener('fsl-lint', e => res((e as CustomEvent).detail), { once: true }));
+    byLabel(toolbar, 'Lint').click();
+    expect((await lDetail).fsl).toContain("A 'go' -> B");
+
+    // no-validate / no-lint hide the respective buttons
+    toolbar.noValidate = true;
+    toolbar.noLint = true;
+    await toolbar.updateComplete;
+    expect(byLabel(toolbar, 'Validate')).toBeNull();
+    expect(byLabel(toolbar, 'Lint')).toBeNull();
+    host.remove();
+  });
+
   it('renders inert controls when standalone (no host)', async () => {
     const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
     document.body.appendChild(toolbar);
     await toolbar.updateComplete;
 
     expect(byLabel(toolbar, 'Code')).toBeNull();                                          // no host → no panels
+    expect(byLabel(toolbar, 'Validate')).toBeNull();                                      // validate/lint are host-gated too
 
     let fired = false;
     toolbar.addEventListener('fsl-export', () => { fired = true; });
