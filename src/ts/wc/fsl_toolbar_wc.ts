@@ -6,7 +6,7 @@ import { machine_to_dot, machine_to_svg_string } from '../jssm_viz.js';
 import type { FslLayout } from './fsl_instance_wc.js';
 import type { Machine } from '../jssm.js';
 import type { ThemeMode, ThemeRegistry } from './fsl_themes.js';
-import { permalink_for, fsl_from_permalink } from './fsl_permalink.js';
+import { permalink_for, fsl_from_permalink, permalink_key_for } from './fsl_permalink.js';
 
 /** Host whose theme, layout, panel visibility, and export source the toolbar drives. */
 interface HostTarget extends HTMLElement {
@@ -259,7 +259,7 @@ export class FslToolbar extends LitElement {
     } else if (format === 'svg') {
       content = await machine_to_svg_string(host.machine);
     } else if (format === 'permalink') {
-      content = await permalink_for(host.fsl);
+      content = await permalink_for(host.fsl, permalink_key_for(host) ?? undefined);
     } else if (format === 'embed') {
       content = embed_snippet_for(host.fsl);
     } else {
