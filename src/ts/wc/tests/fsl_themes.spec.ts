@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import {
   BUILTIN_THEMES, resolve_theme_mode, resolve_palette, palette_to_vars,
-  type ThemeRegistry,
+  register_palette_properties, type ThemeRegistry,
 } from '../fsl_themes.js';
 
 describe('resolve_theme_mode', () => {
@@ -54,5 +54,38 @@ describe('palette_to_vars', () => {
     const vars = palette_to_vars(BUILTIN_THEMES['Default']!.dark);
     expect(vars).toContainEqual(['--fsl-color-surface', '#1e1e22']);
     expect(vars).toContainEqual(['--fsl-color-json-atom', '#c792ea']);
+  });
+});
+
+describe('register_palette_properties', () => {
+  const saved = (globalThis as { CSS?: unknown }).CSS;
+  const setCSS = (v: unknown): void => { (globalThis as { CSS?: unknown }).CSS = v; };
+  afterEach(() => { setCSS(saved); });
+
+  it('no-ops when CSS is unavailable', () => {
+    setCSS(undefined);
+    expect(() => register_palette_properties()).not.toThrow();
+  });
+
+  it('no-ops when CSS.registerProperty is missing', () => {
+    setCSS({});
+    expect(() => register_palette_properties()).not.toThrow();
+  });
+
+  it('registers each token as an inheriting <color> and ignores re-registration', () => {
+    const calls: Array<{ name: string; syntax: string; inherits: boolean }> = [];
+    let fail = false;
+    setCSS({
+      registerProperty: (d: { name: string; syntax: string; inherits: boolean }): void => {
+        if (fail) { throw new Error('already registered'); }
+        calls.push(d);
+      },
+    });
+    register_palette_properties();
+    expect(calls).toHaveLength(9);
+    expect(calls.map(c => c.name)).toContain('--fsl-color-surface');
+    expect(calls.every(c => c.syntax === '<color>' && c.inherits === true)).toBe(true);
+    fail = true;
+    expect(() => register_palette_properties()).not.toThrow();   // catch swallows re-registration
   });
 });

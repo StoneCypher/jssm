@@ -10,7 +10,7 @@ import {
 import { closest_wc } from './wc_tag_helpers.js';
 import {
   BUILTIN_THEMES, resolve_theme_mode, resolve_palette, palette_to_vars,
-  type ThemeMode, type ThemeRegistry,
+  register_palette_properties, type ThemeMode, type ThemeRegistry,
 } from './fsl_themes.js';
 
 /**
@@ -382,21 +382,13 @@ export function split_ratio(coord: number, start: number, size: number): number 
 export class FslInstance extends LitElement {
 
   static styles = css`
-    /* Register the palette tokens as animatable <color>s so switching theme eases
-       the whole suite: the host transitions its own --fsl-color-*, and every
-       widget's var(--fsl-color-*) re-resolves to the animating value each frame. */
-    @property --fsl-color-surface     { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
-    @property --fsl-color-text        { syntax: "<color>"; inherits: true; initial-value: #222222; }
-    @property --fsl-color-accent      { syntax: "<color>"; inherits: true; initial-value: #5b9dff; }
-    @property --fsl-color-border      { syntax: "<color>"; inherits: true; initial-value: #e5e5e5; }
-    @property --fsl-color-muted       { syntax: "<color>"; inherits: true; initial-value: #9aa0a6; }
-    @property --fsl-color-json-key    { syntax: "<color>"; inherits: true; initial-value: #5b3da8; }
-    @property --fsl-color-json-string { syntax: "<color>"; inherits: true; initial-value: #2e7d32; }
-    @property --fsl-color-json-number { syntax: "<color>"; inherits: true; initial-value: #b8860b; }
-    @property --fsl-color-json-atom   { syntax: "<color>"; inherits: true; initial-value: #c2185b; }
     :host {
       display: block;
-      /* ease every palette token on a theme switch (no-op pre-registration) */
+      /* Ease every palette token on a theme switch. The tokens are registered as
+         animatable <color>s in JS (register_palette_properties) — @property in a
+         shadow stylesheet does not register globally. Because the host transitions
+         its own --fsl-color-*, every widget's var(--fsl-color-*) re-resolves to the
+         animating value each frame, so the whole suite cross-fades. */
       transition:
         --fsl-color-surface 0.28s ease, --fsl-color-text 0.28s ease, --fsl-color-accent 0.28s ease,
         --fsl-color-border 0.28s ease, --fsl-color-muted 0.28s ease, --fsl-color-json-key 0.28s ease,
@@ -894,7 +886,10 @@ export class FslInstance extends LitElement {
     // #640: <jssm-action> DOM event → machine action wiring.
     this._discover_jssm_actions();
 
-    // Theme: follow the OS while in `system` mode, then apply the resolved palette.
+    // Theme: register the palette tokens as animatable colors (once, globally, so
+    // switches can ease), follow the OS while in `system` mode, then apply the
+    // resolved palette.
+    register_palette_properties();
     if (typeof window.matchMedia === 'function') {
       this._mql = window.matchMedia('(prefers-color-scheme: dark)');
       this._mql.addEventListener('change', this._on_os_theme_change);

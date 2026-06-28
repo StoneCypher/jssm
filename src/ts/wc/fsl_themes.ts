@@ -103,3 +103,27 @@ export function resolve_theme_mode(mode: ThemeMode, prefers_dark: boolean): 'lig
 export function palette_to_vars(palette: ThemePalette): Array<[string, string]> {
   return Object.entries(palette).map(([k, v]) => [`--fsl-color-${k}`, v]);
 }
+
+/**
+ * Register the `--fsl-color-*` tokens as animatable `<color>` custom properties
+ * (`CSS.registerProperty`), so a CSS `transition` on them can ease a theme
+ * switch. `@property` declared inside a shadow stylesheet does NOT register
+ * globally, so this JS path is used instead. Idempotent (re-registration is
+ * ignored) and a no-op where the API is unavailable (older browsers, SSR).
+ */
+interface CssRegister {
+  registerProperty(descriptor: { name: string; syntax: string; inherits: boolean; initialValue: string }): void;
+}
+
+export function register_palette_properties(): void {
+  if (typeof CSS === 'undefined' || typeof (CSS as unknown as Partial<CssRegister>).registerProperty !== 'function') {
+    return;
+  }
+  for (const [prop, value] of palette_to_vars(BUILTIN_THEMES['Default']!.light)) {
+    try {
+      (CSS as unknown as CssRegister).registerProperty({ name: prop, syntax: '<color>', inherits: true, initialValue: value });
+    } catch {
+      // already registered by another host or a prior call
+    }
+  }
+}
