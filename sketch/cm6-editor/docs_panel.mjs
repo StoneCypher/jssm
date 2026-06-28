@@ -1,6 +1,7 @@
 // Manifest-driven, drill-in docs browser for the cm6-editor help panel.
 // Sections -> pages -> page content, fed by teaching-surface.json + pages.json.
 import { renderMarkdown, stripFrontMatter } from './markdown_mini.mjs';
+import { installIndexSearch } from './docs_index_search.mjs';
 
 const SECTIONS = [
   ['getting-started', 'Getting Started'],
@@ -108,3 +109,5 @@ export function mountDocsPanel({ bodyEl, manifestUrl, pagesUrl, helpBase, onLoad
   load();
   return { go };
 }
+
+installIndexSearch(mountDocsPanel);
