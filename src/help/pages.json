@@ -171,6 +171,307 @@
       ]
     },
     {
+      "id": "tut-viz-render",
+      "section": "tutorials",
+      "title": "Viz: rendering to SVG",
+      "order": 100,
+      "source": "src/help/tutorials/viz-render.md",
+      "teaches": [
+        "viz-render"
+      ],
+      "mentions": [
+        "api-machine"
+      ],
+      "indexTerms": [
+        "svg",
+        "render",
+        "visualize",
+        "diagram",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-render",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-viz-dot",
+      "section": "tutorials",
+      "title": "Viz: DOT output",
+      "order": 102,
+      "source": "src/help/tutorials/viz-dot.md",
+      "teaches": [
+        "viz-dot"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "dot",
+        "graphviz",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-dot",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-viz-config",
+      "section": "tutorials",
+      "title": "Viz: render configuration",
+      "order": 104,
+      "source": "src/help/tutorials/viz-config.md",
+      "teaches": [
+        "viz-config"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "configure",
+        "render options",
+        "groups",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-config",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-viz-version-info",
+      "section": "tutorials",
+      "title": "Viz: version and build info",
+      "order": 106,
+      "source": "src/help/tutorials/viz-version-info.md",
+      "teaches": [
+        "viz-version-info"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "version",
+        "build_time",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-version-info",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-editor-language-support",
+      "section": "tutorials",
+      "title": "Editor: CodeMirror 6 language support",
+      "order": 110,
+      "source": "src/help/tutorials/editor-language-support.md",
+      "teaches": [
+        "editor-language-support"
+      ],
+      "mentions": [
+        "doc-structure"
+      ],
+      "indexTerms": [
+        "codemirror",
+        "cm6",
+        "language support",
+        "editor"
+      ],
+      "fences": [
+        {
+          "teaches": "editor-language-support",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-editor-highlighting",
+      "section": "tutorials",
+      "title": "Editor: syntax highlighting",
+      "order": 112,
+      "source": "src/help/tutorials/editor-highlighting.md",
+      "teaches": [
+        "editor-highlighting"
+      ],
+      "mentions": [
+        "editor-language-support"
+      ],
+      "indexTerms": [
+        "highlight",
+        "syntax color",
+        "deprecated marker",
+        "editor"
+      ],
+      "fences": [
+        {
+          "teaches": "editor-highlighting",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-editor-keyword-sets",
+      "section": "tutorials",
+      "title": "Editor: keyword classification sets",
+      "order": 114,
+      "source": "src/help/tutorials/editor-keyword-sets.md",
+      "teaches": [
+        "editor-keyword-sets"
+      ],
+      "mentions": [
+        "editor-highlighting"
+      ],
+      "indexTerms": [
+        "keywords",
+        "structural",
+        "property",
+        "enum",
+        "editor"
+      ],
+      "fences": [
+        {
+          "teaches": "editor-keyword-sets",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-viz",
+      "section": "tutorials",
+      "title": "Web component: <fsl-viz>",
+      "order": 120,
+      "source": "src/help/tutorials/wc-viz.md",
+      "teaches": [
+        "wc-viz"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "fsl-viz",
+        "web component",
+        "custom element",
+        "diagram"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-viz",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-instance",
+      "section": "tutorials",
+      "title": "Web component: <fsl-instance>",
+      "order": 122,
+      "source": "src/help/tutorials/wc-instance.md",
+      "teaches": [
+        "wc-instance"
+      ],
+      "mentions": [
+        "wc-viz",
+        "api-machine"
+      ],
+      "indexTerms": [
+        "fsl-instance",
+        "interactive",
+        "live machine"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-instance",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-bind",
+      "section": "tutorials",
+      "title": "Web component: <fsl-bind>",
+      "order": 124,
+      "source": "src/help/tutorials/wc-bind.md",
+      "teaches": [
+        "wc-bind"
+      ],
+      "mentions": [
+        "wc-instance"
+      ],
+      "indexTerms": [
+        "fsl-bind",
+        "binding",
+        "data"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-bind",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-panels",
+      "section": "tutorials",
+      "title": "Web component: inspector panels",
+      "order": 126,
+      "source": "src/help/tutorials/wc-panels.md",
+      "teaches": [
+        "wc-panels"
+      ],
+      "mentions": [
+        "wc-instance"
+      ],
+      "indexTerms": [
+        "fsl-info-panel",
+        "fsl-effective-properties",
+        "inspector",
+        "panel"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-panels",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-editor-suite",
+      "section": "tutorials",
+      "title": "Web component: the editor suite",
+      "order": 128,
+      "source": "src/help/tutorials/wc-editor-suite.md",
+      "teaches": [
+        "wc-editor-suite"
+      ],
+      "mentions": [
+        "wc-instance",
+        "editor-language-support"
+      ],
+      "indexTerms": [
+        "fsl-editor",
+        "fsl-help",
+        "fsl-docs",
+        "toolbar",
+        "web component suite"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-editor-suite",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-document-structure",
       "section": "tutorials",
       "title": "Document structure",
