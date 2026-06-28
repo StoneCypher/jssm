@@ -37,10 +37,10 @@ describe('stochastic_summary properties', () => {
    * start state must always appear — a walk always visits at least one step.
    */
   it('every visited state is a real state name; the start state always appears', () => {
-    fc.assert(fc.property(chain_plan_arb, fc.integer({ min: 1, max: 50 }), ({ fsl, names }) => {
+    fc.assert(fc.property(chain_plan_arb, fc.integer({ min: 1, max: 50 }), ({ fsl, names }, seed) => {
       const machine = sm`${fsl}`;
       const start   = machine.state();
-      const s       = machine.stochastic_summary({ runs: 10, max_steps: 50, seed: 1 });
+      const s       = machine.stochastic_summary({ runs: 10, max_steps: 50, seed });
       expect(s.state_visits.has(start)).toBe(true);
       for (const visited of s.state_visits.keys()) { expect(names).toContain(visited); }
     }));
