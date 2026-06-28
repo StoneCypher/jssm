@@ -74,6 +74,10 @@
       'graph_layout    : dot;',
       'flow            : down;',
       '',
+      '// fsl#1334 — the machine declares the panels it wants; under',
+      '// panel-mode="request" the control shows them:',
+      'editor : { panels: [simulation history]; };',
+      '',
       "Off 'Enable' -> Red;",
       "Red 'Next' => Green 'Next' => Yellow 'Next' => Red;",
       '[Red Yellow Green] ~> Off;',
@@ -102,6 +106,7 @@
     const host = make('fsl-instance');
     host.setAttribute('layout', 'rl');    // viz left, editor right
     host.setAttribute('theme', 'dark');   // start dark; the toolbar toggles the whole suite
+    host.setAttribute('panel-mode', 'request');   // honor the FSL's editor:{panels} (fsl#1334)
     host.fsl = SAMPLE;
     // Real, live telemetry: the transition hook below rewrites this on every
     // step, so the data panel reflects the machine's ACTUAL activity instead of

@@ -999,6 +999,34 @@ ConfigGraph
       return node;
     }
 
+// `editor: { ... };` — editor/panel defaults the web control reads (fsl#1334).
+// Whitelisted keys only (a typo is a parse error), grouped so a new default is
+// one item rule rather than a new top-level keyword.
+ConfigEditor
+  = WS? "editor" WS? ":" WS? "{" WS? items:EditorConfigItem* WS? "};" WS? {
+      const node: any = { key: "editor_config", value: items };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+EditorConfigItem
+  = EditorStochasticRunCount
+  / EditorPanels
+
+EditorStochasticRunCount
+  = WS? "stochastic_run_count" WS? ":" WS? value:IntegerLiteral WS? ";" WS? {
+      const node: any = { key: "stochastic_run_count", value: parseInt(value, 10) };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+EditorPanels
+  = WS? "panels" WS? ":" WS? value:LabelList WS? ";" WS? {
+      const node: any = { key: "panels", value: value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
 
 
 
@@ -1086,6 +1114,7 @@ Config "configuration"
   / ConfigFailedOutputs
   / ConfigTransition
   / ConfigGraph
+  / ConfigEditor
   / ConfigAnyState
   / ConfigGraphBgColor
   / ConfigAllowsOverride

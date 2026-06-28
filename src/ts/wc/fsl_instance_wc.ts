@@ -909,6 +909,7 @@ export class FslInstance extends LitElement {
     // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
     const fsl_source = resolved.fsl as string;
     this._machine = this._build_machine(fsl_source);
+    this._applyEditorConfig();
 
     // Step 3: paint initial host attributes + CSS custom properties.
     this._paint_state_reflection();
@@ -1106,6 +1107,15 @@ export class FslInstance extends LitElement {
       : jssm_from(fsl_source, { data: this.data })) as Machine<unknown>;
   }
 
+  /** Adopt the FSL's `editor: {}` panel request (fsl#1334): when the machine
+   *  declares `panels`, drive {@link requestedPanels} from it so `request` panel
+   *  mode honors the source. The embedder's value persists when the FSL is
+   *  silent. Called after each (re)build, with `_machine` freshly assigned. */
+  private _applyEditorConfig(): void {
+    const panels = this._machine!.editor_config()?.panels;
+    if (panels !== undefined) { this.requestedPanels = panels; }
+  }
+
   private _rebuild_machine(): void {
     if (typeof this.fsl !== 'string' || this.fsl.trim().length === 0) {
       return;
@@ -1122,6 +1132,7 @@ export class FslInstance extends LitElement {
 
     // Swap to the new machine and re-bind everything machine-scoped.
     this._machine = next;
+    this._applyEditorConfig();
     this._paint_state_reflection();
     this._install_event_reemission();
     this._install_declarative_hooks();

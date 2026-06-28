@@ -560,6 +560,19 @@ describe('FslInstance shadow DOM', () => {
     el.remove();
   });
 
+  it('drives requestedPanels from the FSL editor:{} block, feeding request mode (fsl#1334)', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "editor: { panels: [history]; }; A 'go' -> B;");
+    el.panelMode = 'request';
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    expect(el.requestedPanels).toEqual(['history']);
+    expect(el.isPanelHidden('history')).toBe(false);          // FSL-requested → shown under request mode
+    expect(el.isPanelHidden('data-inspector')).toBe(true);    // not requested → default-hidden
+    el.remove();
+  });
+
   it('seeds the machine with initial data when the data property is set', async () => {
     const seed = { count: 7, items: [{ sku: 'A1', qty: 2 }] };
     const el = document.createElement('fsl-instance') as FslInstance;
