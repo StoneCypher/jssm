@@ -59,11 +59,16 @@ export class FslStochastic extends LitElement {
 
   @state() private _summary: JssmStochasticSummary | null = null;
   @state() private _error: string | null = null;
-  private _host: StochHost | null = null;
+  @state() private _host: StochHost | null = null;
 
   connectedCallback(): void {
     super.connectedCallback();
     this._host = closest_wc(this, 'instance') as StochHost | null;
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this._host = null;
   }
 
   /**
