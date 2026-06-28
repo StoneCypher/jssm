@@ -1,39 +1,6 @@
 import { LitElement, type TemplateResult } from 'lit';
-/**
- * A shareable URL for the given FSL: the current page URL with the source
- * compressed into the hash as `#m=<scheme><payload>`. The payload is URL-safe
- * base64, so no characters need percent-escaping; `<scheme>` is a single digit
- * — `1` when DEFLATE made the source smaller, `0` for the raw bytes when it did
- * not — so a short machine's link is never longer than its uncompressed form.
- * Decode with {@link fsl_from_permalink}. Browser-only (uses `location` and the
- * platform compression streams), like the rest of the toolbar.
- *
- * @returns The absolute page URL carrying the encoded machine in its fragment.
- *
- * @example
- * await permalink_for("a -> b;");                            // "https://host/path#m=0YSAtPiBiOw"  (too short to gain from DEFLATE)
- * await permalink_for("Off -> On -> Off; On -> Idle -> Off;"); // "https://host/path#m=1809LU9C1U_DPA5NpadZQpmdKTipMCAA"
- *
- * @see fsl_from_permalink
- */
-export declare function permalink_for(fsl: string): Promise<string>;
-/**
- * Recover the FSL source from a permalink produced by {@link permalink_for}:
- * read the `#m=<scheme><payload>` fragment, decode the URL-safe base64, and
- * inflate when `<scheme>` is `1`. Accepts a full URL or a bare fragment, with
- * or without the leading `#`.
- *
- * @returns The decoded FSL, or `null` when the input carries no `m=` permalink
- *          fragment.
- *
- * @example
- * await fsl_from_permalink("https://host/path#m=0YSAtPiBiOw"); // "a -> b;"
- * await fsl_from_permalink("#m=0YSAtPiBiOw");                  // "a -> b;"
- * await fsl_from_permalink("https://host/path");              // null
- *
- * @see permalink_for
- */
-export declare function fsl_from_permalink(url: string): Promise<string | null>;
+import { permalink_for, fsl_from_permalink } from './fsl_permalink.js';
+export { permalink_for, fsl_from_permalink };
 /**
  * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
  * `<fsl-instance>` reading its source from a `<script type="text/fsl">` child,

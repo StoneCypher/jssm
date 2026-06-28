@@ -206,6 +206,9 @@ export declare function split_ratio(coord: number, start: number, size: number):
  * @slot footer - Footer slot.
  */
 export declare class FslInstance extends LitElement {
+    /** Bind this instance to a URL-fragment segment keyed by its `uhash`/`id`
+     *  (inert if it has neither): restore on connect, write debounced on edit. */
+    constructor();
     static styles: import("lit").CSSResult;
     /**
      * FSL source attribute.  When non-empty, this is the sole channel
@@ -505,6 +508,13 @@ export declare class FslInstance extends LitElement {
      * supplied a source.
      */
     connectedCallback(): void;
+    /**
+     * True when this instance owns a URL permalink segment (keyed by its
+     * `uhash`/`id`) that a pending {@link FslPermalinkSync} restore will turn into
+     * its FSL source — so `connectedCallback` can defer the machine build to that
+     * restore instead of throwing on an otherwise-absent source.
+     */
+    private _permalinkSegmentPresent;
     /**
      * Discover direct-child `<jssm-on>` elements and install their
      * subscriptions on the owned machine.  Per #643:
