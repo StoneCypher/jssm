@@ -1012,29 +1012,31 @@ git commit -m "docs(help): exemplar pages per section + editor-help migration"
 
 ```js
 // sketch/cm6-editor/tests/docs_panel.e2e.mjs
-import { chromium } from 'playwright';
-import assert from 'node:assert/strict';
+// Use @playwright/test's expect (auto-retries) — page render is async (md fetch),
+// so plain .count() asserts before the render lands. BASE is overridable because
+// the README's `serve` workflow commonly occupies port 3000 already.
+import { chromium, expect } from '@playwright/test';
 
-const BASE = 'http://localhost:3000/sketch/cm6-editor/';
+const BASE = process.env.DOCS_E2E_BASE || 'http://localhost:3000/sketch/cm6-editor/';
 const browser = await chromium.launch();
 const page = await browser.newPage();
-await page.goto(BASE);
+await page.goto(BASE, { waitUntil: 'load' });
 
 await page.click('#btn-help');                                   // open docs
 await page.click('[data-section="getting-started"]');            // drill into a section
-await page.click('[data-page="welcome"]');                       // open a page
-assert.ok(await page.locator('article.docs-page h1').count() >= 1, 'page rendered');
+await page.click('[data-page="welcome"]');                       // open a page (async fetch+render)
+await expect(page.locator('article.docs-page h1')).toHaveCount(1);
 await page.click('.docs-load-example');                          // load example into editor
-assert.match(await page.locator('.cm-content').innerText(), /->/, 'editor received fsl');
+await expect(page.locator('.cm-content')).toContainText('->');
 
 await page.click('[data-go="sections"]');
 await page.click('[data-section="index"]');
-assert.ok(await page.locator('.docs-nav a').count() >= 1, 'index populated');
+await expect(page.locator('.docs-nav a').first()).toBeVisible();
 
 await page.click('[data-go="sections"]');
 await page.click('[data-section="search"]');
 await page.fill('#docs-search-input', 'transition');
-assert.ok(await page.locator('#docs-search-results li').count() >= 1, 'search returns hits');
+await expect(page.locator('#docs-search-results li').first()).toBeVisible();
 
 await browser.close();
 console.log('docs_panel e2e OK');
@@ -1042,20 +1044,26 @@ console.log('docs_panel e2e OK');
 
 - [ ] **Step 2: Provision the browser (once) and serve**
 
-Run (Bash tool):
+Run (Bash tool, only if chromium isn't already installed machine-wide):
 ```
 NODE_OPTIONS=--use-system-ca npx playwright install chromium
 ```
-Then serve in the background:
+Then serve the repo root in the background:
 ```
-npx serve . -l 3000
+npx serve .
 ```
+Note the port it prints — `serve` falls back to a random port if 3000 is taken
+(the README's workflow often holds 3000). Confirm it serves the worktree:
+```
+curl -s -L http://localhost:<port>/sketch/cm6-editor/ -o build/served.html
+```
+`build/served.html` must contain `id="docs-body"`.
 
 - [ ] **Step 3: Run the smoke test**
 
-Run:
+Run (point BASE at the actual port):
 ```
-node sketch/cm6-editor/tests/docs_panel.e2e.mjs
+DOCS_E2E_BASE=http://localhost:<port>/sketch/cm6-editor/ node sketch/cm6-editor/tests/docs_panel.e2e.mjs
 ```
 Expected: `docs_panel e2e OK`.
 
