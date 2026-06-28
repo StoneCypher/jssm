@@ -382,8 +382,25 @@ export function split_ratio(coord: number, start: number, size: number): number 
 export class FslInstance extends LitElement {
 
   static styles = css`
+    /* Register the palette tokens as animatable <color>s so switching theme eases
+       the whole suite: the host transitions its own --fsl-color-*, and every
+       widget's var(--fsl-color-*) re-resolves to the animating value each frame. */
+    @property --fsl-color-surface     { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+    @property --fsl-color-text        { syntax: "<color>"; inherits: true; initial-value: #222222; }
+    @property --fsl-color-accent      { syntax: "<color>"; inherits: true; initial-value: #5b9dff; }
+    @property --fsl-color-border      { syntax: "<color>"; inherits: true; initial-value: #e5e5e5; }
+    @property --fsl-color-muted       { syntax: "<color>"; inherits: true; initial-value: #9aa0a6; }
+    @property --fsl-color-json-key    { syntax: "<color>"; inherits: true; initial-value: #5b3da8; }
+    @property --fsl-color-json-string { syntax: "<color>"; inherits: true; initial-value: #2e7d32; }
+    @property --fsl-color-json-number { syntax: "<color>"; inherits: true; initial-value: #b8860b; }
+    @property --fsl-color-json-atom   { syntax: "<color>"; inherits: true; initial-value: #c2185b; }
     :host {
       display: block;
+      /* ease every palette token on a theme switch (no-op pre-registration) */
+      transition:
+        --fsl-color-surface 0.28s ease, --fsl-color-text 0.28s ease, --fsl-color-accent 0.28s ease,
+        --fsl-color-border 0.28s ease, --fsl-color-muted 0.28s ease, --fsl-color-json-key 0.28s ease,
+        --fsl-color-json-string 0.28s ease, --fsl-color-json-number 0.28s ease, --fsl-color-json-atom 0.28s ease;
       /* Pre-JS fallback palette (the Default theme's light variant). At runtime
          the host writes the resolved theme's --fsl-color-* tokens as inline
          style (see _applyTheme), which override these and cascade to every
@@ -393,6 +410,7 @@ export class FslInstance extends LitElement {
       --fsl-color-json-key: #5b3da8; --fsl-color-json-string: #2e7d32;
       --fsl-color-json-number: #b8860b; --fsl-color-json-atom: #c2185b;
     }
+    @media (prefers-reduced-motion: reduce) { :host { transition: none; } }
     .container {
       width: 100%;
       height: 100%;
