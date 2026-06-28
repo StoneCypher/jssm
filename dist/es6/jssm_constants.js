@@ -120,7 +120,7 @@ const named_colors = [
     "Red", "RosyBrown", "RoyalBlue", "SaddleBrown", "Salmon", "SandyBrown",
     "SeaGreen", "SeaShell", "Sienna", "Silver", "SkyBlue", "SlateBlue",
     "SlateGray", "SlateGrey", "Snow", "SpringGreen", "SteelBlue", "Tan", "Teal",
-    "Thistle", "Tomato", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
+    "Thistle", "Tomato", "Transparent", "Turquoise", "Violet", "Wheat", "White", "WhiteSmoke",
     "Yellow", "YellowGreen"
 ];
 /*******

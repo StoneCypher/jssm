@@ -1,0 +1,161 @@
+// @vitest-environment jsdom
+import { describe, it, expect, beforeAll } from 'vitest';
+import '../fsl_instance_wc.define.js';
+import { FslToolbar } from '../fsl_toolbar_wc.js';
+import { FslEditor } from '../fsl_editor_wc.js';
+import { FslInstance } from '../fsl_instance_wc.js';
+
+beforeAll(() => {
+  if (!customElements.get('fsl-toolbar')) { customElements.define('fsl-toolbar', FslToolbar); }
+  if (!customElements.get('fsl-editor'))  { customElements.define('fsl-editor', FslEditor); }
+});
+
+function q(el: FslToolbar, sel: string): HTMLElement {
+  return el.shadowRoot!.querySelector(sel) as HTMLElement;
+}
+function byLabel(el: FslToolbar, label: string): HTMLButtonElement {
+  return el.shadowRoot!.querySelector(`[aria-label="${label}"]`) as HTMLButtonElement;
+}
+function byText(el: FslToolbar, sel: string, text: string): HTMLElement {
+  return [...el.shadowRoot!.querySelectorAll(sel)].find(b => b.textContent!.includes(text)) as HTMLElement;
+}
+
+describe('<fsl-toolbar>', () => {
+
+  it('themes the suite, toggles present panels, drives layout, and exports', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "A 'go' -> B;");
+    host.setAttribute('layout', 'rl');
+    const editor = document.createElement('fsl-editor') as FslEditor;
+    editor.setAttribute('slot', 'editor');
+    const vizStub = document.createElement('div'); vizStub.setAttribute('slot', 'viz');
+    const histStub = document.createElement('div'); histStub.setAttribute('slot', 'history');
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    toolbar.setAttribute('slot', 'toolbar');
+    host.append(vizStub, editor, histStub, toolbar);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    await toolbar.updateComplete;
+
+    // Theme pulldown: System/Light/Dark modes drive host.theme; the registry
+    // theme list drives host.themeName. The menu stays open across selections
+    // (two radio groups) and closes on toggling the Theme button.
+    byLabel(toolbar, 'Theme').click();
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'Dark').click();
+    await toolbar.updateComplete;
+    expect(host.theme).toBe('dark');
+    byText(toolbar, '.menu button', 'System').click();
+    await toolbar.updateComplete;
+    expect(host.theme).toBe('system');
+    byText(toolbar, '.menu button', 'Solarized').click();         // a built-in registry theme
+    await toolbar.updateComplete;
+    expect(host.themeName).toBe('Solarized');
+    byLabel(toolbar, 'Theme').click();                            // toggle the still-open menu closed
+    await toolbar.updateComplete;
+    expect(q(toolbar, '.menu')).toBeNull();
+
+    // one toggle per present panel (Renderer/Code/History); absent panels have none
+    expect(byLabel(toolbar, 'Renderer')).not.toBeNull();
+    expect(byLabel(toolbar, 'History')).not.toBeNull();
+    expect(byLabel(toolbar, 'Data')).toBeNull();
+    byLabel(toolbar, 'Code').click();
+    await toolbar.updateComplete;
+    expect(host.isPanelHidden('editor')).toBe(true);
+
+    // Layout menu → host.layout
+    byLabel(toolbar, 'Layout').click();
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'Tabbed').click();
+    await toolbar.updateComplete;
+    expect(host.getAttribute('layout')).toBe('tabs');
+    expect(q(toolbar, '.menu')).toBeNull();
+
+    // Export pulldown opens, toggles closed, and the three formats emit fsl-export
+    byLabel(toolbar, 'Export').click();
+    await toolbar.updateComplete;
+    expect(q(toolbar, '.menu')).not.toBeNull();
+    byLabel(toolbar, 'Export').click();           // toggle the same menu closed
+    await toolbar.updateComplete;
+    expect(q(toolbar, '.menu')).toBeNull();
+
+    const got: Array<{ format: string; content: string; destination: string }> = [];
+    // dot/json/fsl resolve synchronously; SVG is async (graphviz), so wait for all four.
+    const allExported = new Promise<void>(res => {
+      toolbar.addEventListener('fsl-export', e => {
+        got.push((e as CustomEvent).detail);
+        if (got.length === 4) { res(); }
+      });
+    });
+    for (const label of ['Graphviz DOT', 'JSON (serialized)', 'FSL source', 'SVG']) {
+      byLabel(toolbar, 'Export').click();
+      await toolbar.updateComplete;
+      byText(toolbar, '.menu button', label).click();
+      await toolbar.updateComplete;
+    }
+    await allExported;
+    expect(got.map(g => g.format)).toEqual(['dot', 'json', 'fsl', 'svg']);
+    expect(got[0].content).toContain('digraph');
+    expect(got[1].content).toContain('jssm_version');
+    expect(got[2].content).toContain("A 'go' -> B");
+    expect(got[3].content).toContain('<svg');
+    expect(got.every(g => g.destination === 'clipboard')).toBe(true);   // default destination
+
+    // Destination radios: only clipboard + "choose directory" until a saved
+    // directory name is reported by the embedder.
+    const destCount = (): number => toolbar.shadowRoot!.querySelectorAll('[role="menuitemradio"]').length;
+    byLabel(toolbar, 'Export').click();
+    await toolbar.updateComplete;
+    expect(destCount()).toBe(2);
+    byText(toolbar, '.menu button', 'to clipboard').click();   // select the default destination
+
+    // "choose directory" tags the next export `pick`.
+    byText(toolbar, '.menu button', 'choose directory').click();
+    await toolbar.updateComplete;
+    const pickDetail = new Promise<{ destination: string }>(res =>
+      toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
+    byText(toolbar, '.menu button', 'FSL source').click();
+    expect((await pickDetail).destination).toBe('pick');
+
+    // Once a directory name is set, a "to <name>" destination appears + targets `lastdir`.
+    toolbar.lastDirectory = 'exports';
+    await toolbar.updateComplete;
+    byLabel(toolbar, 'Export').click();
+    await toolbar.updateComplete;
+    expect(destCount()).toBe(3);
+    byText(toolbar, '.menu button', 'to exports').click();
+    await toolbar.updateComplete;
+    const lastDetail = new Promise<{ destination: string }>(res =>
+      toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
+    byText(toolbar, '.menu button', 'Graphviz DOT').click();
+    expect((await lastDetail).destination).toBe('lastdir');
+    host.remove();
+  });
+
+  it('renders inert controls when standalone (no host)', async () => {
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    document.body.appendChild(toolbar);
+    await toolbar.updateComplete;
+
+    expect(byLabel(toolbar, 'Code')).toBeNull();                                          // no host → no panels
+
+    let fired = false;
+    toolbar.addEventListener('fsl-export', () => { fired = true; });
+    byLabel(toolbar, 'Theme').click();                           // open the theme menu
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'Dark').click();             // _setMode with no host → no-op
+    await toolbar.updateComplete;
+    byLabel(toolbar, 'Layout').click();
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'Just editor').click();   // _setLayout with no host
+    await toolbar.updateComplete;
+    byLabel(toolbar, 'Export').click();
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'FSL source').click();    // _export with no host → no event
+    await toolbar.updateComplete;
+    expect(fired).toBe(false);
+    expect(q(toolbar, '.menu')).toBeNull();
+    toolbar.remove();
+  });
+
+});

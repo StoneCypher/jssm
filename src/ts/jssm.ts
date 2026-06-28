@@ -72,6 +72,9 @@ const { shapes, gviz_shapes, named_colors,
         state_name_chars, state_name_first_chars, action_label_chars } = constants;
 const empty_string_set: ReadonlySet<string> = new Set<string>();
 
+// Editor-agnostic FSL language service (diagnostics / completions / semantic spans).
+export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
+
 // The spatial fields (besides `handler`, which every hook needs) that each
 // hook kind requires, mirroring exactly what `set_hook` reads per case.  Used
 // to validate a HookDescription so a mis-shaped one is rejected rather than
@@ -726,7 +729,7 @@ class Machine<mDT> {
 
   }: JssmGenericConfig<StateType, mDT>) {
 
-    this._time_source                   = () => new Date().getTime();
+    this._time_source                   = time_source ?? (() => new Date().getTime());
 
     this._create_started                = this._time_source();
 
@@ -1831,7 +1834,7 @@ class Machine<mDT> {
       jssm_version     : version,
       history          : this._history.toArray(),
       history_capacity : this._history.capacity,
-      timestamp        : new Date().getTime(),
+      timestamp        : this._time_source(),
 
     };
 

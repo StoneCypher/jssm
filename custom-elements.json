@@ -4,6 +4,151 @@
   "modules": [
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_actions_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-actions>` — interactive controls derived from a parent `<fsl-instance>`'s\nmachine. Renders a button for every currently-legal named **action** and, split\ninto three groups, every reachable transition target by edge kind: **main**\n(`=>`) first, plain **transitions** (`->`) next, and **forced** (`~>`) last.\nLegal targets fire with `transition`, forced-only ones with `force_transition`.\nRe-derives on the host's transition / rebuild events; only firable controls\nappear, and each group is omitted when empty, so a self-loop-only state shows\njust its actions and a terminal state shows `no actions available`. Standalone\n(no host ancestor) renders empty.",
+          "name": "FslActions",
+          "cssParts": [
+            {
+              "description": "The container.",
+              "name": "actions"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_actions",
+              "type": {
+                "text": "string[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "_main",
+              "type": {
+                "text": "string[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "_regular",
+              "type": {
+                "text": "string[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "_forced",
+              "type": {
+                "text": "string[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "ActionsHost | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_unbind",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "method",
+              "name": "_derive",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "host",
+                  "type": {
+                    "text": "ActionsHost"
+                  }
+                }
+              ],
+              "description": "Recompute the legal actions and the three transition groups from the host."
+            },
+            {
+              "kind": "method",
+              "name": "_group",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult | string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "host",
+                  "type": {
+                    "text": "ActionsHost"
+                  }
+                },
+                {
+                  "name": "label",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "targets",
+                  "type": {
+                    "text": "string[]"
+                  }
+                },
+                {
+                  "name": "forced",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "A transition group, or `''` when empty. Forced targets fire via force."
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-actions",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslActions",
+          "declaration": {
+            "name": "FslActions",
+            "module": "src/ts/wc/fsl_actions_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/fsl_bind_wc.ts",
       "declarations": [
         {
@@ -189,6 +334,349 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_data_inspector_wc.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "tokenizeJson",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "json",
+              "type": {
+                "text": "string"
+              },
+              "description": "A JSON string (typically `JSON.stringify(value, null, 2)`)."
+            }
+          ],
+          "description": "Split a pretty-printed JSON string into classified tokens for syntax\nhighlighting. A quoted run is a `key` when the next non-space character is\n`:`, otherwise a `string`; `true`/`false` are `bool`, `null` is `null`,\nnumbers are `number`, and everything between (braces, commas, whitespace) is\n`plain`. Driven by the text, not a JSON parse, so it never throws."
+        },
+        {
+          "kind": "class",
+          "description": "`<fsl-data-inspector>` — a syntax-highlighted view of a parent\n`<fsl-instance>`'s extended-state data. Re-reads `host.machine.data()` on the\nhost's transition / data-change / rebuild DOM events. The panel is bounded and\nscrolls internally (a self-contained vertical column). Renders `no data` when\nthe machine carries none; standalone (no host) renders empty.",
+          "name": "FslDataInspector",
+          "cssParts": [
+            {
+              "description": "The scrollable container.",
+              "name": "inspector"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_data",
+              "type": {
+                "text": "unknown"
+              },
+              "privacy": "private",
+              "default": "undefined"
+            },
+            {
+              "kind": "field",
+              "name": "_unbind",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-data-inspector",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "tokenizeJson",
+          "declaration": {
+            "name": "tokenizeJson",
+            "module": "src/ts/wc/fsl_data_inspector_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslDataInspector",
+          "declaration": {
+            "name": "FslDataInspector",
+            "module": "src/ts/wc/fsl_data_inspector_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_editor_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-editor>` — a CodeMirror-based FSL editor web component.\n\nBatteries-included: FSL highlighting (`jssm/cm6`), linting, a semantic\noverlay (color chips / state & enum marks), and context-aware completion —\neach toggleable via a `no-*` attribute. Light/dark via the reflected `theme`\nattribute (which also drives the `--fsl-*` token defaults). White-labeled\nthrough the shared appearance contract. Emits `change` on user edits.",
+          "name": "FslEditor",
+          "cssParts": [
+            {
+              "description": "The CodeMirror editor container.",
+              "name": "editor"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "FSL source text (two-way: reflects user edits, applies external writes).",
+              "attribute": "fsl"
+            },
+            {
+              "kind": "field",
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "When true, the document is read-only (selection still allowed).",
+              "attribute": "readonly",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "theme",
+              "type": {
+                "text": "'light' | 'dark'"
+              },
+              "default": "'light'",
+              "description": "Color theme; reflected so it also drives the `--fsl-*` token defaults.",
+              "attribute": "theme",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "noLint",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disable the diagnostics/lint underlines.",
+              "attribute": "no-lint"
+            },
+            {
+              "kind": "field",
+              "name": "noOverlay",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disable the semantic overlay (color chips, state/enum marks).",
+              "attribute": "no-overlay"
+            },
+            {
+              "kind": "field",
+              "name": "noCompletion",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disable context-aware autocompletion.",
+              "attribute": "no-completion"
+            },
+            {
+              "kind": "field",
+              "name": "_view",
+              "type": {
+                "text": "EditorView | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_themeC",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Compartment()"
+            },
+            {
+              "kind": "field",
+              "name": "_lintC",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Compartment()"
+            },
+            {
+              "kind": "field",
+              "name": "_overlayC",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Compartment()"
+            },
+            {
+              "kind": "field",
+              "name": "_completionC",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Compartment()"
+            },
+            {
+              "kind": "field",
+              "name": "_readonlyC",
+              "privacy": "private",
+              "readonly": true,
+              "default": "new Compartment()"
+            },
+            {
+              "kind": "field",
+              "name": "_applyingProp",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "True while a programmatic doc write is in flight, to suppress the echo."
+            },
+            {
+              "kind": "field",
+              "name": "_onChange",
+              "type": {
+                "text": "((e: Event) => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Write-back listener for a bound parent host, or null when standalone."
+            },
+            {
+              "kind": "method",
+              "name": "_themeExt",
+              "privacy": "private",
+              "description": "The theme bundle for the current `theme` value."
+            },
+            {
+              "kind": "field",
+              "name": "view",
+              "type": {
+                "text": "EditorView | null"
+              },
+              "description": "The underlying CodeMirror view, or null before first render / after disconnect.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "_onDocChanged",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Reflect a genuine user edit back to the `fsl` property + `change` event."
+            },
+            {
+              "kind": "method",
+              "name": "_syncDoc",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Apply an external `fsl` write to the document, guarding the echo."
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent<FslEditorChangeDetail>"
+              },
+              "description": "On every user edit (not on programmatic `fsl` writes)."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "FSL source text (two-way: reflects user edits, applies external writes).",
+              "fieldName": "fsl"
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "When true, the document is read-only (selection still allowed).",
+              "fieldName": "readonly"
+            },
+            {
+              "name": "theme",
+              "type": {
+                "text": "'light' | 'dark'"
+              },
+              "default": "'light'",
+              "description": "Color theme; reflected so it also drives the `--fsl-*` token defaults.",
+              "fieldName": "theme"
+            },
+            {
+              "name": "no-lint",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disable the diagnostics/lint underlines.",
+              "fieldName": "noLint"
+            },
+            {
+              "name": "no-overlay",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disable the semantic overlay (color chips, state/enum marks).",
+              "fieldName": "noOverlay"
+            },
+            {
+              "name": "no-completion",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disable context-aware autocompletion.",
+              "fieldName": "noCompletion"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-editor",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslEditor",
+          "declaration": {
+            "name": "FslEditor",
+            "module": "src/ts/wc/fsl_editor_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/fsl_effective_properties_wc.ts",
       "declarations": [
         {
@@ -269,6 +757,377 @@
           "declaration": {
             "name": "FslEffectiveProperties",
             "module": "src/ts/wc/fsl_effective_properties_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_export_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-export>` — export buttons for a parent `<fsl-instance>`. Each produces a\nstring from the host's machine and fires `fsl-export` with `{ format,\ncontent }`; the embedder decides what to do with it (copy, download, show).\nFormats: Graphviz `dot` (via `machine_to_dot`), `json` (the machine's\n`serialize()`), and `fsl` (the source). Standalone is inert.",
+          "name": "FslExport",
+          "cssParts": [
+            {
+              "description": "The button row.",
+              "name": "export"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "ExportHost | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "method",
+              "name": "_emit",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "format",
+                  "type": {
+                    "text": "FslExportFormat"
+                  }
+                }
+              ]
+            }
+          ],
+          "events": [
+            {
+              "name": "fsl-export",
+              "type": {
+                "text": "CustomEvent<{format: FslExportFormat, content: string}>"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-export",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslExport",
+          "declaration": {
+            "name": "FslExport",
+            "module": "src/ts/wc/fsl_export_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_footer_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-footer>` — a status bar for a parent `<fsl-instance>`.\n\nReflects the host's current state, legal-action count, and\nterminal/complete status by observing the host's reflected attributes\n(`current-state`, `legal-actions`, `terminal`, `complete`) — so it tracks\ntransitions *and* survives a live machine rebuild (#1387) without a machine\nsubscription. A default slot carries embedder status (line/column, parse\nstate, …). Standalone (no `<fsl-instance>` ancestor) it renders just the slot.",
+          "name": "FslFooter",
+          "cssParts": [
+            {
+              "description": "The footer bar container.",
+              "name": "bar"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Trailing custom status, right-aligned.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_state",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_actions",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "_terminal",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "_complete",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "_observer",
+              "type": {
+                "text": "MutationObserver | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-footer",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslFooter",
+          "declaration": {
+            "name": "FslFooter",
+            "module": "src/ts/wc/fsl_footer_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_help_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-help>` — a documentation drawer shell: a titled, scrollable panel with\na close button and a default slot for content (typically foldable\n`<details>` sections). Presentational and self-contained — it owns no machine\nbinding. The reflected `open` attribute drives visibility, so embedders can\nanimate it (e.g. a width transition on the host) purely from CSS.",
+          "name": "FslHelp",
+          "cssParts": [
+            {
+              "description": "The drawer container.",
+              "name": "drawer"
+            },
+            {
+              "description": "The header bar.",
+              "name": "head"
+            },
+            {
+              "description": "The scrollable content area.",
+              "name": "body"
+            },
+            {
+              "description": "The close button.",
+              "name": "close"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The documentation content.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the drawer is shown. Reflected so embedders can animate off it.",
+              "attribute": "open",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "heading",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Documentation'",
+              "description": "Heading shown in the drawer's header.",
+              "attribute": "heading"
+            },
+            {
+              "kind": "field",
+              "name": "_onClose",
+              "privacy": "private",
+              "description": "Close the drawer and emit `close`."
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<void>"
+              },
+              "description": "When the close button is pressed.",
+              "name": "close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the drawer is shown. Reflected so embedders can animate off it.",
+              "fieldName": "open"
+            },
+            {
+              "name": "heading",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Documentation'",
+              "description": "Heading shown in the drawer's header.",
+              "fieldName": "heading"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-help",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslHelp",
+          "declaration": {
+            "name": "FslHelp",
+            "module": "src/ts/wc/fsl_help_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_history_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-history>` — the visited-state timeline for a parent `<fsl-instance>`.\n\nListens to the host's `fsl-transition` DOM events (re-emitted once per\ntransition, #639) and records the host's reflected `current-state`, so it\ncaptures every transition and survives a live machine rebuild without a\nmachine subscription. Standalone (no host ancestor) renders empty.",
+          "name": "FslHistory",
+          "cssParts": [
+            {
+              "description": "The timeline container.",
+              "name": "timeline"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_history",
+              "type": {
+                "text": "string[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "_unbind",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-history",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslHistory",
+          "declaration": {
+            "name": "FslHistory",
+            "module": "src/ts/wc/fsl_history_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_hook_log_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-hook-log>` — a running log of a parent `<fsl-instance>`'s machine\nevents, listening to the host's re-emitted `fsl-*` DOM events (#639). Keeps\nthe most recent MAX_ENTRIES. Standalone (no host ancestor) is empty.",
+          "name": "FslHookLog",
+          "cssParts": [
+            {
+              "description": "The log container.",
+              "name": "log"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_log",
+              "type": {
+                "text": "string[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "_unbind",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-hook-log",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslHookLog",
+          "declaration": {
+            "name": "FslHookLog",
+            "module": "src/ts/wc/fsl_hook_log_wc.ts"
           }
         }
       ]
@@ -757,6 +1616,60 @@
           "description": "Resolve a `<jssm-instance>`'s FSL source from the three legal channels:\r\nthe `fsl=\"\"` attribute, a child `<script type=\"text/fsl\">`, and the\r\nelement's own text content (after stripping the script and any\r\n`<jssm-*>` companion tags).  Exactly one channel may be used; using\r\nnone or more than one is an error.\r\n\r\nPulled out as a pure function so it's testable without spinning up a\r\nLit element.\r\n\r\n```typescript\r\nconst div = document.createElement('div');\r\ndiv.setAttribute('fsl', 'Off -> On;');\r\nresolve_fsl_source(div as HTMLElement, 'Off -> On;');\r\n// => { fsl: 'Off -> On;', provided_count: 1, error: undefined }\r\n```"
         },
         {
+          "kind": "function",
+          "name": "auto_mode",
+          "return": {
+            "type": {
+              "text": "'lr' | 'tb'"
+            }
+          },
+          "parameters": [
+            {
+              "name": "width",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "height",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "Resolve `layout=\"auto\"` to a concrete split direction from the viewport\r\nshape: side-by-side (`'lr'`) when at least as wide as tall, else stacked\r\n(`'tb'`). Pure, so it's testable without a laid-out DOM."
+        },
+        {
+          "kind": "function",
+          "name": "split_ratio",
+          "return": {
+            "type": {
+              "text": "number"
+            }
+          },
+          "parameters": [
+            {
+              "name": "coord",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "start",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "Clamp a gutter-drag coordinate to a split ratio (percent of the first pane).\r\nPure so it's testable without a laid-out DOM: returns a neutral `50` when the\r\ncontainer has no measured size (e.g. jsdom, where `getBoundingClientRect`\r\nyields zeros), and otherwise clamps to `[15, 85]` so neither pane collapses."
+        },
+        {
           "kind": "class",
           "description": "Web component that owns a single `Machine<unknown>` constructed from an\r\nFSL source supplied via one of three mutually exclusive channels:\r\n\r\n  1. The `fsl=\"\"` attribute,\r\n  2. A child `<script type=\"text/fsl\">`,\r\n  3. The element's own text content (companion `<jssm-*>` children and\r\n     any `<script type=\"text/fsl\">` are excluded from this channel).\r\n\r\nSupplying zero or more than one channel is a thrown error.\r\n\r\nOn every transition the component reflects machine state to its own\r\nattributes (`current-state`, `legal-actions`, `terminal`, `complete`)\r\nand sets a `--current-state` CSS custom property so consumer CSS can\r\nstyle by state without subclassing.",
           "name": "FslInstance",
@@ -831,6 +1744,111 @@
               "default": "''",
               "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "attribute": "fsl"
+            },
+            {
+              "kind": "field",
+              "name": "layout",
+              "privacy": "public",
+              "type": {
+                "text": "FslLayout"
+              },
+              "default": "''",
+              "description": "Panel arrangement of the viz + editor panes (see FslLayout). `''`\r\n(default) renders the stacked sections; `'lr'`/`'rl'` lay them side-by-side\r\nwith a draggable vertical gutter (editor left / right); `'tb'`/`'bt'` stack\r\nthem with a horizontal gutter; `'editor'`/`'viewer'` show a single pane;\r\n`'tabs'` shows one pane at a time behind a tab strip; `'auto'` follows the\r\nviewport aspect. Other panels (toolbar, info-panel, …) render below.",
+              "attribute": "layout",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "theme",
+              "privacy": "public",
+              "type": {
+                "text": "ThemeMode"
+              },
+              "default": "'light'",
+              "description": "Theme **mode**, reflected to the `theme` attribute: `system` (follow the OS\r\n`prefers-color-scheme`), `light`, or `dark`. Combined with themeName\r\nit selects a palette from themes, applied as inline `--fsl-color-*`\r\nby _applyTheme. `<fsl-toolbar>` sets this from its theme pulldown.",
+              "attribute": "theme",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "themeName",
+              "privacy": "public",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Default'",
+              "description": "Selected theme name, reflected to the `theme-name` attribute. A key of\r\nthemes; an unknown name falls back to the built-in `Default`.",
+              "attribute": "theme-name",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "themes",
+              "privacy": "public",
+              "type": {
+                "text": "ThemeRegistry"
+              },
+              "default": "BUILTIN_THEMES",
+              "description": "The theme registry — named light/dark palette pairs. Defaults to the\r\nbuilt-in `Default` + `Solarized`; a consumer can replace or extend it, and\r\nevery entry appears in the toolbar's theme list.",
+              "attribute": "themes"
+            },
+            {
+              "kind": "field",
+              "name": "data",
+              "privacy": "public",
+              "type": {
+                "text": "unknown"
+              },
+              "default": "undefined",
+              "description": "Initial extended-state data seeded into the machine at build time. When set\r\n(to anything other than `undefined`), the machine is built via `from(fsl,\r\n{ data })` so `<fsl-data-inspector>` has something to show before any\r\ntransition; the default keeps the lighter `sm`-tag build path.",
+              "attribute": "data"
+            },
+            {
+              "kind": "field",
+              "name": "_split",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "50",
+              "description": "Split ratio (percent of the first pane), updated by the gutter drag."
+            },
+            {
+              "kind": "field",
+              "name": "_tab",
+              "type": {
+                "text": "FslTab"
+              },
+              "privacy": "private",
+              "default": "'viz'",
+              "description": "Which pane the tabbed layout shows."
+            },
+            {
+              "kind": "field",
+              "name": "_autoMode",
+              "type": {
+                "text": "'lr' | 'tb'"
+              },
+              "privacy": "private",
+              "default": "'lr'",
+              "description": "Concrete direction that `layout=\"auto\"` currently resolves to."
+            },
+            {
+              "kind": "field",
+              "name": "_autoListener",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Window-resize listener installed while `layout=\"auto\"`, or null."
+            },
+            {
+              "kind": "field",
+              "name": "_hiddenPanels",
+              "privacy": "private",
+              "default": "new Set<string>()",
+              "description": "Slot names of panels currently hidden (driven by `<fsl-toolbar>`)."
             },
             {
               "kind": "field",
@@ -972,6 +1990,60 @@
             },
             {
               "kind": "method",
+              "name": "transition",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "parameters": [
+                {
+                  "name": "state",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "The destination state."
+                },
+                {
+                  "name": "data",
+                  "optional": true,
+                  "type": {
+                    "text": "unknown"
+                  },
+                  "description": "Optional data payload."
+                }
+              ],
+              "description": "Convenience wrapper for `machine.transition(state, data)` — moves directly\r\nto a state along a legal (non-forced) edge. Reflects the new state and\r\nrequests an update, exactly as FslInstance.do does for actions."
+            },
+            {
+              "kind": "method",
+              "name": "force_transition",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "parameters": [
+                {
+                  "name": "state",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "The destination state."
+                },
+                {
+                  "name": "data",
+                  "optional": true,
+                  "type": {
+                    "text": "unknown"
+                  },
+                  "description": "Optional data payload."
+                }
+              ],
+              "description": "Convenience wrapper for `machine.force_transition(state, data)` — moves to a\r\nstate along any edge, including forced-only ones. Reflects the new state and\r\nrequests an update."
+            },
+            {
+              "kind": "method",
               "name": "state",
               "return": {
                 "type": {
@@ -979,6 +2051,184 @@
                 }
               },
               "description": "Convenience wrapper for `machine.state()`.  Returns the current\r\nstate's name."
+            },
+            {
+              "kind": "field",
+              "name": "_mql",
+              "type": {
+                "text": "MediaQueryList | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Tracks the OS color scheme; null when `matchMedia` is unavailable."
+            },
+            {
+              "kind": "field",
+              "name": "_on_os_theme_change",
+              "privacy": "private",
+              "description": "Re-apply on an OS color-scheme change — only relevant while in `system` mode."
+            },
+            {
+              "kind": "method",
+              "name": "_prefers_dark",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "Whether the OS currently prefers a dark color scheme."
+            },
+            {
+              "kind": "method",
+              "name": "_applyTheme",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Resolve `theme` (mode) × `themeName` to a palette and apply it: write the\r\n`--fsl-color-*` tokens inline (overriding the CSS fallback and cascading to\r\nevery slotted widget), reflect the chosen variant to `resolved-theme`, and\r\ndrive each slotted editor's light/dark CodeMirror theme."
+            },
+            {
+              "kind": "field",
+              "name": "_onGutterDown",
+              "privacy": "private",
+              "description": "Gutter pointer-down: begin a drag. Move/up are attached to the document so\r\nthe drag survives the pointer leaving the thin gutter (no pointer-capture,\r\nwhich keeps the handlers testable in jsdom)."
+            },
+            {
+              "kind": "field",
+              "name": "_onGutterMove",
+              "privacy": "private",
+              "description": "Document pointer-move during a drag: recompute the split ratio."
+            },
+            {
+              "kind": "method",
+              "name": "_effectiveMode",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "FslLayout"
+                }
+              },
+              "description": "Resolve the active layout to a concrete mode (`'auto'` → a direction)."
+            },
+            {
+              "kind": "method",
+              "name": "_renderTabbar",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "description": "Tab strip for the `tabs` layout."
+            },
+            {
+              "kind": "method",
+              "name": "_setTab",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "tab",
+                  "type": {
+                    "text": "FslTab"
+                  }
+                }
+              ],
+              "description": "Switch the visible pane in the `tabs` layout."
+            },
+            {
+              "kind": "method",
+              "name": "isPanelHidden",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "A panel slot name (e.g. `\"viz\"`, `\"editor\"`, `\"history\"`)."
+                }
+              ],
+              "description": "Whether the panel slotted under `slot` is currently hidden."
+            },
+            {
+              "kind": "method",
+              "name": "setPanelHidden",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "A panel slot name (e.g. `\"viz\"`, `\"editor\"`, `\"history\"`)."
+                },
+                {
+                  "name": "hidden",
+                  "type": {
+                    "text": "boolean"
+                  },
+                  "description": "`true` to hide, `false` to show."
+                }
+              ],
+              "description": "Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`\r\ncollapses that workbench pane (the other fills); hiding an aux panel\r\nremoves its section. `<fsl-toolbar>` drives this from its panel toggles."
+            },
+            {
+              "kind": "method",
+              "name": "togglePanel",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "A panel slot name (e.g. `\"viz\"`, `\"editor\"`, `\"history\"`)."
+                }
+              ],
+              "description": "Toggle the visibility of the panel slotted under `slot`."
+            },
+            {
+              "kind": "method",
+              "name": "_syncAutoListener",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Install or remove the window-resize listener that resolves `layout=\"auto\"`\r\nto a concrete direction. Called from updated; uses the viewport\r\naspect so it needs no layout measurement (works in jsdom)."
+            },
+            {
+              "kind": "field",
+              "name": "_onGutterUp",
+              "privacy": "private",
+              "description": "Document pointer-up: end the drag and detach the document listeners."
+            },
+            {
+              "kind": "field",
+              "name": "_onGutterReset",
+              "privacy": "private",
+              "description": "Gutter double-click: reset the split to 50/50."
             },
             {
               "kind": "method",
@@ -1026,6 +2276,36 @@
             },
             {
               "kind": "method",
+              "name": "_build_machine",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": ""
+                }
+              },
+              "parameters": [
+                {
+                  "name": "fsl_source",
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "The FSL string to compile."
+                }
+              ],
+              "description": "Build a machine from FSL source, seeding data when it is set."
+            },
+            {
+              "kind": "method",
+              "name": "_rebuild_machine",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
               "name": "_flush_pending_dom_events",
               "privacy": "private",
               "return": {
@@ -1034,6 +2314,17 @@
                 }
               },
               "description": "Dispatch and clear the queue of pending DOM events.  The queue is\r\nsnapshotted and reset *before* dispatching so that a listener which\r\nre-enters the machine (e.g. calls `host.machine.action(...)`\r\nsynchronously) enqueues into a fresh batch handled by the next update\r\ncycle, rather than mutating the array mid-iteration.  This is the\r\ndocumented re-entrancy behavior: re-entrant transitions are deferred,\r\nnot dropped."
+            },
+            {
+              "kind": "method",
+              "name": "_unbind_machine_subscriptions",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Release every machine-scoped subscription installed against the current\r\nmachine: #639 mechanism-4 re-emission, #641 `<fsl-hook>` registrations,\r\n#643 `<fsl-on>` subscriptions, and #645 `<fsl-bind>` projections. Shared by\r\ndisconnectedCallback (full teardown) and the live-rebuild path\r\n(_rebuild_machine, #1387), which re-installs against the new machine.\r\nDOM action listeners (`<fsl-action>`) are NOT touched here — they read\r\n`this.machine` live and survive a rebuild."
             },
             {
               "kind": "method",
@@ -1075,9 +2366,35 @@
                 }
               },
               "description": "Reflect machine state onto host attributes and CSS custom properties.\r\nCalled after every transition and once during `connectedCallback`.\r\n\r\nMechanism 1 (#639): writes to host attributes.\r\nMechanism 3 (#639): writes to host inline-style custom properties."
+            },
+            {
+              "kind": "method",
+              "name": "_renderAuxPanels",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "docked",
+                  "type": {
+                    "text": "boolean"
+                  },
+                  "description": "True when actions + data-inspector are rendered as side\r\ndocks (split layouts); they are then omitted from this stack."
+                }
+              ],
+              "description": "The stacked middle panels, shared by both layouts. The toolbar slot is\r\nrendered at the top of render. In split mode the `actions` and\r\n`data-inspector` panels are lifted out into easing side docks, so\r\n`docked` is true there and they are skipped here to avoid duplicating\r\ntheir slots. The state-section + footer stay in render so the\r\ndynamic state-slot name binds at the top level."
             }
           ],
           "events": [
+            {
+              "name": "fsl-machine-rebuilt",
+              "type": {
+                "text": "CustomEvent"
+              }
+            },
             {
               "type": {
                 "text": "CustomEvent"
@@ -1093,6 +2410,51 @@
               "default": "''",
               "description": "FSL source attribute.  When non-empty, this is the sole channel\r\nsupplying the machine's source.  Setting both this and a child\r\n`<script type=\"text/fsl\">` (or non-empty text content) is an error.",
               "fieldName": "fsl"
+            },
+            {
+              "name": "layout",
+              "type": {
+                "text": "FslLayout"
+              },
+              "default": "''",
+              "description": "Panel arrangement of the viz + editor panes (see FslLayout). `''`\r\n(default) renders the stacked sections; `'lr'`/`'rl'` lay them side-by-side\r\nwith a draggable vertical gutter (editor left / right); `'tb'`/`'bt'` stack\r\nthem with a horizontal gutter; `'editor'`/`'viewer'` show a single pane;\r\n`'tabs'` shows one pane at a time behind a tab strip; `'auto'` follows the\r\nviewport aspect. Other panels (toolbar, info-panel, …) render below.",
+              "fieldName": "layout"
+            },
+            {
+              "name": "theme",
+              "type": {
+                "text": "ThemeMode"
+              },
+              "default": "'light'",
+              "description": "Theme **mode**, reflected to the `theme` attribute: `system` (follow the OS\r\n`prefers-color-scheme`), `light`, or `dark`. Combined with themeName\r\nit selects a palette from themes, applied as inline `--fsl-color-*`\r\nby _applyTheme. `<fsl-toolbar>` sets this from its theme pulldown.",
+              "fieldName": "theme"
+            },
+            {
+              "name": "theme-name",
+              "type": {
+                "text": "string"
+              },
+              "default": "'Default'",
+              "description": "Selected theme name, reflected to the `theme-name` attribute. A key of\r\nthemes; an unknown name falls back to the built-in `Default`.",
+              "fieldName": "themeName"
+            },
+            {
+              "name": "themes",
+              "type": {
+                "text": "ThemeRegistry"
+              },
+              "default": "BUILTIN_THEMES",
+              "description": "The theme registry — named light/dark palette pairs. Defaults to the\r\nbuilt-in `Default` + `Solarized`; a consumer can replace or extend it, and\r\nevery entry appears in the toolbar's theme list.",
+              "fieldName": "themes"
+            },
+            {
+              "name": "data",
+              "type": {
+                "text": "unknown"
+              },
+              "default": "undefined",
+              "description": "Initial extended-state data seeded into the machine at build time. When set\r\n(to anything other than `undefined`), the machine is built via `from(fsl,\r\n{ data })` so `<fsl-data-inspector>` has something to show before any\r\ntransition; the default keeps the lighter `sm`-tag build path.",
+              "fieldName": "data"
             }
           ],
           "superclass": {
@@ -1154,10 +2516,525 @@
         },
         {
           "kind": "js",
+          "name": "auto_mode",
+          "declaration": {
+            "name": "auto_mode",
+            "module": "src/ts/wc/fsl_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "split_ratio",
+          "declaration": {
+            "name": "split_ratio",
+            "module": "src/ts/wc/fsl_instance_wc.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "FslInstance",
           "declaration": {
             "name": "FslInstance",
             "module": "src/ts/wc/fsl_instance_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_simulation_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-simulation>` — a random-walk driver for a parent `<fsl-instance>`.\n\n`Step` fires one uniformly-random legal action; `Play` auto-steps every\nFslSimulation.interval ms and stops automatically when the machine\nreaches a terminal state (no legal actions). Standalone (no host ancestor)\nthe controls are disabled.",
+          "name": "FslSimulation",
+          "cssParts": [
+            {
+              "description": "The control row.",
+              "name": "sim"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "interval",
+              "type": {
+                "text": "number"
+              },
+              "default": "600",
+              "description": "Auto-step period in milliseconds.",
+              "attribute": "interval"
+            },
+            {
+              "kind": "field",
+              "name": "_running",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "_steps",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "SimHost | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_timer",
+              "type": {
+                "text": "ReturnType<typeof setInterval> | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_step",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_toggle",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "_start",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_stop",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "type": {
+                "text": "number"
+              },
+              "description": "Auto-step period in milliseconds.",
+              "name": "interval",
+              "default": "600",
+              "fieldName": "interval"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-simulation",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslSimulation",
+          "declaration": {
+            "name": "FslSimulation",
+            "module": "src/ts/wc/fsl_simulation_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_themes.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "BUILTIN_THEMES",
+          "type": {
+            "text": "ThemeRegistry"
+          },
+          "default": "{ Default: { light: { surface: '#ffffff', text: '#222222', accent: '#5b9dff', border: '#e5e5e5', muted: '#9aa0a6', 'json-key': '#5b3da8', 'json-string': '#2e7d32', 'json-number': '#b8860b', 'json-atom': '#c2185b', }, dark: { surface: '#1e1e22', text: '#d6d6d6', accent: '#82aaff', border: '#2a2a2e', muted: '#5a5f66', 'json-key': '#82aaff', 'json-string': '#c3e88d', 'json-number': '#f78c6c', 'json-atom': '#c792ea', }, }, Solarized: { light: { surface: '#fdf6e3', text: '#657b83', accent: '#268bd2', border: '#eee8d5', muted: '#93a1a1', 'json-key': '#6c71c4', 'json-string': '#859900', 'json-number': '#b58900', 'json-atom': '#d33682', }, dark: { surface: '#002b36', text: '#839496', accent: '#268bd2', border: '#073642', muted: '#586e75', 'json-key': '#6c71c4', 'json-string': '#859900', 'json-number': '#b58900', 'json-atom': '#d33682', }, }, }",
+          "description": "The built-in themes: `Default` (the suite's house palette) and `Solarized`\n(Ethan Schoonover's palette). Consumers can extend the host's `themes`\nregistry with their own; every entry shows up in the toolbar's theme list."
+        },
+        {
+          "kind": "function",
+          "name": "resolve_palette",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "themes",
+              "type": {
+                "text": "ThemeRegistry"
+              },
+              "description": "The registry to look in."
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The selected theme name."
+            },
+            {
+              "name": "variant",
+              "type": {
+                "text": "'light' | 'dark'"
+              },
+              "description": "`light` or `dark`."
+            }
+          ],
+          "description": "Resolve a `(registry, theme name, variant)` triple to a concrete palette,\nfalling back to the built-in `Default` theme when the name is unknown."
+        },
+        {
+          "kind": "function",
+          "name": "resolve_theme_mode",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "mode",
+              "type": {
+                "text": "ThemeMode"
+              },
+              "description": "The selected mode."
+            },
+            {
+              "name": "prefers_dark",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the OS prefers a dark color scheme."
+            }
+          ],
+          "description": "Resolve a theme mode to a concrete `light`/`dark`. `system` consults the OS\npreference; `light`/`dark` are returned as-is."
+        },
+        {
+          "kind": "function",
+          "name": "palette_to_vars",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "palette",
+              "type": {
+                "text": "ThemePalette"
+              },
+              "description": "The resolved palette."
+            }
+          ],
+          "description": "Map a palette to its `--fsl-color-*` custom-property entries, ready to set on\nan element's style."
+        },
+        {
+          "kind": "function",
+          "name": "register_palette_properties",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "BUILTIN_THEMES",
+          "declaration": {
+            "name": "BUILTIN_THEMES",
+            "module": "src/ts/wc/fsl_themes.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_palette",
+          "declaration": {
+            "name": "resolve_palette",
+            "module": "src/ts/wc/fsl_themes.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "resolve_theme_mode",
+          "declaration": {
+            "name": "resolve_theme_mode",
+            "module": "src/ts/wc/fsl_themes.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "palette_to_vars",
+          "declaration": {
+            "name": "palette_to_vars",
+            "module": "src/ts/wc/fsl_themes.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "register_palette_properties",
+          "declaration": {
+            "name": "register_palette_properties",
+            "module": "src/ts/wc/fsl_themes.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_tokens.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "fslTokens",
+          "type": {
+            "text": "CSSResult"
+          },
+          "default": "css` :host { --_fsl-surface: var(--fsl-color-surface, #ffffff); --_fsl-text: var(--fsl-color-text, #222222); --_fsl-accent: var(--fsl-color-accent, #5b9dff); --_fsl-border: var(--fsl-color-border, #e5e5e5); --_fsl-muted: var(--fsl-color-muted, #9aa0a6); --_fsl-font: var(--fsl-font, system-ui, -apple-system, \"Segoe UI\", sans-serif); --_fsl-font-mono: var(--fsl-font-mono, ui-monospace, Consolas, monospace); --_fsl-radius: var(--fsl-radius, 6px); --_fsl-space-1: var(--fsl-space-1, 4px); --_fsl-space-2: var(--fsl-space-2, 8px); --_fsl-space-3: var(--fsl-space-3, 12px); --_fsl-space-4: var(--fsl-space-4, 16px); } :host([theme=\"dark\"]) { --_fsl-surface: var(--fsl-color-surface, #1e1e22); --_fsl-text: var(--fsl-color-text, #d6d6d6); --_fsl-accent: var(--fsl-color-accent, #82aaff); --_fsl-border: var(--fsl-color-border, #2a2a2e); --_fsl-muted: var(--fsl-color-muted, #5a5f66); } `",
+          "description": "Shared FSL appearance contract — the `--fsl-*` design-token vocabulary.\n\nComponents include this in `static styles` and consume the **private**\n`--_fsl-*` vars, which resolve: embedder's public `--fsl-*` token →\n`[theme=\"dark\"]` default → built-in light fallback. White-label by setting\n`--fsl-*` on any ancestor (custom properties inherit through shadow DOM);\nflip the built-in default with the host's `theme=\"dark\"` attribute.\n\nCompanion conventions (declared per-component): expose structural elements as\n`::part(...)` (e.g. `part=\"toolbar\"`, `\"gutter\"`, `\"editor\"`) and forward\nchild parts with `exportparts`; chrome components carry brand slots\n(`<slot name=\"brand\">` / `\"logo\">`)."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "fslTokens",
+          "declaration": {
+            "name": "fslTokens",
+            "module": "src/ts/wc/fsl_tokens.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_toolbar_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-toolbar>` — a control bar for a parent `<fsl-instance>`. A light/dark\ntheme toggle on the left; on the right, an icon toggle to show/hide each\npanel present in the host (renderer, code, history, …) plus a View menu of\nthe layout set (its button shows the current layout's icon). Standalone (no\nhost) the panel toggles disappear. A trailing slot carries extra buttons.",
+          "name": "FslToolbar",
+          "cssParts": [
+            {
+              "description": "The bar container.",
+              "name": "toolbar"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Trailing custom controls.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "_openMenu",
+              "type": {
+                "text": "OpenMenu"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_dest",
+              "type": {
+                "text": "ExportDest"
+              },
+              "privacy": "private",
+              "default": "'clipboard'",
+              "description": "Active export destination; the next format click targets it."
+            },
+            {
+              "kind": "field",
+              "name": "lastDirectory",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "The last directory an export was saved to this session (its final path\nsegment). When non-empty, the Export menu offers a `to <name>` destination.\nThe embedder sets this after fulfilling a `pick` export."
+            },
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "HostTarget | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_present",
+              "type": {
+                "text": "ReadonlyArray<PanelDef>"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "Panels actually present in the host — one toggle each."
+            },
+            {
+              "kind": "method",
+              "name": "_setMode",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "mode",
+                  "type": {
+                    "text": "ThemeMode"
+                  }
+                }
+              ],
+              "description": "Set the theme mode (System/Light/Dark). The host applies the palette + drives\nthe editor; the menu stays open so a theme can be picked in the same trip."
+            },
+            {
+              "kind": "method",
+              "name": "_setThemeName",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Select a named theme from the host's registry. The theme-name buttons only\nrender when a host exists, so `_host` is non-null here."
+            },
+            {
+              "kind": "method",
+              "name": "_setLayout",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "layout",
+                  "type": {
+                    "text": "FslLayout"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "_setDest",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "dest",
+                  "type": {
+                    "text": "ExportDest"
+                  }
+                }
+              ],
+              "description": "Set the active export destination; the menu stays open so a format can be\nchosen next."
+            },
+            {
+              "kind": "method",
+              "name": "_export",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "format",
+                  "type": {
+                    "text": "ExportFormat"
+                  }
+                }
+              ],
+              "description": "Emit `fsl-export` with the chosen format's content + the active destination.\nThe embedder performs the actual clipboard / file save."
+            },
+            {
+              "kind": "method",
+              "name": "_toggleMenu",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "which",
+                  "type": {
+                    "text": "OpenMenu"
+                  }
+                }
+              ]
+            }
+          ],
+          "events": [
+            {
+              "name": "fsl-export",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-toolbar",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslToolbar",
+          "declaration": {
+            "name": "FslToolbar",
+            "module": "src/ts/wc/fsl_toolbar_wc.ts"
           }
         }
       ]
@@ -1247,6 +3124,16 @@
               "description": "Unsubscribe callback returned from `host.machine.on('transition', ...)`.\r\nHeld so `disconnectedCallback` can release the subscription."
             },
             {
+              "kind": "field",
+              "name": "_host_unbind",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null",
+              "description": "Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the\r\nviz to the host's new machine after a live rebuild, #1387). Captures the\r\nexact host the listener was attached to, so teardown is correct even if\r\n`_parent_host` was cleared or replaced. Null when standalone / before binding."
+            },
+            {
               "kind": "method",
               "name": "_rerenderFromHostMachine",
               "privacy": "private",
@@ -1321,6 +3208,41 @@
           "declaration": {
             "name": "FslViz",
             "module": "src/ts/wc/fsl_viz_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/svg_layers.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "reorder_svg_layers",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "svg",
+              "type": {
+                "text": "string"
+              },
+              "description": "SVG markup from the viz pipeline (`machine_to_svg_string`, etc.)."
+            }
+          ],
+          "description": "Reorder a graphviz-rendered SVG's paint stack so action labels can't be\npainted over by edges. Graphviz interleaves nodes and edges and keeps each\nedge's label `<text>` inside the edge group, so a later edge can draw over an\nearlier edge's label. This lifts the layers into a clean back-to-front order:\n\n  background → edges → nodes → action (edge) labels\n\nEach edge's label text is hoisted out of its edge group to the very top.\nMarkup that isn't graphviz output (no `g.graph`) is returned untouched."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "reorder_svg_layers",
+          "declaration": {
+            "name": "reorder_svg_layers",
+            "module": "src/ts/wc/svg_layers.ts"
           }
         }
       ]
@@ -1503,6 +3425,85 @@
           "declaration": {
             "name": "CanonicalClass",
             "module": "src/ts/wc/wc_tag_helpers.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/widgets.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslToolbar",
+          "declaration": {
+            "name": "FslToolbar",
+            "module": "./fsl_toolbar_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslActions",
+          "declaration": {
+            "name": "FslActions",
+            "module": "./fsl_actions_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslFooter",
+          "declaration": {
+            "name": "FslFooter",
+            "module": "./fsl_footer_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslHelp",
+          "declaration": {
+            "name": "FslHelp",
+            "module": "./fsl_help_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslHistory",
+          "declaration": {
+            "name": "FslHistory",
+            "module": "./fsl_history_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslDataInspector",
+          "declaration": {
+            "name": "FslDataInspector",
+            "module": "./fsl_data_inspector_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslHookLog",
+          "declaration": {
+            "name": "FslHookLog",
+            "module": "./fsl_hook_log_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslSimulation",
+          "declaration": {
+            "name": "FslSimulation",
+            "module": "./fsl_simulation_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslExport",
+          "declaration": {
+            "name": "FslExport",
+            "module": "./fsl_export_wc.js"
           }
         }
       ]

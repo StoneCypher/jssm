@@ -51,6 +51,15 @@ describe('FSL tokenizer — token classes', () => {
     expect(classify('linestyle')).toBe('propertyName');
   });
 
+  it('reads a hyphenated key as one compound token (not its short suffix)', () => {
+    // regression: `background-color` tokenized as background / - / color, so only
+    // the `color` suffix highlighted.
+    expect(classify('background-color')).toBe('propertyName');
+    expect(classify('text-color')).toBe('propertyName');
+    // a hyphen before an arrow's `>` must NOT be absorbed into the atom
+    expect(tokenizeLines(['a->b'])).toEqual(['variableName', 'operator', 'variableName']);
+  });
+
   it('classifies enumerated literals as atoms', () => {
     expect(classify('dot')).toBe('atom');
     expect(classify('rounded')).toBe('atom');
@@ -139,7 +148,7 @@ describe('keyword vocabulary stays in sync with the grammar (drift guard)', () =
 
   // Extract every `"<key>" WS? ":"` config key from the live PEG grammar.
   const pegText = readFileSync(new URL('../../fsl_parser.peg', import.meta.url), 'utf8');
-  const keyRe = /"([a-z_][a-z0-9_]*)"\s*WS\?\s*":"/g;
+  const keyRe = /"([a-z_][a-z0-9_-]*)"\s*WS\?\s*":"/g;
   const grammarKeys = new Set<string>();
   for (let m = keyRe.exec(pegText); m !== null; m = keyRe.exec(pegText)) {
     grammarKeys.add(m[1]!);
