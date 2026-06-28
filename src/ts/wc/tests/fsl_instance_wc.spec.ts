@@ -522,6 +522,44 @@ describe('FslInstance shadow DOM', () => {
     document.body.removeChild(el);
   });
 
+  it('resolves panel visibility by mode: hide / show / default / request', async () => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', "A 'go' -> B;");
+    document.body.appendChild(el);
+    await (el as any).updateComplete;
+
+    // default control mode: only viz + editor show
+    expect(el.isPanelHidden('viz')).toBe(false);
+    expect(el.isPanelHidden('editor')).toBe(false);
+    expect(el.isPanelHidden('history')).toBe(true);
+
+    // per-panel hide / show lock the state — togglePanel is a no-op for them
+    el.panelModes = { history: 'show', viz: 'hide' };
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);   // show
+    expect(el.isPanelHidden('viz')).toBe(true);        // hide
+    el.togglePanel('history');
+    el.togglePanel('viz');
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);   // still locked
+    expect(el.isPanelHidden('viz')).toBe(true);
+
+    // request mode: requested panels show, others fall back to default
+    el.panelModes = { history: 'request', 'data-inspector': 'request' };
+    el.requestedPanels = ['history'];
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);          // requested → shown
+    expect(el.isPanelHidden('data-inspector')).toBe(true);    // not requested → default
+
+    // control-level mode applies when there is no per-panel override
+    el.panelModes = {};
+    el.panelMode = 'show';
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(false);
+    expect(el.isPanelHidden('data-inspector')).toBe(false);
+    el.remove();
+  });
+
   it('seeds the machine with initial data when the data property is set', async () => {
     const seed = { count: 7, items: [{ sku: 'A1', qty: 2 }] };
     const el = document.createElement('fsl-instance') as FslInstance;

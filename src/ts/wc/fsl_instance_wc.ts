@@ -318,6 +318,17 @@ export type FslLayout = '' | 'lr' | 'rl' | 'tb' | 'bt' | 'editor' | 'viewer' | '
 export type FslTab = 'viz' | 'editor';
 
 /**
+ * How a panel's visibility is governed, per-panel or as the control-level
+ * default: `hide` (never shown, locked), `show` (always shown, locked),
+ * `default` (the built-in default — only the editor + renderer show), or
+ * `request` (like `default`, but panels the FSL requests are shown). The
+ * requested-panels source is the editor-defaults-in-FSL mechanism (fsl#1334);
+ * until that lands, {@link FslInstance.requestedPanels} is the embedder-set
+ * stand-in it reads.
+ */
+export type PanelMode = 'hide' | 'show' | 'default' | 'request';
+
+/**
  * Resolve `layout="auto"` to a concrete split direction from the viewport
  * shape: side-by-side (`'lr'`) when at least as wide as tall, else stacked
  * (`'tb'`). Pure, so it's testable without a laid-out DOM.
@@ -533,14 +544,20 @@ export class FslInstance extends LitElement {
   private _autoMode: 'lr' | 'tb' = 'lr';
   /** Window-resize listener installed while `layout="auto"`, or null. */
   private _autoListener: (() => void) | null = null;
-  /** Slot names of panels currently hidden (toggled by `<fsl-toolbar>`). Only the
-   *  editor and renderer (viz) show by default; every other panel starts hidden
-   *  and is opt-in. The toolbar reflects this since its toggles read
-   *  {@link isPanelHidden}. */
-  private _hiddenPanels = new Set<string>([
-    'actions', 'history', 'data-inspector', 'hook-log',
-    'info-panel', 'effective-properties', 'simulation', 'export',
-  ]);
+  /** Per-panel runtime visibility overrides set by the user via the toolbar
+   *  toggles; a slot absent here falls back to its mode-resolved base. */
+  private _overrides = new Map<string, boolean>();
+  /** Control-level default {@link PanelMode}; {@link panelModes} overrides it
+   *  per panel. `default` shows only the editor + renderer; every other panel
+   *  starts hidden and is opt-in. */
+  panelMode: PanelMode = 'default';
+  /** Per-panel {@link PanelMode} overrides (slot → mode), each overriding the
+   *  control-level {@link panelMode}. */
+  panelModes: Record<string, PanelMode> = {};
+  /** Panels the FSL "requests" — the embedder-set stand-in for the
+   *  editor-defaults-in-FSL mechanism (fsl#1334). `request`-mode panels listed
+   *  here are shown; others fall back to the default. */
+  requestedPanels: string[] = [];
 
   /**
    * The underlying machine instance, constructed at `connectedCallback`.
@@ -650,6 +667,9 @@ export class FslInstance extends LitElement {
     themeName : { type: String, attribute: 'theme-name', reflect: true },
     themes    : { type: Object, reflect: false },
     data      : { type: Object, reflect: false },
+    panelMode : { type: String, attribute: 'panel-mode', reflect: true },
+    panelModes      : { type: Object, attribute: false },
+    requestedPanels : { type: Array,  attribute: false },
   };
 
   /**
@@ -779,36 +799,58 @@ export class FslInstance extends LitElement {
     this.requestUpdate();
   }
 
-  /**
-   * Whether the panel slotted under `slot` is currently hidden.
-   *
-   * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
-   * @returns `true` when the panel is hidden.
-   */
-  isPanelHidden(slot: string): boolean {
-    return this._hiddenPanels.has(slot);
+  /** The built-in default hidden state: only the editor + renderer (viz) show. */
+  private _defaultHidden(slot: string): boolean {
+    return slot !== 'viz' && slot !== 'editor';
   }
 
   /**
-   * Show or hide the panel slotted under `slot`. Hiding `viz` or `editor`
-   * collapses that workbench pane (the other fills); hiding an aux panel
-   * removes its section. `<fsl-toolbar>` drives this from its panel toggles.
+   * Whether the panel slotted under `slot` is currently hidden, resolving its
+   * {@link PanelMode} ({@link panelModes} for the slot, else {@link panelMode}):
+   * `hide`/`show` force the state; otherwise a user toggle wins, then a
+   * `request`ed panel shows, then the built-in default.
+   *
+   * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
+   * @returns `true` when the panel is hidden.
+   *
+   * @example
+   * el.panelModes = { history: 'show' };
+   * el.isPanelHidden('history'); // false
+   */
+  isPanelHidden(slot: string): boolean {
+    const mode = this.panelModes[slot] ?? this.panelMode;
+    if (mode === 'hide') { return true; }
+    if (mode === 'show') { return false; }
+    const override = this._overrides.get(slot);
+    if (override !== undefined) { return override; }
+    if (mode === 'request' && this.requestedPanels.includes(slot)) { return false; }
+    return this._defaultHidden(slot);
+  }
+
+  /**
+   * Show or hide the panel slotted under `slot` (a runtime override). Hiding
+   * `viz` or `editor` collapses that workbench pane (the other fills); hiding
+   * an aux panel removes its section. `<fsl-toolbar>` drives this from its
+   * panel toggles.
    *
    * @param slot   - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
    * @param hidden - `true` to hide, `false` to show.
    */
   setPanelHidden(slot: string, hidden: boolean): void {
-    if (hidden) { this._hiddenPanels.add(slot); } else { this._hiddenPanels.delete(slot); }
+    this._overrides.set(slot, hidden);
     this.requestUpdate();
   }
 
   /**
-   * Toggle the visibility of the panel slotted under `slot`.
+   * Toggle the visibility of the panel slotted under `slot`. A no-op when the
+   * panel's mode is `hide` or `show` — those lock the visibility.
    *
    * @param slot - A panel slot name (e.g. `"viz"`, `"editor"`, `"history"`).
    */
   togglePanel(slot: string): void {
-    this.setPanelHidden(slot, !this._hiddenPanels.has(slot));
+    const mode = this.panelModes[slot] ?? this.panelMode;
+    if (mode === 'hide' || mode === 'show') { return; }
+    this.setPanelHidden(slot, !this.isPanelHidden(slot));
   }
 
   /**
@@ -1334,10 +1376,10 @@ export class FslInstance extends LitElement {
           ${header}
           ${toolbar}
           <div class="middle">
-            <section class="dock events-dock${this._hiddenPanels.has('hook-log') ? '' : ' open'}" part="events-dock">
+            <section class="dock events-dock${this.isPanelHidden('hook-log') ? '' : ' open'}" part="events-dock">
               <slot name="hook-log"></slot>
             </section>
-            <div class="workbench${this._hiddenPanels.has('viz') ? ' hide-viz' : ''}${this._hiddenPanels.has('editor') ? ' hide-editor' : ''}"
+            <div class="workbench${this.isPanelHidden('viz') ? ' hide-viz' : ''}${this.isPanelHidden('editor') ? ' hide-editor' : ''}"
                  data-mode=${mode} style="--fsl-split:${this._split}%">
               ${mode === 'tabs' ? this._renderTabbar() : ''}
               <section class="pane viz" ?hidden=${mode === 'tabs' && this._tab !== 'viz'}>${viz}</section>
@@ -1346,7 +1388,7 @@ export class FslInstance extends LitElement {
                    @dblclick=${this._onGutterReset}></div>
               <section class="pane editor" ?hidden=${mode === 'tabs' && this._tab !== 'editor'}>${editor}</section>
             </div>
-            <section class="dock data-dock${this._hiddenPanels.has('data-inspector') ? '' : ' open'}" part="data-dock">
+            <section class="dock data-dock${this.isPanelHidden('data-inspector') ? '' : ' open'}" part="data-dock">
               <slot name="data-inspector"></slot>
             </section>
           </div>
@@ -1361,8 +1403,8 @@ export class FslInstance extends LitElement {
       <div class="container">
         ${header}
         ${toolbar}
-        <section class="viz" ?hidden=${this._hiddenPanels.has('viz')}>${viz}</section>
-        <section class="editor" ?hidden=${this._hiddenPanels.has('editor')}>${editor}</section>
+        <section class="viz" ?hidden=${this.isPanelHidden('viz')}>${viz}</section>
+        <section class="editor" ?hidden=${this.isPanelHidden('editor')}>${editor}</section>
         ${this._renderAuxPanels(false)}
         <section class="state-section"><slot name=${state_slot_name}></slot></section>
         <footer><slot name="footer"></slot></footer>
@@ -1381,7 +1423,7 @@ export class FslInstance extends LitElement {
    *  @param docked - True when hook-log + data-inspector are rendered as side
    *  docks (split layouts); they are then omitted from this stack. */
   private _renderAuxPanels(docked: boolean): TemplateResult {
-    const h = (slot: string): boolean => this._hiddenPanels.has(slot);
+    const h = (slot: string): boolean => this.isPanelHidden(slot);
     return html`
       <section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>
       <section class="info-panel" ?hidden=${h('info-panel')}><slot name="info-panel"></slot></section>

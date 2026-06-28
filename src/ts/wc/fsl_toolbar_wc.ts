@@ -49,14 +49,14 @@ const EXPORT_FORMATS: ReadonlyArray<{ value: ExportFormat; label: string }> = [
 /**
  * A shareable URL for the given FSL: the current page URL with the source
  * encoded in the hash (`#fsl=...`). A page that reads the hash on load can
- * restore the machine. Falls back to a bare hash when there is no `location`.
+ * restore the machine. Browser-only (uses `location`), like the rest of the
+ * toolbar.
  *
  * @example
  * permalink_for("a -> b;"); // "https://host/path#fsl=a%20-%3E%20b%3B"
  */
 export function permalink_for(fsl: string): string {
-  const base = typeof location === 'undefined' ? '' : location.href.split('#')[0];
-  return `${base}#fsl=${encodeURIComponent(fsl)}`;
+  return `${location.href.split('#')[0]}#fsl=${encodeURIComponent(fsl)}`;
 }
 
 /**
