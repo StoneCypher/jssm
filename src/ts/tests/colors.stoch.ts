@@ -152,7 +152,7 @@ describe('SvgColorLabel — prefix-protection ordering', () => {
 
 describe('SvgColorLabel — case-insensitivity and shape', () => {
 
-  test('Every named colour parses without throwing (147 names × 2 casings)', () => {
+  test('Every named colour parses without throwing (148 names × 2 casings)', () => {
 
      for (const camel_name of jssm.named_colors) {
        expect(() => parse_state_color(camel_name)).not.toThrow();
@@ -179,11 +179,19 @@ describe('SvgColorLabel — case-insensitivity and shape', () => {
 
   });
 
-  test('Alpha is always `ff` for named colours (no transparency in CSS palette)', () => {
+  test('Alpha is `ff` for every named colour except the lone `transparent` entry', () => {
 
      for (const camel_name of jssm.named_colors) {
-       expect(parse_state_color(camel_name).slice(-2)).toBe('ff');
+       const expected = camel_name.toLowerCase() === 'transparent' ? '00' : 'ff';
+       expect(parse_state_color(camel_name).slice(-2)).toBe(expected);
      }
+
+  });
+
+  test('`transparent` parses to fully-transparent `#00000000`', () => {
+
+     expect(parse_state_color('transparent')).toBe('#00000000');
+     expect(parse_state_color('Transparent')).toBe('#00000000');
 
   });
 

@@ -585,6 +585,7 @@ SvgColorLabel
   / 'teal'                 { return '#008080ff'; }              / 'Teal'                 { return '#008080ff'; }
   / 'thistle'              { return '#d8bfd8ff'; }              / 'Thistle'              { return '#d8bfd8ff'; }
   / 'tomato'               { return '#ff6347ff'; }              / 'Tomato'               { return '#ff6347ff'; }
+  / 'transparent'          { return '#00000000'; }              / 'Transparent'          { return '#00000000'; }
   / 'turquoise'            { return '#40e0d0ff'; }              / 'Turquoise'            { return '#40e0d0ff'; }
   / 'violet'               { return '#ee82eeff'; }              / 'Violet'               { return '#ee82eeff'; }
   / 'wheat'                { return '#f5deb3ff'; }              / 'Wheat'                { return '#f5deb3ff'; }

@@ -398,6 +398,36 @@ describe('FslViz parent-context binding', () => {
     document.body.removeChild(host);
   });
 
+  it('re-renders when the host rebuilds its machine (#1387)', async () => {
+    // A structural edit replaces the host's machine object (not just a
+    // transition). The viz must re-subscribe to the new machine and render it.
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "Off 'flip' -> On;");
+    const viz = document.createElement('fsl-viz');
+    host.appendChild(viz);
+    document.body.appendChild(host);
+
+    await settle_viz(viz);
+    await host.updateComplete;              // hasUpdated → true, so the next fsl change rebuilds
+    (viz as any)._svg = 'SENTINEL';
+
+    host.fsl = "Brand 'go' -> NewMachine;";  // rebuild → fsl-machine-rebuilt → viz re-binds
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    expect((viz as any)._svg).not.toBe('SENTINEL');
+    expect((viz as any)._svg).toContain('Brand');
+    expect((viz as any)._svg).toContain('NewMachine');
+
+    // A transition on the *rebuilt* machine must also re-render — proving the
+    // viz re-subscribed to the new machine object, not the dead one.
+    (viz as any)._svg = 'SENTINEL2';
+    host.do('go');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    expect((viz as any)._svg).not.toBe('SENTINEL2');
+
+    document.body.removeChild(host);
+  });
+
   it('cleans up the subscription on disconnect (no further rerenders after detach)', async () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "Off 'flip' -> On 'unflip' -> Off;");
