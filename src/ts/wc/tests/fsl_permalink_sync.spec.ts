@@ -92,6 +92,19 @@ describe('FslPermalinkSync', () => {
     el.remove();
   });
 
+  it('coalesces rapid rebuilds into a single debounced write', async () => {
+    const el = document.createElement('plk-host') as Host;
+    el.id = 'k6'; el.fsl = 'a -> b;';
+    document.body.appendChild(el);
+    await el.updateComplete;
+    const spy = vi.spyOn(history, 'replaceState');
+    el.rebuilt();                                  // schedules a write (timer set)
+    el.rebuilt();                                  // second call clears the pending timer, reschedules
+    await tick(350);
+    expect(spy).toHaveBeenCalledTimes(1);          // the two rebuilds collapse into one write
+    el.remove();
+  });
+
   it('is inert with no id and no uhash', async () => {
     const spy = vi.spyOn(history, 'replaceState');
     const el = document.createElement('plk-host') as Host;
