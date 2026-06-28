@@ -162,8 +162,8 @@
 - Modify: `.github/workflows/perf_backfill.yml` — add a `force` boolean input passed through as `--force` so already-measured releases (5.130–5.143) can be re-measured under the new methodology.
 - Test: n/a (workflow YAML).
 
-- [ ] Step 1: Add the `force` input + thread `--force` into the `graviton_perf.cjs` invocation.
-- [ ] Step 2: `/sc-commit` on the branch (version bump + full build + commit).
+- [x] Step 1: Add the `force` input + thread `--force` into the `graviton_perf.cjs` invocation. **DONE — commit `cf2e13a4`.**
+- [ ] Step 2: `/sc-commit` on the branch (version bump + full build + commit). **(deferred — version-bumping; awaiting go.)**
 - [ ] Step 3: Open PR; verify CI green; merge (with explicit permission — protected branch); verify npm publish.
 - [ ] Step 4: Drop the existing `c8g.medium/` trail on `perf_results` (CloudShell `aws s3 rm --recursive` + a branch commit removing the dirs), so the new methodology starts clean.
 - [ ] Step 5: Dispatch `perf_backfill` in batches across **5.16→latest** (floor corrected by T7; mind the EC2 concurrent-instance limit), `force=true` for 5.130–5.143; sync; confirm the chart redraws.
