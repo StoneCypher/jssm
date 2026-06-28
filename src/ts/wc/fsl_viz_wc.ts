@@ -4,6 +4,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { fsl_to_svg_string, machine_to_svg_string } from '../jssm_viz.js';
 import type { Machine } from '../jssm.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { reorder_svg_layers } from './svg_layers.js';
 
 /**
  * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
@@ -262,7 +263,7 @@ export class FslViz extends LitElement {
       );
       // Guard against the parent disappearing mid-render.
       if (this._parent_host === host) {
-        this._svg = result;
+        this._svg = reorder_svg_layers(result);
       }
     } catch (e: unknown) {
       this._svg = '';
@@ -292,7 +293,7 @@ export class FslViz extends LitElement {
       const result = await fsl_to_svg_string(source, this.engine ? { engine: this.engine } : undefined);
       // Guard against stale results: only commit if fsl has not changed since this render started.
       if (this.fsl === source) {
-        this._svg = result;
+        this._svg = reorder_svg_layers(result);
       }
     } catch (e: unknown) {
       this._svg = '';
