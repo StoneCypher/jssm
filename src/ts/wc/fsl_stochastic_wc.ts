@@ -120,6 +120,7 @@ export class FslStochastic extends LitElement {
     catch { this._error = 'Cannot run on invalid FSL source.'; this._summary = null; resolve(); return; }
     this._error = null;
     if (this.seed.trim() !== '') { machine.rng_seed = Number(this.seed); }
+    const effective_seed = machine.rng_seed;
 
     const state_visits  = new Map<string, number>();
     const edges         = new Map<string, number>();
@@ -140,7 +141,7 @@ export class FslStochastic extends LitElement {
       for (let i = 0; i < CHUNK; i++) {
         const next = iter.next();
         if (next.done) {
-          this._commit(state_visits, edges, path_lengths, reached, capped, runs);
+          this._commit(state_visits, edges, path_lengths, reached, capped, runs, effective_seed);
           this._playing = false;
           resolve();
           return;
@@ -153,7 +154,7 @@ export class FslStochastic extends LitElement {
           if (r.terminated) { reached += 1; path_lengths.push(r.length); } else { capped += 1; }
         }
       }
-      this._commit(state_visits, edges, path_lengths, reached, capped, runs);
+      this._commit(state_visits, edges, path_lengths, reached, capped, runs, effective_seed);
       schedule(tick);
     };
     schedule(tick);
@@ -169,6 +170,7 @@ export class FslStochastic extends LitElement {
    * @param terminal_reached - Count of runs that reached a terminal state.
    * @param capped           - Count of runs that hit the step cap.
    * @param runs             - Total runs processed so far.
+   * @param seed             - The effective RNG seed used for this batch.
    */
   private _commit(
     state_visits: Map<string, number>,
@@ -177,12 +179,13 @@ export class FslStochastic extends LitElement {
     terminal_reached: number,
     capped: number,
     runs: number,
+    seed: number,
   ): void {
     const total = [...state_visits.values()].reduce((a, b) => a + b, 0);
     const frac = new Map<string, number>();
-    for (const [s, c] of state_visits) { frac.set(s, total === 0 ? 0 : c / total); }
+    for (const [s, c] of state_visits) { frac.set(s, c / total); }
     const summary: JssmStochasticSummary = {
-      mode: this.mode, runs, seed: 0,
+      mode: this.mode, runs, seed,
       state_visits, state_visit_fraction: frac, edge_traversals,
     };
     if (this.mode === 'montecarlo') {

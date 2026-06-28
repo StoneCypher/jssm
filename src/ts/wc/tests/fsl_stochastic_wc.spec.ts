@@ -86,4 +86,14 @@ describe('<fsl-stochastic>', () => {
     expect(section.hidden).toBe(false);
   });
 
+  it('host hides the stochastic slot by default when not requested', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', `a 'go' -> b;`);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    const section = host.shadowRoot!.querySelector('.stochastic') as HTMLElement;
+    expect(section).not.toBeNull();
+    expect(section.hidden).toBe(true);
+  });
+
 });
