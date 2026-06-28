@@ -1,4 +1,5 @@
 import { cli } from '../../cli/subcommands/export-system-prompt/plugin';
+import { parse } from '../../jssm';
 
 describe('export-system-prompt subcommand', () => {
 
@@ -45,6 +46,16 @@ describe('export-system-prompt subcommand', () => {
     expect(stderrWrite).toHaveBeenCalled();
     const output = stderrWrite.mock.calls[0][0] as string;
     expect(output).toContain('error:');
+  });
+
+  it('every FSL example in the exported prompt parses', async () => {
+    await cli([]);
+    const output = stdoutWrite.mock.calls.map((c: any[]) => c[0]).join('');
+    const blocks = [...output.matchAll(/```fsl\n([\s\S]*?)```/g)].map(m => m[1]);
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const fsl of blocks) {
+      expect(() => parse(fsl), `prompt FSL example must parse:\n${fsl}`).not.toThrow();
+    }
   });
 
 });
