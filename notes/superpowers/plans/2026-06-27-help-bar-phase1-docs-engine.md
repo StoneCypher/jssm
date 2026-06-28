@@ -509,14 +509,15 @@ async function runChecks() {
   const byId = new Map(manifest.features.map(f => [f.id, f]));
   const { pages, coverage } = scanPages(HELP);
 
-  // #2 treatment — validate-present: only features a page claims
+  // #2 treatment — a feature a page front-matter `teaches:` commits to must meet
+  // its tier's full contract. Fence-only / mention-only features are incidental.
   const treatmentViolations = [];
-  const claimed = new Set(Object.keys(coverage));
-  for (const fid of claimed) {
+  const taughtFeatures = new Set(pages.flatMap(p => p.teaches));
+  for (const fid of taughtFeatures) {
     const f = byId.get(fid);
-    if (!f) { treatmentViolations.push(`unknown feature id claimed: ${fid}`); continue; }
+    if (!f) { treatmentViolations.push(`unknown feature id taught: ${fid}`); continue; }
     if (f.tier === 'exclude') { treatmentViolations.push(`page teaches excluded feature: ${fid}`); continue; }
-    const have = new Set(coverage[fid].map(c => c.treatment));
+    const have = new Set((coverage[fid] || []).map(c => c.treatment));
     for (const need of TIER_NEEDS[f.tier] || []) {
       if (!have.has(need)) treatmentViolations.push(`${fid} (${f.tier}) missing '${need}'`);
     }
@@ -524,9 +525,9 @@ async function runChecks() {
 
   // #3 no-stale — no page may teach/mention/tag a forbidInTutorial feature
   const staleViolations = [];
-  for (const fid of claimed) {
+  for (const fid of Object.keys(coverage)) {
     const f = byId.get(fid);
-    if (f && f.exclude && f.exclude.forbidInTutorial) staleViolations.push(`forbidden feature taught: ${fid}`);
+    if (f && f.exclude && f.exclude.forbidInTutorial) staleViolations.push(`forbidden feature referenced: ${fid}`);
   }
 
   // #4 dependency order — DAG + present-page ordering within tutorials
