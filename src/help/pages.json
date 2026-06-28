@@ -171,6 +171,484 @@
       ]
     },
     {
+      "id": "tut-viz-render",
+      "section": "tutorials",
+      "title": "Viz: rendering to SVG",
+      "order": 100,
+      "source": "src/help/tutorials/viz-render.md",
+      "teaches": [
+        "viz-render"
+      ],
+      "mentions": [
+        "api-machine"
+      ],
+      "indexTerms": [
+        "svg",
+        "render",
+        "visualize",
+        "diagram",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-render",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-viz-dot",
+      "section": "tutorials",
+      "title": "Viz: DOT output",
+      "order": 102,
+      "source": "src/help/tutorials/viz-dot.md",
+      "teaches": [
+        "viz-dot"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "dot",
+        "graphviz",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-dot",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-viz-config",
+      "section": "tutorials",
+      "title": "Viz: render configuration",
+      "order": 104,
+      "source": "src/help/tutorials/viz-config.md",
+      "teaches": [
+        "viz-config"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "configure",
+        "render options",
+        "groups",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-config",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-viz-version-info",
+      "section": "tutorials",
+      "title": "Viz: version and build info",
+      "order": 106,
+      "source": "src/help/tutorials/viz-version-info.md",
+      "teaches": [
+        "viz-version-info"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "version",
+        "build_time",
+        "viz"
+      ],
+      "fences": [
+        {
+          "teaches": "viz-version-info",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-editor-language-support",
+      "section": "tutorials",
+      "title": "Editor: CodeMirror 6 language support",
+      "order": 110,
+      "source": "src/help/tutorials/editor-language-support.md",
+      "teaches": [
+        "editor-language-support"
+      ],
+      "mentions": [
+        "doc-structure"
+      ],
+      "indexTerms": [
+        "codemirror",
+        "cm6",
+        "language support",
+        "editor"
+      ],
+      "fences": [
+        {
+          "teaches": "editor-language-support",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-editor-highlighting",
+      "section": "tutorials",
+      "title": "Editor: syntax highlighting",
+      "order": 112,
+      "source": "src/help/tutorials/editor-highlighting.md",
+      "teaches": [
+        "editor-highlighting"
+      ],
+      "mentions": [
+        "editor-language-support"
+      ],
+      "indexTerms": [
+        "highlight",
+        "syntax color",
+        "deprecated marker",
+        "editor"
+      ],
+      "fences": [
+        {
+          "teaches": "editor-highlighting",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-editor-keyword-sets",
+      "section": "tutorials",
+      "title": "Editor: keyword classification sets",
+      "order": 114,
+      "source": "src/help/tutorials/editor-keyword-sets.md",
+      "teaches": [
+        "editor-keyword-sets"
+      ],
+      "mentions": [
+        "editor-highlighting"
+      ],
+      "indexTerms": [
+        "keywords",
+        "structural",
+        "property",
+        "enum",
+        "editor"
+      ],
+      "fences": [
+        {
+          "teaches": "editor-keyword-sets",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-viz",
+      "section": "tutorials",
+      "title": "Web component: <fsl-viz>",
+      "order": 120,
+      "source": "src/help/tutorials/wc-viz.md",
+      "teaches": [
+        "wc-viz"
+      ],
+      "mentions": [
+        "viz-render"
+      ],
+      "indexTerms": [
+        "fsl-viz",
+        "web component",
+        "custom element",
+        "diagram"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-viz",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-instance",
+      "section": "tutorials",
+      "title": "Web component: <fsl-instance>",
+      "order": 122,
+      "source": "src/help/tutorials/wc-instance.md",
+      "teaches": [
+        "wc-instance"
+      ],
+      "mentions": [
+        "wc-viz",
+        "api-machine"
+      ],
+      "indexTerms": [
+        "fsl-instance",
+        "interactive",
+        "live machine"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-instance",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-bind",
+      "section": "tutorials",
+      "title": "Web component: <fsl-bind>",
+      "order": 124,
+      "source": "src/help/tutorials/wc-bind.md",
+      "teaches": [
+        "wc-bind"
+      ],
+      "mentions": [
+        "wc-instance"
+      ],
+      "indexTerms": [
+        "fsl-bind",
+        "binding",
+        "data"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-bind",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-panels",
+      "section": "tutorials",
+      "title": "Web component: inspector panels",
+      "order": 126,
+      "source": "src/help/tutorials/wc-panels.md",
+      "teaches": [
+        "wc-panels"
+      ],
+      "mentions": [
+        "wc-instance"
+      ],
+      "indexTerms": [
+        "fsl-info-panel",
+        "fsl-effective-properties",
+        "inspector",
+        "panel"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-panels",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-wc-editor-suite",
+      "section": "tutorials",
+      "title": "Web component: the editor suite",
+      "order": 128,
+      "source": "src/help/tutorials/wc-editor-suite.md",
+      "teaches": [
+        "wc-editor-suite"
+      ],
+      "mentions": [
+        "wc-instance",
+        "editor-language-support"
+      ],
+      "indexTerms": [
+        "fsl-editor",
+        "fsl-help",
+        "fsl-docs",
+        "toolbar",
+        "web component suite"
+      ],
+      "fences": [
+        {
+          "teaches": "wc-editor-suite",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-cli-dispatcher",
+      "section": "tutorials",
+      "title": "CLI: the fsl command",
+      "order": 130,
+      "source": "src/help/tutorials/cli-dispatcher.md",
+      "teaches": [
+        "cli-dispatcher"
+      ],
+      "mentions": [
+        "cli-render"
+      ],
+      "indexTerms": [
+        "cli",
+        "fsl",
+        "dispatcher",
+        "--help",
+        "--version"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-dispatcher",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-cli-render",
+      "section": "tutorials",
+      "title": "CLI: fsl render",
+      "order": 132,
+      "source": "src/help/tutorials/cli-render.md",
+      "teaches": [
+        "cli-render"
+      ],
+      "mentions": [
+        "cli-dispatcher",
+        "viz-render"
+      ],
+      "indexTerms": [
+        "render",
+        "cli render",
+        "fsl-render"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-render",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-cli-render-targets",
+      "section": "tutorials",
+      "title": "CLI: render output formats",
+      "order": 134,
+      "source": "src/help/tutorials/cli-render-targets.md",
+      "teaches": [
+        "cli-render-targets"
+      ],
+      "mentions": [
+        "cli-render"
+      ],
+      "indexTerms": [
+        "svg",
+        "png",
+        "jpeg",
+        "dot",
+        "html",
+        "format",
+        "export"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-render-targets",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-cli-export-prompt",
+      "section": "tutorials",
+      "title": "CLI: fsl export-system-prompt",
+      "order": 136,
+      "source": "src/help/tutorials/cli-export-prompt.md",
+      "teaches": [
+        "cli-export-prompt"
+      ],
+      "mentions": [
+        "cli-dispatcher"
+      ],
+      "indexTerms": [
+        "system prompt",
+        "llms.txt",
+        "export prompt"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-export-prompt",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-prompt-overview",
+      "section": "tutorials",
+      "title": "LLM prompt: overview",
+      "order": 140,
+      "source": "src/help/tutorials/prompt-overview.md",
+      "teaches": [
+        "prompt-overview"
+      ],
+      "mentions": [
+        "cli-export-prompt"
+      ],
+      "indexTerms": [
+        "llms.txt",
+        "system prompt",
+        "agent",
+        "concepts"
+      ],
+      "fences": [
+        {
+          "teaches": "prompt-overview",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-prompt-examples",
+      "section": "tutorials",
+      "title": "LLM prompt: worked examples",
+      "order": 142,
+      "source": "src/help/tutorials/prompt-examples.md",
+      "teaches": [
+        "prompt-examples"
+      ],
+      "mentions": [
+        "prompt-overview"
+      ],
+      "indexTerms": [
+        "example",
+        "basic machine",
+        "actions"
+      ],
+      "fences": [
+        {
+          "teaches": "prompt-examples",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-document-structure",
+      "section": "tutorials",
+      "title": "Document structure",
+      "order": 2,
+      "source": "src/help/tutorials/document-structure.md",
+      "teaches": [
+        "doc-structure"
+      ],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "document",
+        "statement",
+        "term",
+        "semicolon"
+      ],
+      "fences": [
+        {
+          "teaches": "doc-structure",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-states-and-styling",
       "section": "tutorials",
       "title": "States and styling",
@@ -198,6 +676,33 @@
       ]
     },
     {
+      "id": "tut-machine-attributes",
+      "section": "tutorials",
+      "title": "Machine attributes",
+      "order": 25,
+      "source": "src/help/tutorials/machine-attributes.md",
+      "teaches": [
+        "machine-attributes"
+      ],
+      "mentions": [
+        "semver",
+        "labels-quoting"
+      ],
+      "indexTerms": [
+        "machine_name",
+        "machine_author",
+        "fsl_version",
+        "theme",
+        "metadata"
+      ],
+      "fences": [
+        {
+          "teaches": "machine-attributes",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-timed-transitions",
       "section": "tutorials",
       "title": "Timed transitions",
@@ -219,6 +724,709 @@
       "fences": [
         {
           "teaches": "timed-transitions",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-comments",
+      "section": "tutorials",
+      "title": "Comments",
+      "order": 4,
+      "source": "src/help/tutorials/comments.md",
+      "teaches": [
+        "comments"
+      ],
+      "mentions": [],
+      "indexTerms": [
+        "comment",
+        "line comment",
+        "block comment"
+      ],
+      "fences": [
+        {
+          "teaches": "comments",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-colors",
+      "section": "tutorials",
+      "title": "Colors",
+      "order": 40,
+      "source": "src/help/tutorials/colors.md",
+      "teaches": [
+        "colors"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "color",
+        "svg color",
+        "hex",
+        "background-color"
+      ],
+      "fences": [
+        {
+          "teaches": "colors",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-state-styling",
+      "section": "tutorials",
+      "title": "State styling",
+      "order": 42,
+      "source": "src/help/tutorials/state-styling.md",
+      "teaches": [
+        "state-styling"
+      ],
+      "mentions": [
+        "colors",
+        "shapes"
+      ],
+      "indexTerms": [
+        "style",
+        "background-color",
+        "border-color",
+        "shape",
+        "state"
+      ],
+      "fences": [
+        {
+          "teaches": "state-styling",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-groups",
+      "section": "tutorials",
+      "title": "Groups and named lists",
+      "order": 44,
+      "source": "src/help/tutorials/groups.md",
+      "teaches": [
+        "groups"
+      ],
+      "mentions": [
+        "states"
+      ],
+      "indexTerms": [
+        "group",
+        "named list",
+        "&",
+        "set",
+        "reusable"
+      ],
+      "fences": [
+        {
+          "teaches": "groups",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-hooks",
+      "section": "tutorials",
+      "title": "Boundary hooks",
+      "order": 46,
+      "source": "src/help/tutorials/hooks.md",
+      "teaches": [
+        "hooks"
+      ],
+      "mentions": [
+        "states",
+        "groups"
+      ],
+      "indexTerms": [
+        "hook",
+        "on enter",
+        "on exit",
+        "boundary",
+        "callback"
+      ],
+      "fences": [
+        {
+          "teaches": "hooks",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-literal-values",
+      "section": "tutorials",
+      "title": "Literal values",
+      "order": 48,
+      "source": "src/help/tutorials/literal-values.md",
+      "teaches": [
+        "literal-values"
+      ],
+      "mentions": [
+        "single-value-configs"
+      ],
+      "indexTerms": [
+        "true",
+        "false",
+        "null",
+        "undefined",
+        "boolean"
+      ],
+      "fences": [
+        {
+          "teaches": "literal-values",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-config-blocks",
+      "section": "tutorials",
+      "title": "Configuration blocks",
+      "order": 50,
+      "source": "src/help/tutorials/config-blocks.md",
+      "teaches": [
+        "config-blocks"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "config",
+        "state defaults",
+        "transition defaults",
+        "graph"
+      ],
+      "fences": [
+        {
+          "teaches": "config-blocks",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-single-value-configs",
+      "section": "tutorials",
+      "title": "Single-value configuration",
+      "order": 52,
+      "source": "src/help/tutorials/single-value-configs.md",
+      "teaches": [
+        "single-value-configs"
+      ],
+      "mentions": [
+        "config-blocks"
+      ],
+      "indexTerms": [
+        "graph_layout",
+        "allow_islands",
+        "allows_override",
+        "failed_outputs"
+      ],
+      "fences": [
+        {
+          "teaches": "single-value-configs",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-semver",
+      "section": "tutorials",
+      "title": "Version ranges (SemVer)",
+      "order": 54,
+      "source": "src/help/tutorials/version-ranges.md",
+      "teaches": [
+        "semver"
+      ],
+      "mentions": [
+        "machine-attributes"
+      ],
+      "indexTerms": [
+        "semver",
+        "version",
+        "fsl_version",
+        "range"
+      ],
+      "fences": [
+        {
+          "teaches": "semver",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-line-styles",
+      "section": "tutorials",
+      "title": "Line styles",
+      "order": 56,
+      "source": "src/help/tutorials/line-styles.md",
+      "teaches": [
+        "line-styles"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "line-style",
+        "dashed",
+        "dotted",
+        "solid",
+        "bold"
+      ],
+      "fences": [
+        {
+          "teaches": "line-styles",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-arrange",
+      "section": "tutorials",
+      "title": "Layout hints (arrange)",
+      "order": 60,
+      "source": "src/help/tutorials/arrange.md",
+      "teaches": [
+        "arrange"
+      ],
+      "mentions": [
+        "states"
+      ],
+      "indexTerms": [
+        "arrange",
+        "layout",
+        "rank",
+        "position"
+      ],
+      "fences": [
+        {
+          "teaches": "arrange",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-directions",
+      "section": "tutorials",
+      "title": "Directions",
+      "order": 62,
+      "source": "src/help/tutorials/directions.md",
+      "teaches": [
+        "directions"
+      ],
+      "mentions": [
+        "arrange",
+        "machine-attributes"
+      ],
+      "indexTerms": [
+        "direction",
+        "flow",
+        "up",
+        "down",
+        "left",
+        "right"
+      ],
+      "fences": [
+        {
+          "teaches": "directions",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-arrow-flavors",
+      "section": "tutorials",
+      "title": "Arrow flavors",
+      "order": 64,
+      "source": "src/help/tutorials/arrow-flavors.md",
+      "teaches": [
+        "arrow-flavors"
+      ],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "arrow",
+        "fat arrow",
+        "tilde arrow",
+        "main",
+        "forced",
+        "=>",
+        "~>"
+      ],
+      "fences": [
+        {
+          "teaches": "arrow-flavors",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-weighted-arrows",
+      "section": "tutorials",
+      "title": "Weighted / probabilistic arrows",
+      "order": 66,
+      "source": "src/help/tutorials/weighted-arrows.md",
+      "teaches": [
+        "weighted-arrows"
+      ],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "probability",
+        "weight",
+        "percent",
+        "random"
+      ],
+      "fences": [
+        {
+          "teaches": "weighted-arrows",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-arrow-decorations",
+      "section": "tutorials",
+      "title": "Per-arrow decorations",
+      "order": 68,
+      "source": "src/help/tutorials/arrow-decorations.md",
+      "teaches": [
+        "arrow-decorations"
+      ],
+      "mentions": [
+        "transitions",
+        "colors"
+      ],
+      "indexTerms": [
+        "edge-color",
+        "arc_label",
+        "head_label",
+        "tail_label",
+        "per-arrow"
+      ],
+      "fences": [
+        {
+          "teaches": "arrow-decorations",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-shapes",
+      "section": "tutorials",
+      "title": "State shapes",
+      "order": 70,
+      "source": "src/help/tutorials/shapes.md",
+      "teaches": [
+        "shapes"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "shape",
+        "circle",
+        "doublecircle",
+        "box",
+        "ellipse"
+      ],
+      "fences": [
+        {
+          "teaches": "shapes",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-corners",
+      "section": "tutorials",
+      "title": "Corner styles",
+      "order": 72,
+      "source": "src/help/tutorials/corners.md",
+      "teaches": [
+        "corners"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "corners",
+        "rounded",
+        "regular",
+        "lined"
+      ],
+      "fences": [
+        {
+          "teaches": "corners",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-urls",
+      "section": "tutorials",
+      "title": "URLs",
+      "order": 74,
+      "source": "src/help/tutorials/urls.md",
+      "teaches": [
+        "urls"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "url",
+        "link",
+        "http",
+        "click-through"
+      ],
+      "fences": [
+        {
+          "teaches": "urls",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-typed-properties",
+      "section": "tutorials",
+      "title": "State properties",
+      "order": 76,
+      "source": "src/help/tutorials/typed-properties.md",
+      "teaches": [
+        "typed-properties"
+      ],
+      "mentions": [
+        "machine-attributes"
+      ],
+      "indexTerms": [
+        "property",
+        "state property",
+        "extended state",
+        "value"
+      ],
+      "fences": [
+        {
+          "teaches": "typed-properties",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-labels-quoting",
+      "section": "tutorials",
+      "title": "Labels and quoting",
+      "order": 8,
+      "source": "src/help/tutorials/labels-and-quoting.md",
+      "teaches": [
+        "labels-quoting"
+      ],
+      "mentions": [
+        "states",
+        "transitions"
+      ],
+      "indexTerms": [
+        "label",
+        "string",
+        "atom",
+        "quote",
+        "action"
+      ],
+      "fences": [
+        {
+          "teaches": "labels-quoting",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-machine",
+      "section": "tutorials",
+      "title": "API: the Machine and its factories",
+      "order": 80,
+      "source": "src/help/tutorials/api-machine.md",
+      "teaches": [
+        "api-machine"
+      ],
+      "mentions": [
+        "transitions",
+        "states"
+      ],
+      "indexTerms": [
+        "sm",
+        "from",
+        "compile",
+        "Machine",
+        "transition",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-machine",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-version-info",
+      "section": "tutorials",
+      "title": "API: version and build info",
+      "order": 82,
+      "source": "src/help/tutorials/api-version-info.md",
+      "teaches": [
+        "api-version-info"
+      ],
+      "mentions": [
+        "api-machine"
+      ],
+      "indexTerms": [
+        "version",
+        "build_time",
+        "compareVersions",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-version-info",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-constants",
+      "section": "tutorials",
+      "title": "API: constants and vocabularies",
+      "order": 84,
+      "source": "src/help/tutorials/api-constants.md",
+      "teaches": [
+        "api-constants"
+      ],
+      "mentions": [
+        "api-machine",
+        "colors",
+        "shapes"
+      ],
+      "indexTerms": [
+        "named_colors",
+        "gviz_shapes",
+        "constants",
+        "FslDirections",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-constants",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-arrow-introspection",
+      "section": "tutorials",
+      "title": "API: arrow introspection",
+      "order": 86,
+      "source": "src/help/tutorials/api-arrow-introspection.md",
+      "teaches": [
+        "api-arrow-introspection"
+      ],
+      "mentions": [
+        "api-machine",
+        "arrow-flavors"
+      ],
+      "indexTerms": [
+        "arrow_direction",
+        "arrow_left_kind",
+        "arrow_right_kind",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-arrow-introspection",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-hook-helpers",
+      "section": "tutorials",
+      "title": "API: hook result helpers",
+      "order": 88,
+      "source": "src/help/tutorials/api-hook-helpers.md",
+      "teaches": [
+        "api-hook-helpers"
+      ],
+      "mentions": [
+        "api-machine",
+        "hooks"
+      ],
+      "indexTerms": [
+        "is_hook_rejection",
+        "hook result",
+        "abstract_hook_step",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-hook-helpers",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-utilities",
+      "section": "tutorials",
+      "title": "API: utility exports",
+      "order": 90,
+      "source": "src/help/tutorials/api-utilities.md",
+      "teaches": [
+        "api-utilities"
+      ],
+      "mentions": [
+        "api-machine",
+        "weighted-arrows"
+      ],
+      "indexTerms": [
+        "seq",
+        "unique",
+        "weighted_rand_select",
+        "sleep",
+        "utility",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-utilities",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-language-service",
+      "section": "tutorials",
+      "title": "API: the language service",
+      "order": 92,
+      "source": "src/help/tutorials/api-language-service.md",
+      "teaches": [
+        "api-language-service"
+      ],
+      "mentions": [
+        "api-machine",
+        "editor-language-support"
+      ],
+      "indexTerms": [
+        "fslCompletions",
+        "fslDiagnostics",
+        "fslSemanticSpans",
+        "language service",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-language-service",
           "run": true
         }
       ]

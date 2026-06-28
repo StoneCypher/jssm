@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-467 merges; 337 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
+470 merges; 337 releases; Changelogging the last 10 commits; Full changelog at [CHANGELOG.long.md](CHANGELOG.long.md)
 
 
 
@@ -22,44 +22,13 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 12:17:59 PM
+## [Untagged] - Jun 28, 2026 3:23:58 PM
 
-Commit [19908efc8bc5e092f29959486a7906d7691a1eba](https://github.com/StoneCypher/jssm/commit/19908efc8bc5e092f29959486a7906d7691a1eba)
-
-Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
-
-  * chart: graviton perf trend 20260628-174121
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 28, 2026 12:17:44 PM
-
-Commit [eeaf226f8bc96ff6a0aea86b89fda430b54694f0](https://github.com/StoneCypher/jssm/commit/eeaf226f8bc96ff6a0aea86b89fda430b54694f0)
-
-Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
-
-  * perf: nightly sync of graviton runner results from S3
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 28, 2026 10:34:04 AM
-
-Commit [57cb5f5f737b207c615ce991a47c140f366a130f](https://github.com/StoneCypher/jssm/commit/57cb5f5f737b207c615ce991a47c140f366a130f)
+Commit [b128b9891b3fb7a78d40ed6875c9d211ae070237](https://github.com/StoneCypher/jssm/commit/b128b9891b3fb7a78d40ed6875c9d211ae070237)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(wc): syntax-highlight fsl code in <fsl-docs> help pages
-  * Adds a dependency-free FSL tokenizer (tokenizeFsl/highlightFsl) to the docs markdown renderer: comments, strings, single-quoted actions, arrows (ascii + unicode), numbers/probabilities, and structural keywords become <span class=fsl-tok-*> runs, themed via --fsl-tok-* with sensible fallbacks. Also adds a mock-content fallback test that reclaims the Index/Search page-less-feature branches that became unreachable once the curriculum covered every feature. 100% coverage.
+  * fix(wc): thread effective seed into animated summary + hidden-by-default test (fsl#1384)
 
 
 
@@ -68,33 +37,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:33:22 AM
+## [Untagged] - Jun 28, 2026 3:16:57 PM
 
-Commit [ca5770b42927377739f0f9bbaa397970900be8bc](https://github.com/StoneCypher/jssm/commit/ca5770b42927377739f0f9bbaa397970900be8bc)
-
-Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
-
-  * docs: publish site for 908cd0b519eb41808f485a1f9ce000d818684798
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-<a name="5__150__1" />
-
-## [5.150.1] - Jun 28, 2026 10:28:48 AM
-
-Commit [908cd0b519eb41808f485a1f9ce000d818684798](https://github.com/StoneCypher/jssm/commit/908cd0b519eb41808f485a1f9ce000d818684798)
+Commit [7c1ca35f46fece143d6e94d3e507ff1d302b76c3](https://github.com/StoneCypher/jssm/commit/7c1ca35f46fece143d6e94d3e507ff1d302b76c3)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-Merges [f399abfc, 4cb27ed2]
-
-  * Merge pull request #875 from StoneCypher/perf_26-06-28_chart-footprint-panel
-  * perf-chart: add 8th panel — machine footprint (footprintBytes) by shape
+  * feat(wc): stochastic host slot + animated playback (fsl#1384)
 
 
 
@@ -103,18 +52,13 @@ Merges [f399abfc, 4cb27ed2]
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:23:18 AM
+## [Untagged] - Jun 28, 2026 3:12:36 PM
 
-Commit [4cb27ed2fbdf7b75637f426a5d196748b641d4eb](https://github.com/StoneCypher/jssm/commit/4cb27ed2fbdf7b75637f426a5d196748b641d4eb)
+Commit [17f433730cc8ecd867c5b4aa32ee4f11748bbe09](https://github.com/StoneCypher/jssm/commit/17f433730cc8ecd867c5b4aa32ee4f11748bbe09)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * feat(perf-chart): 8th footprint panel (footprintBytes by shape) — 5.150.1
-  * Wire the long-empty 8th cell of the 2-wide trend grid to machine footprint
-(footprintBytes per shape, from construct() rows). panel_svg gains a unit label;
-footprint_series pivots the footprints; render_chart appends the panel when
-present. perf_chart.svg now renders 8 panels (279 runs). 31/31 specs. No src/ts
-library logic change.
+  * refactor(wc): reactive _host + disconnectedCallback for fsl-stochastic (fsl#1384)
 
 
 
@@ -123,14 +67,13 @@ library logic change.
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:15:37 AM
+## [Untagged] - Jun 28, 2026 3:07:41 PM
 
-Commit [ac60fe7a54abdb44da8fe584aa03bb3d8695b277](https://github.com/StoneCypher/jssm/commit/ac60fe7a54abdb44da8fe584aa03bb3d8695b277)
+Commit [cf4170e0c047ad7f5ca04fef5c06e828817395ca](https://github.com/StoneCypher/jssm/commit/cf4170e0c047ad7f5ca04fef5c06e828817395ca)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(help): cli + llm-prompt curriculum — full curriculum complete (0 uncovered)
-  * Phase 2 batch 6 (final): cli (dispatcher/render/render-targets/export-prompt) and llm-prompt (overview/examples). Every teachable feature across all 7 surfaces now has a tutorial page (47 authored this phase, 57 pages total). check_teaching_surface reports 0 uncovered features.
+  * feat(wc): <fsl-stochastic> panel, instant mode (fsl#1384)
 
 
 
@@ -139,14 +82,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:13:50 AM
+## [Untagged] - Jun 28, 2026 2:58:42 PM
 
-Commit [e19f599930ebd7bf20a4d60908359ac663806281](https://github.com/StoneCypher/jssm/commit/e19f599930ebd7bf20a4d60908359ac663806281)
+Commit [a220a720ebf6a5bb941ca9cb1ffe9107d075b203](https://github.com/StoneCypher/jssm/commit/a220a720ebf6a5bb941ca9cb1ffe9107d075b203)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(help): viz + editor + web-component curriculum (12 tutorials)
-  * Phase 2 batch 5: viz (render/dot/config/version), editor (cm6 language-support/highlighting/keyword-sets), web components (fsl-viz/instance/bind/panels/editor-suite). Prose + js/html usage + a tagged fsl fence each. Only cli + llm-prompt remain.
+  * test(stochastic): bind generated seed in state-name property (fsl#1384)
 
 
 
@@ -155,14 +97,13 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:11:39 AM
+## [Untagged] - Jun 28, 2026 2:55:38 PM
 
-Commit [d9175e1d0018964c4b262f487a009548e24a7a36](https://github.com/StoneCypher/jssm/commit/d9175e1d0018964c4b262f487a009548e24a7a36)
+Commit [0e0e05cb992d46affb59b50c33685c3ec07be312](https://github.com/StoneCypher/jssm/commit/0e0e05cb992d46affb59b50c33685c3ec07be312)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(help): API surface curriculum (7 tutorials)
-  * Phase 2 batch 4: api-machine, version-info, constants, arrow-introspection, hook-helpers, utilities, language-service. Each teaches the JS API via prose + an untagged js block, with a tagged fsl fence (the machine the API operates on) for example credit — keeping the locked page contract while teaching non-FSL surfaces.
+  * test(stochastic): property-based stoch tests for stochastic_summary (fsl#1384)
 
 
 
@@ -171,11 +112,55 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:09:09 AM
+## [Untagged] - Jun 28, 2026 2:53:18 PM
 
-Commit [68679e22a44713a4e8e85638a94702184df91d95](https://github.com/StoneCypher/jssm/commit/68679e22a44713a4e8e85638a94702184df91d95)
+Commit [78efb0f12982ff303ad0127c102d37c13f45f7fc](https://github.com/StoneCypher/jssm/commit/78efb0f12982ff303ad0127c102d37c13f45f7fc)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
-  * docs(help): language advanced curriculum — language surface complete (9 tutorials)
-  * Phase 2 batch 3: arrange, directions, arrow-flavors, weighted-arrows, arrow-decorations, shapes, corners, urls, typed-properties. Syntax verified against the test fixtures (arrange [..], flow:, a -> {edge-color:..} b, url:"..", property: name val). All fsl fences parse. Language surface (25 features) now fully taught.
+  * fix(stochastic): exception-safe seed restore + drop dead fraction guard (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:47:33 PM
+
+Commit [46f0884001c0decc93f7fe29711cc5ba24e20374](https://github.com/StoneCypher/jssm/commit/46f0884001c0decc93f7fe29711cc5ba24e20374)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): stochastic_summary() aggregate, non-destructive (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:43:12 PM
+
+Commit [ad51175f52bc0e642e573cf55b705fc8bf802a3e](https://github.com/StoneCypher/jssm/commit/ad51175f52bc0e642e573cf55b705fc8bf802a3e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stochastic): drop unused machine in terminal-walk test (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:39:53 PM
+
+Commit [2c765b01d86940935ed8a34ed0bb20ee45735f4a](https://github.com/StoneCypher/jssm/commit/2c765b01d86940935ed8a34ed0bb20ee45735f4a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): non-destructive walker + stochastic_runs generator (fsl#1384)

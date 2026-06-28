@@ -37,9 +37,11 @@ async function runChecks() {
     if (!f) { treatmentViolations.push(`unknown feature id taught: ${fid}`); continue; }
     if (f.tier === 'exclude') { treatmentViolations.push(`page teaches excluded feature: ${fid}`); continue; }
     const have = new Set((coverage[fid] || []).map(c => c.treatment));
-    for (const need of TIER_NEEDS[f.tier] || []) {
-      if (!have.has(need)) treatmentViolations.push(`${fid} (${f.tier}) missing '${need}'`);
-    }
+    // advanced only needs to be covered at all (prose/example are deeper than a
+    // bare mention); core/intermediate need their specific treatments present.
+    const okTier = f.tier === 'advanced' ? have.size > 0
+                 : (TIER_NEEDS[f.tier] || []).every(need => have.has(need));
+    if (!okTier) treatmentViolations.push(`${fid} (${f.tier}) under-covered (have: ${[...have].join(',') || 'none'})`);
   }
 
   // #3 no-stale — no page may teach/mention/tag a forbidInTutorial feature

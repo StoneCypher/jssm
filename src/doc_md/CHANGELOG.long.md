@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-467 merges; 337 releases
+470 merges; 337 releases
 
 
 
@@ -14,6 +14,553 @@ Published tags:
 
 <a href="#5__150__1">5.150.1</a>, <a href="#5__150__0">5.150.0</a>, <a href="#5__149__2">5.149.2</a>, <a href="#5__149__1">5.149.1</a>, <a href="#5__148__2">5.148.2</a>, <a href="#5__148__1">5.148.1</a>, <a href="#5__148__0">5.148.0</a>, <a href="#5__147__10">5.147.10</a>, <a href="#5__147__9">5.147.9</a>, <a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:23:58 PM
+
+Commit [b128b9891b3fb7a78d40ed6875c9d211ae070237](https://github.com/StoneCypher/jssm/commit/b128b9891b3fb7a78d40ed6875c9d211ae070237)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): thread effective seed into animated summary + hidden-by-default test (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:16:57 PM
+
+Commit [7c1ca35f46fece143d6e94d3e507ff1d302b76c3](https://github.com/StoneCypher/jssm/commit/7c1ca35f46fece143d6e94d3e507ff1d302b76c3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): stochastic host slot + animated playback (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:12:36 PM
+
+Commit [17f433730cc8ecd867c5b4aa32ee4f11748bbe09](https://github.com/StoneCypher/jssm/commit/17f433730cc8ecd867c5b4aa32ee4f11748bbe09)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(wc): reactive _host + disconnectedCallback for fsl-stochastic (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:07:41 PM
+
+Commit [cf4170e0c047ad7f5ca04fef5c06e828817395ca](https://github.com/StoneCypher/jssm/commit/cf4170e0c047ad7f5ca04fef5c06e828817395ca)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-stochastic> panel, instant mode (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:58:42 PM
+
+Commit [a220a720ebf6a5bb941ca9cb1ffe9107d075b203](https://github.com/StoneCypher/jssm/commit/a220a720ebf6a5bb941ca9cb1ffe9107d075b203)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stochastic): bind generated seed in state-name property (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:55:38 PM
+
+Commit [0e0e05cb992d46affb59b50c33685c3ec07be312](https://github.com/StoneCypher/jssm/commit/0e0e05cb992d46affb59b50c33685c3ec07be312)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stochastic): property-based stoch tests for stochastic_summary (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:53:18 PM
+
+Commit [78efb0f12982ff303ad0127c102d37c13f45f7fc](https://github.com/StoneCypher/jssm/commit/78efb0f12982ff303ad0127c102d37c13f45f7fc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(stochastic): exception-safe seed restore + drop dead fraction guard (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:47:33 PM
+
+Commit [46f0884001c0decc93f7fe29711cc5ba24e20374](https://github.com/StoneCypher/jssm/commit/46f0884001c0decc93f7fe29711cc5ba24e20374)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): stochastic_summary() aggregate, non-destructive (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:43:12 PM
+
+Commit [ad51175f52bc0e642e573cf55b705fc8bf802a3e](https://github.com/StoneCypher/jssm/commit/ad51175f52bc0e642e573cf55b705fc8bf802a3e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stochastic): drop unused machine in terminal-walk test (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:39:53 PM
+
+Commit [2c765b01d86940935ed8a34ed0bb20ee45735f4a](https://github.com/StoneCypher/jssm/commit/2c765b01d86940935ed8a34ed0bb20ee45735f4a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): non-destructive walker + stochastic_runs generator (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:34:47 PM
+
+Commit [a9ebfc9ac1768f34decd7f6917de9f8078d2a654](https://github.com/StoneCypher/jssm/commit/a9ebfc9ac1768f34decd7f6917de9f8078d2a654)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): result/option types for stochastic_summary (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:16:54 PM
+
+Commit [5e7a3ca1b55274a42dbce4a59dab407eae2aa608](https://github.com/StoneCypher/jssm/commit/5e7a3ca1b55274a42dbce4a59dab407eae2aa608)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): fsl_from_permalink returns null on a malformed segment, not a throw
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:08:24 PM
+
+Commit [518c18635aeda95302e8326f223037d093a40b6b](https://github.com/StoneCypher/jssm/commit/518c18635aeda95302e8326f223037d093a40b6b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(wc): cover debounce coalescing (clears a pending timer) for 100% gate
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:04:01 PM
+
+Commit [1896ebaddeb521033e8d259e35608c8b33a4edaf](https://github.com/StoneCypher/jssm/commit/1896ebaddeb521033e8d259e35608c8b33a4edaf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-instance attaches FslPermalinkSync — restores from and writes to the URL fragment
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:00:39 PM
+
+Commit [607f5e8180661e143175e27af4588d000cf5d6e6](https://github.com/StoneCypher/jssm/commit/607f5e8180661e143175e27af4588d000cf5d6e6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(wc): cover permalink echo-guard + disconnect timer-cancel; null _timer after clear
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:53:22 PM
+
+Commit [c7a780ad6f5ed97ffacefff6b491064799c045cf](https://github.com/StoneCypher/jssm/commit/c7a780ad6f5ed97ffacefff6b491064799c045cf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): add FslPermalinkSync controller (read on connect, debounced replaceState writes, hashchange)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:50:34 PM
+
+Commit [eb0878ec174214a33dfeb1262f5da3d364263a84](https://github.com/StoneCypher/jssm/commit/eb0878ec174214a33dfeb1262f5da3d364263a84)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): Export→Permalink uses the instance key (uhash/id) and merges the fragment
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:48:37 PM
+
+Commit [e2cd68c461832c9677f2d82e0cd03c8559ff5239](https://github.com/StoneCypher/jssm/commit/e2cd68c461832c9677f2d82e0cd03c8559ff5239)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(wc): add missing permalink @examples; fix base64url padding before atob
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:44:04 PM
+
+Commit [0aba95c76d492cfd77170f43672b9fabf7ffbe76](https://github.com/StoneCypher/jssm/commit/0aba95c76d492cfd77170f43672b9fabf7ffbe76)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(wc): extract permalink codec to fsl_permalink.ts with fragment merge + permalink_key_for
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:42:24 PM
+
+Commit [11964fd1febb4e1c7a6e1d167d45b2fbabc6894c](https://github.com/StoneCypher/jssm/commit/11964fd1febb4e1c7a6e1d167d45b2fbabc6894c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(stochastic): implementation plan for fsl-stochastic panel + stochastic_summary() (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:33:41 PM
+
+Commit [198828c083fbaef983377b6c28fd22bd55b8ba93](https://github.com/StoneCypher/jssm/commit/198828c083fbaef983377b6c28fd22bd55b8ba93)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.151.1 — info/properties panel styling + fsl-docs highlighting
+  * Rebump + rebuild after merging main (5.151.0, #880 permalink-compress).
+  * - fsl-info-panel / fsl-effective-properties paint the shared --_fsl-surface token
+- fsl-docs highlighting: attribute keys + color swatches (FSL_COLOR_KEYS + FslToken)
+- fsl-editor showcase: panels off by default; load-into-editor regenerates the machine
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:32:56 PM
+
+Commit [153fe4a07846f1ab42147a05979c9d7258146d05](https://github.com/StoneCypher/jssm/commit/153fe4a07846f1ab42147a05979c9d7258146d05)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): implementation plan for FSL permalink URL sync
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:30:44 PM
+
+Commit [dd94661e4836eb2ded160f47c1fad25407d75c8b](https://github.com/StoneCypher/jssm/commit/dd94661e4836eb2ded160f47c1fad25407d75c8b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(stochastic): design spec for fsl-stochastic panel + stochastic_summary() (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:28:49 PM
+
+Commit [80f1989e683dad4358e1aea28c6da598103658c1](https://github.com/StoneCypher/jssm/commit/80f1989e683dad4358e1aea28c6da598103658c1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [20712be6, a7a0675a]
+
+  * Merge branch 'main' of github.com:StoneCypher/jssm into feat_26-06-28_phase2-curriculum
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/cdn/instance.js
+#       dist/cdn/viz.js
+#       dist/cli/fsl-export-system-prompt.cjs
+#       dist/cli/fsl-render.cjs
+#       dist/cli/fsl.cjs
+#       dist/cli/lib.cjs
+#       dist/cli/lib.mjs
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package-lock.json
+#       package.json
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:25:59 PM
+
+Commit [1992ce1c707d5536df866c0cd8a2dbdf45b1deab](https://github.com/StoneCypher/jssm/commit/1992ce1c707d5536df866c0cd8a2dbdf45b1deab)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): design for FSL permalink URL sync (hash reader + per-instance uhash/id keys)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:23:37 PM
+
+Commit [a7a0675a907cdacd34523dde9d8ca976dd32a759](https://github.com/StoneCypher/jssm/commit/a7a0675a907cdacd34523dde9d8ca976dd32a759)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [908cd0b5, 05b15128]
+
+  * Merge pull request #880 from StoneCypher/feat_26-06-28_permalink-compress
+  * feat(wc): compress FSL permalink into a URL-safe #m= fragment
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:01:27 PM
+
+Commit [20712be6baebfdb1c185164edac65d8af08d2e5d](https://github.com/StoneCypher/jssm/commit/20712be6baebfdb1c185164edac65d8af08d2e5d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.150.2 — info/properties panel styling + fsl-docs highlighting
+  * - fsl-info-panel / fsl-effective-properties now paint the shared --_fsl-surface
+  token so they render as themed panels instead of a bare white strip
+- fsl-docs highlighting gains attribute-key tokens and color swatches, mirroring
+  the editor overlay (FSL_COLOR_KEYS + FslToken exports, 100% covered)
+- fsl-editor showcase: panels off by default; load-into-editor regenerates the
+  machine
+- rebump + rebuild after merging main (5.150.1); perf chart refreshed to c8g
+  data through v5.150.1
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 12:57:38 PM
+
+Commit [05b15128ee09b71161ff54ad858ad6fcf3e96c74](https://github.com/StoneCypher/jssm/commit/05b15128ee09b71161ff54ad858ad6fcf3e96c74)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): compress FSL permalink into a URL-safe #m= fragment
+  * The Export pulldown's "Permalink (URL)" emitted the source raw in the hash as
+`#fsl=<percent-encoded>`, which is bulky (every `->`, space, and `;` expands to
+a 3-byte escape) and grows unbounded with the machine.
+  * Replace it with `#m=<scheme><payload>`:
+  *   - the payload is URL-safe base64 (RFC 4648 §5: `+`->`-`, `/`->`_`, no
+    padding), so the fragment needs no percent-encoding;
+  - the source is DEFLATEd via the native `CompressionStream('deflate-raw')`
+    (no new dependency) when that is smaller, tagged `1`; otherwise the raw
+    bytes ride along tagged `0` — so a short machine's link is never longer
+    than its uncompressed form.
+  * A 282-char Traffic-Light machine drops from 455 chars (`#fsl=`) to 78.
+  * Add `fsl_from_permalink()`, the missing inverse, so the link actually
+round-trips — the previous code could encode but nothing could decode. The
+toolbar spec now proves an exact round-trip across short, quoted, Unicode, and
+long compressible FSL, asserts the fragment is URL-safe, and checks the length
+fallback.
+  * `permalink_for()` is now async (it awaits the compression stream); its sole
+call site, the already-async `_export`, awaits it. The `#fsl=` format shipped
+one release ago (5.150.0) and was never consumed, so no compatibility shim is
+needed.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 12:54:43 PM
+
+Commit [5f7d6c52199495ba4828a632eaad4cf1827e77c0](https://github.com/StoneCypher/jssm/commit/5f7d6c52199495ba4828a632eaad4cf1827e77c0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [99c82d91, 908cd0b5]
+
+  * Merge branch 'main' of github.com:StoneCypher/jssm into feat_26-06-28_phase2-curriculum
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 12:53:21 PM
+
+Commit [99c82d9115591229db9070ac9eaf061846c2127e](https://github.com/StoneCypher/jssm/commit/99c82d9115591229db9070ac9eaf061846c2127e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): style info/properties panels + enrich fsl-docs highlighting
+  * - fsl-info-panel / fsl-effective-properties: paint the shared --_fsl-surface
+  token (themed background, padding, mono font) so they match the docked
+  panels instead of rendering as a bare white strip
+- fsl_docs_markdown: tokenize attribute keys and color values; highlightFsl
+  renders a color swatch chip beside each color value, mirroring the editor
+  overlay; add FSL_COLOR_KEYS + FslToken types (100% covered)
+- fsl-editor showcase: panels off by default (editor:{panels:[]}); load-into-
+  editor now also sets host.fsl so the machine regenerates
 
 
 
