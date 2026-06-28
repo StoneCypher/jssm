@@ -1784,6 +1784,95 @@ declare namespace jssm_constants_d {
 }
 
 /**
+ * Editor-agnostic data types for the FSL language service.
+ *
+ * These are the neutral contract every editor adapter (CodeMirror, VS Code, a
+ * future LSP server) converts to/from. Shapes are kept aligned with LSP types so
+ * an LSP wrapper is a near-mechanical mapping.
+ */
+/** A character-offset range in the FSL source. */
+interface Range {
+    from: number;
+    to: number;
+}
+/** Diagnostic severity, aligned with LSP severities. */
+declare type DiagnosticSeverity = 'error' | 'warning' | 'info' | 'hint';
+/** An editor-agnostic diagnostic (one parse/compile problem). */
+interface Diagnostic {
+    range: Range;
+    severity: DiagnosticSeverity;
+    message: string;
+}
+/** What a completion item suggests, so adapters can pick an icon. */
+declare type CompletionKind = 'key' | 'value-color' | 'value-shape' | 'value-enum';
+/** An editor-agnostic completion suggestion. */
+interface CompletionItem {
+    label: string;
+    kind: CompletionKind;
+    detail?: string;
+}
+/** Parser-derived semantic role of a source span. */
+declare type SemanticSpanKind = 'color' | 'state' | 'enum';
+/** An editor-agnostic semantic span (for decorations / semantic tokens). */
+interface SemanticSpan extends Range {
+    kind: SemanticSpanKind;
+    value?: string;
+}
+
+/**
+ * Editor-agnostic FSL diagnostics: parse then compile, reporting problems as
+ * neutral {@link Diagnostic}s. Adapters map these to CodeMirror lint diagnostics,
+ * VS Code markers, or LSP `Diagnostic`s.
+ *
+ * Parse errors (peg.js) carry `.location`; compile errors carry
+ * `.source_location` *when they reference a parsed node* — but machine-level
+ * compile errors (e.g. an empty machine, an unknown machine rule) have none, so
+ * the location is treated as optional and falls back to the whole document.
+ */
+
+/**
+ * Parse then compile `text`, returning a list of diagnostics — empty when the
+ * machine parses and compiles cleanly.
+ *
+ * @example
+ *   fslDiagnostics('a -> b;');            // => []
+ *   fslDiagnostics('a -> ;')[0].severity; // => 'error'
+ */
+declare function fslDiagnostics(text: string): Diagnostic[];
+
+/**
+ * Context-aware, editor-agnostic FSL completions. Value suggestions after a
+ * `key:`, key suggestions at a statement start (top-level vs inside a `{ }`
+ * block, by brace depth). Adapters convert {@link CompletionItem}s to their own
+ * completion type. Value vocab is jssm's own (`gviz_shapes`, `named_colors`,
+ * `FslDirections`), so it cannot drift from the renderer.
+ */
+
+/**
+ * Completions for the caret at `offset` in `text`.
+ *
+ * @example
+ *   fslCompletions('state x : { color: ', 19)[0].kind;  // => 'value-color'
+ */
+declare function fslCompletions(text: string, offset: number): CompletionItem[];
+
+/**
+ * Parser-derived semantic spans for FSL: color values (with resolved hex),
+ * state names, and shape-enum values. Returns `[]` if the document does not
+ * parse. Editor-agnostic — adapters map spans to decorations or semantic
+ * tokens. Logic is a verified port of the sketch's `semantic_overlay.mjs`.
+ */
+
+/**
+ * Collect color / state / shape-enum semantic spans from `text`.
+ *
+ * @example
+ *   fslSemanticSpans('state s : { color: crimson; };')
+ *     .find(s => s.kind === 'color')?.value;   // => '#dc143cff'
+ */
+declare function fslSemanticSpans(text: string): SemanticSpan[];
+
+/**
  *  The published semantic version of the jssm package this build was cut from.
  *  Mirrored from `package.json` by `src/buildjs/makever.cjs` at build time.
  *  Useful for runtime diagnostics and for embedding in serialized machine
@@ -4566,4 +4655,4 @@ declare function compareVersions(v1: string, v2: string): number;
  */
 declare function deserialize<mDT>(machine_string: string, ser: JssmSerialization<mDT>): Machine<mDT>;
 
-export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };
+export { FslDirections, Machine, abstract_everything_hook_step, abstract_hook_step, action_label_chars, arrow_direction, arrow_left_kind, arrow_right_kind, build_time, compareVersions, compile, jssm_constants_d as constants, deserialize, find_repeated, from, fslCompletions, fslDiagnostics, fslSemanticSpans, gen_splitmix32, gviz_shapes, histograph, is_hook_complex_result, is_hook_rejection, make, named_colors, wrap_parse as parse, seq, shapes, sleep, sm, state_name_chars, state_name_first_chars, state_style_condense, transfer_state_properties, unique, version, weighted_histo_key, weighted_rand_select, weighted_sample_select };

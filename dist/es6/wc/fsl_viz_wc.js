@@ -9,6 +9,7 @@ import { property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { fsl_to_svg_string, machine_to_svg_string } from '../jssm_viz.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { reorder_svg_layers } from './svg_layers.js';
 /**
  * Normalize an arbitrary thrown value into a {@link JssmVizErrorDetail}.
  * Accepts anything (Error instances, JssmErrors with `.location`, plain
@@ -78,6 +79,13 @@ export class FslViz extends LitElement {
          * Held so `disconnectedCallback` can release the subscription.
          */
         this._parent_sub = null;
+        /**
+         * Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the
+         * viz to the host's new machine after a live rebuild, #1387). Captures the
+         * exact host the listener was attached to, so teardown is correct even if
+         * `_parent_host` was cleared or replaced. Null when standalone / before binding.
+         */
+        this._host_unbind = null;
     }
     /**
      * Lit lifecycle hook. Triggers an async SVG render whenever `fsl` or
@@ -135,10 +143,9 @@ export class FslViz extends LitElement {
             if (this._parent_host !== host) {
                 return;
             }
+            let sub;
             try {
-                this._parent_sub = host.machine.on('transition', () => {
-                    this._rerenderFromHostMachine();
-                });
+                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
             }
             catch (e) {
                 // The parent existed but its machine wasn't ready / threw.  Emit
@@ -151,6 +158,17 @@ export class FslViz extends LitElement {
                 }));
                 return;
             }
+            this._parent_sub = sub;
+            // Re-subscribe + re-render when the host swaps its machine (#1387 live
+            // rebuild): the old subscription is on a dead machine object.
+            const on_rebuild = () => {
+                sub();
+                sub = host.machine.on('transition', () => { this._rerenderFromHostMachine(); });
+                this._parent_sub = sub;
+                this._rerenderFromHostMachine();
+            };
+            host.addEventListener('fsl-machine-rebuilt', on_rebuild);
+            this._host_unbind = () => { host.removeEventListener('fsl-machine-rebuilt', on_rebuild); };
             this._rerenderFromHostMachine();
         });
     }
@@ -165,6 +183,10 @@ export class FslViz extends LitElement {
         if (this._parent_sub !== null) {
             this._parent_sub();
             this._parent_sub = null;
+        }
+        if (this._host_unbind !== null) {
+            this._host_unbind();
+            this._host_unbind = null;
         }
         this._parent_host = null;
     }
@@ -186,7 +208,7 @@ export class FslViz extends LitElement {
             const result = await machine_to_svg_string(m, this.engine ? { engine: this.engine } : undefined);
             // Guard against the parent disappearing mid-render.
             if (this._parent_host === host) {
-                this._svg = result;
+                this._svg = reorder_svg_layers(result);
             }
         }
         catch (e) {
@@ -216,7 +238,7 @@ export class FslViz extends LitElement {
             const result = await fsl_to_svg_string(source, this.engine ? { engine: this.engine } : undefined);
             // Guard against stale results: only commit if fsl has not changed since this render started.
             if (this.fsl === source) {
-                this._svg = result;
+                this._svg = reorder_svg_layers(result);
             }
         }
         catch (e) {
@@ -251,6 +273,16 @@ FslViz.styles = css `
     .container {
       width: 100%;
       height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container svg {
+      /* Zoom the graph to fill the container (aspect maintained via the SVG's
+         own preserveAspectRatio), leaving 5% padding on the constraining axis —
+         the 90% box centered in the flex container yields the 5% inset. */
+      width: 90%;
+      height: 90%;
     }
   `;
 __decorate([

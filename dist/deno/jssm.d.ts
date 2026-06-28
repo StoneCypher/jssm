@@ -16,6 +16,7 @@ declare const shapes: string[], gviz_shapes: string[], named_colors: string[], s
     from: string;
     to: string;
 }[];
+export { fslDiagnostics, fslCompletions, fslSemanticSpans } from './language_service/index.js';
 import { version, build_time } from './version.js';
 /**
  *  Internal record holding a single registered event subscription: the

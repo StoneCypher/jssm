@@ -81,6 +81,13 @@ export declare class FslViz extends LitElement {
      */
     private _parent_sub;
     /**
+     * Detaches the host's `fsl-machine-rebuilt` listener (which re-subscribes the
+     * viz to the host's new machine after a live rebuild, #1387). Captures the
+     * exact host the listener was attached to, so teardown is correct even if
+     * `_parent_host` was cleared or replaced. Null when standalone / before binding.
+     */
+    private _host_unbind;
+    /**
      * Lit lifecycle hook. Triggers an async SVG render whenever `fsl` or
      * `engine` change — but only in standalone mode.  In nested mode the
      * `fsl` attribute is ignored; renders are driven by the parent machine's

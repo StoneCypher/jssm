@@ -153,8 +153,9 @@ describe('dist/wc/instance.js — bundler-friendly build', () => {
     // four declarative-tag families, mechanism-4 DOM-event re-emission (#639),
     // and the panel slots — so its ceiling is higher than viz's. The guard's
     // real job is catching an accidental core-inline regression (which would be
-    // 150KB+), not policing incremental component growth.
-    expect(built.length).toBeLessThan(64_000);
+    // 150KB+), not policing incremental component growth (now ~82KB after the
+    // theme registry, side-docks, fsl-actions, and the export/theme menus).
+    expect(built.length).toBeLessThan(100_000);
   });
 
 });
