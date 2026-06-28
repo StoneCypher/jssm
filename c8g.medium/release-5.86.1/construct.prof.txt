@@ -1,0 +1,359 @@
+Statistical profiling result from isolate-0xffffa4810000-27203-v8.log, (327 ticks, 0 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+    104   31.8%          /usr/bin/node
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+     17    5.2%    7.6%  JS: *peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+      4    1.2%    1.8%  RegExp: ^[ \t\r\n\x0B]
+      4    1.2%    1.8%  JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      3    0.9%    1.3%  RegExp: ^[1-9]
+      2    0.6%    0.9%  JS: *peg$parseTildeLightArrow /root/jssm/dist/jssm.es5.nonmin.cjs:1944:38
+      1    0.3%    0.4%  RegExp: ^[0-9a-zA-Z._!$\^*!?,\x80-\uFFFF]
+      1    0.3%    0.4%  RegExp: ^[0-9a-zA-Z.+_\^()*&$#@!?,\x80-\uFFFF]
+      1    0.3%    0.4%  JS: +peg$parseTwoWayTildeArrow /root/jssm/dist/jssm.es5.nonmin.cjs:1704:39
+      1    0.3%    0.4%  JS: +peg$parseMixedArrow /root/jssm/dist/jssm.es5.nonmin.cjs:2078:33
+      1    0.3%    0.4%  JS: +peg$parseForwardFatArrow /root/jssm/dist/jssm.es5.nonmin.cjs:1544:38
+      1    0.3%    0.4%  JS: +peg$fail /root/jssm/dist/jssm.es5.nonmin.cjs:479:22
+      1    0.3%    0.4%  JS: *peg$parseTildeFatArrow /root/jssm/dist/jssm.es5.nonmin.cjs:1984:36
+      1    0.3%    0.4%  JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1    0.3%    0.4%  JS: *peg$parseNonNegNumber /root/jssm/dist/jssm.es5.nonmin.cjs:3380:35
+      1    0.3%    0.4%  JS: *peg$parseLightFatArrow /root/jssm/dist/jssm.es5.nonmin.cjs:1784:36
+      1    0.3%    0.4%  JS: *peg$parseForwardFatArrow /root/jssm/dist/jssm.es5.nonmin.cjs:1544:38
+      1    0.3%    0.4%  JS: *peg$parseAtom /root/jssm/dist/jssm.es5.nonmin.cjs:3222:27
+      1    0.3%    0.4%  JS: *denseFSL /root/jssm/perf_probe.cjs:3:18
+
+ [C++]:
+   ticks  total  nonlib   name
+     85   26.0%   38.1%  fputc
+     49   15.0%   22.0%  __GI___lll_lock_wake
+     15    4.6%    6.7%  __GI___libc_read
+      9    2.8%    4.0%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      4    1.2%    1.8%  std::ostream::put(char)@@GLIBCXX_3.4
+      4    1.2%    1.8%  _IO_fwrite
+      3    0.9%    1.3%  __GI___pthread_cond_signal
+      3    0.9%    1.3%  __GI___memcpy_sve
+      2    0.6%    0.9%  isprint
+      1    0.3%    0.4%  syscall
+      1    0.3%    0.4%  std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release_last_use_cold()
+      1    0.3%    0.4%  __strchrnul
+      1    0.3%    0.4%  __readlink
+      1    0.3%    0.4%  ___vsnprintf
+      1    0.3%    0.4%  __GI___libc_write
+
+ [Summary]:
+   ticks  total  nonlib   name
+     43   13.1%   19.3%  JavaScript
+    180   55.0%   80.7%  C++
+     22    6.7%    9.9%  GC
+    104   31.8%          Shared libraries
+
+ [C++ entry points]:
+   ticks    cpp   total   name
+     84   52.8%   25.7%  fputc
+     33   20.8%   10.1%  __GI___lll_lock_wake
+     15    9.4%    4.6%  __GI___libc_read
+      9    5.7%    2.8%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      4    2.5%    1.2%  std::ostream::put(char)@@GLIBCXX_3.4
+      4    2.5%    1.2%  _IO_fwrite
+      3    1.9%    0.9%  __GI___memcpy_sve
+      2    1.3%    0.6%  isprint
+      2    1.3%    0.6%  __GI___pthread_cond_signal
+      1    0.6%    0.3%  syscall
+      1    0.6%    0.3%  __strchrnul
+      1    0.6%    0.3%  ___vsnprintf
+
+ [Bottom up (heavy) profile]:
+  Note: percentage shows a share of a particular caller in the total
+  amount of its parent calls.
+  Callers occupying less than 1.0% are not shown.
+
+   ticks parent  name
+    104   31.8%  /usr/bin/node
+     32   30.8%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+     32  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+     19   18.3%    JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+     10   52.6%      JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+     10  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+     10  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+     10  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      9   47.4%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      9  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      9  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      9  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      6    5.8%    JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      3   50.0%      JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      3  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      3  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      3  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      2   33.3%      JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      2  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1   16.7%      JS: +peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%        JS: +peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%          JS: +peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      4    3.8%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      4  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   25.0%        JS: ~refresh node:internal/util/colors:26:10
+      1  100.0%          JS: ~<anonymous> node:internal/util/colors:1:1
+      1  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1   25.0%        JS: ~<anonymous> node:internal/streams/readable:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   25.0%        JS: ~<anonymous> node:internal/streams/operators:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   25.0%        JS: ~<anonymous> node:internal/streams/compose:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      4    3.8%    JS: *peg$parseMixedArrow /root/jssm/dist/jssm.es5.nonmin.cjs:2078:33
+      4  100.0%      JS: *peg$parseArrow /root/jssm/dist/jssm.es5.nonmin.cjs:2105:28
+      2   50.0%        JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      2  100.0%          JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2   50.0%        JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      2  100.0%          JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      3    2.9%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      3    2.9%    JS: *peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+      2   66.7%      JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      2  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      1   33.3%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      2    1.9%    JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      2  100.0%      JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:19535:14
+      2  100.0%        JS: ~sm /root/jssm/dist/jssm.es5.nonmin.cjs:22175:12
+      2  100.0%          JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      2  100.0%            JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      2    1.9%    JS: *peg$parseArrowTarget /root/jssm/dist/jssm.es5.nonmin.cjs:11268:34
+      2  100.0%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      2  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      2    1.9%    JS: *peg$parseArrow /root/jssm/dist/jssm.es5.nonmin.cjs:2105:28
+      1   50.0%      JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1   50.0%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%        JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%          JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2    1.9%    /usr/bin/node
+      1   50.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   50.0%      JS: *peg$parseArrowTarget /root/jssm/dist/jssm.es5.nonmin.cjs:11268:34
+      1  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+
+     85   26.0%  fputc
+     71   83.5%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+     71  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      7    8.2%    JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      7  100.0%      JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      2   28.6%        JS: ~refresh node:internal/util/colors:26:10
+      2  100.0%          JS: ~<anonymous> node:internal/util/colors:1:1
+      2  100.0%            JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      2   28.6%        JS: ~<anonymous> node:internal/streams/duplex:1:1
+      2  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      2  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   14.3%        JS: ~<anonymous> node:stream:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   14.3%        JS: ~<anonymous> node:net:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      1   14.3%        JS: ~<anonymous> node:internal/streams/pipeline:1:1
+      1  100.0%          JS: ^compileForInternalLoader node:internal/bootstrap/realm:383:27
+      1  100.0%            JS: ^requireBuiltin node:internal/bootstrap/realm:420:24
+      3    3.5%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      3    3.5%    /usr/bin/node
+      3  100.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      3  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+     49   15.0%  __GI___lll_lock_wake
+      8   16.3%    JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      5   62.5%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      5  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      5  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      5  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      3   37.5%      JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      3  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      3  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      3  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      4    8.2%    JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      2   50.0%      JS: +peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      2  100.0%        JS: +peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1   50.0%          JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1   50.0%          JS: ^peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2   50.0%      JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      2  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      3    6.1%    JS: +peg$parseArrowTarget /root/jssm/dist/jssm.es5.nonmin.cjs:11268:34
+      3  100.0%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      3  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      3  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      3  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      3    6.1%    JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      3  100.0%      JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      3  100.0%        JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      3  100.0%          JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      3  100.0%            JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:19535:14
+      1    2.0%    JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1  100.0%      JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      1  100.0%        JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:19535:14
+      1  100.0%          JS: ~sm /root/jssm/dist/jssm.es5.nonmin.cjs:22175:12
+      1  100.0%            JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1    2.0%    JS: ~denseFSL /root/jssm/perf_probe.cjs:3:18
+      1  100.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    2.0%    JS: ^peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+      1  100.0%      JS: ^peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%        JS: ~peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%          JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1    2.0%    JS: ^peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%      JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%        JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1  100.0%          JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      1  100.0%            JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:19535:14
+      1    2.0%    JS: ^peg$parseLabel /root/jssm/dist/jssm.es5.nonmin.cjs:3257:28
+      1  100.0%      JS: ^peg$parseArrowTarget /root/jssm/dist/jssm.es5.nonmin.cjs:11268:34
+      1  100.0%        JS: ^peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%          JS: ~peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%            JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1    2.0%    JS: ^peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%      JS: +peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%        JS: ^peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1    2.0%    JS: ^peg$parseArrowProbability /root/jssm/dist/jssm.es5.nonmin.cjs:10943:39
+      1  100.0%      JS: ^peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%        JS: ^peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%          JS: ~peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%            JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1    2.0%    JS: +peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+      1  100.0%      JS: +peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+      1  100.0%        JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%          JS: +peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%            JS: +peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1    2.0%    JS: +peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%      JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%        JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1  100.0%          JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      1  100.0%            JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:19535:14
+      1    2.0%    JS: +peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%      JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      1    2.0%    JS: +peg$parseNonNegNumber /root/jssm/dist/jssm.es5.nonmin.cjs:3380:35
+      1  100.0%      JS: +peg$parseArrowProbability /root/jssm/dist/jssm.es5.nonmin.cjs:10943:39
+      1  100.0%        JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%          JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%            JS: +peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1    2.0%    JS: +peg$parseMixedArrow /root/jssm/dist/jssm.es5.nonmin.cjs:2078:33
+      1  100.0%      JS: +peg$parseArrow /root/jssm/dist/jssm.es5.nonmin.cjs:2105:28
+      1  100.0%        JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%          JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%            JS: ^peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1    2.0%    JS: +peg$parseArrowProbability /root/jssm/dist/jssm.es5.nonmin.cjs:10943:39
+      1  100.0%      JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%        JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%          JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1    2.0%    JS: +peg$parseArrow /root/jssm/dist/jssm.es5.nonmin.cjs:2105:28
+      1  100.0%      JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%        JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%          JS: +peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%            JS: +peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1    2.0%    JS: +denseFSL /root/jssm/perf_probe.cjs:3:18
+      1  100.0%      JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      1  100.0%        JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+     17    5.2%  JS: *peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+     10   58.8%    JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      7   70.0%      JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      7  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      7  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      7  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      3   30.0%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      3  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      3  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      3  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      3   17.6%    JS: *peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+      2   66.7%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      2  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1   33.3%      JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      2   11.8%    JS: +peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1   50.0%      JS: +peg$parseExp /root/jssm/dist/jssm.es5.nonmin.cjs:11464:26
+      1  100.0%        JS: +peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%          JS: ^peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1   50.0%      JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%        JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%          JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1  100.0%            JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      2   11.8%    JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      2  100.0%      JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      2  100.0%        JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      2  100.0%          JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      2  100.0%            JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:19535:14
+
+     15    4.6%  __GI___libc_read
+     15  100.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+     15  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      9    2.8%  std::ostream::sentry::sentry(std::ostream&)@@GLIBCXX_3.4
+      7   77.8%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      7  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      2   22.2%    /usr/bin/node
+      2  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      4    1.2%  std::ostream::put(char)@@GLIBCXX_3.4
+      3   75.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      3  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   25.0%    JS: ~<anonymous> node:internal/main/run_main_module:1:1
+
+      4    1.2%  _IO_fwrite
+      3   75.0%    JS: ~<anonymous> /root/jssm/perf_probe.cjs:1:1
+      3  100.0%      JS: ~<anonymous> node:internal/main/run_main_module:1:1
+      1   25.0%    JS: ~peg$parseMachineAttribute /root/jssm/dist/jssm.es5.nonmin.cjs:15650:39
+      1  100.0%      JS: ~peg$parseTerm /root/jssm/dist/jssm.es5.nonmin.cjs:18134:27
+      1  100.0%        JS: ~peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      1  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+
+      4    1.2%  RegExp: ^[ \t\r\n\x0B]
+      4  100.0%    JS: *peg$parseWS /root/jssm/dist/jssm.es5.nonmin.cjs:3048:25
+      4  100.0%      JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      3   75.0%        JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      3  100.0%          JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      3  100.0%            JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      1   25.0%        JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      1  100.0%          JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      1  100.0%            JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+
+      4    1.2%  JS: *peg$parseSubexp /root/jssm/dist/jssm.es5.nonmin.cjs:11282:29
+      4  100.0%    JS: *peg$parseTermList /root/jssm/dist/jssm.es5.nonmin.cjs:18157:31
+      4  100.0%      JS: ~peg$parseDocument /root/jssm/dist/jssm.es5.nonmin.cjs:492:31
+      4  100.0%        JS: ~peg$parse /root/jssm/dist/jssm.es5.nonmin.cjs:327:19
+      4  100.0%          JS: ~wrap_parse /root/jssm/dist/jssm.es5.nonmin.cjs:19285:20
+      4  100.0%            JS: ~make /root/jssm/dist/jssm.es5.nonmin.cjs:19535:14
+
