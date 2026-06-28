@@ -1,0 +1,816 @@
+export const DOCS_PAGES = [
+    {
+        "id": "mealy-vs-moore",
+        "section": "about-state-machines",
+        "title": "Mealy vs Moore",
+        "order": 20,
+        "teaches": [],
+        "mentions": [],
+        "indexTerms": [
+            "mealy",
+            "moore",
+            "output",
+            "action",
+            "theory"
+        ],
+        "body": "\n# Mealy vs Moore\n\nTwo classic models differ in *where the output lives*:\n\n- A **Moore machine** produces output based only on the **current state**. The output is a property of *being* in a state.\n- A **Mealy machine** produces output based on the **state and the transition** taken. The output is a property of *moving*.\n\nFSL can express both styles. Actions attached to transitions (`A 'go' -> B;`) read naturally as Mealy outputs; state-level behaviour reads as Moore. You rarely have to choose a camp — you model what the system does, and the distinction becomes a way to *describe* your machine rather than a constraint you fight.\n"
+    },
+    {
+        "id": "what-is-an-fsm",
+        "section": "about-state-machines",
+        "title": "What is a state machine?",
+        "order": 10,
+        "teaches": [],
+        "mentions": [],
+        "indexTerms": [
+            "fsm",
+            "finite",
+            "state",
+            "transition",
+            "theory",
+            "automaton"
+        ],
+        "body": "\n# What is a state machine?\n\nA **finite state machine** is a system that is always in exactly one of a finite set of **states**, and moves between them through **transitions**. A transition fires in response to an input — in FSL, an **action**.\n\nThree ideas carry most of the weight:\n\n- **States** are the situations a system can be in: a door is *Open* or *Closed*; a traffic light is *Red*, *Yellow*, or *Green*.\n- **Transitions** are the allowed moves between states. A door can go *Closed → Open*, but a turnstile cannot go *Locked → Locked-and-paid* without paying first.\n- **Determinism** means that, from a given state and input, the next state is fixed. FSL machines are deterministic by construction.\n\nBecause the set of states is finite and the moves are explicit, a state machine is something you can *reason about* — and even *prove things about* — rather than just run.\n"
+    },
+    {
+        "id": "ex-toggle",
+        "section": "example-machines",
+        "title": "Toggle",
+        "order": 20,
+        "teaches": [],
+        "mentions": [
+            "transitions"
+        ],
+        "indexTerms": [
+            "toggle",
+            "switch",
+            "on",
+            "off",
+            "example"
+        ],
+        "body": "\n# Toggle\n\nThe smallest useful machine: two states and one action that flips between them.\n\n```fsl {run: true}\nOff 'flip' -> On 'flip' -> Off;\n```\n\nThis is the shape behind every checkbox, light switch, and feature flag — a single action bouncing the system between two states.\n"
+    },
+    {
+        "id": "ex-traffic-light",
+        "section": "example-machines",
+        "title": "Traffic light",
+        "order": 10,
+        "teaches": [],
+        "mentions": [
+            "transitions",
+            "timed-transitions"
+        ],
+        "indexTerms": [
+            "traffic",
+            "light",
+            "example",
+            "cycle"
+        ],
+        "body": "\n# Traffic light\n\nThe canonical state machine: three states that cycle on a timer. Load it and watch the diagram.\n\n```fsl {run: true}\nGreen after 5 -> Yellow;\nYellow after 2 -> Red;\nRed after 5 -> Green;\n```\n\nSwap the `after` clauses for actions (`Green 'advance' -> Yellow;`) to drive it by hand instead of by timer.\n"
+    },
+    {
+        "id": "first-machine",
+        "section": "getting-started",
+        "title": "Your first machine",
+        "order": 30,
+        "teaches": [],
+        "mentions": [
+            "transitions"
+        ],
+        "indexTerms": [
+            "first",
+            "example",
+            "quickstart",
+            "machine"
+        ],
+        "body": "\n# Your first machine\n\nAn FSL file is a list of statements. The simplest machine is a chain of transitions. States are inferred from the arrows — you do not have to declare them.\n\nTry loading this into the editor and watch the diagram appear:\n\n```fsl {run: true}\nSolid 'crack' -> Liquid 'boil' -> Gas;\n```\n\nEach transition is a **source state**, an optional **action** in single quotes, an **arrow**, and a **target state**. Add `machine_name : \"…\";` at the top to give your machine a title.\n"
+    },
+    {
+        "id": "using-the-editor",
+        "section": "getting-started",
+        "title": "Using the editor",
+        "order": 20,
+        "teaches": [],
+        "mentions": [],
+        "indexTerms": [
+            "autocomplete",
+            "layout",
+            "theme",
+            "diagram",
+            "resize",
+            "highlight"
+        ],
+        "body": "\n# Using the editor\n\n## Editing and autocomplete\n\nWrite FSL in the code pane. Suggestions appear as you type after a `:`, or on Ctrl+Space. At the start of a line you get **keys** — machine attributes, config, and (inside a `{ }` block) per-state style keys. After a key's `:` you get its **values** — shapes, layouts, directions, and the full SVG color list with a swatch preview.\n\n## The live diagram\n\nThe graph re-renders whenever the machine parses and compiles cleanly. While an edit is invalid, the last good diagram stays and the status bar shows the parser error.\n\n## Layouts\n\nThe **View** button chooses how the panes sit: side by side or stacked with the editor on either side, just the editor or just the viewer, or **Tabbed** — one pane at a time. **Auto** follows the window shape.\n\n## Resizing panes\n\nDrag any divider to resize — between the graph and code, or this docs panel and the rest. Double-click a divider to reset it.\n\n## Highlighting\n\nBeyond the base syntax colors, the editor reads the parsed machine to mark what the tokenizer cannot: color values get a swatch chip in their own color, state names are tinted apart from other identifiers, and shape values are marked as enums.\n\n## Theme\n\nThe sun / moon button switches between light and dark, and your choice is remembered.\n"
+    },
+    {
+        "id": "welcome",
+        "section": "getting-started",
+        "title": "Welcome to FSL",
+        "order": 10,
+        "teaches": [],
+        "mentions": [
+            "transitions"
+        ],
+        "indexTerms": [
+            "intro",
+            "start",
+            "hello"
+        ],
+        "body": "\n# Welcome to FSL\n\nFSL is a small language for finite state machines. Most machines are one line.\n\n```fsl {teaches: transitions, run: true}\nRed 'go' -> Green 'go' -> Yellow 'go' -> Red;\n```\n"
+    },
+    {
+        "id": "tut-states-and-styling",
+        "section": "tutorials",
+        "title": "States and styling",
+        "order": 20,
+        "teaches": [
+            "states"
+        ],
+        "mentions": [
+            "state-styling",
+            "colors"
+        ],
+        "indexTerms": [
+            "state",
+            "declaration",
+            "style",
+            "color",
+            "shape"
+        ],
+        "body": "\n# States and styling\n\nMost states are inferred from transitions, but you can **declare** a state explicitly to give it a style. A declaration is `state Name { … };` with style keys inside.\n\n```fsl {teaches: states, run: true}\nstate On : {\n  background-color : green;\n};\n\nOff 'flip' -> On 'flip' -> Off;\n```\n\nInside the block you can set `background-color`, `text-color`, `border-color`, `shape`, `corners`, and more — the same vocabulary the autocomplete offers after a `:`. Declared or not, a state still participates in transitions exactly the same way.\n"
+    },
+    {
+        "id": "tut-timed-transitions",
+        "section": "tutorials",
+        "title": "Timed transitions",
+        "order": 30,
+        "teaches": [
+            "timed-transitions"
+        ],
+        "mentions": [
+            "transitions"
+        ],
+        "indexTerms": [
+            "after",
+            "timeout",
+            "delay",
+            "timer",
+            "seconds"
+        ],
+        "body": "\n# Timed transitions\n\nA transition can fire **on its own after a delay** using `after`. This is how you model timeouts — a traffic light that advances itself, a session that expires.\n\n```fsl {teaches: timed-transitions, run: true}\nGreen after 5 -> Yellow;\nYellow after 2 -> Red;\nRed after 5 -> Green;\n```\n\n**Watch the units.** A bare `after 5` means **five seconds**, not five milliseconds — the implicit scale is 1000. Write `after 500ms` if you really mean milliseconds. This trips people up constantly, so when in doubt, spell the unit out.\n"
+    },
+    {
+        "id": "tut-transitions",
+        "section": "tutorials",
+        "title": "Transitions",
+        "order": 10,
+        "teaches": [
+            "transitions"
+        ],
+        "mentions": [
+            "states",
+            "labels-quoting"
+        ],
+        "indexTerms": [
+            "arrow",
+            "edge",
+            "transition",
+            "action"
+        ],
+        "body": "\n# Transitions\n\nA transition is the core of FSL: a **source state**, an arrow, and a **target state**. States are inferred from the arrows, so you never declare them just to use them.\n\n```fsl {teaches: transitions, run: true}\nOff 'flip' -> On 'flip' -> Off;\n```\n\nThe text in single quotes is an **action** — the named input that fires the transition. You can chain transitions on one line, as above, or write them one per line. The plain `->` arrow means a *legal* transition; later tutorials cover the other arrow kinds.\n"
+    }
+];
+export const DOCS_FEATURES = [
+    {
+        "id": "doc-structure",
+        "surface": "language",
+        "title": "Document structure",
+        "tier": "core",
+        "referenceAnchor": "1-document-shape",
+        "indexTerms": [
+            "document",
+            "term",
+            "statement",
+            "top level"
+        ]
+    },
+    {
+        "id": "comments",
+        "surface": "language",
+        "title": "Comments",
+        "tier": "core",
+        "indexTerms": [
+            "comment",
+            "//",
+            "/*",
+            "block comment",
+            "line comment"
+        ]
+    },
+    {
+        "id": "transitions",
+        "surface": "language",
+        "title": "Transitions",
+        "tier": "core",
+        "referenceAnchor": "3-transitions",
+        "indexTerms": [
+            "transition",
+            "arrow",
+            "edge",
+            "->",
+            "<-",
+            "<->"
+        ]
+    },
+    {
+        "id": "arrow-flavors",
+        "surface": "language",
+        "title": "Arrow flavors (fat, tilde, light)",
+        "tier": "advanced",
+        "indexTerms": [
+            "fat arrow",
+            "tilde arrow",
+            "=>",
+            "~>",
+            "legal",
+            "main path",
+            "forced"
+        ]
+    },
+    {
+        "id": "timed-transitions",
+        "surface": "language",
+        "title": "Timed transitions (after)",
+        "tier": "intermediate",
+        "indexTerms": [
+            "after",
+            "timeout",
+            "delay",
+            "timer",
+            "seconds"
+        ]
+    },
+    {
+        "id": "weighted-arrows",
+        "surface": "language",
+        "title": "Weighted / probabilistic arrows",
+        "tier": "advanced",
+        "indexTerms": [
+            "probability",
+            "weight",
+            "percent",
+            "random",
+            "cycle",
+            "Pi",
+            "Infinity"
+        ]
+    },
+    {
+        "id": "arrow-decorations",
+        "surface": "language",
+        "title": "Per-arrow decorations (labels, colors)",
+        "tier": "advanced",
+        "indexTerms": [
+            "arrow label",
+            "edge label",
+            "arc_label",
+            "head_label",
+            "tail_label",
+            "per-arrow color"
+        ]
+    },
+    {
+        "id": "labels-quoting",
+        "surface": "language",
+        "title": "Labels and quoting",
+        "tier": "core",
+        "referenceAnchor": "5-labels-strings-atoms",
+        "indexTerms": [
+            "label",
+            "string",
+            "atom",
+            "quote",
+            "name",
+            "action"
+        ]
+    },
+    {
+        "id": "states",
+        "surface": "language",
+        "title": "State declarations",
+        "tier": "core",
+        "indexTerms": [
+            "state",
+            "node",
+            "declaration"
+        ]
+    },
+    {
+        "id": "state-styling",
+        "surface": "language",
+        "title": "State styling",
+        "tier": "intermediate",
+        "indexTerms": [
+            "style",
+            "color",
+            "shape",
+            "border",
+            "background",
+            "image",
+            "node style"
+        ]
+    },
+    {
+        "id": "colors",
+        "surface": "language",
+        "title": "Colors",
+        "tier": "intermediate",
+        "indexTerms": [
+            "color",
+            "svg color",
+            "hex",
+            "rgb",
+            "rgba",
+            "#"
+        ]
+    },
+    {
+        "id": "shapes",
+        "surface": "language",
+        "title": "State shapes",
+        "tier": "advanced",
+        "indexTerms": [
+            "shape",
+            "box",
+            "circle",
+            "ellipse",
+            "graphviz shape"
+        ]
+    },
+    {
+        "id": "line-styles",
+        "surface": "language",
+        "title": "Line styles",
+        "tier": "intermediate",
+        "indexTerms": [
+            "line style",
+            "dashed",
+            "dotted",
+            "solid",
+            "bold"
+        ]
+    },
+    {
+        "id": "corners",
+        "surface": "language",
+        "title": "Corner styles",
+        "tier": "advanced",
+        "indexTerms": [
+            "corners",
+            "rounded",
+            "regular"
+        ]
+    },
+    {
+        "id": "directions",
+        "surface": "language",
+        "title": "Directions",
+        "tier": "advanced",
+        "indexTerms": [
+            "direction",
+            "up",
+            "down",
+            "left",
+            "right"
+        ]
+    },
+    {
+        "id": "literal-values",
+        "surface": "language",
+        "title": "Literal values (boolean, null, undefined)",
+        "tier": "intermediate",
+        "indexTerms": [
+            "true",
+            "false",
+            "null",
+            "undefined",
+            "boolean"
+        ]
+    },
+    {
+        "id": "urls",
+        "surface": "language",
+        "title": "URLs",
+        "tier": "advanced",
+        "indexTerms": [
+            "url",
+            "link",
+            "http",
+            "https"
+        ]
+    },
+    {
+        "id": "groups",
+        "surface": "language",
+        "title": "Groups and named lists",
+        "tier": "intermediate",
+        "indexTerms": [
+            "group",
+            "named list",
+            "&",
+            "reusable",
+            "set"
+        ]
+    },
+    {
+        "id": "hooks",
+        "surface": "language",
+        "title": "Boundary hooks",
+        "tier": "intermediate",
+        "indexTerms": [
+            "hook",
+            "on enter",
+            "on exit",
+            "boundary",
+            "callback"
+        ]
+    },
+    {
+        "id": "config-blocks",
+        "surface": "language",
+        "title": "Configuration blocks",
+        "tier": "intermediate",
+        "referenceAnchor": "8-configuration-blocks-config",
+        "indexTerms": [
+            "config",
+            "transition config",
+            "graph config",
+            "state defaults",
+            "block"
+        ]
+    },
+    {
+        "id": "single-value-configs",
+        "surface": "language",
+        "title": "Single-value configuration",
+        "tier": "intermediate",
+        "referenceAnchor": "8-configuration-blocks-config",
+        "indexTerms": [
+            "graph_layout",
+            "start_states",
+            "allow_islands",
+            "allows_override",
+            "failed_outputs"
+        ]
+    },
+    {
+        "id": "machine-attributes",
+        "surface": "language",
+        "title": "Machine attributes",
+        "tier": "core",
+        "referenceAnchor": "9-machine-attributes",
+        "indexTerms": [
+            "machine_name",
+            "fsl_version",
+            "author",
+            "license",
+            "theme",
+            "metadata",
+            "attribute"
+        ]
+    },
+    {
+        "id": "typed-properties",
+        "surface": "language",
+        "title": "Typed machine properties",
+        "tier": "advanced",
+        "indexTerms": [
+            "property",
+            "typed property",
+            "required",
+            "default",
+            "extended state"
+        ]
+    },
+    {
+        "id": "semver",
+        "surface": "language",
+        "title": "Version ranges (SemVer)",
+        "tier": "intermediate",
+        "indexTerms": [
+            "semver",
+            "version",
+            "fsl_version",
+            "range"
+        ]
+    },
+    {
+        "id": "arrange",
+        "surface": "language",
+        "title": "Layout hints (arrange)",
+        "tier": "advanced",
+        "indexTerms": [
+            "arrange",
+            "layout",
+            "rank",
+            "position"
+        ]
+    },
+    {
+        "id": "api-machine",
+        "surface": "api",
+        "title": "The Machine and its factories",
+        "tier": "core",
+        "indexTerms": [
+            "state_machine",
+            "sm",
+            "from",
+            "compile",
+            "deserialize",
+            "instantiate",
+            "Machine"
+        ]
+    },
+    {
+        "id": "api-version-info",
+        "surface": "api",
+        "title": "Version and build info (API)",
+        "tier": "intermediate",
+        "indexTerms": [
+            "version",
+            "build time",
+            "compareVersions"
+        ]
+    },
+    {
+        "id": "api-arrow-introspection",
+        "surface": "api",
+        "title": "Arrow introspection helpers",
+        "tier": "advanced",
+        "indexTerms": [
+            "arrow direction",
+            "arrow kind",
+            "introspection"
+        ]
+    },
+    {
+        "id": "api-constants",
+        "surface": "api",
+        "title": "Exported constants and vocabularies",
+        "tier": "intermediate",
+        "indexTerms": [
+            "constants",
+            "shapes",
+            "named_colors",
+            "directions"
+        ]
+    },
+    {
+        "id": "api-hook-helpers",
+        "surface": "api",
+        "title": "Hook result helpers (API)",
+        "tier": "advanced",
+        "indexTerms": [
+            "hook",
+            "rejection",
+            "hook result"
+        ]
+    },
+    {
+        "id": "api-utilities",
+        "surface": "api",
+        "title": "Utility exports",
+        "tier": "advanced",
+        "indexTerms": [
+            "seq",
+            "random",
+            "weighted",
+            "sleep",
+            "utility"
+        ]
+    },
+    {
+        "id": "viz-render",
+        "surface": "viz",
+        "title": "Rendering FSL / machines to SVG",
+        "tier": "core",
+        "indexTerms": [
+            "svg",
+            "render",
+            "visualize",
+            "diagram"
+        ]
+    },
+    {
+        "id": "viz-dot",
+        "surface": "viz",
+        "title": "DOT (Graphviz) output",
+        "tier": "intermediate",
+        "indexTerms": [
+            "dot",
+            "graphviz"
+        ]
+    },
+    {
+        "id": "viz-config",
+        "surface": "viz",
+        "title": "Render configuration",
+        "tier": "intermediate",
+        "indexTerms": [
+            "configure",
+            "render options",
+            "groups"
+        ]
+    },
+    {
+        "id": "viz-version-info",
+        "surface": "viz",
+        "title": "Version and build info (viz)",
+        "tier": "advanced",
+        "indexTerms": [
+            "version",
+            "build time"
+        ]
+    },
+    {
+        "id": "editor-language-support",
+        "surface": "editor",
+        "title": "CodeMirror 6 FSL language support",
+        "tier": "core",
+        "indexTerms": [
+            "codemirror",
+            "cm6",
+            "language support",
+            "editor"
+        ]
+    },
+    {
+        "id": "editor-highlighting",
+        "surface": "editor",
+        "title": "Syntax highlighting",
+        "tier": "intermediate",
+        "indexTerms": [
+            "highlight",
+            "syntax color",
+            "deprecated marker"
+        ]
+    },
+    {
+        "id": "editor-keyword-sets",
+        "surface": "editor",
+        "title": "Keyword classification sets",
+        "tier": "advanced",
+        "indexTerms": [
+            "keywords",
+            "structural",
+            "property",
+            "enum"
+        ]
+    },
+    {
+        "id": "wc-viz",
+        "surface": "webcomponent",
+        "title": "<fsl-viz> diagram element",
+        "tier": "core",
+        "indexTerms": [
+            "fsl-viz",
+            "web component",
+            "custom element",
+            "diagram"
+        ]
+    },
+    {
+        "id": "wc-instance",
+        "surface": "webcomponent",
+        "title": "<fsl-instance> live machine element",
+        "tier": "intermediate",
+        "indexTerms": [
+            "fsl-instance",
+            "interactive",
+            "live machine"
+        ]
+    },
+    {
+        "id": "wc-bind",
+        "surface": "webcomponent",
+        "title": "<fsl-bind> data binding",
+        "tier": "intermediate",
+        "indexTerms": [
+            "fsl-bind",
+            "binding",
+            "data"
+        ]
+    },
+    {
+        "id": "wc-panels",
+        "surface": "webcomponent",
+        "title": "Inspector panels",
+        "tier": "advanced",
+        "indexTerms": [
+            "panel",
+            "inspector",
+            "info",
+            "effective properties"
+        ]
+    },
+    {
+        "id": "cli-dispatcher",
+        "surface": "cli",
+        "title": "The fsl dispatcher",
+        "tier": "core",
+        "indexTerms": [
+            "cli",
+            "fsl",
+            "dispatcher",
+            "--help",
+            "--version"
+        ]
+    },
+    {
+        "id": "cli-render",
+        "surface": "cli",
+        "title": "fsl render",
+        "tier": "core",
+        "indexTerms": [
+            "render",
+            "cli render",
+            "fsl-render"
+        ]
+    },
+    {
+        "id": "cli-render-targets",
+        "surface": "cli",
+        "title": "Render output formats",
+        "tier": "intermediate",
+        "indexTerms": [
+            "svg",
+            "png",
+            "jpeg",
+            "dot",
+            "html",
+            "format",
+            "export"
+        ]
+    },
+    {
+        "id": "cli-export-prompt",
+        "surface": "cli",
+        "title": "fsl export-system-prompt",
+        "tier": "advanced",
+        "indexTerms": [
+            "system prompt",
+            "llms.txt",
+            "export prompt"
+        ]
+    },
+    {
+        "id": "prompt-overview",
+        "surface": "llm-prompt",
+        "title": "System-prompt overview sections",
+        "tier": "intermediate",
+        "indexTerms": [
+            "llms.txt",
+            "system prompt",
+            "agent",
+            "concepts"
+        ]
+    },
+    {
+        "id": "prompt-examples",
+        "surface": "llm-prompt",
+        "title": "System-prompt worked examples",
+        "tier": "advanced",
+        "indexTerms": [
+            "example",
+            "basic machine",
+            "actions"
+        ]
+    },
+    {
+        "id": "api-language-service",
+        "surface": "api",
+        "title": "Language service helpers",
+        "tier": "advanced",
+        "indexTerms": [
+            "language service",
+            "completions",
+            "diagnostics",
+            "semantic spans"
+        ]
+    },
+    {
+        "id": "wc-editor-suite",
+        "surface": "webcomponent",
+        "title": "FSL editor web-component suite",
+        "tier": "advanced",
+        "indexTerms": [
+            "editor",
+            "help panel",
+            "docs",
+            "toolbar",
+            "footer",
+            "inspector",
+            "web component suite"
+        ]
+    }
+];

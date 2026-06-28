@@ -547,6 +547,25 @@
               ]
             },
             {
+              "kind": "method",
+              "name": "_sectionLabel",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "id",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Display label for a section id (falls back to the id for unknown sections)."
+            },
+            {
               "kind": "field",
               "name": "_go",
               "privacy": "private"

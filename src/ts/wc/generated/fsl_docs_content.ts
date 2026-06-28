@@ -811,6 +811,7 @@ export const DOCS_FEATURES: DocsFeature[] = [
     "indexTerms": [
       "editor",
       "help panel",
+      "docs",
       "toolbar",
       "footer",
       "inspector",
