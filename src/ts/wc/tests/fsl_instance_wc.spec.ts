@@ -481,15 +481,16 @@ describe('FslInstance shadow DOM', () => {
     document.body.appendChild(el);
     await (el as any).updateComplete;
 
-    // aux panel section → hidden attribute
-    expect(el.isPanelHidden('history')).toBe(false);
+    // aux panels (everything but viz/editor) start hidden by default; toggling
+    // shows the panel, toggling again re-hides it.
+    expect(el.isPanelHidden('history')).toBe(true);
     el.togglePanel('history');
     await (el as any).updateComplete;
-    expect(el.isPanelHidden('history')).toBe(true);
-    expect(el.shadowRoot!.querySelector('section.history')!.hasAttribute('hidden')).toBe(true);
-    el.togglePanel('history');                        // back on
-    await (el as any).updateComplete;
     expect(el.isPanelHidden('history')).toBe(false);
+    expect(el.shadowRoot!.querySelector('section.history')!.hasAttribute('hidden')).toBe(false);
+    el.togglePanel('history');                        // back to hidden
+    await (el as any).updateComplete;
+    expect(el.isPanelHidden('history')).toBe(true);
 
     // workbench panes → hide-viz / hide-editor classes
     el.setPanelHidden('viz', true);
@@ -503,16 +504,20 @@ describe('FslInstance shadow DOM', () => {
     await (el as any).updateComplete;
     expect(el.shadowRoot!.querySelector('.workbench')!.classList.contains('hide-viz')).toBe(false);
 
-    // actions + data-inspector are easing side docks in split layouts: lifted out
-    // of the stacked aux, and the toggle flips an 'open' class (not display:none).
-    expect(el.shadowRoot!.querySelector('section.data-inspector')).toBeNull();
-    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(true);
-    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
-    el.togglePanel('data-inspector');
-    el.togglePanel('actions');
-    await (el as any).updateComplete;
+    // In split layouts the events (hook-log) + data-inspector panels are easing
+    // side docks, lifted out of the stacked aux; actions instead lives in the
+    // stack as a horizontal bar. Docked panels start hidden, so both docks start
+    // closed; toggling one on flips its 'open' class (not display:none).
+    expect(el.shadowRoot!.querySelector('section.hook-log')).toBeNull();        // docked, not stacked
+    expect(el.shadowRoot!.querySelector('section.data-inspector')).toBeNull();  // docked, not stacked
+    expect(el.shadowRoot!.querySelector('section.actions')).not.toBeNull();     // now in the stack
+    expect(el.shadowRoot!.querySelector('.events-dock')!.classList.contains('open')).toBe(false);
     expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(false);
-    expect(el.shadowRoot!.querySelector('.actions-dock')!.classList.contains('open')).toBe(false);
+    el.togglePanel('hook-log');
+    el.togglePanel('data-inspector');
+    await (el as any).updateComplete;
+    expect(el.shadowRoot!.querySelector('.events-dock')!.classList.contains('open')).toBe(true);
+    expect(el.shadowRoot!.querySelector('.data-dock')!.classList.contains('open')).toBe(true);
 
     document.body.removeChild(el);
   });

@@ -414,7 +414,7 @@ export class FslInstance extends LitElement {
 
     /* layout modes: lr/rl (row) · tb/bt (column) · editor/viewer (single) · tabs. */
     .container.is-split { display: flex; flex-direction: column; }
-    /* the middle band: actions dock | workbench | data dock */
+    /* the middle band: events dock | workbench | data dock */
     .middle { display: flex; flex: 1 1 auto; min-height: 0; }
     .workbench { display: flex; flex: 1 1 auto; min-height: 0; min-width: 0; }
     /* side docks ease their width like the help drawer; closed = 0, open = a
@@ -425,7 +425,7 @@ export class FslInstance extends LitElement {
       transition: flex-basis 0.28s ease;
     }
     .dock.open { flex-basis: var(--fsl-dock-width, 17em); }
-    .actions-dock.open { border-right: 1px solid var(--fsl-color-border, #e5e5e5); }
+    .events-dock.open { border-right: 1px solid var(--fsl-color-border, #e5e5e5); }
     .data-dock.open    { border-left: 1px solid var(--fsl-color-border, #e5e5e5); }
     /* a docked panel fills the band's height; the data inspector then scrolls
        to the dock instead of its own 16em cap. */
@@ -533,8 +533,14 @@ export class FslInstance extends LitElement {
   private _autoMode: 'lr' | 'tb' = 'lr';
   /** Window-resize listener installed while `layout="auto"`, or null. */
   private _autoListener: (() => void) | null = null;
-  /** Slot names of panels currently hidden (driven by `<fsl-toolbar>`). */
-  private _hiddenPanels = new Set<string>();
+  /** Slot names of panels currently hidden (toggled by `<fsl-toolbar>`). Only the
+   *  editor and renderer (viz) show by default; every other panel starts hidden
+   *  and is opt-in. The toolbar reflects this since its toggles read
+   *  {@link isPanelHidden}. */
+  private _hiddenPanels = new Set<string>([
+    'actions', 'history', 'data-inspector', 'hook-log',
+    'info-panel', 'effective-properties', 'simulation', 'export',
+  ]);
 
   /**
    * The underlying machine instance, constructed at `connectedCallback`.
@@ -1328,8 +1334,8 @@ export class FslInstance extends LitElement {
           ${header}
           ${toolbar}
           <div class="middle">
-            <section class="dock actions-dock${this._hiddenPanels.has('actions') ? '' : ' open'}" part="actions-dock">
-              <slot name="actions"></slot>
+            <section class="dock events-dock${this._hiddenPanels.has('hook-log') ? '' : ' open'}" part="events-dock">
+              <slot name="hook-log"></slot>
             </section>
             <div class="workbench${this._hiddenPanels.has('viz') ? ' hide-viz' : ''}${this._hiddenPanels.has('editor') ? ' hide-editor' : ''}"
                  data-mode=${mode} style="--fsl-split:${this._split}%">
@@ -1365,22 +1371,23 @@ export class FslInstance extends LitElement {
   }
 
   /** The stacked middle panels, shared by both layouts. The toolbar slot is
-   *  rendered at the top of {@link render}. In split mode the `actions` and
-   *  `data-inspector` panels are lifted out into easing side docks, so
+   *  rendered at the top of {@link render}. In split mode the `hook-log` (events)
+   *  and `data-inspector` panels are lifted out into easing side docks, so
    *  `docked` is true there and they are skipped here to avoid duplicating
-   *  their slots. The state-section + footer stay in {@link render} so the
-   *  dynamic state-slot name binds at the top level.
+   *  their slots; `actions` instead lives here as a horizontal bar. The
+   *  state-section + footer stay in {@link render} so the dynamic state-slot
+   *  name binds at the top level.
    *
-   *  @param docked - True when actions + data-inspector are rendered as side
+   *  @param docked - True when hook-log + data-inspector are rendered as side
    *  docks (split layouts); they are then omitted from this stack. */
   private _renderAuxPanels(docked: boolean): TemplateResult {
     const h = (slot: string): boolean => this._hiddenPanels.has(slot);
     return html`
-      ${docked ? '' : html`<section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>`}
+      <section class="actions" ?hidden=${h('actions')}><slot name="actions"></slot></section>
       <section class="info-panel" ?hidden=${h('info-panel')}><slot name="info-panel"></slot></section>
       <section class="history" ?hidden=${h('history')}><slot name="history"></slot></section>
       ${docked ? '' : html`<section class="data-inspector" ?hidden=${h('data-inspector')}><slot name="data-inspector"></slot></section>`}
-      <section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>
+      ${docked ? '' : html`<section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>`}
       <section class="effective-properties" ?hidden=${h('effective-properties')}><slot name="effective-properties"></slot></section>
       <section class="simulation" ?hidden=${h('simulation')}><slot name="simulation"></slot></section>
       <section class="export" ?hidden=${h('export')}><slot name="export"></slot></section>
