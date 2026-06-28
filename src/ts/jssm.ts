@@ -2688,6 +2688,82 @@ class Machine<mDT> {
 
 
 
+  /** Run many weighted-random walks and return aggregate statistics.
+   *
+   *  Honors `%` transition probabilities (via the existing probabilistic
+   *  machinery).  Non-destructive: the machine's current state and
+   *  {@link Machine.rng_seed} are restored before returning, so calling this
+   *  never perturbs the live machine.  `montecarlo` mode (default) reports
+   *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+   *  mode runs one long walk and omits those fields.
+   *
+   *  Timing (`after`) decorations and data-guard conditions are not modeled
+   *  by this sampler; it walks the probabilistic graph topology.
+   *
+   *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+   *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+   *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+   *  @returns A {@link JssmStochasticSummary}.
+   *
+   *  @see Machine.stochastic_runs
+   *  @see Machine.probabilistic_walk
+   *  @see Machine.editor_config
+   *
+   *  @example
+   *  const m = sm`a 'go' -> b 'go' -> c;`;
+   *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
+   *  s.terminal_reached;  // => 100
+   */
+  stochastic_summary(opts: JssmStochasticOptions = {}): JssmStochasticSummary {
+
+    const mode       : JssmStochasticMode = opts.mode ?? 'montecarlo';
+    const saved_seed : number             = this._rng_seed;
+
+    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
+    const effective_seed: number = this._rng_seed;
+
+    const state_visits    : Map<string, number> = new Map();
+    const edge_traversals : Map<string, number> = new Map();
+    const path_lengths    : Array<number>       = [];
+
+    let terminal_reached = 0,
+        capped           = 0,
+        runs             = 0;
+
+    for (const run of this.stochastic_runs({ ...opts, mode })) {
+      runs += 1;
+      for (const s of run.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
+      for (const e of run.edges)  { edge_traversals.set(e, (edge_traversals.get(e) ?? 0) + 1); }
+      if (mode === 'montecarlo') {
+        if (run.terminated) { terminal_reached += 1; path_lengths.push(run.length); }
+        else                { capped += 1; }
+      }
+    }
+
+    // restore the PRNG so the call is non-destructive
+    this.rng_seed = saved_seed;
+
+    const total_visits         : number             = [...state_visits.values()].reduce((a, b) => a + b, 0);
+    const state_visit_fraction : Map<string, number> = new Map();
+    for (const [s, c] of state_visits) {
+      state_visit_fraction.set(s, total_visits === 0 ? 0 : c / total_visits);
+    }
+
+    const summary: JssmStochasticSummary = {
+      mode, runs, seed: effective_seed,
+      state_visits, state_visit_fraction, edge_traversals,
+    };
+
+    if (mode === 'montecarlo') {
+      summary.path_lengths     = path_lengths;
+      summary.terminal_reached = terminal_reached;
+      summary.capped           = capped;
+    }
+
+    return summary;
+
+  }
+
 
 
   /********
