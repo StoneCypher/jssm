@@ -22,22 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:15:37 AM
-
-Commit [ac60fe7a54abdb44da8fe584aa03bb3d8695b277](https://github.com/StoneCypher/jssm/commit/ac60fe7a54abdb44da8fe584aa03bb3d8695b277)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(help): cli + llm-prompt curriculum — full curriculum complete (0 uncovered)
-  * Phase 2 batch 6 (final): cli (dispatcher/render/render-targets/export-prompt) and llm-prompt (overview/examples). Every teachable feature across all 7 surfaces now has a tutorial page (47 authored this phase, 57 pages total). check_teaching_surface reports 0 uncovered features.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 28, 2026 10:13:50 AM
 
 Commit [e19f599930ebd7bf20a4d60908359ac663806281](https://github.com/StoneCypher/jssm/commit/e19f599930ebd7bf20a4d60908359ac663806281)

@@ -80,6 +80,33 @@ describe('pivot_series', () => {
 
 
 
+describe('footprint_series', () => {
+
+  test('reads footprintBytes off construct() rows, per shape, in run order', () => {
+    const runs = [
+      run({ pr: 1, results: [ { name: 'chain-10 construct()',  ops: 5, footprintBytes: 1000 },
+                              { name: 'dense-10 construct()',  ops: 3, footprintBytes: 2000 },
+                              { name: 'chain-10 transition()', ops: 9 } ] }),
+      run({ pr: 2, results: [ { name: 'chain-10 construct()',  ops: 6, footprintBytes: 1100 } ] })
+    ];
+    const fp = mpc.footprint_series(runs);
+    expect( [...fp.keys()] ).toEqual(expect.arrayContaining(['chain-10', 'dense-10']));
+    expect( fp.get('chain-10').map((p: { ops: number }) => p.ops) ).toEqual([1000, 1100]); // footprintBytes in the value field
+    expect( fp.get('chain-10').map((p: { key: string }) => p.key) ).toEqual(['1', '2']);
+  });
+
+  test('ignores non-construct rows and construct rows lacking a numeric footprintBytes', () => {
+    const runs = [ run({ pr: 1, results: [
+      { name: 'chain-10 construct()',  ops: 5 },                       // construct, but no footprintBytes
+      { name: 'chain-10 transition()', ops: 9, footprintBytes: 999 }   // has footprintBytes, but not construct
+    ] }) ];
+    expect( mpc.footprint_series(runs).size ).toBe(0);
+  });
+
+});
+
+
+
 describe('data_stamp (determinism)', () => {
 
   test('uses the newest data date, not wall clock', () =>
@@ -115,6 +142,24 @@ describe('render_chart', () => {
     expect(svg).toContain('Data through 20260611-010203');
     expect(svg).toContain('chain-200');     // legend entries survive compositing
     expect(svg).toContain('dense-200');
+  });
+
+  test('adds a footprintBytes panel (the 8th cell) when construct rows carry footprintBytes', () => {
+    const fpruns = [
+      run({ pr: 1, results: [ { name: 'chain-200 construct()',  ops: 10, footprintBytes: 40000 },
+                              { name: 'chain-200 transition()', ops: 100 } ] }),
+      run({ pr: 2, results: [ { name: 'chain-200 construct()',  ops: 20, footprintBytes: 42000 },
+                              { name: 'chain-200 transition()', ops: 200 } ] })
+    ];
+    const { panels } = mpc.render_chart(fpruns);
+    expect( [...panels.keys()] ).toContain('footprintBytes');
+    expect( panels.get('footprintBytes') ).toContain('bytes (log scale)');   // its own unit label, not ops/sec
+    expect( panels.get('footprintBytes') ).not.toContain('ops/sec');
+  });
+
+  test('omits the footprintBytes panel when no construct row carries footprintBytes', () => {
+    const { panels } = mpc.render_chart(two_runs);
+    expect( [...panels.keys()] ).not.toContain('footprintBytes');
   });
 
   test('is deterministic: identical input renders byte-identical output', () => {
@@ -198,7 +243,7 @@ describe('build_comment_body', () => {
   test('embeds each chart url and the publishing sha', () => {
     const urls = new Map([['construct()', 'https://x/construct.svg']]);
     const body = mpc.build_comment_body(urls, two_runs, 'abc123');
-    expect(body).toContain('![construct() ops/sec trend](https://x/construct.svg)');
+    expect(body).toContain('![construct() trend](https://x/construct.svg)');
     expect(body).toContain('abc123');
     expect(body).toContain('2 measured PRs');
   });

@@ -22,22 +22,6 @@ Published tags:
 
 &nbsp;
 
-## [Untagged] - Jun 28, 2026 10:15:37 AM
-
-Commit [ac60fe7a54abdb44da8fe584aa03bb3d8695b277](https://github.com/StoneCypher/jssm/commit/ac60fe7a54abdb44da8fe584aa03bb3d8695b277)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(help): cli + llm-prompt curriculum — full curriculum complete (0 uncovered)
-  * Phase 2 batch 6 (final): cli (dispatcher/render/render-targets/export-prompt) and llm-prompt (overview/examples). Every teachable feature across all 7 surfaces now has a tutorial page (47 authored this phase, 57 pages total). check_teaching_surface reports 0 uncovered features.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 28, 2026 10:13:50 AM
 
 Commit [e19f599930ebd7bf20a4d60908359ac663806281](https://github.com/StoneCypher/jssm/commit/e19f599930ebd7bf20a4d60908359ac663806281)
@@ -186,3 +170,23 @@ Merges [defb8518, 870640d7]
 version -> 5.150.0, took main's side for generated conflicts, full rebuild so the
 committed dist (which the release job publishes as-is, no rebuild) is the real
 5.150.0 build. Perf data = main's canonical.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 9:43:12 AM
+
+Commit [574a057d53829e26a27d8d9baf85156679a12322](https://github.com/StoneCypher/jssm/commit/574a057d53829e26a27d8d9baf85156679a12322)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(perf-chart): 8th footprint panel (footprintBytes by shape) — 5.149.2
+  * Wire the long-empty 8th cell of the 2-wide trend grid to machine footprint
+(footprintBytes per shape, from construct() rows). panel_svg gains a unit label;
+footprint_series pivots the footprints; render_chart appends the panel when
+present. perf_chart.svg now renders 8 panels (279 runs). 31/31 specs. No src/ts
+library logic change. (CRLF docs-build fix already landed separately on main, #877.)
