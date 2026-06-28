@@ -35,4 +35,22 @@ describe('<fsl-docs>', () => {
     expect(got).toMatch(/->/);
     el.remove();
   });
+
+  it('lists features in the Index grouped by surface, linked to teaching pages', async () => {
+    const el = await mount();
+    q(el, '[data-section="index"]').click(); await el.updateComplete;
+    expect(qa(el, 'h3').length).toBeGreaterThan(0);          // surface group headers (Index-specific)
+    expect(qa(el, '.nav a[data-page]').length).toBeGreaterThan(0);
+    el.remove();
+  });
+
+  it('search returns hits for a query', async () => {
+    const el = await mount();
+    q(el, '[data-section="search"]').click(); await el.updateComplete;
+    const input = q(el, '.search-input') as HTMLInputElement;
+    input.value = 'transition'; input.dispatchEvent(new Event('input'));
+    await el.updateComplete;
+    expect(qa(el, '.nav li').length).toBeGreaterThan(0);
+    el.remove();
+  });
 });

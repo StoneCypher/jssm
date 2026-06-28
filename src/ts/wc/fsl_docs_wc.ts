@@ -124,9 +124,42 @@ export class FslDocs extends LitElement {
     }
   }
 
-  // Index/Search implemented in Task 4.
-  protected _renderIndex(): TemplateResult { return this._renderSections(); }
-  protected _renderSearch(): TemplateResult { return this._renderSections(); }
+  private _renderIndex(): TemplateResult {
+    const teachesOf = (id: string): DocsPage | undefined => DOCS_PAGES.find(p => p.teaches.includes(id));
+    const bySurface: Record<string, typeof DOCS_FEATURES> = {};
+    for (const f of DOCS_FEATURES) { (bySurface[f.surface] ||= []).push(f); }
+    return html`
+      <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>Index</span></nav>
+      ${Object.keys(bySurface).sort().map(surface => html`
+        <h3>${surface}</h3>
+        <ul class="nav">${[...bySurface[surface]].sort((a, b) => a.title.localeCompare(b.title)).map(f => {
+          const pg = teachesOf(f.id);
+          return html`<li>${pg
+            ? html`<a data-page=${pg.id} @click=${() => this._go('page', pg.section, pg.id)}>${f.title}</a>`
+            : html`<span>${f.title}</span>`}</li>`;
+        })}</ul>`)}`;
+  }
+
+  private _renderSearch(): TemplateResult {
+    const q = this._query.trim().toLowerCase();
+    const corpus = [
+      ...DOCS_FEATURES.map(f => ({ title: f.title, kind: 'feature',
+        terms: [f.title, ...f.indexTerms].join(' ').toLowerCase(),
+        page: DOCS_PAGES.find(p => p.teaches.includes(f.id))?.id })),
+      ...DOCS_PAGES.map(p => ({ title: p.title, kind: 'page',
+        terms: [p.title, ...p.indexTerms].join(' ').toLowerCase(), page: p.id })),
+    ];
+    const hits = q ? corpus.filter(c => c.terms.includes(q)).slice(0, 40) : [];
+    return html`
+      <nav class="crumb"><a @click=${() => this._go('sections')}>Docs</a> / <span>Search</span></nav>
+      <input class="search-input" type="search" placeholder="Search the docs…"
+        .value=${this._query} @input=${(e: Event) => { this._query = (e.target as HTMLInputElement).value; }}>
+      <ul class="nav">${hits.length
+        ? hits.map(h => html`<li>${h.page
+            ? html`<a data-page=${h.page} @click=${() => { const p = DOCS_PAGES.find(x => x.id === h.page)!; this._go('page', p.section, p.id); }}>${h.title}</a>`
+            : html`<span>${h.title}</span>`} <em>${h.kind}</em></li>`)
+        : (q ? html`<li class="empty">No matches.</li>` : html``)}</ul>`;
+  }
 }
 
 declare global {
