@@ -159,6 +159,11 @@ FslDocs.styles = css `
     .docs-page .fsl-tok-arrow   { color: var(--fsl-tok-arrow, var(--_fsl-accent, #6a4cd6)); font-weight: 600; }
     .docs-page .fsl-tok-number  { color: var(--fsl-tok-number,  #3b82f6); }
     .docs-page .fsl-tok-keyword { color: var(--fsl-tok-keyword, #a371f7); font-weight: 600; }
+    .docs-page .fsl-tok-key     { color: var(--fsl-tok-key,     #0e7490); }
+    .docs-page .fsl-swatch {
+      display: inline-block; width: 0.72em; height: 0.72em; margin-right: 0.3em; vertical-align: baseline;
+      border: 1px solid var(--_fsl-border, rgba(127,127,127,0.5)); border-radius: 2px;
+    }
     .docs-load-example { display: block; margin-top: 0.4rem; font: inherit; font-size: 0.7rem; cursor: pointer; }
     .search-input { width: 100%; box-sizing: border-box; padding: 0.35rem 0.5rem; margin: 0.25rem 0 0.5rem;
       background: var(--_fsl-surface); color: var(--_fsl-text); border: 1px solid var(--_fsl-border); border-radius: 4px; }

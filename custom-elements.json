@@ -435,6 +435,54 @@
           "description": "Parse a fenced-code info string like `fsl {teaches: x, run: true}`."
         },
         {
+          "kind": "variable",
+          "name": "FSL_KEYWORDS",
+          "default": "new Set([ 'state', 'start_state', 'end_state', 'active_state', 'terminal_state', 'hooked_state', 'transition', 'graph', 'on', 'enter', 'exit', 'do', 'arrange', 'arrange-start', 'arrange-end', 'machine_name', 'machine_author', 'machine_license', 'machine_version', 'machine_comment', 'fsl_version', 'flow', 'graph_layout', 'allow_islands', 'allows_override', 'required', 'true', 'false', 'null', 'undefined', ])",
+          "description": "Structural / attribute keywords highlighted in fsl code fences."
+        },
+        {
+          "kind": "variable",
+          "name": "FSL_COLOR_KEYS",
+          "default": "new Set([ 'color', 'text-color', 'background-color', 'border-color', 'edge-color', ])",
+          "description": "Attribute keys whose value is a color, mirroring the editor's `COLOR_KEYS`\n(language_service). The value token following one of these (plus its `:`) is\ntagged `color` and rendered with a swatch, matching the editor overlay."
+        },
+        {
+          "kind": "function",
+          "name": "tokenizeFsl",
+          "return": {
+            "type": {
+              "text": "FslToken[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "src",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Tokenize FSL source into `{cls, text}` runs for syntax highlighting. A pure,\nregex-driven scanner — never parses, so it cannot throw on malformed input.\n`cls` is null for uncategorized text (punctuation, identifiers, whitespace).\n\nBeyond the lexical classes it tracks one bit of structural context: an\nidentifier immediately before a `:` is retro-tagged `key` (an attribute key,\nunless it is already a `keyword`), and the value token after a color key's\ncolon — or any hex literal — is tagged `color`. The context never spans a\n`;`, so a value can't leak past its statement."
+        },
+        {
+          "kind": "function",
+          "name": "highlightFsl",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "src",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Highlight FSL source to an HTML string of `<span class=\"fsl-tok-…\">` runs.\nA `color` token is preceded by an inline `<span class=\"fsl-swatch\">` whose\nbackground is the literal color text (a CSS-valid named color or hex), giving\nthe docs the same swatch the editor overlay shows. Color text is a hex or\nidentifier run, so it is a safe `background:` value."
+        },
+        {
           "kind": "function",
           "name": "renderMarkdown",
           "return": {
@@ -459,6 +507,38 @@
           "name": "parseFenceInfo",
           "declaration": {
             "name": "parseFenceInfo",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FSL_KEYWORDS",
+          "declaration": {
+            "name": "FSL_KEYWORDS",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FSL_COLOR_KEYS",
+          "declaration": {
+            "name": "FSL_COLOR_KEYS",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "tokenizeFsl",
+          "declaration": {
+            "name": "tokenizeFsl",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "highlightFsl",
+          "declaration": {
+            "name": "highlightFsl",
             "module": "src/ts/wc/fsl_docs_markdown.ts"
           }
         },
