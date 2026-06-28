@@ -900,4 +900,24 @@ describe('FslInstance permalink restore', () => {
     expect(err!.message).toMatch(/no FSL source/);
   });
 
+  it('does not throw when an action fires before the deferred machine is built', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#act=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'act';
+    const btn = document.createElement('button');
+    btn.setAttribute('data-jssm-action', 'go');
+    el.appendChild(btn);
+    document.body.appendChild(el);                 // deferred — _machine still undefined
+
+    // Fire the wired action during the restore window: it must be a no-op, not a
+    // throw through the `machine` getter.
+    expect(() => btn.click()).not.toThrow();
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
 });

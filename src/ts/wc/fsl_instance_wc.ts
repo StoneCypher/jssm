@@ -1345,6 +1345,10 @@ export class FslInstance extends LitElement {
   }): void {
 
     const handler: EventListener = (e: Event) => {
+      // A permalink-only instance wires its actions at connect but builds its
+      // machine asynchronously (deferred restore). An event in that window is a
+      // no-op rather than a throw via the `machine` getter.
+      if (this._machine === undefined) { return; }
       if (config.prevent_default)  { e.preventDefault(); }
       if (config.stop_propagation) { e.stopPropagation(); }
 
