@@ -849,3 +849,25 @@ describe('FslInstance theming', () => {
   });
 
 });
+
+describe('FslInstance permalink restore', () => {
+
+  it('restores its machine from the URL fragment when given an id', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#mach=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'mach';
+    el.setAttribute('fsl', 'Left -> Right;');        // declared source — should be overridden
+    document.body.appendChild(el);
+    await el.updateComplete;
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(el.fsl).toBe('Up -> Down;');
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
+});

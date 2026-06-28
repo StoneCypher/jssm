@@ -8,6 +8,7 @@ import {
   wrap_user_handler,
 } from './fsl_hook_wc.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { FslPermalinkSync } from './fsl_permalink_sync.js';
 import {
   BUILTIN_THEMES, resolve_theme_mode, resolve_palette, palette_to_vars,
   register_palette_properties, type ThemeMode, type ThemeRegistry,
@@ -391,6 +392,13 @@ export function split_ratio(coord: number, start: number, size: number): number 
  * @slot footer - Footer slot.
  */
 export class FslInstance extends LitElement {
+
+  /** Bind this instance to a URL-fragment segment keyed by its `uhash`/`id`
+   *  (inert if it has neither): restore on connect, write debounced on edit. */
+  constructor() {
+    super();
+    new FslPermalinkSync(this);
+  }
 
   static styles = css`
     :host {
