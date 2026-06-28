@@ -3,6 +3,7 @@ import { circular_buffer } from 'circular_buffer_js';
 import { FslDirections } from './jssm_types';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow';
 import { compile, make, wrap_parse } from './jssm_compiler';
+import { canonical_config } from './fsl_canonical';
 import { theme_mapping, base_theme } from './jssm_theme';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, array_box_if_string, name_bind_prop_and_state, gen_splitmix32, sleep } from './jssm_util';
 import * as constants from './jssm_constants';
@@ -293,7 +294,7 @@ function find_connected_components(states, edges) {
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
     constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, val_definition, vals, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, allows_override, config_allows_override, allow_islands, rng_seed, time_source, timeout_source, clear_timeout_source }) {
-        this._time_source = () => new Date().getTime();
+        this._time_source = time_source !== null && time_source !== void 0 ? time_source : (() => new Date().getTime());
         this._create_started = this._time_source();
         this._instance_name = instance_name;
         this._states = new Map();
@@ -1238,8 +1239,21 @@ class Machine {
             jssm_version: version,
             history: this._history.toArray(),
             history_capacity: this._history.capacity,
-            timestamp: new Date().getTime(),
+            timestamp: this._time_source(),
         };
+    }
+    /**
+     *  The RFC 8785 canonical-config identity of the current configuration
+     *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+     *  hashing.  Excludes envelope fields (timestamp/comment/history).
+     *
+     *  @returns The canonical config string.
+     *  @example
+     *    import { sm } from 'jssm';
+     *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
+     */
+    canonical() {
+        return canonical_config(this._state, this._data);
     }
     /** Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
      *  FSL `graph_layout` directive.

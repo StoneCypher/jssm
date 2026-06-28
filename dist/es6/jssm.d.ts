@@ -627,6 +627,17 @@ declare class Machine<mDT> {
      *
      */
     serialize(comment?: string | undefined): JssmSerialization<mDT>;
+    /**
+     *  The RFC 8785 canonical-config identity of the current configuration
+     *  (`{v, state, data}`) — the byte-stable, replay-derivable core used for
+     *  hashing.  Excludes envelope fields (timestamp/comment/history).
+     *
+     *  @returns The canonical config string.
+     *  @example
+     *    import { sm } from 'jssm';
+     *    sm`a -> b;`.canonical().includes('"state":"a"');  // => true
+     */
+    canonical(): string;
     /** Get the graph layout direction (e.g. `'LR'`, `'TB'`).  Set via the
      *  FSL `graph_layout` directive.
      *  @returns The layout string, or the default if not set.

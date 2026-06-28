@@ -18,7 +18,7 @@ Please edit the file it's derived from, instead: `./src/md/readme_base.md`
 
 
 
-* Generated for version 6.0.0-alpha.11 at 6/22/2026, 7:09:43 AM
+* Generated for version 6.0.0-alpha.11 at 6/27/2026, 9:37:06 PM
 
 -->
 # jssm 6.0.0-alpha.11
@@ -299,7 +299,7 @@ That decision shows up everywhere downstream:
   or run `npm run benny` against your own machine.
 
 - **More thoroughly tested than any other JavaScript state-machine
-  library.**  8,166 tests at 100.0% line coverage
+  library.**  8,212 tests at 100.0% line coverage
   ([report](https://coveralls.io/github/StoneCypher/jssm)), plus
   fuzz testing via `fast-check`, with parser test data across ten natural
   languages and Emoji.
@@ -432,11 +432,11 @@ If your contribution is missing here, please open an issue.
 
 <br/>
 
-***8,166 tests***, run 72,219 times.
+***8,212 tests***, run 72,463 times.
 
-- 7,519 specs with 100.0% coverage
-- 647 fuzz tests with 21.1% coverage
-- 10,406 TypeScript lines - 0.8 tests per line, 6.9 generated tests per line
+- 7,563 specs with 100.0% coverage
+- 649 fuzz tests with 22.8% coverage
+- 10,647 TypeScript lines - 0.8 tests per line, 6.8 generated tests per line
 
 [![Actions Status](https://github.com/StoneCypher/jssm/workflows/Node%20CI/badge.svg)](https://github.com/StoneCypher/jssm/actions)
 [![NPM version](https://img.shields.io/npm/v/jssm.svg)](https://www.npmjs.com/package/jssm)

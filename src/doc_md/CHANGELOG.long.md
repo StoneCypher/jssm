@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-414 merges; 305 releases
+452 merges; 328 releases
 
 
 
@@ -12,8 +12,4968 @@ All notable changes to this project will be documented in this file.
 
 Published tags:
 
-<a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
+<a href="#5__147__8">5.147.8</a>, <a href="#5__147__7">5.147.7</a>, <a href="#5__147__6">5.147.6</a>, <a href="#5__147__5">5.147.5</a>, <a href="#5__147__4">5.147.4</a>, <a href="#5__147__3">5.147.3</a>, <a href="#5__147__2">5.147.2</a>, <a href="#5__147__1">5.147.1</a>, <a href="#5__147__0">5.147.0</a>, <a href="#5__146__0">5.146.0</a>, <a href="#5__145__6">5.145.6</a>, <a href="#5__145__4">5.145.4</a>, <a href="#5__145__3">5.145.3</a>, <a href="#5__145__2">5.145.2</a>, <a href="#5__145__1">5.145.1</a>, <a href="#5__145__0">5.145.0</a>, <a href="#5__144__8">5.144.8</a>, <a href="#5__144__7">5.144.7</a>, <a href="#5__144__5">5.144.5</a>, <a href="#5__144__4">5.144.4</a>, <a href="#5__144__3">5.144.3</a>, <a href="#5__144__2">5.144.2</a>, <a href="#5__144__1">5.144.1</a>, <a href="#5__144__0">5.144.0</a>, <a href="#5__143__35">5.143.35</a>, <a href="#5__143__34">5.143.34</a>, <a href="#5__143__33">5.143.33</a>, <a href="#5__143__31">5.143.31</a>, <a href="#5__143__30">5.143.30</a>, <a href="#5__143__29">5.143.29</a>, <a href="#5__143__28">5.143.28</a>, <a href="#5__143__27">5.143.27</a>, <a href="#5__143__26">5.143.26</a>, <a href="#5__143__25">5.143.25</a>, <a href="#5__143__24">5.143.24</a>, <a href="#5__143__23">5.143.23</a>, <a href="#5__143__22">5.143.22</a>, <a href="#5__143__21">5.143.21</a>, <a href="#5__143__20">5.143.20</a>, <a href="#5__143__16">5.143.16</a>, <a href="#5__143__15">5.143.15</a>, <a href="#5__143__12">5.143.12</a>, <a href="#5__143__11">5.143.11</a>, <a href="#5__143__10">5.143.10</a>, <a href="#5__143__9">5.143.9</a>, <a href="#5__143__8">5.143.8</a>, <a href="#5__143__7">5.143.7</a>, <a href="#5__143__6">5.143.6</a>, <a href="#5__143__5">5.143.5</a>, <a href="#5__143__4">5.143.4</a>, <a href="#5__143__3">5.143.3</a>, <a href="#5__143__2">5.143.2</a>, <a href="#5__143__1">5.143.1</a>, <a href="#5__143__0">5.143.0</a>, <a href="#5__142__4">5.142.4</a>, <a href="#5__142__3">5.142.3</a>, <a href="#5__142__2">5.142.2</a>, <a href="#5__142__1">5.142.1</a>, <a href="#5__142__0">5.142.0</a>, <a href="#5__141__14">5.141.14</a>, <a href="#5__141__13">5.141.13</a>, <a href="#5__141__12">5.141.12</a>, <a href="#5__141__11">5.141.11</a>, <a href="#5__141__10">5.141.10</a>, <a href="#5__141__9">5.141.9</a>, <a href="#5__141__8">5.141.8</a>, <a href="#5__141__6">5.141.6</a>, <a href="#5__141__5">5.141.5</a>, <a href="#5__141__4">5.141.4</a>, <a href="#5__141__3">5.141.3</a>, <a href="#5__141__2">5.141.2</a>, <a href="#5__141__1">5.141.1</a>, <a href="#5__141__0">5.141.0</a>, <a href="#5__139__0">5.139.0</a>, <a href="#5__138__0">5.138.0</a>, <a href="#5__137__0">5.137.0</a>, <a href="#5__136__0">5.136.0</a>, <a href="#5__135__0">5.135.0</a>, <a href="#5__134__0">5.134.0</a>, <a href="#5__133__0">5.133.0</a>, <a href="#5__132__0">5.132.0</a>, <a href="#5__131__0">5.131.0</a>, <a href="#5__130__0">5.130.0</a>, <a href="#5__129__0">5.129.0</a>, <a href="#5__128__0">5.128.0</a>, <a href="#5__127__0">5.127.0</a>, <a href="#5__126__0">5.126.0</a>, <a href="#5__125__1">5.125.1</a>, <a href="#5__125__0">5.125.0</a>, <a href="#5__124__1">5.124.1</a>, <a href="#5__124__0">5.124.0</a>, <a href="#5__123__0">5.123.0</a>, <a href="#5__122__4">5.122.4</a>, <a href="#5__122__3">5.122.3</a>, <a href="#5__122__2">5.122.2</a>, <a href="#5__121__1">5.121.1</a>, <a href="#5__121__0">5.121.0</a>, <a href="#5__120__2">5.120.2</a>, <a href="#5__120__0">5.120.0</a>, <a href="#5__119__0">5.119.0</a>, <a href="#5__118__0">5.118.0</a>, <a href="#5__113__0">5.113.0</a>, <a href="#5__112__4">5.112.4</a>, <a href="#5__112__3">5.112.3</a>, <a href="#5__112__0">5.112.0</a>, <a href="#5__111__0">5.111.0</a>, <a href="#5__110__1">5.110.1</a>, <a href="#5__109__0">5.109.0</a>, <a href="#5__108__0">5.108.0</a>, <a href="#5__107__2">5.107.2</a>, <a href="#5__107__0">5.107.0</a>, <a href="#5__106__0">5.106.0</a>, <a href="#5__105__6">5.105.6</a>, <a href="#5__105__4">5.105.4</a>, <a href="#5__105__3">5.105.3</a>, <a href="#5__105__2">5.105.2</a>, <a href="#5__105__1">5.105.1</a>, <a href="#5__105__0">5.105.0</a>, <a href="#5__104__2">5.104.2</a>, <a href="#5__104__1">5.104.1</a>, <a href="#5__103__0">5.103.0</a>, <a href="#5__102__1">5.102.1</a>, <a href="#5__101__0">5.101.0</a>, <a href="#5__100__0">5.100.0</a>, <a href="#5__99__0">5.99.0</a>, <a href="#5__98__8">5.98.8</a>, <a href="#5__98__7">5.98.7</a>, <a href="#5__98__2">5.98.2</a>, <a href="#5__98__0">5.98.0</a>, <a href="#5__97__1">5.97.1</a>, <a href="#5__97__0">5.97.0</a>, <a href="#5__96__1">5.96.1</a>, <a href="#5__96__0">5.96.0</a>, <a href="#5__95__0">5.95.0</a>, <a href="#5__94__0">5.94.0</a>, <a href="#5__93__0">5.93.0</a>, <a href="#5__91__1">5.91.1</a>, <a href="#5__91__0">5.91.0</a>, <a href="#5__90__1">5.90.1</a>, <a href="#5__90__0">5.90.0</a>, <a href="#5__89__6">5.89.6</a>, <a href="#5__89__3">5.89.3</a>, <a href="#5__89__2">5.89.2</a>, <a href="#5__89__1">5.89.1</a>, <a href="#5__89__0">5.89.0</a>, <a href="#5__88__4">5.88.4</a>, <a href="#5__88__3">5.88.3</a>, <a href="#5__88__2">5.88.2</a>, <a href="#5__88__1">5.88.1</a>, <a href="#5__88__0">5.88.0</a>, <a href="#5__87__0">5.87.0</a>, <a href="#5__86__3">5.86.3</a>, <a href="#5__86__2">5.86.2</a>, <a href="#5__86__1">5.86.1</a>, <a href="#5__86__0">5.86.0</a>, <a href="#5__85__11">5.85.11</a>, <a href="#5__85__10">5.85.10</a>, <a href="#5__85__9">5.85.9</a>, <a href="#5__85__8">5.85.8</a>, <a href="#5__85__7">5.85.7</a>, <a href="#5__85__6">5.85.6</a>, <a href="#5__85__5">5.85.5</a>, <a href="#5__85__4">5.85.4</a>, <a href="#5__85__3">5.85.3</a>, <a href="#5__85__2">5.85.2</a>, <a href="#5__85__1">5.85.1</a>, <a href="#5__85__0">5.85.0</a>, <a href="#5__84__1">5.84.1</a>, <a href="#5__84__0">5.84.0</a>, <a href="#5__83__2">5.83.2</a>, <a href="#5__83__1">5.83.1</a>, <a href="#5__83__0">5.83.0</a>, <a href="#5__82__5">5.82.5</a>, <a href="#5__82__4">5.82.4</a>, <a href="#5__82__3">5.82.3</a>, <a href="#5__82__2">5.82.2</a>, <a href="#5__82__1">5.82.1</a>, <a href="#5__82__0">5.82.0</a>, <a href="#5__81__2">5.81.2</a>, <a href="#5__81__0">5.81.0</a>, <a href="#5__80__1">5.80.1</a>, <a href="#5__80__0">5.80.0</a>, <a href="#5__79__18">5.79.18</a>, <a href="#5__79__17">5.79.17</a>, <a href="#5__79__16">5.79.16</a>, <a href="#5__79__15">5.79.15</a>, <a href="#5__79__11">5.79.11</a>, <a href="#5__79__10">5.79.10</a>, <a href="#5__79__9">5.79.9</a>, <a href="#5__79__8">5.79.8</a>, <a href="#5__79__6">5.79.6</a>, <a href="#5__79__4">5.79.4</a>, <a href="#5__79__3">5.79.3</a>, <a href="#5__79__2">5.79.2</a>, <a href="#5__79__1">5.79.1</a>, <a href="#5__79__0">5.79.0</a>, <a href="#5__78__0">5.78.0</a>, <a href="#5__77__1">5.77.1</a>, <a href="#5__77__0">5.77.0</a>, <a href="#5__76__2">5.76.2</a>, <a href="#5__76__0">5.76.0</a>, <a href="#5__75__1">5.75.1</a>, <a href="#5__75__0">5.75.0</a>, <a href="#5__74__0">5.74.0</a>, <a href="#5__73__1">5.73.1</a>, <a href="#5__73__0">5.73.0</a>, <a href="#5__72__5">5.72.5</a>, <a href="#5__72__4">5.72.4</a>, <a href="#5__72__3">5.72.3</a>, <a href="#5__72__2">5.72.2</a>, <a href="#5__72__1">5.72.1</a>, <a href="#5__72__0">5.72.0</a>, <a href="#5__71__1">5.71.1</a>, <a href="#5__71__0">5.71.0</a>, <a href="#5__70__36">5.70.36</a>, <a href="#5__70__35">5.70.35</a>, <a href="#5__70__34">5.70.34</a>, <a href="#5__70__33">5.70.33</a>, <a href="#5__70__32">5.70.32</a>, <a href="#5__70__31">5.70.31</a>, <a href="#5__70__30">5.70.30</a>, <a href="#5__70__29">5.70.29</a>, <a href="#5__70__28">5.70.28</a>, <a href="#5__70__27">5.70.27</a>, <a href="#5__70__26">5.70.26</a>, <a href="#5__70__25">5.70.25</a>, <a href="#5__70__24">5.70.24</a>, <a href="#5__70__23">5.70.23</a>, <a href="#5__70__22">5.70.22</a>, <a href="#5__70__21">5.70.21</a>, <a href="#5__70__20">5.70.20</a>, <a href="#5__70__19">5.70.19</a>, <a href="#5__70__18">5.70.18</a>, <a href="#5__70__16">5.70.16</a>, <a href="#5__70__15">5.70.15</a>, <a href="#5__70__14">5.70.14</a>, <a href="#5__70__13">5.70.13</a>, <a href="#5__70__12">5.70.12</a>, <a href="#5__70__11">5.70.11</a>, <a href="#5__70__10">5.70.10</a>, <a href="#5__70__9">5.70.9</a>, <a href="#5__70__8">5.70.8</a>, <a href="#5__70__7">5.70.7</a>, <a href="#5__70__6">5.70.6</a>, <a href="#5__70__5">5.70.5</a>, <a href="#5__70__4">5.70.4</a>, <a href="#5__70__3">5.70.3</a>, <a href="#5__70__2">5.70.2</a>, <a href="#5__70__1">5.70.1</a>, <a href="#5__70__0">5.70.0</a>, <a href="#5__69__4">5.69.4</a>, <a href="#5__69__3">5.69.3</a>, <a href="#5__69__2">5.69.2</a>, <a href="#5__69__0">5.69.0</a>, <a href="#5__68__0">5.68.0</a>, <a href="#5__67__2">5.67.2</a>, <a href="#5__67__0">5.67.0</a>, <a href="#5__66__0">5.66.0</a>, <a href="#5__65__14">5.65.14</a>, <a href="#5__65__12">5.65.12</a>, <a href="#5__65__11">5.65.11</a>, <a href="#5__65__10">5.65.10</a>, <a href="#5__65__9">5.65.9</a>, <a href="#5__65__8">5.65.8</a>, <a href="#5__65__7">5.65.7</a>, <a href="#5__65__5">5.65.5</a>, <a href="#5__65__4">5.65.4</a>, <a href="#5__65__3">5.65.3</a>, <a href="#5__65__2">5.65.2</a>, <a href="#5__65__1">5.65.1</a>, <a href="#5__65__0">5.65.0</a>, <a href="#5__64__2">5.64.2</a>, <a href="#5__64__1">5.64.1</a>, <a href="#5__64__0">5.64.0</a>, <a href="#5__63__0">5.63.0</a>, <a href="#5__62__0">5.62.0</a>, <a href="#5__61__4">5.61.4</a>, <a href="#5__61__3">5.61.3</a>, <a href="#5__61__2">5.61.2</a>, <a href="#5__61__1">5.61.1</a>, <a href="#5__60__4">5.60.4</a>, <a href="#5__60__3">5.60.3</a>, <a href="#5__60__0">5.60.0</a>, <a href="#5__59__1">5.59.1</a>, <a href="#5__59__0">5.59.0</a>, <a href="#5__58__1">5.58.1</a>, <a href="#5__58__0">5.58.0</a>, <a href="#5__57__1">5.57.1</a>, <a href="#5__57__0">5.57.0</a>, <a href="#5__56__2">5.56.2</a>, <a href="#5__56__1">5.56.1</a>, <a href="#5__55__0">5.55.0</a>, <a href="#5__54__0">5.54.0</a>, <a href="#5__53__0">5.53.0</a>, <a href="#5__52__0">5.52.0</a>, <a href="#5__51__0">5.51.0</a>, <a href="#5__50__0">5.50.0</a>, <a href="#5__49__0">5.49.0</a>, <a href="#5__48__0">5.48.0</a>, <a href="#5__47__0">5.47.0</a>, <a href="#5__46__0">5.46.0</a>, <a href="#5__45__2">5.45.2</a>, <a href="#5__45__0">5.45.0</a>, <a href="#5__44__0">5.44.0</a>, <a href="#5__43__2">5.43.2</a>, <a href="#v5__42__0">v5.42.0</a>, <a href="#5__42__0">5.42.0</a>, <a href="#v5__41__15">v5.41.15</a>, <a href="#5__41__15">5.41.15</a>, <a href="#v5__41__14">v5.41.14</a>, <a href="#5__41__14">5.41.14</a>, <a href="#v5__41__12">v5.41.12</a>, <a href="#5__41__12">5.41.12</a>, <a href="#v5__41__10">v5.41.10</a>, <a href="#5__41__10">5.41.10</a>, <a href="#v5__41__9">v5.41.9</a>, <a href="#5__41__9">5.41.9</a>, <a href="#v5__41__8">v5.41.8</a>, <a href="#5__41__8">5.41.8</a>, <a href="#v5__41__7">v5.41.7</a>, <a href="#v5__41__2">v5.41.2</a>, <a href="#v5__41__1">v5.41.1</a>, <a href="#v5__32__14">v5.32.14</a>, <a href="#5__14__0">5.14.0</a>, <a href="#5__12__0">5.12.0</a>, <a href="#5__11__12">5.11.12</a>, <a href="#5__11__1">5.11.1</a>, <a href="#5__11__0">5.11.0</a>
 
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:35:00 PM
+
+Commit [3137322df05185578a121ebad7c896d7a4093810](https://github.com/StoneCypher/jssm/commit/3137322df05185578a121ebad7c896d7a4093810)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): register palette tokens via CSS.registerProperty so the ease animates
+  * The previous theme-ease shipped @property inside the host's shadow stylesheet,
+which does NOT register the custom properties globally — so transitioning them
+was a silent no-op (the colors jumped). register_palette_properties() now
+registers the nine --fsl-color-* tokens as inheriting <color>s in JS on connect;
+the existing :host transition then interpolates them, and because children
+inherit the animating value, the whole suite cross-fades (verified: mid-switch
+the host AND a slotted widget read the same intermediate color). Idempotent +
+no-op where CSS.registerProperty is absent. 6889 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:20:45 PM
+
+Commit [c7058d7cecdbd453471d7e9df073429d9b4c7c5a](https://github.com/StoneCypher/jssm/commit/c7058d7cecdbd453471d7e9df073429d9b4c7c5a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): ease the palette on theme switch
+  * Registers the --fsl-color-* tokens as @property <color> (inheriting) and adds a
+0.28s transition on the host. Because the host transitions its own palette
+tokens, every widget's var(--fsl-color-*) re-resolves to the animating value
+each frame, so the whole suite cross-fades when the theme or mode changes — with
+no per-widget wiring. Respects prefers-reduced-motion; degrades to an instant
+switch where @property is unsupported. 6886 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:20:24 PM
+
+Commit [767e2c5c8c6f6fff24a23110f41e5459792ab8be](https://github.com/StoneCypher/jssm/commit/767e2c5c8c6f6fff24a23110f41e5459792ab8be)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(bench): import sm from TS source in shapes spec (trimmed CI has no dist bundle)
+  * benchmark_scaling_shapes.spec.ts required ../../../dist/jssm.es5.cjs, which the
+trimmed ci_test matrix build does not produce (only the full build does), so the
+spec died with MODULE_NOT_FOUND on every matrix leg while test-main-full passed.
+Import { sm } from the TS source like the canonical src/ts specs do; vitest
+resolves it without any build artifact.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:20:20 PM
+
+Commit [ff7874ae9fa1c1625cd160e7bd9ccdfc210cf6c9](https://github.com/StoneCypher/jssm/commit/ff7874ae9fa1c1625cd160e7bd9ccdfc210cf6c9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): export destination radio — clipboard / last dir / choose directory
+  * The Export menu gains a destination radio group above a separator above the
+formats: 'to clipboard', 'to <name>' (the last saved directory's final segment,
+shown only once one is known), and 'choose directory…'. fsl-export now carries
+`destination`; the toolbar stays presentational (no File System Access calls) and
+the embedder fulfills the save, reporting the chosen dir back via the toolbar's
+`lastDirectory` property. The demo wires clipboard + the File System Access API.
+6886 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:11:52 PM
+
+Commit [45162096f0396e0152b526b14e5b2497957dc617](https://github.com/StoneCypher/jssm/commit/45162096f0396e0152b526b14e5b2497957dc617)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.147.9 — override-free perf backfill harness
+  * Bump + full rebuild for the override-free benchmark harness work (T4-T8):
+- transition/action/messy benchmarks run with zero machine.override() and no
+  allows_override: FSL, replaced by closed-walk laps + per-transition
+  normalization, so the graviton backfill parses and runs on engines back to
+  5.16.0 (T7-verified at 5.16.0 and 5.60.0).
+- graviton_perf.cjs covers the pre-5.98 es5 cjs bundle names; perf_backfill.yml
+  gains a force input to re-baseline already-measured releases (5.130-5.143).
+  * No src/ts library logic change; dist/version diffs are the embedded version and
+build-time stamp.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:04:28 PM
+
+Commit [824f315e2c18cfc5818922d68c13d3fa44729e0e](https://github.com/StoneCypher/jssm/commit/824f315e2c18cfc5818922d68c13d3fa44729e0e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): theme pulldown — System/Light/Dark modes + named-theme registry
+  * Replaces the sun/moon buttons with a Theme pulldown: a mode radio group
+(System/Light/Dark) and, below a divider, a theme-name radio group fed from the
+host's registry (built-in Default + Solarized; a consumer can extend it).
+  * Host theming is now registry-driven (new fsl_themes module): `theme` is the
+mode, `theme-name` selects the palette, and `themes` is the registry. The host
+resolves mode×name to a palette and writes --fsl-color-* inline (System follows
+prefers-color-scheme via matchMedia, live-updating), reflects the chosen variant
+to `resolved-theme`, and drives each slotted editor's CodeMirror theme. The
+static dark CSS is gone (light stays as the pre-JS fallback). Demo mirrors
+resolved-theme onto the help drawer. The Theme menu stays open across picks so
+mode + theme can be set in one trip. 6886 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 8:42:29 PM
+
+Commit [4df8ff98af77a46be2d9dbb035aafc1cb2118970](https://github.com/StoneCypher/jssm/commit/4df8ff98af77a46be2d9dbb035aafc1cb2118970)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): mark T8 step 1 done (workflow --force input, cf2e13a4)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 8:42:02 PM
+
+Commit [cf2e13a4275b0f084ecc12ec18cc221d92a65168](https://github.com/StoneCypher/jssm/commit/cf2e13a4275b0f084ecc12ec18cc221d92a65168)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci(perf): add force input to perf_backfill to re-measure existing releases
+  * The override-free re-baseline needs to re-measure 5.130-5.143, which already
+have c8g results and would otherwise be skipped by graviton_perf's dedup. Add a
+force boolean input (default false) threaded through as --force (already a
+supported flag). Floor for the backfill is 5.16.0 per T7.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 7:43:57 PM
+
+Commit [2d1a69823ce9890250f3a9a688a0c6c3d057f02c](https://github.com/StoneCypher/jssm/commit/2d1a69823ce9890250f3a9a688a0c6c3d057f02c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec,plan): T7 verification — correct backfill floor to 5.16.0
+  * Local-rig verification found the spec's 5.11.0 floor only holds for
+require('jssm') (multi-file build/jssm.es5.js). The backfill harness loads the
+single dist/jssm.es5.cjs bundle, which exports {} on 5.11.0-5.14.2 (browser
+bundles only); the first loadable dist CJS bundle is 5.16.0. Full override-free
+harness runs verified end-to-end at 5.16.0 (5 ops) and 5.60.0 (all 7 incl.
+hooked). T8 dispatch range starts at 5.16.0.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 7:30:53 PM
+
+Commit [e65b48c4bba8626d9de445e3c624f82e54d1d942](https://github.com/StoneCypher/jssm/commit/e65b48c4bba8626d9de445e3c624f82e54d1d942)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): split fsl-actions transitions into main / plain / forced groups
+  * Classifies each exit edge from list_edges() by main_path / forced_only and renders
+three separate transition groups — Main (=>) first, plain Transitions (->) next,
+Forced (~>) last — each omitted when empty. The per-button '· forced' marker is
+gone now that the group label carries it. 6876 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 7:18:06 PM
+
+Commit [a65c14a1c488a9df9f67dd99a1010e447b915ae1](https://github.com/StoneCypher/jssm/commit/a65c14a1c488a9df9f67dd99a1010e447b915ae1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-actions> — machine-derived action + transition controls
+  * A real component for the actions dock: binds to the parent <fsl-instance> and
+renders a button for each currently-legal named action (list_exit_actions →
+host.do) and each reachable transition target (host.transition for legal edges,
+host.force_transition for forced-only ones, marked '· forced'). Re-derives on
+the host's transition/rebuild events; only what's firable now is shown, so a
+self-loop-only state drops the Transitions group, a forced-only state drops the
+Actions group, and a terminal state shows 'no actions available'.
+  * Adds host.transition()/force_transition() wrappers (mirroring do()), an Actions
+toolbar toggle (Solar bolt icon), and folds the widget into the widgets bundle +
+demo (replacing the hand-rolled actions buttons). 6875 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 2:18:48 PM
+
+Commit [de97051985e4c53ba289265e9dcca5be532b5116](https://github.com/StoneCypher/jssm/commit/de97051985e4c53ba289265e9dcca5be532b5116)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(v6): make canonical() @example a verifiable doctest (M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 2:15:27 PM
+
+Commit [e9658865dae78c0b42ccdca73983bf2ca327ee57](https://github.com/StoneCypher/jssm/commit/e9658865dae78c0b42ccdca73983bf2ca327ee57)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(v6): complete M3 to 100% coverage (canonical sort simplification, exit_for helper, cli + wrapper + branch tests)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 2:15:10 PM
+
+Commit [2be844e903a8b64c67dcf3395ed83439f18140a4](https://github.com/StoneCypher/jssm/commit/2be844e903a8b64c67dcf3395ed83439f18140a4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(v6): stochastic replay cross-check vs live runtime + determinism (M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 2:02:52 PM
+
+Commit [8d934e425f31e38f491eede43225c2528eba7028](https://github.com/StoneCypher/jssm/commit/8d934e425f31e38f491eede43225c2528eba7028)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(color): accept 'transparent' as a named color
+  * Adds 'transparent'/'Transparent' to the SvgColorLabel grammar rule (→ #00000000,
+fully transparent) and to named_colors, so background-color/text-color/etc.
+accept it and the editor autocompletes it. Regenerated fsl_parser.ts. The stoch
+alpha invariant now allows the lone transparent entry (alpha 00) while every
+other named color stays opaque (ff), with an explicit #00000000 assertion.
+6866 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 2:02:00 PM
+
+Commit [3700ec835d8cef31c1d06adeaa51bd9ab1e6b63e](https://github.com/StoneCypher/jssm/commit/3700ec835d8cef31c1d06adeaa51bd9ab1e6b63e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(v6): fsl run verb (lib seam + cli shell + wrapper) over the replay engine (M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:58:03 PM
+
+Commit [22ed6d6a5d6bbdecbd59891e391b045500e14952](https://github.com/StoneCypher/jssm/commit/22ed6d6a5d6bbdecbd59891e391b045500e14952)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(v6): deterministic tape replay engine (M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:56:29 PM
+
+Commit [cca190444bbb5a8e81cbe6e89970b010a611c30b](https://github.com/StoneCypher/jssm/commit/cca190444bbb5a8e81cbe6e89970b010a611c30b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(v6): honor injected time_source; add canonical(); serialize() uses _time_source (#816, M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:53:29 PM
+
+Commit [5c138dbf51fea2f885cbc628caae46589a701954](https://github.com/StoneCypher/jssm/commit/5c138dbf51fea2f885cbc628caae46589a701954)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(v6): JSONL stimulus-tape format + typed ReplayError (M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:52:28 PM
+
+Commit [5b9a7dcd8ffe80d6b087f47000476314b36e3e46](https://github.com/StoneCypher/jssm/commit/5b9a7dcd8ffe80d6b087f47000476314b36e3e46)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(v6): provisional swappable source hash, the M1 seam (M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:51:43 PM
+
+Commit [2241c45b6c611330a05a65cc2f3c9e4bf22f918a](https://github.com/StoneCypher/jssm/commit/2241c45b6c611330a05a65cc2f3c9e4bf22f918a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): mark T6 complete (commit cb1836be)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:50:29 PM
+
+Commit [cb1836bef54e00611a6b38c27052254683d58d9e](https://github.com/StoneCypher/jssm/commit/cb1836bef54e00611a6b38c27052254683d58d9e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(perf): cover the 5.11-era es5 cjs bundle name in graviton backfill
+  * The detached --harness-from user-data normalized the 5.50-era bundle names
+(jssm.es5.cjs.js -> dist/jssm.es5.cjs, jssm.es5.cjs.nonmin.js ->
+dist/jssm.es5.nonmin.cjs) but not 5.11, which shipped no .cjs.nonmin.js (its
+unmin bundle is .cjs.js). Add a guarded nonmin fallback to .cjs.js, ordered
+after the 5.50 .nonmin.js mapping so the right bundle wins per era. Lets the
+backfill reach 5.11 alongside the override-free harness.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:49:38 PM
+
+Commit [e4f353d7a510fae22065aa708014bf203b05db8a](https://github.com/StoneCypher/jssm/commit/e4f353d7a510fae22065aa708014bf203b05db8a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(v6): RFC 8785 canonical serialization for replay (M3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:37:53 PM
+
+Commit [4562a6acae18580b8ba53d3d44483014b13e7745](https://github.com/StoneCypher/jssm/commit/4562a6acae18580b8ba53d3d44483014b13e7745)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): mark T4/T5 complete (commits ef1cd8b1, 0cfefb27)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:35:20 PM
+
+Commit [0cfefb27f918fbd09d2e0c7de1489e4ca1c490f7](https://github.com/StoneCypher/jssm/commit/0cfefb27f918fbd09d2e0c7de1489e4ca1c490f7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): override-free action machine + messy closed sub-walk
+  * Drop the last override('s0') sites: action FSL no longer carries
+allows_override, attachActionSupport validates integrity via a closed action
+walk (transition walk's edges mapped to their act_N labels), and actionCase +
+the memory action batch replay that closed walk override-free, normalized to
+per-action throughput. Messy fixtures load bare and drive transition() via a
+BFS closed sub-walk through s0 (feature-gated out if s0 has no cycle).
+labelActionEdges / closedActionWalk / closedSubWalk live in the shapes module,
+pure and unit-tested. grep -c '.override(' benchmark_scaling.cjs is now 0.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:18:48 PM
+
+Commit [abc43c8860466b70302ae6444f95613633fbb011](https://github.com/StoneCypher/jssm/commit/abc43c8860466b70302ae6444f95613633fbb011)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): active toolbar button keeps its edge against an inactive neighbor
+  * Buttons in a group overlap by -1px (segmented look), so the later button's
+border painted over the shared edge. An active (pressed/expanded) button now
+gets position:relative + z-index:1, lifting its full accent border above the
+unpressed neighbor — its right edge no longer reads as inactive.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:14:58 PM
+
+Commit [ef1cd8b16fc911e8dc9cec2c2880e135b10a3fe1](https://github.com/StoneCypher/jssm/commit/ef1cd8b16fc911e8dc9cec2c2880e135b10a3fe1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): override-free transition path + per-transition normalization
+  * Replace the per-iteration override('s0') reset in transitionCase, memoryPass,
+and warmupPass with full closed-walk laps (each returns to s0, so continuous
+replay stays legal). Report per-transition throughput (ops x stepCount) so
+shapes with different lap lengths stay comparable; divide deep-mode msPerOp by
+stepCount to match. collectMemory now honors a per-batch opCount (triple form)
+so a stepCount-length transition batch divides by its real op count, not K.
+Messy shapes carry no closed walk yet (restored in T5) and skip transition().
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:14:08 PM
+
+Commit [fffe90db79cb9e7c88689a8591a8549c23a0dc01](https://github.com/StoneCypher/jssm/commit/fffe90db79cb9e7c88689a8591a8549c23a0dc01)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): dock actions left + data right of the workbench, easing like Help
+  * In split layouts the actions and data-inspector panels lift out of the stacked
+aux into side docks flanking the workbench: actions left, data right (left of a
+Help drawer, which is a host sibling). Each dock eases its width with the same
+transition: flex-basis 0.28s as the help drawer; the toolbar's panel toggle now
+flips an 'open' class instead of display:none for these two. A docked data
+inspector fills the band height and scrolls to the dock (token override) rather
+than its 16em cap.
+  * Also: the text-content FSL channel now excludes elements assigned to a named
+slot — slotted UI (an actions panel, etc.) is not FSL source. Without this, a
+plain <div slot="actions"> with button text tripped the 'use exactly one
+source' guard. Demo gains an actions dock of machine-driving buttons.
+6854 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:09:55 PM
+
+Commit [fc83502993c77ab7358913cd3a9dc87fc830c6eb](https://github.com/StoneCypher/jssm/commit/fc83502993c77ab7358913cd3a9dc87fc830c6eb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): M3 fsl run / tape replayer implementation plan (7 tasks)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 1:01:13 PM
+
+Commit [4b04fd8cb3096c6aa4ee901fe5551d79b4bb3327](https://github.com/StoneCypher/jssm/commit/4b04fd8cb3096c6aa4ee901fe5551d79b4bb3327)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): M3 fsl run / deterministic tape replayer design
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 12:59:35 PM
+
+Commit [2bbcf316ce6d2ad6089be3f332670765767d8b5f](https://github.com/StoneCypher/jssm/commit/2bbcf316ce6d2ad6089be3f332670765767d8b5f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): refine T4/T5 — six override sites, uniform closure, memory divisor
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 12:56:26 PM
+
+Commit [df77e055930dbf6be36133bf7388a29ab709bc08](https://github.com/StoneCypher/jssm/commit/df77e055930dbf6be36133bf7388a29ab709bc08)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): add SVG to the Export pulldown
+  * machine_to_svg_string(host.machine) renders the bound (always-valid) machine,
+so _export goes async for the SVG case while dot/json/fsl stay synchronous; the
+same fsl-export {format, content} event carries the SVG text. PNG/JPEG/animated
+GIF/ASCII are deferred — they need a binary/async export contract and new
+deps/renderers, to be designed separately. 6853 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 12:42:50 PM
+
+Commit [ed0188159e248fba8c8195bae22024068eaf5390](https://github.com/StoneCypher/jssm/commit/ed0188159e248fba8c8195bae22024068eaf5390)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cm6): tokenize hyphenated keys as one compound token
+  * The atom reader stopped at hyphens, so `background-color` split into
+background / - / color and only the `color` suffix (a known key) highlighted.
+The reader now absorbs an interior hyphen (one between word chars) while still
+stopping before the `>` of an arrow. Added the hyphenated style keys
+(background-color, text-color, border-color, edge-color, line-style) to
+PROPERTY_KEYWORDS, and widened the drift-guard regex to cover hyphenated grammar
+keys so they can't silently fall through again. 6853 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 12:29:44 PM
+
+Commit [3366168000cbe0cb0e82f702909c40d220379731](https://github.com/StoneCypher/jssm/commit/3366168000cbe0cb0e82f702909c40d220379731)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): export becomes a toolbar pulldown (between Layout and Docs)
+  * Drops 'export' from the auto-discovered panel toggles and adds an Export
+dropdown to the toolbar: DOT (machine_to_dot), JSON (machine.serialize()), and
+FSL (source), each firing the same fsl-export {format, content} the panel did.
+The toolbar tracks a single open menu (layout | export). Demo drops the
+fsl-export panel; the toolbar's event still bubbles to the host's clipboard
+handler. fsl-export the component stays for embedders who want a panel.
+6852 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 12:20:24 PM
+
+Commit [c198f013eabbee28f066a7a8d5a5781e3eee10dd](https://github.com/StoneCypher/jssm/commit/c198f013eabbee28f066a7a8d5a5781e3eee10dd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): readable selected-button symbol + zoom the graph to fill (5% pad)
+  * - fsl-toolbar: the pressed/selected button symbol now uses the foreground color
+  (readable), not the low-contrast accent; the tint + border still mark selection.
+- fsl-viz: the graph zooms to fill its container (aspect kept via the SVG's own
+  preserveAspectRatio), leaving 5% padding on the constraining axis. Demo drops
+  its extra viz padding so the 5% is exact. 6852 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 12:02:35 PM
+
+Commit [256244883f5f6b436969edbb9ba870bd12352192](https://github.com/StoneCypher/jssm/commit/256244883f5f6b436969edbb9ba870bd12352192)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): syntax-highlight the data inspector + make it a bounded vertical panel
+  * fsl-data-inspector now tokenizes the pretty-printed JSON (exported tokenizeJson:
+keys vs strings by trailing colon, bool/null/number/plain) and renders each token
+in a colored span. Colors are token-overridable with light defaults; the host's
+theme cascades dark values via new --fsl-color-json-* palette tokens. The panel
+is bounded (max-height, token-overridable) and scrolls internally, so a large
+data tree stays a self-contained column instead of crowding siblings out.
+6852 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 11:13:53 AM
+
+Commit [6a20118ea81019676718555e2e8708e83932f673](https://github.com/StoneCypher/jssm/commit/6a20118ea81019676718555e2e8708e83932f673)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): bounded events log, fsl-instance initial data, softer toolbar selected state
+  * - fsl-hook-log: the running log is now bounded (max-height, token-overridable)
+  and scrolls internally, so it stays a self-contained panel instead of growing
+  unbounded and crowding sibling panels out.
+- fsl-instance: new 'data' property seeds extended-state data into the machine at
+  build time (via from(fsl, {data}); the no-data path keeps the lighter sm build),
+  so fsl-data-inspector has something to show before any transition. Demo seeds a
+  medium-complex object.
+- fsl-toolbar: the pressed/selected button state was a heavy saturated accent fill
+  with near-black text + a dark inset shadow (read as 'too dark'); now a light
+  accent tint with an accent-colored icon. 6850 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 11:01:22 AM
+
+Commit [845a415617a366ea3bb054df14bf81b891fd61d7](https://github.com/StoneCypher/jssm/commit/845a415617a366ea3bb054df14bf81b891fd61d7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): closedWalk — legal closed-lap sequences (no override reset)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 10:56:33 AM
+
+Commit [ad43b4b6b499f3c4da4076ed4b1e3b131a6188b6](https://github.com/StoneCypher/jssm/commit/ad43b4b6b499f3c4da4076ed4b1e3b131a6188b6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(bench): emit bare FSL — drop allows_override from generators + probe
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 10:53:27 AM
+
+Commit [fc48d2eacd4ba04026aa5c217e0f5ee3023cd4cc](https://github.com/StoneCypher/jssm/commit/fc48d2eacd4ba04026aa5c217e0f5ee3023cd4cc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(bench): extract scaling FSL generators to a testable module
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 10:48:26 AM
+
+Commit [1ed6de5c5e8bc13c122051d5107c0656a0d9142a](https://github.com/StoneCypher/jssm/commit/1ed6de5c5e8bc13c122051d5107c0656a0d9142a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): override-free perf backfill implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 10:10:53 AM
+
+Commit [b6e643ee585b0585380549600430f07ca1b29abb](https://github.com/StoneCypher/jssm/commit/b6e643ee585b0585380549600430f07ca1b29abb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): panel show/hide toggles + icon View dropdown; full-window demo
+  * Repurposes the toolbar's icon buttons from editor-feature switches to panel
+visibility toggles. fsl-instance gains isPanelHidden / setPanelHidden /
+togglePanel: hiding viz or editor collapses that workbench pane (the other
+fills, reusing the single-pane CSS), hiding an aux panel drops its section. The
+toolbar auto-discovers the panels present in the host and shows one Solar
+duotone icon toggle each (renderer, code, history, data, events, …); Lint/Chips/
+Complete are dropped. The View dropdown is now icon-only — its button shows the
+current layout's glyph, and the menu items carry hand-drawn duotone split-rect
+icons — sitting beside the panel toggles. Demo is now the bare widget: full
+window, no header/footer/framing. 6849 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:57:57 AM
+
+Commit [f723dc7b790d44011cc60858b4f6f90a36e64243](https://github.com/StoneCypher/jssm/commit/f723dc7b790d44011cc60858b4f6f90a36e64243)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): override-free perf backfill design (reach to 5.11.0)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 9:09:15 AM
+
+Commit [56630abdbc50555ef36f54cec168fb6d138f41f1](https://github.com/StoneCypher/jssm/commit/56630abdbc50555ef36f54cec168fb6d138f41f1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): icon-only feature buttons + whole-suite theming from one toggle
+  * fsl-toolbar's Lint/Chips/Complete become square icon buttons (Solar CC-BY
+bold-duotone, inlined SVG, currentColor so they theme with the button state;
+label moved to aria-label/title). The theme buttons now set the host's theme as
+well as the editor's: fsl-instance gains a reflected 'theme' property and a
+built-in light/dark --fsl-color-* palette that cascades to every nested widget,
+so one toggle re-themes the whole suite (chrome, panels, footer, editor) — a
+consumer's own --fsl-color-* still overrides. Demo starts dark, drops its pinned
+palette, and mirrors the host theme onto the sibling help drawer. Verified
+in-browser: feature icons render; light/dark flips the entire device. 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 27, 2026 12:26:13 AM
+
+Commit [7392c13f9b7fe4d638257677ae7d2cbfa6e124d5](https://github.com/StoneCypher/jssm/commit/7392c13f9b7fe4d638257677ae7d2cbfa6e124d5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): restore AST state/enum highlighting + make the editor theme visibly flip
+  * The semantic overlay was producing fsl-state / fsl-enum marks, but .fsl-state
+only set text-underline-offset with no underline or colour (a visual no-op) and
+.fsl-enum had no colour — so state names looked unhighlighted (the 'AST
+highlighter' the overlay actually still does). Restores the sketch's intent as
+token-overridable, theme-aware rules: state = indigo/lavender bold, enum =
+goldenrod/amber italic, with --fsl-color-state / --fsl-color-enum overrides.
+  * Demo: the editor opts out of the suite's pinned dark palette (keyed on its
+reflected theme attribute) so the toolbar's light/dark toggle flips the editor
+chrome (white <-> #0d1117), not just the syntax colours. Verified in-browser:
+11 state marks recolour on toggle; editor bg flips. 6847 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 11:13:06 PM
+
+Commit [c1583693712de7dfec8f62c647a3db361441ba2d](https://github.com/StoneCypher/jssm/commit/c1583693712de7dfec8f62c647a3db361441ba2d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(wc): distribute the editor + widget suite as jssm/wc/editor and jssm/wc/widgets
+  * Two new bundler-friendly subpaths so consumers can import the new components:
+  - jssm/wc/editor (+ /define): <fsl-editor>, CodeMirror + lezer kept external
+    as peers, jssm core + the cm6 grammar resolved to the jssm / jssm/cm6
+    subpaths. ~18 KB.
+  - jssm/wc/widgets (+ /define): the eight light chrome/panel widgets registered
+    together via a combined entry; lit + jssm/viz external. ~32 KB.
+Adds the rollup configs, package.json exports/files/scripts, build-orchestrator
+steps (with vitest depending on them), and bundle_shape + widgets-entry tests.
+CDN-inlined variants for these two are deferred (would inline CodeMirror /
+graphviz). 6847 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 7:31:28 PM
+
+Commit [c3602b663770b7e708ed3e0a334891807581c642](https://github.com/StoneCypher/jssm/commit/c3602b663770b7e708ed3e0a334891807581c642)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc,demo): lift toolbar slot to the top + recompose demo onto the full widget suite
+  * fsl-instance now renders the toolbar slot above the workbench (chrome-on-top)
+instead of in the aux-panel block. The showcase is rebuilt so every control is
+a real fsl-* widget slotted into one host: fsl-toolbar (theme/view/features +
+a Docs button), fsl-viz + fsl-editor, fsl-simulation/history/data-inspector/
+hook-log/export panels, and fsl-footer carrying the parse-status pill; an
+fsl-help drawer holds the docs. The dark token palette is fed once on the host
+and crosses shadow boundaries into every widget. Verified in-browser: Play
+walks Off->Red->Green with history, hook-log, and footer all following. 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:58:59 PM
+
+Commit [021526079dbf3c2cf535791a5ce00b3f45ffd6b7](https://github.com/StoneCypher/jssm/commit/021526079dbf3c2cf535791a5ce00b3f45ffd6b7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-simulation> + <fsl-export> action widgets (closes StoneCypher/fsl#668)
+  *   - fsl-simulation: random-walk driver. Step fires one uniformly-random legal
+    action; Play auto-steps every interval ms and self-stops at a terminal
+    state. Finds the host via closest_wc; standalone is inert.
+  - fsl-export: DOT (machine_to_dot), JSON (machine.serialize()), and FSL
+    (source) buttons, each firing fsl-export {format, content} for the embedder
+    to copy/download/show. All sync — no SVG wasm in the export path.
+define_canonical, no jssm- synonyms. 6828 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:49:55 PM
+
+Commit [f0ed350cc00d378b5b0fd40432dd808e7111ca37](https://github.com/StoneCypher/jssm/commit/f0ed350cc00d378b5b0fd40432dd808e7111ca37)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-history>, <fsl-data-inspector>, <fsl-hook-log> data panels
+  * Three read-only panels bound to a parent fsl-instance via its re-emitted fsl-*
+DOM events (#639), so all are rebuild-proof with no machine subscription:
+  - fsl-history: visited-state timeline from fsl-transition events
+  - fsl-data-inspector: machine.data() re-read on transition/data-change/rebuild
+  - fsl-hook-log: running log of the machine's re-emitted events (last 50)
+Each renders empty when standalone. define_canonical, no jssm- synonyms. 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:38:14 PM
+
+Commit [b7d431adc4a8c1b75adfc2282b72bf02f4e64445](https://github.com/StoneCypher/jssm/commit/b7d431adc4a8c1b75adfc2282b72bf02f4e64445)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-toolbar> control bar driving the editor + host (closes StoneCypher/fsl#660)
+  * A Win32-style toolbar that finds the parent fsl-instance and its fsl-editor:
+light/dark theme toggle and lint/overlay/completion feature toggles drive the
+editor; a View menu of the full 8-mode layout set drives the host. Standalone
+renders inert controls. ::part(toolbar) + tokens for white-labeling. 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:15:56 PM
+
+Commit [ed6d3f6cf28e072ee279f4ef08c94a538a7b9bca](https://github.com/StoneCypher/jssm/commit/ed6d3f6cf28e072ee279f4ef08c94a538a7b9bca)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260627-010956
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:15:45 PM
+
+Commit [1bc17fa7d6515f9425a47ed48541c0f9b9d961d8](https://github.com/StoneCypher/jssm/commit/1bc17fa7d6515f9425a47ed48541c0f9b9d961d8)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:15:38 PM
+
+Commit [6dcf370906ba7cf3b3158a116bdb78e30963e08e](https://github.com/StoneCypher/jssm/commit/6dcf370906ba7cf3b3158a116bdb78e30963e08e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-help> documentation drawer widget
+  * A presentational, self-contained drawer: titled header + close button +
+scrollable default slot for content (foldable sections). Reflected open
+attribute so embedders animate it from CSS; fires a close event. ::part on
+drawer/head/body/close for white-labeling. define_canonical('fsl-help'),
+no jssm- synonym. 6809 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:11:36 PM
+
+Commit [7d01834debc4fd01429ce9e78a45ef843af7b08d](https://github.com/StoneCypher/jssm/commit/7d01834debc4fd01429ce9e78a45ef843af7b08d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-footer> status-bar widget bound to fsl-instance
+  * A status bar that reflects the host's current state, legal-action count, and
+terminal/complete badges by observing the host's reflected attributes via a
+MutationObserver — so it tracks transitions and survives live rebuilds with no
+machine subscription. Default slot for embedder status; standalone renders just
+the slot. define_canonical('fsl-footer'), no jssm- synonym. 6805 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 6:01:37 PM
+
+Commit [60efa198f2accd2425fee823de7bf3a91cc2322f](https://github.com/StoneCypher/jssm/commit/60efa198f2accd2425fee823de7bf3a91cc2322f)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for d94c154197eca54536d7c728374ae2ffefcd2ef8
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 5:59:20 PM
+
+Commit [2233f83c7421c152d901f960da612e2626ac1847](https://github.com/StoneCypher/jssm/commit/2233f83c7421c152d901f960da612e2626ac1847)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(demo): richer sample FSL + foldable documentation panel
+  * The sample now shows machine metadata, => main transitions, ~> bulk edges,
+arrange, and background-color/corners styling (matching the sketch's depth).
+The help panel becomes a foldable multi-section docs drawer (composition /
+editing / layouts / highlighting / theme). Verified: sample parses, 5 doc
+sections render.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__8" />
+
+## [5.147.8] - Jun 26, 2026 5:57:28 PM
+
+Commit [d94c154197eca54536d7c728374ae2ffefcd2ef8](https://github.com/StoneCypher/jssm/commit/d94c154197eca54536d7c728374ae2ffefcd2ef8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [36c2b909, 3f9001c4]
+
+  * Merge pull request #814 from StoneCypher/fix_26-06-26_graviton-overlay-module-list
+  * fix: graviton backfill overlays the whole src/buildjs tree (not a stale file list)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 5:55:54 PM
+
+Commit [5bf0e9dff1b6fda481478d1e5fc66cbc3029cb4b](https://github.com/StoneCypher/jssm/commit/5bf0e9dff1b6fda481478d1e5fc66cbc3029cb4b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(demo): View dropdown exposes the full 7-mode layout
+  * Replaces the Side/Stack buttons with the sketch's View menu (Auto, side-by-side
+editor left/right, top/bottom editor top/bottom, just editor, just viewer,
+tabbed), each driving the host's layout attribute. Verified in-browser:
+selecting Tabbed switches fsl-instance to its tab-strip mode.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 5:52:53 PM
+
+Commit [63ad7dab8d4e5ca4e4f9d49c61f5b1ecea473e6d](https://github.com/StoneCypher/jssm/commit/63ad7dab8d4e5ca4e4f9d49c61f5b1ecea473e6d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-instance gains the sketch's full 7-mode layout arrangement
+  * Replaces split/split-stack with the sketch's mode set: lr/rl (side-by-side,
+editor left/right), tb/bt (stacked, editor top/bottom), editor/viewer (single
+pane), tabs (tab strip, one pane at a time), and auto (resolves to lr/tb by
+viewport aspect via a window-resize listener; pure auto_mode() is jsdom-
+testable). The gutter drag handles both axes; tab state + auto-listener are
+torn down on disconnect. Demo Side/Stack now map to rl/bt. 6800 pass, 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 5:52:13 PM
+
+Commit [3f9001c4bc42870737ba59af274d4051ac73f0a9](https://github.com/StoneCypher/jssm/commit/3f9001c4bc42870737ba59af274d4051ac73f0a9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix: graviton backfill overlays the whole src/buildjs tree (not a stale file list)
+  * The --harness-from overlay checked out a hand-listed subset of harness files
+(benchmark_scaling.cjs, benchmark_scaling_memory.cjs, benchmark_scaling_plan.cjs,
+benchmark.cjs). But today's benchmark_scaling.cjs require()s eight sibling
+modules — plan, memory, exponents, bundle_size, latency, gc, timing, load — and
+the six not on the list were added after it was written. On any release
+predating them (everything before ~5.144), `node benchmark_scaling.cjs` died with
+MODULE_NOT_FOUND at load, before a single benchmark ran: no scaling.json, only a
+_failures marker. This is why the 5-version backfill smoke test produced nothing
+for 5.98.0 / 5.110.1 / 5.129.0 despite those engines being fully capable
+(verified: today's full harness runs cleanly against 5.98.0's published bundle
+once every module is present).
+  * Fix: both overlay paths (buildRemoteScript SSH path and buildDetachedUserData
+backfill path) now `git checkout FETCH_HEAD -- src/buildjs benchmark/fixtures` —
+the whole directory, so every current harness module is always present and the
+list can never go stale again.
+  * Not fixed here: releases before 5.86.1 still fail, because the harness's
+per-iteration reset uses machine.override(), which requires `allows_override:
+true;` config syntax the parser gained only in 5.86.1 (and override() itself
+arrived then too). That needs a reset rework, not a file-list change; ~5.86 is
+the practical backfill floor for now.
+  * Updates the overlay tests to assert the directory form and guard against the
+stale-list regression.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 4:54:05 PM
+
+Commit [6ee6a07ca4d3f6af184b68a8857d3811922afd3d](https://github.com/StoneCypher/jssm/commit/6ee6a07ca4d3f6af184b68a8857d3811922afd3d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-editor gains the standard CodeMirror editing setup
+  * Adds line numbers, active-line + active-line-gutter highlighting, drawn
+selection, bracket matching, indent-on-input, and multiple selections —
+matching the editing niceties the sketch had that the component lacked.
+Full suite 6795 pass, 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 4:48:10 PM
+
+Commit [e4f69e3ce09c5acb9d1f8ef1b938f650ed21053e](https://github.com/StoneCypher/jssm/commit/e4f69e3ce09c5acb9d1f8ef1b938f650ed21053e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): signed run-receipts dependency roadmap (M1-M6)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 4:10:58 PM
+
+Commit [07733b707305d2c4af417b6a84956510e5876bf5](https://github.com/StoneCypher/jssm/commit/07733b707305d2c4af417b6a84956510e5876bf5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-viz centers/fits its graph; restore demo polish on the dogfooded host
+  * fsl-viz now centers and size-fits its rendered SVG (display:flex + svg
+max-width/height) — a better default for every consumer, and the fix for the
+graph sitting top-left in a sized pane. The demo regains the previous version's
+feel on top of the real <fsl-instance> composition: graph centered in the #ddd
+pane, help eases in as a real third pane (not an overlay), and the green/red
+parse-status dot is back (via the re-exported fslDiagnostics, since the host
+keeps the last good machine). Full suite 6795 pass, 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 26, 2026 5:17:22 AM
+
+Commit [d9e2ad279cfb299f97e503d91bc4ce09c4f7e49a](https://github.com/StoneCypher/jssm/commit/d9e2ad279cfb299f97e503d91bc4ce09c4f7e49a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): signed run-receipts design (proof-carrying runs)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 25, 2026 6:33:18 AM
+
+Commit [7f5e48508a74c7f24bd0c40467c54de5d8272821](https://github.com/StoneCypher/jssm/commit/7f5e48508a74c7f24bd0c40467c54de5d8272821)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(demo): recompose showcase around the real <fsl-instance> host
+  * The demo is now genuinely fsl-widget-composed: <fsl-instance layout=split>
+hosts <fsl-viz slot=viz> and <fsl-editor slot=editor>. The instance owns the
+split layout + draggable gutter; the editor seeds from and writes back to the
+host, which rebuilds its machine and the viz re-renders — no manual glue. The
+toolbar drives the editor (theme/features) and the host's layout attribute.
+Verified end-to-end in-browser (edit -> rebuild -> viz follows).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 25, 2026 6:28:29 AM
+
+Commit [94178c7f111fc4ae8fa0591171b288a6dc892ebe](https://github.com/StoneCypher/jssm/commit/94178c7f111fc4ae8fa0591171b288a6dc892ebe)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-viz re-binds when the host rebuilds its machine (#1387)
+  * fsl-instance fires a composed 'fsl-machine-rebuilt' DOM event after a live
+rebuild; a nested fsl-viz listens, unsubscribes from the dead machine,
+re-subscribes to the new one, and re-renders. Teardown captures the exact
+host via an unbind closure (robust to _parent_host being cleared/replaced).
+Completes the dogfooded editor -> instance -> viz flow. 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 25, 2026 6:20:30 AM
+
+Commit [6ad855234b394e4bbde5788adb587066d3920438](https://github.com/StoneCypher/jssm/commit/6ad855234b394e4bbde5788adb587066d3920438)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-instance layout arrangement (split/stack + draggable gutter)
+  * New layout attribute: '' (stacked, default), 'split' (viz | editor row),
+'split-stack' (column). A draggable gutter resizes the panes; drag math is
+the pure, jsdom-testable split_ratio() (clamped [15,85], neutral 50 when
+unmeasured). Move/up listen on document during drag (no pointer-capture, so
+it's testable). Render refactored to share the middle panels; default output
+unchanged (44 instance tests green). The panel half of #1333. 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:51:48 PM
+
+Commit [33e6aadce893b4908c7aa6c23492486a2e693245](https://github.com/StoneCypher/jssm/commit/33e6aadce893b4908c7aa6c23492486a2e693245)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-instance live rebuild + fsl-editor dual-mode binding (closes StoneCypher/fsl#1387)
+  * fsl-instance now rebuilds its machine when fsl changes after connect:
+keep-last-good on invalid source, reset-to-start on success, and re-subscribe
+all machine-scoped listeners (re-emission, <fsl-hook>, <fsl-on>, <fsl-bind>)
+against the new machine via a shared _unbind_machine_subscriptions() (DRY with
+disconnect). fsl-editor, when nested in an fsl-instance, seeds from the host
+and writes edits back so the host rebuilds — the genuinely dogfooded data flow.
+Full suite 6785 pass, 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:26:13 PM
+
+Commit [caf2564921ffd88da6b2c4ebc2581d95d5237a4d](https://github.com/StoneCypher/jssm/commit/caf2564921ffd88da6b2c4ebc2581d95d5237a4d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(demo): <fsl-editor> showcase (live editor + viz renderer)
+  * A self-contained example pairing the real <fsl-editor> with <fsl-viz>:
+edit FSL, the graph follows (debounced). Demonstrates highlighting, color
+chips, lint, completion, light/dark, feature toggles, draggable splitter,
+and an easing help panel. esbuild-bundled (CM/lit/jssm/viz inlined);
+the generated bundle is gitignored with a build command in the README.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:04:01 PM
+
+Commit [e9d1da61ac1ec5aa808d00054a31ee47d6e72afb](https://github.com/StoneCypher/jssm/commit/e9d1da61ac1ec5aa808d00054a31ee47d6e72afb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): fsl-editor execution status (Tasks 1-3 + registration done; 4 deferred to #1387, 5 bundling pending)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:02:55 PM
+
+Commit [53b775f01dd39a8b1784180171d23f93fb0bb640](https://github.com/StoneCypher/jssm/commit/53b775f01dd39a8b1784180171d23f93fb0bb640)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): register <fsl-editor> canonical tag
+  * define_canonical('fsl-editor', FslEditor) — canonical fsl-* only, no
+deprecated jssm- synonym (new-component policy). Full suite 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:02:16 PM
+
+Commit [a2f7dcf615e34bf5665d24386ed1fc8ccfb1b0d3](https://github.com/StoneCypher/jssm/commit/a2f7dcf615e34bf5665d24386ed1fc8ccfb1b0d3)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260625-044801
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 10:02:02 PM
+
+Commit [8715c490fef76592a389cf7cd70fdee492245fa5](https://github.com/StoneCypher/jssm/commit/8715c490fef76592a389cf7cd70fdee492245fa5)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:47:05 PM
+
+Commit [40c99dff167ac7dfc5031ef550a97654b37b2330](https://github.com/StoneCypher/jssm/commit/40c99dff167ac7dfc5031ef550a97654b37b2330)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-editor> CodeMirror component (standalone)
+  * LitElement mounting a CodeMirror view: FSL highlighting (jssm/cm6) plus
+lint / semantic-overlay / completion, each toggleable via a no-* attribute
+behind its own Compartment. Reflected theme attr drives both the CM theme
+and the --fsl-* token defaults. Two-way fsl binding with an echo guard so
+'change' fires only on user edits; color chips via --fsl-chip on overlay
+marks; public view getter. jsdom-tested at 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:39:37 PM
+
+Commit [3b9857597a7104279ba6c925cfda50167f554c02](https://github.com/StoneCypher/jssm/commit/3b9857597a7104279ba6c925cfda50167f554c02)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 36c2b909066dc7caf62145f52f6c3a0d3b795a5c
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:38:36 PM
+
+Commit [94b8463c33bc7f6d7cd4443225ad9e169b6695db](https://github.com/StoneCypher/jssm/commit/94b8463c33bc7f6d7cd4443225ad9e169b6695db)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): light/dark CodeMirror editor themes (token-fed)
+  * lightEditorTheme/darkEditorTheme bundle chrome (reading the --_fsl-*
+appearance tokens, so the editor white-labels with the suite) plus the
+highlight style (default for light; a Material-ish dark palette over the
+FSL stream tags). For a Compartment swap in the component. Full suite 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__7" />
+
+## [5.147.7] - Jun 24, 2026 9:35:30 PM
+
+Commit [36c2b909066dc7caf62145f52f6c3a0d3b795a5c](https://github.com/StoneCypher/jssm/commit/36c2b909066dc7caf62145f52f6c3a0d3b795a5c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [7d4a7d9f, 7321a80e]
+
+  * Merge pull request #812 from StoneCypher/fix_26-06-24_graviton-detached-harness-from
+  * fix: detached graviton runner honors --harness-from for backfills
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:35:12 PM
+
+Commit [917783fb3c65a07739db2e58dfe06551d324aadf](https://github.com/StoneCypher/jssm/commit/917783fb3c65a07739db2e58dfe06551d324aadf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): CodeMirror adapters over the FSL language service
+  * fslLintExtension/fslCompletionExtension/fslOverlayExtension turn the
+editor-agnostic service (fslDiagnostics/fslCompletions/fslSemanticSpans)
+into CodeMirror extensions. Pure mapping fns (fslToCmDiagnostics,
+fslCompletionSource, buildFslDecorations) exported + unit-tested; thin
+view glue covered by jsdom mounts. Full suite 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:30:22 PM
+
+Commit [b40a69f52cd7587b796fea21fdf91685753be336](https://github.com/StoneCypher/jssm/commit/b40a69f52cd7587b796fea21fdf91685753be336)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(deps): add CodeMirror view/commands/autocomplete/lint + fsl-editor plan
+  * Adds the remaining @codemirror/* devDeps the fsl-editor component needs
+(view/commands/autocomplete/lint; language/state/lezer already present),
+and the fsl-editor implementation plan. CM-in-jsdom mount confirmed by spike.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:24:48 PM
+
+Commit [093285acba43d1b73d423c951b204b21682debed](https://github.com/StoneCypher/jssm/commit/093285acba43d1b73d423c951b204b21682debed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): shared --fsl-* appearance-contract design tokens
+  * fslTokens: a Lit css fragment components include in static styles. Public
+--fsl-* tokens resolve through private --_fsl-* vars: embedder override ->
+[theme=dark] default -> built-in light fallback. Custom properties inherit
+through shadow DOM, so white-labeling needs zero JS. ::part / brand-slot
+conventions documented for per-component declaration. Full suite 100%.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:21:48 PM
+
+Commit [0fa0dc7d635060a5ff3b79972b0d45fa7fc8345f](https://github.com/StoneCypher/jssm/commit/0fa0dc7d635060a5ff3b79972b0d45fa7fc8345f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): appearance-contract implementation plan (foundation B)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:19:16 PM
+
+Commit [7321a80e2656e61fa176572d4554b1d98ff9e727](https://github.com/StoneCypher/jssm/commit/7321a80e2656e61fa176572d4554b1d98ff9e727)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix: detached graviton runner honors --harness-from for backfills
+  * The --detached path (the only mode the perf_backfill workflow uses) silently
+dropped --harness-from: buildDetachedUserData never received or used it, so
+every old-release backfill ran the release's own `npm run benny:scaling` —
+which did not exist before the suite — produced no scaling.json, and uploaded
+nothing. Compounding it, the committed-dist guard hardcoded the modern bundle
+names (dist/jssm.es5.cjs), which releases before ~5.98 ship as
+jssm.es5.cjs.js, so those instances hit `shutdown -h now` before benchmarking.
+Both failures were invisible: the fire job, the instance, and the nightly sync
+all reported success while c8g.medium gained nothing below 5.130.
+  * - thread harnessFrom through provisionDetached -> buildDetachedUserData
+- on the backfill path, overlay today's harness and run it directly against the
+  shipped committed dist (no rebuild; #725), normalizing the pre-5.98 es5 cjs
+  bundle name so today's harness can require it
+- drop the hard committed-dist guard on the backfill path
+- on a run that produces no scaling.json, upload a loud marker to a separate
+  _failures/ prefix so silent failures become visible without poisoning the
+  release-dir dedup; perf_results_sync excludes _failures/* from the branch
+  * Adds 7 tests covering the wiring, overlay, name normalization, guard removal,
+deep mode, harness-ref injection guard, and the failure marker.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:15:49 PM
+
+Commit [ba3253dc619e8394fbcb6dbbb2afc36a8c1d81c7](https://github.com/StoneCypher/jssm/commit/ba3253dc619e8394fbcb6dbbb2afc36a8c1d81c7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(language-service): barrel + jssm re-export; 100% coverage closure
+  * Adds the language_service barrel (index.ts) and re-exports fslDiagnostics/
+fslCompletions/fslSemanticSpans from the jssm package surface. Trims
+untestable defensive branches to satisfy the 100% spec-coverage gate:
+diagnostics keeps the needed unlocated-error fallback (compile errors can
+lack source_location) but drops the message fallback; semantic_spans drops
+the always-hit value-not-found guards; adds a non-completable-position
+completions test. Full spec suite: 6757 pass, 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:01:21 PM
+
+Commit [7cb215c599707312dc924672800af12104ff1a08](https://github.com/StoneCypher/jssm/commit/7cb215c599707312dc924672800af12104ff1a08)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(language-service): fslSemanticSpans (colors, states, shape enums)
+  * Editor-agnostic parser-derived spans: color values (resolved hex),
+state names, shape-enum values. Returns [] on parse failure. Ported
+from the verified sketch overlay logic.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 9:00:05 PM
+
+Commit [ebb5aed9d235e2b023c445140e23be4aff759860](https://github.com/StoneCypher/jssm/commit/ebb5aed9d235e2b023c445140e23be4aff759860)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): adopt command palette (Sublime-style)
+  * Moved from pending to adopt; prefix model (> commands, @ go-to-state,
+: go-to-line), dynamic population from states/actions/codegen matrix
+(#1383), and v6 prover/verification commands. Live semantic diff still
+pending.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 8:53:27 PM
+
+Commit [5baeb4fb6138f453bb5f28d7e5bee2fbb86805e8](https://github.com/StoneCypher/jssm/commit/5baeb4fb6138f453bb5f28d7e5bee2fbb86805e8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): UI fanciness triage
+  * Adopt: eased fade-in/out step animation (no breathing), history scrubber,
+toggleable eased zoom/pan, detachable/PiP viewer. Drop: compile flourish,
+frosted chrome. Pending explanation: command palette, live semantic diff.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 8:20:02 PM
+
+Commit [276d2e76d7995fccf526d20f3f60dcd5b089e0e5](https://github.com/StoneCypher/jssm/commit/276d2e76d7995fccf526d20f3f60dcd5b089e0e5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): viewer pill final structure (Flowchart/Codegen/Stochastic/Compiled)
+  * Four-segment corner pill; Flowchart (renamed, more graph kinds coming);
+Codegen pulldown (todo placeholder, StoneCypher/fsl#1383); Stochastic tab
+(StoneCypher/fsl#1384); Compiled pulldown = SVG/DOT/Analysis/JSON tree/AST
+parse/Statistics. Analysis-vs-JSON-tree naming flagged for confirm.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 8:07:26 PM
+
+Commit [dffca392c8d943cd8197e673dc00b2708db75351](https://github.com/StoneCypher/jssm/commit/dffca392c8d943cd8197e673dc00b2708db75351)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): viewer representation selector = corner segmented-pill
+  * Fold fsl-output into the viewer as a floating corner pill (Diagram/DOT/
+SVG/Config), no header bar; orthogonal to arrangement. Shape vocabulary:
+rounded segmented-pill = single-select (radio), square flat buttons =
+independent toggles.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 7:59:09 PM
+
+Commit [e748a7819e9a127918e3c6d7d9e498f59e8efb3e](https://github.com/StoneCypher/jssm/commit/e748a7819e9a127918e3c6d7d9e498f59e8efb3e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(language-service): context-aware fslCompletions (keys + values)
+  * Editor-agnostic completions: value suggestions after a key colon (colors,
+shapes, small enums) and key suggestions at statement start (top-level vs
+in-block by brace depth). Vocab from jssm's own exports.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 7:56:38 PM
+
+Commit [de9ea0752ecf7be3176f99c0b53d2bb1cedc05ea](https://github.com/StoneCypher/jssm/commit/de9ea0752ecf7be3176f99c0b53d2bb1cedc05ea)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): log decisions on editor decorations + UX
+  * Approved: arrow coloring (no glyph swap), state-kind badges (red=stop,
+green=start), unreachable dimming + grammar squiggle, editor<->graph
+hover for transitions. Arrow glyph display split to StoneCypher/fsl#1382.
+Group rails deprioritized (non-contiguous members). Live state-follow
+clarified. Added action-usage coloring, conflict flags, focus sub-graph,
+hover style-preview, codelens affordances.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 7:44:24 PM
+
+Commit [909c2f29063e7da71ac7ff1a71dc836ae6b46a8b](https://github.com/StoneCypher/jssm/commit/909c2f29063e7da71ac7ff1a71dc836ae6b46a8b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): capture UX/interaction ideas
+  * Parser-driven inline decorations (arrow-kind styling, state-kind badges,
+group rails, unreachable dimming, editor<->graph hover-link, live
+state-follow, probability/after glyphs, color-chip picker) plus chrome/
+motion ideas (toolbar widget toggle button-range, eased panel open/close).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 7:43:09 PM
+
+Commit [7dbeb6bd4118f20ed0b9402865980f2365d9f526](https://github.com/StoneCypher/jssm/commit/7dbeb6bd4118f20ed0b9402865980f2365d9f526)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(language-service): editor-agnostic fslDiagnostics + neutral types
+  * First task of the FSL language-service foundation. Pure parse+compile ->
+neutral Diagnostic[] with LSP-shaped Range. No editor/DOM deps.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 7:36:52 PM
+
+Commit [848d44c0023d6f6279bca1935d7b7c41daff5686](https://github.com/StoneCypher/jssm/commit/848d44c0023d6f6279bca1935d7b7c41daff5686)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): FSL language-service implementation plan (foundation A)
+  * TDD plan for the editor-agnostic service layer: fslDiagnostics,
+fslCompletions, fslSemanticSpans with neutral LSP-shaped types, ported
+from the verified sketch logic. First of four plans for the fsl-editor
+sub-project (service layer -> appearance contract -> component -> demo).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 7:25:06 PM
+
+Commit [5e67f068205a61350bea826fe4e6a0862b3c143d](https://github.com/StoneCypher/jssm/commit/5e67f068205a61350bea826fe4e6a0862b3c143d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): expand widget roadmap
+  * Add the missing interaction/diagnostics/overview widgets (fsl-actions,
+fsl-problems, fsl-transitions/fsl-states), output/aids candidates
+(fsl-output, fsl-legend, fsl-help), and fsl-style-inspector (per-state
+style panel, CSS-inspector/Delphi-properties style). Flag the FSL
+source-transformation service as a deferred foundation that any
+source-editing widget (style-inspector tier b, problem quick-fixes)
+requires.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 24, 2026 7:08:36 PM
+
+Commit [ff6eb64df66cabf9164b0db68f1e6898a06c1014](https://github.com/StoneCypher/jssm/commit/ff6eb64df66cabf9164b0db68f1e6898a06c1014)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs: design spec for fsl-editor component + editor foundations
+  * Editor-agnostic FSL service layer (diagnostics/completions/semanticSpans),
+shared appearance contract (tokens + ::part + brand slots), and the
+fsl-editor web component (CodeMirror adapter, batteries-included/toggleable,
+dual-mode with fsl-instance). Foundations chosen to also serve a VS Code
+extension via direct calls; LSP deferred as a thin wrapper. Fills fsl #659.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:37:36 PM
+
+Commit [f387a6cca115901fff9026e707dfb345c53988b7](https://github.com/StoneCypher/jssm/commit/f387a6cca115901fff9026e707dfb345c53988b7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): rebuild artifacts + bump to 5.148.0 after merging main
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:30:33 PM
+
+Commit [3ab2b0618f2f712ada47697ab00d3753cce683d9](https://github.com/StoneCypher/jssm/commit/3ab2b0618f2f712ada47697ab00d3753cce683d9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [352fa2b9, 7d4a7d9f]
+
+  * Merge remote-tracking branch 'origin/main' into feat_26-06-23_fsl-markdown-fence
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/cdn/instance.js
+#       dist/cdn/viz.js
+#       dist/cli/fsl-export-system-prompt.cjs
+#       dist/cli/fsl-render.cjs
+#       dist/cli/fsl.cjs
+#       dist/cli/lib.cjs
+#       dist/cli/lib.mjs
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package-lock.json
+#       package.json
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 5:22:18 PM
+
+Commit [30545637c1d8d3f49adf979b6593594e8d8e35d6](https://github.com/StoneCypher/jssm/commit/30545637c1d8d3f49adf979b6593594e8d8e35d6)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260623-210714
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 5:22:07 PM
+
+Commit [19c438447153f172b834a13f4f191a0cf5e11a54](https://github.com/StoneCypher/jssm/commit/19c438447153f172b834a13f4f191a0cf5e11a54)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 2:07:18 PM
+
+Commit [88d1b76b7d8cc247d5669a7e4e52d67f489da1d5](https://github.com/StoneCypher/jssm/commit/88d1b76b7d8cc247d5669a7e4e52d67f489da1d5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(megaspec): fold fsl#454 repeat-state into §19; same-tier attr conflict = error
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 2:00:24 PM
+
+Commit [352fa2b9b61211f8c2542347e6b55455dd3f574d](https://github.com/StoneCypher/jssm/commit/352fa2b9b61211f8c2542347e6b55455dd3f574d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.148.0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 1:58:38 PM
+
+Commit [6911099a5244aa1d7b5b4e290c1797ef3932802b](https://github.com/StoneCypher/jssm/commit/6911099a5244aa1d7b5b4e290c1797ef3932802b)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 7d4a7d9f8839ee59772949e31262843fdc022d2f
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__6" />
+
+## [5.147.6] - Jun 23, 2026 1:54:35 PM
+
+Commit [7d4a7d9f8839ee59772949e31262843fdc022d2f](https://github.com/StoneCypher/jssm/commit/7d4a7d9f8839ee59772949e31262843fdc022d2f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [47a5c0d7, 842fa9af]
+
+  * Merge pull request #810 from StoneCypher/build_26-06-23_ci-profiles
+  * ci: profile-driven job restructure (Phase 4)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 1:43:36 PM
+
+Commit [0baaf01caa99a73c6be6bf43ec23510c0f3c1dec](https://github.com/StoneCypher/jssm/commit/0baaf01caa99a73c6be6bf43ec23510c0f3c1dec)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(fence): cover dot part contract + empty-value dimension (review fix)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 1:09:03 PM
+
+Commit [705771fb049ce0a473cd538671ee786578b5368e](https://github.com/StoneCypher/jssm/commit/705771fb049ce0a473cd538671ee786578b5368e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): export fence parser + types from the jssm barrel
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 1:03:42 PM
+
+Commit [785baf8ee241cc5e49050d3d6c2ed2f4a6f97ced](https://github.com/StoneCypher/jssm/commit/785baf8ee241cc5e49050d3d6c2ed2f4a6f97ced)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): derive interactive, force svg for interactive raster
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 1:03:04 PM
+
+Commit [842fa9afbb71cebb1d1aac630576705b8c47380b](https://github.com/StoneCypher/jssm/commit/842fa9afbb71cebb1d1aac630576705b8c47380b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci: profile-driven job restructure (Phase 4) (5.147.6)
+  * Reshapes nodejs.yml to the template's profile-driven jobs, leveraging the
+Phase-3 orchestrator. Release behavior is unchanged — only the build the
+jobs invoke, and the release job's needs: list.
+  * - detect-fullbuild: reads a #fullbuild token in the head commit to force the
+  full main matrix on a PR.
+- test-pr (was pr-check): one lean Ubuntu run of ci_test (vet + make_ci +
+  vitest) instead of ci_build (vet + full make + vitest) — cheaper, still runs
+  the 100% spec gate. Skipped when #fullbuild opts in.
+- test-main-matrix (was build): cross-platform ci_test; Ubuntu carries the
+  multi-Node engine coverage incl. the 20.x floor, macOS/Windows verify only
+  current. 8 cells -> 6.
+- test-main-full (was full-build): the canonical full `npm run build` on Ubuntu;
+  now also runs on a #fullbuild PR.
+- release.needs and deploy-docs.needs repointed to the renamed jobs. The 18
+  unicode jobs, e2e, benchmark, verify-version-bump, release (OIDC + Graviton),
+  and finish are unchanged.
+  * Net: a PR pays one lean job + e2e; push-to-main runs the full build + lean
+matrix + unicode + benchmark + release exactly as before. Phase 5 (Stryker /
+lint9 / attw) is separate. Full orchestrated build green.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 1:02:39 PM
+
+Commit [1eb0c9a5e6d4e4c4db81dbaacf5d557aa9b639b2](https://github.com/StoneCypher/jssm/commit/1eb0c9a5e6d4e4c4db81dbaacf5d557aa9b639b2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): ide macro expands to canonical full layout
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 1:01:21 PM
+
+Commit [e5bdfb99c86b25badc329210c005fd6a5c56985d](https://github.com/StoneCypher/jssm/commit/e5bdfb99c86b25badc329210c005fd6a5c56985d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): width/height dimension parsing (px and percent)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:59:33 PM
+
+Commit [8a2348bae4a884a923677686a181edb1682e4ce8](https://github.com/StoneCypher/jssm/commit/8a2348bae4a884a923677686a181edb1682e4ce8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): image formats, implies-image, last-wins override
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:58:14 PM
+
+Commit [a4c9b096dc21670a55364a2d50a28894c0624256](https://github.com/StoneCypher/jssm/commit/a4c9b096dc21670a55364a2d50a28894c0624256)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): parse parts, default image+code, unknown/dup notes
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:57:03 PM
+
+Commit [043e48987592ebb79b8c148f7ee1c535bd97e5f5](https://github.com/StoneCypher/jssm/commit/043e48987592ebb79b8c148f7ee1c535bd97e5f5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(fence): FSL markdown fence types + language detection
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__5" />
+
+## [5.147.5] - Jun 23, 2026 12:51:12 PM
+
+Commit [47a5c0d7408c5016207f8c0f27cdbe5f7fc7957b](https://github.com/StoneCypher/jssm/commit/47a5c0d7408c5016207f8c0f27cdbe5f7fc7957b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [0f4f2458, ee758e07]
+
+  * Merge pull request #809 from StoneCypher/build_26-06-23_build-orchestrator
+  * build: config-driven parallel build orchestrator (Phase 3)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:44:08 PM
+
+Commit [2e4a43a8b419867403772a95747e60ac552733b6](https://github.com/StoneCypher/jssm/commit/2e4a43a8b419867403772a95747e60ac552733b6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): FSL markdown fence parser implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:41:20 PM
+
+Commit [ee758e075f197eebbaf02d0d1b13ef1ce7794121](https://github.com/StoneCypher/jssm/commit/ee758e075f197eebbaf02d0d1b13ef1ce7794121)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: config-driven parallel build orchestrator (Phase 3) (5.147.5)
+  * Replaces the serial make/build npm-chains with a config-driven, staged,
+parallel orchestrator that produces byte-identical artifacts.
+  * - src/buildjs/build_config_features.cjs: jssm's build DAG as data (feature ->
+  npm script + parallel stage; mandatory/optional; requires-cascade).
+- src/buildjs/build_config.cjs: layered-config planner (build.config.json +
+  profiles + env/CLI overrides), hand-rolled validation (no zod dependency).
+- src/buildjs/run_build.cjs: runs stages serially, scripts within a stage
+  concurrently; first failure aborts.
+- build.config.json: fast/ci/ci-lite/release profiles. fast === today's make
+  set, ci-lite === make_ci (verified by set-comparison).
+- make -> run_build.cjs --profile=fast; build -> --profile=release. Every
+  leaf script stays callable.
+- src/buildjs/build_manifest.cjs: byte-equivalence gate (neutralizes the
+  inlined build_time epoch + date stamps; excludes README/CHANGELOG/docs as
+  non-deterministic generated docs).
+  * Validation: an orchestrated build's 110 deterministic artifacts (all bundles,
+.d.ts/.d.cts, custom-elements.json, version.js) are byte-identical to a serial
+build's. Running the gate also caught a real intermittent race (clean deleting
+generated docex while audit globbed src/**); the DAG now isolates every
+src-mutating stage from broad src readers. Full orchestrated build green
+against current main: vet, all bundles, vitest @ 100% spec coverage, site,
+docs, changelog, cloc, readme.
+  * Phase 4 (CI profile restructure) depends on this.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:36:33 PM
+
+Commit [122a922740064e9f5915c1652cce7e90d23420e4](https://github.com/StoneCypher/jssm/commit/122a922740064e9f5915c1652cce7e90d23420e4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [165d6dd4, 0f4f2458]
+
+  * Merge remote-tracking branch 'origin/main' into build_26-06-23_build-orchestrator
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:35:49 PM
+
+Commit [165d6dd4add1a3488abb186eb4ec24e4ab136911](https://github.com/StoneCypher/jssm/commit/165d6dd4add1a3488abb186eb4ec24e4ab136911)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: delegate make/build to the staged orchestrator
+  * make -> run_build.cjs --profile=fast (exactly today's make set); build -> --profile=release (the full chain). Every leaf script stays callable; make_ci/ci_test/test/prep unchanged. Orchestrated build proven to produce byte-identical deterministic artifacts (110/110) vs the serial chain via build_manifest.cjs.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:35:40 PM
+
+Commit [2396b2352cf0597be38b1e74f397e392e3bf1acc](https://github.com/StoneCypher/jssm/commit/2396b2352cf0597be38b1e74f397e392e3bf1acc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(spec): FSL markdown fence convention + VS Code live-preview plugin design
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:35:37 PM
+
+Commit [017140d046c3bc428fe2e007807c1327e9afa34e](https://github.com/StoneCypher/jssm/commit/017140d046c3bc428fe2e007807c1327e9afa34e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: isolate src-mutating stages to fix a clean/audit race
+  * The byte-equivalence gate caught an intermittent ENOENT: clean (stage 0) deleted src/ts/tests/generated/*.docex.ts while audit globbed src/ts/** in the same stage. Rule: a script that broadly reads src/** (audit, cloc) must never share a stage with one that mutates src/** (clean, makever, peg, doctests, perf_chart). Reworked the DAG to give each src-mutating step an isolated stage (0-11); the 9-bundle parallel stage is preserved.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:35:25 PM
+
+Commit [c8be4778b837e3ba507b03d26377a356430aa603](https://github.com/StoneCypher/jssm/commit/c8be4778b837e3ba507b03d26377a356430aa603)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: harden parity manifest (build_time annotation, clock-time, doc exclusions)
+  * Three fixes surfaced by running the gate: (1) parseBuildTime now skips the TS type annotation (build_time : number = N) so the epoch is neutralized in bundles; (2) stripDateLines also strips clock-time lines (the make_readme toLocaleString stamp); (3) README + CHANGELOG are excluded entirely as non-deterministic generated docs (README embeds stochastic coverage; CHANGELOG embeds the global git tag list). The manifest now hashes only the deterministic shipped surface.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 12:04:22 PM
+
+Commit [60437f2ed727e4b85d9220da8734414f30b4db3a](https://github.com/StoneCypher/jssm/commit/60437f2ed727e4b85d9220da8734414f30b4db3a)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 0f4f24587d727633dc892ddadaaeca597994ae10
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__4" />
+
+## [5.147.4] - Jun 23, 2026 12:00:08 PM
+
+Commit [0f4f24587d727633dc892ddadaaeca597994ae10](https://github.com/StoneCypher/jssm/commit/0f4f24587d727633dc892ddadaaeca597994ae10)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [418d9a3f, 1d3d0abb]
+
+  * Merge pull request #808 from StoneCypher/fix_26-06-23_machine-language-and-dead-semver
+  * fix: machine_language accepts BCP-47 region tags (en-us to en)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 11:55:58 AM
+
+Commit [1d3d0abbbf44f985bb0ae70de290232eb2154f3d](https://github.com/StoneCypher/jssm/commit/1d3d0abbbf44f985bb0ae70de290232eb2154f3d)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix: machine_language accepts BCP-47 region tags (en-us -> en)
+  * machine_language ran its value straight through reduce_to_639, so a BCP-47
+tag carrying a region subtag (e.g. "en-us") missed the ISO 639-1 lookup and
+resolved to undefined. Reduce to the primary language subtag before the
+lookup, so "en-us" (and "EN-US", "zh-Hant", ...) resolve to their base
+language ("en", "zh").
+  * Recognized bare language names and codes are unchanged (english / EN /
+français still reduce as before); unrecognized values still resolve to
+undefined. Adds tests and clarifies the machine_language() DocBlock.
+  * Closes StoneCypher/fsl#1380
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 11:36:45 AM
+
+Commit [830bbb2cbaecd4e80cc2b527a1f26cf7da7af1c8](https://github.com/StoneCypher/jssm/commit/830bbb2cbaecd4e80cc2b527a1f26cf7da7af1c8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: orchestrator config + fast/ci/ci-lite/release profiles
+  * fast enables exactly today's make set; ci-lite exactly today's make_ci set
+(both verified by set-comparison against the parsed npm chains); release/ci
+inherit the all-on catalog defaults. Hand-rolled validation means no schema
+file or zod dependency.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 11:34:25 AM
+
+Commit [c3602f2d50df88d9263cefa68bce0be7e15e4eae](https://github.com/StoneCypher/jssm/commit/c3602f2d50df88d9263cefa68bce0be7e15e4eae)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: parallel-stage build runner
+  * Executes the buildPlan as serial stages with concurrent scripts per stage
+(spawn 'npm run <name>', shell:true); first failing script in a stage aborts
+the build before later stages. Stage loop factored into an injectable runStages
+for testing. 3 tests cover concurrency-within-stage, serial-across-stages, and
+fail-fast abort.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 11:33:01 AM
+
+Commit [a53ca32ba48179ef6c59c6db777e8ab6b98c7202](https://github.com/StoneCypher/jssm/commit/a53ca32ba48179ef6c59c6db777e8ab6b98c7202)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: config-driven stage planner (no zod; hand-rolled validation)
+  * Ports the template's build_config planner to CJS: layered config
+(build.config.json + env/local overlays), --profile selection, env-var/CLI
+enable/disable/only/skip overrides, and a fixed-point requires-cascade. Replaces
+the template's zod schema with a hand-rolled validateConfig (closed feature set,
+no new dependency). 14 dependency-injected tests; no real config or process env.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 11:29:37 AM
+
+Commit [e4767d3612bf76520bd407f584da37f83f8f6e20](https://github.com/StoneCypher/jssm/commit/e4767d3612bf76520bd407f584da37f83f8f6e20)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: orchestrator feature catalog (jssm build DAG)
+  * Declares every jssm build step as a feature mapped to its npm leaf script and
+its parallel stage, with mandatory/optional flags and a `requires` cascade.
+Stage numbering encodes the real data dependencies (tsc after makever/peg;
+bundles after tsc; minify after the bundles that read fsl_parser; readme after
+vitest+cloc). Also adds the `rm_nonmin` leaf script the catalog references.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 11:29:26 AM
+
+Commit [ff677e52beb4e6374375e0d0f6d41cd8202322bb](https://github.com/StoneCypher/jssm/commit/ff677e52beb4e6374375e0d0f6d41cd8202322bb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build: artifact manifest hasher for orchestrator parity checks
+  * Hashes jssm's build outputs into a {artifacts, docs} manifest, neutralizing
+the per-build version.ts build_time epoch (inlined into every bundle) and
+date-stamped changelog/readme lines so two builds of identical source compare
+byte-for-byte. --out captures a reference; --compare gates a build against it.
+The byte-equivalence gate for the build orchestrator (Phase 3).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 11:01:23 AM
+
+Commit [fab8b32330043990030f8317ea61162300faf749](https://github.com/StoneCypher/jssm/commit/fab8b32330043990030f8317ea61162300faf749)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(build): Phase 3 build-orchestrator implementation plan
+  * Detailed task-by-task plan (T0-T7) for replacing jssm's serial make/build
+npm-chains with a config-driven, parallel-stage orchestrator producing
+byte-identical artifacts. Authored at phase entry per the migration roadmap.
+Key decisions: hand-rolled config validation (no zod), CJS to match the
+existing buildjs convention, and a golden-reference manifest as the objective
+byte-equivalence gate.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__3" />
+
+## [5.147.3] - Jun 23, 2026 9:51:17 AM
+
+Commit [418d9a3ffdcc954ff37ccef5ada74a7194e100a5](https://github.com/StoneCypher/jssm/commit/418d9a3ffdcc954ff37ccef5ada74a7194e100a5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a2d33dea, 35dc9b68]
+
+  * Merge pull request #807 from StoneCypher/refactor_26-06-23_remove-whargarbl-config-stubs
+  * refactor: remove dead whargarbl/todo config grammar stubs
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:47:00 AM
+
+Commit [35dc9b68bbdfcc085ffc59f9f3ce0f1d5d23836a](https://github.com/StoneCypher/jssm/commit/35dc9b68bbdfcc085ffc59f9f3ce0f1d5d23836a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.147.3 — rebump + rebuild after merging main (5.147.2)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:44:58 AM
+
+Commit [12d8b87b5467a3eda9a7beb09d41bf285e8780dc](https://github.com/StoneCypher/jssm/commit/12d8b87b5467a3eda9a7beb09d41bf285e8780dc)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for a2d33dea36067430b400b7dbff1510f4a9c2aeed
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:41:45 AM
+
+Commit [9b87faff9311d7d53ff8970ccabbc56b2fdfc174](https://github.com/StoneCypher/jssm/commit/9b87faff9311d7d53ff8970ccabbc56b2fdfc174)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [0aff10b0, a2d33dea]
+
+  * Merge origin/main (5.147.2) into whargarbl-removal
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/cli/fsl-render.cjs
+#       dist/cli/lib.cjs
+#       dist/cli/lib.mjs
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__2" />
+
+## [5.147.2] - Jun 23, 2026 9:40:34 AM
+
+Commit [a2d33dea36067430b400b7dbff1510f4a9c2aeed](https://github.com/StoneCypher/jssm/commit/a2d33dea36067430b400b7dbff1510f4a9c2aeed)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [d256c198, b059d143]
+
+  * Merge pull request #806 from StoneCypher/test_26-06-23_unicode-coverage
+  * test: Unicode block-sweep suites for 14 FSL surface positions
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:36:05 AM
+
+Commit [b059d14318c6bc0fcc4ca670ec5f4fabb5a8fbe4](https://github.com/StoneCypher/jssm/commit/b059d14318c6bc0fcc4ca670ec5f4fabb5a8fbe4)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.147.2 — rebump + rebuild after merging main (5.147.1)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:30:28 AM
+
+Commit [8ad0731de3cee748f34217556b3a943e63754945](https://github.com/StoneCypher/jssm/commit/8ad0731de3cee748f34217556b3a943e63754945)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [329b02f6, d256c198]
+
+  * Merge origin/main (5.147.1, build-template adoption) into unicode-coverage
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:29:10 AM
+
+Commit [647c6d8b1fd72c7777c4c437d964eafcdfa15f83](https://github.com/StoneCypher/jssm/commit/647c6d8b1fd72c7777c4c437d964eafcdfa15f83)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for d256c1981d88a765e444be886ef238412aa1db24
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__1" />
+
+## [5.147.1] - Jun 23, 2026 9:24:42 AM
+
+Commit [d256c1981d88a765e444be886ef238412aa1db24](https://github.com/StoneCypher/jssm/commit/d256c1981d88a765e444be886ef238412aa1db24)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [2b6ddf89, fd99ebc8]
+
+  * Merge pull request #803 from StoneCypher/build_26-06-23_adopt-template-build
+  * ci: e2e browser provisioning locked to one job + Phase-1 hygiene
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 9:06:46 AM
+
+Commit [0aff10b0b2607bd063a74a5e9051e2458ad9d104](https://github.com/StoneCypher/jssm/commit/0aff10b0b2607bd063a74a5e9051e2458ad9d104)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor: remove dead whargarbl/todo config grammar stubs
+  * The `validation: {}`, `action: {}`, and `transition:`-block whargarbl/todo
+keys were placeholder grammar stubs from 2017 (commit 4144c1f9) that nothing
+valid could use: the validation/action blocks parsed but then threw
+`compile_rule_handler: Unknown rule` at compile time, and the transition-block
+form stored a junk `{ key: 'whargarbl' }` item. Their only accepted keys were
+the private debt-markers themselves.
+  * Removes from fsl_parser.peg:
+  * - ValidationKey / ValidationItem / ValidationItems / ConfigValidation
+- ActionKey / ActionItem / ActionItems / ConfigAction
+- TransitionKey / TransitionItem (and its alternative in ConfigStyleItems)
+- the ConfigValidation / ConfigAction entries in the Config rule
+  * Also removes the config.stoch.ts tests that pinned the placeholder behavior,
+and updates the ConfigStyleItems comment.
+  * No valid program used these blocks (the only legal keys were the debt-markers
+themselves), so this is a safe v5 cleanup, not a real breaking change.
+  * Closes StoneCypher/fsl#1366
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 8:54:51 AM
+
+Commit [329b02f6cdf333a3ed1ffc1fe1527cff415504fc](https://github.com/StoneCypher/jssm/commit/329b02f6cdf333a3ed1ffc1fe1527cff415504fc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test: add Unicode block-sweep suites for 14 FSL surface positions
+  * Sweep the full Unicode block table through FSL positions that previously
+went unexercised, asserting round-trip of each code point:
+  * - edge labels (arc_label / head_label / tail_label)
+- group / named-list names (&name)
+- state-declaration subject names
+- hooks (subject + action label)
+- machine metadata fields (machine_name / machine_comment / machine_author)
+- state property names and string values
+- image: / url: style items
+- arrange / arrange-start / arrange-end declarations
+- config state lists (start_states / end_states / failed_outputs)
+- config default-state blocks
+- viz / dot rendering (machine_to_dot)
+  * Also fixes unicode-strings.uspec.ts, which was a byte-for-byte copy of
+unicode-atoms.uspec.ts and so never exercised the quoted-String grammar
+path; it now sweeps quoted-string state names with a String-appropriate
+skip set.
+  * Each suite gets its own npm script and its own push-triggered CI job,
+matching the established one-suite-one-run pattern, and is added to the
+release job's needs gate.
+  * machine_language is intentionally excluded from the metadata sweep: it
+parses but its getter returns undefined even for ASCII, a wiring bug
+unrelated to Unicode (StoneCypher/fsl#1380).
+  * Refs StoneCypher/fsl#1169
+Refs StoneCypher/fsl#1367, StoneCypher/fsl#1368, StoneCypher/fsl#1369
+Refs StoneCypher/fsl#1370, StoneCypher/fsl#1371, StoneCypher/fsl#1372
+Refs StoneCypher/fsl#1373, StoneCypher/fsl#1374, StoneCypher/fsl#1375
+Refs StoneCypher/fsl#1376, StoneCypher/fsl#1377
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 8:39:24 AM
+
+Commit [fd99ebc8cfd9e817c3ff4660976666289449fdfc](https://github.com/StoneCypher/jssm/commit/fd99ebc8cfd9e817c3ff4660976666289449fdfc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci: on-demand e2e browser provisioning + single-job lockout (5.147.1)
+  * Browser installs are expensive — multiple minutes for contributors and on
+metered CI minutes. jssm needs Chromium only for the Playwright e2e tier,
+never for `npm install` (the playwright packages ship no auto-download
+postinstall) nor for end users (it is a devDependency). Make that explicit
+and cheap:
+  * - add src/buildjs/playwright_install.cjs: an on-demand, chromium-only
+  provisioner — time-boxed, retried, skip-aware
+  (PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD), --with-deps only on Linux, run under
+  NODE_OPTIONS=--use-system-ca, and invoked through playwright cli.js via
+  process.execPath (no npx, no shell, no DEP0190). Unit-tested: 18
+  dependency-injected cases, no network or real child processes.
+- wire e2e:install ahead of the e2e script so `npm run e2e` self-provisions;
+  no postinstall, so the build/test path stays browser-free.
+- nodejs.yml: lock browser provisioning to a single PR-gated `e2e` job
+  (browser cached by lockfile hash); set workflow-level
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 so every other job stays browser-free,
+  overridden to 0 in the one e2e job.
+  * Also carries the merged Phase-1 CI hygiene (job timeouts, PR concurrency
+cancellation, doc-only paths-ignore) rebased onto 5.147.0.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 8:39:24 AM
+
+Commit [ce33357412547846b704e71c8ed5e5b89e265e95](https://github.com/StoneCypher/jssm/commit/ce33357412547846b704e71c8ed5e5b89e265e95)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * @
+ci: on-demand e2e browser provisioning + single-job lockout (5.147.1)
+  * Browser installs are expensive — multiple minutes for contributors and on
+metered CI minutes. jssm needs Chromium only for the Playwright e2e tier,
+never for `npm install` (the playwright packages ship no auto-download
+postinstall) nor for end users (it is a devDependency). Make that explicit
+and cheap:
+  * - add src/buildjs/playwright_install.cjs: an on-demand, chromium-only
+  provisioner — time-boxed, retried, skip-aware
+  (PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD), --with-deps only on Linux, run under
+  NODE_OPTIONS=--use-system-ca, and invoked through playwright cli.js via
+  process.execPath (no npx, no shell, no DEP0190). Unit-tested: 18
+  dependency-injected cases, no network or real child processes.
+- wire e2e:install ahead of the e2e script so `npm run e2e` self-provisions;
+  no postinstall, so the build/test path stays browser-free.
+- nodejs.yml: lock browser provisioning to a single PR-gated `e2e` job
+  (browser cached by lockfile hash); set workflow-level
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 so every other job stays browser-free,
+  overridden to 0 in the one e2e job.
+  * Also carries the merged Phase-1 CI hygiene (job timeouts, PR concurrency
+cancellation, doc-only paths-ignore) rebased onto 5.147.0.
+@
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 8:25:34 AM
+
+Commit [dbf679dc315b48aa5092a08dc73a303db415b1b8](https://github.com/StoneCypher/jssm/commit/dbf679dc315b48aa5092a08dc73a303db415b1b8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [057a285e, 2b6ddf89]
+
+  * Merge remote-tracking branch 'origin/main' into build_26-06-23_adopt-template-build
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/cdn/instance.js
+#       dist/cdn/viz.js
+#       dist/cli/fsl-export-system-prompt.cjs
+#       dist/cli/fsl-render.cjs
+#       dist/cli/fsl.cjs
+#       dist/cli/lib.cjs
+#       dist/cli/lib.mjs
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package.json
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 7:00:59 AM
+
+Commit [8f4c705adbc0769e66e9ba05f214645a4c1eaada](https://github.com/StoneCypher/jssm/commit/8f4c705adbc0769e66e9ba05f214645a4c1eaada)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 2b6ddf89611caea9fce8f00559ca64326572baff
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__147__0" />
+
+## [5.147.0] - Jun 23, 2026 6:56:20 AM
+
+Commit [2b6ddf89611caea9fce8f00559ca64326572baff](https://github.com/StoneCypher/jssm/commit/2b6ddf89611caea9fce8f00559ca64326572baff)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [23edfb4e, f7d4cc5e]
+
+  * Merge pull request #805 from StoneCypher/feat_26-06-22_fsl-wc-panel-suite
+  * feat(wc): <fsl-instance> mechanism-4 events, <fsl-info-panel>, <fsl-effective-properties>, jssm-* deprecation
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:52:02 AM
+
+Commit [f7d4cc5e4769141ea84961cf92f0a18627b6ff21](https://github.com/StoneCypher/jssm/commit/f7d4cc5e4769141ea84961cf92f0a18627b6ff21)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.147.0 — fsl-instance mechanism-4 events, panels, synonym policy
+  * Cuts 5.147.0 for the <fsl-*> panel-suite work after merging main (cm6 5.146.0 + e2e 5.145.6): A1 mechanism-4 DOM-event re-emission + panel slots on <fsl-instance> (#639), <fsl-info-panel> (#661), <fsl-effective-properties> (#665), and the jssm-* deprecation / fsl-*-only synonym policy (define_canonical). Raises the bundle_shape guard for dist/wc/instance.js to 64KB — A1's event bridge + slots grew the (lit/core-externalized) component past the old 50KB envelope; the guard still catches a core-inline regression (150KB+). Untracks a stray test-results artifact. Bumped above the published 5.146.0. Full build green: vet, make, stoch, spec @ 100% cov, docs.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:40:11 AM
+
+Commit [680c2e2b4fbbd23105dc4d4a727bb4b49ef1f44a](https://github.com/StoneCypher/jssm/commit/680c2e2b4fbbd23105dc4d4a727bb4b49ef1f44a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [77429587, 23edfb4e]
+
+  * Merge remote-tracking branch 'origin/main' into feat_26-06-22_fsl-wc-panel-suite
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__146__0" />
+
+## [5.146.0] - Jun 23, 2026 6:37:51 AM
+
+Commit [23edfb4e1f36937f5b636b98eeac55502b299c04](https://github.com/StoneCypher/jssm/commit/23edfb4e1f36937f5b636b98eeac55502b299c04)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [0ce6fbe4, 476f4cc4]
+
+  * Merge pull request #802 from StoneCypher/feat_26-06-22_cm6-lang-fsl
+  * feat(cm6): jssm/cm6 — FSL CodeMirror 6 language support
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:33:44 AM
+
+Commit [476f4cc4c88e527cc59b6318195c15f3101b03c8](https://github.com/StoneCypher/jssm/commit/476f4cc4c88e527cc59b6318195c15f3101b03c8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [e99dc07a, 0ce6fbe4]
+
+  * Merge remote-tracking branch 'origin/main' into feat_26-06-22_cm6-lang-fsl
+  * # Conflicts:
+#       CHANGELOG.long.md
+#       CHANGELOG.md
+#       README.md
+#       dist/cdn/instance.js
+#       dist/cdn/viz.js
+#       dist/cli/fsl-export-system-prompt.cjs
+#       dist/cli/fsl-render.cjs
+#       dist/cli/fsl.cjs
+#       dist/cli/lib.cjs
+#       dist/cli/lib.mjs
+#       dist/deno/README.md
+#       dist/deno/jssm.js
+#       dist/es6/version.js
+#       dist/jssm.es5.cjs
+#       dist/jssm.es5.iife.js
+#       dist/jssm.es5.nonmin.cjs
+#       dist/jssm.es6.mjs
+#       dist/jssm.es6.nonmin.cjs
+#       dist/jssm_viz.cjs
+#       dist/jssm_viz.es5.iife.nonmin.cjs
+#       dist/jssm_viz.es5.nonmin.cjs
+#       dist/jssm_viz.es6.nonmin.cjs
+#       dist/jssm_viz.iife.cjs
+#       dist/jssm_viz.mjs
+#       package-lock.json
+#       package.json
+#       src/doc_md/CHANGELOG.long.md
+#       src/doc_md/CHANGELOG.md
+#       src/ts/version.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:29:33 AM
+
+Commit [b2b3b745d7f7648eec5e5922e028d3bc438beb86](https://github.com/StoneCypher/jssm/commit/b2b3b745d7f7648eec5e5922e028d3bc438beb86)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260623-105354
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:29:18 AM
+
+Commit [b2d20e8027b2485248fd6b033a158a32c66b611d](https://github.com/StoneCypher/jssm/commit/b2d20e8027b2485248fd6b033a158a32c66b611d)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:29:05 AM
+
+Commit [971b032b21e9b9579e3fd279175e22f107c42c28](https://github.com/StoneCypher/jssm/commit/971b032b21e9b9579e3fd279175e22f107c42c28)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 0ce6fbe409bf7670c2fc747cdf687b3df03440de
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__145__6" />
+
+## [5.145.6] - Jun 23, 2026 6:24:06 AM
+
+Commit [0ce6fbe409bf7670c2fc747cdf687b3df03440de](https://github.com/StoneCypher/jssm/commit/0ce6fbe409bf7670c2fc747cdf687b3df03440de)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [55a7858e, 00364505]
+
+  * Merge pull request #804 from StoneCypher/build_26-06-23_playwright-e2e
+  * feat(e2e): Playwright hosted-browser test tier (build adoption Phase 2)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 6:06:28 AM
+
+Commit [00364505f3d91b9d78d75f59cba1a2dbec537110](https://github.com/StoneCypher/jssm/commit/00364505f3d91b9d78d75f59cba1a2dbec537110)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.145.6 — Playwright e2e harness (build adoption Phase 2)
+  * Cuts 5.145.6, releasing the hosted-browser Playwright e2e tier (playwright.config.ts, src/buildjs/hosted_test.cjs, src/ts/e2e fixtures+smoke, npm run hosted_test/e2e, @playwright/test + servehere). Excludes src/ts/e2e/** from the vitest spec run and coverage (those are Playwright specs, not vitest). Regenerates artifacts. Full build green (vet, make, stoch, spec @ 100% cov, docs). Patch bump +1 past the open #803 (5.145.5) to avoid an exact-version collision; CI e2e job deferred to a follow-up after #803 merges (avoids the nodejs.yml conflict).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 5:49:44 AM
+
+Commit [a3b96cefa246f1645ead615477c7e29e7afe13a0](https://github.com/StoneCypher/jssm/commit/a3b96cefa246f1645ead615477c7e29e7afe13a0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(e2e): gitignore Playwright output dirs; untrack stray test-results
+  * test-results/, playwright-report/, and .playwright-browsers/ are regenerated each run and CI-cached — they shouldn't be tracked. Removes test-results/.last-run.json that slipped into the prior commit.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 5:49:04 AM
+
+Commit [e41786ffb12ce13eab12b921332517048b190e65](https://github.com/StoneCypher/jssm/commit/e41786ffb12ce13eab12b921332517048b190e65)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(e2e): Playwright hosted-browser harness with smoke test (build adoption Phase 2)
+  * Ports the template's hosted-browser e2e tier into jssm: playwright.config.ts (testDir src/ts/e2e, BASE_URL), src/buildjs/hosted_test.cjs (spawns servehere on :15512 serving --serve-dir, polls, runs the Playwright CLI via process.execPath — no shell, Windows-libuv-safe — then halts via /z-terminate with a 2s force-kill fallback), and a fixture + smoke spec proving real-Chromium load + teardown. npm scripts: hosted_test (serves built docs) and e2e (serves the fixtures). Adds @playwright/test + servehere devDeps (main had neither post the #799 pick revert). Validated: npm run e2e passes in real Chromium. Local browser provisioning needs NODE_OPTIONS=--use-system-ca (TLS interception); CI provisions via cache + --with-deps. Version bump + CI e2e job land at PR time.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 4:32:52 AM
+
+Commit [057a285e74d5c0facfc35cf45d84bb524d590bb7](https://github.com/StoneCypher/jssm/commit/057a285e74d5c0facfc35cf45d84bb524d590bb7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * ci: add per-job timeouts, PR concurrency cancellation, and doc-only paths-ignore
+  * Phase 1 of adopting the react_ts_with_claude_gh_template build system (plan: notes/superpowers/plans/2026-06-23-adopt-template-build-system.md). CI-hygiene only, no orchestrator dependency: every job gets a timeout-minutes ceiling (jssm had none, so a hung step ran toward GitHub's 360-min default); PR runs cancel-in-progress via a concurrency group (main pushes never cancel — releases must complete); doc-only PRs (notes/**, CONTRIBUTING/CODE_OF_CONDUCT/LICENSE) skip CI. Release/verify-version-bump/unicode/benchmark jobs and their needs chains are unchanged. Bumps 5.145.5; regenerates build artifacts.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:46:10 AM
+
+Commit [233cdf411525a2b5fd456ae3051f99a52a7c2ec0](https://github.com/StoneCypher/jssm/commit/233cdf411525a2b5fd456ae3051f99a52a7c2ec0)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 55a7858ebc67177e517953d2379ef12d1b97bca3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__145__4" />
+
+## [5.145.4] - Jun 23, 2026 3:41:47 AM
+
+Commit [55a7858ebc67177e517953d2379ef12d1b97bca3](https://github.com/StoneCypher/jssm/commit/55a7858ebc67177e517953d2379ef12d1b97bca3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [fe02cb76, e9b5e1d0]
+
+  * Merge pull request #801 from StoneCypher/chore_26-06-22_perf-chart-fold
+  * perf(chart): fold chart redesign + re-baseline runner on c8g.medium
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:39:25 AM
+
+Commit [e99dc07a37b19e4da8e377606b7dc87782705aeb](https://github.com/StoneCypher/jssm/commit/e99dc07a37b19e4da8e377606b7dc87782705aeb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.146.0 — jssm/cm6 FSL CodeMirror language support
+  * Cuts 5.146.0, releasing the jssm/cm6 subpath: an FSL CodeMirror 6 StreamLanguage tokenizer reconciled against the live grammar with a drift-guard test, deprecated-keyword highlighting via a custom tag, and a bundled ESM export with optional @codemirror/@lezer peers. Regenerates dist, type declarations, docs, changelog, readme, cloc, and perf chart. Full build green: vet, make (incl. make_cm6), stoch (758), spec (6654, 100% coverage), docs (16).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:31:20 AM
+
+Commit [7212b8b7bb5df111a01bc25f79eb37effa72706e](https://github.com/StoneCypher/jssm/commit/7212b8b7bb5df111a01bc25f79eb37effa72706e)
+
+Author: `jssm perf chart bot <stonecypher@users.noreply.github.com>`
+
+  * chart: graviton perf trend 20260623-035047
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:31:08 AM
+
+Commit [1ab0291af0195aa931067818c4e832d30ef18dcd](https://github.com/StoneCypher/jssm/commit/1ab0291af0195aa931067818c4e832d30ef18dcd)
+
+Author: `jssm perf sync bot <stonecypher@users.noreply.github.com>`
+
+  * perf: nightly sync of graviton runner results from S3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:27:01 AM
+
+Commit [d42baa575f12c9e30abe3b95cda9470c1be95cad](https://github.com/StoneCypher/jssm/commit/d42baa575f12c9e30abe3b95cda9470c1be95cad)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * build(cm6): wire jssm/cm6 export, Rollup ESM target, and optional CM6 peers
+  * Adds the jssm/cm6 subpath to package.json exports (+ files[] for the bundle and its .d.ts), a make_cm6 Rollup config emitting dist/cm6/fsl_language.js while externalizing @codemirror/* and @lezer/* (avoids a duplicate @codemirror/state), and src/ts/cm6/* to the tsconfig include so tsc emits dist/es6/cm6/. make_cm6 is chained into make and make_ci. The CodeMirror/Lezer packages are optional peerDependencies. Validated: tsc + make_cm6 produce a correctly-externalized bundle, npm pack includes both export targets, 21 specs at 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:21:46 AM
+
+Commit [e9b5e1d00edd47352af8ad1106e08b911eaf60ac](https://github.com/StoneCypher/jssm/commit/e9b5e1d00edd47352af8ad1106e08b911eaf60ac)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.145.4
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 6:22:36 PM
+
+Commit [dd4db0c6a3084d91d8d8bfb7da551e190e5ec1b5](https://github.com/StoneCypher/jssm/commit/dd4db0c6a3084d91d8d8bfb7da551e190e5ec1b5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cm6): promote FSL StreamLanguage tokenizer to src, reconciled + drift-guarded
+  * Ports sketch/cm6-lang-fsl into src/ts/cm6/fsl_language.ts as a typed module (jssm/cm6), reconciled against the live grammar (fsl_parser.peg). The sketch had drifted badly: missing property/graph/required/failed_outputs/allow_islands/npm_name/default_size/url, wrong 'line' (now 'linestyle'), and a buggy ,-FFFF atom range (U+002C anchor) that swallowed { } ; : | into atoms — fixed to the grammar's ,-ï¿¿. Adds a 'deprecated' tag modifier (verified against @codemirror/language StreamParser.tokenTable + @lezer/highlight Tag.defineModifier) so graph_bg_color renders struck-through, plus fslHighlightStyle. A drift-guard spec extracts the grammar's config keys and fails if any is not recognized, so the highlighter cannot silently rot again. 21 specs, 100% coverage. CM6 packages added as dev deps; they become optional peers when the jssm/cm6 export + bundle are wired (follow-up).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:13:35 AM
+
+Commit [8f8d390ead4cd8b661298a5f5adf22086b9b4fba](https://github.com/StoneCypher/jssm/commit/8f8d390ead4cd8b661298a5f5adf22086b9b4fba)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [448cfdd4, fe02cb76]
+
+  * Merge remote-tracking branch 'origin/main' into chore_26-06-22_perf-chart-fold
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 23, 2026 3:12:32 AM
+
+Commit [448cfdd4d636ac59ad8af02a6311ad1f8b89f3d0](https://github.com/StoneCypher/jssm/commit/448cfdd4d636ac59ad8af02a6311ad1f8b89f3d0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(chart): fold redesign into make_perf_chart; narrow runner to c8g.medium
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 8:43:26 PM
+
+Commit [9d79a4a55e70cc360b2a0e3682ff5c36483819b6](https://github.com/StoneCypher/jssm/commit/9d79a4a55e70cc360b2a0e3682ff5c36483819b6)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for fe02cb76aab38e49550a81cf9f4cf1768a1466d0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__145__3" />
+
+## [5.145.3] - Jun 22, 2026 8:38:53 PM
+
+Commit [fe02cb76aab38e49550a81cf9f4cf1768a1466d0](https://github.com/StoneCypher/jssm/commit/fe02cb76aab38e49550a81cf9f4cf1768a1466d0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [60005c79, f153d483]
+
+  * Merge pull request #800 from StoneCypher/fix_26-06-22_dot-quote-escape_474
+  * fix(viz): escape double-quotes in DOT state-name labels (fsl#474)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 8:34:52 PM
+
+Commit [f153d4835de0d8c4046bde76066f244a0d16b60c](https://github.com/StoneCypher/jssm/commit/f153d4835de0d8c4046bde76066f244a0d16b60c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.145.3
+  * Regenerated dist, CHANGELOG, README, docs for the #474 fix (escape double-quotes
+in DOT state-name labels). Rebased onto the now-green main (post pick/oracle
+back-out). No runtime behavior change beyond the viz escaping fix.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 8:29:02 PM
+
+Commit [57b037f80269ecf8a932f5de3aa88895fdb63dbb](https://github.com/StoneCypher/jssm/commit/57b037f80269ecf8a932f5de3aa88895fdb63dbb)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [dbad3d35, 60005c79]
+
+  * Merge branch 'main' into fix_26-06-22_dot-quote-escape_474
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 8:25:43 PM
+
+Commit [ebf7ae0717ca65743c8ab65d88c07777c224b097](https://github.com/StoneCypher/jssm/commit/ebf7ae0717ca65743c8ab65d88c07777c224b097)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 60005c79e4d88d3ad807ceb951b09a542458389b
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__145__2" />
+
+## [5.145.2] - Jun 22, 2026 8:21:51 PM
+
+Commit [60005c79e4d88d3ad807ceb951b09a542458389b](https://github.com/StoneCypher/jssm/commit/60005c79e4d88d3ad807ceb951b09a542458389b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [3263e1c6, a068e694]
+
+  * Merge pull request #799 from StoneCypher/chore_26-06-22_back-out-pick-oracle
+  * revert: back out pick/oracle + graph-highlighter (never CI-green; un-break main)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 8:18:03 PM
+
+Commit [a068e6949946ea8746925ca29c89d96789bf6cc5](https://github.com/StoneCypher/jssm/commit/a068e6949946ea8746925ca29c89d96789bf6cc5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * revert: back out the pick/oracle feature and the graph-highlighter API
+  * These three features (PRs/commits: pick, oracle, and the graph-highlighter
+#796) landed on main but never passed CI, so every push since has silently
+failed to release — npm has been stuck at 5.145.1 while main accumulated
+breakage. Backing them out to get main green again so releases (and the
+queued fixes behind them) can flow; they can be re-landed CI-green later (see
+the tracking issue).
+  * What was broken:
+* pick CLI called `sm(string)` (the tagged-template fn) instead of `from`, and
+  its relative imports were one level too shallow (`../../` not `../../../`),
+  so neither the wc nor the cli typechecked.
+* The CLI used `yargs`, which was never a declared dependency — it resolved
+  only transitively through the oracle's dependency tree.
+* The oracle (`@xenova/transformers`) drags in `sharp`, which rollup cannot
+  bundle, so `make_cli` could never build `fsl-pick.cjs`.
+* The graph-highlighter added ~84 lines to `fsl_viz_wc.ts` with no tests,
+  breaking the 100% spec coverage gate.
+* The pick wc was never wired into the build (no `make_wc_pick`); its
+  `dist/wc/pick.js` was committed by hand.
+  * Removed: src/ts/jssm_pick.ts, src/ts/oracle/, src/ts/cli/fsl-pick.ts,
+src/ts/cli/subcommands/pick/, src/ts/wc/fsl_pick_wc*.ts, the jssm_pick spec,
+scripts/download_oracle.cjs, the committed pick dist artifacts; the `fsl-pick`
+bin, the `init:oracle` script, the `@xenova/transformers` dependency (removing
+its 70-package tree, including the transitive `yargs`), and the fsl-pick rollup
+block; reverted the highlighter additions to fsl_viz_wc.ts.
+  * Full build green: vet + full vitest at 100% branch coverage, packs clean.
+Version bumped to 5.145.2.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 7:30:38 PM
+
+Commit [dbad3d35cca25689165e2d60c6d104e1fdae1241](https://github.com/StoneCypher/jssm/commit/dbad3d35cca25689165e2d60c6d104e1fdae1241)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(viz): escape double-quotes in state-name labels so DOT stays valid
+  * A state name containing a literal double-quote — e.g. the FSL
+`"Output \"foo\""`, which parses to the name  Output "foo"  — was emitted into
+the node line as `label="Output "foo""`. The unbalanced quotes are invalid DOT,
+and feeding that to the graphviz/emscripten renderer crashes it hard (the
+reporter had to reload the page; an emscripten heap left in a bad state can take
+the whole renderer down). StoneCypher/fsl#474.
+  * Every other label path (edge head/tail labels, group-cluster labels, chips)
+already routes through `doublequote`; the node label was the one that didn't.
+Escape `display_text` before composing the label. Quote-free names are
+unchanged (`doublequote` is a no-op without a `"`), so existing diagrams are
+byte-identical; the fix is delimiter-agnostic, so the backtick form the issue
+also mentions is covered too.
+  * Tests: a quote-bearing state name now emits the escaped `label="say \"hi\""`
+form and never the unbalanced one; a quote-free name is unchanged.
+  * closes StoneCypher/fsl#474
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 6:22:36 PM
+
+Commit [b0a59ef6302e3140c2c773d2d3858448407f9fa1](https://github.com/StoneCypher/jssm/commit/b0a59ef6302e3140c2c773d2d3858448407f9fa1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(cm6): promote FSL StreamLanguage tokenizer to src, reconciled + drift-guarded
+  * Ports sketch/cm6-lang-fsl into src/ts/cm6/fsl_language.ts as a typed module (jssm/cm6), reconciled against the live grammar (fsl_parser.peg). The sketch had drifted badly: missing property/graph/required/failed_outputs/allow_islands/npm_name/default_size/url, wrong 'line' (now 'linestyle'), and a buggy ,-FFFF atom range (U+002C anchor) that swallowed { } ; : | into atoms — fixed to the grammar's ,-ï¿¿. Adds a 'deprecated' tag modifier (verified against @codemirror/language StreamParser.tokenTable + @lezer/highlight Tag.defineModifier) so graph_bg_color renders struck-through, plus fslHighlightStyle. A drift-guard spec extracts the grammar's config keys and fails if any is not recognized, so the highlighter cannot silently rot again. 21 specs, 100% coverage. CM6 packages added as dev deps; they become optional peers when the jssm/cm6 export + bundle are wired (follow-up).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 6:20:54 PM
+
+Commit [3263e1c6caa935b33cc920ae2aa9bada30eca461](https://github.com/StoneCypher/jssm/commit/3263e1c6caa935b33cc920ae2aa9bada30eca461)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [afc1e64a, 202336fd]
+
+  * Merge pull request #797 from StoneCypher/feat_26-06-22_stochastic_reduction
+  * feat(pick): Stochastic Trace Reduction
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 6:20:11 PM
+
+Commit [202336fd6e4a23383bad88b76d63ebae7b92ffb2](https://github.com/StoneCypher/jssm/commit/202336fd6e4a23383bad88b76d63ebae7b92ffb2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(pick): implement stochastic trace reduction
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 5:13:42 PM
+
+Commit [77429587c750839cafee6c3d3cf41557ef3136fd](https://github.com/StoneCypher/jssm/commit/77429587c750839cafee6c3d3cf41557ef3136fd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): add <fsl-effective-properties> resolved-property panel (#665)
+  * Read-only panel showing the parent machine's FSL property bag resolved through the override chain (machine default -> per-state property:) via machine.props(), refreshing on each transition. fsl-* only per the deprecation policy. v1 surfaces the FSL property system; render-time visual style resolution is a separate viz-pipeline concern, noted as out of scope. 9 jsdom specs, 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 5:06:57 PM
+
+Commit [7083f4ae03a163e3702b061d22300ac6d7d75225](https://github.com/StoneCypher/jssm/commit/7083f4ae03a163e3702b061d22300ac6d7d75225)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): add <fsl-info-panel> state inspector (#661)
+  * Read-only panel that binds to a parent <fsl-instance> via closest_wc and displays the machine's current state, last transition (from/to/action), legal exit actions, and terminal/complete flags, refreshing on each transition event. fsl-* only (no jssm- synonym) per the deprecation policy; binds under a jssm-instance host too since closest_wc matches both prefixes. 10 jsdom specs, 100% coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 5:06:45 PM
+
+Commit [a3678d6aebd6564cdee7831de51e641729d1a992](https://github.com/StoneCypher/jssm/commit/a3678d6aebd6564cdee7831de51e641729d1a992)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(wc): deprecate jssm-* aliases; add define_canonical for fsl-only components
+  * Synonym policy (fsl.tools brand alignment): keep the three shipped dual-named components (jssm-viz/jssm-instance/jssm-bind) but mark them @deprecated in JSDoc and WebComponents.md (reversing the prior no-removal note), slated for v6 removal (manifest entry belongs on the v6 branch). New components register fsl-* only via the new define_canonical() helper; closest_wc already matches both prefixes, so fsl-*-only panels still bind inside a jssm-instance host. Records the policy in the execution plan doc.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 5:03:33 PM
+
+Commit [9104885d373474b3794602a3efae5a18659b8d79](https://github.com/StoneCypher/jssm/commit/9104885d373474b3794602a3efae5a18659b8d79)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for c219d064e615291b9a06f828ede2af12070004e3
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__145__1" />
+
+## [5.145.1] - Jun 22, 2026 5:00:15 PM
+
+Commit [afc1e64a3f5df799149e7d0ca77d8597bc497d0f](https://github.com/StoneCypher/jssm/commit/afc1e64a3f5df799149e7d0ca77d8597bc497d0f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [c219d064, fd4fcd7f]
+
+  * Merge pull request #796 from StoneCypher/feat_26-06-22_graph_highlighter
+  * feat(viz): Add Graph Highlighter to jssm-viz (Traces & Nodes)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 5:00:10 PM
+
+Commit [fd4fcd7fc69048ff377a6fc5888ecb5d561c4745](https://github.com/StoneCypher/jssm/commit/fd4fcd7fc69048ff377a6fc5888ecb5d561c4745)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [7a365cbe, b6467fcb]
+
+  *  Merge main
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:59:09 PM
+
+Commit [c219d064e615291b9a06f828ede2af12070004e3](https://github.com/StoneCypher/jssm/commit/c219d064e615291b9a06f828ede2af12070004e3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [b6467fcb, 2c0d0216]
+
+  * Merge pull request #795 from StoneCypher/feat_26-06-22_perf-gapfill-and-metrics
+  * perf: scaling-benchmark metric suite + gap-fill/regression tooling + backfill trigger
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:57:11 PM
+
+Commit [7a365cbeb835fa7ae2ed387079f4363aad131188](https://github.com/StoneCypher/jssm/commit/7a365cbeb835fa7ae2ed387079f4363aad131188)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(viz): Add programmatic Graph Highlighter API for traces
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:55:01 PM
+
+Commit [2c0d021614c97c42ef1a1e9c495762313e943b2f](https://github.com/StoneCypher/jssm/commit/2c0d021614c97c42ef1a1e9c495762313e943b2f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): version bump to 5.145.1 + rebuilt artifacts
+  * Lands the perf scaling-benchmark instrumentation (footprint / bytes-per-edge,
+Map/Set/Array container census, scaling exponents + R2, latency spread, bundle
+size raw/gzip/brotli, GC pause, warmup, parse-vs-construct split, cold load
+time, per-op allocations), the fill_perf_gaps + direction-aware regression-alarm
+tooling, the list_edges/parse feature-gating so --harness-from runs on old
+libraries degrade instead of crashing, and the manual perf-backfill
+workflow_dispatch. Tooling/CI only -- no published library change (patch bump).
+Merged main 5.145.0 (parallel action edges, #325).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:49:46 PM
+
+Commit [c2bd814039cbe1e91382afbb709ed21a03b57e52](https://github.com/StoneCypher/jssm/commit/c2bd814039cbe1e91382afbb709ed21a03b57e52)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for b6467fcb69fb0e9431f5e6c745ffa02e9d13e4e0
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:47:44 PM
+
+Commit [7168f51d3789130607d84a58ff509de6cc9109c1](https://github.com/StoneCypher/jssm/commit/7168f51d3789130607d84a58ff509de6cc9109c1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [10fe7ab6, b6467fcb]
+
+  * Merge remote-tracking branch 'origin/main' into feat_26-06-22_perf-gapfill-and-metrics
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:46:51 PM
+
+Commit [10fe7ab613e502c2bfe479876c39a3a21c182466](https://github.com/StoneCypher/jssm/commit/10fe7ab613e502c2bfe479876c39a3a21c182466)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(ci): manual perf-backfill workflow_dispatch — one detached graviton run per tag, --harness-from main on c8g.medium spot
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:46:43 PM
+
+Commit [6d3341a970a033d13e577156427cff9b2466dcd5](https://github.com/StoneCypher/jssm/commit/6d3341a970a033d13e577156427cff9b2466dcd5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): re-emit machine events as DOM CustomEvents; add panel slots (#639)
+  * Implements mechanism 4 of the <fsl-instance> customization surface: subscribes to the machine.on(...) event API (#638) and bridges each library event to a composed, bubbling fsl-<name> DOM CustomEvent. Dispatch is deferred to Lit's updated() so the #639 ordering guarantee holds (host attributes, state slot, and --current-state are all current before a listener runs). Re-entrant transitions are queued for the next render cycle. Adds default-template slots for the forthcoming panels (history, data-inspector, hook-log, effective-properties, simulation, export) and documents the five-mechanism surface in WebComponents.md.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:46:36 PM
+
+Commit [b268de2b1679f8607dd4ffed3da3424329fa6da2](https://github.com/StoneCypher/jssm/commit/b268de2b1679f8607dd4ffed3da3424329fa6da2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(wc): add <fsl-*> panel-suite execution plan (#793)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:45:30 PM
+
+Commit [b4dc95fb15180968fed2dd99f0c2f6ea2fa1bfd5](https://github.com/StoneCypher/jssm/commit/b4dc95fb15180968fed2dd99f0c2f6ea2fa1bfd5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(bench): feature-gate list_edges + parse so --harness-from runs on pre-parse/pre-list_edges libraries degrade instead of crashing
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__145__0" />
+
+## [5.145.0] - Jun 22, 2026 4:45:05 PM
+
+Commit [b6467fcb69fb0e9431f5e6c745ffa02e9d13e4e0](https://github.com/StoneCypher/jssm/commit/b6467fcb69fb0e9431f5e6c745ffa02e9d13e4e0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [2302d690, 8201441f]
+
+  * Merge pull request #794 from StoneCypher/fix_26-06-22_action-aware-edges_325
+  * feat(edges): parallel action edges between the same states (fsl#325, fsl#531)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:41:02 PM
+
+Commit [8201441f9dedd852423220139654f414af7666cd](https://github.com/StoneCypher/jssm/commit/8201441f9dedd852423220139654f414af7666cd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.145.0
+  * Regenerated dist, CHANGELOG, README, docs, and custom-elements manifest for the
+parallel-action-edges feature (#325, #531). Minor bump: backward-compatible new
+capability (previously-rejected FSL now constructs; existing diagrams unchanged).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 4:35:52 PM
+
+Commit [c94c79d2746496b864e12f2ebffb6178ec53a009](https://github.com/StoneCypher/jssm/commit/c94c79d2746496b864e12f2ebffb6178ec53a009)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(edges): allow parallel action edges between the same states (#325, #531)
+  * The construction-time edge guard rejected any second edge sharing a (from, to)
+pair, so two different actions could not drive the same transition:
+  *     a 'fight' -> dead;  a 'flee' -> dead;   // threw "already has a to dead"
+  * But those edges dispatch unambiguously through `action(name)` — `(action, from)`
+is already the action index's key — so the (from, to) guard was over-strict.
+The self-loop instance of the same bug is #531 (`A 'x' -> A; A 'y' -> A;`).
+  * Changes:
+* The duplicate-edge guard is now keyed from -> (to -> Set<slot>), where a slot
+  is the edge's action name, or '' for the one permitted plain action-less
+  edge. Distinct actions between a pair coexist; a repeated slot still throws.
+  A probability-bearing action-less edge is exempt entirely, so a weighted
+  fan-out may name the same target more than once. (from -> to) adjacency is
+  still recorded once per distinct target, so the `to`/`from` arrays stay sets.
+* `_edge_map` and `_edge_id_by_pair` are first-declared-wins, so
+  `lookup_transition_for` and the plain-transition fast-path resolve a parallel
+  pair to the first edge declared (agreeing with edges_between(...)[0]).
+* Viz draws one directed line per edge between a pair, so parallel action edges
+  and multi-action self-loops render as separate labelled edges. The
+  bidirectional `dir=both` merge is kept for the common one-each-way case, so
+  every existing single-edge / bidirectional diagram is byte-identical.
+  * `action(name)` dispatch, `transition(name)` (first edge), `edges_between`,
+`list_exit_actions`, and adjacency all behave correctly; the action-collision
+guard (one edge per `(action, from)`) is unchanged. Tests cover dispatch, the
+self-loop case, first-declared lookup, the still-rejected plain/action dups, the
+probabilistic exemption, and the parallel/self-loop viz output.
+  * Weighted same-action fan-out (`a 'go' 30% -> b; a 'go' 70% -> c;`) is a separate
+axis (the `(action, from)` guard) and is filed as its own feature.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:54:09 PM
+
+Commit [d6a497c4eb39670b251c54acca9ff2ee928f1eb5](https://github.com/StoneCypher/jssm/commit/d6a497c4eb39670b251c54acca9ff2ee928f1eb5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): wire Extended metrics into the harness — parse-vs-construct split, warmup, cold load time, GC pause, and per-op alloc for all ops
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:54:02 PM
+
+Commit [d7587472bf3d5f5386dcecc5db628a2512d47c45](https://github.com/StoneCypher/jssm/commit/d7587472bf3d5f5386dcecc5db628a2512d47c45)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(bench): drain PerformanceObserver.takeRecords() so buffered GC entries aren't lost on disconnect
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:43:21 PM
+
+Commit [d0c03017b04bd50fc0ff9b3e02c79992a078d0b7](https://github.com/StoneCypher/jssm/commit/d0c03017b04bd50fc0ff9b3e02c79992a078d0b7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): cold bundle load-time probe (fresh-process require timing)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:42:07 PM
+
+Commit [f1598bf931060cfe892ef0478249804d65e7c0d6](https://github.com/StoneCypher/jssm/commit/f1598bf931060cfe892ef0478249804d65e7c0d6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): pure timing reductions (median, splitBuild, summarizeWarmup)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:41:07 PM
+
+Commit [e57a0240eca4045211d2281dc78fd78b0c08653b](https://github.com/StoneCypher/jssm/commit/e57a0240eca4045211d2281dc78fd78b0c08653b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): GC-pause summarizer + perf_hooks tracker
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:24:54 PM
+
+Commit [e2899d65f9a9d661f61b42cd2c72b884f0747e9f](https://github.com/StoneCypher/jssm/commit/e2899d65f9a9d661f61b42cd2c72b884f0747e9f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(perf): direction-aware findFieldRegressions so new metrics (bytes/edge, latency, exponent) alarm too
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:24:54 PM
+
+Commit [151db2260c55e35c23092398a4234eb0dd55291e](https://github.com/StoneCypher/jssm/commit/151db2260c55e35c23092398a4234eb0dd55291e)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 2302d6906f1d2e6607d1df5ca41fe1533dd19382
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:22:54 PM
+
+Commit [5057937547c05cf7a9b049ba117a96cf51eecfda](https://github.com/StoneCypher/jssm/commit/5057937547c05cf7a9b049ba117a96cf51eecfda)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(perf): regression-alarm core — flag per-case ops drops vs previous run
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:21:22 PM
+
+Commit [16f146aaecf3c9613965cebe2a5c8e45e39876a8](https://github.com/StoneCypher/jssm/commit/16f146aaecf3c9613965cebe2a5c8e45e39876a8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(perf): fill_perf_gaps — list released tags missing a graviton result for backfill
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__144__8" />
+
+## [5.144.8] - Jun 22, 2026 3:20:26 PM
+
+Commit [2302d6906f1d2e6607d1df5ca41fe1533dd19382](https://github.com/StoneCypher/jssm/commit/2302d6906f1d2e6607d1df5ca41fe1533dd19382)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [1d35dc4b, 3166f207]
+
+  * Merge pull request #791 from StoneCypher/fix_26-06-22_tier1-bug-batch
+  * fix: Tier-1 bug sweep — CLI graceful exit (#614), set_hook validation (#734), parse regression guards (fsl#333, fsl#184)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:19:02 PM
+
+Commit [0912b279017865ce227a44e2240778519731ca00](https://github.com/StoneCypher/jssm/commit/0912b279017865ce227a44e2240778519731ca00)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): per-op latency spread (min/median/max ms) from benny details
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:16:52 PM
+
+Commit [12a8563f0af1cfb94b97c3ca1f85755ca2a9d135](https://github.com/StoneCypher/jssm/commit/12a8563f0af1cfb94b97c3ca1f85755ca2a9d135)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): per-machine Map/Set/Array container census on construct rows
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:16:22 PM
+
+Commit [3166f207d4d5d931c3b3882ce3329935b0eddef7](https://github.com/StoneCypher/jssm/commit/3166f207d4d5d931c3b3882ce3329935b0eddef7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.144.8
+  * Regenerated dist, CHANGELOG, README, docs, and custom-elements manifest for the
+Tier-1 bug-fix batch: #614 (CLI graceful exit on Windows), #734 (set_hook
+descriptor validation), #333 (escaped-quote regression guard), and #184
+(quoted-Amharic regression guards).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:11:29 PM
+
+Commit [4ff1a296c03bb1a30271e2248dd7e293d0888f4e](https://github.com/StoneCypher/jssm/commit/4ff1a296c03bb1a30271e2248dd7e293d0888f4e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(hooks): match new set_hook unknown-kind message from #734 validator
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:08:19 PM
+
+Commit [438e69fbcd331b90243e287ea2aaf4cf164c70e0](https://github.com/StoneCypher/jssm/commit/438e69fbcd331b90243e287ea2aaf4cf164c70e0)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): write dist bundle sizes (raw/gzip/brotli) into scaling.json
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:07:26 PM
+
+Commit [5f744a03bca19b7e2dbfee484dc35c983cd9756f](https://github.com/StoneCypher/jssm/commit/5f744a03bca19b7e2dbfee484dc35c983cd9756f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): bundle-size (raw/gzip/brotli) measurement + collector
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:06:11 PM
+
+Commit [76e48a94da22365a74021ba4b05f05226c20b32f](https://github.com/StoneCypher/jssm/commit/76e48a94da22365a74021ba4b05f05226c20b32f)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(parse): re-enable quoted-Amharic machine-attribute tests (#184)
+  * Quoted machine attributes containing Amharic (Ethiopic) parse correctly now —
+the grammar's string/atom character classes cover the full BMP — so both
+`machine_language: አማርኛ;` and `machine_language: "አማርኛ";` reduce to `am`.
+  * The quoted-form tests were commented out in the old t.is (ava/tape) style
+during the vitest migration and never restored. Convert them to expect().toBe()
+and re-enable: the per-language quoted transclusion test in eachTest (covers
+English case variants + Amharic) and the standalone quoted-Amharic test.
+  * Closes #184
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:04:15 PM
+
+Commit [9e6708e099fdfae490c510ad5cb3a1d4c06814c1](https://github.com/StoneCypher/jssm/commit/9e6708e099fdfae490c510ad5cb3a1d4c06814c1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(parse): regression guard for escaped double-quotes in strings (#333)
+  * The grammar already handles `\"` inside a string (the `Char` rule's
+`Escape '"'` branch turns it into a literal `"`), so the bug reported in #333
+no longer reproduces — a `dot_preamble: "label=\"Diagram\";";` parses and
+round-trips to `label="Diagram";`. Add a regression test pinning that behaviour
+so it cannot silently regress.
+  * Closes #333
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 3:02:00 PM
+
+Commit [059df569ba7df7758134b740202ef362768c5353](https://github.com/StoneCypher/jssm/commit/059df569ba7df7758134b740202ef362768c5353)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(hooks): validate set_hook descriptors instead of silently registering dead hooks
+  * set_hook switched on `kind` and read the per-kind spatial fields (from/to/
+action) with no validation. A mis-shaped descriptor — e.g. an `exit` hook given
+`to` instead of `from` — interned `undefined` as the key and registered a hook
+that could never fire, with no error (#734).
+  * Add a compile-time-exhaustive `hook_required_fields` table (Record over the
+kind union, so adding a kind without listing its fields is a build error) and a
+`_validate_hook_description` guard run at the top of set_hook. It throws a
+JssmError when: the kind is unknown, the handler is not a function, a required
+field is missing, or an inapplicable field is present. The switch's `default`
+case is removed — the validator now rejects unknown kinds before the switch, so
+it is exhaustive over the known kinds (preserving the 100% branch gate).
+  * Tests: new descriptor-validation block in hooks.spec.ts covering missing-
+required, inapplicable-present, non-function handler, and the happy path; the
+existing unknown-kind ("Smaug") test now exercises the validator.
+  * Closes #734
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:56:06 PM
+
+Commit [0688c1b7a2e44d79678b6c4ed6af6071e3b47acc](https://github.com/StoneCypher/jssm/commit/0688c1b7a2e44d79678b6c4ed6af6071e3b47acc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(cli): graceful exit so libuv async handles close cleanly on Windows
+  * The three CLI entrypoints (fsl, fsl-render, fsl-export-system-prompt) called
+process.exit(code), forcing an abrupt event-loop teardown. The image-render
+paths load WebAssembly (@viz-js/viz, @resvg/resvg-wasm) whose background
+thread signals completion through a libuv async handle; exiting before that
+handle finished closing tripped `Assertion failed: !(handle->flags &
+UV_HANDLE_CLOSING)` on Windows during teardown, making a successful render
+look like a crash (the image was written correctly).
+  * Set process.exitCode = code instead and let the event loop drain naturally, so
+the async handle closes cleanly. The exit code still propagates verbatim.
+  * Tests: binaries.spec.ts reworked to observe process.exitCode (and restore it,
+so the assigned code never becomes the test worker's own exit status) rather
+than stubbing the no-longer-called process.exit.
+  * Closes #614
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:55:05 PM
+
+Commit [453bb966bd3d2c667ccec0cce3e43737e2ab8a28](https://github.com/StoneCypher/jssm/commit/453bb966bd3d2c667ccec0cce3e43737e2ab8a28)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): write per-op/family scaling exponents into scaling.json
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:54:02 PM
+
+Commit [fd7d476ca6809e6342570324c54f05953dfc539c](https://github.com/StoneCypher/jssm/commit/fd7d476ca6809e6342570324c54f05953dfc539c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): per-op/family scaling-exponent computation
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:52:56 PM
+
+Commit [fff80cae55c4c10a01abae5d5b8a3e4f162eecf9](https://github.com/StoneCypher/jssm/commit/fff80cae55c4c10a01abae5d5b8a3e4f162eecf9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): log-log fit + shape-name parse primitives
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:51:42 PM
+
+Commit [b80488235f5a875b196377ced90aa419120dde60](https://github.com/StoneCypher/jssm/commit/b80488235f5a875b196377ced90aa419120dde60)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(perf): core scaling-exponent metric implementation plan
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:41:21 PM
+
+Commit [f834c1aca10f29380c898c8ac19b106d50903d7e](https://github.com/StoneCypher/jssm/commit/f834c1aca10f29380c898c8ac19b106d50903d7e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): collect + inject per-machine footprint and per-op alloc into scaling.json
+  * Adds collectMemory + statesFromName to the memory module and a memoryPass in
+benchmark_scaling.cjs that, after the timing suite, measures each shape's
+retained footprint (bytes, bytes/state, bytes/edge) and per-op allocation, then
+injects them as additive fields on scaling.json. Refactors the construct-source
+switch into a shared sourceForShape. Smoke-confirmed under --expose-gc; null and
+untouched without it.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:38:05 PM
+
+Commit [b75bd2446835ebea47b26fa1af8807fdd2d4d410](https://github.com/StoneCypher/jssm/commit/b75bd2446835ebea47b26fa1af8807fdd2d4d410)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): run scaling benchmark with --expose-gc; overlay memory module in --harness-from
+  * The scaling harness now requires benchmark_scaling_memory.cjs, so the
+--harness-from overlay checkout list must include it or an old-tag run crashes
+on the missing require. Also exposes gc (npm script + the direct-node overlay
+path) so the footprint/alloc metrics populate; without it they stay null.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:29:40 PM
+
+Commit [b2731036313781e24308f78e3a7c1199c53a2dbc](https://github.com/StoneCypher/jssm/commit/b2731036313781e24308f78e3a7c1199c53a2dbc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): pure memory-field json augmenter
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:28:31 PM
+
+Commit [ac4ce7d15ae63e8c644c3c4257665d597b21fcd5](https://github.com/StoneCypher/jssm/commit/ac4ce7d15ae63e8c644c3c4257665d597b21fcd5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): per-batch allocation primitive
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:27:14 PM
+
+Commit [d7e1eeb2aff008e402d515751d24319d42762803](https://github.com/StoneCypher/jssm/commit/d7e1eeb2aff008e402d515751d24319d42762803)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(bench): retained-bytes footprint primitive with injectable gc seam
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 2:24:09 PM
+
+Commit [b640e562c30d72ffd985e37dce4d5154fe80f8a3](https://github.com/StoneCypher/jssm/commit/b640e562c30d72ffd985e37dce4d5154fe80f8a3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(perf): empty-but-archive old c7g perfs before the uniform c8g re-run
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:45:47 PM
+
+Commit [c925e7e32e6bea833d3dc796b04ab943fc17dd77](https://github.com/StoneCypher/jssm/commit/c925e7e32e6bea833d3dc796b04ab943fc17dd77)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for 1d35dc4b1d2a7d3e57d99c23db0f382e132351e5
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__144__7" />
+
+## [5.144.7] - Jun 22, 2026 1:41:20 PM
+
+Commit [1d35dc4b1d2a7d3e57d99c23db0f382e132351e5](https://github.com/StoneCypher/jssm/commit/1d35dc4b1d2a7d3e57d99c23db0f382e132351e5)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [dda16e35, 7f1a62fd]
+
+  * Merge pull request #565 from mhsdef/main
+  * Add file extensions to TS imports
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:41:10 PM
+
+Commit [f6b848f2955dfa1cd8f5bda672a8e2ffb1fd7fcc](https://github.com/StoneCypher/jssm/commit/f6b848f2955dfa1cd8f5bda672a8e2ffb1fd7fcc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  *  chore: init phantom branch for models cache
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:37:46 PM
+
+Commit [7f1a62fd0b0897c882a677d760f1f6dfbf819cc7](https://github.com/StoneCypher/jssm/commit/7f1a62fd0b0897c882a677d760f1f6dfbf819cc7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stoch): fix flaky compareVersions antisymmetry assertion (-0 vs +0)
+  * The antisymmetry case asserted Math.sign(compareVersions(v2, v1)) toBe
+-expected. When fast-check generated two equal version triples, expected was
+0 and -expected was -0; compareVersions returns +0 for equal inputs, and
+vitest .toBe uses Object.is, where Object.is(+0, -0) is false. The property
+therefore failed intermittently (only when equal triples were drawn) -- this
+is what skipped the 5.144.6 release on the windows build matrix.
+  * compareVersions itself is correct; only the test expectation produced -0.
+Guard the equal case so it expects +0.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:37:46 PM
+
+Commit [5bd5da67dd0bb055a3f6c286ea9f6c89c40e4ed1](https://github.com/StoneCypher/jssm/commit/5bd5da67dd0bb055a3f6c286ea9f6c89c40e4ed1)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * @
+test(stoch): fix flaky compareVersions antisymmetry assertion (-0 vs +0)
+  * The antisymmetry case asserted `Math.sign(compareVersions(v2, v1))` toBe
+`-expected`. When fast-check generated two equal version triples, expected was
+0 and -expected was -0; compareVersions returns +0 for equal inputs, and
+vitest .toBe uses Object.is, where Object.is(+0, -0) is false. The property
+therefore failed intermittently (only when equal triples were drawn) -- this
+is what skipped the 5.144.6 release on the windows build matrix.
+  * compareVersions itself is correct; only the test expectation produced -0.
+Guard the equal case so it expects +0.
+@
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:33:40 PM
+
+Commit [b12afa5582ce18889e2ffa23830c43916d347fc2](https://github.com/StoneCypher/jssm/commit/b12afa5582ce18889e2ffa23830c43916d347fc2)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): build artifacts + version bump to 5.144.7
+  * Regenerated dist (the dist/es6 ESM and .d.ts now carry the .js import
+extensions end to end), CHANGELOG, README, docs, custom-elements manifest,
+and perf chart for the #565 ESM-extension adoption. No runtime behavior change.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:27:21 PM
+
+Commit [eb6b6aaca01d1003f8c9048a4a5056fc121ee040](https://github.com/StoneCypher/jssm/commit/eb6b6aaca01d1003f8c9048a4a5056fc121ee040)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(esm): complete the .js import-extension convention (adopts #565)
+  * PR #565 (mhsdef, Jan 2024) correctly diagnosed Node's mandatory ESM file
+extensions and added `.js` to the relative imports across the library source
+that existed then. The runtime crash he hit (ERR_MODULE_NOT_FOUND on the loose
+dist/es6 files) was later sidestepped independently by shipping a bundled
+dist/jssm.es6.mjs instead, but his underlying point stands: the source should
+carry explicit extensions so the emitted ESM is valid native ESM, and so the
+tree is ready for moduleResolution: nodenext.
+  * This finishes what his branch started. His original commit is preserved with
+his authorship; this commit extends the same convention to the ~15 library
+files added since 2024 (jssm_intern, jssm_viz, the whole cli/ tree, etc.), so
+every extensionless relative import/export specifier in the shipped library
+graph now ends in .js. tsc (moduleResolution: node) accepts the extensions and
+emits them through to dist/es6.
+  * Test files are intentionally left unchanged: they are not part of the shipped
+library graph and run under vitest, which resolves either form.
+  * Co-authored-by: mhsdef <github@mhs.fastmail.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:24:05 PM
+
+Commit [f041936e244cd1a18152452f73d78e00f1d720e9](https://github.com/StoneCypher/jssm/commit/f041936e244cd1a18152452f73d78e00f1d720e9)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [183e7217, dda16e35]
+
+  * Merge branch 'main' into pr-565-mhsdef
+  * # Conflicts:
+#       src/ts/jssm.ts
+#       src/ts/jssm_compiler.ts
+#       src/ts/jssm_error.ts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:18:53 PM
+
+Commit [7e3da72c9e7707b2a5a2217c6528b2b627d0e866](https://github.com/StoneCypher/jssm/commit/7e3da72c9e7707b2a5a2217c6528b2b627d0e866)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(perf): core memory/alloc metrics implementation plan
+  * 5-task TDD plan: a testable benchmark_scaling_memory.cjs (retained-bytes
+footprint + per-batch allocation primitives behind an injectable gc seam, pure
+json augmenter, collector), wired into benchmark_scaling.cjs as an additive
+scaling.json pass (footprintBytes/bytesPerState/bytesPerEdge on construct rows,
+allocBytesPerOp on op rows), and --expose-gc enablement in the graviton runner.
+Object-count and the other Core families are deferred to sibling plans.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:10:21 PM
+
+Commit [dda16e35ff4850684234a09fc4d2108523a25d92](https://github.com/StoneCypher/jssm/commit/dda16e35ff4850684234a09fc4d2108523a25d92)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [e3e49d59, 5d655d50]
+
+  * Merge pull request #774 from tomaioo/fix/security/unsafe-html-injection-via-unescaped-svg-
+  * Security: Unsafe HTML injection via unescaped SVG content in htmlTarget
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:09:19 PM
+
+Commit [e19d3868ad8423600a6ffde2b1cb882f2bd24f3a](https://github.com/StoneCypher/jssm/commit/e19d3868ad8423600a6ffde2b1cb882f2bd24f3a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(perf): detailed metric catalog + tiering design
+  * Brainstormed metric families (throughput, memory/footprint incl. bytes-per-edge
+and object counts, latency tails + run-to-run variance, big-O scaling exponent
++ R2, GC, warmup, package/load, carrying cost, op-coverage, composites) plus a
+runner-lifecycle run-step-timing family that both tunes EC2 --shutdown-minutes
+and settles the setup-vs-benchmark instance-type question. Tiered Core/Extended/
+Park with emit locations (scaling.json vs meta.json) and design constraints.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 1:06:51 PM
+
+Commit [5d655d50d2520fe365870032179a07e667a4c47a](https://github.com/StoneCypher/jssm/commit/5d655d50d2520fe365870032179a07e667a4c47a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(cli): cover apostrophe escaping in htmlTarget; rebuild for release 5.144.6
+  * Adds a single-quote case to targets-html.spec.ts that guards the apostrophe
+arm of escapeHtml added in tomaioo's fix (PR #774): a title containing ' must
+render as &#39; so it can never break out of a quoted HTML context. Substring
+assertions, no golden file.
+  * Also carries the version bump to 5.144.6 and the full rebuild of generated
+artifacts (dist bundles, CHANGELOG, README, docs, perf chart) required to ship
+the fix, since main releases on every push and the published artifact builds
+from committed dist.
+  * tomaioo's original change (src/ts/cli/subcommands/render/targets/html.ts) is
+preserved as its own authored commit; this commit only adds the test and the
+release scaffolding on top.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 12:59:09 PM
+
+Commit [2bc4f4517c14fa2ed55992f0a168b37431f4fc3c](https://github.com/StoneCypher/jssm/commit/2bc4f4517c14fa2ed55992f0a168b37431f4fc3c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [244d88d6, e3e49d59]
+
+  * Merge branch 'main' into fix/security/unsafe-html-injection-via-unescaped-svg-
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 12:53:28 PM
+
+Commit [5900f45a6516274ab0bd989e22a896330966c9a8](https://github.com/StoneCypher/jssm/commit/5900f45a6516274ab0bd989e22a896330966c9a8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(perf): capture instrumentation + graviton gap-fill plan
+  * Design spec for the perf work that came out of the 5.142-5.143 regression
+hunt: add metrics (memory/footprint, allocs/op, carrying-cost, cold/warm,
+bundle size), build easy gap-fill tooling (workflow_dispatch + fill_perf_gaps,
+replacing a no-gap alarm), re-run a uniform c8g.medium spot/parallel baseline,
+and add a regression-delta alarm once the fill lands. Captures the ruled-out
+commits and the 'edges_between method unchanged -> object-weight' finding.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 11:05:45 AM
+
+Commit [d60c027881a36e57d3703421a39fd9dcc3f2a3ea](https://github.com/StoneCypher/jssm/commit/d60c027881a36e57d3703421a39fd9dcc3f2a3ea)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for e3e49d59870120bfbc3e0e7bd896d049bf9f0a97
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__144__5" />
+
+## [5.144.5] - Jun 22, 2026 11:01:32 AM
+
+Commit [e3e49d59870120bfbc3e0e7bd896d049bf9f0a97](https://github.com/StoneCypher/jssm/commit/e3e49d59870120bfbc3e0e7bd896d049bf9f0a97)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [72a04655, 9a643d7b]
+
+  * Merge pull request #789 from StoneCypher/fix_26-06-22_js-yaml-dos
+  * fix(deps): retire vulnerable js-yaml (GHSA-h67p-54hq-rp68) without bumping eslint
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 10:57:36 AM
+
+Commit [9a643d7bb1664d8e5e969a0e69d6793365eeff8a](https://github.com/StoneCypher/jssm/commit/9a643d7bb1664d8e5e969a0e69d6793365eeff8a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(deps): retire vulnerable js-yaml (GHSA-h67p-54hq-rp68) without bumping eslint
+  * Dependabot alert #73: js-yaml <= 4.1.1 has a quadratic-complexity DoS in
+merge-key handling (GHSA-h67p-54hq-rp68, medium, dev scope). js-yaml entered
+only transitively through eslint@7.32.0 -> @eslint/eslintrc@0.4.3, pinned at
+js-yaml@3.14.2.
+  * The blunt Dependabot fix (#766) bumps eslint itself to pull a newer eslintrc
+whose loader uses js-yaml 4.x's `load`, but that cascades into an ERESOLVE
+against the pinned @typescript-eslint@5.62.0. Instead, decouple the config
+*format* from the parser:
+  * * Add an npm `overrides` entry forcing js-yaml@^4.2.0, lifting every copy in
+  the tree to 4.2.0 (out of the <= 4.1.1 vulnerable range). The lockfile delta
+  is the clean 3->4 swap only: argparse 1->2, esprima and sprintf-js dropped.
+* Rename .eslintrc -> .eslintrc.json so eslint dispatches to its pure-JSON
+  loader (loadJSONConfigFile -> JSON.parse) instead of the extensionless
+  legacy loader (loadLegacyConfigFile), which calls yaml.safeLoad -- a method
+  REMOVED in js-yaml 4.x. With the JSON loader, js-yaml is never invoked, so
+  forcing 4.x cannot break config loading.
+* The old .eslintrc was not valid JSON (trailing comma after "module",
+  unquoted `rules` key) and so was silently parsed via the YAML fallback. The
+  renamed file is corrected to strict JSON; `npm run eslint` runs green.
+  * eslint stays pinned at 7; @typescript-eslint stays at 5.x; no ERESOLVE.
+  * Out of scope: a pre-existing high-severity `ws` advisory remains (separate
+alert, untouched by this change). npm audit is not a build gate here.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__144__4" />
+
+## [5.144.4] - Jun 22, 2026 10:45:51 AM
+
+Commit [72a04655f0616f9cb852137d5eda67f483cb3aa8](https://github.com/StoneCypher/jssm/commit/72a04655f0616f9cb852137d5eda67f483cb3aa8)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [a0bdc164, dc5b8b8a]
+
+  * Merge pull request #788 from StoneCypher/chore_26-06-22_perf-chart-guides
+  * chore(perf-chart): per-run vertical guides + panel gaps in benchmark charts
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 10:41:38 AM
+
+Commit [dc5b8b8ae0c5ddd80c096705edb410865a2b7517](https://github.com/StoneCypher/jssm/commit/dc5b8b8ae0c5ddd80c096705edb410865a2b7517)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(perf-chart): add per-run vertical guides and panel gaps to benchmark charts
+  * make_perf_chart.cjs:
+* panel_svg now draws a very faint (#f4f4f4) vertical guide behind every
+  run column, drawn before the data paths/markers so it stays behind them,
+  letting a data point be lined up with its source version/PR at a glance.
+* render_chart gains a configurable panel_gap (default 32px, ~2em at the
+  16px root font) so stacked operation panels read as distinct charts; the
+  composite height grows to accommodate the gaps.
+* DocBlocks updated for both changes.
+  * Tests: three new render_chart cases cover the per-run guide stroke (in both
+the composite and each standalone panel), the default stacking offsets, and
+that panel_gap is configurable and widens the composite canvas.
+  * Tooling-only change to the benchmark chart generator; no library surface
+touched. Full build green.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 10:41:38 AM
+
+Commit [e8b38185f178a23d56eefb89c28387a0faff05c7](https://github.com/StoneCypher/jssm/commit/e8b38185f178a23d56eefb89c28387a0faff05c7)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * @
+chore(perf-chart): add per-run vertical guides and panel gaps to benchmark charts
+  * make_perf_chart.cjs:
+* panel_svg now draws a very faint (#f4f4f4) vertical guide behind every
+  run column, drawn before the data paths/markers so it stays behind them,
+  letting a data point be lined up with its source version/PR at a glance.
+* render_chart gains a configurable panel_gap (default 32px, ~2em at the
+  16px root font) so stacked operation panels read as distinct charts; the
+  composite height grows to accommodate the gaps.
+* DocBlocks updated for both changes.
+  * Tests: three new render_chart cases cover the per-run guide stroke (in both
+the composite and each standalone panel), the default stacking offsets, and
+that panel_gap is configurable and widens the composite canvas.
+  * Tooling-only change to the benchmark chart generator; no library surface
+touched. Full build green.
+@
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 9:42:30 AM
+
+Commit [b9ffb2e2f1ecbfbda2fc5ad1f565909cfc1a4cf5](https://github.com/StoneCypher/jssm/commit/b9ffb2e2f1ecbfbda2fc5ad1f565909cfc1a4cf5)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for a0bdc16436f70658f10504727a36a1f23000d7be
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__144__3" />
+
+## [5.144.3] - Jun 22, 2026 9:37:23 AM
+
+Commit [a0bdc16436f70658f10504727a36a1f23000d7be](https://github.com/StoneCypher/jssm/commit/a0bdc16436f70658f10504727a36a1f23000d7be)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [ec24b6ab, db5bc975]
+
+  * Merge pull request #787 from StoneCypher/perf_26-06-22_v5-action-listers
+  * perf: faster action listers + transition compiler; add action-dispatch benchmarks
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 7:59:02 AM
+
+Commit [db5bc9755c7de6316b64b93c4ff954c62fd4ce9c](https://github.com/StoneCypher/jssm/commit/db5bc9755c7de6316b64b93c4ff954c62fd4ce9c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf: faster action listers + transition compiler; add action-dispatch benchmarks
+  * Runtime:
+* jssm.ts list_exit_actions/probable_action_exits: drop the
+  Array.from().map().filter().map() chains. `_reverse_actions` is keyed by
+  edge.from (see its population), so the `from === whichState` filter was
+  always true — list_exit_actions now returns the reverse-action keys directly,
+  and probable_action_exits pushes in a single forEach with no dead guard.
+* jssm_compiler.ts compile_rule_transition_step: replace nested .map().map()
+  plus a per-recursion `acc.concat(edges)` (an O(n^2) copy over a transition
+  chain) with for...of loops that push straight into the accumulator — O(n).
+  * Tooling:
+* benchmark_scaling: add action(), list_exit_actions(), and
+  probable_action_exits() scaling cases, feature-detected so older libraries
+  benchmarked via --harness-from degrade gracefully. Plan, specs, and fixtures
+  updated to match.
+  * Behavior-preserving; full spec suite green at 100% branch coverage.
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 7:33:03 AM
+
+Commit [6b0ffd282f9d84eb982712be4b5829c69cd0994e](https://github.com/StoneCypher/jssm/commit/6b0ffd282f9d84eb982712be4b5829c69cd0994e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [3a80f058, fd875974]
+
+  * Merge pull request #786 from StoneCypher/perf_26-06-22_v6-sync-wave2
+  * perf(v6): main→v6 sync wave 2 — ctor/dispatch/util perf ports
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 7:12:05 AM
+
+Commit [fd875974db9b4393584e0eeef6f5349addcf56bd](https://github.com/StoneCypher/jssm/commit/fd875974db9b4393584e0eeef6f5349addcf56bd)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * perf(v6): main→v6 sync wave 2 — ctor/dispatch/util perf ports
+  * The Tier-2 perf ports deferred from wave 1: each adds a code branch v6 had no
+test for, so each is brought over WITH its coverage. Source ported, not
+cherry-picked; `npm run build` regenerates dist/docs/parser. Bumps to
+6.0.0-alpha.11. Reconciled against v6's diverged ctor/dispatch (notably its
+_outbound_edge_ids index, which several of these now build on rather than fight).
+  * - #711 — ctor transition loop: `.map` -> `for..of` and single-lookup cursor
+  fetches (one get+undefined-check instead of get-then-has, halving the hashes
+  per endpoint/edge-map insert). v6's _outbound_edge_ids block is preserved.
+- #745 — transition_impl: the hooked-transition `trans_type` is read by scanning
+  v6's own _outbound_edge_ids for the first matching outbound edge instead of
+  allocating edges_between(...)[0]; terminal/complete firing reuses one
+  _states.get(newState) record instead of two public-method walks. Adds a
+  multi-outbound-edge hook test for the new scan's pass-over branch.
+- #738 — `unique` is O(n) via a Set (NaN dropped explicitly to preserve the
+  documented indexOf semantics; already covered by util.spec's NaN case);
+  `uses_actions` uses Map.size; `probable_exits_for` makes a single pass over
+  the state's exits instead of map -> filter -> filter -> filter (its one
+  unreachable guard carries /* v8 ignore next */).
+- #741 — state-property validation reads a (property -> first state) provenance
+  map recorded at binding insertion, instead of JSON.parse-ing every serialized
+  key at validation time; the compiler now writes the unserialized (property,
+  state) pair, with a JSON.parse fallback for hand-built configs. Adds 3
+  provenance tests (hand-built fallback, hand-built + fsl undeclared-property).
+  * Spec suite 100% (2542/2542 branches). Targets v6 (no npm release; main-only).
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 22, 2026 7:05:29 AM
+
+Commit [35223129cf0622bd24ad3d1d07ee2ca09aacf647](https://github.com/StoneCypher/jssm/commit/35223129cf0622bd24ad3d1d07ee2ca09aacf647)
+
+Author: `github-actions[bot] <github-actions[bot]@users.noreply.github.com>`
+
+  * docs: publish site for ec24b6ab51d8ebb57e5c0dac584af4d73847d588
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+<a name="5__144__2" />
+
+## [5.144.2] - Jun 22, 2026 7:00:48 AM
+
+Commit [ec24b6ab51d8ebb57e5c0dac584af4d73847d588](https://github.com/StoneCypher/jssm/commit/ec24b6ab51d8ebb57e5c0dac584af4d73847d588)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+Merges [51f81593, 8d404063]
+
+  * Merge pull request #785 from StoneCypher/chore_26-06-22_drop-jssm-viz-dispatch-notice
+  * fix(ci): stop vitest globbing notes/; drop dead jssm-viz release notice
 
 
 
@@ -115,52 +5075,9 @@ transition-allocs, #738 probable_exits.
 
 &nbsp;
 
-## [Untagged] - Jun 22, 2026 6:19:14 AM
+<a name="5__144__1" />
 
-Commit [bb3d941636c62c0ff677facc3225902e5e6926f8](https://github.com/StoneCypher/jssm/commit/bb3d941636c62c0ff677facc3225902e5e6926f8)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * fix(v6): main→v6 sync wave 1 — correctness, security, parser perf
-  * Brings the genuinely-wanted, low-risk changes that landed on main since v6
-forked (merge-base c7f5e530, 2026-06-11) into v6. Source ported, not
-cherry-picked — `npm run build` regenerates dist/docs/parser. Bumps to
-6.0.0-alpha.10.
-  * Correctness (both were live bugs on v6):
-- #753 — after hooks no longer fire on the dispatch path; they are the
-  `after`-timer's companion and fire only on timer elapse. Removes the spurious
-  probe that double-fired on entering a hooked state or a same-named action
-  (StoneCypher/fsl#1327); adds 3 regression tests; clarifies the hook_after DocBlock.
-- #728 — clear_state_timeout() is hoisted out of the `if (_has_hooks)` branch so
-  hook-free machines also clear a pending `after` timer; previously a manual
-  transition away left a stale timer that fired a ghost go() and crashed re-entry
-  with "already timing out".
-  * Security:
-- form-data 4.0.5 → 4.0.6 (the moderate-severity advisory; lock-only bump).
-  * Performance (source-only ports; verified by the regenerated parser + existing suites):
-- parser perf stack (#709/#739/#740/#744/#746) via src/buildjs/fixparser.cjs:
-  fail-guard + charCode fast scanners for ActionLabel/String/IntegerLiteral/
-  TimeType + first-char gates on Stripe/Cycle.
-- #708 — compiler uses the already-flat transition accumulator directly instead
-  of `[].concat(...)`, which also uncapped machines near 65k transition
-  statements (dense-300 threw RangeError inside the compiler).
-- #738 (partial) — single-allocation `seq`.
-  * Tests:
-- #768 — pack_shape.spec.ts regression test (asserts every exports/bin target
-  ships in npm pack). The files[] fix itself was already present on v6.
-  * Deferred to a Tier-2 follow-up (each adds a branch v6 has no test for):
-#738 `unique` Set-rewrite, #741 ctor-validation, #711 map-dedup, #745
-transition-allocs, #738 probable_exits.
-  * Spec suite 100% (2535/2535 branches). Targets v6 (no npm release; main-only).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 22, 2026 6:10:08 AM
+## [5.144.1] - Jun 22, 2026 6:10:08 AM
 
 Commit [51f8159311794efa0499c90ed5235a20a575bdf1](https://github.com/StoneCypher/jssm/commit/51f8159311794efa0499c90ed5235a20a575bdf1)
 
@@ -877,6 +5794,23 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
+## [Untagged] - Jun 21, 2026 5:12:14 PM
+
+Commit [244d88d6d969589e372496f1b83788b1da0854f3](https://github.com/StoneCypher/jssm/commit/244d88d6d969589e372496f1b83788b1da0854f3)
+
+Author: `tomaioo <hongsaygio.com@gmail.com>`
+
+  * fix(ts): unsafe html injection via unescaped svg content in
+  * The `htmlTarget` function in `src/ts/cli/subcommands/render/targets/html.ts` embeds raw SVG output directly into an HTML template without sanitizing or validating the SVG content. While `opts.title` is properly escaped using `escapeHtml`, the `svg` variable returned from `svgTarget(fsl)` is inserted directly into the HTML without any escaping or validation. If the FSL parser or SVG renderer produces malicious content (e.g., containing `</script>`, event handlers, or other HTML-breaking sequences), this could lead to XSS when the resulting HTML is rendered in a browser. The `escapeHtml` function also does not escape single quotes, which could be problematic in certain contexts.
+  * Signed-off-by: tomaioo <203048277+tomaioo@users.noreply.github.com>
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 21, 2026 4:12:38 PM
 
 Commit [4c00e7bfaad964eb54de5bb761c2a28d9f19aa36](https://github.com/StoneCypher/jssm/commit/4c00e7bfaad964eb54de5bb761c2a28d9f19aa36)
@@ -1491,44 +6425,6 @@ updated-dependencies:
 
 &nbsp;
 
-## [Untagged] - Jun 17, 2026 9:00:08 AM
-
-Commit [aa5768c8aa5db0301ac1f5f099c2b1813db77447](https://github.com/StoneCypher/jssm/commit/aa5768c8aa5db0301ac1f5f099c2b1813db77447)
-
-Author: `dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>`
-
-  * build(deps): bump js-yaml, eslint and eslint-plugin-promise
-  * Removes [js-yaml](https://github.com/nodeca/js-yaml). It's no longer used after updating ancestor dependencies [js-yaml](https://github.com/nodeca/js-yaml), [eslint](https://github.com/eslint/eslint) and [eslint-plugin-promise](https://github.com/eslint-community/eslint-plugin-promise). These dependencies need to be updated together.
-  * 
-Removes `js-yaml`
-  * Updates `eslint` from 7.32.0 to 10.5.0
-- [Release notes](https://github.com/eslint/eslint/releases)
-- [Commits](https://github.com/eslint/eslint/compare/v7.32.0...v10.5.0)
-  * Updates `eslint-plugin-promise` from 5.2.0 to 7.3.0
-- [Release notes](https://github.com/eslint-community/eslint-plugin-promise/releases)
-- [Changelog](https://github.com/eslint-community/eslint-plugin-promise/blob/main/CHANGELOG.md)
-- [Commits](https://github.com/eslint-community/eslint-plugin-promise/compare/v5.2.0...v7.3.0)
-  * ---
-updated-dependencies:
-- dependency-name: eslint
-  dependency-version: 10.5.0
-  dependency-type: direct:development
-- dependency-name: eslint-plugin-promise
-  dependency-version: 7.3.0
-  dependency-type: direct:development
-- dependency-name: js-yaml
-  dependency-version:
-  dependency-type: indirect
-...
-  * Signed-off-by: dependabot[bot] <support@github.com>
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 17, 2026 8:57:56 AM
 
 Commit [b70c55d58b15ffc5cdd2b274f1fd34df23efdfba](https://github.com/StoneCypher/jssm/commit/b70c55d58b15ffc5cdd2b274f1fd34df23efdfba)
@@ -1975,83 +6871,6 @@ and §13 (totality & termination — the microstep bound).
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:49:27 PM
-
-Commit [bc73183b28c6c4b1634c856a7a9e69501b3bdb0c](https://github.com/StoneCypher/jssm/commit/bc73183b28c6c4b1634c856a7a9e69501b3bdb0c)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(capabilities): add FSL multi-host capability manifest model
-  * Add src/ts/fsl_capabilities.ts: a pure, typed model of a codegen
-target's capability manifest (supported feature subset + claimed
-certification tier) plus a checker that returns the features a machine
-requires but a target cannot honor. Implements megaspec §16 (multi-host
-target capability negotiation) and §26 (certification tiers T1/T2/T3/
-adapter); resolves the fsl #1172/#1173 capability-manifest references.
-  * Self-contained: no parser or runtime coupling, no edits to shared
-files. Open FslFeature union keeps the matrix data-driven so new
-targets can self-advertise unknown features. 100% test coverage in
-src/ts/tests/fsl_capabilities.spec.ts (20 tests).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:46:40 PM
-
-Commit [b435a23da35eea298819b1d937dd160336672b9b](https://github.com/StoneCypher/jssm/commit/b435a23da35eea298819b1d937dd160336672b9b)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(scheduler): add pure RTC microstep scheduler (fsl_scheduler)
-  * Self-contained run-to-completion macrostep/microstep scheduler over an
-abstract step function, per megaspec §12 (lifecycle/RTC execution model)
-and §13 (totality & termination — the microstep bound).
-  * - settle_microsteps drives microsteps to a stable (quiescent) config
-- enforces the §13 microstep bound, raising microstep_overflow past the
-  cap (default 100,000 per reaction; configurable; "unbounded" opt-out)
-- orders the pre (before-macrostep) and post (at-stable) hook phases
-- run_macrostep alias + is_stable predicate
-- pure, typed, no parser/runtime coupling, DocBlock @examples
-  * Tests: 32 specs, 100% coverage of the new module.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:46:40 PM
-
-Commit [1743f76337294f670060f557afc56f6f9b3ac2e0](https://github.com/StoneCypher/jssm/commit/1743f76337294f670060f557afc56f6f9b3ac2e0)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-feat(scheduler): add pure RTC microstep scheduler (fsl_scheduler)
-  * Self-contained run-to-completion macrostep/microstep scheduler over an
-abstract step function, per megaspec §12 (lifecycle/RTC execution model)
-and §13 (totality & termination — the microstep bound).
-  * - settle_microsteps drives microsteps to a stable (quiescent) config
-- enforces the §13 microstep bound, raising microstep_overflow past the
-  cap (default 100,000 per reaction; configurable; "unbounded" opt-out)
-- orders the pre (before-macrostep) and post (at-stable) hook phases
-- run_macrostep alias + is_stable predicate
-- pure, typed, no parser/runtime coupling, DocBlock @examples
-  * Tests: 32 specs, 100% coverage of the new module.
-@
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:42:36 PM
 
 Commit [21a860fb19661fd1d8302e6ca6462d6f7284ca3f](https://github.com/StoneCypher/jssm/commit/21a860fb19661fd1d8302e6ca6462d6f7284ca3f)
@@ -2174,27 +6993,6 @@ module, no unreachable branches).
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:42:50 PM
-
-Commit [4bc01e1d88365985b886b1e674de6402b0a61c0e](https://github.com/StoneCypher/jssm/commit/4bc01e1d88365985b886b1e674de6402b0a61c0e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(conformance): add vitest corpus runner driving vectors through reference runtime
-  * The thin harness of megaspec section 26: reads each vector, drives it
-through the built jssm Machine, independently reconstructs the canonical
-trace (transition, prop deltas, data, emissions, rollbacks) from observable
-runtime state, and asserts it equals the hand-authored normative trace.
-Also asserts every document parses and every vector id is unique.
-128 tests green.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:28:30 PM
 
 Commit [952ee0c7179daddaeba15079cbddcc165138cd7c](https://github.com/StoneCypher/jssm/commit/952ee0c7179daddaeba15079cbddcc165138cd7c)
@@ -2210,26 +7008,6 @@ known_physical_constant), the ascending_year_order comparator directly
 (so the ordering rule is covered despite the single shipped year), record
 shape and SI-unit invariants across all 16 constants, zero-uncertainty of
 the SI-redefined exact constants, and frozenness of the tables and records.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:42:36 PM
-
-Commit [ac19fd6af23669b40b73388df719e8a88b066178](https://github.com/StoneCypher/jssm/commit/ac19fd6af23669b40b73388df719e8a88b066178)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(conformance): add T2 rich-portable and T3 pinned-unicode vectors
-  * T2 (rich-portable): opaque data-blob threading (forbidden on finite per
-section 3) and seeded probabilistic walks with exact reference-runtime
-traces. T3 (pinned-unicode): code-point/grapheme state and action
-identifiers (Latin diacritics, CJK, RTL scripts, NFD combining mark,
-emoji ZWJ sequence, regional-indicator flag) per section 8.
 
 
 
@@ -2430,131 +7208,6 @@ unreachable branches.
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:42:22 PM
-
-Commit [74998c3b56c8a56f1b09fa30562d982e65c83518](https://github.com/StoneCypher/jssm/commit/74998c3b56c8a56f1b09fa30562d982e65c83518)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(conformance): add FSL conformance corpus data model and T1 finite vectors
-  * Introduces the megaspec section 26 conformance-corpus data model (vectors
-as (document, seed, stimuli) -> canonical trace) and the T1 finite-profile
-vectors: pure topology (named transitions, actions, forced edges,
-refusals) and small-finite state-bound props.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:36:21 PM
-
-Commit [86f9ca2a49802eec618fc844beb52b4012ced40f](https://github.com/StoneCypher/jssm/commit/86f9ca2a49802eec618fc844beb52b4012ced40f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(verify): cover fsl_verify safety checker (100%)
-  * Add src/ts/tests/fsl_verify.spec.ts — 31 tests exercising every
-predicate atom and connective, all four safety-property kinds in both
-verdicts, witness/counterexample traces, multi-seed and cyclic BFS,
-start-frontier resolution and its unknown-state throw, and the
-empty-and/empty-or units. Achieves 100% statement/branch/function/line
-coverage of src/ts/fsl_verify.ts with no unreachable branches.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:35:39 PM
-
-Commit [5ced96cbb3d7a7ea30f35f577110df69b1a507ce](https://github.com/StoneCypher/jssm/commit/5ced96cbb3d7a7ea30f35f577110df69b1a507ce)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(verify): add FSL safety-property checker (megaspec §17, fsl #1360)
-  * Add src/ts/fsl_verify.ts, a self-contained, pure, read-only module
-implementing the safety tier of the §17 temporal-property language:
-  * - state-predicate algebra (in_state, in_any, is_terminal, is_final,
-  is_error, tautology, contradiction) closed under not/and/or
-- safety-property algebra: always/never invariants and the Dwyer
-  reachability patterns reachable/unreachable/absence/existence
-- check_safety: BFS reachability over the machine graph deciding each
-  property, returning the shortest counterexample/witness trace (the
-  skeleton of a replayable §15 tape)
-  * Operates read-only over the existing jssm Machine reflection surface
-(states/list_exits/state_is_terminal/state_is_final/has_state); never
-mutates the machine. Fully DocBlock-documented with @example blocks.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:35:39 PM
-
-Commit [e4ae512ad58bd77178620c9b22343061a64fc4a7](https://github.com/StoneCypher/jssm/commit/e4ae512ad58bd77178620c9b22343061a64fc4a7)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-feat(verify): add FSL safety-property checker (megaspec §17, fsl #1360)
-  * Add `src/ts/fsl_verify.ts`, a self-contained, pure, read-only module
-implementing the safety tier of the §17 temporal-property language:
-  * - state-predicate algebra (in_state, in_any, is_terminal, is_final,
-  is_error, tautology, contradiction) closed under not/and/or
-- safety-property algebra: always/never invariants and the Dwyer
-  reachability patterns reachable/unreachable/absence/existence
-- check_safety: BFS reachability over the machine graph deciding each
-  property, returning the shortest counterexample/witness trace (the
-  skeleton of a replayable §15 tape)
-  * Operates read-only over the existing jssm Machine reflection surface
-(states/list_exits/state_is_terminal/state_is_final/has_state); never
-mutates the machine. Fully DocBlock-documented with @example blocks.
-@
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:34:46 PM
-
-Commit [53c9abeeb0caaefec106cb6f76d084169af582df](https://github.com/StoneCypher/jssm/commit/53c9abeeb0caaefec106cb6f76d084169af582df)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(tape): add FSL I/O tape / transducer model (megaspec §14)
-  * Implement the §14 transducer/tape model as a pure, self-contained module
-with no parser or runtime coupling (Phase 2/3 wires it in):
-  * - Tape<T>: first-class bounded ring buffer with monotone, eviction-stable
-  sequence indices; `unlimited` opt-out and the 100,000 default history.
-- is_retained / Tape#is_retained: the §14 retention policy (only `input`
-  is the retained source of truth; output/log/error regenerate by replay).
-- Channel<T>: named, typed, directioned I/O ports backed by a tape.
-- EmitPipeline: the §14 emit-pipeline slot — stages emits, then drains
-  (commit) or discards (rollback).
-- TapeTransaction: the §11 atomic bracket making `emit` part of the
-  transaction; single-shot commit/rollback, input-channel and
-  unknown-channel guards.
-  * Adds fsl_tape.spec.ts (55 tests); 100% statement/branch/function/line
-coverage of the new module; full spec suite green.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:33:57 PM
 
 Commit [fe98d38cbfee05e405f0eba502dee42ec4f755bc](https://github.com/StoneCypher/jssm/commit/fe98d38cbfee05e405f0eba502dee42ec4f755bc)
@@ -2574,95 +7227,6 @@ with its own spec suite, drafted in parallel and verified here:
 that 4.7 rejects). Plus src/doc_md/manual/ topic pages (T30).
   * No parser/runtime coupling — Phase 2 wires the expression language into
 these. Drafted by parallel agents per quick_mode T17/T18/T21/T22/T23/T25/T30.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:33:10 PM
-
-Commit [284119d9ee3551209f4d5bfd125965601d33a4cd](https://github.com/StoneCypher/jssm/commit/284119d9ee3551209f4d5bfd125965601d33a4cd)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(fsl): cover the container-type protocol module (spec + stoch)
-  * Spec suite: exhaustive unit coverage of every list/set/map op, the
-scalar-key guard, structural deep-equality, canonical snapshot, by-value
-deep-clone, and total compare -- 100% statements/branches/functions/lines
-of fsl_containers.ts, no unreachable branches.
-  * Stoch suite (fast-check): property invariants -- set/get round-trips,
-push/pop identity, set algebra commutativity, idempotent add, snapshot
-canonicality and JSON round-trip, equals reflexivity, and compare
-totality/antisymmetry/consistency-with-equals.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:32:55 PM
-
-Commit [35a1d4dab36fd95b11550b19a5be78863750845d](https://github.com/StoneCypher/jssm/commit/35a1d4dab36fd95b11550b19a5be78863750845d)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fsl): add container-type protocol module (list/map/set) for megaspec section 4.2
-  * Self-contained, pure, typed implementation of the FSL section 4.2 container
-types for v6: list (array of T), set (set of number|string), and map
-(map<number|string, V>). Constructors, access/update ops, set algebra,
-map views, plus the structural value-equality, canonical snapshot,
-by-value deep-clone, and total-compare protocol (sections 6 and 15).
-  * No parser/runtime coupling -- Phase 2 wires the literal syntax. All
-operations are immutable (return new containers); keys/members are the
-decidable scalar domain (finite number | string); values are any type.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:31:53 PM
-
-Commit [efe5639528f35a07a2ca5e472ae5fb0d8f8d7d65](https://github.com/StoneCypher/jssm/commit/efe5639528f35a07a2ca5e472ae5fb0d8f8d7d65)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(fsl): cover fsl_adts at 100%
-  * 109 spec tests exercising variant constructors and total match, option/
-nullability bridges, alias resolution with dangling/cycle rejection, and
-defunctionalized function values -- intensional equality, key-order-stable
-hashing, deep structural equality (null vs undefined kept distinct), and
-acyclicity enforcement. 100% statements/branches/functions/lines, no
-unreachable branches.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:31:41 PM
-
-Commit [e9c8b86e06e9333db6fa2f4499c46e984645d861](https://github.com/StoneCypher/jssm/commit/e9c8b86e06e9333db6fa2f4499c46e984645d861)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fsl): add self-contained ADT value module for v6
-  * Implements the value layer of megaspec 4.3/4.4: sum/variant constructors
-with total match dispatch, option<T> (some/none) with map and unwrap_or,
-declared-nullable T? bridges, a resolvable type-alias environment, and the
-defunctionalized (tag, captures) function-value representation feeding the
-15 snapshot/hash model -- intensional equality, by-value acyclic captures,
-canonical key-sorted serialization and a pinned FNV-1a content hash.
-  * Pure, typed, DocBlock @example'd, no parser/compiler coupling.
 
 
 
@@ -2800,83 +7364,6 @@ not host Intl.Segmenter, so results are deterministic.
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:28:30 PM
-
-Commit [1b5f73c5df57d883e0e6191d4cbcbd30a714d1cb](https://github.com/StoneCypher/jssm/commit/1b5f73c5df57d883e0e6191d4cbcbd30a714d1cb)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(fsl): cover the CODATA physical-constants library
-  * Add src/ts/tests/fsl_constants.spec.ts: 93 specs giving 100% statement,
-branch, function, and line coverage of fsl_constants.ts. Exercises the
-lookup API (default-year and pinned-year reads, both RangeError paths in
-physical_constant, the missing-table and non-own-property branches of
-known_physical_constant), the ascending_year_order comparator directly
-(so the ordering rule is covered despite the single shipped year), record
-shape and SI-unit invariants across all 16 constants, zero-uncertainty of
-the SI-redefined exact constants, and frozenness of the tables and records.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:27:37 PM
-
-Commit [c5bba1c42520eaaa1031381990f4fd6fc2e84162](https://github.com/StoneCypher/jssm/commit/c5bba1c42520eaaa1031381990f4fd6fc2e84162)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(fsl): add versioned CODATA physical-constants library
-  * Add src/ts/fsl_constants.ts: a self-contained, versioned physical-constants
-module for FSL v6 (megaspec section 4.5), the home for CODATA values. Each
-constant is a frozen PhysicalConstant record carrying value, SI unit string,
-standard uncertainty, and CODATA year. Ships the CODATA 2018 recommended set
-(c, G, h, hbar, e, k, NA, R, me, mp, mn, alpha, epsilon0, mu0, sigma, F).
-  * Exposes a typed, versioned lookup API: physical_constant (throwing primary
-accessor, latest-year default or pinned year), known_physical_constant
-(non-throwing probe), physical_constant_symbols, supported_codata_years,
-ascending_year_order, plus the physical_constants_by_year table and
-latest_codata_year. Distinct from the units-of-measure layer (exact/stable)
-since these are measured quantities.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:27:37 PM
-
-Commit [6db14f0b1293788104c3e07dbf77ac94dce06c1f](https://github.com/StoneCypher/jssm/commit/6db14f0b1293788104c3e07dbf77ac94dce06c1f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-feat(fsl): add versioned CODATA physical-constants library
-  * Add src/ts/fsl_constants.ts: a self-contained, versioned physical-constants
-module for FSL v6 (megaspec §4.5), the home for CODATA values. Each constant
-is a frozen PhysicalConstant record carrying value, SI unit string, standard
-uncertainty, and CODATA year. Ships the CODATA 2018 recommended set (c, G, h,
-hbar, e, k, NA, R, me, mp, mn, alpha, epsilon0, mu0, sigma, F).
-  * Exposes a typed, versioned lookup API: physical_constant (throwing primary
-accessor, latest-year default or pinned year), known_physical_constant
-(non-throwing probe), physical_constant_symbols, supported_codata_years,
-ascending_year_order, plus the physical_constants_by_year table and
-latest_codata_year. Distinct from the units-of-measure layer (exact/stable)
-since these are measured quantities. Phantom/zero-runtime-cost intent per spec.
-@
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:26:45 PM
 
 Commit [f2a957cb9c9ca01428626867f3921cec06c0201c](https://github.com/StoneCypher/jssm/commit/f2a957cb9c9ca01428626867f3921cec06c0201c)
@@ -2884,99 +7371,6 @@ Commit [f2a957cb9c9ca01428626867f3921cec06c0201c](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * chore(v6): partition quick_mode — second instance works 'yours', primary owns the rest
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:23:28 PM
-
-Commit [8357892b20258f9b6d655c99f6d3d3bb4ef8fa07](https://github.com/StoneCypher/jssm/commit/8357892b20258f9b6d655c99f6d3d3bb4ef8fa07)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(stdlib): add self-contained FSL math/stdlib module (megaspec 7)
-  * Implement megaspec 7 math/stdlib primitives as pure, typed, parser-
-and runtime-decoupled TypeScript in a new src/ts/fsl_stdlib.ts:
-  * - arithmetic/rounding: abs min max clamp sign trunc floor ceil round
-  (bankers) pow sqrt cubert hypot lerp smoothstep
-- exp/log: exp log ln log2 log10
-- trig (degrees by default) plus degrees/radians, hyperbolic, inverse
-- predicates: isnan isinf isfinite_
-- integer/combinatorics: gcd lcm factorial comb perm (overflow-checked)
-- bit ops over sized widths: popcount clz ctz rotl rotr
-- descriptive stats: sum product mean median mode variance stddev
-  percentile
-- constants: pi e tau phi sqrt2 ln2 ln10 inf nan EPSILON
-- local finite error surface (FslErrorKind/FslMathError) per spec 11
-  domain misuse/overflow throws, never silently returns NaN or wraps
-  * Tests: fsl_stdlib.spec.ts (91, 100 percent module coverage) and
-fsl_stdlib.stoch.ts (47 fast-check algebraic/metamorphic laws).
-RNG/encoding/compression are deliberately excluded (stateful or
-I/O-shaped, not pure math) for a later phase that wires the evaluator.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:18:51 PM
-
-Commit [d2b810e8110210317e1fd30a667e59c7acd4fb89](https://github.com/StoneCypher/jssm/commit/d2b810e8110210317e1fd30a667e59c7acd4fb89)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(units): FSL SI units prelude (megaspec §4.5)
-  * Add src/ts/fsl_units.ts, a self-contained units-of-measure layer for the
-FSL numeric tower: dimensions as exponent vectors over the seven SI base
-dimensions, carried as compile-time phantom types (zero runtime cost —
-quantities store only their magnitude in coherent base SI units).
-  * Ships the SI prelude: the 7 base units, the full SI prefix ladder
-(yotta..yocto, so km/ms/μA come free via with_si_prefixes), and the named
-derived units (hertz, newton, joule, watt, pascal, coulomb, volt, ohm,
-farad, siemens) plus velocity/acceleration compounds. Derived units via
-multiply/divide of dimensions; add/sub/compare are generic over one
-dimension D (a type error across dimensions) with a runtime backstop;
-same-dimension division cancels to dimensionless; auto-convert within a
-dimension. data/imperial/angle/time modules are opt-in throwing stubs.
-  * Adds src/ts/tests/fsl_units.spec.ts (58 tests, 100% coverage of the new
-module, no unreachable branches).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:18:51 PM
-
-Commit [fd7ef88547da2122c9fd637551b2ce3564e6db3e](https://github.com/StoneCypher/jssm/commit/fd7ef88547da2122c9fd637551b2ce3564e6db3e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-feat(units): FSL SI units prelude (megaspec §4.5)
-  * Add src/ts/fsl_units.ts, a self-contained units-of-measure layer for the
-FSL numeric tower: dimensions as exponent vectors over the seven SI base
-dimensions, carried as compile-time phantom types (zero runtime cost —
-quantities store only their magnitude in coherent base SI units).
-  * Ships the SI prelude: the 7 base units, the full SI prefix ladder
-(yotta..yocto, so km/ms/μA come free via with_si_prefixes), and the named
-derived units (hertz, newton, joule, watt, pascal, coulomb, volt, ohm,
-farad, siemens) plus velocity/acceleration compounds. Derived units via
-multiply/divide of dimensions; add/sub/compare are generic over one
-dimension D (a type error across dimensions) with a runtime backstop;
-same-dimension division cancels to dimensionless; auto-convert within a
-dimension. data/imperial/angle/time modules are opt-in throwing stubs.
-  * Adds src/ts/tests/fsl_units.spec.ts (58 tests, 100% coverage of the new
-module, no unreachable branches).
-@
 
 
 
@@ -2993,71 +7387,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
   * feat(val): set_val mutation, accessor family, and duplicate-name rejection
   * set_val (typed runtime mutation), vals()/known_val/known_vals/val_type accessors, and a compile-time duplicate-val-name check mirroring the property check. vals.spec.ts now 30 tests green: declaration+validation for every scalar type, required/supplied/conflict/undeclared paths, set_val, the accessors, and duplicate detection.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:15:09 PM
-
-Commit [10a9489ae2f373500fad5cb70d0e2ae0cc72f154](https://github.com/StoneCypher/jssm/commit/10a9489ae2f373500fad5cb70d0e2ae0cc72f154)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(errors): cover the FSL error-model taxonomy
-  * Spec tests for `fsl_errors.ts`: the finite kind set (exact membership,
-frozen, no duplicates), `describe_fields` rendering (including falsy 0
-fields and ignored source spans), the `FslError` class (message shape,
-base_message split, field exposure, throw/catch), and every per-kind
-constructor (entity naming, optional args, source locations). 100%
-statement/branch/function/line coverage of the module.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:14:30 PM
-
-Commit [cdacde0fe31bab1a7d63833575d7ab6bf6806bd0](https://github.com/StoneCypher/jssm/commit/cdacde0fe31bab1a7d63833575d7ab6bf6806bd0)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(errors): add FSL error-model taxonomy (megaspec §11)
-  * Self-contained `fsl_errors.ts` implementing the typed FSL error model:
-a finite `FslErrorKind` enum (div_by_zero, out_of_bounds, overflow,
-underflow, type_error, failed_narrow, contract_violation, unbound_value,
-nan_compare, microstep_overflow), the `FslError` class carrying that
-discriminant plus structured fields, and per-kind constructors whose
-messages name the offending entity.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:14:30 PM
-
-Commit [d21871d2edc81183384271a61b9e6f9fe2437d82](https://github.com/StoneCypher/jssm/commit/d21871d2edc81183384271a61b9e6f9fe2437d82)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-feat(errors): add FSL error-model taxonomy (megaspec §11)
-  * Self-contained `fsl_errors.ts` implementing the typed FSL error model:
-a finite `FslErrorKind` enum (div_by_zero, out_of_bounds, overflow,
-underflow, type_error, failed_narrow, contract_violation, unbound_value,
-nan_compare, microstep_overflow), the `FslError` class carrying that
-discriminant plus structured fields, and per-kind constructors whose
-messages name the offending entity.
-@
 
 
 
@@ -3095,60 +7424,6 @@ fast-check properties) green; vet clean.
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:11:04 PM
-
-Commit [42919e7216bb880b49e3e73cdcb04d149e0c6f08](https://github.com/StoneCypher/jssm/commit/42919e7216bb880b49e3e73cdcb04d149e0c6f08)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(conformance): add v6 conformance & certification-tiers page
-  * Document the v6 cross-host conformance system: the native T1 (finite
-profile) / T2 (rich-portable) / T3 (pinned-unicode) certification tiers
-and the adapter category, how a host declares a tier in its capability
-manifest and earns it via `fsl codegen --certify`, and the
-conformance-corpus mechanics (vectors-as-data, canonical traces, the
-thin per-host harness + differ, factory-generated vectors, differential
-mode, and toolchain self-fuzzing).
-  * Sourced from megaspec sections 26 (conformance mechanics), 3
-(verifiability bands / `finite`), and 17 (verification). Registers the
-new page in src/doc_md under Tutorials, after the language reference.
-  * Pure docs; no src/ts changes.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:11:04 PM
-
-Commit [1b2e1f5d6b367a919cea387b64effcb71632d984](https://github.com/StoneCypher/jssm/commit/1b2e1f5d6b367a919cea387b64effcb71632d984)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-docs(conformance): add v6 conformance & certification-tiers page
-  * Document the v6 cross-host conformance system: the native T1 (finite
-profile) / T2 (rich-portable) / T3 (pinned-unicode) certification tiers
-and the adapter category, how a host declares a tier in its capability
-manifest and earns it via `fsl codegen --certify`, and the
-conformance-corpus mechanics (vectors-as-data, canonical traces, the
-thin per-host harness + differ, factory-generated vectors, differential
-mode, and toolchain self-fuzzing).
-  * Sourced from megaspec sections 26 (conformance mechanics), 3
-(verifiability bands / `finite`), and 17 (verification). Registers the
-new page in src/doc_md under Tutorials, after the language reference.
-  * Pure docs; no src/ts changes.
-@
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:09:57 PM
 
 Commit [c43f1d32f800a5b6527594cde5b1ba1d808b3916](https://github.com/StoneCypher/jssm/commit/c43f1d32f800a5b6527594cde5b1ba1d808b3916)
@@ -3156,54 +7431,6 @@ Commit [c43f1d32f800a5b6527594cde5b1ba1d808b3916](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * chore(v6): expand quick_mode.json to 30 tasks (type system, expr lang, I/O, systems, verification, codegen, docs)
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:09:21 PM
-
-Commit [020ab8c1d56b2735f2ba1c658bac84f6c0b5ab80](https://github.com/StoneCypher/jssm/commit/020ab8c1d56b2735f2ba1c658bac84f6c0b5ab80)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * test(cli): cover the typegen verb to 100%
-  * Spec coverage for the typegen library (extractTypeSurface, typegen, literal-union escaping, unsupported-target guard), the fsl-typegen plugin (every output destination, stdin paths, multi-input, error branches, defaultName), the fsl-typegen binary entry, TypegenError, and the lib barrel re-exports. vitest-spec stays green at 100 percent line/branch/function/statement coverage over src/ts/**.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:09:06 PM
-
-Commit [8bb0581d7a7e6555d58016e48e9b98c119e6127e](https://github.com/StoneCypher/jssm/commit/8bb0581d7a7e6555d58016e48e9b98c119e6127e)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli): register typegen as a first-class CLI verb
-  * Wire the fsl-typegen plugin (cli entry, mirroring fsl-render): arg parsing, config-loader pass-through, stdout/output/out-dir destinations, multi-input, stdin. Help text draws the verb boundary against codegen (implementation) and render (images). Adds the fsl-typegen.ts binary, the rollup build target, the dispatcher built-in listing, and lib.ts re-exports (typegen, extractTypeSurface, TypegenError, types).
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 8:08:44 PM
-
-Commit [45d985ec5b3080a31dacd38bbb0d174803730200](https://github.com/StoneCypher/jssm/commit/45d985ec5b3080a31dacd38bbb0d174803730200)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * feat(cli): typegen type-surface library + TypegenError
-  * Add extractTypeSurface() and typegen() under src/ts/cli/subcommands/typegen/ — the pure library that emits a machine's TYPE SURFACE as TypeScript declarations (states union, action-alphabet union, prop-name union, caller-facing interface), declarations only, no implementation. typegen types the machine for its callers, codegen emits the implementation (megaspec 25). Adds a TypegenError class mirroring RenderError for parse and unsupported-target failures.
 
 
 
@@ -3227,29 +7454,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
 &nbsp;
 
-## [Untagged] - Jun 12, 2026 8:04:06 PM
-
-Commit [de72b49adb3a00fd6c124071cf4028322a0c71ab](https://github.com/StoneCypher/jssm/commit/de72b49adb3a00fd6c124071cf4028322a0c71ab)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(taxonomy): embed a valid FSL machine in all 220 collection items
-  * Each item in the twelve use-case-taxonomy collections (everyday-frontend,
--backend, -gamedev, -data, -sre, -mobile, -embedded, -ai-engineering,
--security-engineering, -qa, interview-classics, cs-pedagogy) now carries
-an `fsl` field: a small, valid FSL machine that embodies the use case its
-title and kills name. Every machine parses via jssm.from (verified by an
-independent round-trip read of the written manifest). Supergroup seeds are
-unchanged; the change is purely additive plus a schema-note update
-documenting the new field.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 ## [Untagged] - Jun 12, 2026 8:01:36 PM
 
 Commit [bd2fe2035745d203689329b8c34125925050d6bb](https://github.com/StoneCypher/jssm/commit/bd2fe2035745d203689329b8c34125925050d6bb)
@@ -3258,89 +7462,6 @@ Author: `John Haugeland <stonecypher@gmail.com>`
 
   * feat(val): parse, store, validate and read scalar vals
   * Phase-1 vertical slice of the FSL `val` extended-state feature (megaspec §4-§5), implemented as `val` per the canonical rename (the plan predates var->val). Grammar: MachineVal + Val* type rules (boolean / string / unbounded + bounded int lo..hi / enum), wired into Term; a comma-free ValEnumMember (Atom includes commas) and signed ValVal numerics. Runtime: validate_val_value enforces the type descriptor at construction; _val_keys/_val_types/_val_values/_required_vals; the construction loop resolves supplied vals > default > required-throw > undefined; the val(name) accessor. Compiler: val_definition AST node threaded through results into result_cfg. vals.spec.ts: 15 tests green across every scalar type and its validation path.
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 7:58:30 PM
-
-Commit [05654ea254376c93f0fdc1e4f084a7facef18362](https://github.com/StoneCypher/jssm/commit/05654ea254376c93f0fdc1e4f084a7facef18362)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(manual): register the FSL manual pages in the TypeDoc nav
-  * Add a 'The FSL Manual' pages group (overview + a 'Use cases' subgroup with the six use-case pages) to typedoc-options.cjs so 'npm run docs' renders the manual under src/doc_md/manual/. Verified the config still parses as valid CommonJS.
-  * Refs: T6-fsl-manual
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 7:58:04 PM
-
-Commit [f052438aa353cf5d9127465bc86a1f1b5fc3d7c1](https://github.com/StoneCypher/jssm/commit/f052438aa353cf5d9127465bc86a1f1b5fc3d7c1)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * docs(manual): author FSL manual use-case pages (T6-fsl-manual)
-  * Add the FSL manual content from the topics + templates specs as use-case pages under src/doc_md/manual/, each following the use-case template (frontmatter, one-breath summary, when-to-reach-for, mapping table, the build, what-you-can-now-prove, run-it, production notes, neighbors).
-  * Pages: Manual.md (overview + cross-cutting principles + index), UseCase_CircuitBreaker.md, UseCase_SeparationOfDuty.md, UseCase_Turnstile.md, UseCase_DoubleEntryLedger.md, UseCase_RctPark.md, UseCase_Saga.md.
-  * Pure docs; no src/ts code touched. FSL examples follow the v6 megaspec syntax (the approved RCT-park listing is reused verbatim).
-  * Refs: notes/superpowers/specs/2026-06-09-fsl-manual-topics.md, notes/superpowers/specs/2026-06-11-fsl-manual-templates.md
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 7:58:04 PM
-
-Commit [bb66e9abef5e8b5cd6cc81f230340b752b24e98f](https://github.com/StoneCypher/jssm/commit/bb66e9abef5e8b5cd6cc81f230340b752b24e98f)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * @
-docs(manual): author FSL manual use-case pages (T6-fsl-manual)
-  * Add the FSL manual content from the topics + templates specs as use-case
-pages under src/doc_md/manual/, each following the use-case template
-(frontmatter, one-breath summary, when-to-reach-for, mapping table, the
-build, what-you-can-now-prove, run-it, production notes, neighbors):
-  * - Manual.md                       overview + cross-cutting principles + index
-- UseCase_CircuitBreaker.md       the template exemplar (windowed aggregates)
-- UseCase_SeparationOfDuty.md     RBAC/SoD, static + dynamic, prove-no-escalation
-- UseCase_Turnstile.md            on-ramp: val + assign + invariant
-- UseCase_DoubleEntryLedger.md    fintech: decimal + conservation invariant
-- UseCase_RctPark.md              flagship: factories + populations + systems
-- UseCase_Saga.md                 compensating transactions, settlement proof
-  * Pure docs; no src/ts code touched. FSL examples follow the v6 megaspec
-syntax (the approved RCT-park listing is reused verbatim).
-  * Refs: notes/superpowers/specs/2026-06-09-fsl-manual-topics.md
-      notes/superpowers/specs/2026-06-11-fsl-manual-templates.md
-@
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - Jun 12, 2026 7:52:53 PM
-
-Commit [60150a940e9d430fa8ed8eb78710c655ab430e7a](https://github.com/StoneCypher/jssm/commit/60150a940e9d430fa8ed8eb78710c655ab430e7a)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * chore(taxonomy): import canonical use-case taxonomy from v6 as the base for example machines
 
 
 
@@ -13607,21 +17728,6 @@ commonjs() is a no-op there — lib.mjs is unchanged.
 
 &nbsp;
 
-## [Untagged] - May 16, 2026 8:41:43 PM
-
-Commit [b1ce8375d9a30177e175eb7249c338be2365b6f2](https://github.com/StoneCypher/jssm/commit/b1ce8375d9a30177e175eb7249c338be2365b6f2)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-  * gitignore
-
-
-
-
-&nbsp;
-
-&nbsp;
-
 <a name="5__121__0" />
 
 ## [5.121.0] - May 16, 2026 8:40:19 PM
@@ -13839,23 +17945,6 @@ branches, functions, and lines.
 ## [Untagged] - May 13, 2026 6:55:14 PM
 
 Commit [1f86b79b9204e0e07708fe194437f26fe51723a4](https://github.com/StoneCypher/jssm/commit/1f86b79b9204e0e07708fe194437f26fe51723a4)
-
-Author: `John Haugeland <stonecypher@gmail.com>`
-
-Merges [b91876f8, a7dc0576]
-
-  * Merge branch 'main' into ConvertToVitest
-
-
-
-
-&nbsp;
-
-&nbsp;
-
-## [Untagged] - May 13, 2026 6:55:14 PM
-
-Commit [2c307b2dfe5e275d7f9d723424b01e98363d1f46](https://github.com/StoneCypher/jssm/commit/2c307b2dfe5e275d7f9d723424b01e98363d1f46)
 
 Author: `John Haugeland <stonecypher@gmail.com>`
 
@@ -19340,6 +23429,21 @@ Commit [28efd039469d4c7e6605532a8405e66392e8ff57](https://github.com/StoneCypher
 Author: `John Haugeland <stonecypher@gmail.com>`
 
   * attempt to resolve cjs loader issue
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jan 23, 2024 11:35:38 AM
+
+Commit [183e72178c96e1cccfefa939dcf7cd2fc4251448](https://github.com/StoneCypher/jssm/commit/183e72178c96e1cccfefa939dcf7cd2fc4251448)
+
+Author: `Hew <github@mhs.fastmail.com>`
+
+  * Add file extensions to TS imports
 
 
 
