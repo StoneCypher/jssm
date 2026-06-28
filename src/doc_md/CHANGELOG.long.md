@@ -22,6 +22,355 @@ Published tags:
 
 &nbsp;
 
+## [Untagged] - Jun 28, 2026 3:23:58 PM
+
+Commit [b128b9891b3fb7a78d40ed6875c9d211ae070237](https://github.com/StoneCypher/jssm/commit/b128b9891b3fb7a78d40ed6875c9d211ae070237)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): thread effective seed into animated summary + hidden-by-default test (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:16:57 PM
+
+Commit [7c1ca35f46fece143d6e94d3e507ff1d302b76c3](https://github.com/StoneCypher/jssm/commit/7c1ca35f46fece143d6e94d3e507ff1d302b76c3)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): stochastic host slot + animated playback (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:12:36 PM
+
+Commit [17f433730cc8ecd867c5b4aa32ee4f11748bbe09](https://github.com/StoneCypher/jssm/commit/17f433730cc8ecd867c5b4aa32ee4f11748bbe09)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(wc): reactive _host + disconnectedCallback for fsl-stochastic (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 3:07:41 PM
+
+Commit [cf4170e0c047ad7f5ca04fef5c06e828817395ca](https://github.com/StoneCypher/jssm/commit/cf4170e0c047ad7f5ca04fef5c06e828817395ca)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): <fsl-stochastic> panel, instant mode (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:58:42 PM
+
+Commit [a220a720ebf6a5bb941ca9cb1ffe9107d075b203](https://github.com/StoneCypher/jssm/commit/a220a720ebf6a5bb941ca9cb1ffe9107d075b203)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stochastic): bind generated seed in state-name property (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:55:38 PM
+
+Commit [0e0e05cb992d46affb59b50c33685c3ec07be312](https://github.com/StoneCypher/jssm/commit/0e0e05cb992d46affb59b50c33685c3ec07be312)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stochastic): property-based stoch tests for stochastic_summary (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:53:18 PM
+
+Commit [78efb0f12982ff303ad0127c102d37c13f45f7fc](https://github.com/StoneCypher/jssm/commit/78efb0f12982ff303ad0127c102d37c13f45f7fc)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(stochastic): exception-safe seed restore + drop dead fraction guard (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:47:33 PM
+
+Commit [46f0884001c0decc93f7fe29711cc5ba24e20374](https://github.com/StoneCypher/jssm/commit/46f0884001c0decc93f7fe29711cc5ba24e20374)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): stochastic_summary() aggregate, non-destructive (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:43:12 PM
+
+Commit [ad51175f52bc0e642e573cf55b705fc8bf802a3e](https://github.com/StoneCypher/jssm/commit/ad51175f52bc0e642e573cf55b705fc8bf802a3e)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(stochastic): drop unused machine in terminal-walk test (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:39:53 PM
+
+Commit [2c765b01d86940935ed8a34ed0bb20ee45735f4a](https://github.com/StoneCypher/jssm/commit/2c765b01d86940935ed8a34ed0bb20ee45735f4a)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): non-destructive walker + stochastic_runs generator (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:34:47 PM
+
+Commit [a9ebfc9ac1768f34decd7f6917de9f8078d2a654](https://github.com/StoneCypher/jssm/commit/a9ebfc9ac1768f34decd7f6917de9f8078d2a654)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(stochastic): result/option types for stochastic_summary (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:16:54 PM
+
+Commit [5e7a3ca1b55274a42dbce4a59dab407eae2aa608](https://github.com/StoneCypher/jssm/commit/5e7a3ca1b55274a42dbce4a59dab407eae2aa608)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * fix(wc): fsl_from_permalink returns null on a malformed segment, not a throw
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:08:24 PM
+
+Commit [518c18635aeda95302e8326f223037d093a40b6b](https://github.com/StoneCypher/jssm/commit/518c18635aeda95302e8326f223037d093a40b6b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(wc): cover debounce coalescing (clears a pending timer) for 100% gate
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:04:01 PM
+
+Commit [1896ebaddeb521033e8d259e35608c8b33a4edaf](https://github.com/StoneCypher/jssm/commit/1896ebaddeb521033e8d259e35608c8b33a4edaf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): fsl-instance attaches FslPermalinkSync — restores from and writes to the URL fragment
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 2:00:39 PM
+
+Commit [607f5e8180661e143175e27af4588d000cf5d6e6](https://github.com/StoneCypher/jssm/commit/607f5e8180661e143175e27af4588d000cf5d6e6)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * test(wc): cover permalink echo-guard + disconnect timer-cancel; null _timer after clear
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:53:22 PM
+
+Commit [c7a780ad6f5ed97ffacefff6b491064799c045cf](https://github.com/StoneCypher/jssm/commit/c7a780ad6f5ed97ffacefff6b491064799c045cf)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): add FslPermalinkSync controller (read on connect, debounced replaceState writes, hashchange)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:50:34 PM
+
+Commit [eb0878ec174214a33dfeb1262f5da3d364263a84](https://github.com/StoneCypher/jssm/commit/eb0878ec174214a33dfeb1262f5da3d364263a84)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * feat(wc): Export→Permalink uses the instance key (uhash/id) and merges the fragment
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:48:37 PM
+
+Commit [e2cd68c461832c9677f2d82e0cd03c8559ff5239](https://github.com/StoneCypher/jssm/commit/e2cd68c461832c9677f2d82e0cd03c8559ff5239)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(wc): add missing permalink @examples; fix base64url padding before atob
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:44:04 PM
+
+Commit [0aba95c76d492cfd77170f43672b9fabf7ffbe76](https://github.com/StoneCypher/jssm/commit/0aba95c76d492cfd77170f43672b9fabf7ffbe76)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * refactor(wc): extract permalink codec to fsl_permalink.ts with fragment merge + permalink_key_for
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:42:24 PM
+
+Commit [11964fd1febb4e1c7a6e1d167d45b2fbabc6894c](https://github.com/StoneCypher/jssm/commit/11964fd1febb4e1c7a6e1d167d45b2fbabc6894c)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(stochastic): implementation plan for fsl-stochastic panel + stochastic_summary() (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:33:41 PM
+
+Commit [198828c083fbaef983377b6c28fd22bd55b8ba93](https://github.com/StoneCypher/jssm/commit/198828c083fbaef983377b6c28fd22bd55b8ba93)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * chore(release): 5.151.1 — info/properties panel styling + fsl-docs highlighting
+  * Rebump + rebuild after merging main (5.151.0, #880 permalink-compress).
+  * - fsl-info-panel / fsl-effective-properties paint the shared --_fsl-surface token
+- fsl-docs highlighting: attribute keys + color swatches (FSL_COLOR_KEYS + FslToken)
+- fsl-editor showcase: panels off by default; load-into-editor regenerates the machine
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:32:56 PM
+
+Commit [153fe4a07846f1ab42147a05979c9d7258146d05](https://github.com/StoneCypher/jssm/commit/153fe4a07846f1ab42147a05979c9d7258146d05)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(plan): implementation plan for FSL permalink URL sync
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+## [Untagged] - Jun 28, 2026 1:30:44 PM
+
+Commit [dd94661e4836eb2ded160f47c1fad25407d75c8b](https://github.com/StoneCypher/jssm/commit/dd94661e4836eb2ded160f47c1fad25407d75c8b)
+
+Author: `John Haugeland <stonecypher@gmail.com>`
+
+  * docs(stochastic): design spec for fsl-stochastic panel + stochastic_summary() (fsl#1384)
+
+
+
+
+&nbsp;
+
+&nbsp;
+
 ## [Untagged] - Jun 28, 2026 1:28:49 PM
 
 Commit [80f1989e683dad4358e1aea28c6da598103658c1](https://github.com/StoneCypher/jssm/commit/80f1989e683dad4358e1aea28c6da598103658c1)
