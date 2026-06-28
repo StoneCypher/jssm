@@ -178,7 +178,8 @@ export async function permalink_for(
 /**
  * Recover the FSL for `key` from a permalink URL (or bare fragment).
  *
- * @returns The decoded FSL, or `null` if the fragment has no `key` segment.
+ * @returns The decoded FSL, or `null` when the fragment has no `key` segment
+ *          or that segment is present but malformed/undecodable.
  *
  * @example
  * await fsl_from_permalink('https://h/p#m=0YSAtPiBiOw'); // "a -> b;"
@@ -191,5 +192,10 @@ export async function fsl_from_permalink(
 ): Promise<string | null> {
   const hash    = url.includes('#') ? url.slice(url.indexOf('#')) : url;
   const segment = read_fragment_param(hash, key);
-  return segment === null ? null : decode_machine(segment);
+  if (segment === null) { return null; }
+  try {
+    return await decode_machine(segment);
+  } catch {
+    return null;   // present but malformed/undecodable segment → null, not a throw
+  }
 }

@@ -61,6 +61,10 @@ describe('fsl_permalink location wrappers', () => {
   it('fsl_from_permalink returns null when the key is absent', async () => {
     expect(await fsl_from_permalink('https://host/p', 'm')).toBeNull();
   });
+
+  it('fsl_from_permalink returns null for a present but malformed segment', async () => {
+    expect(await fsl_from_permalink('#m=1@@', 'm')).toBeNull();   // invalid base64 → swallowed
+  });
 });
 
 describe('permalink_key_for', () => {
