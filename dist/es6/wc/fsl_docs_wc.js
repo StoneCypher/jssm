@@ -152,6 +152,18 @@ FslDocs.styles = css `
     .nav a:hover { background: rgba(127,127,127,0.14); }
     .docs-page { font-size: 0.82rem; line-height: 1.55; }
     .docs-page pre { background: var(--_fsl-surface-alt, rgba(127,127,127,0.1)); padding: 0.5rem 0.6rem; border-radius: 6px; overflow-x: auto; }
+    .docs-page pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.78rem; }
+    .docs-page .fsl-tok-comment { color: var(--fsl-tok-comment, #7d8590); font-style: italic; }
+    .docs-page .fsl-tok-string  { color: var(--fsl-tok-string,  #2e9e5b); }
+    .docs-page .fsl-tok-action  { color: var(--fsl-tok-action,  #c2710c); }
+    .docs-page .fsl-tok-arrow   { color: var(--fsl-tok-arrow, var(--_fsl-accent, #6a4cd6)); font-weight: 600; }
+    .docs-page .fsl-tok-number  { color: var(--fsl-tok-number,  #3b82f6); }
+    .docs-page .fsl-tok-keyword { color: var(--fsl-tok-keyword, #a371f7); font-weight: 600; }
+    .docs-page .fsl-tok-key     { color: var(--fsl-tok-key,     #0e7490); }
+    .docs-page .fsl-swatch {
+      display: inline-block; width: 0.72em; height: 0.72em; margin-right: 0.3em; vertical-align: baseline;
+      border: 1px solid var(--_fsl-border, rgba(127,127,127,0.5)); border-radius: 2px;
+    }
     .docs-load-example { display: block; margin-top: 0.4rem; font: inherit; font-size: 0.7rem; cursor: pointer; }
     .search-input { width: 100%; box-sizing: border-box; padding: 0.35rem 0.5rem; margin: 0.25rem 0 0.5rem;
       background: var(--_fsl-surface); color: var(--_fsl-text); border: 1px solid var(--_fsl-border); border-radius: 4px; }

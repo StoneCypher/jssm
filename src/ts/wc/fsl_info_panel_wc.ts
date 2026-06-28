@@ -2,6 +2,7 @@ import { LitElement, html, css, TemplateResult } from 'lit';
 import { state } from 'lit/decorators.js';
 import type { Machine } from '../jssm.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { fslTokens } from './fsl_tokens.js';
 
 /**
  * Structural shape used to detect a parent `<fsl-instance>` (or, while the
@@ -42,10 +43,15 @@ export class FslInfoPanel extends LitElement {
 
   static styles = css`
     :host { display: block; }
+    .info, .placeholder {
+      padding: 0.5rem 0.7rem; font: 0.8rem var(--_fsl-font-mono);
+      color: var(--_fsl-text); background: var(--_fsl-surface);
+    }
     .info { display: grid; gap: var(--fsl-info-panel-gap, 0.25rem); }
     .row { display: flex; gap: 0.5rem; }
-    .label { font-weight: 600; opacity: 0.7; }
-    .placeholder { opacity: 0.6; font-style: italic; }
+    .label { font-weight: 600; color: var(--_fsl-muted); }
+    .placeholder { color: var(--_fsl-muted); font-style: italic; }
+    ${fslTokens}
   `;
 
   /**

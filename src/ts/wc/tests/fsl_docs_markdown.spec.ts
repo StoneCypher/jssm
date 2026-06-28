@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
-import { renderMarkdown, parseFenceInfo } from '../fsl_docs_markdown.js';
+import { renderMarkdown, parseFenceInfo, tokenizeFsl, highlightFsl, FSL_KEYWORDS, FSL_COLOR_KEYS } from '../fsl_docs_markdown.js';
 
 describe('fsl_docs_markdown', () => {
   it('renders headings, inline, lists', () => {
@@ -46,5 +46,101 @@ describe('fsl_docs_markdown', () => {
     expect(parseFenceInfo('fsl {run: false}')).toEqual({ lang: 'fsl', attrs: { run: false } });
     expect(parseFenceInfo('fsl {: x}')).toEqual({ lang: 'fsl', attrs: {} });   // empty key
     expect(parseFenceInfo('')).toEqual({ lang: '', attrs: {} });
+  });
+});
+
+describe('fsl syntax highlighter', () => {
+  const classesOf = (src: string) => tokenizeFsl(src).filter(t => t.cls).map(t => t.cls);
+
+  it('tokenizes every fsl token class', () => {
+    expect(classesOf('// note')).toContain('comment');
+    expect(classesOf('/* block */')).toContain('comment');
+    expect(classesOf('"a string"')).toContain('string');
+    expect(classesOf("'an action'")).toContain('action');
+    expect(classesOf('a -> b')).toContain('arrow');
+    expect(classesOf('a → b')).toContain('arrow');      // unicode arrow
+    expect(classesOf('Idle -> 70% Win')).toContain('number');
+    expect(classesOf('fsl_version : 5.0.0')).toContain('number');
+    expect(classesOf('state Go')).toContain('keyword');
+  });
+
+  it('leaves non-keyword identifiers and punctuation uncategorized', () => {
+    const toks = tokenizeFsl('Red { ;');
+    expect(toks.find(t => t.text === 'Red')?.cls).toBeNull();        // non-keyword identifier
+    expect(toks.some(t => t.text === '{' && t.cls === null)).toBe(true);  // single-char fallback
+  });
+
+  it('highlightFsl wraps token runs and escapes their text', () => {
+    const h = highlightFsl(`state Go : {};  // c`);
+    expect(h).toMatch(/<span class="fsl-tok-keyword">state<\/span>/);
+    expect(h).toMatch(/<span class="fsl-tok-comment">\/\/ c<\/span>/);
+    const sh = highlightFsl('"a<b"');                  // esc applies inside a token
+    expect(sh).toContain('fsl-tok-string');
+    expect(sh).toContain('&lt;');
+  });
+
+  it('renders highlighted spans inside fsl fences', () => {
+    const f = renderMarkdown('```fsl {run: true}\nstate Go : {};\n```\n');
+    expect(f).toMatch(/fsl-tok-keyword/);
+  });
+
+  it('exposes the keyword set', () => {
+    expect(FSL_KEYWORDS.has('transition')).toBe(true);
+  });
+});
+
+describe('fsl highlighter — attribute keys + color swatches', () => {
+  const classesOf = (src: string) => tokenizeFsl(src).filter(t => t.cls).map(t => t.cls);
+  const find = (src: string, text: string) => tokenizeFsl(src).find(t => t.text === text);
+
+  it('marks an identifier that precedes a colon as an attribute key', () => {
+    expect(find('state X : { background-color: pink; corners: rounded; }', 'background-color')?.cls).toBe('key');
+    expect(find('state X : { background-color: pink; corners: rounded; }', 'corners')?.cls).toBe('key');
+  });
+
+  it('does not reclassify structural keywords that precede a colon', () => {
+    expect(find('machine_name : "Traffic Light"', 'machine_name')?.cls).toBe('keyword');
+  });
+
+  it('does not reclassify punctuation that precedes a colon, and tolerates a bare colon', () => {
+    expect(find('} : x', '}')?.cls).toBeNull();
+    expect(() => tokenizeFsl(':')).not.toThrow();
+    expect(tokenizeFsl(':').every(t => t.cls === null)).toBe(true);
+  });
+
+  it('marks the value of a color key as a color', () => {
+    expect(find('s : { background-color: steelblue; }', 'steelblue')?.cls).toBe('color');
+    expect(find('s : { text-color: white; }', 'white')?.cls).toBe('color');
+  });
+
+  it('marks hex literals as colors', () => {
+    expect(classesOf('color: #ff8800')).toContain('color');
+    expect(find('text-color: #fff', '#fff')?.cls).toBe('color');
+  });
+
+  it('does not colorize state names that happen to be color words', () => {
+    for (const name of ['Red', 'Green', 'Yellow']) {
+      expect(find('Red -> Green -> Yellow', name)?.cls).toBeNull();
+    }
+  });
+
+  it('does not start a color value after a non-color key', () => {
+    expect(find('corners: rounded', 'rounded')?.cls).toBeNull();
+  });
+
+  it('confines a color value to the slot after the colon (a missing value does not leak)', () => {
+    expect(find('color: ; Foo', 'Foo')?.cls).toBeNull();
+  });
+
+  it('highlightFsl renders a swatch chip for color values and key spans', () => {
+    const h = highlightFsl('s : { background-color: pink; }');
+    expect(h).toContain('fsl-tok-color');
+    expect(h).toContain('fsl-tok-key');
+    expect(h).toMatch(/<span class="fsl-swatch" style="background:pink"><\/span>/);
+  });
+
+  it('exposes the color-key set', () => {
+    expect(FSL_COLOR_KEYS.has('background-color')).toBe(true);
+    expect(FSL_COLOR_KEYS.has('corners')).toBe(false);
   });
 });

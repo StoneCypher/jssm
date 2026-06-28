@@ -218,7 +218,7 @@
       "surface": "language",
       "title": "Configuration blocks",
       "grammar": {
-        "rules": ["Config", "ConfigState", "ConfigStartState", "ConfigEndState", "ConfigActiveState", "ConfigTerminalState", "ConfigHookedState", "ConfigAnyState", "ConfigTransition", "ConfigGraph", "ConfigStyleItems", "ConfigStartNodes", "ConfigEndNodes", "GraphDefaultEdgeColor", "SingleEdgeColor"],
+        "rules": ["Config", "ConfigState", "ConfigStartState", "ConfigEndState", "ConfigActiveState", "ConfigTerminalState", "ConfigHookedState", "ConfigAnyState", "ConfigTransition", "ConfigGraph", "ConfigStyleItems", "ConfigStartNodes", "ConfigEndNodes", "GraphDefaultEdgeColor", "SingleEdgeColor", "ConfigEditor", "EditorConfigItem", "EditorPanels", "EditorStochasticRunCount"],
         "terminals": ["state", "start_state", "end_state", "active_state", "terminal_state", "hooked_state", "transition", "graph", "edge-color"]
       },
       "tier": "intermediate",
