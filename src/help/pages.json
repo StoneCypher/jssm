@@ -530,6 +530,240 @@
       ]
     },
     {
+      "id": "tut-arrange",
+      "section": "tutorials",
+      "title": "Layout hints (arrange)",
+      "order": 60,
+      "source": "src/help/tutorials/arrange.md",
+      "teaches": [
+        "arrange"
+      ],
+      "mentions": [
+        "states"
+      ],
+      "indexTerms": [
+        "arrange",
+        "layout",
+        "rank",
+        "position"
+      ],
+      "fences": [
+        {
+          "teaches": "arrange",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-directions",
+      "section": "tutorials",
+      "title": "Directions",
+      "order": 62,
+      "source": "src/help/tutorials/directions.md",
+      "teaches": [
+        "directions"
+      ],
+      "mentions": [
+        "arrange",
+        "machine-attributes"
+      ],
+      "indexTerms": [
+        "direction",
+        "flow",
+        "up",
+        "down",
+        "left",
+        "right"
+      ],
+      "fences": [
+        {
+          "teaches": "directions",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-arrow-flavors",
+      "section": "tutorials",
+      "title": "Arrow flavors",
+      "order": 64,
+      "source": "src/help/tutorials/arrow-flavors.md",
+      "teaches": [
+        "arrow-flavors"
+      ],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "arrow",
+        "fat arrow",
+        "tilde arrow",
+        "main",
+        "forced",
+        "=>",
+        "~>"
+      ],
+      "fences": [
+        {
+          "teaches": "arrow-flavors",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-weighted-arrows",
+      "section": "tutorials",
+      "title": "Weighted / probabilistic arrows",
+      "order": 66,
+      "source": "src/help/tutorials/weighted-arrows.md",
+      "teaches": [
+        "weighted-arrows"
+      ],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "probability",
+        "weight",
+        "percent",
+        "random"
+      ],
+      "fences": [
+        {
+          "teaches": "weighted-arrows",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-arrow-decorations",
+      "section": "tutorials",
+      "title": "Per-arrow decorations",
+      "order": 68,
+      "source": "src/help/tutorials/arrow-decorations.md",
+      "teaches": [
+        "arrow-decorations"
+      ],
+      "mentions": [
+        "transitions",
+        "colors"
+      ],
+      "indexTerms": [
+        "edge-color",
+        "arc_label",
+        "head_label",
+        "tail_label",
+        "per-arrow"
+      ],
+      "fences": [
+        {
+          "teaches": "arrow-decorations",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-shapes",
+      "section": "tutorials",
+      "title": "State shapes",
+      "order": 70,
+      "source": "src/help/tutorials/shapes.md",
+      "teaches": [
+        "shapes"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "shape",
+        "circle",
+        "doublecircle",
+        "box",
+        "ellipse"
+      ],
+      "fences": [
+        {
+          "teaches": "shapes",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-corners",
+      "section": "tutorials",
+      "title": "Corner styles",
+      "order": 72,
+      "source": "src/help/tutorials/corners.md",
+      "teaches": [
+        "corners"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "corners",
+        "rounded",
+        "regular",
+        "lined"
+      ],
+      "fences": [
+        {
+          "teaches": "corners",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-urls",
+      "section": "tutorials",
+      "title": "URLs",
+      "order": 74,
+      "source": "src/help/tutorials/urls.md",
+      "teaches": [
+        "urls"
+      ],
+      "mentions": [
+        "state-styling"
+      ],
+      "indexTerms": [
+        "url",
+        "link",
+        "http",
+        "click-through"
+      ],
+      "fences": [
+        {
+          "teaches": "urls",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-typed-properties",
+      "section": "tutorials",
+      "title": "State properties",
+      "order": 76,
+      "source": "src/help/tutorials/typed-properties.md",
+      "teaches": [
+        "typed-properties"
+      ],
+      "mentions": [
+        "machine-attributes"
+      ],
+      "indexTerms": [
+        "property",
+        "state property",
+        "extended state",
+        "value"
+      ],
+      "fences": [
+        {
+          "teaches": "typed-properties",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-labels-quoting",
       "section": "tutorials",
       "title": "Labels and quoting",
