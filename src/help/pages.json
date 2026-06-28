@@ -472,6 +472,158 @@
       ]
     },
     {
+      "id": "tut-cli-dispatcher",
+      "section": "tutorials",
+      "title": "CLI: the fsl command",
+      "order": 130,
+      "source": "src/help/tutorials/cli-dispatcher.md",
+      "teaches": [
+        "cli-dispatcher"
+      ],
+      "mentions": [
+        "cli-render"
+      ],
+      "indexTerms": [
+        "cli",
+        "fsl",
+        "dispatcher",
+        "--help",
+        "--version"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-dispatcher",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-cli-render",
+      "section": "tutorials",
+      "title": "CLI: fsl render",
+      "order": 132,
+      "source": "src/help/tutorials/cli-render.md",
+      "teaches": [
+        "cli-render"
+      ],
+      "mentions": [
+        "cli-dispatcher",
+        "viz-render"
+      ],
+      "indexTerms": [
+        "render",
+        "cli render",
+        "fsl-render"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-render",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-cli-render-targets",
+      "section": "tutorials",
+      "title": "CLI: render output formats",
+      "order": 134,
+      "source": "src/help/tutorials/cli-render-targets.md",
+      "teaches": [
+        "cli-render-targets"
+      ],
+      "mentions": [
+        "cli-render"
+      ],
+      "indexTerms": [
+        "svg",
+        "png",
+        "jpeg",
+        "dot",
+        "html",
+        "format",
+        "export"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-render-targets",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-cli-export-prompt",
+      "section": "tutorials",
+      "title": "CLI: fsl export-system-prompt",
+      "order": 136,
+      "source": "src/help/tutorials/cli-export-prompt.md",
+      "teaches": [
+        "cli-export-prompt"
+      ],
+      "mentions": [
+        "cli-dispatcher"
+      ],
+      "indexTerms": [
+        "system prompt",
+        "llms.txt",
+        "export prompt"
+      ],
+      "fences": [
+        {
+          "teaches": "cli-export-prompt",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-prompt-overview",
+      "section": "tutorials",
+      "title": "LLM prompt: overview",
+      "order": 140,
+      "source": "src/help/tutorials/prompt-overview.md",
+      "teaches": [
+        "prompt-overview"
+      ],
+      "mentions": [
+        "cli-export-prompt"
+      ],
+      "indexTerms": [
+        "llms.txt",
+        "system prompt",
+        "agent",
+        "concepts"
+      ],
+      "fences": [
+        {
+          "teaches": "prompt-overview",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-prompt-examples",
+      "section": "tutorials",
+      "title": "LLM prompt: worked examples",
+      "order": 142,
+      "source": "src/help/tutorials/prompt-examples.md",
+      "teaches": [
+        "prompt-examples"
+      ],
+      "mentions": [
+        "prompt-overview"
+      ],
+      "indexTerms": [
+        "example",
+        "basic machine",
+        "actions"
+      ],
+      "fences": [
+        {
+          "teaches": "prompt-examples",
+          "run": true
+        }
+      ]
+    },
+    {
       "id": "tut-document-structure",
       "section": "tutorials",
       "title": "Document structure",
