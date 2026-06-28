@@ -52,7 +52,7 @@ export class FslPermalinkSync implements ReactiveController {
     if (this.key === null) { return; }
     this.host.removeEventListener('fsl-machine-rebuilt', this._onRebuilt);
     window.removeEventListener('hashchange', this._onHashChange);
-    if (this._timer !== undefined) { clearTimeout(this._timer); }
+    if (this._timer !== undefined) { clearTimeout(this._timer); this._timer = undefined; }
   }
 
   /** Read our segment and, if new, push it into the host (overriding declared source). */

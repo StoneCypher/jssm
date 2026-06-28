@@ -29,9 +29,36 @@ describe('FslPermalinkSync', () => {
     el.id = 'k1'; el.fsl = 'declared -> only;';
     document.body.appendChild(el);
     await el.updateComplete;
-    await tick();                                  // let the async restore settle
+    await tick(20);                                // let the async restore settle
     expect(el.fsl).toBe('x -> y;');
     el.remove();
+  });
+
+  it('does not write the URL after a restore (echo guard)', async () => {
+    const seg = await encode_machine('a -> b;');
+    history.replaceState(history.state, '', `#k4=${seg}`);
+    const spy = vi.spyOn(history, 'replaceState');
+    const el = document.createElement('plk-host') as Host;
+    el.id = 'k4';
+    document.body.appendChild(el);
+    await el.updateComplete;
+    await tick(20);                                // restore settles, _last = seg
+    el.rebuilt();                                  // the rebuild the restore would trigger
+    await tick(350);                               // past the debounce
+    expect(spy).not.toHaveBeenCalled();            // re-encoded segment equals _last → no write
+    el.remove();
+  });
+
+  it('cancels a pending write when disconnected before the debounce fires', async () => {
+    const el = document.createElement('plk-host') as Host;
+    el.id = 'k5'; el.fsl = 'x -> y;';
+    document.body.appendChild(el);
+    await el.updateComplete;
+    const spy = vi.spyOn(history, 'replaceState');
+    el.rebuilt();                                  // schedule a write (timer starts)
+    el.remove();                                   // disconnect should cancel it
+    await tick(350);                               // past the debounce
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('writes its segment via replaceState on rebuilt, preserving siblings', async () => {
@@ -55,12 +82,12 @@ describe('FslPermalinkSync', () => {
     el.id = 'k3'; el.fsl = 'start -> here;';
     document.body.appendChild(el);
     await el.updateComplete;
-    await tick();
+    await tick(20);
 
     const seg = await encode_machine('Up -> Down;');
     history.replaceState(history.state, '', `#k3=${seg}`);
     window.dispatchEvent(new Event('hashchange'));
-    await tick();
+    await tick(20);
     expect(el.fsl).toBe('Up -> Down;');
     el.remove();
   });
