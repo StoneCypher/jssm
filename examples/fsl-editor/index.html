@@ -121,7 +121,7 @@
     toolbar.append(helpBtn);                              // the toolbar's trailing slot
 
     const viz   = make('fsl-viz', 'viz');
-    const ed    = make('fsl-editor', 'editor'); ed.id = 'ed'; ed.theme = 'dark';
+    const ed    = make('fsl-editor', 'editor'); ed.id = 'ed';   // theme is driven by the host
     const sim   = make('fsl-simulation', 'simulation');
     const hist  = make('fsl-history', 'history');
     const data  = make('fsl-data-inspector', 'data-inspector');
@@ -172,8 +172,8 @@
 
     // The help drawer is a host sibling, so mirror the host's theme onto it
     // (its own built-in palette then flips with the rest of the suite).
-    const syncHelpTheme = () => help.setAttribute('theme', host.getAttribute('theme') || 'light');
-    new MutationObserver(syncHelpTheme).observe(host, { attributes: true, attributeFilter: ['theme'] });
+    const syncHelpTheme = () => help.setAttribute('theme', host.getAttribute('resolved-theme') || 'light');
+    new MutationObserver(syncHelpTheme).observe(host, { attributes: true, attributeFilter: ['resolved-theme'] });
     syncHelpTheme();
 
     // Status pill: the editor text is the source of truth for validity.

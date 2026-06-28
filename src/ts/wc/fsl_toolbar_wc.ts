@@ -5,22 +5,29 @@ import { closest_wc } from './wc_tag_helpers.js';
 import { machine_to_dot, machine_to_svg_string } from '../jssm_viz.js';
 import type { FslLayout } from './fsl_instance_wc.js';
 import type { Machine } from '../jssm.js';
-
-/** Editor surface the toolbar themes (the host owns the rest). */
-interface EditorTarget extends HTMLElement { theme: 'light' | 'dark'; }
+import type { ThemeMode, ThemeRegistry } from './fsl_themes.js';
 
 /** Host whose theme, layout, panel visibility, and export source the toolbar drives. */
 interface HostTarget extends HTMLElement {
   layout: FslLayout;
-  theme: 'light' | 'dark';
+  theme: ThemeMode;
+  themeName: string;
+  themes: ThemeRegistry;
   fsl: string;
   machine: Machine<unknown>;
   isPanelHidden(slot: string): boolean;
   togglePanel(slot: string): void;
 }
 
+/** Theme modes offered by the Theme pulldown. */
+const THEME_MODES: ReadonlyArray<{ value: ThemeMode; label: string }> = [
+  { value: 'system', label: 'System' },
+  { value: 'light',  label: 'Light' },
+  { value: 'dark',   label: 'Dark' },
+];
+
 /** Which dropdown menu is open (at most one). */
-type OpenMenu = '' | 'layout' | 'export';
+type OpenMenu = '' | 'layout' | 'export' | 'theme';
 
 /** A format the Export pulldown can produce. */
 type ExportFormat = 'dot' | 'json' | 'fsl' | 'svg';
@@ -58,6 +65,9 @@ const ICON_AUTO     = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="tru
 
 /* Solar bolt-bold-duotone — the actions panel. */
 const ICON_ACTIONS  = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M8.732 5.771L5.67 9.914c-1.285 1.739-1.928 2.608-1.574 3.291l.018.034c.375.673 1.485.673 3.704.673c1.233 0 1.85 0 2.236.363l.02.02l3.872-4.57l-.02-.02c-.379-.371-.379-.963-.379-2.148v-.31c0-3.285 0-4.927-.923-5.21s-1.913 1.056-3.892 3.734" clip-rule="evenodd"/><path fill="currentColor" d="M10.453 16.443v.31c0 3.284 0 4.927.923 5.21s1.913-1.056 3.893-3.734l3.062-4.143c1.284-1.739 1.927-2.608 1.573-3.291l-.018-.034c-.375-.673-1.485-.673-3.704-.673c-1.233 0-1.85 0-2.236-.363l-3.872 4.57c.379.371.379.963.379 2.148" opacity=".5"/></svg>`;
+
+/* Solar palette-round-bold-duotone — the theme pulldown. */
+const ICON_THEME    = html`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 18a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/><path fill="currentColor" d="M10 6v12a4 4 0 0 1-8 0V6a4 4 0 1 1 8 0" opacity=".4"/><path fill="currentColor" d="m9.248 20.336l3.974-3.975l5.838-6.09a4.042 4.042 0 0 0-5.776-5.655L10 7.9V18c0 .872-.279 1.679-.752 2.336" opacity=".7"/><path fill="currentColor" d="m13.222 16.362l-3.974 3.974A4 4 0 0 1 6 22h11.9a4 4 0 1 0 0-8h-2.414z"/></svg>`;
 
 /** Panel slot → label + icon. The toolbar shows a toggle for each panel present. */
 interface PanelDef { slot: string; label: string; icon: TemplateResult; }
@@ -143,13 +153,13 @@ export class FslToolbar extends LitElement {
     .menu button[aria-checked="true"] { font-weight: 700; }
     .menu button[aria-checked="true"]::after { content: "✓"; margin-left: auto; color: var(--_fsl-accent); }
     .menu .ico { width: 1.05rem; height: 1.05rem; display: block; flex: 0 0 auto; }
+    .menu .divider { height: 1px; background: var(--_fsl-border); margin: 5px 4px; }
     .spacer { flex: 1; }
     ${fslTokens}
   `;
 
   @state() private _openMenu: OpenMenu = '';
   private _host: HostTarget | null = null;
-  private _editor: EditorTarget | null = null;
   /** Panels actually present in the host — one toggle each. */
   private _present: ReadonlyArray<PanelDef> = [];
 
@@ -157,13 +167,20 @@ export class FslToolbar extends LitElement {
     super.connectedCallback();
     const host = closest_wc(this, 'instance') as HostTarget | null;
     this._host = host;
-    this._editor = host === null ? null : host.querySelector<EditorTarget>('fsl-editor');
     this._present = host === null ? [] : PANELS.filter(p => host.querySelector(`[slot="${p.slot}"]`) !== null);
   }
 
-  private _setTheme(theme: 'light' | 'dark'): void {
-    if (this._host !== null)   { this._host.theme = theme; }     // whole-suite palette
-    if (this._editor !== null) { this._editor.theme = theme; }   // editor CM highlight swap
+  /** Set the theme mode (System/Light/Dark). The host applies the palette + drives
+   *  the editor; the menu stays open so a theme can be picked in the same trip. */
+  private _setMode(mode: ThemeMode): void {
+    if (this._host !== null) { this._host.theme = mode; }
+    this.requestUpdate();
+  }
+
+  /** Select a named theme from the host's registry. The theme-name buttons only
+   *  render when a host exists, so `_host` is non-null here. */
+  private _setThemeName(name: string): void {
+    this._host!.themeName = name;
     this.requestUpdate();
   }
 
@@ -193,17 +210,15 @@ export class FslToolbar extends LitElement {
   private _toggleMenu(which: OpenMenu): void { this._openMenu = this._openMenu === which ? '' : which; }
 
   render(): TemplateResult {
-    const host   = this._host;
-    const theme  = host?.theme ?? 'light';
-    const layout = host?.layout ?? '';
+    const host       = this._host;
+    const mode       = host?.theme ?? 'light';
+    const themeName  = host?.themeName ?? 'Default';
+    const themeNames = host ? Object.keys(host.themes) : [];
+    const layout     = host?.layout ?? '';
     const layoutIcon = LAYOUTS.find(l => l.value === layout)?.icon ?? ICON_LR;
 
     return html`
       <div class="toolbar" part="toolbar" role="toolbar" aria-label="Workbench controls">
-        <div class="grp">
-          <button class="tb" aria-pressed=${theme === 'light'} aria-label="Light theme" title="Light" @click=${() => this._setTheme('light')}>☀</button>
-          <button class="tb" aria-pressed=${theme === 'dark'}  aria-label="Dark theme"  title="Dark"  @click=${() => this._setTheme('dark')}>☾</button>
-        </div>
         <span class="spacer"></span>
         <div class="grp">
           ${host
@@ -226,6 +241,17 @@ export class FslToolbar extends LitElement {
             <div class="menu" role="menu">
               ${EXPORT_FORMATS.map(f => html`
                 <button role="menuitem" @click=${() => this._export(f.value)}>${f.label}</button>`)}
+            </div>` : ''}
+        </div>
+        <div class="grp">
+          <button class="tb icon" aria-haspopup="true" aria-expanded=${this._openMenu === 'theme'} aria-label="Theme" title="Theme" @click=${() => this._toggleMenu('theme')}>${ICON_THEME}</button>
+          ${this._openMenu === 'theme' ? html`
+            <div class="menu" role="menu">
+              ${THEME_MODES.map(m => html`
+                <button role="menuitemradio" aria-checked=${mode === m.value} @click=${() => this._setMode(m.value)}>${m.label}</button>`)}
+              <div class="divider" role="separator"></div>
+              ${themeNames.map(n => html`
+                <button role="menuitemradio" aria-checked=${themeName === n} @click=${() => this._setThemeName(n)}>${n}</button>`)}
             </div>` : ''}
         </div>
         <slot></slot>

@@ -37,14 +37,23 @@ describe('<fsl-toolbar>', () => {
     await host.updateComplete;
     await toolbar.updateComplete;
 
-    // theme → host + editor
-    byLabel(toolbar, 'Dark theme').click();
+    // Theme pulldown: System/Light/Dark modes drive host.theme; the registry
+    // theme list drives host.themeName. The menu stays open across selections
+    // (two radio groups) and closes on toggling the Theme button.
+    byLabel(toolbar, 'Theme').click();
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'Dark').click();
     await toolbar.updateComplete;
     expect(host.theme).toBe('dark');
-    expect(editor.theme).toBe('dark');
-    byLabel(toolbar, 'Light theme').click();
+    byText(toolbar, '.menu button', 'System').click();
     await toolbar.updateComplete;
-    expect(host.theme).toBe('light');
+    expect(host.theme).toBe('system');
+    byText(toolbar, '.menu button', 'Solarized').click();         // a built-in registry theme
+    await toolbar.updateComplete;
+    expect(host.themeName).toBe('Solarized');
+    byLabel(toolbar, 'Theme').click();                            // toggle the still-open menu closed
+    await toolbar.updateComplete;
+    expect(q(toolbar, '.menu')).toBeNull();
 
     // one toggle per present panel (Renderer/Code/History); absent panels have none
     expect(byLabel(toolbar, 'Renderer')).not.toBeNull();
@@ -98,12 +107,14 @@ describe('<fsl-toolbar>', () => {
     document.body.appendChild(toolbar);
     await toolbar.updateComplete;
 
-    expect(byLabel(toolbar, 'Light theme').getAttribute('aria-pressed')).toBe('true');   // default theme
     expect(byLabel(toolbar, 'Code')).toBeNull();                                          // no host → no panels
 
     let fired = false;
     toolbar.addEventListener('fsl-export', () => { fired = true; });
-    byLabel(toolbar, 'Dark theme').click();      // _setTheme no-op
+    byLabel(toolbar, 'Theme').click();                           // open the theme menu
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'Dark').click();             // _setMode with no host → no-op
+    await toolbar.updateComplete;
     byLabel(toolbar, 'Layout').click();
     await toolbar.updateComplete;
     byText(toolbar, '.menu button', 'Just editor').click();   // _setLayout with no host

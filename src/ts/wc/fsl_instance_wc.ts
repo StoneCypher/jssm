@@ -8,6 +8,10 @@ import {
   wrap_user_handler,
 } from './fsl_hook_wc.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import {
+  BUILTIN_THEMES, resolve_theme_mode, resolve_palette, palette_to_vars,
+  type ThemeMode, type ThemeRegistry,
+} from './fsl_themes.js';
 
 /**
  * Allow-list of event names accepted by `<jssm-on event="...">`.  Must stay
@@ -380,20 +384,14 @@ export class FslInstance extends LitElement {
   static styles = css`
     :host {
       display: block;
-      /* Built-in palette. These public --fsl-color-* tokens cascade to every
-         slotted widget (each derives its internal --_fsl-* from them), so one
-         theme attribute on the host themes the whole suite. A consumer's own
-         --fsl-color-* (set on the host from the outer document) overrides these. */
+      /* Pre-JS fallback palette (the Default theme's light variant). At runtime
+         the host writes the resolved theme's --fsl-color-* tokens as inline
+         style (see _applyTheme), which override these and cascade to every
+         slotted widget. A consumer's own --fsl-color-* still wins over both. */
       --fsl-color-surface: #ffffff; --fsl-color-text: #222222; --fsl-color-accent: #5b9dff;
       --fsl-color-border: #e5e5e5;  --fsl-color-muted: #9aa0a6;
       --fsl-color-json-key: #5b3da8; --fsl-color-json-string: #2e7d32;
       --fsl-color-json-number: #b8860b; --fsl-color-json-atom: #c2185b;
-    }
-    :host([theme="dark"]) {
-      --fsl-color-surface: #1e1e22; --fsl-color-text: #d6d6d6; --fsl-color-accent: #82aaff;
-      --fsl-color-border: #2a2a2e;  --fsl-color-muted: #5a5f66;
-      --fsl-color-json-key: #82aaff; --fsl-color-json-string: #c3e88d;
-      --fsl-color-json-number: #f78c6c; --fsl-color-json-atom: #c792ea;
     }
     .container {
       width: 100%;
@@ -489,12 +487,25 @@ export class FslInstance extends LitElement {
   layout: FslLayout = '';
 
   /**
-   * Suite color theme, reflected to the `theme` attribute. Drives the built-in
-   * `--fsl-color-*` palette, which cascades to every slotted widget — so one
-   * value themes the whole suite. `<fsl-toolbar>` sets this from its theme
-   * buttons.
+   * Theme **mode**, reflected to the `theme` attribute: `system` (follow the OS
+   * `prefers-color-scheme`), `light`, or `dark`. Combined with {@link themeName}
+   * it selects a palette from {@link themes}, applied as inline `--fsl-color-*`
+   * by {@link _applyTheme}. `<fsl-toolbar>` sets this from its theme pulldown.
    */
-  theme: 'light' | 'dark' = 'light';
+  theme: ThemeMode = 'light';
+
+  /**
+   * Selected theme name, reflected to the `theme-name` attribute. A key of
+   * {@link themes}; an unknown name falls back to the built-in `Default`.
+   */
+  themeName = 'Default';
+
+  /**
+   * The theme registry — named light/dark palette pairs. Defaults to the
+   * built-in `Default` + `Solarized`; a consumer can replace or extend it, and
+   * every entry appears in the toolbar's theme list.
+   */
+  themes: ThemeRegistry = BUILTIN_THEMES;
 
   /**
    * Initial extended-state data seeded into the machine at build time. When set
@@ -618,9 +629,11 @@ export class FslInstance extends LitElement {
    */
   static properties = {
     fsl    : { type: String, reflect: false },
-    layout : { type: String, reflect: true },
-    theme  : { type: String, reflect: true },
-    data   : { type: Object, reflect: false },
+    layout    : { type: String, reflect: true },
+    theme     : { type: String, reflect: true },
+    themeName : { type: String, attribute: 'theme-name', reflect: true },
+    themes    : { type: Object, reflect: false },
+    data      : { type: Object, reflect: false },
   };
 
   /**
@@ -678,6 +691,35 @@ export class FslInstance extends LitElement {
    */
   state(): string {
     return String(this.machine.state());
+  }
+
+  /** Tracks the OS color scheme; null when `matchMedia` is unavailable. */
+  private _mql: MediaQueryList | null = null;
+
+  /** Re-apply on an OS color-scheme change — only relevant while in `system` mode. */
+  private _on_os_theme_change = (): void => { if (this.theme === 'system') { this._applyTheme(); } };
+
+  /** Whether the OS currently prefers a dark color scheme. */
+  private _prefers_dark(): boolean {
+    return typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  /**
+   * Resolve `theme` (mode) × `themeName` to a palette and apply it: write the
+   * `--fsl-color-*` tokens inline (overriding the CSS fallback and cascading to
+   * every slotted widget), reflect the chosen variant to `resolved-theme`, and
+   * drive each slotted editor's light/dark CodeMirror theme.
+   */
+  private _applyTheme(): void {
+    const variant = resolve_theme_mode(this.theme, this._prefers_dark());
+    this.setAttribute('resolved-theme', variant);
+    for (const [prop, value] of palette_to_vars(resolve_palette(this.themes, this.themeName, variant))) {
+      this.style.setProperty(prop, value);
+    }
+    for (const editor of this.querySelectorAll('[slot="editor"]')) {
+      (editor as unknown as { theme: string }).theme = variant;
+    }
   }
 
   /**
@@ -833,6 +875,13 @@ export class FslInstance extends LitElement {
 
     // #640: <jssm-action> DOM event → machine action wiring.
     this._discover_jssm_actions();
+
+    // Theme: follow the OS while in `system` mode, then apply the resolved palette.
+    if (typeof window.matchMedia === 'function') {
+      this._mql = window.matchMedia('(prefers-color-scheme: dark)');
+      this._mql.addEventListener('change', this._on_os_theme_change);
+    }
+    this._applyTheme();
   }
 
   /**
@@ -1028,6 +1077,9 @@ export class FslInstance extends LitElement {
     super.updated(changed);
     this._flush_pending_dom_events();
     this._syncAutoListener();
+    if (['theme', 'themeName', 'themes'].some(p => changed.has(p))) {
+      this._applyTheme();
+    }
   }
 
   /**
@@ -1109,6 +1161,12 @@ export class FslInstance extends LitElement {
     if (this._autoListener !== null) {
       window.removeEventListener('resize', this._autoListener);
       this._autoListener = null;
+    }
+
+    // Stop following the OS color scheme.
+    if (this._mql !== null) {
+      this._mql.removeEventListener('change', this._on_os_theme_change);
+      this._mql = null;
     }
   }
 

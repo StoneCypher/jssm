@@ -709,3 +709,87 @@ describe('FslInstance default-template slots (S2)', () => {
   });
 
 });
+
+describe('FslInstance theming', () => {
+
+  const mount_theme = (attrs: Record<string, string> = {}): FslInstance => {
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.setAttribute('fsl', 'a -> b;');
+    for (const [k, v] of Object.entries(attrs)) { el.setAttribute(k, v); }
+    document.body.appendChild(el);
+    return el;
+  };
+  const surface = (el: FslInstance): string => el.style.getPropertyValue('--fsl-color-surface').trim();
+
+  it('applies the Default light palette inline and reflects resolved-theme', async () => {
+    const el = mount_theme();
+    await el.updateComplete;
+    expect(surface(el)).toBe('#ffffff');
+    expect(el.getAttribute('resolved-theme')).toBe('light');
+    document.body.removeChild(el);
+  });
+
+  it('applies the dark variant when theme=dark', async () => {
+    const el = mount_theme({ theme: 'dark' });
+    await el.updateComplete;
+    expect(surface(el)).toBe('#1e1e22');
+    expect(el.getAttribute('resolved-theme')).toBe('dark');
+    document.body.removeChild(el);
+  });
+
+  it('applies a named theme and falls back to Default for an unknown name', async () => {
+    const el = mount_theme({ 'theme-name': 'Solarized' });
+    await el.updateComplete;
+    expect(surface(el)).toBe('#fdf6e3');               // Solarized light
+    el.themeName = 'Nonexistent';
+    await el.updateComplete;
+    expect(surface(el)).toBe('#ffffff');               // unknown name → Default light
+    document.body.removeChild(el);
+  });
+
+  it("drives a slotted editor's theme to the resolved variant", async () => {
+    const el = mount_theme();
+    await el.updateComplete;
+    const ed = document.createElement('div');
+    ed.setAttribute('slot', 'editor');
+    (ed as unknown as { theme: string }).theme = 'unset';
+    el.appendChild(ed);
+    el.theme = 'dark';                                 // updated → _applyTheme drives the editor
+    await el.updateComplete;
+    expect((ed as unknown as { theme: string }).theme).toBe('dark');
+    document.body.removeChild(el);
+  });
+
+  it('resolves system mode from the OS and re-applies on OS change (mocked matchMedia)', async () => {
+    let prefersDark = true;
+    let osHandler: (() => void) | undefined;
+    const original = window.matchMedia;
+    window.matchMedia = ((q: string) => ({
+      get matches() { return prefersDark; },
+      media: q,
+      addEventListener: (_e: string, h: () => void) => { osHandler = h; },
+      removeEventListener: (): void => { osHandler = undefined; },
+    })) as unknown as typeof window.matchMedia;
+
+    const el = mount_theme({ theme: 'system' });
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('dark');     // OS prefers dark
+    expect(surface(el)).toBe('#1e1e22');
+
+    prefersDark = false;
+    osHandler!();                                                // OS switches to light
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('light');
+
+    el.theme = 'dark';                                           // a fixed mode ignores OS changes
+    await el.updateComplete;
+    prefersDark = true;
+    osHandler!();
+    await el.updateComplete;
+    expect(el.getAttribute('resolved-theme')).toBe('dark');
+
+    document.body.removeChild(el);
+    window.matchMedia = original;
+  });
+
+});
