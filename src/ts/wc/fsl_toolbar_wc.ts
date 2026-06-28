@@ -30,7 +30,7 @@ const THEME_MODES: ReadonlyArray<{ value: ThemeMode; label: string }> = [
 type OpenMenu = '' | 'layout' | 'export' | 'theme';
 
 /** A format the Export pulldown can produce. */
-type ExportFormat = 'dot' | 'json' | 'fsl' | 'svg';
+type ExportFormat = 'dot' | 'json' | 'fsl' | 'svg' | 'permalink' | 'embed';
 
 /** Where an export goes. `lastdir` reuses the last chosen directory; `pick`
  *  prompts for a new one. The embedder performs the actual clipboard / file save. */
@@ -38,11 +38,48 @@ type ExportDest = 'clipboard' | 'lastdir' | 'pick';
 
 /** Export formats offered by the Export pulldown. */
 const EXPORT_FORMATS: ReadonlyArray<{ value: ExportFormat; label: string }> = [
-  { value: 'dot',  label: 'Graphviz DOT' },
-  { value: 'json', label: 'JSON (serialized)' },
-  { value: 'fsl',  label: 'FSL source' },
-  { value: 'svg',  label: 'SVG' },
+  { value: 'dot',       label: 'Graphviz DOT' },
+  { value: 'json',      label: 'JSON (serialized)' },
+  { value: 'fsl',       label: 'FSL source' },
+  { value: 'svg',       label: 'SVG' },
+  { value: 'permalink', label: 'Permalink (URL)' },
+  { value: 'embed',     label: 'Embed snippet' },
 ];
+
+/**
+ * A shareable URL for the given FSL: the current page URL with the source
+ * encoded in the hash (`#fsl=...`). A page that reads the hash on load can
+ * restore the machine. Falls back to a bare hash when there is no `location`.
+ *
+ * @example
+ * permalink_for("a -> b;"); // "https://host/path#fsl=a%20-%3E%20b%3B"
+ */
+export function permalink_for(fsl: string): string {
+  const base = typeof location === 'undefined' ? '' : location.href.split('#')[0];
+  return `${base}#fsl=${encodeURIComponent(fsl)}`;
+}
+
+/**
+ * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
+ * `<fsl-instance>` reading its source from a `<script type="text/fsl">` child,
+ * with a slotted `<fsl-viz>` for the graph.
+ *
+ * @example
+ * embed_snippet_for("a -> b;"); // "<script …instance.js …><fsl-instance>…</fsl-instance>"
+ */
+export function embed_snippet_for(fsl: string): string {
+  const CDN = 'https://cdn.jsdelivr.net/npm/jssm/dist/cdn';
+  return [
+    `<script type="module" src="${CDN}/instance.js"></script>`,
+    `<script type="module" src="${CDN}/viz.js"></script>`,
+    '<fsl-instance>',
+    '  <fsl-viz slot="viz"></fsl-viz>',
+    '  <script type="text/fsl">',
+    fsl,
+    '  </script>',
+    '</fsl-instance>',
+  ].join('\n');
+}
 
 /* Panel icons — Solar (CC BY 4.0) bold-duotone. Layout icons — hand-drawn
    duotone split-rects. All use currentColor (+ baked opacity on the secondary
@@ -219,6 +256,10 @@ export class FslToolbar extends LitElement {
       content = JSON.stringify(host.machine.serialize(), null, 2);
     } else if (format === 'svg') {
       content = await machine_to_svg_string(host.machine);
+    } else if (format === 'permalink') {
+      content = permalink_for(host.fsl);
+    } else if (format === 'embed') {
+      content = embed_snippet_for(host.fsl);
     } else {
       content = host.fsl;
     }

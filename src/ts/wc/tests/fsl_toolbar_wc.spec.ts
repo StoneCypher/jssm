@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeAll } from 'vitest';
 import '../fsl_instance_wc.define.js';
-import { FslToolbar } from '../fsl_toolbar_wc.js';
+import { FslToolbar, permalink_for, embed_snippet_for } from '../fsl_toolbar_wc.js';
 import { FslEditor } from '../fsl_editor_wc.js';
 import { FslInstance } from '../fsl_instance_wc.js';
 
@@ -129,6 +129,45 @@ describe('<fsl-toolbar>', () => {
       toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
     byText(toolbar, '.menu button', 'Graphviz DOT').click();
     expect((await lastDetail).destination).toBe('lastdir');
+    host.remove();
+  });
+
+  it('builds a permalink and an embed snippet from FSL', () => {
+    const link = permalink_for('a -> b;');
+    expect(link).toContain('#fsl=');
+    expect(decodeURIComponent(link.split('#fsl=')[1])).toBe('a -> b;');
+
+    const embed = embed_snippet_for('a -> b;');
+    expect(embed).toContain('<fsl-instance>');
+    expect(embed).toContain('cdn.jsdelivr.net/npm/jssm/dist/cdn/instance.js');
+    expect(embed).toContain('<fsl-viz slot="viz">');
+    expect(embed).toContain('a -> b;');
+  });
+
+  it('exports a permalink and an embed snippet via the menu', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "A 'go' -> B;");
+    const vizStub = document.createElement('div'); vizStub.setAttribute('slot', 'viz');
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    toolbar.setAttribute('slot', 'toolbar');
+    host.append(vizStub, toolbar);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    await toolbar.updateComplete;
+
+    for (const [label, fmt, needle] of [
+      ['Permalink (URL)', 'permalink', '#fsl='],
+      ['Embed snippet',   'embed',     '<fsl-instance>'],
+    ] as const) {
+      const detail = new Promise<{ format: string; content: string }>(res =>
+        toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
+      byLabel(toolbar, 'Export').click();
+      await toolbar.updateComplete;
+      byText(toolbar, '.menu button', label).click();
+      const d = await detail;
+      expect(d.format).toBe(fmt);
+      expect(d.content).toContain(needle);
+    }
     host.remove();
   });
 
