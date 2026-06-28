@@ -36,7 +36,9 @@
      of the host, so the demo mirrors the host's theme onto its theme attribute;
      its own built-in palette then flips with the suite. */
   fsl-help { flex:0 0 0; min-width:0; overflow:hidden; transition:flex-basis .28s ease; --fsl-font:var(--sans); }
-  fsl-help[open] { flex-basis:330px; }
+  fsl-help[open] { flex-basis:360px; }
+  /* the docs component fills the drawer body */
+  fsl-help fsl-docs { display:block; padding:.5rem .85rem; }
   @media (prefers-reduced-motion: reduce) { fsl-help { transition:none; } }
   /* Docs sections slotted into the drawer body use the drawer's own --_fsl-*
      tokens, so they flip with its theme. */
@@ -74,9 +76,9 @@
       'graph_layout    : dot;',
       'flow            : down;',
       '',
-      '// fsl#1334 — the machine declares the panels it wants; under',
-      '// panel-mode="request" the control shows them:',
-      'editor : { panels: [simulation history]; };',
+      '// fsl#1334 — the machine can declare which panels open by default; none',
+      '// are requested here, so every panel starts closed (toggle from the control):',
+      'editor : { panels: []; };',
       '',
       "Off 'Enable' -> Red;",
       "Red 'Next' => Green 'Next' => Yellow 'Next' => Red;",
@@ -154,34 +156,21 @@
     document.getElementById('device').prepend(host);
 
     // A real <fsl-help> drawer; the toolbar's Docs button toggles it.
+    // The help drawer now hosts the real <fsl-docs> component — the full,
+    // manifest-derived curriculum, with syntax-highlighted, loadable examples.
     const help = make('fsl-help');
-    help.innerHTML = `
-      <details open>
-        <summary>The composition</summary>
-        <div class="doc">Everything on screen is a real fsl-* widget slotted into one
-          <code>&lt;fsl-instance&gt;</code>: toolbar, viz, editor, history, data, hook-log,
-          simulation, export, footer. The instance owns layout + state; editing rebuilds
-          the machine and every panel follows. No glue code.</div>
-      </details>
-      <details>
-        <summary>Toolbar &amp; layout</summary>
-        <div class="doc">The <b>theme</b>, <b>View</b> (8 layouts), and <b>feature</b> toggles
-          are the <code>&lt;fsl-toolbar&gt;</code> driving the editor + host. Drag the gutter to
-          resize; double-click to reset.</div>
-      </details>
-      <details>
-        <summary>Editing &amp; autocomplete</summary>
-        <div class="doc"><kbd>Ctrl</kbd>+<kbd>Space</kbd> after a <code>:</code> for context
-          completions. Colour values get a swatch chip; state names and enums are marked.</div>
-      </details>
-      <details>
-        <summary>Run it</summary>
-        <div class="doc"><b>Play</b> on <code>&lt;fsl-simulation&gt;</code> random-walks the machine;
-          <code>&lt;fsl-history&gt;</code> traces the path, <code>&lt;fsl-hook-log&gt;</code> logs every
-          event, and <code>&lt;fsl-footer&gt;</code> shows live state. <b>Export</b> copies DOT / JSON / FSL.</div>
-      </details>`;
+    const docs = make('fsl-docs');
+    help.append(docs);
     document.getElementById('device').append(help);
     helpBtn.onclick = () => { help.open = !help.open; };
+
+    // <fsl-docs> emits `load-example` (bubbles + composed) when a fence's
+    // "Load into editor" button is clicked; seed the live editor with it AND
+    // regenerate the machine. A programmatic `ed.fsl =` write does NOT fire the
+    // editor's `change` event (that's user-edit-only), so the host would never
+    // re-derive viz/panels from it — we push `host.fsl` too so the whole suite
+    // rebuilds around the loaded example.
+    document.addEventListener('load-example', e => { ed.fsl = e.detail.fsl; host.fsl = e.detail.fsl; });
 
     // The help drawer is a host sibling, so mirror the host's theme onto it
     // (its own built-in palette then flips with the rest of the suite).

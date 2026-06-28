@@ -29,13 +29,44 @@ export const FSL_KEYWORDS = new Set([
 ]);
 
 /**
+ * Attribute keys whose value is a color, mirroring the editor's `COLOR_KEYS`
+ * (language_service). The value token following one of these (plus its `:`) is
+ * tagged `color` and rendered with a swatch, matching the editor overlay.
+ */
+export const FSL_COLOR_KEYS = new Set([
+  'color', 'text-color', 'background-color', 'border-color', 'edge-color',
+]);
+
+/** A token's class is one of these, or `null` for uncategorized runs. */
+export type FslTokenClass =
+  'comment' | 'string' | 'action' | 'arrow' | 'number' | 'keyword' | 'key' | 'color';
+
+/** A single highlighted run: its class (or `null`) and the source text. */
+export interface FslToken { cls: FslTokenClass | null; text: string; }
+
+/** Whether `text` is a bare FSL identifier (so it can be an attribute key). */
+const isIdentifier = (text: string): boolean => /^[A-Za-z_][A-Za-z0-9_-]*$/.test(text);
+
+/**
  * Tokenize FSL source into `{cls, text}` runs for syntax highlighting. A pure,
  * regex-driven scanner — never parses, so it cannot throw on malformed input.
  * `cls` is null for uncategorized text (punctuation, identifiers, whitespace).
+ *
+ * Beyond the lexical classes it tracks one bit of structural context: an
+ * identifier immediately before a `:` is retro-tagged `key` (an attribute key,
+ * unless it is already a `keyword`), and the value token after a color key's
+ * colon — or any hex literal — is tagged `color`. The context never spans a
+ * `;`, so a value can't leak past its statement.
+ *
+ * @example
+ *   tokenizeFsl('s : { background-color: pink; }')
+ *     .filter(t => t.cls).map(t => [t.cls, t.text]);
+ *   // includes ['key','background-color'] and ['color','pink']
  */
-export function tokenizeFsl(src: string): Array<{ cls: string | null; text: string }> {
-  const toks: Array<{ cls: string | null; text: string }> = [];
+export function tokenizeFsl(src: string): FslToken[] {
+  const toks: FslToken[] = [];
   let p = 0;
+  let expectColorValue = false;   // the next value token is the value of a color key
   while (p < src.length) {
     const rest = src.slice(p);
     let m: RegExpExecArray | null;
@@ -44,18 +75,51 @@ export function tokenizeFsl(src: string): Array<{ cls: string | null; text: stri
     else if ((m = /^"[^"]*"/.exec(rest)))                { toks.push({ cls: 'string',  text: m[0] }); }
     else if ((m = /^'[^']*'/.exec(rest)))                { toks.push({ cls: 'action',  text: m[0] }); }
     else if ((m = /^(?:<?[-=~]+>|[←→↔⇒⇐⇔↦])/.exec(rest))) { toks.push({ cls: 'arrow',   text: m[0] }); }
+    else if ((m = /^#[0-9A-Fa-f]{3,8}\b/.exec(rest)))    { toks.push({ cls: 'color', text: m[0] }); expectColorValue = false; }
     else if ((m = /^\d+(?:\.\d+)*%?/.exec(rest)))        { toks.push({ cls: 'number',  text: m[0] }); }
-    else if ((m = /^[A-Za-z_][A-Za-z0-9_-]*/.exec(rest))) { toks.push({ cls: FSL_KEYWORDS.has(m[0]) ? 'keyword' : null, text: m[0] }); }
-    else                                                 { toks.push({ cls: null, text: src[p] }); }
+    else if ((m = /^[A-Za-z_][A-Za-z0-9_-]*/.exec(rest))) {
+      const id = m[0];
+      const cls: FslTokenClass | null = FSL_KEYWORDS.has(id) ? 'keyword' : (expectColorValue ? 'color' : null);
+      expectColorValue = false;   // any identifier consumes the pending value slot
+      toks.push({ cls, text: id });
+    }
+    else {
+      const ch = src[p];
+      if (ch === ':') {
+        for (let j = toks.length - 1; j >= 0; j--) {
+          if (/^\s+$/.test(toks[j].text)) { continue; }      // skip whitespace before the colon
+          if (toks[j].cls === null && isIdentifier(toks[j].text)) {
+            toks[j].cls = 'key';
+            if (FSL_COLOR_KEYS.has(toks[j].text)) { expectColorValue = true; }
+          }
+          break;                                             // only the immediately-preceding token
+        }
+      } else if (ch === ';') {
+        expectColorValue = false;                            // a value can't cross a statement end
+      }
+      toks.push({ cls: null, text: ch });
+    }
     p += m ? m[0].length : 1;
   }
   return toks;
 }
 
-/** Highlight FSL source to an HTML string of `<span class="fsl-tok-…">` runs. */
+/**
+ * Highlight FSL source to an HTML string of `<span class="fsl-tok-…">` runs.
+ * A `color` token is preceded by an inline `<span class="fsl-swatch">` whose
+ * background is the literal color text (a CSS-valid named color or hex), giving
+ * the docs the same swatch the editor overlay shows. Color text is a hex or
+ * identifier run, so it is a safe `background:` value.
+ */
 export function highlightFsl(src: string): string {
   return tokenizeFsl(src)
-    .map(t => (t.cls ? `<span class="fsl-tok-${t.cls}">${esc(t.text)}</span>` : esc(t.text)))
+    .map(t => {
+      if (!t.cls) { return esc(t.text); }
+      if (t.cls === 'color') {
+        return `<span class="fsl-tok-color"><span class="fsl-swatch" style="background:${esc(t.text)}"></span>${esc(t.text)}</span>`;
+      }
+      return `<span class="fsl-tok-${t.cls}">${esc(t.text)}</span>`;
+    })
     .join('');
 }
 
