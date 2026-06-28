@@ -24,7 +24,6 @@ describe('stochastic_runs generator', () => {
   });
 
   it('treats a no-exit state as an immediately-terminal run', () => {
-    const m = sm`a 'go' -> b;`;   // start at a; but test the terminal b via a single-state walk
     const onlyB = sm`a 'go' -> b;`;
     onlyB.transition('b');         // move live machine to terminal b
     const [r] = [...onlyB.stochastic_runs({ runs: 1, max_steps: 10, seed: 1 })];
