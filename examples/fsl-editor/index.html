@@ -121,6 +121,8 @@
     const hist  = make('fsl-history', 'history');
     const data  = make('fsl-data-inspector', 'data-inspector');
     const hooks = make('fsl-hook-log', 'hook-log');
+    const info  = make('fsl-info-panel', 'info-panel');
+    const props = make('fsl-effective-properties', 'effective-properties');
 
     // The actions panel is a real <fsl-actions>: it derives the legal actions +
     // transitions from the host machine and drives it; every panel follows.
@@ -143,7 +145,7 @@
       ' m.data = { state: m.to, steps: (d.steps || 0) + 1, last_action: m.action || null,' +
       ' path: [...(d.path || []), m.to].slice(-12) };';
 
-    host.append(title, toolbar, actions, viz, ed, sim, hist, data, hooks, footer, telemetry);
+    host.append(title, toolbar, actions, viz, ed, sim, hist, data, hooks, info, props, footer, telemetry);
     document.getElementById('device').prepend(host);
 
     // A real <fsl-help> drawer; the toolbar's Docs button toggles it.
