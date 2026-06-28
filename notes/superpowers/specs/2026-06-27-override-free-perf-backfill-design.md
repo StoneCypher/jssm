@@ -90,6 +90,27 @@ Probed against real published bundles:
 ship no prebuilt `dist/` (they built at install time, which fails on modern
 toolchains). Out of scope.
 
+### Correction — effective harness floor is **5.16.0**, not 5.11.0 (T7 verification, 2026-06-27)
+
+The op-floor table above was pinned via `require('jssm')` (package `main`), which on
+the oldest releases resolves to the **multi-file** `build/jssm.es5.js` module — that
+exports `sm` fine. But the backfill harness loads a single bundle by the hardcoded
+path `dist/jssm.es5.cjs`, and the T6 normalization only sources it from the `dist/`
+browser bundles. Empirically (local rig, `npm install jssm@<v>`):
+
+| version | `dist/jssm.es5.cjs.js` require | note |
+|---|---|---|
+| 5.11.0 – 5.14.2 | exports `{}` (no `sm`) | `dist/` holds only browser bundles; real CJS API is the multi-file `build/jssm.es5.js` |
+| **5.16.0**+ | exports `sm` ✓ | first version whose `dist/` CJS bundle is loadable (no 5.15.x was published) |
+
+So **5.16.0 is the effective floor for the dist-bundle harness.** Full override-free
+runs verified end-to-end at 5.16.0 (5 ops: transition/action/list_exit_actions/
+probable_action_exits/construct) and 5.60.0 (all 7 ops incl. hooked) — both exit 0,
+produce normalized `scaling.json`. Reaching 5.11.0–5.14.2 would require the
+normalization to fall back to copying the whole `build/` tree and requiring
+`build/jssm.es5.js` (multi-file, sibling `require`s) — deferred; the marginal ~8
+micro-versions are not worth the added normalization complexity unless asked.
+
 ## Re-baseline
 
 Existing override-based c8g numbers are not comparable to the new per-transition

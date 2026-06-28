@@ -10,8 +10,8 @@
 
 ## Global Constraints
 
-- Backfill floor is **5.11.0** (earliest git tag); below that is out of scope.
-- Per-op method floors (feature-probe must degrade above these): `has_state` 5.30.1, `edges_between` 5.60.0; `transition`/`action`/`list_exit_actions`/`probable_action_exits`/`construct` reach 5.11.0.
+- Backfill floor is **5.16.0** (corrected by T7 — 5.11.0–5.14.2 ship empty `dist/` CJS bundles; see the spec's Correction section). The 5.11.0 git-tag floor only holds for `require('jssm')` (multi-file `build/`), not the harness's `dist/jssm.es5.cjs` path.
+- Per-op method floors (feature-probe must degrade above these): `has_state` 5.30.1, `edges_between` 5.60.0; `transition`/`action`/`list_exit_actions`/`probable_action_exits`/`construct` reach the 5.16.0 bundle floor.
 - No `machine.override()` and no `allows_override:` anywhere in generated FSL or probes — that is the whole point.
 - New continuity: old override-based c8g numbers are discarded, not spliced.
 - Spec suite enforces 100% coverage over `src/ts/**`; `src/buildjs/**` is not in that gate, but new sibling modules get their own `src/buildjs/tests/*.spec.ts` (matching the existing siblings).
@@ -146,6 +146,8 @@
 
 ### Task 7: Local rig verification across the floor spread
 
+> **✅ DONE (verification, 2026-06-27).** Op floors confirmed: 5.30.1 (has_state), 5.60.0 (edges_between + set_hook/hooked), 5.90.0/5.130.0 (all). **Key finding — effective floor is 5.16.0, not 5.11.0:** 5.11.0–5.14.2 ship only browser bundles in `dist/` (`jssm.es5.cjs.js` exports `{}`); their real CJS API is the multi-file `build/jssm.es5.js`, which the harness's hardcoded `dist/jssm.es5.cjs` path can't use. Full override-free harness runs verified end-to-end at **5.16.0** (5 ops) and **5.60.0** (all 7 ops incl. hooked) — both exit 0, normalized `scaling.json`. See the spec's "Correction" section. → **T8 dispatch range starts at 5.16.0.**
+
 **Files:** none (verification only; throwaway rig under `C:/tmp`)
 
 - [ ] Step 1: For each of 5.11.0, 5.30.1, 5.60.0, 5.90.0, 5.130.0: `npm install jssm@<v>` into an isolated dir, lay the new harness + its siblings + `benchmark/fixtures` beside the installed `dist/`, and `node benchmark_scaling.cjs`.
@@ -164,7 +166,7 @@
 - [ ] Step 2: `/sc-commit` on the branch (version bump + full build + commit).
 - [ ] Step 3: Open PR; verify CI green; merge (with explicit permission — protected branch); verify npm publish.
 - [ ] Step 4: Drop the existing `c8g.medium/` trail on `perf_results` (CloudShell `aws s3 rm --recursive` + a branch commit removing the dirs), so the new methodology starts clean.
-- [ ] Step 5: Dispatch `perf_backfill` in batches across 5.11→latest (mind the EC2 concurrent-instance limit), `force=true` for 5.130–5.143; sync; confirm the chart redraws.
+- [ ] Step 5: Dispatch `perf_backfill` in batches across **5.16→latest** (floor corrected by T7; mind the EC2 concurrent-instance limit), `force=true` for 5.130–5.143; sync; confirm the chart redraws.
 
 ---
 
