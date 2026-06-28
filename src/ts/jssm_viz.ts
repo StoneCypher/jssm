@@ -536,7 +536,7 @@ style=filled;
 bgcolor="${graph_bg_color}";
 ${extra_graph_attrs}
 node [fontsize=14; shape=box; style=filled; fillcolor=white; fontname="Times New Roman"];
-edge [fontsize=6; fontname="Open Sans"; fontcolor="#004488"];
+edge [fontsize=6; fontname="Open Sans"; fontcolor="#0066bb"];
 ${edge_defaults ? `edge [ ${edge_defaults} ];\n` : ''}
 ${nodes}
 
