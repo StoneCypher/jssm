@@ -414,6 +414,259 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_docs_markdown.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "parseFenceInfo",
+          "return": {
+            "type": {
+              "text": "{ lang: string; attrs: Record<string, string | boolean> }"
+            }
+          },
+          "parameters": [
+            {
+              "name": "info",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Parse a fenced-code info string like `fsl {teaches: x, run: true}`."
+        },
+        {
+          "kind": "function",
+          "name": "renderMarkdown",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "md",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Render the supported markdown subset to an HTML string."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "parseFenceInfo",
+          "declaration": {
+            "name": "parseFenceInfo",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "renderMarkdown",
+          "declaration": {
+            "name": "renderMarkdown",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_docs_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-docs>` — the language-docs content engine: drill-in nav over the bundled\ncurriculum (Getting Started / About State Machines / Tutorials / Example\nMachines / Index / Search), a markdown page renderer, and \"load into editor\"\nfor tagged FSL examples. Content-only; slot it into `<fsl-help>`.",
+          "name": "FslDocs",
+          "members": [
+            {
+              "kind": "field",
+              "name": "theme",
+              "type": {
+                "text": "'light' | 'dark'"
+              },
+              "default": "'light'",
+              "description": "Color theme; reflected so it drives the `--fsl-*` token defaults.",
+              "attribute": "theme",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "_view",
+              "type": {
+                "text": "DocsView"
+              },
+              "privacy": "private",
+              "default": "'sections'"
+            },
+            {
+              "kind": "field",
+              "name": "_section",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_pageId",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_query",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "method",
+              "name": "_pagesIn",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "DocsPage[]"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "section",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "_go",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_loadExample",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "_renderSections",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_renderPages",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_renderPage",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_withButtons",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "htmlStr",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Append a \"Load into editor\" button to every runnable fsl fence."
+            },
+            {
+              "kind": "method",
+              "name": "_renderIndex",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_renderSearch",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "CustomEvent<FslDocsLoadExampleDetail>"
+              },
+              "description": "When a fence's \"Load into editor\" is clicked.",
+              "name": "load-example"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "theme",
+              "type": {
+                "text": "'light' | 'dark'"
+              },
+              "default": "'light'",
+              "description": "Color theme; reflected so it drives the `--fsl-*` token defaults.",
+              "fieldName": "theme"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-docs",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslDocs",
+          "declaration": {
+            "name": "FslDocs",
+            "module": "src/ts/wc/fsl_docs_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/fsl_editor_wc.ts",
       "declarations": [
         {

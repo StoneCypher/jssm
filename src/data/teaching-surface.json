@@ -550,11 +550,11 @@
       "id": "wc-editor-suite",
       "surface": "webcomponent",
       "title": "FSL editor web-component suite",
-      "units": ["fsl-editor", "fsl-help", "fsl-toolbar", "fsl-footer", "fsl-actions", "fsl-data-inspector", "fsl-export", "fsl-history", "fsl-hook-log", "fsl-simulation"],
+      "units": ["fsl-editor", "fsl-help", "fsl-toolbar", "fsl-footer", "fsl-actions", "fsl-data-inspector", "fsl-export", "fsl-history", "fsl-hook-log", "fsl-simulation", "fsl-docs"],
       "tier": "advanced",
       "dependsOn": ["wc-viz"],
-      "indexTerms": ["editor", "help panel", "toolbar", "footer", "inspector", "web component suite"],
-      "teachingNote": "Parallel production fsl-editor suite added on main; provisional classification (revisit in a teaching-surface refresh, and reconcile with this sketch's docs panel)."
+      "indexTerms": ["editor", "help panel", "docs", "toolbar", "footer", "inspector", "web component suite"],
+      "teachingNote": "The production fsl-editor web-component suite. fsl-docs is the productionized docs engine (fills fsl-help's slot), reconciling the sketch panel with this suite."
     }
   ]
 }
