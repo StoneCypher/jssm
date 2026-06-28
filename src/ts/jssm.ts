@@ -2730,23 +2730,25 @@ class Machine<mDT> {
         capped           = 0,
         runs             = 0;
 
-    for (const run of this.stochastic_runs({ ...opts, mode })) {
-      runs += 1;
-      for (const s of run.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
-      for (const e of run.edges)  { edge_traversals.set(e, (edge_traversals.get(e) ?? 0) + 1); }
-      if (mode === 'montecarlo') {
-        if (run.terminated) { terminal_reached += 1; path_lengths.push(run.length); }
-        else                { capped += 1; }
+    try {
+      for (const run of this.stochastic_runs({ ...opts, mode })) {
+        runs += 1;
+        for (const s of run.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
+        for (const e of run.edges)  { edge_traversals.set(e, (edge_traversals.get(e) ?? 0) + 1); }
+        if (mode === 'montecarlo') {
+          if (run.terminated) { terminal_reached += 1; path_lengths.push(run.length); }
+          else                { capped += 1; }
+        }
       }
+    } finally {
+      // restore the PRNG so the call is non-destructive even when the loop throws
+      this.rng_seed = saved_seed;
     }
-
-    // restore the PRNG so the call is non-destructive
-    this.rng_seed = saved_seed;
 
     const total_visits         : number             = [...state_visits.values()].reduce((a, b) => a + b, 0);
     const state_visit_fraction : Map<string, number> = new Map();
     for (const [s, c] of state_visits) {
-      state_visit_fraction.set(s, total_visits === 0 ? 0 : c / total_visits);
+      state_visit_fraction.set(s, c / total_visits);
     }
 
     const summary: JssmStochasticSummary = {
