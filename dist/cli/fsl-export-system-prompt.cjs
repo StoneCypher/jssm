@@ -108,7 +108,7 @@ function parseFslArgs(argv, spec) {
   return { positional, flags, helpText };
 }
 
-const getVersion = () => "5.149.0";
+const getVersion = () => "5.150.0";
 const SPEC = {
   flags: {
     help: { short: "h", boolean: true },
@@ -171,12 +171,12 @@ Idle 'cancel' -> Off;
 
 ### Explicit State Declarations and Attributes
 \`\`\`fsl
-state Red {
+state Red : {
   background-color : red;
   text-color       : white;
 };
 
-state Green {
+state Green : {
   background-color : green;
 };
 

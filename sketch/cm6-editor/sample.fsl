@@ -3,16 +3,31 @@ machine_version : 1.0.0;
 machine_author  : "John Haugeland <stonecypher@gmail.com>";
 machine_license : MIT;
 
-fsl_version     : 5.0.0;
+fsl_version     : 5.118.3;
 graph_layout    : dot;
+flow            : down;
 
 
 
-// Traffic lights can be turned on
-Off -> Red;
+Off 'Enable' -> Red;
+Red 'Next' => Green 'Next' => Yellow 'Next' => Red;
 
-// The color cycle is the main path for this machine
-Red 'Proceed' => Green 'Proceed' => Yellow 'Proceed' => Red;
-
-// Shutting off is rare, so, forced-only
 [Red Yellow Green] ~> Off;
+
+
+
+// visual styling
+
+arrange [Green Yellow];
+
+state        : { corners: rounded; };
+
+state Red    : { background-color: pink;        };
+state Yellow : { background-color: lightyellow; };
+state Green  : { background-color: lightgreen;  };
+
+state Off : {
+  background-color : steelblue;
+  text-color       : white;
+  corners          : regular;
+};

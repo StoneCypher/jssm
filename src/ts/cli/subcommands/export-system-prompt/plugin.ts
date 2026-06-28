@@ -62,12 +62,12 @@ Idle 'cancel' -> Off;
 
 ### Explicit State Declarations and Attributes
 \`\`\`fsl
-state Red {
+state Red : {
   background-color : red;
   text-color       : white;
 };
 
-state Green {
+state Green : {
   background-color : green;
 };
 
