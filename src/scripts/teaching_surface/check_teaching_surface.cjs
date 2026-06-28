@@ -105,6 +105,9 @@ async function runChecks() {
 module.exports = { runChecks };
 
 if (require.main === module) {
+  // --report: print the report but always exit 0 (non-gating build step). Without
+  // it the checker fails on a violation (for a future hard gate / local use).
+  const report = process.argv.includes('--report');
   runChecks().then(r => {
     for (const k of ['treatment', 'stale', 'dag', 'fences']) {
       const c = r[k];
@@ -113,7 +116,8 @@ if (require.main === module) {
     }
     console.log(`partition: ${r.partition.ok ? 'OK' : 'FAIL'}`);
     console.log(`uncovered (report): ${r.reportUncovered.length} features`);
-    console.log(r.ok ? '\nteaching-surface checks OK (validate-present)' : '\nteaching-surface checks FAILED');
-    process.exit(r.ok ? 0 : 1);
+    console.log(r.ok ? '\nteaching-surface checks OK (validate-present)'
+                     : `\nteaching-surface checks reported issues${report ? ' (report-only, not failing the build)' : ''}`);
+    process.exit(report || r.ok ? 0 : 1);
   });
 }
