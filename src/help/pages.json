@@ -789,6 +789,194 @@
           "run": true
         }
       ]
+    },
+    {
+      "id": "tut-api-machine",
+      "section": "tutorials",
+      "title": "API: the Machine and its factories",
+      "order": 80,
+      "source": "src/help/tutorials/api-machine.md",
+      "teaches": [
+        "api-machine"
+      ],
+      "mentions": [
+        "transitions",
+        "states"
+      ],
+      "indexTerms": [
+        "sm",
+        "from",
+        "compile",
+        "Machine",
+        "transition",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-machine",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-version-info",
+      "section": "tutorials",
+      "title": "API: version and build info",
+      "order": 82,
+      "source": "src/help/tutorials/api-version-info.md",
+      "teaches": [
+        "api-version-info"
+      ],
+      "mentions": [
+        "api-machine"
+      ],
+      "indexTerms": [
+        "version",
+        "build_time",
+        "compareVersions",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-version-info",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-constants",
+      "section": "tutorials",
+      "title": "API: constants and vocabularies",
+      "order": 84,
+      "source": "src/help/tutorials/api-constants.md",
+      "teaches": [
+        "api-constants"
+      ],
+      "mentions": [
+        "api-machine",
+        "colors",
+        "shapes"
+      ],
+      "indexTerms": [
+        "named_colors",
+        "gviz_shapes",
+        "constants",
+        "FslDirections",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-constants",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-arrow-introspection",
+      "section": "tutorials",
+      "title": "API: arrow introspection",
+      "order": 86,
+      "source": "src/help/tutorials/api-arrow-introspection.md",
+      "teaches": [
+        "api-arrow-introspection"
+      ],
+      "mentions": [
+        "api-machine",
+        "arrow-flavors"
+      ],
+      "indexTerms": [
+        "arrow_direction",
+        "arrow_left_kind",
+        "arrow_right_kind",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-arrow-introspection",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-hook-helpers",
+      "section": "tutorials",
+      "title": "API: hook result helpers",
+      "order": 88,
+      "source": "src/help/tutorials/api-hook-helpers.md",
+      "teaches": [
+        "api-hook-helpers"
+      ],
+      "mentions": [
+        "api-machine",
+        "hooks"
+      ],
+      "indexTerms": [
+        "is_hook_rejection",
+        "hook result",
+        "abstract_hook_step",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-hook-helpers",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-utilities",
+      "section": "tutorials",
+      "title": "API: utility exports",
+      "order": 90,
+      "source": "src/help/tutorials/api-utilities.md",
+      "teaches": [
+        "api-utilities"
+      ],
+      "mentions": [
+        "api-machine",
+        "weighted-arrows"
+      ],
+      "indexTerms": [
+        "seq",
+        "unique",
+        "weighted_rand_select",
+        "sleep",
+        "utility",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-utilities",
+          "run": true
+        }
+      ]
+    },
+    {
+      "id": "tut-api-language-service",
+      "section": "tutorials",
+      "title": "API: the language service",
+      "order": 92,
+      "source": "src/help/tutorials/api-language-service.md",
+      "teaches": [
+        "api-language-service"
+      ],
+      "mentions": [
+        "api-machine",
+        "editor-language-support"
+      ],
+      "indexTerms": [
+        "fslCompletions",
+        "fslDiagnostics",
+        "fslSemanticSpans",
+        "language service",
+        "API"
+      ],
+      "fences": [
+        {
+          "teaches": "api-language-service",
+          "run": true
+        }
+      ]
     }
   ]
 }
