@@ -729,7 +729,7 @@ class Machine<mDT> {
 
   }: JssmGenericConfig<StateType, mDT>) {
 
-    this._time_source                   = () => new Date().getTime();
+    this._time_source                   = time_source ?? (() => new Date().getTime());
 
     this._create_started                = this._time_source();
 
@@ -1834,7 +1834,7 @@ class Machine<mDT> {
       jssm_version     : version,
       history          : this._history.toArray(),
       history_capacity : this._history.capacity,
-      timestamp        : new Date().getTime(),
+      timestamp        : this._time_source(),
 
     };
 
