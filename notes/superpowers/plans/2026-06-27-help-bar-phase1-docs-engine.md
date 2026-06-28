@@ -409,7 +409,7 @@ function scanPages(helpDir) {
 module.exports = { scanPages, parseFrontMatter };
 
 if (require.main === module) {
-  const helpDir = path.join(__dirname, '..', '..', '..', 'help');
+  const helpDir = path.join(__dirname, '..', '..', '..', 'src', 'help');
   const { pages } = scanPages(helpDir);
   pages.sort((a, b) => (a.section + a.order).localeCompare(b.section + b.order));
   fs.writeFileSync(path.join(helpDir, 'pages.json'),

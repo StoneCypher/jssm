@@ -1,0 +1,27 @@
+{
+  "generated": true,
+  "pages": [
+    {
+      "id": "welcome",
+      "section": "getting-started",
+      "title": "Welcome to FSL",
+      "order": 10,
+      "source": "src/help/getting-started/welcome.md",
+      "teaches": [],
+      "mentions": [
+        "transitions"
+      ],
+      "indexTerms": [
+        "intro",
+        "start",
+        "hello"
+      ],
+      "fences": [
+        {
+          "teaches": "transitions",
+          "run": true
+        }
+      ]
+    }
+  ]
+}
