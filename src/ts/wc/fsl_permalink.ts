@@ -60,7 +60,20 @@ export async function deflate_raw(bytes: Uint8Array): Promise<Uint8Array> {
 }
 
 /**
- * Inverse of {@link deflate_raw}.
+ * Hard ceiling on the inflated size of a permalink, in bytes. A permalink rides
+ * in a URL an attacker can hand a victim, and {@link inflate_raw} runs on it
+ * automatically on page load, so an uncapped inflate is a decompression-bomb
+ * vector (a tiny `#m=…` could expand to hundreds of MB and OOM the tab). This is
+ * generous for real FSL (text — even a vast machine is well under a megabyte).
+ */
+export const MAX_PERMALINK_INFLATE_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Inverse of {@link deflate_raw}, reading the stream in chunks and aborting once
+ * the inflated output would exceed {@link MAX_PERMALINK_INFLATE_BYTES} (a
+ * decompression-bomb guard — see that constant).
+ *
+ * @throws RangeError when the inflated output exceeds the cap.
  *
  * @example
  * new TextDecoder().decode(await inflate_raw(await deflate_raw(new TextEncoder().encode("hi")))); // "hi"
@@ -70,7 +83,27 @@ export async function inflate_raw(bytes: Uint8Array): Promise<Uint8Array> {
   const writer = stream.writable.getWriter();
   void writer.write(bytes);
   void writer.close();
-  return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+
+  // Read incrementally; stopping past the cap leaves the stream half-drained, so
+  // backpressure halts further inflation and the abandoned stream is GC'd. We do
+  // not cancel (which would abort the writable and leak an unhandled rejection).
+  const reader = stream.readable.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) { break; }
+    total += value.length;
+    if (total > MAX_PERMALINK_INFLATE_BYTES) {
+      throw new RangeError(`permalink inflate exceeded ${MAX_PERMALINK_INFLATE_BYTES} bytes`);
+    }
+    chunks.push(value);
+  }
+
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) { out.set(chunk, offset); offset += chunk.length; }
+  return out;
 }
 
 /**
@@ -102,14 +135,24 @@ export async function decode_machine(segment: string): Promise<string> {
   return new TextDecoder().decode(plain);
 }
 
-/** Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping empties. */
+/** `decodeURIComponent` that returns its input untouched on a malformed escape,
+ *  so a hand-mangled fragment never throws out of {@link read_fragment_param}. */
+function safe_decode(text: string): string {
+  try { return decodeURIComponent(text); } catch { return text; }
+}
+
+/**
+ * Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping
+ * empties. Keys are percent-decoded (they are percent-encoded on write by
+ * {@link set_fragment_param}); values are the URL-safe base64 payload as-is.
+ */
 function fragment_pairs(hash: string): Array<[string, string]> {
   const body = hash.startsWith('#') ? hash.slice(1) : hash;
   return body.split('&').filter(Boolean).map(seg => {
     const eq = seg.indexOf('=');
     return eq === -1
-      ? ([seg, ''] as [string, string])
-      : ([seg.slice(0, eq), seg.slice(eq + 1)] as [string, string]);
+      ? ([safe_decode(seg), ''] as [string, string])
+      : ([safe_decode(seg.slice(0, eq)), seg.slice(eq + 1)] as [string, string]);
   });
 }
 
@@ -137,7 +180,9 @@ export function set_fragment_param(hash: string, key: string, value: string): st
   const pairs = fragment_pairs(hash);
   const at    = pairs.findIndex(([k]) => k === key);
   if (at === -1) { pairs.push([key, value]); } else { pairs[at] = [key, value]; }
-  return pairs.map(([k, v]) => `${k}=${v}`).join('&');
+  // Percent-encode the key so an `id`/`uhash` containing `=`, `&`, or `#` cannot
+  // break segmentation or collide with a sibling. Values are URL-safe base64.
+  return pairs.map(([k, v]) => `${encodeURIComponent(k)}=${v}`).join('&');
 }
 
 /**
