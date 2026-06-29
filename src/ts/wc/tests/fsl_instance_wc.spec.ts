@@ -849,3 +849,75 @@ describe('FslInstance theming', () => {
   });
 
 });
+
+describe('FslInstance permalink restore', () => {
+
+  it('restores its machine from the URL fragment when given an id', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#mach=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'mach';
+    el.setAttribute('fsl', 'Left -> Right;');        // declared source — should be overridden
+    document.body.appendChild(el);
+    await el.updateComplete;
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(el.fsl).toBe('Up -> Down;');
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
+  it('builds a working machine from a permalink when no source is declared', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#solo=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'solo';                                // no fsl/script/text — the URL is the only source
+    document.body.appendChild(el);                 // must NOT throw despite no declared source
+    await el.updateComplete;
+    await new Promise(r => setTimeout(r, 20));      // restore + deferred build
+
+    expect(el.fsl).toBe('Up -> Down;');
+    expect(el.machine.state()).toBe('Up');         // the deferred build produced a live machine
+    el.transition('Down');
+    expect(el.machine.state()).toBe('Down');       // and it is drivable
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
+  it('still throws on connect when there is no source and no permalink segment', () => {
+    const err = capture_connection_error(() => {
+      const el = document.createElement('fsl-instance') as FslInstance;
+      el.id = 'absent';                            // a key, but no #absent= segment and no declared source
+      document.body.appendChild(el);
+    });
+    expect(err).not.toBeNull();
+    expect(err!.message).toMatch(/no FSL source/);
+  });
+
+  it('does not throw when an action fires before the deferred machine is built', async () => {
+    const { encode_machine } = await import('../fsl_permalink');
+    const seg = await encode_machine('Up -> Down;');
+    history.replaceState(history.state, '', `#act=${seg}`);
+
+    const el = document.createElement('fsl-instance') as FslInstance;
+    el.id = 'act';
+    const btn = document.createElement('button');
+    btn.setAttribute('data-jssm-action', 'go');
+    el.appendChild(btn);
+    document.body.appendChild(el);                 // deferred — _machine still undefined
+
+    // Fire the wired action during the restore window: it must be a no-op, not a
+    // throw through the `machine` getter.
+    expect(() => btn.click()).not.toThrow();
+
+    el.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
+});

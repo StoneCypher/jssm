@@ -77,6 +77,122 @@ function closest_wc(el, suffix) {
     return el.closest(`fsl-${suffix}, jssm-${suffix}`);
 }
 
+/**
+ * Compressed, URL-safe permalink wire format for FSL machines, shared by the
+ * toolbar's Export→Permalink and the per-instance URL sync controller.
+ *
+ * A machine is encoded to a `<scheme><payload>` segment: `<payload>` is URL-safe
+ * base64, `<scheme>` is `1` when DEFLATE shrank the source and `0` for the raw
+ * bytes when it did not (so a short machine's link never grows). Segments live in
+ * a URL fragment as `#<key>=<segment>` joined by `&`, so several machines can
+ * share one URL.
+ */
+/**
+ * Default fragment key for the single-machine case (back-compat with 5.150).
+ *
+ * @example
+ * DEFAULT_PERMALINK_KEY; // 'm'
+ */
+const DEFAULT_PERMALINK_KEY = 'm';
+/**
+ * URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,
+ * `/`→`_`, and trailing `=` padding stripped.
+ *
+ * @example
+ * bytes_to_base64url(new TextEncoder().encode("a")); // "YQ"
+ */
+function bytes_to_base64url(bytes) {
+    let binary = '';
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+/**
+ * DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`.
+ *
+ * @example
+ * await deflate_raw(new TextEncoder().encode("aaaaaaaa")); // shorter Uint8Array of raw DEFLATE bytes
+ */
+async function deflate_raw(bytes) {
+    const stream = new CompressionStream('deflate-raw');
+    const writer = stream.writable.getWriter();
+    void writer.write(bytes);
+    void writer.close();
+    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+}
+/**
+ * Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).
+ * DEFLATE is used (scheme `1`) only when it is strictly shorter than the raw
+ * bytes (scheme `0`).
+ *
+ * @example
+ * await encode_machine("a -> b;"); // "0YSAtPiBiOw"
+ */
+async function encode_machine(fsl) {
+    const utf8 = new TextEncoder().encode(fsl);
+    const raw = bytes_to_base64url(utf8);
+    const deflated = bytes_to_base64url(await deflate_raw(utf8));
+    return deflated.length < raw.length ? `1${deflated}` : `0${raw}`;
+}
+/** Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping empties. */
+function fragment_pairs(hash) {
+    const body = hash.startsWith('#') ? hash.slice(1) : hash;
+    return body.split('&').filter(Boolean).map(seg => {
+        const eq = seg.indexOf('=');
+        return eq === -1
+            ? [seg, '']
+            : [seg.slice(0, eq), seg.slice(eq + 1)];
+    });
+}
+/**
+ * Return a new fragment body (no leading `#`) with `key`'s segment set to
+ * `value`, preserving every other segment and its order; appends if absent.
+ *
+ * @example
+ * set_fragment_param('#a=0AAA', 'b', '1BBB'); // "a=0AAA&b=1BBB"
+ */
+function set_fragment_param(hash, key, value) {
+    const pairs = fragment_pairs(hash);
+    const at = pairs.findIndex(([k]) => k === key);
+    if (at === -1) {
+        pairs.push([key, value]);
+    }
+    else {
+        pairs[at] = [key, value];
+    }
+    return pairs.map(([k, v]) => `${k}=${v}`).join('&');
+}
+/**
+ * The fragment key an element owns: its `uhash` attribute if set, else its
+ * `id`, else `null` (does not participate in URL sync). The single source of
+ * this rule, shared by the toolbar export and the sync controller.
+ *
+ * @example
+ * permalink_key_for(el); // "myId"  (when <el id="myId">, no uhash)
+ */
+function permalink_key_for(host) {
+    var _a, _b;
+    return (_b = (_a = host.getAttribute('uhash')) !== null && _a !== void 0 ? _a : host.getAttribute('id')) !== null && _b !== void 0 ? _b : null;
+}
+/**
+ * A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling
+ * machines' segments survive. Browser-defaulted (`location`) but injectable for
+ * tests.
+ *
+ * @returns The absolute URL carrying the merged fragment.
+ *
+ * @example
+ * await permalink_for('a -> b;', 'm', 'https://h/p', ''); // "https://h/p#m=0YSAtPiBiOw"
+ *
+ * @see fsl_from_permalink
+ */
+async function permalink_for(fsl, key = DEFAULT_PERMALINK_KEY, href = location.href, currentHash = location.hash) {
+    const segment = await encode_machine(fsl);
+    const fragment = set_fragment_param(currentHash, key, segment);
+    return `${href.split('#')[0]}#${fragment}`;
+}
+
 var __decorate$7 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -98,55 +214,6 @@ const EXPORT_FORMATS = [
     { value: 'permalink', label: 'Permalink (URL)' },
     { value: 'embed', label: 'Embed snippet' },
 ];
-/** Hash parameter that carries a permalink's encoded machine: `#m=<scheme><payload>`. */
-const PERMALINK_HASH_KEY = 'm';
-/**
- * URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,
- * `/`→`_`, and trailing `=` padding stripped, so the result rides in a URL
- * fragment with no further percent-encoding.
- *
- * @example
- * bytes_to_base64url(new TextEncoder().encode("a")); // "YQ"
- */
-function bytes_to_base64url(bytes) {
-    let binary = '';
-    for (const byte of bytes) {
-        binary += String.fromCharCode(byte);
-    }
-    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-/** DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`. */
-async function deflate_raw(bytes) {
-    const stream = new CompressionStream('deflate-raw');
-    const writer = stream.writable.getWriter();
-    void writer.write(bytes);
-    void writer.close();
-    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
-}
-/**
- * A shareable URL for the given FSL: the current page URL with the source
- * compressed into the hash as `#m=<scheme><payload>`. The payload is URL-safe
- * base64, so no characters need percent-escaping; `<scheme>` is a single digit
- * — `1` when DEFLATE made the source smaller, `0` for the raw bytes when it did
- * not — so a short machine's link is never longer than its uncompressed form.
- * Decode with {@link fsl_from_permalink}. Browser-only (uses `location` and the
- * platform compression streams), like the rest of the toolbar.
- *
- * @returns The absolute page URL carrying the encoded machine in its fragment.
- *
- * @example
- * await permalink_for("a -> b;");                            // "https://host/path#m=0YSAtPiBiOw"  (too short to gain from DEFLATE)
- * await permalink_for("Off -> On -> Off; On -> Idle -> Off;"); // "https://host/path#m=1809LU9C1U_DPA5NpadZQpmdKTipMCAA"
- *
- * @see fsl_from_permalink
- */
-async function permalink_for(fsl) {
-    const utf8 = new TextEncoder().encode(fsl);
-    const raw = bytes_to_base64url(utf8);
-    const deflated = bytes_to_base64url(await deflate_raw(utf8));
-    const [scheme, payload] = deflated.length < raw.length ? ['1', deflated] : ['0', raw];
-    return `${location.href.split('#')[0]}#${PERMALINK_HASH_KEY}=${scheme}${payload}`;
-}
 /**
  * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
  * `<fsl-instance>` reading its source from a `<script type="text/fsl">` child,
@@ -283,6 +350,7 @@ class FslToolbar extends LitElement {
     /** Emit `fsl-export` with the chosen format's content + the active destination.
      *  The embedder performs the actual clipboard / file save. */
     async _export(format) {
+        var _a;
         const host = this._host;
         const destination = this._dest;
         this._openMenu = '';
@@ -300,7 +368,7 @@ class FslToolbar extends LitElement {
             content = await machine_to_svg_string(host.machine);
         }
         else if (format === 'permalink') {
-            content = await permalink_for(host.fsl);
+            content = await permalink_for(host.fsl, (_a = permalink_key_for(host)) !== null && _a !== void 0 ? _a : undefined);
         }
         else if (format === 'embed') {
             content = embed_snippet_for(host.fsl);

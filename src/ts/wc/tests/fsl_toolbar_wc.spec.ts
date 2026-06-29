@@ -192,6 +192,32 @@ describe('<fsl-toolbar>', () => {
     host.remove();
   });
 
+  it('exports a permalink under the host key, merging into an existing fragment', async () => {
+    history.replaceState(history.state, '', '#other=0ZZZ');   // a sibling segment already present
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.id = 'mykey';
+    host.setAttribute('fsl', 'a -> b;');
+    const vizStub = document.createElement('div'); vizStub.setAttribute('slot', 'viz');
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    toolbar.setAttribute('slot', 'toolbar');
+    host.append(vizStub, toolbar);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    await toolbar.updateComplete;
+
+    const detail = new Promise<{ content: string }>(res =>
+      toolbar.addEventListener('fsl-export', e => res((e as CustomEvent).detail), { once: true }));
+    byLabel(toolbar, 'Export').click();
+    await toolbar.updateComplete;
+    byText(toolbar, '.menu button', 'Permalink (URL)').click();
+    const { content } = await detail;
+
+    expect(content).toContain('other=0ZZZ');   // sibling segment preserved
+    expect(content).toContain('mykey=');         // host id used as the key
+    host.remove();
+    history.replaceState(history.state, '', location.pathname);
+  });
+
   it('fires fsl-validate / fsl-lint, suppressible via no-validate / no-lint', async () => {
     const host = document.createElement('fsl-instance') as FslInstance;
     host.setAttribute('fsl', "A 'go' -> B;");

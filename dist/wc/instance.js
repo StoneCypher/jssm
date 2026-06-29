@@ -462,6 +462,242 @@ function build_hook_descriptor(spec, wrapped) {
 }
 
 /**
+ * Compressed, URL-safe permalink wire format for FSL machines, shared by the
+ * toolbar's Export→Permalink and the per-instance URL sync controller.
+ *
+ * A machine is encoded to a `<scheme><payload>` segment: `<payload>` is URL-safe
+ * base64, `<scheme>` is `1` when DEFLATE shrank the source and `0` for the raw
+ * bytes when it did not (so a short machine's link never grows). Segments live in
+ * a URL fragment as `#<key>=<segment>` joined by `&`, so several machines can
+ * share one URL.
+ */
+/**
+ * Default fragment key for the single-machine case (back-compat with 5.150).
+ *
+ * @example
+ * DEFAULT_PERMALINK_KEY; // 'm'
+ */
+/**
+ * URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,
+ * `/`→`_`, and trailing `=` padding stripped.
+ *
+ * @example
+ * bytes_to_base64url(new TextEncoder().encode("a")); // "YQ"
+ */
+function bytes_to_base64url(bytes) {
+    let binary = '';
+    for (const byte of bytes) {
+        binary += String.fromCharCode(byte);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+/**
+ * Inverse of {@link bytes_to_base64url}.
+ *
+ * @example
+ * new TextDecoder().decode(base64url_to_bytes("YQ")); // "a"
+ */
+function base64url_to_bytes(text) {
+    const standard = text.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = standard + '='.repeat((4 - (standard.length % 4)) % 4); // atob wants 4-aligned input
+    const binary = atob(padded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+}
+/**
+ * DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`.
+ *
+ * @example
+ * await deflate_raw(new TextEncoder().encode("aaaaaaaa")); // shorter Uint8Array of raw DEFLATE bytes
+ */
+async function deflate_raw(bytes) {
+    const stream = new CompressionStream('deflate-raw');
+    const writer = stream.writable.getWriter();
+    void writer.write(bytes);
+    void writer.close();
+    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+}
+/**
+ * Inverse of {@link deflate_raw}.
+ *
+ * @example
+ * new TextDecoder().decode(await inflate_raw(await deflate_raw(new TextEncoder().encode("hi")))); // "hi"
+ */
+async function inflate_raw(bytes) {
+    const stream = new DecompressionStream('deflate-raw');
+    const writer = stream.writable.getWriter();
+    void writer.write(bytes);
+    void writer.close();
+    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+}
+/**
+ * Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).
+ * DEFLATE is used (scheme `1`) only when it is strictly shorter than the raw
+ * bytes (scheme `0`).
+ *
+ * @example
+ * await encode_machine("a -> b;"); // "0YSAtPiBiOw"
+ */
+async function encode_machine(fsl) {
+    const utf8 = new TextEncoder().encode(fsl);
+    const raw = bytes_to_base64url(utf8);
+    const deflated = bytes_to_base64url(await deflate_raw(utf8));
+    return deflated.length < raw.length ? `1${deflated}` : `0${raw}`;
+}
+/**
+ * Inverse of {@link encode_machine}: decode a `<scheme><payload>` segment back
+ * to FSL. Async because inflate is async.
+ *
+ * @example
+ * await decode_machine("0YSAtPiBiOw"); // "a -> b;"
+ */
+async function decode_machine(segment) {
+    const scheme = segment[0];
+    const bytes = base64url_to_bytes(segment.slice(1));
+    const plain = scheme === '1' ? await inflate_raw(bytes) : bytes;
+    return new TextDecoder().decode(plain);
+}
+/** Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping empties. */
+function fragment_pairs(hash) {
+    const body = hash.startsWith('#') ? hash.slice(1) : hash;
+    return body.split('&').filter(Boolean).map(seg => {
+        const eq = seg.indexOf('=');
+        return eq === -1
+            ? [seg, '']
+            : [seg.slice(0, eq), seg.slice(eq + 1)];
+    });
+}
+/**
+ * Read one segment's value out of a `#a=…&b=…` fragment.
+ *
+ * @returns The value, or `null` if `key` is absent.
+ *
+ * @example
+ * read_fragment_param('#a=0AAA&b=1BBB', 'b'); // "1BBB"
+ */
+function read_fragment_param(hash, key) {
+    const found = fragment_pairs(hash).find(([k]) => k === key);
+    return found ? found[1] : null;
+}
+/**
+ * Return a new fragment body (no leading `#`) with `key`'s segment set to
+ * `value`, preserving every other segment and its order; appends if absent.
+ *
+ * @example
+ * set_fragment_param('#a=0AAA', 'b', '1BBB'); // "a=0AAA&b=1BBB"
+ */
+function set_fragment_param(hash, key, value) {
+    const pairs = fragment_pairs(hash);
+    const at = pairs.findIndex(([k]) => k === key);
+    if (at === -1) {
+        pairs.push([key, value]);
+    }
+    else {
+        pairs[at] = [key, value];
+    }
+    return pairs.map(([k, v]) => `${k}=${v}`).join('&');
+}
+/**
+ * The fragment key an element owns: its `uhash` attribute if set, else its
+ * `id`, else `null` (does not participate in URL sync). The single source of
+ * this rule, shared by the toolbar export and the sync controller.
+ *
+ * @example
+ * permalink_key_for(el); // "myId"  (when <el id="myId">, no uhash)
+ */
+function permalink_key_for(host) {
+    var _a, _b;
+    return (_b = (_a = host.getAttribute('uhash')) !== null && _a !== void 0 ? _a : host.getAttribute('id')) !== null && _b !== void 0 ? _b : null;
+}
+
+/** Debounce before a live edit is written to the URL fragment. */
+const PERMALINK_WRITE_DEBOUNCE_MS = 300;
+/**
+ * Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it
+ * on connect and writes back (debounced, via `history.replaceState`) whenever
+ * the machine is rebuilt. Inert when the host has no key ({@link permalink_key_for}
+ * returns `null`), so an `fsl-instance` without an `id`/`uhash` never touches
+ * `location`.
+ *
+ * Echo guard: `_last` holds the segment most recently read or written, so a
+ * restore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.
+ *
+ * @example
+ * // In an element's constructor:
+ * new FslPermalinkSync(this); // reads <el id="k">'s #k=… on connect, writes it on edit
+ */
+class FslPermalinkSync {
+    constructor(host) {
+        this.key = null;
+        this._last = null;
+        this._onRebuilt = () => { this._scheduleWrite(); };
+        this._onHashChange = () => { void this._restore(); };
+        this.host = host;
+        host.addController(this);
+    }
+    hostConnected() {
+        this.key = permalink_key_for(this.host);
+        if (this.key === null) {
+            return;
+        }
+        void this._restore();
+        this.host.addEventListener('fsl-machine-rebuilt', this._onRebuilt);
+        window.addEventListener('hashchange', this._onHashChange);
+    }
+    hostDisconnected() {
+        if (this.key === null) {
+            return;
+        }
+        this.host.removeEventListener('fsl-machine-rebuilt', this._onRebuilt);
+        window.removeEventListener('hashchange', this._onHashChange);
+        if (this._timer !== undefined) {
+            clearTimeout(this._timer);
+            this._timer = undefined;
+        }
+    }
+    /** Read our segment and, if new, push it into the host (overriding declared source). */
+    async _restore() {
+        const segment = read_fragment_param(location.hash, this.key);
+        if (segment === null || segment === this._last) {
+            return;
+        }
+        try {
+            const fsl = await decode_machine(segment);
+            this._last = segment;
+            this.host.fsl = fsl;
+        }
+        catch (_a) {
+            // Malformed/truncated segment, or no compression support: leave the
+            // declared source intact. A bad URL never bricks the page.
+        }
+    }
+    _scheduleWrite() {
+        if (this._timer !== undefined) {
+            clearTimeout(this._timer);
+        }
+        this._timer = setTimeout(() => { void this._write(); }, PERMALINK_WRITE_DEBOUNCE_MS);
+    }
+    /** Encode the current source and merge it into the fragment, history-silently. */
+    async _write() {
+        try {
+            const segment = await encode_machine(this.host.fsl);
+            if (segment === this._last) {
+                return;
+            }
+            this._last = segment;
+            const fragment = set_fragment_param(location.hash, this.key, segment);
+            history.replaceState(history.state, '', `#${fragment}`);
+        }
+        catch (_a) {
+            // No compression support: skip the write rather than throw.
+        }
+    }
+}
+
+/**
  * Theme registry for the fsl-* suite. A **theme** is a named pair of light/dark
  * palettes; a **mode** (`system` | `light` | `dark`) picks which variant applies,
  * with `system` following the OS `prefers-color-scheme`. The host resolves
@@ -858,8 +1094,10 @@ function split_ratio(coord, start, size) {
  * @slot footer - Footer slot.
  */
 class FslInstance extends LitElement {
+    /** Bind this instance to a URL-fragment segment keyed by its `uhash`/`id`
+     *  (inert if it has neither): restore on connect, write debounced on edit. */
     constructor() {
-        super(...arguments);
+        super();
         /**
          * FSL source attribute.  When non-empty, this is the sole channel
          * supplying the machine's source.  Setting both this and a child
@@ -1011,6 +1249,7 @@ class FslInstance extends LitElement {
             this._split = 50;
             this.requestUpdate();
         };
+        new FslPermalinkSync(this);
     }
     /**
      * Raw machine accessor.  Returns the owned {@link Machine} instance.
@@ -1214,30 +1453,43 @@ class FslInstance extends LitElement {
         super.connectedCallback();
         // Step 1: resolve FSL source.
         const resolved = resolve_fsl_source(this, this.fsl);
-        if (resolved.error !== undefined) {
+        // A permalink-only instance has no declared source, but its own URL segment
+        // will supply one asynchronously: FslPermalinkSync (attached in the
+        // constructor) restores `fsl` just after connect, which rebuilds the machine
+        // via willUpdate -> _rebuild_machine. Defer to that instead of throwing;
+        // render() shows the placeholder until the restore lands.
+        const deferToPermalink = resolved.provided_count === 0 && this._permalinkSegmentPresent();
+        if (resolved.error !== undefined && !deferToPermalink) {
             throw new Error(`fsl-instance: ${resolved.error}`);
         }
-        // Step 2: construct the machine.
-        // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
-        const fsl_source = resolved.fsl;
-        this._machine = this._build_machine(fsl_source);
-        this._applyEditorConfig();
-        // Step 3: paint initial host attributes + CSS custom properties.
-        this._paint_state_reflection();
-        // Step 4: shadow DOM render is automatic via Lit; requesting an update
-        // here ensures the first paint sees the freshly painted attributes.
-        this.requestUpdate();
-        // #639 mechanism 4: subscribe to library events and re-emit them as
-        // DOM CustomEvents from this host (#638 supplies the event API).
-        this._install_event_reemission();
-        // #641: <jssm-hook> declarative discovery.
-        this._install_declarative_hooks();
-        // #643: <jssm-on> declarative event observation.
-        this._install_jssm_on_children();
-        // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
-        // install live machine-to-DOM projections.
-        this._unsubs.push(...install_bindings(this, this._machine));
-        // #640: <jssm-action> DOM event → machine action wiring.
+        // Steps 2-4 + machine-scoped wiring: only when a source is available now. In
+        // the deferred case these run later, from _rebuild_machine, once the restore
+        // sets `fsl`.
+        if (!deferToPermalink) {
+            // Step 2: construct the machine.
+            // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
+            const fsl_source = resolved.fsl;
+            this._machine = this._build_machine(fsl_source);
+            this._applyEditorConfig();
+            // Step 3: paint initial host attributes + CSS custom properties.
+            this._paint_state_reflection();
+            // Step 4: shadow DOM render is automatic via Lit; requesting an update
+            // here ensures the first paint sees the freshly painted attributes.
+            this.requestUpdate();
+            // #639 mechanism 4: subscribe to library events and re-emit them as
+            // DOM CustomEvents from this host (#638 supplies the event API).
+            this._install_event_reemission();
+            // #641: <jssm-hook> declarative discovery.
+            this._install_declarative_hooks();
+            // #643: <jssm-on> declarative event observation.
+            this._install_jssm_on_children();
+            // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
+            // install live machine-to-DOM projections.
+            this._unsubs.push(...install_bindings(this, this._machine));
+        }
+        // #640: <jssm-action> DOM event -> machine action wiring. The listeners read
+        // `this.machine` live on event, so discovery is correct even before a
+        // deferred build completes.
         this._discover_jssm_actions();
         // Theme: register the palette tokens as animatable colors (once, globally, so
         // switches can ease), follow the OS while in `system` mode, then apply the
@@ -1248,6 +1500,16 @@ class FslInstance extends LitElement {
             this._mql.addEventListener('change', this._on_os_theme_change);
         }
         this._applyTheme();
+    }
+    /**
+     * True when this instance owns a URL permalink segment (keyed by its
+     * `uhash`/`id`) that a pending {@link FslPermalinkSync} restore will turn into
+     * its FSL source — so `connectedCallback` can defer the machine build to that
+     * restore instead of throwing on an otherwise-absent source.
+     */
+    _permalinkSegmentPresent() {
+        const key = permalink_key_for(this);
+        return key !== null && read_fragment_param(location.hash, key) !== null;
     }
     /**
      * Discover direct-child `<jssm-on>` elements and install their
@@ -1575,6 +1837,12 @@ class FslInstance extends LitElement {
      */
     _install_action_listener(config) {
         const handler = (e) => {
+            // A permalink-only instance wires its actions at connect but builds its
+            // machine asynchronously (deferred restore). An event in that window is a
+            // no-op rather than a throw via the `machine` getter.
+            if (this._machine === undefined) {
+                return;
+            }
             if (config.prevent_default) {
                 e.preventDefault();
             }
