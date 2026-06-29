@@ -769,7 +769,8 @@ function compile_rule_handler(rule) {
         return { agg_as: 'state_declaration', val: { state: rule.name, declarations: rule.value } };
     }
     if (['arrange_declaration', 'arrange_start_declaration',
-        'arrange_end_declaration'].includes(rule.key)) {
+        'arrange_end_declaration', 'oarrange_declaration',
+        'farrange_declaration'].includes(rule.key)) {
         return { agg_as: rule.key, val: [rule.value] };
     }
     // things that can only exist once and are just a value under their own name
@@ -975,6 +976,8 @@ function compile(tree) {
         arrange_declaration: [],
         arrange_start_declaration: [],
         arrange_end_declaration: [],
+        oarrange_declaration: [],
+        farrange_declaration: [],
         machine_version: [],
         default_state_config: [],
         default_active_state_config: [],
@@ -1100,6 +1103,7 @@ function compile(tree) {
         }
     });
     ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
+        'oarrange_declaration', 'farrange_declaration',
         'machine_author', 'machine_contributor', 'machine_reference', 'theme',
         'state_declaration', 'property_definition', 'default_state_config',
         'default_start_state_config', 'default_end_state_config',

@@ -528,6 +528,8 @@ class Machine<mDT> {
   _arrange_declaration       : Array<Array<StateType>>;
   _arrange_start_declaration : Array<Array<StateType>>;
   _arrange_end_declaration   : Array<Array<StateType>>;
+  _oarrange_declaration      : Array<Array<StateType>>;
+  _farrange_declaration      : Array<Array<StateType>>;
 
   _themes : FslTheme[];
   _flow   : FslDirection;
@@ -708,6 +710,8 @@ class Machine<mDT> {
     arrange_declaration       = [],
     arrange_start_declaration = [],
     arrange_end_declaration   = [],
+    oarrange_declaration      = [],
+    farrange_declaration      = [],
     theme                     = ['default'],
     flow                      = 'down',
     graph_layout              = 'dot',
@@ -781,6 +785,8 @@ class Machine<mDT> {
     this._arrange_declaration       = arrange_declaration;
     this._arrange_start_declaration = arrange_start_declaration;
     this._arrange_end_declaration   = arrange_end_declaration;
+    this._oarrange_declaration      = oarrange_declaration;
+    this._farrange_declaration      = farrange_declaration;
 
     this._dot_preamble = dot_preamble;
     this._themes       = theme;
@@ -1288,12 +1294,14 @@ class Machine<mDT> {
     this._created = this._time_source();
     this.auto_set_state_timeout();
 
-    this._arrange_declaration.forEach( (arrange_pair: string[]) =>
-      arrange_pair.forEach( (possibleState: string) => {
-        if (!(this._states.has(possibleState))) {
-          throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
-        }
-      })
+    [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration].forEach(
+      (declaration: StateType[][]) => declaration.forEach( (arrange_pair: StateType[]) =>
+        arrange_pair.forEach( (possibleState: StateType) => {
+          if (!(this._states.has(possibleState))) {
+            throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
+          }
+        })
+      )
     );
 
   }
@@ -1555,13 +1563,13 @@ class Machine<mDT> {
    *  `;
    *
    *  traffic_light.state();  // Off
-   *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+   *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
    *
    *  traffic_light.go('Red');
-   *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+   *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
    *
    *  traffic_light.go('Green');
-   *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+   *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
    *  ```
    *
    *  @returns An object mapping every known property name to its current value

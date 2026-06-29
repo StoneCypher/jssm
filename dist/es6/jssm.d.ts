@@ -130,6 +130,8 @@ declare class Machine<mDT> {
     _arrange_declaration: Array<Array<StateType>>;
     _arrange_start_declaration: Array<Array<StateType>>;
     _arrange_end_declaration: Array<Array<StateType>>;
+    _oarrange_declaration: Array<Array<StateType>>;
+    _farrange_declaration: Array<Array<StateType>>;
     _themes: FslTheme[];
     _flow: FslDirection;
     _has_hooks: boolean;
@@ -212,7 +214,7 @@ declare class Machine<mDT> {
     _firing_error: boolean;
     _boundary_depth: number;
     _boundary_depth_limit: number;
-    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
+    constructor({ start_states, end_states, failed_outputs, initial_state, start_states_no_enforce, complete, transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble, arrange_declaration, arrange_start_declaration, arrange_end_declaration, oarrange_declaration, farrange_declaration, theme, flow, graph_layout, instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }: JssmGenericConfig<StateType, mDT>);
     /********
      *
      *  Internal method for fabricating states.  Not meant for external use.
@@ -378,13 +380,13 @@ declare class Machine<mDT> {
      *  `;
      *
      *  traffic_light.state();  // Off
-     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Red');
-     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Green');
-     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
      *  ```
      *
      *  @returns An object mapping every known property name to its current value

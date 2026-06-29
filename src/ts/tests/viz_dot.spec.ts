@@ -181,6 +181,31 @@ describe('arrange declarations render into dot', () => {
     expect(dot).toMatch(/rank=max/);
   });
 
+  test('oarrange [b c] produces a rank=same group and an invisible ordering chain', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; a -> c; oarrange [b c];`);
+    expect(dot).toMatch(/rank=same/);
+    expect(dot).toMatch(/style=invis/);
+    // the chain pins b before c, in written order, by real node id
+    expect(dot).toMatch(/"b"->"c" \[style=invis\];/);
+  });
+
+  test('oarrange order follows the written order (reversed list reverses the chain)', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; a -> c; oarrange [c b];`);
+    expect(dot).toMatch(/"c"->"b" \[style=invis\];/);
+  });
+
+  test('farrange [b c] produces an invisible chain and constraint=false on member edges', () => {
+    const dot = jv.machine_to_dot(sm`a -> b; a -> c; farrange [b c];`);
+    expect(dot).toMatch(/style=invis/);
+    expect(dot).toMatch(/constraint=false/);
+  });
+
+  test('a machine with neither oarrange nor farrange emits no invis chain or constraint=false', () => {
+    const dot = jv.machine_to_dot(sm`a -> b;`);
+    expect(dot).not.toMatch(/style=invis/);
+    expect(dot).not.toMatch(/constraint=false/);
+  });
+
 });
 
 
