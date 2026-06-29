@@ -1,6 +1,6 @@
 declare type StateType = string;
 import { JssmGenericState, JssmGenericConfig, JssmStateConfig, JssmTransition, JssmTransitionList, // JssmTransitionRule,
-JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmEditorConfig, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmTransitionConfig, JssmGraphConfig, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmBaseTheme, JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmRng } from './jssm_types.js';
+JssmMachineInternalState, JssmAllowsOverride, JssmAllowIslands, JssmEditorConfig, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary, JssmDefaultSize, JssmStateDeclaration, JssmStateStyleKeyList, JssmTransitionConfig, JssmGraphConfig, JssmLayout, JssmHistory, JssmSerialization, FslDirection, FslDirections, FslTheme, HookDescription, HookHandler, HookContext, HookResult, HookComplexResult, EverythingHookContext, EverythingHookHandler, PostEverythingHookHandler, HookPhase, HookRegistryEntry, HookQuery, JssmEventName, JssmEventDetailMap, JssmEventFilter, JssmEventHandler, JssmUnsubscribe, JssmBaseTheme, JssmGroupRegistry, JssmGroupHooks, JssmStateHooks, JssmRng } from './jssm_types.js';
 import { arrow_direction, arrow_left_kind, arrow_right_kind } from './jssm_arrow.js';
 import { compile, make, wrap_parse } from './jssm_compiler.js';
 import { seq, unique, find_repeated, weighted_rand_select, weighted_sample_select, histograph, weighted_histo_key, gen_splitmix32, sleep } from './jssm_util.js';
@@ -83,6 +83,10 @@ declare function transfer_state_properties(state_decl: JssmStateDeclaration): Js
  *
  */
 declare function state_style_condense(jssk: JssmStateStyleKeyList, machine?: any): JssmStateConfig;
+/** Default number of independent Monte-Carlo runs when none is declared. */
+export declare const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+export declare const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
 declare class Machine<mDT> {
     _state: StateType;
     _states: Map<StateType, JssmGenericState>;
@@ -1009,6 +1013,65 @@ declare class Machine<mDT> {
      *  @returns A `Map` from state name to visit count.
      */
     probabilistic_histo_walk(n: number): Map<StateType, number>;
+    /** One non-destructive weighted-random walk over the graph from `start`.
+     *
+     *  Reads the graph and advances the PRNG only — it never calls
+     *  {@link Machine.transition}, so it fires no hooks, mutates no machine
+     *  state, and touches no `data`.  A state with no probabilistic exits
+     *  (a terminal, or a forced-only `~>` state) ends the walk.
+     *
+     *  @param start - State to begin the walk from.
+     *  @param max_steps - Maximum transitions before the walk is step-capped.
+     *  @returns The {@link JssmStochasticRun} for this walk.
+     */
+    private _stochastic_one_walk;
+    /** Lazily yield one {@link JssmStochasticRun} at a time.
+     *
+     *  In `montecarlo` mode (default) yields `runs` independent walks from the
+     *  current state, each ending at a terminal or after `max_steps`.  In
+     *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+     *  is the lazy engine behind {@link Machine.stochastic_summary}; the
+     *  fsl-stochastic panel drives it across animation frames.
+     *
+     *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+     *  {@link Machine.stochastic_summary}, the generator does NOT restore the
+     *  prior seed afterward — a direct caller's machine is left reseeded.
+     *
+     *  @param opts - {@link JssmStochasticOptions}.
+     *  @returns A generator of per-run results.
+     *
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+     */
+    stochastic_runs(opts?: JssmStochasticOptions): Generator<JssmStochasticRun>;
+    /** Run many weighted-random walks and return aggregate statistics.
+     *
+     *  Honors `%` transition probabilities (via the existing probabilistic
+     *  machinery).  Non-destructive: the machine's current state and
+     *  {@link Machine.rng_seed} are restored before returning, so calling this
+     *  never perturbs the live machine.  `montecarlo` mode (default) reports
+     *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+     *  mode runs one long walk and omits those fields.
+     *
+     *  Timing (`after`) decorations and data-guard conditions are not modeled
+     *  by this sampler; it walks the probabilistic graph topology.
+     *
+     *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+     *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+     *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+     *  @returns A {@link JssmStochasticSummary}.
+     *
+     *  @see Machine.stochastic_runs
+     *  @see Machine.probabilistic_walk
+     *  @see Machine.editor_config
+     *
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
+     *  s.terminal_reached;  // => 100
+     */
+    stochastic_summary(opts?: JssmStochasticOptions): JssmStochasticSummary;
     /********
      *
      *  List all actions available from this state.  Please note that the order of

@@ -2139,6 +2139,10 @@
               "name": "simulation"
             },
             {
+              "description": "Slot for the stochastic analysis panel (`<fsl-stochastic>`, fsl#1384).",
+              "name": "stochastic"
+            },
+            {
               "description": "Slot for the export menu (`<fsl-export>`, #667).",
               "name": "export"
             },
@@ -3065,7 +3069,7 @@
               }
             }
           ],
-          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\n`/`→`_`, and trailing `=` padding stripped."
+          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\r\n`/`→`_`, and trailing `=` padding stripped."
         },
         {
           "kind": "function",
@@ -3137,7 +3141,7 @@
               }
             }
           ],
-          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\nbytes (scheme `0`)."
+          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\r\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\r\nbytes (scheme `0`)."
         },
         {
           "kind": "function",
@@ -3155,7 +3159,7 @@
               }
             }
           ],
-          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\nto FSL. Async because inflate is async."
+          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\r\nto FSL. Async because inflate is async."
         },
         {
           "kind": "function",
@@ -3209,7 +3213,7 @@
               }
             }
           ],
-          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\n`value`, preserving every other segment and its order; appends if absent."
+          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\r\n`value`, preserving every other segment and its order; appends if absent."
         },
         {
           "kind": "function",
@@ -3227,7 +3231,7 @@
               }
             }
           ],
-          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\n`id`, else `null` (does not participate in URL sync). The single source of\nthis rule, shared by the toolbar export and the sync controller."
+          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\r\n`id`, else `null` (does not participate in URL sync). The single source of\r\nthis rule, shared by the toolbar export and the sync controller."
         },
         {
           "kind": "function",
@@ -3266,7 +3270,7 @@
               }
             }
           ],
-          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\ntests."
+          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\r\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\r\ntests."
         },
         {
           "kind": "function",
@@ -3408,7 +3412,7 @@
         },
         {
           "kind": "class",
-          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\non connect and writes back (debounced, via `history.replaceState`) whenever\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\n`location`.\n\nEcho guard: `_last` holds the segment most recently read or written, so a\nrestore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.",
+          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\r\non connect and writes back (debounced, via `history.replaceState`) whenever\r\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\r\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\r\n`location`.\r\n\r\nEcho guard: `_last` holds the segment most recently read or written, so a\r\nrestore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.",
           "name": "FslPermalinkSync",
           "members": [
             {
@@ -3649,6 +3653,280 @@
           "declaration": {
             "name": "FslSimulation",
             "module": "src/ts/wc/fsl_simulation_wc.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_stochastic_wc.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "`<fsl-stochastic>` — a statistical/Monte-Carlo explorer for a parent\n`<fsl-instance>` (fsl#1384).  Builds its own throwaway machine from the\nhost's `.fsl` source (never touching the live machine) and renders\naggregate run statistics in-panel.  Standalone (no host) the controls are\ndisabled.",
+          "name": "FslStochastic",
+          "cssParts": [
+            {
+              "description": "The control row.",
+              "name": "controls"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "runs",
+              "default": "STOCHASTIC_DEFAULT_RUNS",
+              "description": "Run-count (montecarlo). Defaults from editor_config().stochastic_run_count.",
+              "attribute": "runs"
+            },
+            {
+              "kind": "field",
+              "name": "maxSteps",
+              "default": "STOCHASTIC_DEFAULT_MAX_STEPS",
+              "description": "Per-run step cap (montecarlo) / walk length (steady_state).",
+              "attribute": "maxSteps"
+            },
+            {
+              "kind": "field",
+              "name": "seed",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Seed string ('' = time-based). Kept as string so the field can be blank.",
+              "attribute": "seed"
+            },
+            {
+              "kind": "field",
+              "name": "mode",
+              "type": {
+                "text": "JssmStochasticMode"
+              },
+              "default": "'montecarlo'",
+              "description": "Run mode.",
+              "attribute": "mode"
+            },
+            {
+              "kind": "field",
+              "name": "_summary",
+              "type": {
+                "text": "JssmStochasticSummary | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_error",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_host",
+              "type": {
+                "text": "StochHost | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_playing",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "run",
+              "description": "Execute a batch synchronously and render the aggregates."
+            },
+            {
+              "kind": "field",
+              "name": "play",
+              "description": "Animate the batch: accumulate runs incrementally via `requestAnimationFrame`,\nredrawing as they land. Resolves when the batch completes or is paused-to-stop.\n\nFalls back to immediate (synchronous chunk) scheduling under jsdom where\n`requestAnimationFrame` is undefined."
+            },
+            {
+              "kind": "method",
+              "name": "_commit",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "state_visits",
+                  "type": {
+                    "text": "Map<string, number>"
+                  },
+                  "description": "Accumulated visit counts per state name."
+                },
+                {
+                  "name": "edge_traversals",
+                  "type": {
+                    "text": "Map<string, number>"
+                  },
+                  "description": "Accumulated traversal counts per edge key."
+                },
+                {
+                  "name": "path_lengths",
+                  "type": {
+                    "text": "number[]"
+                  },
+                  "description": "Lengths of completed (terminated) paths."
+                },
+                {
+                  "name": "terminal_reached",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "Count of runs that reached a terminal state."
+                },
+                {
+                  "name": "capped",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "Count of runs that hit the step cap."
+                },
+                {
+                  "name": "runs",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "Total runs processed so far."
+                },
+                {
+                  "name": "seed",
+                  "type": {
+                    "text": "number"
+                  },
+                  "description": "The effective RNG seed used for this batch."
+                }
+              ],
+              "description": "Fold accumulated counters into a rendered summary. Shared by play\nfor incremental rendering during animation."
+            },
+            {
+              "kind": "field",
+              "name": "_togglePlay",
+              "privacy": "private",
+              "description": "Toggle between playing and paused. Starts a new play batch when idle."
+            },
+            {
+              "kind": "field",
+              "name": "_onMode",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_onRuns",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_onMax",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_onSeed",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "_bars",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_panes",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TemplateResult"
+                }
+              }
+            }
+          ],
+          "events": [
+            {
+              "description": "CustomEvent<JssmStochasticSummary> after a run.",
+              "name": "fsl-stochastic-complete"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "runs",
+              "default": "STOCHASTIC_DEFAULT_RUNS",
+              "description": "Run-count (montecarlo). Defaults from editor_config().stochastic_run_count.",
+              "fieldName": "runs"
+            },
+            {
+              "name": "maxSteps",
+              "default": "STOCHASTIC_DEFAULT_MAX_STEPS",
+              "description": "Per-run step cap (montecarlo) / walk length (steady_state).",
+              "fieldName": "maxSteps"
+            },
+            {
+              "name": "seed",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Seed string ('' = time-based). Kept as string so the field can be blank.",
+              "fieldName": "seed"
+            },
+            {
+              "name": "mode",
+              "type": {
+                "text": "JssmStochasticMode"
+              },
+              "default": "'montecarlo'",
+              "description": "Run mode.",
+              "fieldName": "mode"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "fsl-stochastic",
+          "customElement": true
+        },
+        {
+          "kind": "variable",
+          "name": "state_visits",
+          "default": "new Map<string, number>()"
+        },
+        {
+          "kind": "variable",
+          "name": "runs",
+          "type": {
+            "text": "number"
+          },
+          "default": "0"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FslStochastic",
+          "declaration": {
+            "name": "FslStochastic",
+            "module": "src/ts/wc/fsl_stochastic_wc.ts"
           }
         }
       ]
@@ -4602,6 +4880,14 @@
           "declaration": {
             "name": "FslExport",
             "module": "./fsl_export_wc.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslStochastic",
+          "declaration": {
+            "name": "FslStochastic",
+            "module": "./fsl_stochastic_wc.js"
           }
         }
       ]
