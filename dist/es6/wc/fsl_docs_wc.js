@@ -149,10 +149,10 @@ FslDocs.styles = css `
     .nav { list-style: none; margin: 0.3rem 0; padding: 0; }
     .nav li { margin: 0.1rem 0; }
     .nav a { display: block; padding: 0.35rem 0.25rem; border-radius: 4px; }
-    .nav a:hover { background: rgba(127,127,127,0.14); }
+    .nav a:hover { background: color-mix(in srgb, var(--_fsl-text) 12%, transparent); }
     .docs-page { font-size: 0.82rem; line-height: 1.55; }
-    .docs-page pre { background: var(--_fsl-surface-alt, rgba(127,127,127,0.1)); padding: 0.5rem 0.6rem; border-radius: 6px; overflow-x: auto; }
-    .docs-page pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.78rem; }
+    .docs-page pre { background: color-mix(in srgb, var(--_fsl-text) 6%, var(--_fsl-surface)); padding: 0.5rem 0.6rem; border-radius: 6px; overflow-x: auto; }
+    .docs-page pre code { font-family: var(--_fsl-font-mono); font-size: 0.78rem; }
     .docs-page .fsl-tok-comment { color: var(--fsl-tok-comment, #7d8590); font-style: italic; }
     .docs-page .fsl-tok-string  { color: var(--fsl-tok-string,  #2e9e5b); }
     .docs-page .fsl-tok-action  { color: var(--fsl-tok-action,  #c2710c); }

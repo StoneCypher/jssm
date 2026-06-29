@@ -252,6 +252,30 @@ describe('<fsl-toolbar>', () => {
     host.remove();
   });
 
+  it('orders the Validate/Lint block after Simulation and before Layout', async () => {
+    const host = document.createElement('fsl-instance') as FslInstance;
+    host.setAttribute('fsl', "A 'go' -> B;");
+    const sim = document.createElement('div'); sim.setAttribute('slot', 'simulation');
+    const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
+    toolbar.setAttribute('slot', 'toolbar');
+    host.append(sim, toolbar);
+    document.body.appendChild(host);
+    await host.updateComplete;
+    await toolbar.updateComplete;
+
+    const labels = [...toolbar.shadowRoot!.querySelectorAll('button[aria-label]')]
+      .map(b => b.getAttribute('aria-label'));
+    const iSim    = labels.indexOf('Simulation');
+    const iValid  = labels.indexOf('Validate');
+    const iLint   = labels.indexOf('Lint');
+    const iLayout = labels.indexOf('Layout');
+    expect(iSim).toBeGreaterThanOrEqual(0);
+    expect(iValid).toBeGreaterThan(iSim);     // Validate sits after the Simulation panel icon
+    expect(iLint).toBeGreaterThan(iValid);    // Lint follows Validate
+    expect(iLayout).toBeGreaterThan(iLint);   // …and the whole block sits before Layout
+    host.remove();
+  });
+
   it('renders inert controls when standalone (no host)', async () => {
     const toolbar = document.createElement('fsl-toolbar') as FslToolbar;
     document.body.appendChild(toolbar);

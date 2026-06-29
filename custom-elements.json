@@ -3065,7 +3065,7 @@
               }
             }
           ],
-          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\n`/`→`_`, and trailing `=` padding stripped."
+          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\r\n`/`→`_`, and trailing `=` padding stripped."
         },
         {
           "kind": "function",
@@ -3137,7 +3137,7 @@
               }
             }
           ],
-          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\nbytes (scheme `0`)."
+          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\r\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\r\nbytes (scheme `0`)."
         },
         {
           "kind": "function",
@@ -3155,7 +3155,7 @@
               }
             }
           ],
-          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\nto FSL. Async because inflate is async."
+          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\r\nto FSL. Async because inflate is async."
         },
         {
           "kind": "function",
@@ -3209,7 +3209,7 @@
               }
             }
           ],
-          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\n`value`, preserving every other segment and its order; appends if absent."
+          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\r\n`value`, preserving every other segment and its order; appends if absent."
         },
         {
           "kind": "function",
@@ -3227,7 +3227,7 @@
               }
             }
           ],
-          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\n`id`, else `null` (does not participate in URL sync). The single source of\nthis rule, shared by the toolbar export and the sync controller."
+          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\r\n`id`, else `null` (does not participate in URL sync). The single source of\r\nthis rule, shared by the toolbar export and the sync controller."
         },
         {
           "kind": "function",
@@ -3266,7 +3266,7 @@
               }
             }
           ],
-          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\ntests."
+          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\r\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\r\ntests."
         },
         {
           "kind": "function",
@@ -3408,7 +3408,7 @@
         },
         {
           "kind": "class",
-          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\non connect and writes back (debounced, via `history.replaceState`) whenever\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\n`location`.\n\nEcho guard: `_last` holds the segment most recently read or written, so a\nrestore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.",
+          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\r\non connect and writes back (debounced, via `history.replaceState`) whenever\r\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\r\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\r\n`location`.\r\n\r\nEcho guard: `_last` holds the segment most recently read or written, so a\r\nrestore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.",
           "name": "FslPermalinkSync",
           "members": [
             {
