@@ -202,6 +202,7 @@ export declare function split_ratio(coord: number, start: number, size: number):
  * @slot hook-log - Slot for the hook-firing log (`<fsl-hook-log>`, #664).
  * @slot effective-properties - Slot for the resolved-properties panel (`<fsl-effective-properties>`, #665).
  * @slot simulation - Slot for the random-walk simulation (`<fsl-simulation>`, #668).
+ * @slot stochastic - Slot for the stochastic analysis panel (`<fsl-stochastic>`, fsl#1384).
  * @slot export - Slot for the export menu (`<fsl-export>`, #667).
  * @slot footer - Footer slot.
  */

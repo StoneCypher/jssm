@@ -532,6 +532,9 @@ jobs:
         CI: true
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.0.1
+      # Coverage upload is an external service; a flake here must never fail the
+      # matrix leg (fail-fast would skip the release job and strand a publish).
+      continue-on-error: true
       with:
         github-token: ${{ secrets.github_token }}
         path-to-lcov: ./coverage/spec/lcov.info

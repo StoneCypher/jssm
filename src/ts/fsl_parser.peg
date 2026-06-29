@@ -1587,9 +1587,25 @@ ArrangeEndDeclaration
       return node;
     }
 
+OArrangeDeclaration "oarrange declaration"
+  = "oarrange"      WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'oarrange_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
+FArrangeDeclaration "farrange declaration"
+  = "farrange"      WS? value:LabelOrLabelList WS? ";" WS? {
+      const node: any = { key: 'farrange_declaration', value };
+      if (options.locations) { node.loc = location(); }
+      return node;
+    }
+
 ArrangeDeclaration "arrange declaration"
   = ArrangeStartDeclaration
   / ArrangeEndDeclaration
+  / OArrangeDeclaration
+  / FArrangeDeclaration
   / RegularArrangeDeclaration
 
 

@@ -1008,7 +1008,8 @@ function compile_rule_handler<StateType, mDT>(rule: JssmCompileSeStart<StateType
   }
 
   if (['arrange_declaration', 'arrange_start_declaration',
-    'arrange_end_declaration'].includes(rule.key)) {
+    'arrange_end_declaration', 'oarrange_declaration',
+    'farrange_declaration'].includes(rule.key)) {
     return { agg_as: rule.key, val: [rule.value] };
   }
 
@@ -1247,6 +1248,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     arrange_declaration           : Array<Array<string>>, // TODO COMEBACK CHECKME
     arrange_start_declaration     : Array<Array<string>>, // TODO COMEBACK CHECKME
     arrange_end_declaration       : Array<Array<string>>, // TODO COMEBACK CHECKME
+    oarrange_declaration          : Array<Array<string>>,
+    farrange_declaration          : Array<Array<string>>,
     machine_version               : Array<string>,        // TODO COMEBACK semver
     default_state_config          : Array<JssmStateConfig>,
     default_active_state_config   : Array<JssmStateConfig>,
@@ -1290,6 +1293,8 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     arrange_declaration           : [],
     arrange_start_declaration     : [],
     arrange_end_declaration       : [],
+    oarrange_declaration          : [],
+    farrange_declaration          : [],
     machine_version               : [],
     default_state_config          : [],
     default_active_state_config   : [],
@@ -1427,6 +1432,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
   });
 
   ['arrange_declaration', 'arrange_start_declaration', 'arrange_end_declaration',
+   'oarrange_declaration', 'farrange_declaration',
    'machine_author', 'machine_contributor', 'machine_reference', 'theme',
    'state_declaration', 'property_definition', 'default_state_config',
    'default_start_state_config', 'default_end_state_config',

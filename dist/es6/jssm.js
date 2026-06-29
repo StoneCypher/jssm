@@ -325,9 +325,13 @@ function find_connected_components(states, edges) {
     }
     return result;
 }
+/** Default number of independent Monte-Carlo runs when none is declared. */
+export const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         this._time_source = time_source !== null && time_source !== void 0 ? time_source : (() => new Date().getTime());
         this._create_started = this._time_source();
         this._instance_name = instance_name;
@@ -364,6 +368,8 @@ class Machine {
         this._arrange_declaration = arrange_declaration;
         this._arrange_start_declaration = arrange_start_declaration;
         this._arrange_end_declaration = arrange_end_declaration;
+        this._oarrange_declaration = oarrange_declaration;
+        this._farrange_declaration = farrange_declaration;
         this._dot_preamble = dot_preamble;
         this._themes = theme;
         this._flow = flow;
@@ -776,11 +782,11 @@ class Machine {
         }
         this._created = this._time_source();
         this.auto_set_state_timeout();
-        this._arrange_declaration.forEach((arrange_pair) => arrange_pair.forEach((possibleState) => {
+        [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration].forEach((declaration) => declaration.forEach((arrange_pair) => arrange_pair.forEach((possibleState) => {
             if (!(this._states.has(possibleState))) {
                 throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
             }
-        }));
+        })));
     }
     /********
      *
@@ -985,13 +991,13 @@ class Machine {
      *  `;
      *
      *  traffic_light.state();  // Off
-     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Red');
-     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Green');
-     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
      *  ```
      *
      *  @returns An object mapping every known property name to its current value
@@ -1838,6 +1844,147 @@ class Machine {
      */
     probabilistic_histo_walk(n) {
         return histograph(this.probabilistic_walk(n));
+    }
+    /** One non-destructive weighted-random walk over the graph from `start`.
+     *
+     *  Reads the graph and advances the PRNG only — it never calls
+     *  {@link Machine.transition}, so it fires no hooks, mutates no machine
+     *  state, and touches no `data`.  A state with no probabilistic exits
+     *  (a terminal, or a forced-only `~>` state) ends the walk.
+     *
+     *  @param start - State to begin the walk from.
+     *  @param max_steps - Maximum transitions before the walk is step-capped.
+     *  @returns The {@link JssmStochasticRun} for this walk.
+     */
+    _stochastic_one_walk(start, max_steps) {
+        const states = [start];
+        const edges = [];
+        let cur = start;
+        let terminated = false;
+        for (let step = 0; step < max_steps; step++) {
+            const exits = this.probable_exits_for(cur);
+            if (exits.length === 0) {
+                terminated = true;
+                break;
+            }
+            const selected = weighted_rand_select(exits, undefined, this._rng);
+            edges.push(`${cur}→${selected.to}`);
+            cur = selected.to;
+            states.push(cur);
+        }
+        return { states, edges, length: states.length - 1, terminated };
+    }
+    /** Lazily yield one {@link JssmStochasticRun} at a time.
+     *
+     *  In `montecarlo` mode (default) yields `runs` independent walks from the
+     *  current state, each ending at a terminal or after `max_steps`.  In
+     *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+     *  is the lazy engine behind {@link Machine.stochastic_summary}; the
+     *  fsl-stochastic panel drives it across animation frames.
+     *
+     *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+     *  {@link Machine.stochastic_summary}, the generator does NOT restore the
+     *  prior seed afterward — a direct caller's machine is left reseeded.
+     *
+     *  @param opts - {@link JssmStochasticOptions}.
+     *  @returns A generator of per-run results.
+     *
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+     */
+    *stochastic_runs(opts = {}) {
+        var _a, _b, _c, _d, _e;
+        if (opts.seed !== undefined) {
+            this.rng_seed = opts.seed;
+        }
+        const mode = (_a = opts.mode) !== null && _a !== void 0 ? _a : 'montecarlo';
+        const max_steps = (_b = opts.max_steps) !== null && _b !== void 0 ? _b : STOCHASTIC_DEFAULT_MAX_STEPS;
+        const runs = (mode === 'steady_state')
+            ? 1
+            : ((_e = (_c = opts.runs) !== null && _c !== void 0 ? _c : (_d = this.editor_config()) === null || _d === void 0 ? void 0 : _d.stochastic_run_count) !== null && _e !== void 0 ? _e : STOCHASTIC_DEFAULT_RUNS);
+        const start = this.state();
+        for (let i = 0; i < runs; i++) {
+            yield this._stochastic_one_walk(start, max_steps);
+        }
+    }
+    /** Run many weighted-random walks and return aggregate statistics.
+     *
+     *  Honors `%` transition probabilities (via the existing probabilistic
+     *  machinery).  Non-destructive: the machine's current state and
+     *  {@link Machine.rng_seed} are restored before returning, so calling this
+     *  never perturbs the live machine.  `montecarlo` mode (default) reports
+     *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+     *  mode runs one long walk and omits those fields.
+     *
+     *  Timing (`after`) decorations and data-guard conditions are not modeled
+     *  by this sampler; it walks the probabilistic graph topology.
+     *
+     *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+     *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+     *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+     *  @returns A {@link JssmStochasticSummary}.
+     *
+     *  @see Machine.stochastic_runs
+     *  @see Machine.probabilistic_walk
+     *  @see Machine.editor_config
+     *
+     *  @example
+     *  const m = sm`a 'go' -> b 'go' -> c;`;
+     *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
+     *  s.terminal_reached;  // => 100
+     */
+    stochastic_summary(opts = {}) {
+        var _a, _b, _c;
+        const mode = (_a = opts.mode) !== null && _a !== void 0 ? _a : 'montecarlo';
+        const saved_seed = this._rng_seed;
+        if (opts.seed !== undefined) {
+            this.rng_seed = opts.seed;
+        }
+        const effective_seed = this._rng_seed;
+        const state_visits = new Map();
+        const edge_traversals = new Map();
+        const path_lengths = [];
+        let terminal_reached = 0, capped = 0, runs = 0;
+        try {
+            for (const run of this.stochastic_runs(Object.assign(Object.assign({}, opts), { mode }))) {
+                runs += 1;
+                for (const s of run.states) {
+                    state_visits.set(s, ((_b = state_visits.get(s)) !== null && _b !== void 0 ? _b : 0) + 1);
+                }
+                for (const e of run.edges) {
+                    edge_traversals.set(e, ((_c = edge_traversals.get(e)) !== null && _c !== void 0 ? _c : 0) + 1);
+                }
+                if (mode === 'montecarlo') {
+                    if (run.terminated) {
+                        terminal_reached += 1;
+                        path_lengths.push(run.length);
+                    }
+                    else {
+                        capped += 1;
+                    }
+                }
+            }
+        }
+        finally {
+            // restore the PRNG so the call is non-destructive even when the loop throws
+            this.rng_seed = saved_seed;
+        }
+        const total_visits = [...state_visits.values()].reduce((a, b) => a + b, 0);
+        const state_visit_fraction = new Map();
+        for (const [s, c] of state_visits) {
+            state_visit_fraction.set(s, c / total_visits);
+        }
+        const summary = {
+            mode, runs, seed: effective_seed,
+            state_visits, state_visit_fraction, edge_traversals,
+        };
+        if (mode === 'montecarlo') {
+            summary.path_lengths = path_lengths;
+            summary.terminal_reached = terminal_reached;
+            summary.capped = capped;
+        }
+        return summary;
     }
     /********
      *
