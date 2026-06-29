@@ -4543,6 +4543,45 @@
                 }
               },
               "description": "Render the current `fsl` source to an SVG string via the headless\r\n`fsl_to_svg_string` pipeline. Updates `_svg` on success; emits a\r\n`viz-error` `CustomEvent` on failure. Guards against stale results\r\nwhen `fsl` changes mid-flight."
+            },
+            {
+              "kind": "method",
+              "name": "clearHighlights",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Clears any active programmatic highlights from the rendered SVG,\r\nrestoring every node and edge to its default Graphviz presentation.\r\n\r\nRemoves only the inline `fill` / `stroke` / `opacity` overrides that\r\nhighlightTrace installs; the SVG's own presentation attributes\r\nare untouched. Safe to call when nothing is highlighted, before the\r\nfirst render, or while detached — it no-ops if there is no rendered\r\nSVG to clear.\r\n\r\n```typescript\r\nconst viz = document.querySelector('fsl-viz');\r\nviz.highlightTrace(['a', 'b']);\r\nviz.clearHighlights();   // back to the default rendering\r\n```"
+            },
+            {
+              "kind": "method",
+              "name": "highlightTrace",
+              "privacy": "public",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "trace",
+                  "type": {
+                    "text": "string[]"
+                  },
+                  "description": "Ordered state names describing the path (e.g.\r\n`['A', 'B', 'C']`). Consecutive pairs select the edges\r\n`A->B` and `B->C`. An empty array is a no-op."
+                },
+                {
+                  "name": "options",
+                  "default": "{}",
+                  "type": {
+                    "text": "HighlightOptions"
+                  },
+                  "description": "Highlight styling; see {@link HighlightOptions}. Defaults\r\n   *                to crimson with off-trace fading enabled.\r\n   *\r\n   * "
+                }
+              ],
+              "description": "Programmatically highlights one execution trace (a path of state names)\r\nthrough the rendered graph, optionally fading everything off the path.\r\n\r\nMatches nodes by their Graphviz `<title>` (the state name) and edges by\r\nthe `from->to` title Graphviz emits, applying inline style overrides so\r\nthe highlight composes over — and is reversible against — the default\r\nrendering (see clearHighlights, which this calls first). No-ops\r\nwhen detached, before the first render, or given an empty trace.\r\n\r\n```typescript\r\n// Highlight a -> b -> c in green, without dimming the rest:\r\nviz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });\r\n```"
             }
           ],
           "events": [

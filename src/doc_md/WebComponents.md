@@ -76,6 +76,34 @@ The class export has no side effects — importing it does not register any tag.
 |---|---|---|
 | `--jssm-viz-min-height` | `100px` | Minimum height of the rendered SVG container. |
 
+## Methods — programmatic trace highlighting
+
+`<fsl-viz>` exposes two imperative methods for spotlighting an execution path through the rendered graph — useful for stepping a trace, animating a counterexample, or drawing attention to one route.
+
+| Method | Description |
+|---|---|
+| `highlightTrace(trace, options?)` | Highlights the path named by `trace` — an ordered array of state names (e.g. `['a', 'b', 'c']`), whose consecutive pairs select the edges `a→b` and `b→c`. By default everything off the path is dimmed. An empty `trace` is a no-op. |
+| `clearHighlights()` | Removes all highlighting, restoring the default rendering. |
+
+`options` is a `HighlightOptions` object:
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `color` | `string` | `'#b71c1c'` | Stroke/fill colour for the highlighted nodes and edges. |
+| `fadeOthers` | `boolean` | `true` | When `true`, dims every node and edge *not* on the trace to `opacity: 0.2`. Set `false` to highlight without fading the rest. |
+
+```javascript
+const viz = document.querySelector('fsl-viz');
+
+// Spotlight a → b → c in green, without dimming the rest of the graph:
+viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
+
+// Later, restore the default rendering:
+viz.clearHighlights();
+```
+
+The highlight is applied as inline style overrides and transitions smoothly via CSS; `clearHighlights()` removes exactly those overrides, leaving the graph's own styling intact.
+
 ## `<fsl-instance>` — the workspace composition root
 
 `<fsl-instance>` owns a single machine built from its FSL source and exposes it to slotted
