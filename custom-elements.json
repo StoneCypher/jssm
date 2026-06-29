@@ -3663,7 +3663,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "`<fsl-stochastic>` — a statistical/Monte-Carlo explorer for a parent\n`<fsl-instance>` (fsl#1384).  Builds its own throwaway machine from the\nhost's `.fsl` source (never touching the live machine) and renders\naggregate run statistics in-panel.  Standalone (no host) the controls are\ndisabled.",
+          "description": "`<fsl-stochastic>` — a statistical/Monte-Carlo explorer for a parent\r\n`<fsl-instance>` (fsl#1384).  Builds its own throwaway machine from the\r\nhost's `.fsl` source (never touching the live machine) and renders\r\naggregate run statistics in-panel.  Standalone (no host) the controls are\r\ndisabled.",
           "name": "FslStochastic",
           "cssParts": [
             {
@@ -3750,7 +3750,7 @@
             {
               "kind": "field",
               "name": "play",
-              "description": "Animate the batch: accumulate runs incrementally via `requestAnimationFrame`,\nredrawing as they land. Resolves when the batch completes or is paused-to-stop.\n\nFalls back to immediate (synchronous chunk) scheduling under jsdom where\n`requestAnimationFrame` is undefined."
+              "description": "Animate the batch: accumulate runs incrementally via `requestAnimationFrame`,\r\nredrawing as they land. Resolves when the batch completes or is paused-to-stop.\r\n\r\nFalls back to immediate (synchronous chunk) scheduling under jsdom where\r\n`requestAnimationFrame` is undefined."
             },
             {
               "kind": "method",
@@ -3812,7 +3812,7 @@
                   "description": "The effective RNG seed used for this batch."
                 }
               ],
-              "description": "Fold accumulated counters into a rendered summary. Shared by play\nfor incremental rendering during animation."
+              "description": "Fold accumulated counters into a rendered summary. Shared by play\r\nfor incremental rendering during animation."
             },
             {
               "kind": "field",
