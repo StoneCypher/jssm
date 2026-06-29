@@ -211,13 +211,6 @@ export class FslToolbar extends LitElement {
         return html `
       <div class="toolbar" part="toolbar" role="toolbar" aria-label="Workbench controls">
         <span class="spacer"></span>
-        ${host ? html `
-          <div class="grp">
-            ${this.noValidate ? '' : html `
-              <button class="tb icon" aria-label="Validate" title="Validate" @click=${() => this._fireAction('fsl-validate')}>${ICON_VALIDATE}</button>`}
-            ${this.noLint ? '' : html `
-              <button class="tb icon" aria-label="Lint" title="Lint" @click=${() => this._fireAction('fsl-lint')}>${ICON_LINT}</button>`}
-          </div>` : ''}
         <div class="grp">
           ${host
             ? this._present.map(p => html `
@@ -225,6 +218,13 @@ export class FslToolbar extends LitElement {
                         @click=${() => { host.togglePanel(p.slot); this.requestUpdate(); }}>${p.icon}</button>`)
             : ''}
         </div>
+        ${host ? html `
+          <div class="grp">
+            ${this.noValidate ? '' : html `
+              <button class="tb icon" aria-label="Validate" title="Validate" @click=${() => this._fireAction('fsl-validate')}>${ICON_VALIDATE}</button>`}
+            ${this.noLint ? '' : html `
+              <button class="tb icon" aria-label="Lint" title="Lint" @click=${() => this._fireAction('fsl-lint')}>${ICON_LINT}</button>`}
+          </div>` : ''}
         <div class="grp">
           <button class="tb layout" aria-haspopup="true" aria-expanded=${this._openMenu === 'layout'} aria-label="Layout" title="Layout" @click=${() => this._toggleMenu('layout')}>${layoutIcon}<span class="caret">▾</span></button>
           ${this._openMenu === 'layout' ? html `
