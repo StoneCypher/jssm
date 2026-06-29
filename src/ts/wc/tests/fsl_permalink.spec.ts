@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   encode_machine, decode_machine,
+  deflate_raw, inflate_raw, MAX_PERMALINK_INFLATE_BYTES,
   read_fragment_param, set_fragment_param,
   permalink_for, fsl_from_permalink,
   permalink_key_for,
@@ -27,6 +28,12 @@ describe('fsl_permalink codec', () => {
     const small = await encode_machine('a -> b;');
     expect(small[0]).toBe('0');                              // raw beat deflate on a tiny string
   });
+
+  it('rejects an over-cap inflate (decompression-bomb guard)', async () => {
+    const big    = new Uint8Array(MAX_PERMALINK_INFLATE_BYTES + 1024);   // zeros: highly compressible
+    const packed = await deflate_raw(big);                               // small payload ...
+    await expect(inflate_raw(packed)).rejects.toThrow(/exceeded/);       // ... that inflates past the cap
+  });
 });
 
 describe('fsl_permalink fragment ops', () => {
@@ -41,6 +48,18 @@ describe('fsl_permalink fragment ops', () => {
     expect(set_fragment_param('#a=0AAA&b=1BBB', 'b', '1CCC')).toBe('a=0AAA&b=1CCC');
     expect(set_fragment_param('#a=0AAA', 'b', '1BBB')).toBe('a=0AAA&b=1BBB');   // append
     expect(set_fragment_param('', 'a', '0AAA')).toBe('a=0AAA');
+  });
+
+  it('percent-encodes keys so special characters survive a round-trip', () => {
+    const frag = set_fragment_param('', 'a=b&c', '0AAA');                 // a key with = and &
+    expect(frag).toBe('a%3Db%26c=0AAA');                                  // both encoded
+    expect(read_fragment_param(frag, 'a=b&c')).toBe('0AAA');              // read back by the raw key
+    expect(set_fragment_param(frag, 'plain', '1BBB'))                     // sibling untouched
+      .toBe('a%3Db%26c=0AAA&plain=1BBB');
+  });
+
+  it('does not throw on a malformed percent-escape in a key', () => {
+    expect(read_fragment_param('#bad%=0AAA', 'bad%')).toBe('0AAA');       // safe_decode falls back
   });
 });
 

@@ -52,6 +52,13 @@ export class FslPermalinkSync {
         }
         try {
             const fsl = await decode_machine(segment);
+            // The decode is async; if the host was disconnected while it ran, drop the
+            // result rather than mutating a detached element (and triggering a stray
+            // rebuild on a later reconnect). A reconnect runs hostConnected → _restore
+            // afresh.
+            if (!this.host.isConnected) {
+                return;
+            }
             this._last = segment;
             this.host.fsl = fsl;
         }

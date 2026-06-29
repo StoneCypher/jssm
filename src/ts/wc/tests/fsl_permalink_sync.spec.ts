@@ -34,6 +34,17 @@ describe('FslPermalinkSync', () => {
     el.remove();
   });
 
+  it('drops a restore whose decode resolves after the host disconnects', async () => {
+    const seg = await encode_machine('x -> y;');
+    history.replaceState(history.state, '', `#k7=${seg}`);
+    const el = document.createElement('plk-host') as Host;
+    el.id = 'k7'; el.fsl = 'declared -> only;';
+    document.body.appendChild(el);                 // hostConnected → _restore starts (awaits decode)
+    el.remove();                                   // disconnect before the decode resolves
+    await tick(20);                                // let the in-flight decode settle
+    expect(el.fsl).toBe('declared -> only;');      // guard dropped it — no mutation of a detached host
+  });
+
   it('does not write the URL after a restore (echo guard)', async () => {
     const seg = await encode_machine('a -> b;');
     history.replaceState(history.state, '', `#k4=${seg}`);

@@ -521,7 +521,19 @@ async function deflate_raw(bytes) {
     return new Uint8Array(await new Response(stream.readable).arrayBuffer());
 }
 /**
- * Inverse of {@link deflate_raw}.
+ * Hard ceiling on the inflated size of a permalink, in bytes. A permalink rides
+ * in a URL an attacker can hand a victim, and {@link inflate_raw} runs on it
+ * automatically on page load, so an uncapped inflate is a decompression-bomb
+ * vector (a tiny `#m=…` could expand to hundreds of MB and OOM the tab). This is
+ * generous for real FSL (text — even a vast machine is well under a megabyte).
+ */
+const MAX_PERMALINK_INFLATE_BYTES = 5 * 1024 * 1024;
+/**
+ * Inverse of {@link deflate_raw}, reading the stream in chunks and aborting once
+ * the inflated output would exceed {@link MAX_PERMALINK_INFLATE_BYTES} (a
+ * decompression-bomb guard — see that constant).
+ *
+ * @throws RangeError when the inflated output exceeds the cap.
  *
  * @example
  * new TextDecoder().decode(await inflate_raw(await deflate_raw(new TextEncoder().encode("hi")))); // "hi"
@@ -531,7 +543,30 @@ async function inflate_raw(bytes) {
     const writer = stream.writable.getWriter();
     void writer.write(bytes);
     void writer.close();
-    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
+    // Read incrementally; stopping past the cap leaves the stream half-drained, so
+    // backpressure halts further inflation and the abandoned stream is GC'd. We do
+    // not cancel (which would abort the writable and leak an unhandled rejection).
+    const reader = stream.readable.getReader();
+    const chunks = [];
+    let total = 0;
+    for (;;) {
+        const { done, value } = await reader.read();
+        if (done) {
+            break;
+        }
+        total += value.length;
+        if (total > MAX_PERMALINK_INFLATE_BYTES) {
+            throw new RangeError(`permalink inflate exceeded ${MAX_PERMALINK_INFLATE_BYTES} bytes`);
+        }
+        chunks.push(value);
+    }
+    const out = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) {
+        out.set(chunk, offset);
+        offset += chunk.length;
+    }
+    return out;
 }
 /**
  * Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).
@@ -560,14 +595,28 @@ async function decode_machine(segment) {
     const plain = scheme === '1' ? await inflate_raw(bytes) : bytes;
     return new TextDecoder().decode(plain);
 }
-/** Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping empties. */
+/** `decodeURIComponent` that returns its input untouched on a malformed escape,
+ *  so a hand-mangled fragment never throws out of {@link read_fragment_param}. */
+function safe_decode(text) {
+    try {
+        return decodeURIComponent(text);
+    }
+    catch (_a) {
+        return text;
+    }
+}
+/**
+ * Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping
+ * empties. Keys are percent-decoded (they are percent-encoded on write by
+ * {@link set_fragment_param}); values are the URL-safe base64 payload as-is.
+ */
 function fragment_pairs(hash) {
     const body = hash.startsWith('#') ? hash.slice(1) : hash;
     return body.split('&').filter(Boolean).map(seg => {
         const eq = seg.indexOf('=');
         return eq === -1
-            ? [seg, '']
-            : [seg.slice(0, eq), seg.slice(eq + 1)];
+            ? [safe_decode(seg), '']
+            : [safe_decode(seg.slice(0, eq)), seg.slice(eq + 1)];
     });
 }
 /**
@@ -598,7 +647,9 @@ function set_fragment_param(hash, key, value) {
     else {
         pairs[at] = [key, value];
     }
-    return pairs.map(([k, v]) => `${k}=${v}`).join('&');
+    // Percent-encode the key so an `id`/`uhash` containing `=`, `&`, or `#` cannot
+    // break segmentation or collide with a sibling. Values are URL-safe base64.
+    return pairs.map(([k, v]) => `${encodeURIComponent(k)}=${v}`).join('&');
 }
 /**
  * The fragment key an element owns: its `uhash` attribute if set, else its
@@ -666,6 +717,13 @@ class FslPermalinkSync {
         }
         try {
             const fsl = await decode_machine(segment);
+            // The decode is async; if the host was disconnected while it ran, drop the
+            // result rather than mutating a detached element (and triggering a stray
+            // rebuild on a later reconnect). A reconnect runs hostConnected → _restore
+            // afresh.
+            if (!this.host.isConnected) {
+                return;
+            }
             this._last = segment;
             this.host.fsl = fsl;
         }

@@ -3108,6 +3108,11 @@
           "description": "DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`."
         },
         {
+          "kind": "variable",
+          "name": "MAX_PERMALINK_INFLATE_BYTES",
+          "description": "Hard ceiling on the inflated size of a permalink, in bytes. A permalink rides\r\nin a URL an attacker can hand a victim, and inflate_raw runs on it\r\nautomatically on page load, so an uncapped inflate is a decompression-bomb\r\nvector (a tiny `#m=…` could expand to hundreds of MB and OOM the tab). This is\r\ngenerous for real FSL (text — even a vast machine is well under a megabyte)."
+        },
+        {
           "kind": "function",
           "name": "inflate_raw",
           "return": {
@@ -3123,7 +3128,7 @@
               }
             }
           ],
-          "description": "Inverse of deflate_raw."
+          "description": "Inverse of deflate_raw, reading the stream in chunks and aborting once\r\nthe inflated output would exceed MAX_PERMALINK_INFLATE_BYTES (a\r\ndecompression-bomb guard — see that constant)."
         },
         {
           "kind": "function",
@@ -3328,6 +3333,14 @@
           "name": "deflate_raw",
           "declaration": {
             "name": "deflate_raw",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "MAX_PERMALINK_INFLATE_BYTES",
+          "declaration": {
+            "name": "MAX_PERMALINK_INFLATE_BYTES",
             "module": "src/ts/wc/fsl_permalink.ts"
           }
         },

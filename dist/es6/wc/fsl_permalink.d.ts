@@ -38,7 +38,19 @@ export declare function base64url_to_bytes(text: string): Uint8Array;
  */
 export declare function deflate_raw(bytes: Uint8Array): Promise<Uint8Array>;
 /**
- * Inverse of {@link deflate_raw}.
+ * Hard ceiling on the inflated size of a permalink, in bytes. A permalink rides
+ * in a URL an attacker can hand a victim, and {@link inflate_raw} runs on it
+ * automatically on page load, so an uncapped inflate is a decompression-bomb
+ * vector (a tiny `#m=…` could expand to hundreds of MB and OOM the tab). This is
+ * generous for real FSL (text — even a vast machine is well under a megabyte).
+ */
+export declare const MAX_PERMALINK_INFLATE_BYTES: number;
+/**
+ * Inverse of {@link deflate_raw}, reading the stream in chunks and aborting once
+ * the inflated output would exceed {@link MAX_PERMALINK_INFLATE_BYTES} (a
+ * decompression-bomb guard — see that constant).
+ *
+ * @throws RangeError when the inflated output exceeds the cap.
  *
  * @example
  * new TextDecoder().decode(await inflate_raw(await deflate_raw(new TextEncoder().encode("hi")))); // "hi"

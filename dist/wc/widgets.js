@@ -136,14 +136,28 @@ async function encode_machine(fsl) {
     const deflated = bytes_to_base64url(await deflate_raw(utf8));
     return deflated.length < raw.length ? `1${deflated}` : `0${raw}`;
 }
-/** Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping empties. */
+/** `decodeURIComponent` that returns its input untouched on a malformed escape,
+ *  so a hand-mangled fragment never throws out of {@link read_fragment_param}. */
+function safe_decode(text) {
+    try {
+        return decodeURIComponent(text);
+    }
+    catch (_a) {
+        return text;
+    }
+}
+/**
+ * Split a fragment (leading `#` optional) into `[key, value]` pairs, dropping
+ * empties. Keys are percent-decoded (they are percent-encoded on write by
+ * {@link set_fragment_param}); values are the URL-safe base64 payload as-is.
+ */
 function fragment_pairs(hash) {
     const body = hash.startsWith('#') ? hash.slice(1) : hash;
     return body.split('&').filter(Boolean).map(seg => {
         const eq = seg.indexOf('=');
         return eq === -1
-            ? [seg, '']
-            : [seg.slice(0, eq), seg.slice(eq + 1)];
+            ? [safe_decode(seg), '']
+            : [safe_decode(seg.slice(0, eq)), seg.slice(eq + 1)];
     });
 }
 /**
@@ -162,7 +176,9 @@ function set_fragment_param(hash, key, value) {
     else {
         pairs[at] = [key, value];
     }
-    return pairs.map(([k, v]) => `${k}=${v}`).join('&');
+    // Percent-encode the key so an `id`/`uhash` containing `=`, `&`, or `#` cannot
+    // break segmentation or collide with a sibling. Values are URL-safe base64.
+    return pairs.map(([k, v]) => `${encodeURIComponent(k)}=${v}`).join('&');
 }
 /**
  * The fragment key an element owns: its `uhash` attribute if set, else its
