@@ -78,4 +78,64 @@ describe('Arrange', () => {
 
 
 
+  test('Single oarrange', () => {
+
+    expect( () => { const _foo = sm`oarrange [a b]; a -> b;`; })
+      .not.toThrow();
+
+    expect(
+      sm`oarrange [a b]; a -> b;`._oarrange_declaration
+    ).toEqual(
+      [['a','b']]
+    );
+
+  });
+
+
+
+  test('Multiple oarrange', () => {
+
+    expect(
+      sm`oarrange [a b]; a -> b; c -> d; oarrange [c d];`._oarrange_declaration
+    ).toEqual(
+      [['a','b'],['c','d']]
+    );
+
+  });
+
+
+
+  test('Single farrange', () => {
+
+    expect( () => { const _foo = sm`farrange [a b]; a -> b;`; })
+      .not.toThrow();
+
+    expect(
+      sm`farrange [a b]; a -> b;`._farrange_declaration
+    ).toEqual(
+      [['a','b']]
+    );
+
+  });
+
+
+
+  test('Cannot oarrange a node that does not exist', () => {
+
+    expect( () => { const _foo = sm`a -> b; oarrange[a c];`; })
+      .toThrow();
+
+  });
+
+
+
+  test('Cannot farrange a node that does not exist', () => {
+
+    expect( () => { const _foo = sm`a -> b; farrange[a c];`; })
+      .toThrow();
+
+  });
+
+
+
 });

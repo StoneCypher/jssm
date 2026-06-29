@@ -49,7 +49,7 @@ A term is exactly one of:
 
 1. **`Exp`** — a transition expression (e.g. `'a' -> 'b';`)
 2. **`StateDeclaration`** — `state Foo : { ... };`
-3. **`ArrangeDeclaration`** — `arrange / arrange-start / arrange-end`
+3. **`ArrangeDeclaration`** — `arrange / arrange-start / arrange-end / oarrange / farrange`
 4. **`NamedList`** — `&name : [a b c];`
 5. **`MachineAttribute`** — metadata like `machine_name`, `fsl_version`, `theme`, `flow`
 6. **`MachineProperty`** — typed property declaration with optional default and `required`
@@ -883,14 +883,22 @@ nested child does.  Empty clusters are suppressed.
 
 ## 13. Arrange declarations
 
-Three forms, all taking a `LabelOrLabelList`:
+Five forms, all taking a `LabelOrLabelList`:
 
-- `arrange       <list> ;` — generic ordering hint
+- `arrange       <list> ;` — same-rank grouping (generic ordering hint)
 - `arrange-start <list> ;` — pin to the start
 - `arrange-end   <list> ;` — pin to the end
+- `oarrange      <list> ;` — same rank **and** keep the listed states in the
+  written left-to-right order (best-effort: emits an invisible ordering chain
+  that yields to hard rank constraints, so it never reshapes the graph)
+- `farrange      <list> ;` — like `oarrange` but **forces** the order by
+  relaxing the members' real edges (`constraint=false`); this can reshape the
+  vertical layout, so reach for it only when horizontal order matters more than
+  the default flow
 
 `arrange-start` / `arrange-end` are tried before `arrange` so the
-hyphenated forms aren't shadowed.
+hyphenated forms aren't shadowed. `oarrange` / `farrange` are distinct
+keywords (no prefix overlap with `arrange`).
 
 
 

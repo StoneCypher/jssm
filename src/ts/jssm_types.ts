@@ -799,6 +799,8 @@ type JssmGenericConfig<StateType, DataType> = {
   arrange_declaration?           : Array<Array<StateType>>,
   arrange_start_declaration?     : Array<Array<StateType>>,
   arrange_end_declaration?       : Array<Array<StateType>>,
+  oarrange_declaration?          : Array<Array<StateType>>,
+  farrange_declaration?          : Array<Array<StateType>>,
 
   machine_author?                : string | Array<string>,
   machine_comment?               : string,
