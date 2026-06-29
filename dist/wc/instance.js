@@ -1090,6 +1090,7 @@ function split_ratio(coord, start, size) {
  * @slot hook-log - Slot for the hook-firing log (`<fsl-hook-log>`, #664).
  * @slot effective-properties - Slot for the resolved-properties panel (`<fsl-effective-properties>`, #665).
  * @slot simulation - Slot for the random-walk simulation (`<fsl-simulation>`, #668).
+ * @slot stochastic - Slot for the stochastic analysis panel (`<fsl-stochastic>`, fsl#1384).
  * @slot export - Slot for the export menu (`<fsl-export>`, #667).
  * @slot footer - Footer slot.
  */
@@ -1967,6 +1968,7 @@ class FslInstance extends LitElement {
       ${docked ? '' : html `<section class="hook-log" ?hidden=${h('hook-log')}><slot name="hook-log"></slot></section>`}
       <section class="effective-properties" ?hidden=${h('effective-properties')}><slot name="effective-properties"></slot></section>
       <section class="simulation" ?hidden=${h('simulation')}><slot name="simulation"></slot></section>
+      <section class="stochastic" ?hidden=${h('stochastic')}><slot name="stochastic"></slot></section>
       <section class="export" ?hidden=${h('export')}><slot name="export"></slot></section>
     `;
     }
