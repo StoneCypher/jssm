@@ -327,7 +327,7 @@ function find_connected_components(states, edges) {
 }
 class Machine {
     // whargarbl this badly needs to be broken up, monolith master
-    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
+    constructor({ start_states, end_states = [], failed_outputs = [], initial_state, start_states_no_enforce, complete = [], transitions, machine_author, machine_comment, machine_contributor, machine_definition, machine_language, machine_license, machine_name, machine_version, npm_name, default_size, state_declaration, property_definition, state_property, fsl_version, dot_preamble = undefined, arrange_declaration = [], arrange_start_declaration = [], arrange_end_declaration = [], oarrange_declaration = [], farrange_declaration = [], theme = ['default'], flow = 'down', graph_layout = 'dot', instance_name, history, boundary_depth_limit, data, default_state_config, default_active_state_config, default_hooked_state_config, default_terminal_state_config, default_start_state_config, default_end_state_config, default_transition_config, default_graph_config, group_registry, group_metadata, group_hooks, state_hooks, allows_override, config_allows_override, allow_islands, editor_config, rng_seed, time_source, timeout_source, clear_timeout_source }) {
         this._time_source = time_source !== null && time_source !== void 0 ? time_source : (() => new Date().getTime());
         this._create_started = this._time_source();
         this._instance_name = instance_name;
@@ -364,6 +364,8 @@ class Machine {
         this._arrange_declaration = arrange_declaration;
         this._arrange_start_declaration = arrange_start_declaration;
         this._arrange_end_declaration = arrange_end_declaration;
+        this._oarrange_declaration = oarrange_declaration;
+        this._farrange_declaration = farrange_declaration;
         this._dot_preamble = dot_preamble;
         this._themes = theme;
         this._flow = flow;
@@ -776,11 +778,11 @@ class Machine {
         }
         this._created = this._time_source();
         this.auto_set_state_timeout();
-        this._arrange_declaration.forEach((arrange_pair) => arrange_pair.forEach((possibleState) => {
+        [this._arrange_declaration, this._oarrange_declaration, this._farrange_declaration].forEach((declaration) => declaration.forEach((arrange_pair) => arrange_pair.forEach((possibleState) => {
             if (!(this._states.has(possibleState))) {
                 throw new JssmError(this, `Cannot arrange state that does not exist "${possibleState}"`);
             }
-        }));
+        })));
     }
     /********
      *
@@ -985,13 +987,13 @@ class Machine {
      *  `;
      *
      *  traffic_light.state();  // Off
-     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: true,  hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Red');
-     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true;  }
+     *  traffic_light.props();  // { can_go: false, hesitate: true,  stop_first: true  }
      *
      *  traffic_light.go('Green');
-     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false; }
+     *  traffic_light.props();  // { can_go: true,  hesitate: false, stop_first: false }
      *  ```
      *
      *  @returns An object mapping every known property name to its current value
