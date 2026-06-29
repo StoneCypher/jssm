@@ -2659,9 +2659,9 @@ class Machine<mDT> {
    *  is the lazy engine behind {@link Machine.stochastic_summary}; the
    *  fsl-stochastic panel drives it across animation frames.
    *
-   *  This does not snapshot the PRNG — pass `seed` to
-   *  {@link Machine.stochastic_summary}, or set {@link Machine.rng_seed}
-   *  before iterating, for reproducibility.
+   *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+   *  {@link Machine.stochastic_summary}, the generator does NOT restore the
+   *  prior seed afterward — a direct caller's machine is left reseeded.
    *
    *  @param opts - {@link JssmStochasticOptions}.
    *  @returns A generator of per-run results.
@@ -2671,6 +2671,8 @@ class Machine<mDT> {
    *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
    */
   *stochastic_runs(opts: JssmStochasticOptions = {}): Generator<JssmStochasticRun> {
+
+    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
 
     const mode      : JssmStochasticMode = opts.mode ?? 'montecarlo';
     const max_steps : number             = opts.max_steps ?? STOCHASTIC_DEFAULT_MAX_STEPS;

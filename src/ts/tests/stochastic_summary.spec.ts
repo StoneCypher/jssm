@@ -113,3 +113,20 @@ describe('stochastic_summary option defaults', () => {
   });
 
 });
+
+describe('stochastic_runs seeding', () => {
+
+  it('honors opts.seed for reproducible runs', () => {
+    const fsl = `a 'x' -> b; a 'y' -> c; b 'go' -> a; c 'go' -> a;`;
+    const r1 = [...sm`${fsl}`.stochastic_runs({ runs: 4, max_steps: 10, seed: 7 })].map(r => r.edges.join(','));
+    const r2 = [...sm`${fsl}`.stochastic_runs({ runs: 4, max_steps: 10, seed: 7 })].map(r => r.edges.join(','));
+    expect(r1).toEqual(r2);
+  });
+
+  it('leaves the machine reseeded (documented side effect; not restored)', () => {
+    const m = sm`a 'go' -> b 'go' -> a;`;
+    [...m.stochastic_runs({ runs: 2, max_steps: 5, seed: 7 })];
+    expect(m.rng_seed).toBe(7);
+  });
+
+});

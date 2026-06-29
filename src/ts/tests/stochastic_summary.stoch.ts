@@ -33,6 +33,19 @@ describe('stochastic_summary properties', () => {
   });
 
   /**
+   * The invariant must also hold for terminating topologies — and on chains
+   * (which always reach a terminal) terminal_reached must be positive, so the
+   * property is not vacuously satisfied only by the always-capped ring case.
+   */
+  it('terminal_reached + capped === runs, with terminals witnessed on chains', () => {
+    fc.assert(fc.property(chain_plan_arb, fc.integer({ min: 1, max: 50 }), ({ fsl }, seed) => {
+      const s = sm`${fsl}`.stochastic_summary({ runs: 25, max_steps: 100, seed });
+      expect((s.terminal_reached ?? 0) + (s.capped ?? 0)).toBe(s.runs);
+      expect(s.terminal_reached).toBeGreaterThan(0);
+    }));
+  });
+
+  /**
    * Every key in state_visits must name a real state in the machine, and the
    * start state must always appear — a walk always visits at least one step.
    */
