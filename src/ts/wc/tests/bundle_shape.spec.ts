@@ -268,9 +268,11 @@ describe('dist/wc/widgets.js — bundler-friendly build', () => {
   });
 
   it('is reasonably small with jssm core + lit externalized', () => {
-    // The widget suite, no inlined core/lit. Under 80 KB; the guard exists to
-    // catch an accidental core-or-lit inline (which would balloon past 150KB+).
-    expect(readFileSync(dist_path, 'utf8').length).toBeLessThan(80_000);
+    // The widget suite, no inlined core/lit. The guard exists to catch an
+    // accidental core-or-lit inline (which would balloon past 150KB+), not to
+    // police incremental panel growth — the suite is ~80KB after fsl-stochastic
+    // (fsl#1384) joined the bundle. Ceiling matches the fsl-instance guard.
+    expect(readFileSync(dist_path, 'utf8').length).toBeLessThan(100_000);
   });
 
 });

@@ -18,6 +18,7 @@ import {
   JssmAllowsOverride,
   JssmAllowIslands,
   JssmEditorConfig,
+  JssmStochasticMode, JssmStochasticOptions, JssmStochasticRun, JssmStochasticSummary,
   JssmDefaultSize,
   JssmParseTree,
   JssmStateDeclaration, JssmStateDeclarationRule,
@@ -459,6 +460,11 @@ function find_connected_components<mDT>(
   return result;
 
 }
+
+/** Default number of independent Monte-Carlo runs when none is declared. */
+export const STOCHASTIC_DEFAULT_RUNS = 1000;
+/** Default per-run step cap (montecarlo) / walk length (steady_state). */
+export const STOCHASTIC_DEFAULT_MAX_STEPS = 1000;
 
 
 
@@ -2621,7 +2627,154 @@ class Machine<mDT> {
     return histograph(this.probabilistic_walk(n));
   }
 
+  /** One non-destructive weighted-random walk over the graph from `start`.
+   *
+   *  Reads the graph and advances the PRNG only — it never calls
+   *  {@link Machine.transition}, so it fires no hooks, mutates no machine
+   *  state, and touches no `data`.  A state with no probabilistic exits
+   *  (a terminal, or a forced-only `~>` state) ends the walk.
+   *
+   *  @param start - State to begin the walk from.
+   *  @param max_steps - Maximum transitions before the walk is step-capped.
+   *  @returns The {@link JssmStochasticRun} for this walk.
+   */
+  private _stochastic_one_walk(start: StateType, max_steps: number): JssmStochasticRun {
 
+    const states : Array<string> = [start];
+    const edges  : Array<string> = [];
+
+    let cur        : StateType = start;
+    let terminated : boolean   = false;
+
+    for (let step = 0; step < max_steps; step++) {
+      const exits = this.probable_exits_for(cur);
+      if (exits.length === 0) { terminated = true; break; }
+      const selected = weighted_rand_select(exits, undefined, this._rng);
+      edges.push(`${cur}→${selected.to}`);
+      cur = selected.to;
+      states.push(cur);
+    }
+
+    return { states, edges, length: states.length - 1, terminated };
+
+  }
+
+  /** Lazily yield one {@link JssmStochasticRun} at a time.
+   *
+   *  In `montecarlo` mode (default) yields `runs` independent walks from the
+   *  current state, each ending at a terminal or after `max_steps`.  In
+   *  `steady_state` mode yields exactly one walk of `max_steps` steps.  This
+   *  is the lazy engine behind {@link Machine.stochastic_summary}; the
+   *  fsl-stochastic panel drives it across animation frames.
+   *
+   *  Passing `seed` reseeds the machine for reproducible runs.  Unlike
+   *  {@link Machine.stochastic_summary}, the generator does NOT restore the
+   *  prior seed afterward — a direct caller's machine is left reseeded.
+   *
+   *  @param opts - {@link JssmStochasticOptions}.
+   *  @returns A generator of per-run results.
+   *
+   *  @example
+   *  const m = sm`a 'go' -> b 'go' -> c;`;
+   *  [...m.stochastic_runs({ runs: 2, seed: 1 })].length;  // => 2
+   */
+  *stochastic_runs(opts: JssmStochasticOptions = {}): Generator<JssmStochasticRun> {
+
+    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
+
+    const mode      : JssmStochasticMode = opts.mode ?? 'montecarlo';
+    const max_steps : number             = opts.max_steps ?? STOCHASTIC_DEFAULT_MAX_STEPS;
+    const runs      : number             = (mode === 'steady_state')
+      ? 1
+      : (opts.runs ?? this.editor_config()?.stochastic_run_count ?? STOCHASTIC_DEFAULT_RUNS);
+
+    const start: StateType = this.state();
+
+    for (let i = 0; i < runs; i++) {
+      yield this._stochastic_one_walk(start, max_steps);
+    }
+
+  }
+
+
+
+  /** Run many weighted-random walks and return aggregate statistics.
+   *
+   *  Honors `%` transition probabilities (via the existing probabilistic
+   *  machinery).  Non-destructive: the machine's current state and
+   *  {@link Machine.rng_seed} are restored before returning, so calling this
+   *  never perturbs the live machine.  `montecarlo` mode (default) reports
+   *  per-run `path_lengths`, `terminal_reached`, and `capped`; `steady_state`
+   *  mode runs one long walk and omits those fields.
+   *
+   *  Timing (`after`) decorations and data-guard conditions are not modeled
+   *  by this sampler; it walks the probabilistic graph topology.
+   *
+   *  @param opts - {@link JssmStochasticOptions}.  `runs` defaults to the
+   *  machine's declared `editor: { stochastic_run_count }` (fsl#1334) when
+   *  present, otherwise {@link STOCHASTIC_DEFAULT_RUNS}.
+   *  @returns A {@link JssmStochasticSummary}.
+   *
+   *  @see Machine.stochastic_runs
+   *  @see Machine.probabilistic_walk
+   *  @see Machine.editor_config
+   *
+   *  @example
+   *  const m = sm`a 'go' -> b 'go' -> c;`;
+   *  const s = m.stochastic_summary({ runs: 100, seed: 1 });
+   *  s.terminal_reached;  // => 100
+   */
+  stochastic_summary(opts: JssmStochasticOptions = {}): JssmStochasticSummary {
+
+    const mode       : JssmStochasticMode = opts.mode ?? 'montecarlo';
+    const saved_seed : number             = this._rng_seed;
+
+    if (opts.seed !== undefined) { this.rng_seed = opts.seed; }
+    const effective_seed: number = this._rng_seed;
+
+    const state_visits    : Map<string, number> = new Map();
+    const edge_traversals : Map<string, number> = new Map();
+    const path_lengths    : Array<number>       = [];
+
+    let terminal_reached = 0,
+        capped           = 0,
+        runs             = 0;
+
+    try {
+      for (const run of this.stochastic_runs({ ...opts, mode })) {
+        runs += 1;
+        for (const s of run.states) { state_visits.set(s, (state_visits.get(s) ?? 0) + 1); }
+        for (const e of run.edges)  { edge_traversals.set(e, (edge_traversals.get(e) ?? 0) + 1); }
+        if (mode === 'montecarlo') {
+          if (run.terminated) { terminal_reached += 1; path_lengths.push(run.length); }
+          else                { capped += 1; }
+        }
+      }
+    } finally {
+      // restore the PRNG so the call is non-destructive even when the loop throws
+      this.rng_seed = saved_seed;
+    }
+
+    const total_visits         : number             = [...state_visits.values()].reduce((a, b) => a + b, 0);
+    const state_visit_fraction : Map<string, number> = new Map();
+    for (const [s, c] of state_visits) {
+      state_visit_fraction.set(s, c / total_visits);
+    }
+
+    const summary: JssmStochasticSummary = {
+      mode, runs, seed: effective_seed,
+      state_visits, state_visit_fraction, edge_traversals,
+    };
+
+    if (mode === 'montecarlo') {
+      summary.path_lengths     = path_lengths;
+      summary.terminal_reached = terminal_reached;
+      summary.capped           = capped;
+    }
+
+    return summary;
+
+  }
 
 
 
