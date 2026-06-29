@@ -9,6 +9,7 @@ import { property, state } from 'lit/decorators.js';
 import { fslTokens } from './fsl_tokens.js';
 import { closest_wc } from './wc_tag_helpers.js';
 import { machine_to_dot, machine_to_svg_string } from '../jssm_viz.js';
+import { permalink_for, fsl_from_permalink, permalink_key_for } from './fsl_permalink.js';
 /** Theme modes offered by the Theme pulldown. */
 const THEME_MODES = [
     { value: 'system', label: 'System' },
@@ -24,105 +25,9 @@ const EXPORT_FORMATS = [
     { value: 'permalink', label: 'Permalink (URL)' },
     { value: 'embed', label: 'Embed snippet' },
 ];
-/** Hash parameter that carries a permalink's encoded machine: `#m=<scheme><payload>`. */
-const PERMALINK_HASH_KEY = 'm';
-/**
- * URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,
- * `/`→`_`, and trailing `=` padding stripped, so the result rides in a URL
- * fragment with no further percent-encoding.
- *
- * @example
- * bytes_to_base64url(new TextEncoder().encode("a")); // "YQ"
- */
-function bytes_to_base64url(bytes) {
-    let binary = '';
-    for (const byte of bytes) {
-        binary += String.fromCharCode(byte);
-    }
-    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-/**
- * Inverse of {@link bytes_to_base64url}: decode URL-safe base64 back to the
- * original bytes.
- *
- * @example
- * new TextDecoder().decode(base64url_to_bytes("YQ")); // "a"
- */
-function base64url_to_bytes(text) {
-    const binary = atob(text.replace(/-/g, '+').replace(/_/g, '/'));
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
-}
-/** DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`. */
-async function deflate_raw(bytes) {
-    const stream = new CompressionStream('deflate-raw');
-    const writer = stream.writable.getWriter();
-    void writer.write(bytes);
-    void writer.close();
-    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
-}
-/** Inverse of {@link deflate_raw}: inflate raw DEFLATE `bytes` back to plaintext bytes. */
-async function inflate_raw(bytes) {
-    const stream = new DecompressionStream('deflate-raw');
-    const writer = stream.writable.getWriter();
-    void writer.write(bytes);
-    void writer.close();
-    return new Uint8Array(await new Response(stream.readable).arrayBuffer());
-}
-/**
- * A shareable URL for the given FSL: the current page URL with the source
- * compressed into the hash as `#m=<scheme><payload>`. The payload is URL-safe
- * base64, so no characters need percent-escaping; `<scheme>` is a single digit
- * — `1` when DEFLATE made the source smaller, `0` for the raw bytes when it did
- * not — so a short machine's link is never longer than its uncompressed form.
- * Decode with {@link fsl_from_permalink}. Browser-only (uses `location` and the
- * platform compression streams), like the rest of the toolbar.
- *
- * @returns The absolute page URL carrying the encoded machine in its fragment.
- *
- * @example
- * await permalink_for("a -> b;");                            // "https://host/path#m=0YSAtPiBiOw"  (too short to gain from DEFLATE)
- * await permalink_for("Off -> On -> Off; On -> Idle -> Off;"); // "https://host/path#m=1809LU9C1U_DPA5NpadZQpmdKTipMCAA"
- *
- * @see fsl_from_permalink
- */
-export async function permalink_for(fsl) {
-    const utf8 = new TextEncoder().encode(fsl);
-    const raw = bytes_to_base64url(utf8);
-    const deflated = bytes_to_base64url(await deflate_raw(utf8));
-    const [scheme, payload] = deflated.length < raw.length ? ['1', deflated] : ['0', raw];
-    return `${location.href.split('#')[0]}#${PERMALINK_HASH_KEY}=${scheme}${payload}`;
-}
-/**
- * Recover the FSL source from a permalink produced by {@link permalink_for}:
- * read the `#m=<scheme><payload>` fragment, decode the URL-safe base64, and
- * inflate when `<scheme>` is `1`. Accepts a full URL or a bare fragment, with
- * or without the leading `#`.
- *
- * @returns The decoded FSL, or `null` when the input carries no `m=` permalink
- *          fragment.
- *
- * @example
- * await fsl_from_permalink("https://host/path#m=0YSAtPiBiOw"); // "a -> b;"
- * await fsl_from_permalink("#m=0YSAtPiBiOw");                  // "a -> b;"
- * await fsl_from_permalink("https://host/path");              // null
- *
- * @see permalink_for
- */
-export async function fsl_from_permalink(url) {
-    const fragment = url.slice(url.indexOf('#') + 1);
-    const match = new RegExp(`(?:^|&)${PERMALINK_HASH_KEY}=([01])([A-Za-z0-9_-]*)`).exec(fragment);
-    if (match === null) {
-        return null;
-    }
-    const [, scheme, payload] = match;
-    const bytes = base64url_to_bytes(payload);
-    const plain = scheme === '1' ? await inflate_raw(bytes) : bytes;
-    return new TextDecoder().decode(plain);
-}
+// The permalink codec lives in its own module (`fsl_permalink.ts`); re-export so
+// existing importers — and the 5.151 toolbar tests — keep resolving these here.
+export { permalink_for, fsl_from_permalink };
 /**
  * A paste-able HTML snippet that renders the given FSL from the CDN builds: an
  * `<fsl-instance>` reading its source from a `<script type="text/fsl">` child,
@@ -259,6 +164,7 @@ export class FslToolbar extends LitElement {
     /** Emit `fsl-export` with the chosen format's content + the active destination.
      *  The embedder performs the actual clipboard / file save. */
     async _export(format) {
+        var _a;
         const host = this._host;
         const destination = this._dest;
         this._openMenu = '';
@@ -276,7 +182,7 @@ export class FslToolbar extends LitElement {
             content = await machine_to_svg_string(host.machine);
         }
         else if (format === 'permalink') {
-            content = await permalink_for(host.fsl);
+            content = await permalink_for(host.fsl, (_a = permalink_key_for(host)) !== null && _a !== void 0 ? _a : undefined);
         }
         else if (format === 'embed') {
             content = embed_snippet_for(host.fsl);

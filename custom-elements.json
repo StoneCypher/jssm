@@ -435,6 +435,54 @@
           "description": "Parse a fenced-code info string like `fsl {teaches: x, run: true}`."
         },
         {
+          "kind": "variable",
+          "name": "FSL_KEYWORDS",
+          "default": "new Set([ 'state', 'start_state', 'end_state', 'active_state', 'terminal_state', 'hooked_state', 'transition', 'graph', 'on', 'enter', 'exit', 'do', 'arrange', 'arrange-start', 'arrange-end', 'machine_name', 'machine_author', 'machine_license', 'machine_version', 'machine_comment', 'fsl_version', 'flow', 'graph_layout', 'allow_islands', 'allows_override', 'required', 'true', 'false', 'null', 'undefined', ])",
+          "description": "Structural / attribute keywords highlighted in fsl code fences."
+        },
+        {
+          "kind": "variable",
+          "name": "FSL_COLOR_KEYS",
+          "default": "new Set([ 'color', 'text-color', 'background-color', 'border-color', 'edge-color', ])",
+          "description": "Attribute keys whose value is a color, mirroring the editor's `COLOR_KEYS`\r\n(language_service). The value token following one of these (plus its `:`) is\r\ntagged `color` and rendered with a swatch, matching the editor overlay."
+        },
+        {
+          "kind": "function",
+          "name": "tokenizeFsl",
+          "return": {
+            "type": {
+              "text": "FslToken[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "src",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Tokenize FSL source into `{cls, text}` runs for syntax highlighting. A pure,\r\nregex-driven scanner — never parses, so it cannot throw on malformed input.\r\n`cls` is null for uncategorized text (punctuation, identifiers, whitespace).\r\n\r\nBeyond the lexical classes it tracks one bit of structural context: an\r\nidentifier immediately before a `:` is retro-tagged `key` (an attribute key,\r\nunless it is already a `keyword`), and the value token after a color key's\r\ncolon — or any hex literal — is tagged `color`. The context never spans a\r\n`;`, so a value can't leak past its statement."
+        },
+        {
+          "kind": "function",
+          "name": "highlightFsl",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "src",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Highlight FSL source to an HTML string of `<span class=\"fsl-tok-…\">` runs.\r\nA `color` token is preceded by an inline `<span class=\"fsl-swatch\">` whose\r\nbackground is the literal color text (a CSS-valid named color or hex), giving\r\nthe docs the same swatch the editor overlay shows. Color text is a hex or\r\nidentifier run, so it is a safe `background:` value."
+        },
+        {
           "kind": "function",
           "name": "renderMarkdown",
           "return": {
@@ -459,6 +507,38 @@
           "name": "parseFenceInfo",
           "declaration": {
             "name": "parseFenceInfo",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FSL_KEYWORDS",
+          "declaration": {
+            "name": "FSL_KEYWORDS",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FSL_COLOR_KEYS",
+          "declaration": {
+            "name": "FSL_COLOR_KEYS",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "tokenizeFsl",
+          "declaration": {
+            "name": "tokenizeFsl",
+            "module": "src/ts/wc/fsl_docs_markdown.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "highlightFsl",
+          "declaration": {
+            "name": "highlightFsl",
             "module": "src/ts/wc/fsl_docs_markdown.ts"
           }
         },
@@ -2617,6 +2697,17 @@
             },
             {
               "kind": "method",
+              "name": "_permalinkSegmentPresent",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "True when this instance owns a URL permalink segment (keyed by its\r\n`uhash`/`id`) that a pending FslPermalinkSync restore will turn into\r\nits FSL source — so `connectedCallback` can defer the machine build to that\r\nrestore instead of throwing on an otherwise-absent source."
+            },
+            {
+              "kind": "method",
               "name": "_install_jssm_on_children",
               "privacy": "private",
               "return": {
@@ -2947,6 +3038,501 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_permalink.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "DEFAULT_PERMALINK_KEY",
+          "type": {
+            "text": "string"
+          },
+          "default": "'m'",
+          "description": "Default fragment key for the single-machine case (back-compat with 5.150)."
+        },
+        {
+          "kind": "function",
+          "name": "bytes_to_base64url",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "bytes",
+              "type": {
+                "text": "Uint8Array"
+              }
+            }
+          ],
+          "description": "URL-safe base64 (RFC 4648 §5) of raw bytes: standard base64 with `+`→`-`,\n`/`→`_`, and trailing `=` padding stripped."
+        },
+        {
+          "kind": "function",
+          "name": "base64url_to_bytes",
+          "return": {
+            "type": {
+              "text": "Uint8Array"
+            }
+          },
+          "parameters": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Inverse of bytes_to_base64url."
+        },
+        {
+          "kind": "function",
+          "name": "deflate_raw",
+          "return": {
+            "type": {
+              "text": "Promise<Uint8Array>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "bytes",
+              "type": {
+                "text": "Uint8Array"
+              }
+            }
+          ],
+          "description": "DEFLATE `bytes` (raw, headerless) via the platform `CompressionStream`."
+        },
+        {
+          "kind": "function",
+          "name": "inflate_raw",
+          "return": {
+            "type": {
+              "text": "Promise<Uint8Array>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "bytes",
+              "type": {
+                "text": "Uint8Array"
+              }
+            }
+          ],
+          "description": "Inverse of deflate_raw."
+        },
+        {
+          "kind": "function",
+          "name": "encode_machine",
+          "return": {
+            "type": {
+              "text": "Promise<string>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Encode FSL to a `<scheme><payload>` segment value (the part after `key=`).\nDEFLATE is used (scheme `1`) only when it is strictly shorter than the raw\nbytes (scheme `0`)."
+        },
+        {
+          "kind": "function",
+          "name": "decode_machine",
+          "return": {
+            "type": {
+              "text": "Promise<string>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "segment",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Inverse of encode_machine: decode a `<scheme><payload>` segment back\nto FSL. Async because inflate is async."
+        },
+        {
+          "kind": "function",
+          "name": "read_fragment_param",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "hash",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Read one segment's value out of a `#a=…&b=…` fragment."
+        },
+        {
+          "kind": "function",
+          "name": "set_fragment_param",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "hash",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Return a new fragment body (no leading `#`) with `key`'s segment set to\n`value`, preserving every other segment and its order; appends if absent."
+        },
+        {
+          "kind": "function",
+          "name": "permalink_key_for",
+          "return": {
+            "type": {
+              "text": "string | null"
+            }
+          },
+          "parameters": [
+            {
+              "name": "host",
+              "type": {
+                "text": "HTMLElement"
+              }
+            }
+          ],
+          "description": "The fragment key an element owns: its `uhash` attribute if set, else its\n`id`, else `null` (does not participate in URL sync). The single source of\nthis rule, shared by the toolbar export and the sync controller."
+        },
+        {
+          "kind": "function",
+          "name": "permalink_for",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "fsl",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "default": "DEFAULT_PERMALINK_KEY",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "href",
+              "default": "location.href",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "currentHash",
+              "default": "location.hash",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "A shareable URL for `fsl` under `key`, merging into `currentHash` so sibling\nmachines' segments survive. Browser-defaulted (`location`) but injectable for\ntests."
+        },
+        {
+          "kind": "function",
+          "name": "fsl_from_permalink",
+          "return": {
+            "type": {
+              "text": ""
+            }
+          },
+          "parameters": [
+            {
+              "name": "url",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "key",
+              "default": "DEFAULT_PERMALINK_KEY",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "Recover the FSL for `key` from a permalink URL (or bare fragment)."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DEFAULT_PERMALINK_KEY",
+          "declaration": {
+            "name": "DEFAULT_PERMALINK_KEY",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "bytes_to_base64url",
+          "declaration": {
+            "name": "bytes_to_base64url",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "base64url_to_bytes",
+          "declaration": {
+            "name": "base64url_to_bytes",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "deflate_raw",
+          "declaration": {
+            "name": "deflate_raw",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "inflate_raw",
+          "declaration": {
+            "name": "inflate_raw",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "encode_machine",
+          "declaration": {
+            "name": "encode_machine",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "decode_machine",
+          "declaration": {
+            "name": "decode_machine",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "read_fragment_param",
+          "declaration": {
+            "name": "read_fragment_param",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "set_fragment_param",
+          "declaration": {
+            "name": "set_fragment_param",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "permalink_key_for",
+          "declaration": {
+            "name": "permalink_key_for",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "permalink_for",
+          "declaration": {
+            "name": "permalink_for",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "fsl_from_permalink",
+          "declaration": {
+            "name": "fsl_from_permalink",
+            "module": "src/ts/wc/fsl_permalink.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/ts/wc/fsl_permalink_sync.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "PERMALINK_WRITE_DEBOUNCE_MS",
+          "type": {
+            "text": "number"
+          },
+          "default": "300",
+          "description": "Debounce before a live edit is written to the URL fragment."
+        },
+        {
+          "kind": "class",
+          "description": "Binds an `<fsl-instance>` to a segment of the URL fragment: restores from it\non connect and writes back (debounced, via `history.replaceState`) whenever\nthe machine is rebuilt. Inert when the host has no key (permalink_key_for\nreturns `null`), so an `fsl-instance` without an `id`/`uhash` never touches\n`location`.\n\nEcho guard: `_last` holds the segment most recently read or written, so a\nrestore→rebuild→write cycle and a self-induced `hashchange` are both no-ops.",
+          "name": "FslPermalinkSync",
+          "members": [
+            {
+              "kind": "field",
+              "name": "host",
+              "type": {
+                "text": "SyncHost"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "host"
+            },
+            {
+              "kind": "field",
+              "name": "key",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_last",
+              "type": {
+                "text": "string | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "_timer",
+              "type": {
+                "text": "ReturnType<typeof setTimeout> | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_onRebuilt",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "_onHashChange",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_restore",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "description": "Read our segment and, if new, push it into the host (overriding declared source)."
+            },
+            {
+              "kind": "method",
+              "name": "_scheduleWrite",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "_write",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "description": "Encode the current source and merge it into the fragment, history-silently."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "PERMALINK_WRITE_DEBOUNCE_MS",
+          "declaration": {
+            "name": "PERMALINK_WRITE_DEBOUNCE_MS",
+            "module": "src/ts/wc/fsl_permalink_sync.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "FslPermalinkSync",
+          "declaration": {
+            "name": "FslPermalinkSync",
+            "module": "src/ts/wc/fsl_permalink_sync.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/ts/wc/fsl_simulation_wc.ts",
       "declarations": [
         {
@@ -3240,42 +3826,6 @@
       "kind": "javascript-module",
       "path": "src/ts/wc/fsl_toolbar_wc.ts",
       "declarations": [
-        {
-          "kind": "function",
-          "name": "permalink_for",
-          "return": {
-            "type": {
-              "text": ""
-            }
-          },
-          "parameters": [
-            {
-              "name": "fsl",
-              "type": {
-                "text": "string"
-              }
-            }
-          ],
-          "description": "A shareable URL for the given FSL: the current page URL with the source\r\ncompressed into the hash as `#m=<scheme><payload>`. The payload is URL-safe\r\nbase64, so no characters need percent-escaping; `<scheme>` is a single digit\r\n— `1` when DEFLATE made the source smaller, `0` for the raw bytes when it did\r\nnot — so a short machine's link is never longer than its uncompressed form.\r\nDecode with fsl_from_permalink. Browser-only (uses `location` and the\r\nplatform compression streams), like the rest of the toolbar."
-        },
-        {
-          "kind": "function",
-          "name": "fsl_from_permalink",
-          "return": {
-            "type": {
-              "text": ""
-            }
-          },
-          "parameters": [
-            {
-              "name": "url",
-              "type": {
-                "text": "string"
-              }
-            }
-          ],
-          "description": "Recover the FSL source from a permalink produced by permalink_for:\r\nread the `#m=<scheme><payload>` fragment, decode the URL-safe base64, and\r\ninflate when `<scheme>` is `1`. Accepts a full URL or a bare fragment, with\r\nor without the leading `#`."
-        },
         {
           "kind": "function",
           "name": "embed_snippet_for",

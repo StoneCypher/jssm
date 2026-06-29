@@ -8,6 +8,8 @@ import {
   wrap_user_handler,
 } from './fsl_hook_wc.js';
 import { closest_wc } from './wc_tag_helpers.js';
+import { FslPermalinkSync } from './fsl_permalink_sync.js';
+import { permalink_key_for, read_fragment_param } from './fsl_permalink.js';
 import {
   BUILTIN_THEMES, resolve_theme_mode, resolve_palette, palette_to_vars,
   register_palette_properties, type ThemeMode, type ThemeRegistry,
@@ -392,6 +394,13 @@ export function split_ratio(coord: number, start: number, size: number): number 
  * @slot footer - Footer slot.
  */
 export class FslInstance extends LitElement {
+
+  /** Bind this instance to a URL-fragment segment keyed by its `uhash`/`id`
+   *  (inert if it has neither): restore on connect, write debounced on edit. */
+  constructor() {
+    super();
+    new FslPermalinkSync(this);
+  }
 
   static styles = css`
     :host {
@@ -902,38 +911,53 @@ export class FslInstance extends LitElement {
 
     // Step 1: resolve FSL source.
     const resolved = resolve_fsl_source(this, this.fsl);
-    if (resolved.error !== undefined) {
+
+    // A permalink-only instance has no declared source, but its own URL segment
+    // will supply one asynchronously: FslPermalinkSync (attached in the
+    // constructor) restores `fsl` just after connect, which rebuilds the machine
+    // via willUpdate -> _rebuild_machine. Defer to that instead of throwing;
+    // render() shows the placeholder until the restore lands.
+    const deferToPermalink = resolved.provided_count === 0 && this._permalinkSegmentPresent();
+
+    if (resolved.error !== undefined && !deferToPermalink) {
       throw new Error(`fsl-instance: ${resolved.error}`);
     }
 
-    // Step 2: construct the machine.
-    // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
-    const fsl_source = resolved.fsl as string;
-    this._machine = this._build_machine(fsl_source);
-    this._applyEditorConfig();
+    // Steps 2-4 + machine-scoped wiring: only when a source is available now. In
+    // the deferred case these run later, from _rebuild_machine, once the restore
+    // sets `fsl`.
+    if (!deferToPermalink) {
+      // Step 2: construct the machine.
+      // (The resolver guarantees `fsl` is a non-empty string when error is undefined.)
+      const fsl_source = resolved.fsl as string;
+      this._machine = this._build_machine(fsl_source);
+      this._applyEditorConfig();
 
-    // Step 3: paint initial host attributes + CSS custom properties.
-    this._paint_state_reflection();
+      // Step 3: paint initial host attributes + CSS custom properties.
+      this._paint_state_reflection();
 
-    // Step 4: shadow DOM render is automatic via Lit; requesting an update
-    // here ensures the first paint sees the freshly painted attributes.
-    this.requestUpdate();
+      // Step 4: shadow DOM render is automatic via Lit; requesting an update
+      // here ensures the first paint sees the freshly painted attributes.
+      this.requestUpdate();
 
-    // #639 mechanism 4: subscribe to library events and re-emit them as
-    // DOM CustomEvents from this host (#638 supplies the event API).
-    this._install_event_reemission();
+      // #639 mechanism 4: subscribe to library events and re-emit them as
+      // DOM CustomEvents from this host (#638 supplies the event API).
+      this._install_event_reemission();
 
-    // #641: <jssm-hook> declarative discovery.
-    this._install_declarative_hooks();
+      // #641: <jssm-hook> declarative discovery.
+      this._install_declarative_hooks();
 
-    // #643: <jssm-on> declarative event observation.
-    this._install_jssm_on_children();
+      // #643: <jssm-on> declarative event observation.
+      this._install_jssm_on_children();
 
-    // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
-    // install live machine-to-DOM projections.
-    this._unsubs.push(...install_bindings(this, this._machine));
+      // #645: discover <jssm-bind> tags and `data-jssm-bind` descendants,
+      // install live machine-to-DOM projections.
+      this._unsubs.push(...install_bindings(this, this._machine));
+    }
 
-    // #640: <jssm-action> DOM event → machine action wiring.
+    // #640: <jssm-action> DOM event -> machine action wiring. The listeners read
+    // `this.machine` live on event, so discovery is correct even before a
+    // deferred build completes.
     this._discover_jssm_actions();
 
     // Theme: register the palette tokens as animatable colors (once, globally, so
@@ -945,6 +969,17 @@ export class FslInstance extends LitElement {
       this._mql.addEventListener('change', this._on_os_theme_change);
     }
     this._applyTheme();
+  }
+
+  /**
+   * True when this instance owns a URL permalink segment (keyed by its
+   * `uhash`/`id`) that a pending {@link FslPermalinkSync} restore will turn into
+   * its FSL source — so `connectedCallback` can defer the machine build to that
+   * restore instead of throwing on an otherwise-absent source.
+   */
+  private _permalinkSegmentPresent(): boolean {
+    const key = permalink_key_for(this);
+    return key !== null && read_fragment_param(location.hash, key) !== null;
   }
 
   /**
@@ -1311,6 +1346,10 @@ export class FslInstance extends LitElement {
   }): void {
 
     const handler: EventListener = (e: Event) => {
+      // A permalink-only instance wires its actions at connect but builds its
+      // machine asynchronously (deferred restore). An event in that window is a
+      // no-op rather than a throw via the `machine` getter.
+      if (this._machine === undefined) { return; }
       if (config.prevent_default)  { e.preventDefault(); }
       if (config.stop_propagation) { e.stopPropagation(); }
 

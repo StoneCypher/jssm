@@ -1547,10 +1547,10 @@ class Machine<mDT> {
    *    [Red Yellow Green] ~> [Off FlashingRed];
    *    FlashingRed -> Red;
    *
-   *    state Red:         { property stop_first true;  property can_go false; };
-   *    state Off:         { property stop_first true;  };
-   *    state FlashingRed: { property stop_first true;  };
-   *    state Green:       { property hesitate   false; };
+   *    state Red:         { property: stop_first true;  property: can_go false; };
+   *    state Off:         { property: stop_first true;  };
+   *    state FlashingRed: { property: stop_first true;  };
+   *    state Green:       { property: hesitate   false; };
    *
    *  `;
    *
