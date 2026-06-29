@@ -7,6 +7,24 @@ import { closest_wc } from './wc_tag_helpers.js';
 import { reorder_svg_layers } from './svg_layers.js';
 
 /**
+ * Styling options for {@link FslViz.highlightTrace}.
+ *
+ * @property color      Stroke/fill colour applied to the highlighted nodes
+ *                      and edges. Any CSS colour string; defaults to a
+ *                      distinct crimson (`#b71c1c`) when omitted.
+ * @property fadeOthers When `true` (the default), every node and edge *not*
+ *                      on the trace is dimmed to `opacity: 0.2` so the trace
+ *                      stands out. Set `false` to highlight the trace without
+ *                      fading the rest of the graph.
+ *
+ * @see FslViz.highlightTrace
+ */
+export interface HighlightOptions {
+  color?: string;
+  fadeOthers?: boolean;
+}
+
+/**
  * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
  * creating a hard import cycle from the viz module into the instance module.
  *
@@ -100,6 +118,21 @@ export class FslViz extends LitElement {
          the 90% box centered in the flex container yields the 5% inset. */
       width: 90%;
       height: 90%;
+    }
+
+    /* Smoothly animate the inline style overrides applied by highlightTrace()
+       so a trace fades in/out rather than snapping. */
+    .container svg g.node path,
+    .container svg g.node polygon,
+    .container svg g.node ellipse,
+    .container svg g.edge path,
+    .container svg g.edge polygon {
+      transition: fill 0.3s ease, stroke 0.3s ease, opacity 0.3s ease;
+    }
+
+    .container svg g.node text,
+    .container svg g.edge text {
+      transition: fill 0.3s ease, opacity 0.3s ease;
     }
   `;
 
@@ -318,6 +351,129 @@ export class FslViz extends LitElement {
    */
   render(): TemplateResult {
     return html`<div class="container">${unsafeHTML(this._svg)}</div>`;
+  }
+
+  /**
+   * Clears any active programmatic highlights from the rendered SVG,
+   * restoring every node and edge to its default Graphviz presentation.
+   *
+   * Removes only the inline `fill` / `stroke` / `opacity` overrides that
+   * {@link highlightTrace} installs; the SVG's own presentation attributes
+   * are untouched. Safe to call when nothing is highlighted, before the
+   * first render, or while detached — it no-ops if there is no rendered
+   * SVG to clear.
+   *
+   * ```typescript
+   * const viz = document.querySelector('fsl-viz');
+   * viz.highlightTrace(['a', 'b']);
+   * viz.clearHighlights();   // back to the default rendering
+   * ```
+   *
+   * @see highlightTrace
+   */
+  public clearHighlights(): void {
+    if (!this.shadowRoot) { return; }
+    const container = this.shadowRoot.querySelector('.container');
+    if (!container) { return; }
+
+    // Remove the inline styles that override the SVG presentation attributes.
+    const elements = container.querySelectorAll('.node, .edge, .node *, .edge *');
+    elements.forEach(el => {
+      (el as SVGElement).style.removeProperty('fill');
+      (el as SVGElement).style.removeProperty('stroke');
+      (el as SVGElement).style.removeProperty('opacity');
+    });
+  }
+
+  /**
+   * Programmatically highlights one execution trace (a path of state names)
+   * through the rendered graph, optionally fading everything off the path.
+   *
+   * Matches nodes by their Graphviz `<title>` (the state name) and edges by
+   * the `from->to` title Graphviz emits, applying inline style overrides so
+   * the highlight composes over — and is reversible against — the default
+   * rendering (see {@link clearHighlights}, which this calls first). No-ops
+   * when detached, before the first render, or given an empty trace.
+   *
+   * ```typescript
+   * // Highlight a -> b -> c in green, without dimming the rest:
+   * viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
+   * ```
+   *
+   * @param trace   Ordered state names describing the path (e.g.
+   *                `['A', 'B', 'C']`). Consecutive pairs select the edges
+   *                `A->B` and `B->C`. An empty array is a no-op.
+   * @param options Highlight styling; see {@link HighlightOptions}. Defaults
+   *                to crimson with off-trace fading enabled.
+   *
+   * @see clearHighlights
+   * @see HighlightOptions
+   */
+  public highlightTrace(trace: string[], options: HighlightOptions = {}): void {
+    if (!this.shadowRoot) { return; }
+    const container = this.shadowRoot.querySelector('.container');
+    if (!container || trace.length === 0) { return; }
+
+    this.clearHighlights();
+
+    const color      = options.color || '#b71c1c';        // default: a distinct crimson
+    const fadeOthers = options.fadeOthers !== false;       // default: true
+
+    const targetNodes = new Set<string>();
+    const targetEdges = new Set<string>();
+
+    for (let i = 0; i < trace.length; i++) {
+      targetNodes.add(trace[i]);
+      if (i < trace.length - 1) {
+        targetEdges.add(`${trace[i]}->${trace[i + 1]}`);
+      }
+    }
+
+    const allNodes = container.querySelectorAll('.node');
+    const allEdges = container.querySelectorAll('.edge');
+
+    // Graphviz escapes '->' inside <title> as '&#45;&gt;'; DOM textContent
+    // usually decodes it, but normalize defensively (and drop quotes).
+    const unescapeTitle = (title: string): string =>
+      title.replace(/&#45;/g, '-').replace(/&gt;/g, '>').replace(/"/g, '');
+
+    allNodes.forEach(node => {
+      const titleEl = node.querySelector('title');
+      const title   = titleEl ? unescapeTitle(titleEl.textContent || '') : '';
+
+      if (targetNodes.has(title)) {
+        node.querySelectorAll('polygon, ellipse, path').forEach(shape => {
+          (shape as SVGElement).style.stroke      = color;
+          (shape as SVGElement).style.strokeWidth = '2px';
+        });
+        node.querySelectorAll('text').forEach(text => {
+          (text as SVGElement).style.fill = color;
+        });
+      } else if (fadeOthers) {
+        (node as SVGElement).style.opacity = '0.2';
+      }
+    });
+
+    allEdges.forEach(edge => {
+      const titleEl = edge.querySelector('title');
+      const title   = titleEl ? unescapeTitle(titleEl.textContent || '') : '';
+
+      if (targetEdges.has(title)) {
+        // Recolour the edge line and its arrowhead. The edge's action label
+        // is intentionally left alone: reorder_svg_layers() hoists every edge
+        // <text> out of its group onto a top paint layer (so labels can't be
+        // overdrawn), where it carries no <title> to correlate back to this
+        // edge — so a state-name trace cannot reliably re-style it.
+        edge.querySelectorAll('path, polygon').forEach(shape => {
+          (shape as SVGElement).style.stroke = color;
+          if (shape.tagName.toLowerCase() === 'polygon') {
+            (shape as SVGElement).style.fill = color;   // arrowheads
+          }
+        });
+      } else if (fadeOthers) {
+        (edge as SVGElement).style.opacity = '0.2';
+      }
+    });
   }
 
 }

@@ -1,6 +1,23 @@
 import { LitElement, TemplateResult, PropertyValues } from 'lit';
 import type { Machine } from '../jssm.js';
 /**
+ * Styling options for {@link FslViz.highlightTrace}.
+ *
+ * @property color      Stroke/fill colour applied to the highlighted nodes
+ *                      and edges. Any CSS colour string; defaults to a
+ *                      distinct crimson (`#b71c1c`) when omitted.
+ * @property fadeOthers When `true` (the default), every node and edge *not*
+ *                      on the trace is dimmed to `opacity: 0.2` so the trace
+ *                      stands out. Set `false` to highlight the trace without
+ *                      fading the rest of the graph.
+ *
+ * @see FslViz.highlightTrace
+ */
+export interface HighlightOptions {
+    color?: string;
+    fadeOthers?: boolean;
+}
+/**
  * Structural shape used to detect a parent `<fsl-instance>` (or `<jssm-instance>`) host without
  * creating a hard import cycle from the viz module into the instance module.
  *
@@ -144,6 +161,50 @@ export declare class FslViz extends LitElement {
      * @returns A Lit `TemplateResult` wrapping the SVG in a `.container` div.
      */
     render(): TemplateResult;
+    /**
+     * Clears any active programmatic highlights from the rendered SVG,
+     * restoring every node and edge to its default Graphviz presentation.
+     *
+     * Removes only the inline `fill` / `stroke` / `opacity` overrides that
+     * {@link highlightTrace} installs; the SVG's own presentation attributes
+     * are untouched. Safe to call when nothing is highlighted, before the
+     * first render, or while detached — it no-ops if there is no rendered
+     * SVG to clear.
+     *
+     * ```typescript
+     * const viz = document.querySelector('fsl-viz');
+     * viz.highlightTrace(['a', 'b']);
+     * viz.clearHighlights();   // back to the default rendering
+     * ```
+     *
+     * @see highlightTrace
+     */
+    clearHighlights(): void;
+    /**
+     * Programmatically highlights one execution trace (a path of state names)
+     * through the rendered graph, optionally fading everything off the path.
+     *
+     * Matches nodes by their Graphviz `<title>` (the state name) and edges by
+     * the `from->to` title Graphviz emits, applying inline style overrides so
+     * the highlight composes over — and is reversible against — the default
+     * rendering (see {@link clearHighlights}, which this calls first). No-ops
+     * when detached, before the first render, or given an empty trace.
+     *
+     * ```typescript
+     * // Highlight a -> b -> c in green, without dimming the rest:
+     * viz.highlightTrace(['a', 'b', 'c'], { color: '#2e7d32', fadeOthers: false });
+     * ```
+     *
+     * @param trace   Ordered state names describing the path (e.g.
+     *                `['A', 'B', 'C']`). Consecutive pairs select the edges
+     *                `A->B` and `B->C`. An empty array is a no-op.
+     * @param options Highlight styling; see {@link HighlightOptions}. Defaults
+     *                to crimson with off-trace fading enabled.
+     *
+     * @see clearHighlights
+     * @see HighlightOptions
+     */
+    highlightTrace(trace: string[], options?: HighlightOptions): void;
 }
 declare global {
     interface HTMLElementTagNameMap {
