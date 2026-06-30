@@ -1362,7 +1362,7 @@ function compile<StateType, mDT>(tree: JssmParseTree<StateType, mDT>): JssmGener
     resolve_transition_conflicts(results['transition']);
 
   const result_cfg: JssmGenericConfig<StateType, mDT> = {
-    start_states   : results.start_states.length ? results.start_states : [assembled_transitions[0].from],
+    start_states   : results.start_states.length ? results.start_states : (assembled_transitions.length ? [assembled_transitions[0].from] : []),
     end_states     : results.end_states,
     failed_outputs : results.failed_outputs,
     transitions    : assembled_transitions,

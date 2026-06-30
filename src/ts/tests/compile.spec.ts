@@ -46,6 +46,13 @@ describe('compile/1', () => {
     }).not.toThrow() );
   });
 
+  describe('state Off : {};', () => {
+    const state_only_str = `state Off : {};`;
+    test('doesn\'t throw', () => expect( () => {
+      jssm.compile(jssm.parse(state_only_str));
+    }).not.toThrow() );
+  });
+
   describe('direct make callpoint', () => {
     const match = { start_states: [ 'a' ], end_states: [], failed_outputs: [], transitions: [ { from: 'a', to: 'b', kind: 'legal', after_time: undefined, forced_only: false, main_path: false } ], state_property: [] };
     test('direct match', () => {
