@@ -4656,16 +4656,15 @@ class Machine<mDT> {
       const edgeId = (to_id === undefined) ? undefined : this._edge_id_by_pair.get(pair_key(this._state_id, to_id));
       if ((edgeId !== undefined) && (!(this._edges[edgeId].forced_only))) {
         if (this._has_transition_hooks || this._has_post_transition_hooks) {
-          // first matching outbound edge's kind, without building the result
-          // array edges_between allocated here on every hooked transition.
-          // First-match semantics are kept deliberately: _edge_map is
-          // last-wins for multi-edge (from, to) pairs, so lookup_transition_for
-          // could disagree with the old edges_between(...)[0].  #735
-          // TODO this won't do the right thing if various edges have different types
-          for (const ob_eid of this._outbound_edge_ids.get(this._state)) {
-            const ob_edge = this._edges[ob_eid];
-            if (ob_edge.to === newStateOrAction) { trans_type = ob_edge.kind; break; }
-          }
+          // kind of the dispatched edge.  _edge_id_by_pair and _edge_map are
+          // both first-declared-wins for parallel (from, to) pairs (see the
+          // constructor around _edge_map / _edge_id_by_pair), and
+          // _outbound_edge_ids fills in declaration order — so the old
+          // first-match outbound scan always resolved to this same edgeId.
+          // Direct read replaces the O(out-degree) object-deref scan; the
+          // first-declared-kind semantics are pinned by the parallel-edge
+          // transition-kind hook spec.  #735
+          trans_type = this._edges[edgeId].kind;
         }
         valid      = true;
         newState   = newStateOrAction;
