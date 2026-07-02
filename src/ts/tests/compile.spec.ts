@@ -1,7 +1,8 @@
 
 /* eslint-disable max-len */
 
-import * as jssm from '../jssm';
+import * as jssm     from '../jssm';
+import { JssmError } from '../jssm_error';
 
 const sm = jssm.sm;
 
@@ -44,6 +45,32 @@ describe('compile/1', () => {
     test('doesn\'t throw', () => expect( () => {
       jssm.compile(jssm.parse(all_arrows));
     }).not.toThrow() );
+  });
+
+  // A transition-free document (natural while authoring states-first) must
+  // fail with a deliberate, readable JssmError — not the internal TypeError
+  // it used to crash with — because the editor's lint surfaces this message
+  // verbatim on every keystroke.  A machine with no transitions cannot be
+  // constructed, so compile is the right place to say so clearly.
+  describe('transition-free machines', () => {
+
+    describe('state Off : {};', () => {
+      const state_only_str = `state Off : {};`;
+      test('throws JssmError', () => expect( () => {
+        jssm.compile(jssm.parse(state_only_str));
+      }).toThrow(JssmError) );
+      test('names the problem', () => expect( () => {
+        jssm.compile(jssm.parse(state_only_str));
+      }).toThrow(/no transitions/) );
+    });
+
+    describe('several state blocks, still no transitions', () => {
+      const blocks_only_str = `state Off : {}; state On : {};`;
+      test('throws JssmError', () => expect( () => {
+        jssm.compile(jssm.parse(blocks_only_str));
+      }).toThrow(JssmError) );
+    });
+
   });
 
   describe('direct make callpoint', () => {

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>fsl-editor tile-crash regression fixture (#891)</title>
+
+    <!--
+      Regression fixture for jssm #891: the CodeMirror tile-renderer crash.
+
+      Loads the REAL built <fsl-editor> (committed dist/wc/editor.define.js).
+      That bundle keeps CodeMirror / Lezer / lit / jssm external, so this
+      import map decides which CodeMirror actually runs: it points every bare
+      specifier at /node_modules — i.e. whatever version npm installed from
+      the lockfile. The e2e harness must therefore serve the REPO ROOT
+      (see the `e2e` npm script's --serve-dir).
+    -->
+    <script type="importmap">
+    {
+      "imports": {
+        "jssm":                     "/dist/jssm.es6.mjs",
+        "jssm/cm6":                 "/dist/cm6/fsl_language.js",
+        "@codemirror/view":         "/node_modules/@codemirror/view/dist/index.js",
+        "@codemirror/state":        "/node_modules/@codemirror/state/dist/index.js",
+        "@codemirror/language":     "/node_modules/@codemirror/language/dist/index.js",
+        "@codemirror/commands":     "/node_modules/@codemirror/commands/dist/index.js",
+        "@codemirror/autocomplete": "/node_modules/@codemirror/autocomplete/dist/index.js",
+        "@codemirror/lint":         "/node_modules/@codemirror/lint/dist/index.js",
+        "@lezer/common":            "/node_modules/@lezer/common/dist/index.js",
+        "@lezer/highlight":         "/node_modules/@lezer/highlight/dist/index.js",
+        "@lezer/lr":                "/node_modules/@lezer/lr/dist/index.js",
+        "@marijn/find-cluster-break": "/node_modules/@marijn/find-cluster-break/src/index.js",
+        "style-mod":                "/node_modules/style-mod/src/style-mod.js",
+        "w3c-keyname":              "/node_modules/w3c-keyname/index.js",
+        "crelt":                    "/node_modules/crelt/index.js",
+        "lit":                      "/node_modules/lit/index.js",
+        "lit/":                     "/node_modules/lit/",
+        "lit-html":                 "/node_modules/lit-html/lit-html.js",
+        "lit-html/":                "/node_modules/lit-html/",
+        "lit-element/":             "/node_modules/lit-element/",
+        "@lit/reactive-element":    "/node_modules/@lit/reactive-element/reactive-element.js",
+        "@lit/reactive-element/":   "/node_modules/@lit/reactive-element/"
+      }
+    }
+    </script>
+
+    <style>
+      body       { margin: 1em; }
+      fsl-editor { display: block; width: 60em; }
+    </style>
+  </head>
+
+  <body>
+
+    <fsl-editor id="ed"></fsl-editor>
+
+    <script type="module">
+
+      import '/dist/wc/editor.define.js';
+
+      // A NORMALIZED (no trailing spaces) rendering of the #891 triggering
+      // document. The spec then REPLACES this wholesale with the verbatim
+      // report text (trailing spaces intact) via the `fsl` property — that
+      // full-document replace dispatch rebuilds the tile tree and is a
+      // measured enhancer of the reproduction rate, so the seed here must
+      // DIFFER from the spec's injected text or the component's echo guard
+      // turns the replace into a no-op. See tile_crash.spec.ts.
+      const TRIGGER_FSL = `state Red_All : {
+  label: "\u{1F534}\u{1F534} Red All Reset (RAE)";
+  property: n_color "red";
+  property: e_color "red";
+  property: s_color "red";
+  property: w_color "red";
+};
+
+state Green_Arrow_North: {
+  label: "\u{1F7E2}\u{1F534} Green North With Arrow, Red East";
+  property: n_color "green_arrow";
+  property: e_color "red";
+  property: s_color "green_arrow";
+  property: w_color "red";
+};
+
+state Green_North: {
+  label: "\u{1F7E2}\u{1F534} Green North, Red East";
+  property: n_color "green";
+  property: e_color "red";
+  property: s_color "green";
+  property: w_color "red";
+};
+`;
+
+      await customElements.whenDefined('fsl-editor');
+
+      const ed = document.getElementById('ed');
+      ed.fsl   = TRIGGER_FSL;
+
+      await ed.updateComplete;
+
+      // Let fonts (incl. emoji) and CodeMirror's async measure pass settle
+      // before the spec starts dispatching real mouse geometry.
+      await document.fonts.ready;
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+      // Signal the spec that the editor is mounted and seeded.
+      window.__fixture_ready = true;
+
+    </script>
+
+  </body>
+</html>
