@@ -661,6 +661,13 @@ function resolve_group_refs(tree, registry) {
                 resolved.push(Object.assign(Object.assign({}, node), { from: member, __decl_id: this_decl, __source_group: group_name, __specificity: membership_distance(registry, member, group_name) }));
             });
         }
+        else if (registry.size === 0) {
+            // No groups declared anywhere: the decl tag is only ever read by group
+            // conflict arbitration, which cannot trigger, so skip the per-statement
+            // node copy — a full shallow spread of every transition parse node
+            // (5,000 copies on messy-5000) purely to carry an unread tag.
+            resolved.push(node);
+        }
         else {
             resolved.push(Object.assign(Object.assign({}, node), { __decl_id: this_decl }));
         }
