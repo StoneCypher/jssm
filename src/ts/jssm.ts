@@ -2569,12 +2569,19 @@ class Machine<mDT> {
     const legal_exits          : Array<JssmTransition<StateType, mDT>> = [],
           probability_bearing  : Array<JssmTransition<StateType, mDT>> = [];
 
+    // hoisted: every exit shares whichState, so probe _edge_map for the
+    // from-side once instead of re-hashing the same key per exit inside
+    // lookup_transition_for.  wstate.to is non-empty only when at least one
+    // outbound edge exists, and every outbound edge creates the from-side
+    // mapping at construction — so emg is defined whenever the loop runs.
+    const emg: Map<StateType, number> = this._edge_map.get(whichState);
+
     for (const ws of wstate.to) {
 
-      // wstate.to is built from the same edge set lookup_transition_for
-      // resolves against, so the lookup cannot miss; the guard mirrors the
-      // old defensive .filter(Boolean) and is equally unreachable.
-      const edge: JssmTransition<StateType, mDT> = this.lookup_transition_for(whichState, ws);
+      // wstate.to is built from the same edge set _edge_map indexes, so the
+      // per-target get cannot miss; the guard mirrors the old defensive
+      // .filter(Boolean) and is equally unreachable.
+      const edge: JssmTransition<StateType, mDT> = this._edges[ emg.get(ws) ];
       /* v8 ignore next */
       if (!edge) { continue; }
 
