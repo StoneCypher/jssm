@@ -141,3 +141,70 @@ function median_cut(
   return { palette, palette_count: boxes.length, indices };
 
 }
+
+/**
+ *  GIF-variant LZW compression: emits a leading clear code, grows code width
+ *  from `min_code_size + 1` up to the format's 12-bit ceiling, resets the
+ *  dictionary when full, terminates with EOI, and packs codes LSB-first.
+ *  Returns raw compressed bytes; the caller wraps them in GIF data sub-blocks.
+ *
+ *  @param indices - Palette indices, each `< 2^min_code_size`.
+ *  @param min_code_size - Bits needed for the palette (2..8 for GIF).
+ *
+ *  @example
+ *  lzw_encode(new Uint8Array([0, 0, 1]), 2);  // Uint8Array of packed codes
+ */
+export function lzw_encode(indices: Uint8Array, min_code_size: number): Uint8Array {
+
+  const clear = 1 << min_code_size;
+  const eoi   = clear + 1;
+
+  let next_code = eoi + 1;
+  let code_size = min_code_size + 1;
+  // dictionary key: (prefix_code << 8) | next_byte — prefix < 4096, byte < 256
+  let dict = new Map<number, number>();
+
+  const bytes: number[] = [];
+  let bit_acc = 0, bit_count = 0;
+  const emit = (code: number): void => {
+    bit_acc |= code << bit_count;
+    bit_count += code_size;
+    while (bit_count >= 8) {
+      bytes.push(bit_acc & 0xff);
+      bit_acc >>= 8;
+      bit_count -= 8;
+    }
+  };
+
+  emit(clear);
+
+  let prefix = indices[0]!;
+  for (let i = 1; i < indices.length; ++i) {
+    const k   = indices[i]!;
+    const key = (prefix << 8) | k;
+    const hit = dict.get(key);
+    if (hit !== undefined) {
+      prefix = hit;
+      continue;
+    }
+    emit(prefix);
+    if (next_code < 4096) {
+      dict.set(key, next_code);
+      next_code += 1;
+      if (next_code - 1 === (1 << code_size) && code_size < 12) { code_size += 1; }
+    } else {
+      emit(clear);
+      dict = new Map<number, number>();
+      next_code = eoi + 1;
+      code_size = min_code_size + 1;
+    }
+    prefix = k;
+  }
+
+  emit(prefix);
+  emit(eoi);
+  if (bit_count > 0) { bytes.push(bit_acc & 0xff); }
+
+  return new Uint8Array(bytes);
+
+}
