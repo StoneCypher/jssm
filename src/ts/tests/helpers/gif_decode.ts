@@ -60,3 +60,87 @@ export function lzw_decode(data: Uint8Array, min_code_size: number): Uint8Array 
   return new Uint8Array(out);
 
 }
+
+/** A decoded GIF: dimensions, loop count, and per-frame RGB pixels + delay. */
+export interface DecodedGif {
+  width  : number;
+  height : number;
+  loop   : number | null;
+  frames : Array<{ delay_cs: number; rgb: Uint8Array }>;
+}
+
+/**
+ *  Minimal GIF89a reader for round-trip testing: global color table, Netscape
+ *  loop extension, GCE delays, one image block per frame.  Written from the
+ *  spec, independent of the encoder under test.
+ *
+ *  @example
+ *  const gif = decode_gif(new Uint8Array([71, 73, 70, 56, 57, 97, ...]));  // "GIF89a" header
+ *  gif.width;  // number
+ */
+export function decode_gif(bytes: Uint8Array): DecodedGif {
+
+  const ascii = (from: number, len: number): string =>
+    String.fromCharCode(...bytes.slice(from, from + len));
+  if (ascii(0, 6) !== 'GIF89a') { throw new Error(`bad header: ${ascii(0, 6)}`); }
+
+  const u16 = (at: number): number => bytes[at]! | (bytes[at + 1]! << 8);
+  const width  = u16(6);
+  const height = u16(8);
+  const packed = bytes[10]!;
+  const gct_size = 2 << (packed & 0x07);
+  let pos = 13;
+  const gct = bytes.slice(pos, pos + gct_size * 3);
+  pos += gct_size * 3;
+
+  let loop: number | null = null;
+  let delay_cs = 0;
+  const frames: Array<{ delay_cs: number; rgb: Uint8Array }> = [];
+
+  while (pos < bytes.length) {
+    const block = bytes[pos]!;
+
+    if (block === 0x3B) { break; }                       // trailer
+
+    if (block === 0x21) {                                // extension
+      const label = bytes[pos + 1]!;
+      pos += 2;
+      if (label === 0xFF && ascii(pos + 1, 11) === 'NETSCAPE2.0') {
+        loop = u16(pos + 14);
+      }
+      if (label === 0xF9) { delay_cs = u16(pos + 2); }   // GCE: skip packed byte
+      while (bytes[pos]! !== 0) { pos += bytes[pos]! + 1; }   // skip sub-blocks
+      pos += 1;
+      continue;
+    }
+
+    if (block === 0x2C) {                                // image descriptor
+      const local_packed = bytes[pos + 9]!;
+      if ((local_packed & 0x80) !== 0) { throw new Error('local color tables unsupported'); }
+      pos += 10;
+      const min_code_size = bytes[pos]!;
+      pos += 1;
+      const data: number[] = [];
+      while (bytes[pos]! !== 0) {
+        const len = bytes[pos]!;
+        data.push(...bytes.slice(pos + 1, pos + 1 + len));
+        pos += len + 1;
+      }
+      pos += 1;
+      const indices = lzw_decode(new Uint8Array(data), min_code_size);
+      const rgb = new Uint8Array(indices.length * 3);
+      indices.forEach((idx, i) => {
+        rgb[i * 3]     = gct[idx * 3]!;
+        rgb[i * 3 + 1] = gct[idx * 3 + 1]!;
+        rgb[i * 3 + 2] = gct[idx * 3 + 2]!;
+      });
+      frames.push({ delay_cs, rgb });
+      continue;
+    }
+
+    throw new Error(`unknown block 0x${block.toString(16)} at ${pos}`);
+  }
+
+  return { width, height, loop, frames };
+
+}

@@ -210,3 +210,132 @@ export function lzw_encode(indices: Uint8Array, min_code_size: number): Uint8Arr
   return new Uint8Array(bytes);
 
 }
+
+/** One animation frame for {@link encode_gif}: straight RGBA8888 pixels. */
+export interface GifFrame { rgba: Uint8Array; width: number; height: number; }
+
+/** Options for {@link encode_gif}. */
+export interface GifOptions {
+  /** Per-frame delay in centiseconds (GIF's native unit).  Default 70 (~0.7s). */
+  delay_cs? : number;
+  /** Netscape loop count; 0 = loop forever (the default). */
+  loop?     : number;
+}
+
+/**
+ *  Encode RGBA frames as a looping animated GIF89a.  A single global color
+ *  table is quantized from the FIRST frame (≤256 colors, median-cut when
+ *  over); later frames map through the same palette nearest-first-frame.
+ *  Frames must share dimensions.  No transparency, full-frame disposal —
+ *  simple and correct first.
+ *
+ *  @param frames - At least one frame; all with identical width/height and
+ *  `rgba.length === 4 · width · height`.
+ *
+ *  @throws {JssmError} on zero frames, mismatched dimensions, or an rgba
+ *  buffer whose length contradicts its stated dimensions.
+ *
+ *  @example
+ *  const red = { rgba: new Uint8Array([255,0,0,255]), width: 1, height: 1 };
+ *  const gif = encode_gif([red], { delay_cs: 50 });
+ *  gif.slice(0, 6);  // "GIF89a" bytes
+ */
+export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Array {
+
+  if (frames.length === 0) {
+    throw new JssmError(undefined, 'encode_gif: at least one frame is required');
+  }
+  const { width, height } = frames[0]!;
+  for (const f of frames) {
+    if (f.width !== width || f.height !== height) {
+      throw new JssmError(undefined, `encode_gif: frame dimensions differ (${f.width}x${f.height} vs ${width}x${height})`);
+    }
+    if (f.rgba.length !== 4 * f.width * f.height) {
+      throw new JssmError(undefined, 'encode_gif: rgba length does not match stated dimensions');
+    }
+  }
+
+  const delay_cs = opts.delay_cs ?? 70;
+  const loop     = opts.loop     ?? 0;
+
+  // global palette from all frames combined; when few distinct colors exist, preserve all exactly
+  const combined = new Uint8Array(frames.reduce((sum, f) => sum + f.rgba.length, 0));
+  let pos = 0;
+  for (const f of frames) { combined.set(f.rgba, pos); pos += f.rgba.length; }
+  const first = quantize(combined, 256);
+  const gct_bits = Math.max(1, Math.ceil(Math.log2(Math.max(2, first.palette_count))));
+  const gct_size = 1 << gct_bits;
+  const min_code_size = Math.max(2, gct_bits);
+
+  /** Map any frame's pixels to nearest entries of the frame-0 palette. @internal */
+  const map_to_palette = (rgba: Uint8Array): Uint8Array => {
+    const n = rgba.length / 4;
+    const out = new Uint8Array(n);
+    const cache = new Map<number, number>();
+    for (let i = 0; i < n; ++i) {
+      const a = rgba[i * 4 + 3]! / 255;
+      const r = Math.round(rgba[i * 4]!     * a + 255 * (1 - a));
+      const g = Math.round(rgba[i * 4 + 1]! * a + 255 * (1 - a));
+      const b = Math.round(rgba[i * 4 + 2]! * a + 255 * (1 - a));
+      const key = (r << 16) | (g << 8) | b;
+      const hit = cache.get(key);
+      if (hit !== undefined) { out[i] = hit; continue; }
+      let best = 0, best_d = Infinity;
+      for (let p = 0; p < first.palette_count; ++p) {
+        const dr = r - first.palette[p * 3]!;
+        const dg = g - first.palette[p * 3 + 1]!;
+        const db = b - first.palette[p * 3 + 2]!;
+        const d  = dr * dr + dg * dg + db * db;
+        if (d < best_d) { best_d = d; best = p; }
+      }
+      cache.set(key, best);
+      out[i] = best;
+    }
+    return out;
+  };
+
+  const bytes: number[] = [];
+  const push_u16 = (v: number): void => { bytes.push(v & 0xff, (v >> 8) & 0xff); };
+
+  // header + logical screen descriptor
+  bytes.push(0x47, 0x49, 0x46, 0x38, 0x39, 0x61);            // "GIF89a"
+  push_u16(width); push_u16(height);
+  bytes.push(0x80 | 0x70 | (gct_bits - 1));                   // GCT present, color res 8-bit, size
+  bytes.push(0, 0);                                           // background index, aspect
+
+  // global color table, padded to 2^gct_bits entries
+  for (let p = 0; p < gct_size; ++p) {
+    if (p < first.palette_count) {
+      bytes.push(first.palette[p * 3]!, first.palette[p * 3 + 1]!, first.palette[p * 3 + 2]!);
+    } else {
+      bytes.push(0, 0, 0);
+    }
+  }
+
+  // Netscape looping extension
+  bytes.push(0x21, 0xFF, 0x0B);
+  bytes.push(...'NETSCAPE2.0'.split('').map(c => c.charCodeAt(0)));
+  bytes.push(0x03, 0x01); push_u16(loop); bytes.push(0x00);
+
+  for (let fi = 0; fi < frames.length; ++fi) {
+    // graphics control extension: disposal 1 (leave in place), no transparency
+    bytes.push(0x21, 0xF9, 0x04, 0x04); push_u16(delay_cs); bytes.push(0x00, 0x00);
+
+    // image descriptor: full frame, no local color table
+    bytes.push(0x2C); push_u16(0); push_u16(0); push_u16(width); push_u16(height); bytes.push(0x00);
+
+    const indices = fi === 0 ? first.indices : map_to_palette(frames[fi]!.rgba);
+    const packed  = lzw_encode(indices, min_code_size);
+
+    bytes.push(min_code_size);
+    for (let at = 0; at < packed.length; at += 255) {
+      const chunk = packed.slice(at, at + 255);
+      bytes.push(chunk.length, ...chunk);
+    }
+    bytes.push(0x00);                                         // block terminator
+  }
+
+  bytes.push(0x3B);                                           // trailer
+  return new Uint8Array(bytes);
+
+}
