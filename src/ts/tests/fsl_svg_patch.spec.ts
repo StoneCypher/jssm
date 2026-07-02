@@ -36,9 +36,9 @@ describe('extract_state_fills / patch_state_fill', () => {
   });
 
   it('unescapes ampersand and other XML entities in state names', async () => {
-    // Attempt real render with ampersand-bearing name (try order: double-quoted, single-quoted, plain).
-    // Graphviz parses &-bearing identifiers when double-quoted; renders them escaped in <text>.
-    let svg = await fsl_to_svg_string('"a&b" -> C;');
+    // Real render: FSL parses &-bearing names when double-quoted; graphviz
+    // renders them entity-escaped in <text>.
+    const svg = await fsl_to_svg_string('"a&b" -> C;');
     const fills = extract_state_fills(svg);
     // Should find the unescaped name 'a&b' (graphviz renders it as &amp; in text content)
     expect(fills.has('a&b')).toBe(true);
