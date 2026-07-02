@@ -1866,15 +1866,26 @@ class Machine {
      *
      *  @param start - State to begin the walk from.
      *  @param max_steps - Maximum transitions before the walk is step-capped.
+     *  @param exit_memo - Per-run-set cache of {@link Machine.probable_exits_for}
+     *    results.  The graph is immutable after construction, so a state's
+     *    probable exits never change; sharing one memo across a generator's
+     *    runs collapses runs×steps re-derivations (two array allocations and an
+     *    exit rescan per step) to one per distinct state.  The memo only reuses
+     *    the derived arrays — RNG draw order is untouched, so seeded walks
+     *    reproduce exactly.
      *  @returns The {@link JssmStochasticRun} for this walk.
      */
-    _stochastic_one_walk(start, max_steps) {
+    _stochastic_one_walk(start, max_steps, exit_memo) {
         const states = [start];
         const edges = [];
         let cur = start;
         let terminated = false;
         for (let step = 0; step < max_steps; step++) {
-            const exits = this.probable_exits_for(cur);
+            let exits = exit_memo.get(cur);
+            if (exits === undefined) {
+                exits = this.probable_exits_for(cur);
+                exit_memo.set(cur, exits);
+            }
             if (exits.length === 0) {
                 terminated = true;
                 break;
@@ -1916,8 +1927,10 @@ class Machine {
             ? 1
             : ((_e = (_c = opts.runs) !== null && _c !== void 0 ? _c : (_d = this.editor_config()) === null || _d === void 0 ? void 0 : _d.stochastic_run_count) !== null && _e !== void 0 ? _e : STOCHASTIC_DEFAULT_RUNS);
         const start = this.state();
+        // one probable-exits memo for the whole run set; see _stochastic_one_walk
+        const exit_memo = new Map();
         for (let i = 0; i < runs; i++) {
-            yield this._stochastic_one_walk(start, max_steps);
+            yield this._stochastic_one_walk(start, max_steps, exit_memo);
         }
     }
     /** Run many weighted-random walks and return aggregate statistics.
