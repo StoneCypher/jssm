@@ -443,8 +443,11 @@ function find_connected_components<mDT>(
     const queue     : Array<StateType> = [start];
     visited.add(start);
 
-    while (queue.length > 0) {
-      const node      = queue.shift()!;
+    // index-pointer pop: Array.shift is O(n) per pop, making the BFS O(V²)
+    // worst case; reading by cursor keeps it O(V + E)
+    let head = 0;
+    while (head < queue.length) {
+      const node      = queue[head++];
       component.push(node);
       for (const neighbor of adj.get(node)!) {
         if (!visited.has(neighbor)) {
@@ -990,6 +993,10 @@ class Machine<mDT> {
     // scan (which made construction O(V*E) on dense graphs).  #673
     const seen_edges: Map<StateType, Map<StateType, Set<string>>> = new Map();
 
+    // complete.includes was an O(|complete|) array scan per newly-created
+    // state — O(V·C) overall; one Set turns it into O(V)
+    const complete_set: Set<StateType> = new Set(complete);
+
     // walk the transitions.  single-lookup cursor fetches: each endpoint was
     // previously a get followed by a has on the same key (four hashes per
     // edge); the undefined check on the get's result carries the same
@@ -1002,13 +1009,13 @@ class Machine<mDT> {
       // get the cursors.  what a mess
       let cursor_from: JssmGenericState | undefined = this._states.get(tr.from);
       if (cursor_from === undefined) {
-        cursor_from = { name: tr.from, from: [], to: [], complete: complete.includes(tr.from) };
+        cursor_from = { name: tr.from, from: [], to: [], complete: complete_set.has(tr.from) };
         this._new_state(cursor_from);
       }
 
       let cursor_to: JssmGenericState | undefined = this._states.get(tr.to);
       if (cursor_to === undefined) {
-        cursor_to = { name: tr.to, from: [], to: [], complete: complete.includes(tr.to) };
+        cursor_to = { name: tr.to, from: [], to: [], complete: complete_set.has(tr.to) };
         this._new_state(cursor_to);
       }
 
