@@ -87,6 +87,10 @@ const FEATURES = {
   min_viz_es6:  { script: 'min_viz_es6',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_viz_cjs:  { script: 'min_viz_cjs',  stages: [5], optional: true, defaultEnabled: true, requires: ['make_viz'] },
   min_cli:      { script: 'min_cli',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_cli'] },
+  // in-place like min_cli (no nonmin intermediate); --module because the cdn
+  // bundles are ESM.  terser's default comment filter keeps the lit @license
+  // blocks the bundles carry.
+  min_cdn:      { script: 'min_cdn',      stages: [5], optional: true, defaultEnabled: true, requires: ['make_wc_viz_cdn', 'make_wc_instance_cdn'] },
 
   // --- Stage 6: cleanup of minify's intermediate nonmin artifact ---
   rm_nonmin: { script: 'rm_nonmin', stages: [6], optional: true, defaultEnabled: true, requires: ['minify'] },
