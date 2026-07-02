@@ -75,8 +75,8 @@ export interface DecodedGif {
  *  spec, independent of the encoder under test.
  *
  *  @example
- *  const gif = decode_gif(new Uint8Array([71, 73, 70, 56, 57, 97, ...]));  // "GIF89a" header
- *  gif.width;  // number
+ *  const gif = decode_gif(encode_gif([{ rgba: new Uint8Array([255,0,0,255]), width: 1, height: 1 }]));
+ *  gif.frames.length;  // 1
  */
 export function decode_gif(bytes: Uint8Array): DecodedGif {
 
@@ -115,6 +115,8 @@ export function decode_gif(bytes: Uint8Array): DecodedGif {
     }
 
     if (block === 0x2C) {                                // image descriptor
+      const fw = u16(pos + 5);                           // frame width
+      const fh = u16(pos + 7);                           // frame height
       const local_packed = bytes[pos + 9]!;
       if ((local_packed & 0x80) !== 0) { throw new Error('local color tables unsupported'); }
       pos += 10;
@@ -128,6 +130,9 @@ export function decode_gif(bytes: Uint8Array): DecodedGif {
       }
       pos += 1;
       const indices = lzw_decode(new Uint8Array(data), min_code_size);
+      if (indices.length !== fw * fh) {
+        throw new Error(`frame ${frames.length}: expected ${fw * fh} pixels, got ${indices.length}`);
+      }
       const rgb = new Uint8Array(indices.length * 3);
       indices.forEach((idx, i) => {
         rgb[i * 3]     = gct[idx * 3]!;

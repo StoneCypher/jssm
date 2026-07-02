@@ -1,5 +1,14 @@
 import { JssmError } from './jssm_error.js';
 
+/** Composite one RGBA pixel over white and pack as 0xRRGGBB. @internal */
+function packed_over_white(rgba: Uint8Array, pixel: number): number {
+  const a = rgba[pixel * 4 + 3]! / 255;
+  const r = Math.round(rgba[pixel * 4]!     * a + 255 * (1 - a));
+  const g = Math.round(rgba[pixel * 4 + 1]! * a + 255 * (1 - a));
+  const b = Math.round(rgba[pixel * 4 + 2]! * a + 255 * (1 - a));
+  return (r << 16) | (g << 8) | b;
+}
+
 /** Result of {@link quantize}: an RGB palette plus one palette index per input pixel. */
 export interface Quantized {
   /** RGB triples, `3 · palette_count` bytes. */
@@ -39,11 +48,7 @@ export function quantize(rgba: Uint8Array, max_colors: number = 256): Quantized 
   const packed = new Uint32Array(pixel_count);
   const histogram = new Map<number, number>();
   for (let i = 0; i < pixel_count; ++i) {
-    const a = rgba[i * 4 + 3]! / 255;
-    const r = Math.round(rgba[i * 4]!     * a + 255 * (1 - a));
-    const g = Math.round(rgba[i * 4 + 1]! * a + 255 * (1 - a));
-    const b = Math.round(rgba[i * 4 + 2]! * a + 255 * (1 - a));
-    const key = (r << 16) | (g << 8) | b;
+    const key = packed_over_white(rgba, i);
     packed[i] = key;
     histogram.set(key, (histogram.get(key) ?? 0) + 1);
   }
@@ -274,13 +279,12 @@ export function encode_gif(frames: GifFrame[], opts: GifOptions = {}): Uint8Arra
     const out = new Uint8Array(n);
     const cache = new Map<number, number>();
     for (let i = 0; i < n; ++i) {
-      const a = rgba[i * 4 + 3]! / 255;
-      const r = Math.round(rgba[i * 4]!     * a + 255 * (1 - a));
-      const g = Math.round(rgba[i * 4 + 1]! * a + 255 * (1 - a));
-      const b = Math.round(rgba[i * 4 + 2]! * a + 255 * (1 - a));
-      const key = (r << 16) | (g << 8) | b;
+      const key = packed_over_white(rgba, i);
       const hit = cache.get(key);
       if (hit !== undefined) { out[i] = hit; continue; }
+      const r = (key >> 16) & 0xff;
+      const g = (key >> 8)  & 0xff;
+      const b = key         & 0xff;
       let best = 0, best_d = Infinity;
       for (let p = 0; p < quantized.palette_count; ++p) {
         const dr = r - quantized.palette[p * 3]!;

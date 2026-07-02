@@ -49,7 +49,7 @@ describe('encode_gif', () => {
       });
       const decoded = decode_gif(encode_gif(frames));
       expect(decoded.frames.length, `trial ${trial}`).toBe(frame_count);
-      // frame 0's colors seeded the global palette, so frame 0 is exact
+      // all colors fit one ≤256 union palette, so every frame decodes exactly
       const f0 = frames[0]!.rgba;
       decoded.frames[0]!.rgb.forEach((v, i) => {
         const rgba_i = Math.floor(i / 3) * 4 + (i % 3);
@@ -109,7 +109,15 @@ describe('encode_gif', () => {
     const gif = encode_gif([frame0, frame1]);
     const decoded = decode_gif(gif);
     expect(decoded.frames.length).toBe(2);
-    expect(decoded.frames[0]!.rgb.length).toBeGreaterThan(0);
+    // all colors fit one ≤256 union palette, so every frame decodes exactly
+    decoded.frames[0]!.rgb.forEach((v, i) => {
+      const rgba_i = Math.floor(i / 3) * 4 + (i % 3);
+      expect(v).toBe(buf[rgba_i]!);
+    });
+    decoded.frames[1]!.rgb.forEach((v, i) => {
+      const rgba_i = Math.floor(i / 3) * 4 + (i % 3);
+      expect(v).toBe(buf2[rgba_i]!);
+    });
   });
 
   it('encodes exactly width*height pixels in every frame image block', () => {
