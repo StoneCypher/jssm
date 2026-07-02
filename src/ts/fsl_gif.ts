@@ -191,7 +191,9 @@ export function lzw_encode(indices: Uint8Array, min_code_size: number): Uint8Arr
     if (next_code < 4096) {
       dict.set(key, next_code);
       next_code += 1;
-      if (next_code - 1 === (1 << code_size) && code_size < 12) { code_size += 1; }
+      // the 12-bit ceiling is enforced by the `next_code < 4096` gate above:
+      // when the equality holds, 1 << code_size ≤ 4095, so code_size ≤ 11 here
+      if (next_code - 1 === (1 << code_size)) { code_size += 1; }
     } else {
       emit(clear);
       dict = new Map<number, number>();

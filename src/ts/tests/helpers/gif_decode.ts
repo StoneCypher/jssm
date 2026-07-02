@@ -1,6 +1,13 @@
 /**
  *  Minimal GIF-variant LZW decoder for round-trip testing.  Written from the
- *  GIF89a specification, intentionally independent of the encoder under test.
+ *  GIF89a specification, intentionally independent of the encoder under test
+ *  so encode→decode equality is real verification.
+ *
+ *  @param data - Raw LZW bytes as produced by the encoder (no GIF sub-blocking).
+ *  @param min_code_size - The palette bit width the stream was encoded with (2..8).
+ *
+ *  @example
+ *  lzw_decode(lzw_encode(new Uint8Array([0, 1, 0]), 2), 2);  // Uint8Array [0, 1, 0]
  */
 export function lzw_decode(data: Uint8Array, min_code_size: number): Uint8Array {
 
