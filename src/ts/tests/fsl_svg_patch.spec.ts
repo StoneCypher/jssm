@@ -28,6 +28,20 @@ describe('extract_state_fills / patch_state_fill', () => {
     expect(extract_state_fills(patched).get('a<b')).toBe('#123456');
   });
 
+  // Regression: jssm lowercases dot node ids and disambiguates collisions with
+  // -2 suffixes, so 'AA -> aa;' renders <title>aa</title> and <title>aa-2</title>.
+  // Titles therefore CANNOT recover state names — keying must come from <text>
+  // label content. Do not "simplify" extraction back to titles.
+  it('distinguishes states whose names collide under lowercasing (title keying would fail)', async () => {
+    const svg   = await fsl_to_svg_string('AA -> aa;');
+    const fills = extract_state_fills(svg);
+    expect([...fills.keys()].sort()).toEqual(['AA', 'aa']);
+    const patched = patch_state_fill(svg, 'AA', '#00ff00');
+    const after   = extract_state_fills(patched);
+    expect(after.get('AA')).toBe('#00ff00');
+    expect(after.get('aa')).toBe(fills.get('aa'));
+  });
+
   it('returns the svg unchanged when the state does not exist', async () => {
     const svg = await fsl_to_svg_string('A -> B;');
     expect(patch_state_fill(svg, 'Nope', '#fff')).toBe(svg);
